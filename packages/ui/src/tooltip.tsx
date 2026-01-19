@@ -31,6 +31,8 @@ export interface TooltipProps {
   dateLabels?: string[];
   /** Custom class name */
   className?: string;
+  /** Optional marker content to append below rows */
+  markerContent?: React.ReactNode;
 }
 
 // Tailwind h-6 = 24px - height of each item in the carousel
@@ -95,6 +97,7 @@ export function ChartTooltip({
   currentIndex = 0,
   dateLabels = [],
   className = "",
+  markerContent,
 }: TooltipProps) {
   // Animated X position
   const animatedX = useSpring(x, springConfig);
@@ -151,6 +154,8 @@ export function ChartTooltip({
               </div>
             ))}
           </div>
+          {/* Marker content appended below data rows */}
+          {markerContent}
         </div>
       </motion.div>
 

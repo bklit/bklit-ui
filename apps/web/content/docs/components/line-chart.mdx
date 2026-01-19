@@ -33,10 +33,11 @@ export default function Dashboard() {
 
 ## Props
 
-| Prop                | Type      | Default | Description                        |
-| ------------------- | --------- | ------- | ---------------------------------- |
-| `animationDuration` | `number`  | `1500`  | Animation duration in milliseconds |
-| `showGrid`          | `boolean` | `false` | Show horizontal grid lines         |
+| Prop                | Type            | Default | Description                        |
+| ------------------- | --------------- | ------- | ---------------------------------- |
+| `animationDuration` | `number`        | `1500`  | Animation duration in milliseconds |
+| `showGrid`          | `boolean`       | `true`  | Show horizontal grid lines         |
+| `markers`           | `ChartMarker[]` | `[]`    | Markers to display on the chart    |
 
 ### With Grid
 
@@ -49,6 +50,59 @@ export default function Dashboard() {
 ```tsx
 <CurvedLineChart animationDuration={2000} />
 ```
+
+## Markers
+
+Markers allow you to annotate specific dates on the chart. They appear at the top of the chart area and integrate with the tooltip when hovering.
+
+### Marker Interface
+
+```ts
+interface ChartMarker {
+  date: Date; // Date for marker position
+  icon: React.ReactNode; // Icon (emoji or component)
+  title: string; // Tooltip title
+  description?: string; // Optional description
+  content?: React.ReactNode; // Custom tooltip content
+  color?: string; // Optional background color
+}
+```
+
+### Example with Markers
+
+```tsx
+import CurvedLineChart, { type ChartMarker } from "@repo/ui/line-chart";
+
+const markers: ChartMarker[] = [
+  {
+    date: new Date("2025-01-05"),
+    icon: "🚀",
+    title: "v1.2.0 Released",
+    description: "New chart animations",
+  },
+  {
+    date: new Date("2025-01-05"), // Same day - will stack!
+    icon: "🐛",
+    title: "Bug Fix",
+    description: "Fixed tooltip positioning",
+  },
+  {
+    date: new Date("2025-01-12"),
+    icon: "✨",
+    title: "Feature Launch",
+  },
+];
+
+<CurvedLineChart markers={markers} />;
+```
+
+### Stacking Behavior
+
+When multiple markers share the same date:
+
+- They stack vertically with a count badge
+- Hovering fans them out in a smooth arc animation
+- All marker details appear in the tooltip
 
 ## Data Structure
 

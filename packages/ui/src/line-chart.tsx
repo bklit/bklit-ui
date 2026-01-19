@@ -16,6 +16,11 @@ import {
   type TooltipRow,
 } from "./tooltip";
 import { ChartGrid } from "./chart-grid";
+import {
+  MarkerGroup,
+  MarkerTooltipContent,
+  type ChartMarker,
+} from "./chart-marker";
 
 interface DataPoint {
   date: Date;
@@ -71,6 +76,8 @@ interface ChartProps {
   animationDuration?: number;
   /** Show grid lines. Default: false */
   showGrid?: boolean;
+  /** Markers to display on the chart */
+  markers?: ChartMarker[];
 }
 
 function Chart({
@@ -79,6 +86,7 @@ function Chart({
   data,
   animationDuration = 1100,
   showGrid = false,
+  markers = [],
 }: ChartProps) {
   // Theme colors come from CSS variables
 
@@ -89,6 +97,24 @@ function Chart({
     yUsers: number;
     yPageviews: number;
   } | null>(null);
+
+  // Group markers by date (normalized to midnight)
+  const markersByDate = useMemo(() => {
+    const grouped = new Map<string, ChartMarker[]>();
+    markers.forEach((marker) => {
+      const dateKey = marker.date.toDateString();
+      const existing = grouped.get(dateKey) || [];
+      grouped.set(dateKey, [...existing, marker]);
+    });
+    return grouped;
+  }, [markers]);
+
+  // Get markers for the currently hovered date
+  const activeMarkers = useMemo(() => {
+    if (!tooltipData) return [];
+    const dateKey = tooltipData.point.date.toDateString();
+    return markersByDate.get(dateKey) || [];
+  }, [tooltipData, markersByDate]);
 
   // Path refs for measuring and dash calculations
   const usersPathRef = useRef<SVGPathElement>(null);
@@ -519,6 +545,27 @@ function Chart({
             strokeColor={cssVars.background}
           />
 
+          {/* Markers at top of chart */}
+          {Array.from(markersByDate.entries()).map(([dateKey, dateMarkers]) => {
+            // Find the x position for this date
+            const markerDate = dateMarkers[0]?.date;
+            if (!markerDate) return null;
+            const markerX = xScale(markerDate) ?? 0;
+            // Check if this date is currently hovered
+            const isActive = tooltipData?.point.date.toDateString() === dateKey;
+
+            return (
+              <MarkerGroup
+                key={dateKey}
+                x={markerX}
+                y={-8} // Position above chart area
+                markers={dateMarkers}
+                isActive={isActive}
+                size={24}
+              />
+            );
+          })}
+
           {/* Invisible overlay for mouse events - only active after animation completes */}
           <rect
             x={0}
@@ -546,6 +593,11 @@ function Chart({
         containerWidth={width}
         currentIndex={tooltipData?.index ?? 0}
         dateLabels={dateLabels}
+        markerContent={
+          activeMarkers.length > 0 ? (
+            <MarkerTooltipContent markers={activeMarkers} />
+          ) : undefined
+        }
       />
     </div>
   );
@@ -564,15 +616,49 @@ export interface CurvedLineChartProps {
   animationDuration?: number;
   /** Show grid lines. Default: false */
   showGrid?: boolean;
+  /** Markers to display on the chart */
+  markers?: ChartMarker[];
 }
+
+// Re-export ChartMarker type for consumers
+export type { ChartMarker };
 
 export default function CurvedLineChart({
   animationDuration: initialDuration = 1500,
   showGrid = true,
+  markers: propMarkers,
 }: CurvedLineChartProps = {}) {
   const data = useMemo(() => generateData(), []);
   const [animationDuration, setAnimationDuration] = useState(initialDuration);
   const [chartKey, setChartKey] = useState(0);
+
+  // Demo markers - use prop markers or generate sample ones
+  const markers = useMemo(() => {
+    if (propMarkers) return propMarkers;
+    // Generate sample markers for demo
+    const now = new Date();
+    const sampleMarkers: ChartMarker[] = [
+      {
+        date: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000), // 5 days ago
+        icon: "🚀",
+        title: "v1.2.0 Released",
+        description: "New chart animations",
+      },
+      {
+        date: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000), // Same day - will stack
+        icon: "🐛",
+        title: "Bug Fix",
+        description: "Fixed tooltip positioning",
+      },
+      {
+        date: new Date(now.getTime() - 12 * 24 * 60 * 60 * 1000), // 12 days ago
+        icon: "✨",
+        title: "Feature Launch",
+        description: "Added grid support",
+      },
+    ];
+    return sampleMarkers;
+  }, [propMarkers]);
 
   const handleReplay = () => {
     setChartKey((prev) => prev + 1);
@@ -598,6 +684,7 @@ export default function CurvedLineChart({
                 data={data}
                 animationDuration={animationDuration}
                 showGrid={showGrid}
+                markers={markers}
               />
             )}
           </ParentSize>
