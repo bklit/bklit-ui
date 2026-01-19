@@ -119,6 +119,9 @@ importers:
       '@visx/gradient':
         specifier: 3.12.0
         version: 3.12.0(react@19.2.0)
+      '@visx/grid':
+        specifier: 3.12.0
+        version: 3.12.0(react@19.2.0)
       '@visx/responsive':
         specifier: 3.12.0
         version: 3.12.0(react@19.2.0)
@@ -1265,6 +1268,11 @@ packages:
 
   '@visx/gradient@3.12.0':
     resolution: {integrity: sha512-QRatjjdUEPbcp4pqRca1JlChpAnmmIAO3r3ZscLK7D1xEIANlIjzjl3uNgrmseYmBAYyPCcJH8Zru07R97ovOg==}
+    peerDependencies:
+      react: ^16.0.0-0 || ^17.0.0-0 || ^18.0.0-0
+
+  '@visx/grid@3.12.0':
+    resolution: {integrity: sha512-L4ex2ooSYhwNIxJ3XFIKRhoSvEGjPc2Y3YCrtNB4TV5Ofdj4q0UMOsxfrH23Pr8HSHuQhb6VGMgYoK0LuWqDmQ==}
     peerDependencies:
       react: ^16.0.0-0 || ^17.0.0-0 || ^18.0.0-0
 
@@ -4066,6 +4074,18 @@ snapshots:
   '@visx/gradient@3.12.0(react@19.2.0)':
     dependencies:
       '@types/react': 19.2.2
+      prop-types: 15.8.1
+      react: 19.2.0
+
+  '@visx/grid@3.12.0(react@19.2.0)':
+    dependencies:
+      '@types/react': 19.2.2
+      '@visx/curve': 3.12.0
+      '@visx/group': 3.12.0(react@19.2.0)
+      '@visx/point': 3.12.0
+      '@visx/scale': 3.12.0
+      '@visx/shape': 3.12.0(react@19.2.0)
+      classnames: 2.5.1
       prop-types: 15.8.1
       react: 19.2.0
 

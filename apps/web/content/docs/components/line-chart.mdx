@@ -31,10 +31,55 @@ export default function Dashboard() {
 }
 ```
 
+## Props
+
+| Prop                | Type      | Default | Description                        |
+| ------------------- | --------- | ------- | ---------------------------------- |
+| `animationDuration` | `number`  | `1500`  | Animation duration in milliseconds |
+| `showGrid`          | `boolean` | `false` | Show horizontal grid lines         |
+
+### With Grid
+
+```tsx
+<CurvedLineChart showGrid />
+```
+
+### Custom Animation Duration
+
+```tsx
+<CurvedLineChart animationDuration={2000} />
+```
+
+## Data Structure
+
+The chart expects an array of `DataPoint` objects:
+
+```ts
+interface DataPoint {
+  date: Date;
+  uniqueUsers: number;
+  pageviews: number;
+}
+```
+
+### Example Data
+
+```ts
+const data: DataPoint[] = [
+  { date: new Date("2025-01-01"), uniqueUsers: 1200, pageviews: 4500 },
+  { date: new Date("2025-01-02"), uniqueUsers: 1350, pageviews: 4800 },
+  { date: new Date("2025-01-03"), uniqueUsers: 1100, pageviews: 4200 },
+  { date: new Date("2025-01-04"), uniqueUsers: 1450, pageviews: 5100 },
+  { date: new Date("2025-01-05"), uniqueUsers: 1380, pageviews: 4900 },
+  { date: new Date("2025-01-06"), uniqueUsers: 1520, pageviews: 5400 },
+  { date: new Date("2025-01-07"), uniqueUsers: 1600, pageviews: 5800 },
+];
+```
+
 ## Dependencies
 
 This component requires the following packages:
 
 ```bash
-pnpm add @visx/shape @visx/curve @visx/scale @visx/gradient @visx/responsive @visx/event d3-array
+pnpm add @visx/shape @visx/curve @visx/scale @visx/gradient @visx/responsive @visx/event @visx/grid d3-array
 ```

@@ -15,6 +15,7 @@ import {
   TooltipIndicator,
   type TooltipRow,
 } from "./tooltip";
+import { ChartGrid } from "./chart-grid";
 
 interface DataPoint {
   date: Date;
@@ -60,6 +61,7 @@ const cssVars = {
   linePrimary: "var(--chart-line-primary)",
   lineSecondary: "var(--chart-line-secondary)",
   crosshair: "var(--chart-crosshair)",
+  grid: "var(--chart-grid)",
 };
 
 interface ChartProps {
@@ -67,9 +69,17 @@ interface ChartProps {
   height: number;
   data: DataPoint[];
   animationDuration?: number;
+  /** Show grid lines. Default: false */
+  showGrid?: boolean;
 }
 
-function Chart({ width, height, data, animationDuration = 1100 }: ChartProps) {
+function Chart({
+  width,
+  height,
+  data,
+  animationDuration = 1100,
+  showGrid = false,
+}: ChartProps) {
   // Theme colors come from CSS variables
 
   const [tooltipData, setTooltipData] = useState<{
@@ -402,6 +412,19 @@ function Chart({ width, height, data, animationDuration = 1100 }: ChartProps) {
         <rect x={0} y={0} width={width} height={height} fill="transparent" />
 
         <g transform={`translate(${margin.left},${margin.top})`}>
+          {/* Optional grid */}
+          {showGrid && (
+            <ChartGrid
+              width={innerWidth}
+              height={innerHeight}
+              xScale={xScale}
+              yScale={yScaleUsers}
+              showRows
+              showColumns={false}
+              stroke={cssVars.grid}
+            />
+          )}
+
           {/* Lines group with clip path for grow animation */}
           <g clipPath="url(#grow-clip)">
             {/* Pageviews base line */}
@@ -539,10 +562,13 @@ function getTooltipRows(point: DataPoint): TooltipRow[] {
 export interface CurvedLineChartProps {
   /** Animation duration in milliseconds. Default: 1500 */
   animationDuration?: number;
+  /** Show grid lines. Default: false */
+  showGrid?: boolean;
 }
 
 export default function CurvedLineChart({
   animationDuration: initialDuration = 1500,
+  showGrid = true,
 }: CurvedLineChartProps = {}) {
   const data = useMemo(() => generateData(), []);
   const [animationDuration, setAnimationDuration] = useState(initialDuration);
@@ -571,6 +597,7 @@ export default function CurvedLineChart({
                 height={height}
                 data={data}
                 animationDuration={animationDuration}
+                showGrid={showGrid}
               />
             )}
           </ParentSize>

@@ -7,6 +7,7 @@
     "./button": "./src/button.tsx",
     "./card": "./src/card.tsx",
     "./code": "./src/code.tsx",
+    "./chart-grid": "./src/chart-grid.tsx",
     "./line-chart": "./src/line-chart.tsx",
     "./tooltip": "./src/tooltip.tsx",
     "./*": "./src/*.tsx"
@@ -33,6 +34,7 @@
     "@visx/curve": "3.12.0",
     "@visx/event": "3.12.0",
     "@visx/gradient": "3.12.0",
+    "@visx/grid": "3.12.0",
     "@visx/responsive": "3.12.0",
     "@visx/scale": "3.12.0",
     "@visx/shape": "3.12.0",
