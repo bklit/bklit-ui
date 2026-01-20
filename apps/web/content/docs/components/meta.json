@@ -1,4 +1,4 @@
 {
   "title": "Components",
-  "pages": ["button", "card", "code", "line-chart"]
+  "pages": ["line-chart"]
 }

@@ -1,4 +1,4 @@
-import type { BaseLayoutProps } from 'fumadocs-ui/layouts/shared';
+import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared";
 
 export const baseOptions: BaseLayoutProps = {
   nav: {
@@ -10,16 +10,15 @@ export const baseOptions: BaseLayoutProps = {
   },
   links: [
     {
-      text: 'Documentation',
-      url: '/docs',
-      active: 'nested-url',
+      text: "Get Started",
+      url: "/docs",
+      active: "nested-url",
     },
     {
-      text: 'Components',
-      url: '/docs/components',
-      active: 'nested-url',
+      text: "Components",
+      url: "/docs/components",
+      active: "nested-url",
     },
   ],
-  githubUrl: 'https://github.com/yourusername/bklit-ui',
+  githubUrl: "https://github.com/yourusername/bklit-ui",
 };
-
