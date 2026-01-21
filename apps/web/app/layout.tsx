@@ -1,9 +1,9 @@
 import { GithubStatsProvider } from "@/components/providers/github-stats-provider";
 import "./globals.css";
+import { RootProvider } from "fumadocs-ui/provider";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import type { ReactNode } from "react";
-import { ThemeProvider } from "@/components/theme-provider";
 
 const geist = Geist({
   subsets: ["latin"],
@@ -32,14 +32,16 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     >
       <body className="flex min-h-screen flex-col">
         <GithubStatsProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            disableTransitionOnChange
-            enableSystem
+          <RootProvider
+            theme={{
+              attribute: "class",
+              defaultTheme: "system",
+              disableTransitionOnChange: true,
+              enableSystem: true,
+            }}
           >
             {children}
-          </ThemeProvider>
+          </RootProvider>
         </GithubStatsProvider>
       </body>
     </html>
