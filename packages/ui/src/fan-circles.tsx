@@ -24,7 +24,9 @@ export function FanCircles() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-background">
+    <div className="flex min-h-screen items-center justify-center bg-background">
+      {/* biome-ignore lint/a11y/noStaticElementInteractions: Animation hover target */}
+      {/* biome-ignore lint/a11y/noNoninteractiveElementInteractions: Animation hover target */}
       <div
         className="relative"
         onMouseEnter={() => setIsHovered(true)}
@@ -33,6 +35,7 @@ export function FanCircles() {
         {/* Fanned circles */}
         {Array.from({ length: CIRCLE_COUNT }).map((_, index) => {
           const position = getCirclePosition(index);
+          const hue = index * (360 / CIRCLE_COUNT);
           return (
             <motion.div
               animate={{
@@ -41,11 +44,11 @@ export function FanCircles() {
                 scale: isHovered ? 1 : 0,
                 opacity: isHovered ? 1 : 0,
               }}
-              className="absolute top-1/2 left-1/2 w-8 h-8 rounded-full"
+              className="absolute top-1/2 left-1/2 h-8 w-8 rounded-full"
               initial={{ x: 0, y: 0, scale: 0, opacity: 0 }}
-              key={index}
+              key={`circle-hue-${hue}`}
               style={{
-                backgroundColor: `hsl(${index * (360 / CIRCLE_COUNT)}, 70%, 60%)`,
+                backgroundColor: `hsl(${hue}, 70%, 60%)`,
                 marginLeft: -16,
                 marginTop: -16,
               }}
@@ -61,7 +64,7 @@ export function FanCircles() {
 
         {/* Main target circle */}
         <motion.div
-          className="relative z-10 w-8 h-8 rounded-full bg-foreground cursor-pointer"
+          className="relative z-10 h-8 w-8 cursor-pointer rounded-full bg-foreground"
           transition={{ type: "spring", stiffness: 400, damping: 17 }}
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.95 }}

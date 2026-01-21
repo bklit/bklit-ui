@@ -22,7 +22,7 @@ export function TableOfContents({ items }: TableOfContentsProps) {
   return (
     <aside className="fixed top-14 right-0 hidden h-[calc(100vh-3.5rem)] w-56 overflow-hidden py-6 pr-4 xl:block">
       <div className="flex h-full flex-col">
-        <p className="mb-3 pl-2 text-sm font-semibold text-foreground">
+        <p className="mb-3 pl-2 font-semibold text-foreground text-sm">
           On this page
         </p>
         <AnchorProvider toc={items}>
@@ -35,7 +35,7 @@ export function TableOfContents({ items }: TableOfContentsProps) {
                     style={{ paddingLeft: `${(item.depth - 2) * 12}px` }}
                   >
                     <TOCItem
-                      className="block border-l-2 border-transparent px-2 py-1.5 text-[13px] text-muted-foreground no-underline transition-colors hover:text-foreground data-[active=true]:border-primary data-[active=true]:text-primary"
+                      className="block border-transparent border-l-2 px-2 py-1.5 text-[13px] text-muted-foreground no-underline transition-colors hover:text-foreground data-[active=true]:border-primary data-[active=true]:text-primary"
                       href={item.url}
                     >
                       {item.title}

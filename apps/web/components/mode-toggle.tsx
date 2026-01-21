@@ -4,7 +4,7 @@ import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 
 export function ModeToggle() {
-  const { theme, setTheme, resolvedTheme } = useTheme();
+  const { setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -16,6 +16,7 @@ export function ModeToggle() {
       <button
         aria-label="Toggle theme"
         className="flex size-9 items-center justify-center rounded-lg text-muted-foreground"
+        type="button"
       >
         <div className="size-5" />
       </button>
@@ -29,9 +30,11 @@ export function ModeToggle() {
       aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
       className="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
       onClick={() => setTheme(isDark ? "light" : "dark")}
+      type="button"
     >
       {isDark ? (
         <svg
+          aria-hidden="true"
           className="size-5"
           fill="none"
           stroke="currentColor"
@@ -52,6 +55,7 @@ export function ModeToggle() {
         </svg>
       ) : (
         <svg
+          aria-hidden="true"
           className="size-5"
           fill="none"
           stroke="currentColor"

@@ -30,11 +30,11 @@ export function SiteHeader({ title, links = [], githubUrl }: SiteHeaderProps) {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 h-14 border-b border-border bg-background/80 backdrop-blur-xl">
+    <header className="fixed top-0 right-0 left-0 z-50 h-14 border-border border-b bg-background/80 backdrop-blur-xl">
       <div className="mx-auto flex h-full max-w-7xl items-center gap-6 px-6">
         {/* Logo / Title */}
         <Link
-          className="text-lg font-semibold text-foreground no-underline transition-opacity hover:opacity-80"
+          className="font-semibold text-foreground text-lg no-underline transition-opacity hover:opacity-80"
           href="/"
         >
           {title}
@@ -44,7 +44,7 @@ export function SiteHeader({ title, links = [], githubUrl }: SiteHeaderProps) {
         <nav className="ml-auto flex items-center gap-1">
           {links.map((link) => (
             <Link
-              className={`rounded-lg px-3 py-2 text-sm font-medium no-underline transition-colors ${
+              className={`rounded-lg px-3 py-2 font-medium text-sm no-underline transition-colors ${
                 isActive(link)
                   ? "text-foreground"
                   : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
@@ -59,17 +59,13 @@ export function SiteHeader({ title, links = [], githubUrl }: SiteHeaderProps) {
 
         {/* Right side actions */}
         <div className="flex items-center gap-2">
-        {githubUrl && (
-          <Button size="sm" variant="ghost">
-          <Link
-              aria-label="GitHub"
-              external
-              href={githubUrl}
-            >
-              <GitHubIcon />
-            <GithubStarCount />
+          {githubUrl && (
+            <Link aria-label="GitHub" external href={githubUrl}>
+              <Button size="sm" variant="ghost">
+                <GitHubIcon />
+                <GithubStarCount />
+              </Button>
             </Link>
-          </Button>
           )}
           <ModeToggle />
         </div>

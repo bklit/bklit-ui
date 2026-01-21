@@ -60,11 +60,13 @@ function DateTicker({
     y.set(-currentIndex * TICKER_ITEM_HEIGHT);
   }, [currentIndex, y]);
 
-  if (!visible || labels.length === 0) return null;
+  if (!visible || labels.length === 0) {
+    return null;
+  }
 
   return (
     <motion.div
-      className="bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded-full shadow-lg overflow-hidden px-4 py-1"
+      className="overflow-hidden rounded-full bg-zinc-900 px-4 py-1 text-white shadow-lg dark:bg-zinc-100 dark:text-zinc-900"
       // layout animates width changes smoothly
       layout
       transition={{
@@ -72,15 +74,15 @@ function DateTicker({
       }}
     >
       {/* Fixed height viewport that shows one item - h-6 = 24px */}
-      <div className="relative overflow-hidden h-6">
+      <div className="relative h-6 overflow-hidden">
         {/* Scrolling stack of all labels */}
         <motion.div className="flex flex-col" style={{ y }}>
-          {labels.map((label, index) => (
+          {labels.map((label) => (
             <div
-              className="flex items-center justify-center shrink-0 h-6"
-              key={index}
+              className="flex h-6 shrink-0 items-center justify-center"
+              key={label}
             >
-              <span className="text-sm font-medium whitespace-nowrap">
+              <span className="whitespace-nowrap font-medium text-sm">
                 {label}
               </span>
             </div>
@@ -120,22 +122,22 @@ function TooltipContent({
     >
       <div className="px-3 py-2.5" ref={measureRef}>
         {title && (
-          <div className="text-xs font-medium text-zinc-400 mb-2">{title}</div>
+          <div className="mb-2 font-medium text-xs text-zinc-400">{title}</div>
         )}
         <div className="space-y-1.5">
-          {rows.map((row, index) => (
+          {rows.map((row) => (
             <div
               className="flex items-center justify-between gap-4"
-              key={index}
+              key={`${row.label}-${row.color}`}
             >
               <div className="flex items-center gap-2">
                 <span
-                  className="w-2.5 h-2.5 rounded-full shrink-0"
+                  className="h-2.5 w-2.5 shrink-0 rounded-full"
                   style={{ backgroundColor: row.color }}
                 />
                 <span className="text-sm text-zinc-100">{row.label}</span>
               </div>
-              <span className="text-sm font-medium text-white tabular-nums">
+              <span className="font-medium text-sm text-white tabular-nums">
                 {typeof row.value === "number"
                   ? row.value.toLocaleString()
                   : row.value}
@@ -191,7 +193,7 @@ export function ChartTooltip({
         setTooltipWidth(width);
       }
     }
-  }, [visible, rows, markerContent, tooltipWidth]);
+  }, [tooltipWidth]);
 
   // Tooltip positioning constants
   const tooltipOffset = 16;
@@ -228,7 +230,9 @@ export function ChartTooltip({
     animatedX.set(x);
   }, [x, animatedX]);
 
-  if (!visible) return null;
+  if (!visible) {
+    return null;
+  }
 
   // Transform origin based on flip - animate from the edge closest to crosshair
   const transformOrigin = shouldFlip ? "right top" : "left top";
@@ -238,7 +242,7 @@ export function ChartTooltip({
       {/* Tooltip Box */}
       <motion.div
         animate={{ opacity: 1 }}
-        className={`absolute pointer-events-none z-50 top-10 ${className}`}
+        className={`pointer-events-none absolute top-10 z-50 ${className}`}
         exit={{ opacity: 0 }}
         initial={{ opacity: 0 }}
         ref={tooltipRef}
@@ -250,7 +254,7 @@ export function ChartTooltip({
         {/* Inner content with flip animation and height animation */}
         <motion.div
           animate={{ scale: 1, opacity: 1, x: 0 }}
-          className="bg-zinc-900/30 backdrop-blur-md text-white rounded-lg shadow-lg min-w-[140px] overflow-hidden"
+          className="min-w-[140px] overflow-hidden rounded-lg bg-zinc-900/30 text-white shadow-lg backdrop-blur-md"
           initial={{ scale: 0.85, opacity: 0, x: shouldFlip ? 20 : -20 }}
           key={flipKey}
           style={{ transformOrigin }}
@@ -271,7 +275,7 @@ export function ChartTooltip({
       {/* Animated Date Ticker at bottom - aligned with X-axis labels */}
       {showDatePill && dateLabels.length > 0 && (
         <motion.div
-          className="absolute pointer-events-none z-50"
+          className="pointer-events-none absolute z-50"
           style={{
             left: animatedX,
             x: "-50%", // Center on the crosshair
@@ -337,7 +341,9 @@ export interface TooltipIndicatorProps {
 
 // Convert width prop to pixel value
 function resolveWidth(width: IndicatorWidth): number {
-  if (typeof width === "number") return width;
+  if (typeof width === "number") {
+    return width;
+  }
   switch (width) {
     case "line":
       return 1;
@@ -377,7 +383,9 @@ export function TooltipIndicator({
     animatedX.set(x - pixelWidth / 2);
   }, [x, animatedX, pixelWidth]);
 
-  if (!visible) return null;
+  if (!visible) {
+    return null;
+  }
 
   // Opacity at edges - 0 if fadeEdges, 1 otherwise
   const edgeOpacity = fadeEdges ? 0 : 1;
@@ -440,7 +448,9 @@ export function TooltipDot({
     animatedY.set(y);
   }, [x, y, animatedX, animatedY]);
 
-  if (!visible) return null;
+  if (!visible) {
+    return null;
+  }
 
   return (
     <motion.circle

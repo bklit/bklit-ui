@@ -8,13 +8,13 @@ import { LinePath } from "@visx/shape";
 // @ts-expect-error - d3-array types not installed
 import { bisector } from "d3-array";
 import { AnimatePresence, motion, useSpring } from "motion/react";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type React from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ChartGrid } from "./chart-grid";
-import {
-  type ChartMarker,
-  MarkerGroup,
-  MarkerTooltipContent,
-} from "./chart-marker";
+import { MarkerGroup, MarkerTooltipContent } from "./chart-marker";
+
+export type { ChartMarker } from "./chart-marker";
+
 import {
   ChartTooltip,
   TooltipDot,
@@ -107,7 +107,7 @@ function XAxisLabel({
   return (
     <motion.div
       animate={{ opacity }}
-      className="absolute text-xs whitespace-nowrap"
+      className="absolute whitespace-nowrap text-xs"
       style={{
         left: x,
         bottom: 12,
@@ -156,12 +156,12 @@ function XAxisLabels({
   }, [xScale, marginLeft, numTicks]);
 
   return (
-    <div className="absolute inset-0 pointer-events-none">
-      {labelsToShow.map((item, index) => (
+    <div className="pointer-events-none absolute inset-0">
+      {labelsToShow.map((item) => (
         <XAxisLabel
           crosshairX={crosshairX}
           isHovering={isHovering}
-          key={index}
+          key={`${item.label}-${item.x}`}
           label={item.label}
           x={item.x}
         />
@@ -185,6 +185,7 @@ interface ChartProps {
   containerRef?: React.RefObject<HTMLDivElement | null>;
 }
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Complex chart logic
 function Chart({
   width,
   height,
@@ -208,17 +209,19 @@ function Chart({
   // Group markers by date (normalized to midnight)
   const markersByDate = useMemo(() => {
     const grouped = new Map<string, ChartMarker[]>();
-    markers.forEach((marker) => {
+    for (const marker of markers) {
       const dateKey = marker.date.toDateString();
       const existing = grouped.get(dateKey) || [];
       grouped.set(dateKey, [...existing, marker]);
-    });
+    }
     return grouped;
   }, [markers]);
 
   // Get markers for the currently hovered date
   const activeMarkers = useMemo(() => {
-    if (!tooltipData) return [];
+    if (!tooltipData) {
+      return [];
+    }
     const dateKey = tooltipData.point.date.toDateString();
     return markersByDate.get(dateKey) || [];
   }, [tooltipData, markersByDate]);
@@ -248,7 +251,9 @@ function Chart({
 
   // Calculate column width (spacing between data points)
   const columnWidth = useMemo(() => {
-    if (data.length < 2) return 0;
+    if (data.length < 2) {
+      return 0;
+    }
     return innerWidth / (data.length - 1);
   }, [innerWidth, data.length]);
 
@@ -309,12 +314,12 @@ function Chart({
         }
       }
     }
-  }, [width, height, data, isLoaded, innerWidth, animationDuration]);
+  }, [isLoaded, innerWidth, animationDuration]);
 
   // Calculate dash offset/array for highlighting a segment using binary search
   const getDashProps = useCallback(
     (pathRef: React.RefObject<SVGPathElement | null>, totalLength: number) => {
-      if (!tooltipData || !pathRef.current || totalLength === 0) {
+      if (!(tooltipData && pathRef.current) || totalLength === 0) {
         return { strokeDasharray: "none", strokeDashoffset: 0 };
       }
 
@@ -344,8 +349,9 @@ function Chart({
 
       const startPoint = data[startIdx];
       const endPoint = data[endIdx];
-      if (!startPoint || !endPoint)
+      if (!(startPoint && endPoint)) {
         return { strokeDasharray: "none", strokeDashoffset: 0 };
+      }
 
       const startX = xScale(getDate(startPoint)) ?? 0;
       const endX = xScale(getDate(endPoint)) ?? 0;
@@ -391,25 +397,29 @@ function Chart({
   const handleMouseMove = useCallback(
     (event: React.MouseEvent<SVGRectElement>) => {
       const point = localPoint(event);
-      if (!point) return;
+      if (!point) {
+        return;
+      }
 
       const x0 = xScale.invert(point.x - margin.left);
       const index = bisectDate(data, x0, 1);
       const d0 = data[index - 1];
       const d1 = data[index];
 
-      if (!d0) return;
+      if (!d0) {
+        return;
+      }
 
       let d: DataPoint = d0;
       let finalIndex = index - 1;
-      if (d1 && getDate(d1)) {
-        if (
-          x0.getTime() - getDate(d0).getTime() >
+      if (
+        d1 &&
+        getDate(d1) &&
+        x0.getTime() - getDate(d0).getTime() >
           getDate(d1).getTime() - x0.getTime()
-        ) {
-          d = d1;
-          finalIndex = index;
-        }
+      ) {
+        d = d1;
+        finalIndex = index;
       }
 
       setTooltipData({
@@ -420,7 +430,7 @@ function Chart({
         yPageviews: yScalePageviews(d.pageviews) ?? 0,
       });
     },
-    [xScale, yScaleUsers, yScalePageviews, data, margin.left]
+    [xScale, yScaleUsers, yScalePageviews, data]
   );
 
   const handleMouseLeave = useCallback(() => {
@@ -428,7 +438,9 @@ function Chart({
   }, []);
 
   // Early return if dimensions not ready (after all hooks)
-  if (width < 10 || height < 10) return null;
+  if (width < 10 || height < 10) {
+    return null;
+  }
 
   const isHovering = tooltipData !== null;
 
@@ -439,8 +451,8 @@ function Chart({
   const easing = "cubic-bezier(0.85, 0, 0.15, 1)";
 
   return (
-    <div className="relative w-full h-full" ref={containerRef}>
-      <svg height={height} width={width}>
+    <div className="relative h-full w-full" ref={containerRef}>
+      <svg aria-hidden="true" height={height} width={width}>
         <defs>
           {/* Clip path for grow animation - animates from left to right */}
           <clipPath id="grow-clip">
@@ -625,7 +637,9 @@ function Chart({
             ([dateKey, dateMarkers], groupIndex) => {
               // Find the x position for this date
               const markerDate = dateMarkers[0]?.date;
-              if (!markerDate) return null;
+              if (!markerDate) {
+                return null;
+              }
               const markerX = xScale(markerDate) ?? 0;
               // Check if this date is currently hovered
               const isActive =
@@ -655,6 +669,7 @@ function Chart({
           )}
 
           {/* Invisible overlay for mouse events - only active after animation completes */}
+          {/* biome-ignore lint/a11y/noStaticElementInteractions: Chart interaction area */}
           <rect
             fill="transparent"
             height={innerHeight}
@@ -737,7 +752,9 @@ export default function CurvedLineChart({
 
   // Demo markers - use prop markers or generate sample ones
   const markers = useMemo(() => {
-    if (propMarkers) return propMarkers;
+    if (propMarkers) {
+      return propMarkers;
+    }
     // Generate sample markers for demo
     const now = new Date();
     // Helper to create date at midnight (matches data point dates)
@@ -815,17 +832,18 @@ export default function CurvedLineChart({
 
   return (
     <div className="w-full">
-      <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-4">
+      <div className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
         <button
-          className="px-4 py-2 text-sm font-medium text-white bg-blue-500 hover:bg-blue-600 rounded-lg transition-colors"
+          className="rounded-lg bg-blue-500 px-4 py-2 font-medium text-sm text-white transition-colors hover:bg-blue-600"
           onClick={handleReplay}
+          type="button"
         >
           Replay Animation
         </button>
 
         {/* Responsive chart container - ParentSize handles resize detection */}
         <div
-          className="w-full relative"
+          className="relative w-full"
           key={chartKey}
           ref={containerRef}
           style={{ aspectRatio: "2 / 1" }}
@@ -848,13 +866,17 @@ export default function CurvedLineChart({
       </div>
 
       {/* Animation Controls */}
-      <div className="mt-4 flex items-center gap-4 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900">
-        <div className="flex items-center gap-3 flex-1">
-          <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
+      <div className="mt-4 flex items-center gap-4 rounded-xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900">
+        <div className="flex flex-1 items-center gap-3">
+          <label
+            className="whitespace-nowrap font-medium text-sm text-zinc-700 dark:text-zinc-300"
+            htmlFor="duration-slider"
+          >
             Duration: {animationDuration}ms
           </label>
           <input
-            className="flex-1 h-2 bg-zinc-200 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
+            className="h-2 flex-1 cursor-pointer appearance-none rounded-lg bg-zinc-200 accent-blue-500 dark:bg-zinc-700"
+            id="duration-slider"
             max={8000}
             min={200}
             onChange={(e) => setAnimationDuration(Number(e.target.value))}

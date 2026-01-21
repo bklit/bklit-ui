@@ -4,4 +4,3 @@ import { nextJsConfig } from "@repo/eslint-config/next";
 const config = [...nextJsConfig];
 
 export default config;
-

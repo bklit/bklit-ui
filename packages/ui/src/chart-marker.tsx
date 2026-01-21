@@ -1,7 +1,8 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
-import React, { useState } from "react";
+import type React from "react";
+import { useState } from "react";
 import { createPortal } from "react-dom";
 
 // CSS variable references
@@ -128,6 +129,7 @@ export function MarkerGroup({
   return (
     <>
       {/* SVG anchor point - positioned group */}
+      {/* biome-ignore lint/a11y/noStaticElementInteractions: Chart marker interaction */}
       <g
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
@@ -158,17 +160,25 @@ export function MarkerGroup({
           {/* Vertical dashed guide line - responds to hover states */}
           {showLine && lineHeight > 0 && (
             <motion.line
-              animate={{ 
+              animate={{
                 // Marker hover: 100%, Day hover (crosshair): 0%, Default: 60%
-                strokeOpacity: isHovered ? 1 : isActive ? 0 : 0.6 
+                strokeOpacity: (() => {
+                  if (isHovered) {
+                    return 1;
+                  }
+                  if (isActive) {
+                    return 0;
+                  }
+                  return 0.6;
+                })(),
               }}
               stroke={cssVars.markerBorder}
               strokeDasharray="4,4"
               strokeLinecap="round"
               strokeWidth={1}
-              transition={{ 
+              transition={{
                 duration: 0.2,
-                ease: "easeOut"
+                ease: "easeOut",
               }}
               x1={0}
               x2={0}
@@ -219,6 +229,8 @@ export function MarkerGroup({
       {/* Portal for fanned circles - escapes SVG clipping */}
       {containerRef?.current &&
         createPortal(
+          // biome-ignore lint/a11y/noStaticElementInteractions: Marker hover portal
+          // biome-ignore lint/a11y/noNoninteractiveElementInteractions: Marker hover portal
           <div
             className="absolute"
             onMouseEnter={handleMouseEnter}
@@ -243,7 +255,7 @@ export function MarkerGroup({
                 }}
               />
             )}
-            
+
             {/* Fanned circles */}
             <AnimatePresence mode="sync">
               {shouldFan &&
@@ -260,7 +272,7 @@ export function MarkerGroup({
                       className="absolute"
                       exit={{ x: 0, y: 0, scale: 0, opacity: 0 }}
                       initial={{ x: 0, y: 0, scale: 0, opacity: 0 }}
-                      key={`fan-${index}`}
+                      key={`fan-${marker.date.getTime()}`}
                       style={{
                         width: size,
                         height: size,
@@ -305,7 +317,7 @@ export function MarkerGroup({
                   transition={{ type: "spring", stiffness: 400, damping: 20 }}
                 >
                   <div
-                    className="w-full h-full rounded-full"
+                    className="h-full w-full rounded-full"
                     style={{
                       backgroundColor: cssVars.markerBorder,
                     }}
@@ -397,7 +409,7 @@ function MarkerCircleHTML({
 
   return (
     <motion.div
-      className={`relative w-full h-full rounded-full flex items-center justify-center shadow-lg ${
+      className={`relative flex h-full w-full items-center justify-center rounded-full shadow-lg ${
         hasAction ? "cursor-pointer" : ""
       }`}
       onClick={hasAction ? handleClick : undefined}
@@ -431,19 +443,21 @@ export interface MarkerTooltipContentProps {
 const MAX_TOOLTIP_MARKERS = 2;
 
 export function MarkerTooltipContent({ markers }: MarkerTooltipContentProps) {
-  if (markers.length === 0) return null;
+  if (markers.length === 0) {
+    return null;
+  }
 
   const visibleMarkers = markers.slice(0, MAX_TOOLTIP_MARKERS);
   const hiddenCount = markers.length - MAX_TOOLTIP_MARKERS;
 
   return (
-    <div className="border-t border-zinc-700/50 pt-2 mt-2 space-y-2">
-      {visibleMarkers.map((marker, index) => {
+    <div className="mt-2 space-y-2 border-zinc-700/50 border-t pt-2">
+      {visibleMarkers.map((marker) => {
         const isClickable = !!(marker.onClick || marker.href);
         return (
-          <div className="flex items-start gap-2" key={index}>
+          <div className="flex items-start gap-2" key={marker.date.getTime()}>
             <div
-              className="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center"
+              className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full"
               style={{
                 backgroundColor: marker.color || cssVars.markerBackground,
                 border: `1px solid ${cssVars.markerBorder}`,
@@ -456,19 +470,19 @@ export function MarkerTooltipContent({ markers }: MarkerTooltipContentProps) {
                 {marker.icon}
               </span>
             </div>
-            <div className="flex-1 min-w-0">
+            <div className="min-w-0 flex-1">
               {marker.content ? (
                 marker.content
               ) : (
                 <>
-                  <div className="text-sm font-medium text-white truncate flex items-center gap-1.5">
+                  <div className="flex items-center gap-1.5 truncate font-medium text-sm text-white">
                     {marker.title}
                     {isClickable && (
-                      <span className="text-zinc-500 text-[10px]">↗</span>
+                      <span className="text-[10px] text-zinc-500">↗</span>
                     )}
                   </div>
                   {marker.description && (
-                    <div className="text-xs text-zinc-400 truncate">
+                    <div className="truncate text-xs text-zinc-400">
                       {marker.description}
                     </div>
                   )}
@@ -480,9 +494,7 @@ export function MarkerTooltipContent({ markers }: MarkerTooltipContentProps) {
       })}
       {/* Show overflow indicator */}
       {hiddenCount > 0 && (
-        <div className="text-xs text-zinc-500 pl-7">
-          +{hiddenCount} more...
-        </div>
+        <div className="pl-7 text-xs text-zinc-500">+{hiddenCount} more...</div>
       )}
     </div>
   );

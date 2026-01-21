@@ -32,15 +32,15 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     >
       <body className="flex min-h-screen flex-col">
         <GithubStatsProvider>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          disableTransitionOnChange
-          enableSystem
-        >
-          {children}
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            disableTransitionOnChange
+            enableSystem
+          >
+            {children}
           </ThemeProvider>
-          </GithubStatsProvider>
+        </GithubStatsProvider>
       </body>
     </html>
   );

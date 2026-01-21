@@ -11,7 +11,7 @@ interface SidebarProps {
 
 export function Sidebar({ tree }: SidebarProps) {
   return (
-    <aside className="fixed top-14 left-0 hidden h-[calc(100vh-3.5rem)] w-64 overflow-hidden border-r border-border bg-background lg:block">
+    <aside className="fixed top-14 left-0 hidden h-[calc(100vh-3.5rem)] w-64 overflow-hidden border-border border-r bg-background lg:block">
       <div className="h-full overflow-y-auto py-4">
         <nav className="px-3">
           <SidebarNodes nodes={tree.children} />
@@ -36,7 +36,7 @@ function SidebarNode({ node }: { node: PageTree.Node }) {
 
   if (node.type === "separator") {
     return (
-      <li className="mt-4 flex items-center gap-2 px-3 pb-1.5 pt-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground first:mt-0 first:pt-0">
+      <li className="mt-4 flex items-center gap-2 px-3 pt-3 pb-1.5 font-semibold text-muted-foreground text-xs uppercase tracking-wide first:mt-0 first:pt-0">
         {node.icon}
         <span>{node.name}</span>
       </li>
@@ -99,7 +99,7 @@ function SidebarFolder({
           </Link>
         ) : (
           <button
-            className="flex flex-1 cursor-pointer items-center gap-2 rounded-lg border-none bg-transparent px-3 py-2 text-left text-sm text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
+            className="flex flex-1 cursor-pointer items-center gap-2 rounded-lg border-none bg-transparent px-3 py-2 text-left text-muted-foreground text-sm transition-colors hover:bg-muted/50 hover:text-foreground"
             onClick={() => setIsOpen(!isOpen)}
             type="button"
           >
@@ -116,6 +116,7 @@ function SidebarFolder({
             type="button"
           >
             <svg
+              aria-hidden="true"
               className={`size-4 transition-transform duration-200 ${isOpen ? "rotate-90" : ""}`}
               fill="none"
               stroke="currentColor"
@@ -128,7 +129,7 @@ function SidebarFolder({
         )}
       </div>
       {isOpen && node.children.length > 0 && (
-        <div className="ml-3 border-l border-border pl-3">
+        <div className="ml-3 border-border border-l pl-3">
           <SidebarNodes nodes={node.children} />
         </div>
       )}

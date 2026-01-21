@@ -2,7 +2,6 @@
 
 import { GridColumns, GridRows } from "@visx/grid";
 import type { ScaleLinear, ScaleTime } from "@visx/scale";
-import React from "react";
 
 export interface ChartGridProps {
   /** Width of the grid area */
@@ -74,4 +73,3 @@ export function ChartGrid({
 }
 
 export default ChartGrid;
-

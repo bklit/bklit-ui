@@ -6,7 +6,7 @@
 /* Note: Run `npx shadcn@latest init` to generate shadcn/tailwind.css if needed */
 
 /* Include UI package in Tailwind's content scanning */
-@source '../../../packages/ui/src/**/*.tsx';
+@source "../../../packages/ui/src/**/*.tsx";
 
 @custom-variant dark (&:is(.dark *));
 
