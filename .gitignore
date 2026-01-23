@@ -39,3 +39,6 @@ yarn-error.log*
 # Misc
 .DS_Store
 *.pem
+
+# Cursor rules (design system docs)
+.cursor/rules/animation-feeling-rules.mdc

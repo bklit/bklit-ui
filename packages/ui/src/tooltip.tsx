@@ -52,13 +52,67 @@ function DateTicker({
   labels: string[];
   visible: boolean;
 }) {
-  // Animated Y offset - scrolls the entire stack
-  const y = useSpring(0, { stiffness: 400, damping: 35 });
+  // Parse labels into month and day parts
+  const parsedLabels = React.useMemo(() => {
+    return labels.map((label) => {
+      // Labels are formatted like "Jan 22" or "Dec 1"
+      const parts = label.split(" ");
+      const month = parts[0] || "";
+      const day = parts[1] || "";
+      return { month, day, full: label };
+    });
+  }, [labels]);
 
-  // Update scroll position when index changes
+  // Get unique months and their indices
+  const monthIndices = React.useMemo(() => {
+    const uniqueMonths: string[] = [];
+    const indices: number[] = [];
+
+    parsedLabels.forEach((label, index) => {
+      if (uniqueMonths.length === 0 || uniqueMonths.at(-1) !== label.month) {
+        uniqueMonths.push(label.month);
+        indices.push(index);
+      }
+    });
+
+    return { uniqueMonths, indices };
+  }, [parsedLabels]);
+
+  // Find current month index (which unique month we're in)
+  const currentMonthIndex = React.useMemo(() => {
+    if (currentIndex < 0 || currentIndex >= parsedLabels.length) {
+      return 0;
+    }
+    const currentMonth = parsedLabels[currentIndex].month;
+    return monthIndices.uniqueMonths.indexOf(currentMonth);
+  }, [currentIndex, parsedLabels, monthIndices]);
+
+  // Track previous month index to detect changes (initialize with -1 to detect first render)
+  const prevMonthIndexRef = React.useRef(-1);
+
+  // Animated Y offset for day - always animates
+  const dayY = useSpring(0, { stiffness: 400, damping: 35 });
+
+  // Animated Y offset for month - only animates when month changes
+  const monthY = useSpring(0, { stiffness: 400, damping: 35 });
+
+  // Update day scroll position when index changes (always)
   React.useEffect(() => {
-    y.set(-currentIndex * TICKER_ITEM_HEIGHT);
-  }, [currentIndex, y]);
+    dayY.set(-currentIndex * TICKER_ITEM_HEIGHT);
+  }, [currentIndex, dayY]);
+
+  // Update month scroll position only when month changes
+  React.useEffect(() => {
+    if (currentMonthIndex >= 0) {
+      const isFirstRender = prevMonthIndexRef.current === -1;
+      const monthChanged = prevMonthIndexRef.current !== currentMonthIndex;
+
+      if (isFirstRender || monthChanged) {
+        monthY.set(-currentMonthIndex * TICKER_ITEM_HEIGHT);
+        prevMonthIndexRef.current = currentMonthIndex;
+      }
+    }
+  }, [currentMonthIndex, monthY]);
 
   if (!visible || labels.length === 0) {
     return null;
@@ -75,19 +129,40 @@ function DateTicker({
     >
       {/* Fixed height viewport that shows one item - h-6 = 24px */}
       <div className="relative h-6 overflow-hidden">
-        {/* Scrolling stack of all labels */}
-        <motion.div className="flex flex-col" style={{ y }}>
-          {labels.map((label) => (
-            <div
-              className="flex h-6 shrink-0 items-center justify-center"
-              key={label}
-            >
-              <span className="whitespace-nowrap font-medium text-sm">
-                {label}
-              </span>
-            </div>
-          ))}
-        </motion.div>
+        {/* Container for month and day side by side */}
+        <div className="flex items-center justify-center gap-1">
+          {/* Month stack - only animates when month changes */}
+          <div className="relative h-6 overflow-hidden">
+            <motion.div className="flex flex-col" style={{ y: monthY }}>
+              {monthIndices.uniqueMonths.map((month) => (
+                <div
+                  className="flex h-6 shrink-0 items-center justify-center"
+                  key={month}
+                >
+                  <span className="whitespace-nowrap font-medium text-sm">
+                    {month}
+                  </span>
+                </div>
+              ))}
+            </motion.div>
+          </div>
+
+          {/* Day stack - always animates */}
+          <div className="relative h-6 overflow-hidden">
+            <motion.div className="flex flex-col" style={{ y: dayY }}>
+              {parsedLabels.map((label, index) => (
+                <div
+                  className="flex h-6 shrink-0 items-center justify-center"
+                  key={`${label.day}-${index}`}
+                >
+                  <span className="whitespace-nowrap font-medium text-sm">
+                    {label.day}
+                  </span>
+                </div>
+              ))}
+            </motion.div>
+          </div>
+        </div>
       </div>
     </motion.div>
   );
