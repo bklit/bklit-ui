@@ -1,6 +1,7 @@
 "use client";
 
 import { GridColumns, GridRows } from "@visx/grid";
+import { useId } from "react";
 import { chartCssVars, useChart } from "./chart-context";
 
 export interface GridProps {
@@ -20,6 +21,8 @@ export interface GridProps {
   strokeWidth?: number;
   /** Grid line dash array. Default: "4,4" for dashed lines */
   strokeDasharray?: string;
+  /** Enable horizontal fade effect on grid rows. Default: true */
+  fadeHorizontal?: boolean;
 }
 
 export function Grid({
@@ -31,21 +34,51 @@ export function Grid({
   strokeOpacity = 1,
   strokeWidth = 1,
   strokeDasharray = "4,4",
+  fadeHorizontal = true,
 }: GridProps) {
   const { xScale, yScale, innerWidth, innerHeight } = useChart();
+  const uniqueId = useId();
+  const maskId = `grid-rows-fade-${uniqueId}`;
+  const gradientId = `${maskId}-gradient`;
 
   return (
     <g className="chart-grid">
+      {/* Gradient mask for horizontal grid lines - fades at both ends */}
+      {horizontal && fadeHorizontal && (
+        <defs>
+          <linearGradient id={gradientId} x1="0%" x2="100%" y1="0%" y2="0%">
+            <stop offset="0%" style={{ stopColor: "white", stopOpacity: 0 }} />
+            <stop offset="10%" style={{ stopColor: "white", stopOpacity: 1 }} />
+            <stop offset="90%" style={{ stopColor: "white", stopOpacity: 1 }} />
+            <stop
+              offset="100%"
+              style={{ stopColor: "white", stopOpacity: 0 }}
+            />
+          </linearGradient>
+          <mask id={maskId}>
+            <rect
+              fill={`url(#${gradientId})`}
+              height={innerHeight}
+              width={innerWidth}
+              x="0"
+              y="0"
+            />
+          </mask>
+        </defs>
+      )}
+
       {horizontal && (
-        <GridRows
-          numTicks={numTicksRows}
-          scale={yScale}
-          stroke={stroke}
-          strokeDasharray={strokeDasharray}
-          strokeOpacity={strokeOpacity}
-          strokeWidth={strokeWidth}
-          width={innerWidth}
-        />
+        <g mask={fadeHorizontal ? `url(#${maskId})` : undefined}>
+          <GridRows
+            numTicks={numTicksRows}
+            scale={yScale}
+            stroke={stroke}
+            strokeDasharray={strokeDasharray}
+            strokeOpacity={strokeOpacity}
+            strokeWidth={strokeWidth}
+            width={innerWidth}
+          />
+        </g>
       )}
       {vertical && (
         <GridColumns
