@@ -83,7 +83,11 @@ function DateTicker({
     if (currentIndex < 0 || currentIndex >= parsedLabels.length) {
       return 0;
     }
-    const currentMonth = parsedLabels[currentIndex].month;
+    const currentLabel = parsedLabels[currentIndex];
+    if (!currentLabel) {
+      return 0;
+    }
+    const currentMonth = currentLabel.month;
     return monthIndices.uniqueMonths.indexOf(currentMonth);
   }, [currentIndex, parsedLabels, monthIndices]);
 

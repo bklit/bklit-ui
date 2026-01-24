@@ -5,13 +5,16 @@ import { localPoint } from "@visx/event";
 import { ParentSize } from "@visx/responsive";
 import { scaleLinear, scaleTime } from "@visx/scale";
 import { LinePath } from "@visx/shape";
-// @ts-expect-error - d3-array types not installed
 import { bisector } from "d3-array";
 import { AnimatePresence, motion, useSpring } from "motion/react";
 import type React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ChartGrid } from "./chart-grid";
-import { MarkerGroup, MarkerTooltipContent } from "./chart-marker";
+import {
+  type ChartMarker,
+  MarkerGroup,
+  MarkerTooltipContent,
+} from "./chart-marker";
 
 export type { ChartMarker } from "./chart-marker";
 

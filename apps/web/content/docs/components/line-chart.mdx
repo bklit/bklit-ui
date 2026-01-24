@@ -1,80 +1,173 @@
 ---
 title: Line Chart
-description: A beautiful curved line chart with tooltips and hover interactions
+description: A composable line chart with tooltips, markers, and hover interactions
 ---
 
-import CurvedLineChart from "@repo/ui/line-chart";
+import { LineChart, Line, Grid, XAxis, ChartTooltip, ChartMarkers } from "@bklitui/ui/charts";
+import { MarkerContentDemo } from "@/components/docs/marker-content-demo";
+
+export const chartData = [
+  { date: new Date(Date.now() - 29 * 24 * 60 * 60 * 1000), users: 1200, pageviews: 4500 },
+  { date: new Date(Date.now() - 28 * 24 * 60 * 60 * 1000), users: 1350, pageviews: 4800 },
+  { date: new Date(Date.now() - 27 * 24 * 60 * 60 * 1000), users: 1100, pageviews: 4200 },
+  { date: new Date(Date.now() - 26 * 24 * 60 * 60 * 1000), users: 1450, pageviews: 5100 },
+  { date: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000), users: 1380, pageviews: 4900 },
+  { date: new Date(Date.now() - 24 * 24 * 60 * 60 * 1000), users: 1520, pageviews: 5400 },
+  { date: new Date(Date.now() - 23 * 24 * 60 * 60 * 1000), users: 1600, pageviews: 5800 },
+  { date: new Date(Date.now() - 22 * 24 * 60 * 60 * 1000), users: 1480, pageviews: 5200 },
+  { date: new Date(Date.now() - 21 * 24 * 60 * 60 * 1000), users: 1550, pageviews: 5500 },
+  { date: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000), users: 1420, pageviews: 5000 },
+  { date: new Date(Date.now() - 19 * 24 * 60 * 60 * 1000), users: 1680, pageviews: 6100 },
+  { date: new Date(Date.now() - 18 * 24 * 60 * 60 * 1000), users: 1750, pageviews: 6400 },
+  { date: new Date(Date.now() - 17 * 24 * 60 * 60 * 1000), users: 1620, pageviews: 5900 },
+  { date: new Date(Date.now() - 16 * 24 * 60 * 60 * 1000), users: 1580, pageviews: 5700 },
+  { date: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000), users: 1720, pageviews: 6200 },
+  { date: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000), users: 1850, pageviews: 6800 },
+  { date: new Date(Date.now() - 13 * 24 * 60 * 60 * 1000), users: 1780, pageviews: 6500 },
+  { date: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000), users: 1650, pageviews: 6000 },
+  { date: new Date(Date.now() - 11 * 24 * 60 * 60 * 1000), users: 1920, pageviews: 7100 },
+  { date: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000), users: 1880, pageviews: 6900 },
+  { date: new Date(Date.now() - 9 * 24 * 60 * 60 * 1000), users: 1750, pageviews: 6400 },
+  { date: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000), users: 1980, pageviews: 7300 },
+  { date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), users: 2050, pageviews: 7600 },
+  { date: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000), users: 1920, pageviews: 7100 },
+  { date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), users: 2100, pageviews: 7800 },
+  { date: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000), users: 2180, pageviews: 8100 },
+  { date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), users: 2050, pageviews: 7600 },
+  { date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), users: 2250, pageviews: 8400 },
+  { date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), users: 2320, pageviews: 8700 },
+  { date: new Date(), users: 2400, pageviews: 9000 },
+];
+
+export const demoMarkers = [
+  // 5 days ago - multiple events to test fan animation (with clickable links)
+  { date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), icon: "🚀", title: "v1.2.0 Released", description: "New chart animations", href: "https://github.com/bklit/bklit-ui/releases", target: "_blank" },
+  { date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), icon: "🐛", title: "Bug Fix", description: "Fixed tooltip positioning", href: "https://github.com/bklit/bklit-ui/issues", target: "_blank" },
+  { date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), icon: "📦", title: "Dependency Update", description: "Updated motion to v12", href: "https://motion.dev", target: "_blank" },
+  { date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), icon: "⚡", title: "Performance", description: "50% faster renders", href: "#performance", target: "_self" },
+  // 12 days ago - single marker
+  { date: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000), icon: "✨", title: "Feature Launch", description: "Added grid support", href: "#grid", target: "_self" },
+  // 20 days ago - pair of markers
+  { date: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000), icon: "🎨", title: "Design Update", description: "New color system", href: "#theming", target: "_self" },
+  { date: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000), icon: "📝", title: "Docs Updated", description: "Added examples", href: "#usage", target: "_self" },
+];
 
 ## Preview
 
 <div className="my-6 w-full">
-  <CurvedLineChart />
+  <LineChart data={chartData}>
+    <Grid horizontal />
+    <Line dataKey="users" stroke="var(--chart-line-primary)" />
+    <Line dataKey="pageviews" stroke="var(--chart-line-secondary)" />
+    <ChartMarkers items={demoMarkers} />
+    <XAxis />
+    <ChartTooltip>
+      <MarkerContentDemo markers={demoMarkers} />
+    </ChartTooltip>
+  </LineChart>
 </div>
 
 ## Installation
 
 ```bash
-import CurvedLineChart from '@repo/ui/line-chart';
+import { LineChart, Line, Grid, XAxis, ChartTooltip } from "@bklitui/ui/charts";
 ```
 
 ## Usage
 
+The chart uses a composable API where you build charts by combining components:
+
 ```tsx
-import CurvedLineChart from "@repo/ui/line-chart";
+import { LineChart, Line, Grid, XAxis, ChartTooltip } from "@bklitui/ui/charts";
+
+const data = [
+  { date: new Date("2025-01-01"), users: 1200, pageviews: 4500 },
+  { date: new Date("2025-01-02"), users: 1350, pageviews: 4800 },
+  // ... more data
+];
 
 export default function Dashboard() {
   return (
-    <div className="w-full">
-      <CurvedLineChart />
-    </div>
+    <LineChart data={data}>
+      <Grid horizontal />
+      <Line dataKey="users" stroke="var(--chart-line-primary)" />
+      <Line dataKey="pageviews" stroke="var(--chart-line-secondary)" />
+      <XAxis />
+      <ChartTooltip />
+    </LineChart>
   );
 }
 ```
 
-## Props
+## Components
 
-| Prop                | Type            | Default | Description                        |
-| ------------------- | --------------- | ------- | ---------------------------------- |
-| `animationDuration` | `number`        | `1500`  | Animation duration in milliseconds |
-| `showGrid`          | `boolean`       | `true`  | Show horizontal grid lines         |
-| `markers`           | `ChartMarker[]` | `[]`    | Markers to display on the chart    |
+### LineChart
 
-### With Grid
+The root component that provides context to all children.
 
-```tsx
-<CurvedLineChart showGrid />
-```
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `data` | `Record<string, unknown>[]` | required | Array of data points |
+| `xDataKey` | `string` | `"date"` | Key in data for x-axis values |
+| `margin` | `Partial<Margin>` | `{ top: 40, right: 40, bottom: 40, left: 40 }` | Chart margins |
+| `animationDuration` | `number` | `1100` | Animation duration in ms |
+| `aspectRatio` | `string` | `"2 / 1"` | CSS aspect ratio |
+| `className` | `string` | `""` | Additional CSS class |
 
-### Custom Animation Duration
+### Line
 
-```tsx
-<CurvedLineChart animationDuration={2000} />
-```
+Renders a line on the chart.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `dataKey` | `string` | required | Key in data for y values |
+| `stroke` | `string` | `var(--chart-line-primary)` | Line color |
+| `strokeWidth` | `number` | `2.5` | Line width |
+| `curve` | `CurveFactory` | `curveNatural` | D3 curve function |
+| `animate` | `boolean` | `true` | Enable grow animation |
+| `fadeEdges` | `boolean` | `true` | Fade line at edges |
+| `showHighlight` | `boolean` | `true` | Show highlight on hover |
+
+### Grid
+
+Renders grid lines.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `horizontal` | `boolean` | `true` | Show horizontal lines |
+| `vertical` | `boolean` | `false` | Show vertical lines |
+| `numTicksRows` | `number` | `5` | Number of horizontal lines |
+| `numTicksColumns` | `number` | `10` | Number of vertical lines |
+| `stroke` | `string` | `var(--chart-grid)` | Line color |
+| `strokeDasharray` | `string` | `"4,4"` | Dash pattern |
+
+### XAxis
+
+Renders x-axis labels that fade when the crosshair passes.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `numTicks` | `number` | `6` | Number of tick labels |
+| `tickerHalfWidth` | `number` | `50` | Fade radius for labels |
+
+### ChartTooltip
+
+Renders the tooltip with crosshair, dots, and content box.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `showDatePill` | `boolean` | `true` | Show animated date ticker |
+| `showCrosshair` | `boolean` | `true` | Show vertical crosshair |
+| `showDots` | `boolean` | `true` | Show dots on lines |
+| `content` | `(props) => ReactNode` | - | Custom content renderer |
+| `rows` | `(point) => TooltipRow[]` | - | Custom row generator |
 
 ## Markers
 
-Markers allow you to annotate specific dates on the chart. They appear at the top of the chart area and integrate with the tooltip when hovering.
-
-### Marker Interface
-
-```ts
-interface ChartMarker {
-  date: Date; // Date for marker position
-  icon: React.ReactNode; // Icon (emoji or component)
-  title: string; // Tooltip title
-  description?: string; // Optional description
-  content?: React.ReactNode; // Custom tooltip content
-  color?: string; // Optional background color
-  onClick?: () => void; // Click handler
-  href?: string; // URL to navigate to
-  target?: "_blank" | "_self"; // Link target (default: "_self")
-}
-```
-
-### Example with Markers
+Add markers to annotate specific dates on the chart:
 
 ```tsx
-import CurvedLineChart, { type ChartMarker } from "@repo/ui/line-chart";
+import { LineChart, Line, ChartTooltip, ChartMarkers, MarkerTooltipContent, useActiveMarkers, type ChartMarker } from "@bklitui/ui/charts";
 
 const markers: ChartMarker[] = [
   {
@@ -89,73 +182,105 @@ const markers: ChartMarker[] = [
     title: "Bug Fix",
     description: "Fixed tooltip positioning",
   },
-  {
-    date: new Date("2025-01-12"),
-    icon: "✨",
-    title: "Feature Launch",
-  },
 ];
 
-<CurvedLineChart markers={markers} />;
-```
+function MyChart({ data }) {
+  return (
+    <LineChart data={data}>
+      <Line dataKey="users" />
+      <ChartMarkers items={markers} />
+      <ChartTooltip>
+        <MarkerContent markers={markers} />
+      </ChartTooltip>
+    </LineChart>
+  );
+}
 
-### Clickable Markers
-
-Markers can trigger actions or navigate to URLs:
-
-```tsx
-const markers: ChartMarker[] = [
-  {
-    date: new Date("2025-01-05"),
-    icon: "🚀",
-    title: "v1.2.0 Released",
-    href: "https://github.com/example/releases/v1.2.0",
-    target: "_blank", // Opens in new tab
-  },
-  {
-    date: new Date("2025-01-06"),
-    icon: "📊",
-    title: "View Report",
-    onClick: () => openModal("report"),
-  },
-];
-```
-
-Clickable markers show a hover effect (scale + shadow) and display a ↗ indicator in the tooltip.
-
-### Stacking Behavior
-
-When multiple markers share the same date:
-
-- They stack vertically with a count badge
-- Hovering fans them out in a smooth arc animation
-- All marker details appear in the tooltip
-- Each marker can have its own click action
-
-## Data Structure
-
-The chart expects an array of `DataPoint` objects:
-
-```ts
-interface DataPoint {
-  date: Date;
-  uniqueUsers: number;
-  pageviews: number;
+// Use the hook to get markers for the hovered date
+function MarkerContent({ markers }) {
+  const activeMarkers = useActiveMarkers(markers);
+  if (activeMarkers.length === 0) return null;
+  return <MarkerTooltipContent markers={activeMarkers} />;
 }
 ```
 
-### Example Data
+### ChartMarker Interface
 
 ```ts
-const data: DataPoint[] = [
-  { date: new Date("2025-01-01"), uniqueUsers: 1200, pageviews: 4500 },
-  { date: new Date("2025-01-02"), uniqueUsers: 1350, pageviews: 4800 },
-  { date: new Date("2025-01-03"), uniqueUsers: 1100, pageviews: 4200 },
-  { date: new Date("2025-01-04"), uniqueUsers: 1450, pageviews: 5100 },
-  { date: new Date("2025-01-05"), uniqueUsers: 1380, pageviews: 4900 },
-  { date: new Date("2025-01-06"), uniqueUsers: 1520, pageviews: 5400 },
-  { date: new Date("2025-01-07"), uniqueUsers: 1600, pageviews: 5800 },
-];
+interface ChartMarker {
+  date: Date;           // Date for marker position
+  icon: React.ReactNode; // Icon (emoji or component)
+  title: string;        // Tooltip title
+  description?: string; // Optional description
+  content?: React.ReactNode; // Custom tooltip content
+  color?: string;       // Background color override
+  onClick?: () => void; // Click handler
+  href?: string;        // URL to navigate to
+  target?: "_blank" | "_self"; // Link target
+}
+```
+
+### ChartMarkers Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `items` | `ChartMarker[]` | required | Array of markers |
+| `size` | `number` | `28` | Marker circle size |
+| `showLines` | `boolean` | `true` | Show vertical guide lines |
+| `animate` | `boolean` | `true` | Animate markers on entrance |
+
+## Custom Tooltip Content
+
+You can fully customize the tooltip content:
+
+```tsx
+<ChartTooltip
+  content={({ point, index }) => (
+    <div className="p-3">
+      <h3 className="font-bold">{point.date.toLocaleDateString()}</h3>
+      <p>Users: {point.users}</p>
+      <p>Views: {point.pageviews}</p>
+    </div>
+  )}
+/>
+```
+
+Or customize just the rows:
+
+```tsx
+<ChartTooltip
+  rows={(point) => [
+    { color: "var(--chart-line-primary)", label: "Active Users", value: point.users },
+    { color: "var(--chart-line-secondary)", label: "Page Views", value: point.pageviews },
+  ]}
+/>
+```
+
+## Theming
+
+The chart uses CSS variables for theming. Define these in your CSS:
+
+```css
+:root {
+  --chart-background: oklch(1 0 0);
+  --chart-foreground: oklch(0.145 0.004 285);
+  --chart-foreground-muted: oklch(0.55 0.014 260);
+  --chart-line-primary: oklch(0.623 0.214 255);
+  --chart-line-secondary: oklch(0.705 0.015 265);
+  --chart-crosshair: oklch(0.4 0.1828 274.34);
+  --chart-grid: oklch(0.9 0 0);
+  --chart-marker-background: oklch(0.97 0.005 260);
+  --chart-marker-border: oklch(0.85 0.01 260);
+  --chart-marker-foreground: oklch(0.3 0.01 260);
+}
+
+.dark {
+  --chart-background: oklch(0.145 0 0);
+  --chart-foreground: oklch(0.45 0 0);
+  --chart-crosshair: oklch(0.45 0 0);
+  --chart-grid: oklch(0.25 0 0);
+  /* ... dark mode overrides */
+}
 ```
 
 ## Dependencies
@@ -163,5 +288,5 @@ const data: DataPoint[] = [
 This component requires the following packages:
 
 ```bash
-pnpm add @visx/shape @visx/curve @visx/scale @visx/gradient @visx/responsive @visx/event @visx/grid d3-array
+pnpm add @visx/shape @visx/curve @visx/scale @visx/gradient @visx/responsive @visx/event @visx/grid d3-array motion react-use-measure
 ```

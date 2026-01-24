@@ -1,28 +1,13 @@
 "use client";
 
 import { GridColumns, GridRows } from "@visx/grid";
-import type { scaleLinear, scaleTime } from "@visx/scale";
+import { chartCssVars, useChart } from "./chart-context";
 
-type ScaleLinear<Output, _Input = number> = ReturnType<
-  typeof scaleLinear<Output>
->;
-type ScaleTime<Output, _Input = Date | number> = ReturnType<
-  typeof scaleTime<Output>
->;
-
-export interface ChartGridProps {
-  /** Width of the grid area */
-  width: number;
-  /** Height of the grid area */
-  height: number;
-  /** X scale (time scale) */
-  xScale: ScaleTime<number, number>;
-  /** Y scale (linear scale) */
-  yScale: ScaleLinear<number, number>;
+export interface GridProps {
   /** Show horizontal grid lines. Default: true */
-  showRows?: boolean;
+  horizontal?: boolean;
   /** Show vertical grid lines. Default: false */
-  showColumns?: boolean;
+  vertical?: boolean;
   /** Number of horizontal grid lines. Default: 5 */
   numTicksRows?: number;
   /** Number of vertical grid lines. Default: 10 */
@@ -37,23 +22,21 @@ export interface ChartGridProps {
   strokeDasharray?: string;
 }
 
-export function ChartGrid({
-  width,
-  height,
-  xScale,
-  yScale,
-  showRows = true,
-  showColumns = false,
+export function Grid({
+  horizontal = true,
+  vertical = false,
   numTicksRows = 5,
   numTicksColumns = 10,
-  stroke = "var(--chart-grid)",
+  stroke = chartCssVars.grid,
   strokeOpacity = 1,
   strokeWidth = 1,
   strokeDasharray = "4,4",
-}: ChartGridProps) {
+}: GridProps) {
+  const { xScale, yScale, innerWidth, innerHeight } = useChart();
+
   return (
     <g className="chart-grid">
-      {showRows && (
+      {horizontal && (
         <GridRows
           numTicks={numTicksRows}
           scale={yScale}
@@ -61,12 +44,12 @@ export function ChartGrid({
           strokeDasharray={strokeDasharray}
           strokeOpacity={strokeOpacity}
           strokeWidth={strokeWidth}
-          width={width}
+          width={innerWidth}
         />
       )}
-      {showColumns && (
+      {vertical && (
         <GridColumns
-          height={height}
+          height={innerHeight}
           numTicks={numTicksColumns}
           scale={xScale}
           stroke={stroke}
@@ -79,4 +62,6 @@ export function ChartGrid({
   );
 }
 
-export default ChartGrid;
+Grid.displayName = "Grid";
+
+export default Grid;
