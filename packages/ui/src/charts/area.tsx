@@ -8,7 +8,14 @@ import { AreaClosed, LinePath } from "@visx/shape";
 type CurveFactory = any;
 
 import { motion, useSpring } from "motion/react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { chartCssVars, useChart } from "./chart-context";
 
 export interface AreaProps {
@@ -32,6 +39,8 @@ export interface AreaProps {
   showHighlight?: boolean;
   /** Gradient opacity at bottom (0 = fully transparent). Default: 0 */
   gradientToOpacity?: number;
+  /** Whether to fade the area fill at left/right edges. Default: false */
+  fadeEdges?: boolean;
 }
 
 export function Area({
@@ -45,6 +54,7 @@ export function Area({
   showLine = true,
   showHighlight = true,
   gradientToOpacity = 0,
+  fadeEdges = false,
 }: AreaProps) {
   const {
     data,
@@ -62,7 +72,8 @@ export function Area({
   const [pathLength, setPathLength] = useState(0);
   const [clipWidth, setClipWidth] = useState(0);
 
-  // Unique gradient IDs for this area
+  // Unique IDs for this area
+  const uniqueId = useId();
   const gradientId = useMemo(
     () => `area-gradient-${dataKey}-${Math.random().toString(36).slice(2, 9)}`,
     [dataKey]
@@ -72,6 +83,8 @@ export function Area({
       `area-stroke-gradient-${dataKey}-${Math.random().toString(36).slice(2, 9)}`,
     [dataKey]
   );
+  const edgeMaskId = `area-edge-mask-${dataKey}-${uniqueId}`;
+  const edgeGradientId = `${edgeMaskId}-gradient`;
 
   // Resolved stroke color (defaults to fill)
   const resolvedStroke = stroke || fill;
@@ -197,6 +210,45 @@ export function Area({
             style={{ stopColor: resolvedStroke, stopOpacity: 0 }}
           />
         </linearGradient>
+
+        {/* Edge fade mask for area fill */}
+        {fadeEdges && (
+          <>
+            <linearGradient
+              id={edgeGradientId}
+              x1="0%"
+              x2="100%"
+              y1="0%"
+              y2="0%"
+            >
+              <stop
+                offset="0%"
+                style={{ stopColor: "white", stopOpacity: 0 }}
+              />
+              <stop
+                offset="20%"
+                style={{ stopColor: "white", stopOpacity: 1 }}
+              />
+              <stop
+                offset="80%"
+                style={{ stopColor: "white", stopOpacity: 1 }}
+              />
+              <stop
+                offset="100%"
+                style={{ stopColor: "white", stopOpacity: 0 }}
+              />
+            </linearGradient>
+            <mask id={edgeMaskId}>
+              <rect
+                fill={`url(#${edgeGradientId})`}
+                height={innerHeight}
+                width={innerWidth}
+                x="0"
+                y="0"
+              />
+            </mask>
+          </>
+        )}
       </defs>
 
       {/* Clip path for grow animation - unique per area */}
@@ -227,14 +279,16 @@ export function Area({
           transition={{ duration: 0.4, ease: "easeInOut" }}
         >
           {/* Area fill */}
-          <AreaClosed
-            curve={curve}
-            data={data}
-            fill={`url(#${gradientId})`}
-            x={(d) => xScale(xAccessor(d)) ?? 0}
-            y={getY}
-            yScale={yScale}
-          />
+          <g mask={fadeEdges ? `url(#${edgeMaskId})` : undefined}>
+            <AreaClosed
+              curve={curve}
+              data={data}
+              fill={`url(#${gradientId})`}
+              x={(d) => xScale(xAccessor(d)) ?? 0}
+              y={getY}
+              yScale={yScale}
+            />
+          </g>
 
           {/* Stroke line on top of area */}
           {showLine && (
