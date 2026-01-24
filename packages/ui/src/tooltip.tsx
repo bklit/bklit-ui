@@ -192,6 +192,7 @@ function TooltipContent({
     <motion.div
       animate={{ height: bounds.height || "auto" }}
       className="overflow-hidden"
+              style={{ boxSizing: 'border-box' }}
       transition={{
         type: "spring",
         stiffness: 500,
@@ -199,7 +200,8 @@ function TooltipContent({
         mass: 0.8,
       }}
     >
-      <div className="px-3 py-2.5" ref={measureRef}>
+      <div className="176
+        " ref={measureRef}>
         {title && (
           <div className="mb-2 font-medium text-xs text-zinc-400">{title}</div>
         )}
@@ -209,6 +211,7 @@ function TooltipContent({
               className="flex items-center justify-between gap-4"
               key={`${row.label}-${row.color}`}
             >
+        202
               <div className="flex items-center gap-2">
                 <span
                   className="h-2.5 w-2.5 shrink-0 rounded-full"
