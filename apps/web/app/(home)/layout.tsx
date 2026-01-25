@@ -5,6 +5,7 @@ export default function Layout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen">
       <SiteHeader
+        discordUrl="https://discord.com/invite/9yyK8FwPcU"
         githubUrl="https://github.com/bklit/bklit-ui"
         links={[
           {

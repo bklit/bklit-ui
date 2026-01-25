@@ -15,13 +15,18 @@ interface DocsLayoutProps {
   nav?: {
     links?: NavLink[];
     githubUrl?: string;
+    discordUrl?: string;
   };
 }
 
 export function DocsLayout({ children, tree, nav }: DocsLayoutProps) {
   return (
     <div className="min-h-screen">
-      <SiteHeader githubUrl={nav?.githubUrl} links={nav?.links} />
+      <SiteHeader
+        discordUrl={nav?.discordUrl}
+        githubUrl={nav?.githubUrl}
+        links={nav?.links}
+      />
       <div className="mx-auto max-w-7xl pt-14">
         <Sidebar links={nav?.links} tree={tree} />
         <main className="lg:ml-64 xl:mr-56">{children}</main>
