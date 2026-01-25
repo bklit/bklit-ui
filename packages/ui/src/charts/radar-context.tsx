@@ -37,8 +37,8 @@ export interface RadarMetric {
 export interface RadarData {
   /** Display label for this data series */
   label: string;
-  /** Color for this data series */
-  color: string;
+  /** Color for this data series (defaults to chart-1 through chart-5) */
+  color?: string;
   /** Metric values (key -> value, normalized 0-100) */
   values: Record<string, number>;
 }

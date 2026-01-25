@@ -51,7 +51,6 @@ const radarMetrics: RadarMetric[] = [
 const radarData: RadarData[] = [
   {
     label: "Model A",
-    color: "#3b82f6",
     values: {
       speed: 85,
       reliability: 78,
@@ -62,7 +61,6 @@ const radarData: RadarData[] = [
   },
   {
     label: "Model B",
-    color: "#f59e0b",
     values: {
       speed: 72,
       reliability: 90,
@@ -98,10 +96,10 @@ const areaData = [
 
 // Ring chart data
 const ringData: RingData[] = [
-  { label: "Organic", value: 4250, maxValue: 5000, color: "#0ea5e9" },
-  { label: "Paid", value: 3120, maxValue: 5000, color: "#a855f7" },
-  { label: "Email", value: 2100, maxValue: 5000, color: "#f59e0b" },
-  { label: "Social", value: 1580, maxValue: 5000, color: "#10b981" },
+  { label: "Organic", value: 4250, maxValue: 5000 },
+  { label: "Paid", value: 3120, maxValue: 5000 },
+  { label: "Email", value: 2100, maxValue: 5000 },
+  { label: "Social", value: 1580, maxValue: 5000 },
 ];
 
 export function HomeComponents() {
@@ -132,11 +130,7 @@ export function HomeComponents() {
               <LineChart data={lineData}>
                 <ChartTooltip />
                 <Grid horizontal />
-                <Line
-                  dataKey="users"
-                  stroke="var(--chart-line-primary)"
-                  strokeWidth={2}
-                />
+                <Line dataKey="users" strokeWidth={2} />
               </LineChart>
             </div>
           </ShowcaseCard>
@@ -149,7 +143,6 @@ export function HomeComponents() {
                   curve={curveStep}
                   dataKey="value"
                   fadeEdges
-                  fill="var(--chart-line-primary)"
                   fillOpacity={0.3}
                   strokeWidth={2}
                 />
