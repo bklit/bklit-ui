@@ -193,16 +193,15 @@
   --legend-track: oklch(0.274 0.006 286.033);
 }
 
-/* Legend hover effect using :has() */
-.legend-container:has([data-hovered]) > *:not([data-hovered]) {
-  opacity: 0.5;
-}
-
-.legend-container > * {
-  transition: opacity 150ms ease-out;
-}
-
 @layer base {
+  /* Legend hover effect using :has() */
+  .legend-container:has([data-hovered]) > *:not([data-hovered]) {
+    opacity: 0.5;
+  }
+
+  .legend-container > * {
+    transition: opacity 150ms ease-out;
+  }
   * {
     @apply border-border outline-ring/50;
   }

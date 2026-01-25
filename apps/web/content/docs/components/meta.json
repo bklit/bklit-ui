@@ -1,4 +1,4 @@
 {
   "title": "Components",
-  "pages": ["line-chart", "area-chart", "ring-chart", "legend"]
+  "pages": ["line-chart", "area-chart", "ring-chart", "radar-chart", "legend"]
 }

@@ -55,6 +55,21 @@ export {
   type MarkerTooltipContentProps,
   useActiveMarkers,
 } from "./markers";
+// Radar chart components
+export { RadarArea, type RadarAreaProps } from "./radar-area";
+export { RadarAxis, type RadarAxisProps } from "./radar-axis";
+export { RadarChart, type RadarChartProps } from "./radar-chart";
+export {
+  defaultRadarColors,
+  type RadarContextValue,
+  type RadarData,
+  type RadarMetric,
+  RadarProvider,
+  radarCssVars,
+  useRadar,
+} from "./radar-context";
+export { RadarGrid, type RadarGridProps } from "./radar-grid";
+export { RadarLabels, type RadarLabelsProps } from "./radar-labels";
 // Ring chart components
 export { Ring, type RingLineCap, type RingProps } from "./ring";
 export { RingCenter, type RingCenterProps } from "./ring-center";
