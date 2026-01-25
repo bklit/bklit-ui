@@ -1,4 +1,4 @@
-![hero](https://github.com/bklit/bklit-ui/blob/main/apps/web/app/og-image.png?raw=true)
+![hero](https://github.com/bklit/bklit-ui/blob/main/apps/web/app/opengraph-image.png?raw=true)
 
 <p align="center">
 	<h1 align="center"><b>Bklit UI</b></h1>
