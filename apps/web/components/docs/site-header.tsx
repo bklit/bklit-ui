@@ -22,6 +22,8 @@ interface SiteHeaderProps {
 const components = [
   { text: "Line Chart", url: "/docs/components/line-chart" },
   { text: "Area Chart", url: "/docs/components/area-chart" },
+  { text: "Ring Chart", url: "/docs/components/ring-chart" },
+  { text: "Legend", url: "/docs/components/legend" },
 ];
 
 function MenuIcon({ open }: { open: boolean }) {
