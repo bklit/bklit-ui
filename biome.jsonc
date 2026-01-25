@@ -16,6 +16,17 @@
           }
         }
       }
+    },
+    {
+      // Allow namespace imports for shadcn/ui components - standard pattern
+      "includes": ["apps/web/components/ui/**"],
+      "linter": {
+        "rules": {
+          "performance": {
+            "noNamespaceImport": "off"
+          }
+        }
+      }
     }
   ]
 }
