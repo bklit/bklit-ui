@@ -9,14 +9,12 @@ export default function Layout({ children }: { children: ReactNode }) {
         githubUrl="https://github.com/bklit/bklit-ui"
         links={[
           {
-            text: "Docs",
+            text: "Introduction",
             url: "/docs",
-            active: "nested-url",
           },
           {
             text: "Components",
             url: "/docs/components",
-            active: "nested-url",
           },
         ]}
       />

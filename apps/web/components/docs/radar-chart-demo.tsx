@@ -78,11 +78,11 @@ export function RadarChartDemo() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   // Convert radar data to legend items
-  const legendItems: LegendItemData[] = campaignData.map((d) => ({
+  const legendItems: LegendItemData[] = campaignData.map((d, index) => ({
     label: d.label,
     value: Object.values(d.values).reduce((a, b) => a + b, 0) / metrics.length,
     maxValue: 100,
-    color: d.color,
+    color: d.color ?? `var(--chart-${index + 1})`,
   }));
 
   return (

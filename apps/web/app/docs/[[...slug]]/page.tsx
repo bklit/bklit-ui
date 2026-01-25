@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import type { ComponentType } from "react";
 import { ComponentPreview } from "@/components/component-preview";
 import { ComponentsList } from "@/components/docs/components-list";
+import { SocialLinks } from "@/components/docs/social-links";
 import { TableOfContents } from "@/components/docs/toc";
 import { source } from "@/lib/source";
 
@@ -47,6 +48,7 @@ export default async function Page(props: {
               ...defaultMdxComponents,
               ComponentPreview,
               ComponentsList,
+              SocialLinks,
             }}
           />
         </div>
