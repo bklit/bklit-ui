@@ -3,6 +3,7 @@
 import { Group } from "@visx/group";
 import { ParentSize } from "@visx/responsive";
 import { type ReactNode, useCallback, useMemo, useRef, useState } from "react";
+import { cn } from "../lib/utils";
 import {
   defaultRingColors,
   type RingContextValue,
@@ -188,7 +189,7 @@ export function RingChart({
   if (fixedSize) {
     return (
       <div
-        className={`relative flex items-center justify-center ${className}`}
+        className={cn("relative flex items-center justify-center", className)}
         ref={containerRef}
         style={{ width: fixedSize, height: fixedSize }}
       >
@@ -212,7 +213,7 @@ export function RingChart({
   // Otherwise use ParentSize for responsive sizing
   return (
     <div
-      className={`relative aspect-square w-full ${className}`}
+      className={cn("relative aspect-square w-full", className)}
       ref={containerRef}
     >
       <ParentSize debounceTime={10}>

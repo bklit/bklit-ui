@@ -7,6 +7,7 @@ export const ringCssVars = {
   background: "var(--chart-background)",
   foreground: "var(--chart-foreground)",
   foregroundMuted: "var(--chart-foreground-muted)",
+  label: "var(--chart-label)",
   ringBackground: "var(--chart-ring-background)",
   // Default ring colors from chart palette
   ring1: "var(--chart-1)",

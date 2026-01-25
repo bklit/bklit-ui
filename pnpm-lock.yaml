@@ -173,6 +173,9 @@ importers:
       '@visx/shape':
         specifier: 3.12.0
         version: 3.12.0(react@19.2.0)
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
       d3-array:
         specifier: 3.2.4
         version: 3.2.4
@@ -188,6 +191,9 @@ importers:
       react-use-measure:
         specifier: ^2.1.7
         version: 2.1.7(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      tailwind-merge:
+        specifier: ^2.6.0
+        version: 2.6.0
     devDependencies:
       '@bklitui/eslint-config':
         specifier: workspace:*

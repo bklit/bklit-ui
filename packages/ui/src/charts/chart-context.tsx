@@ -22,6 +22,7 @@ export const chartCssVars = {
   background: "var(--chart-background)",
   foreground: "var(--chart-foreground)",
   foregroundMuted: "var(--chart-foreground-muted)",
+  label: "var(--chart-label)",
   linePrimary: "var(--chart-line-primary)",
   lineSecondary: "var(--chart-line-secondary)",
   crosshair: "var(--chart-crosshair)",

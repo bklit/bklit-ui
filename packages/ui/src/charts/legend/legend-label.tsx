@@ -1,6 +1,7 @@
 "use client";
 
-import { legendCssVars, useLegendItem } from "./legend-context";
+import { cn } from "../../lib/utils";
+import { useLegendItem } from "./legend-context";
 
 export interface LegendLabelProps {
   /** Label class name. Default: "text-sm font-medium" */
@@ -13,7 +14,7 @@ export function LegendLabel({
   const { item } = useLegendItem();
 
   return (
-    <span className={className} style={{ color: legendCssVars.foreground }}>
+    <span className={cn("text-legend-foreground", className)}>
       {item.label}
     </span>
   );

@@ -4,6 +4,7 @@ import { Group } from "@visx/group";
 import { ParentSize } from "@visx/responsive";
 import { scaleLinear } from "@visx/scale";
 import { type ReactNode, useCallback, useState } from "react";
+import { cn } from "../lib/utils";
 import {
   defaultRadarColors,
   type RadarContextValue,
@@ -181,7 +182,7 @@ export function RadarChart({
   if (fixedSize) {
     return (
       <div
-        className={`relative flex items-center justify-center ${className}`}
+        className={cn("relative flex items-center justify-center", className)}
         style={{ width: fixedSize, height: fixedSize }}
       >
         <RadarChartInner
@@ -203,7 +204,7 @@ export function RadarChart({
 
   // Otherwise use ParentSize for responsive sizing
   return (
-    <div className={`relative aspect-square w-full ${className}`}>
+    <div className={cn("relative aspect-square w-full", className)}>
       <ParentSize debounceTime={10}>
         {({ width, height }) => (
           <RadarChartInner

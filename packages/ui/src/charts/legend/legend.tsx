@@ -6,11 +6,11 @@ import {
   type ReactElement,
   useState,
 } from "react";
+import { cn } from "../../lib/utils";
 import {
   type LegendItemData,
   LegendItemProvider,
   LegendProvider,
-  legendCssVars,
 } from "./legend-context";
 
 export interface LegendProps {
@@ -64,12 +64,9 @@ export function Legend({
 
   return (
     <LegendProvider value={contextValue}>
-      <div className={`legend-container flex flex-col gap-2 ${className}`}>
+      <div className={cn("legend-container flex flex-col gap-2", className)}>
         {title && (
-          <h3
-            className={`mb-1 ${titleClassName}`}
-            style={{ color: legendCssVars.foreground }}
-          >
+          <h3 className={cn("mb-1 text-legend-foreground", titleClassName)}>
             {title}
           </h3>
         )}

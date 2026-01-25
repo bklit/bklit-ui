@@ -1,7 +1,8 @@
 "use client";
 
 import { Progress } from "@base-ui/react/progress";
-import { legendCssVars, useLegendItem } from "./legend-context";
+import { cn } from "../../lib/utils";
+import { useLegendItem } from "./legend-context";
 
 export interface LegendProgressProps {
   /** Track class name */
@@ -23,14 +24,21 @@ export function LegendProgress({
     return null;
   }
 
+  // Note: item.color must remain inline style as it's dynamic data
   return (
     <Progress.Root max={item.maxValue} value={item.value}>
       <Progress.Track
-        className={`w-full overflow-hidden rounded-full ${height} ${trackClassName}`}
-        style={{ backgroundColor: legendCssVars.track }}
+        className={cn(
+          "w-full overflow-hidden rounded-full bg-legend-track",
+          height,
+          trackClassName
+        )}
       >
         <Progress.Indicator
-          className={`h-full rounded-full transition-all duration-500 ${indicatorClassName}`}
+          className={cn(
+            "h-full rounded-full transition-all duration-500",
+            indicatorClassName
+          )}
           style={{ backgroundColor: item.color }}
         />
       </Progress.Track>

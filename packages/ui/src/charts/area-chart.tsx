@@ -15,6 +15,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { cn } from "../lib/utils";
 import { Area, type AreaProps } from "./area";
 import {
   ChartProvider,
@@ -371,7 +372,7 @@ export function AreaChart({
 
   return (
     <div
-      className={`relative w-full ${className}`}
+      className={cn("relative w-full", className)}
       ref={containerRef}
       style={{ aspectRatio }}
     >

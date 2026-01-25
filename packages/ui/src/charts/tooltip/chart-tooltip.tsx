@@ -2,6 +2,7 @@
 
 import { motion, useSpring } from "motion/react";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { cn } from "../../lib/utils";
 import { chartCssVars, useChart } from "../chart-context";
 import { DateTicker } from "./date-ticker";
 import { TooltipContent, type TooltipRow } from "./tooltip-content";
@@ -187,7 +188,7 @@ export function ChartTooltip({
       {visible && (
         <motion.div
           animate={{ opacity: 1 }}
-          className={`pointer-events-none absolute top-10 z-50 ${className}`}
+          className={cn("pointer-events-none absolute top-10 z-50", className)}
           exit={{ opacity: 0 }}
           initial={{ opacity: 0 }}
           ref={tooltipRef}

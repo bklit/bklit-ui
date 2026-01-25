@@ -2,7 +2,7 @@
 
 import { Progress } from "@base-ui/react/progress";
 import type { ReactNode } from "react";
-import { legendCssVars } from "./legend";
+import { cn } from "../lib/utils";
 
 export interface LegendItem {
   /** Display label */
@@ -72,6 +72,7 @@ function ProgressItem({
 }: ProgressItemProps) {
   const percentage = item.maxValue ? (item.value / item.maxValue) * 100 : 0;
 
+  // Note: item.color must remain inline style as it's dynamic data
   return (
     <Progress.Root
       className="grid w-full grid-cols-[auto_1fr_auto] items-center gap-x-3 gap-y-1"
@@ -87,26 +88,17 @@ function ProgressItem({
       )}
 
       {/* Label */}
-      <Progress.Label
-        className={labelClassName}
-        style={{ color: legendCssVars.foreground }}
-      >
+      <Progress.Label className={cn("text-legend-foreground", labelClassName)}>
         {item.label}
       </Progress.Label>
 
       {/* Value */}
-      <span
-        className={valueClassName}
-        style={{ color: legendCssVars.mutedForeground }}
-      >
+      <span className={cn("text-legend-muted-foreground", valueClassName)}>
         {formatValue(item.value)}
       </span>
 
       {/* Progress track and indicator */}
-      <Progress.Track
-        className="col-span-full h-1.5 overflow-hidden rounded-full"
-        style={{ backgroundColor: legendCssVars.track }}
-      >
+      <Progress.Track className="col-span-full h-1.5 overflow-hidden rounded-full bg-legend-track">
         <Progress.Indicator
           className="h-full rounded-full transition-all duration-500"
           style={{ backgroundColor: item.color }}
@@ -115,10 +107,7 @@ function ProgressItem({
 
       {/* Percentage */}
       {showPercentage && (
-        <span
-          className="col-start-3 text-xs tabular-nums"
-          style={{ color: legendCssVars.mutedForeground }}
-        >
+        <span className="col-start-3 text-legend-muted-foreground text-xs tabular-nums">
           {percentage.toFixed(0)}%
         </span>
       )}
@@ -142,6 +131,7 @@ function SimpleItem({
   labelClassName,
   valueClassName,
 }: SimpleItemProps) {
+  // Note: item.color must remain inline style as it's dynamic data
   return (
     <div className="flex items-center gap-3">
       {/* Color marker */}
@@ -153,18 +143,12 @@ function SimpleItem({
       )}
 
       {/* Label */}
-      <span
-        className={`flex-1 ${labelClassName}`}
-        style={{ color: legendCssVars.foreground }}
-      >
+      <span className={cn("flex-1 text-legend-foreground", labelClassName)}>
         {item.label}
       </span>
 
       {/* Value */}
-      <span
-        className={valueClassName}
-        style={{ color: legendCssVars.mutedForeground }}
-      >
+      <span className={cn("text-legend-muted-foreground", valueClassName)}>
         {formatValue(item.value)}
       </span>
     </div>
@@ -191,12 +175,9 @@ export function ChartLegend({
   const displayPercentage = showPercentage ?? showProgress;
 
   return (
-    <div className={`legend-container flex flex-col gap-2 ${className}`}>
+    <div className={cn("legend-container flex flex-col gap-2", className)}>
       {title && (
-        <h3
-          className={`mb-1 ${titleClassName}`}
-          style={{ color: legendCssVars.foreground }}
-        >
+        <h3 className={cn("mb-1 text-legend-foreground", titleClassName)}>
           {title}
         </h3>
       )}
@@ -227,14 +208,15 @@ export function ChartLegend({
           // biome-ignore lint/a11y/noNoninteractiveElementInteractions: Legend item hover interaction
           // biome-ignore lint/a11y/noStaticElementInteractions: Legend item hover interaction
           <div
-            className={`cursor-pointer rounded-lg px-2 py-1.5 transition-all duration-150 ease-out ${itemClassName}`}
+            className={cn(
+              "cursor-pointer rounded-lg px-2 py-1.5 transition-all duration-150 ease-out",
+              isHovered && "bg-legend-muted",
+              itemClassName
+            )}
             data-hovered={isHovered ? "" : undefined}
             key={`legend-${item.label}-${i}`}
             onMouseEnter={() => onHover?.(i)}
             onMouseLeave={() => onHover?.(null)}
-            style={{
-              backgroundColor: isHovered ? legendCssVars.muted : "transparent",
-            }}
           >
             {showProgress && item.maxValue ? (
               <ProgressItem

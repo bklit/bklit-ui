@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "motion/react";
 import type * as React from "react";
 import { useState } from "react";
 import { createPortal } from "react-dom";
+import { cn } from "../../lib/utils";
 import { chartCssVars } from "../chart-context";
 
 // Fan configuration
@@ -392,11 +393,13 @@ function MarkerCircleHTML({
     }
   };
 
+  // Note: color and CSS vars must remain inline styles as they're dynamic
   return (
     <motion.div
-      className={`relative flex h-full w-full items-center justify-center rounded-full shadow-lg ${
-        hasAction ? "cursor-pointer" : ""
-      }`}
+      className={cn(
+        "relative flex h-full w-full items-center justify-center rounded-full shadow-lg",
+        hasAction && "cursor-pointer"
+      )}
       onClick={hasAction ? handleClick : undefined}
       style={{
         backgroundColor: color || chartCssVars.markerBackground,

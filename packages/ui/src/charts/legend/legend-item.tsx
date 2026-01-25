@@ -1,7 +1,8 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { legendCssVars, useLegend, useLegendItem } from "./legend-context";
+import { cn } from "../../lib/utils";
+import { useLegend, useLegendItem } from "./legend-context";
 
 export interface LegendItemProps {
   /** Container class name */
@@ -18,13 +19,14 @@ export function LegendItem({ className = "", children }: LegendItemProps) {
     // biome-ignore lint/a11y/noNoninteractiveElementInteractions: Legend item hover interaction
     // biome-ignore lint/a11y/noStaticElementInteractions: Legend item hover interaction
     <div
-      className={`cursor-pointer rounded-lg px-2 py-1.5 transition-all duration-150 ease-out ${className}`}
+      className={cn(
+        "cursor-pointer rounded-lg px-2 py-1.5 transition-all duration-150 ease-out",
+        isHovered && "bg-legend-muted",
+        className
+      )}
       data-hovered={isHovered ? "" : undefined}
       onMouseEnter={() => setHoveredIndex(index)}
       onMouseLeave={() => setHoveredIndex(null)}
-      style={{
-        backgroundColor: isHovered ? legendCssVars.muted : "transparent",
-      }}
     >
       {children}
     </div>

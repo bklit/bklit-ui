@@ -3,6 +3,7 @@
 import NumberFlow from "@number-flow/react";
 import { motion } from "motion/react";
 import type { ReactNode } from "react";
+import { cn } from "../lib/utils";
 import { useRing } from "./ring-context";
 
 // NumberFlow format - subset of Intl.NumberFormatOptions
@@ -84,7 +85,10 @@ export function RingCenter({
         y={-centerSize / 2}
       >
         <div
-          className={`flex h-full w-full items-center justify-center ${className}`}
+          className={cn(
+            "flex h-full w-full items-center justify-center",
+            className
+          )}
         >
           {children({
             value: displayValue,
@@ -107,9 +111,12 @@ export function RingCenter({
       y={-centerSize / 2}
     >
       <div
-        className={`flex h-full w-full flex-col items-center justify-center ${className}`}
+        className={cn(
+          "flex h-full w-full flex-col items-center justify-center",
+          className
+        )}
       >
-        <span className={`text-foreground tabular-nums ${valueClassName}`}>
+        <span className={cn("text-foreground tabular-nums", valueClassName)}>
           <NumberFlow
             format={formatOptions}
             prefix={prefix}
@@ -120,7 +127,7 @@ export function RingCenter({
         </span>
         <motion.span
           animate={{ opacity: 1 }}
-          className={`mt-0.5 text-muted-foreground ${labelClassName}`}
+          className={cn("mt-0.5 text-chart-label", labelClassName)}
           initial={{ opacity: 0 }}
           key={`label-${displayLabel}-${animationKey}`}
           transition={{ delay: 0.4 }}

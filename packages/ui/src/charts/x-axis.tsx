@@ -2,7 +2,8 @@
 
 import { motion } from "motion/react";
 import { useEffect, useMemo, useState } from "react";
-import { chartCssVars, useChart } from "./chart-context";
+import { cn } from "../lib/utils";
+import { useChart } from "./chart-context";
 
 export interface XAxisProps {
   /** Number of ticks to show (including first and last). Default: 5 */
@@ -55,9 +56,8 @@ function XAxisLabel({
     >
       <motion.span
         animate={{ opacity }}
-        className="whitespace-nowrap text-xs"
+        className={cn("whitespace-nowrap text-chart-label text-xs")}
         initial={{ opacity: 1 }}
-        style={{ color: chartCssVars.foregroundMuted }}
         transition={{ duration: 0.4, ease: "easeInOut" }}
       >
         {label}

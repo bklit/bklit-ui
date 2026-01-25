@@ -1,6 +1,7 @@
 "use client";
 
-import { legendCssVars, useLegendItem } from "./legend-context";
+import { cn } from "../../lib/utils";
+import { useLegendItem } from "./legend-context";
 
 export interface LegendValueProps {
   /** Value class name. Default: "text-sm tabular-nums" */
@@ -26,8 +27,10 @@ export function LegendValue({
 
   return (
     <span
-      className={`flex items-center gap-2 ${className}`}
-      style={{ color: legendCssVars.mutedForeground }}
+      className={cn(
+        "flex items-center gap-2 text-legend-muted-foreground",
+        className
+      )}
     >
       <span>{formatValue(item.value)}</span>
       {showPercentage && item.maxValue && (
