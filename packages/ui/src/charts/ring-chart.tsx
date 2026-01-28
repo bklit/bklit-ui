@@ -2,7 +2,15 @@
 
 import { Group } from "@visx/group";
 import { ParentSize } from "@visx/responsive";
-import { type ReactNode, useCallback, useMemo, useRef, useState } from "react";
+import {
+  Children,
+  isValidElement,
+  type ReactNode,
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { cn } from "../lib/utils";
 import {
   defaultRingColors,
@@ -45,6 +53,16 @@ interface RingChartInnerProps {
   containerRef: React.RefObject<HTMLDivElement | null>;
   hoveredIndexProp?: number | null;
   onHoverChange?: (index: number | null) => void;
+}
+
+// Helper to check if a child is a RingCenter component
+function isRingCenter(child: ReactNode): boolean {
+  return (
+    isValidElement(child) &&
+    typeof child.type === "function" &&
+    ((child.type as { displayName?: string }).displayName === "RingCenter" ||
+      child.type.name === "RingCenter")
+  );
 }
 
 function RingChartInner({
@@ -139,6 +157,23 @@ function RingChartInner({
     return () => clearTimeout(timer);
   });
 
+  // Separate SVG children (rings) from HTML children (RingCenter)
+  // This avoids Safari's foreignObject positioning bugs (WebKit #23113)
+  const { svgChildren, centerChildren } = useMemo(() => {
+    const svgNodes: ReactNode[] = [];
+    const centerNodes: ReactNode[] = [];
+
+    Children.forEach(children, (child) => {
+      if (isRingCenter(child)) {
+        centerNodes.push(child);
+      } else {
+        svgNodes.push(child);
+      }
+    });
+
+    return { svgChildren: svgNodes, centerChildren: centerNodes };
+  }, [children]);
+
   // Early return if dimensions not ready
   if (size < 10) {
     return null;
@@ -161,13 +196,42 @@ function RingChartInner({
     getRingRadii,
   };
 
+  // Use CSS Grid stacking to layer SVG and HTML content
+  // This avoids Safari's foreignObject rendering bugs where HTML content
+  // inside SVG foreignObject renders at wrong positions when it has a RenderLayer
   return (
     <RingProvider value={contextValue}>
-      <svg aria-hidden="true" height={size} width={size}>
-        <Group left={center} top={center}>
-          {children}
-        </Group>
-      </svg>
+      <div
+        className="grid"
+        style={{
+          gridTemplateColumns: "1fr",
+          gridTemplateRows: "1fr",
+          width: size,
+          height: size,
+        }}
+      >
+        {/* SVG layer with rings */}
+        <svg
+          aria-hidden="true"
+          height={size}
+          style={{ gridArea: "1 / 1" }}
+          width={size}
+        >
+          <Group left={center} top={center}>
+            {svgChildren}
+          </Group>
+        </svg>
+
+        {/* HTML layer with center content - stacked on top via grid */}
+        {centerChildren.length > 0 && (
+          <div
+            className="pointer-events-none flex items-center justify-center"
+            style={{ gridArea: "1 / 1" }}
+          >
+            {centerChildren}
+          </div>
+        )}
+      </div>
     </RingProvider>
   );
 }

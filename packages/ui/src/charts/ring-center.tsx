@@ -1,7 +1,6 @@
 "use client";
 
 import NumberFlow from "@number-flow/react";
-import { motion } from "motion/react";
 import type { ReactNode } from "react";
 import { cn } from "../lib/utils";
 import { useRing } from "./ring-context";
@@ -52,6 +51,16 @@ const defaultFormatOptions: NumberFlowFormat = {
   maximumFractionDigits: 0,
 };
 
+/**
+ * RingCenter displays content in the center of the ring chart.
+ *
+ * This component renders as pure HTML (not inside SVG foreignObject) to avoid
+ * Safari's WebKit bug #23113 where HTML content with CSS transforms/opacity
+ * inside foreignObject renders at incorrect positions.
+ *
+ * The parent RingChart uses CSS Grid stacking to overlay this HTML content
+ * on top of the SVG rings.
+ */
 export function RingCenter({
   defaultLabel = "Total",
   formatOptions = defaultFormatOptions,
@@ -62,8 +71,7 @@ export function RingCenter({
   prefix,
   suffix,
 }: RingCenterProps) {
-  const { data, hoveredIndex, totalValue, animationKey, baseInnerRadius } =
-    useRing();
+  const { data, hoveredIndex, totalValue, baseInnerRadius } = useRing();
 
   const hoveredData = hoveredIndex !== null ? data[hoveredIndex] : null;
   const displayValue = hoveredData ? hoveredData.value : totalValue;
@@ -77,65 +85,43 @@ export function RingCenter({
   // If custom render function is provided, use it
   if (children && hoveredData) {
     return (
-      <foreignObject
-        height={centerSize}
-        style={{ pointerEvents: "none" }}
-        width={centerSize}
-        x={-centerSize / 2}
-        y={-centerSize / 2}
+      <div
+        className={cn("flex items-center justify-center", className)}
+        style={{ width: centerSize, height: centerSize }}
       >
-        <div
-          className={cn(
-            "flex h-full w-full items-center justify-center",
-            className
-          )}
-        >
-          {children({
-            value: displayValue,
-            label: displayLabel,
-            isHovered,
-            data: hoveredData,
-          })}
-        </div>
-      </foreignObject>
+        {children({
+          value: displayValue,
+          label: displayLabel,
+          isHovered,
+          data: hoveredData,
+        })}
+      </div>
     );
   }
 
   // Default center content with NumberFlow animations
+  // Now renders as pure HTML, avoiding Safari's foreignObject bugs
   return (
-    <foreignObject
-      height={centerSize}
-      style={{ pointerEvents: "none" }}
-      width={centerSize}
-      x={-centerSize / 2}
-      y={-centerSize / 2}
+    <div
+      className={cn(
+        "flex flex-col items-center justify-center text-center",
+        className
+      )}
+      style={{ width: centerSize, height: centerSize }}
     >
-      <div
-        className={cn(
-          "flex h-full w-full flex-col items-center justify-center",
-          className
-        )}
-      >
-        <span className={cn("text-foreground tabular-nums", valueClassName)}>
-          <NumberFlow
-            format={formatOptions}
-            prefix={prefix}
-            suffix={suffix}
-            value={displayValue}
-            willChange
-          />
-        </span>
-        <motion.span
-          animate={{ opacity: 1 }}
-          className={cn("mt-0.5 text-chart-label", labelClassName)}
-          initial={{ opacity: 0 }}
-          key={`label-${displayLabel}-${animationKey}`}
-          transition={{ delay: 0.4 }}
-        >
-          {displayLabel}
-        </motion.span>
-      </div>
-    </foreignObject>
+      <span className={cn("text-foreground tabular-nums", valueClassName)}>
+        <NumberFlow
+          format={formatOptions}
+          prefix={prefix}
+          suffix={suffix}
+          value={displayValue}
+          willChange
+        />
+      </span>
+      <span className={cn("mt-0.5 text-chart-label", labelClassName)}>
+        {displayLabel}
+      </span>
+    </div>
   );
 }
 
