@@ -29,7 +29,7 @@ export default function HomePage() {
       </div>
 
       <div className="container mx-auto">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-7">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-12">
           <HomeComponents />
         </div>
       </div>
