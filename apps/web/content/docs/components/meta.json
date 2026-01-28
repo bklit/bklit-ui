@@ -6,6 +6,7 @@
     "bar-chart",
     "ring-chart",
     "radar-chart",
+    "sankey-chart",
     "legend"
   ]
 }

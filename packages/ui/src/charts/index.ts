@@ -112,6 +112,25 @@ export {
   ringCssVars,
   useRing,
 } from "./ring-context";
+// Sankey chart components
+export {
+  SankeyChart,
+  type SankeyChartProps,
+  type SankeyContextValue,
+  type SankeyData,
+  SankeyLink,
+  type SankeyLinkDatum,
+  type SankeyLinkProps,
+  SankeyNode,
+  type SankeyNodeDatum,
+  type SankeyNodeProps,
+  SankeyProvider,
+  SankeyTooltip,
+  type SankeyTooltipData,
+  type SankeyTooltipProps,
+  sankeyCssVars,
+  useSankey,
+} from "./sankey";
 // Tooltip components
 export {
   ChartTooltip,
@@ -119,6 +138,8 @@ export {
   DateTicker,
   type DateTickerProps,
   type IndicatorWidth,
+  TooltipBox,
+  type TooltipBoxProps,
   TooltipContent,
   type TooltipContentProps,
   TooltipDot,
