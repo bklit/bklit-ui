@@ -8,9 +8,9 @@ import { RingChartDemo, RingChartBasicDemo, RingChartCustomColorsDemo } from "@/
 
 ## Preview
 
-<div className="my-6 w-full flex justify-center">
+<ComponentPreview>
   <RingChartDemo />
-</div>
+</ComponentPreview>
 
 ## Installation
 
@@ -113,27 +113,18 @@ interface LegendItem {
 
 ### Basic Ring Chart
 
-<div className="my-6 flex justify-center">
-  <RingChartBasicDemo />
-</div>
-
-```tsx
-<RingChart data={sessionsData} size={280}>
+<ComponentShowcase code={`<RingChart data={sessionsData} size={280}>
   {sessionsData.map((_, index) => (
     <Ring key={index} index={index} />
   ))}
   <RingCenter />
-</RingChart>
-```
+</RingChart>`}>
+  <RingChartBasicDemo />
+</ComponentShowcase>
 
 ### With Custom Colors and Formatting
 
-<div className="my-6 flex justify-center">
-  <RingChartCustomColorsDemo />
-</div>
-
-```tsx
-const customData = [
+<ComponentShowcase code={`const customData = [
   { label: "Revenue", value: 85000, maxValue: 100000, color: "var(--chart-1)" },
   { label: "Expenses", value: 62000, maxValue: 100000, color: "var(--chart-2)" },
   { label: "Profit", value: 23000, maxValue: 100000, color: "var(--chart-3)" },
@@ -144,11 +135,12 @@ const customData = [
     <Ring key={index} index={index} />
   ))}
   <RingCenter
-    formatValue={(v) => `$${(v / 1000).toFixed(0)}k`}
+    formatValue={(v) => \`$\${(v / 1000).toFixed(0)}k\`}
     defaultLabel="Total"
   />
-</RingChart>
-```
+</RingChart>`}>
+  <RingChartCustomColorsDemo />
+</ComponentShowcase>
 
 ### Synchronized Legend
 

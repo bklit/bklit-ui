@@ -54,18 +54,20 @@ export const demoMarkers = [
 
 ## Preview
 
-<div className="my-6 w-full">
-  <LineChart data={chartData}>
-    <Grid horizontal />
-    <Line dataKey="users" stroke="var(--chart-line-primary)" />
-    <Line dataKey="pageviews" stroke="var(--chart-line-secondary)" />
-    <ChartMarkers items={demoMarkers} />
-    <XAxis />
-    <ChartTooltip>
-      <MarkerContentDemo markers={demoMarkers} />
-    </ChartTooltip>
-  </LineChart>
-</div>
+<ComponentPreview>
+  <div className="w-full">
+    <LineChart data={chartData}>
+      <Grid horizontal />
+      <Line dataKey="users" stroke="var(--chart-line-primary)" />
+      <Line dataKey="pageviews" stroke="var(--chart-line-secondary)" />
+      <ChartMarkers items={demoMarkers} />
+      <XAxis />
+      <ChartTooltip>
+        <MarkerContentDemo markers={demoMarkers} />
+      </ChartTooltip>
+    </LineChart>
+  </div>
+</ComponentPreview>
 
 ## Installation
 

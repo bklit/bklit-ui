@@ -1,0 +1,343 @@
+---
+title: Pie Chart
+description: A composable pie and donut chart with animated slices, hover interactions, patterns, gradients, and an interactive legend
+---
+
+import { PieChart, PieSlice, PieCenter, Legend, LegendItemComponent, LegendMarker, LegendLabel, LegendValue, PatternLines, RadialGradient } from "@bklitui/ui/charts";
+import { PieChartDemo, PieChartBasicDemo, PieChartDonutDemo, PieChartDonutLegendDemo, PieChartPatternsDemo, PieChartGradientsDemo, PieChartHoverEffectDemo, PieChartCustomCenterDemo } from "@/components/docs/pie-chart-demo";
+
+## Preview
+
+<ComponentPreview>
+  <PieChartDemo />
+</ComponentPreview>
+
+## Installation
+
+```tsx
+// Pie chart components
+import { PieChart, PieSlice, PieCenter } from "@bklitui/ui/charts";
+
+// Composable legend (see Legend docs for more)
+import { Legend, LegendItemComponent, LegendMarker, LegendLabel, LegendValue } from "@bklitui/ui/charts";
+
+// Patterns and gradients
+import { PatternLines, PatternCircles, LinearGradient, RadialGradient } from "@bklitui/ui/charts";
+```
+
+## Usage
+
+The Pie Chart uses a composable API similar to other charts in the library. Build charts by combining components:
+
+```tsx
+import { PieChart, PieSlice } from "@bklitui/ui/charts";
+
+const data = [
+  { label: "Electronics", value: 4250, color: "#0ea5e9" },
+  { label: "Clothing", value: 3120, color: "#a855f7" },
+  { label: "Food", value: 2100, color: "#f59e0b" },
+];
+
+export default function SalesChart() {
+  return (
+    <PieChart data={data} size={280}>
+      {data.map((_, index) => (
+        <PieSlice key={index} index={index} />
+      ))}
+    </PieChart>
+  );
+}
+```
+
+## Components
+
+### PieChart
+
+The root component that provides context to all children.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `data` | `PieData[]` | required | Array of pie data items |
+| `size` | `number` | auto | Fixed size in pixels (uses parent if not set) |
+| `innerRadius` | `number` | `0` | Inner radius for donut charts (0 = solid pie) |
+| `padAngle` | `number` | `0` | Padding angle between slices (radians) |
+| `cornerRadius` | `number` | `0` | Corner radius for rounded slice edges |
+| `startAngle` | `number` | `-PI/2` | Start angle in radians (top) |
+| `endAngle` | `number` | `3*PI/2` | End angle in radians (full circle) |
+| `hoveredIndex` | `number \| null` | - | Controlled hover state |
+| `onHoverChange` | `(index: number \| null) => void` | - | Hover state callback |
+| `className` | `string` | `""` | Additional CSS class |
+
+### PieSlice
+
+Renders an individual slice with animated arc and hover effects.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `index` | `number` | required | Index of the slice in the data array |
+| `color` | `string` | from data/palette | Optional color override |
+| `fill` | `string` | - | Optional fill for patterns/gradients (e.g., `url(#patternId)`) |
+| `animate` | `boolean` | `true` | Enable animation on mount |
+| `showGlow` | `boolean` | `true` | Show glow effect on hover |
+| `hoverEffect` | `"translate" \| "grow" \| "none"` | `"translate"` | Hover animation type |
+| `hoverOffset` | `number` | `10` | Distance in pixels for hover effect |
+
+### PieCenter
+
+Displays content in the center of a donut chart. Only renders when `innerRadius > 0`.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `defaultLabel` | `string` | `"Total"` | Label shown when not hovering |
+| `formatOptions` | `NumberFlowFormat` | - | Number formatting options |
+| `prefix` | `string` | - | Prefix before the value (e.g., "$") |
+| `suffix` | `string` | - | Suffix after the value (e.g., "%") |
+| `children` | `function` | - | Custom render function |
+| `className` | `string` | `""` | Additional CSS class |
+
+### Legend
+
+A composable legend component for pie charts and other visualizations. See the full [Legend documentation](/docs/components/legend) for all components and options.
+
+## Data Shape
+
+```ts
+interface PieData {
+  label: string;      // Display label
+  value: number;      // Value (determines slice size)
+  color?: string;     // Optional color (falls back to palette)
+  fill?: string;      // Optional fill for patterns/gradients
+}
+
+interface LegendItemData {
+  label: string;
+  value: number;
+  color: string;
+}
+```
+
+## Examples
+
+### Basic Pie Chart
+
+<ComponentShowcase code={`<PieChart data={salesData} size={240}>
+  {salesData.map((item, index) => (
+    <PieSlice key={item.label} index={index} />
+  ))}
+</PieChart>`}>
+  <PieChartBasicDemo />
+</ComponentShowcase>
+
+### Donut Chart
+
+Use `innerRadius` to create a donut chart with a hollow center. Add `PieCenter` to display content in the center.
+
+<ComponentShowcase code={`<PieChart data={salesData} size={280} innerRadius={70}>
+  {salesData.map((item, index) => (
+    <PieSlice key={item.label} index={index} />
+  ))}
+  <PieCenter defaultLabel="Total Sales" />
+</PieChart>`}>
+  <PieChartDonutDemo />
+</ComponentShowcase>
+
+### Donut with Interactive Legend
+
+Connect the legend hover state to the chart for bidirectional interaction.
+
+<ComponentShowcase code={`import { useState } from "react";
+import { 
+  PieChart, PieSlice, PieCenter,
+  Legend, LegendItemComponent, LegendMarker, LegendLabel, LegendValue
+} from "@bklitui/ui/charts";
+
+function SyncedPieChart() {
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
+  const legendItems = data.map(d => ({
+    label: d.label,
+    value: d.value,
+    color: d.color || "",
+  }));
+
+  return (
+    <div className="flex items-center gap-12">
+      <PieChart
+        data={data}
+        size={280}
+        innerRadius={70}
+        hoveredIndex={hoveredIndex}
+        onHoverChange={setHoveredIndex}
+      >
+        {data.map((_, index) => (
+          <PieSlice key={index} index={index} />
+        ))}
+        <PieCenter defaultLabel="Total Sales" />
+      </PieChart>
+
+      <Legend
+        items={legendItems}
+        hoveredIndex={hoveredIndex}
+        onHoverChange={setHoveredIndex}
+        title="Sales by Category"
+      >
+        <LegendItemComponent className="flex items-center gap-3">
+          <LegendMarker />
+          <LegendLabel className="flex-1" />
+          <LegendValue showPercentage />
+        </LegendItemComponent>
+      </Legend>
+    </div>
+  );
+}`}>
+  <PieChartDonutLegendDemo />
+</ComponentShowcase>
+
+### With Patterns
+
+Use `@visx/pattern` components to add patterns to slices. Define patterns as children of `PieChart` and reference them with `fill="url(#patternId)"`.
+
+<ComponentShowcase code={`<PieChart data={data} size={280}>
+  {/* Pattern definitions */}
+  <PatternLines
+    id="pie-pattern-1"
+    height={6}
+    width={6}
+    stroke="var(--chart-1)"
+    strokeWidth={1}
+    orientation={["diagonal"]}
+  />
+  <PatternLines
+    id="pie-pattern-2"
+    height={6}
+    width={6}
+    stroke="var(--chart-2)"
+    strokeWidth={1}
+    orientation={["horizontal"]}
+  />
+
+  {/* Slices with pattern fills */}
+  <PieSlice index={0} fill="url(#pie-pattern-1)" />
+  <PieSlice index={1} fill="url(#pie-pattern-2)" />
+</PieChart>`}>
+  <PieChartPatternsDemo />
+</ComponentShowcase>
+
+### With Gradients
+
+Use `@visx/gradient` components to add gradients to slices.
+
+<ComponentShowcase code={`<PieChart data={data} size={280}>
+  {/* Gradient definitions */}
+  <RadialGradient
+    id="pie-gradient-1"
+    from="#0ea5e9"
+    to="#06b6d4"
+    fromOffset="0%"
+    toOffset="100%"
+  />
+  <RadialGradient
+    id="pie-gradient-2"
+    from="#a855f7"
+    to="#ec4899"
+    fromOffset="0%"
+    toOffset="100%"
+  />
+
+  {/* Slices with gradient fills */}
+  <PieSlice index={0} fill="url(#pie-gradient-1)" />
+  <PieSlice index={1} fill="url(#pie-gradient-2)" />
+</PieChart>`}>
+  <PieChartGradientsDemo />
+</ComponentShowcase>
+
+### Hover Effects
+
+Choose between different hover effects using the `hoverEffect` prop:
+
+- **`"translate"`** (default): Slice moves outward along its radial axis
+- **`"grow"`**: Slice extends its outer radius (gets longer)
+- **`"none"`**: No hover animation (just opacity fade)
+
+<ComponentShowcase code={`// Translate effect (default) - slice pops out
+<PieSlice index={0} hoverEffect="translate" />
+
+// Grow effect - slice extends outward
+<PieSlice index={0} hoverEffect="grow" />
+
+// No hover animation
+<PieSlice index={0} hoverEffect="none" />
+
+// Custom offset distance (pixels)
+<PieSlice index={0} hoverEffect="translate" hoverOffset={15} />`}>
+  <PieChartHoverEffectDemo />
+</ComponentShowcase>
+
+### Custom Center Content
+
+Use the render prop for complete control over the center content:
+
+<ComponentShowcase code={`<PieChart data={data} size={300} innerRadius={80}>
+  {data.map((_, index) => (
+    <PieSlice key={index} index={index} />
+  ))}
+  <PieCenter>
+    {({ value, label, isHovered, data }) => (
+      <div className="text-center">
+        <div 
+          className="text-3xl font-bold" 
+          style={{ color: isHovered ? data.color : undefined }}
+        >
+          {value.toLocaleString()}
+        </div>
+        <div className="text-sm text-muted-foreground">{label}</div>
+        {isHovered && (
+          <div className="text-xs text-muted-foreground mt-1">
+            {((data.value / totalValue) * 100).toFixed(1)}% of total
+          </div>
+        )}
+      </div>
+    )}
+  </PieCenter>
+</PieChart>`}>
+  <PieChartCustomCenterDemo />
+</ComponentShowcase>
+
+## Theming
+
+The Pie Chart uses CSS variables for theming. Slice colors default to `--chart-1` through `--chart-5`:
+
+```css
+:root {
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+}
+
+.dark {
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+}
+```
+
+## Animation
+
+The pie chart features animations on mount:
+
+1. **Slice Appearance** - Slices animate in with staggered timing
+2. **Hover Effects** - Slices scale up on hover with glow effect
+3. **Fade Effect** - Non-hovered slices fade when another slice is hovered
+4. **Center Content** - Value animates when switching between slices
+
+All animations use spring physics for natural motion.
+
+## Dependencies
+
+```bash
+pnpm add @visx/shape @visx/group @visx/responsive @visx/pattern @visx/gradient d3-shape motion
+```

@@ -4,6 +4,7 @@ description: A composable bar chart with spring animations, stacked bars, horizo
 ---
 
 import { BarChart, Bar, BarXAxis, BarYAxis, Grid, ChartTooltip, Legend, LegendItem as LegendItemComponent, LegendMarker, LegendLabel, LinearGradient, PatternLines } from "@bklitui/ui/charts";
+import { BarChartStackedDemo, BarChartHorizontalDemo, BarChart90DaysDemo, BarChartGradientDemo, BarChartPatternDemo } from "@/components/docs/bar-chart-demo";
 
 export const chartData = [
   { month: "Jan", revenue: 12000, profit: 4500 },
@@ -42,15 +43,17 @@ export const dailyData = Array.from({ length: 90 }, (_, i) => {
 
 ## Preview
 
-<div className="my-6 w-full">
-  <BarChart data={chartData} xDataKey="month">
-    <Grid horizontal />
-    <Bar dataKey="revenue" fill="var(--chart-line-primary)" lineCap="round" />
-    <Bar dataKey="profit" fill="var(--chart-line-secondary)" lineCap="round" />
-    <BarXAxis />
-    <ChartTooltip />
-  </BarChart>
-</div>
+<ComponentPreview>
+  <div className="w-full">
+    <BarChart data={chartData} xDataKey="month">
+      <Grid horizontal />
+      <Bar dataKey="revenue" fill="var(--chart-line-primary)" lineCap="round" />
+      <Bar dataKey="profit" fill="var(--chart-line-secondary)" lineCap="round" />
+      <BarXAxis />
+      <ChartTooltip />
+    </BarChart>
+  </div>
+</ComponentPreview>
 
 ## Installation
 
@@ -88,69 +91,41 @@ export default function RevenueChart() {
 
 Use the `stacked` prop to stack bars on top of each other. Add `stackGap` to create visual separation between segments, allowing each bar to have its own rounded corners.
 
-<div className="my-6 w-full">
-  <BarChart data={stackedData} xDataKey="month" stacked stackGap={3}>
-    <Grid horizontal />
-    <Bar dataKey="desktop" fill="hsl(217, 91%, 60%)" lineCap={4} stackGap={3} />
-    <Bar dataKey="mobile" fill="hsl(217, 91%, 75%)" lineCap={4} stackGap={3} />
-    <BarXAxis />
-    <ChartTooltip />
-  </BarChart>
-</div>
-
-```tsx
-<BarChart data={data} xDataKey="month" stacked stackGap={3}>
+<ComponentShowcase code={`<BarChart data={data} xDataKey="month" stacked stackGap={3}>
   <Grid horizontal />
   <Bar dataKey="desktop" fill="hsl(217, 91%, 60%)" lineCap={4} stackGap={3} />
   <Bar dataKey="mobile" fill="hsl(217, 91%, 75%)" lineCap={4} stackGap={3} />
   <BarXAxis />
   <ChartTooltip />
-</BarChart>
-```
+</BarChart>`}>
+  <BarChartStackedDemo />
+</ComponentShowcase>
 
 ## Horizontal Bars
 
 Use `orientation="horizontal"` to create horizontal bar charts with categories on the Y-axis.
 
-<div className="my-6 w-full">
-  <BarChart data={browserData} xDataKey="browser" orientation="horizontal" aspectRatio="4 / 3" margin={{ left: 80 }}>
-    <Grid horizontal={false} vertical fadeVertical />
-    <Bar dataKey="users" fill="hsl(217, 91%, 60%)" lineCap={4} />
-    <BarYAxis />
-    <ChartTooltip showCrosshair={false} />
-  </BarChart>
-</div>
-
-```tsx
-<BarChart data={data} xDataKey="browser" orientation="horizontal" margin={{ left: 80 }}>
+<ComponentShowcase code={`<BarChart data={data} xDataKey="browser" orientation="horizontal" margin={{ left: 80 }}>
   <Grid horizontal={false} vertical fadeVertical />
   <Bar dataKey="users" fill="hsl(217, 91%, 60%)" lineCap={4} />
   <BarYAxis />
   <ChartTooltip showCrosshair={false} />
-</BarChart>
-```
+</BarChart>`}>
+  <BarChartHorizontalDemo />
+</ComponentShowcase>
 
 ## 90 Days of Data
 
 A single series bar chart showing 90 days of data with square caps.
 
-<div className="my-6 w-full">
-  <BarChart data={dailyData} xDataKey="day" barGap={0.1}>
-    <Grid horizontal />
-    <Bar dataKey="value" lineCap="butt" />
-    <BarXAxis maxLabels={8} />
-    <ChartTooltip />
-  </BarChart>
-</div>
-
-```tsx
-<BarChart data={dailyData} xDataKey="day" barGap={0.1}>
+<ComponentShowcase code={`<BarChart data={dailyData} xDataKey="day" barGap={0.1}>
   <Grid horizontal />
   <Bar dataKey="value" lineCap="butt" />
   <BarXAxis maxLabels={8} />
   <ChartTooltip />
-</BarChart>
-```
+</BarChart>`}>
+  <BarChart90DaysDemo />
+</ComponentShowcase>
 
 ## Gradients and Patterns
 
@@ -160,18 +135,7 @@ Use visx gradient and pattern components to create custom bar fills. Place them 
 
 Use the `stroke` prop to set the tooltip dot color when using gradient fills.
 
-<div className="my-6 w-full">
-  <BarChart data={chartData} xDataKey="month">
-    <LinearGradient id="barGradient" from="hsl(217, 91%, 60%)" to="hsl(280, 87%, 65%)" />
-    <Grid horizontal />
-    <Bar dataKey="revenue" fill="url(#barGradient)" stroke="hsl(217, 91%, 60%)" lineCap={4} />
-    <BarXAxis />
-    <ChartTooltip />
-  </BarChart>
-</div>
-
-```tsx
-import { LinearGradient } from "@bklitui/ui/charts";
+<ComponentShowcase code={`import { LinearGradient } from "@bklitui/ui/charts";
 
 <BarChart data={data} xDataKey="month">
   <LinearGradient id="barGradient" from="hsl(217, 91%, 60%)" to="hsl(280, 87%, 65%)" />
@@ -179,25 +143,15 @@ import { LinearGradient } from "@bklitui/ui/charts";
   <Bar dataKey="revenue" fill="url(#barGradient)" stroke="hsl(217, 91%, 60%)" lineCap={4} />
   <BarXAxis />
   <ChartTooltip />
-</BarChart>
-```
+</BarChart>`}>
+  <BarChartGradientDemo />
+</ComponentShowcase>
 
 ### Pattern Fill
 
 Use the `stroke` prop to set a solid tooltip dot color when using pattern fills.
 
-<div className="my-6 w-full">
-  <BarChart data={chartData} xDataKey="month">
-    <PatternLines id="barPattern" height={8} width={8} stroke="hsl(217, 91%, 60%)" strokeWidth={2} orientation={["diagonal"]} />
-    <Grid horizontal />
-    <Bar dataKey="revenue" fill="url(#barPattern)" stroke="hsl(217, 91%, 60%)" lineCap={4} />
-    <BarXAxis />
-    <ChartTooltip />
-  </BarChart>
-</div>
-
-```tsx
-import { PatternLines } from "@bklitui/ui/charts";
+<ComponentShowcase code={`import { PatternLines } from "@bklitui/ui/charts";
 
 <BarChart data={data} xDataKey="month">
   <PatternLines
@@ -212,8 +166,9 @@ import { PatternLines } from "@bklitui/ui/charts";
   <Bar dataKey="revenue" fill="url(#barPattern)" stroke="hsl(217, 91%, 60%)" lineCap={4} />
   <BarXAxis />
   <ChartTooltip />
-</BarChart>
-```
+</BarChart>`}>
+  <BarChartPatternDemo />
+</ComponentShowcase>
 
 ### Available Fills
 

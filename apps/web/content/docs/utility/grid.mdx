@@ -1,0 +1,160 @@
+---
+title: Grid
+description: A customizable grid component for charts with horizontal and vertical lines, fade effects, and dashed styling
+---
+
+import { LineChart, Line, Grid, ChartTooltip, XAxis } from "@bklitui/ui/charts";
+import { GridHorizontalDemo, GridVerticalDemo, GridBothDemo, GridSolidDemo, GridNoFadeDemo, GridDenseDemo } from "@/components/docs/grid-demo";
+
+## Preview
+
+<ComponentPreview>
+  <GridBothDemo />
+</ComponentPreview>
+
+## Installation
+
+```tsx
+import { Grid } from "@bklitui/ui/charts";
+```
+
+## Usage
+
+The Grid component adds visual reference lines to charts. It must be used inside a chart component (`LineChart`, `AreaChart`, `BarChart`).
+
+```tsx
+import { LineChart, Line, Grid, ChartTooltip } from "@bklitui/ui/charts";
+
+<LineChart data={data}>
+  <Grid horizontal />
+  <Line dataKey="value" />
+  <ChartTooltip />
+</LineChart>
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `horizontal` | `boolean` | `true` | Show horizontal grid lines |
+| `vertical` | `boolean` | `false` | Show vertical grid lines |
+| `numTicksRows` | `number` | `5` | Number of horizontal lines |
+| `numTicksColumns` | `number` | `10` | Number of vertical lines |
+| `stroke` | `string` | `var(--chart-grid)` | Line color |
+| `strokeOpacity` | `number` | `1` | Line opacity |
+| `strokeWidth` | `number` | `1` | Line width |
+| `strokeDasharray` | `string` | `"4,4"` | Dash pattern (empty string for solid) |
+| `fadeHorizontal` | `boolean` | `true` | Fade horizontal lines at left/right edges |
+| `fadeVertical` | `boolean` | `false` | Fade vertical lines at top/bottom edges |
+
+## Examples
+
+### Horizontal Only (Default)
+
+The most common configuration with horizontal reference lines.
+
+<ComponentShowcase code={`<LineChart data={data}>
+  <Grid horizontal />
+  <Line dataKey="value" />
+  <XAxis />
+  <ChartTooltip />
+</LineChart>`}>
+  <GridHorizontalDemo />
+</ComponentShowcase>
+
+### Vertical Only
+
+Use vertical grid lines to emphasize time intervals.
+
+<ComponentShowcase code={`<LineChart data={data}>
+  <Grid horizontal={false} vertical />
+  <Line dataKey="value" />
+  <XAxis />
+  <ChartTooltip />
+</LineChart>`}>
+  <GridVerticalDemo />
+</ComponentShowcase>
+
+### Both Horizontal and Vertical
+
+Display a full grid for detailed reference.
+
+<ComponentShowcase code={`<LineChart data={data}>
+  <Grid horizontal vertical />
+  <Line dataKey="value" />
+  <XAxis />
+  <ChartTooltip />
+</LineChart>`}>
+  <GridBothDemo />
+</ComponentShowcase>
+
+### Solid Lines
+
+Remove the dash pattern for solid grid lines.
+
+<ComponentShowcase code={`<LineChart data={data}>
+  <Grid horizontal strokeDasharray="" />
+  <Line dataKey="value" />
+  <XAxis />
+  <ChartTooltip />
+</LineChart>`}>
+  <GridSolidDemo />
+</ComponentShowcase>
+
+### Without Edge Fade
+
+Disable the edge fade effect for sharp line endings.
+
+<ComponentShowcase code={`<LineChart data={data}>
+  <Grid horizontal fadeHorizontal={false} />
+  <Line dataKey="value" />
+  <XAxis />
+  <ChartTooltip />
+</LineChart>`}>
+  <GridNoFadeDemo />
+</ComponentShowcase>
+
+### Dense Grid
+
+Increase the number of grid lines for more granular reference.
+
+<ComponentShowcase code={`<LineChart data={data}>
+  <Grid horizontal vertical numTicksRows={10} numTicksColumns={15} />
+  <Line dataKey="value" />
+  <XAxis />
+  <ChartTooltip />
+</LineChart>`}>
+  <GridDenseDemo />
+</ComponentShowcase>
+
+### Custom Styling
+
+```tsx
+<LineChart data={data}>
+  <Grid
+    horizontal
+    vertical
+    stroke="var(--border)"
+    strokeOpacity={0.5}
+    strokeWidth={0.5}
+    strokeDasharray=""
+    fadeHorizontal={false}
+    fadeVertical={false}
+  />
+  <Line dataKey="value" />
+</LineChart>
+```
+
+## Theming
+
+The Grid uses CSS variables for theming:
+
+```css
+:root {
+  --chart-grid: oklch(0.9 0 0);
+}
+
+.dark {
+  --chart-grid: oklch(0.25 0 0);
+}
+```

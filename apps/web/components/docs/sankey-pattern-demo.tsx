@@ -125,3 +125,19 @@ export function SankeyPatternDemo() {
     </SankeyChart>
   );
 }
+
+export function SankeyNoLabelsDemo() {
+  return (
+    <SankeyChart
+      aspectRatio="16 / 9"
+      data={analyticsData}
+      margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+      nodePadding={24}
+      nodeWidth={16}
+    >
+      <SankeyLink />
+      <SankeyNode lineCap={4} showLabels={false} />
+      <SankeyTooltip />
+    </SankeyChart>
+  );
+}

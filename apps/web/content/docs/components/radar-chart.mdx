@@ -8,9 +8,9 @@ import { RadarChartDemo, RadarChartBasicDemo, RadarChartMinimalDemo } from "@/co
 
 ## Preview
 
-<div className="my-6 w-full flex justify-center">
+<ComponentPreview>
   <RadarChartDemo />
-</div>
+</ComponentPreview>
 
 ## Installation
 
@@ -133,37 +133,29 @@ interface RadarData {
 
 ### Basic Radar Chart
 
-<div className="my-6 flex justify-center">
-  <RadarChartBasicDemo />
-</div>
-
-```tsx
-<RadarChart data={data} metrics={metrics} size={350}>
+<ComponentShowcase code={`<RadarChart data={data} metrics={metrics} size={350}>
   <RadarGrid />
   <RadarAxis />
   <RadarLabels />
   {data.map((item, index) => (
     <RadarArea key={item.label} index={index} />
   ))}
-</RadarChart>
-```
+</RadarChart>`}>
+  <RadarChartBasicDemo />
+</ComponentShowcase>
 
 ### Minimal Style
 
-<div className="my-6 flex justify-center">
-  <RadarChartMinimalDemo />
-</div>
-
-```tsx
-<RadarChart data={data} metrics={metrics} size={300} levels={4}>
+<ComponentShowcase code={`<RadarChart data={data} metrics={metrics} size={300} levels={4}>
   <RadarGrid showLabels={false} />
   <RadarAxis />
   <RadarLabels fontSize={12} offset={20} />
   {data.map((item, index) => (
     <RadarArea key={item.label} index={index} />
   ))}
-</RadarChart>
-```
+</RadarChart>`}>
+  <RadarChartMinimalDemo />
+</ComponentShowcase>
 
 ### Synchronized Legend
 

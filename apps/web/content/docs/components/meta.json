@@ -5,8 +5,8 @@
     "area-chart",
     "bar-chart",
     "ring-chart",
+    "pie-chart",
     "radar-chart",
-    "sankey-chart",
-    "legend"
+    "sankey-chart"
   ]
 }
