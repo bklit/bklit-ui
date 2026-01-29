@@ -1,0 +1,236 @@
+---
+title: Choropleth Chart
+description: A composable geographic map chart for visualizing data across regions with interactive tooltips, zoom controls, and pattern support
+---
+
+import { ChoroplethChart, ChoroplethFeatureComponent, ChoroplethGraticule, ChoroplethTooltip, PatternLines, PatternCircles } from "@bklitui/ui/charts";
+import { ChoroplethDemo, ChoroplethAnalyticsDemo } from "@/components/docs/choropleth-demo";
+import { ChoroplethLinesPatternDemo, ChoroplethDotsPatternDemo } from "@/components/docs/choropleth-pattern-demo";
+import { ChoroplethZoomDemo } from "@/components/docs/choropleth-zoom-demo";
+
+## Preview
+
+<ComponentPreview>
+  <div className="w-full">
+    <ChoroplethDemo />
+  </div>
+</ComponentPreview>
+
+## Installation
+
+```bash
+import { ChoroplethChart, ChoroplethFeatureComponent, ChoroplethGraticule, ChoroplethTooltip } from "@bklitui/ui/charts";
+```
+
+## Usage
+
+The Choropleth Chart uses a composable API similar to other charts. Build maps by combining components:
+
+```tsx
+import { ChoroplethChart, ChoroplethFeatureComponent, ChoroplethGraticule, ChoroplethTooltip } from "@bklitui/ui/charts";
+import * as topojson from "topojson-client";
+
+// Load your GeoJSON data (from TopoJSON or direct GeoJSON)
+const geojson = topojson.feature(topology, topology.objects.countries);
+
+export default function WorldMap() {
+  return (
+    <ChoroplethChart data={geojson} aspectRatio="16 / 9">
+      <ChoroplethGraticule />
+      <ChoroplethFeatureComponent fill="var(--chart-1)" />
+      <ChoroplethTooltip />
+    </ChoroplethChart>
+  );
+}
+```
+
+## Components
+
+### ChoroplethChart
+
+The root component that sets up the Mercator projection and provides context to children.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `data` | `FeatureCollection` | required | GeoJSON FeatureCollection with geographic features |
+| `margin` | `Partial<Margin>` | `{ top: 0, right: 0, bottom: 0, left: 0 }` | Chart margins |
+| `animationDuration` | `number` | `800` | Animation duration in ms |
+| `aspectRatio` | `string` | `"16 / 9"` | CSS aspect ratio |
+| `scale` | `number` | auto | Projection scale (auto-calculated from width if not set) |
+| `center` | `[number, number]` | `[0, 20]` | Center coordinates [longitude, latitude] |
+| `translate` | `[number, number]` | auto | Translate offset [x, y] |
+| `zoomEnabled` | `boolean` | `false` | Enable zoom and pan interactions |
+| `zoomMin` | `number` | `0.5` | Minimum zoom scale |
+| `zoomMax` | `number` | `4` | Maximum zoom scale |
+| `initialZoom` | `TransformMatrix` | identity | Initial zoom transform |
+| `className` | `string` | `""` | Additional CSS class |
+
+### ChoroplethFeatureComponent
+
+Renders the geographic feature paths with hover states and optional patterns.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `fill` | `string` | - | Fill color for all features (overrides getFeatureColor) |
+| `stroke` | `string` | `"var(--chart-grid)"` | Stroke color for borders |
+| `strokeWidth` | `number` | `0.5` | Border stroke width |
+| `fadedOpacity` | `number` | `0.4` | Opacity when another feature is hovered |
+| `getFeatureColor` | `(feature, index) => string` | - | Custom color function |
+| `patterns` | `ReactNode` | - | Pattern definitions using `@visx/pattern` components |
+| `getFeaturePattern` | `(feature, index) => string \| null` | - | Return pattern ID for a feature |
+
+### ChoroplethGraticule
+
+Renders optional graticule (latitude/longitude grid lines).
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `stroke` | `string` | `"rgba(255,255,255,0.1)"` | Line color |
+| `strokeWidth` | `number` | `0.5` | Line width |
+| `step` | `[number, number]` | `[10, 10]` | Grid step intervals [longitude, latitude] in degrees |
+
+### ChoroplethTooltip
+
+Displays tooltips for features on hover, following the mouse position.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `content` | `(props) => ReactNode` | - | Custom tooltip renderer |
+| `formatValue` | `(value) => string` | `toLocaleString` | Value formatter |
+| `getFeatureName` | `(feature, index) => string` | - | Custom name getter |
+| `getFeatureValue` | `(feature, index) => number` | - | Value getter for display |
+| `valueLabel` | `string` | `"Value"` | Label for the value row |
+| `className` | `string` | `""` | Additional CSS class |
+
+## Data Format
+
+The choropleth expects a GeoJSON FeatureCollection:
+
+```typescript
+interface FeatureCollection {
+  type: "FeatureCollection";
+  features: Array<{
+    type: "Feature";
+    geometry: Geometry; // Polygon, MultiPolygon, etc.
+    properties: {
+      name?: string;
+      id?: string | number;
+      [key: string]: unknown;
+    };
+  }>;
+}
+```
+
+For TopoJSON data, convert it using `topojson-client`:
+
+```typescript
+import * as topojson from "topojson-client";
+
+const geojson = topojson.feature(topology, topology.objects.countries);
+```
+
+## Examples
+
+### Web Analytics
+
+Use `getFeatureColor` to create a color scale based on data values. This example shows visitor traffic by country, with brighter colors indicating higher traffic:
+
+<ComponentShowcase code={`const visitorsByCountry = { "United States": 125000, ... };
+
+function getVisitorColor(feature) {
+  const visitors = visitorsByCountry[feature.properties?.name];
+  if (!visitors) return "var(--chart-5)";
+  // Map to chart colors based on normalized value
+  if (normalized > 0.7) return "var(--chart-1)";
+  if (normalized > 0.4) return "var(--chart-2)";
+  ...
+}
+
+<ChoroplethChart data={geojson} aspectRatio="16 / 9">
+  <ChoroplethFeatureComponent getFeatureColor={getVisitorColor} />
+  <ChoroplethTooltip getFeatureValue={getVisitorValue} valueLabel="Visitors" />
+</ChoroplethChart>`}>
+  <ChoroplethAnalyticsDemo />
+</ComponentShowcase>
+
+### Zoom Controls
+
+Enable zoom with `zoomEnabled` and use `useChoroplethZoom()` hook to create custom controls:
+
+<ComponentShowcase code={`import { useChoroplethZoom } from "@bklitui/ui/charts";
+import { ZoomIn, ZoomOut, RotateCcw } from "lucide-react";
+
+function ZoomControls() {
+  const { zoom } = useChoroplethZoom();
+  if (!zoom) return null;
+  
+  return (
+    <div className="absolute right-3 top-3 flex flex-col gap-1">
+      <Button onClick={() => zoom.scale({ scaleX: 1.2, scaleY: 1.2 })}>
+        <ZoomIn />
+      </Button>
+      <Button onClick={() => zoom.scale({ scaleX: 0.8, scaleY: 0.8 })}>
+        <ZoomOut />
+      </Button>
+      <Button onClick={() => zoom.reset()}>
+        <RotateCcw />
+      </Button>
+    </div>
+  );
+}
+
+<ChoroplethChart data={geojson} aspectRatio="16 / 9" zoomEnabled>
+  <ChoroplethFeatureComponent fill="var(--chart-1)" />
+  <ChoroplethTooltip />
+  <ZoomControls />
+</ChoroplethChart>`}>
+  <ChoroplethZoomDemo />
+</ComponentShowcase>
+
+### Diagonal Lines Pattern
+
+Use `PatternLines` from `@visx/pattern` to create diagonal line patterns:
+
+<ComponentShowcase code={`<ChoroplethChart data={geojson} aspectRatio="16 / 9">
+  <ChoroplethGraticule />
+  <ChoroplethFeatureComponent
+    patterns={
+      <>
+        <PatternLines id="pattern-1" stroke="var(--chart-1)" ... />
+        <PatternLines id="pattern-2" stroke="var(--chart-2)" ... />
+      </>
+    }
+    getFeaturePattern={(feature) => getPatternId(feature)}
+  />
+  <ChoroplethTooltip />
+</ChoroplethChart>`}>
+  <ChoroplethLinesPatternDemo />
+</ComponentShowcase>
+
+### Dots Pattern
+
+Use `PatternCircles` for a dot pattern effect:
+
+<ComponentShowcase code={`<ChoroplethChart data={geojson} aspectRatio="16 / 9">
+  <ChoroplethGraticule />
+  <ChoroplethFeatureComponent
+    patterns={
+      <>
+        <PatternCircles id="dots-1" fill="var(--chart-1)" radius={2} ... />
+        <PatternCircles id="dots-2" fill="var(--chart-2)" radius={2} ... />
+      </>
+    }
+    getFeaturePattern={(feature) => getPatternId(feature)}
+  />
+  <ChoroplethTooltip />
+</ChoroplethChart>`}>
+  <ChoroplethDotsPatternDemo />
+</ComponentShowcase>
+
+## Dependencies
+
+This component requires:
+
+```bash
+pnpm add @visx/geo @visx/responsive @visx/pattern @visx/zoom topojson-client motion react-use-measure
+```

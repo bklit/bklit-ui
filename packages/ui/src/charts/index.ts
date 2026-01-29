@@ -48,6 +48,27 @@ export {
   type ChartLegendProps,
   type LegendItem,
 } from "./chart-legend";
+// Choropleth chart components
+export {
+  ChoroplethChart,
+  type ChoroplethChartProps,
+  type ChoroplethContextValue,
+  type ChoroplethFeature,
+  ChoroplethFeatureComponent,
+  type ChoroplethFeatureProperties,
+  type ChoroplethFeatureProps,
+  ChoroplethGraticule,
+  type ChoroplethGraticuleProps,
+  ChoroplethProvider,
+  ChoroplethTooltip,
+  type ChoroplethTooltipData,
+  type ChoroplethTooltipProps,
+  choroplethCssVars,
+  defaultChoroplethColors,
+  type TransformMatrix,
+  useChoropleth,
+  useChoroplethZoom,
+} from "./choropleth";
 // Shared chart elements
 export { Grid, type GridProps } from "./grid";
 // Composable legend components

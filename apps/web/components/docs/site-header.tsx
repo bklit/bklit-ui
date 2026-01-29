@@ -30,6 +30,7 @@ const components = [
   { text: "Pie Chart", url: "/docs/components/pie-chart" },
   { text: "Radar Chart", url: "/docs/components/radar-chart" },
   { text: "Sankey Chart", url: "/docs/components/sankey-chart" },
+  { text: "Choropleth Chart", url: "/docs/components/choropleth-chart" },
 ];
 
 const utilities = [
