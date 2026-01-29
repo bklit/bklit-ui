@@ -27,8 +27,15 @@ const components = [
   { text: "Area Chart", url: "/docs/components/area-chart" },
   { text: "Bar Chart", url: "/docs/components/bar-chart" },
   { text: "Ring Chart", url: "/docs/components/ring-chart" },
+  { text: "Pie Chart", url: "/docs/components/pie-chart" },
   { text: "Radar Chart", url: "/docs/components/radar-chart" },
-  { text: "Legend", url: "/docs/components/legend" },
+  { text: "Sankey Chart", url: "/docs/components/sankey-chart" },
+];
+
+const utilities = [
+  { text: "Legend", url: "/docs/utility/legend" },
+  { text: "Grid", url: "/docs/utility/grid" },
+  { text: "Tooltip", url: "/docs/utility/tooltip" },
 ];
 
 function MenuIcon({ open }: { open: boolean }) {
@@ -244,6 +251,45 @@ export function SiteHeader({
             </div>
           </div>
 
+          {/* Utility section */}
+          <div className="mt-4 border-border border-t pt-4">
+            <span
+              className="mb-2 block px-3 font-medium text-muted-foreground text-xs uppercase tracking-wider transition-[filter] duration-300 ease-out"
+              style={{
+                filter: mobileMenuOpen ? "blur(0px)" : "blur(2px)",
+                transitionDelay: mobileMenuOpen
+                  ? `${(links.length + 1 + components.length) * 50}ms`
+                  : "0ms",
+              }}
+            >
+              Utility
+            </span>
+            <div className="flex flex-col gap-1">
+              {utilities.map((utility, index) => (
+                <Link
+                  className="transition-[filter] duration-300 ease-out"
+                  href={utility.url}
+                  key={utility.url}
+                  onClick={() => setMobileMenuOpen(false)}
+                  style={{
+                    filter: mobileMenuOpen ? "blur(0px)" : "blur(2px)",
+                    transitionDelay: mobileMenuOpen
+                      ? `${(links.length + 1 + components.length + 1 + index) * 50}ms`
+                      : "0ms",
+                  }}
+                >
+                  <Button
+                    className="w-full justify-start"
+                    size="sm"
+                    variant="ghost"
+                  >
+                    {utility.text}
+                  </Button>
+                </Link>
+              ))}
+            </div>
+          </div>
+
           {/* GitHub link */}
           {githubUrl && (
             <div
@@ -251,7 +297,7 @@ export function SiteHeader({
               style={{
                 filter: mobileMenuOpen ? "blur(0px)" : "blur(2px)",
                 transitionDelay: mobileMenuOpen
-                  ? `${(links.length + 1 + components.length) * 50}ms`
+                  ? `${(links.length + 1 + components.length + 1 + utilities.length) * 50}ms`
                   : "0ms",
               }}
             >
