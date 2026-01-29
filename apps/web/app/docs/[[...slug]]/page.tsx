@@ -5,7 +5,10 @@ import type { TOCItemType } from "fumadocs-core/toc";
 import defaultMdxComponents from "fumadocs-ui/mdx";
 import { notFound } from "next/navigation";
 import type { ComponentType } from "react";
-import { ComponentPreview } from "@/components/component-preview";
+import {
+  ComponentPreview,
+  ComponentShowcase,
+} from "@/components/docs/component-showcase";
 import { ComponentsList } from "@/components/docs/components-list";
 import { CopyPageButton } from "@/components/docs/copy-page-button";
 import { PageFooter } from "@/components/docs/page-footer";
@@ -69,6 +72,7 @@ export default async function Page(props: {
             components={{
               ...defaultMdxComponents,
               ComponentPreview,
+              ComponentShowcase,
               ComponentsList,
               SocialLinks,
             }}

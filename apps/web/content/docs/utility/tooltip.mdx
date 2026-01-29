@@ -1,0 +1,225 @@
+---
+title: Tooltip
+description: An interactive tooltip component for charts with crosshair, dots, date picker, and customizable content
+---
+
+import { LineChart, Line, Grid, ChartTooltip, XAxis } from "@bklitui/ui/charts";
+import { TooltipDefaultDemo, TooltipCrosshairOnlyDemo, TooltipMinimalDemo, TooltipCustomRowsDemo, TooltipBarChartDemo, TooltipCustomContentDemo } from "@/components/docs/tooltip-demo";
+
+## Preview
+
+<ComponentPreview>
+  <TooltipDefaultDemo />
+</ComponentPreview>
+
+## Installation
+
+```tsx
+import { ChartTooltip } from "@bklitui/ui/charts";
+```
+
+## Usage
+
+The ChartTooltip component provides hover interactions for charts. It must be used inside a chart component (`LineChart`, `AreaChart`, `BarChart`).
+
+```tsx
+import { LineChart, Line, Grid, ChartTooltip } from "@bklitui/ui/charts";
+
+<LineChart data={data}>
+  <Grid horizontal />
+  <Line dataKey="value" />
+  <ChartTooltip />
+</LineChart>
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `showDatePill` | `boolean` | `true` | Show animated date ticker at bottom |
+| `showCrosshair` | `boolean` | `true` | Show vertical crosshair line |
+| `showDots` | `boolean` | `true` | Show dots on data points |
+| `content` | `(props) => ReactNode` | - | Custom content renderer |
+| `rows` | `(point) => TooltipRow[]` | - | Custom row generator |
+| `children` | `ReactNode` | - | Additional content (e.g., markers) |
+| `className` | `string` | `""` | Additional CSS class |
+
+### TooltipRow Interface
+
+```ts
+interface TooltipRow {
+  color: string;    // Dot color
+  label: string;    // Row label
+  value: string | number;  // Display value
+}
+```
+
+## Anatomy
+
+The tooltip has several visual components:
+
+1. **Crosshair** - Vertical line that follows the cursor
+2. **Dots** - Circles on each data point at the hovered position
+3. **Tooltip Box** - Content panel with title and rows
+4. **Date Pill** - Animated date ticker at the bottom
+
+Each component can be shown/hidden independently.
+
+## Examples
+
+### Default Tooltip
+
+Full-featured tooltip with crosshair, dots, and date pill.
+
+<ComponentShowcase code={`<LineChart data={data}>
+  <Grid horizontal />
+  <Line dataKey="users" stroke="var(--chart-line-primary)" />
+  <Line dataKey="pageviews" stroke="var(--chart-line-secondary)" />
+  <XAxis />
+  <ChartTooltip />
+</LineChart>`}>
+  <TooltipDefaultDemo />
+</ComponentShowcase>
+
+### Crosshair Only
+
+Minimal tooltip with just the crosshair line and tooltip box.
+
+<ComponentShowcase code={`<LineChart data={data}>
+  <Grid horizontal />
+  <Line dataKey="users" stroke="var(--chart-line-primary)" />
+  <XAxis />
+  <ChartTooltip showDots={false} showDatePill={false} />
+</LineChart>`}>
+  <TooltipCrosshairOnlyDemo />
+</ComponentShowcase>
+
+### Minimal (Box Only)
+
+Just the tooltip content box, no visual indicators.
+
+<ComponentShowcase code={`<LineChart data={data}>
+  <Grid horizontal />
+  <Line dataKey="users" stroke="var(--chart-line-primary)" />
+  <XAxis />
+  <ChartTooltip 
+    showCrosshair={false} 
+    showDots={false} 
+    showDatePill={false} 
+  />
+</LineChart>`}>
+  <TooltipMinimalDemo />
+</ComponentShowcase>
+
+### Custom Row Labels
+
+Use the `rows` prop to customize row labels and value formatting.
+
+<ComponentShowcase code={`<LineChart data={data}>
+  <Grid horizontal />
+  <Line dataKey="users" stroke="var(--chart-line-primary)" />
+  <Line dataKey="pageviews" stroke="var(--chart-line-secondary)" />
+  <XAxis />
+  <ChartTooltip
+    rows={(point) => [
+      {
+        color: "var(--chart-line-primary)",
+        label: "Active Users",
+        value: point.users.toLocaleString(),
+      },
+      {
+        color: "var(--chart-line-secondary)",
+        label: "Page Views",
+        value: point.pageviews.toLocaleString(),
+      },
+    ]}
+  />
+</LineChart>`}>
+  <TooltipCustomRowsDemo />
+</ComponentShowcase>
+
+### With Bar Chart
+
+The tooltip adapts to bar charts, showing category names instead of dates.
+
+<ComponentShowcase code={`<BarChart data={data} xDataKey="month">
+  <Grid horizontal />
+  <Bar dataKey="revenue" fill="var(--chart-line-primary)" />
+  <BarXAxis />
+  <ChartTooltip
+    rows={(point) => [
+      {
+        color: "var(--chart-line-primary)",
+        label: "Revenue",
+        value: \`$\${point.revenue.toLocaleString()}\`,
+      },
+    ]}
+  />
+</BarChart>`}>
+  <TooltipBarChartDemo />
+</ComponentShowcase>
+
+### Fully Custom Content
+
+Use the `content` prop for complete control over the tooltip layout.
+
+<ComponentShowcase code={`<LineChart data={data}>
+  <Grid horizontal />
+  <Line dataKey="users" stroke="var(--chart-line-primary)" />
+  <Line dataKey="pageviews" stroke="var(--chart-line-secondary)" />
+  <XAxis />
+  <ChartTooltip
+    content={({ point }) => (
+      <div className="flex flex-col gap-2 p-3">
+        <div className="text-sm font-medium">
+          {point.date.toLocaleDateString("en-US", {
+            weekday: "short",
+            month: "short",
+            day: "numeric",
+          })}
+        </div>
+        <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+          <span className="text-zinc-400">Users</span>
+          <span className="font-mono">{point.users.toLocaleString()}</span>
+          <span className="text-zinc-400">Views</span>
+          <span className="font-mono">{point.pageviews.toLocaleString()}</span>
+          <span className="text-zinc-400">Ratio</span>
+          <span className="font-mono">
+            {(point.pageviews / point.users).toFixed(2)}x
+          </span>
+        </div>
+      </div>
+    )}
+  />
+</LineChart>`}>
+  <TooltipCustomContentDemo />
+</ComponentShowcase>
+
+## Animation
+
+The tooltip features smooth animations:
+
+- **Crosshair** - Spring physics for snappy following
+- **Tooltip Box** - Scale/fade animation with flip detection
+- **Date Pill** - Slot machine-style number animation
+- **Dots** - Fade in/out with the tooltip
+
+All animations use motion/react for fluid, natural movement.
+
+## Theming
+
+The tooltip uses CSS variables for theming:
+
+```css
+:root {
+  --chart-background: oklch(1 0 0);
+  --chart-crosshair: oklch(0.4 0.1828 274.34);
+}
+
+.dark {
+  --chart-background: oklch(0.145 0 0);
+  --chart-crosshair: oklch(0.45 0 0);
+}
+```
+
+The tooltip box itself uses a semi-transparent dark background with blur for universal readability.

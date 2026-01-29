@@ -4,6 +4,7 @@ description: A composable legend component for charts with progress bars, marker
 ---
 
 import { Legend, LegendItemComponent, LegendLabel, LegendMarker, LegendProgress, LegendValue } from "@bklitui/ui/charts";
+import { LegendSimpleDemo, LegendProgressDemo, LegendHorizontalDemo } from "@/components/docs/legend-demo";
 
 export const sampleData = [
   { label: "Organic", value: 4250, maxValue: 5000, color: "#0ea5e9" },
@@ -14,18 +15,9 @@ export const sampleData = [
 
 ## Preview
 
-<div className="my-6 w-full max-w-sm">
-  <Legend items={sampleData} title="Traffic Sources">
-    <LegendItemComponent className="grid grid-cols-[auto_1fr_auto] items-center gap-x-3 gap-y-1">
-      <LegendMarker />
-      <LegendLabel />
-      <LegendValue showPercentage />
-      <div className="col-span-full">
-        <LegendProgress />
-      </div>
-    </LegendItemComponent>
-  </Legend>
-</div>
+<ComponentPreview>
+  <LegendProgressDemo />
+</ComponentPreview>
 
 ## Installation
 
@@ -135,43 +127,19 @@ interface LegendItemData {
 
 ### Simple Legend
 
-<div className="my-6 w-full max-w-xs">
-  <Legend items={sampleData}>
-    <LegendItemComponent className="flex items-center gap-3">
-      <LegendMarker />
-      <LegendLabel className="flex-1" />
-      <LegendValue />
-    </LegendItemComponent>
-  </Legend>
-</div>
-
-```tsx
-<Legend items={data}>
+<ComponentShowcase code={`<Legend items={data}>
   <LegendItemComponent className="flex items-center gap-3">
     <LegendMarker />
     <LegendLabel className="flex-1" />
     <LegendValue />
   </LegendItemComponent>
-</Legend>
-```
+</Legend>`}>
+  <LegendSimpleDemo />
+</ComponentShowcase>
 
 ### With Progress Bars
 
-<div className="my-6 w-full max-w-sm">
-  <Legend items={sampleData} title="Sessions by Channel">
-    <LegendItemComponent className="grid grid-cols-[auto_1fr_auto] items-center gap-x-3 gap-y-1">
-      <LegendMarker />
-      <LegendLabel />
-      <LegendValue showPercentage />
-      <div className="col-span-full">
-        <LegendProgress />
-      </div>
-    </LegendItemComponent>
-  </Legend>
-</div>
-
-```tsx
-<Legend items={data} title="Sessions by Channel">
+<ComponentShowcase code={`<Legend items={data} title="Sessions by Channel">
   <LegendItemComponent className="grid grid-cols-[auto_1fr_auto] items-center gap-x-3 gap-y-1">
     <LegendMarker />
     <LegendLabel />
@@ -180,28 +148,20 @@ interface LegendItemData {
       <LegendProgress />
     </div>
   </LegendItemComponent>
-</Legend>
-```
+</Legend>`}>
+  <LegendProgressDemo />
+</ComponentShowcase>
 
 ### Horizontal Layout
 
-<div className="my-6 w-full">
-  <Legend items={sampleData} className="flex-row flex-wrap gap-4">
-    <LegendItemComponent className="flex items-center gap-2">
-      <LegendMarker className="h-2 w-2" />
-      <LegendLabel className="text-xs" />
-    </LegendItemComponent>
-  </Legend>
-</div>
-
-```tsx
-<Legend items={data} className="flex-row flex-wrap gap-4">
+<ComponentShowcase code={`<Legend items={data} className="flex-row flex-wrap gap-4">
   <LegendItemComponent className="flex items-center gap-2">
     <LegendMarker className="h-2 w-2" />
     <LegendLabel className="text-xs" />
   </LegendItemComponent>
-</Legend>
-```
+</Legend>`}>
+  <LegendHorizontalDemo />
+</ComponentShowcase>
 
 ### Custom Value Formatting
 

@@ -4,7 +4,7 @@ description: A composable sankey diagram for visualizing flow between nodes with
 ---
 
 import { SankeyChart, SankeyNode, SankeyLink, SankeyTooltip, PatternLines } from "@bklitui/ui/charts";
-import { SankeyPatternDemo } from "@/components/docs/sankey-pattern-demo";
+import { SankeyPatternDemo, SankeyNoLabelsDemo } from "@/components/docs/sankey-pattern-demo";
 
 export const analyticsData = {
   nodes: [
@@ -62,13 +62,15 @@ export const analyticsData = {
 
 ## Preview
 
-<div className="my-6 w-full">
-  <SankeyChart data={analyticsData} aspectRatio="16 / 9" nodeWidth={16} nodePadding={24}>
-    <SankeyLink />
-    <SankeyNode lineCap={4} />
-    <SankeyTooltip />
-  </SankeyChart>
-</div>
+<ComponentPreview>
+  <div className="w-full">
+    <SankeyChart data={analyticsData} aspectRatio="16 / 9" nodeWidth={16} nodePadding={24}>
+      <SankeyLink />
+      <SankeyNode lineCap={4} />
+      <SankeyTooltip />
+    </SankeyChart>
+  </div>
+</ComponentPreview>
 
 ## Installation
 
@@ -208,21 +210,40 @@ When hovering over a node or link:
 
 For a cleaner look, hide the node labels:
 
-<div className="my-6 w-full">
-  <SankeyChart data={analyticsData} aspectRatio="16 / 9" nodeWidth={16} nodePadding={24} margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
-    <SankeyLink />
-    <SankeyNode lineCap={4} showLabels={false} />
-    <SankeyTooltip />
-  </SankeyChart>
-</div>
+<ComponentShowcase code={`<SankeyChart 
+  data={analyticsData} 
+  aspectRatio="16 / 9" 
+  nodeWidth={16} 
+  nodePadding={24} 
+  margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+>
+  <SankeyLink />
+  <SankeyNode lineCap={4} showLabels={false} />
+  <SankeyTooltip />
+</SankeyChart>`}>
+  <SankeyNoLabelsDemo />
+</ComponentShowcase>
 
 ### With Patterns
 
 Use `@visx/pattern` to style specific links with patterns instead of gradients:
 
-<div className="my-6 w-full">
+<ComponentShowcase code={`<SankeyChart data={analyticsData} aspectRatio="16 / 9" nodeWidth={16} nodePadding={24}>
+  <SankeyLink
+    getLinkPattern={getOutcomePattern}
+    patterns={
+      <>
+        <PatternLines id="converted" stroke="#22c55e" ... />
+        <PatternLines id="engaged" stroke="#eab308" ... />
+        <PatternLines id="bounced" stroke="#ef4444" ... />
+      </>
+    }
+  />
+  <SankeyNode lineCap={4} />
+  <SankeyTooltip />
+</SankeyChart>`}>
   <SankeyPatternDemo />
-</div>
+</ComponentShowcase>
 
 ## Dependencies
 

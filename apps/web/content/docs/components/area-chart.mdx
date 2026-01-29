@@ -41,15 +41,17 @@ export const chartData = [
 
 ## Preview
 
-<div className="my-6 w-full">
-  <AreaChart data={chartData}>
-    <Grid horizontal />
-    <Area dataKey="revenue" fill="var(--chart-line-primary)" fillOpacity={0.3} fadeEdges />
-    <Area dataKey="costs" fill="var(--chart-line-secondary)" fillOpacity={0.3} fadeEdges />
-    <XAxis />
-    <AreaTooltipDemo />
-  </AreaChart>
-</div>
+<ComponentPreview>
+  <div className="w-full">
+    <AreaChart data={chartData}>
+      <Grid horizontal />
+      <Area dataKey="revenue" fill="var(--chart-line-primary)" fillOpacity={0.3} fadeEdges />
+      <Area dataKey="costs" fill="var(--chart-line-secondary)" fillOpacity={0.3} fadeEdges />
+      <XAxis />
+      <AreaTooltipDemo />
+    </AreaChart>
+  </div>
+</ComponentPreview>
 
 ## Installation
 

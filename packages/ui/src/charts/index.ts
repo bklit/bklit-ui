@@ -85,6 +85,23 @@ export {
   type MarkerTooltipContentProps,
   useActiveMarkers,
 } from "./markers";
+// Pie chart components
+export { PieCenter, type PieCenterProps } from "./pie-center";
+export { PieChart, type PieChartProps } from "./pie-chart";
+export {
+  defaultPieColors,
+  type PieArcData,
+  type PieContextValue,
+  type PieData,
+  PieProvider,
+  pieCssVars,
+  usePie,
+} from "./pie-context";
+export {
+  PieSlice,
+  type PieSliceHoverEffect,
+  type PieSliceProps,
+} from "./pie-slice";
 // Radar chart components
 export { RadarArea, type RadarAreaProps } from "./radar-area";
 export { RadarAxis, type RadarAxisProps } from "./radar-axis";
