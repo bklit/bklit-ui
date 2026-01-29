@@ -32,6 +32,9 @@ importers:
       '@base-ui/react':
         specifier: ^1.1.0
         version: 1.1.0(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@bklit/sdk':
+        specifier: ^1.0.1
+        version: 1.0.1(next@15.5.9(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)
       '@bklitui/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -360,6 +363,15 @@ packages:
     engines: {node: '>=14.21.3'}
     cpu: [x64]
     os: [win32]
+
+  '@bklit/sdk@1.0.1':
+    resolution: {integrity: sha512-NXBlj/ouCSL2qEZC7gWiLxjjQHrDL7yaOf2yrRqQ/aQfsrA2+oelBEcJBWuOg1lR8owci9iOwWFBGfX7+0YOhQ==}
+    peerDependencies:
+      next: '>=13.0.0'
+      react: '>=18.0.0'
+    peerDependenciesMeta:
+      next:
+        optional: true
 
   '@clack/core@0.5.0':
     resolution: {integrity: sha512-p3y0FIOwaYRUPRcMO7+dlmLh8PSRcrjuTndsiA0WAFbWES0mLZlrjVoBRZ9DzkPFJZG6KGkJmoEAY0ZcVWTkow==}
@@ -3529,6 +3541,12 @@ snapshots:
 
   '@biomejs/cli-win32-x64@2.3.11':
     optional: true
+
+  '@bklit/sdk@1.0.1(next@15.5.9(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)':
+    dependencies:
+      react: 19.2.0
+    optionalDependencies:
+      next: 15.5.9(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
 
   '@clack/core@0.5.0':
     dependencies:
