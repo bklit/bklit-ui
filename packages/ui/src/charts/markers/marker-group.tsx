@@ -127,98 +127,102 @@ export function MarkerGroup({
 
   return (
     <>
-      {/* biome-ignore lint/a11y/noStaticElementInteractions: Chart marker interaction */}
-      <g
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-        onMouseMove={handleMouseMove}
-        style={{ cursor: "pointer" }}
-        transform={`translate(${x}, ${y})`}
-      >
-        <motion.g
-          animate="visible"
-          initial={animate ? "hidden" : "visible"}
-          transition={{
-            type: "spring",
-            stiffness: 300,
-            damping: 25,
-            delay: animationDelay,
-          }}
-          variants={markerEntranceVariants}
+      {/* Position group - no interaction */}
+      <g transform={`translate(${x}, ${y})`}>
+        {/* Vertical guide line - non-interactive, rendered first (behind marker) */}
+        {showLine && lineHeight > 0 && (
+          <motion.line
+            animate={{
+              strokeOpacity: (() => {
+                if (isHovered) {
+                  return 1;
+                }
+                if (isActive) {
+                  return 0;
+                }
+                return 0.6;
+              })(),
+            }}
+            initial={{ strokeOpacity: 0.6 }}
+            stroke={chartCssVars.markerBorder}
+            strokeDasharray="4,4"
+            strokeLinecap="round"
+            strokeWidth={1}
+            style={{ pointerEvents: "none" }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            x1={0}
+            x2={0}
+            y1={size / 2 + 4}
+            y2={lineHeight + Math.abs(y)}
+          />
+        )}
+
+        {/* Interactive marker group */}
+        {/* biome-ignore lint/a11y/noStaticElementInteractions: Chart marker interaction */}
+        <g
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+          onMouseMove={handleMouseMove}
+          style={{ cursor: "pointer" }}
         >
-          {/* Hit area */}
-          <rect
-            fill="transparent"
-            height={size * 3}
-            width={size * 2}
-            x={-size}
-            y={-size * 2.5}
-          />
-
-          {/* Vertical guide line */}
-          {showLine && lineHeight > 0 && (
-            <motion.line
-              animate={{
-                strokeOpacity: (() => {
-                  if (isHovered) {
-                    return 1;
-                  }
-                  if (isActive) {
-                    return 0;
-                  }
-                  return 0.6;
-                })(),
-              }}
-              initial={{ strokeOpacity: 0.6 }}
-              stroke={chartCssVars.markerBorder}
-              strokeDasharray="4,4"
-              strokeLinecap="round"
-              strokeWidth={1}
-              transition={{ duration: 0.2, ease: "easeOut" }}
-              x1={0}
-              x2={0}
-              y1={size / 2 + 4}
-              y2={lineHeight + Math.abs(y)}
+          <motion.g
+            animate="visible"
+            initial={animate ? "hidden" : "visible"}
+            transition={{
+              type: "spring",
+              stiffness: 300,
+              damping: 25,
+              delay: animationDelay,
+            }}
+            variants={markerEntranceVariants}
+          >
+            {/* Hit area - covers marker circle with padding for count badge above */}
+            <rect
+              fill="transparent"
+              height={size * 1.5}
+              width={size * 1.5}
+              x={-size * 0.75}
+              y={-size}
             />
-          )}
 
-          {/* Main marker */}
-          <MarkerCircle
-            color={markers[0]?.color}
-            icon={markers[0]?.icon}
-            size={size}
-          />
+            {/* Main marker */}
+            <MarkerCircle
+              color={markers[0]?.color}
+              icon={markers[0]?.icon}
+              size={size}
+            />
 
-          {/* Count badge */}
-          <AnimatePresence>
-            {hasMultiple && !shouldFan && (
-              <motion.g
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0, opacity: 0 }}
-                initial={{ scale: 0, opacity: 0 }}
-                transition={{ type: "spring", stiffness: 400, damping: 20 }}
-              >
-                <circle
-                  cx={size / 2 + 2}
-                  cy={-size / 2 - 2}
-                  fill="var(--chart-line-primary)"
-                  r={9}
-                />
-                <text
-                  dominantBaseline="central"
-                  fill="white"
-                  fontSize={11}
-                  fontWeight={600}
-                  textAnchor="middle"
-                  x={size / 2 + 2}
-                  y={-size / 2 - 2}
+            {/* Count badge */}
+            <AnimatePresence>
+              {hasMultiple && !shouldFan && (
+                <motion.g
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0, opacity: 0 }}
+                  initial={{ scale: 0, opacity: 0 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 20 }}
                 >
-                  {markers.length}
-                </text>
-              </motion.g>
-            )}
-          </AnimatePresence>
-        </motion.g>
+                  <circle
+                    cx={size / 2 + 2}
+                    cy={-size / 2 - 2}
+                    fill="var(--chart-line-primary)"
+                    r={9}
+                  />
+                  <text
+                    dominantBaseline="central"
+                    fill="white"
+                    fontSize={11}
+                    fontWeight={600}
+                    textAnchor="middle"
+                    x={size / 2 + 2}
+                    y={-size / 2 - 2}
+                  >
+                    {markers.length}
+                  </text>
+                </motion.g>
+              )}
+            </AnimatePresence>
+          </motion.g>
+        </g>
       </g>
 
       {/* Portal for fanned circles */}
