@@ -1,6 +1,7 @@
 {
   "$schema": "https://turborepo.dev/schema.json",
   "ui": "tui",
+  "globalEnv": ["BKLIT_API_KEY", "BKLIT_PROJECT_ID"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],

@@ -33,8 +33,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     >
       <body className="flex min-h-screen flex-col">
         <BklitComponent
-          apiKey="bk_live_1ad0d301f2271881c125737adc047fb190a44de59e82665d2c785d544e902c47"
-          projectId="cmkza0j3b0001zsfhe1ee4b1e"
+          apiKey={process.env.BKLIT_API_KEY ?? ""}
+          projectId={process.env.BKLIT_PROJECT_ID ?? ""}
         />
         <GithubStatsProvider>
           <RootProvider
