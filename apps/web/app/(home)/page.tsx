@@ -1,6 +1,5 @@
 "use client";
 
-import { RotateCcw } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
 import { useState } from "react";
@@ -18,24 +17,9 @@ const fadeInBlur = {
 
 export default function HomePage() {
   const [showContent, setShowContent] = useState(false);
-  const [animationKey, setAnimationKey] = useState(0);
-
-  const replayAnimation = () => {
-    setShowContent(false);
-    setAnimationKey((k) => k + 1);
-  };
 
   return (
     <main className="flex flex-1 flex-col items-center justify-center space-y-24 px-4 py-24 text-center">
-      {/* Replay button for testing */}
-      <button
-        className="fixed right-4 bottom-4 z-50 rounded-full border border-border bg-background p-3 shadow-lg transition-colors hover:bg-muted"
-        onClick={replayAnimation}
-        type="button"
-      >
-        <RotateCcw className="h-4 w-4" />
-      </button>
-
       <div className="max-w-xl space-y-6">
         <motion.div
           animate="animate"
@@ -48,10 +32,7 @@ export default function HomePage() {
           <Badge variant="ghost">Pre-release</Badge>
         </motion.div>
 
-        <AnimatedBrand
-          key={animationKey}
-          onAnimationComplete={() => setShowContent(true)}
-        />
+        <AnimatedBrand onAnimationComplete={() => setShowContent(true)} />
 
         <AnimatePresence>
           {showContent && (
@@ -68,7 +49,7 @@ export default function HomePage() {
 
               <motion.div
                 animate="animate"
-                className="flex flex-col items-center justify-center gap-4 sm:flex-row"
+                className="flex flex-col items-center justify-center gap-1 sm:flex-row"
                 initial="initial"
                 transition={{ delay: staggerDelay * 1, duration: 0.5 }}
                 variants={fadeInBlur}
