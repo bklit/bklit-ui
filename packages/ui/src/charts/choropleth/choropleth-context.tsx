@@ -1,5 +1,6 @@
 "use client";
 
+import type { ProvidedZoom, TransformMatrix } from "@visx/zoom/lib/types";
 import type { Feature, FeatureCollection, Geometry } from "geojson";
 import {
   createContext,
@@ -8,6 +9,29 @@ import {
   type SetStateAction,
   useContext,
 } from "react";
+
+// ZoomState from visx/zoom that includes isDragging
+interface ZoomState {
+  initialTransformMatrix: TransformMatrix;
+  transformMatrix: TransformMatrix;
+  isDragging: boolean;
+}
+
+// Combined type from visx Zoom children prop
+export type ZoomInstance<E extends Element> = ProvidedZoom<E> & ZoomState;
+
+// Zoom context to share zoom controls with child components
+interface ChoroplethZoomContextValue {
+  zoom: ZoomInstance<SVGSVGElement> | null;
+}
+
+export const ChoroplethZoomContext = createContext<ChoroplethZoomContextValue>({
+  zoom: null,
+});
+
+export function useChoroplethZoom() {
+  return useContext(ChoroplethZoomContext);
+}
 
 export interface Margin {
   top: number;

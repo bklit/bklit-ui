@@ -105,7 +105,7 @@ export function TooltipContent({ title, rows, children }: TooltipContentProps) {
                   className="h-2.5 w-2.5 shrink-0 rounded-full"
                   style={{ backgroundColor: row.color }}
                 />
-                <span className="text-sm text-zinc-100 dark:text-zinc-800">
+                <span className="text-sm text-zinc-100 dark:text-zinc-400">
                   {row.label}
                 </span>
               </div>

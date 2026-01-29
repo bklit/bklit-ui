@@ -97,7 +97,7 @@ function AnimatedFeaturePath({
 
 export function ChoroplethFeature({
   fill,
-  stroke = "var(--chart-grid)",
+  stroke = "var(--background)",
   strokeWidth = 0.5,
   fadedOpacity = 0.4,
   getFeatureColor,

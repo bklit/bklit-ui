@@ -1,9 +1,5 @@
 export type { TransformMatrix } from "@visx/zoom/lib/types";
-export {
-  ChoroplethChart,
-  type ChoroplethChartProps,
-  useChoroplethZoom,
-} from "./choropleth-chart";
+export { ChoroplethChart, type ChoroplethChartProps } from "./choropleth-chart";
 export {
   type ChoroplethContextValue,
   type ChoroplethFeature,
@@ -14,6 +10,7 @@ export {
   defaultChoroplethColors,
   type Margin,
   useChoropleth,
+  useChoroplethZoom,
 } from "./choropleth-context";
 export {
   ChoroplethFeature as ChoroplethFeatureComponent,

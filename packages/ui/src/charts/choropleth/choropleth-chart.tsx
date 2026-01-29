@@ -3,24 +3,11 @@
 import { Mercator } from "@visx/geo";
 import { ParentSize } from "@visx/responsive";
 import { Zoom } from "@visx/zoom";
-import type { ProvidedZoom, TransformMatrix } from "@visx/zoom/lib/types";
-
-// ZoomState from visx/zoom that includes isDragging
-interface ZoomState {
-  initialTransformMatrix: TransformMatrix;
-  transformMatrix: TransformMatrix;
-  isDragging: boolean;
-}
-
-// Combined type from visx Zoom children prop
-type ZoomInstance<E extends Element> = ProvidedZoom<E> & ZoomState;
-
+import type { TransformMatrix } from "@visx/zoom/lib/types";
 import type { FeatureCollection, Geometry } from "geojson";
-import {
-  createContext,
+import React, {
   type ReactNode,
   useCallback,
-  useContext,
   useEffect,
   useRef,
   useState,
@@ -30,21 +17,10 @@ import {
   type ChoroplethFeatureProperties,
   ChoroplethProvider,
   type ChoroplethTooltipData,
+  ChoroplethZoomContext,
   type Margin,
+  type ZoomInstance,
 } from "./choropleth-context";
-
-// Zoom context to share zoom controls with child components
-interface ChoroplethZoomContextValue {
-  zoom: ZoomInstance<SVGSVGElement> | null;
-}
-
-const ChoroplethZoomContext = createContext<ChoroplethZoomContextValue>({
-  zoom: null,
-});
-
-export function useChoroplethZoom() {
-  return useContext(ChoroplethZoomContext);
-}
 
 export interface ChoroplethChartProps {
   /** GeoJSON FeatureCollection data */
@@ -76,6 +52,55 @@ export interface ChoroplethChartProps {
 }
 
 const DEFAULT_MARGIN: Margin = { top: 0, right: 0, bottom: 0, left: 0 };
+
+// Known SVG component displayNames
+const SVG_COMPONENT_NAMES = new Set([
+  "ChoroplethFeature",
+  "ChoroplethGraticule",
+  "ChoroplethTooltip",
+]);
+
+// HTML elements that should render in overlay layer
+const HTML_ELEMENTS = new Set(["div", "span", "button", "p", "a"]);
+
+// Separate children into SVG and overlay layers
+function separateChildren(children: ReactNode): {
+  svgChildren: React.ReactNode[];
+  overlayChildren: React.ReactNode[];
+} {
+  const childArray = React.Children.toArray(children);
+  const svgChildren: React.ReactNode[] = [];
+  const overlayChildren: React.ReactNode[] = [];
+
+  for (const child of childArray) {
+    if (!React.isValidElement(child)) {
+      svgChildren.push(child);
+      continue;
+    }
+
+    // Check if it's a known SVG component by displayName
+    const displayName =
+      typeof child.type === "function"
+        ? (child.type as { displayName?: string }).displayName
+        : null;
+
+    if (displayName && SVG_COMPONENT_NAMES.has(displayName)) {
+      svgChildren.push(child);
+    } else if (typeof child.type === "string") {
+      // Native elements - HTML goes to overlay, SVG stays in SVG
+      if (HTML_ELEMENTS.has(child.type)) {
+        overlayChildren.push(child);
+      } else {
+        svgChildren.push(child);
+      }
+    } else {
+      // Unknown React components (like ZoomControls) go to overlay
+      overlayChildren.push(child);
+    }
+  }
+
+  return { svgChildren, overlayChildren };
+}
 
 const DEFAULT_INITIAL_ZOOM: TransformMatrix = {
   scaleX: 1,
@@ -193,6 +218,9 @@ function ChoroplethChartInner({
           animationDuration,
         };
 
+        // Separate SVG children from HTML overlay children
+        const { svgChildren, overlayChildren } = separateChildren(children);
+
         const svgContent = (zoom?: ZoomInstance<SVGSVGElement>) => (
           <ChoroplethZoomContext.Provider value={{ zoom: zoom ?? null }}>
             <ChoroplethProvider value={contextValue}>
@@ -210,13 +238,17 @@ function ChoroplethChartInner({
                 >
                   <g
                     style={{
-                      transition: "transform 0.18s ease-out",
+                      transition: zoom?.isDragging
+                        ? "none"
+                        : "transform 0.18s ease-out",
                     }}
                     transform={zoom ? zoom.toString() : undefined}
                   >
-                    {children}
+                    {svgChildren}
                   </g>
                 </svg>
+                {/* HTML overlay layer for controls, legends, etc. */}
+                {overlayChildren}
               </div>
             </ChoroplethProvider>
           </ChoroplethZoomContext.Provider>
@@ -231,6 +263,11 @@ function ChoroplethChartInner({
               scaleXMin={zoomMin}
               scaleYMax={zoomMax}
               scaleYMin={zoomMin}
+              wheelDelta={(event) => {
+                // Reduce zoom sensitivity (default is too aggressive)
+                const scale = event.deltaY > 0 ? 0.95 : 1.05;
+                return { scaleX: scale, scaleY: scale };
+              }}
               width={width}
             >
               {(zoom) => svgContent(zoom)}

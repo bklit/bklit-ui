@@ -3,9 +3,9 @@ title: Choropleth Chart
 description: A composable geographic map chart for visualizing data across regions with interactive tooltips, zoom controls, and pattern support
 ---
 
-import { ChoroplethChart, ChoroplethFeatureComponent, ChoroplethGraticule, ChoroplethTooltip, PatternLines, PatternCircles } from "@bklitui/ui/charts";
+import { ChoroplethChart, ChoroplethFeatureComponent, ChoroplethGraticule, ChoroplethTooltip, PatternLines } from "@bklitui/ui/charts";
 import { ChoroplethDemo, ChoroplethAnalyticsDemo } from "@/components/docs/choropleth-demo";
-import { ChoroplethLinesPatternDemo, ChoroplethDotsPatternDemo } from "@/components/docs/choropleth-pattern-demo";
+import { ChoroplethLinesPatternDemo } from "@/components/docs/choropleth-pattern-demo";
 import { ChoroplethZoomDemo } from "@/components/docs/choropleth-zoom-demo";
 
 ## Preview
@@ -205,26 +205,6 @@ Use `PatternLines` from `@visx/pattern` to create diagonal line patterns:
   <ChoroplethTooltip />
 </ChoroplethChart>`}>
   <ChoroplethLinesPatternDemo />
-</ComponentShowcase>
-
-### Dots Pattern
-
-Use `PatternCircles` for a dot pattern effect:
-
-<ComponentShowcase code={`<ChoroplethChart data={geojson} aspectRatio="16 / 9">
-  <ChoroplethGraticule />
-  <ChoroplethFeatureComponent
-    patterns={
-      <>
-        <PatternCircles id="dots-1" fill="var(--chart-1)" radius={2} ... />
-        <PatternCircles id="dots-2" fill="var(--chart-2)" radius={2} ... />
-      </>
-    }
-    getFeaturePattern={(feature) => getPatternId(feature)}
-  />
-  <ChoroplethTooltip />
-</ChoroplethChart>`}>
-  <ChoroplethDotsPatternDemo />
 </ComponentShowcase>
 
 ## Dependencies

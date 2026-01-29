@@ -6,7 +6,7 @@ import {
   ChoroplethTooltip,
   useChoroplethZoom,
 } from "@bklitui/ui/charts";
-import { RotateCcw, ZoomIn, ZoomOut } from "lucide-react";
+import { ZoomIn, ZoomOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useWorldDataStandalone } from "./use-world-data";
 
@@ -18,23 +18,22 @@ function ZoomControls() {
   }
 
   return (
-    <div className="absolute top-3 right-3 flex flex-col gap-1">
+    <div className="absolute right-4 bottom-4 flex flex-col gap-1">
       <Button
+        className="size-10 rounded-lg shadow-md"
         onClick={() => zoom.scale({ scaleX: 1.2, scaleY: 1.2 })}
-        size="icon-sm"
-        variant="outline"
+        size="icon"
+        variant="secondary"
       >
-        <ZoomIn className="size-4" />
+        <ZoomIn className="size-5" />
       </Button>
       <Button
+        className="size-10 rounded-lg shadow-md"
         onClick={() => zoom.scale({ scaleX: 0.8, scaleY: 0.8 })}
-        size="icon-sm"
-        variant="outline"
+        size="icon"
+        variant="secondary"
       >
-        <ZoomOut className="size-4" />
-      </Button>
-      <Button onClick={() => zoom.reset()} size="icon-sm" variant="outline">
-        <RotateCcw className="size-4" />
+        <ZoomOut className="size-5" />
       </Button>
     </div>
   );

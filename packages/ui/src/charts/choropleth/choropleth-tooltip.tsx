@@ -2,7 +2,11 @@
 
 import { TooltipBox } from "../tooltip/tooltip-box";
 import { TooltipContent, type TooltipRow } from "../tooltip/tooltip-content";
-import { type ChoroplethFeature, useChoropleth } from "./choropleth-context";
+import {
+  type ChoroplethFeature,
+  useChoropleth,
+  useChoroplethZoom,
+} from "./choropleth-context";
 
 export interface ChoroplethTooltipProps {
   /** Custom content renderer for feature tooltips */
@@ -35,14 +39,22 @@ export function ChoroplethTooltip({
 }: ChoroplethTooltipProps) {
   const { tooltipData, containerRef, width, height, features } =
     useChoropleth();
+  const { zoom } = useChoroplethZoom();
 
   if (!tooltipData) {
     return null;
   }
 
-  // Use centroid position from tooltip data
-  const x = tooltipData.x;
-  const y = tooltipData.y;
+  // Apply zoom transform to centroid position
+  let x = tooltipData.x;
+  let y = tooltipData.y;
+
+  if (zoom) {
+    // Apply the zoom transform matrix to the tooltip position
+    const transformed = zoom.applyToPoint({ x, y });
+    x = transformed.x;
+    y = transformed.y;
+  }
 
   const feature = features[tooltipData.featureIndex];
   if (!feature) {
