@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
-import { type ReactNode, useEffect, useRef } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import useMeasure from "react-use-measure";
 
 export interface TooltipRow {
@@ -19,49 +19,66 @@ export interface TooltipContentProps {
 
 export function TooltipContent({ title, rows, children }: TooltipContentProps) {
   const [measureRef, bounds] = useMeasure({ debounce: 0, scroll: false });
-  const prevHeightRef = useRef<number | null>(null);
-  const prevHasChildrenRef = useRef<boolean>(!!children);
-  const skipNextAnimationRef = useRef(false);
+  const [committedHeight, setCommittedHeight] = useState<number | null>(null);
+  // Track the children state that we've committed to (not the current one)
+  const committedChildrenStateRef = useRef<boolean | null>(null);
+  const frameRef = useRef<number | null>(null);
 
   const hasChildren = !!children;
   const markerKey = hasChildren ? "has-marker" : "no-marker";
 
-  // Detect when children appear/disappear - skip animation for this structural change
-  // because the measurement may not be stable on the first frame
-  if (prevHasChildrenRef.current !== hasChildren) {
-    skipNextAnimationRef.current = true;
-    prevHasChildrenRef.current = hasChildren;
-  }
+  // Check if we're waiting for a structural change to settle
+  // This is true when children state differs from our last committed state
+  const isWaitingForSettlement =
+    committedChildrenStateRef.current !== null &&
+    committedChildrenStateRef.current !== hasChildren;
 
-  // Track if this is a real height change (not initial measurement)
-  const currentHeight = bounds.height > 0 ? bounds.height : null;
-  const isHeightChange =
-    prevHeightRef.current !== null &&
-    currentHeight !== null &&
-    prevHeightRef.current !== currentHeight;
-
-  // Only animate if height changed AND we're not skipping due to structural change
-  const shouldAnimate = isHeightChange && !skipNextAnimationRef.current;
-
-  // Update refs after render
+  // Commit height changes with a frame delay when structure changes
   useEffect(() => {
-    if (currentHeight !== null) {
-      prevHeightRef.current = currentHeight;
-      // Reset the skip flag after we've applied the instant transition
-      if (skipNextAnimationRef.current) {
-        skipNextAnimationRef.current = false;
-      }
+    if (bounds.height <= 0) {
+      return;
     }
-  }, [currentHeight]);
+
+    // Cancel any pending frame
+    if (frameRef.current) {
+      cancelAnimationFrame(frameRef.current);
+      frameRef.current = null;
+    }
+
+    if (isWaitingForSettlement) {
+      // Structure changed - wait for layout to settle before committing
+      frameRef.current = requestAnimationFrame(() => {
+        frameRef.current = requestAnimationFrame(() => {
+          setCommittedHeight(bounds.height);
+          committedChildrenStateRef.current = hasChildren;
+        });
+      });
+    } else {
+      // No structural change, commit immediately
+      setCommittedHeight(bounds.height);
+      committedChildrenStateRef.current = hasChildren;
+    }
+
+    return () => {
+      if (frameRef.current) {
+        cancelAnimationFrame(frameRef.current);
+      }
+    };
+  }, [bounds.height, hasChildren, isWaitingForSettlement]);
+
+  // Animate if we have a committed height
+  const shouldAnimate = committedHeight !== null;
 
   return (
     <motion.div
-      // Only animate if we have a valid height, otherwise use auto
-      animate={currentHeight !== null ? { height: currentHeight } : undefined}
+      // Only animate if we have a committed height, otherwise use auto
+      animate={
+        committedHeight !== null ? { height: committedHeight } : undefined
+      }
       className="overflow-hidden"
       // Skip initial animation
       initial={false}
-      // Only apply spring transition for smooth height changes
+      // Apply spring transition when we have a committed height
       transition={
         shouldAnimate
           ? {
@@ -88,9 +105,11 @@ export function TooltipContent({ title, rows, children }: TooltipContentProps) {
                   className="h-2.5 w-2.5 shrink-0 rounded-full"
                   style={{ backgroundColor: row.color }}
                 />
-                <span className="text-sm text-zinc-100">{row.label}</span>
+                <span className="text-sm text-zinc-100 dark:text-zinc-800">
+                  {row.label}
+                </span>
               </div>
-              <span className="font-medium text-sm text-white tabular-nums">
+              <span className="font-medium text-sm text-white tabular-nums dark:text-zinc-800">
                 {typeof row.value === "number"
                   ? row.value.toLocaleString()
                   : row.value}
