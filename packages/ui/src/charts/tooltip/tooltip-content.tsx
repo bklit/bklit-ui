@@ -92,7 +92,9 @@ export function TooltipContent({ title, rows, children }: TooltipContentProps) {
     >
       <div className="px-3 py-2.5" ref={measureRef}>
         {title && (
-          <div className="mb-2 font-medium text-xs text-zinc-400">{title}</div>
+          <div className="mb-2 font-medium text-xs text-zinc-400 dark:text-zinc-500">
+            {title}
+          </div>
         )}
         <div className="space-y-1.5">
           {rows.map((row) => (
@@ -105,11 +107,11 @@ export function TooltipContent({ title, rows, children }: TooltipContentProps) {
                   className="h-2.5 w-2.5 shrink-0 rounded-full"
                   style={{ backgroundColor: row.color }}
                 />
-                <span className="text-sm text-zinc-100 dark:text-zinc-400">
+                <span className="text-sm text-zinc-100 dark:text-zinc-300">
                   {row.label}
                 </span>
               </div>
-              <span className="font-medium text-sm text-white tabular-nums dark:text-zinc-800">
+              <span className="font-medium text-sm text-white tabular-nums dark:text-zinc-100">
                 {typeof row.value === "number"
                   ? row.value.toLocaleString()
                   : row.value}
