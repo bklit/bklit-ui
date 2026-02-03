@@ -5,7 +5,7 @@
   "title": "Chart Legend",
   "description": "Composable legend components for charts",
   "dependencies": ["@number-flow/react"],
-  "registryDependencies": ["utils"],
+  "registryDependencies": ["https://ui.bklit.com/r/utils.json"],
   "files": [
     {
       "path": "src/charts/legend/legend.tsx",

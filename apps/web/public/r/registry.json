@@ -22,7 +22,7 @@
       "type": "registry:component",
       "title": "Chart Context",
       "description": "Shared context and hooks for Bklit chart components",
-      "registryDependencies": ["utils"],
+      "registryDependencies": ["https://ui.bklit.com/r/utils.json"],
       "dependencies": [
         "@visx/event",
         "@visx/responsive",
@@ -83,7 +83,7 @@
       "type": "registry:component",
       "title": "Chart Grid",
       "description": "Grid lines for charts",
-      "registryDependencies": ["chart-context"],
+      "registryDependencies": ["https://ui.bklit.com/r/chart-context.json"],
       "dependencies": ["@visx/grid"],
       "files": [
         {
@@ -98,7 +98,10 @@
       "type": "registry:component",
       "title": "X Axis",
       "description": "X-axis component for time-series charts",
-      "registryDependencies": ["chart-context", "utils"],
+      "registryDependencies": [
+        "https://ui.bklit.com/r/chart-context.json",
+        "https://ui.bklit.com/r/utils.json"
+      ],
       "files": [
         {
           "path": "src/charts/x-axis.tsx",
@@ -112,7 +115,10 @@
       "type": "registry:component",
       "title": "Chart Tooltip",
       "description": "Composable tooltip components for charts",
-      "registryDependencies": ["chart-context", "utils"],
+      "registryDependencies": [
+        "https://ui.bklit.com/r/chart-context.json",
+        "https://ui.bklit.com/r/utils.json"
+      ],
       "dependencies": ["@number-flow/react", "motion"],
       "files": [
         {
@@ -157,7 +163,7 @@
       "type": "registry:component",
       "title": "Chart Legend",
       "description": "Composable legend components for charts",
-      "registryDependencies": ["utils"],
+      "registryDependencies": ["https://ui.bklit.com/r/utils.json"],
       "dependencies": ["@number-flow/react"],
       "cssVars": {
         "light": {
@@ -223,7 +229,11 @@
       "type": "registry:component",
       "title": "Chart Markers",
       "description": "Marker components for highlighting data points on charts",
-      "registryDependencies": ["chart-context", "chart-tooltip", "utils"],
+      "registryDependencies": [
+        "https://ui.bklit.com/r/chart-context.json",
+        "https://ui.bklit.com/r/chart-tooltip.json",
+        "https://ui.bklit.com/r/utils.json"
+      ],
       "files": [
         {
           "path": "src/charts/markers/chart-markers.tsx",
@@ -248,11 +258,11 @@
       "title": "Area Chart",
       "description": "A composable area chart with gradient fills and animations",
       "registryDependencies": [
-        "chart-context",
-        "grid",
-        "x-axis",
-        "chart-tooltip",
-        "utils"
+        "https://ui.bklit.com/r/chart-context.json",
+        "https://ui.bklit.com/r/grid.json",
+        "https://ui.bklit.com/r/x-axis.json",
+        "https://ui.bklit.com/r/chart-tooltip.json",
+        "https://ui.bklit.com/r/utils.json"
       ],
       "dependencies": [
         "@visx/curve",
@@ -279,10 +289,10 @@
       "title": "Bar Chart",
       "description": "A composable bar chart with horizontal/vertical orientations and animations",
       "registryDependencies": [
-        "chart-context",
-        "grid",
-        "chart-tooltip",
-        "utils"
+        "https://ui.bklit.com/r/chart-context.json",
+        "https://ui.bklit.com/r/grid.json",
+        "https://ui.bklit.com/r/chart-tooltip.json",
+        "https://ui.bklit.com/r/utils.json"
       ],
       "dependencies": [
         "@visx/gradient",
@@ -319,11 +329,11 @@
       "title": "Line Chart",
       "description": "A composable line chart with multiple series support",
       "registryDependencies": [
-        "chart-context",
-        "grid",
-        "x-axis",
-        "chart-tooltip",
-        "utils"
+        "https://ui.bklit.com/r/chart-context.json",
+        "https://ui.bklit.com/r/grid.json",
+        "https://ui.bklit.com/r/x-axis.json",
+        "https://ui.bklit.com/r/chart-tooltip.json",
+        "https://ui.bklit.com/r/utils.json"
       ],
       "dependencies": ["@visx/curve", "@visx/shape", "motion"],
       "files": [
@@ -344,7 +354,7 @@
       "type": "registry:component",
       "title": "Pie Chart",
       "description": "A composable pie chart with animations and customizable slices",
-      "registryDependencies": ["utils"],
+      "registryDependencies": ["https://ui.bklit.com/r/utils.json"],
       "dependencies": ["@visx/responsive", "@visx/shape", "motion"],
       "files": [
         {
@@ -374,7 +384,7 @@
       "type": "registry:component",
       "title": "Radar Chart",
       "description": "A composable radar/spider chart with multiple data series",
-      "registryDependencies": ["utils"],
+      "registryDependencies": ["https://ui.bklit.com/r/utils.json"],
       "dependencies": ["@visx/responsive", "d3-shape", "motion"],
       "files": [
         {
@@ -414,7 +424,7 @@
       "type": "registry:component",
       "title": "Ring Chart",
       "description": "A composable donut/ring chart with progress indicators",
-      "registryDependencies": ["utils"],
+      "registryDependencies": ["https://ui.bklit.com/r/utils.json"],
       "dependencies": ["@visx/responsive", "@number-flow/react", "motion"],
       "files": [
         {
@@ -444,7 +454,7 @@
       "type": "registry:component",
       "title": "Choropleth Map",
       "description": "A geographic map chart with zoom, pan, and data visualization",
-      "registryDependencies": ["utils"],
+      "registryDependencies": ["https://ui.bklit.com/r/utils.json"],
       "dependencies": [
         "@visx/geo",
         "@visx/responsive",
@@ -491,7 +501,7 @@
       "type": "registry:component",
       "title": "Sankey Diagram",
       "description": "A flow diagram for visualizing data transfers between nodes",
-      "registryDependencies": ["utils"],
+      "registryDependencies": ["https://ui.bklit.com/r/utils.json"],
       "dependencies": [
         "@visx/gradient",
         "@visx/pattern",

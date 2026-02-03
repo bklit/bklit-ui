@@ -5,7 +5,12 @@
   "title": "Bar Chart",
   "description": "A composable bar chart with horizontal/vertical orientations and animations",
   "dependencies": ["@visx/gradient", "@visx/pattern", "@visx/shape", "motion"],
-  "registryDependencies": ["chart-context", "grid", "chart-tooltip", "utils"],
+  "registryDependencies": [
+    "https://ui.bklit.com/r/chart-context.json",
+    "https://ui.bklit.com/r/grid.json",
+    "https://ui.bklit.com/r/chart-tooltip.json",
+    "https://ui.bklit.com/r/utils.json"
+  ],
   "files": [
     {
       "path": "src/charts/bar-chart.tsx",

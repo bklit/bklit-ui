@@ -4,7 +4,11 @@
   "type": "registry:component",
   "title": "Chart Markers",
   "description": "Marker components for highlighting data points on charts",
-  "registryDependencies": ["chart-context", "chart-tooltip", "utils"],
+  "registryDependencies": [
+    "https://ui.bklit.com/r/chart-context.json",
+    "https://ui.bklit.com/r/chart-tooltip.json",
+    "https://ui.bklit.com/r/utils.json"
+  ],
   "files": [
     {
       "path": "src/charts/markers/chart-markers.tsx",

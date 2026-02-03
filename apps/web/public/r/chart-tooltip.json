@@ -5,7 +5,10 @@
   "title": "Chart Tooltip",
   "description": "Composable tooltip components for charts",
   "dependencies": ["@number-flow/react", "motion"],
-  "registryDependencies": ["chart-context", "utils"],
+  "registryDependencies": [
+    "https://ui.bklit.com/r/chart-context.json",
+    "https://ui.bklit.com/r/utils.json"
+  ],
   "files": [
     {
       "path": "src/charts/tooltip/chart-tooltip.tsx",

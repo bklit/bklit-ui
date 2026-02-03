@@ -5,7 +5,7 @@
   "title": "Chart Grid",
   "description": "Grid lines for charts",
   "dependencies": ["@visx/grid"],
-  "registryDependencies": ["chart-context"],
+  "registryDependencies": ["https://ui.bklit.com/r/chart-context.json"],
   "files": [
     {
       "path": "src/charts/grid.tsx",
