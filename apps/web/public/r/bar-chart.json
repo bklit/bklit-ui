@@ -4,18 +4,8 @@
   "type": "registry:component",
   "title": "Bar Chart",
   "description": "A composable bar chart with horizontal/vertical orientations and animations",
-  "dependencies": [
-    "@visx/gradient",
-    "@visx/pattern",
-    "@visx/shape",
-    "motion"
-  ],
-  "registryDependencies": [
-    "chart-context",
-    "grid",
-    "chart-tooltip",
-    "utils"
-  ],
+  "dependencies": ["@visx/gradient", "@visx/pattern", "@visx/shape", "motion"],
+  "registryDependencies": ["chart-context", "grid", "chart-tooltip", "utils"],
   "files": [
     {
       "path": "src/charts/bar-chart.tsx",

@@ -4,10 +4,7 @@
   "type": "registry:component",
   "title": "X Axis",
   "description": "X-axis component for time-series charts",
-  "registryDependencies": [
-    "chart-context",
-    "utils"
-  ],
+  "registryDependencies": ["chart-context", "utils"],
   "files": [
     {
       "path": "src/charts/x-axis.tsx",

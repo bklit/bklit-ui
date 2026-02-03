@@ -4,14 +4,8 @@
   "type": "registry:component",
   "title": "Pie Chart",
   "description": "A composable pie chart with animations and customizable slices",
-  "dependencies": [
-    "@visx/responsive",
-    "@visx/shape",
-    "motion"
-  ],
-  "registryDependencies": [
-    "utils"
-  ],
+  "dependencies": ["@visx/responsive", "@visx/shape", "motion"],
+  "registryDependencies": ["utils"],
   "files": [
     {
       "path": "src/charts/pie-chart.tsx",

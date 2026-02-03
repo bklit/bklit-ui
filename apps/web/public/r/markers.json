@@ -4,11 +4,7 @@
   "type": "registry:component",
   "title": "Chart Markers",
   "description": "Marker components for highlighting data points on charts",
-  "registryDependencies": [
-    "chart-context",
-    "chart-tooltip",
-    "utils"
-  ],
+  "registryDependencies": ["chart-context", "chart-tooltip", "utils"],
   "files": [
     {
       "path": "src/charts/markers/chart-markers.tsx",

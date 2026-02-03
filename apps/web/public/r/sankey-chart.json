@@ -11,9 +11,7 @@
     "@visx/sankey",
     "motion"
   ],
-  "registryDependencies": [
-    "utils"
-  ],
+  "registryDependencies": ["utils"],
   "files": [
     {
       "path": "src/charts/sankey/sankey-chart.tsx",

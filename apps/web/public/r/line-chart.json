@@ -4,11 +4,7 @@
   "type": "registry:component",
   "title": "Line Chart",
   "description": "A composable line chart with multiple series support",
-  "dependencies": [
-    "@visx/curve",
-    "@visx/shape",
-    "motion"
-  ],
+  "dependencies": ["@visx/curve", "@visx/shape", "motion"],
   "registryDependencies": [
     "chart-context",
     "grid",

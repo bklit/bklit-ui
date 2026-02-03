@@ -10,9 +10,7 @@
     "@visx/scale",
     "d3-array"
   ],
-  "registryDependencies": [
-    "utils"
-  ],
+  "registryDependencies": ["utils"],
   "files": [
     {
       "path": "src/charts/chart-context.tsx",

@@ -12,9 +12,7 @@
     "topojson-client",
     "motion"
   ],
-  "registryDependencies": [
-    "utils"
-  ],
+  "registryDependencies": ["utils"],
   "files": [
     {
       "path": "src/charts/choropleth/choropleth-chart.tsx",

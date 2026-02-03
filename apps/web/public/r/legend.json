@@ -4,12 +4,8 @@
   "type": "registry:component",
   "title": "Chart Legend",
   "description": "Composable legend components for charts",
-  "dependencies": [
-    "@number-flow/react"
-  ],
-  "registryDependencies": [
-    "utils"
-  ],
+  "dependencies": ["@number-flow/react"],
+  "registryDependencies": ["utils"],
   "files": [
     {
       "path": "src/charts/legend/legend.tsx",

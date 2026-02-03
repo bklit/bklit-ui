@@ -4,12 +4,7 @@
   "type": "registry:component",
   "title": "Area Chart",
   "description": "A composable area chart with gradient fills and animations",
-  "dependencies": [
-    "@visx/curve",
-    "@visx/gradient",
-    "@visx/shape",
-    "motion"
-  ],
+  "dependencies": ["@visx/curve", "@visx/gradient", "@visx/shape", "motion"],
   "registryDependencies": [
     "chart-context",
     "grid",

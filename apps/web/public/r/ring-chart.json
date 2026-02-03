@@ -4,14 +4,8 @@
   "type": "registry:component",
   "title": "Ring Chart",
   "description": "A composable donut/ring chart with progress indicators",
-  "dependencies": [
-    "@visx/responsive",
-    "@number-flow/react",
-    "motion"
-  ],
-  "registryDependencies": [
-    "utils"
-  ],
+  "dependencies": ["@visx/responsive", "@number-flow/react", "motion"],
+  "registryDependencies": ["utils"],
   "files": [
     {
       "path": "src/charts/ring-chart.tsx",

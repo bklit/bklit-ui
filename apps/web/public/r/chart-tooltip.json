@@ -4,14 +4,8 @@
   "type": "registry:component",
   "title": "Chart Tooltip",
   "description": "Composable tooltip components for charts",
-  "dependencies": [
-    "@number-flow/react",
-    "motion"
-  ],
-  "registryDependencies": [
-    "chart-context",
-    "utils"
-  ],
+  "dependencies": ["@number-flow/react", "motion"],
+  "registryDependencies": ["chart-context", "utils"],
   "files": [
     {
       "path": "src/charts/tooltip/chart-tooltip.tsx",

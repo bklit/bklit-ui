@@ -4,14 +4,8 @@
   "type": "registry:component",
   "title": "Radar Chart",
   "description": "A composable radar/spider chart with multiple data series",
-  "dependencies": [
-    "@visx/responsive",
-    "d3-shape",
-    "motion"
-  ],
-  "registryDependencies": [
-    "utils"
-  ],
+  "dependencies": ["@visx/responsive", "d3-shape", "motion"],
+  "registryDependencies": ["utils"],
   "files": [
     {
       "path": "src/charts/radar-chart.tsx",
