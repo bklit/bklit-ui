@@ -5,7 +5,7 @@
   "title": "Pie Chart",
   "description": "A composable pie chart with animations and customizable slices",
   "dependencies": ["@visx/responsive", "@visx/shape", "motion"],
-  "registryDependencies": ["utils"],
+  "registryDependencies": ["https://ui.bklit.com/r/utils.json"],
   "files": [
     {
       "path": "src/charts/pie-chart.tsx",

@@ -11,7 +11,7 @@
     "@visx/sankey",
     "motion"
   ],
-  "registryDependencies": ["utils"],
+  "registryDependencies": ["https://ui.bklit.com/r/utils.json"],
   "files": [
     {
       "path": "src/charts/sankey/sankey-chart.tsx",

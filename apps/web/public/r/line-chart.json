@@ -6,11 +6,11 @@
   "description": "A composable line chart with multiple series support",
   "dependencies": ["@visx/curve", "@visx/shape", "motion"],
   "registryDependencies": [
-    "chart-context",
-    "grid",
-    "x-axis",
-    "chart-tooltip",
-    "utils"
+    "https://ui.bklit.com/r/chart-context.json",
+    "https://ui.bklit.com/r/grid.json",
+    "https://ui.bklit.com/r/x-axis.json",
+    "https://ui.bklit.com/r/chart-tooltip.json",
+    "https://ui.bklit.com/r/utils.json"
   ],
   "files": [
     {

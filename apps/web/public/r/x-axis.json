@@ -4,7 +4,10 @@
   "type": "registry:component",
   "title": "X Axis",
   "description": "X-axis component for time-series charts",
-  "registryDependencies": ["chart-context", "utils"],
+  "registryDependencies": [
+    "https://ui.bklit.com/r/chart-context.json",
+    "https://ui.bklit.com/r/utils.json"
+  ],
   "files": [
     {
       "path": "src/charts/x-axis.tsx",
