@@ -1,0 +1,68 @@
+---
+title: Installation
+description: How to install and configure Bklit UI in your project
+---
+
+Bklit UI is a trusted registry for shadcn/ui. Follow the steps below to get started.
+
+## Prerequisites
+
+Before installing Bklit UI components, make sure you have shadcn/ui set up in your project. If you haven't already, run:
+
+```bash
+npx shadcn@latest init
+```
+
+## Add the Registry
+
+Add the Bklit UI registry to your `components.json` file:
+
+```json title="components.json"
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "new-york",
+  "rsc": true,
+  "tsx": true,
+  "tailwind": {
+    "config": "",
+    "css": "app/globals.css",
+    "baseColor": "neutral",
+    "cssVariables": true,
+    "prefix": ""
+  },
+  "iconLibrary": "lucide",
+  "aliases": {
+    "components": "@/components",
+    "utils": "@/lib/utils",
+    "ui": "@/components/ui",
+    "lib": "@/lib",
+    "hooks": "@/hooks"
+  },
+  "registries": {
+    "@bklit-ui": "https://ui.bklit.com/r/{name}.json"
+  }
+}
+```
+
+The key addition is the `registries` object:
+
+```json
+"registries": {
+  "@bklit-ui": "https://ui.bklit.com/r/{name}.json"
+}
+```
+
+## Install Components
+
+Once configured, you can install any Bklit UI component using the shadcn CLI:
+
+<PackageManagerTabs name="area-chart" />
+
+This will automatically:
+- Download the component source code
+- Install any required dependencies
+- Place files in your configured component directory
+
+## Next Steps
+
+You're all set! Browse the [Components](/docs/components) section to start adding charts and visualizations to your project.

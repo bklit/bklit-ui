@@ -14,6 +14,10 @@ export default function Layout({ children }: { children: ReactNode }) {
               url: "/docs",
             },
             {
+              text: "Installation",
+              url: "/docs/installation",
+            },
+            {
               text: "Components",
               url: "/docs/components",
             },

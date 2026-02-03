@@ -11,6 +11,8 @@ import {
 } from "@/components/docs/component-showcase";
 import { ComponentsList } from "@/components/docs/components-list";
 import { CopyPageButton } from "@/components/docs/copy-page-button";
+import { InstallationTabs } from "@/components/docs/installation-tabs";
+import { PackageManagerTabs } from "@/components/docs/package-manager-tabs";
 import { PageFooter } from "@/components/docs/page-footer";
 import { SocialLinks } from "@/components/docs/social-links";
 import { TableOfContents } from "@/components/docs/toc";
@@ -74,6 +76,8 @@ export default async function Page(props: {
               ComponentPreview,
               ComponentShowcase,
               ComponentsList,
+              InstallationTabs,
+              PackageManagerTabs,
               SocialLinks,
             }}
           />
