@@ -168,34 +168,39 @@ export function TooltipCustomContentDemo() {
         <Line dataKey="pageviews" stroke="var(--chart-line-secondary)" />
         <XAxis />
         <ChartTooltip
-          content={({ point }) => (
-            <div className="flex flex-col gap-2 p-3">
-              <div className="font-medium text-sm">
-                {(point.date as Date).toLocaleDateString("en-US", {
-                  weekday: "short",
-                  month: "short",
-                  day: "numeric",
-                })}
+          content={({ point }) => {
+            const date = point.date as Date | undefined;
+            const users = (point.users as number) ?? 0;
+            const pageviews = (point.pageviews as number) ?? 0;
+            return (
+              <div className="flex flex-col gap-2 p-3">
+                <div className="font-medium text-sm">
+                  {date != null
+                    ? (date instanceof Date
+                        ? date
+                        : new Date(date as number | string)
+                      ).toLocaleDateString("en-US", {
+                        weekday: "short",
+                        month: "short",
+                        day: "numeric",
+                      })
+                    : "—"}
+                </div>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+                  <span className="text-zinc-400">Users</span>
+                  <span className="font-mono">{users.toLocaleString()}</span>
+                  <span className="text-zinc-400">Views</span>
+                  <span className="font-mono">
+                    {pageviews.toLocaleString()}
+                  </span>
+                  <span className="text-zinc-400">Ratio</span>
+                  <span className="font-mono">
+                    {users > 0 ? (pageviews / users).toFixed(2) : "—"}x
+                  </span>
+                </div>
               </div>
-              <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
-                <span className="text-zinc-400">Users</span>
-                <span className="font-mono">
-                  {(point.users as number)?.toLocaleString()}
-                </span>
-                <span className="text-zinc-400">Views</span>
-                <span className="font-mono">
-                  {(point.pageviews as number)?.toLocaleString()}
-                </span>
-                <span className="text-zinc-400">Ratio</span>
-                <span className="font-mono">
-                  {(
-                    (point.pageviews as number) / (point.users as number)
-                  ).toFixed(2)}
-                  x
-                </span>
-              </div>
-            </div>
-          )}
+            );
+          }}
         />
       </LineChart>
     </div>
