@@ -5,6 +5,6 @@ import type { BundledTheme } from "shiki";
  * Used by both MDX (source.config.ts) and DynamicCodeBlock components.
  */
 export const codeThemes: { light: BundledTheme; dark: BundledTheme } = {
-  light: "github-dark",
+  light: "github-light",
   dark: "github-dark",
 };
