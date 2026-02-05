@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { AnimatedBrand } from "@/components/animated-brand";
 import { HomeComponents } from "@/components/home-components";
+import { TestimonialMarquee } from "@/components/testimonial-marquee";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
@@ -74,17 +75,30 @@ export default function HomePage() {
 
       <AnimatePresence>
         {showContent && (
-          <motion.div
-            animate="animate"
-            className="container mx-auto"
-            initial="initial"
-            transition={{ delay: staggerDelay * 2, duration: 0.6 }}
-            variants={fadeInOnly}
-          >
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-12">
-              <HomeComponents />
-            </div>
-          </motion.div>
+          <>
+            <motion.div
+              animate="animate"
+              className="container mx-auto"
+              initial="initial"
+              transition={{ delay: staggerDelay * 2, duration: 0.6 }}
+              variants={fadeInOnly}
+            >
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-12">
+                <HomeComponents />
+              </div>
+            </motion.div>
+
+            <motion.div
+              animate="animate"
+              className="relative w-full before:pointer-events-none before:absolute before:inset-y-0 before:left-0 before:z-10 before:w-32 before:bg-gradient-to-r before:from-background before:to-transparent after:pointer-events-none after:absolute after:inset-y-0 after:right-0 after:z-10 after:w-32 after:bg-gradient-to-l after:from-background after:to-transparent"
+              initial="initial"
+              transition={{ delay: staggerDelay * 3, duration: 0.6 }}
+              variants={fadeInOnly}
+            >
+              <TestimonialMarquee direction="ltr" duration={70} />
+              <TestimonialMarquee direction="rtl" duration={70} />
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </main>
