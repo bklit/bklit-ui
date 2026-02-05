@@ -1,0 +1,217 @@
+---
+title: Custom Indicator
+description: Create custom tooltip indicators for charts using the useChart hook
+---
+
+import { CustomIndicatorDemo } from "@/components/docs/custom-indicator-demo";
+
+## Preview
+
+<ComponentPreview>
+  <CustomIndicatorDemo />
+</ComponentPreview>
+
+## Overview
+
+Custom indicators allow you to replace the default tooltip crosshair and dots with your own animated elements. This is useful for creating unique visual feedback like rising lines, custom shapes, or other interactive effects.
+
+The demo above shows a grouped bar chart with two series—one with a gradient fill and one with a diagonal pattern—each with its own animated line indicator that rises on hover.
+
+## Disabling Default Indicators
+
+First, disable the built-in indicators on `ChartTooltip`:
+
+```tsx
+<ChartTooltip 
+  showCrosshair={false}  // Hides the vertical crosshair line
+  showDots={false}       // Hides the dots on bars/lines
+/>
+```
+
+## Creating an Animated Line Indicator
+
+### Step 1: Create the Animated Element
+
+Use `motion/react` with `useSpring` for smooth spring animations:
+
+```tsx
+import { motion, useSpring } from "motion/react";
+import { useEffect } from "react";
+
+function AnimatedBarLine({
+  barX,
+  barTopY,
+  barBottomY,
+  width,
+  isHovered,
+}: {
+  barX: number;
+  barTopY: number;
+  barBottomY: number;
+  width: number;
+  isHovered: boolean;
+}) {
+  // Spring animations for position and opacity
+  const animatedY = useSpring(barBottomY, { stiffness: 300, damping: 30 });
+  const animatedOpacity = useSpring(0, { stiffness: 300, damping: 30 });
+
+  useEffect(() => {
+    // Rise to bar top when hovered, drop to bottom when not
+    animatedY.set(isHovered ? barTopY : barBottomY);
+    animatedOpacity.set(isHovered ? 1 : 0);
+  }, [isHovered, barTopY, barBottomY, animatedY, animatedOpacity]);
+
+  return (
+    <motion.rect
+      fill="var(--chart-indicator-color)"
+      height={2}
+      style={{
+        opacity: animatedOpacity,
+        y: animatedY,
+      }}
+      width={width}
+      x={barX}
+    />
+  );
+}
+```
+
+### Step 2: Access Chart State with useChart
+
+The `useChart` hook provides all the data needed to position your indicator:
+
+```tsx
+import { useChart } from "@bklitui/ui/charts";
+
+function BarHorizontalLineIndicator({ data, dataKeys }) {
+  const {
+    barScale,        // Scale to get x position from category
+    bandWidth,       // Width of each bar group
+    innerHeight,     // Chart height (for bottom position)
+    yScale,          // Scale to get y position from value
+    hoveredBarIndex, // Which bar group is currently hovered
+    margin,          // Chart margins
+    containerRef,    // Ref for portal rendering
+  } = useChart();
+  
+  // For grouped bars, divide bandWidth by number of series
+  const individualBarWidth = bandWidth / dataKeys.length;
+  
+  // ... render indicators
+}
+```
+
+### Step 3: Render via Portal
+
+Use a portal to render the SVG overlay in the chart container. For grouped bar charts with multiple series, calculate each bar's position within the group:
+
+```tsx
+import React, { useEffect } from "react";
+
+function BarHorizontalLineIndicator({ data, dataKeys }) {
+  const { barScale, bandWidth, innerHeight, margin, containerRef, hoveredBarIndex, yScale } = useChart();
+  const [mounted, setMounted] = React.useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const container = containerRef.current;
+  if (!(mounted && container && bandWidth && barScale)) {
+    return null;
+  }
+
+  const { createPortal } = require("react-dom");
+
+  // Calculate individual bar width for grouped bars
+  const barCount = dataKeys.length;
+  const individualBarWidth = bandWidth / barCount;
+
+  return createPortal(
+    <svg
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 z-50"
+      height="100%"
+      width="100%"
+    >
+      <g transform={`translate(${margin.left},${margin.top})`}>
+        {data.map((d, i) => {
+          const groupX = barScale(d.month) ?? 0;
+          const isHovered = hoveredBarIndex === i;
+
+          return dataKeys.map((dataKey, barIndex) => {
+            const barTopY = yScale(d[dataKey]) ?? innerHeight;
+            const barX = groupX + barIndex * individualBarWidth;
+
+            return (
+              <AnimatedBarLine
+                key={`${d.month}-${dataKey}`}
+                barX={barX}
+                barTopY={barTopY}
+                barBottomY={innerHeight}
+                width={individualBarWidth}
+                isHovered={isHovered}
+              />
+            );
+          });
+        })}
+      </g>
+    </svg>,
+    container
+  );
+}
+```
+
+### Step 4: Add to Your Chart
+
+Add the custom indicator as a child of your chart component. You can use gradients and patterns for different series:
+
+```tsx
+import { PatternLines } from "@bklitui/ui/charts";
+
+<BarChart data={data} xDataKey="month" barGap={0}>
+  <LinearGradient id="gradient" from="var(--chart-3)" to="transparent" />
+  <PatternLines
+    id="diagonalPattern"
+    height={6}
+    width={6}
+    stroke="var(--chart-4)"
+    strokeWidth={1.5}
+    orientation={["diagonal"]}
+  />
+  <Grid horizontal />
+  <Bar dataKey="revenue" fill="url(#gradient)" stroke="var(--chart-3)" />
+  <Bar dataKey="cost" fill="url(#diagonalPattern)" stroke="var(--chart-4)" />
+  <BarXAxis />
+  <ChartTooltip showCrosshair={false} showDots={false} />
+  <BarHorizontalLineIndicator data={data} dataKeys={["revenue", "cost"]} />
+</BarChart>
+```
+
+## Key useChart Values for Indicators
+
+| Value | Type | Description |
+|-------|------|-------------|
+| `hoveredBarIndex` | `number \| null` | Index of the currently hovered bar |
+| `barScale` | `ScaleBand` | Band scale for categorical x-axis positions |
+| `bandWidth` | `number` | Width of each bar band |
+| `yScale` | `ScaleLinear` | Linear scale for y-axis values |
+| `innerHeight` | `number` | Chart area height (excluding margins) |
+| `margin` | `Margin` | Chart margins `{ top, right, bottom, left }` |
+| `containerRef` | `RefObject` | Ref to the chart container (for portals) |
+| `tooltipData` | `TooltipData \| null` | Current tooltip data including position |
+
+## Theming
+
+Use CSS variables for proper light/dark mode support:
+
+```tsx
+// Use chartCssVars or CSS variables directly
+<motion.rect fill="var(--chart-indicator-color)" />
+```
+
+Available indicator variables:
+- `--chart-indicator-color` - Primary indicator color
+- `--chart-indicator-secondary-color` - Secondary/stroke color
+
+See [Theming](/docs/theming) for the full list.

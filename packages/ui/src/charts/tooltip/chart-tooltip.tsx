@@ -106,17 +106,17 @@ export function ChartTooltip({
     if (!tooltipData) {
       return undefined;
     }
-    if (isHorizontal && barXAccessor) {
-      // For horizontal bar charts, use the category name
+    // For bar charts (horizontal or vertical), use the category name
+    if (barXAccessor) {
       return barXAccessor(tooltipData.point);
     }
-    // For vertical charts, use the date
+    // For line/area charts, use the date
     return xAccessor(tooltipData.point).toLocaleDateString("en-US", {
       weekday: "short",
       month: "short",
       day: "numeric",
     });
-  }, [tooltipData, isHorizontal, barXAccessor, xAccessor]);
+  }, [tooltipData, barXAccessor, xAccessor]);
 
   // Use portal to render into the chart container
   // Only render after mount on client side

@@ -1,0 +1,128 @@
+---
+title: Theming
+description: Theme your charts using CSS custom properties for consistent, customizable styling.
+---
+
+Charts use CSS custom properties (variables) for theming, allowing you to customize colors across light and dark modes without modifying component code.
+
+## Using chartCssVars
+
+The `chartCssVars` object provides type-safe access to chart CSS variables:
+
+```tsx
+import { chartCssVars } from "@bklitui/ui/charts";
+
+// In your component
+<rect fill={chartCssVars.indicatorColor} />
+<line stroke={chartCssVars.crosshair} />
+```
+
+This is preferred over hardcoding CSS variable strings, as it provides autocomplete and prevents typos.
+
+## Available Variables
+
+### Core Colors
+
+| Variable | CSS Property | Description |
+|----------|-------------|-------------|
+| `background` | `--chart-background` | Chart container background |
+| `foreground` | `--chart-foreground` | Primary text/element color |
+| `foregroundMuted` | `--chart-foreground-muted` | Secondary/muted text color |
+| `label` | `--chart-label` | Axis label text color |
+
+### Line & Grid
+
+| Variable | CSS Property | Description |
+|----------|-------------|-------------|
+| `linePrimary` | `--chart-line-primary` | Primary line stroke color |
+| `lineSecondary` | `--chart-line-secondary` | Secondary line stroke color |
+| `crosshair` | `--chart-crosshair` | Tooltip crosshair line color |
+| `grid` | `--chart-grid` | Grid line color |
+
+### Indicators
+
+| Variable | CSS Property | Description |
+|----------|-------------|-------------|
+| `indicatorColor` | `--chart-indicator-color` | Primary indicator color (e.g., hover lines) |
+| `indicatorSecondaryColor` | `--chart-indicator-secondary-color` | Secondary indicator color |
+
+### Markers
+
+| Variable | CSS Property | Description |
+|----------|-------------|-------------|
+| `markerBackground` | `--chart-marker-background` | Marker circle background |
+| `markerBorder` | `--chart-marker-border` | Marker circle border |
+| `markerForeground` | `--chart-marker-foreground` | Marker icon color |
+| `badgeBackground` | `--chart-marker-badge-background` | Marker count badge background |
+| `badgeForeground` | `--chart-marker-badge-foreground` | Marker count badge text |
+
+### Data Series Colors
+
+These are used for coloring different data series in multi-line charts:
+
+| CSS Property | Description |
+|-------------|-------------|
+| `--chart-1` | First series color |
+| `--chart-2` | Second series color |
+| `--chart-3` | Third series color |
+| `--chart-4` | Fourth series color |
+| `--chart-5` | Fifth series color |
+
+## Customizing Variables
+
+Override CSS variables in your stylesheet to customize chart appearance:
+
+```css
+:root {
+  /* Light mode */
+  --chart-background: oklch(1 0 0);
+  --chart-foreground: oklch(0.145 0.004 285);
+  --chart-grid: oklch(0.9 0 0);
+  --chart-crosshair: oklch(0.4 0.18 274);
+  --chart-indicator-color: oklch(0.21 0.006 285);
+  
+  /* Series colors */
+  --chart-1: oklch(0.32 0 none);
+  --chart-2: oklch(0.41 0 none);
+  --chart-3: oklch(0.54 0 none);
+}
+
+.dark {
+  /* Dark mode overrides */
+  --chart-background: oklch(0.145 0 0);
+  --chart-foreground: oklch(0.45 0 0);
+  --chart-grid: oklch(0.25 0 0);
+  --chart-indicator-color: oklch(1 0 0);
+}
+```
+
+## Example: Custom Indicator Theming
+
+The [Custom Indicator](/docs/utility/custom-indicator) pattern uses `--chart-indicator-color`:
+
+```tsx
+<motion.rect
+  fill="var(--chart-indicator-color)"
+  height={2}
+  width={barWidth}
+  x={barX}
+/>
+```
+
+Or using the typed object:
+
+```tsx
+import { chartCssVars } from "@bklitui/ui/charts";
+
+<motion.rect
+  fill={chartCssVars.indicatorColor}
+  height={2}
+  width={barWidth}
+  x={barX}
+/>
+```
+
+## Related
+
+- [Custom Indicator](/docs/utility/custom-indicator) - Building animated indicators
+- [useChart](/docs/utility/use-chart) - Accessing chart context

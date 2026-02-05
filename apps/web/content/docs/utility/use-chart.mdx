@@ -1,0 +1,162 @@
+---
+title: useChart Hook
+description: Access chart state and context for building custom chart components
+---
+
+## Overview
+
+The `useChart` hook provides access to the chart's internal state, scales, dimensions, and tooltip data. Use it to build custom components that integrate with the chart system.
+
+```tsx
+import { useChart } from "@bklitui/ui/charts";
+
+function MyCustomComponent() {
+  const { tooltipData, hoveredBarIndex, yScale, innerHeight } = useChart();
+  // ... use chart state
+}
+```
+
+## Requirements
+
+The hook must be used within a chart component (`LineChart`, `AreaChart`, or `BarChart`). It will throw an error if used outside of a chart context.
+
+```tsx
+// Correct: Inside a chart
+<BarChart data={data} xDataKey="month">
+  <MyCustomComponent /> {/* useChart works here */}
+</BarChart>
+
+// Error: Outside a chart
+<MyCustomComponent /> {/* useChart will throw */}
+```
+
+## Return Values
+
+### Dimensions
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `width` | `number` | Total chart width in pixels |
+| `height` | `number` | Total chart height in pixels |
+| `innerWidth` | `number` | Chart area width (excluding margins) |
+| `innerHeight` | `number` | Chart area height (excluding margins) |
+| `margin` | `Margin` | Chart margins `{ top, right, bottom, left }` |
+| `columnWidth` | `number` | Width of a single data column |
+
+### Scales
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `xScale` | `ScaleTime` | Time scale for x-axis (line/area charts) |
+| `yScale` | `ScaleLinear` | Linear scale for y-axis values |
+| `barScale` | `ScaleBand \| undefined` | Band scale for categorical x-axis (bar charts only) |
+| `bandWidth` | `number \| undefined` | Width of each bar band (bar charts only) |
+
+### Tooltip State
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `tooltipData` | `TooltipData \| null` | Current tooltip data when hovering |
+| `setTooltipData` | `Dispatch` | Setter for tooltip data |
+| `hoveredBarIndex` | `number \| null \| undefined` | Index of hovered bar (bar charts only) |
+| `setHoveredBarIndex` | `Function \| undefined` | Setter for hovered bar index |
+
+### TooltipData Structure
+
+```tsx
+interface TooltipData {
+  point: Record<string, unknown>;  // The data point being hovered
+  index: number;                    // Index in the data array
+  x: number;                        // X position in pixels
+  yPositions: Record<string, number>;  // Y positions keyed by dataKey
+  xPositions?: Record<string, number>; // X positions (grouped bars)
+}
+```
+
+### Container & Animation
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `containerRef` | `RefObject<HTMLDivElement>` | Ref to chart container (for portals) |
+| `isLoaded` | `boolean` | Whether chart has finished initial animation |
+| `animationDuration` | `number` | Animation duration in milliseconds |
+
+### Data & Configuration
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `data` | `Record<string, unknown>[]` | The chart's data array |
+| `lines` | `LineConfig[]` | Registered line/bar configurations |
+| `xAccessor` | `Function` | Function to get Date from data point |
+| `barXAccessor` | `Function \| undefined` | Function to get category string (bar charts) |
+| `dateLabels` | `string[]` | Pre-computed date labels for ticker |
+
+### Bar Chart Specific
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `orientation` | `"vertical" \| "horizontal"` | Bar chart orientation |
+| `stacked` | `boolean \| undefined` | Whether bars are stacked |
+| `stackOffsets` | `Map` | Stack offset values for stacked bars |
+
+## Common Use Cases
+
+### Reading Hover Position
+
+```tsx
+function HoverIndicator() {
+  const { tooltipData, innerHeight, margin } = useChart();
+  
+  if (!tooltipData) return null;
+  
+  return (
+    <div 
+      style={{ 
+        position: 'absolute',
+        left: tooltipData.x + margin.left,
+        top: margin.top,
+        height: innerHeight,
+      }}
+    >
+      {/* Custom indicator */}
+    </div>
+  );
+}
+```
+
+### Accessing Bar Positions
+
+```tsx
+function BarOverlay() {
+  const { barScale, bandWidth, hoveredBarIndex, data } = useChart();
+  
+  if (!barScale || hoveredBarIndex === null) return null;
+  
+  const hoveredData = data[hoveredBarIndex];
+  const x = barScale(hoveredData.category);
+  
+  return (
+    <rect x={x} width={bandWidth} /* ... */ />
+  );
+}
+```
+
+### Using Scales for Custom Rendering
+
+```tsx
+function CustomMarker({ value, category }) {
+  const { yScale, barScale, innerHeight } = useChart();
+  
+  const y = yScale(value);
+  const x = barScale?.(category) ?? 0;
+  
+  return (
+    <circle cx={x} cy={y} r={5} fill="red" />
+  );
+}
+```
+
+## Related
+
+- [Custom Indicator](/docs/utility/custom-indicator) - Building custom tooltip indicators
+- [Theming](/docs/theming) - Theming with CSS variables

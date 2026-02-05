@@ -30,6 +30,8 @@ export const chartCssVars = {
   lineSecondary: "var(--chart-line-secondary)",
   crosshair: "var(--chart-crosshair)",
   grid: "var(--chart-grid)",
+  indicatorColor: "var(--chart-indicator-color)",
+  indicatorSecondaryColor: "var(--chart-indicator-secondary-color)",
   markerBackground: "var(--chart-marker-background)",
   markerBorder: "var(--chart-marker-border)",
   markerForeground: "var(--chart-marker-foreground)",

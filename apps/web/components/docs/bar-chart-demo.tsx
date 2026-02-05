@@ -7,9 +7,16 @@ import {
   BarYAxis,
   ChartTooltip,
   Grid,
+  Legend,
+  LegendItemComponent,
+  LegendLabel,
+  LegendMarker,
   LinearGradient,
   PatternLines,
+  useChart,
 } from "@bklitui/ui/charts";
+import { motion, useSpring } from "motion/react";
+import React, { useEffect } from "react";
 
 const chartData = [
   { month: "Jan", revenue: 12_000, profit: 4500 },
@@ -150,6 +157,200 @@ export function BarChartPatternDemo() {
         />
         <BarXAxis />
         <ChartTooltip />
+      </BarChart>
+    </div>
+  );
+}
+
+const stackedLegendItems = [
+  { label: "Desktop", value: 0, color: "hsl(217, 91%, 60%)" },
+  { label: "Mobile", value: 0, color: "hsl(217, 91%, 75%)" },
+];
+
+export function BarChartStackedWithLegendDemo() {
+  return (
+    <div className="w-full">
+      <BarChart data={stackedData} stacked stackGap={3} xDataKey="month">
+        <Grid horizontal />
+        <Bar
+          dataKey="desktop"
+          fill="hsl(217, 91%, 60%)"
+          lineCap={4}
+          stackGap={3}
+        />
+        <Bar
+          dataKey="mobile"
+          fill="hsl(217, 91%, 75%)"
+          lineCap={4}
+          stackGap={3}
+        />
+        <BarXAxis />
+        <ChartTooltip />
+      </BarChart>
+      <Legend
+        className="flex-row justify-center gap-6"
+        items={stackedLegendItems}
+      >
+        <LegendItemComponent className="flex items-center gap-2">
+          <LegendMarker />
+          <LegendLabel />
+        </LegendItemComponent>
+      </Legend>
+    </div>
+  );
+}
+
+export function BarChartNarrowGapsDemo() {
+  return (
+    <div className="w-full">
+      <BarChart barGap={0.1} data={chartData} xDataKey="month">
+        <Grid horizontal />
+        <Bar
+          dataKey="revenue"
+          fill="var(--chart-line-primary)"
+          lineCap="round"
+        />
+        <BarXAxis />
+        <ChartTooltip />
+      </BarChart>
+    </div>
+  );
+}
+
+export function BarChartCustomTooltipDemo() {
+  return (
+    <div className="w-full">
+      <BarChart data={chartData} xDataKey="month">
+        <Grid horizontal />
+        <Bar
+          dataKey="revenue"
+          fill="var(--chart-line-primary)"
+          lineCap="round"
+        />
+        <BarXAxis />
+        <ChartTooltip
+          rows={(point) => [
+            {
+              color: "var(--chart-line-primary)",
+              label: "Revenue",
+              value: `$${(point.revenue as number)?.toLocaleString()}`,
+            },
+          ]}
+        />
+      </BarChart>
+    </div>
+  );
+}
+
+// Individual animated line for a single bar
+function AnimatedBarLine({
+  barX,
+  barTopY,
+  barBottomY,
+  width,
+  isHovered,
+}: {
+  barX: number;
+  barTopY: number;
+  barBottomY: number;
+  width: number;
+  isHovered: boolean;
+}) {
+  const animatedY = useSpring(barBottomY, { stiffness: 300, damping: 30 });
+  const animatedOpacity = useSpring(0, { stiffness: 300, damping: 30 });
+
+  useEffect(() => {
+    animatedY.set(isHovered ? barTopY : barBottomY);
+    animatedOpacity.set(isHovered ? 1 : 0);
+  }, [isHovered, barTopY, barBottomY, animatedY, animatedOpacity]);
+
+  return (
+    <motion.rect
+      fill="var(--chart-indicator-color)"
+      height={2}
+      style={{
+        opacity: animatedOpacity,
+        y: animatedY,
+      }}
+      width={width}
+      x={barX}
+    />
+  );
+}
+
+// Custom horizontal line indicator - each bar has its own line that rises on hover
+function BarHorizontalLineIndicator({ data }: { data: typeof chartData }) {
+  const {
+    barScale,
+    bandWidth,
+    innerHeight,
+    margin,
+    containerRef,
+    hoveredBarIndex,
+    yScale,
+  } = useChart();
+  const [mounted, setMounted] = React.useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const container = containerRef.current;
+  if (!(mounted && container && bandWidth && barScale)) {
+    return null;
+  }
+
+  const { createPortal } = require("react-dom") as typeof import("react-dom");
+
+  return createPortal(
+    <svg
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 z-50"
+      height="100%"
+      width="100%"
+    >
+      <g transform={`translate(${margin.left},${margin.top})`}>
+        {data.map((d, i) => {
+          const barX = barScale(d.month) ?? 0;
+          const barTopY = yScale(d.revenue) ?? innerHeight;
+          const isHovered = hoveredBarIndex === i;
+
+          return (
+            <AnimatedBarLine
+              barBottomY={innerHeight}
+              barTopY={barTopY}
+              barX={barX}
+              isHovered={isHovered}
+              key={d.month}
+              width={bandWidth}
+            />
+          );
+        })}
+      </g>
+    </svg>,
+    container
+  );
+}
+
+export function BarChartNoGapGradientDemo() {
+  return (
+    <div className="w-full">
+      <BarChart barGap={0} data={chartData} xDataKey="month">
+        <LinearGradient
+          from="var(--chart-3)"
+          id="noGapGradient"
+          to="transparent"
+        />
+        <Grid horizontal />
+        <Bar
+          dataKey="revenue"
+          fill="url(#noGapGradient)"
+          lineCap="butt"
+          stroke="var(--chart-3)"
+        />
+        <BarXAxis />
+        <ChartTooltip showCrosshair={false} showDots={false} />
+        <BarHorizontalLineIndicator data={chartData} />
       </BarChart>
     </div>
   );

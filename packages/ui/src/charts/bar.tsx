@@ -26,6 +26,8 @@ export interface BarProps {
   staggerDelay?: number;
   /** Gap between stacked bars in pixels. Default: 0 */
   stackGap?: number;
+  /** Gap between grouped bars in pixels. Default: 4 */
+  groupGap?: number;
 }
 
 // Same easing as Line chart for consistent animation feel
@@ -162,6 +164,7 @@ export function Bar({
   fadedOpacity = 0.3,
   staggerDelay,
   stackGap = 0,
+  groupGap = 4,
 }: BarProps) {
   const {
     data,
@@ -208,10 +211,10 @@ export function Bar({
       // Stacked bars use full band width
       return bandWidth;
     }
-    // Leave a small gap between grouped bars
-    const groupGap = seriesCount > 1 ? 4 : 0;
-    return (bandWidth - groupGap * (seriesCount - 1)) / seriesCount;
-  }, [bandWidth, seriesCount, stacked]);
+    // Leave a gap between grouped bars (controlled by groupGap prop)
+    const effectiveGroupGap = seriesCount > 1 ? groupGap : 0;
+    return (bandWidth - effectiveGroupGap * (seriesCount - 1)) / seriesCount;
+  }, [bandWidth, seriesCount, stacked, groupGap]);
 
   // Calculate corner radius based on lineCap
   const cornerRadius = useMemo(() => {
@@ -265,12 +268,13 @@ export function Bar({
           } else {
             x = 0;
             // For grouped bars, offset y position
-            const groupGap = seriesCount > 1 ? 4 : 0;
-            y = bandPos + seriesIndex * (barWidth + groupGap);
+            const effectiveGroupGap = seriesCount > 1 ? groupGap : 0;
+            y = bandPos + seriesIndex * (barWidth + effectiveGroupGap);
           }
           y = stacked
             ? bandPos
-            : bandPos + seriesIndex * (barWidth + (seriesCount > 1 ? 4 : 0));
+            : bandPos +
+              seriesIndex * (barWidth + (seriesCount > 1 ? groupGap : 0));
         } else {
           // Vertical bars: category on x-axis, value on y-axis
           const valuePos = yScale(value) ?? 0;
@@ -290,12 +294,13 @@ export function Bar({
           } else {
             y = valuePos;
             // For grouped bars, offset x position
-            const groupGap = seriesCount > 1 ? 4 : 0;
-            x = bandPos + seriesIndex * (barWidth + groupGap);
+            const effectiveGroupGap = seriesCount > 1 ? groupGap : 0;
+            x = bandPos + seriesIndex * (barWidth + effectiveGroupGap);
           }
           x = stacked
             ? bandPos
-            : bandPos + seriesIndex * (barWidth + (seriesCount > 1 ? 4 : 0));
+            : bandPos +
+              seriesIndex * (barWidth + (seriesCount > 1 ? groupGap : 0));
         }
 
         const isFaded = hoveredBarIndex !== null && hoveredBarIndex !== i;
