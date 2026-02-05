@@ -68,6 +68,8 @@ function MenuIcon({ open }: { open: boolean }) {
   );
 }
 
+const STAGGER_DURATION = 650; // Total duration for all staggered items (ms)
+
 export function SiteHeader({
   links = [],
   githubUrl,
@@ -77,36 +79,20 @@ export function SiteHeader({
   const [mounted, setMounted] = useState(false);
   const { resolvedTheme } = useTheme();
 
+  // Calculate stagger delay based on total items to complete in STAGGER_DURATION
+  const totalItems =
+    links.length +
+    1 + // Components header
+    components.length +
+    1 + // Utilities header
+    utilities.length +
+    (githubUrl ? 1 : 0);
+  const staggerDelay = totalItems > 1 ? STAGGER_DURATION / (totalItems - 1) : 0;
+
   // Wait for mount to avoid hydration mismatch with theme
   useEffect(() => {
     setMounted(true);
   }, []);
-
-  // Prevent body scroll when menu is open (iOS-compatible)
-  useEffect(() => {
-    if (mobileMenuOpen) {
-      const scrollY = window.scrollY;
-      document.body.style.position = "fixed";
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.left = "0";
-      document.body.style.right = "0";
-    } else {
-      const scrollY = document.body.style.top;
-      document.body.style.position = "";
-      document.body.style.top = "";
-      document.body.style.left = "";
-      document.body.style.right = "";
-      if (scrollY) {
-        window.scrollTo(0, Number.parseInt(scrollY || "0", 10) * -1);
-      }
-    }
-    return () => {
-      document.body.style.position = "";
-      document.body.style.top = "";
-      document.body.style.left = "";
-      document.body.style.right = "";
-    };
-  }, [mobileMenuOpen]);
 
   // Only use resolved theme after mount to avoid hydration mismatch
   const logoTheme = mounted && resolvedTheme === "dark" ? "dark" : "light";
@@ -214,7 +200,9 @@ export function SiteHeader({
                 onClick={() => setMobileMenuOpen(false)}
                 style={{
                   filter: mobileMenuOpen ? "blur(0px)" : "blur(2px)",
-                  transitionDelay: mobileMenuOpen ? `${index * 50}ms` : "0ms",
+                  transitionDelay: mobileMenuOpen
+                    ? `${index * staggerDelay}ms`
+                    : "0ms",
                 }}
               >
                 <Button
@@ -235,7 +223,7 @@ export function SiteHeader({
               style={{
                 filter: mobileMenuOpen ? "blur(0px)" : "blur(2px)",
                 transitionDelay: mobileMenuOpen
-                  ? `${links.length * 50}ms`
+                  ? `${links.length * staggerDelay}ms`
                   : "0ms",
               }}
             >
@@ -251,7 +239,7 @@ export function SiteHeader({
                   style={{
                     filter: mobileMenuOpen ? "blur(0px)" : "blur(2px)",
                     transitionDelay: mobileMenuOpen
-                      ? `${(links.length + 1 + index) * 50}ms`
+                      ? `${(links.length + 1 + index) * staggerDelay}ms`
                       : "0ms",
                   }}
                 >
@@ -274,7 +262,7 @@ export function SiteHeader({
               style={{
                 filter: mobileMenuOpen ? "blur(0px)" : "blur(2px)",
                 transitionDelay: mobileMenuOpen
-                  ? `${(links.length + 1 + components.length) * 50}ms`
+                  ? `${(links.length + 1 + components.length) * staggerDelay}ms`
                   : "0ms",
               }}
             >
@@ -290,7 +278,7 @@ export function SiteHeader({
                   style={{
                     filter: mobileMenuOpen ? "blur(0px)" : "blur(2px)",
                     transitionDelay: mobileMenuOpen
-                      ? `${(links.length + 1 + components.length + 1 + index) * 50}ms`
+                      ? `${(links.length + 1 + components.length + 1 + index) * staggerDelay}ms`
                       : "0ms",
                   }}
                 >
@@ -313,7 +301,7 @@ export function SiteHeader({
               style={{
                 filter: mobileMenuOpen ? "blur(0px)" : "blur(2px)",
                 transitionDelay: mobileMenuOpen
-                  ? `${(links.length + 1 + components.length + 1 + utilities.length) * 50}ms`
+                  ? `${(links.length + 1 + components.length + 1 + utilities.length) * staggerDelay}ms`
                   : "0ms",
               }}
             >
