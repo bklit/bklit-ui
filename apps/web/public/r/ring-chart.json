@@ -4,8 +4,14 @@
   "type": "registry:component",
   "title": "Ring Chart",
   "description": "A composable donut/ring chart with progress indicators",
-  "dependencies": ["@visx/responsive", "@number-flow/react", "motion"],
-  "registryDependencies": ["https://ui.bklit.com/r/utils.json"],
+  "dependencies": [
+    "@visx/responsive",
+    "@number-flow/react",
+    "motion"
+  ],
+  "registryDependencies": [
+    "https://ui.bklit.com/r/utils.json"
+  ],
   "files": [
     {
       "path": "src/charts/ring-chart.tsx",

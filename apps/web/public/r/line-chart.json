@@ -4,7 +4,11 @@
   "type": "registry:component",
   "title": "Line Chart",
   "description": "A composable line chart with multiple series support",
-  "dependencies": ["@visx/curve", "@visx/shape", "motion"],
+  "dependencies": [
+    "@visx/curve",
+    "@visx/shape",
+    "motion"
+  ],
   "registryDependencies": [
     "https://ui.bklit.com/r/chart-context.json",
     "https://ui.bklit.com/r/grid.json",

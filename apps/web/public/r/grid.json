@@ -4,8 +4,12 @@
   "type": "registry:component",
   "title": "Chart Grid",
   "description": "Grid lines for charts",
-  "dependencies": ["@visx/grid"],
-  "registryDependencies": ["https://ui.bklit.com/r/chart-context.json"],
+  "dependencies": [
+    "@visx/grid"
+  ],
+  "registryDependencies": [
+    "https://ui.bklit.com/r/chart-context.json"
+  ],
   "files": [
     {
       "path": "src/charts/grid.tsx",

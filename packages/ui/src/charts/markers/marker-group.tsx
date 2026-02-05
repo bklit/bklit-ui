@@ -204,14 +204,14 @@ export function MarkerGroup({
                   <circle
                     cx={size / 2 + 2}
                     cy={-size / 2 - 2}
-                    fill={chartCssVars.badgeBackground}
                     r={9}
+                    style={{ fill: chartCssVars.badgeBackground }}
                   />
                   <text
                     dominantBaseline="central"
-                    fill={chartCssVars.badgeForeground}
                     fontSize={11}
                     fontWeight={600}
+                    style={{ fill: chartCssVars.badgeForeground }}
                     textAnchor="middle"
                     x={size / 2 + 2}
                     y={-size / 2 - 2}
