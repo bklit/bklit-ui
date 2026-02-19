@@ -41,5 +41,8 @@ yarn-error.log*
 .DS_Store
 *.pem
 
+# Playground (local experimentation)
+apps/web/app/playground/
+
 # Cursor rules (design system docs)
 .cursor/rules/animation-feeling-rules.mdc

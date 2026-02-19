@@ -1,6 +1,5 @@
 "use client";
 
-import { localPoint } from "@visx/event";
 import { ParentSize } from "@visx/responsive";
 import { scaleLinear, scaleTime } from "@visx/scale";
 import { bisector } from "d3-array";
@@ -17,12 +16,8 @@ import {
 } from "react";
 import { cn } from "../lib/utils";
 import { Area, type AreaProps } from "./area";
-import {
-  ChartProvider,
-  type LineConfig,
-  type Margin,
-  type TooltipData,
-} from "./chart-context";
+import { ChartProvider, type LineConfig, type Margin } from "./chart-context";
+import { useChartInteraction } from "./use-chart-interaction";
 
 // Check if a component should render after the mouse overlay (markers need to be on top for interaction)
 function isPostOverlayComponent(child: ReactElement): boolean {
@@ -124,7 +119,6 @@ function ChartInner({
   children,
   containerRef,
 }: ChartInnerProps) {
-  const [tooltipData, setTooltipData] = useState<TooltipData | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Extract area configs synchronously from children
@@ -170,7 +164,6 @@ function ChartInner({
 
   // Y scale - computed from extracted area configs (available immediately)
   const yScale = useMemo(() => {
-    // Find max value across all area dataKeys
     let maxValue = 0;
     for (const line of lines) {
       for (const d of data) {
@@ -181,14 +174,13 @@ function ChartInner({
       }
     }
 
-    // Ensure we have a valid domain even if no data
     if (maxValue === 0) {
       maxValue = 100;
     }
 
     return scaleLinear({
       range: [innerHeight, 0],
-      domain: [0, maxValue * 1.1], // Add 10% padding
+      domain: [0, maxValue * 1.1],
       nice: true,
     });
   }, [innerHeight, data, lines]);
@@ -213,65 +205,30 @@ function ChartInner({
     return () => clearTimeout(timer);
   }, [animationDuration]);
 
-  // Mouse move handler - works on the parent <g> element
-  const handleMouseMove = useCallback(
-    (event: React.MouseEvent<SVGGElement>) => {
-      const point = localPoint(event);
-      if (!point) {
-        return;
-      }
+  const canInteract = isLoaded;
 
-      // localPoint returns coordinates relative to the SVG root, so subtract margin
-      const x0 = xScale.invert(point.x - margin.left);
-      const index = bisectDate(data, x0, 1);
-      const d0 = data[index - 1];
-      const d1 = data[index];
-
-      if (!d0) {
-        return;
-      }
-
-      // Find closest point
-      let d = d0;
-      let finalIndex = index - 1;
-      if (d1) {
-        const d0Time = xAccessor(d0).getTime();
-        const d1Time = xAccessor(d1).getTime();
-        if (x0.getTime() - d0Time > d1Time - x0.getTime()) {
-          d = d1;
-          finalIndex = index;
-        }
-      }
-
-      // Calculate y positions for each area
-      const yPositions: Record<string, number> = {};
-      for (const line of lines) {
-        const value = d[line.dataKey];
-        if (typeof value === "number") {
-          yPositions[line.dataKey] = yScale(value) ?? 0;
-        }
-      }
-
-      setTooltipData({
-        point: d,
-        index: finalIndex,
-        x: xScale(xAccessor(d)) ?? 0,
-        yPositions,
-      });
-    },
-    [xScale, yScale, data, lines, margin.left, xAccessor, bisectDate]
-  );
-
-  const handleMouseLeave = useCallback(() => {
-    setTooltipData(null);
-  }, []);
+  const {
+    tooltipData,
+    setTooltipData,
+    selection,
+    clearSelection,
+    interactionHandlers,
+    interactionStyle,
+  } = useChartInteraction({
+    xScale,
+    yScale,
+    data,
+    lines,
+    margin,
+    xAccessor,
+    bisectDate,
+    canInteract,
+  });
 
   // Early return if dimensions not ready
   if (width < 10 || height < 10) {
     return null;
   }
-
-  const canInteract = isLoaded;
 
   // Separate children into pre-overlay (Grid, Area) and post-overlay (ChartMarkers)
   const preOverlayChildren: ReactElement[] = [];
@@ -307,13 +264,14 @@ function ChartInner({
     animationDuration,
     xAccessor,
     dateLabels,
+    selection,
+    clearSelection,
   };
 
   return (
     <ChartProvider value={contextValue}>
       <svg aria-hidden="true" height={height} width={width}>
         <defs>
-          {/* Clip path for grow animation */}
           <clipPath id="chart-area-grow-clip">
             <rect
               height={innerHeight + 20}
@@ -331,14 +289,11 @@ function ChartInner({
 
         <rect fill="transparent" height={height} width={width} x={0} y={0} />
 
-        {/* biome-ignore lint/a11y/noStaticElementInteractions: Chart interaction area */}
         <g
-          onMouseLeave={canInteract ? handleMouseLeave : undefined}
-          onMouseMove={canInteract ? handleMouseMove : undefined}
-          style={{ cursor: canInteract ? "crosshair" : "default" }}
+          {...interactionHandlers}
+          style={interactionStyle}
           transform={`translate(${margin.left},${margin.top})`}
         >
-          {/* Background rect for mouse event detection */}
           <rect
             fill="transparent"
             height={innerHeight}
@@ -347,10 +302,7 @@ function ChartInner({
             y={0}
           />
 
-          {/* SVG children rendered before markers (Grid, Area, etc.) */}
           {preOverlayChildren}
-
-          {/* Markers rendered last so they're on top for interaction */}
           {postOverlayChildren}
         </g>
       </svg>
@@ -374,7 +326,7 @@ export function AreaChart({
     <div
       className={cn("relative w-full", className)}
       ref={containerRef}
-      style={{ aspectRatio }}
+      style={{ aspectRatio, touchAction: "none" }}
     >
       <ParentSize debounceTime={10}>
         {({ width, height }) => (

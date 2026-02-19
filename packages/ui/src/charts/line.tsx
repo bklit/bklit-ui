@@ -44,6 +44,7 @@ export function Line({
     innerHeight,
     innerWidth,
     tooltipData,
+    selection,
     isLoaded,
     animationDuration,
     xAccessor,
@@ -74,20 +75,13 @@ export function Line({
     }
   }, [animate, innerWidth, isLoaded]);
 
-  // Calculate segment bounds for highlight (returns numeric values for animation)
-  const segmentBounds = useMemo(() => {
-    if (!(tooltipData && pathRef.current) || pathLength === 0) {
-      return { startLength: 0, segmentLength: 0, isActive: false };
-    }
-
-    const idx = tooltipData.index;
-    const startIdx = Math.max(0, idx - 1);
-    const endIdx = Math.min(data.length - 1, idx + 1);
-
-    const path = pathRef.current;
-
-    // Binary search to find length at X
-    const findLengthAtX = (targetX: number): number => {
+  // Binary search to find path length at a given X coordinate
+  const findLengthAtX = useCallback(
+    (targetX: number): number => {
+      const path = pathRef.current;
+      if (!path || pathLength === 0) {
+        return 0;
+      }
       let low = 0;
       let high = pathLength;
       const tolerance = 0.5;
@@ -102,7 +96,34 @@ export function Line({
         }
       }
       return (low + high) / 2;
-    };
+    },
+    [pathLength]
+  );
+
+  // Calculate segment bounds for highlight from either selection or hover
+  const segmentBounds = useMemo(() => {
+    if (!pathRef.current || pathLength === 0) {
+      return { startLength: 0, segmentLength: 0, isActive: false };
+    }
+
+    // Selection takes priority over hover
+    if (selection?.active) {
+      const startLength = findLengthAtX(selection.startX);
+      const endLength = findLengthAtX(selection.endX);
+      return {
+        startLength,
+        segmentLength: endLength - startLength,
+        isActive: true,
+      };
+    }
+
+    if (!tooltipData) {
+      return { startLength: 0, segmentLength: 0, isActive: false };
+    }
+
+    const idx = tooltipData.index;
+    const startIdx = Math.max(0, idx - 1);
+    const endIdx = Math.min(data.length - 1, idx + 1);
 
     const startPoint = data[startIdx];
     const endPoint = data[endIdx];
@@ -115,10 +136,21 @@ export function Line({
 
     const startLength = findLengthAtX(startX);
     const endLength = findLengthAtX(endX);
-    const segmentLength = endLength - startLength;
 
-    return { startLength, segmentLength, isActive: true };
-  }, [tooltipData, data, xScale, pathLength, xAccessor]);
+    return {
+      startLength,
+      segmentLength: endLength - startLength,
+      isActive: true,
+    };
+  }, [
+    tooltipData,
+    selection,
+    data,
+    xScale,
+    pathLength,
+    xAccessor,
+    findLengthAtX,
+  ]);
 
   // Springs for smooth highlight animation (both offset AND segment length)
   const springConfig = { stiffness: 180, damping: 28 };
@@ -148,7 +180,7 @@ export function Line({
     [dataKey, yScale]
   );
 
-  const isHovering = tooltipData !== null;
+  const isHovering = tooltipData !== null || selection?.active === true;
   const easing = "cubic-bezier(0.85, 0, 0.15, 1)";
 
   return (

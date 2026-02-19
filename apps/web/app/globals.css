@@ -129,6 +129,10 @@
   --chart-marker-badge-background: oklch(0 0 0);
   --chart-marker-badge-foreground: oklch(1 0 0);
 
+  /* Segment selection colors */
+  --chart-segment-background: oklch(0.5 0 0 / 0.06);
+  --chart-segment-line: oklch(0.5 0 0 / 0.25);
+
   /* Ring chart colors */
   --chart-ring-background: oklch(0.9 0.005 260 / 0.25);
 
@@ -202,6 +206,10 @@
   --chart-marker-foreground: oklch(0.9 0 0);
   --chart-marker-badge-background: oklch(1 0 0);
   --chart-marker-badge-foreground: oklch(0.15 0 0);
+
+  /* Segment selection dark colors */
+  --chart-segment-background: oklch(1 0 0 / 0.06);
+  --chart-segment-line: oklch(1 0 0 / 0.25);
 
   /* Ring chart dark colors */
   --chart-ring-background: oklch(0.35 0.01 260 / 0.25);

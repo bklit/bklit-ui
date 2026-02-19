@@ -173,6 +173,15 @@ export {
   sankeyCssVars,
   useSankey,
 } from "./sankey";
+// Segment selection components
+export {
+  SegmentBackground,
+  type SegmentBackgroundProps,
+  SegmentLineFrom,
+  type SegmentLineProps,
+  SegmentLineTo,
+  type SegmentLineVariant,
+} from "./segment";
 // Tooltip components
 export {
   ChartTooltip,
@@ -190,4 +199,9 @@ export {
   type TooltipIndicatorProps,
   type TooltipRow,
 } from "./tooltip";
+// Chart interaction hook
+export {
+  type ChartSelection,
+  useChartInteraction,
+} from "./use-chart-interaction";
 export { XAxis, type XAxisProps } from "./x-axis";

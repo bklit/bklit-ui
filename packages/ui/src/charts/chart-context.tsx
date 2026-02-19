@@ -19,6 +19,7 @@ import {
   type SetStateAction,
   useContext,
 } from "react";
+import type { ChartSelection } from "./use-chart-interaction";
 
 // CSS variable references for theming
 export const chartCssVars = {
@@ -37,6 +38,8 @@ export const chartCssVars = {
   markerForeground: "var(--chart-marker-foreground)",
   badgeBackground: "var(--chart-marker-badge-background)",
   badgeForeground: "var(--chart-marker-badge-foreground)",
+  segmentBackground: "var(--chart-segment-background)",
+  segmentLine: "var(--chart-segment-line)",
 };
 
 export interface Margin {
@@ -102,6 +105,12 @@ export interface ChartContextValue {
 
   // Pre-computed date labels for ticker animation
   dateLabels: string[];
+
+  // Selection state (optional - only present when useChartInteraction is used)
+  /** Current drag/pinch selection range */
+  selection?: ChartSelection | null;
+  /** Clear the current selection */
+  clearSelection?: () => void;
 
   // Bar chart specific (optional - only present in BarChart)
   /** Band scale for categorical x-axis (bar charts) */

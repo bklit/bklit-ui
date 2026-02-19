@@ -730,6 +730,117 @@ Or customize just the rows:
 />
 ```
 
+## Segment Selection
+
+import { SegmentDemo } from "@/components/docs/segment-demo";
+
+Add click-drag and touch segment selection to your chart with composable components. The line highlight automatically shows the selected path segment.
+
+<ComponentPreview>
+  <SegmentDemo />
+</ComponentPreview>
+
+### Basic Usage
+
+Click and drag (or two-finger touch on mobile) to select a range. The three segment components are fully composable -- use all of them or just the ones you need:
+
+```tsx
+import { LineChart, Line, Grid, XAxis, ChartTooltip, SegmentBackground, SegmentLineFrom, SegmentLineTo } from "@bklitui/ui/charts";
+
+<LineChart data={data}>
+  <Grid horizontal />
+  <Line dataKey="users" />
+  <SegmentBackground />
+  <SegmentLineFrom />
+  <SegmentLineTo />
+  <XAxis />
+  <ChartTooltip />
+</LineChart>
+```
+
+### Line Variants
+
+Each segment boundary line supports three visual styles:
+
+```tsx
+{/* Dashed lines (default) */}
+<SegmentLineFrom variant="dashed" />
+<SegmentLineTo variant="dashed" />
+
+{/* Solid lines */}
+<SegmentLineFrom variant="solid" />
+<SegmentLineTo variant="solid" />
+
+{/* Gradient fade (transparent at top/bottom edges) */}
+<SegmentLineFrom variant="gradient" />
+<SegmentLineTo variant="gradient" />
+```
+
+### Background Only
+
+Use just the background highlight without boundary lines:
+
+```tsx
+<LineChart data={data}>
+  <Line dataKey="users" />
+  <SegmentBackground />
+  <ChartTooltip />
+</LineChart>
+```
+
+### Lines Only
+
+Use just the boundary lines without the background:
+
+```tsx
+<LineChart data={data}>
+  <Line dataKey="users" />
+  <SegmentLineFrom variant="solid" />
+  <SegmentLineTo variant="solid" />
+  <ChartTooltip />
+</LineChart>
+```
+
+### Reading Selection Data
+
+Use the `useChart` hook inside a child component to read the active selection and update external UI (like a header card):
+
+```tsx
+import { useChart } from "@bklitui/ui/charts";
+
+function SelectionStats({ onSelectionChange }) {
+  const { selection, data, xAccessor } = useChart();
+
+  useEffect(() => {
+    if (!selection?.active) {
+      onSelectionChange(null);
+      return;
+    }
+
+    const startPoint = data[selection.startIndex];
+    const endPoint = data[selection.endIndex];
+    // Compute and report stats...
+    onSelectionChange({ startPoint, endPoint });
+  }, [selection, data, xAccessor, onSelectionChange]);
+
+  return null;
+}
+```
+
+### SegmentBackground
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `fill` | `string` | `var(--chart-segment-background)` | Fill color for the selected region |
+
+### SegmentLineFrom / SegmentLineTo
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `stroke` | `string` | `var(--chart-segment-line)` | Line color |
+| `strokeWidth` | `number` | `1` | Line width |
+| `variant` | `"dashed" \| "solid" \| "gradient"` | `"dashed"` | Line style |
+
 ## Theming
 
 The chart uses CSS variables for theming. Define these in your CSS:
@@ -750,6 +861,8 @@ The chart uses CSS variables for theming. Define these in your CSS:
   --chart-marker-foreground: oklch(0.3 0.01 260);
   --chart-marker-badge-background: oklch(0 0 0);
   --chart-marker-badge-foreground: oklch(1 0 0);
+  --chart-segment-background: oklch(0.5 0 0 / 0.06);
+  --chart-segment-line: oklch(0.5 0 0 / 0.25);
 }
 
 .dark {
@@ -762,6 +875,8 @@ The chart uses CSS variables for theming. Define these in your CSS:
   --chart-marker-foreground: oklch(0.9 0 0);
   --chart-marker-badge-background: oklch(1 0 0);
   --chart-marker-badge-foreground: oklch(0.15 0 0);
+  --chart-segment-background: oklch(1 0 0 / 0.06);
+  --chart-segment-line: oklch(1 0 0 / 0.25);
 }
 ```
 
