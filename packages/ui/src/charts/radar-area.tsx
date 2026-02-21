@@ -11,16 +11,23 @@ export interface RadarAreaProps {
   color?: string;
   /** Show data point circles. Default: true */
   showPoints?: boolean;
+  /** Show stroke outline on the polygon. Default: true */
+  showStroke?: boolean;
   /** Show glow effect on hover. Default: true */
   showGlow?: boolean;
   /** Additional class name */
   className?: string;
 }
 
+function getStrokeWidth(isHovered: boolean): number {
+  return isHovered ? 3 : 2;
+}
+
 export function RadarArea({
   index,
   color: colorProp,
   showPoints = true,
+  showStroke = true,
   showGlow = true,
   className = "",
 }: RadarAreaProps) {
@@ -144,10 +151,10 @@ export function RadarArea({
         animate={{
           d: pathD,
           fillOpacity: isHovered ? 0.35 : 0.15,
-          strokeWidth: isHovered ? 3 : 2,
+          strokeWidth: showStroke ? getStrokeWidth(isHovered) : 0,
         }}
         fill={color}
-        stroke={color}
+        stroke={showStroke ? color : "none"}
         strokeLinejoin="round"
         style={{
           filter:

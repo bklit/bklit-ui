@@ -38,6 +38,10 @@ export interface RingChartProps {
   hoveredIndex?: number | null;
   /** Callback when hover state changes */
   onHoverChange?: (index: number | null) => void;
+  /** Start angle in radians. Default: -PI/2 (top) */
+  startAngle?: number;
+  /** End angle in radians. Default: 3*PI/2 (full circle) */
+  endAngle?: number;
   /** Child components (Ring, RingCenter, etc.) */
   children: ReactNode;
 }
@@ -53,6 +57,8 @@ interface RingChartInnerProps {
   containerRef: React.RefObject<HTMLDivElement | null>;
   hoveredIndexProp?: number | null;
   onHoverChange?: (index: number | null) => void;
+  startAngle: number;
+  endAngle: number;
 }
 
 // Helper to check if a child is a RingCenter component
@@ -76,6 +82,8 @@ function RingChartInner({
   containerRef,
   hoveredIndexProp,
   onHoverChange,
+  startAngle,
+  endAngle,
 }: RingChartInnerProps) {
   const [internalHoveredIndex, setInternalHoveredIndex] = useState<
     number | null
@@ -194,6 +202,8 @@ function RingChartInner({
     totalValue,
     getColor,
     getRingRadii,
+    startAngle,
+    endAngle,
   };
 
   // Use CSS Grid stacking to layer SVG and HTML content
@@ -245,6 +255,8 @@ export function RingChart({
   className = "",
   hoveredIndex,
   onHoverChange,
+  startAngle = -Math.PI / 2,
+  endAngle = (3 * Math.PI) / 2,
   children,
 }: RingChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -261,10 +273,12 @@ export function RingChart({
           baseInnerRadius={baseInnerRadius}
           containerRef={containerRef}
           data={data}
+          endAngle={endAngle}
           height={fixedSize}
           hoveredIndexProp={hoveredIndex}
           onHoverChange={onHoverChange}
           ringGap={ringGap}
+          startAngle={startAngle}
           strokeWidth={strokeWidth}
           width={fixedSize}
         >
@@ -286,10 +300,12 @@ export function RingChart({
             baseInnerRadius={baseInnerRadius}
             containerRef={containerRef}
             data={data}
+            endAngle={endAngle}
             height={height}
             hoveredIndexProp={hoveredIndex}
             onHoverChange={onHoverChange}
             ringGap={ringGap}
+            startAngle={startAngle}
             strokeWidth={strokeWidth}
             width={width}
           >

@@ -48,6 +48,8 @@ interface AnimatedProgressArcProps {
   animationKey: number;
   showGlow: boolean;
   lineCap: RingLineCap;
+  startAngle: number;
+  arcRange: number;
 }
 
 function AnimatedProgressArc({
@@ -62,9 +64,10 @@ function AnimatedProgressArc({
   animationKey,
   showGlow,
   lineCap,
+  startAngle,
+  arcRange,
 }: AnimatedProgressArcProps) {
-  const startAngle = -Math.PI / 2;
-  const targetEndAngle = startAngle + 2 * Math.PI * progress;
+  const targetEndAngle = startAngle + arcRange * progress;
   const cornerRadius =
     lineCap === "round" ? (outerRadius - innerRadius) / 2 : 0;
 
@@ -149,7 +152,11 @@ export function Ring({
     animationKey,
     getColor,
     getRingRadii,
+    startAngle: ctxStartAngle,
+    endAngle: ctxEndAngle,
   } = useRing();
+
+  const arcRange = ctxEndAngle - ctxStartAngle;
 
   // Track if initial mount animation is complete (must be before early return)
   const hasAnimated = useRef(false);
@@ -202,13 +209,13 @@ export function Ring({
       onMouseLeave={() => setHoveredIndex(null)}
       style={{ cursor: "pointer" }}
     >
-      {/* Background track - full circle */}
+      {/* Background track */}
       <Arc
         cornerRadius={lineCap === "round" ? (outerRadius - innerRadius) / 2 : 0}
-        endAngle={2 * Math.PI}
+        endAngle={ctxEndAngle}
         innerRadius={innerRadius}
         outerRadius={outerRadius}
-        startAngle={0}
+        startAngle={ctxStartAngle}
       >
         {({ path }) => (
           <motion.path
@@ -238,6 +245,7 @@ export function Ring({
       {animate ? (
         <AnimatedProgressArc
           animationKey={animationKey}
+          arcRange={arcRange}
           color={color}
           index={index}
           innerRadius={innerRadius}
@@ -248,6 +256,7 @@ export function Ring({
           outerRadius={outerRadius}
           progress={progress}
           showGlow={showGlow}
+          startAngle={ctxStartAngle}
         />
       ) : (
         <motion.path
@@ -258,8 +267,8 @@ export function Ring({
           d={generateArcPath(
             innerRadius,
             outerRadius,
-            -Math.PI / 2,
-            -Math.PI / 2 + 2 * Math.PI * progress,
+            ctxStartAngle,
+            ctxStartAngle + arcRange * progress,
             lineCap === "round" ? (outerRadius - innerRadius) / 2 : 0
           )}
           fill={color}

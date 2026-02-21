@@ -7,7 +7,7 @@ import { AreaClosed, LinePath } from "@visx/shape";
 // biome-ignore lint/suspicious/noExplicitAny: d3 curve factory type
 type CurveFactory = any;
 
-import { motion, useSpring } from "motion/react";
+import { motion, useMotionTemplate, useSpring } from "motion/react";
 import {
   useCallback,
   useEffect,
@@ -63,6 +63,7 @@ export function Area({
     innerHeight,
     innerWidth,
     tooltipData,
+    selection,
     isLoaded,
     animationDuration,
     xAccessor,
@@ -104,20 +105,13 @@ export function Area({
     }
   }, [animate, innerWidth, isLoaded]);
 
-  // Calculate dash props for highlight segment
-  const getDashProps = useCallback(() => {
-    if (!(tooltipData && pathRef.current) || pathLength === 0) {
-      return { strokeDasharray: "none", strokeDashoffset: 0 };
-    }
-
-    const idx = tooltipData.index;
-    const startIdx = Math.max(0, idx - 1);
-    const endIdx = Math.min(data.length - 1, idx + 1);
-
-    const path = pathRef.current;
-
-    // Binary search to find length at X
-    const findLengthAtX = (targetX: number): number => {
+  // Binary search to find path length at a given X coordinate
+  const findLengthAtX = useCallback(
+    (targetX: number): number => {
+      const path = pathRef.current;
+      if (!path || pathLength === 0) {
+        return 0;
+      }
       let low = 0;
       let high = pathLength;
       const tolerance = 0.5;
@@ -132,12 +126,39 @@ export function Area({
         }
       }
       return (low + high) / 2;
-    };
+    },
+    [pathLength]
+  );
+
+  // Calculate segment bounds for highlight from either selection or hover
+  const segmentBounds = useMemo(() => {
+    if (!pathRef.current || pathLength === 0) {
+      return { startLength: 0, segmentLength: 0, isActive: false };
+    }
+
+    // Selection takes priority over hover
+    if (selection?.active) {
+      const startLength = findLengthAtX(selection.startX);
+      const endLength = findLengthAtX(selection.endX);
+      return {
+        startLength,
+        segmentLength: endLength - startLength,
+        isActive: true,
+      };
+    }
+
+    if (!tooltipData) {
+      return { startLength: 0, segmentLength: 0, isActive: false };
+    }
+
+    const idx = tooltipData.index;
+    const startIdx = Math.max(0, idx - 1);
+    const endIdx = Math.min(data.length - 1, idx + 1);
 
     const startPoint = data[startIdx];
     const endPoint = data[endIdx];
     if (!(startPoint && endPoint)) {
-      return { strokeDasharray: "none", strokeDashoffset: 0 };
+      return { startLength: 0, segmentLength: 0, isActive: false };
     }
 
     const startX = xScale(xAccessor(startPoint)) ?? 0;
@@ -145,23 +166,40 @@ export function Area({
 
     const startLength = findLengthAtX(startX);
     const endLength = findLengthAtX(endX);
-    const segmentLength = endLength - startLength;
 
     return {
-      strokeDasharray: `${segmentLength} ${pathLength}`,
-      strokeDashoffset: -startLength,
+      startLength,
+      segmentLength: endLength - startLength,
+      isActive: true,
     };
-  }, [tooltipData, data, xScale, pathLength, xAccessor]);
+  }, [
+    tooltipData,
+    selection,
+    data,
+    xScale,
+    pathLength,
+    xAccessor,
+    findLengthAtX,
+  ]);
 
-  const dashProps = getDashProps();
+  // Springs for smooth highlight animation (both offset AND segment length)
+  const springConfig = { stiffness: 180, damping: 28 };
+  const offsetSpring = useSpring(0, springConfig);
+  const segmentLengthSpring = useSpring(0, springConfig);
 
-  // Spring for smooth highlight animation
-  const dashSpringConfig = { stiffness: 180, damping: 28 };
-  const offsetSpring = useSpring(dashProps.strokeDashoffset, dashSpringConfig);
+  // Create animated strokeDasharray using motion template
+  const animatedDasharray = useMotionTemplate`${segmentLengthSpring} ${pathLength}`;
 
+  // Update springs when segment bounds change
   useEffect(() => {
-    offsetSpring.set(dashProps.strokeDashoffset);
-  }, [dashProps.strokeDashoffset, offsetSpring]);
+    offsetSpring.set(-segmentBounds.startLength);
+    segmentLengthSpring.set(segmentBounds.segmentLength);
+  }, [
+    segmentBounds.startLength,
+    segmentBounds.segmentLength,
+    offsetSpring,
+    segmentLengthSpring,
+  ]);
 
   // Get y value for a data point
   const getY = useCallback(
@@ -172,7 +210,7 @@ export function Area({
     [dataKey, yScale]
   );
 
-  const isHovering = tooltipData !== null;
+  const isHovering = tooltipData !== null || selection?.active === true;
   const easing = "cubic-bezier(0.85, 0, 0.15, 1)";
 
   return (
@@ -319,10 +357,12 @@ export function Area({
             fill="none"
             initial={{ opacity: 0 }}
             stroke={resolvedStroke}
-            strokeDasharray={dashProps.strokeDasharray}
             strokeLinecap="round"
             strokeWidth={strokeWidth}
-            style={{ strokeDashoffset: offsetSpring }}
+            style={{
+              strokeDasharray: animatedDasharray,
+              strokeDashoffset: offsetSpring,
+            }}
             transition={{ duration: 0.4, ease: "easeInOut" }}
           />
         )}

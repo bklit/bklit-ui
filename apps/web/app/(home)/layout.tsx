@@ -21,6 +21,10 @@ export default function Layout({ children }: { children: ReactNode }) {
             text: "Components",
             url: "/docs/components",
           },
+          {
+            text: "Charts",
+            url: "/charts",
+          },
         ]}
       />
       <div className="flex-1 pt-14">{children}</div>
