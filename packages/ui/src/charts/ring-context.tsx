@@ -67,6 +67,10 @@ export interface RingContextValue {
 
   // Get ring radii for an index
   getRingRadii: (index: number) => { innerRadius: number; outerRadius: number };
+
+  // Arc angle range
+  startAngle: number;
+  endAngle: number;
 }
 
 const RingContext = createContext<RingContextValue | null>(null);

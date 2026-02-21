@@ -246,6 +246,14 @@
   }
 }
 
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 /* Component preview styles */
 .component-preview {
   @apply rounded-xl border border-fd-border bg-fd-muted/30 p-6;
