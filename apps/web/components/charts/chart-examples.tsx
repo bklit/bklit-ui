@@ -50,8 +50,9 @@ import {
   SegmentLineFrom,
   SegmentLineTo,
   useChart,
+  XAxis,
+  YAxis,
 } from "@bklitui/ui/charts";
-import { XAxis } from "@bklitui/ui/charts/x-axis";
 import { curveLinear, curveMonotoneX, curveStep } from "@visx/curve";
 import { AreaClosed } from "@visx/shape";
 import { DynamicCodeBlock } from "fumadocs-ui/components/dynamic-codeblock";
@@ -59,13 +60,7 @@ import { CheckIcon, CopyIcon } from "lucide-react";
 import { motion, useSpring } from "motion/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  type ReactNode,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { type ReactNode, useCallback, useEffect, useState } from "react";
 import { useWorldDataStandalone } from "@/components/docs/use-world-data";
 import {
   Card,
@@ -468,53 +463,6 @@ function ChartExampleCard({
         <p className="text-muted-foreground text-xs">{footer}</p>
       </CardFooter>
     </Card>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Y-axis helper (line/area charts don't have a built-in YAxis component)
-// ---------------------------------------------------------------------------
-
-function YAxis() {
-  const { yScale, margin, containerRef } = useChart();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const ticks = useMemo(() => {
-    const tickValues = yScale.ticks(5);
-    return tickValues.map((value) => ({
-      value,
-      y: (yScale(value) ?? 0) + margin.top,
-      label: value >= 1000 ? `${(value / 1000).toFixed(0)}k` : String(value),
-    }));
-  }, [yScale, margin.top]);
-
-  const container = containerRef.current;
-  if (!(mounted && container)) {
-    return null;
-  }
-
-  const { createPortal } = require("react-dom") as typeof import("react-dom");
-
-  return createPortal(
-    <div
-      className="pointer-events-none absolute top-0 bottom-0"
-      style={{ left: 0, width: margin.left }}
-    >
-      {ticks.map((tick) => (
-        <div
-          className="absolute right-0 flex items-center justify-end pr-2"
-          key={tick.value}
-          style={{ top: tick.y, transform: "translateY(-50%)" }}
-        >
-          <span className="text-chart-label text-xs">{tick.label}</span>
-        </div>
-      ))}
-    </div>,
-    container
   );
 }
 

@@ -1,0 +1,47 @@
+---
+title: Y Axis
+description: Value labels for the vertical axis in line and area charts
+---
+
+import { LineChart, Line, Grid, XAxis, YAxis, ChartTooltip } from "@bklitui/ui/charts";
+import { AxisBothDemo } from "@/components/docs/axis-demo";
+
+## Preview
+
+<ComponentPreview>
+  <AxisBothDemo />
+</ComponentPreview>
+
+## Installation
+
+<InstallationTabs name="y-axis" />
+
+## Usage
+
+The YAxis component displays value labels along the left side of line and area charts. It must be used inside a chart component (`LineChart` or `AreaChart`). Ensure your chart has sufficient left margin for the labels.
+
+```tsx
+import { LineChart, Line, XAxis, YAxis, ChartTooltip } from "@bklitui/ui/charts";
+
+<LineChart data={data} margin={{ left: 50 }}>
+  <Line dataKey="value" />
+  <YAxis />
+  <XAxis />
+  <ChartTooltip />
+</LineChart>
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `numTicks` | `number` | `5` | Number of ticks to show |
+| `formatLargeNumbers` | `boolean` | `true` | Format values ≥1000 as "1k", "2k", etc. |
+
+## Margin
+
+YAxis renders labels in the chart's left margin. Use `margin={{ left: 50 }}` (or more) on your chart to leave space for the labels.
+
+## Theming
+
+Labels use the `text-chart-label` class, which inherits from your theme's muted foreground color.

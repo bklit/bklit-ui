@@ -1,0 +1,48 @@
+---
+title: X Axis
+description: Date labels for the horizontal axis in line and area charts
+---
+
+import { LineChart, Line, Grid, XAxis, ChartTooltip } from "@bklitui/ui/charts";
+import { AxisXOnlyDemo } from "@/components/docs/axis-demo";
+
+## Preview
+
+<ComponentPreview>
+  <AxisXOnlyDemo />
+</ComponentPreview>
+
+## Installation
+
+<InstallationTabs name="x-axis" dependencies={["motion"]} />
+
+## Usage
+
+The XAxis component displays date labels along the bottom of line and area charts. It must be used inside a chart component (`LineChart` or `AreaChart`).
+
+```tsx
+import { LineChart, Line, XAxis, ChartTooltip } from "@bklitui/ui/charts";
+
+<LineChart data={data}>
+  <Line dataKey="value" />
+  <XAxis />
+  <ChartTooltip />
+</LineChart>
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `numTicks` | `number` | `5` | Number of ticks to show (including first and last) |
+| `tickerHalfWidth` | `number` | `50` | Width of the date ticker box for fade calculation when tooltip is visible |
+
+## Behavior
+
+- **Evenly spaced dates**: XAxis generates evenly spaced date labels from the chart's time domain, always including the first and last dates.
+- **Crosshair fade**: When the tooltip is visible, labels near the crosshair fade to reduce visual clutter and improve readability.
+- **Client-side only**: Renders via portal after mount to avoid SSR issues.
+
+## Theming
+
+Labels use the `text-chart-label` class, which inherits from your theme's muted foreground color.

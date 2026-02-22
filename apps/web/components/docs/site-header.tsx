@@ -37,6 +37,13 @@ const utilities = [
   { text: "Legend", url: "/docs/utility/legend" },
   { text: "Grid", url: "/docs/utility/grid" },
   { text: "Tooltip", url: "/docs/utility/tooltip" },
+  {
+    text: "Axis",
+    children: [
+      { text: "X Axis", url: "/docs/utility/axis/x-axis" },
+      { text: "Y Axis", url: "/docs/utility/axis/y-axis" },
+    ],
+  },
   { text: "Custom Indicator", url: "/docs/utility/custom-indicator" },
   { text: "useChart", url: "/docs/utility/use-chart" },
 ];
@@ -95,8 +102,11 @@ function MobileMenu({
   });
 
   const componentsStartIndex = links.length + 1;
+  const utilitiesLinksCount = utilities.flatMap((u) =>
+    "children" in u && u.children ? u.children : [u]
+  ).length;
   const utilitiesStartIndex = componentsStartIndex + components.length + 1;
-  const externalLinksStartIndex = utilitiesStartIndex + utilities.length;
+  const externalLinksStartIndex = utilitiesStartIndex + 1 + utilitiesLinksCount; // +1 for Utility header
 
   return (
     <>
@@ -180,23 +190,67 @@ function MobileMenu({
               Utility
             </span>
             <div className="flex flex-col gap-1">
-              {utilities.map((utility, index) => (
-                <Link
-                  className="transition-[filter] duration-300 ease-out"
-                  href={utility.url}
-                  key={utility.url}
-                  onClick={onClose}
-                  style={getBlurStyle(utilitiesStartIndex + index)}
-                >
-                  <Button
-                    className="w-full justify-start"
-                    size="sm"
-                    variant="ghost"
+              {utilities.flatMap((utility, i) => {
+                if ("children" in utility && utility.children) {
+                  return [
+                    <span
+                      className="mt-2 mb-1 block px-3 font-medium text-muted-foreground text-xs uppercase tracking-wider first:mt-0"
+                      key={`axis-${utility.text}`}
+                      style={getBlurStyle(utilitiesStartIndex + 1 + i)}
+                    >
+                      {utility.text}
+                    </span>,
+                    ...utility.children.map((child, j) => (
+                      <Link
+                        className="pl-4 transition-[filter] duration-300 ease-out"
+                        href={child.url}
+                        key={child.url}
+                        onClick={onClose}
+                        style={getBlurStyle(
+                          utilitiesStartIndex +
+                            2 +
+                            utilities
+                              .slice(0, i)
+                              .flatMap((u) =>
+                                "children" in u && u.children ? u.children : [u]
+                              ).length +
+                            j
+                        )}
+                      >
+                        <Button
+                          className="w-full justify-start"
+                          size="sm"
+                          variant="ghost"
+                        >
+                          {child.text}
+                        </Button>
+                      </Link>
+                    )),
+                  ];
+                }
+                const flatIndex = utilities
+                  .slice(0, i)
+                  .flatMap((u) =>
+                    "children" in u && u.children ? [1, ...u.children] : [1]
+                  ).length;
+                return (
+                  <Link
+                    className="transition-[filter] duration-300 ease-out"
+                    href={utility.url}
+                    key={utility.url}
+                    onClick={onClose}
+                    style={getBlurStyle(utilitiesStartIndex + 1 + flatIndex)}
                   >
-                    {utility.text}
-                  </Button>
-                </Link>
-              ))}
+                    <Button
+                      className="w-full justify-start"
+                      size="sm"
+                      variant="ghost"
+                    >
+                      {utility.text}
+                    </Button>
+                  </Link>
+                );
+              })}
             </div>
           </div>
 
@@ -262,12 +316,17 @@ export function SiteHeader({
   const { resolvedTheme } = useTheme();
 
   // Calculate stagger delay based on total items to complete in STAGGER_DURATION
+  const utilitiesCount =
+    1 +
+    utilities.flatMap((u) =>
+      "children" in u && u.children ? [1, ...u.children] : [1]
+    ).length;
   const totalItems =
     links.length +
     1 + // Components header
     components.length +
     1 + // Utilities header
-    utilities.length +
+    utilitiesCount +
     (githubUrl ? 1 : 0) +
     (discordUrl ? 1 : 0);
   const staggerDelay = totalItems > 1 ? STAGGER_DURATION / (totalItems - 1) : 0;
