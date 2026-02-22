@@ -514,9 +514,7 @@
       "title": "Funnel Chart",
       "description": "An animated funnel chart with multi-layer halo rings, hover interactions, and staggered entrance animations",
       "registryDependencies": ["https://ui.bklit.com/r/utils.json"],
-      "dependencies": [
-        "motion"
-      ],
+      "dependencies": ["motion"],
       "files": [
         {
           "path": "src/charts/funnel-chart.tsx",

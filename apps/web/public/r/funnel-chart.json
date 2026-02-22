@@ -4,12 +4,8 @@
   "type": "registry:component",
   "title": "Funnel Chart",
   "description": "An animated funnel chart with multi-layer halo rings, hover interactions, and staggered entrance animations",
-  "dependencies": [
-    "motion"
-  ],
-  "registryDependencies": [
-    "https://ui.bklit.com/r/utils.json"
-  ],
+  "dependencies": ["motion"],
+  "registryDependencies": ["https://ui.bklit.com/r/utils.json"],
   "files": [
     {
       "path": "src/charts/funnel-chart.tsx",

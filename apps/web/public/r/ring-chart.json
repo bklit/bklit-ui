@@ -9,9 +9,7 @@
     "@number-flow/react",
     "motion"
   ],
-  "registryDependencies": [
-    "https://ui.bklit.com/r/utils.json"
-  ],
+  "registryDependencies": ["https://ui.bklit.com/r/utils.json"],
   "files": [
     {
       "path": "src/charts/ring-chart.tsx",
