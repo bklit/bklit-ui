@@ -1,6 +1,6 @@
 "use client";
 
-import type { ProvidedZoom, TransformMatrix } from "@visx/zoom/lib/types";
+import type { ProvidedZoom, TransformMatrix } from "@visx/zoom";
 import type { Feature, FeatureCollection, Geometry } from "geojson";
 import {
   createContext,

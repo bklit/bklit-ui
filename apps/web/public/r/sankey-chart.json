@@ -5,10 +5,10 @@
   "title": "Sankey Diagram",
   "description": "A flow diagram for visualizing data transfers between nodes",
   "dependencies": [
-    "@visx/gradient",
-    "@visx/pattern",
-    "@visx/responsive",
-    "@visx/sankey",
+    "@visx/gradient@4.0.1-alpha.0",
+    "@visx/pattern@4.0.1-alpha.0",
+    "@visx/responsive@4.0.1-alpha.0",
+    "@visx/sankey@4.0.1-alpha.0",
     "motion"
   ],
   "registryDependencies": ["https://ui.bklit.com/r/utils.json"],
