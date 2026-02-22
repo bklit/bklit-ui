@@ -103,7 +103,7 @@ function MobileMenu({
 
   const componentsStartIndex = links.length + 1;
   const utilitiesLinksCount = utilities.flatMap((u) =>
-    "children" in u ? u.children : [u]
+    "children" in u && u.children ? u.children : [u]
   ).length;
   const utilitiesStartIndex = componentsStartIndex + components.length + 1;
   const externalLinksStartIndex = utilitiesStartIndex + 1 + utilitiesLinksCount; // +1 for Utility header
@@ -191,7 +191,7 @@ function MobileMenu({
             </span>
             <div className="flex flex-col gap-1">
               {utilities.flatMap((utility, i) => {
-                if ("children" in utility) {
+                if ("children" in utility && utility.children) {
                   return [
                     <span
                       className="mt-2 mb-1 block px-3 font-medium text-muted-foreground text-xs uppercase tracking-wider first:mt-0"
@@ -212,7 +212,7 @@ function MobileMenu({
                             utilities
                               .slice(0, i)
                               .flatMap((u) =>
-                                "children" in u ? u.children : [u]
+                                "children" in u && u.children ? u.children : [u]
                               ).length +
                             j
                         )}
@@ -231,7 +231,7 @@ function MobileMenu({
                 const flatIndex = utilities
                   .slice(0, i)
                   .flatMap((u) =>
-                    "children" in u ? [1, ...u.children] : [1]
+                    "children" in u && u.children ? [1, ...u.children] : [1]
                   ).length;
                 return (
                   <Link
@@ -318,8 +318,9 @@ export function SiteHeader({
   // Calculate stagger delay based on total items to complete in STAGGER_DURATION
   const utilitiesCount =
     1 +
-    utilities.flatMap((u) => ("children" in u ? [1, ...u.children] : [1]))
-      .length;
+    utilities.flatMap((u) =>
+      "children" in u && u.children ? [1, ...u.children] : [1]
+    ).length;
   const totalItems =
     links.length +
     1 + // Components header
