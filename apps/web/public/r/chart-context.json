@@ -10,7 +10,9 @@
     "@visx/scale@4.0.1-alpha.0",
     "d3-array"
   ],
-  "registryDependencies": ["https://ui.bklit.com/r/utils.json"],
+  "registryDependencies": [
+    "https://ui.bklit.com/r/utils.json"
+  ],
   "files": [
     {
       "path": "src/charts/chart-context.tsx",

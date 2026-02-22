@@ -4,7 +4,10 @@
   "type": "registry:component",
   "title": "Chart Tooltip",
   "description": "Composable tooltip components for charts",
-  "dependencies": ["@number-flow/react", "motion"],
+  "dependencies": [
+    "@number-flow/react",
+    "motion"
+  ],
   "registryDependencies": [
     "https://ui.bklit.com/r/chart-context.json",
     "https://ui.bklit.com/r/utils.json"

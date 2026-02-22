@@ -11,7 +11,9 @@
     "@visx/sankey@4.0.1-alpha.0",
     "motion"
   ],
-  "registryDependencies": ["https://ui.bklit.com/r/utils.json"],
+  "registryDependencies": [
+    "https://ui.bklit.com/r/utils.json"
+  ],
   "files": [
     {
       "path": "src/charts/sankey/sankey-chart.tsx",
