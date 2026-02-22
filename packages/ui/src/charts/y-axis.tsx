@@ -1,0 +1,65 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import { useChart } from "./chart-context";
+
+export interface YAxisProps {
+  /** Number of ticks to show. Default: 5 */
+  numTicks?: number;
+  /** Format large numbers (e.g. 1000 as "1k"). Default: true */
+  formatLargeNumbers?: boolean;
+}
+
+function formatLabel(value: number, formatLargeNumbers: boolean): string {
+  if (formatLargeNumbers && value >= 1000) {
+    return `${(value / 1000).toFixed(0)}k`;
+  }
+  return String(value);
+}
+
+export function YAxis({ numTicks = 5, formatLargeNumbers = true }: YAxisProps) {
+  const { yScale, margin, containerRef } = useChart();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const ticks = useMemo(() => {
+    const tickValues = yScale.ticks(numTicks);
+    return tickValues.map((value) => ({
+      value,
+      y: (yScale(value) ?? 0) + margin.top,
+      label: formatLabel(value, formatLargeNumbers),
+    }));
+  }, [yScale, margin.top, numTicks, formatLargeNumbers]);
+
+  const container = containerRef.current;
+  if (!(mounted && container)) {
+    return null;
+  }
+
+  const { createPortal } = require("react-dom") as typeof import("react-dom");
+
+  return createPortal(
+    <div
+      className="pointer-events-none absolute top-0 bottom-0"
+      style={{ left: 0, width: margin.left }}
+    >
+      {ticks.map((tick) => (
+        <div
+          className="absolute right-0 flex items-center justify-end pr-2"
+          key={tick.value}
+          style={{ top: tick.y, transform: "translateY(-50%)" }}
+        >
+          <span className="text-chart-label text-xs">{tick.label}</span>
+        </div>
+      ))}
+    </div>,
+    container
+  );
+}
+
+YAxis.displayName = "YAxis";
+
+export default YAxis;

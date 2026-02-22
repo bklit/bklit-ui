@@ -205,3 +205,4 @@ export {
   useChartInteraction,
 } from "./use-chart-interaction";
 export { XAxis, type XAxisProps } from "./x-axis";
+export { YAxis, type YAxisProps } from "./y-axis";

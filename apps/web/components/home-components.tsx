@@ -28,8 +28,8 @@ import {
   SankeyChart,
   SankeyLink,
   SankeyNode,
+  XAxis,
 } from "@bklitui/ui/charts";
-import { XAxis } from "@bklitui/ui/charts/x-axis";
 import { curveStep } from "@visx/curve";
 import { cn } from "@/lib/utils";
 
