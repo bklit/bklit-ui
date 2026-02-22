@@ -24,9 +24,9 @@
       "description": "Shared context and hooks for Bklit chart components",
       "registryDependencies": ["https://ui.bklit.com/r/utils.json"],
       "dependencies": [
-        "@visx/event",
-        "@visx/responsive",
-        "@visx/scale",
+        "@visx/event@4.0.1-alpha.0",
+        "@visx/responsive@4.0.1-alpha.0",
+        "@visx/scale@4.0.1-alpha.0",
         "d3-array"
       ],
       "cssVars": {
@@ -84,7 +84,7 @@
       "title": "Chart Grid",
       "description": "Grid lines for charts",
       "registryDependencies": ["https://ui.bklit.com/r/chart-context.json"],
-      "dependencies": ["@visx/grid"],
+      "dependencies": ["@visx/grid@4.0.1-alpha.0"],
       "files": [
         {
           "path": "src/charts/grid.tsx",
@@ -265,9 +265,9 @@
         "https://ui.bklit.com/r/utils.json"
       ],
       "dependencies": [
-        "@visx/curve",
-        "@visx/gradient",
-        "@visx/shape",
+        "@visx/curve@4.0.1-alpha.0",
+        "@visx/gradient@4.0.1-alpha.0",
+        "@visx/shape@4.0.1-alpha.0",
         "motion"
       ],
       "files": [
@@ -295,9 +295,9 @@
         "https://ui.bklit.com/r/utils.json"
       ],
       "dependencies": [
-        "@visx/gradient",
-        "@visx/pattern",
-        "@visx/shape",
+        "@visx/gradient@4.0.1-alpha.0",
+        "@visx/pattern@4.0.1-alpha.0",
+        "@visx/shape@4.0.1-alpha.0",
         "motion"
       ],
       "files": [
@@ -335,7 +335,11 @@
         "https://ui.bklit.com/r/chart-tooltip.json",
         "https://ui.bklit.com/r/utils.json"
       ],
-      "dependencies": ["@visx/curve", "@visx/shape", "motion"],
+      "dependencies": [
+        "@visx/curve@4.0.1-alpha.0",
+        "@visx/shape@4.0.1-alpha.0",
+        "motion"
+      ],
       "files": [
         {
           "path": "src/charts/line-chart.tsx",
@@ -355,7 +359,11 @@
       "title": "Pie Chart",
       "description": "A composable pie chart with animations and customizable slices",
       "registryDependencies": ["https://ui.bklit.com/r/utils.json"],
-      "dependencies": ["@visx/responsive", "@visx/shape", "motion"],
+      "dependencies": [
+        "@visx/responsive@4.0.1-alpha.0",
+        "@visx/shape@4.0.1-alpha.0",
+        "motion"
+      ],
       "files": [
         {
           "path": "src/charts/pie-chart.tsx",
@@ -385,7 +393,7 @@
       "title": "Radar Chart",
       "description": "A composable radar/spider chart with multiple data series",
       "registryDependencies": ["https://ui.bklit.com/r/utils.json"],
-      "dependencies": ["@visx/responsive", "d3-shape", "motion"],
+      "dependencies": ["@visx/responsive@4.0.1-alpha.0", "d3-shape", "motion"],
       "files": [
         {
           "path": "src/charts/radar-chart.tsx",
@@ -425,7 +433,11 @@
       "title": "Ring Chart",
       "description": "A composable donut/ring chart with progress indicators",
       "registryDependencies": ["https://ui.bklit.com/r/utils.json"],
-      "dependencies": ["@visx/responsive", "@number-flow/react", "motion"],
+      "dependencies": [
+        "@visx/responsive@4.0.1-alpha.0",
+        "@number-flow/react",
+        "motion"
+      ],
       "files": [
         {
           "path": "src/charts/ring-chart.tsx",
@@ -456,9 +468,9 @@
       "description": "A geographic map chart with zoom, pan, and data visualization",
       "registryDependencies": ["https://ui.bklit.com/r/utils.json"],
       "dependencies": [
-        "@visx/geo",
-        "@visx/responsive",
-        "@visx/zoom",
+        "@visx/geo@4.0.1-alpha.0",
+        "@visx/responsive@4.0.1-alpha.0",
+        "@visx/zoom@4.0.1-alpha.0",
         "d3-geo",
         "topojson-client",
         "motion"
@@ -503,10 +515,10 @@
       "description": "A flow diagram for visualizing data transfers between nodes",
       "registryDependencies": ["https://ui.bklit.com/r/utils.json"],
       "dependencies": [
-        "@visx/gradient",
-        "@visx/pattern",
-        "@visx/responsive",
-        "@visx/sankey",
+        "@visx/gradient@4.0.1-alpha.0",
+        "@visx/pattern@4.0.1-alpha.0",
+        "@visx/responsive@4.0.1-alpha.0",
+        "@visx/sankey@4.0.1-alpha.0",
         "motion"
       ],
       "files": [

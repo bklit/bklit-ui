@@ -1,4 +1,4 @@
-export type { TransformMatrix } from "@visx/zoom/lib/types";
+export type { TransformMatrix } from "@visx/zoom";
 export { ChoroplethChart, type ChoroplethChartProps } from "./choropleth-chart";
 export {
   type ChoroplethContextValue,

@@ -2,8 +2,8 @@
 
 import { Mercator } from "@visx/geo";
 import { ParentSize } from "@visx/responsive";
+import type { TransformMatrix } from "@visx/zoom";
 import { Zoom } from "@visx/zoom";
-import type { TransformMatrix } from "@visx/zoom/lib/types";
 import type { FeatureCollection, Geometry } from "geojson";
 import React, {
   type ReactNode,
