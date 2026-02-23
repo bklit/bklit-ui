@@ -1,0 +1,181 @@
+---
+title: Calendar Heatmap
+description: A calendar heatmap displaying daily data as colored cells in a year grid, with month labels, day labels, month boundaries, and hover tooltips
+---
+
+import { CalendarHeatmap } from "@bklitui/ui/charts";
+import {
+  CalendarHeatmapCustomTooltipDemo,
+  CalendarHeatmapGithubDemo,
+} from "@/components/docs/calendar-heatmap-demo";
+import { calendarHeatmapSampleData } from "@/components/docs/calendar-heatmap-data";
+
+## Preview
+
+<ComponentPreview>
+  <div className="w-full">
+    <CalendarHeatmap data={calendarHeatmapSampleData} year={2026} />
+  </div>
+</ComponentPreview>
+
+## Installation
+
+<InstallationTabs name="calendar-heatmap" dependencies={["@visx/scale", "motion"]} />
+
+## Usage
+
+The Calendar Heatmap renders a year grid where each cell represents one day,
+colored by value. It is inspired by the [D3 calendar](https://observablehq.com/@d3/calendar)
+and Nivo's calendar component.
+
+```tsx
+import { CalendarHeatmap } from "@bklitui/ui/charts";
+
+const data = [
+  { day: "2026-03-15", value: 7 },
+  { day: "2026-03-16", value: 3 },
+  // ... one entry per day you want to show
+];
+
+export default function ActivityCalendar() {
+  return <CalendarHeatmap data={data} year={2026} />;
+}
+```
+
+Data uses `"YYYY-MM-DD"` strings. Days not present in `data` are shown in
+`emptyColor`. The year is inferred from the most common year in your data
+if you omit the `year` prop.
+
+## Props
+
+### CalendarHeatmap
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `data` | `CalendarHeatmapDatum[]` | required | Array of daily data points |
+| `year` | `number` | inferred | Calendar year to display |
+| `weekStartsOn` | `0 \| 1` | `1` | First day of the week: 0 = Sunday, 1 = Monday |
+| `cellSize` | `number` | `12` | Cell size in SVG units |
+| `cellGap` | `number` | `2` | Gap between cells in SVG units |
+| `cellRadius` | `number` | `2` | Cell border radius in pixels |
+| `emptyColor` | `string` | `"var(--chart-empty)"` | Color for days with no data |
+| `colors` | `string[]` | chart-5 → chart-1 | Sequential color array (low → high) |
+| `getColor` | `(datum, dateStr) => string` | - | Custom color resolver; overrides the scale |
+| `domain` | `[number, number]` | `[0, max]` | Color scale domain |
+| `showMonthLabels` | `boolean` | `true` | Show abbreviated month names above the grid |
+| `showDayLabels` | `boolean` | `true` | Show abbreviated day-of-week labels |
+| `dayLabelIndices` | `number[]` | `[1, 3, 5]` | Which row indices to label (0–6) |
+| `formatMonth` | `(monthIndex: number) => string` | 3-letter abbreviation | Custom month label formatter |
+| `formatDay` | `(rowIndex: number) => string` | 3-letter abbreviation | Custom day label formatter |
+| `showMonthOutlines` | `boolean` | `false` | Add visual gaps between months |
+| `renderTooltip` | `(datum, dateStr) => ReactNode` | - | Custom tooltip content |
+| `formatDate` | `(dateStr: string) => string` | "Jan 5, 2024" style | Date formatter for the default tooltip |
+| `formatValue` | `(value: number) => string` | `toLocaleString` | Value formatter for the default tooltip |
+| `className` | `string` | - | Additional CSS class |
+| `style` | `CSSProperties` | - | Additional inline styles |
+
+### CalendarHeatmapDatum
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `day` | `string` | Date in `"YYYY-MM-DD"` format |
+| `value` | `number` | Numeric value for that day |
+
+## Examples
+
+### GitHub-style colors
+
+GitHub-inspired green palette that adapts to light and dark mode.
+
+<ComponentPreview>
+  <CalendarHeatmapGithubDemo />
+</ComponentPreview>
+
+```tsx
+// Light mode
+const colors = ["#ebedf0", "#9be9a8", "#40c463", "#30a14e", "#216e39"];
+// Dark mode
+const colors = ["#161b22", "#0e4429", "#006d32", "#26a641", "#39d353"];
+
+<CalendarHeatmap
+  data={data}
+  year={2026}
+  colors={colors}
+  emptyColor={colors[0]}
+/>
+```
+
+### Sunday start
+
+<ComponentPreview>
+  <div className="w-full">
+    <CalendarHeatmap data={calendarHeatmapSampleData} year={2026} weekStartsOn={0} />
+  </div>
+</ComponentPreview>
+
+```tsx
+<CalendarHeatmap data={data} year={2026} weekStartsOn={0} />
+```
+
+### Month gaps
+
+Cells shift horizontally at each month boundary, creating a staircase-shaped gap.
+
+<ComponentPreview>
+  <div className="w-full">
+    <CalendarHeatmap data={calendarHeatmapSampleData} year={2026} showMonthOutlines />
+  </div>
+</ComponentPreview>
+
+```tsx
+<CalendarHeatmap data={data} year={2026} showMonthOutlines />
+```
+
+### Custom tooltip
+
+<ComponentPreview>
+  <div className="w-full">
+    <CalendarHeatmapCustomTooltipDemo />
+  </div>
+</ComponentPreview>
+
+```tsx
+<CalendarHeatmap
+  data={data}
+  year={2026}
+  renderTooltip={(datum, dateStr) => {
+    if (datum !== undefined) {
+      return (
+        <div className="text-xs font-medium">
+          {dateStr}: <strong>{datum.value} commits</strong>
+        </div>
+      );
+    }
+    return (
+      <div className="text-muted-foreground text-xs">{dateStr}: no activity</div>
+    );
+  }}
+/>
+```
+
+### Minimal (no labels)
+
+<ComponentPreview>
+  <div className="w-full">
+    <CalendarHeatmap
+      data={calendarHeatmapSampleData}
+      year={2026}
+      showMonthLabels={false}
+      showDayLabels={false}
+    />
+  </div>
+</ComponentPreview>
+
+```tsx
+<CalendarHeatmap
+  data={data}
+  year={2026}
+  showMonthLabels={false}
+  showDayLabels={false}
+/>
+```

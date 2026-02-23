@@ -6,6 +6,7 @@ import {
   Bar,
   BarChart,
   BarXAxis,
+  CalendarHeatmap,
   ChartTooltip,
   Grid,
   Line,
@@ -31,6 +32,7 @@ import {
   XAxis,
 } from "@bklitui/ui/charts";
 import { curveStep } from "@visx/curve";
+import { calendarHeatmapSampleData } from "@/components/docs/calendar-heatmap-data";
 import { cn } from "@/lib/utils";
 
 // Showcase card wrapper
@@ -281,6 +283,14 @@ export function HomeComponents() {
           />
           <XAxis />
         </AreaChart>
+      </ShowcaseCard>
+
+      <ShowcaseCard className="col-span-full min-h-[250px]">
+        <CalendarHeatmap
+          className="w-full"
+          data={calendarHeatmapSampleData}
+          year={2026}
+        />
       </ShowcaseCard>
     </>
   );

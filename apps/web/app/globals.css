@@ -114,6 +114,7 @@
   --chart-background: oklch(1 0 0);
   --chart-foreground: oklch(0.145 0.004 285);
   --chart-foreground-muted: oklch(0.55 0.014 260);
+  --chart-empty: oklch(0.92 0 0);
   --chart-line-primary: var(--chart-1);
   --chart-line-secondary: var(--chart-2);
   --chart-crosshair: oklch(0.4 0.1828 274.34);
@@ -197,6 +198,7 @@
   --chart-background: oklch(0.145 0 0);
   --chart-foreground: oklch(0.45 0 0);
   --chart-foreground-muted: oklch(0.65 0.01 260);
+  --chart-empty: oklch(0.22 0 0);
   --chart-crosshair: oklch(0.45 0 0);
   --chart-grid: oklch(0.25 0 0);
   --chart-indicator-color: oklch(1 0 0);

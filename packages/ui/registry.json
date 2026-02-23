@@ -509,6 +509,21 @@
       ]
     },
     {
+      "name": "calendar-heatmap",
+      "type": "registry:component",
+      "title": "Calendar Heatmap",
+      "description": "A calendar heatmap displaying daily data as colored cells in a year grid, with month labels, day labels, month boundaries, and hover tooltips",
+      "registryDependencies": ["https://ui.bklit.com/r/utils.json"],
+      "dependencies": ["@visx/scale@4.0.1-alpha.0", "motion"],
+      "files": [
+        {
+          "path": "src/charts/calendar-heatmap.tsx",
+          "type": "registry:component",
+          "target": "components/charts/calendar-heatmap.tsx"
+        }
+      ]
+    },
+    {
       "name": "funnel-chart",
       "type": "registry:component",
       "title": "Funnel Chart",

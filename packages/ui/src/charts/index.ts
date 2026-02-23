@@ -33,6 +33,12 @@ export {
 export { BarChart, type BarChartProps, type BarOrientation } from "./bar-chart";
 export { BarXAxis, type BarXAxisProps } from "./bar-x-axis";
 export { BarYAxis, type BarYAxisProps } from "./bar-y-axis";
+// Calendar heatmap component
+export {
+  CalendarHeatmap,
+  type CalendarHeatmapDatum,
+  type CalendarHeatmapProps,
+} from "./calendar-heatmap";
 export {
   type ChartContextValue,
   ChartProvider,
