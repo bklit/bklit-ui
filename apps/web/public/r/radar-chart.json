@@ -4,8 +4,14 @@
   "type": "registry:component",
   "title": "Radar Chart",
   "description": "A composable radar/spider chart with multiple data series",
-  "dependencies": ["@visx/responsive@4.0.1-alpha.0", "d3-shape", "motion"],
-  "registryDependencies": ["https://ui.bklit.com/r/utils.json"],
+  "dependencies": [
+    "@visx/responsive@4.0.1-alpha.0",
+    "d3-shape",
+    "motion"
+  ],
+  "registryDependencies": [
+    "https://ui.bklit.com/r/utils.json"
+  ],
   "files": [
     {
       "path": "src/charts/radar-chart.tsx",
