@@ -187,16 +187,16 @@ export function ChartTooltip({
         x={xWithMargin}
         y={isHorizontal ? yWithMargin : margin.top}
       >
-        {content ? (
-          content({
-            point: tooltipData?.point ?? {},
-            index: tooltipData?.index ?? 0,
-          })
-        ) : (
-          <TooltipContent rows={tooltipRows} title={title}>
-            {children}
-          </TooltipContent>
-        )}
+        {content && tooltipData
+          ? content({
+              point: tooltipData.point,
+              index: tooltipData.index,
+            })
+          : !content && (
+              <TooltipContent rows={tooltipRows} title={title}>
+                {children}
+              </TooltipContent>
+            )}
       </TooltipBox>
 
       {/* Date/Category Ticker - only show for vertical charts */}
