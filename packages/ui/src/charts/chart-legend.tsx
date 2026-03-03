@@ -195,7 +195,7 @@ export function ChartLegend({
             // biome-ignore lint/a11y/noStaticElementInteractions: Legend item hover interaction
             <div
               data-hovered={isHovered ? "" : undefined}
-              key={`legend-${item.label}-${i}`}
+              key={`legend-${item.label}-${item.value}`}
               onMouseEnter={() => onHover?.(i)}
               onMouseLeave={() => onHover?.(null)}
             >
@@ -214,7 +214,7 @@ export function ChartLegend({
               itemClassName
             )}
             data-hovered={isHovered ? "" : undefined}
-            key={`legend-${item.label}-${i}`}
+            key={`legend-${item.label}-${item.value}`}
             onMouseEnter={() => onHover?.(i)}
             onMouseLeave={() => onHover?.(null)}
           >

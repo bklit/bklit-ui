@@ -350,7 +350,7 @@ export function SankeyLink({
             index={index}
             isFaded={isFaded}
             isHighlighted={isHighlighted}
-            key={`link-${index}-${sourceIdx}-${targetIdx}`}
+            key={`link-${sourceIdx}-${targetIdx}-${link.width ?? link.value ?? ""}`}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
             path={path}

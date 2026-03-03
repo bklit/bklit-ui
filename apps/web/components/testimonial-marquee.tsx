@@ -123,6 +123,7 @@ export function TestimonialMarquee({
       >
         {duplicatedItems.map((testimonial, index) => (
           <TestimonialCard
+            // biome-ignore lint/suspicious/noArrayIndexKey: duplicated marquee set needs unique key per copy
             key={`${testimonial.id}-${index}`}
             testimonial={testimonial}
           />

@@ -269,7 +269,7 @@ export function MarkerGroup({
                         className="absolute"
                         exit={{ x: 0, y: 0, scale: 0, opacity: 0 }}
                         initial={{ x: 0, y: 0, scale: 0, opacity: 0 }}
-                        key={`fan-${marker.title}-${index}`}
+                        key={`fan-${marker.title}`}
                         style={{
                           width: size,
                           height: size,
