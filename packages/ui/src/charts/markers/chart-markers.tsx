@@ -32,13 +32,10 @@ export function MarkerTooltipContent({ markers }: MarkerTooltipContentProps) {
 
   return (
     <div className="mt-2 space-y-2 border-chart-tooltip-muted border-t pt-2">
-      {visibleMarkers.map((marker, index) => {
+      {visibleMarkers.map((marker) => {
         const isClickable = !!(marker.onClick || marker.href);
         return (
-          <div
-            className="flex items-start gap-2"
-            key={`${marker.title}-${index}`}
-          >
+          <div className="flex items-start gap-2" key={marker.title}>
             <div
               className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full"
               style={{

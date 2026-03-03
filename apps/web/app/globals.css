@@ -226,6 +226,9 @@
 }
 
 @layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
   /* Legend hover effect using :has() */
   .legend-container:has([data-hovered]) > *:not([data-hovered]) {
     opacity: 0.5;
@@ -233,9 +236,6 @@
 
   .legend-container > * {
     transition: opacity 150ms ease-out;
-  }
-  * {
-    @apply border-border outline-ring/50;
   }
   body {
     @apply bg-background text-foreground;

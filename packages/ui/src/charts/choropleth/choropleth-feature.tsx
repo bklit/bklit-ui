@@ -221,7 +221,7 @@ export function ChoroplethFeature({
             index={index}
             isFaded={isFaded}
             isHighlighted={isHighlighted}
-            key={`feature-${index}-${feature.properties?.name ?? feature.properties?.id ?? index}`}
+            key={`feature-${feature.properties?.name ?? feature.properties?.id ?? feature.id ?? path}`}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
             path={path}

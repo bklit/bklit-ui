@@ -75,6 +75,11 @@
           "path": "src/charts/chart-context.tsx",
           "type": "registry:component",
           "target": "components/charts/chart-context.tsx"
+        },
+        {
+          "path": "src/charts/use-chart-interaction.ts",
+          "type": "registry:component",
+          "target": "components/charts/use-chart-interaction.ts"
         }
       ]
     },
