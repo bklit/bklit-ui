@@ -7,6 +7,8 @@ import {
   BarChart,
   BarXAxis,
   BarYAxis,
+  Candlestick,
+  CandlestickChart,
   type ChartMarker,
   ChartMarkers,
   ChartTooltip,
@@ -33,6 +35,7 @@ import {
   LiveXAxis,
   LiveYAxis,
   type MomentumColors,
+  type OHLCDataPoint,
   PatternLines,
   PieCenter,
   PieChart,
@@ -140,6 +143,68 @@ const lineMarkers: ChartMarker[] = [
     description: "Started new ad campaign",
   },
 ];
+
+// Candlestick OHLC data (~30 days)
+const candlestickOhlcData: OHLCDataPoint[] = (() => {
+  const points: OHLCDataPoint[] = [];
+  const days = 30;
+  let open = 100;
+  const base = new Date(2024, 0, 1).getTime();
+  for (let i = 0; i < days; i++) {
+    const date = new Date(base + i * 24 * 60 * 60 * 1000);
+    const volatility = 1.5 + Math.random() * 1.5;
+    const drift = (Math.random() - 0.48) * volatility;
+    const high = open + Math.abs(drift) * (1.5 + Math.random());
+    const low = open - Math.abs(drift) * (1.5 + Math.random());
+    const close = low + Math.random() * (high - low);
+    points.push({ date, open, high, low, close });
+    open = close;
+  }
+  return points;
+})();
+
+function CandlestickTooltipContent({
+  point,
+}: {
+  point: Record<string, unknown>;
+  index: number;
+}) {
+  const date = point.date instanceof Date ? point.date : new Date();
+  const open = (point.open as number) ?? 0;
+  const high = (point.high as number) ?? 0;
+  const low = (point.low as number) ?? 0;
+  const close = (point.close as number) ?? 0;
+  const fmt = (v: number) => `$${v.toFixed(2)}`;
+  return (
+    <div className="px-3 py-2.5">
+      <div className="mb-1.5 font-medium text-chart-tooltip-foreground text-xs opacity-60">
+        {date.toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        })}
+      </div>
+      <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5 text-sm">
+        <span className="text-chart-tooltip-muted">Open</span>
+        <span className="text-chart-tooltip-foreground tabular-nums">
+          {fmt(open)}
+        </span>
+        <span className="text-chart-tooltip-muted">High</span>
+        <span className="text-emerald-600 tabular-nums dark:text-emerald-400">
+          {fmt(high)}
+        </span>
+        <span className="text-chart-tooltip-muted">Low</span>
+        <span className="text-red-600 tabular-nums dark:text-red-400">
+          {fmt(low)}
+        </span>
+        <span className="text-chart-tooltip-muted">Close</span>
+        <span className="text-chart-tooltip-foreground tabular-nums">
+          {fmt(close)}
+        </span>
+      </div>
+    </div>
+  );
+}
 
 // Live line chart: minimal hook for streaming demo data
 function useLiveData(
@@ -2631,6 +2696,347 @@ function makeChoroplethExamples(): ChartExample[] {
   ];
 }
 
+function candlestickIndicatorColor(point: Record<string, unknown>): string {
+  const close = (point.close as number) ?? 0;
+  const open = (point.open as number) ?? 0;
+  return close >= open ? "var(--color-emerald-500)" : "var(--color-red-500)";
+}
+
+function makeCandlestickExamples(): ChartExample[] {
+  const fmt = (v: number) => `$${v.toFixed(2)}`;
+  return [
+    {
+      title: "Candlestick – Tooltip line matches candle",
+      description:
+        "Lime–emerald and yellow–red gradients. Crosshair color matches the focused candle (green/red); no dot.",
+      code: `<LinearGradient id="candle-up" from="var(--color-lime-400)" to="var(--color-emerald-500)" />
+<LinearGradient id="candle-down" from="var(--color-yellow-400)" to="var(--color-red-500)" />
+<CandlestickChart data={ohlcData} margin={{ top: 16, right: 16, bottom: 40, left: 56 }} style={{ height: 320 }}>
+  <Grid horizontal />
+  <Candlestick
+    fadedOpacity={0.25}
+    negativeFill="url(#candle-down)"
+    positiveFill="url(#candle-up)"
+  />
+  <ChartTooltip
+    content={OHLCTooltipContent}
+    indicatorColor={(p) => (p.close >= p.open) ? "var(--color-emerald-500)" : "var(--color-red-500)"}
+    showDots={false}
+  />
+  <XAxis />
+  <YAxis formatValue={(v) => \`$\${v.toFixed(2)}\`} />
+</CandlestickChart>`,
+      render: () => (
+        <CandlestickChart
+          data={candlestickOhlcData}
+          margin={{ top: 16, right: 16, bottom: 40, left: 56 }}
+          style={{ height: 320 }}
+        >
+          <LinearGradient
+            from="var(--color-lime-400)"
+            id="candlestick-hero-up"
+            to="var(--color-emerald-500)"
+          />
+          <LinearGradient
+            from="var(--color-yellow-400)"
+            id="candlestick-hero-down"
+            to="var(--color-red-500)"
+          />
+          <Grid horizontal />
+          <Candlestick
+            fadedOpacity={0.25}
+            negativeFill="url(#candlestick-hero-down)"
+            positiveFill="url(#candlestick-hero-up)"
+          />
+          <ChartTooltip
+            content={CandlestickTooltipContent}
+            indicatorColor={candlestickIndicatorColor}
+            showDots={false}
+          />
+          <XAxis />
+          <YAxis formatValue={fmt} />
+        </CandlestickChart>
+      ),
+    },
+    {
+      title: "Candlestick – Chart 1 & 2 (default palette)",
+      description:
+        "Using --chart-1 and --chart-2 for positive and negative fills",
+      code: `<CandlestickChart data={ohlcData} margin={{ top: 16, right: 16, bottom: 40, left: 56 }} style={{ height: 320 }}>
+  <Grid horizontal />
+  <Candlestick
+    fadedOpacity={0.25}
+    negativeFill="var(--chart-2)"
+    positiveFill="var(--chart-1)"
+  />
+  <ChartTooltip content={CandlestickTooltipContent} />
+  <XAxis />
+  <YAxis formatValue={(v) => \`$\${v.toFixed(2)}\`} />
+</CandlestickChart>`,
+      render: () => (
+        <CandlestickChart
+          data={candlestickOhlcData}
+          margin={{ top: 16, right: 16, bottom: 40, left: 56 }}
+          style={{ height: 320 }}
+        >
+          <Grid horizontal />
+          <Candlestick
+            fadedOpacity={0.25}
+            negativeFill="var(--chart-2)"
+            positiveFill="var(--chart-1)"
+          />
+          <ChartTooltip content={CandlestickTooltipContent} />
+          <XAxis />
+          <YAxis formatValue={fmt} />
+        </CandlestickChart>
+      ),
+    },
+    {
+      title: "Candlestick – Chart 1 & 3",
+      description: "Using --chart-1 and --chart-3 for a stronger contrast",
+      code: `<CandlestickChart data={ohlcData} margin={{ top: 16, right: 16, bottom: 40, left: 56 }} style={{ height: 320 }}>
+  <Grid horizontal />
+  <Candlestick
+    fadedOpacity={0.25}
+    negativeFill="var(--chart-3)"
+    positiveFill="var(--chart-1)"
+  />
+  <ChartTooltip content={CandlestickTooltipContent} />
+  <XAxis />
+  <YAxis formatValue={(v) => \`$\${v.toFixed(2)}\`} />
+</CandlestickChart>`,
+      render: () => (
+        <CandlestickChart
+          data={candlestickOhlcData}
+          margin={{ top: 16, right: 16, bottom: 40, left: 56 }}
+          style={{ height: 320 }}
+        >
+          <Grid horizontal />
+          <Candlestick
+            fadedOpacity={0.25}
+            negativeFill="var(--chart-3)"
+            positiveFill="var(--chart-1)"
+          />
+          <ChartTooltip content={CandlestickTooltipContent} />
+          <XAxis />
+          <YAxis formatValue={fmt} />
+        </CandlestickChart>
+      ),
+    },
+    {
+      title: "Candlestick – Lime to emerald, yellow to red",
+      description: "Custom gradients: lime–emerald for up, yellow–red for down",
+      code: `<LinearGradient id="up" from="var(--color-lime-400)" to="var(--color-emerald-500)" />
+<LinearGradient id="down" from="var(--color-yellow-400)" to="var(--color-red-500)" />
+<CandlestickChart data={ohlcData} margin={{ top: 16, right: 16, bottom: 40, left: 56 }} style={{ height: 320 }}>
+  <Grid horizontal />
+  <Candlestick negativeFill="url(#down)" positiveFill="url(#up)" fadedOpacity={0.25} />
+  <ChartTooltip content={CandlestickTooltipContent} />
+  <XAxis />
+  <YAxis formatValue={(v) => \`$\${v.toFixed(2)}\`} />
+</CandlestickChart>`,
+      render: () => (
+        <CandlestickChart
+          data={candlestickOhlcData}
+          margin={{ top: 16, right: 16, bottom: 40, left: 56 }}
+          style={{ height: 320 }}
+        >
+          <LinearGradient
+            from="var(--color-lime-400)"
+            id="candlestick-lime-emerald"
+            to="var(--color-emerald-500)"
+          />
+          <LinearGradient
+            from="var(--color-yellow-400)"
+            id="candlestick-yellow-red"
+            to="var(--color-red-500)"
+          />
+          <Grid horizontal />
+          <Candlestick
+            fadedOpacity={0.25}
+            negativeFill="url(#candlestick-yellow-red)"
+            positiveFill="url(#candlestick-lime-emerald)"
+          />
+          <ChartTooltip content={CandlestickTooltipContent} />
+          <XAxis />
+          <YAxis formatValue={fmt} />
+        </CandlestickChart>
+      ),
+    },
+    {
+      title: "Candlestick – Solid colors",
+      description: "Solid emerald/red fills instead of gradients",
+      code: `<CandlestickChart data={ohlcData} candleWidth={8} margin={{ top: 16, right: 16, bottom: 40, left: 56 }} style={{ height: 320 }}>
+  <Grid horizontal />
+  <Candlestick
+    negativeFill="var(--color-red-500)"
+    positiveFill="var(--color-emerald-500)"
+  />
+  <ChartTooltip content={CandlestickTooltipContent} />
+  <XAxis />
+  <YAxis formatValue={(v) => \`$\${v.toFixed(2)}\`} />
+</CandlestickChart>`,
+      render: () => (
+        <CandlestickChart
+          candleWidth={8}
+          data={candlestickOhlcData}
+          margin={{ top: 16, right: 16, bottom: 40, left: 56 }}
+          style={{ height: 320 }}
+        >
+          <Grid horizontal />
+          <Candlestick
+            negativeFill="var(--color-red-500)"
+            positiveFill="var(--color-emerald-500)"
+          />
+          <ChartTooltip content={CandlestickTooltipContent} />
+          <XAxis />
+          <YAxis formatValue={fmt} />
+        </CandlestickChart>
+      ),
+    },
+    {
+      title: "Candlestick – Pattern",
+      description: "Diagonal pattern overlay on candle bodies",
+      code: `<CandlestickChart data={ohlcData} candleGap={0.15} margin={{ top: 16, right: 16, bottom: 40, left: 56 }} style={{ height: 320 }}>
+  <PatternLines id="candle-up" orientation={["diagonal"]} stroke="rgba(0,0,0,0.35)" ... />
+  <PatternLines id="candle-down" orientation={["diagonal"]} stroke="rgba(0,0,0,0.35)" ... />
+  <Grid horizontal />
+  <Candlestick bodyPatternNegative="url(#candle-down)" bodyPatternPositive="url(#candle-up)" />
+  <ChartTooltip content={CandlestickTooltipContent} />
+  <XAxis />
+  <YAxis formatValue={(v) => \`$\${v.toFixed(2)}\`} />
+</CandlestickChart>`,
+      render: () => (
+        <CandlestickChart
+          candleGap={0.15}
+          data={candlestickOhlcData}
+          margin={{ top: 16, right: 16, bottom: 40, left: 56 }}
+          style={{ height: 320 }}
+        >
+          <PatternLines
+            height={8}
+            id="candle-pattern-up"
+            orientation={["diagonal"]}
+            stroke="rgba(0,0,0,0.35)"
+            strokeWidth={1.5}
+            width={8}
+          />
+          <PatternLines
+            height={8}
+            id="candle-pattern-down"
+            orientation={["diagonal"]}
+            stroke="rgba(0,0,0,0.35)"
+            strokeWidth={1.5}
+            width={8}
+          />
+          <Grid horizontal />
+          <Candlestick
+            bodyPatternNegative="url(#candle-pattern-down)"
+            bodyPatternPositive="url(#candle-pattern-up)"
+            insideStrokeWidth={1}
+          />
+          <ChartTooltip content={CandlestickTooltipContent} />
+          <XAxis />
+          <YAxis formatValue={fmt} />
+        </CandlestickChart>
+      ),
+    },
+    {
+      title: "Candlestick – Tooltip only",
+      description: "Tooltip box without crosshair or dots",
+      code: `<CandlestickChart data={ohlcData} margin={{ top: 16, right: 16, bottom: 40, left: 56 }} style={{ height: 320 }}>
+  <Grid horizontal />
+  <Candlestick fadedOpacity={0.25} />
+  <ChartTooltip content={CandlestickTooltipContent} showCrosshair={false} showDots={false} />
+  <XAxis />
+  <YAxis formatValue={(v) => \`$\${v.toFixed(2)}\`} />
+</CandlestickChart>`,
+      render: () => (
+        <CandlestickChart
+          data={candlestickOhlcData}
+          margin={{ top: 16, right: 16, bottom: 40, left: 56 }}
+          style={{ height: 320 }}
+        >
+          <Grid horizontal />
+          <Candlestick fadedOpacity={0.25} />
+          <ChartTooltip
+            content={CandlestickTooltipContent}
+            showCrosshair={false}
+            showDots={false}
+          />
+          <XAxis />
+          <YAxis formatValue={fmt} />
+        </CandlestickChart>
+      ),
+    },
+  ];
+}
+
+function makeCandlestickHero(): ChartExample {
+  const fmt = (v: number) => `$${v.toFixed(2)}`;
+  return {
+    title: "Candlestick Chart – Tooltip line matches candle",
+    description:
+      "Lime–emerald and yellow–red gradients. The crosshair color follows the focused candle (green for up, red for down); no dot.",
+    code: `<LinearGradient id="candle-up" from="var(--color-lime-400)" to="var(--color-emerald-500)" />
+<LinearGradient id="candle-down" from="var(--color-yellow-400)" to="var(--color-red-500)" />
+<CandlestickChart data={ohlcData} margin={{ top: 16, right: 16, bottom: 40, left: 56 }} style={{ height: 320 }}>
+  <Grid horizontal />
+  <Candlestick
+    fadedOpacity={0.25}
+    negativeFill="url(#candle-down)"
+    positiveFill="url(#candle-up)"
+  />
+  <ChartTooltip
+    content={OHLCTooltipContent}
+    indicatorColor={(p) => (p.close >= p.open) ? "var(--color-emerald-500)" : "var(--color-red-500)"}
+    showDots={false}
+  />
+  <XAxis />
+  <YAxis formatValue={(v) => \`$\${v.toFixed(2)}\`} />
+</CandlestickChart>`,
+    data: `interface OHLCDataPoint {
+  date: Date;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+}
+const ohlcData: OHLCDataPoint[] = [ ... ];`,
+    render: () => (
+      <CandlestickChart
+        data={candlestickOhlcData}
+        margin={{ top: 16, right: 16, bottom: 40, left: 56 }}
+        style={{ height: 320 }}
+      >
+        <LinearGradient
+          from="var(--color-lime-400)"
+          id="candlestick-hero-lg-up"
+          to="var(--color-emerald-500)"
+        />
+        <LinearGradient
+          from="var(--color-yellow-400)"
+          id="candlestick-hero-lg-down"
+          to="var(--color-red-500)"
+        />
+        <Grid horizontal />
+        <Candlestick
+          fadedOpacity={0.25}
+          negativeFill="url(#candlestick-hero-lg-down)"
+          positiveFill="url(#candlestick-hero-lg-up)"
+        />
+        <ChartTooltip
+          content={CandlestickTooltipContent}
+          indicatorColor={candlestickIndicatorColor}
+          showDots={false}
+        />
+        <XAxis />
+        <YAxis formatValue={fmt} />
+      </CandlestickChart>
+    ),
+  };
+}
+
 // ---------------------------------------------------------------------------
 // Registry
 // ---------------------------------------------------------------------------
@@ -3146,6 +3552,7 @@ function makeFunnelExamples(): ChartExample[] {
 const chartTypes = [
   { label: "Area Chart", slug: "area-chart" },
   { label: "Bar Chart", slug: "bar-chart" },
+  { label: "Candlestick Chart", slug: "candlestick-chart" },
   { label: "Choropleth Chart", slug: "choropleth-chart" },
   { label: "Funnel Chart", slug: "funnel-chart" },
   { label: "Line Chart", slug: "line-chart" },
@@ -3198,6 +3605,10 @@ interface RegistryEntry {
 const chartExamplesRegistry: Record<string, RegistryEntry> = {
   "area-chart": { factory: makeAreaExamples, hero: makeAreaHero },
   "bar-chart": { factory: makeBarExamples, hero: makeBarHero },
+  "candlestick-chart": {
+    factory: makeCandlestickExamples,
+    hero: makeCandlestickHero,
+  },
   "choropleth-chart": {
     factory: makeChoroplethExamples,
     columns: 2,

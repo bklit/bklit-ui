@@ -19,6 +19,11 @@ export interface ChartTooltipProps {
   showCrosshair?: boolean;
   /** Whether to show dots on the lines. Default: true */
   showDots?: boolean;
+  /**
+   * Color for the crosshair/indicator line. When a function, receives the hovered point
+   * (e.g. for candlestick: match candle color from close vs open). Default: --chart-crosshair.
+   */
+  indicatorColor?: string | ((point: Record<string, unknown>) => string);
   /** Custom content renderer for the tooltip box */
   content?: (props: {
     point: Record<string, unknown>;
@@ -36,6 +41,7 @@ export function ChartTooltip({
   showDatePill = true,
   showCrosshair = true,
   showDots = true,
+  indicatorColor: indicatorColorProp,
   content,
   rows: rowsRenderer,
   children,
@@ -101,6 +107,19 @@ export function ChartTooltip({
     }));
   }, [tooltipData, lines, rowsRenderer]);
 
+  // Resolve indicator color (static or from hovered point)
+  const indicatorColor = useMemo(() => {
+    if (indicatorColorProp == null) {
+      return chartCssVars.crosshair;
+    }
+    if (typeof indicatorColorProp === "function") {
+      return tooltipData
+        ? indicatorColorProp(tooltipData.point)
+        : chartCssVars.crosshair;
+    }
+    return indicatorColorProp;
+  }, [indicatorColorProp, tooltipData]);
+
   // Title from date or category
   const title = useMemo(() => {
     if (!tooltipData) {
@@ -140,8 +159,8 @@ export function ChartTooltip({
         >
           <g transform={`translate(${margin.left},${margin.top})`}>
             <TooltipIndicator
-              colorEdge={chartCssVars.crosshair}
-              colorMid={chartCssVars.crosshair}
+              colorEdge={indicatorColor}
+              colorMid={indicatorColor}
               columnWidth={columnWidth}
               fadeEdges
               height={innerHeight}

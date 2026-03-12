@@ -33,6 +33,17 @@ export {
 export { BarChart, type BarChartProps, type BarOrientation } from "./bar-chart";
 export { BarXAxis, type BarXAxisProps } from "./bar-x-axis";
 export { BarYAxis, type BarYAxisProps } from "./bar-y-axis";
+export { Candlestick, type CandlestickProps } from "./candlestick";
+export {
+  CandlestickChart,
+  type CandlestickChartProps,
+  type OHLCDataPoint,
+} from "./candlestick-chart";
+export {
+  ChartBrush,
+  type ChartBrushProps,
+  type ChartBrushSelection,
+} from "./chart-brush";
 export {
   type ChartContextValue,
   ChartProvider,

@@ -1,0 +1,80 @@
+---
+title: Candlestick Chart
+description: A composable OHLC candlestick chart with gradients, patterns, tooltips, and hover interactions
+---
+
+import { CandlestickChartDemo } from "@/components/docs/candlestick-chart-demo";
+
+## Preview
+
+<ComponentPreview>
+  <CandlestickChartDemo />
+</ComponentPreview>
+
+## Installation
+
+<InstallationTabs
+  name="candlestick-chart"
+  dependencies={["@visx/scale", "@visx/shape", "@visx/responsive", "d3-array", "motion"]}
+/>
+
+## Usage
+
+The Candlestick Chart uses the same composable API as the Line and Area charts. Provide OHLC data and compose Grid, Candlestick, ChartTooltip, XAxis, and YAxis.
+
+### Basic Example
+
+```tsx
+import {
+  CandlestickChart,
+  Candlestick,
+  Grid,
+  ChartTooltip,
+  XAxis,
+  YAxis,
+} from "@bklitui/ui/charts";
+
+const ohlcData = [
+  { date: new Date("2025-01-01"), open: 100, high: 108, low: 96, close: 104 },
+  { date: new Date("2025-01-02"), open: 104, high: 112, low: 101, close: 109 },
+  // ... more OHLC points
+];
+
+function OHLCChart() {
+  return (
+    <CandlestickChart
+      data={ohlcData}
+      margin={{ top: 16, right: 16, bottom: 40, left: 56 }}
+      style={{ height: 320 }}
+    >
+      <Grid horizontal />
+      <Candlestick fadedOpacity={0.25} />
+      <ChartTooltip content={MyOHLCTooltipContent} />
+      <XAxis />
+      <YAxis formatValue={(v) => `$${v.toFixed(2)}`} />
+    </CandlestickChart>
+  );
+}
+```
+
+### Data shape
+
+Each point must have `date`, `open`, `high`, `low`, and `close`:
+
+```ts
+interface OHLCDataPoint {
+  date: Date;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+}
+```
+
+### Styling candles
+
+Use `positiveFill` and `negativeFill` for gradients or solid colors (e.g. `var(--color-emerald-500)` for up, `var(--color-red-500)` for down). Use `bodyPatternPositive` and `bodyPatternNegative` with `url(#pattern-id)` for pattern fills. Control spacing with `candleGap` (0–1) or fixed `candleWidth` in pixels.
+
+### Tooltip
+
+Pass a custom `content` renderer to `ChartTooltip` that receives `{ point, index }` to show OHLC fields. Use `showCrosshair={false}` and `showDots={false}` for tooltip-only (no crosshair or dot).

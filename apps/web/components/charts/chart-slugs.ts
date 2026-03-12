@@ -1,6 +1,7 @@
 export const validChartSlugs = [
   "area-chart",
   "bar-chart",
+  "candlestick-chart",
   "choropleth-chart",
   "funnel-chart",
   "line-chart",

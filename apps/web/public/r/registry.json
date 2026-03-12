@@ -418,6 +418,38 @@
       ]
     },
     {
+      "name": "candlestick-chart",
+      "type": "registry:component",
+      "title": "Candlestick Chart",
+      "description": "A composable OHLC candlestick chart with gradients, patterns, tooltips, and hover interactions",
+      "registryDependencies": [
+        "https://ui.bklit.com/r/chart-context.json",
+        "https://ui.bklit.com/r/grid.json",
+        "https://ui.bklit.com/r/x-axis.json",
+        "https://ui.bklit.com/r/y-axis.json",
+        "https://ui.bklit.com/r/chart-tooltip.json",
+        "https://ui.bklit.com/r/utils.json"
+      ],
+      "dependencies": [
+        "@visx/scale@4.0.1-alpha.0",
+        "@visx/responsive@4.0.1-alpha.0",
+        "d3-array",
+        "motion"
+      ],
+      "files": [
+        {
+          "path": "src/charts/candlestick-chart.tsx",
+          "type": "registry:component",
+          "target": "components/charts/candlestick-chart.tsx"
+        },
+        {
+          "path": "src/charts/candlestick.tsx",
+          "type": "registry:component",
+          "target": "components/charts/candlestick.tsx"
+        }
+      ]
+    },
+    {
       "name": "pie-chart",
       "type": "registry:component",
       "title": "Pie Chart",

@@ -5,6 +5,7 @@
     "live-line-chart",
     "area-chart",
     "bar-chart",
+    "candlestick-chart",
     "funnel-chart",
     "ring-chart",
     "pie-chart",
