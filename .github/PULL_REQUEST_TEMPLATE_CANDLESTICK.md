@@ -11,7 +11,7 @@ This PR ships the **Candlestick Chart** from prototype to production: OHLC chart
 ### Candlestick Chart (`@bklitui/ui/charts`)
 
 - **`CandlestickChart`** – Root OHLC chart with margin, animation, `candleGap` / `candleWidth`, optional `xDomain` / `xDomainSlotCount` for brush alignment.
-- **`Candlestick`** – Renders candles with `positiveFill` / `negativeFill` (color or gradient URL), optional `bodyPatternPositive` / `bodyPatternNegative`, `fadedOpacity` for hover.
+- **`Candlestick`** – Renders candles with `positiveFill` / `negativeFill` (color or gradient URL), optional `bodyPatternPositive` / `bodyPatternNegative`, `fadedOpacity` for hover. Wicks use the same fill as the body (gradient or, when using patterns, the pattern base color).
 - **`ChartBrush`** – Brush component for time-range selection (e.g. zoom strip).
 - **Exports**: `CandlestickChart`, `Candlestick`, `ChartBrush`, `OHLCDataPoint`, `ChartBrushSelection`.
 
@@ -22,13 +22,12 @@ This PR ships the **Candlestick Chart** from prototype to production: OHLC chart
 ### Docs and examples
 
 - **Doc page**: `/docs/components/candlestick-chart` – Preview (client demo wrapper), installation, usage, data shape, styling, tooltip. Sidebar and mobile nav updated.
-- **Charts route**: `/charts/candlestick-chart` with:
-  - **Hero + first card**: Lime–emerald and yellow–red gradients; tooltip line matches candle color (`indicatorColor` + `showDots={false}`).
-  - **Chart 1 & 2**: Default palette (`--chart-1`, `--chart-2`).
+- **Charts route**: `/charts/candlestick-chart` with (no grid on candlestick examples):
+  - **Hero + first card**: Lime–emerald and yellow–red gradients; tooltip line matches candle color (`indicatorColor` + `showDots={false}`); wicks match candle gradient.
   - **Chart 1 & 3**: Stronger contrast (`--chart-1`, `--chart-3`).
   - **Lime to emerald, yellow to red**: Custom gradient example.
   - **Solid colors**: Emerald/red.
-  - **Pattern**: Diagonal pattern on bodies.
+  - **Pattern**: Diagonal pattern on bodies; wicks match pattern base color (emerald/red).
   - **Tooltip only**: No crosshair, no dots.
 
 ### Registry and skill

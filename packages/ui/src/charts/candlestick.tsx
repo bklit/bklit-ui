@@ -10,9 +10,9 @@ const DEFAULT_NEGATIVE = "url(#candlestick-negative)";
 export interface CandlestickProps {
   /** Whether to animate the candlesticks. Default: true */
   animate?: boolean;
-  /** Fill for positive (close >= open) candles. Color or url(#gradient). Default: emerald */
+  /** Fill for positive (close >= open) candles. Color or url(#gradient). Default: --chart-1 */
   positiveFill?: string;
-  /** Fill for negative candles. Color or url(#gradient). Default: red */
+  /** Fill for negative candles. Color or url(#gradient). Default: --chart-5 */
   negativeFill?: string;
   /** Optional pattern URL for body only (e.g. url(#pattern)). When set, body is drawn solid first, then pattern overlaid and masked to the body rect. */
   bodyPatternPositive?: string;
@@ -27,15 +27,122 @@ export interface CandlestickProps {
 const SOLID_POSITIVE = "var(--color-emerald-500)";
 const SOLID_NEGATIVE = "var(--color-red-500)";
 
+const WICK_WIDTH = 1.5;
+
 function getSolidColor(isPositive: boolean): string {
   return isPositive ? SOLID_POSITIVE : SOLID_NEGATIVE;
 }
 
-function getWickStroke(fill: string, isPositive: boolean): string {
-  if (fill.startsWith("url(") && fill.includes("#")) {
-    return getSolidColor(isPositive);
-  }
-  return fill;
+interface CandleShape {
+  bodyHeight: number;
+  bodyLeft: number;
+  bodyTop: number;
+  bodySolidFill: string;
+  wickFill: string;
+  wickHeight: number;
+  wickLeft: number;
+  wickTop: number;
+  centerX: number;
+  wickCenterY: number;
+  candleWidth: number;
+  bodyPattern: string | undefined;
+  hasPatternOverlay: boolean;
+  insideStrokeWidth: number;
+  transition: { duration: number; ease: readonly number[] };
+  delay: number;
+  isFaded: boolean;
+  fadedOpacity: number;
+}
+
+function CandleRect({
+  bodyHeight,
+  bodyLeft,
+  bodyTop,
+  bodySolidFill,
+  wickFill,
+  wickHeight,
+  wickLeft,
+  wickTop,
+  centerX,
+  wickCenterY,
+  candleWidth,
+  bodyPattern,
+  hasPatternOverlay,
+  insideStrokeWidth,
+  transition,
+  delay,
+  isFaded,
+  fadedOpacity,
+}: CandleShape) {
+  const bodyOrigin = `${centerX}px ${bodyTop + bodyHeight / 2}px`;
+  const t = { ...transition, delay };
+  return (
+    <motion.g
+      animate={{ opacity: isFaded ? fadedOpacity : 1 }}
+      initial={{ opacity: 0 }}
+      style={{ transformOrigin: `${centerX}px ${wickCenterY}px` }}
+      transition={{ ...t, opacity: { duration: 0.15 } }}
+    >
+      <motion.rect
+        animate={{ scaleY: 1 }}
+        fill={wickFill}
+        height={wickHeight}
+        initial={{ scaleY: 0 }}
+        style={{ transformOrigin: `${centerX}px ${wickCenterY}px` }}
+        transition={t}
+        width={WICK_WIDTH}
+        x={wickLeft}
+        y={wickTop}
+      />
+      <motion.rect
+        animate={{ scaleY: 1 }}
+        fill={bodySolidFill}
+        height={bodyHeight}
+        initial={{ scaleY: 0 }}
+        rx={1}
+        ry={1}
+        stroke={bodySolidFill}
+        strokeWidth={1}
+        style={{ transformOrigin: bodyOrigin }}
+        transition={t}
+        width={candleWidth}
+        x={bodyLeft}
+        y={bodyTop}
+      />
+      {hasPatternOverlay && bodyPattern && (
+        <motion.rect
+          animate={{ scaleY: 1 }}
+          fill={bodyPattern}
+          height={bodyHeight}
+          initial={{ scaleY: 0 }}
+          rx={1}
+          ry={1}
+          style={{ transformOrigin: bodyOrigin }}
+          transition={t}
+          width={candleWidth}
+          x={bodyLeft}
+          y={bodyTop}
+        />
+      )}
+      {insideStrokeWidth > 0 && (
+        <motion.rect
+          animate={{ scaleY: 1 }}
+          fill="none"
+          height={bodyHeight - insideStrokeWidth}
+          initial={{ scaleY: 0 }}
+          rx={1}
+          ry={1}
+          stroke={bodySolidFill}
+          strokeWidth={insideStrokeWidth}
+          style={{ transformOrigin: bodyOrigin }}
+          transition={t}
+          width={candleWidth - insideStrokeWidth}
+          x={bodyLeft + insideStrokeWidth / 2}
+          y={bodyTop + insideStrokeWidth / 2}
+        />
+      )}
+    </motion.g>
+  );
 }
 
 export function Candlestick({
@@ -82,20 +189,18 @@ export function Candlestick({
         const high = d.high as number;
         const low = d.low as number;
         const close = d.close as number;
-
         const centerX = xScale(date) ?? 0;
         const yHigh = yScale(high) ?? 0;
         const yLow = yScale(low) ?? 0;
         const yOpen = yScale(open) ?? 0;
         const yClose = yScale(close) ?? 0;
-
         const bodyTop = Math.min(yOpen, yClose);
         const bodyHeight = Math.abs(yClose - yOpen) || 1;
         const bodyLeft = centerX - candleWidth / 2;
-
-        const wickCenterY = (yHigh + yLow) / 2;
-        const wickHalfLength = Math.abs(yHigh - yLow) / 2 || 0.5;
-
+        const wickTop = Math.min(yHigh, yLow);
+        const wickHeight = Math.abs(yLow - yHigh) || 1;
+        const wickLeft = centerX - WICK_WIDTH / 2;
+        const wickCenterY = wickTop + wickHeight / 2;
         const isPositive = close >= open;
         const fill = isPositive ? positiveFill : negativeFill;
         const bodyPattern = isPositive
@@ -105,94 +210,33 @@ export function Candlestick({
         const bodySolidFill = hasPatternOverlay
           ? getSolidColor(isPositive)
           : fill;
-        const wickStroke = getWickStroke(fill, isPositive);
+        const wickFill = hasPatternOverlay ? bodySolidFill : fill;
         const isFaded =
           hoveredCandleIndex !== null && hoveredCandleIndex !== index;
-
         const delay = animate ? (index * staggerDelayMs) / 1000 : 0;
 
         return (
-          <motion.g
-            animate={{ opacity: isFaded ? fadedOpacity : 1 }}
-            initial={{ opacity: 0 }}
+          <CandleRect
+            bodyHeight={bodyHeight}
+            bodyLeft={bodyLeft}
+            bodyPattern={bodyPattern}
+            bodySolidFill={bodySolidFill}
+            bodyTop={bodyTop}
+            candleWidth={candleWidth}
+            centerX={centerX}
+            delay={delay}
+            fadedOpacity={fadedOpacity}
+            hasPatternOverlay={hasPatternOverlay}
+            insideStrokeWidth={insideStrokeWidth}
+            isFaded={isFaded}
             key={xAccessor(d).getTime()}
-            style={{ transformOrigin: `${centerX}px ${wickCenterY}px` }}
-            transition={{
-              ...transition,
-              delay,
-              opacity: { duration: 0.15 },
-            }}
-          >
-            {/* Wick: draw in a group centered at wick center so scaleY grows from center */}
-            <g transform={`translate(${centerX}, ${wickCenterY})`}>
-              <motion.line
-                animate={{ scaleY: 1 }}
-                initial={{ scaleY: 0 }}
-                stroke={wickStroke}
-                strokeWidth={1.5}
-                style={{ transformOrigin: "center center" }}
-                transition={{ ...transition, delay }}
-                x1={0}
-                x2={0}
-                y1={-wickHalfLength}
-                y2={wickHalfLength}
-              />
-            </g>
-            {/* Body: solid base, then optional pattern overlay (same bounds as body, no clipping). */}
-            <motion.rect
-              animate={{ scaleY: 1 }}
-              fill={bodySolidFill}
-              height={bodyHeight}
-              initial={{ scaleY: 0 }}
-              rx={1}
-              ry={1}
-              stroke={bodySolidFill}
-              strokeWidth={1}
-              style={{
-                transformOrigin: `${centerX}px ${bodyTop + bodyHeight / 2}px`,
-              }}
-              transition={{ ...transition, delay }}
-              width={candleWidth}
-              x={bodyLeft}
-              y={bodyTop}
-            />
-            {hasPatternOverlay && (
-              <motion.rect
-                animate={{ scaleY: 1 }}
-                fill={bodyPattern}
-                height={bodyHeight}
-                initial={{ scaleY: 0 }}
-                rx={1}
-                ry={1}
-                style={{
-                  transformOrigin: `${centerX}px ${bodyTop + bodyHeight / 2}px`,
-                }}
-                transition={{ ...transition, delay }}
-                width={candleWidth}
-                x={bodyLeft}
-                y={bodyTop}
-              />
-            )}
-            {insideStrokeWidth > 0 && (
-              <motion.rect
-                animate={{ scaleY: 1 }}
-                fill="none"
-                height={bodyHeight - insideStrokeWidth}
-                initial={{ scaleY: 0 }}
-                rx={1}
-                ry={1}
-                stroke={bodySolidFill}
-                strokeWidth={insideStrokeWidth}
-                style={{
-                  transformOrigin: `${centerX}px ${bodyTop + bodyHeight / 2}px`,
-                }}
-                transition={{ ...transition, delay }}
-                width={candleWidth - insideStrokeWidth}
-                x={bodyLeft + insideStrokeWidth / 2}
-                y={bodyTop + insideStrokeWidth / 2}
-              />
-            )}
-          </motion.g>
+            transition={transition}
+            wickCenterY={wickCenterY}
+            wickFill={wickFill}
+            wickHeight={wickHeight}
+            wickLeft={wickLeft}
+            wickTop={wickTop}
+          />
         );
       })}
     </g>

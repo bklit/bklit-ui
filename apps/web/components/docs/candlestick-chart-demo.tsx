@@ -4,7 +4,6 @@ import {
   Candlestick,
   CandlestickChart,
   ChartTooltip,
-  Grid,
   type OHLCDataPoint,
   XAxis,
   YAxis,
@@ -36,7 +35,6 @@ export function CandlestickChartDemo() {
         margin={{ top: 16, right: 16, bottom: 40, left: 56 }}
         style={{ height: 320 }}
       >
-        <Grid horizontal />
         <Candlestick fadedOpacity={0.25} />
         <ChartTooltip content={CandlestickTooltipDemo} />
         <XAxis />
