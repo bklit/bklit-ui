@@ -29,6 +29,10 @@ export default function Layout({ children }: { children: ReactNode }) {
               text: "Charts",
               url: "/charts",
             },
+            {
+              text: "Studio",
+              url: "/studio",
+            },
           ],
           githubUrl: "https://github.com/bklit/bklit-ui",
           discordUrl: "https://discord.com/invite/9yyK8FwPcU",

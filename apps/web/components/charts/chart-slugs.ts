@@ -12,4 +12,6 @@ export const validChartSlugs = [
   "radar-chart",
   "ring-chart",
   "sankey-chart",
-];
+] as const;
+
+export type ChartSlug = (typeof validChartSlugs)[number];

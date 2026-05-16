@@ -3,8 +3,16 @@ import "./globals.css";
 import { BklitComponent } from "@bklit/sdk/nextjs";
 import { RootProvider } from "fumadocs-ui/provider";
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, JetBrains_Mono } from "next/font/google";
 import type { ReactNode } from "react";
+import { cn } from "@/lib/utils";
+
+const geistHeading = Geist({ subsets: ["latin"], variable: "--font-heading" });
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+});
 
 const geist = Geist({
   subsets: ["latin"],
@@ -41,7 +49,13 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
-      className={`${geist.variable} ${geistMono.variable}`}
+      className={cn(
+        geist.variable,
+        geistMono.variable,
+        "font-mono",
+        jetbrainsMono.variable,
+        geistHeading.variable
+      )}
       lang="en"
       suppressHydrationWarning
     >

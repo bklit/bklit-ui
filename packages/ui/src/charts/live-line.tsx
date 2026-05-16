@@ -1,6 +1,10 @@
 "use client";
 
 import { curveMonotoneX } from "@visx/curve";
+
+// biome-ignore lint/suspicious/noExplicitAny: d3 curve factory type
+type CurveFactory = any;
+
 import { AreaClosed, LinePath } from "@visx/shape";
 import { motion } from "motion/react";
 import { useCallback, useId, useMemo } from "react";
@@ -61,6 +65,8 @@ export interface LiveLineProps {
   stroke?: string;
   /** Stroke width. Default: 2 */
   strokeWidth?: number;
+  /** Curve function. Default: curveMonotoneX */
+  curve?: CurveFactory;
   /** Show gradient fill under the curve. Default: true */
   fill?: boolean;
   /** Show pulsing live dot at the right edge. Default: true */
@@ -84,6 +90,7 @@ export function LiveLine({
   dataKey,
   stroke = chartCssVars.linePrimary,
   strokeWidth = 2,
+  curve = curveMonotoneX,
   fill = true,
   pulse = true,
   dotSize = 4,
@@ -194,7 +201,7 @@ export function LiveLine({
       {fill && data.length > 1 && (
         <g mask={`url(#${fadeMaskId})`}>
           <AreaClosed
-            curve={curveMonotoneX}
+            curve={curve}
             data={data}
             fill={`url(#${areaGradientId})`}
             strokeWidth={0}
@@ -209,7 +216,7 @@ export function LiveLine({
       {data.length > 1 && (
         <g mask={`url(#${fadeMaskId})`}>
           <LinePath
-            curve={curveMonotoneX}
+            curve={curve}
             data={data}
             stroke={`url(#${gradientId})`}
             strokeLinecap="round"

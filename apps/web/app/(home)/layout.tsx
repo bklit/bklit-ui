@@ -29,6 +29,10 @@ export default function Layout({ children }: { children: ReactNode }) {
             text: "Charts",
             url: "/charts",
           },
+          {
+            text: "Studio",
+            url: "/studio",
+          },
         ]}
       />
       <div className="flex-1 pt-14">{children}</div>

@@ -13,7 +13,7 @@ export function generateStaticParams() {
 export default async function ChartPage({ params }: ChartPageProps) {
   const { chart } = await params;
 
-  if (!validChartSlugs.includes(chart)) {
+  if (!(validChartSlugs as readonly string[]).includes(chart)) {
     notFound();
   }
 

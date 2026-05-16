@@ -600,12 +600,12 @@ function ChartExampleCard({
               <SheetTrigger className="shrink-0 rounded-md border px-2.5 py-1 font-medium text-muted-foreground text-xs transition-colors hover:bg-muted hover:text-foreground">
                 View Code
               </SheetTrigger>
-              <SheetContent className="overflow-y-auto sm:max-w-2xl">
+              <SheetContent className="overflow-y-auto">
                 <SheetHeader>
                   <SheetTitle>{title}</SheetTitle>
                   <SheetDescription>{description}</SheetDescription>
                 </SheetHeader>
-                <div className="mt-4 space-y-4">
+                <div className="space-y-4 px-6 pb-6">
                   <div className="overflow-hidden rounded-lg border [&_figure]:my-0! [&_pre]:my-0!">
                     <DynamicCodeBlock
                       code={code}
