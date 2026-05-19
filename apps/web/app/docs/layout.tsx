@@ -1,6 +1,7 @@
 import { NextProvider } from "fumadocs-core/framework/next";
 import type { ReactNode } from "react";
 import { DocsLayout } from "@/components/docs/docs-layout";
+import { siteNavLinks } from "@/lib/site-nav-links";
 import { source } from "@/lib/source";
 
 export default function Layout({ children }: { children: ReactNode }) {
@@ -8,32 +9,7 @@ export default function Layout({ children }: { children: ReactNode }) {
     <NextProvider>
       <DocsLayout
         nav={{
-          links: [
-            {
-              text: "Introduction",
-              url: "/docs",
-            },
-            {
-              text: "Installation",
-              url: "/docs/installation",
-            },
-            {
-              text: "Theming",
-              url: "/docs/theming",
-            },
-            {
-              text: "Components",
-              url: "/docs/components",
-            },
-            {
-              text: "Charts",
-              url: "/charts",
-            },
-            {
-              text: "Studio",
-              url: "/studio",
-            },
-          ],
+          links: [...siteNavLinks],
           githubUrl: "https://github.com/bklit/bklit-ui",
           discordUrl: "https://discord.com/invite/9yyK8FwPcU",
         }}
