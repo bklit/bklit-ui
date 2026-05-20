@@ -1,9 +1,11 @@
 "use client";
 
+import { DynamicCodeBlock } from "fumadocs-ui/components/dynamic-codeblock";
 import { Terminal } from "lucide-react";
 import { useEffect, useState } from "react";
 import { CopyButton } from "@/components/copy-button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { codeThemes } from "@/lib/code-theme";
 import { registryJsonUrlForName } from "@/lib/studio/chart-links";
 import { cn } from "@/lib/utils";
 
@@ -44,7 +46,6 @@ export function PackageManagerTabs({ name }: PackageManagerTabsProps) {
     localStorage.setItem(STORAGE_KEY, newValue);
   };
 
-  // Check if this is a dependency-only install (starts with __deps:)
   const isDepsOnly = name.startsWith("__deps:");
   const depsString = isDepsOnly ? name.replace("__deps:", "") : "";
 
@@ -58,12 +59,11 @@ export function PackageManagerTabs({ name }: PackageManagerTabsProps) {
   const command = getCommand(pm);
 
   return (
-    <figure className="not-prose relative my-4 overflow-hidden rounded-lg border border-fd-border bg-fd-secondary">
+    <figure className="not-prose relative my-4 overflow-hidden rounded-xl border border-border bg-card shadow-sm">
       <Tabs onValueChange={handleValueChange} value={pm}>
-        {/* Header with terminal icon and tabs */}
-        <div className="flex items-center gap-2 border-fd-border/50 border-b px-3 py-1">
-          <div className="flex size-4 items-center justify-center rounded-[1px] bg-fd-foreground opacity-70">
-            <Terminal className="size-3 text-fd-secondary" />
+        <div className="flex items-center gap-2 border-border border-b bg-muted/40 px-3 py-1.5">
+          <div className="flex size-4 items-center justify-center rounded-[1px] bg-foreground/80">
+            <Terminal className="size-3 text-background" />
           </div>
           <TabsList
             className="h-auto gap-0 rounded-none bg-transparent p-0"
@@ -73,7 +73,7 @@ export function PackageManagerTabs({ name }: PackageManagerTabsProps) {
               <TabsTrigger
                 className={cn(
                   "h-7 border border-transparent px-2 pt-0.5 shadow-none",
-                  "data-[state=active]:border-fd-input data-[state=active]:bg-fd-background"
+                  "data-[state=active]:border-border data-[state=active]:bg-background"
                 )}
                 key={manager}
                 value={manager}
@@ -84,19 +84,19 @@ export function PackageManagerTabs({ name }: PackageManagerTabsProps) {
           </TabsList>
         </div>
 
-        {/* Code content */}
         <div className="overflow-x-auto">
           {(["pnpm", "npm", "yarn", "bun"] as const).map((manager) => (
-            <TabsContent
-              className="mt-0 px-4 py-3.5"
-              key={manager}
-              value={manager}
-            >
-              <pre>
-                <code className="relative font-mono text-fd-foreground text-sm leading-none">
-                  {getCommand(manager)}
-                </code>
-              </pre>
+            <TabsContent className="mt-0" key={manager} value={manager}>
+              <DynamicCodeBlock
+                code={getCommand(manager)}
+                codeblock={{
+                  allowCopy: false,
+                  className:
+                    "my-0 rounded-none border-0 bg-transparent [&_pre]:bg-transparent",
+                }}
+                lang="bash"
+                options={{ themes: codeThemes }}
+              />
             </TabsContent>
           ))}
         </div>

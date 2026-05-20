@@ -312,11 +312,25 @@
   }
 }
 
+/* Align Fumadocs UI tokens with shadcn card surfaces */
+:root {
+  --color-fd-background: var(--background);
+  --color-fd-foreground: var(--foreground);
+  --color-fd-muted: var(--muted);
+  --color-fd-muted-foreground: var(--muted-foreground);
+  --color-fd-border: var(--border);
+  --color-fd-input: var(--input);
+  --color-fd-secondary: var(--card);
+  --color-fd-accent: var(--accent);
+  --color-fd-primary: var(--primary);
+  --color-fd-primary-foreground: var(--primary-foreground);
+}
+
 /* Component preview styles */
 .component-preview {
-  @apply rounded-xl border border-fd-border bg-fd-muted/30 p-6;
+  @apply rounded-xl border border-border bg-card p-6 shadow-sm;
 }
 
 .component-preview-dark {
-  @apply bg-fd-background;
+  @apply bg-background;
 }

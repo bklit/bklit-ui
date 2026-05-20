@@ -1,0 +1,5082 @@
+# Bklit UI
+
+> Bklit UI is an open-source React chart and data-viz component library (Visx, Motion, Tailwind 4) shipped from `packages/ui`, with a Next.js 15 + Fumadocs docs site at `apps/web`. Components install via the shadcn registry (`ui.bklit.com/r/*.json`). The interactive Studio (`/studio`) tunes chart props and records animations; it targets desktop browsers.
+
+Documentation source files live under `apps/web/content/docs/` (MDX, Fumadocs). The monorepo uses pnpm and Turborepo. Chart demos are at `/charts/[slug]`; registry JSON is served from `apps/web/public/r/`.
+
+## Getting Started
+
+<doc title="Introduction" path="../apps/web/content/docs/index.mdx">
+Bklit UI is a component library built on top of shadcn/ui to help you build charts and data visualizations more easily.
+
+### Community
+
+Join our community to get help, share your projects, stay updated on new releases, and connect with other developers building with Bklit UI.
+
+<SocialLinks />
+
+### Author
+
+Bklit UI is built and maintained by <a href="https://x.com/uixmat" target="_blank" rel="noreferrer">uixmat</a>.
+</doc>
+
+## Chart Components
+
+<doc title="Area Chart" path="../apps/web/content/docs/components/area-chart.mdx">
+import { AreaChart, Area, Grid, XAxis, ChartTooltip, PatternLines, PatternArea } from "@bklitui/ui/charts";
+import { AreaTooltipDemo } from "@/components/docs/area-tooltip-demo";
+import { AreaChartPatternDemo } from "@/components/docs/area-chart-pattern-demo";
+
+export const chartData = [
+  { date: new Date(Date.now() - 29 * 24 * 60 * 60 * 1000), revenue: 12000, costs: 8500 },
+  { date: new Date(Date.now() - 28 * 24 * 60 * 60 * 1000), revenue: 13500, costs: 9200 },
+  { date: new Date(Date.now() - 27 * 24 * 60 * 60 * 1000), revenue: 11000, costs: 7800 },
+  { date: new Date(Date.now() - 26 * 24 * 60 * 60 * 1000), revenue: 14500, costs: 10100 },
+  { date: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000), revenue: 13800, costs: 9400 },
+  { date: new Date(Date.now() - 24 * 24 * 60 * 60 * 1000), revenue: 15200, costs: 10800 },
+  { date: new Date(Date.now() - 23 * 24 * 60 * 60 * 1000), revenue: 16000, costs: 11200 },
+  { date: new Date(Date.now() - 22 * 24 * 60 * 60 * 1000), revenue: 14800, costs: 10500 },
+  { date: new Date(Date.now() - 21 * 24 * 60 * 60 * 1000), revenue: 15500, costs: 10900 },
+  { date: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000), revenue: 14200, costs: 9800 },
+  { date: new Date(Date.now() - 19 * 24 * 60 * 60 * 1000), revenue: 16800, costs: 11800 },
+  { date: new Date(Date.now() - 18 * 24 * 60 * 60 * 1000), revenue: 17500, costs: 12400 },
+  { date: new Date(Date.now() - 17 * 24 * 60 * 60 * 1000), revenue: 16200, costs: 11500 },
+  { date: new Date(Date.now() - 16 * 24 * 60 * 60 * 1000), revenue: 15800, costs: 11200 },
+  { date: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000), revenue: 17200, costs: 12100 },
+  { date: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000), revenue: 18500, costs: 13200 },
+  { date: new Date(Date.now() - 13 * 24 * 60 * 60 * 1000), revenue: 17800, costs: 12600 },
+  { date: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000), revenue: 16500, costs: 11700 },
+  { date: new Date(Date.now() - 11 * 24 * 60 * 60 * 1000), revenue: 19200, costs: 13800 },
+  { date: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000), revenue: 18800, costs: 13400 },
+  { date: new Date(Date.now() - 9 * 24 * 60 * 60 * 1000), revenue: 17500, costs: 12400 },
+  { date: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000), revenue: 19800, costs: 14200 },
+  { date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), revenue: 20500, costs: 14800 },
+  { date: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000), revenue: 19200, costs: 13600 },
+  { date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), revenue: 21000, costs: 15200 },
+  { date: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000), revenue: 21800, costs: 15800 },
+  { date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), revenue: 20500, costs: 14600 },
+  { date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), revenue: 22500, costs: 16200 },
+  { date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), revenue: 23200, costs: 16800 },
+  { date: new Date(), revenue: 24000, costs: 17400 },
+];
+
+## Preview
+
+<ComponentPreview>
+  <div className="w-full">
+    <AreaChart data={chartData}>
+      <Grid horizontal />
+      <Area dataKey="revenue" fill="var(--chart-line-primary)" fillOpacity={0.3} fadeEdges />
+      <Area dataKey="costs" fill="var(--chart-line-secondary)" fillOpacity={0.3} fadeEdges />
+      <XAxis />
+      <AreaTooltipDemo />
+    </AreaChart>
+  </div>
+</ComponentPreview>
+
+## Installation
+
+<InstallationTabs name="area-chart" dependencies={["@visx/curve", "@visx/gradient", "@visx/pattern", "@visx/shape", "motion"]} />
+
+## Usage
+
+The Area Chart uses the same composable API as the Line Chart. Build charts by combining components:
+
+```tsx
+import { AreaChart, Area, Grid, XAxis, ChartTooltip } from "@bklitui/ui/charts";
+
+const data = [
+  { date: new Date("2025-01-01"), revenue: 12000, costs: 8500 },
+  { date: new Date("2025-01-02"), revenue: 13500, costs: 9200 },
+  // ... more data
+];
+
+export default function RevenueChart() {
+  return (
+    <AreaChart data={data}>
+      <Grid horizontal />
+      <Area dataKey="revenue" fill="var(--chart-line-primary)" />
+      <Area dataKey="costs" fill="var(--chart-line-secondary)" />
+      <XAxis />
+      <ChartTooltip />
+    </AreaChart>
+  );
+}
+```
+
+## Components
+
+### AreaChart
+
+The root component that provides context to all children. It shares the same props as `LineChart`.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `data` | `Record<string, unknown>[]` | required | Array of data points |
+| `xDataKey` | `string` | `"date"` | Key in data for x-axis values |
+| `margin` | `Partial<Margin>` | `{ top: 40, right: 40, bottom: 40, left: 40 }` | Chart margins |
+| `animationDuration` | `number` | `1100` | Animation duration in ms |
+| `aspectRatio` | `string` | `"2 / 1"` | CSS aspect ratio |
+| `className` | `string` | `""` | Additional CSS class |
+
+### Area
+
+Renders a filled area on the chart with a gradient fill.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `dataKey` | `string` | required | Key in data for y values |
+| `fill` | `string` | `var(--chart-line-primary)` | Gradient fill color |
+| `fillOpacity` | `number` | `0.4` | Fill opacity at the top |
+| `stroke` | `string` | Same as `fill` | Line stroke color |
+| `strokeWidth` | `number` | `2` | Line stroke width |
+| `curve` | `CurveFactory` | `curveMonotoneX` | D3 curve function |
+| `animate` | `boolean` | `true` | Enable grow animation |
+| `showLine` | `boolean` | `true` | Show stroke line on top |
+| `showHighlight` | `boolean` | `true` | Show highlight on hover |
+| `gradientToOpacity` | `number` | `0` | Opacity at bottom of gradient |
+
+## Examples
+
+### Single Area
+
+A minimal area chart with one metric:
+
+```tsx
+<AreaChart data={data}>
+  <Area dataKey="value" fill="#3b82f6" />
+  <ChartTooltip />
+</AreaChart>
+```
+
+### Stacked Appearance
+
+Layer multiple areas to show composition. Note: This creates a visual layering effect, not true stacking:
+
+```tsx
+<AreaChart data={data}>
+  <Grid horizontal />
+  <Area
+    dataKey="total"
+    fill="var(--chart-line-primary)"
+    fillOpacity={0.2}
+  />
+  <Area
+    dataKey="completed"
+    fill="#10b981"
+    fillOpacity={0.4}
+  />
+  <XAxis />
+  <ChartTooltip />
+</AreaChart>
+```
+
+### Custom Gradient
+
+Control the gradient fade with `gradientToOpacity`:
+
+```tsx
+// Solid fill (no gradient fade)
+<Area
+  dataKey="revenue"
+  fill="#3b82f6"
+  fillOpacity={0.3}
+  gradientToOpacity={0.3}
+/>
+
+// Soft gradient (default)
+<Area
+  dataKey="revenue"
+  fill="#3b82f6"
+  fillOpacity={0.4}
+  gradientToOpacity={0}
+/>
+
+// Strong contrast gradient
+<Area
+  dataKey="revenue"
+  fill="#3b82f6"
+  fillOpacity={0.6}
+  gradientToOpacity={0.05}
+/>
+```
+
+### Area Without Stroke Line
+
+Hide the top line for a softer appearance:
+
+```tsx
+<AreaChart data={data}>
+  <Area
+    dataKey="value"
+    fill="var(--chart-line-primary)"
+    fillOpacity={0.5}
+    showLine={false}
+  />
+  <ChartTooltip />
+</AreaChart>
+```
+
+### Pattern Fill
+
+Use `PatternLines` (or other `@visx/pattern` components) with `PatternArea` for a tiled fill. Keep an `Area` with `fillOpacity={0}` for the stroke line.
+
+<ComponentPreview>
+  <AreaChartPatternDemo />
+</ComponentPreview>
+
+```tsx
+import {
+  AreaChart,
+  Area,
+  PatternArea,
+  PatternLines,
+  Grid,
+  XAxis,
+  ChartTooltip,
+} from "@bklitui/ui/charts";
+
+<AreaChart data={chartData}>
+  <PatternLines
+    id="area-pattern"
+    height={6}
+    width={6}
+    orientation={["diagonal"]}
+    stroke="var(--chart-1)"
+    strokeWidth={1}
+  />
+  <Grid horizontal />
+  <PatternArea dataKey="desktop" fill="url(#area-pattern)" />
+  <Area dataKey="desktop" fillOpacity={0} strokeWidth={2} />
+  <XAxis />
+  <ChartTooltip />
+</AreaChart>
+```
+
+### Different Curves
+
+The Area component supports different curve interpolations:
+
+```tsx
+import { curveMonotoneX, curveLinear, curveStep, curveBasis } from "@visx/curve";
+
+// Smooth monotonic (default) - prevents overshooting
+<Area dataKey="value" curve={curveMonotoneX} />
+
+// Linear - straight lines between points
+<Area dataKey="value" curve={curveLinear} />
+
+// Step - discrete steps
+<Area dataKey="value" curve={curveStep} />
+
+// Basis - very smooth, may not pass through points
+<Area dataKey="value" curve={curveBasis} />
+```
+
+### With Custom Tooltip
+
+```tsx
+<AreaChart data={data}>
+  <Grid horizontal />
+  <Area dataKey="revenue" fill="var(--chart-line-primary)" />
+  <XAxis />
+  <ChartTooltip
+    rows={(point) => [
+      {
+        color: "var(--chart-line-primary)",
+        label: "Revenue",
+        value: `$${point.revenue?.toLocaleString()}`,
+      },
+    ]}
+  />
+</AreaChart>
+```
+
+### Dashboard Metrics Card
+
+```tsx
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { AreaChart, Area, ChartTooltip } from "@bklitui/ui/charts";
+
+export function MetricsCard({ title, data, dataKey, color }) {
+  const latestValue = data[data.length - 1]?.[dataKey] ?? 0;
+
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm font-medium text-muted-foreground">
+          {title}
+        </CardTitle>
+        <div className="text-2xl font-bold">
+          ${latestValue.toLocaleString()}
+        </div>
+      </CardHeader>
+      <CardContent>
+        <AreaChart
+          data={data}
+          aspectRatio="3 / 1"
+          margin={{ top: 5, right: 5, bottom: 5, left: 5 }}
+        >
+          <Area
+            dataKey={dataKey}
+            fill={color}
+            fillOpacity={0.3}
+            strokeWidth={1.5}
+            showHighlight={false}
+          />
+          <ChartTooltip showDatePill={false} />
+        </AreaChart>
+      </CardContent>
+    </Card>
+  );
+}
+```
+
+### Comparison Chart
+
+Compare two time series with different colored areas:
+
+```tsx
+<AreaChart data={comparisonData}>
+  <Grid horizontal />
+  <Area
+    dataKey="thisYear"
+    fill="var(--chart-line-primary)"
+    fillOpacity={0.4}
+    strokeWidth={2}
+  />
+  <Area
+    dataKey="lastYear"
+    fill="var(--chart-line-secondary)"
+    fillOpacity={0.2}
+    strokeWidth={1.5}
+  />
+  <XAxis />
+  <ChartTooltip
+    rows={(point) => [
+      { color: "var(--chart-line-primary)", label: "This Year", value: point.thisYear },
+      { color: "var(--chart-line-secondary)", label: "Last Year", value: point.lastYear },
+    ]}
+  />
+</AreaChart>
+```
+
+## Combining with Line Chart
+
+You can mix `Area` and `Line` components in the same chart using the `LineChart` container:
+
+```tsx
+import { LineChart, Line, Area, Grid, ChartTooltip } from "@bklitui/ui/charts";
+
+<LineChart data={data}>
+  <Grid horizontal />
+  {/* Background area for context */}
+  <Area
+    dataKey="baseline"
+    fill="var(--chart-grid)"
+    fillOpacity={0.3}
+    showLine={false}
+  />
+  {/* Main line for the primary metric */}
+  <Line dataKey="actual" stroke="var(--chart-line-primary)" />
+  <ChartTooltip />
+</LineChart>
+```
+
+## Theming
+
+The Area Chart uses the same CSS variables as the Line Chart:
+
+```css
+:root {
+  --chart-background: oklch(1 0 0);
+  --chart-foreground: oklch(0.145 0.004 285);
+  --chart-foreground-muted: oklch(0.55 0.014 260);
+  --chart-line-primary: oklch(0.623 0.214 255);
+  --chart-line-secondary: oklch(0.705 0.015 265);
+  --chart-crosshair: oklch(0.4 0.1828 274.34);
+  --chart-grid: oklch(0.9 0 0);
+}
+
+.dark {
+  --chart-background: oklch(0.145 0 0);
+  --chart-foreground: oklch(0.45 0 0);
+  --chart-crosshair: oklch(0.45 0 0);
+  --chart-grid: oklch(0.25 0 0);
+}
+```
+
+## Dependencies
+
+This component requires the same packages as the Line Chart:
+
+```bash
+pnpm add @visx/shape @visx/curve @visx/scale @visx/gradient @visx/responsive @visx/event @visx/grid d3-array motion react-use-measure
+```
+</doc>
+
+<doc title="Bar Chart" path="../apps/web/content/docs/components/bar-chart.mdx">
+import {
+  BarChart,
+  Bar,
+  BarXAxis,
+  BarYAxis,
+  Grid,
+  ChartTooltip,
+  Legend,
+  LegendItemComponent as LegendItem,
+  LegendMarker,
+  LegendLabel,
+  LinearGradient,
+  PatternLines,
+} from "@bklitui/ui/charts";
+import {
+  BarChartStackedDemo,
+  BarChartHorizontalDemo,
+  BarChart90DaysDemo,
+  BarChartGradientDemo,
+  BarChartPatternDemo,
+  BarChartStackedWithLegendDemo,
+  BarChartNarrowGapsDemo,
+  BarChartCustomTooltipDemo,
+  BarChartNoGapGradientDemo,
+} from "@/components/docs/bar-chart-demo";
+
+export const chartData = [
+  { month: "Jan", revenue: 12000, profit: 4500 },
+  { month: "Feb", revenue: 15500, profit: 5200 },
+  { month: "Mar", revenue: 11000, profit: 3800 },
+  { month: "Apr", revenue: 18500, profit: 7100 },
+  { month: "May", revenue: 16800, profit: 5400 },
+  { month: "Jun", revenue: 21200, profit: 8800 },
+];
+
+export const stackedData = [
+  { month: "Jan", desktop: 4000, mobile: 2400 },
+  { month: "Feb", desktop: 5000, mobile: 3000 },
+  { month: "Mar", desktop: 3500, mobile: 2800 },
+  { month: "Apr", desktop: 4200, mobile: 3200 },
+  { month: "May", desktop: 3800, mobile: 2600 },
+  { month: "Jun", desktop: 5500, mobile: 3800 },
+];
+
+export const browserData = [
+  { browser: "Chrome", users: 275 },
+  { browser: "Safari", users: 200 },
+  { browser: "Firefox", users: 187 },
+  { browser: "Edge", users: 173 },
+  { browser: "Other", users: 90 },
+];
+
+export const dailyData = Array.from({ length: 90 }, (_, i) => {
+  const date = new Date(2026, 0, 1);
+  date.setDate(date.getDate() + i);
+  return {
+    day: date.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+    value: Math.floor(Math.random() * 80) + 20 + Math.sin(i / 7) * 30,
+  };
+});
+
+## Preview
+
+<ComponentPreview>
+  <div className="w-full">
+    <BarChart data={chartData} xDataKey="month">
+      <Grid horizontal />
+      <Bar dataKey="revenue" fill="var(--chart-line-primary)" lineCap="round" />
+      <Bar
+        dataKey="profit"
+        fill="var(--chart-line-secondary)"
+        lineCap="round"
+      />
+      <BarXAxis />
+      <ChartTooltip />
+    </BarChart>
+  </div>
+</ComponentPreview>
+
+## Installation
+
+<InstallationTabs
+  name="bar-chart"
+  dependencies={["@visx/gradient", "@visx/pattern", "@visx/shape", "motion"]}
+/>
+
+## Usage
+
+The Bar Chart uses the same composable API as the Line and Area charts. Build charts by combining components:
+
+```tsx
+import {
+  BarChart,
+  Bar,
+  BarXAxis,
+  Grid,
+  ChartTooltip,
+} from "@bklitui/ui/charts";
+
+const data = [
+  { month: "Jan", revenue: 12000, profit: 4500 },
+  { month: "Feb", revenue: 15500, profit: 5200 },
+  // ... more data
+];
+
+export default function RevenueChart() {
+  return (
+    <BarChart data={data} xDataKey="month">
+      <Grid horizontal />
+      <Bar dataKey="revenue" fill="var(--chart-line-primary)" lineCap="round" />
+      <Bar
+        dataKey="profit"
+        fill="var(--chart-line-secondary)"
+        lineCap="round"
+      />
+      <BarXAxis />
+      <ChartTooltip />
+    </BarChart>
+  );
+}
+```
+
+## Stacked Bars
+
+Use the `stacked` prop to stack bars on top of each other. Add `stackGap` to create visual separation between segments, allowing each bar to have its own rounded corners.
+
+<ComponentShowcase
+  code={`<BarChart data={data} xDataKey="month" stacked stackGap={3}>
+  <Grid horizontal />
+  <Bar dataKey="desktop" fill="hsl(217, 91%, 60%)" lineCap={4} stackGap={3} />
+  <Bar dataKey="mobile" fill="hsl(217, 91%, 75%)" lineCap={4} stackGap={3} />
+  <BarXAxis />
+  <ChartTooltip />
+</BarChart>`}
+>
+  <BarChartStackedDemo />
+</ComponentShowcase>
+
+## Horizontal Bars
+
+Use `orientation="horizontal"` to create horizontal bar charts with categories on the Y-axis.
+
+<ComponentShowcase
+  code={`<BarChart data={data} xDataKey="browser" orientation="horizontal" margin={{ left: 80 }}>
+  <Grid horizontal={false} vertical fadeVertical />
+  <Bar dataKey="users" fill="hsl(217, 91%, 60%)" lineCap={4} />
+  <BarYAxis />
+  <ChartTooltip showCrosshair={false} />
+</BarChart>`}
+>
+  <BarChartHorizontalDemo />
+</ComponentShowcase>
+
+## 90 Days of Data
+
+A single series bar chart showing 90 days of data with square caps.
+
+<ComponentShowcase
+  code={`<BarChart data={dailyData} xDataKey="day" barGap={0.1}>
+  <Grid horizontal />
+  <Bar dataKey="value" lineCap="butt" />
+  <BarXAxis maxLabels={8} />
+  <ChartTooltip />
+</BarChart>`}
+>
+  <BarChart90DaysDemo />
+</ComponentShowcase>
+
+## Gradients and Patterns
+
+Use visx gradient and pattern components to create custom bar fills. Place them as children of `BarChart` and reference them by ID.
+
+### Gradient Fill
+
+Use the `stroke` prop to set the tooltip dot color when using gradient fills.
+
+<ComponentShowcase code={`import { LinearGradient } from "@bklitui/ui/charts";
+
+<BarChart data={data} xDataKey="month">
+  <LinearGradient id="barGradient" from="hsl(217, 91%, 60%)" to="hsl(280, 87%, 65%)" />
+  <Grid horizontal />
+  <Bar dataKey="revenue" fill="url(#barGradient)" stroke="hsl(217, 91%, 60%)" lineCap={4} />
+  <BarXAxis />
+  <ChartTooltip />
+</BarChart>`}>
+  <BarChartGradientDemo />
+</ComponentShowcase>
+
+### Pattern Fill
+
+Use the `stroke` prop to set a solid tooltip dot color when using pattern fills.
+
+<ComponentShowcase code={`import { PatternLines } from "@bklitui/ui/charts";
+
+<BarChart data={data} xDataKey="month">
+  <PatternLines
+    id="barPattern"
+    height={8}
+    width={8}
+    stroke="hsl(217, 91%, 60%)"
+    strokeWidth={2}
+    orientation={["diagonal"]}
+  />
+  <Grid horizontal />
+  <Bar dataKey="revenue" fill="url(#barPattern)" stroke="hsl(217, 91%, 60%)" lineCap={4} />
+  <BarXAxis />
+  <ChartTooltip />
+</BarChart>`}>
+  <BarChartPatternDemo />
+</ComponentShowcase>
+
+### Available Fills
+
+**Gradients** (from `@visx/gradient`):
+
+- `LinearGradient` - Custom linear gradient with `from`, `to`, and optional `fromOpacity`/`toOpacity`
+- `RadialGradient` - Radial gradient with `from`, `to`, and `r` (radius)
+- Pre-built: `GradientDarkgreenGreen`, `GradientOrangeRed`, `GradientPinkBlue`, `GradientPurpleTeal`, `GradientTealBlue`, etc.
+
+**Patterns** (from `@visx/pattern`):
+
+- `PatternLines` - Diagonal, horizontal, or vertical lines
+- `PatternCircles` - Dot pattern
+- `PatternHexagons` - Hexagonal pattern
+- `PatternWaves` - Wave pattern
+
+## Components
+
+### BarChart
+
+The root component that provides context to all children.
+
+| Prop                | Type                         | Default                                        | Description                                         |
+| ------------------- | ---------------------------- | ---------------------------------------------- | --------------------------------------------------- |
+| `data`              | `Record<string, unknown>[]`  | required                                       | Array of data points                                |
+| `xDataKey`          | `string`                     | `"name"`                                       | Key in data for categorical axis values             |
+| `margin`            | `Partial<Margin>`            | `{ top: 40, right: 40, bottom: 40, left: 40 }` | Chart margins                                       |
+| `animationDuration` | `number`                     | `1100`                                         | Animation duration in ms                            |
+| `aspectRatio`       | `string`                     | `"2 / 1"`                                      | CSS aspect ratio                                    |
+| `barGap`            | `number`                     | `0.2`                                          | Gap between bar groups (0-1 fraction of band width) |
+| `barWidth`          | `number`                     | -                                              | Fixed bar width in pixels (auto-sizes if not set)   |
+| `orientation`       | `"vertical" \| "horizontal"` | `"vertical"`                                   | Bar chart orientation                               |
+| `stacked`           | `boolean`                    | `false`                                        | Stack bars instead of grouping them                 |
+| `stackGap`          | `number`                     | `0`                                            | Gap between stacked bar segments in pixels          |
+| `className`         | `string`                     | `""`                                           | Additional CSS class                                |
+
+### Bar
+
+Renders a bar for each data point with configurable styling and animations.
+
+| Prop            | Type                          | Default                     | Description                                             |
+| --------------- | ----------------------------- | --------------------------- | ------------------------------------------------------- |
+| `dataKey`       | `string`                      | required                    | Key in data for values                                  |
+| `fill`          | `string`                      | `var(--chart-line-primary)` | Bar fill color (can be gradient/pattern url)            |
+| `stroke`        | `string`                      | -                           | Tooltip dot color. Use when fill is a gradient/pattern  |
+| `lineCap`       | `"round" \| "butt" \| number` | `"round"`                   | Bar end cap style or custom radius                      |
+| `animate`       | `boolean`                     | `true`                      | Enable animation                                        |
+| `animationType` | `"grow" \| "fade"`            | `"grow"`                    | Animation style                                         |
+| `fadedOpacity`  | `number`                      | `0.3`                       | Opacity when another bar is hovered                     |
+| `staggerDelay`  | `number`                      | auto                        | Delay between bars (auto-calculated based on bar count) |
+| `stackGap`      | `number`                      | `0`                         | Gap between stacked bars in pixels                      |
+
+### BarXAxis
+
+Displays categorical labels along the x-axis (for vertical bar charts).
+
+| Prop              | Type      | Default | Description                          |
+| ----------------- | --------- | ------- | ------------------------------------ |
+| `tickerHalfWidth` | `number`  | `50`    | Width of ticker for fade calculation |
+| `showAllLabels`   | `boolean` | `false` | Show all labels (may crowd)          |
+| `maxLabels`       | `number`  | `12`    | Maximum labels to show               |
+
+### BarYAxis
+
+Displays categorical labels along the y-axis (for horizontal bar charts).
+
+| Prop            | Type      | Default | Description            |
+| --------------- | --------- | ------- | ---------------------- |
+| `showAllLabels` | `boolean` | `true`  | Show all labels        |
+| `maxLabels`     | `number`  | `20`    | Maximum labels to show |
+
+### Grid
+
+The Grid component now supports `fadeVertical` for vertical grid lines.
+
+| Prop             | Type      | Default | Description                               |
+| ---------------- | --------- | ------- | ----------------------------------------- |
+| `horizontal`     | `boolean` | `true`  | Show horizontal grid lines                |
+| `vertical`       | `boolean` | `false` | Show vertical grid lines                  |
+| `fadeHorizontal` | `boolean` | `true`  | Fade horizontal lines at left/right edges |
+| `fadeVertical`   | `boolean` | `false` | Fade vertical lines at top/bottom edges   |
+
+## Animation
+
+Bars animate with the same easing as Line charts (`cubic-bezier(0.85, 0, 0.15, 1)`) for a smooth, organic feel. The stagger delay is automatically calculated based on the number of bars to ensure all animations complete within the total animation duration (~1.2s).
+
+### Grow Animation (Default)
+
+Bars grow from zero to their final size:
+
+```tsx
+<Bar dataKey="revenue" animationType="grow" />
+```
+
+### Fade Animation
+
+Bars fade in with a blur effect:
+
+```tsx
+<Bar dataKey="revenue" animationType="fade" />
+```
+
+### Custom Stagger
+
+Stagger is calculated automatically, but you can override it:
+
+```tsx
+// Override automatic stagger with custom delay
+<Bar dataKey="revenue" staggerDelay={0.02} />
+
+// No stagger (all bars animate together)
+<Bar dataKey="revenue" staggerDelay={0} />
+```
+
+## Line Cap Styles
+
+Control the bar end style:
+
+```tsx
+// Rounded caps (default) - full rounding
+<Bar dataKey="revenue" lineCap="round" />
+
+// Square caps - no rounding
+<Bar dataKey="revenue" lineCap="butt" />
+
+// Custom radius in pixels
+<Bar dataKey="revenue" lineCap={4} />
+<Bar dataKey="revenue" lineCap={8} />
+```
+
+## Examples
+
+### Stacked with Legend
+
+<ComponentShowcase code={`const legendItems = [
+  { label: "Desktop", value: 0, color: "hsl(217, 91%, 60%)" },
+  { label: "Mobile", value: 0, color: "hsl(217, 91%, 75%)" },
+];
+
+<div>
+  <BarChart data={data} xDataKey="month" stacked stackGap={3}>
+    <Grid horizontal />
+    <Bar dataKey="desktop" fill="hsl(217, 91%, 60%)" lineCap={4} stackGap={3} />
+    <Bar dataKey="mobile" fill="hsl(217, 91%, 75%)" lineCap={4} stackGap={3} />
+    <BarXAxis />
+    <ChartTooltip />
+  </BarChart>
+  <Legend items={legendItems} className="flex-row justify-center gap-6">
+    <LegendItem className="flex items-center gap-2">
+      <LegendMarker />
+      <LegendLabel />
+    </LegendItem>
+  </Legend>
+</div>`}>
+  <BarChartStackedWithLegendDemo />
+</ComponentShowcase>
+
+### Narrow Gaps
+
+<ComponentShowcase
+  code={`<BarChart data={data} xDataKey="month" barGap={0.1}>
+  <Grid horizontal />
+  <Bar dataKey="revenue" fill="var(--chart-line-primary)" lineCap="round" />
+  <BarXAxis />
+  <ChartTooltip />
+</BarChart>`}
+>
+  <BarChartNarrowGapsDemo />
+</ComponentShowcase>
+
+### Custom Tooltip
+
+<ComponentShowcase
+  code={`<BarChart data={data} xDataKey="month">
+  <Grid horizontal />
+  <Bar dataKey="revenue" fill="var(--chart-line-primary)" lineCap="round" />
+  <BarXAxis />
+  <ChartTooltip
+    rows={(point) => [
+      {
+        color: "var(--chart-line-primary)",
+        label: "Revenue",
+        value: \`$\${point.revenue?.toLocaleString()}\`,
+      },
+    ]}
+  />
+</BarChart>`}
+>
+  <BarChartCustomTooltipDemo />
+</ComponentShowcase>
+
+### No Gap with Custom Line Indicator
+
+A bar chart with zero gap between bars, gradient fill, and a custom horizontal line indicator. Each bar has its own line that rises from the bottom on hover.
+
+<ComponentShowcase
+  code={`// Each bar gets an animated line that rises on hover
+function AnimatedBarLine({ barX, barTopY, barBottomY, width, isHovered }) {
+  const animatedY = useSpring(barBottomY, { stiffness: 300, damping: 30 });
+
+  useEffect(() => {
+    animatedY.set(isHovered ? barTopY : barBottomY);
+  }, [isHovered, barTopY, barBottomY]);
+
+  return (
+    <motion.rect
+      x={barX}
+      width={width}
+      height={2}
+      fill="white"
+      style={{ opacity: isHovered ? 1 : 0, y: animatedY }}
+    />
+  );
+}
+
+// Renders a line indicator for each bar
+function BarLineIndicators({ data }) {
+  const { barScale, bandWidth, innerHeight, yScale, hoveredBarIndex } = useChart();
+
+  return data.map((d, i) => (
+    <AnimatedBarLine
+      key={d.month}
+      barX={barScale(d.month)}
+      barTopY={yScale(d.revenue)}
+      barBottomY={innerHeight}
+      width={bandWidth}
+      isHovered={hoveredBarIndex === i}
+    />
+  ));
+}
+
+<BarChart data={data} xDataKey="month" barGap={0}>
+  <LinearGradient id="gradient" from="var(--chart-3)" to="transparent" />
+  <Grid horizontal />
+  <Bar dataKey="revenue" fill="url(#gradient)" lineCap="butt" stroke="var(--chart-3)" />
+  <BarXAxis />
+  <ChartTooltip showCrosshair={false} showDots={false} />
+  <BarLineIndicators data={data} />
+</BarChart>`}
+>
+  <BarChartNoGapGradientDemo />
+</ComponentShowcase>
+
+## Theming
+
+The Bar Chart uses the same CSS variables as other charts:
+
+```css
+:root {
+  --chart-background: oklch(1 0 0);
+  --chart-foreground: oklch(0.145 0.004 285);
+  --chart-foreground-muted: oklch(0.55 0.014 260);
+  --chart-line-primary: oklch(0.623 0.214 255);
+  --chart-line-secondary: oklch(0.705 0.015 265);
+  --chart-crosshair: oklch(0.4 0.1828 274.34);
+  --chart-grid: oklch(0.9 0 0);
+}
+
+.dark {
+  --chart-background: oklch(0.145 0 0);
+  --chart-foreground: oklch(0.45 0 0);
+  --chart-crosshair: oklch(0.45 0 0);
+  --chart-grid: oklch(0.25 0 0);
+}
+```
+
+## Dependencies
+
+This component requires the same packages as the other charts:
+
+```bash
+pnpm add @visx/shape @visx/scale @visx/responsive @visx/event @visx/grid d3-array motion react-use-measure
+```
+</doc>
+
+<doc title="Candlestick Chart" path="../apps/web/content/docs/components/candlestick-chart.mdx">
+import { CandlestickChartDemo } from "@/components/docs/candlestick-chart-demo";
+
+## Preview
+
+<ComponentPreview>
+  <CandlestickChartDemo />
+</ComponentPreview>
+
+## Installation
+
+<InstallationTabs
+  name="candlestick-chart"
+  dependencies={["@visx/scale", "@visx/shape", "@visx/responsive", "d3-array", "motion"]}
+/>
+
+## Usage
+
+The Candlestick Chart uses the same composable API as the Line and Area charts. Provide OHLC data and compose Grid, Candlestick, ChartTooltip, and XAxis.
+
+### Basic Example
+
+```tsx
+import {
+  CandlestickChart,
+  Candlestick,
+  Grid,
+  ChartTooltip,
+  XAxis,
+} from "@bklitui/ui/charts";
+
+const ohlcData = [
+  { date: new Date("2025-01-01"), open: 100, high: 108, low: 96, close: 104 },
+  { date: new Date("2025-01-02"), open: 104, high: 112, low: 101, close: 109 },
+  // ... more OHLC points
+];
+
+function OHLCChart() {
+  return (
+    <CandlestickChart
+      data={ohlcData}
+      margin={{ top: 16, right: 16, bottom: 40, left: 16 }}
+      style={{ height: 320 }}
+    >
+      <Grid horizontal />
+      <Candlestick fadedOpacity={0.25} />
+      <ChartTooltip content={MyOHLCTooltipContent} />
+      <XAxis />
+    </CandlestickChart>
+  );
+}
+```
+
+### Data shape
+
+Each point must have `date`, `open`, `high`, `low`, and `close`:
+
+```ts
+interface OHLCDataPoint {
+  date: Date;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+}
+```
+
+### Styling candles
+
+The default fill uses the chart palette: `--chart-1` (positive) and `--chart-5` (negative). Override with `positiveFill` and `negativeFill` for gradients or solid colors (e.g. `var(--color-emerald-500)` for up, `var(--color-red-500)` for down). Use `bodyPatternPositive` and `bodyPatternNegative` with `url(#pattern-id)` for pattern fills. Control spacing with `candleGap` (0–1) or fixed `candleWidth` in pixels.
+
+### Tooltip
+
+Pass a custom `content` renderer to `ChartTooltip` that receives `{ point, index }` to show OHLC fields. Use `showCrosshair={false}` and `showDots={false}` for tooltip-only (no crosshair or dot).
+</doc>
+
+<doc title="Choropleth Chart" path="../apps/web/content/docs/components/choropleth-chart.mdx">
+import { ChoroplethChart, ChoroplethFeatureComponent, ChoroplethGraticule, ChoroplethTooltip, PatternLines } from "@bklitui/ui/charts";
+import { ChoroplethDemo, ChoroplethAnalyticsDemo } from "@/components/docs/choropleth-demo";
+import { ChoroplethLinesPatternDemo } from "@/components/docs/choropleth-pattern-demo";
+import { ChoroplethZoomDemo } from "@/components/docs/choropleth-zoom-demo";
+
+## Preview
+
+<ComponentPreview>
+  <div className="w-full">
+    <ChoroplethDemo />
+  </div>
+</ComponentPreview>
+
+## Installation
+
+<InstallationTabs name="choropleth-chart" dependencies={["@visx/geo", "@visx/responsive", "@visx/zoom", "d3-geo", "topojson-client", "motion"]} />
+
+## Usage
+
+The Choropleth Chart uses a composable API similar to other charts. Build maps by combining components:
+
+```tsx
+import { ChoroplethChart, ChoroplethFeatureComponent, ChoroplethGraticule, ChoroplethTooltip } from "@bklitui/ui/charts";
+import * as topojson from "topojson-client";
+
+// Load your GeoJSON data (from TopoJSON or direct GeoJSON)
+const geojson = topojson.feature(topology, topology.objects.countries);
+
+export default function WorldMap() {
+  return (
+    <ChoroplethChart data={geojson} aspectRatio="16 / 9">
+      <ChoroplethGraticule />
+      <ChoroplethFeatureComponent fill="var(--chart-1)" />
+      <ChoroplethTooltip />
+    </ChoroplethChart>
+  );
+}
+```
+
+## Components
+
+### ChoroplethChart
+
+The root component that sets up the Mercator projection and provides context to children.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `data` | `FeatureCollection` | required | GeoJSON FeatureCollection with geographic features |
+| `margin` | `Partial<Margin>` | `{ top: 0, right: 0, bottom: 0, left: 0 }` | Chart margins |
+| `animationDuration` | `number` | `800` | Animation duration in ms |
+| `aspectRatio` | `string` | `"16 / 9"` | CSS aspect ratio |
+| `scale` | `number` | auto | Projection scale (auto-calculated from width if not set) |
+| `center` | `[number, number]` | `[0, 20]` | Center coordinates [longitude, latitude] |
+| `translate` | `[number, number]` | auto | Translate offset [x, y] |
+| `zoomEnabled` | `boolean` | `false` | Enable zoom and pan interactions |
+| `zoomMin` | `number` | `0.5` | Minimum zoom scale |
+| `zoomMax` | `number` | `4` | Maximum zoom scale |
+| `initialZoom` | `TransformMatrix` | identity | Initial zoom transform |
+| `className` | `string` | `""` | Additional CSS class |
+
+### ChoroplethFeatureComponent
+
+Renders the geographic feature paths with hover states and optional patterns.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `fill` | `string` | - | Fill color for all features (overrides getFeatureColor) |
+| `stroke` | `string` | `"var(--chart-grid)"` | Stroke color for borders |
+| `strokeWidth` | `number` | `0.5` | Border stroke width |
+| `fadedOpacity` | `number` | `0.4` | Opacity when another feature is hovered |
+| `getFeatureColor` | `(feature, index) => string` | - | Custom color function |
+| `patterns` | `ReactNode` | - | Pattern definitions using `@visx/pattern` components |
+| `getFeaturePattern` | `(feature, index) => string \| null` | - | Return pattern ID for a feature |
+
+### ChoroplethGraticule
+
+Renders optional graticule (latitude/longitude grid lines).
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `stroke` | `string` | `"rgba(255,255,255,0.1)"` | Line color |
+| `strokeWidth` | `number` | `0.5` | Line width |
+| `step` | `[number, number]` | `[10, 10]` | Grid step intervals [longitude, latitude] in degrees |
+
+### ChoroplethTooltip
+
+Displays tooltips for features on hover, following the mouse position.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `content` | `(props) => ReactNode` | - | Custom tooltip renderer |
+| `formatValue` | `(value) => string` | `toLocaleString` | Value formatter |
+| `getFeatureName` | `(feature, index) => string` | - | Custom name getter |
+| `getFeatureValue` | `(feature, index) => number` | - | Value getter for display |
+| `valueLabel` | `string` | `"Value"` | Label for the value row |
+| `className` | `string` | `""` | Additional CSS class |
+
+## Data Format
+
+The choropleth expects a GeoJSON FeatureCollection:
+
+```typescript
+interface FeatureCollection {
+  type: "FeatureCollection";
+  features: Array<{
+    type: "Feature";
+    geometry: Geometry; // Polygon, MultiPolygon, etc.
+    properties: {
+      name?: string;
+      id?: string | number;
+      [key: string]: unknown;
+    };
+  }>;
+}
+```
+
+For TopoJSON data, convert it using `topojson-client`:
+
+```typescript
+import * as topojson from "topojson-client";
+
+const geojson = topojson.feature(topology, topology.objects.countries);
+```
+
+## Examples
+
+### Web Analytics
+
+Use `getFeatureColor` to create a color scale based on data values. This example shows visitor traffic by country, with brighter colors indicating higher traffic:
+
+<ComponentShowcase code={`const visitorsByCountry = { "United States": 125000, ... };
+
+function getVisitorColor(feature) {
+  const visitors = visitorsByCountry[feature.properties?.name];
+  if (!visitors) return "var(--chart-5)";
+  // Map to chart colors based on normalized value
+  if (normalized > 0.7) return "var(--chart-1)";
+  if (normalized > 0.4) return "var(--chart-2)";
+  ...
+}
+
+<ChoroplethChart data={geojson} aspectRatio="16 / 9">
+  <ChoroplethFeatureComponent getFeatureColor={getVisitorColor} />
+  <ChoroplethTooltip getFeatureValue={getVisitorValue} valueLabel="Visitors" />
+</ChoroplethChart>`}>
+  <ChoroplethAnalyticsDemo />
+</ComponentShowcase>
+
+### Zoom Controls
+
+Enable zoom with `zoomEnabled` and use `useChoroplethZoom()` hook to create custom controls:
+
+<ComponentShowcase code={`import { useChoroplethZoom } from "@bklitui/ui/charts";
+import { ZoomIn, ZoomOut, RotateCcw } from "lucide-react";
+
+function ZoomControls() {
+  const { zoom } = useChoroplethZoom();
+  if (!zoom) return null;
+  
+  return (
+    <div className="absolute right-3 top-3 flex flex-col gap-1">
+      <Button onClick={() => zoom.scale({ scaleX: 1.2, scaleY: 1.2 })}>
+        <ZoomIn />
+      </Button>
+      <Button onClick={() => zoom.scale({ scaleX: 0.8, scaleY: 0.8 })}>
+        <ZoomOut />
+      </Button>
+      <Button onClick={() => zoom.reset()}>
+        <RotateCcw />
+      </Button>
+    </div>
+  );
+}
+
+<ChoroplethChart data={geojson} aspectRatio="16 / 9" zoomEnabled>
+  <ChoroplethFeatureComponent fill="var(--chart-1)" />
+  <ChoroplethTooltip />
+  <ZoomControls />
+</ChoroplethChart>`}>
+  <ChoroplethZoomDemo />
+</ComponentShowcase>
+
+### Diagonal Lines Pattern
+
+Use `PatternLines` from `@visx/pattern` to create diagonal line patterns:
+
+<ComponentShowcase code={`<ChoroplethChart data={geojson} aspectRatio="16 / 9">
+  <ChoroplethGraticule />
+  <ChoroplethFeatureComponent
+    patterns={
+      <>
+        <PatternLines id="pattern-1" stroke="var(--chart-1)" ... />
+        <PatternLines id="pattern-2" stroke="var(--chart-2)" ... />
+      </>
+    }
+    getFeaturePattern={(feature) => getPatternId(feature)}
+  />
+  <ChoroplethTooltip />
+</ChoroplethChart>`}>
+  <ChoroplethLinesPatternDemo />
+</ComponentShowcase>
+
+## Dependencies
+
+This component requires:
+
+```bash
+pnpm add @visx/geo @visx/responsive @visx/pattern @visx/zoom topojson-client motion react-use-measure
+```
+</doc>
+
+<doc title="Composed Chart" path="../apps/web/content/docs/components/composed-chart.mdx">
+import { ComposedChartDocsPreview } from "@/components/docs/composed-chart-docs-preview";
+
+## Preview
+
+<ComponentPreview>
+  <ComposedChartDocsPreview />
+</ComponentPreview>
+
+## Installation
+
+<InstallationTabs
+  name="composed-chart"
+  dependencies={[
+    "@visx/curve",
+    "@visx/scale",
+    "@visx/shape",
+    "@visx/responsive",
+    "d3-array",
+    "motion",
+  ]}
+/>
+
+## Usage
+
+`ComposedChart` is the time-series shell for **mixing marks** on one `data` array and one pair of scales. Use **`SeriesBar`** for vertical columns aligned to dates (not the categorical `<Bar />` from `BarChart`, which uses a band scale).
+
+- **`aspectRatio`** — wide charts (e.g. `4 / 1`) work for full-width heroes; in **narrow cards** use **`3 / 2`** or **`2 / 1`** so the plot stays tall enough to read.
+- **`barSize`**, **`maxBarSize`**, **`barGap`** — parent-level layout for `SeriesBar` groups (similar to Recharts `ComposedChart` props). Use **`barGap={0}`** and a higher **`maxBarSize`** for dense daily data so columns read like the [90 days of data](/docs/components/bar-chart#90-days-of-data) bar example.
+- **`stacked`** / **`stackGap`** — stack `SeriesBar` segments in child order at each x (lines and areas are not stacked).
+- **`SeriesBar`** — default **`radius` is 0** (square tops). Pass **`radius={4}`** (or similar) for rounded corners.
+- **`Line`** / **`Area`** — pass a **`curve`** from `@visx/curve` (e.g. **`curveCatmullRom.alpha(0.42)`**) to soften paths when you have many daily points (preview + hero use the same curve for `revenue` and `runRate`).
+- **`XAxis`** — for **many rows** (e.g. daily), use **`numTicks={8}`** (default domain ticks). Use **`tickMode="data"`** when you only have a few points (e.g. one column per month) so labels sit on the data.
+- **`ChartTooltip`** — for bar-heavy layouts, **`showCrosshair={false}`** often looks cleaner because the hover band is already vertical columns.
+- **Hover dimming** — `SeriesBar` fades non-hovered columns using `tooltipData.index`, like grouped bars in `BarChart`. Tune with **`fadedOpacity`** on each `SeriesBar`.
+
+### Basic example
+
+```tsx
+import {
+  Area,
+  ComposedChart,
+  Grid,
+  Line,
+  SeriesBar,
+  XAxis,
+  ChartTooltip,
+} from "@bklitui/ui/charts";
+import { curveCatmullRom } from "@visx/curve";
+import { composedDemoData } from "@/lib/composed-demo-data";
+
+const smooth = curveCatmullRom.alpha(0.42);
+
+export default function Example() {
+  return (
+    <ComposedChart
+      aspectRatio="2 / 1"
+      barGap={0}
+      data={composedDemoData}
+      maxBarSize={32}
+      xDataKey="date"
+    >
+      <Grid horizontal />
+      <Area
+        curve={smooth}
+        dataKey="runRate"
+        fill="var(--chart-4)"
+        fillOpacity={0.32}
+      />
+      <SeriesBar dataKey="units" fill="var(--chart-3)" radius={4} />
+      <Line curve={smooth} dataKey="revenue" stroke="var(--chart-1)" />
+      <ChartTooltip showCrosshair={false} />
+      <XAxis numTicks={8} />
+    </ComposedChart>
+  );
+}
+```
+
+`composedDemoData` is 30 daily rows with ISO `date` strings, one slow wave across the month plus light ripples (kept readable next to dense bars). Outside this monorepo, copy the helpers from `apps/web/lib/composed-demo-data.ts` into your app.
+
+### More examples
+
+See the [charts gallery](/charts/composed-chart) for stacked bars, pattern fills, **rounded bars** (`SeriesBar` `radius`), a **lime / amber / red** accent composition, and more.
+
+## See also
+
+- [Line Chart](/docs/components/line-chart) — lines only
+- [Area Chart](/docs/components/area-chart) — areas only
+- [Bar Chart](/docs/components/bar-chart) — categorical bars with `<Bar />`
+</doc>
+
+<doc title="Funnel Chart" path="../apps/web/content/docs/components/funnel-chart.mdx">
+import { FunnelChart, PatternLines } from "@bklitui/ui/charts";
+
+export const funnelData = [
+  { label: "Visitors", value: 12400, displayValue: "12.4k" },
+  { label: "Leads", value: 6800, displayValue: "6.8k" },
+  { label: "Qualified", value: 3200, displayValue: "3.2k" },
+  { label: "Proposals", value: 1500, displayValue: "1.5k" },
+  { label: "Closed", value: 620, displayValue: "620" },
+];
+
+export const coloredData = [
+  { label: "Awareness", value: 4100, color: "var(--chart-1)" },
+  { label: "Interest", value: 2957, color: "var(--chart-2)" },
+  { label: "Consideration", value: 1084, color: "var(--chart-3)" },
+  { label: "Intent", value: 1038, color: "var(--chart-4)" },
+  { label: "Purchase", value: 320, color: "var(--chart-5)" },
+];
+
+## Preview
+
+<ComponentPreview>
+  <FunnelChart
+    data={funnelData}
+    color="var(--chart-1)"
+    layers={3}
+  />
+</ComponentPreview>
+
+## Installation
+
+<InstallationTabs name="funnel-chart" dependencies={["motion"]} />
+
+## Usage
+
+The Funnel Chart is a standalone component that renders an animated funnel visualization. Each segment represents a stage in a pipeline, with the width (or height in vertical mode) proportional to the value.
+
+```tsx
+import { FunnelChart } from "@bklitui/ui/charts";
+
+const data = [
+  { label: "Visitors", value: 12400, displayValue: "12.4k" },
+  { label: "Leads", value: 6800, displayValue: "6.8k" },
+  { label: "Qualified", value: 3200, displayValue: "3.2k" },
+  { label: "Proposals", value: 1500, displayValue: "1.5k" },
+  { label: "Closed", value: 620, displayValue: "620" },
+];
+
+export default function SalesFunnel() {
+  return (
+    <FunnelChart
+      data={data}
+      color="var(--chart-1)"
+      layers={3}
+    />
+  );
+}
+```
+
+## Props
+
+### FunnelChart
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `data` | `FunnelStage[]` | required | Array of funnel stages |
+| `orientation` | `"horizontal" \| "vertical"` | `"horizontal"` | Layout direction |
+| `color` | `string` | `"var(--chart-1)"` | Default color for all segments |
+| `layers` | `number` | `3` | Number of concentric halo rings per segment |
+| `edges` | `"curved" \| "straight"` | `"curved"` | Edge style for segment shapes |
+| `gap` | `number` | `4` | Gap between segments in pixels |
+| `staggerDelay` | `number` | `0.12` | Stagger delay between segment animations (seconds) |
+| `showPercentage` | `boolean` | `true` | Show percentage badges |
+| `showValues` | `boolean` | `true` | Show value labels |
+| `showLabels` | `boolean` | `true` | Show stage name labels |
+| `formatPercentage` | `(pct: number) => string` | rounds to integer | Custom percentage formatter |
+| `formatValue` | `(value: number) => string` | locale string | Custom value formatter |
+| `labelLayout` | `"spread" \| "grouped"` | `"spread"` | How labels are arranged within each segment |
+| `labelOrientation` | `"vertical" \| "horizontal"` | auto | Stack direction for grouped labels |
+| `labelAlign` | `"center" \| "start" \| "end"` | `"center"` | Alignment of grouped labels |
+| `hoveredIndex` | `number \| null` | - | Controlled hover state (segment index) |
+| `onHoverChange` | `(index: number \| null) => void` | - | Callback when hover state changes |
+| `grid` | `boolean \| GridConfig` | `false` | Background bands and grid lines |
+| `renderPattern` | `(id: string, color: string) => ReactNode` | - | Custom SVG pattern for the innermost ring |
+| `className` | `string` | - | Additional CSS class |
+| `style` | `CSSProperties` | - | Additional inline styles |
+
+### FunnelStage
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `label` | `string` | Stage name displayed below the segment |
+| `value` | `number` | Numeric value (first item is treated as 100%) |
+| `displayValue` | `string?` | Custom display string (overrides formatted value) |
+| `color` | `string?` | Override the chart-level color for this segment |
+| `gradient` | `FunnelGradientStop[]?` | Linear gradient for this segment |
+
+### GridConfig
+
+When passing an object to `grid`, the following options are available:
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `bands` | `boolean` | `true` | Show alternating background bands |
+| `bandColor` | `string` | `"var(--color-muted)"` | Color of the background bands |
+| `lines` | `boolean` | `true` | Show grid lines between segments |
+| `lineColor` | `string` | `"var(--chart-grid)"` | Color of the grid lines |
+| `lineOpacity` | `number` | `1` | Opacity of the grid lines |
+| `lineWidth` | `number` | `1` | Width of the grid lines in pixels |
+
+## Examples
+
+### Vertical
+
+<ComponentPreview>
+  <div className="mx-auto max-w-md">
+    <FunnelChart
+      data={funnelData}
+      orientation="vertical"
+      color="var(--chart-1)"
+      layers={3}
+    />
+  </div>
+</ComponentPreview>
+
+```tsx
+<FunnelChart
+  data={data}
+  orientation="vertical"
+  color="var(--chart-1)"
+  layers={3}
+/>
+```
+
+### Straight Edges
+
+<ComponentPreview>
+  <FunnelChart
+    data={funnelData}
+    color="var(--chart-1)"
+    layers={3}
+    edges="straight"
+  />
+</ComponentPreview>
+
+```tsx
+<FunnelChart data={data} color="var(--chart-1)" layers={3} edges="straight" />
+```
+
+### Per-Segment Colors
+
+Each segment can have its own `color` from the chart palette:
+
+<ComponentPreview>
+  <FunnelChart data={coloredData} layers={3} />
+</ComponentPreview>
+
+```tsx
+const data = [
+  { label: "Awareness", value: 4100, color: "var(--chart-1)" },
+  { label: "Interest", value: 2957, color: "var(--chart-2)" },
+  { label: "Consideration", value: 1084, color: "var(--chart-3)" },
+  { label: "Intent", value: 1038, color: "var(--chart-4)" },
+  { label: "Purchase", value: 320, color: "var(--chart-5)" },
+];
+
+<FunnelChart data={data} layers={3} />
+```
+
+### Grouped Labels
+
+Use `labelLayout="grouped"` to stack labels in a compact group:
+
+<ComponentPreview>
+  <FunnelChart
+    data={funnelData}
+    color="var(--chart-1)"
+    layers={3}
+    labelLayout="grouped"
+    labelAlign="center"
+    labelOrientation="vertical"
+  />
+</ComponentPreview>
+
+```tsx
+<FunnelChart
+  data={data}
+  color="var(--chart-1)"
+  layers={3}
+  labelLayout="grouped"
+  labelAlign="center"
+  labelOrientation="vertical"
+/>
+```
+
+### Grid
+
+Pass `grid` to show alternating background bands and grid lines:
+
+<ComponentPreview>
+  <FunnelChart
+    data={funnelData}
+    color="var(--chart-1)"
+    layers={3}
+    grid
+  />
+</ComponentPreview>
+
+```tsx
+<FunnelChart data={data} color="var(--chart-1)" layers={3} grid />
+```
+
+### Pattern Fill
+
+Use `renderPattern` with `@visx/pattern` to fill the innermost ring with a pattern while outer halo rings remain solid:
+
+```tsx
+import { FunnelChart, PatternLines } from "@bklitui/ui/charts";
+
+<FunnelChart
+  data={data}
+  color="var(--chart-3)"
+  layers={3}
+  renderPattern={(id, color) => (
+    <PatternLines
+      id={id}
+      height={8}
+      width={8}
+      stroke="rgba(255,255,255,0.35)"
+      strokeWidth={2}
+      orientation={["diagonal"]}
+      background={color}
+    />
+  )}
+/>
+```
+
+### Legend
+
+Use `hoveredIndex` and `onHoverChange` to wire the funnel chart with a `Legend` for synchronized hover:
+
+```tsx
+import { FunnelChart, Legend, LegendItemComponent, LegendMarker, LegendLabel } from "@bklitui/ui/charts";
+
+const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
+const legendItems = data.map((d) => ({
+  label: d.label,
+  value: d.value,
+  color: "var(--chart-1)",
+}));
+
+<FunnelChart
+  data={data}
+  color="var(--chart-1)"
+  layers={3}
+  hoveredIndex={hoveredIndex}
+  onHoverChange={setHoveredIndex}
+/>
+<Legend
+  items={legendItems}
+  hoveredIndex={hoveredIndex}
+  onHoverChange={setHoveredIndex}
+>
+  <LegendItemComponent>
+    <LegendMarker />
+    <LegendLabel />
+  </LegendItemComponent>
+</Legend>
+```
+</doc>
+
+<doc title="Gauge" path="../apps/web/content/docs/components/gauge-chart.mdx">
+import { GaugeChartDemo } from "@/components/docs/gauge-chart-demo";
+
+## Preview
+
+<ComponentPreview>
+  <GaugeChartDemo />
+</ComponentPreview>
+
+## Installation
+
+<InstallationTabs
+  name="gauge-chart"
+  dependencies={[
+    "@visx/responsive",
+    "@visx/pattern",
+    "@number-flow/react",
+    "motion",
+    "d3-shape",
+  ]}
+/>
+
+## Usage
+
+`Gauge` draws **notches** around an arc and uses **`PieCenterShell`** so the center matches donut **`PieChart`** / **`PieCenter`** (NumberFlow + label) without mounting slices.
+
+- **Fill vs center:** `value` is the arc fill **0–100**. `centerValue` is the statistic passed to the center (often the same story or a related KPI).
+- **Responsive:** omit `width` and `height` to fill the parent; the root uses **`minWidth`** (default **300**) and an **aspect ratio** so layout stays stable. Pass explicit `width` / `height` for fixed layouts.
+- **Patterns / gradients in `<defs>`:** pass **`PatternLines`**, **`LinearGradient`**, etc. as **`children`** (same idea as **`PieChart`**), then set **`activeFill`** / **`inactiveFill`** to `url(#id)`.
+- **Arc gradients:** set **`useGradient`**. Optional **`activeGradient`** and **`inactiveGradient`** are **`[hexFrom, hexTo]`** tuples (interpolated along the notch index).
+- **Fill opacity:** `activeFillOpacity` and `inactiveFillOpacity` map to SVG `fill-opacity` (0–1). Defaults are **1** for active notches and **0.8** for the track; docs and gallery examples use **`inactiveFillOpacity={0.4}`** for a lighter track.
+- **Corner radius:** `notchCornerRadius` is the fillet in **pixels** at each notch corner (**0** = sharp). Large values are clamped by edge length and radial depth so shapes can approach a **capsule** / near-circular look.
+
+```tsx
+import { Gauge, PatternLines } from "@bklitui/ui/charts";
+
+export default function RevenueGauge() {
+  return (
+    <Gauge
+      value={66}
+      centerValue={428_000}
+      spacing={25}
+      inactiveFillOpacity={0.4}
+      defaultLabel="ARR run rate"
+      formatOptions={{
+        style: "currency",
+        currency: "USD",
+        maximumFractionDigits: 0,
+      }}
+    />
+  );
+}
+```
+
+## Props
+
+### Gauge
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `value` | `number` | required | Arc fill **0–100** |
+| `centerValue` | `number` | required | Center statistic (NumberFlow) |
+| `totalNotches` | `number` | `40` | Notch count |
+| `spacing` | `number` | `25` | **%** of the arc used as gaps between notches |
+| `notchLengthPercent` | `number` | `100` | Radial notch depth as **%** of default (5–100); lower = shorter notches |
+| `notchCornerRadius` | `number` | `0` | Corner fillet in **px** (0 = sharp); large values clamp toward a capsule shape |
+| `uniformWidth` | `boolean` | `false` | Rectangular notches vs tapered |
+| `startAngle` / `endAngle` | `number` | `135` / `405` | Arc sweep in degrees |
+| `useGradient` | `boolean` | `false` | Per-notch color ramp along the arc |
+| `activeGradient` | `[string, string]` | lime → emerald | Hex stops for active notches when `useGradient` |
+| `inactiveGradient` | `[string, string]` | same as active | Hex stops for inactive notches when `useGradient` |
+| `activeFill` / `inactiveFill` | `string` | `chart-1` / `chart-background` | Solid, CSS color, or `url(#patternId)` |
+| `activeFillOpacity` / `inactiveFillOpacity` | `number` | `1` / `0.8` | SVG `fill-opacity` (0–1) for active / track notches |
+| `defaultLabel` | `string` | `"Total"` | Center label |
+| `formatOptions` | `ChartStatFlowFormat` | standard | NumberFlow format |
+| `prefix` / `suffix` | `string` | - | Center prefix / suffix |
+| `width` / `height` | `number` | - | Fixed size; omit for responsive |
+| `minWidth` | `number` | `300` | Min width (px) when responsive |
+| `className` | `string` | - | Root wrapper |
+| `children` | `ReactNode` | - | Defs (`Pattern*`, `*Gradient`, …) |
+
+## Live examples
+
+See the [Gauge gallery](/charts/gauge-chart). Use [Studio](/studio) to tune every gauge prop interactively and copy the resulting code.
+</doc>
+
+<doc title="Components" path="../apps/web/content/docs/components/index.mdx">
+Mix lines, areas, and time-aligned columns on one chart with the [**Composed Chart**](/docs/components/composed-chart) (`SeriesBar` + `Line` / `Area`).
+
+<ComponentsList />
+</doc>
+
+<doc title="Line Chart" path="../apps/web/content/docs/components/line-chart.mdx">
+import { LineChart, Line, Grid, XAxis, ChartTooltip, ChartMarkers } from "@bklitui/ui/charts";
+import { MarkerContentDemo } from "@/components/docs/marker-content-demo";
+
+export const chartData = [
+  { date: new Date(Date.now() - 29 * 24 * 60 * 60 * 1000), users: 1200, pageviews: 4500 },
+  { date: new Date(Date.now() - 28 * 24 * 60 * 60 * 1000), users: 1350, pageviews: 4800 },
+  { date: new Date(Date.now() - 27 * 24 * 60 * 60 * 1000), users: 1100, pageviews: 4200 },
+  { date: new Date(Date.now() - 26 * 24 * 60 * 60 * 1000), users: 1450, pageviews: 5100 },
+  { date: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000), users: 1380, pageviews: 4900 },
+  { date: new Date(Date.now() - 24 * 24 * 60 * 60 * 1000), users: 1520, pageviews: 5400 },
+  { date: new Date(Date.now() - 23 * 24 * 60 * 60 * 1000), users: 1600, pageviews: 5800 },
+  { date: new Date(Date.now() - 22 * 24 * 60 * 60 * 1000), users: 1480, pageviews: 5200 },
+  { date: new Date(Date.now() - 21 * 24 * 60 * 60 * 1000), users: 1550, pageviews: 5500 },
+  { date: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000), users: 1420, pageviews: 5000 },
+  { date: new Date(Date.now() - 19 * 24 * 60 * 60 * 1000), users: 1680, pageviews: 6100 },
+  { date: new Date(Date.now() - 18 * 24 * 60 * 60 * 1000), users: 1750, pageviews: 6400 },
+  { date: new Date(Date.now() - 17 * 24 * 60 * 60 * 1000), users: 1620, pageviews: 5900 },
+  { date: new Date(Date.now() - 16 * 24 * 60 * 60 * 1000), users: 1580, pageviews: 5700 },
+  { date: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000), users: 1720, pageviews: 6200 },
+  { date: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000), users: 1850, pageviews: 6800 },
+  { date: new Date(Date.now() - 13 * 24 * 60 * 60 * 1000), users: 1780, pageviews: 6500 },
+  { date: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000), users: 1650, pageviews: 6000 },
+  { date: new Date(Date.now() - 11 * 24 * 60 * 60 * 1000), users: 1920, pageviews: 7100 },
+  { date: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000), users: 1880, pageviews: 6900 },
+  { date: new Date(Date.now() - 9 * 24 * 60 * 60 * 1000), users: 1750, pageviews: 6400 },
+  { date: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000), users: 1980, pageviews: 7300 },
+  { date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), users: 2050, pageviews: 7600 },
+  { date: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000), users: 1920, pageviews: 7100 },
+  { date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), users: 2100, pageviews: 7800 },
+  { date: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000), users: 2180, pageviews: 8100 },
+  { date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), users: 2050, pageviews: 7600 },
+  { date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), users: 2250, pageviews: 8400 },
+  { date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), users: 2320, pageviews: 8700 },
+  { date: new Date(), users: 2400, pageviews: 9000 },
+];
+
+export const demoMarkers = [
+  // 5 days ago - multiple events to test fan animation (with clickable links)
+  { date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), icon: "🚀", title: "v1.2.0 Released", description: "New chart animations", href: "https://github.com/bklit/bklit-ui/releases", target: "_blank" },
+  { date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), icon: "🐛", title: "Bug Fix", description: "Fixed tooltip positioning", href: "https://github.com/bklit/bklit-ui/issues", target: "_blank" },
+  { date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), icon: "📦", title: "Dependency Update", description: "Updated motion to v12", href: "https://motion.dev", target: "_blank" },
+  { date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), icon: "⚡", title: "Performance", description: "50% faster renders", href: "#performance", target: "_self" },
+  // 12 days ago - single marker
+  { date: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000), icon: "✨", title: "Feature Launch", description: "Added grid support", href: "#grid", target: "_self" },
+  // 20 days ago - pair of markers
+  { date: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000), icon: "🎨", title: "Design Update", description: "New color system", href: "#theming", target: "_self" },
+  { date: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000), icon: "📝", title: "Docs Updated", description: "Added examples", href: "#usage", target: "_self" },
+];
+
+## Preview
+
+<ComponentPreview>
+  <div className="w-full">
+    <LineChart data={chartData}>
+      <Grid horizontal />
+      <Line dataKey="users" stroke="var(--chart-line-primary)" />
+      <Line dataKey="pageviews" stroke="var(--chart-line-secondary)" />
+      <ChartMarkers items={demoMarkers} />
+      <XAxis />
+      <ChartTooltip>
+        <MarkerContentDemo markers={demoMarkers} />
+      </ChartTooltip>
+    </LineChart>
+  </div>
+</ComponentPreview>
+
+## Installation
+
+<InstallationTabs name="line-chart" dependencies={["@visx/curve", "@visx/shape", "motion"]} />
+
+## Usage
+
+The chart uses a composable API where you build charts by combining components. This design allows you to mix and match features while keeping your code clean and maintainable.
+
+### Basic Example
+
+The simplest chart with a single line:
+
+```tsx
+import { LineChart, Line, ChartTooltip } from "@bklitui/ui/charts";
+
+const data = [
+  { date: new Date("2025-01-01"), users: 1200 },
+  { date: new Date("2025-01-02"), users: 1350 },
+  { date: new Date("2025-01-03"), users: 1100 },
+  // ... more data points
+];
+
+export default function SimpleChart() {
+  return (
+    <LineChart data={data}>
+      <Line dataKey="users" />
+      <ChartTooltip />
+    </LineChart>
+  );
+}
+```
+
+### Multiple Lines
+
+Display multiple metrics on the same chart:
+
+```tsx
+import { LineChart, Line, Grid, XAxis, ChartTooltip } from "@bklitui/ui/charts";
+
+const data = [
+  { date: new Date("2025-01-01"), users: 1200, pageviews: 4500, sessions: 800 },
+  { date: new Date("2025-01-02"), users: 1350, pageviews: 4800, sessions: 920 },
+  // ... more data
+];
+
+export default function MultiLineChart() {
+  return (
+    <LineChart data={data}>
+      <Grid horizontal />
+      <Line dataKey="users" stroke="var(--chart-line-primary)" />
+      <Line dataKey="pageviews" stroke="var(--chart-line-secondary)" />
+      <Line dataKey="sessions" stroke="#10b981" />
+      <XAxis />
+      <ChartTooltip />
+    </LineChart>
+  );
+}
+```
+
+### Custom Data Key
+
+By default, the chart uses `date` as the x-axis key. Use `xDataKey` for different field names:
+
+```tsx
+// Data with timestamp instead of date
+const apiData = [
+  { timestamp: new Date("2025-01-01"), value: 100 },
+  { timestamp: new Date("2025-01-02"), value: 150 },
+];
+
+<LineChart data={apiData} xDataKey="timestamp">
+  <Line dataKey="value" />
+  <ChartTooltip />
+</LineChart>
+```
+
+### Chart Sizing
+
+Control the chart's aspect ratio and add custom styling:
+
+```tsx
+// Wide chart (3:1 aspect ratio)
+<LineChart data={data} aspectRatio="3 / 1">
+  <Line dataKey="users" />
+</LineChart>
+
+// Square chart
+<LineChart data={data} aspectRatio="1 / 1">
+  <Line dataKey="users" />
+</LineChart>
+
+// With custom margins for more breathing room
+<LineChart
+  data={data}
+  margin={{ top: 60, right: 60, bottom: 60, left: 60 }}
+>
+  <Line dataKey="users" />
+</LineChart>
+
+// Compact margins for dense layouts
+<LineChart
+  data={data}
+  margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+>
+  <Line dataKey="users" />
+</LineChart>
+```
+
+### Line Customization
+
+Fine-tune each line's appearance:
+
+```tsx
+import { curveStep, curveMonotoneX, curveBasis } from "@visx/curve";
+
+<LineChart data={data}>
+  {/* Thick primary line */}
+  <Line
+    dataKey="users"
+    stroke="var(--chart-line-primary)"
+    strokeWidth={3}
+  />
+
+  {/* Stepped line for discrete data */}
+  <Line
+    dataKey="sessions"
+    stroke="#10b981"
+    curve={curveStep}
+    strokeWidth={2}
+  />
+
+  {/* Smooth monotonic curve */}
+  <Line
+    dataKey="pageviews"
+    stroke="var(--chart-line-secondary)"
+    curve={curveMonotoneX}
+  />
+
+  {/* Disable edge fading */}
+  <Line
+    dataKey="revenue"
+    stroke="#f59e0b"
+    fadeEdges={false}
+  />
+
+  {/* No hover highlight */}
+  <Line
+    dataKey="conversions"
+    stroke="#ef4444"
+    showHighlight={false}
+  />
+
+  <ChartTooltip />
+</LineChart>
+```
+
+### Grid Variations
+
+Configure grid lines for different visual styles:
+
+```tsx
+// Horizontal grid only (default)
+<LineChart data={data}>
+  <Grid horizontal />
+  <Line dataKey="users" />
+</LineChart>
+
+// Vertical grid only
+<LineChart data={data}>
+  <Grid vertical horizontal={false} />
+  <Line dataKey="users" />
+</LineChart>
+
+// Both horizontal and vertical
+<LineChart data={data}>
+  <Grid horizontal vertical />
+  <Line dataKey="users" />
+</LineChart>
+
+// Custom grid density
+<LineChart data={data}>
+  <Grid
+    horizontal
+    vertical
+    numTicksRows={10}
+    numTicksColumns={15}
+  />
+  <Line dataKey="users" />
+</LineChart>
+
+// Solid grid lines instead of dashed
+<LineChart data={data}>
+  <Grid
+    horizontal
+    strokeDasharray=""
+    stroke="var(--border)"
+  />
+  <Line dataKey="users" />
+</LineChart>
+```
+
+### Animation Control
+
+Customize or disable animations:
+
+```tsx
+// Faster animation (500ms)
+<LineChart data={data} animationDuration={500}>
+  <Line dataKey="users" animate />
+  <ChartTooltip />
+</LineChart>
+
+// Slower, dramatic entrance (2 seconds)
+<LineChart data={data} animationDuration={2000}>
+  <Line dataKey="users" animate />
+  <ChartTooltip />
+</LineChart>
+
+// Disable all line animation
+<LineChart data={data}>
+  <Line dataKey="users" animate={false} />
+  <ChartTooltip />
+</LineChart>
+```
+
+### Tooltip Customization
+
+#### Hide Specific Tooltip Elements
+
+```tsx
+// Minimal tooltip - just the content box
+<LineChart data={data}>
+  <Line dataKey="users" />
+  <ChartTooltip
+    showCrosshair={false}
+    showDots={false}
+    showDatePill={false}
+  />
+</LineChart>
+
+// Crosshair only, no date pill
+<LineChart data={data}>
+  <Line dataKey="users" />
+  <ChartTooltip showDatePill={false} />
+</LineChart>
+```
+
+#### Custom Row Labels
+
+```tsx
+<LineChart data={data}>
+  <Line dataKey="users" stroke="var(--chart-line-primary)" />
+  <Line dataKey="pageviews" stroke="var(--chart-line-secondary)" />
+  <ChartTooltip
+    rows={(point) => [
+      {
+        color: "var(--chart-line-primary)",
+        label: "Active Users",
+        value: point.users.toLocaleString(),
+      },
+      {
+        color: "var(--chart-line-secondary)",
+        label: "Page Views",
+        value: point.pageviews.toLocaleString(),
+      },
+    ]}
+  />
+</LineChart>
+```
+
+#### Fully Custom Content
+
+```tsx
+<LineChart data={data}>
+  <Line dataKey="users" />
+  <Line dataKey="pageviews" />
+  <ChartTooltip
+    content={({ point, index }) => (
+      <div className="flex flex-col gap-2 p-3">
+        <div className="text-sm font-medium">
+          {point.date.toLocaleDateString("en-US", {
+            weekday: "short",
+            month: "short",
+            day: "numeric",
+          })}
+        </div>
+        <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+          <span className="text-muted-foreground">Users</span>
+          <span className="font-mono">{point.users.toLocaleString()}</span>
+          <span className="text-muted-foreground">Views</span>
+          <span className="font-mono">{point.pageviews.toLocaleString()}</span>
+          <span className="text-muted-foreground">Ratio</span>
+          <span className="font-mono">
+            {(point.pageviews / point.users).toFixed(2)}x
+          </span>
+        </div>
+      </div>
+    )}
+  />
+</LineChart>
+```
+
+### Real-World Examples
+
+#### Dashboard Metrics Card
+
+```tsx
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { LineChart, Line, ChartTooltip } from "@bklitui/ui/charts";
+
+export function MetricsCard({ title, data, dataKey, trend }) {
+  const latestValue = data[data.length - 1]?.[dataKey] ?? 0;
+
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm font-medium text-muted-foreground">
+          {title}
+        </CardTitle>
+        <div className="flex items-baseline gap-2">
+          <span className="text-2xl font-bold">
+            {latestValue.toLocaleString()}
+          </span>
+          <span className={trend >= 0 ? "text-green-500" : "text-red-500"}>
+            {trend >= 0 ? "↑" : "↓"} {Math.abs(trend)}%
+          </span>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <LineChart
+          data={data}
+          aspectRatio="3 / 1"
+          margin={{ top: 10, right: 10, bottom: 10, left: 10 }}
+        >
+          <Line dataKey={dataKey} strokeWidth={2} />
+          <ChartTooltip showDatePill={false} />
+        </LineChart>
+      </CardContent>
+    </Card>
+  );
+}
+```
+
+#### Comparative Analytics
+
+```tsx
+import { LineChart, Line, Grid, XAxis, ChartTooltip } from "@bklitui/ui/charts";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+export function AnalyticsDashboard({ data }) {
+  return (
+    <Tabs defaultValue="overview">
+      <TabsList>
+        <TabsTrigger value="overview">Overview</TabsTrigger>
+        <TabsTrigger value="traffic">Traffic</TabsTrigger>
+        <TabsTrigger value="engagement">Engagement</TabsTrigger>
+      </TabsList>
+
+      <TabsContent value="overview">
+        <LineChart data={data}>
+          <Grid horizontal />
+          <Line dataKey="users" stroke="var(--chart-line-primary)" />
+          <Line dataKey="pageviews" stroke="var(--chart-line-secondary)" />
+          <XAxis />
+          <ChartTooltip
+            rows={(point) => [
+              { color: "var(--chart-line-primary)", label: "Users", value: point.users },
+              { color: "var(--chart-line-secondary)", label: "Views", value: point.pageviews },
+            ]}
+          />
+        </LineChart>
+      </TabsContent>
+
+      <TabsContent value="traffic">
+        <LineChart data={data}>
+          <Grid horizontal vertical />
+          <Line dataKey="pageviews" stroke="var(--chart-line-primary)" strokeWidth={3} />
+          <XAxis />
+          <ChartTooltip />
+        </LineChart>
+      </TabsContent>
+
+      <TabsContent value="engagement">
+        <LineChart data={data}>
+          <Grid horizontal />
+          <Line dataKey="sessions" stroke="#10b981" />
+          <Line dataKey="bounceRate" stroke="#ef4444" />
+          <XAxis />
+          <ChartTooltip />
+        </LineChart>
+      </TabsContent>
+    </Tabs>
+  );
+}
+```
+
+#### With Loading State
+
+```tsx
+import { LineChart, Line, Grid, ChartTooltip } from "@bklitui/ui/charts";
+import { Skeleton } from "@/components/ui/skeleton";
+
+export function ChartWithLoading({ data, isLoading }) {
+  if (isLoading) {
+    return <Skeleton className="h-[300px] w-full" />;
+  }
+
+  if (!data || data.length === 0) {
+    return (
+      <div className="flex h-[300px] items-center justify-center text-muted-foreground">
+        No data available
+      </div>
+    );
+  }
+
+  return (
+    <LineChart data={data}>
+      <Grid horizontal />
+      <Line dataKey="value" />
+      <ChartTooltip />
+    </LineChart>
+  );
+}
+```
+
+### Data Formatting Tips
+
+#### Working with API Responses
+
+```tsx
+// Transform API data with string dates
+const apiResponse = [
+  { timestamp: "2025-01-01T00:00:00Z", count: 1200 },
+  { timestamp: "2025-01-02T00:00:00Z", count: 1350 },
+];
+
+const chartData = apiResponse.map(item => ({
+  date: new Date(item.timestamp),
+  users: item.count,
+}));
+
+<LineChart data={chartData}>
+  <Line dataKey="users" />
+</LineChart>
+```
+
+#### Aggregating Data
+
+```tsx
+// Group hourly data into daily averages
+function aggregateToDaily(hourlyData) {
+  const grouped = {};
+
+  for (const point of hourlyData) {
+    const dateKey = point.date.toDateString();
+    if (!grouped[dateKey]) {
+      grouped[dateKey] = { date: new Date(dateKey), values: [] };
+    }
+    grouped[dateKey].values.push(point.value);
+  }
+
+  return Object.values(grouped).map(group => ({
+    date: group.date,
+    value: group.values.reduce((a, b) => a + b, 0) / group.values.length,
+  }));
+}
+
+const dailyData = aggregateToDaily(hourlyData);
+
+<LineChart data={dailyData}>
+  <Line dataKey="value" />
+</LineChart>
+```
+
+### Accessibility
+
+The chart includes several accessibility features:
+
+- SVG elements are marked with `aria-hidden="true"` as they are decorative
+- Keyboard users can navigate the tooltip using standard browser interactions
+- Color alone is not used to convey information—values are always displayed in the tooltip
+
+For maximum accessibility, provide a text summary or data table alongside the chart:
+
+```tsx
+export function AccessibleChart({ data }) {
+  return (
+    <div>
+      <LineChart data={data}>
+        <Line dataKey="users" />
+        <ChartTooltip />
+      </LineChart>
+
+      {/* Screen reader summary */}
+      <p className="sr-only">
+        Chart showing user growth from {data[0].users.toLocaleString()} to{" "}
+        {data[data.length - 1].users.toLocaleString()} users over{" "}
+        {data.length} days.
+      </p>
+    </div>
+  );
+}
+```
+
+## Components
+
+### LineChart
+
+The root component that provides context to all children.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `data` | `Record<string, unknown>[]` | required | Array of data points |
+| `xDataKey` | `string` | `"date"` | Key in data for x-axis values |
+| `margin` | `Partial<Margin>` | `{ top: 40, right: 40, bottom: 40, left: 40 }` | Chart margins |
+| `animationDuration` | `number` | `1100` | Animation duration in ms |
+| `aspectRatio` | `string` | `"2 / 1"` | CSS aspect ratio |
+| `className` | `string` | `""` | Additional CSS class |
+
+### Line
+
+Renders a line on the chart.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `dataKey` | `string` | required | Key in data for y values |
+| `stroke` | `string` | `var(--chart-line-primary)` | Line color |
+| `strokeWidth` | `number` | `2.5` | Line width |
+| `curve` | `CurveFactory` | `curveNatural` | D3 curve function |
+| `animate` | `boolean` | `true` | Enable grow animation |
+| `fadeEdges` | `boolean` | `true` | Fade line at edges |
+| `showHighlight` | `boolean` | `true` | Show highlight on hover |
+
+### Grid
+
+Renders grid lines.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `horizontal` | `boolean` | `true` | Show horizontal lines |
+| `vertical` | `boolean` | `false` | Show vertical lines |
+| `numTicksRows` | `number` | `5` | Number of horizontal lines |
+| `numTicksColumns` | `number` | `10` | Number of vertical lines |
+| `stroke` | `string` | `var(--chart-grid)` | Line color |
+| `strokeDasharray` | `string` | `"4,4"` | Dash pattern |
+
+### XAxis
+
+Renders x-axis labels that fade when the crosshair passes.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `numTicks` | `number` | `6` | Number of tick labels |
+| `tickerHalfWidth` | `number` | `50` | Fade radius for labels |
+
+### ChartTooltip
+
+Renders the tooltip with crosshair, dots, and content box.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `showDatePill` | `boolean` | `true` | Show animated date ticker |
+| `showCrosshair` | `boolean` | `true` | Show vertical crosshair |
+| `showDots` | `boolean` | `true` | Show dots on lines |
+| `content` | `(props) => ReactNode` | - | Custom content renderer |
+| `rows` | `(point) => TooltipRow[]` | - | Custom row generator |
+
+## Markers
+
+Add markers to annotate specific dates on the chart:
+
+```tsx
+import { LineChart, Line, ChartTooltip, ChartMarkers, MarkerTooltipContent, useActiveMarkers, type ChartMarker } from "@bklitui/ui/charts";
+
+const markers: ChartMarker[] = [
+  {
+    date: new Date("2025-01-05"),
+    icon: "🚀",
+    title: "v1.2.0 Released",
+    description: "New chart animations",
+  },
+  {
+    date: new Date("2025-01-05"), // Same day - will stack!
+    icon: "🐛",
+    title: "Bug Fix",
+    description: "Fixed tooltip positioning",
+  },
+];
+
+function MyChart({ data }) {
+  return (
+    <LineChart data={data}>
+      <Line dataKey="users" />
+      <ChartMarkers items={markers} />
+      <ChartTooltip>
+        <MarkerContent markers={markers} />
+      </ChartTooltip>
+    </LineChart>
+  );
+}
+
+// Use the hook to get markers for the hovered date
+function MarkerContent({ markers }) {
+  const activeMarkers = useActiveMarkers(markers);
+  if (activeMarkers.length === 0) return null;
+  return <MarkerTooltipContent markers={activeMarkers} />;
+}
+```
+
+### ChartMarker Interface
+
+```ts
+interface ChartMarker {
+  date: Date;           // Date for marker position
+  icon: React.ReactNode; // Icon (emoji or component)
+  title: string;        // Tooltip title
+  description?: string; // Optional description
+  content?: React.ReactNode; // Custom tooltip content
+  color?: string;       // Background color override
+  onClick?: () => void; // Click handler
+  href?: string;        // URL to navigate to
+  target?: "_blank" | "_self"; // Link target
+}
+```
+
+### ChartMarkers Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `items` | `ChartMarker[]` | required | Array of markers |
+| `size` | `number` | `28` | Marker circle size |
+| `showLines` | `boolean` | `true` | Show vertical guide lines |
+| `animate` | `boolean` | `true` | Animate markers on entrance |
+
+## Custom Tooltip Content
+
+You can fully customize the tooltip content:
+
+```tsx
+<ChartTooltip
+  content={({ point, index }) => (
+    <div className="p-3">
+      <h3 className="font-bold">{point.date.toLocaleDateString()}</h3>
+      <p>Users: {point.users}</p>
+      <p>Views: {point.pageviews}</p>
+    </div>
+  )}
+/>
+```
+
+Or customize just the rows:
+
+```tsx
+<ChartTooltip
+  rows={(point) => [
+    { color: "var(--chart-line-primary)", label: "Active Users", value: point.users },
+    { color: "var(--chart-line-secondary)", label: "Page Views", value: point.pageviews },
+  ]}
+/>
+```
+
+## Segment Selection
+
+import { SegmentDemo } from "@/components/docs/segment-demo";
+
+Add click-drag and touch segment selection to your chart with composable components. The line highlight automatically shows the selected path segment.
+
+<ComponentPreview>
+  <SegmentDemo />
+</ComponentPreview>
+
+### Basic Usage
+
+Click and drag (or two-finger touch on mobile) to select a range. The three segment components are fully composable -- use all of them or just the ones you need:
+
+```tsx
+import { LineChart, Line, Grid, XAxis, ChartTooltip, SegmentBackground, SegmentLineFrom, SegmentLineTo } from "@bklitui/ui/charts";
+
+<LineChart data={data}>
+  <Grid horizontal />
+  <Line dataKey="users" />
+  <SegmentBackground />
+  <SegmentLineFrom />
+  <SegmentLineTo />
+  <XAxis />
+  <ChartTooltip />
+</LineChart>
+```
+
+### Line Variants
+
+Each segment boundary line supports three visual styles:
+
+```tsx
+{/* Dashed lines (default) */}
+<SegmentLineFrom variant="dashed" />
+<SegmentLineTo variant="dashed" />
+
+{/* Solid lines */}
+<SegmentLineFrom variant="solid" />
+<SegmentLineTo variant="solid" />
+
+{/* Gradient fade (transparent at top/bottom edges) */}
+<SegmentLineFrom variant="gradient" />
+<SegmentLineTo variant="gradient" />
+```
+
+### Background Only
+
+Use just the background highlight without boundary lines:
+
+```tsx
+<LineChart data={data}>
+  <Line dataKey="users" />
+  <SegmentBackground />
+  <ChartTooltip />
+</LineChart>
+```
+
+### Lines Only
+
+Use just the boundary lines without the background:
+
+```tsx
+<LineChart data={data}>
+  <Line dataKey="users" />
+  <SegmentLineFrom variant="solid" />
+  <SegmentLineTo variant="solid" />
+  <ChartTooltip />
+</LineChart>
+```
+
+### Reading Selection Data
+
+Use the `useChart` hook inside a child component to read the active selection and update external UI (like a header card):
+
+```tsx
+import { useChart } from "@bklitui/ui/charts";
+
+function SelectionStats({ onSelectionChange }) {
+  const { selection, data, xAccessor } = useChart();
+
+  useEffect(() => {
+    if (!selection?.active) {
+      onSelectionChange(null);
+      return;
+    }
+
+    const startPoint = data[selection.startIndex];
+    const endPoint = data[selection.endIndex];
+    // Compute and report stats...
+    onSelectionChange({ startPoint, endPoint });
+  }, [selection, data, xAccessor, onSelectionChange]);
+
+  return null;
+}
+```
+
+### SegmentBackground
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `fill` | `string` | `var(--chart-segment-background)` | Fill color for the selected region |
+
+### SegmentLineFrom / SegmentLineTo
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `stroke` | `string` | `var(--chart-segment-line)` | Line color |
+| `strokeWidth` | `number` | `1` | Line width |
+| `variant` | `"dashed" \| "solid" \| "gradient"` | `"dashed"` | Line style |
+
+## Theming
+
+The chart uses CSS variables for theming. Define these in your CSS:
+
+```css
+:root {
+  --chart-background: oklch(1 0 0);
+  --chart-foreground: oklch(0.145 0.004 285);
+  --chart-foreground-muted: oklch(0.55 0.014 260);
+  --chart-line-primary: oklch(0.623 0.214 255);
+  --chart-line-secondary: oklch(0.705 0.015 265);
+  --chart-crosshair: oklch(0.4 0.1828 274.34);
+  --chart-grid: oklch(0.9 0 0);
+  --chart-tooltip-foreground: oklch(0.985 0 0);
+  --chart-tooltip-muted: oklch(0.65 0.01 260);
+  --chart-marker-background: oklch(0.97 0.005 260);
+  --chart-marker-border: oklch(0.85 0.01 260);
+  --chart-marker-foreground: oklch(0.3 0.01 260);
+  --chart-marker-badge-background: oklch(0 0 0);
+  --chart-marker-badge-foreground: oklch(1 0 0);
+  --chart-segment-background: oklch(0.5 0 0 / 0.06);
+  --chart-segment-line: oklch(0.5 0 0 / 0.25);
+}
+
+.dark {
+  --chart-background: oklch(0.145 0 0);
+  --chart-foreground: oklch(0.45 0 0);
+  --chart-crosshair: oklch(0.45 0 0);
+  --chart-grid: oklch(0.25 0 0);
+  --chart-marker-background: oklch(0.25 0.01 260);
+  --chart-marker-border: oklch(0.4 0.01 260);
+  --chart-marker-foreground: oklch(0.9 0 0);
+  --chart-marker-badge-background: oklch(1 0 0);
+  --chart-marker-badge-foreground: oklch(0.15 0 0);
+  --chart-segment-background: oklch(1 0 0 / 0.06);
+  --chart-segment-line: oklch(1 0 0 / 0.25);
+}
+```
+
+## Dependencies
+
+This component requires the following packages:
+
+```bash
+pnpm add @visx/shape @visx/curve @visx/scale @visx/gradient @visx/responsive @visx/event @visx/grid d3-array motion react-use-measure
+```
+</doc>
+
+<doc title="Live Line Chart" path="../apps/web/content/docs/components/live-line-chart.mdx">
+import { LiveLineChart, LiveLine, ChartTooltip, LiveXAxis, LiveYAxis } from "@bklitui/ui/charts";
+import { LiveLineChartDemo } from "@/components/docs/live-line-chart-demo";
+
+## Preview
+
+<ComponentPreview>
+  <LiveLineChartDemo />
+</ComponentPreview>
+
+## Installation
+
+<InstallationTabs name="live-line-chart" dependencies={["@visx/curve", "@visx/scale", "@visx/shape", "@visx/responsive", "@visx/event", "d3-array", "motion"]} />
+
+## Usage
+
+The Live Line Chart is built for **streaming time-series data**: a sliding time window, smooth interpolation, a live dot at the current value, and an interactive crosshair. Use it for stock tickers, crypto micro-prices, or any real-time metric.
+
+Data is an array of `{ time: number, value: number }` where `time` is Unix seconds. You push new points as they arrive and pass the **latest value** so the chart can smoothly interpolate the display.
+
+### Basic Example
+
+```tsx
+import {
+  LiveLineChart,
+  LiveLine,
+  ChartTooltip,
+  LiveXAxis,
+  LiveYAxis,
+} from "@bklitui/ui/charts";
+
+const [data, setData] = useState([]);
+const [value, setValue] = useState(100);
+
+// Append new points (e.g. from WebSocket or polling)
+useEffect(() => {
+  const id = setInterval(() => {
+    const point = { time: Date.now() / 1000, value: fetchLatest() };
+    setData((prev) => [...prev.slice(-500), point]);
+    setValue(point.value);
+  }, 1000);
+  return () => clearInterval(id);
+}, []);
+
+<LiveLineChart data={data} value={value} window={30}>
+  <LiveLine dataKey="value" stroke="var(--chart-line-primary)" formatValue={(v) => `$${v.toFixed(2)}`} />
+  <ChartTooltip showDatePill={false} content={MyTooltipContent} />
+  <LiveXAxis />
+  <LiveYAxis position="left" formatValue={(v) => `$${v.toFixed(2)}`} />
+</LiveLineChart>
+```
+
+### Data Shape
+
+Each point must have:
+
+| Field  | Type     | Description        |
+|--------|----------|--------------------|
+| `time` | `number` | Unix time in seconds |
+| `value`| `number` | Y-axis value       |
+
+Use `dataKey` on `LiveLineChart` if your value field has a different name (default is `"value"`).
+
+### Time Window and Now Offset
+
+- **`window`** (default `30`): Visible time window in seconds. Older points scroll off the left.
+- **`nowOffsetUnits`** (default `0`): How many X-tick units to leave between the live dot and the right edge. Use `1` to get a short leading gap and a visible fade on the line/area at the right.
+
+```tsx
+<LiveLineChart data={data} value={value} window={20} nowOffsetUnits={1}>
+  <LiveLine dataKey="value" />
+  {/* ... */}
+</LiveLineChart>
+```
+
+### Pause Scrolling
+
+Set **`paused`** to freeze the chart (e.g. while the user inspects). The "now" marker and domain stop advancing; new data can still be appended.
+
+```tsx
+const [paused, setPaused] = useState(false);
+
+<LiveLineChart data={data} value={value} paused={paused}>
+  {/* ... */}
+</LiveLineChart>
+```
+
+### Momentum Colors
+
+Pass **`momentumColors`** to `LiveLine` to color the line, fill, and dot by short-term trend (up / down / flat).
+
+```tsx
+const momentumColors = {
+  up: "var(--color-emerald-500)",
+  down: "var(--color-red-500)",
+  flat: "var(--color-zinc-400)",
+};
+
+<LiveLine
+  dataKey="value"
+  momentumColors={momentumColors}
+  formatValue={(v) => `$${v.toFixed(2)}`}
+/>
+```
+
+### Live Line Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `dataKey` | `string` | required | Key in data for y values |
+| `stroke` | `string` | `var(--chart-line-primary)` | Line color (ignored if `momentumColors` set) |
+| `strokeWidth` | `number` | `2` | Line width |
+| `fill` | `boolean` | `true` | Show gradient fill under curve |
+| `pulse` | `boolean` | `true` | Show pulsing live dot |
+| `dotSize` | `number` | `4` | Radius of the live dot |
+| `badge` | `boolean` | `true` | Show value badge at live tip |
+| `formatValue` | `(v: number) => string` | - | Formatter for badge (and optional tooltip) |
+| `momentumColors` | `MomentumColors` | - | `{ up, down, flat }` colors by trend |
+
+### LiveLineChart Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `data` | `LiveLinePoint[]` | required | Streaming points `{ time, value }` |
+| `value` | `number` | required | Latest value (for smooth interpolation) |
+| `dataKey` | `string` | `"value"` | Key for value field in context |
+| `window` | `number` | `30` | Visible time window (seconds) |
+| `numXTicks` | `number` | `5` | Number of X-axis ticks |
+| `nowOffsetUnits` | `number` | `0` | Leading offset in X-tick units |
+| `exaggerate` | `boolean` | `false` | Tighter Y-axis range |
+| `lerpSpeed` | `number` | `0.08` | Y-range interpolation speed (0–1) |
+| `margin` | `Partial<Margin>` | - | Chart margins |
+| `paused` | `boolean` | `false` | Freeze chart scrolling |
+
+### LiveXAxis / LiveYAxis
+
+- **LiveXAxis**: Time labels and a time pill that follows the crosshair. No required props.
+- **LiveYAxis**: Animated value labels. Use **`position`** `"left"` or `"right"` and **`formatValue`** for display.
+
+### Tooltip
+
+Use **`ChartTooltip`** with **`showDatePill={false}`** and a custom **`content`** renderer so the time and value match the live chart. The crosshair and time pill stay in sync via shared context.
+
+### Grid with Live Charts
+
+If you use **Grid** inside `LiveLineChart`, you can pass **`rowTickValues`** (from context or derived from the same scale as `LiveYAxis`) so horizontal grid lines align with the Y-axis labels. See the [Grid](/docs/utility/grid) docs for `rowTickValues`.
+
+## Theming
+
+Uses the same chart CSS variables as the Line Chart (`--chart-line-primary`, `--chart-grid`, `--chart-tooltip-*`, etc.). The live dot and badge use the line color or `momentumColors` when provided.
+
+## Dependencies
+
+```bash
+pnpm add @visx/shape @visx/curve @visx/scale @visx/responsive @visx/event d3-array motion
+```
+</doc>
+
+<doc title="Pie Chart" path="../apps/web/content/docs/components/pie-chart.mdx">
+import { PieChart, PieSlice, PieCenter, Legend, LegendItemComponent, LegendMarker, LegendLabel, LegendValue, PatternLines, RadialGradient } from "@bklitui/ui/charts";
+import { PieChartDemo, PieChartBasicDemo, PieChartDonutDemo, PieChartDonutLegendDemo, PieChartPatternsDemo, PieChartGradientsDemo, PieChartHoverEffectDemo, PieChartCustomCenterDemo } from "@/components/docs/pie-chart-demo";
+
+## Preview
+
+<ComponentPreview>
+  <PieChartDemo />
+</ComponentPreview>
+
+## Installation
+
+<InstallationTabs name="pie-chart" dependencies={["@visx/responsive", "@visx/shape", "motion"]} />
+
+## Usage
+
+The Pie Chart uses a composable API similar to other charts in the library. Build charts by combining components:
+
+```tsx
+import { PieChart, PieSlice } from "@bklitui/ui/charts";
+
+const data = [
+  { label: "Electronics", value: 4250, color: "#0ea5e9" },
+  { label: "Clothing", value: 3120, color: "#a855f7" },
+  { label: "Food", value: 2100, color: "#f59e0b" },
+];
+
+export default function SalesChart() {
+  return (
+    <PieChart data={data} size={280}>
+      {data.map((_, index) => (
+        <PieSlice key={index} index={index} />
+      ))}
+    </PieChart>
+  );
+}
+```
+
+## Components
+
+### PieChart
+
+The root component that provides context to all children.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `data` | `PieData[]` | required | Array of pie data items |
+| `size` | `number` | auto | Fixed size in pixels (uses parent if not set) |
+| `innerRadius` | `number` | `0` | Inner radius for donut charts (0 = solid pie) |
+| `padAngle` | `number` | `0` | Padding angle between slices (radians) |
+| `cornerRadius` | `number` | `0` | Corner radius for rounded slice edges |
+| `startAngle` | `number` | `-PI/2` | Start angle in radians (top) |
+| `endAngle` | `number` | `3*PI/2` | End angle in radians (full circle) |
+| `hoveredIndex` | `number \| null` | - | Controlled hover state |
+| `onHoverChange` | `(index: number \| null) => void` | - | Hover state callback |
+| `className` | `string` | `""` | Additional CSS class |
+
+### PieSlice
+
+Renders an individual slice with animated arc and hover effects.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `index` | `number` | required | Index of the slice in the data array |
+| `color` | `string` | from data/palette | Optional color override |
+| `fill` | `string` | - | Optional fill for patterns/gradients (e.g., `url(#patternId)`) |
+| `animate` | `boolean` | `true` | Enable animation on mount |
+| `showGlow` | `boolean` | `true` | Show glow effect on hover |
+| `hoverEffect` | `"translate" \| "grow" \| "none"` | `"translate"` | Hover animation type |
+| `hoverOffset` | `number` | `10` | Distance in pixels for hover effect |
+
+### PieCenter
+
+Displays content in the center of a donut chart. Only renders when `innerRadius > 0`.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `defaultLabel` | `string` | `"Total"` | Label shown when not hovering |
+| `formatOptions` | `NumberFlowFormat` | - | Number formatting options |
+| `prefix` | `string` | - | Prefix before the value (e.g., "$") |
+| `suffix` | `string` | - | Suffix after the value (e.g., "%") |
+| `children` | `function` | - | Custom render function |
+| `className` | `string` | `""` | Additional CSS class |
+
+### Legend
+
+A composable legend component for pie charts and other visualizations. See the full [Legend documentation](/docs/components/legend) for all components and options.
+
+## Data Shape
+
+```ts
+interface PieData {
+  label: string;      // Display label
+  value: number;      // Value (determines slice size)
+  color?: string;     // Optional color (falls back to palette)
+  fill?: string;      // Optional fill for patterns/gradients
+}
+
+interface LegendItemData {
+  label: string;
+  value: number;
+  color: string;
+}
+```
+
+## Examples
+
+### Basic Pie Chart
+
+<ComponentShowcase code={`<PieChart data={salesData} size={240}>
+  {salesData.map((item, index) => (
+    <PieSlice key={item.label} index={index} />
+  ))}
+</PieChart>`}>
+  <PieChartBasicDemo />
+</ComponentShowcase>
+
+### Donut Chart
+
+Use `innerRadius` to create a donut chart with a hollow center. Add `PieCenter` to display content in the center.
+
+<ComponentShowcase code={`<PieChart data={salesData} size={280} innerRadius={70}>
+  {salesData.map((item, index) => (
+    <PieSlice key={item.label} index={index} />
+  ))}
+  <PieCenter defaultLabel="Total Sales" />
+</PieChart>`}>
+  <PieChartDonutDemo />
+</ComponentShowcase>
+
+### Donut with Interactive Legend
+
+Connect the legend hover state to the chart for bidirectional interaction.
+
+<ComponentShowcase code={`import { useState } from "react";
+import { 
+  PieChart, PieSlice, PieCenter,
+  Legend, LegendItemComponent, LegendMarker, LegendLabel, LegendValue
+} from "@bklitui/ui/charts";
+
+function SyncedPieChart() {
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
+  const legendItems = data.map(d => ({
+    label: d.label,
+    value: d.value,
+    color: d.color || "",
+  }));
+
+  return (
+    <div className="flex items-center gap-12">
+      <PieChart
+        data={data}
+        size={280}
+        innerRadius={70}
+        hoveredIndex={hoveredIndex}
+        onHoverChange={setHoveredIndex}
+      >
+        {data.map((_, index) => (
+          <PieSlice key={index} index={index} />
+        ))}
+        <PieCenter defaultLabel="Total Sales" />
+      </PieChart>
+
+      <Legend
+        items={legendItems}
+        hoveredIndex={hoveredIndex}
+        onHoverChange={setHoveredIndex}
+        title="Sales by Category"
+      >
+        <LegendItemComponent className="flex items-center gap-3">
+          <LegendMarker />
+          <LegendLabel className="flex-1" />
+          <LegendValue showPercentage />
+        </LegendItemComponent>
+      </Legend>
+    </div>
+  );
+}`}>
+  <PieChartDonutLegendDemo />
+</ComponentShowcase>
+
+### With Patterns
+
+Use `@visx/pattern` components to add patterns to slices. Define patterns as children of `PieChart` and reference them with `fill="url(#patternId)"`.
+
+<ComponentShowcase code={`<PieChart data={data} size={280}>
+  {/* Pattern definitions */}
+  <PatternLines
+    id="pie-pattern-1"
+    height={6}
+    width={6}
+    stroke="var(--chart-1)"
+    strokeWidth={1}
+    orientation={["diagonal"]}
+  />
+  <PatternLines
+    id="pie-pattern-2"
+    height={6}
+    width={6}
+    stroke="var(--chart-2)"
+    strokeWidth={1}
+    orientation={["horizontal"]}
+  />
+
+  {/* Slices with pattern fills */}
+  <PieSlice index={0} fill="url(#pie-pattern-1)" />
+  <PieSlice index={1} fill="url(#pie-pattern-2)" />
+</PieChart>`}>
+  <PieChartPatternsDemo />
+</ComponentShowcase>
+
+### With Gradients
+
+Use `@visx/gradient` components to add gradients to slices.
+
+<ComponentShowcase code={`<PieChart data={data} size={280}>
+  {/* Gradient definitions */}
+  <RadialGradient
+    id="pie-gradient-1"
+    from="#0ea5e9"
+    to="#06b6d4"
+    fromOffset="0%"
+    toOffset="100%"
+  />
+  <RadialGradient
+    id="pie-gradient-2"
+    from="#a855f7"
+    to="#ec4899"
+    fromOffset="0%"
+    toOffset="100%"
+  />
+
+  {/* Slices with gradient fills */}
+  <PieSlice index={0} fill="url(#pie-gradient-1)" />
+  <PieSlice index={1} fill="url(#pie-gradient-2)" />
+</PieChart>`}>
+  <PieChartGradientsDemo />
+</ComponentShowcase>
+
+### Hover Effects
+
+Choose between different hover effects using the `hoverEffect` prop:
+
+- **`"translate"`** (default): Slice moves outward along its radial axis
+- **`"grow"`**: Slice extends its outer radius (gets longer)
+- **`"none"`**: No hover animation (just opacity fade)
+
+<ComponentShowcase code={`// Translate effect (default) - slice pops out
+<PieSlice index={0} hoverEffect="translate" />
+
+// Grow effect - slice extends outward
+<PieSlice index={0} hoverEffect="grow" />
+
+// No hover animation
+<PieSlice index={0} hoverEffect="none" />
+
+// Custom offset distance (pixels)
+<PieSlice index={0} hoverEffect="translate" hoverOffset={15} />`}>
+  <PieChartHoverEffectDemo />
+</ComponentShowcase>
+
+### Custom Center Content
+
+Use the render prop for complete control over the center content:
+
+<ComponentShowcase code={`<PieChart data={data} size={300} innerRadius={80}>
+  {data.map((_, index) => (
+    <PieSlice key={index} index={index} />
+  ))}
+  <PieCenter>
+    {({ value, label, isHovered, data }) => (
+      <div className="text-center">
+        <div 
+          className="text-3xl font-bold" 
+          style={{ color: isHovered ? data.color : undefined }}
+        >
+          {value.toLocaleString()}
+        </div>
+        <div className="text-sm text-muted-foreground">{label}</div>
+        {isHovered && (
+          <div className="text-xs text-muted-foreground mt-1">
+            {((data.value / totalValue) * 100).toFixed(1)}% of total
+          </div>
+        )}
+      </div>
+    )}
+  </PieCenter>
+</PieChart>`}>
+  <PieChartCustomCenterDemo />
+</ComponentShowcase>
+
+## Theming
+
+The Pie Chart uses CSS variables for theming. Slice colors default to `--chart-1` through `--chart-5`:
+
+```css
+:root {
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+}
+
+.dark {
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+}
+```
+
+## Animation
+
+The pie chart features animations on mount:
+
+1. **Slice Appearance** - Slices animate in with staggered timing
+2. **Hover Effects** - Slices scale up on hover with glow effect
+3. **Fade Effect** - Non-hovered slices fade when another slice is hovered
+4. **Center Content** - Value animates when switching between slices
+
+All animations use spring physics for natural motion.
+
+## Dependencies
+
+```bash
+pnpm add @visx/shape @visx/group @visx/responsive @visx/pattern @visx/gradient d3-shape motion
+```
+</doc>
+
+<doc title="Radar Chart" path="../apps/web/content/docs/components/radar-chart.mdx">
+import { RadarChart, RadarGrid, RadarAxis, RadarLabels, RadarArea } from "@bklitui/ui/charts";
+import { RadarChartDemo, RadarChartBasicDemo, RadarChartMinimalDemo } from "@/components/docs/radar-chart-demo";
+
+## Preview
+
+<ComponentPreview>
+  <RadarChartDemo />
+</ComponentPreview>
+
+## Installation
+
+<InstallationTabs name="radar-chart" dependencies={["@visx/responsive", "d3-shape", "motion"]} />
+
+## Usage
+
+The Radar Chart uses a composable API. Define your metrics and data, then combine components:
+
+```tsx
+import { RadarChart, RadarGrid, RadarAxis, RadarLabels, RadarArea } from "@bklitui/ui/charts";
+
+const metrics = [
+  { key: "speed", label: "Speed" },
+  { key: "power", label: "Power" },
+  { key: "technique", label: "Technique" },
+];
+
+const data = [
+  { label: "Player A", color: "#3b82f6", values: { speed: 85, power: 70, technique: 90 } },
+  { label: "Player B", color: "#f59e0b", values: { speed: 65, power: 95, technique: 60 } },
+];
+
+export default function PerformanceRadar() {
+  return (
+    <RadarChart data={data} metrics={metrics} size={400}>
+      <RadarGrid />
+      <RadarAxis />
+      <RadarLabels />
+      {data.map((item, index) => (
+        <RadarArea key={item.label} index={index} />
+      ))}
+    </RadarChart>
+  );
+}
+```
+
+## Components
+
+### RadarChart
+
+The root container that provides context to all children.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `data` | `RadarData[]` | required | Array of data series |
+| `metrics` | `RadarMetric[]` | required | Metrics to display |
+| `size` | `number` | auto | Fixed size in pixels |
+| `levels` | `number` | `5` | Number of grid circles |
+| `margin` | `number` | `60` | Margin around chart |
+| `animate` | `boolean` | `true` | Enable animations |
+| `hoveredIndex` | `number \| null` | - | Controlled hover state |
+| `onHoverChange` | `(index: number \| null) => void` | - | Hover callback |
+| `className` | `string` | `""` | Additional CSS class |
+
+### RadarGrid
+
+Renders the circular grid lines (spider web pattern).
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `showLabels` | `boolean` | `true` | Show level value labels |
+| `className` | `string` | `""` | Additional CSS class |
+
+### RadarAxis
+
+Renders axis lines from center to each metric.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `className` | `string` | `""` | Additional CSS class |
+
+### RadarLabels
+
+Renders metric labels around the perimeter.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `offset` | `number` | `24` | Distance from chart edge |
+| `fontSize` | `number` | `11` | Font size for labels |
+| `interactive` | `boolean` | `false` | Enable hover effects on labels |
+| `className` | `string` | `""` | Additional CSS class |
+
+### RadarArea
+
+Renders a single data polygon with hover effects.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `index` | `number` | required | Index in the data array |
+| `color` | `string` | from data | Optional color override |
+| `showPoints` | `boolean` | `true` | Show data point circles |
+| `showGlow` | `boolean` | `true` | Show glow effect on hover |
+| `className` | `string` | `""` | Additional CSS class |
+
+## Data Shape
+
+```ts
+interface RadarMetric {
+  key: string;    // Unique identifier
+  label: string;  // Display label
+}
+
+interface RadarData {
+  label: string;                    // Series label
+  color: string;                    // Series color
+  values: Record<string, number>;   // metric key -> value (0-100)
+}
+```
+
+## Examples
+
+### Basic Radar Chart
+
+<ComponentShowcase code={`<RadarChart data={data} metrics={metrics} size={350}>
+  <RadarGrid />
+  <RadarAxis />
+  <RadarLabels />
+  {data.map((item, index) => (
+    <RadarArea key={item.label} index={index} />
+  ))}
+</RadarChart>`}>
+  <RadarChartBasicDemo />
+</ComponentShowcase>
+
+### Minimal Style
+
+<ComponentShowcase code={`<RadarChart data={data} metrics={metrics} size={300} levels={4}>
+  <RadarGrid showLabels={false} />
+  <RadarAxis />
+  <RadarLabels fontSize={12} offset={20} />
+  {data.map((item, index) => (
+    <RadarArea key={item.label} index={index} />
+  ))}
+</RadarChart>`}>
+  <RadarChartMinimalDemo />
+</ComponentShowcase>
+
+### Synchronized Legend
+
+Connect the legend hover state to the chart for bidirectional interaction. See the [Legend documentation](/docs/components/legend) for more customization options.
+
+```tsx
+import { useState } from "react";
+import {
+  RadarChart, RadarGrid, RadarAxis, RadarLabels, RadarArea,
+  Legend, LegendItemComponent, LegendMarker, LegendLabel, LegendValue
+} from "@bklitui/ui/charts";
+
+function SyncedRadarChart() {
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
+  // Convert radar data to legend items
+  const legendItems = data.map((d) => ({
+    label: d.label,
+    value: Object.values(d.values).reduce((a, b) => a + b, 0) / metrics.length,
+    maxValue: 100,
+    color: d.color,
+  }));
+
+  return (
+    <div className="flex items-center gap-12">
+      <RadarChart
+        data={data}
+        metrics={metrics}
+        size={400}
+        hoveredIndex={hoveredIndex}
+        onHoverChange={setHoveredIndex}
+      >
+        <RadarGrid />
+        <RadarAxis />
+        <RadarLabels />
+        {data.map((item, index) => (
+          <RadarArea key={item.label} index={index} />
+        ))}
+      </RadarChart>
+
+      <Legend
+        items={legendItems}
+        hoveredIndex={hoveredIndex}
+        onHoverChange={setHoveredIndex}
+        title="Campaign Performance"
+      >
+        <LegendItemComponent className="flex items-center gap-3">
+          <LegendMarker />
+          <LegendLabel className="flex-1" />
+          <LegendValue formatValue={(v) => `${v.toFixed(0)}%`} />
+        </LegendItemComponent>
+      </Legend>
+    </div>
+  );
+}
+```
+
+### Without Points
+
+```tsx
+<RadarChart data={data} metrics={metrics} size={350}>
+  <RadarGrid />
+  <RadarAxis />
+  <RadarLabels />
+  {data.map((item, index) => (
+    <RadarArea key={item.label} index={index} showPoints={false} />
+  ))}
+</RadarChart>
+```
+
+## Hooks
+
+### useRadar
+
+Access the radar context from any child component:
+
+```tsx
+import { useRadar } from "@bklitui/ui/charts";
+
+function CustomComponent() {
+  const {
+    data,
+    metrics,
+    radius,
+    hoveredIndex,
+    setHoveredIndex,
+    getPointPosition,
+  } = useRadar();
+  // ...
+}
+```
+
+## Animation
+
+The radar chart features a multi-phase animation on mount:
+
+1. **Grid Expansion** - Concentric circles scale in from center
+2. **Axis Growth** - Lines grow outward from center
+3. **Label Fade** - Metric labels fade in
+4. **Area Expansion** - Data polygons animate from center to values
+
+All animations use spring physics for natural motion. Hover interactions are instant with no delays.
+
+## Dependencies
+
+```bash
+pnpm add @visx/group @visx/responsive @visx/scale @visx/shape motion
+```
+</doc>
+
+<doc title="Ring Chart" path="../apps/web/content/docs/components/ring-chart.mdx">
+import { RingChart, Ring, RingCenter, Legend, LegendItemComponent, LegendMarker, LegendLabel, LegendValue, LegendProgress } from "@bklitui/ui/charts";
+import { RingChartDemo, RingChartBasicDemo, RingChartCustomColorsDemo } from "@/components/docs/ring-chart-demo";
+
+## Preview
+
+<ComponentPreview>
+  <RingChartDemo />
+</ComponentPreview>
+
+## Installation
+
+<InstallationTabs name="ring-chart" dependencies={["@visx/responsive", "@number-flow/react", "motion"]} />
+
+## Usage
+
+The Ring Chart uses a composable API similar to other charts in the library. Build charts by combining components:
+
+```tsx
+import { RingChart, Ring, RingCenter } from "@bklitui/ui/charts";
+
+const data = [
+  { label: "Organic", value: 4250, maxValue: 5000, color: "#0ea5e9" },
+  { label: "Paid", value: 3120, maxValue: 5000, color: "#a855f7" },
+  { label: "Email", value: 2100, maxValue: 5000, color: "#f59e0b" },
+];
+
+export default function SessionsChart() {
+  return (
+    <RingChart data={data} size={300}>
+      {data.map((item, index) => (
+        <Ring key={item.label} index={index} />
+      ))}
+      <RingCenter defaultLabel="Total Sessions" />
+    </RingChart>
+  );
+}
+```
+
+## Components
+
+### RingChart
+
+The root component that provides context to all children.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `data` | `RingData[]` | required | Array of ring data items |
+| `size` | `number` | auto | Fixed size in pixels (uses parent if not set) |
+| `strokeWidth` | `number` | `12` | Width of each ring |
+| `ringGap` | `number` | `6` | Gap between rings |
+| `baseInnerRadius` | `number` | `60` | Inner radius of the innermost ring |
+| `hoveredIndex` | `number \| null` | - | Controlled hover state |
+| `onHoverChange` | `(index: number \| null) => void` | - | Hover state callback |
+| `className` | `string` | `""` | Additional CSS class |
+
+### Ring
+
+Renders an individual ring with background track and animated progress arc.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `index` | `number` | required | Index of the ring in the data array |
+| `color` | `string` | from data/palette | Optional color override |
+| `animate` | `boolean` | `true` | Enable animation on mount |
+| `showGlow` | `boolean` | `true` | Show glow effect on hover |
+| `lineCap` | `"round" \| "butt"` | `"round"` | Line cap style for ring ends |
+
+### RingCenter
+
+Displays the total or hovered value in the center of the chart.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `defaultLabel` | `string` | `"Total"` | Label shown when not hovering |
+| `formatValue` | `(value: number) => string` | `toLocaleString()` | Format function for values |
+| `children` | `function` | - | Custom render function |
+| `className` | `string` | `""` | Additional CSS class |
+
+### Legend
+
+A composable legend component for ring charts, pie charts, and other visualizations. See the full [Legend documentation](/docs/components/legend) for all components and options.
+
+## Data Shape
+
+```ts
+interface RingData {
+  label: string;      // Display label
+  value: number;      // Current value
+  maxValue: number;   // Maximum value (for percentage)
+  color?: string;     // Optional color (falls back to palette)
+}
+
+interface LegendItem {
+  label: string;
+  value: number;
+  maxValue?: number;  // Required if showProgress is true
+  color: string;
+}
+```
+
+## Examples
+
+### Basic Ring Chart
+
+<ComponentShowcase code={`<RingChart data={sessionsData} size={280}>
+  {sessionsData.map((_, index) => (
+    <Ring key={index} index={index} />
+  ))}
+  <RingCenter />
+</RingChart>`}>
+  <RingChartBasicDemo />
+</ComponentShowcase>
+
+### With Custom Colors and Formatting
+
+<ComponentShowcase code={`const customData = [
+  { label: "Revenue", value: 85000, maxValue: 100000, color: "var(--chart-1)" },
+  { label: "Expenses", value: 62000, maxValue: 100000, color: "var(--chart-2)" },
+  { label: "Profit", value: 23000, maxValue: 100000, color: "var(--chart-3)" },
+];
+
+<RingChart data={customData} size={240} strokeWidth={16} ringGap={8}>
+  {customData.map((_, index) => (
+    <Ring key={index} index={index} />
+  ))}
+  <RingCenter
+    formatValue={(v) => \`$\${(v / 1000).toFixed(0)}k\`}
+    defaultLabel="Total"
+  />
+</RingChart>`}>
+  <RingChartCustomColorsDemo />
+</ComponentShowcase>
+
+### Synchronized Legend
+
+Connect the legend hover state to the chart for bidirectional interaction. See the [Legend documentation](/docs/components/legend) for more customization options.
+
+```tsx
+import { useState } from "react";
+import { 
+  RingChart, Ring, RingCenter,
+  Legend, LegendItemComponent, LegendMarker, LegendLabel, LegendValue, LegendProgress
+} from "@bklitui/ui/charts";
+
+function SyncedRingChart() {
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
+  return (
+    <div className="flex items-center gap-12">
+      <RingChart
+        data={data}
+        size={320}
+        hoveredIndex={hoveredIndex}
+        onHoverChange={setHoveredIndex}
+      >
+        {data.map((item, index) => (
+          <Ring key={item.label} index={index} />
+        ))}
+        <RingCenter />
+      </RingChart>
+
+      <Legend
+        items={data}
+        hoveredIndex={hoveredIndex}
+        onHoverChange={setHoveredIndex}
+        title="Sessions by Channel"
+      >
+        <LegendItemComponent className="grid grid-cols-[auto_1fr_auto] items-center gap-x-3 gap-y-1">
+          <LegendMarker />
+          <LegendLabel />
+          <LegendValue showPercentage />
+          <div className="col-span-full">
+            <LegendProgress />
+          </div>
+        </LegendItemComponent>
+      </Legend>
+    </div>
+  );
+}
+```
+
+### Custom Center Content
+
+Use the render prop for complete control over the center content:
+
+```tsx
+<RingChart data={data} size={300}>
+  {data.map((_, index) => (
+    <Ring key={index} index={index} />
+  ))}
+  <RingCenter>
+    {({ value, label, isHovered, data }) => (
+      <div className="text-center">
+        <div className="text-3xl font-bold" style={{ color: data.color }}>
+          {value.toLocaleString()}
+        </div>
+        <div className="text-sm text-muted-foreground">{label}</div>
+        {isHovered && (
+          <div className="text-xs text-muted-foreground mt-1">
+            {((data.value / data.maxValue) * 100).toFixed(0)}% of goal
+          </div>
+        )}
+      </div>
+    )}
+  </RingCenter>
+</RingChart>
+```
+
+### Simple Legend (No Progress Bars)
+
+```tsx
+<Legend items={data} title="Traffic Sources">
+  <LegendItemComponent className="flex items-center gap-3">
+    <LegendMarker />
+    <LegendLabel className="flex-1" />
+    <LegendValue />
+  </LegendItemComponent>
+</Legend>
+```
+
+### Flat Ring Ends (Butt Line Cap)
+
+Use `lineCap="butt"` for square/flat ring ends instead of rounded:
+
+```tsx
+<RingChart data={data} size={300}>
+  {data.map((item, index) => (
+    <Ring key={item.label} index={index} lineCap="butt" />
+  ))}
+  <RingCenter />
+</RingChart>
+```
+
+## Theming
+
+The Ring Chart uses CSS variables for theming. The ring background uses `--chart-ring-background`, and ring colors default to `--chart-1` through `--chart-5`:
+
+```css
+:root {
+  --chart-ring-background: oklch(0.9 0.005 260 / 0.25);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+}
+
+.dark {
+  --chart-ring-background: oklch(0.35 0.01 260 / 0.25);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+}
+```
+
+## Animation
+
+The ring chart features a multi-phase animation on mount:
+
+1. **Ring Expansion** - Background rings scale in with staggered timing
+2. **Progress Arcs** - Progress arcs animate from 0 to their target value
+3. **Center Content** - Value and label fade in
+4. **Legend** - Items slide in from the right with progress bars filling
+
+All animations use spring physics for natural motion.
+
+## Dependencies
+
+```bash
+pnpm add @visx/shape @visx/group @visx/responsive motion
+```
+</doc>
+
+<doc title="Sankey Chart" path="../apps/web/content/docs/components/sankey-chart.mdx">
+import { SankeyChart, SankeyNode, SankeyLink, SankeyTooltip, PatternLines } from "@bklitui/ui/charts";
+import { SankeyPatternDemo, SankeyNoLabelsDemo } from "@/components/docs/sankey-pattern-demo";
+
+export const analyticsData = {
+  nodes: [
+    { name: "Organic Search", category: "source" },
+    { name: "Paid Search", category: "source" },
+    { name: "Paid Social", category: "source" },
+    { name: "Email", category: "source" },
+    { name: "Referral", category: "source" },
+    { name: "Direct", category: "source" },
+    { name: "Blog", category: "landing" },
+    { name: "Pricing", category: "landing" },
+    { name: "Product", category: "landing" },
+    { name: "Docs", category: "landing" },
+    { name: "Homepage", category: "landing" },
+    { name: "Converted", category: "outcome" },
+    { name: "Engaged", category: "outcome" },
+    { name: "Bounced", category: "outcome" },
+  ],
+  links: [
+    { source: 0, target: 6, value: 4200 },
+    { source: 0, target: 9, value: 2800 },
+    { source: 0, target: 7, value: 1500 },
+    { source: 1, target: 7, value: 3100 },
+    { source: 1, target: 8, value: 2200 },
+    { source: 1, target: 6, value: 800 },
+    { source: 2, target: 6, value: 2800 },
+    { source: 2, target: 10, value: 1900 },
+    { source: 2, target: 8, value: 600 },
+    { source: 3, target: 7, value: 2100 },
+    { source: 3, target: 8, value: 1400 },
+    { source: 3, target: 6, value: 900 },
+    { source: 4, target: 6, value: 1800 },
+    { source: 4, target: 9, value: 1200 },
+    { source: 4, target: 7, value: 700 },
+    { source: 5, target: 10, value: 3500 },
+    { source: 5, target: 7, value: 1800 },
+    { source: 5, target: 8, value: 1100 },
+    { source: 6, target: 11, value: 2100 },
+    { source: 6, target: 12, value: 4800 },
+    { source: 6, target: 13, value: 3600 },
+    { source: 7, target: 11, value: 4500 },
+    { source: 7, target: 12, value: 3200 },
+    { source: 7, target: 13, value: 1500 },
+    { source: 8, target: 11, value: 2800 },
+    { source: 8, target: 12, value: 1900 },
+    { source: 8, target: 13, value: 600 },
+    { source: 9, target: 11, value: 800 },
+    { source: 9, target: 12, value: 2400 },
+    { source: 9, target: 13, value: 800 },
+    { source: 10, target: 11, value: 1200 },
+    { source: 10, target: 12, value: 1800 },
+    { source: 10, target: 13, value: 2400 },
+  ],
+};
+
+## Preview
+
+<ComponentPreview>
+  <div className="w-full">
+    <SankeyChart data={analyticsData} aspectRatio="16 / 9" nodeWidth={16} nodePadding={24}>
+      <SankeyLink />
+      <SankeyNode lineCap={4} />
+      <SankeyTooltip />
+    </SankeyChart>
+  </div>
+</ComponentPreview>
+
+## Installation
+
+<InstallationTabs name="sankey-chart" dependencies={["@visx/gradient", "@visx/pattern", "@visx/responsive", "@visx/sankey", "motion"]} />
+
+## Usage
+
+The Sankey Chart uses a composable API similar to other charts. Build diagrams by combining components:
+
+```tsx
+import { SankeyChart, SankeyNode, SankeyLink, SankeyTooltip } from "@bklitui/ui/charts";
+
+const data = {
+  nodes: [
+    { name: "Organic Search", category: "source" },
+    { name: "Homepage", category: "landing" },
+    { name: "Converted", category: "outcome" },
+  ],
+  links: [
+    { source: 0, target: 1, value: 100 },
+    { source: 1, target: 2, value: 80 },
+  ],
+};
+
+export default function FlowDiagram() {
+  return (
+    <SankeyChart data={data}>
+      <SankeyLink />
+      <SankeyNode lineCap={4} />
+      <SankeyTooltip />
+    </SankeyChart>
+  );
+}
+```
+
+## Components
+
+### SankeyChart
+
+The root component that computes the layout and provides context to children.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `data` | `SankeyData` | required | Object with `nodes` and `links` arrays |
+| `margin` | `Partial<Margin>` | `{ top: 40, right: 180, bottom: 40, left: 180 }` | Chart margins |
+| `animationDuration` | `number` | `1100` | Animation duration in ms |
+| `aspectRatio` | `string` | `"2 / 1"` | CSS aspect ratio |
+| `nodeWidth` | `number` | `16` | Width of nodes in pixels |
+| `nodePadding` | `number` | `24` | Vertical padding between nodes |
+| `className` | `string` | `""` | Additional CSS class |
+
+### SankeyNode
+
+Renders the nodes (bars) in the diagram with animated initialization and internal labels.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `fill` | `string` | - | Fill color for all nodes |
+| `lineCap` | `number` | `4` | Corner radius for nodes |
+| `fadedOpacity` | `number` | `0.4` | Opacity when another element is hovered |
+| `showLabels` | `boolean` | `true` | Show node name and value labels |
+| `getNodeColor` | `(node, index) => string` | - | Custom color function |
+
+### SankeyLink
+
+Renders the links (flows) between nodes with animated path reveal and gradient colors.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `stroke` | `string` | - | Solid stroke color (overrides gradient) |
+| `strokeOpacity` | `number` | `0.7` | Link opacity |
+| `fadedOpacity` | `number` | `0.1` | Opacity when another element is hovered |
+| `useGradient` | `boolean` | `true` | Use gradient from source to target node color |
+| `getNodeColor` | `(node, index) => string` | - | Custom node color function for gradients |
+| `getLinkColor` | `(link, index) => string` | - | Custom link color (overrides gradient) |
+| `patterns` | `ReactNode` | - | Pattern definitions using `@visx/pattern` components |
+| `getLinkPattern` | `(link, index) => string \| null` | - | Return pattern ID for a link, or null for gradient |
+
+### SankeyTooltip
+
+Displays tooltips for nodes and links on hover.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `nodeContent` | `(props) => ReactNode` | - | Custom node tooltip renderer |
+| `linkContent` | `(props) => ReactNode` | - | Custom link tooltip renderer |
+| `formatValue` | `(value) => string` | `toLocaleString` | Value formatter |
+| `className` | `string` | `""` | Additional CSS class |
+
+## Data Format
+
+The sankey data follows the d3-sankey format:
+
+```typescript
+interface SankeyData {
+  nodes: Array<{ 
+    name: string; 
+    category: "source" | "landing" | "outcome";
+    [key: string]: unknown; 
+  }>;
+  links: Array<{
+    source: number;  // Index into nodes array
+    target: number;  // Index into nodes array
+    value: number;   // Flow value
+  }>;
+}
+```
+
+## Animation
+
+The sankey chart uses the same animation system as other charts:
+
+- **Nodes**: ScaleY and opacity fade in, staggered by index
+- **Links**: Grow from source to target node using stroke-dashoffset animation
+- **Gradients**: Links use gradient colors flowing from source node color to target node color
+- **Easing**: `cubic-bezier(0.85, 0, 0.15, 1)` for smooth, organic motion
+
+### Animation Timeline
+
+- **0-600ms**: Nodes fade/scale in (staggered)
+- **200-1100ms**: Links grow from source to target (staggered, starts after nodes begin appearing)
+
+## Hover Behavior
+
+When hovering over a node or link:
+
+- Hovered link and its source/target nodes stay at full opacity
+- Connected nodes and links remain visible
+- All other links and nodes fade
+- Tooltip appears showing relevant data
+
+## Examples
+
+### Without Labels
+
+For a cleaner look, hide the node labels:
+
+<ComponentShowcase code={`<SankeyChart 
+  data={analyticsData} 
+  aspectRatio="16 / 9" 
+  nodeWidth={16} 
+  nodePadding={24} 
+  margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+>
+  <SankeyLink />
+  <SankeyNode lineCap={4} showLabels={false} />
+  <SankeyTooltip />
+</SankeyChart>`}>
+  <SankeyNoLabelsDemo />
+</ComponentShowcase>
+
+### With Patterns
+
+Use `@visx/pattern` to style specific links with patterns instead of gradients:
+
+<ComponentShowcase code={`<SankeyChart data={analyticsData} aspectRatio="16 / 9" nodeWidth={16} nodePadding={24}>
+  <SankeyLink
+    getLinkPattern={getOutcomePattern}
+    patterns={
+      <>
+        <PatternLines id="converted" stroke="#22c55e" ... />
+        <PatternLines id="engaged" stroke="#eab308" ... />
+        <PatternLines id="bounced" stroke="#ef4444" ... />
+      </>
+    }
+  />
+  <SankeyNode lineCap={4} />
+  <SankeyTooltip />
+</SankeyChart>`}>
+  <SankeyPatternDemo />
+</ComponentShowcase>
+
+## Dependencies
+
+This component requires:
+
+```bash
+pnpm add @visx/sankey @visx/responsive @visx/pattern motion react-use-measure
+```
+</doc>
+
+## Utilities
+
+<doc title="Axis" path="../apps/web/content/docs/utility/axis/index.mdx">
+Axis components add value and date labels to line and area charts.
+
+## Components
+
+- **[X Axis](/docs/utility/axis/x-axis)** — Date labels along the bottom (horizontal axis)
+- **[Y Axis](/docs/utility/axis/y-axis)** — Value labels along the left (vertical axis)
+
+Both components must be used inside a chart (`LineChart` or `AreaChart`) and render via portal into the chart container.
+</doc>
+
+<doc title="X Axis" path="../apps/web/content/docs/utility/axis/x-axis.mdx">
+import { LineChart, Line, Grid, XAxis, ChartTooltip } from "@bklitui/ui/charts";
+import { AxisXOnlyDemo } from "@/components/docs/axis-demo";
+
+## Preview
+
+<ComponentPreview>
+  <AxisXOnlyDemo />
+</ComponentPreview>
+
+## Installation
+
+<InstallationTabs name="x-axis" dependencies={["motion"]} />
+
+## Usage
+
+The XAxis component displays date labels along the bottom of line and area charts. It must be used inside a chart component (`LineChart` or `AreaChart`).
+
+```tsx
+import { LineChart, Line, XAxis, ChartTooltip } from "@bklitui/ui/charts";
+
+<LineChart data={data}>
+  <Line dataKey="value" />
+  <XAxis />
+  <ChartTooltip />
+</LineChart>
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `numTicks` | `number` | `5` | Number of ticks to show (including first and last) |
+| `tickerHalfWidth` | `number` | `50` | Width of the date ticker box for fade calculation when tooltip is visible |
+
+## Behavior
+
+- **Evenly spaced dates**: XAxis generates evenly spaced date labels from the chart's time domain, always including the first and last dates.
+- **Crosshair fade**: When the tooltip is visible, labels near the crosshair fade to reduce visual clutter and improve readability.
+- **Client-side only**: Renders via portal after mount to avoid SSR issues.
+
+## Theming
+
+Labels use the `text-chart-label` class, which inherits from your theme's muted foreground color.
+</doc>
+
+<doc title="Y Axis" path="../apps/web/content/docs/utility/axis/y-axis.mdx">
+import { LineChart, Line, Grid, XAxis, YAxis, ChartTooltip } from "@bklitui/ui/charts";
+import { AxisBothDemo } from "@/components/docs/axis-demo";
+
+## Preview
+
+<ComponentPreview>
+  <AxisBothDemo />
+</ComponentPreview>
+
+## Installation
+
+<InstallationTabs name="y-axis" />
+
+## Usage
+
+The YAxis component displays value labels along the left side of line and area charts. It must be used inside a chart component (`LineChart` or `AreaChart`). Ensure your chart has sufficient left margin for the labels.
+
+```tsx
+import { LineChart, Line, XAxis, YAxis, ChartTooltip } from "@bklitui/ui/charts";
+
+<LineChart data={data} margin={{ left: 50 }}>
+  <Line dataKey="value" />
+  <YAxis />
+  <XAxis />
+  <ChartTooltip />
+</LineChart>
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `numTicks` | `number` | `5` | Number of ticks to show |
+| `formatLargeNumbers` | `boolean` | `true` | Format values ≥1000 as "1k", "2k", etc. |
+
+## Margin
+
+YAxis renders labels in the chart's left margin. Use `margin={{ left: 50 }}` (or more) on your chart to leave space for the labels.
+
+## Theming
+
+Labels use the `text-chart-label` class, which inherits from your theme's muted foreground color.
+</doc>
+
+<doc title="Custom Indicator" path="../apps/web/content/docs/utility/custom-indicator.mdx">
+import { CustomIndicatorDemo } from "@/components/docs/custom-indicator-demo";
+
+## Preview
+
+<ComponentPreview>
+  <CustomIndicatorDemo />
+</ComponentPreview>
+
+## Overview
+
+Custom indicators allow you to replace the default tooltip crosshair and dots with your own animated elements. This is useful for creating unique visual feedback like rising lines, custom shapes, or other interactive effects.
+
+The demo above shows a grouped bar chart with two series—one with a gradient fill and one with a diagonal pattern—each with its own animated line indicator that rises on hover.
+
+## Disabling Default Indicators
+
+First, disable the built-in indicators on `ChartTooltip`:
+
+```tsx
+<ChartTooltip 
+  showCrosshair={false}  // Hides the vertical crosshair line
+  showDots={false}       // Hides the dots on bars/lines
+/>
+```
+
+## Creating an Animated Line Indicator
+
+### Step 1: Create the Animated Element
+
+Use `motion/react` with `useSpring` for smooth spring animations:
+
+```tsx
+import { motion, useSpring } from "motion/react";
+import { useEffect } from "react";
+
+function AnimatedBarLine({
+  barX,
+  barTopY,
+  barBottomY,
+  width,
+  isHovered,
+}: {
+  barX: number;
+  barTopY: number;
+  barBottomY: number;
+  width: number;
+  isHovered: boolean;
+}) {
+  // Spring animations for position and opacity
+  const animatedY = useSpring(barBottomY, { stiffness: 300, damping: 30 });
+  const animatedOpacity = useSpring(0, { stiffness: 300, damping: 30 });
+
+  useEffect(() => {
+    // Rise to bar top when hovered, drop to bottom when not
+    animatedY.set(isHovered ? barTopY : barBottomY);
+    animatedOpacity.set(isHovered ? 1 : 0);
+  }, [isHovered, barTopY, barBottomY, animatedY, animatedOpacity]);
+
+  return (
+    <motion.rect
+      fill="var(--chart-indicator-color)"
+      height={2}
+      style={{
+        opacity: animatedOpacity,
+        y: animatedY,
+      }}
+      width={width}
+      x={barX}
+    />
+  );
+}
+```
+
+### Step 2: Access Chart State with useChart
+
+The `useChart` hook provides all the data needed to position your indicator:
+
+```tsx
+import { useChart } from "@bklitui/ui/charts";
+
+function BarHorizontalLineIndicator({ data, dataKeys }) {
+  const {
+    barScale,        // Scale to get x position from category
+    bandWidth,       // Width of each bar group
+    innerHeight,     // Chart height (for bottom position)
+    yScale,          // Scale to get y position from value
+    hoveredBarIndex, // Which bar group is currently hovered
+    margin,          // Chart margins
+    containerRef,    // Ref for portal rendering
+  } = useChart();
+  
+  // For grouped bars, divide bandWidth by number of series
+  const individualBarWidth = bandWidth / dataKeys.length;
+  
+  // ... render indicators
+}
+```
+
+### Step 3: Render via Portal
+
+Use a portal to render the SVG overlay in the chart container. For grouped bar charts with multiple series, calculate each bar's position within the group:
+
+```tsx
+import React, { useEffect } from "react";
+
+function BarHorizontalLineIndicator({ data, dataKeys }) {
+  const { barScale, bandWidth, innerHeight, margin, containerRef, hoveredBarIndex, yScale } = useChart();
+  const [mounted, setMounted] = React.useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const container = containerRef.current;
+  if (!(mounted && container && bandWidth && barScale)) {
+    return null;
+  }
+
+  const { createPortal } = require("react-dom");
+
+  // Calculate individual bar width for grouped bars
+  const barCount = dataKeys.length;
+  const individualBarWidth = bandWidth / barCount;
+
+  return createPortal(
+    <svg
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 z-50"
+      height="100%"
+      width="100%"
+    >
+      <g transform={`translate(${margin.left},${margin.top})`}>
+        {data.map((d, i) => {
+          const groupX = barScale(d.month) ?? 0;
+          const isHovered = hoveredBarIndex === i;
+
+          return dataKeys.map((dataKey, barIndex) => {
+            const barTopY = yScale(d[dataKey]) ?? innerHeight;
+            const barX = groupX + barIndex * individualBarWidth;
+
+            return (
+              <AnimatedBarLine
+                key={`${d.month}-${dataKey}`}
+                barX={barX}
+                barTopY={barTopY}
+                barBottomY={innerHeight}
+                width={individualBarWidth}
+                isHovered={isHovered}
+              />
+            );
+          });
+        })}
+      </g>
+    </svg>,
+    container
+  );
+}
+```
+
+### Step 4: Add to Your Chart
+
+Add the custom indicator as a child of your chart component. You can use gradients and patterns for different series:
+
+```tsx
+import { PatternLines } from "@bklitui/ui/charts";
+
+<BarChart data={data} xDataKey="month" barGap={0}>
+  <LinearGradient id="gradient" from="var(--chart-3)" to="transparent" />
+  <PatternLines
+    id="diagonalPattern"
+    height={6}
+    width={6}
+    stroke="var(--chart-4)"
+    strokeWidth={1.5}
+    orientation={["diagonal"]}
+  />
+  <Grid horizontal />
+  <Bar dataKey="revenue" fill="url(#gradient)" stroke="var(--chart-3)" />
+  <Bar dataKey="cost" fill="url(#diagonalPattern)" stroke="var(--chart-4)" />
+  <BarXAxis />
+  <ChartTooltip showCrosshair={false} showDots={false} />
+  <BarHorizontalLineIndicator data={data} dataKeys={["revenue", "cost"]} />
+</BarChart>
+```
+
+## Key useChart Values for Indicators
+
+| Value | Type | Description |
+|-------|------|-------------|
+| `hoveredBarIndex` | `number \| null` | Index of the currently hovered bar |
+| `barScale` | `ScaleBand` | Band scale for categorical x-axis positions |
+| `bandWidth` | `number` | Width of each bar band |
+| `yScale` | `ScaleLinear` | Linear scale for y-axis values |
+| `innerHeight` | `number` | Chart area height (excluding margins) |
+| `margin` | `Margin` | Chart margins `{ top, right, bottom, left }` |
+| `containerRef` | `RefObject` | Ref to the chart container (for portals) |
+| `tooltipData` | `TooltipData \| null` | Current tooltip data including position |
+
+## Theming
+
+Use CSS variables for proper light/dark mode support:
+
+```tsx
+// Use chartCssVars or CSS variables directly
+<motion.rect fill="var(--chart-indicator-color)" />
+```
+
+Available indicator variables:
+- `--chart-indicator-color` - Primary indicator color
+- `--chart-indicator-secondary-color` - Secondary/stroke color
+
+See [Theming](/docs/theming) for the full list.
+</doc>
+
+<doc title="Grid" path="../apps/web/content/docs/utility/grid.mdx">
+import { LineChart, Line, Grid, ChartTooltip, XAxis } from "@bklitui/ui/charts";
+import { GridHorizontalDemo, GridVerticalDemo, GridBothDemo, GridSolidDemo, GridNoFadeDemo, GridDenseDemo } from "@/components/docs/grid-demo";
+
+## Preview
+
+<ComponentPreview>
+  <GridBothDemo />
+</ComponentPreview>
+
+## Installation
+
+<InstallationTabs name="grid" dependencies={["@visx/grid"]} />
+
+## Usage
+
+The Grid component adds visual reference lines to charts. It must be used inside a chart component (`LineChart`, `AreaChart`, `BarChart`).
+
+```tsx
+import { LineChart, Line, Grid, ChartTooltip } from "@bklitui/ui/charts";
+
+<LineChart data={data}>
+  <Grid horizontal />
+  <Line dataKey="value" />
+  <ChartTooltip />
+</LineChart>
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `horizontal` | `boolean` | `true` | Show horizontal grid lines |
+| `vertical` | `boolean` | `false` | Show vertical grid lines |
+| `numTicksRows` | `number` | `5` | Number of horizontal lines |
+| `numTicksColumns` | `number` | `10` | Number of vertical lines |
+| `rowTickValues` | `number[]` | - | Explicit tick values for horizontal grid lines. When set, overrides `numTicksRows`. Use with Live Line Chart so grid rows align with `LiveYAxis` labels. |
+| `stroke` | `string` | `var(--chart-grid)` | Line color |
+| `strokeOpacity` | `number` | `1` | Line opacity |
+| `strokeWidth` | `number` | `1` | Line width |
+| `strokeDasharray` | `string` | `"4,4"` | Dash pattern (empty string for solid) |
+| `fadeHorizontal` | `boolean` | `true` | Fade horizontal lines at left/right edges |
+| `fadeVertical` | `boolean` | `false` | Fade vertical lines at top/bottom edges |
+
+## Examples
+
+### Horizontal Only (Default)
+
+The most common configuration with horizontal reference lines.
+
+<ComponentShowcase code={`<LineChart data={data}>
+  <Grid horizontal />
+  <Line dataKey="value" />
+  <XAxis />
+  <ChartTooltip />
+</LineChart>`}>
+  <GridHorizontalDemo />
+</ComponentShowcase>
+
+### Vertical Only
+
+Use vertical grid lines to emphasize time intervals.
+
+<ComponentShowcase code={`<LineChart data={data}>
+  <Grid horizontal={false} vertical />
+  <Line dataKey="value" />
+  <XAxis />
+  <ChartTooltip />
+</LineChart>`}>
+  <GridVerticalDemo />
+</ComponentShowcase>
+
+### Both Horizontal and Vertical
+
+Display a full grid for detailed reference.
+
+<ComponentShowcase code={`<LineChart data={data}>
+  <Grid horizontal vertical />
+  <Line dataKey="value" />
+  <XAxis />
+  <ChartTooltip />
+</LineChart>`}>
+  <GridBothDemo />
+</ComponentShowcase>
+
+### Solid Lines
+
+Remove the dash pattern for solid grid lines.
+
+<ComponentShowcase code={`<LineChart data={data}>
+  <Grid horizontal strokeDasharray="" />
+  <Line dataKey="value" />
+  <XAxis />
+  <ChartTooltip />
+</LineChart>`}>
+  <GridSolidDemo />
+</ComponentShowcase>
+
+### Without Edge Fade
+
+Disable the edge fade effect for sharp line endings.
+
+<ComponentShowcase code={`<LineChart data={data}>
+  <Grid horizontal fadeHorizontal={false} />
+  <Line dataKey="value" />
+  <XAxis />
+  <ChartTooltip />
+</LineChart>`}>
+  <GridNoFadeDemo />
+</ComponentShowcase>
+
+### Dense Grid
+
+Increase the number of grid lines for more granular reference.
+
+<ComponentShowcase code={`<LineChart data={data}>
+  <Grid horizontal vertical numTicksRows={10} numTicksColumns={15} />
+  <Line dataKey="value" />
+  <XAxis />
+  <ChartTooltip />
+</LineChart>`}>
+  <GridDenseDemo />
+</ComponentShowcase>
+
+### Custom Styling
+
+```tsx
+<LineChart data={data}>
+  <Grid
+    horizontal
+    vertical
+    stroke="var(--border)"
+    strokeOpacity={0.5}
+    strokeWidth={0.5}
+    strokeDasharray=""
+    fadeHorizontal={false}
+    fadeVertical={false}
+  />
+  <Line dataKey="value" />
+</LineChart>
+```
+
+## Theming
+
+The Grid uses CSS variables for theming:
+
+```css
+:root {
+  --chart-grid: oklch(0.9 0 0);
+}
+
+.dark {
+  --chart-grid: oklch(0.25 0 0);
+}
+```
+</doc>
+
+<doc title="Legend" path="../apps/web/content/docs/utility/legend.mdx">
+import { Legend, LegendItemComponent, LegendLabel, LegendMarker, LegendProgress, LegendValue } from "@bklitui/ui/charts";
+import { LegendSimpleDemo, LegendProgressDemo, LegendHorizontalDemo } from "@/components/docs/legend-demo";
+
+export const sampleData = [
+  { label: "Organic", value: 4250, maxValue: 5000, color: "#0ea5e9" },
+  { label: "Paid", value: 3120, maxValue: 5000, color: "#a855f7" },
+  { label: "Email", value: 2100, maxValue: 5000, color: "#f59e0b" },
+  { label: "Social", value: 1580, maxValue: 5000, color: "#10b981" },
+];
+
+## Preview
+
+<ComponentPreview>
+  <LegendProgressDemo />
+</ComponentPreview>
+
+## Installation
+
+<InstallationTabs name="legend" dependencies={["@number-flow/react"]} />
+
+## Usage
+
+The Legend uses a composable API where you define the layout once and it maps to each item in your data:
+
+```tsx
+const data = [
+  { label: "Organic", value: 4250, maxValue: 5000, color: "#0ea5e9" },
+  { label: "Paid", value: 3120, maxValue: 5000, color: "#a855f7" },
+];
+
+<Legend items={data} title="Traffic Sources">
+  <LegendItemComponent>
+    <LegendMarker />
+    <LegendLabel />
+    <LegendValue />
+  </LegendItemComponent>
+</Legend>
+```
+
+## Components
+
+### Legend
+
+The root container that provides context and maps items.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `items` | `LegendItemData[]` | required | Array of legend items |
+| `hoveredIndex` | `number \| null` | - | Controlled hover state |
+| `onHoverChange` | `(index: number \| null) => void` | - | Hover callback |
+| `title` | `string` | - | Title above the legend |
+| `titleClassName` | `string` | `"text-sm font-semibold"` | Title styling |
+| `className` | `string` | `""` | Container class |
+
+### LegendItemComponent
+
+Wrapper for each legend item. Handles hover interactions and animations.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `className` | `string` | `""` | Item container class |
+
+### LegendMarker
+
+Color indicator dot.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `className` | `string` | `"h-2.5 w-2.5"` | Size and styling |
+
+### LegendLabel
+
+Displays the item label.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `className` | `string` | `"text-sm font-medium"` | Label styling |
+
+### LegendValue
+
+Displays the item value with optional percentage.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `className` | `string` | `"text-sm tabular-nums"` | Value styling |
+| `showPercentage` | `boolean` | `false` | Show percentage |
+| `percentageClassName` | `string` | `"text-xs tabular-nums"` | Percentage styling |
+| `formatValue` | `(value: number) => string` | `toLocaleString()` | Value formatter |
+| `formatPercentage` | `(percentage: number) => string` | `${p.toFixed(0)}%` | Percentage formatter |
+
+### LegendProgress
+
+Progress bar using base-ui Progress component.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `height` | `string` | `"h-1.5"` | Track height class |
+| `trackClassName` | `string` | `""` | Track styling |
+| `indicatorClassName` | `string` | `""` | Indicator styling |
+
+## Data Shape
+
+```ts
+interface LegendItemData {
+  label: string;      // Display label
+  value: number;      // Current value
+  maxValue?: number;  // Max value (for progress/percentage)
+  color: string;      // Item color
+}
+```
+
+## Examples
+
+### Simple Legend
+
+<ComponentShowcase code={`<Legend items={data}>
+  <LegendItemComponent className="flex items-center gap-3">
+    <LegendMarker />
+    <LegendLabel className="flex-1" />
+    <LegendValue />
+  </LegendItemComponent>
+</Legend>`}>
+  <LegendSimpleDemo />
+</ComponentShowcase>
+
+### With Progress Bars
+
+<ComponentShowcase code={`<Legend items={data} title="Sessions by Channel">
+  <LegendItemComponent className="grid grid-cols-[auto_1fr_auto] items-center gap-x-3 gap-y-1">
+    <LegendMarker />
+    <LegendLabel />
+    <LegendValue showPercentage />
+    <div className="col-span-full">
+      <LegendProgress />
+    </div>
+  </LegendItemComponent>
+</Legend>`}>
+  <LegendProgressDemo />
+</ComponentShowcase>
+
+### Horizontal Layout
+
+<ComponentShowcase code={`<Legend items={data} className="flex-row flex-wrap gap-4">
+  <LegendItemComponent className="flex items-center gap-2">
+    <LegendMarker className="h-2 w-2" />
+    <LegendLabel className="text-xs" />
+  </LegendItemComponent>
+</Legend>`}>
+  <LegendHorizontalDemo />
+</ComponentShowcase>
+
+### Custom Value Formatting
+
+```tsx
+<Legend items={revenueData}>
+  <LegendItemComponent className="flex items-center gap-3">
+    <LegendMarker />
+    <LegendLabel className="flex-1" />
+    <LegendValue 
+      formatValue={(v) => `$${(v / 1000).toFixed(0)}k`}
+      showPercentage
+      formatPercentage={(p) => `(${p.toFixed(1)}%)`}
+    />
+  </LegendItemComponent>
+</Legend>
+```
+
+### Synced with Chart
+
+Connect the legend to a chart for bidirectional hover interactions:
+
+```tsx
+import { useState } from "react";
+import { RingChart, Ring, RingCenter, Legend, LegendItemComponent, LegendMarker, LegendLabel, LegendValue } from "@bklitui/ui/charts";
+
+function SyncedChart() {
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
+  return (
+    <div className="flex items-center gap-8">
+      <RingChart 
+        data={data} 
+        hoveredIndex={hoveredIndex}
+        onHoverChange={setHoveredIndex}
+      >
+        {data.map((_, i) => <Ring key={i} index={i} />)}
+        <RingCenter />
+      </RingChart>
+
+      <Legend 
+        items={data}
+        hoveredIndex={hoveredIndex}
+        onHoverChange={setHoveredIndex}
+      >
+        <LegendItemComponent className="flex items-center gap-3">
+          <LegendMarker />
+          <LegendLabel className="flex-1" />
+          <LegendValue />
+        </LegendItemComponent>
+      </Legend>
+    </div>
+  );
+}
+```
+
+## Hooks
+
+### useLegend
+
+Access the legend context from any child component:
+
+```tsx
+import { useLegend } from "@bklitui/ui/charts";
+
+function CustomComponent() {
+  const { items, hoveredIndex, setHoveredIndex } = useLegend();
+  // ...
+}
+```
+
+### useLegendItem
+
+Access the current item data from within a LegendItemComponent:
+
+```tsx
+import { useLegendItem } from "@bklitui/ui/charts";
+
+function CustomItemContent() {
+  const { item, index, isHovered, isFaded, percentage } = useLegendItem();
+  // ...
+}
+```
+
+## Theming
+
+The Legend uses CSS variables for theming:
+
+```css
+:root {
+  --legend: oklch(1 0 0);
+  --legend-foreground: oklch(0.141 0.005 285.823);
+  --legend-muted: oklch(0.967 0.001 286.375);
+  --legend-muted-foreground: oklch(0.552 0.016 285.938);
+  --legend-track: oklch(0.92 0.004 286.32);
+}
+
+.dark {
+  --legend: oklch(0.21 0.006 285.885);
+  --legend-foreground: oklch(0.985 0 0);
+  --legend-muted: oklch(0.274 0.006 286.033);
+  --legend-muted-foreground: oklch(0.705 0.015 286.067);
+  --legend-track: oklch(0.274 0.006 286.033);
+}
+```
+
+## Dependencies
+
+The LegendProgress component uses base-ui for accessible progress bars:
+
+```bash
+pnpm add @base-ui/react
+```
+</doc>
+
+<doc title="Tooltip" path="../apps/web/content/docs/utility/tooltip.mdx">
+import { LineChart, Line, Grid, ChartTooltip, XAxis } from "@bklitui/ui/charts";
+import { TooltipDefaultDemo, TooltipCrosshairOnlyDemo, TooltipMinimalDemo, TooltipCustomRowsDemo, TooltipBarChartDemo, TooltipCustomContentDemo } from "@/components/docs/tooltip-demo";
+
+## Preview
+
+<ComponentPreview>
+  <TooltipDefaultDemo />
+</ComponentPreview>
+
+## Installation
+
+<InstallationTabs name="chart-tooltip" dependencies={["@number-flow/react", "motion"]} />
+
+## Usage
+
+The ChartTooltip component provides hover interactions for charts. It must be used inside a chart component (`LineChart`, `AreaChart`, `BarChart`).
+
+```tsx
+import { LineChart, Line, Grid, ChartTooltip } from "@bklitui/ui/charts";
+
+<LineChart data={data}>
+  <Grid horizontal />
+  <Line dataKey="value" />
+  <ChartTooltip />
+</LineChart>
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `showDatePill` | `boolean` | `true` | Show animated date ticker at bottom |
+| `showCrosshair` | `boolean` | `true` | Show vertical crosshair line |
+| `showDots` | `boolean` | `true` | Show dots on data points |
+| `content` | `(props) => ReactNode` | - | Custom content renderer |
+| `rows` | `(point) => TooltipRow[]` | - | Custom row generator |
+| `children` | `ReactNode` | - | Additional content (e.g., markers) |
+| `className` | `string` | `""` | Additional CSS class |
+
+### TooltipRow Interface
+
+```ts
+interface TooltipRow {
+  color: string;    // Dot color
+  label: string;    // Row label
+  value: string | number;  // Display value
+}
+```
+
+## Anatomy
+
+The tooltip has several visual components:
+
+1. **Crosshair** - Vertical line that follows the cursor
+2. **Dots** - Circles on each data point at the hovered position
+3. **Tooltip Box** - Content panel with title and rows
+4. **Date Pill** - Animated date ticker at the bottom
+
+Each component can be shown/hidden independently.
+
+## Examples
+
+### Default Tooltip
+
+Full-featured tooltip with crosshair, dots, and date pill.
+
+<ComponentShowcase code={`<LineChart data={data}>
+  <Grid horizontal />
+  <Line dataKey="users" stroke="var(--chart-line-primary)" />
+  <Line dataKey="pageviews" stroke="var(--chart-line-secondary)" />
+  <XAxis />
+  <ChartTooltip />
+</LineChart>`}>
+  <TooltipDefaultDemo />
+</ComponentShowcase>
+
+### Crosshair Only
+
+Minimal tooltip with just the crosshair line and tooltip box.
+
+<ComponentShowcase code={`<LineChart data={data}>
+  <Grid horizontal />
+  <Line dataKey="users" stroke="var(--chart-line-primary)" />
+  <XAxis />
+  <ChartTooltip showDots={false} showDatePill={false} />
+</LineChart>`}>
+  <TooltipCrosshairOnlyDemo />
+</ComponentShowcase>
+
+### Minimal (Box Only)
+
+Just the tooltip content box, no visual indicators.
+
+<ComponentShowcase code={`<LineChart data={data}>
+  <Grid horizontal />
+  <Line dataKey="users" stroke="var(--chart-line-primary)" />
+  <XAxis />
+  <ChartTooltip 
+    showCrosshair={false} 
+    showDots={false} 
+    showDatePill={false} 
+  />
+</LineChart>`}>
+  <TooltipMinimalDemo />
+</ComponentShowcase>
+
+### Custom Row Labels
+
+Use the `rows` prop to customize row labels and value formatting.
+
+<ComponentShowcase code={`<LineChart data={data}>
+  <Grid horizontal />
+  <Line dataKey="users" stroke="var(--chart-line-primary)" />
+  <Line dataKey="pageviews" stroke="var(--chart-line-secondary)" />
+  <XAxis />
+  <ChartTooltip
+    rows={(point) => [
+      {
+        color: "var(--chart-line-primary)",
+        label: "Active Users",
+        value: point.users.toLocaleString(),
+      },
+      {
+        color: "var(--chart-line-secondary)",
+        label: "Page Views",
+        value: point.pageviews.toLocaleString(),
+      },
+    ]}
+  />
+</LineChart>`}>
+  <TooltipCustomRowsDemo />
+</ComponentShowcase>
+
+### With Bar Chart
+
+The tooltip adapts to bar charts, showing category names instead of dates.
+
+<ComponentShowcase code={`<BarChart data={data} xDataKey="month">
+  <Grid horizontal />
+  <Bar dataKey="revenue" fill="var(--chart-line-primary)" />
+  <BarXAxis />
+  <ChartTooltip
+    rows={(point) => [
+      {
+        color: "var(--chart-line-primary)",
+        label: "Revenue",
+        value: \`$\${point.revenue.toLocaleString()}\`,
+      },
+    ]}
+  />
+</BarChart>`}>
+  <TooltipBarChartDemo />
+</ComponentShowcase>
+
+### Fully Custom Content
+
+Use the `content` prop for complete control over the tooltip layout.
+
+<ComponentShowcase code={`<LineChart data={data}>
+  <Grid horizontal />
+  <Line dataKey="users" stroke="var(--chart-line-primary)" />
+  <Line dataKey="pageviews" stroke="var(--chart-line-secondary)" />
+  <XAxis />
+  <ChartTooltip
+    content={({ point }) => (
+      <div className="flex flex-col gap-2 p-3">
+        <div className="text-sm font-medium">
+          {point.date.toLocaleDateString("en-US", {
+            weekday: "short",
+            month: "short",
+            day: "numeric",
+          })}
+        </div>
+        <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+          <span className="text-zinc-400">Users</span>
+          <span className="font-mono">{point.users.toLocaleString()}</span>
+          <span className="text-zinc-400">Views</span>
+          <span className="font-mono">{point.pageviews.toLocaleString()}</span>
+          <span className="text-zinc-400">Ratio</span>
+          <span className="font-mono">
+            {(point.pageviews / point.users).toFixed(2)}x
+          </span>
+        </div>
+      </div>
+    )}
+  />
+</LineChart>`}>
+  <TooltipCustomContentDemo />
+</ComponentShowcase>
+
+## Animation
+
+The tooltip features smooth animations:
+
+- **Crosshair** - Spring physics for snappy following
+- **Tooltip Box** - Scale/fade animation with flip detection
+- **Date Pill** - Slot machine-style number animation
+- **Dots** - Fade in/out with the tooltip
+
+All animations use motion/react for fluid, natural movement.
+
+## Theming
+
+The tooltip uses CSS variables for theming:
+
+```css
+:root {
+  --chart-background: oklch(1 0 0);
+  --chart-crosshair: oklch(0.4 0.1828 274.34);
+}
+
+.dark {
+  --chart-background: oklch(0.145 0 0);
+  --chart-crosshair: oklch(0.45 0 0);
+}
+```
+
+The tooltip box itself uses a semi-transparent dark background with blur for universal readability.
+</doc>
+
+<doc title="useChart Hook" path="../apps/web/content/docs/utility/use-chart.mdx">
+## Overview
+
+The `useChart` hook provides access to the chart's internal state, scales, dimensions, and tooltip data. Use it to build custom components that integrate with the chart system.
+
+```tsx
+import { useChart } from "@bklitui/ui/charts";
+
+function MyCustomComponent() {
+  const { tooltipData, hoveredBarIndex, yScale, innerHeight } = useChart();
+  // ... use chart state
+}
+```
+
+## Requirements
+
+The hook must be used within a chart component (`LineChart`, `AreaChart`, or `BarChart`). It will throw an error if used outside of a chart context.
+
+```tsx
+// Correct: Inside a chart
+<BarChart data={data} xDataKey="month">
+  <MyCustomComponent /> {/* useChart works here */}
+</BarChart>
+
+// Error: Outside a chart
+<MyCustomComponent /> {/* useChart will throw */}
+```
+
+## Return Values
+
+### Dimensions
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `width` | `number` | Total chart width in pixels |
+| `height` | `number` | Total chart height in pixels |
+| `innerWidth` | `number` | Chart area width (excluding margins) |
+| `innerHeight` | `number` | Chart area height (excluding margins) |
+| `margin` | `Margin` | Chart margins `{ top, right, bottom, left }` |
+| `columnWidth` | `number` | Width of a single data column |
+
+### Scales
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `xScale` | `ScaleTime` | Time scale for x-axis (line/area charts) |
+| `yScale` | `ScaleLinear` | Linear scale for y-axis values |
+| `barScale` | `ScaleBand \| undefined` | Band scale for categorical x-axis (bar charts only) |
+| `bandWidth` | `number \| undefined` | Width of each bar band (bar charts only) |
+
+### Tooltip State
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `tooltipData` | `TooltipData \| null` | Current tooltip data when hovering |
+| `setTooltipData` | `Dispatch` | Setter for tooltip data |
+| `hoveredBarIndex` | `number \| null \| undefined` | Index of hovered bar (bar charts only) |
+| `setHoveredBarIndex` | `Function \| undefined` | Setter for hovered bar index |
+
+### TooltipData Structure
+
+```tsx
+interface TooltipData {
+  point: Record<string, unknown>;  // The data point being hovered
+  index: number;                    // Index in the data array
+  x: number;                        // X position in pixels
+  yPositions: Record<string, number>;  // Y positions keyed by dataKey
+  xPositions?: Record<string, number>; // X positions (grouped bars)
+}
+```
+
+### Container & Animation
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `containerRef` | `RefObject<HTMLDivElement>` | Ref to chart container (for portals) |
+| `isLoaded` | `boolean` | Whether chart has finished initial animation |
+| `animationDuration` | `number` | Animation duration in milliseconds |
+
+### Data & Configuration
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `data` | `Record<string, unknown>[]` | The chart's data array |
+| `lines` | `LineConfig[]` | Registered line/bar configurations |
+| `xAccessor` | `Function` | Function to get Date from data point |
+| `barXAccessor` | `Function \| undefined` | Function to get category string (bar charts) |
+| `dateLabels` | `string[]` | Pre-computed date labels for ticker |
+
+### Bar Chart Specific
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `orientation` | `"vertical" \| "horizontal"` | Bar chart orientation |
+| `stacked` | `boolean \| undefined` | Whether bars are stacked |
+| `stackOffsets` | `Map` | Stack offset values for stacked bars |
+
+## Common Use Cases
+
+### Reading Hover Position
+
+```tsx
+function HoverIndicator() {
+  const { tooltipData, innerHeight, margin } = useChart();
+  
+  if (!tooltipData) return null;
+  
+  return (
+    <div 
+      style={{ 
+        position: 'absolute',
+        left: tooltipData.x + margin.left,
+        top: margin.top,
+        height: innerHeight,
+      }}
+    >
+      {/* Custom indicator */}
+    </div>
+  );
+}
+```
+
+### Accessing Bar Positions
+
+```tsx
+function BarOverlay() {
+  const { barScale, bandWidth, hoveredBarIndex, data } = useChart();
+  
+  if (!barScale || hoveredBarIndex === null) return null;
+  
+  const hoveredData = data[hoveredBarIndex];
+  const x = barScale(hoveredData.category);
+  
+  return (
+    <rect x={x} width={bandWidth} /* ... */ />
+  );
+}
+```
+
+### Using Scales for Custom Rendering
+
+```tsx
+function CustomMarker({ value, category }) {
+  const { yScale, barScale, innerHeight } = useChart();
+  
+  const y = yScale(value);
+  const x = barScale?.(category) ?? 0;
+  
+  return (
+    <circle cx={x} cy={y} r={5} fill="red" />
+  );
+}
+```
+
+## Related
+
+- [Custom Indicator](/docs/utility/custom-indicator) - Building custom tooltip indicators
+- [Theming](/docs/theming) - Theming with CSS variables
+</doc>
+
+## Documentation
+
+<doc title="Installation" path="../apps/web/content/docs/installation.mdx">
+Bklit UI is a trusted registry for shadcn/ui. Follow the steps below to get started.
+
+## Prerequisites
+
+Before installing Bklit UI components, make sure you have shadcn/ui set up in your project. If you haven't already, run:
+
+```bash
+npx shadcn@latest init
+```
+
+## Install Components
+
+Install any Bklit UI component using the CLI:
+
+<PackageManagerTabs name="area-chart" />
+
+The registry is configured automatically — no manual setup needed. This will:
+- Download the component source code
+- Install any required dependencies
+- Place files in your configured component directory
+
+## Next Steps
+
+You're all set! Browse the [Components](/docs/components) section to start adding charts and visualizations to your project.
+</doc>
+
+<doc title="Theming" path="../apps/web/content/docs/theming.mdx">
+Charts use CSS custom properties (variables) for theming, allowing you to customize colors across light and dark modes without modifying component code.
+
+## Using chartCssVars
+
+The `chartCssVars` object provides type-safe access to chart CSS variables:
+
+```tsx
+import { chartCssVars } from "@bklitui/ui/charts";
+
+// In your component
+<rect fill={chartCssVars.indicatorColor} />
+<line stroke={chartCssVars.crosshair} />
+```
+
+This is preferred over hardcoding CSS variable strings, as it provides autocomplete and prevents typos.
+
+## Available Variables
+
+### Core Colors
+
+| Variable | CSS Property | Description |
+|----------|-------------|-------------|
+| `background` | `--chart-background` | Chart container background |
+| `foreground` | `--chart-foreground` | Primary text/element color |
+| `foregroundMuted` | `--chart-foreground-muted` | Secondary/muted text color |
+| `label` | `--chart-label` | Axis label text color |
+
+### Line & Grid
+
+| Variable | CSS Property | Description |
+|----------|-------------|-------------|
+| `linePrimary` | `--chart-line-primary` | Primary line stroke color |
+| `lineSecondary` | `--chart-line-secondary` | Secondary line stroke color |
+| `crosshair` | `--chart-crosshair` | Tooltip crosshair line color |
+| `grid` | `--chart-grid` | Grid line color |
+
+### Indicators
+
+| Variable | CSS Property | Description |
+|----------|-------------|-------------|
+| `indicatorColor` | `--chart-indicator-color` | Primary indicator color (e.g., hover lines) |
+| `indicatorSecondaryColor` | `--chart-indicator-secondary-color` | Secondary indicator color |
+
+### Markers
+
+| Variable | CSS Property | Description |
+|----------|-------------|-------------|
+| `markerBackground` | `--chart-marker-background` | Marker circle background |
+| `markerBorder` | `--chart-marker-border` | Marker circle border |
+| `markerForeground` | `--chart-marker-foreground` | Marker icon color |
+| `badgeBackground` | `--chart-marker-badge-background` | Marker count badge background |
+| `badgeForeground` | `--chart-marker-badge-foreground` | Marker count badge text |
+
+### Data Series Colors
+
+These are used for coloring different data series in multi-line charts:
+
+| CSS Property | Description |
+|-------------|-------------|
+| `--chart-1` | First series color |
+| `--chart-2` | Second series color |
+| `--chart-3` | Third series color |
+| `--chart-4` | Fourth series color |
+| `--chart-5` | Fifth series color |
+
+## Customizing Variables
+
+Override CSS variables in your stylesheet to customize chart appearance:
+
+```css
+:root {
+  /* Light mode */
+  --chart-background: oklch(1 0 0);
+  --chart-foreground: oklch(0.145 0.004 285);
+  --chart-grid: oklch(0.9 0 0);
+  --chart-crosshair: oklch(0.4 0.18 274);
+  --chart-indicator-color: oklch(0.21 0.006 285);
+  
+  /* Series colors */
+  --chart-1: oklch(0.32 0 none);
+  --chart-2: oklch(0.41 0 none);
+  --chart-3: oklch(0.54 0 none);
+}
+
+.dark {
+  /* Dark mode overrides */
+  --chart-background: oklch(0.145 0 0);
+  --chart-foreground: oklch(0.45 0 0);
+  --chart-grid: oklch(0.25 0 0);
+  --chart-indicator-color: oklch(1 0 0);
+}
+```
+
+## Example: Custom Indicator Theming
+
+The [Custom Indicator](/docs/utility/custom-indicator) pattern uses `--chart-indicator-color`:
+
+```tsx
+<motion.rect
+  fill="var(--chart-indicator-color)"
+  height={2}
+  width={barWidth}
+  x={barX}
+/>
+```
+
+Or using the typed object:
+
+```tsx
+import { chartCssVars } from "@bklitui/ui/charts";
+
+<motion.rect
+  fill={chartCssVars.indicatorColor}
+  height={2}
+  width={barWidth}
+  x={barX}
+/>
+```
+
+## Related
+
+- [Custom Indicator](/docs/utility/custom-indicator) - Building animated indicators
+- [useChart](/docs/utility/use-chart) - Accessing chart context
+</doc>
+

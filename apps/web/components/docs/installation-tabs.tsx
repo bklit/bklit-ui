@@ -43,17 +43,17 @@ function CodeFileBlock({
 
   return (
     <Collapsible
-      className="group/collapsible relative overflow-hidden rounded-lg border border-fd-border"
+      className="group/collapsible relative overflow-hidden rounded-xl border border-border bg-card shadow-sm"
       onOpenChange={setIsOpen}
       open={isOpen}
     >
       {/* Header with filename */}
-      <div className="flex items-center justify-between border-fd-border border-b bg-fd-muted/50 px-4 py-2">
+      <div className="flex items-center justify-between border-border border-b bg-muted/40 px-4 py-2">
         <div className="flex items-center gap-2">
-          <span className="font-mono text-fd-muted-foreground text-xs">TS</span>
+          <span className="font-mono text-muted-foreground text-xs">TS</span>
           <span className="font-mono text-sm">{file.target}</span>
         </div>
-        <CollapsibleTrigger className="font-medium text-fd-muted-foreground text-xs hover:text-fd-foreground">
+        <CollapsibleTrigger className="font-medium text-muted-foreground text-xs hover:text-foreground">
           {isOpen ? "Collapse" : "Expand"}
         </CollapsibleTrigger>
       </div>
@@ -80,7 +80,7 @@ function CodeFileBlock({
       <div
         className={cn(
           "pointer-events-none absolute inset-x-0 bottom-0 h-16",
-          "bg-gradient-to-t from-fd-secondary via-fd-secondary/80 to-transparent",
+          "bg-gradient-to-t from-card via-card/80 to-transparent",
           "group-data-[state=open]/collapsible:hidden"
         )}
       />
