@@ -141,22 +141,22 @@
 
 .dark {
   /* Shadcn dark variables */
-  --background: oklch(0.148 0.004 228.8);
+  --background: oklch(0.14 0.0047 263.79);
   --foreground: oklch(0.987 0.002 197.1);
-  --card: oklch(0.218 0.008 223.9);
+  --card: oklch(0.19 0.0087 223.98);
   --card-foreground: oklch(0.987 0.002 197.1);
-  --popover: oklch(0.218 0.008 223.9);
+  --popover: oklch(0.21 0.0058 285.9);
   --popover-foreground: oklch(0.987 0.002 197.1);
   --primary: oklch(0.925 0.005 214.3);
   --primary-foreground: oklch(0.218 0.008 223.9);
   --secondary: oklch(0.275 0.011 216.9);
   --secondary-foreground: oklch(0.987 0.002 197.1);
-  --muted: oklch(0.275 0.011 216.9);
+  --muted: oklch(0.26 0.0134 272.84);
   --muted-foreground: oklch(0.723 0.014 214.4);
-  --accent: oklch(0.275 0.011 216.9);
+  --accent: oklch(0.26 0.0134 272.84);
   --accent-foreground: oklch(0.987 0.002 197.1);
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
+  --border: oklch(0.56 0.0195 267.65 / 0.1);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.56 0.021 213.5);
   --chart-1: oklch(0.865 0.127 207.078);
@@ -177,8 +177,8 @@
   --chart-background: oklch(0.145 0 0);
   --chart-foreground: oklch(0.45 0 0);
   --chart-foreground-muted: oklch(0.65 0.01 260);
-  --chart-crosshair: oklch(1 0 0);
-  --chart-grid: oklch(0.25 0 0);
+  --chart-crosshair: oklch(0.72 0.0158 281.84);
+  --chart-grid: oklch(0.31 0.006 258.35);
   --chart-indicator-color: oklch(1 0 0);
   --chart-indicator-secondary-color: oklch(0.145 0 0);
   --chart-marker-background: oklch(0.25 0.01 260);
@@ -326,9 +326,9 @@
   --color-fd-primary-foreground: var(--primary-foreground);
 }
 
-/* Component preview styles */
+/* Legacy MDX hook — previews use Card + previewCardClassName in component-preview.tsx */
 .component-preview {
-  @apply rounded-xl border border-border bg-card p-6 shadow-sm;
+  @apply rounded-xl border border-border bg-card shadow-sm ring-0;
 }
 
 .component-preview-dark {

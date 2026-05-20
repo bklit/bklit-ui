@@ -34,13 +34,22 @@ import {
   SankeyNode,
   XAxis,
 } from "@bklitui/ui/charts";
+import { Refresh01Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { curveStep } from "@visx/curve";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { ChartSlug } from "@/components/charts/chart-slugs";
 import { useWorldDataStandalone } from "@/components/docs/use-world-data";
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  previewCardClassName,
+  previewCardContentClassName,
+  previewCardContentFillClassName,
+} from "@/components/ui/card";
 import { studioChartDocsHref, studioChartHref } from "@/lib/studio/chart-links";
 import { cn } from "@/lib/utils";
 
@@ -48,6 +57,65 @@ const easeOutQuint = [0.23, 1, 0.32, 1] as const;
 const actionEnterDuration = 0.2;
 const actionExitDuration = 0.16;
 const actionStagger = 0.04;
+
+function ShowcaseReplayAction({
+  index,
+  visible,
+  reducedMotion,
+  onReplay,
+}: {
+  index: number;
+  visible: boolean;
+  reducedMotion: boolean | null;
+  onReplay: () => void;
+}) {
+  return (
+    <AnimatePresence>
+      {visible && (
+        <motion.div
+          animate={
+            reducedMotion
+              ? { opacity: 1, y: 0 }
+              : {
+                  opacity: 1,
+                  y: 0,
+                  transition: {
+                    duration: actionEnterDuration,
+                    ease: easeOutQuint,
+                    delay: index * actionStagger,
+                  },
+                }
+          }
+          exit={
+            reducedMotion
+              ? undefined
+              : {
+                  opacity: 0,
+                  y: 4,
+                  transition: {
+                    duration: actionExitDuration,
+                    ease: easeOutQuint,
+                  },
+                }
+          }
+          initial={reducedMotion ? false : { opacity: 0, y: 6 }}
+        >
+          <Button
+            aria-label="Replay animation"
+            className="size-7 [&_svg]:size-3.5"
+            onClick={onReplay}
+            size="icon-sm"
+            title="Replay animation"
+            type="button"
+            variant="outline"
+          >
+            <HugeiconsIcon icon={Refresh01Icon} size={14} strokeWidth={1.5} />
+          </Button>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
 
 function CardAction({
   href,
@@ -117,6 +185,11 @@ function ShowcaseCard({
   const [hoverFine, setHoverFine] = useState(false);
   const [focused, setFocused] = useState(false);
   const [coarsePointer, setCoarsePointer] = useState(false);
+  const [replayKey, setReplayKey] = useState(0);
+
+  const replay = useCallback(() => {
+    setReplayKey((k) => k + 1);
+  }, []);
 
   useEffect(() => {
     const mq = window.matchMedia("(hover: hover) and (pointer: fine)");
@@ -130,9 +203,10 @@ function ShowcaseCard({
     reducedMotion === true || coarsePointer || hoverFine || focused;
 
   return (
-    <article
+    <Card
       className={cn(
-        "relative flex items-center justify-center overflow-hidden rounded-xl border border-border/50 bg-muted/30 p-6",
+        "relative flex min-h-0 flex-1 flex-col overflow-hidden",
+        previewCardClassName,
         className
       )}
       onBlurCapture={(e) => {
@@ -144,10 +218,18 @@ function ShowcaseCard({
       onPointerEnter={() => setHoverFine(true)}
       onPointerLeave={() => setHoverFine(false)}
     >
+      <div className="absolute top-3 left-3 z-10">
+        <ShowcaseReplayAction
+          index={0}
+          onReplay={replay}
+          reducedMotion={reducedMotion}
+          visible={showActions}
+        />
+      </div>
       <div className="absolute top-3 right-3 z-10 flex items-center gap-2">
         <CardAction
           href={studioChartDocsHref(chart)}
-          index={0}
+          index={1}
           label="Docs"
           reducedMotion={reducedMotion}
           variant="outline"
@@ -155,15 +237,27 @@ function ShowcaseCard({
         />
         <CardAction
           href={studioChartHref(chart)}
-          index={1}
+          index={2}
           label="Open in Studio"
           reducedMotion={reducedMotion}
           variant="default"
           visible={showActions}
         />
       </div>
-      {children}
-    </article>
+      <CardContent
+        className={cn(
+          previewCardContentClassName,
+          previewCardContentFillClassName
+        )}
+      >
+        <div
+          className="flex size-full min-h-0 items-center justify-center"
+          key={replayKey}
+        >
+          {children}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -392,7 +486,7 @@ export function HomeComponents() {
 
       <ShowcaseCard
         chart="sankey-chart"
-        className="col-span-full min-h-[200px] flex-1 p-8 sm:col-span-7"
+        className="col-span-full min-h-[200px] flex-1 sm:col-span-7"
       >
         <SankeyChart
           data={sankeyData}

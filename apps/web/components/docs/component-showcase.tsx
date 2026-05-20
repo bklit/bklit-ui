@@ -3,6 +3,12 @@
 import { DynamicCodeBlock } from "fumadocs-ui/components/dynamic-codeblock";
 import { type ReactNode, useState } from "react";
 import {
+  Card,
+  CardContent,
+  previewCardClassName,
+  previewCardContentClassName,
+} from "@/components/ui/card";
+import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
@@ -25,9 +31,17 @@ interface ComponentShowcaseProps {
   previewMinHeight?: number;
 }
 
+const codePanelContentClassName = cn(
+  "relative overflow-hidden transition-all duration-300",
+  "data-[state=closed]:max-h-[120px]",
+  "[&_figure]:my-0! [&_figure]:rounded-none! [&_figure]:border-0!",
+  "[&_pre]:my-0! [&_pre]:rounded-none! [&_pre]:border-0!",
+  "[&_[data-rehype-pretty-code-figure]]:mt-0!"
+);
+
 /**
- * A component showcase that displays a preview above an expandable code section.
- * Matches the shadcn/ui documentation pattern.
+ * Preview + collapsible code (shadcn docs pattern). Used for variant sections in MDX.
+ * Primary hero preview with Open in v0 / Studio uses {@link ComponentPreview} instead.
  *
  * @see https://github.com/shadcn-ui/ui/blob/main/apps/v4/components/code-collapsible-wrapper.tsx
  */
@@ -44,39 +58,27 @@ export function ComponentShowcase({
   const hasCode = code || codeBlock;
 
   return (
-    <div
+    <Card
       className={cn(
-        "not-prose my-6 overflow-hidden rounded-xl border border-border bg-card shadow-sm",
+        "not-prose my-6 flex flex-col overflow-hidden",
+        previewCardClassName,
         className
       )}
     >
-      {/* Preview Section */}
-      <div
-        className="flex items-center justify-center bg-card p-8"
+      <CardContent
+        className={cn(previewCardContentClassName, "shrink-0")}
         style={{ minHeight: previewMinHeight }}
       >
-        {children}
-      </div>
+        <div className="flex w-full items-center justify-center">{children}</div>
+      </CardContent>
 
-      {/* Code Section */}
-      {hasCode && (
+      {hasCode ? (
         <Collapsible
-          className="group/collapsible relative"
+          className="group/collapsible relative border-border border-t"
           onOpenChange={setIsOpen}
           open={isOpen}
         >
-          {/* Code content with forceMount for smooth transitions */}
-          <CollapsibleContent
-            className={cn(
-              "relative overflow-hidden transition-all duration-300",
-              "data-[state=closed]:max-h-[120px]",
-              // Style adjustments for embedded code blocks from fumadocs
-              "[&_figure]:!my-0 [&_figure]:!rounded-none [&_figure]:!border-0",
-              "[&_pre]:!my-0 [&_pre]:!rounded-none [&_pre]:!border-0",
-              "[&_[data-rehype-pretty-code-figure]]:!mt-0"
-            )}
-            forceMount
-          >
+          <CollapsibleContent className={codePanelContentClassName} forceMount>
             {codeBlock || (
               <DynamicCodeBlock
                 code={code || ""}
@@ -86,12 +88,11 @@ export function ComponentShowcase({
             )}
           </CollapsibleContent>
 
-          {/* Bottom gradient with View Code - only visible when collapsed */}
           <CollapsibleTrigger
             className={cn(
               "absolute inset-x-0 -bottom-px flex h-16 items-center justify-center",
-              "bg-gradient-to-t from-fd-secondary via-fd-secondary/80 to-transparent",
-              "font-medium text-fd-muted-foreground text-sm",
+              "bg-linear-to-t from-card via-card/80 to-transparent",
+              "font-medium text-muted-foreground text-sm",
               "cursor-pointer rounded-b-xl",
               "group-data-[state=open]/collapsible:hidden"
             )}
@@ -99,13 +100,12 @@ export function ComponentShowcase({
             View Code
           </CollapsibleTrigger>
 
-          {/* Collapse button at bottom left - only visible when expanded */}
           <CollapsibleTrigger
             className={cn(
               "absolute right-3 bottom-3 z-10",
               "rounded-md px-2.5 py-1 font-medium text-xs",
-              "text-fd-muted-foreground hover:text-fd-foreground",
-              "bg-fd-muted/80 hover:bg-fd-muted",
+              "text-muted-foreground hover:text-foreground",
+              "bg-muted/80 hover:bg-muted",
               "cursor-pointer transition-colors",
               "group-data-[state=closed]/collapsible:hidden"
             )}
@@ -113,7 +113,7 @@ export function ComponentShowcase({
             Collapse
           </CollapsibleTrigger>
         </Collapsible>
-      )}
-    </div>
+      ) : null}
+    </Card>
   );
 }

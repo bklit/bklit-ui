@@ -3,6 +3,12 @@ import { isChartSlug } from "@/components/charts/chart-slugs";
 import { OpenInStudioButton } from "@/components/docs/open-in-studio-button";
 import { OpenInV0Button } from "@/components/docs/open-in-v0-button";
 import {
+  Card,
+  CardContent,
+  previewCardClassName,
+  previewCardContentClassName,
+} from "@/components/ui/card";
+import {
   registryJsonUrlForName,
   registryV0ExampleJsonUrl,
 } from "@/lib/studio/chart-links";
@@ -44,9 +50,15 @@ export function ComponentPreview({
           </div>
         </div>
       ) : null}
-      <div className="flex min-h-[200px] items-center justify-center rounded-xl border border-border bg-card p-8 shadow-sm">
-        {children}
-      </div>
+      <Card className={cn("flex flex-col", previewCardClassName)}>
+        <CardContent
+          className={cn(previewCardContentClassName, "min-h-[200px] shrink-0")}
+        >
+          <div className="flex w-full items-center justify-center">
+            {children}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
