@@ -28,6 +28,9 @@ const DIRECT_LABEL_RE = /Direct/;
 const RADAR_SPEED_LABEL_RE = /Speed/;
 const RADAR_LABEL_FILL_RE = /fill="oklch\(0\.65 0\.01 260\)"/;
 const RADAR_LABEL_TRANSFORM_RE = /transform="translate\(120px, 40px\)"/;
+const AREA_GRADIENT_STOP_COLOR_RE = /stop-color="oklch\(0\.65 0\.15 200\)"/;
+const AREA_GRADIENT_STOP_OPACITY_RE = /stop-opacity="0\.4"/;
+const AREA_GRADIENT_INLINE_STYLE_RE = /style="stop-color:/;
 
 function mountDom(html: string) {
   const dom = new JSDOM(html, { pretendToBeVisual: true });
@@ -224,6 +227,31 @@ describe("build-frame-svg", () => {
 
     assert.match(svg, SANKEY_TEXT_FILL_RE);
     assert.match(svg, DIRECT_LABEL_RE);
+
+    unmountDom();
+  });
+
+  it("inlines area gradient stop colors from inline styles", () => {
+    const window = mountDom(
+      `<div id="root" style="width:720px;height:400px;--chart-line-primary:oklch(0.65 0.15 200);">
+        <svg width="720" height="400">
+          <defs>
+            <linearGradient id="area-gradient-desktop-abc" x1="0%" x2="0%" y1="0%" y2="100%">
+              <stop offset="0%" style="stop-color: var(--chart-line-primary); stop-opacity: 0.4" />
+              <stop offset="100%" style="stop-color: var(--chart-line-primary); stop-opacity: 0" />
+            </linearGradient>
+          </defs>
+          <path d="M0,100 L200,50 L400,80 L400,400 L0,400 Z" fill="url(#area-gradient-desktop-abc)" />
+        </svg>
+      </div>`
+    );
+
+    const root = window.document.getElementById("root") as HTMLElement;
+    const svg = buildFrameSvg({ root, width: 720, height: 400 });
+
+    assert.match(svg, AREA_GRADIENT_STOP_COLOR_RE);
+    assert.match(svg, AREA_GRADIENT_STOP_OPACITY_RE);
+    assert.doesNotMatch(svg, AREA_GRADIENT_INLINE_STYLE_RE);
 
     unmountDom();
   });

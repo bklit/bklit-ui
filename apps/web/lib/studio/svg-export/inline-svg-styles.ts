@@ -2,6 +2,8 @@ import { containsCssVar, resolveCssVar } from "./resolve-css-var";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 const FILL_STYLE_RE = /fill:\s*([^;]+)/;
+const STOP_COLOR_STYLE_RE = /stop-color:\s*([^;]+)/i;
+const STOP_OPACITY_STYLE_RE = /stop-opacity:\s*([^;]+)/i;
 
 const PRESENTATION_ATTRIBUTES = [
   "fill",
@@ -75,6 +77,49 @@ function stripAnimatedPathStyles(clone: Element): void {
   }
 }
 
+function resolveStopPresentation(
+  source: Element,
+  styleSource: Element,
+  property: "stop-color" | "stop-opacity"
+): string | null {
+  const fromAttribute = resolvePresentationAttribute(
+    source,
+    styleSource,
+    property
+  );
+  if (fromAttribute !== null && fromAttribute !== "") {
+    return fromAttribute;
+  }
+
+  const computed = getComputedStyle(source);
+  const computedValue =
+    property === "stop-color" ? computed.stopColor : computed.stopOpacity;
+
+  if (
+    computedValue &&
+    computedValue !== "" &&
+    computedValue !== "initial" &&
+    !containsCssVar(computedValue)
+  ) {
+    return computedValue;
+  }
+
+  const styleValue = source.getAttribute("style");
+  if (!styleValue) {
+    return null;
+  }
+
+  const match = (
+    property === "stop-color" ? STOP_COLOR_STYLE_RE : STOP_OPACITY_STYLE_RE
+  ).exec(styleValue);
+  if (!match?.[1]) {
+    return null;
+  }
+
+  const raw = match[1].trim();
+  return containsCssVar(raw) ? resolveCssVar(styleSource, raw) : raw;
+}
+
 function applyStopPresentation(
   source: Element,
   clone: Element,
@@ -83,13 +128,14 @@ function applyStopPresentation(
   setResolvedAttribute(
     clone,
     "stop-color",
-    resolvePresentationAttribute(source, styleSource, "stop-color")
+    resolveStopPresentation(source, styleSource, "stop-color")
   );
   setResolvedAttribute(
     clone,
     "stop-opacity",
-    resolvePresentationAttribute(source, styleSource, "stop-opacity")
+    resolveStopPresentation(source, styleSource, "stop-opacity")
   );
+  clone.removeAttribute("style");
 }
 
 function applyTextPresentation(
