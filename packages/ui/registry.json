@@ -334,6 +334,11 @@
           "path": "src/charts/area.tsx",
           "type": "registry:component",
           "target": "components/charts/area.tsx"
+        },
+        {
+          "path": "src/charts/pattern-area.tsx",
+          "type": "registry:component",
+          "target": "components/charts/pattern-area.tsx"
         }
       ]
     },
