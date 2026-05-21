@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import { CHART_PALETTE_DERIVED_VARS } from "./svg-export/chart-var-aliases";
 
 export const COLOR_PRESET_IDS = [
   "default",
@@ -71,7 +72,15 @@ export const COLOR_PRESETS: ColorPreset[] = [
 
 export function presetStyle(id: ColorPresetId): CSSProperties {
   const preset = COLOR_PRESETS.find((p) => p.id === id);
-  return (preset?.vars ?? {}) as CSSProperties;
+  const vars = { ...(preset?.vars ?? {}) };
+
+  // Re-derive semantic line tokens on the frame so palette overrides flow into
+  // Area/Line charts and SVG export even when :root tokens are not re-evaluated.
+  if (Object.keys(vars).length > 0) {
+    Object.assign(vars, CHART_PALETTE_DERIVED_VARS);
+  }
+
+  return vars as CSSProperties;
 }
 
 /** Representative swatch for preset picker (chart-1). */

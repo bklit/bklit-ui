@@ -31,6 +31,8 @@ const RADAR_LABEL_TRANSFORM_RE = /transform="translate\(120px, 40px\)"/;
 const AREA_GRADIENT_STOP_COLOR_RE = /stop-color="oklch\(0\.65 0\.15 200\)"/;
 const AREA_GRADIENT_STOP_OPACITY_RE = /stop-opacity="0\.4"/;
 const AREA_GRADIENT_INLINE_STYLE_RE = /style="stop-color:/;
+const EXPORTED_CHART_THEME_VARS_RE = /--chart-1:oklch\(0\.84 0\.18 128\)/;
+const EXPORTED_CHART_FILL_RE = /fill="oklch\(0\.84 0\.18 128\)"/;
 
 function mountDom(html: string) {
   const dom = new JSDOM(html, { pretendToBeVisual: true });
@@ -227,6 +229,24 @@ describe("build-frame-svg", () => {
 
     assert.match(svg, SANKEY_TEXT_FILL_RE);
     assert.match(svg, DIRECT_LABEL_RE);
+
+    unmountDom();
+  });
+
+  it("embeds frame chart palette vars for self-contained exports", () => {
+    const window = mountDom(
+      `<div id="root" style="width:720px;height:400px;--chart-1:oklch(0.84 0.18 128);--chart-line-primary:var(--chart-1);">
+        <svg width="720" height="400">
+          <rect width="100" height="100" fill="var(--chart-1)" />
+        </svg>
+      </div>`
+    );
+
+    const root = window.document.getElementById("root") as HTMLElement;
+    const svg = buildFrameSvg({ root, width: 720, height: 400 });
+
+    assert.match(svg, EXPORTED_CHART_THEME_VARS_RE);
+    assert.match(svg, EXPORTED_CHART_FILL_RE);
 
     unmountDom();
   });

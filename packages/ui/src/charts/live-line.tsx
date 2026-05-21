@@ -147,8 +147,8 @@ export function LiveLine({
   );
 
   const defaultMomentumColors: MomentumColors = {
-    up: "var(--color-emerald-500)",
-    down: "var(--color-red-500)",
+    up: "var(--chart-1)",
+    down: "var(--chart-5)",
     flat: stroke,
   };
   const dotMomentumColors = momentumColors ?? defaultMomentumColors;

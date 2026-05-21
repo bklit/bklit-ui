@@ -8,6 +8,7 @@ import {
   isValidElement,
   type ReactElement,
   type ReactNode,
+  useId,
   useMemo,
 } from "react";
 import { cn } from "@/lib/utils";
@@ -202,6 +203,7 @@ function GaugeInner({
   enterStaggerScale = 1,
 }: GaugeInnerProps) {
   const prefersReducedMotion = useReducedMotion();
+  const themeActiveGradientId = `gauge-theme-active-${useId().replace(/:/g, "")}`;
   const defsChildren = useMemo(() => collectDefsElements(children), [children]);
 
   const notchTransition: Transition = prefersReducedMotion
@@ -241,6 +243,7 @@ function GaugeInner({
   const activeGrad1 = activeGradient?.[1] ?? DEFAULT_ACTIVE_GRADIENT[1];
   const inactiveGrad0 = inactiveGradient?.[0] ?? activeGrad0;
   const inactiveGrad1 = inactiveGradient?.[1] ?? activeGrad1;
+  const useThemePaletteGradient = useGradient && activeGradient === undefined;
 
   const notches = useMemo(() => {
     return Array.from({ length: totalNotches }, (_, i) => {
@@ -276,11 +279,10 @@ function GaugeInner({
 
       const denom = totalNotches > 1 ? totalNotches - 1 : 1;
       const gradientFactor = i / denom;
-      const gradientColor = interpolateHex(
-        activeGrad0,
-        activeGrad1,
-        gradientFactor
-      );
+      const gradientColor =
+        useGradient && !useThemePaletteGradient
+          ? interpolateHex(activeGrad0, activeGrad1, gradientFactor)
+          : "var(--chart-1)";
 
       return {
         index: i,
@@ -303,6 +305,8 @@ function GaugeInner({
     notchLength,
     activeGrad0,
     activeGrad1,
+    useGradient,
+    useThemePaletteGradient,
   ]);
 
   const createNotchPath = (
@@ -371,6 +375,9 @@ function GaugeInner({
     if (hasCustomInactive) {
       return inactiveFill as string;
     }
+    if (useThemePaletteGradient) {
+      return bgFillSolid;
+    }
     if (useGradient) {
       return interpolateHex(inactiveGrad0, inactiveGrad1, notchIndex / denom);
     }
@@ -380,6 +387,9 @@ function GaugeInner({
   const resolveActiveFill = (notch: (typeof notches)[number]) => {
     if (hasCustomActive) {
       return activeFill as string;
+    }
+    if (useThemePaletteGradient) {
+      return `url(#${themeActiveGradientId})`;
     }
     if (useGradient) {
       return notch.gradientColor;
@@ -396,7 +406,23 @@ function GaugeInner({
         viewBox={`0 0 ${width} ${height}`}
         width={width}
       >
-        {defsChildren.length > 0 ? <defs>{defsChildren}</defs> : null}
+        {defsChildren.length > 0 || useThemePaletteGradient ? (
+          <defs>
+            {useThemePaletteGradient ? (
+              <linearGradient
+                id={themeActiveGradientId}
+                x1="0%"
+                x2="100%"
+                y1="0%"
+                y2="0%"
+              >
+                <stop offset="0%" stopColor="var(--chart-1)" />
+                <stop offset="100%" stopColor="var(--chart-5)" />
+              </linearGradient>
+            ) : null}
+            {defsChildren}
+          </defs>
+        ) : null}
         {notches.map((notch) => (
           <motion.path
             animate={{ opacity: 1, scale: 1 }}

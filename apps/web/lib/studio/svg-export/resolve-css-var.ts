@@ -1,4 +1,7 @@
+import { CHART_VAR_ALIASES } from "./chart-var-aliases";
+
 const VAR_REFERENCE = /var\(\s*(--[\w-]+)/;
+const MAX_RESOLVE_DEPTH = 8;
 
 export function containsCssVar(value: string): boolean {
   return value.includes("var(");
@@ -43,9 +46,97 @@ export function parseVarExpression(value: string): {
   return name.startsWith("--") ? { name, fallback: fallback || null } : null;
 }
 
+function getCustomPropertyFromAncestors(
+  element: Element,
+  name: string,
+  aliasDepth = 0
+): string {
+  if (aliasDepth > MAX_RESOLVE_DEPTH) {
+    return "";
+  }
+
+  let current: Element | null = element;
+  while (current) {
+    const inlineValue =
+      current instanceof HTMLElement
+        ? current.style.getPropertyValue(name).trim()
+        : "";
+    if (inlineValue) {
+      return inlineValue;
+    }
+
+    const computedValue = getComputedStyle(current)
+      .getPropertyValue(name)
+      .trim();
+    if (computedValue) {
+      return computedValue;
+    }
+
+    current = current.parentElement;
+  }
+
+  const alias = CHART_VAR_ALIASES[name];
+  if (alias) {
+    return getCustomPropertyFromAncestors(element, alias, aliasDepth + 1);
+  }
+
+  return "";
+}
+
+interface ResolveContext {
+  element?: Element;
+  style: CSSStyleDeclaration;
+}
+
+function getCustomProperty(context: ResolveContext, name: string): string {
+  if (context.element) {
+    return getCustomPropertyFromAncestors(context.element, name);
+  }
+
+  return context.style.getPropertyValue(name).trim();
+}
+
+function resolveNestedValue(
+  context: ResolveContext,
+  value: string,
+  depth: number
+): string {
+  return resolveCssVarFromStyle(context.style, value, depth, context.element);
+}
+
+function resolveMaybeNested(
+  context: ResolveContext,
+  value: string,
+  depth: number
+): string {
+  if (containsCssVar(value)) {
+    return resolveNestedValue(context, value, depth + 1);
+  }
+
+  return value;
+}
+
+function resolveVarToken(
+  context: ResolveContext,
+  parsed: { name: string; fallback: string | null },
+  trimmed: string,
+  depth: number
+): string {
+  const resolved = getCustomProperty(context, parsed.name);
+  if (resolved) {
+    return resolveMaybeNested(context, resolved, depth);
+  }
+
+  if (parsed.fallback) {
+    return resolveMaybeNested(context, parsed.fallback, depth);
+  }
+
+  return trimmed;
+}
+
 /**
  * Resolve a CSS color/value that may contain `var(--token)` references.
- * Uses `getComputedStyle` on `element` so preset overrides on the frame apply.
+ * Walks the element's ancestor chain so preset overrides on the Studio frame apply.
  */
 export function resolveCssVar(element: Element, value: string): string {
   const trimmed = value.trim();
@@ -53,16 +144,16 @@ export function resolveCssVar(element: Element, value: string): string {
     return trimmed;
   }
 
-  const style = getComputedStyle(element);
-  return resolveCssVarFromStyle(style, trimmed);
+  return resolveCssVarFromStyle(getComputedStyle(element), trimmed, 0, element);
 }
 
 export function resolveCssVarFromStyle(
   style: CSSStyleDeclaration,
   value: string,
-  depth = 0
+  depth = 0,
+  element?: Element
 ): string {
-  if (depth > 8) {
+  if (depth > MAX_RESOLVE_DEPTH) {
     return value;
   }
 
@@ -71,29 +162,18 @@ export function resolveCssVarFromStyle(
     return trimmed;
   }
 
+  const context: ResolveContext = { style, element };
+
   if (trimmed.startsWith("var(")) {
     const parsed = parseVarExpression(trimmed);
     if (!parsed) {
       return trimmed;
     }
 
-    const resolved = style.getPropertyValue(parsed.name).trim();
-    if (resolved) {
-      return containsCssVar(resolved)
-        ? resolveCssVarFromStyle(style, resolved, depth + 1)
-        : resolved;
-    }
-
-    if (parsed.fallback) {
-      return containsCssVar(parsed.fallback)
-        ? resolveCssVarFromStyle(style, parsed.fallback, depth + 1)
-        : parsed.fallback;
-    }
-
-    return trimmed;
+    return resolveVarToken(context, parsed, trimmed, depth);
   }
 
   return trimmed.replace(/var\([^)]*(?:\([^)]*\)[^)]*)*\)/g, (match) =>
-    resolveCssVarFromStyle(style, match, depth + 1)
+    resolveNestedValue(context, match, depth)
   );
 }

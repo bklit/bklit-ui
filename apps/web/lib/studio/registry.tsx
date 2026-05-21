@@ -436,14 +436,14 @@ const candlestickConfig: StudioChartConfig = {
           {state.candleUseGradient ? (
             <>
               <LinearGradient
-                from="var(--color-lime-400)"
+                from="var(--chart-1)"
                 id="studio-candle-up"
-                to="var(--color-emerald-500)"
+                to="var(--chart-3)"
               />
               <LinearGradient
-                from="var(--color-yellow-400)"
+                from="var(--chart-4)"
                 id="studio-candle-down"
-                to="var(--color-red-500)"
+                to="var(--chart-5)"
               />
             </>
           ) : null}

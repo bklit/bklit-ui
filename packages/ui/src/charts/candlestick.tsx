@@ -26,8 +26,8 @@ export interface CandlestickProps {
   fadedOpacity?: number;
 }
 
-const SOLID_POSITIVE = "var(--color-emerald-500)";
-const SOLID_NEGATIVE = "var(--color-red-500)";
+const SOLID_POSITIVE = "var(--chart-1)";
+const SOLID_NEGATIVE = "var(--chart-5)";
 
 const WICK_WIDTH = 1.5;
 

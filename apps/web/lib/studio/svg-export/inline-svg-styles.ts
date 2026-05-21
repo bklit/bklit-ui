@@ -292,9 +292,9 @@ function walkElementsInSync(
 export function inlineSvgStyles(
   sourceSvg: Element,
   cloneSvg: Element,
-  styleSource: Element
+  _exportRoot: Element
 ): void {
   walkElementsInSync(sourceSvg, cloneSvg, (source, clone) => {
-    applyComputedPresentation(source, clone, styleSource);
+    applyComputedPresentation(source, clone, source);
   });
 }
