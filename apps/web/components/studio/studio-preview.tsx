@@ -20,6 +20,12 @@ import { useStudioMotionRemountKey } from "@/components/studio/use-studio-motion
 import { useStudioRecording } from "@/components/studio/use-studio-recording";
 import { useStudioState } from "@/components/studio/use-studio-state";
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { presetStyle } from "@/lib/studio/color-presets";
 import { StudioPatternDefs, studioPatternFill } from "@/lib/studio/patterns";
 import type { StudioRenderContext } from "@/lib/studio/render-context";
@@ -175,154 +181,168 @@ export function StudioPreview() {
   }, [state.chart, state.frameH, state.frameW]);
 
   return (
-    <StudioPanel className="relative flex h-full min-h-0 min-w-0 flex-col overflow-hidden">
-      <div className="absolute top-6 right-6 z-30 flex items-center gap-2.5">
-        <Button
-          aria-label="Replay animation"
-          className="size-10"
-          disabled={controlsDisabled}
-          onClick={replay}
-          size="icon"
-          title="Replay animation"
-          type="button"
-          variant="outline"
-        >
-          <HugeiconsIcon icon={Refresh01Icon} size={20} strokeWidth={1.5} />
-        </Button>
-        <StudioExportSvgButton
-          disabled={controlsDisabled}
-          onExport={handleExportSvg}
-        />
-        <StudioRecordPopover
-          disabled={recordingBlocked}
-          isRecording={isRecording}
-          onStart={handleStartRecording}
-          onStop={stopRecording}
-        />
-        <PresetSelect
-          disabled={controlsDisabled}
-          onChange={(v) => setParam("preset", v)}
-          value={displayState.preset}
-        />
-        <StudioCodeSheet state={state} />
-      </div>
-
-      {error ? (
-        <div
-          className="absolute top-20 right-6 z-20 max-w-xs rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-destructive text-sm"
-          role="alert"
-        >
-          <p>{error}</p>
-          <button className="mt-1 underline" onClick={clearError} type="button">
-            Dismiss
-          </button>
-        </div>
-      ) : null}
-
-      <div
-        className={cn(
-          "studio-preview-canvas relative flex min-h-0 flex-1 flex-col overflow-auto p-6 pt-16",
-          showCaptureLayout ? "gap-4" : "items-center justify-center gap-5"
-        )}
-        ref={canvasRef}
-      >
-        {showCaptureLayout ? (
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-0 z-1 bg-zinc-950/88"
+    <TooltipProvider>
+      <StudioPanel className="relative flex h-full min-h-0 min-w-0 flex-col overflow-hidden">
+        <div className="absolute top-6 right-6 z-30 flex items-center gap-2.5">
+          <Tooltip>
+            <TooltipTrigger render={<span className="inline-flex" />}>
+              <Button
+                aria-label="Replay animation"
+                className="size-10"
+                disabled={controlsDisabled}
+                onClick={replay}
+                size="icon"
+                type="button"
+                variant="outline"
+              >
+                <HugeiconsIcon
+                  icon={Refresh01Icon}
+                  size={20}
+                  strokeWidth={1.5}
+                />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Replay animation</TooltipContent>
+          </Tooltip>
+          <StudioExportSvgButton
+            disabled={controlsDisabled}
+            onExport={handleExportSvg}
           />
+          <StudioRecordPopover
+            disabled={recordingBlocked}
+            isRecording={isRecording}
+            onStart={handleStartRecording}
+            onStop={stopRecording}
+          />
+          <PresetSelect
+            disabled={controlsDisabled}
+            onChange={(v) => setParam("preset", v)}
+            value={displayState.preset}
+          />
+          <StudioCodeSheet state={state} />
+        </div>
+
+        {error ? (
+          <div
+            className="absolute top-20 right-6 z-20 max-w-xs rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-destructive text-sm"
+            role="alert"
+          >
+            <p>{error}</p>
+            <button
+              className="mt-1 underline"
+              onClick={clearError}
+              type="button"
+            >
+              Dismiss
+            </button>
+          </div>
         ) : null}
 
         <div
           className={cn(
-            "relative z-2 flex min-h-0 w-full flex-1 flex-col",
-            showCaptureLayout
-              ? "gap-4"
-              : "max-w-3xl items-center justify-center gap-5"
+            "studio-preview-canvas relative flex min-h-0 flex-1 flex-col overflow-auto p-6 pt-16",
+            showCaptureLayout ? "gap-4" : "items-center justify-center gap-5"
           )}
+          ref={canvasRef}
         >
-          <div
-            className="relative flex min-h-0 w-full flex-1 items-center justify-center"
-            ref={chartAreaRef}
-          >
-            <StudioRecordingMask
-              active={showCaptureLayout}
-              containerRef={chartAreaRef}
-              targetRef={recordCaptureRef}
-            />
-
+          {showCaptureLayout ? (
             <div
-              className={cn(
-                showCaptureLayout
-                  ? "studio-recording-capture relative shrink-0"
-                  : "inline-flex"
-              )}
-              ref={recordCaptureRef}
-              style={
-                showCaptureLayout
-                  ? {
-                      width:
-                        state.frameW + STUDIO_RECORDING_CAPTURE_INSET_PX * 2,
-                      height:
-                        state.frameH + STUDIO_RECORDING_CAPTURE_INSET_PX * 2,
-                    }
-                  : undefined
-              }
+              aria-hidden
+              className="pointer-events-none absolute inset-0 z-1 bg-zinc-950/88"
+            />
+          ) : null}
+
+          <div
+            className={cn(
+              "relative z-2 flex min-h-0 w-full flex-1 flex-col",
+              showCaptureLayout
+                ? "gap-4"
+                : "max-w-3xl items-center justify-center gap-5"
+            )}
+          >
+            <div
+              className="relative flex min-h-0 w-full flex-1 items-center justify-center"
+              ref={chartAreaRef}
             >
+              <StudioRecordingMask
+                active={showCaptureLayout}
+                containerRef={chartAreaRef}
+                targetRef={recordCaptureRef}
+              />
+
               <div
+                className={cn(
+                  showCaptureLayout
+                    ? "studio-recording-capture relative shrink-0"
+                    : "inline-flex"
+                )}
+                ref={recordCaptureRef}
                 style={
                   showCaptureLayout
                     ? {
-                        position: "absolute",
-                        top: STUDIO_RECORDING_CAPTURE_INSET_PX,
-                        left: STUDIO_RECORDING_CAPTURE_INSET_PX,
+                        width:
+                          state.frameW + STUDIO_RECORDING_CAPTURE_INSET_PX * 2,
+                        height:
+                          state.frameH + STUDIO_RECORDING_CAPTURE_INSET_PX * 2,
                       }
                     : undefined
                 }
               >
-                <StudioChartFrame
-                  boundsRef={chartAreaRef}
-                  height={state.frameH}
-                  isRecording={isRecording}
-                  onResize={handleFrameResize}
-                  ref={frameRef}
-                  style={presetStyle(displayState.preset)}
-                  width={state.frameW}
+                <div
+                  style={
+                    showCaptureLayout
+                      ? {
+                          position: "absolute",
+                          top: STUDIO_RECORDING_CAPTURE_INSET_PX,
+                          left: STUDIO_RECORDING_CAPTURE_INSET_PX,
+                        }
+                      : undefined
+                  }
                 >
-                  <div className="flex size-full min-h-0 items-center justify-center">
-                    <StudioChartViewport>
-                      {(frame) => {
-                        const renderCtx: StudioRenderContext = {
-                          animationKey,
-                          isRecording: isRecording || capturePrepared,
-                          motionRemountKey,
-                          committedState: state,
-                          motionCurveDragging,
-                          patternDefs,
-                          patternFill,
-                          frame,
-                        };
-                        return config.render(displayState, renderCtx);
-                      }}
-                    </StudioChartViewport>
-                  </div>
-                </StudioChartFrame>
+                  <StudioChartFrame
+                    boundsRef={chartAreaRef}
+                    height={state.frameH}
+                    isRecording={isRecording}
+                    onResize={handleFrameResize}
+                    ref={frameRef}
+                    style={presetStyle(displayState.preset)}
+                    width={state.frameW}
+                  >
+                    <div className="flex size-full min-h-0 items-center justify-center">
+                      <StudioChartViewport>
+                        {(frame) => {
+                          const renderCtx: StudioRenderContext = {
+                            animationKey,
+                            isRecording: isRecording || capturePrepared,
+                            motionRemountKey,
+                            committedState: state,
+                            motionCurveDragging,
+                            patternDefs,
+                            patternFill,
+                            frame,
+                          };
+                          return config.render(displayState, renderCtx);
+                        }}
+                      </StudioChartViewport>
+                    </div>
+                  </StudioChartFrame>
+                </div>
               </div>
             </div>
-          </div>
 
-          {showRecordingChrome ? (
-            <StudioRecordingTimeline
-              elapsedMs={elapsedMs}
-              isPaused={isPaused}
-              onPause={pauseRecording}
-              onResume={resumeRecording}
-              phase={phase === "encoding" ? "encoding" : "capturing"}
-              timeline={timeline}
-            />
-          ) : null}
+            {showRecordingChrome ? (
+              <StudioRecordingTimeline
+                elapsedMs={elapsedMs}
+                isPaused={isPaused}
+                onPause={pauseRecording}
+                onResume={resumeRecording}
+                phase={phase === "encoding" ? "encoding" : "capturing"}
+                timeline={timeline}
+              />
+            ) : null}
+          </div>
         </div>
-      </div>
-    </StudioPanel>
+      </StudioPanel>
+    </TooltipProvider>
   );
 }

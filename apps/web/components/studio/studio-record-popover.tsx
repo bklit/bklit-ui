@@ -11,6 +11,11 @@ import {
 } from "@/components/ui/popover";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   STUDIO_RECORDING_ASPECT_OPTIONS,
   STUDIO_RECORDING_FORMAT_OPTIONS,
   STUDIO_RECORDING_INTERACTION_OPTIONS,
@@ -59,20 +64,26 @@ export function StudioRecordPopover({
 
   return (
     <Popover onOpenChange={setOpen} open={open}>
-      <PopoverTrigger asChild>
-        <Button
-          aria-expanded={open}
-          aria-label="Record animation"
-          className="size-10"
-          disabled={disabled}
-          size="icon"
-          title={disabled ? "Recording requires motion" : "Record animation"}
-          type="button"
-          variant="outline"
-        >
-          <VideoCameraIcon aria-hidden className="size-5" />
-        </Button>
-      </PopoverTrigger>
+      <Tooltip>
+        <TooltipTrigger render={<span className="inline-flex" />}>
+          <PopoverTrigger asChild>
+            <Button
+              aria-expanded={open}
+              aria-label="Record animation"
+              className="size-10"
+              disabled={disabled}
+              size="icon"
+              type="button"
+              variant="outline"
+            >
+              <VideoCameraIcon aria-hidden className="size-5" />
+            </Button>
+          </PopoverTrigger>
+        </TooltipTrigger>
+        <TooltipContent>
+          {disabled ? "Recording requires motion" : "Record"}
+        </TooltipContent>
+      </Tooltip>
       <PopoverContent
         align="end"
         className="w-72 p-4"

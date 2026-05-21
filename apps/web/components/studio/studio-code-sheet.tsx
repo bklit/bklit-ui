@@ -50,8 +50,12 @@ export function StudioCodeSheet({ state }: { state: StudioUrlState }) {
   return (
     <Sheet onOpenChange={setOpen} open={open}>
       <SheetTrigger asChild>
-        <Button className="h-10 px-4 text-sm" type="button" variant="outline">
-          Get code
+        <Button
+          className="h-10 px-4 font-mono text-[11px]"
+          type="button"
+          variant="white"
+        >
+          Get code_
         </Button>
       </SheetTrigger>
       <SheetContent className="overflow-y-auto">
