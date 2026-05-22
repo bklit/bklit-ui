@@ -19,6 +19,8 @@ import { cn } from "@/lib/utils";
 
 export const STUDIO_CHART_FRAME_HEIGHT = 400;
 export const STUDIO_CHART_FRAME_WIDTH = 720;
+export const STUDIO_CHART_FRAME_MAX_WIDTH = 1000;
+export const STUDIO_CHART_FRAME_MAX_HEIGHT = 800;
 export const STUDIO_EXPORT_ROOT_ATTR = "data-studio-export-root";
 
 const MIN_WIDTH = 280;
@@ -67,11 +69,11 @@ function clampFrameSize(
   const safeH = finiteOr(height, STUDIO_CHART_FRAME_HEIGHT);
   const maxW = Math.max(
     MIN_WIDTH,
-    finiteOr(maxWidth, STUDIO_CHART_FRAME_WIDTH * 2)
+    finiteOr(maxWidth, STUDIO_CHART_FRAME_MAX_WIDTH)
   );
   const maxH = Math.max(
     MIN_HEIGHT,
-    finiteOr(maxHeight, STUDIO_CHART_FRAME_HEIGHT * 2)
+    finiteOr(maxHeight, STUDIO_CHART_FRAME_MAX_HEIGHT)
   );
 
   return {
@@ -139,15 +141,15 @@ export const StudioChartFrame = forwardRef<
   const draggingRef = useRef(false);
   const [isDragging, setIsDragging] = useState(false);
   const [maxSize, setMaxSize] = useState({
-    width: STUDIO_CHART_FRAME_WIDTH * 2,
-    height: STUDIO_CHART_FRAME_HEIGHT * 2,
+    width: STUDIO_CHART_FRAME_MAX_WIDTH,
+    height: STUDIO_CHART_FRAME_MAX_HEIGHT,
   });
   const [size, setSize] = useState<FrameSize>(() =>
     clampFrameSize(
       width,
       height,
-      STUDIO_CHART_FRAME_WIDTH * 2,
-      STUDIO_CHART_FRAME_HEIGHT * 2
+      STUDIO_CHART_FRAME_MAX_WIDTH,
+      STUDIO_CHART_FRAME_MAX_HEIGHT
     )
   );
 
@@ -160,8 +162,11 @@ export const StudioChartFrame = forwardRef<
     }
     const update = () => {
       setMaxSize({
-        width: Math.max(bounds.clientWidth, STUDIO_CHART_FRAME_WIDTH),
-        height: Math.max(bounds.clientHeight, STUDIO_CHART_FRAME_HEIGHT),
+        width: STUDIO_CHART_FRAME_MAX_WIDTH,
+        height: Math.min(
+          STUDIO_CHART_FRAME_MAX_HEIGHT,
+          Math.max(bounds.clientHeight, STUDIO_CHART_FRAME_HEIGHT)
+        ),
       });
     };
     update();

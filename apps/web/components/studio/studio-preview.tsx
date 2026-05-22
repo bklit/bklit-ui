@@ -6,6 +6,7 @@ import { useReducedMotion } from "motion/react";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { PresetSelect } from "@/components/studio/controls/preset-select";
 import {
+  STUDIO_CHART_FRAME_MAX_WIDTH,
   STUDIO_EXPORT_ROOT_ATTR,
   StudioChartFrame,
 } from "@/components/studio/studio-chart-frame";
@@ -57,7 +58,9 @@ export function StudioPreview() {
   const frameSizeBeforeRecording = useRef<{ w: number; h: number } | null>(
     null
   );
+  const recordingPrepStartedRef = useRef(false);
   const [capturePrepared, setCapturePrepared] = useState(false);
+  const [recordingChartHeld, setRecordingChartHeld] = useState(false);
   const reducedMotion = useReducedMotion();
   const {
     phase,
@@ -76,6 +79,30 @@ export function StudioPreview() {
   const replay = useCallback(() => {
     setAnimationKey((k) => k + 1);
   }, []);
+
+  const replayForRecording = useCallback(() => {
+    setRecordingChartHeld(false);
+    setAnimationKey((k) => k + 1);
+  }, []);
+
+  const restorePreviewChart = useCallback(() => {
+    setRecordingChartHeld(false);
+    replay();
+  }, [replay]);
+
+  const handleRecordPopoverOpenChange = useCallback(
+    (open: boolean) => {
+      if (open) {
+        setRecordingChartHeld(true);
+        return;
+      }
+      if (recordingPrepStartedRef.current || isRecording || capturePrepared) {
+        return;
+      }
+      restorePreviewChart();
+    },
+    [capturePrepared, isRecording, restorePreviewChart]
+  );
 
   const patternDefs = useMemo(
     () => <StudioPatternDefs preset={displayState.pattern} />,
@@ -104,6 +131,7 @@ export function StudioPreview() {
         return;
       }
 
+      recordingPrepStartedRef.current = true;
       const saved = { w: state.frameW, h: state.frameH };
       const dimensions = getRecordingCaptureDimensions(
         state.frameW,
@@ -111,6 +139,7 @@ export function StudioPreview() {
         aspect
       );
 
+      setRecordingChartHeld(true);
       setCapturePrepared(true);
 
       if (aspect === "16:9") {
@@ -132,7 +161,7 @@ export function StudioPreview() {
           height: dimensions.captureHeight,
           state: displayState,
           chart: state.chart,
-          replay,
+          replay: replayForRecording,
           interactionMs,
           format,
           onFinished: () => {
@@ -142,15 +171,19 @@ export function StudioPreview() {
               frameSizeBeforeRecording.current = null;
             }
             setCapturePrepared(false);
+            recordingPrepStartedRef.current = false;
+            restorePreviewChart();
           },
         });
       } finally {
         setCapturePrepared(false);
+        recordingPrepStartedRef.current = false;
       }
     },
     [
       displayState,
-      replay,
+      replayForRecording,
+      restorePreviewChart,
       setFrameSize,
       startRecording,
       state.chart,
@@ -160,7 +193,7 @@ export function StudioPreview() {
   );
 
   const recordingBlocked = reducedMotion === true;
-  const controlsDisabled = isRecording || capturePrepared;
+  const controlsDisabled = isRecording || capturePrepared || recordingChartHeld;
   const showCaptureLayout = isRecording || capturePrepared;
   const showRecordingChrome = isRecording && timeline;
 
@@ -211,6 +244,7 @@ export function StudioPreview() {
           <StudioRecordPopover
             disabled={recordingBlocked}
             isRecording={isRecording}
+            onOpenChange={handleRecordPopoverOpenChange}
             onStart={handleStartRecording}
             onStop={stopRecording}
           />
@@ -255,10 +289,13 @@ export function StudioPreview() {
           <div
             className={cn(
               "relative z-2 flex min-h-0 w-full flex-1 flex-col",
-              showCaptureLayout
-                ? "gap-4"
-                : "max-w-3xl items-center justify-center gap-5"
+              showCaptureLayout ? "gap-4" : "items-center justify-center gap-5"
             )}
+            style={
+              showCaptureLayout
+                ? undefined
+                : { maxWidth: STUDIO_CHART_FRAME_MAX_WIDTH }
+            }
           >
             <div
               className="relative flex min-h-0 w-full flex-1 items-center justify-center"
@@ -309,21 +346,23 @@ export function StudioPreview() {
                     width={state.frameW}
                   >
                     <div className="flex size-full min-h-0 items-center justify-center">
-                      <StudioChartViewport>
-                        {(frame) => {
-                          const renderCtx: StudioRenderContext = {
-                            animationKey,
-                            isRecording: isRecording || capturePrepared,
-                            motionRemountKey,
-                            committedState: state,
-                            motionCurveDragging,
-                            patternDefs,
-                            patternFill,
-                            frame,
-                          };
-                          return config.render(displayState, renderCtx);
-                        }}
-                      </StudioChartViewport>
+                      {recordingChartHeld ? null : (
+                        <StudioChartViewport>
+                          {(frame) => {
+                            const renderCtx: StudioRenderContext = {
+                              animationKey,
+                              isRecording,
+                              motionRemountKey,
+                              committedState: state,
+                              motionCurveDragging,
+                              patternDefs,
+                              patternFill,
+                              frame,
+                            };
+                            return config.render(displayState, renderCtx);
+                          }}
+                        </StudioChartViewport>
+                      )}
                     </div>
                   </StudioChartFrame>
                 </div>

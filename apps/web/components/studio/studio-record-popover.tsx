@@ -28,11 +28,13 @@ import { cn } from "@/lib/utils";
 export function StudioRecordPopover({
   disabled,
   isRecording,
+  onOpenChange,
   onStart,
   onStop,
 }: {
   disabled?: boolean;
   isRecording: boolean;
+  onOpenChange?: (open: boolean) => void;
   onStart: (
     interactionMs: StudioRecordingInteractionMs,
     aspect: StudioRecordingAspect,
@@ -63,7 +65,13 @@ export function StudioRecordPopover({
   }
 
   return (
-    <Popover onOpenChange={setOpen} open={open}>
+    <Popover
+      onOpenChange={(nextOpen) => {
+        setOpen(nextOpen);
+        onOpenChange?.(nextOpen);
+      }}
+      open={open}
+    >
       <Tooltip>
         <TooltipTrigger render={<span className="inline-flex" />}>
           <PopoverTrigger asChild>
@@ -177,8 +185,8 @@ export function StudioRecordPopover({
         <Button
           className="mt-4 w-full"
           onClick={() => {
-            setOpen(false);
             onStart(interactionMs, aspect, format);
+            setOpen(false);
           }}
           type="button"
         >
