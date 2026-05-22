@@ -24,6 +24,8 @@ import {
   SankeyLink,
   SankeyNode,
   SankeyTooltip,
+  Scatter,
+  ScatterChart,
   SeriesBar,
   XAxis,
 } from "@bklitui/ui/charts";
@@ -60,6 +62,7 @@ import {
   radarCodegen,
   ringCodegen,
   sankeyCodegen,
+  scatterCodegen,
 } from "./codegen-helpers";
 import { resolveCurve } from "./curves";
 import {
@@ -74,6 +77,7 @@ import {
   radarDataDual,
   radarMetrics5,
   sankeySimple,
+  scatterStudioData,
 } from "./demo-data";
 import { motionEnterPropsCodegen } from "./motion-codegen";
 import {
@@ -90,6 +94,7 @@ import {
   radarChartControlGroups,
   ringChartControlGroups,
   sankeyChartControlGroups,
+  scatterChartControlGroups,
 } from "./registry-control-groups";
 import type { ChartSlug, StudioChartConfig } from "./types";
 import { chartLabels } from "./types";
@@ -184,6 +189,49 @@ const lineConfig: StudioChartConfig = {
     code: cartesianCodegen("LineChart", state, "desktop"),
     data: lineChartDataSnippet(),
   }),
+};
+
+const scatterConfig: StudioChartConfig = {
+  slug: "scatter-chart",
+  label: chartLabels["scatter-chart"],
+  motionPanel: true,
+  controls: [],
+  controlGroups: scatterChartControlGroups,
+  render: (state, ctx) => (
+    <StudioCartesianFill>
+      <ScatterChart
+        {...getStudioCssRevealPropsForPreview(state, ctx)}
+        className="size-full"
+        data={scatterStudioData}
+        key={studioPreviewChartKey(ctx)}
+      >
+        <Grid horizontal />
+        <Scatter
+          dataKey="desktop"
+          fadeOnHover={state.scatterFadeOnHover}
+          inactiveOpacity={state.scatterInactiveOpacity}
+          radius={state.scatterRadius}
+          ringGap={state.scatterRingGap}
+          showActiveHighlight={state.scatterShowActiveHighlight}
+          strokeWidth={state.scatterRingWidth}
+        />
+        {state.scatterSecondSeries ? (
+          <Scatter
+            dataKey="mobile"
+            fadeOnHover={state.scatterFadeOnHover}
+            inactiveOpacity={state.scatterInactiveOpacity}
+            radius={state.scatterRadius}
+            ringGap={state.scatterRingGap}
+            showActiveHighlight={state.scatterShowActiveHighlight}
+            strokeWidth={state.scatterRingWidth}
+          />
+        ) : null}
+        <XAxis />
+        <ChartTooltip />
+      </ScatterChart>
+    </StudioCartesianFill>
+  ),
+  generateCode: (state) => scatterCodegen(state),
 };
 
 const barConfig: StudioChartConfig = {
@@ -577,6 +625,7 @@ export const studioRegistry: Record<ChartSlug, StudioChartConfig> = {
   "gauge-chart": gaugeConfig,
   "area-chart": areaConfig,
   "line-chart": lineConfig,
+  "scatter-chart": scatterConfig,
   "bar-chart": barConfig,
   "composed-chart": composedConfig,
   "pie-chart": pieConfig,

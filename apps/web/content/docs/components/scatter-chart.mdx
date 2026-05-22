@@ -1,0 +1,117 @@
+---
+title: Scatter Chart
+description: A composable time-series scatter chart with offset rings, hover dimming, and animated enter
+---
+
+import { ScatterChartDemo } from "@/components/docs/scatter-chart-demo";
+
+<ComponentPreview registryName="scatter-chart">
+  <ScatterChartDemo />
+</ComponentPreview>
+
+## Installation
+
+<InstallationTabs
+  name="scatter-chart"
+  dependencies={["d3-scale", "d3-array", "motion", "react-use-measure"]}
+/>
+
+## Usage
+
+Build scatter charts by composing `ScatterChart` with one or more `Scatter` series, plus shared cartesian pieces (`Grid`, `XAxis`, `ChartTooltip`).
+
+### Basic Example
+
+```tsx
+import { ScatterChart, Scatter, Grid, XAxis, ChartTooltip } from "@bklitui/ui/charts";
+
+const data = [
+  { date: new Date("2025-01-01"), users: 1200 },
+  { date: new Date("2025-02-01"), users: 1350 },
+  { date: new Date("2025-03-01"), users: 1100 },
+];
+
+export default function SimpleScatter() {
+  return (
+    <ScatterChart data={data}>
+      <Grid horizontal />
+      <Scatter dataKey="users" />
+      <XAxis />
+      <ChartTooltip />
+    </ScatterChart>
+  );
+}
+```
+
+### Multiple Series
+
+Series colors default to the chart palette (`--chart-1` … `--chart-5`) in child order:
+
+```tsx
+<ScatterChart data={data}>
+  <Grid horizontal />
+  <Scatter dataKey="sessions" />
+  <Scatter dataKey="conversions" />
+  <XAxis />
+  <ChartTooltip />
+</ScatterChart>
+```
+
+### Offset Ring
+
+Each dot is an inner fill plus an outer ring separated by a gap (`ringGap`):
+
+```tsx
+<Scatter dataKey="users" radius={6} strokeWidth={2} ringGap={2} />
+```
+
+### Hover Interaction
+
+Non-active points can fade and blur while the crosshair is active:
+
+```tsx
+<Scatter
+  dataKey="users"
+  fadeOnHover
+  inactiveOpacity={0.5}
+  inactiveBlur={2}
+  showActiveHighlight
+/>
+```
+
+## Props
+
+### ScatterChart
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `data` | `Record<string, unknown>[]` | required | Rows with a date (or `xDataKey`) and numeric series fields |
+| `xDataKey` | `string` | `"date"` | Field used for the time x-axis |
+| `margin` | `Partial<Margin>` | `40` all sides | Chart margins |
+| `animationDuration` | `number` | `1100` | Enter animation duration (ms) |
+| `enterTransition` | `Transition` | line-chart default | Motion tween for enter |
+| `revealSignature` | `string` | — | Change to replay enter animation |
+| `aspectRatio` | `string` | `"2 / 1"` | Container aspect ratio |
+
+### Scatter
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `dataKey` | `string` | required | Y value field |
+| `fill` | `string` | series palette | Inner dot fill |
+| `stroke` | `string` | same as `fill` | Outer ring color |
+| `strokeWidth` | `number` | `2` | Outer ring width (0 disables) |
+| `ringGap` | `number` | `2` | Gap between fill and ring (px) |
+| `radius` | `number` | `5` | Inner dot radius (px) |
+| `fadeOnHover` | `boolean` | `true` | Dim/blur non-active points on hover |
+| `inactiveOpacity` | `number` | `0.5` | Opacity for dimmed points |
+| `inactiveBlur` | `number` | `2` | Blur (px) for dimmed points |
+| `showActiveHighlight` | `boolean` | `true` | Scale up the active point |
+
+## Shared Components
+
+Use the same cartesian building blocks as `LineChart`:
+
+- `Grid` — horizontal/vertical grid lines
+- `XAxis` — date labels with crosshair fade
+- `ChartTooltip` — crosshair, date pill, and series rows

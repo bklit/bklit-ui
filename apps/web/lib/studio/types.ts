@@ -92,6 +92,7 @@ export const chartLabels = {
   "pie-chart": "Pie Chart",
   "radar-chart": "Radar Chart",
   "ring-chart": "Ring Chart",
+  "scatter-chart": "Scatter Chart",
   "sankey-chart": "Sankey Chart",
 } satisfies Record<ChartSlug, string>;
 

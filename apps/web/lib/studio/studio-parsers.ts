@@ -124,6 +124,13 @@ export const studioSearchParams = {
   sankeyNodePadding: parseAsInteger.withDefault(12),
   sankeyNodeWidth: parseAsInteger.withDefault(16),
   linkOpacity: parseAsFloat.withDefault(0.4),
+  scatterRadius: parseAsFloat.withDefault(6),
+  scatterRingGap: parseAsFloat.withDefault(2),
+  scatterRingWidth: parseAsFloat.withDefault(2),
+  scatterFadeOnHover: parseAsBoolean.withDefault(true),
+  scatterInactiveOpacity: parseAsFloat.withDefault(0.5),
+  scatterSecondSeries: parseAsBoolean.withDefault(true),
+  scatterShowActiveHighlight: parseAsBoolean.withDefault(true),
 };
 
 export interface StudioUrlState {
@@ -213,6 +220,13 @@ export interface StudioUrlState {
   sankeyNodePadding: number;
   sankeyNodeWidth: number;
   linkOpacity: number;
+  scatterRadius: number;
+  scatterRingGap: number;
+  scatterRingWidth: number;
+  scatterFadeOnHover: boolean;
+  scatterInactiveOpacity: number;
+  scatterSecondSeries: boolean;
+  scatterShowActiveHighlight: boolean;
 }
 
 export function defaultsForChart(): Partial<
@@ -314,6 +328,13 @@ export function defaultStudioState(
     sankeyNodePadding: 12,
     sankeyNodeWidth: 16,
     linkOpacity: 0.4,
+    scatterRadius: 6,
+    scatterRingGap: 2,
+    scatterRingWidth: 2,
+    scatterFadeOnHover: true,
+    scatterInactiveOpacity: 0.5,
+    scatterSecondSeries: true,
+    scatterShowActiveHighlight: true,
     ...overrides,
   };
 }

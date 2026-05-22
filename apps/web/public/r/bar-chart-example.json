@@ -18,13 +18,13 @@
   "files": [
     {
       "path": "registry/examples/bar-chart.tsx",
-      "content": "\"use client\"\n\n// In your app (monorepo/npm): import { BarChart, Bar, BarXAxis, Grid, ChartTooltip } from \"@bklitui/ui/charts\"\nimport { BarChart, Bar, BarXAxis, Grid, ChartTooltip } from \"@/components/charts\"\n\nconst data = [\n  { month: \"Jan\", revenue: 12000, profit: 4500 },\n  { month: \"Feb\", revenue: 15500, profit: 5200 },\n  { month: \"Mar\", revenue: 11000, profit: 3800 },\n  { month: \"Apr\", revenue: 18500, profit: 7100 },\n  { month: \"May\", revenue: 16800, profit: 5400 },\n  { month: \"Jun\", revenue: 21200, profit: 8800 },\n];\n\nexport default function Component() {\n  return (\n    <main className=\"flex min-h-svh w-full items-center justify-center p-6 md:p-10\">\n      <div className=\"w-full max-w-3xl\">\n        <BarChart data={data} xDataKey=\"month\">\n  <Grid horizontal />\n  <Bar dataKey=\"revenue\" fill=\"var(--chart-line-primary)\" lineCap=\"round\" />\n  <Bar dataKey=\"profit\" fill=\"var(--chart-line-secondary)\" lineCap=\"round\" />\n  <BarXAxis />\n  <ChartTooltip />\n</BarChart>\n      </div>\n    </main>\n  )\n}\n",
+      "content": "\"use client\";\n\n// In your app (monorepo/npm): import { BarChart, Bar, BarXAxis, Grid, ChartTooltip } from \"@bklitui/ui/charts\"\nimport {\n  Bar,\n  BarChart,\n  BarXAxis,\n  ChartTooltip,\n  Grid,\n} from \"@/components/charts\";\n\nconst data = [\n  { month: \"Jan\", revenue: 12_000, profit: 4500 },\n  { month: \"Feb\", revenue: 15_500, profit: 5200 },\n  { month: \"Mar\", revenue: 11_000, profit: 3800 },\n  { month: \"Apr\", revenue: 18_500, profit: 7100 },\n  { month: \"May\", revenue: 16_800, profit: 5400 },\n  { month: \"Jun\", revenue: 21_200, profit: 8800 },\n];\n\nexport default function Component() {\n  return (\n    <main className=\"flex min-h-svh w-full items-center justify-center p-6 md:p-10\">\n      <div className=\"w-full max-w-3xl\">\n        <BarChart data={data} xDataKey=\"month\">\n          <Grid horizontal />\n          <Bar\n            dataKey=\"revenue\"\n            fill=\"var(--chart-line-primary)\"\n            lineCap=\"round\"\n          />\n          <Bar\n            dataKey=\"profit\"\n            fill=\"var(--chart-line-secondary)\"\n            lineCap=\"round\"\n          />\n          <BarXAxis />\n          <ChartTooltip />\n        </BarChart>\n      </div>\n    </main>\n  );\n}\n",
       "type": "registry:page",
       "target": "app/page.tsx"
     },
     {
       "path": "registry/examples/bar-chart-index.ts",
-      "content": "export { BarChart } from \"./bar-chart\";\nexport { Bar } from \"./bar\";\nexport { BarXAxis } from \"./bar-x-axis\";\nexport { Grid } from \"./grid\";\nexport { ChartTooltip } from \"./tooltip\";",
+      "content": "// biome-ignore lint/performance/noBarrelFile: v0 registry example barrel for shadcn install\nexport { Bar } from \"./bar\";\nexport { BarChart } from \"./bar-chart\";\nexport { BarXAxis } from \"./bar-x-axis\";\nexport { Grid } from \"./grid\";\nexport { ChartTooltip } from \"./tooltip\";\n",
       "type": "registry:lib",
       "target": "components/charts/index.ts"
     }

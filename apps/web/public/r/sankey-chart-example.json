@@ -15,13 +15,13 @@
   "files": [
     {
       "path": "registry/examples/sankey-chart.tsx",
-      "content": "\"use client\"\n\n// In your app (monorepo/npm): import { SankeyChart, SankeyLink, SankeyNode, SankeyTooltip } from \"@bklitui/ui/charts\"\nimport { SankeyChart, SankeyLink, SankeyNode, SankeyTooltip } from \"@/components/charts\"\n\nconst data = {\n  nodes: [\n    { name: \"Ads\" },\n    { name: \"Organic\" },\n    { name: \"Landing\" },\n    { name: \"Product\" },\n    { name: \"Checkout\" },\n  ],\n  links: [\n    { source: 0, target: 2, value: 40 },\n    { source: 1, target: 2, value: 30 },\n    { source: 2, target: 3, value: 50 },\n    { source: 3, target: 4, value: 35 },\n  ],\n};\n\nexport default function Component() {\n  return (\n    <main className=\"flex min-h-svh w-full items-center justify-center p-6 md:p-10\">\n      <div className=\"w-full max-w-3xl\">\n        <SankeyChart data={data} aspectRatio=\"16 / 9\">\n  <SankeyLink />\n  <SankeyNode />\n  <SankeyTooltip />\n</SankeyChart>\n      </div>\n    </main>\n  )\n}\n",
+      "content": "\"use client\";\n\n// In your app (monorepo/npm): import { SankeyChart, SankeyLink, SankeyNode, SankeyTooltip } from \"@bklitui/ui/charts\"\nimport {\n  SankeyChart,\n  SankeyLink,\n  SankeyNode,\n  SankeyTooltip,\n} from \"@/components/charts\";\n\nconst data = {\n  nodes: [\n    { name: \"Ads\" },\n    { name: \"Organic\" },\n    { name: \"Landing\" },\n    { name: \"Product\" },\n    { name: \"Checkout\" },\n  ],\n  links: [\n    { source: 0, target: 2, value: 40 },\n    { source: 1, target: 2, value: 30 },\n    { source: 2, target: 3, value: 50 },\n    { source: 3, target: 4, value: 35 },\n  ],\n};\n\nexport default function Component() {\n  return (\n    <main className=\"flex min-h-svh w-full items-center justify-center p-6 md:p-10\">\n      <div className=\"w-full max-w-3xl\">\n        <SankeyChart aspectRatio=\"16 / 9\" data={data}>\n          <SankeyLink />\n          <SankeyNode />\n          <SankeyTooltip />\n        </SankeyChart>\n      </div>\n    </main>\n  );\n}\n",
       "type": "registry:page",
       "target": "app/page.tsx"
     },
     {
       "path": "registry/examples/sankey-chart-index.ts",
-      "content": "export { SankeyChart, SankeyLink, SankeyNode, SankeyTooltip } from \"./sankey\";",
+      "content": "// biome-ignore lint/performance/noBarrelFile: v0 registry example barrel for shadcn install\nexport { SankeyChart, SankeyLink, SankeyNode, SankeyTooltip } from \"./sankey\";\n",
       "type": "registry:lib",
       "target": "components/charts/index.ts"
     }

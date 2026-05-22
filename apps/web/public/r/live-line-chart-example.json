@@ -16,13 +16,13 @@
   "files": [
     {
       "path": "registry/examples/live-line-chart.tsx",
-      "content": "\"use client\"\n\n// In your app (monorepo/npm): import { LiveLineChart, LiveLine, LiveXAxis, LiveYAxis, ChartTooltip } from \"@bklitui/ui/charts\"\nimport { LiveLineChart, LiveLine, LiveXAxis, LiveYAxis, ChartTooltip } from \"@/components/charts\"\n\nimport { curveNatural } from \"@visx/curve\";\n\nconst initialData = Array.from({ length: 24 }, (_, i) => ({\n  time: Date.now() - (23 - i) * 60_000,\n  value: 50 + Math.sin(i / 3) * 20,\n}));\n\nexport default function Component() {\n  return (\n    <main className=\"flex min-h-svh w-full items-center justify-center p-6 md:p-10\">\n      <div className=\"w-full max-w-3xl\">\n        <LiveLineChart\n  data={initialData}\n  interval={1000}\n  maxPoints={24}\n  xDataKey=\"time\"\n  yDataKey=\"value\"\n>\n  <LiveLine curve={curveNatural} stroke=\"var(--chart-line-primary)\" />\n  <LiveXAxis />\n  <LiveYAxis />\n  <ChartTooltip />\n</LiveLineChart>\n      </div>\n    </main>\n  )\n}\n",
+      "content": "\"use client\";\n\nimport { curveNatural } from \"@visx/curve\";\n// In your app (monorepo/npm): import { LiveLineChart, LiveLine, LiveXAxis, LiveYAxis, ChartTooltip } from \"@bklitui/ui/charts\"\nimport {\n  ChartTooltip,\n  LiveLine,\n  LiveLineChart,\n  LiveXAxis,\n  LiveYAxis,\n} from \"@/components/charts\";\n\nconst initialData = Array.from({ length: 24 }, (_, i) => ({\n  time: Date.now() - (23 - i) * 60_000,\n  value: 50 + Math.sin(i / 3) * 20,\n}));\n\nexport default function Component() {\n  return (\n    <main className=\"flex min-h-svh w-full items-center justify-center p-6 md:p-10\">\n      <div className=\"w-full max-w-3xl\">\n        <LiveLineChart\n          data={initialData}\n          interval={1000}\n          maxPoints={24}\n          xDataKey=\"time\"\n          yDataKey=\"value\"\n        >\n          <LiveLine curve={curveNatural} stroke=\"var(--chart-line-primary)\" />\n          <LiveXAxis />\n          <LiveYAxis />\n          <ChartTooltip />\n        </LiveLineChart>\n      </div>\n    </main>\n  );\n}\n",
       "type": "registry:page",
       "target": "app/page.tsx"
     },
     {
       "path": "registry/examples/live-line-chart-index.ts",
-      "content": "export { LiveLineChart } from \"./live-line-chart\";\nexport { LiveLine } from \"./live-line\";\nexport { LiveXAxis } from \"./live-x-axis\";\nexport { LiveYAxis } from \"./live-y-axis\";\nexport { ChartTooltip } from \"./tooltip\";",
+      "content": "// biome-ignore lint/performance/noBarrelFile: v0 registry example barrel for shadcn install\nexport { LiveLine } from \"./live-line\";\nexport { LiveLineChart } from \"./live-line-chart\";\nexport { LiveXAxis } from \"./live-x-axis\";\nexport { LiveYAxis } from \"./live-y-axis\";\nexport { ChartTooltip } from \"./tooltip\";\n",
       "type": "registry:lib",
       "target": "components/charts/index.ts"
     }

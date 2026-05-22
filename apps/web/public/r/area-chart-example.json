@@ -18,13 +18,13 @@
   "files": [
     {
       "path": "registry/examples/area-chart.tsx",
-      "content": "\"use client\"\n\n// In your app (monorepo/npm): import { AreaChart, Area, Grid, XAxis, ChartTooltip } from \"@bklitui/ui/charts\"\nimport { AreaChart, Area, Grid, XAxis, ChartTooltip } from \"@/components/charts\"\n\nimport { curveNatural } from \"@visx/curve\";\n\nconst chartData = [\n  { date: new Date(\"2024-01-01\"), desktop: 186 },\n  { date: new Date(\"2024-02-01\"), desktop: 305 },\n  { date: new Date(\"2024-03-01\"), desktop: 237 },\n  { date: new Date(\"2024-04-01\"), desktop: 73 },\n  { date: new Date(\"2024-05-01\"), desktop: 209 },\n  { date: new Date(\"2024-06-01\"), desktop: 214 },\n];\n\nexport default function Component() {\n  return (\n    <main className=\"flex min-h-svh w-full items-center justify-center p-6 md:p-10\">\n      <div className=\"w-full max-w-3xl\">\n        <AreaChart data={chartData} animationDuration={1100}>\n  <Grid horizontal />\n  <Area dataKey=\"desktop\" curve={curveNatural} strokeWidth={2.5} fillOpacity={0.4} />\n  <XAxis />\n  <ChartTooltip />\n</AreaChart>\n      </div>\n    </main>\n  )\n}\n",
+      "content": "\"use client\";\n\nimport { curveNatural } from \"@visx/curve\";\n// In your app (monorepo/npm): import { AreaChart, Area, Grid, XAxis, ChartTooltip } from \"@bklitui/ui/charts\"\nimport {\n  Area,\n  AreaChart,\n  ChartTooltip,\n  Grid,\n  XAxis,\n} from \"@/components/charts\";\n\nconst chartData = [\n  { date: new Date(\"2024-01-01\"), desktop: 186 },\n  { date: new Date(\"2024-02-01\"), desktop: 305 },\n  { date: new Date(\"2024-03-01\"), desktop: 237 },\n  { date: new Date(\"2024-04-01\"), desktop: 73 },\n  { date: new Date(\"2024-05-01\"), desktop: 209 },\n  { date: new Date(\"2024-06-01\"), desktop: 214 },\n];\n\nexport default function Component() {\n  return (\n    <main className=\"flex min-h-svh w-full items-center justify-center p-6 md:p-10\">\n      <div className=\"w-full max-w-3xl\">\n        <AreaChart animationDuration={1100} data={chartData}>\n          <Grid horizontal />\n          <Area\n            curve={curveNatural}\n            dataKey=\"desktop\"\n            fillOpacity={0.4}\n            strokeWidth={2.5}\n          />\n          <XAxis />\n          <ChartTooltip />\n        </AreaChart>\n      </div>\n    </main>\n  );\n}\n",
       "type": "registry:page",
       "target": "app/page.tsx"
     },
     {
       "path": "registry/examples/area-chart-index.ts",
-      "content": "export { AreaChart } from \"./area-chart\";\nexport { Area } from \"./area\";\nexport { Grid } from \"./grid\";\nexport { XAxis } from \"./x-axis\";\nexport { ChartTooltip } from \"./tooltip\";",
+      "content": "// biome-ignore lint/performance/noBarrelFile: v0 registry example barrel for shadcn install\nexport { Area } from \"./area\";\nexport { AreaChart } from \"./area-chart\";\nexport { Grid } from \"./grid\";\nexport { ChartTooltip } from \"./tooltip\";\nexport { XAxis } from \"./x-axis\";\n",
       "type": "registry:lib",
       "target": "components/charts/index.ts"
     }

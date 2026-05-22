@@ -27,6 +27,11 @@ export { Line } from "./line";
 export { Grid } from "./grid";
 export { XAxis } from "./x-axis";
 export { ChartTooltip } from "./tooltip";`,
+  "scatter-chart": `export { ScatterChart } from "./scatter-chart";
+export { Scatter } from "./scatter";
+export { Grid } from "./grid";
+export { XAxis } from "./x-axis";
+export { ChartTooltip } from "./tooltip";`,
   "pie-chart": `export { PieChart } from "./pie-chart";
 export { PieSlice } from "./pie-slice";
 export { PieCenter } from "./pie-center";`,
@@ -150,6 +155,31 @@ const EXAMPLES = {
   <ChartTooltip />
 </LineChart>`,
     extraImports: `import { curveNatural } from "@visx/curve";`,
+  },
+  "scatter-chart": {
+    registryDependencies: [
+      "@bklit/scatter-chart",
+      "@bklit/grid",
+      "@bklit/x-axis",
+      "@bklit/chart-tooltip",
+    ],
+    dependencies: ["d3-scale", "d3-array", "motion", "react-use-measure"],
+    importFrom: "ScatterChart, Scatter, Grid, XAxis, ChartTooltip",
+    data: `const chartData = [
+  { date: new Date("2024-01-01"), sessions: 420, conversions: 28 },
+  { date: new Date("2024-02-01"), sessions: 510, conversions: 34 },
+  { date: new Date("2024-03-01"), sessions: 390, conversions: 22 },
+  { date: new Date("2024-04-01"), sessions: 580, conversions: 41 },
+  { date: new Date("2024-05-01"), sessions: 620, conversions: 38 },
+  { date: new Date("2024-06-01"), sessions: 710, conversions: 52 },
+];`,
+    body: `<ScatterChart data={chartData}>
+  <Grid horizontal />
+  <Scatter dataKey="sessions" />
+  <Scatter dataKey="conversions" />
+  <XAxis />
+  <ChartTooltip />
+</ScatterChart>`,
   },
   "pie-chart": {
     registryDependencies: ["@bklit/pie-chart"],
@@ -385,7 +415,10 @@ export default function Component() {
 
   const indexExports = CHART_INDEX_EXPORTS[slug];
   if (indexExports) {
-    writeFileSync(join(examplesDir, `${slug}-index.ts`), indexExports);
+    writeFileSync(
+      join(examplesDir, `${slug}-index.ts`),
+      `// biome-ignore lint/performance/noBarrelFile: v0 registry example barrel for shadcn install\n${indexExports}\n`
+    );
   }
 }
 

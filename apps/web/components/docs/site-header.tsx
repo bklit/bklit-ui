@@ -53,6 +53,7 @@ const components = [
   { text: "Pie Chart", url: "/docs/components/pie-chart" },
   { text: "Radar Chart", url: "/docs/components/radar-chart" },
   { text: "Ring Chart", url: "/docs/components/ring-chart" },
+  { text: "Scatter Chart", url: "/docs/components/scatter-chart" },
   { text: "Sankey Chart", url: "/docs/components/sankey-chart" },
 ];
 

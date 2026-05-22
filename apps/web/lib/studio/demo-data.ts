@@ -185,6 +185,11 @@ export const lineHeroData = Array.from({ length: 30 }, (_, i) => ({
   desktop: Math.floor(150 + Math.sin(i / 4) * 80 + ((i * 7) % 31)),
 }));
 
+export const scatterStudioData = lineHeroData.map((row, i) => ({
+  ...row,
+  mobile: Math.floor(80 + Math.cos(i / 3) * 50 + ((i * 5) % 23)),
+}));
+
 /** Sample points for live line chart codegen. */
 export const liveLineSampleData = Array.from({ length: 24 }, (_, i) => ({
   time: Date.now() - (23 - i) * 1000,
