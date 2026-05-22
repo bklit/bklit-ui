@@ -2,7 +2,7 @@
 
 import type { Variants } from "motion/react";
 import { motion } from "motion/react";
-import { useCallback, useMemo } from "react";
+import { useCallback, useId, useMemo } from "react";
 import {
   clipRevealTransition,
   DEFAULT_CHART_ENTER_TRANSITION,
@@ -38,7 +38,15 @@ export interface ScatterProps {
   enterBlur?: number;
   /** Enlarge the active point while hovering. Default: true */
   showActiveHighlight?: boolean;
+  /**
+   * Color each dot by its vertical position using a chart-space linear gradient.
+   * Lower values use `from`; higher values use `to`. Default stops: red (bottom) → green (top).
+   */
+  yGradient?: boolean | { from?: string; to?: string };
 }
+
+const DEFAULT_Y_GRADIENT_FROM = "var(--color-red-500)";
+const DEFAULT_Y_GRADIENT_TO = "var(--color-emerald-500)";
 
 interface ScatterPointNodeProps {
   dataKey: string;
@@ -178,12 +186,14 @@ export function Scatter({
   inactiveBlur = 2,
   enterBlur = 2,
   showActiveHighlight = true,
+  yGradient,
 }: ScatterProps) {
   const {
     data,
     xScale,
     yScale,
     innerWidth,
+    innerHeight,
     tooltipData,
     enterTransition,
     animationDuration,
@@ -201,8 +211,25 @@ export function Scatter({
   const seriesColor =
     defaultScatterColors[seriesIndex % defaultScatterColors.length] ??
     defaultScatterColors[0];
-  const resolvedFill = fill ?? seriesColor;
-  const resolvedStroke = stroke ?? resolvedFill;
+
+  const yGradientConfig = (() => {
+    if (!yGradient) {
+      return null;
+    }
+    if (yGradient === true) {
+      return { from: DEFAULT_Y_GRADIENT_FROM, to: DEFAULT_Y_GRADIENT_TO };
+    }
+    return {
+      from: yGradient.from ?? DEFAULT_Y_GRADIENT_FROM,
+      to: yGradient.to ?? DEFAULT_Y_GRADIENT_TO,
+    };
+  })();
+
+  const yGradientId = `scatter-y-gradient-${useId().replace(/:/g, "")}`;
+  const gradientFill = yGradientConfig ? `url(#${yGradientId})` : undefined;
+
+  const resolvedFill = gradientFill ?? fill ?? seriesColor;
+  const resolvedStroke = stroke ?? (gradientFill ? gradientFill : resolvedFill);
   const resolvedOutlineColor = outlineColor ?? resolvedStroke;
 
   const visualExtent = useMemo(() => {
@@ -260,6 +287,21 @@ export function Scatter({
 
   return (
     <g>
+      {yGradientConfig ? (
+        <defs>
+          <linearGradient
+            gradientUnits="userSpaceOnUse"
+            id={yGradientId}
+            x1={0}
+            x2={0}
+            y1={innerHeight}
+            y2={0}
+          >
+            <stop offset="0%" stopColor={yGradientConfig.from} />
+            <stop offset="100%" stopColor={yGradientConfig.to} />
+          </linearGradient>
+        </defs>
+      ) : null}
       {points.map((point) => (
         <ScatterPointNode
           cx={point.cx}

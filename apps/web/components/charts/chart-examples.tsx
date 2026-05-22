@@ -165,6 +165,19 @@ const multiLineData = [
   { date: new Date(2024, 5, 1), desktop: 214, mobile: 140 },
 ];
 
+/** 24 months — desktop vs mobile for scatter hero and gallery examples */
+const scatterMultiSeriesData = Array.from({ length: 24 }, (_, i) => ({
+  date: new Date(2023, i, 1),
+  desktop: Math.floor(140 + Math.sin(i / 3) * 90 + ((i * 11) % 40)),
+  mobile: Math.floor(70 + Math.cos(i / 2.5) * 55 + ((i * 7) % 35)),
+}));
+
+const scatterChartDataSnippet = `const chartData = Array.from({ length: 24 }, (_, i) => ({
+  date: new Date(2023, i, 1),
+  desktop: Math.floor(140 + Math.sin(i / 3) * 90 + ((i * 11) % 40)),
+  mobile: Math.floor(70 + Math.cos(i / 2.5) * 55 + ((i * 7) % 35)),
+}));`;
+
 const lineMarkers: ChartMarker[] = [
   {
     date: new Date(2024, 2, 1),
@@ -4149,75 +4162,66 @@ function makeFunnelExamples(): ChartExample[] {
 function makeScatterExamples(): ChartExample[] {
   return [
     {
-      title: "Scatter Chart - Basic",
+      title: "Scatter Chart - No Rings",
       description:
-        "Single series with grid, axis labels, and crosshair tooltip",
+        "Solid fills only — set `strokeWidth={0}` to hide the outer ring",
       code: `<ScatterChart data={chartData}>
   <Grid horizontal />
-  <Scatter dataKey="desktop" />
-  <XAxis />
-  <ChartTooltip />
-</ScatterChart>`,
-      render: () => (
-        <ScatterChart data={lineData}>
-          <Grid horizontal />
-          <Scatter dataKey="desktop" />
-          <XAxis />
-          <ChartTooltip />
-        </ScatterChart>
-      ),
-    },
-    {
-      title: "Scatter Chart - Multiple Series",
-      description:
-        "Auto-assigned chart palette colors (`--chart-1`, `--chart-2`) per series",
-      code: `<ScatterChart data={chartData}>
-  <Grid horizontal />
-  <Scatter dataKey="desktop" />
-  <Scatter dataKey="mobile" />
+  <Scatter dataKey="desktop" strokeWidth={0} />
+  <Scatter dataKey="mobile" strokeWidth={0} />
   <XAxis />
   <ChartTooltip />
 </ScatterChart>`,
       render: () => (
         <ScatterChart data={multiLineData}>
           <Grid horizontal />
-          <Scatter dataKey="desktop" />
-          <Scatter dataKey="mobile" />
+          <Scatter dataKey="desktop" strokeWidth={0} />
+          <Scatter dataKey="mobile" strokeWidth={0} />
           <XAxis />
           <ChartTooltip />
         </ScatterChart>
       ),
     },
     {
-      title: "Scatter Chart - Offset Ring",
-      description: "Inner fill with a gap and outer ring stroke",
+      title: "Scatter Chart - Small Dots",
+      description: "Compact markers with a 2px radius and thin 1px rings",
       code: `<ScatterChart data={chartData}>
   <Grid horizontal />
-  <Scatter dataKey="desktop" radius={6} strokeWidth={2} ringGap={2} />
+  <Scatter dataKey="desktop" radius={2} strokeWidth={1} ringGap={1} />
+  <Scatter dataKey="mobile" radius={2} strokeWidth={1} ringGap={1} />
   <XAxis />
   <ChartTooltip />
 </ScatterChart>`,
       render: () => (
-        <ScatterChart data={lineData}>
+        <ScatterChart data={multiLineData}>
           <Grid horizontal />
-          <Scatter dataKey="desktop" radius={6} ringGap={2} strokeWidth={2} />
+          <Scatter dataKey="desktop" radius={2} ringGap={1} strokeWidth={1} />
+          <Scatter dataKey="mobile" radius={2} ringGap={1} strokeWidth={1} />
           <XAxis />
           <ChartTooltip />
         </ScatterChart>
       ),
     },
     {
-      title: "Scatter Chart - Hover Dim",
-      description: "Non-active points fade and blur on crosshair hover",
+      title: "Scatter Chart - Wide Ring Gap",
+      description:
+        "1px ring, 3px dot, 5px gap between fill and ring (`outlineWidth={0}`)",
       code: `<ScatterChart data={chartData}>
   <Grid horizontal />
   <Scatter
     dataKey="desktop"
-    fadeOnHover
-    inactiveOpacity={0.5}
-    inactiveBlur={2}
+    radius={3}
+    strokeWidth={1}
+    ringGap={5}
+    outlineWidth={0}
   />
-  <Scatter dataKey="mobile" fadeOnHover inactiveOpacity={0.5} inactiveBlur={2} />
+  <Scatter
+    dataKey="mobile"
+    radius={3}
+    strokeWidth={1}
+    ringGap={5}
+    outlineWidth={0}
+  />
   <XAxis />
   <ChartTooltip />
 </ScatterChart>`,
@@ -4226,15 +4230,17 @@ function makeScatterExamples(): ChartExample[] {
           <Grid horizontal />
           <Scatter
             dataKey="desktop"
-            fadeOnHover
-            inactiveBlur={2}
-            inactiveOpacity={0.5}
+            outlineWidth={0}
+            radius={3}
+            ringGap={5}
+            strokeWidth={1}
           />
           <Scatter
             dataKey="mobile"
-            fadeOnHover
-            inactiveBlur={2}
-            inactiveOpacity={0.5}
+            outlineWidth={0}
+            radius={3}
+            ringGap={5}
+            strokeWidth={1}
           />
           <XAxis />
           <ChartTooltip />
@@ -4246,29 +4252,22 @@ function makeScatterExamples(): ChartExample[] {
 
 function makeScatterHero(): ChartExample {
   return {
-    title: "Scatter Chart - Interactive",
+    title: "Scatter Chart",
     description:
-      "Two metrics over six months with offset rings, enter animation, and crosshair tooltip",
+      "Desktop vs mobile over 24 months with default offset rings and crosshair tooltip",
     code: `<ScatterChart data={chartData}>
   <Grid horizontal />
-  <Scatter dataKey="desktop" radius={6} ringGap={2} strokeWidth={2} />
-  <Scatter dataKey="mobile" radius={6} ringGap={2} strokeWidth={2} />
+  <Scatter dataKey="desktop" />
+  <Scatter dataKey="mobile" />
   <XAxis />
   <ChartTooltip />
 </ScatterChart>`,
-    data: `const chartData = [
-  { date: new Date(2024, 0, 1), desktop: 186, mobile: 80 },
-  { date: new Date(2024, 1, 1), desktop: 305, mobile: 200 },
-  { date: new Date(2024, 2, 1), desktop: 237, mobile: 120 },
-  { date: new Date(2024, 3, 1), desktop: 73, mobile: 190 },
-  { date: new Date(2024, 4, 1), desktop: 209, mobile: 130 },
-  { date: new Date(2024, 5, 1), desktop: 214, mobile: 140 },
-];`,
+    data: scatterChartDataSnippet,
     render: () => (
-      <ScatterChart data={multiLineData}>
+      <ScatterChart data={scatterMultiSeriesData}>
         <Grid horizontal />
-        <Scatter dataKey="desktop" radius={6} ringGap={2} strokeWidth={2} />
-        <Scatter dataKey="mobile" radius={6} ringGap={2} strokeWidth={2} />
+        <Scatter dataKey="desktop" />
+        <Scatter dataKey="mobile" />
         <XAxis />
         <ChartTooltip />
       </ScatterChart>

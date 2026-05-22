@@ -79,6 +79,21 @@ Non-active points can fade and blur while the crosshair is active:
 />
 ```
 
+### Y Gradient
+
+Color dots by vertical position with a chart-space gradient — lower values toward red, higher toward green. Set `strokeWidth={0}` for solid fills without rings:
+
+```tsx
+<Scatter dataKey="users" strokeWidth={0} yGradient />
+
+// Custom stops
+<Scatter
+  dataKey="users"
+  strokeWidth={0}
+  yGradient={{ from: "var(--color-red-500)", to: "var(--color-emerald-500)" }}
+/>
+```
+
 ## Props
 
 ### ScatterChart
@@ -107,6 +122,7 @@ Non-active points can fade and blur while the crosshair is active:
 | `inactiveOpacity` | `number` | `0.5` | Opacity for dimmed points |
 | `inactiveBlur` | `number` | `2` | Blur (px) for dimmed points |
 | `showActiveHighlight` | `boolean` | `true` | Scale up the active point |
+| `yGradient` | `boolean \| { from?: string; to?: string }` | — | Color dots by y-position (default red → green) |
 
 ## Shared Components
 
