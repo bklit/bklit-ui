@@ -16,7 +16,8 @@
       "includes": [
         "packages/ui/src/**/index.ts",
         "packages/ui/src/charts/line-chart.tsx",
-        "packages/ui/src/charts/area-chart.tsx"
+        "packages/ui/src/charts/area-chart.tsx",
+        "packages/ui/src/charts/scatter-chart.tsx"
       ],
       "linter": {
         "rules": {

@@ -1,16 +1,29 @@
 "use client";
 
-import { Gauge, PatternLines, type ChartStatFlowFormat } from "@bklitui/ui/charts";
-import { useCallback, useId, useState } from "react";
+import {
+  ChartTooltip,
+  Grid,
+  Scatter,
+  ScatterChart,
+  XAxis,
+} from "@bklitui/ui/charts";
+import { useCallback, useId, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 
-/** Same NumberFlow currency pattern as typical pie demos */
-const gaugePieCenterFormat: ChartStatFlowFormat = {
-  style: "currency",
-  currency: "USD",
-  minimumFractionDigits: 0,
-  maximumFractionDigits: 0,
-};
+const BASE_DATA = [
+  { date: new Date("2024-01-01"), sessions: 420, conversions: 28 },
+  { date: new Date("2024-02-01"), sessions: 510, conversions: 34 },
+  { date: new Date("2024-03-01"), sessions: 390, conversions: 22 },
+  { date: new Date("2024-04-01"), sessions: 580, conversions: 41 },
+  { date: new Date("2024-05-01"), sessions: 620, conversions: 38 },
+  { date: new Date("2024-06-01"), sessions: 710, conversions: 52 },
+  { date: new Date("2024-07-01"), sessions: 680, conversions: 47 },
+  { date: new Date("2024-08-01"), sessions: 760, conversions: 55 },
+  { date: new Date("2024-09-01"), sessions: 820, conversions: 61 },
+  { date: new Date("2024-10-01"), sessions: 790, conversions: 58 },
+  { date: new Date("2024-11-01"), sessions: 910, conversions: 64 },
+  { date: new Date("2024-12-01"), sessions: 980, conversions: 72 },
+];
 
 function LabeledRange({
   id,
@@ -57,39 +70,36 @@ function LabeledRange({
 
 export default function PlaygroundPage() {
   const baseId = useId();
-  const [animationKey, setAnimationKey] = useState(0);
+  const [revealSignature, setRevealSignature] = useState("initial");
 
-  const [value, setValue] = useState(66);
-  const [totalNotches, setTotalNotches] = useState(40);
-  const [spacing, setSpacing] = useState(25);
-  const [notchCornerRadius, setNotchCornerRadius] = useState(0);
-  const [chartWidth, setChartWidth] = useState(420);
-  const [chartHeight, setChartHeight] = useState(320);
-  const [startAngle, setStartAngle] = useState(135);
-  const [endAngle, setEndAngle] = useState(405);
-  const [useGradient, setUseGradient] = useState(false);
-  const [usePatterns, setUsePatterns] = useState(false);
-  const [uniformWidth, setUniformWidth] = useState(false);
-  const [notchLengthPercent, setNotchLengthPercent] = useState(100);
-  const [centerValue, setCenterValue] = useState(284_920);
-  const [defaultLabel, setDefaultLabel] = useState("Total Revenue");
-  const [prefix, setPrefix] = useState("");
+  const [radius, setRadius] = useState(6);
+  const [strokeWidth, setStrokeWidth] = useState(2);
+  const [ringGap, setRingGap] = useState(2);
+  const [outlineWidth, setOutlineWidth] = useState(0);
+  const [inactiveOpacity, setInactiveOpacity] = useState(0.5);
+  const [animationDuration, setAnimationDuration] = useState(1100);
+  const [showGrid, setShowGrid] = useState(true);
+  const [showSecondSeries, setShowSecondSeries] = useState(true);
+  const [fadeOnHover, setFadeOnHover] = useState(true);
+  const [numTicks, setNumTicks] = useState(6);
+
+  const data = useMemo(() => BASE_DATA, []);
 
   const replay = useCallback(() => {
-    setAnimationKey((k) => k + 1);
+    setRevealSignature(String(Date.now()));
   }, []);
 
   return (
     <div className="min-h-screen bg-background px-4 py-10 text-foreground">
-      <div className="mx-auto max-w-6xl gap-10 lg:grid lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start">
+      <div className="mx-auto max-w-6xl gap-10 lg:grid lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start">
         <div className="space-y-4">
           <div>
-            <h1 className="font-bold text-2xl">Gauge playground</h1>
+            <h1 className="font-bold text-2xl">Scatter chart playground</h1>
             <p className="text-muted-foreground text-sm">
-              Interactive <code className="text-xs">Gauge</code> from{" "}
-              <code className="text-xs">@bklitui/ui/charts</code> with the same{" "}
-              <code className="text-xs">PieCenter</code> stack as donut pies (via{" "}
-              <code className="text-xs">PieCenterShell</code>).
+              Composable <code className="text-xs">ScatterChart</code> with{" "}
+              <code className="text-xs">XAxis</code>, crosshair tooltip, and
+              clip-reveal animation — same shell as{" "}
+              <code className="text-xs">LineChart</code>.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -97,55 +107,36 @@ export default function PlaygroundPage() {
               Replay animation
             </Button>
           </div>
-          <div className="flex min-h-[340px] justify-center overflow-x-auto rounded-lg border border-border bg-card px-4 py-10">
-            <Gauge
-              activeFill={
-                usePatterns ? "url(#playground-gauge-active)" : undefined
-              }
-              centerValue={centerValue}
-              defaultLabel={defaultLabel}
-              endAngle={endAngle}
-              formatOptions={gaugePieCenterFormat}
-              height={chartHeight}
-              inactiveFill={
-                usePatterns ? "url(#playground-gauge-track)" : undefined
-              }
-              inactiveFillOpacity={0.4}
-              key={animationKey}
-              notchCornerRadius={notchCornerRadius}
-              prefix={prefix || undefined}
-              spacing={spacing}
-              startAngle={startAngle}
-              totalNotches={totalNotches}
-              uniformWidth={uniformWidth}
-              notchLengthPercent={notchLengthPercent}
-              useGradient={usePatterns ? false : useGradient}
-              value={value}
-              width={chartWidth}
+          <div className="rounded-lg border border-border bg-card p-4">
+            <ScatterChart
+              animationDuration={animationDuration}
+              data={data}
+              revealSignature={revealSignature}
             >
-              {usePatterns
-                ? [
-                    <PatternLines
-                      height={6}
-                      id="playground-gauge-track"
-                      key="playground-gauge-track"
-                      orientation={["diagonal"]}
-                      stroke="var(--muted-foreground)"
-                      strokeWidth={1}
-                      width={6}
-                    />,
-                    <PatternLines
-                      height={6}
-                      id="playground-gauge-active"
-                      key="playground-gauge-active"
-                      orientation={["diagonal"]}
-                      stroke="var(--chart-1)"
-                      strokeWidth={1}
-                      width={6}
-                    />,
-                  ]
-                : undefined}
-            </Gauge>
+              {showGrid ? <Grid horizontal /> : null}
+              <Scatter
+                dataKey="sessions"
+                fadeOnHover={fadeOnHover}
+                inactiveOpacity={inactiveOpacity}
+                outlineWidth={outlineWidth}
+                radius={radius}
+                ringGap={ringGap}
+                strokeWidth={strokeWidth}
+              />
+              {showSecondSeries ? (
+                <Scatter
+                  dataKey="conversions"
+                  fadeOnHover={fadeOnHover}
+                  inactiveOpacity={inactiveOpacity}
+                  outlineWidth={outlineWidth}
+                  radius={radius}
+                  ringGap={ringGap}
+                  strokeWidth={strokeWidth}
+                />
+              ) : null}
+              <XAxis numTicks={numTicks} />
+              <ChartTooltip />
+            </ScatterChart>
           </div>
         </div>
 
@@ -153,169 +144,97 @@ export default function PlaygroundPage() {
           <h2 className="font-semibold text-foreground text-sm">Controls</h2>
 
           <LabeledRange
-            id={`${baseId}-value`}
-            label="Gauge fill (0–100)"
-            max={100}
+            id={`${baseId}-radius`}
+            label="Point radius"
+            max={14}
+            min={3}
+            onChange={setRadius}
+            value={radius}
+            valueLabel={`${radius}px`}
+          />
+          <LabeledRange
+            id={`${baseId}-stroke`}
+            label="Ring stroke width"
+            max={6}
             min={0}
-            onChange={setValue}
-            value={value}
-            valueLabel={`${value}%`}
+            onChange={setStrokeWidth}
+            value={strokeWidth}
+            valueLabel={`${strokeWidth}px`}
           />
           <LabeledRange
-            id={`${baseId}-center`}
-            label="Center value (PieCenter / NumberFlow)"
-            max={500_000}
+            id={`${baseId}-ring-gap`}
+            label="Ring gap (offset)"
+            max={8}
             min={0}
-            onChange={setCenterValue}
-            step={1000}
-            value={centerValue}
+            onChange={setRingGap}
+            value={ringGap}
+            valueLabel={`${ringGap}px`}
           />
           <LabeledRange
-            id={`${baseId}-notches`}
-            label="Total notches"
-            max={80}
-            min={4}
-            onChange={setTotalNotches}
-            value={totalNotches}
-          />
-          <LabeledRange
-            id={`${baseId}-spacing`}
-            label="Spacing (% of arc)"
-            max={60}
+            id={`${baseId}-outline`}
+            label="Outer outline width"
+            max={6}
             min={0}
-            onChange={setSpacing}
-            step={1}
-            value={spacing}
-            valueLabel={`${spacing}%`}
+            onChange={setOutlineWidth}
+            value={outlineWidth}
+            valueLabel={`${outlineWidth}px`}
           />
           <LabeledRange
-            id={`${baseId}-notch-len`}
-            label="Notch length (% of default depth)"
-            max={100}
-            min={10}
-            onChange={setNotchLengthPercent}
-            step={1}
-            value={notchLengthPercent}
-            valueLabel={`${notchLengthPercent}%`}
+            id={`${baseId}-inactive-opacity`}
+            label="Inactive opacity on hover"
+            max={1}
+            min={0.1}
+            onChange={setInactiveOpacity}
+            step={0.05}
+            value={inactiveOpacity}
+            valueLabel={`${Math.round(inactiveOpacity * 100)}%`}
           />
           <LabeledRange
-            id={`${baseId}-corner`}
-            label="Corner radius (px)"
-            max={28}
-            min={0}
-            onChange={setNotchCornerRadius}
-            value={notchCornerRadius}
-            valueLabel={`${notchCornerRadius}px`}
-          />
-          <label className="flex cursor-pointer items-center gap-2 text-sm">
-            <input
-              checked={uniformWidth}
-              className="size-4 rounded border border-input accent-foreground"
-              onChange={(e) => setUniformWidth(e.target.checked)}
-              type="checkbox"
-            />
-            Uniform width (rectangular notches)
-          </label>
-          <label className="flex cursor-pointer items-center gap-2 text-sm">
-            <input
-              checked={useGradient}
-              className="size-4 rounded border border-input accent-foreground"
-              onChange={(e) => {
-                const next = e.target.checked;
-                setUseGradient(next);
-                if (next) {
-                  setUsePatterns(false);
-                }
-              }}
-              type="checkbox"
-            />
-            Lime → emerald gradient
-          </label>
-          <label className="flex cursor-pointer items-center gap-2 text-sm">
-            <input
-              checked={usePatterns}
-              className="size-4 rounded border border-input accent-foreground"
-              onChange={(e) => {
-                const next = e.target.checked;
-                setUsePatterns(next);
-                if (next) {
-                  setUseGradient(false);
-                }
-              }}
-              type="checkbox"
-            />
-            Pattern fills (diagonal lines, like pie charts)
-          </label>
-
-          <LabeledRange
-            id={`${baseId}-w`}
-            label="Width (px)"
-            max={560}
-            min={280}
-            onChange={setChartWidth}
-            value={chartWidth}
+            id={`${baseId}-duration`}
+            label="Animation duration"
+            max={2000}
+            min={400}
+            onChange={setAnimationDuration}
+            step={100}
+            value={animationDuration}
+            valueLabel={`${animationDuration}ms`}
           />
           <LabeledRange
-            id={`${baseId}-h`}
-            label="Height (px)"
-            max={480}
-            min={240}
-            onChange={setChartHeight}
-            value={chartHeight}
-          />
-          <LabeledRange
-            id={`${baseId}-start`}
-            label="Start angle (°)"
-            max={720}
-            min={-360}
-            onChange={setStartAngle}
-            value={startAngle}
-            valueLabel={`${startAngle}°`}
-          />
-          <LabeledRange
-            id={`${baseId}-end`}
-            label="End angle (°)"
-            max={720}
-            min={-360}
-            onChange={setEndAngle}
-            value={endAngle}
-            valueLabel={`${endAngle}°`}
+            id={`${baseId}-ticks`}
+            label="X-axis ticks"
+            max={8}
+            min={3}
+            onChange={setNumTicks}
+            value={numTicks}
           />
 
-          <div className="space-y-1.5">
-            <label
-              className="font-medium text-foreground text-sm"
-              htmlFor={`${baseId}-label`}
-            >
-              PieCenter defaultLabel
-            </label>
+          <label className="flex cursor-pointer items-center gap-2 text-sm">
             <input
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-              id={`${baseId}-label`}
-              onChange={(e) => setDefaultLabel(e.target.value)}
-              type="text"
-              value={defaultLabel}
+              checked={showGrid}
+              className="size-4 rounded border border-input accent-foreground"
+              onChange={(e) => setShowGrid(e.target.checked)}
+              type="checkbox"
             />
-          </div>
-          <div className="space-y-1.5">
-            <label
-              className="font-medium text-foreground text-sm"
-              htmlFor={`${baseId}-prefix`}
-            >
-              Prefix (optional; currency symbol is usually from format)
-            </label>
+            Show horizontal grid
+          </label>
+          <label className="flex cursor-pointer items-center gap-2 text-sm">
             <input
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-              id={`${baseId}-prefix`}
-              onChange={(e) => setPrefix(e.target.value)}
-              type="text"
-              value={prefix}
+              checked={showSecondSeries}
+              className="size-4 rounded border border-input accent-foreground"
+              onChange={(e) => setShowSecondSeries(e.target.checked)}
+              type="checkbox"
             />
-          </div>
-          <p className="text-muted-foreground text-xs leading-relaxed">
-            Center uses USD currency NumberFlow (
-            <code className="text-xs">gaugePieCenterFormat</code> in this page).
-          </p>
+            Second series (conversions)
+          </label>
+          <label className="flex cursor-pointer items-center gap-2 text-sm">
+            <input
+              checked={fadeOnHover}
+              className="size-4 rounded border border-input accent-foreground"
+              onChange={(e) => setFadeOnHover(e.target.checked)}
+              type="checkbox"
+            />
+            Fade non-active points on hover
+          </label>
         </aside>
       </div>
     </div>

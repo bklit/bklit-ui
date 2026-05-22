@@ -14,37 +14,45 @@ export interface DateTickerProps {
 export function DateTicker({ currentIndex, labels, visible }: DateTickerProps) {
   // Parse labels into month and day parts
   const parsedLabels = useMemo(() => {
-    return labels.map((label) => {
+    return labels.map((label, index) => {
       const parts = label.split(" ");
       const month = parts[0] || "";
       const day = parts[1] || "";
-      return { month, day, full: label };
+      return { month, day, full: label, key: `${label}::${index}` };
     });
   }, [labels]);
 
-  // Get unique months and their indices
-  const monthIndices = useMemo(() => {
-    const uniqueMonths: string[] = [];
-    const indices: number[] = [];
+  // Month segments: one entry per consecutive run (Jan → Feb → …), keyed by start index
+  const monthSegments = useMemo(() => {
+    const segments: { month: string; key: string; startIndex: number }[] = [];
 
     parsedLabels.forEach((label, index) => {
-      if (uniqueMonths.length === 0 || uniqueMonths.at(-1) !== label.month) {
-        uniqueMonths.push(label.month);
-        indices.push(index);
+      const prev = segments.at(-1);
+      if (!prev || prev.month !== label.month) {
+        segments.push({
+          month: label.month,
+          key: `${label.month}-${index}`,
+          startIndex: index,
+        });
       }
     });
 
-    return { uniqueMonths, indices };
+    return segments;
   }, [parsedLabels]);
 
-  // Find current month index
+  // Index into monthSegments for the current data point
   const currentMonthIndex = useMemo(() => {
     if (currentIndex < 0 || currentIndex >= parsedLabels.length) {
       return 0;
     }
-    const currentMonth = parsedLabels[currentIndex]?.month;
-    return monthIndices.uniqueMonths.indexOf(currentMonth || "");
-  }, [currentIndex, parsedLabels, monthIndices]);
+    for (let i = monthSegments.length - 1; i >= 0; i--) {
+      const segment = monthSegments[i];
+      if (segment && segment.startIndex <= currentIndex) {
+        return i;
+      }
+    }
+    return 0;
+  }, [currentIndex, parsedLabels.length, monthSegments]);
 
   // Track previous month index
   const prevMonthIndexRef = useRef(-1);
@@ -75,13 +83,13 @@ export function DateTicker({ currentIndex, labels, visible }: DateTickerProps) {
           {/* Month stack */}
           <div className="relative h-6 overflow-hidden">
             <motion.div className="flex flex-col" style={{ y: monthY }}>
-              {monthIndices.uniqueMonths.map((month) => (
+              {monthSegments.map((segment) => (
                 <div
                   className="flex h-6 shrink-0 items-center justify-center"
-                  key={month}
+                  key={segment.key}
                 >
                   <span className="whitespace-nowrap font-medium text-sm">
-                    {month}
+                    {segment.month}
                   </span>
                 </div>
               ))}
@@ -94,7 +102,7 @@ export function DateTicker({ currentIndex, labels, visible }: DateTickerProps) {
               {parsedLabels.map((label) => (
                 <div
                   className="flex h-6 shrink-0 items-center justify-center"
-                  key={label.full}
+                  key={label.key}
                 >
                   <span className="whitespace-nowrap font-medium text-sm">
                     {label.day}

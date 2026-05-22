@@ -61,6 +61,8 @@ import {
   SankeyLink,
   SankeyNode,
   SankeyTooltip,
+  Scatter,
+  ScatterChart,
   SegmentBackground,
   SegmentLineFrom,
   SegmentLineTo,
@@ -162,6 +164,19 @@ const multiLineData = [
   { date: new Date(2024, 4, 1), desktop: 209, mobile: 130 },
   { date: new Date(2024, 5, 1), desktop: 214, mobile: 140 },
 ];
+
+/** 24 months — desktop vs mobile for scatter hero and gallery examples */
+const scatterMultiSeriesData = Array.from({ length: 24 }, (_, i) => ({
+  date: new Date(2023, i, 1),
+  desktop: Math.floor(140 + Math.sin(i / 3) * 90 + ((i * 11) % 40)),
+  mobile: Math.floor(70 + Math.cos(i / 2.5) * 55 + ((i * 7) % 35)),
+}));
+
+const scatterChartDataSnippet = `const chartData = Array.from({ length: 24 }, (_, i) => ({
+  date: new Date(2023, i, 1),
+  desktop: Math.floor(140 + Math.sin(i / 3) * 90 + ((i * 11) % 40)),
+  mobile: Math.floor(70 + Math.cos(i / 2.5) * 55 + ((i * 7) % 35)),
+}));`;
 
 const lineMarkers: ChartMarker[] = [
   {
@@ -4141,6 +4156,126 @@ function makeFunnelExamples(): ChartExample[] {
 }
 
 // ---------------------------------------------------------------------------
+// Scatter chart examples
+// ---------------------------------------------------------------------------
+
+function makeScatterExamples(): ChartExample[] {
+  return [
+    {
+      title: "Scatter Chart - No Rings",
+      description:
+        "Solid fills only — set `strokeWidth={0}` to hide the outer ring",
+      code: `<ScatterChart data={chartData}>
+  <Grid horizontal />
+  <Scatter dataKey="desktop" strokeWidth={0} />
+  <Scatter dataKey="mobile" strokeWidth={0} />
+  <XAxis />
+  <ChartTooltip />
+</ScatterChart>`,
+      render: () => (
+        <ScatterChart data={multiLineData}>
+          <Grid horizontal />
+          <Scatter dataKey="desktop" strokeWidth={0} />
+          <Scatter dataKey="mobile" strokeWidth={0} />
+          <XAxis />
+          <ChartTooltip />
+        </ScatterChart>
+      ),
+    },
+    {
+      title: "Scatter Chart - Small Dots",
+      description: "Compact markers with a 2px radius and thin 1px rings",
+      code: `<ScatterChart data={chartData}>
+  <Grid horizontal />
+  <Scatter dataKey="desktop" radius={2} strokeWidth={1} ringGap={1} />
+  <Scatter dataKey="mobile" radius={2} strokeWidth={1} ringGap={1} />
+  <XAxis />
+  <ChartTooltip />
+</ScatterChart>`,
+      render: () => (
+        <ScatterChart data={multiLineData}>
+          <Grid horizontal />
+          <Scatter dataKey="desktop" radius={2} ringGap={1} strokeWidth={1} />
+          <Scatter dataKey="mobile" radius={2} ringGap={1} strokeWidth={1} />
+          <XAxis />
+          <ChartTooltip />
+        </ScatterChart>
+      ),
+    },
+    {
+      title: "Scatter Chart - Wide Ring Gap",
+      description:
+        "1px ring, 3px dot, 5px gap between fill and ring (`outlineWidth={0}`)",
+      code: `<ScatterChart data={chartData}>
+  <Grid horizontal />
+  <Scatter
+    dataKey="desktop"
+    radius={3}
+    strokeWidth={1}
+    ringGap={5}
+    outlineWidth={0}
+  />
+  <Scatter
+    dataKey="mobile"
+    radius={3}
+    strokeWidth={1}
+    ringGap={5}
+    outlineWidth={0}
+  />
+  <XAxis />
+  <ChartTooltip />
+</ScatterChart>`,
+      render: () => (
+        <ScatterChart data={multiLineData}>
+          <Grid horizontal />
+          <Scatter
+            dataKey="desktop"
+            outlineWidth={0}
+            radius={3}
+            ringGap={5}
+            strokeWidth={1}
+          />
+          <Scatter
+            dataKey="mobile"
+            outlineWidth={0}
+            radius={3}
+            ringGap={5}
+            strokeWidth={1}
+          />
+          <XAxis />
+          <ChartTooltip />
+        </ScatterChart>
+      ),
+    },
+  ];
+}
+
+function makeScatterHero(): ChartExample {
+  return {
+    title: "Scatter Chart",
+    description:
+      "Desktop vs mobile over 24 months with default offset rings and crosshair tooltip",
+    code: `<ScatterChart data={chartData}>
+  <Grid horizontal />
+  <Scatter dataKey="desktop" />
+  <Scatter dataKey="mobile" />
+  <XAxis />
+  <ChartTooltip />
+</ScatterChart>`,
+    data: scatterChartDataSnippet,
+    render: () => (
+      <ScatterChart data={scatterMultiSeriesData}>
+        <Grid horizontal />
+        <Scatter dataKey="desktop" />
+        <Scatter dataKey="mobile" />
+        <XAxis />
+        <ChartTooltip />
+      </ScatterChart>
+    ),
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Chart type navigation
 // ---------------------------------------------------------------------------
 
@@ -4157,6 +4292,7 @@ const chartTypes = [
   { label: "Pie Chart", slug: "pie-chart" },
   { label: "Radar Chart", slug: "radar-chart" },
   { label: "Ring Chart", slug: "ring-chart" },
+  { label: "Scatter Chart", slug: "scatter-chart" },
   { label: "Sankey Chart", slug: "sankey-chart" },
 ];
 
@@ -4231,6 +4367,7 @@ const chartExamplesRegistry: Record<string, RegistryEntry> = {
   "pie-chart": { factory: makePieExamples },
   "radar-chart": { factory: makeRadarExamples },
   "ring-chart": { factory: makeRingExamples },
+  "scatter-chart": { factory: makeScatterExamples, hero: makeScatterHero },
   "sankey-chart": {
     factory: makeSankeyExamples,
     columns: 2,

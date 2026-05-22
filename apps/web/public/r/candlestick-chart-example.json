@@ -18,13 +18,13 @@
   "files": [
     {
       "path": "registry/examples/candlestick-chart.tsx",
-      "content": "\"use client\"\n\n// In your app (monorepo/npm): import { CandlestickChart, Candlestick, Grid, XAxis, YAxis, ChartTooltip } from \"@bklitui/ui/charts\"\nimport { CandlestickChart, Candlestick, Grid, XAxis, YAxis, ChartTooltip } from \"@/components/charts\"\n\nconst ohlcData = [\n  { date: new Date(\"2024-01-02\"), open: 100, high: 108, low: 98, close: 105 },\n  { date: new Date(\"2024-01-03\"), open: 105, high: 110, low: 102, close: 103 },\n  { date: new Date(\"2024-01-04\"), open: 103, high: 112, low: 101, close: 110 },\n  { date: new Date(\"2024-01-05\"), open: 110, high: 115, low: 107, close: 108 },\n];\n\nexport default function Component() {\n  return (\n    <main className=\"flex min-h-svh w-full items-center justify-center p-6 md:p-10\">\n      <div className=\"w-full max-w-3xl\">\n        <CandlestickChart data={ohlcData}>\n  <Grid horizontal vertical />\n  <Candlestick />\n  <XAxis />\n  <YAxis />\n  <ChartTooltip />\n</CandlestickChart>\n      </div>\n    </main>\n  )\n}\n",
+      "content": "\"use client\";\n\n// In your app (monorepo/npm): import { CandlestickChart, Candlestick, Grid, XAxis, YAxis, ChartTooltip } from \"@bklitui/ui/charts\"\nimport {\n  Candlestick,\n  CandlestickChart,\n  ChartTooltip,\n  Grid,\n  XAxis,\n  YAxis,\n} from \"@/components/charts\";\n\nconst ohlcData = [\n  { date: new Date(\"2024-01-02\"), open: 100, high: 108, low: 98, close: 105 },\n  { date: new Date(\"2024-01-03\"), open: 105, high: 110, low: 102, close: 103 },\n  { date: new Date(\"2024-01-04\"), open: 103, high: 112, low: 101, close: 110 },\n  { date: new Date(\"2024-01-05\"), open: 110, high: 115, low: 107, close: 108 },\n];\n\nexport default function Component() {\n  return (\n    <main className=\"flex min-h-svh w-full items-center justify-center p-6 md:p-10\">\n      <div className=\"w-full max-w-3xl\">\n        <CandlestickChart data={ohlcData}>\n          <Grid horizontal vertical />\n          <Candlestick />\n          <XAxis />\n          <YAxis />\n          <ChartTooltip />\n        </CandlestickChart>\n      </div>\n    </main>\n  );\n}\n",
       "type": "registry:page",
       "target": "app/page.tsx"
     },
     {
       "path": "registry/examples/candlestick-chart-index.ts",
-      "content": "export { CandlestickChart } from \"./candlestick-chart\";\nexport { Candlestick } from \"./candlestick\";\nexport { Grid } from \"./grid\";\nexport { XAxis } from \"./x-axis\";\nexport { YAxis } from \"./y-axis\";\nexport { ChartTooltip } from \"./tooltip\";",
+      "content": "// biome-ignore lint/performance/noBarrelFile: v0 registry example barrel for shadcn install\nexport { Candlestick } from \"./candlestick\";\nexport { CandlestickChart } from \"./candlestick-chart\";\nexport { Grid } from \"./grid\";\nexport { ChartTooltip } from \"./tooltip\";\nexport { XAxis } from \"./x-axis\";\nexport { YAxis } from \"./y-axis\";\n",
       "type": "registry:lib",
       "target": "components/charts/index.ts"
     }

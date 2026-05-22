@@ -14,6 +14,7 @@ import {
   radarMetrics5,
   ringData,
   sankeySimple,
+  scatterStudioData,
 } from "./demo-data";
 import {
   cssRevealAnimationCodegen,
@@ -295,6 +296,29 @@ export function sankeyCodegen(state: StudioUrlState) {
 </SankeyChart>`,
     data: `const sankeyData = ${JSON.stringify(sankeySimple, null, 2)};`,
   };
+}
+
+export function scatterCodegen(state: StudioUrlState) {
+  const anim = `\n  ${cssRevealAnimationCodegen(state.animationDuration, motionSliceFromState(state))}`;
+  const secondSeries = state.scatterSecondSeries
+    ? `\n  <Scatter dataKey="mobile" radius={${state.scatterRadius}} ringGap={${state.scatterRingGap}} strokeWidth={${state.scatterRingWidth}} fadeOnHover={${state.scatterFadeOnHover}} inactiveOpacity={${state.scatterInactiveOpacity}} showActiveHighlight={${state.scatterShowActiveHighlight}} />`
+    : "";
+
+  return {
+    code: `import { ScatterChart, Scatter, Grid, XAxis, ChartTooltip } from "@bklitui/ui/charts";
+
+<ScatterChart data={chartData}${anim}>
+  <Grid horizontal />
+  <Scatter dataKey="desktop" radius={${state.scatterRadius}} ringGap={${state.scatterRingGap}} strokeWidth={${state.scatterRingWidth}} fadeOnHover={${state.scatterFadeOnHover}} inactiveOpacity={${state.scatterInactiveOpacity}} showActiveHighlight={${state.scatterShowActiveHighlight}} />${secondSeries}
+  <XAxis />
+  <ChartTooltip />
+</ScatterChart>`,
+    data: scatterChartDataSnippet(),
+  };
+}
+
+export function scatterChartDataSnippet() {
+  return `const chartData = ${JSON.stringify(scatterStudioData.slice(0, 12), null, 2)};`;
 }
 
 export function lineChartDataSnippet() {

@@ -14,13 +14,13 @@
   "files": [
     {
       "path": "registry/examples/funnel-chart.tsx",
-      "content": "\"use client\"\n\n// In your app (monorepo/npm): import { FunnelChart } from \"@bklitui/ui/charts\"\nimport { FunnelChart } from \"@/components/charts\"\n\nconst funnelData = [\n  { label: \"Visitors\", value: 12000 },\n  { label: \"Signups\", value: 4800 },\n  { label: \"Activated\", value: 2100 },\n  { label: \"Paid\", value: 840 },\n];\n\nexport default function Component() {\n  return (\n    <main className=\"flex min-h-svh w-full items-center justify-center p-6 md:p-10\">\n      <div className=\"w-full max-w-3xl\">\n        <FunnelChart data={funnelData} aspectRatio=\"2 / 1\" />\n      </div>\n    </main>\n  )\n}\n",
+      "content": "\"use client\";\n\n// In your app (monorepo/npm): import { FunnelChart } from \"@bklitui/ui/charts\"\nimport { FunnelChart } from \"@/components/charts\";\n\nconst funnelData = [\n  { label: \"Visitors\", value: 12_000 },\n  { label: \"Signups\", value: 4800 },\n  { label: \"Activated\", value: 2100 },\n  { label: \"Paid\", value: 840 },\n];\n\nexport default function Component() {\n  return (\n    <main className=\"flex min-h-svh w-full items-center justify-center p-6 md:p-10\">\n      <div className=\"w-full max-w-3xl\">\n        <FunnelChart aspectRatio=\"2 / 1\" data={funnelData} />\n      </div>\n    </main>\n  );\n}\n",
       "type": "registry:page",
       "target": "app/page.tsx"
     },
     {
       "path": "registry/examples/funnel-chart-index.ts",
-      "content": "export { FunnelChart } from \"./funnel-chart\";",
+      "content": "// biome-ignore lint/performance/noBarrelFile: v0 registry example barrel for shadcn install\nexport { FunnelChart } from \"./funnel-chart\";\n",
       "type": "registry:lib",
       "target": "components/charts/index.ts"
     }

@@ -42,6 +42,7 @@ export {
   type ChartContextValue,
   ChartProvider,
   chartCssVars,
+  defaultScatterColors,
   type LineConfig,
   type Margin,
   type TooltipData,
@@ -222,6 +223,9 @@ export {
   sankeyCssVars,
   useSankey,
 } from "./sankey";
+// Scatter chart components
+export { Scatter, type ScatterProps } from "./scatter";
+export { ScatterChart, type ScatterChartProps } from "./scatter-chart";
 // Segment selection components
 export {
   SegmentBackground,

@@ -398,6 +398,53 @@ export const funnelChartControlGroups: StudioControlGroup[] = [
   ]),
 ];
 
+export const scatterChartControlGroups: StudioControlGroup[] = [
+  controlGroup("Points", [
+    {
+      type: "number",
+      key: "scatterRadius",
+      label: "Radius",
+      min: 3,
+      max: 14,
+      step: 1,
+    },
+    {
+      type: "number",
+      key: "scatterRingGap",
+      label: "Ring gap",
+      min: 0,
+      max: 8,
+      step: 1,
+    },
+    {
+      type: "number",
+      key: "scatterRingWidth",
+      label: "Ring width",
+      min: 0,
+      max: 6,
+      step: 0.5,
+    },
+  ]),
+  controlGroup("Interaction", [
+    { type: "boolean", key: "scatterFadeOnHover", label: "Fade on hover" },
+    {
+      type: "opacity",
+      key: "scatterInactiveOpacity",
+      label: "Inactive opacity",
+      min: 0.1,
+      max: 1,
+      step: 0.05,
+      color: "var(--chart-1)",
+    },
+    { type: "boolean", key: "scatterSecondSeries", label: "Second series" },
+    {
+      type: "boolean",
+      key: "scatterShowActiveHighlight",
+      label: "Highlight active point",
+    },
+  ]),
+];
+
 export const liveLineChartControlGroups: StudioControlGroup[] = [
   controlGroup("Stream", [
     {

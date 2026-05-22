@@ -461,6 +461,48 @@
       ]
     },
     {
+      "name": "scatter-chart",
+      "type": "registry:component",
+      "title": "Scatter Chart",
+      "description": "A composable time-series scatter chart with offset rings, hover dimming, and animated enter",
+      "registryDependencies": [
+        "@bklit/chart-context",
+        "@bklit/chart-animation",
+        "@bklit/grid",
+        "@bklit/x-axis",
+        "@bklit/chart-tooltip",
+        "@bklit/utils"
+      ],
+      "dependencies": ["d3-array", "d3-scale", "motion", "react-use-measure"],
+      "files": [
+        {
+          "path": "src/charts/scatter-chart.tsx",
+          "type": "registry:component",
+          "target": "components/charts/scatter-chart.tsx"
+        },
+        {
+          "path": "src/charts/scatter-chart-shell.tsx",
+          "type": "registry:component",
+          "target": "components/charts/scatter-chart-shell.tsx"
+        },
+        {
+          "path": "src/charts/scatter.tsx",
+          "type": "registry:component",
+          "target": "components/charts/scatter.tsx"
+        },
+        {
+          "path": "src/charts/use-scatter-chart-interaction.ts",
+          "type": "registry:component",
+          "target": "components/charts/use-scatter-chart-interaction.ts"
+        },
+        {
+          "path": "src/charts/scatter-svg.ts",
+          "type": "registry:component",
+          "target": "components/charts/scatter-svg.ts"
+        }
+      ]
+    },
+    {
       "name": "live-line-chart",
       "type": "registry:component",
       "title": "Live Line Chart",
@@ -904,6 +946,31 @@
         },
         {
           "path": "registry/examples/line-chart-index.ts",
+          "type": "registry:lib",
+          "target": "components/charts/index.ts"
+        }
+      ]
+    },
+    {
+      "name": "scatter-chart-example",
+      "type": "registry:example",
+      "title": "Scatter Chart Example",
+      "description": "Composable scatter-chart demo for Open in v0",
+      "registryDependencies": [
+        "@bklit/scatter-chart",
+        "@bklit/grid",
+        "@bklit/x-axis",
+        "@bklit/chart-tooltip"
+      ],
+      "dependencies": ["d3-scale", "d3-array", "motion", "react-use-measure"],
+      "files": [
+        {
+          "path": "registry/examples/scatter-chart.tsx",
+          "type": "registry:page",
+          "target": "app/page.tsx"
+        },
+        {
+          "path": "registry/examples/scatter-chart-index.ts",
           "type": "registry:lib",
           "target": "components/charts/index.ts"
         }
