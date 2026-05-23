@@ -1,0 +1,22 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "chart-stat-flow",
+  "type": "registry:component",
+  "title": "Chart Stat Flow",
+  "description": "Animated stat value and label for chart overlays",
+  "dependencies": [
+    "@number-flow/react",
+    "motion"
+  ],
+  "registryDependencies": [
+    "@bklit/utils"
+  ],
+  "files": [
+    {
+      "path": "src/charts/chart-stat-flow.tsx",
+      "content": "\"use client\";\n\nimport NumberFlow from \"@number-flow/react\";\nimport type { ReactNode } from \"react\";\nimport { cn } from \"@/lib/utils\";\n\n/** Subset of `Intl.NumberFormatOptions` supported by NumberFlow */\nexport interface ChartStatFlowFormat {\n  notation?: \"standard\" | \"compact\";\n  compactDisplay?: \"short\" | \"long\";\n  minimumFractionDigits?: number;\n  maximumFractionDigits?: number;\n  minimumIntegerDigits?: number;\n  minimumSignificantDigits?: number;\n  maximumSignificantDigits?: number;\n  style?: \"decimal\" | \"percent\" | \"currency\";\n  currency?: string;\n  currencyDisplay?: \"symbol\" | \"narrowSymbol\" | \"code\" | \"name\";\n  unit?: string;\n  unitDisplay?: \"short\" | \"long\" | \"narrow\";\n}\n\nexport const defaultChartStatFlowFormat: ChartStatFlowFormat = {\n  notation: \"standard\",\n  maximumFractionDigits: 0,\n};\n\nexport interface ChartStatFlowProps {\n  value: number;\n  label: string;\n  formatOptions?: ChartStatFlowFormat;\n  prefix?: string;\n  suffix?: string;\n  valueClassName?: string;\n  labelClassName?: string;\n  icon?: ReactNode;\n}\n\n/**\n * Shared value + label stack using NumberFlow (same layout as pie / ring centers).\n * Parent should provide flex alignment and sizing when needed.\n */\nexport function ChartStatFlow({\n  value,\n  label,\n  formatOptions = defaultChartStatFlowFormat,\n  prefix,\n  suffix,\n  valueClassName = \"text-2xl font-bold\",\n  labelClassName = \"text-xs\",\n  icon,\n}: ChartStatFlowProps) {\n  return (\n    <>\n      {icon ? (\n        <div className=\"mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-muted/50\">\n          {icon}\n        </div>\n      ) : null}\n      <span className={cn(\"text-foreground tabular-nums\", valueClassName)}>\n        <NumberFlow\n          format={formatOptions}\n          prefix={prefix}\n          suffix={suffix}\n          value={value}\n          willChange\n        />\n      </span>\n      <span className={cn(\"mt-0.5 text-chart-label\", labelClassName)}>\n        {label}\n      </span>\n    </>\n  );\n}\n\nChartStatFlow.displayName = \"ChartStatFlow\";\n",
+      "type": "registry:component",
+      "target": "components/charts/chart-stat-flow.tsx"
+    }
+  ]
+}

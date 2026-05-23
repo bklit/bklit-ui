@@ -1,0 +1,57 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "stat-card-area-01",
+  "type": "registry:block",
+  "title": "Stat Card Area",
+  "description": "Revenue stat card with gradient area sparkline, NumberFlow, and trend badge",
+  "dependencies": [
+    "@visx/curve@4.0.1-alpha.0",
+    "@visx/gradient@4.0.1-alpha.0",
+    "@number-flow/react",
+    "lucide-react"
+  ],
+  "registryDependencies": [
+    "@bklit/area-chart",
+    "@bklit/chart-stat-flow",
+    "card",
+    "badge"
+  ],
+  "files": [
+    {
+      "path": "registry/blocks/stat-card-area-01/components/stat-card-area.tsx",
+      "content": "\"use client\";\n\nimport {\n  Area,\n  AreaChart,\n  ChartStatFlow,\n  LinearGradient,\n} from \"@/components/charts\";\nimport { curveCardinal } from \"@visx/curve\";\nimport { useState } from \"react\";\nimport {\n  Card,\n  CardAction,\n  CardContent,\n  CardHeader,\n  CardTitle,\n} from \"@/components/ui/card\";\nimport { revenueSeries, revenueStats } from \"../data/revenue-series\";\nimport { StatCardChart } from \"./stat-card-chart\";\nimport {\n  formatStatCardMonth,\n  StatCardHoverBridge,\n  type StatCardHoverState,\n} from \"./stat-card-hover-bridge\";\nimport {\n  statCardLabelClassName,\n  statCardValueClassName,\n} from \"./stat-card-stat-styles\";\nimport { TrendBadge } from \"./trend-badge\";\n\nexport function StatCardArea() {\n  const [hover, setHover] = useState<StatCardHoverState>({\n    value: null,\n    label: null,\n    trend: null,\n  });\n  const displayValue = hover.value ?? revenueStats.average;\n  const displayLabel = hover.label ?? \"Avg\";\n  const displayTrend = hover.trend ?? revenueStats.trend;\n\n  return (\n    <Card className=\"w-full gap-0 py-0\">\n      <CardHeader className=\"px-4 py-3\">\n        <CardTitle>Total Revenue</CardTitle>\n        <CardAction>\n          <TrendBadge value={displayTrend} />\n        </CardAction>\n      </CardHeader>\n\n      <CardContent className=\"flex flex-col gap-3 px-4 pt-2 pb-3\">\n        <ChartStatFlow\n          formatOptions={{\n            currency: \"USD\",\n            maximumFractionDigits: 0,\n            style: \"currency\",\n          }}\n          label={displayLabel}\n          labelClassName={statCardLabelClassName}\n          value={displayValue}\n          valueClassName={statCardValueClassName}\n        />\n\n        <StatCardChart height={190}>\n          <AreaChart\n            aspectRatio=\"2.5 / 1\"\n            className=\"w-full\"\n            data={revenueSeries}\n            margin={{ top: 0, right: 0, bottom: 0, left: 0 }}\n          >\n            <StatCardHoverBridge\n              dataKey=\"value\"\n              formatLabel={formatStatCardMonth}\n              onHoverChange={setHover}\n            />\n            <LinearGradient\n              from=\"var(--chart-1)\"\n              fromOpacity={0.45}\n              id=\"stat-card-area-fill\"\n              to=\"var(--chart-1)\"\n              toOpacity={0}\n            />\n            <Area\n              curve={curveCardinal.tension(0.65)}\n              dataKey=\"value\"\n              fill=\"url(#stat-card-area-fill)\"\n              fillOpacity={1}\n              gradientToOpacity={0}\n              showHighlight\n              stroke=\"var(--chart-1)\"\n              strokeWidth={2}\n            />\n          </AreaChart>\n        </StatCardChart>\n      </CardContent>\n    </Card>\n  );\n}\n",
+      "type": "registry:component",
+      "target": "components/stat-card-area.tsx"
+    },
+    {
+      "path": "registry/blocks/stat-card-area-01/components/stat-card-chart.tsx",
+      "content": "\"use client\";\n\nimport type { ReactNode } from \"react\";\nimport { cn } from \"@/lib/utils\";\n\n/** Bleeds charts edge-to-edge inside stat card content padding. */\nexport function StatCardChart({\n  children,\n  className,\n  height = 96,\n}: {\n  children: ReactNode;\n  className?: string;\n  height?: number;\n}) {\n  return (\n    <div\n      className={cn(\n        \"relative -mx-4 -mb-3 overflow-hidden\",\n        \"[&_.relative.w-full]:aspect-auto! [&_.relative.w-full]:h-[var(--stat-card-chart-h)]!\",\n        className\n      )}\n      style={\n        {\n          \"--stat-card-chart-h\": `${height}px`,\n        } as React.CSSProperties\n      }\n    >\n      {children}\n    </div>\n  );\n}\n",
+      "type": "registry:component",
+      "target": "components/stat-card-chart.tsx"
+    },
+    {
+      "path": "registry/blocks/stat-card-area-01/components/stat-card-hover-bridge.tsx",
+      "content": "\"use client\";\n\nimport { useChart } from \"@/components/charts\";\nimport { useEffect } from \"react\";\n\nexport interface StatCardHoverState {\n  value: number | null;\n  label: string | null;\n  trend: number | null;\n}\n\nexport {\n  statCardLabelClassName,\n  statCardValueClassName,\n} from \"./stat-card-stat-styles\";\n\nexport function formatStatCardMonth(date: Date) {\n  return date.toLocaleDateString(\"en-US\", { month: \"short\" });\n}\n\nexport function formatStatCardWeekday(date: Date) {\n  return date.toLocaleDateString(\"en-US\", { weekday: \"long\" });\n}\n\nfunction parsePointDate(raw: unknown): Date | null {\n  if (raw instanceof Date) {\n    return raw;\n  }\n  if (typeof raw === \"string\") {\n    return new Date(raw);\n  }\n  return null;\n}\n\nfunction computePeriodTrend(\n  data: Record<string, unknown>[],\n  index: number,\n  dataKey: string\n): number | null {\n  if (index <= 0) {\n    return null;\n  }\n\n  const current = data[index]?.[dataKey];\n  const previous = data[index - 1]?.[dataKey];\n\n  if (\n    typeof current !== \"number\" ||\n    typeof previous !== \"number\" ||\n    previous === 0\n  ) {\n    return null;\n  }\n\n  return ((current - previous) / previous) * 100;\n}\n\n/** Syncs hovered chart values, labels, and trend into stat card UI. */\nexport function StatCardHoverBridge({\n  dataKey,\n  dateKey = \"date\",\n  formatLabel,\n  onHoverChange,\n}: {\n  dataKey: string;\n  dateKey?: string;\n  formatLabel: (date: Date) => string;\n  onHoverChange: (state: StatCardHoverState) => void;\n}) {\n  const { data, tooltipData } = useChart();\n\n  useEffect(() => {\n    if (!tooltipData?.point) {\n      onHoverChange({ value: null, label: null, trend: null });\n      return;\n    }\n\n    const raw = tooltipData.point[dataKey];\n    const value = typeof raw === \"number\" ? raw : null;\n    const date = parsePointDate(tooltipData.point[dateKey]);\n    const label = date ? formatLabel(date) : null;\n    const trend = computePeriodTrend(data, tooltipData.index, dataKey);\n\n    onHoverChange({ value, label, trend });\n  }, [data, dataKey, dateKey, formatLabel, onHoverChange, tooltipData]);\n\n  return null;\n}\n",
+      "type": "registry:component",
+      "target": "components/stat-card-hover-bridge.tsx"
+    },
+    {
+      "path": "registry/blocks/stat-card-area-01/components/stat-card-stat-styles.ts",
+      "content": "export const statCardValueClassName =\n  \"text-3xl font-semibold leading-none tracking-tight\";\n\nexport const statCardLabelClassName = \"mt-0 text-xs\";\n",
+      "type": "registry:lib",
+      "target": "components/stat-card-stat-styles.ts"
+    },
+    {
+      "path": "registry/blocks/stat-card-area-01/components/trend-badge.tsx",
+      "content": "\"use client\";\n\nimport { ArrowDown, ArrowUp } from \"lucide-react\";\nimport { Badge } from \"@/components/ui/badge\";\nimport { cn } from \"@/lib/utils\";\n\nexport function TrendBadge({\n  value,\n  className,\n}: {\n  value: number;\n  className?: string;\n}) {\n  const positive = value >= 0;\n  const Icon = positive ? ArrowUp : ArrowDown;\n\n  return (\n    <Badge\n      className={cn(\n        positive &&\n          \"border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400\",\n        className\n      )}\n      variant={positive ? \"outline\" : \"destructive\"}\n    >\n      <Icon className=\"size-3\" data-icon=\"inline-start\" />\n      {positive ? \"+\" : \"\"}\n      {value.toFixed(1)}%\n    </Badge>\n  );\n}\n",
+      "type": "registry:component",
+      "target": "components/trend-badge.tsx"
+    },
+    {
+      "path": "registry/blocks/stat-card-area-01/data/revenue-series.ts",
+      "content": "export const revenueSeries = [\n  { date: new Date(\"2024-01-01\"), value: 5200 },\n  { date: new Date(\"2024-02-01\"), value: 6100 },\n  { date: new Date(\"2024-03-01\"), value: 5400 },\n  { date: new Date(\"2024-04-01\"), value: 4700 },\n  { date: new Date(\"2024-05-01\"), value: 5100 },\n  { date: new Date(\"2024-06-01\"), value: 6800 },\n  { date: new Date(\"2024-07-01\"), value: 6400 },\n  { date: new Date(\"2024-08-01\"), value: 7200 },\n  { date: new Date(\"2024-09-01\"), value: 6900 },\n  { date: new Date(\"2024-10-01\"), value: 8100 },\n  { date: new Date(\"2024-11-01\"), value: 7600 },\n  { date: new Date(\"2024-12-01\"), value: 8800 },\n];\n\nexport const revenueStats = {\n  average:\n    revenueSeries.reduce((sum, point) => sum + point.value, 0) /\n    revenueSeries.length,\n  trend: 12.4,\n};\n",
+      "type": "registry:lib",
+      "target": "data/revenue-series.ts"
+    }
+  ]
+}

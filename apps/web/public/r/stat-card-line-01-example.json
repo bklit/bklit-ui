@@ -1,0 +1,29 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "stat-card-line-01-example",
+  "type": "registry:example",
+  "title": "Stat Card Line Example",
+  "description": "Sessions stat card with line sparkline, overlaid NumberFlow, and trend badge — demo for Open in v0",
+  "dependencies": [
+    "@visx/curve@4.0.1-alpha.0",
+    "@number-flow/react",
+    "lucide-react"
+  ],
+  "registryDependencies": [
+    "@bklit/stat-card-line-01"
+  ],
+  "files": [
+    {
+      "path": "registry/examples/stat-card-line-01.tsx",
+      "content": "\"use client\";\n\nimport { StatCardLine } from \"@/components/stat-card-line\";\n\nexport default function Component() {\n  return (\n    <main className=\"flex min-h-svh w-full items-center justify-center p-6 md:p-10\">\n      <div className=\"w-full max-w-md\">\n        <StatCardLine />\n      </div>\n    </main>\n  );\n}\n",
+      "type": "registry:page",
+      "target": "app/page.tsx"
+    },
+    {
+      "path": "registry/examples/stat-card-line-01-index.ts",
+      "content": "// biome-ignore lint/performance/noBarrelFile: v0 registry example barrel for shadcn install\nexport { LineChart } from \"./line-chart\";\nexport { Line } from \"./line\";\nexport { ChartStatFlow } from \"./chart-stat-flow\";\n",
+      "type": "registry:lib",
+      "target": "components/charts/index.ts"
+    }
+  ]
+}

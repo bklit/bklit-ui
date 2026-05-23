@@ -15,13 +15,13 @@
   "files": [
     {
       "path": "registry/examples/choropleth-chart.tsx",
-      "content": "\"use client\";\n\n// In your app (monorepo/npm): import { ChoroplethChart, ChoroplethFeatureComponent, ChoroplethTooltip } from \"@bklitui/ui/charts\"\nimport {\n  ChoroplethChart,\n  ChoroplethFeatureComponent,\n  ChoroplethTooltip,\n} from \"@/components/charts\";\n\nconst features = [\n  { id: \"US\", name: \"United States\", value: 120 },\n  { id: \"CA\", name: \"Canada\", value: 45 },\n  { id: \"GB\", name: \"United Kingdom\", value: 62 },\n];\n\nexport default function Component() {\n  return (\n    <main className=\"flex min-h-svh w-full items-center justify-center p-6 md:p-10\">\n      <div className=\"w-full max-w-3xl\">\n        <ChoroplethChart aspectRatio=\"2 / 1\" data={features}>\n          <ChoroplethFeatureComponent />\n          <ChoroplethTooltip />\n        </ChoroplethChart>\n      </div>\n    </main>\n  );\n}\n",
+      "content": "\"use client\"\n\n// In your app (monorepo/npm): import { ChoroplethChart, ChoroplethFeatureComponent, ChoroplethTooltip } from \"@bklitui/ui/charts\"\nimport { ChoroplethChart, ChoroplethFeatureComponent, ChoroplethTooltip } from \"@/components/charts\"\n\nconst features = [\n  { id: \"US\", name: \"United States\", value: 120 },\n  { id: \"CA\", name: \"Canada\", value: 45 },\n  { id: \"GB\", name: \"United Kingdom\", value: 62 },\n];\n\nexport default function Component() {\n  return (\n    <main className=\"flex min-h-svh w-full items-center justify-center p-6 md:p-10\">\n      <div className=\"w-full max-w-3xl\">\n        <ChoroplethChart data={features} aspectRatio=\"2 / 1\">\n  <ChoroplethFeatureComponent />\n  <ChoroplethTooltip />\n</ChoroplethChart>\n      </div>\n    </main>\n  )\n}\n",
       "type": "registry:page",
       "target": "app/page.tsx"
     },
     {
       "path": "registry/examples/choropleth-chart-index.ts",
-      "content": "// biome-ignore lint/performance/noBarrelFile: v0 registry example barrel for shadcn install\nexport {\n  ChoroplethChart,\n  ChoroplethFeatureComponent,\n  ChoroplethTooltip,\n} from \"./choropleth\";\n",
+      "content": "// biome-ignore lint/performance/noBarrelFile: v0 registry example barrel for shadcn install\nexport { ChoroplethChart, ChoroplethFeatureComponent, ChoroplethTooltip } from \"./choropleth\";\n",
       "type": "registry:lib",
       "target": "components/charts/index.ts"
     }

@@ -1297,6 +1297,260 @@
           "target": "components/charts/index.ts"
         }
       ]
+    },
+    {
+      "name": "chart-stat-flow",
+      "type": "registry:component",
+      "title": "Chart Stat Flow",
+      "description": "Animated stat value and label for chart overlays",
+      "registryDependencies": [
+        "@bklit/utils"
+      ],
+      "dependencies": [
+        "@number-flow/react",
+        "motion"
+      ],
+      "files": [
+        {
+          "path": "src/charts/chart-stat-flow.tsx",
+          "type": "registry:component",
+          "target": "components/charts/chart-stat-flow.tsx"
+        }
+      ]
+    },
+    {
+      "name": "stat-card-area-01",
+      "type": "registry:block",
+      "title": "Stat Card Area",
+      "description": "Revenue stat card with gradient area sparkline, NumberFlow, and trend badge",
+      "registryDependencies": [
+        "@bklit/area-chart",
+        "@bklit/chart-stat-flow",
+        "card",
+        "badge"
+      ],
+      "dependencies": [
+        "@visx/curve@4.0.1-alpha.0",
+        "@visx/gradient@4.0.1-alpha.0",
+        "@number-flow/react",
+        "lucide-react"
+      ],
+      "files": [
+        {
+          "path": "registry/blocks/stat-card-area-01/components/stat-card-area.tsx",
+          "type": "registry:component",
+          "target": "components/stat-card-area.tsx"
+        },
+        {
+          "path": "registry/blocks/stat-card-area-01/components/stat-card-chart.tsx",
+          "type": "registry:component",
+          "target": "components/stat-card-chart.tsx"
+        },
+        {
+          "path": "registry/blocks/stat-card-area-01/components/stat-card-hover-bridge.tsx",
+          "type": "registry:component",
+          "target": "components/stat-card-hover-bridge.tsx"
+        },
+        {
+          "path": "registry/blocks/stat-card-area-01/components/stat-card-stat-styles.ts",
+          "type": "registry:lib",
+          "target": "components/stat-card-stat-styles.ts"
+        },
+        {
+          "path": "registry/blocks/stat-card-area-01/components/trend-badge.tsx",
+          "type": "registry:component",
+          "target": "components/trend-badge.tsx"
+        },
+        {
+          "path": "registry/blocks/stat-card-area-01/data/revenue-series.ts",
+          "type": "registry:lib",
+          "target": "data/revenue-series.ts"
+        }
+      ]
+    },
+    {
+      "name": "stat-card-area-01-example",
+      "type": "registry:example",
+      "title": "Stat Card Area Example",
+      "description": "Revenue stat card with gradient area sparkline, NumberFlow, and trend badge — demo for Open in v0",
+      "registryDependencies": [
+        "@bklit/stat-card-area-01"
+      ],
+      "dependencies": [
+        "@visx/curve@4.0.1-alpha.0",
+        "@visx/gradient@4.0.1-alpha.0",
+        "@number-flow/react",
+        "lucide-react"
+      ],
+      "files": [
+        {
+          "path": "registry/examples/stat-card-area-01.tsx",
+          "type": "registry:page",
+          "target": "app/page.tsx"
+        },
+        {
+          "path": "registry/examples/stat-card-area-01-index.ts",
+          "type": "registry:lib",
+          "target": "components/charts/index.ts"
+        }
+      ]
+    },
+    {
+      "name": "stat-card-line-01",
+      "type": "registry:block",
+      "title": "Stat Card Line",
+      "description": "Sessions stat card with line sparkline, overlaid NumberFlow, and trend badge",
+      "registryDependencies": [
+        "@bklit/line-chart",
+        "@bklit/chart-stat-flow",
+        "card",
+        "badge"
+      ],
+      "dependencies": [
+        "@visx/curve@4.0.1-alpha.0",
+        "@number-flow/react",
+        "lucide-react"
+      ],
+      "files": [
+        {
+          "path": "registry/blocks/stat-card-line-01/components/stat-card-line.tsx",
+          "type": "registry:component",
+          "target": "components/stat-card-line.tsx"
+        },
+        {
+          "path": "registry/blocks/stat-card-line-01/components/stat-card-chart.tsx",
+          "type": "registry:component",
+          "target": "components/stat-card-chart.tsx"
+        },
+        {
+          "path": "registry/blocks/stat-card-line-01/components/stat-card-hover-bridge.tsx",
+          "type": "registry:component",
+          "target": "components/stat-card-hover-bridge.tsx"
+        },
+        {
+          "path": "registry/blocks/stat-card-line-01/components/stat-card-stat-styles.ts",
+          "type": "registry:lib",
+          "target": "components/stat-card-stat-styles.ts"
+        },
+        {
+          "path": "registry/blocks/stat-card-line-01/components/trend-badge.tsx",
+          "type": "registry:component",
+          "target": "components/trend-badge.tsx"
+        },
+        {
+          "path": "registry/blocks/stat-card-line-01/data/sessions-series.ts",
+          "type": "registry:lib",
+          "target": "data/sessions-series.ts"
+        }
+      ]
+    },
+    {
+      "name": "stat-card-line-01-example",
+      "type": "registry:example",
+      "title": "Stat Card Line Example",
+      "description": "Sessions stat card with line sparkline, overlaid NumberFlow, and trend badge — demo for Open in v0",
+      "registryDependencies": [
+        "@bklit/stat-card-line-01"
+      ],
+      "dependencies": [
+        "@visx/curve@4.0.1-alpha.0",
+        "@number-flow/react",
+        "lucide-react"
+      ],
+      "files": [
+        {
+          "path": "registry/examples/stat-card-line-01.tsx",
+          "type": "registry:page",
+          "target": "app/page.tsx"
+        },
+        {
+          "path": "registry/examples/stat-card-line-01-index.ts",
+          "type": "registry:lib",
+          "target": "components/charts/index.ts"
+        }
+      ]
+    },
+    {
+      "name": "stat-card-choropleth-01",
+      "type": "registry:block",
+      "title": "Stat Card Choropleth",
+      "description": "Visitor map stat card with choropleth sparkline, NumberFlow, and trend badge",
+      "registryDependencies": [
+        "@bklit/choropleth-chart",
+        "@bklit/chart-stat-flow",
+        "card",
+        "badge"
+      ],
+      "dependencies": [
+        "@number-flow/react",
+        "@types/geojson",
+        "lucide-react",
+        "topojson-client"
+      ],
+      "files": [
+        {
+          "path": "registry/blocks/stat-card-choropleth-01/components/stat-card-choropleth.tsx",
+          "type": "registry:component",
+          "target": "components/stat-card-choropleth.tsx"
+        },
+        {
+          "path": "registry/blocks/stat-card-choropleth-01/components/stat-card-choropleth-hover-bridge.tsx",
+          "type": "registry:component",
+          "target": "components/stat-card-choropleth-hover-bridge.tsx"
+        },
+        {
+          "path": "registry/blocks/stat-card-choropleth-01/components/stat-card-chart.tsx",
+          "type": "registry:component",
+          "target": "components/stat-card-chart.tsx"
+        },
+        {
+          "path": "registry/blocks/stat-card-choropleth-01/components/stat-card-stat-styles.ts",
+          "type": "registry:lib",
+          "target": "components/stat-card-stat-styles.ts"
+        },
+        {
+          "path": "registry/blocks/stat-card-choropleth-01/components/trend-badge.tsx",
+          "type": "registry:component",
+          "target": "components/trend-badge.tsx"
+        },
+        {
+          "path": "registry/blocks/stat-card-choropleth-01/data/visitors.ts",
+          "type": "registry:lib",
+          "target": "data/visitors.ts"
+        },
+        {
+          "path": "registry/blocks/stat-card-choropleth-01/lib/use-world-data.tsx",
+          "type": "registry:component",
+          "target": "lib/use-world-data.tsx"
+        }
+      ]
+    },
+    {
+      "name": "stat-card-choropleth-01-example",
+      "type": "registry:example",
+      "title": "Stat Card Choropleth Example",
+      "description": "Visitor map stat card with choropleth sparkline, NumberFlow, and trend badge — demo for Open in v0",
+      "registryDependencies": [
+        "@bklit/stat-card-choropleth-01"
+      ],
+      "dependencies": [
+        "@number-flow/react",
+        "@types/geojson",
+        "lucide-react",
+        "topojson-client"
+      ],
+      "files": [
+        {
+          "path": "registry/examples/stat-card-choropleth-01.tsx",
+          "type": "registry:page",
+          "target": "app/page.tsx"
+        },
+        {
+          "path": "registry/examples/stat-card-choropleth-01-index.ts",
+          "type": "registry:lib",
+          "target": "components/charts/index.ts"
+        }
+      ]
     }
   ]
 }
