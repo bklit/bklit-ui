@@ -90,8 +90,18 @@ import {
   useRef,
   useState,
 } from "react";
+import {
+  ChartExamplePreviewFrame,
+  type ChartExamplePreviewLayout,
+  chartExampleGaugeClassName,
+  chartExampleGaugeShellClassName,
+  chartExampleRadialShellClassName,
+  getChartExampleCardPaddingClassName,
+  getChartExampleContentPaddingClassName,
+} from "@/components/charts/chart-example-preview";
 import { CopyButton } from "@/components/copy-button";
 import { useWorldDataStandalone } from "@/components/docs/use-world-data";
+import { HorizontalScrollArea } from "@/components/horizontal-scroll-area";
 import {
   Card,
   CardContent,
@@ -115,6 +125,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { createChartExamplePreview } from "@/lib/chart-example-preview";
 import { codeThemes } from "@/lib/code-theme";
 import {
   composedDemoData,
@@ -551,6 +562,8 @@ interface ChartExampleCardProps {
   code: string;
   data?: string;
   footer?: string;
+  previewLayout?: ChartExamplePreviewLayout;
+  previewRole?: "hero" | "example";
   children: ReactNode;
 }
 
@@ -560,13 +573,18 @@ function ChartExampleCard({
   code,
   data,
   footer = "Trending up by 5.2% this month",
+  previewLayout = "cartesian",
+  previewRole = "example",
   children,
 }: ChartExampleCardProps) {
   const fullCode = data ? `${data}\n\n${code}` : code;
+  const cardPaddingClassName = getChartExampleCardPaddingClassName();
+  const contentPaddingClassName =
+    getChartExampleContentPaddingClassName(previewLayout);
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className={cardPaddingClassName}>
         <div className="flex items-start justify-between gap-4">
           <div className="flex flex-col gap-1.5">
             <CardTitle className="text-base">{title}</CardTitle>
@@ -611,8 +629,12 @@ function ChartExampleCard({
           </div>
         </div>
       </CardHeader>
-      <CardContent>{children}</CardContent>
-      <CardFooter>
+      <CardContent className={contentPaddingClassName}>
+        <ChartExamplePreviewFrame layout={previewLayout} role={previewRole}>
+          {children}
+        </ChartExamplePreviewFrame>
+      </CardContent>
+      <CardFooter className={cardPaddingClassName}>
         <p className="text-muted-foreground text-xs">{footer}</p>
       </CardFooter>
     </Card>
@@ -733,6 +755,16 @@ interface ChartExample {
   render: () => ReactNode;
 }
 
+const AreaExampleChart = createChartExamplePreview(AreaChart);
+const BarExampleChart = createChartExamplePreview(BarChart);
+const LineExampleChart = createChartExamplePreview(LineChart);
+const ComposedExampleChart = createChartExamplePreview(ComposedChart);
+const CandlestickExampleChart = createChartExamplePreview(CandlestickChart);
+const LiveLineExampleChart = createChartExamplePreview(LiveLineChart);
+const ChoroplethExampleChart = createChartExamplePreview(ChoroplethChart);
+const SankeyExampleChart = createChartExamplePreview(SankeyChart);
+const ScatterExampleChart = createChartExamplePreview(ScatterChart);
+
 function makeAreaExamples(): ChartExample[] {
   return [
     {
@@ -745,12 +777,12 @@ function makeAreaExamples(): ChartExample[] {
   <ChartTooltip />
 </AreaChart>`,
       render: () => (
-        <AreaChart data={areaData}>
+        <AreaExampleChart data={areaData}>
           <Grid horizontal />
           <Area dataKey="desktop" fillOpacity={0.3} strokeWidth={2} />
           <XAxis />
           <ChartTooltip />
-        </AreaChart>
+        </AreaExampleChart>
       ),
     },
     {
@@ -765,12 +797,12 @@ function makeAreaExamples(): ChartExample[] {
   <ChartTooltip />
 </AreaChart>`,
       render: () => (
-        <AreaChart data={areaData}>
+        <AreaExampleChart data={areaData}>
           <Grid horizontal />
           <Area curve={curveStep} dataKey="desktop" fillOpacity={0.3} />
           <XAxis />
           <ChartTooltip />
-        </AreaChart>
+        </AreaExampleChart>
       ),
     },
     {
@@ -792,7 +824,7 @@ function makeAreaExamples(): ChartExample[] {
   <ChartTooltip />
 </AreaChart>`,
       render: () => (
-        <AreaChart data={areaData}>
+        <AreaExampleChart data={areaData}>
           <Grid horizontal />
           <Area
             dataKey="desktop"
@@ -808,7 +840,7 @@ function makeAreaExamples(): ChartExample[] {
           />
           <XAxis />
           <ChartTooltip />
-        </AreaChart>
+        </AreaExampleChart>
       ),
     },
     {
@@ -824,7 +856,7 @@ function makeAreaExamples(): ChartExample[] {
   <ChartTooltip />
 </AreaChart>`,
       render: () => (
-        <AreaChart data={areaData}>
+        <AreaExampleChart data={areaData}>
           <Area
             dataKey="desktop"
             fillOpacity={0.5}
@@ -832,7 +864,7 @@ function makeAreaExamples(): ChartExample[] {
             strokeWidth={2}
           />
           <ChartTooltip />
-        </AreaChart>
+        </AreaExampleChart>
       ),
     },
     {
@@ -848,11 +880,11 @@ function makeAreaExamples(): ChartExample[] {
   <ChartTooltip />
 </AreaChart>`,
       render: () => (
-        <AreaChart data={areaData}>
+        <AreaExampleChart data={areaData}>
           <Area dataKey="desktop" fillOpacity={0.5} showLine={false} />
           <XAxis />
           <ChartTooltip />
-        </AreaChart>
+        </AreaExampleChart>
       ),
     },
     {
@@ -870,12 +902,12 @@ function makeAreaExamples(): ChartExample[] {
   <ChartTooltip />
 </AreaChart>`,
       render: () => (
-        <AreaChart data={areaData}>
+        <AreaExampleChart data={areaData}>
           <Grid horizontal />
           <Area dataKey="desktop" fadeEdges fillOpacity={0.3} strokeWidth={2} />
           <XAxis />
           <ChartTooltip />
-        </AreaChart>
+        </AreaExampleChart>
       ),
     },
     {
@@ -892,7 +924,7 @@ function makeAreaExamples(): ChartExample[] {
 </AreaChart>`,
       footer: "Click and drag on the chart to select a segment",
       render: () => (
-        <AreaChart data={areaData}>
+        <AreaExampleChart data={areaData}>
           <Grid horizontal />
           <Area dataKey="desktop" fillOpacity={0.3} strokeWidth={2} />
           <SegmentBackground />
@@ -900,7 +932,7 @@ function makeAreaExamples(): ChartExample[] {
           <SegmentLineTo />
           <XAxis />
           <ChartTooltip />
-        </AreaChart>
+        </AreaExampleChart>
       ),
     },
     {
@@ -921,7 +953,7 @@ function makeAreaExamples(): ChartExample[] {
   <ChartTooltip />
 </AreaChart>`,
       render: () => (
-        <AreaChart data={areaData}>
+        <AreaExampleChart data={areaData}>
           <PatternLines
             height={6}
             id="area-example-pattern"
@@ -935,7 +967,7 @@ function makeAreaExamples(): ChartExample[] {
           <Area dataKey="desktop" fillOpacity={0} strokeWidth={2} />
           <XAxis />
           <ChartTooltip />
-        </AreaChart>
+        </AreaExampleChart>
       ),
     },
   ];
@@ -946,25 +978,25 @@ function makeBarExamples(): ChartExample[] {
     {
       title: "Bar Chart",
       description: "Default vertical bar chart with rounded caps",
-      code: `<BarChart data={chartData} xDataKey="month">
+      code: `<BarChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={chartData} xDataKey="month">
   <Grid horizontal />
   <Bar dataKey="desktop" lineCap="round" />
   <BarXAxis />
   <ChartTooltip />
 </BarChart>`,
       render: () => (
-        <BarChart data={barData} xDataKey="month">
+        <BarExampleChart data={barData} xDataKey="month">
           <Grid horizontal />
           <Bar dataKey="desktop" lineCap="round" />
           <BarXAxis />
           <ChartTooltip />
-        </BarChart>
+        </BarExampleChart>
       ),
     },
     {
       title: "Bar Chart - Multiple Series",
       description: "Grouped bars comparing two metrics",
-      code: `<BarChart data={chartData} xDataKey="month">
+      code: `<BarChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={chartData} xDataKey="month">
   <Grid horizontal />
   <Bar dataKey="desktop" fill="var(--chart-1)" lineCap="round" />
   <Bar dataKey="mobile" fill="var(--chart-3)" lineCap="round" />
@@ -972,19 +1004,19 @@ function makeBarExamples(): ChartExample[] {
   <ChartTooltip />
 </BarChart>`,
       render: () => (
-        <BarChart data={barStackedData} xDataKey="month">
+        <BarExampleChart data={barStackedData} xDataKey="month">
           <Grid horizontal />
           <Bar dataKey="desktop" fill="var(--chart-1)" lineCap="round" />
           <Bar dataKey="mobile" fill="var(--chart-3)" lineCap="round" />
           <BarXAxis />
           <ChartTooltip />
-        </BarChart>
+        </BarExampleChart>
       ),
     },
     {
       title: "Bar Chart - Stacked",
       description: "Stacked bars with gap between segments",
-      code: `<BarChart data={chartData} xDataKey="month" stacked stackGap={3}>
+      code: `<BarChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={chartData} xDataKey="month" stacked stackGap={3}>
   <Grid horizontal />
   <Bar dataKey="desktop" fill="var(--chart-1)" lineCap="butt" stackGap={3} />
   <Bar dataKey="mobile" fill="var(--chart-3)" lineCap="butt" stackGap={3} />
@@ -992,7 +1024,12 @@ function makeBarExamples(): ChartExample[] {
   <ChartTooltip />
 </BarChart>`,
       render: () => (
-        <BarChart data={barStackedData} stacked stackGap={3} xDataKey="month">
+        <BarExampleChart
+          data={barStackedData}
+          stacked
+          stackGap={3}
+          xDataKey="month"
+        >
           <Grid horizontal />
           <Bar
             dataKey="desktop"
@@ -1008,7 +1045,7 @@ function makeBarExamples(): ChartExample[] {
           />
           <BarXAxis />
           <ChartTooltip />
-        </BarChart>
+        </BarExampleChart>
       ),
     },
     {
@@ -1018,7 +1055,7 @@ function makeBarExamples(): ChartExample[] {
   data={chartData}
   xDataKey="browser"
   orientation="horizontal"
-  margin={{ left: 80 }}
+  margin={{ top: 8, right: 8, bottom: 40, left: 80 }}
   aspectRatio="4 / 3"
 >
   <Grid horizontal={false} vertical fadeVertical />
@@ -1027,7 +1064,7 @@ function makeBarExamples(): ChartExample[] {
   <ChartTooltip showCrosshair={false} />
 </BarChart>`,
       render: () => (
-        <BarChart
+        <BarExampleChart
           aspectRatio="4 / 3"
           data={barHorizontalData}
           margin={{ left: 80 }}
@@ -1038,31 +1075,31 @@ function makeBarExamples(): ChartExample[] {
           <Bar dataKey="users" lineCap={4} />
           <BarYAxis />
           <ChartTooltip showCrosshair={false} />
-        </BarChart>
+        </BarExampleChart>
       ),
     },
     {
       title: "Bar Chart - Dense Data",
       description: "60 days of data with narrow gaps",
-      code: `<BarChart data={dailyData} xDataKey="day" barGap={0.1}>
+      code: `<BarChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={dailyData} xDataKey="day" barGap={0.1}>
   <Grid horizontal />
   <Bar dataKey="value" lineCap="butt" />
   <BarXAxis maxLabels={6} />
   <ChartTooltip />
 </BarChart>`,
       render: () => (
-        <BarChart barGap={0.1} data={barDailyData} xDataKey="day">
+        <BarExampleChart barGap={0.1} data={barDailyData} xDataKey="day">
           <Grid horizontal />
           <Bar dataKey="value" lineCap="butt" />
           <BarXAxis maxLabels={6} />
           <ChartTooltip />
-        </BarChart>
+        </BarExampleChart>
       ),
     },
     {
       title: "Bar Chart - Gradient",
       description: "Linear gradient fill from blue to purple",
-      code: `<BarChart data={chartData} xDataKey="month">
+      code: `<BarChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={chartData} xDataKey="month">
   <LinearGradient
     from="hsl(217, 91%, 60%)"
     id="barGradient"
@@ -1079,7 +1116,7 @@ function makeBarExamples(): ChartExample[] {
   <ChartTooltip />
 </BarChart>`,
       render: () => (
-        <BarChart data={barRevenueData} xDataKey="month">
+        <BarExampleChart data={barRevenueData} xDataKey="month">
           <LinearGradient
             from="hsl(217, 91%, 60%)"
             id="bar-example-gradient"
@@ -1094,13 +1131,13 @@ function makeBarExamples(): ChartExample[] {
           />
           <BarXAxis />
           <ChartTooltip />
-        </BarChart>
+        </BarExampleChart>
       ),
     },
     {
       title: "Bar Chart - Pattern",
       description: "Diagonal line pattern fill",
-      code: `<BarChart data={chartData} xDataKey="month">
+      code: `<BarChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={chartData} xDataKey="month">
   <PatternLines
     height={8}
     id="barPattern"
@@ -1120,7 +1157,7 @@ function makeBarExamples(): ChartExample[] {
   <ChartTooltip />
 </BarChart>`,
       render: () => (
-        <BarChart data={barRevenueData} xDataKey="month">
+        <BarExampleChart data={barRevenueData} xDataKey="month">
           <PatternLines
             height={8}
             id="bar-example-pattern"
@@ -1138,13 +1175,13 @@ function makeBarExamples(): ChartExample[] {
           />
           <BarXAxis />
           <ChartTooltip />
-        </BarChart>
+        </BarExampleChart>
       ),
     },
     {
       title: "Bar Chart - No Gap",
       description: "Zero gap with gradient and animated line indicator",
-      code: `<BarChart data={chartData} xDataKey="month" barGap={0}>
+      code: `<BarChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={chartData} xDataKey="month" barGap={0}>
   <LinearGradient
     from="var(--chart-3)"
     id="noGapGradient"
@@ -1163,7 +1200,7 @@ function makeBarExamples(): ChartExample[] {
 </BarChart>`,
       footer: "Hover over bars to see the animated line indicator",
       render: () => (
-        <BarChart barGap={0} data={barRevenueData} xDataKey="month">
+        <BarExampleChart barGap={0} data={barRevenueData} xDataKey="month">
           <LinearGradient
             from="var(--chart-3)"
             id="bar-example-nogap-gradient"
@@ -1183,13 +1220,13 @@ function makeBarExamples(): ChartExample[] {
             valueKey="revenue"
             xKey="month"
           />
-        </BarChart>
+        </BarExampleChart>
       ),
     },
     {
       title: "Bar Chart - Custom Tooltip",
       description: "Formatted currency values in tooltip",
-      code: `<BarChart data={chartData} xDataKey="month">
+      code: `<BarChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={chartData} xDataKey="month">
   <Grid horizontal />
   <Bar dataKey="revenue" lineCap="round" />
   <BarXAxis />
@@ -1204,7 +1241,7 @@ function makeBarExamples(): ChartExample[] {
   />
 </BarChart>`,
       render: () => (
-        <BarChart data={barRevenueData} xDataKey="month">
+        <BarExampleChart data={barRevenueData} xDataKey="month">
           <Grid horizontal />
           <Bar dataKey="revenue" lineCap="round" />
           <BarXAxis />
@@ -1217,7 +1254,7 @@ function makeBarExamples(): ChartExample[] {
               },
             ]}
           />
-        </BarChart>
+        </BarExampleChart>
       ),
     },
   ];
@@ -1236,7 +1273,7 @@ function makeComposedExamples(): ChartExample[] {
       title: "Composed Chart — Bar + line",
       description:
         "30 daily points with rounded SeriesBar tops (`radius`) and a smoothed revenue line",
-      code: `<ComposedChart data={data} xDataKey="date" aspectRatio="3 / 2" barGap={0} maxBarSize={32}>
+      code: `<ComposedChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={data} xDataKey="date" aspectRatio="3 / 2" barGap={0} maxBarSize={32}>
   <Grid horizontal />
   <SeriesBar dataKey="units" fill="var(--chart-3)" radius={5} />
   <Line dataKey="revenue" stroke="var(--chart-1)" />
@@ -1246,7 +1283,7 @@ function makeComposedExamples(): ChartExample[] {
       footer:
         'Dense time series: use default XAxis ticks (numTicks) so labels stay readable. Use tickMode="data" when you only have a few rows (e.g. one bar per month).',
       render: () => (
-        <ComposedChart
+        <ComposedExampleChart
           aspectRatio="3 / 2"
           barGap={0}
           data={dataCast}
@@ -1258,14 +1295,14 @@ function makeComposedExamples(): ChartExample[] {
           <Line dataKey="revenue" stroke="var(--chart-1)" />
           <ChartTooltip showCrosshair={false} />
           <XAxis numTicks={8} />
-        </ComposedChart>
+        </ComposedExampleChart>
       ),
     },
     {
       title: "Composed Chart — Lime / amber / red",
       description:
         "Fixed hex accents (tailwind lime-300, amber-300, red-500) with rounded bars",
-      code: `<ComposedChart data={data} aspectRatio="3 / 2" barGap={0} maxBarSize={30} xDataKey="date">
+      code: `<ComposedChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={data} aspectRatio="3 / 2" barGap={0} maxBarSize={30} xDataKey="date">
   <Grid horizontal />
   <Area dataKey="runRate" fill="#ef4444" fillOpacity={0.22} stroke="#ef4444" strokeWidth={1.5} />
   <SeriesBar dataKey="units" fill="#bef264" radius={6} stroke="#bef264" />
@@ -1274,7 +1311,7 @@ function makeComposedExamples(): ChartExample[] {
   <XAxis numTicks={8} />
 </ComposedChart>`,
       render: () => (
-        <ComposedChart
+        <ComposedExampleChart
           aspectRatio="3 / 2"
           barGap={0}
           data={dataCast}
@@ -1302,14 +1339,14 @@ function makeComposedExamples(): ChartExample[] {
           />
           <ChartTooltip showCrosshair={false} />
           <XAxis numTicks={8} />
-        </ComposedChart>
+        </ComposedExampleChart>
       ),
     },
     {
       title: "Composed Chart — Stacked SeriesBar + line",
       description:
         "Two stack segments per day with the same 30-day timeline; stackGap={0} for flush stacks",
-      code: `<ComposedChart data={data} aspectRatio="3 / 2" stacked stackGap={0} barGap={0} maxBarSize={28}>
+      code: `<ComposedChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={data} aspectRatio="3 / 2" stacked stackGap={0} barGap={0} maxBarSize={28}>
   <Grid horizontal />
   <SeriesBar dataKey="direct" fill="var(--chart-3)" />
   <SeriesBar dataKey="partner" fill="var(--chart-5)" />
@@ -1318,7 +1355,7 @@ function makeComposedExamples(): ChartExample[] {
   <XAxis numTicks={8} />
 </ComposedChart>`,
       render: () => (
-        <ComposedChart
+        <ComposedExampleChart
           aspectRatio="3 / 2"
           barGap={0}
           data={stackedCast}
@@ -1333,14 +1370,14 @@ function makeComposedExamples(): ChartExample[] {
           <Line dataKey="revenue" stroke="var(--chart-1)" />
           <ChartTooltip showCrosshair={false} />
           <XAxis numTicks={8} />
-        </ComposedChart>
+        </ComposedExampleChart>
       ),
     },
     {
       title: "Composed Chart — Grouped bars, no gap",
       description:
         "Two SeriesBar series per day with barGap={0}; rounded tops on both bar series",
-      code: `<ComposedChart data={data} aspectRatio="3 / 2" barGap={0} maxBarSize={26}>
+      code: `<ComposedChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={data} aspectRatio="3 / 2" barGap={0} maxBarSize={26}>
   <Grid horizontal />
   <SeriesBar dataKey="units" fill="var(--chart-3)" radius={4} />
   <SeriesBar dataKey="runRate" fill="var(--chart-5)" radius={4} />
@@ -1349,7 +1386,7 @@ function makeComposedExamples(): ChartExample[] {
   <XAxis numTicks={8} />
 </ComposedChart>`,
       render: () => (
-        <ComposedChart
+        <ComposedExampleChart
           aspectRatio="3 / 2"
           barGap={0}
           data={dataCast}
@@ -1362,7 +1399,7 @@ function makeComposedExamples(): ChartExample[] {
           <Line dataKey="revenue" stroke="var(--chart-1)" />
           <ChartTooltip showCrosshair={false} />
           <XAxis numTicks={8} />
-        </ComposedChart>
+        </ComposedExampleChart>
       ),
     },
     {
@@ -1371,7 +1408,7 @@ function makeComposedExamples(): ChartExample[] {
         "One SeriesBar with a fuchsia-400 diagonal pattern, one solid bar on theme colors; revenue line unchanged",
       code: `import { PatternLines } from "@bklitui/ui/charts";
 
-<ComposedChart data={data} aspectRatio="3 / 2" barGap={0} maxBarSize={22}>
+<ComposedChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={data} aspectRatio="3 / 2" barGap={0} maxBarSize={22}>
   <PatternLines id="composed-pat-fuchsia" height={6} width={6} orientation={["diagonal"]} stroke="#e879f9" strokeWidth={1} />
   <Grid horizontal />
   <SeriesBar dataKey="units" fill="url(#composed-pat-fuchsia)" stroke="#e879f9" />
@@ -1381,7 +1418,7 @@ function makeComposedExamples(): ChartExample[] {
   <XAxis numTicks={8} />
 </ComposedChart>`,
       render: () => (
-        <ComposedChart
+        <ComposedExampleChart
           aspectRatio="3 / 2"
           barGap={0}
           data={dataCast}
@@ -1406,14 +1443,14 @@ function makeComposedExamples(): ChartExample[] {
           <Line dataKey="revenue" stroke="var(--chart-1)" />
           <ChartTooltip showCrosshair={false} />
           <XAxis numTicks={8} />
-        </ComposedChart>
+        </ComposedExampleChart>
       ),
     },
     {
       title: "Composed Chart — Bar + two lines",
       description:
         "Installs as daily columns (rounded) with desktop and mobile lines (30-day variation)",
-      code: `<ComposedChart data={data} aspectRatio="3 / 2" barGap={0} maxBarSize={20}>
+      code: `<ComposedChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={data} aspectRatio="3 / 2" barGap={0} maxBarSize={20}>
   <Grid horizontal />
   <SeriesBar dataKey="installs" fill="var(--chart-3)" radius={5} />
   <Line dataKey="desktop" stroke="var(--chart-1)" />
@@ -1422,7 +1459,7 @@ function makeComposedExamples(): ChartExample[] {
   <XAxis numTicks={8} />
 </ComposedChart>`,
       render: () => (
-        <ComposedChart
+        <ComposedExampleChart
           aspectRatio="3 / 2"
           barGap={0}
           data={triCast}
@@ -1435,7 +1472,7 @@ function makeComposedExamples(): ChartExample[] {
           <Line dataKey="mobile" stroke="var(--chart-2)" />
           <ChartTooltip showCrosshair={false} />
           <XAxis numTicks={8} />
-        </ComposedChart>
+        </ComposedExampleChart>
       ),
     },
   ];
@@ -1448,7 +1485,7 @@ function makeComposedHero(): ChartExample {
       "One time axis, one Y scale: combine SeriesBar, Line, and Area. Use the curve menu to swap the shared Line and Area interpolation.",
     code: `import { curveCatmullRom } from "@visx/curve";
 
-<ComposedChart data={data} xDataKey="date" aspectRatio="2 / 1" barGap={0} maxBarSize={32}>
+<ComposedChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={data} xDataKey="date" aspectRatio="2 / 1" barGap={0} maxBarSize={32}>
   <Grid horizontal />
   <Area dataKey="runRate" curve={curveCatmullRom.alpha(0.42)} fill="var(--chart-4)" fillOpacity={0.32} />
   <SeriesBar dataKey="units" fill="var(--chart-3)" radius={4} />
@@ -1469,17 +1506,17 @@ function makeLineExamples(): ChartExample[] {
       description: "Straight lines between data points",
       code: `import { curveLinear } from "@visx/curve";
 
-<LineChart data={chartData}>
+<LineChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={chartData}>
   <Grid horizontal />
   <Line dataKey="desktop" curve={curveLinear} strokeWidth={2} />
   <ChartTooltip />
 </LineChart>`,
       render: () => (
-        <LineChart data={lineData}>
+        <LineExampleChart data={lineData}>
           <Grid horizontal />
           <Line curve={curveLinear} dataKey="desktop" strokeWidth={2} />
           <ChartTooltip />
-        </LineChart>
+        </LineExampleChart>
       ),
     },
     {
@@ -1490,25 +1527,25 @@ function makeLineExamples(): ChartExample[] {
   { date: new Date(2024, 4, 1), icon: "📈", title: "Marketing Push" },
 ];
 
-<LineChart data={chartData}>
+<LineChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={chartData}>
   <Grid horizontal />
   <Line dataKey="desktop" strokeWidth={2} />
   <ChartMarkers items={markers} />
   <ChartTooltip />
 </LineChart>`,
       render: () => (
-        <LineChart data={lineData}>
+        <LineExampleChart data={lineData}>
           <Grid horizontal />
           <Line dataKey="desktop" strokeWidth={2} />
           <ChartMarkers items={lineMarkers} />
           <ChartTooltip />
-        </LineChart>
+        </LineExampleChart>
       ),
     },
     {
       title: "Line Chart - Segment Selection",
       description: "Click and drag to select a range",
-      code: `<LineChart data={chartData}>
+      code: `<LineChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={chartData}>
   <Grid horizontal />
   <Line dataKey="desktop" strokeWidth={2} />
   <SegmentBackground />
@@ -1518,56 +1555,56 @@ function makeLineExamples(): ChartExample[] {
 </LineChart>`,
       footer: "Click and drag on the chart to select a segment",
       render: () => (
-        <LineChart data={lineData}>
+        <LineExampleChart data={lineData}>
           <Grid horizontal />
           <Line dataKey="desktop" strokeWidth={2} />
           <SegmentBackground />
           <SegmentLineFrom />
           <SegmentLineTo />
           <ChartTooltip />
-        </LineChart>
+        </LineExampleChart>
       ),
     },
     {
       title: "Line Chart - Multiple Lines",
       description: "Desktop vs mobile visitors over time",
-      code: `<LineChart data={chartData}>
+      code: `<LineChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={chartData}>
   <Grid horizontal />
   <Line dataKey="desktop" stroke="var(--chart-1)" strokeWidth={2} />
   <Line dataKey="mobile" stroke="var(--chart-3)" strokeWidth={2} />
   <ChartTooltip />
 </LineChart>`,
       render: () => (
-        <LineChart data={multiLineData}>
+        <LineExampleChart data={multiLineData}>
           <Grid horizontal />
           <Line dataKey="desktop" stroke="var(--chart-1)" strokeWidth={2} />
           <Line dataKey="mobile" stroke="var(--chart-3)" strokeWidth={2} />
           <ChartTooltip />
-        </LineChart>
+        </LineExampleChart>
       ),
     },
     {
       title: "Line Chart - X Axis",
       description: "With labeled x-axis dates",
-      code: `<LineChart data={chartData}>
+      code: `<LineChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={chartData}>
   <Grid horizontal />
   <Line dataKey="desktop" strokeWidth={2} />
   <XAxis />
   <ChartTooltip />
 </LineChart>`,
       render: () => (
-        <LineChart data={lineData}>
+        <LineExampleChart data={lineData}>
           <Grid horizontal />
           <Line dataKey="desktop" strokeWidth={2} />
           <XAxis />
           <ChartTooltip />
-        </LineChart>
+        </LineExampleChart>
       ),
     },
     {
       title: "Line Chart - X & Y Axis",
       description: "With both horizontal grid and x-axis labels",
-      code: `<LineChart data={chartData}>
+      code: `<LineChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={chartData}>
   <Grid horizontal vertical />
   <Line dataKey="desktop" strokeWidth={2} />
   <XAxis />
@@ -1575,12 +1612,12 @@ function makeLineExamples(): ChartExample[] {
 </LineChart>`,
       footer: "Horizontal grid lines serve as the y-axis reference",
       render: () => (
-        <LineChart data={lineData}>
+        <LineExampleChart data={lineData}>
           <Grid horizontal vertical />
           <Line dataKey="desktop" strokeWidth={2} />
           <XAxis />
           <ChartTooltip />
-        </LineChart>
+        </LineExampleChart>
       ),
     },
   ];
@@ -1594,9 +1631,9 @@ function LiveLineBasicDemo() {
   const { data, value } = useLiveData(142.5, 600);
   const formatUsd = useCallback((v: number) => `$${v.toFixed(2)}`, []);
   return (
-    <LiveLineChart
+    <LiveLineExampleChart
       data={data}
-      margin={{ top: 16, right: 16, bottom: 40, left: 56 }}
+      margin={{ left: 28 }}
       style={{ height: 240 }}
       value={value}
       window={30}
@@ -1618,7 +1655,7 @@ function LiveLineBasicDemo() {
       />
       <LiveXAxis />
       <LiveYAxis formatValue={formatUsd} position="left" />
-    </LiveLineChart>
+    </LiveLineExampleChart>
   );
 }
 
@@ -1626,10 +1663,10 @@ function LiveLineOffsetDemo() {
   const { data, value } = useLiveData(0.002_34, 500);
   const formatSats = useCallback((v: number) => `${v.toFixed(5)} BTC`, []);
   return (
-    <LiveLineChart
+    <LiveLineExampleChart
       data={data}
       exaggerate
-      margin={{ top: 16, right: 16, bottom: 40, left: 72 }}
+      margin={{ left: 36 }}
       nowOffsetUnits={1}
       style={{ height: 220 }}
       value={value}
@@ -1651,7 +1688,7 @@ function LiveLineOffsetDemo() {
       />
       <LiveXAxis />
       <LiveYAxis formatValue={formatSats} position="left" />
-    </LiveLineChart>
+    </LiveLineExampleChart>
   );
 }
 
@@ -1665,9 +1702,9 @@ function LiveLineMomentumDemo() {
   const { data, value } = useLiveData(85, 500);
   const formatUsd = useCallback((v: number) => `$${v.toFixed(2)}`, []);
   return (
-    <LiveLineChart
+    <LiveLineExampleChart
       data={data}
-      margin={{ top: 16, right: 16, bottom: 40, left: 56 }}
+      margin={{ left: 28 }}
       style={{ height: 240 }}
       value={value}
       window={25}
@@ -1688,7 +1725,7 @@ function LiveLineMomentumDemo() {
       />
       <LiveXAxis />
       <LiveYAxis formatValue={formatUsd} position="left" />
-    </LiveLineChart>
+    </LiveLineExampleChart>
   );
 }
 
@@ -1696,9 +1733,9 @@ function LiveLineNoFillDemo() {
   const { data, value } = useLiveData(72, 550);
   const formatUsd = useCallback((v: number) => `$${v.toFixed(2)}`, []);
   return (
-    <LiveLineChart
+    <LiveLineExampleChart
       data={data}
-      margin={{ top: 16, right: 16, bottom: 40, left: 56 }}
+      margin={{ left: 28 }}
       style={{ height: 240 }}
       value={value}
       window={28}
@@ -1719,7 +1756,7 @@ function LiveLineNoFillDemo() {
       />
       <LiveXAxis />
       <LiveYAxis formatValue={formatUsd} position="left" />
-    </LiveLineChart>
+    </LiveLineExampleChart>
   );
 }
 
@@ -1728,7 +1765,7 @@ function makeLiveLineExamples(): ChartExample[] {
     {
       title: "Live Line Chart",
       description: "Streaming data with smooth scroll, live dot, and crosshair",
-      code: `<LiveLineChart data={data} value={value} window={30}>
+      code: `<LiveLineChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={data} value={value} window={30}>
   <LiveLine dataKey="value" stroke="var(--chart-1)" formatValue={(v) => \`$\${v.toFixed(2)}\`} />
   <ChartTooltip showDatePill={false} content={TooltipContent} />
   <LiveXAxis />
@@ -1739,7 +1776,7 @@ function makeLiveLineExamples(): ChartExample[] {
     {
       title: "Live Line - Now Offset",
       description: "Leading gap so the line fades at the right edge",
-      code: `<LiveLineChart data={data} value={value} window={20} nowOffsetUnits={1}>
+      code: `<LiveLineChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={data} value={value} window={20} nowOffsetUnits={1}>
   <LiveLine dataKey="value" stroke="var(--chart-3)" formatValue={formatSats} dotSize={4} />
   <LiveXAxis />
   <LiveYAxis position="left" formatValue={formatSats} />
@@ -1751,7 +1788,7 @@ function makeLiveLineExamples(): ChartExample[] {
       description: "Green for increase, red for decrease",
       code: `const momentumColors = { up: "var(--color-emerald-500)", down: "var(--color-red-500)", flat: "var(--muted-foreground)" };
 
-<LiveLineChart data={data} value={value} window={25}>
+<LiveLineChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={data} value={value} window={25}>
   <LiveLine dataKey="value" momentumColors={momentumColors} formatValue={formatUsd} dotSize={5} />
   <LiveXAxis />
   <LiveYAxis position="left" formatValue={formatUsd} />
@@ -1761,7 +1798,7 @@ function makeLiveLineExamples(): ChartExample[] {
     {
       title: "Live Line - Line Only",
       description: "No area fill — simple line and live dot",
-      code: `<LiveLineChart data={data} value={value} window={28}>
+      code: `<LiveLineChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={data} value={value} window={28}>
   <LiveLine dataKey="value" fill={false} stroke="var(--chart-1)" formatValue={formatUsd} />
   <LiveXAxis />
   <LiveYAxis position="left" formatValue={formatUsd} />
@@ -1775,7 +1812,7 @@ function makeLiveLineHero(): ChartExample {
   return {
     title: "Live Line Chart - Interactive",
     description: "Real-time streaming with crosshair and animated axes",
-    code: `<LiveLineChart data={data} value={value} window={30}>
+    code: `<LiveLineChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={data} value={value} window={30}>
   <LiveLine dataKey="value" stroke="var(--chart-line-primary)" formatValue={(v) => \`$\${v.toFixed(2)}\`} />
   <ChartTooltip showDatePill={false} content={TooltipContent} />
   <LiveXAxis />
@@ -1853,11 +1890,11 @@ function ChoroplethBasic() {
     return <ChoroplethLoading />;
   }
   return (
-    <ChoroplethChart aspectRatio="16 / 9" data={worldData}>
+    <ChoroplethExampleChart aspectRatio="16 / 9" data={worldData}>
       <ChoroplethGraticule />
       <ChoroplethFeatureComponent fill="var(--chart-3)" />
       <ChoroplethTooltip />
-    </ChoroplethChart>
+    </ChoroplethExampleChart>
   );
 }
 
@@ -1867,13 +1904,13 @@ function ChoroplethAnalytics() {
     return <ChoroplethLoading />;
   }
   return (
-    <ChoroplethChart aspectRatio="16 / 9" data={worldData}>
+    <ChoroplethExampleChart aspectRatio="16 / 9" data={worldData}>
       <ChoroplethFeatureComponent getFeatureColor={getVisitorColor} />
       <ChoroplethTooltip
         getFeatureValue={getVisitorValue}
         valueLabel="Visitors"
       />
-    </ChoroplethChart>
+    </ChoroplethExampleChart>
   );
 }
 
@@ -1883,11 +1920,11 @@ function ChoroplethWithGraticule() {
     return <ChoroplethLoading />;
   }
   return (
-    <ChoroplethChart aspectRatio="16 / 9" data={worldData}>
+    <ChoroplethExampleChart aspectRatio="16 / 9" data={worldData}>
       <ChoroplethGraticule stroke="rgba(255,255,255,0.15)" />
       <ChoroplethFeatureComponent fill="var(--chart-1)" />
       <ChoroplethTooltip />
-    </ChoroplethChart>
+    </ChoroplethExampleChart>
   );
 }
 
@@ -1915,7 +1952,7 @@ function ChoroplethPattern() {
   }
 
   return (
-    <ChoroplethChart aspectRatio="16 / 9" data={worldData}>
+    <ChoroplethExampleChart aspectRatio="16 / 9" data={worldData}>
       <ChoroplethFeatureComponent
         getFeaturePattern={(feat) => {
           const name = feat.properties?.name;
@@ -1967,7 +2004,7 @@ function ChoroplethPattern() {
         }
       />
       <ChoroplethTooltip />
-    </ChoroplethChart>
+    </ChoroplethExampleChart>
   );
 }
 
@@ -2015,18 +2052,19 @@ function RingWithLegend() {
 function PieDonutInteractive() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   return (
-    <PieChart
-      data={pieData}
-      hoveredIndex={hoveredIndex}
-      innerRadius={60}
-      onHoverChange={setHoveredIndex}
-      size={200}
-    >
-      {pieData.map((item, index) => (
-        <PieSlice index={index} key={item.label} />
-      ))}
-      <PieCenter defaultLabel="Total" />
-    </PieChart>
+    <div className={chartExampleRadialShellClassName}>
+      <PieChart
+        data={pieData}
+        hoveredIndex={hoveredIndex}
+        innerRadius={60}
+        onHoverChange={setHoveredIndex}
+      >
+        {pieData.map((item, index) => (
+          <PieSlice index={index} key={item.label} />
+        ))}
+        <PieCenter defaultLabel="Total" />
+      </PieChart>
+    </div>
   );
 }
 
@@ -2044,7 +2082,6 @@ function PieWithLegend() {
         hoveredIndex={hoveredIndex}
         innerRadius={55}
         onHoverChange={setHoveredIndex}
-        size={180}
       >
         {pieData.map((item, index) => (
           <PieSlice index={index} key={item.label} />
@@ -2068,11 +2105,13 @@ function PieWithLegend() {
 
 function PieGrowHover() {
   return (
-    <PieChart data={pieData} size={200}>
-      {pieData.map((item, index) => (
-        <PieSlice hoverEffect="grow" index={index} key={item.label} />
-      ))}
-    </PieChart>
+    <div className={chartExampleRadialShellClassName}>
+      <PieChart data={pieData}>
+        {pieData.map((item, index) => (
+          <PieSlice hoverEffect="grow" index={index} key={item.label} />
+        ))}
+      </PieChart>
+    </div>
   );
 }
 
@@ -2080,35 +2119,36 @@ function PieCustomCenter() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const total = pieData.reduce((s, d) => s + d.value, 0);
   return (
-    <PieChart
-      data={pieData}
-      hoveredIndex={hoveredIndex}
-      innerRadius={65}
-      onHoverChange={setHoveredIndex}
-      size={200}
-    >
-      {pieData.map((item, index) => (
-        <PieSlice index={index} key={item.label} />
-      ))}
-      <PieCenter>
-        {({ value, label, isHovered, data: d }) => (
-          <div className="text-center">
-            <div
-              className="font-bold text-xl"
-              style={{ color: isHovered ? d.color : undefined }}
-            >
-              {value.toLocaleString()}
-            </div>
-            <div className="text-muted-foreground text-xs">{label}</div>
-            {isHovered && (
-              <div className="mt-0.5 text-[10px] text-muted-foreground">
-                {((d.value / total) * 100).toFixed(1)}%
+    <div className={chartExampleRadialShellClassName}>
+      <PieChart
+        data={pieData}
+        hoveredIndex={hoveredIndex}
+        innerRadius={65}
+        onHoverChange={setHoveredIndex}
+      >
+        {pieData.map((item, index) => (
+          <PieSlice index={index} key={item.label} />
+        ))}
+        <PieCenter>
+          {({ value, label, isHovered, data: d }) => (
+            <div className="text-center">
+              <div
+                className="font-bold text-xl"
+                style={{ color: isHovered ? d.color : undefined }}
+              >
+                {value.toLocaleString()}
               </div>
-            )}
-          </div>
-        )}
-      </PieCenter>
-    </PieChart>
+              <div className="text-muted-foreground text-xs">{label}</div>
+              {isHovered && (
+                <div className="mt-0.5 text-[10px] text-muted-foreground">
+                  {((d.value / total) * 100).toFixed(1)}%
+                </div>
+              )}
+            </div>
+          )}
+        </PieCenter>
+      </PieChart>
+    </div>
   );
 }
 
@@ -2136,8 +2176,8 @@ function makePieExamples(): ChartExample[] {
   ))}
 </PieChart>`,
       render: () => (
-        <div className="flex items-center justify-center">
-          <PieChart data={pieData} size={200}>
+        <div className={chartExampleRadialShellClassName}>
+          <PieChart data={pieData}>
             {pieData.map((item, index) => (
               <PieSlice index={index} key={item.label} />
             ))}
@@ -2148,14 +2188,14 @@ function makePieExamples(): ChartExample[] {
     {
       title: "Pie Chart - Donut",
       description: "Hollow center with animated value display",
-      code: `<PieChart data={pieData} size={200} innerRadius={60}>
+      code: `<PieChart data={pieData} innerRadius={60} size={200}>
   {pieData.map((item, index) => (
     <PieSlice index={index} key={item.label} />
   ))}
   <PieCenter defaultLabel="Total" />
 </PieChart>`,
       render: () => (
-        <div className="flex items-center justify-center">
+        <div className={chartExampleRadialShellClassName}>
           <PieDonutInteractive />
         </div>
       ),
@@ -2167,17 +2207,17 @@ function makePieExamples(): ChartExample[] {
 
 <PieChart
   data={pieData}
-  size={180}
-  innerRadius={55}
   hoveredIndex={hoveredIndex}
+  innerRadius={55}
   onHoverChange={setHoveredIndex}
+  size={180}
 >
   {pieData.map((_, i) => <PieSlice index={i} key={i} />)}
   <PieCenter defaultLabel="Browsers" />
 </PieChart>
 <Legend
-  items={legendItems}
   hoveredIndex={hoveredIndex}
+  items={legendItems}
   onHoverChange={setHoveredIndex}
 >
   <LegendItemComponent>
@@ -2186,7 +2226,7 @@ function makePieExamples(): ChartExample[] {
   </LegendItemComponent>
 </Legend>`,
       render: () => (
-        <div className="flex items-center justify-center">
+        <div className={chartExampleRadialShellClassName}>
           <PieWithLegend />
         </div>
       ),
@@ -2195,22 +2235,22 @@ function makePieExamples(): ChartExample[] {
       title: "Pie Chart - Patterns",
       description: "Diagonal line patterns for each slice",
       code: `<PieChart data={pieData} size={200}>
-  <PatternLines id="pp-1" height={6} width={6}
-    stroke="var(--chart-1)" orientation={["diagonal"]} />
-  <PatternLines id="pp-2" height={6} width={6}
-    stroke="var(--chart-2)" orientation={["horizontal"]} />
-  <PatternLines id="pp-3" height={6} width={6}
-    stroke="var(--chart-3)" orientation={["vertical"]} />
-  <PatternLines id="pp-4" height={8} width={8}
-    stroke="var(--chart-4)" orientation={["diagonalRightToLeft"]} />
-  <PieSlice index={0} fill="url(#pp-1)" />
-  <PieSlice index={1} fill="url(#pp-2)" />
-  <PieSlice index={2} fill="url(#pp-3)" />
-  <PieSlice index={3} fill="url(#pp-4)" />
+  <PatternLines height={6} id="pp-1" orientation={["diagonal"]}
+    stroke="var(--chart-1)" width={6} />
+  <PatternLines height={6} id="pp-2" orientation={["horizontal"]}
+    stroke="var(--chart-2)" width={6} />
+  <PatternLines height={6} id="pp-3" orientation={["vertical"]}
+    stroke="var(--chart-3)" width={6} />
+  <PatternLines height={8} id="pp-4" orientation={["diagonalRightToLeft"]}
+    stroke="var(--chart-4)" width={8} />
+  <PieSlice fill="url(#pp-1)" index={0} />
+  <PieSlice fill="url(#pp-2)" index={1} />
+  <PieSlice fill="url(#pp-3)" index={2} />
+  <PieSlice fill="url(#pp-4)" index={3} />
 </PieChart>`,
       render: () => (
-        <div className="flex items-center justify-center">
-          <PieChart data={piePatternData} size={200}>
+        <div className={chartExampleRadialShellClassName}>
+          <PieChart data={piePatternData}>
             <PatternLines
               height={6}
               id="pie-ex-p1"
@@ -2255,16 +2295,16 @@ function makePieExamples(): ChartExample[] {
       title: "Pie Chart - Gradients",
       description: "Radial gradient fills on each slice",
       code: `<PieChart data={pieData} size={200}>
-  <RadialGradient id="pg-1" from="#0ea5e9" to="#06b6d4" />
-  <RadialGradient id="pg-2" from="#a855f7" to="#ec4899" />
-  <RadialGradient id="pg-3" from="#f59e0b" to="#ef4444" />
-  <PieSlice index={0} fill="url(#pg-1)" />
-  <PieSlice index={1} fill="url(#pg-2)" />
-  <PieSlice index={2} fill="url(#pg-3)" />
+  <RadialGradient from="#0ea5e9" id="pg-1" to="#06b6d4" />
+  <RadialGradient from="#a855f7" id="pg-2" to="#ec4899" />
+  <RadialGradient from="#f59e0b" id="pg-3" to="#ef4444" />
+  <PieSlice fill="url(#pg-1)" index={0} />
+  <PieSlice fill="url(#pg-2)" index={1} />
+  <PieSlice fill="url(#pg-3)" index={2} />
 </PieChart>`,
       render: () => (
-        <div className="flex items-center justify-center">
-          <PieChart data={pieGradientData} size={200}>
+        <div className={chartExampleRadialShellClassName}>
+          <PieChart data={pieGradientData}>
             <RadialGradient
               from="#0ea5e9"
               fromOffset="0%"
@@ -2302,7 +2342,7 @@ function makePieExamples(): ChartExample[] {
   ))}
 </PieChart>`,
       render: () => (
-        <div className="flex items-center justify-center">
+        <div className={chartExampleRadialShellClassName}>
           <PieGrowHover />
         </div>
       ),
@@ -2310,22 +2350,22 @@ function makePieExamples(): ChartExample[] {
     {
       title: "Pie Chart - Custom Center",
       description: "Render prop for full control over center content",
-      code: `<PieChart data={pieData} size={200} innerRadius={65}>
+      code: `<PieChart data={pieData} innerRadius={65} size={200}>
   {pieData.map((_, i) => <PieSlice index={i} key={i} />)}
   <PieCenter>
     {({ value, label, isHovered, data }) => (
       <div className="text-center">
-        <div className="text-xl font-bold"
+        <div className="font-bold text-xl"
           style={{ color: isHovered ? data.color : undefined }}>
           {value.toLocaleString()}
         </div>
-        <div className="text-xs text-muted-foreground">{label}</div>
+        <div className="text-muted-foreground text-xs">{label}</div>
       </div>
     )}
   </PieCenter>
 </PieChart>`,
       render: () => (
-        <div className="flex items-center justify-center">
+        <div className={chartExampleRadialShellClassName}>
           <PieCustomCenter />
         </div>
       ),
@@ -2333,24 +2373,24 @@ function makePieExamples(): ChartExample[] {
     {
       title: "Donut Chart - Patterns",
       description: "Donut with patterned slices and center label",
-      code: `<PieChart data={pieData} size={200} innerRadius={55}>
-  <PatternLines id="dp-1" height={6} width={6}
-    stroke="var(--chart-1)" orientation={["diagonal"]} />
-  <PatternLines id="dp-2" height={6} width={6}
-    stroke="var(--chart-2)" orientation={["horizontal"]} />
-  <PatternLines id="dp-3" height={6} width={6}
-    stroke="var(--chart-3)" orientation={["vertical"]} />
-  <PatternLines id="dp-4" height={8} width={8}
-    stroke="var(--chart-4)" orientation={["diagonalRightToLeft"]} />
-  <PieSlice index={0} fill="url(#dp-1)" />
-  <PieSlice index={1} fill="url(#dp-2)" />
-  <PieSlice index={2} fill="url(#dp-3)" />
-  <PieSlice index={3} fill="url(#dp-4)" />
+      code: `<PieChart data={pieData} innerRadius={55} size={200}>
+  <PatternLines height={6} id="dp-1" orientation={["diagonal"]}
+    stroke="var(--chart-1)" width={6} />
+  <PatternLines height={6} id="dp-2" orientation={["horizontal"]}
+    stroke="var(--chart-2)" width={6} />
+  <PatternLines height={6} id="dp-3" orientation={["vertical"]}
+    stroke="var(--chart-3)" width={6} />
+  <PatternLines height={8} id="dp-4" orientation={["diagonalRightToLeft"]}
+    stroke="var(--chart-4)" width={8} />
+  <PieSlice fill="url(#dp-1)" index={0} />
+  <PieSlice fill="url(#dp-2)" index={1} />
+  <PieSlice fill="url(#dp-3)" index={2} />
+  <PieSlice fill="url(#dp-4)" index={3} />
   <PieCenter defaultLabel="Total" />
 </PieChart>`,
       render: () => (
-        <div className="flex items-center justify-center">
-          <PieChart data={piePatternData} innerRadius={55} size={200}>
+        <div className={chartExampleRadialShellClassName}>
+          <PieChart data={piePatternData} innerRadius={55}>
             <PatternLines
               height={6}
               id="donut-ex-p1"
@@ -2395,15 +2435,15 @@ function makePieExamples(): ChartExample[] {
     {
       title: "Donut Chart - Grow Hover",
       description: "Donut with grow effect and center value",
-      code: `<PieChart data={pieData} size={200} innerRadius={55}>
+      code: `<PieChart data={pieData} innerRadius={55} size={200}>
   {pieData.map((item, index) => (
     <PieSlice hoverEffect="grow" index={index} key={item.label} />
   ))}
   <PieCenter defaultLabel="Browsers" />
 </PieChart>`,
       render: () => (
-        <div className="flex items-center justify-center">
-          <PieChart data={pieData} innerRadius={55} size={200}>
+        <div className={chartExampleRadialShellClassName}>
+          <PieChart data={pieData} innerRadius={55}>
             {pieData.map((item, index) => (
               <PieSlice hoverEffect="grow" index={index} key={item.label} />
             ))}
@@ -2429,8 +2469,8 @@ function makeRadarExamples(): ChartExample[] {
   ))}
 </RadarChart>`,
       render: () => (
-        <div className="flex items-center justify-center">
-          <RadarChart data={radarDataDual} metrics={radarMetrics5} size={250}>
+        <div className={chartExampleRadialShellClassName}>
+          <RadarChart data={radarDataDual} metrics={radarMetrics5}>
             <RadarGrid />
             <RadarAxis />
             <RadarLabels fontSize={10} offset={16} />
@@ -2459,12 +2499,8 @@ function makeRadarExamples(): ChartExample[] {
   ))}
 </RadarChart>`,
       render: () => (
-        <div className="flex items-center justify-center">
-          <RadarChart
-            data={radarDataTriangle}
-            metrics={radarMetrics3}
-            size={250}
-          >
+        <div className={chartExampleRadialShellClassName}>
+          <RadarChart data={radarDataTriangle} metrics={radarMetrics3}>
             <RadarGrid />
             <RadarAxis />
             <RadarLabels fontSize={10} offset={16} />
@@ -2485,15 +2521,15 @@ function makeRadarExamples(): ChartExample[] {
     <RadarArea
       index={i}
       key={item.label}
+      showGlow={false}
       showPoints={false}
       showStroke={false}
-      showGlow={false}
     />
   ))}
 </RadarChart>`,
       render: () => (
-        <div className="flex items-center justify-center">
-          <RadarChart data={radarDataSkills} metrics={radarMetrics6} size={250}>
+        <div className={chartExampleRadialShellClassName}>
+          <RadarChart data={radarDataSkills} metrics={radarMetrics6}>
             <RadarGrid showLabels={false} />
             <RadarLabels fontSize={10} offset={16} />
             {radarDataSkills.map((item, index) => (
@@ -2519,12 +2555,8 @@ function makeRadarExamples(): ChartExample[] {
   <RadarArea index={0} showPoints={false} />
 </RadarChart>`,
       render: () => (
-        <div className="flex items-center justify-center">
-          <RadarChart
-            data={radarDataLopsided}
-            metrics={radarMetrics5}
-            size={250}
-          >
+        <div className={chartExampleRadialShellClassName}>
+          <RadarChart data={radarDataLopsided} metrics={radarMetrics5}>
             <RadarGrid />
             <RadarAxis />
             <RadarLabels fontSize={10} offset={16} />
@@ -2536,7 +2568,7 @@ function makeRadarExamples(): ChartExample[] {
     {
       title: "Radar Chart - Minimal",
       description: "No grid labels, fewer levels, clean look",
-      code: `<RadarChart data={data} metrics={metrics} size={250} levels={3}>
+      code: `<RadarChart data={data} levels={3} metrics={metrics} size={250}>
   <RadarGrid showLabels={false} />
   <RadarLabels />
   {data.map((item, i) => (
@@ -2544,13 +2576,8 @@ function makeRadarExamples(): ChartExample[] {
   ))}
 </RadarChart>`,
       render: () => (
-        <div className="flex items-center justify-center">
-          <RadarChart
-            data={radarDataDual}
-            levels={3}
-            metrics={radarMetrics5}
-            size={250}
-          >
+        <div className={chartExampleRadialShellClassName}>
+          <RadarChart data={radarDataDual} levels={3} metrics={radarMetrics5}>
             <RadarGrid showLabels={false} />
             <RadarLabels fontSize={10} offset={16} />
             {radarDataDual.map((item, index) => (
@@ -2571,12 +2598,8 @@ function makeRadarExamples(): ChartExample[] {
   ))}
 </RadarChart>`,
       render: () => (
-        <div className="flex items-center justify-center">
-          <RadarChart
-            data={radarDataTriangle}
-            metrics={radarMetrics3}
-            size={250}
-          >
+        <div className={chartExampleRadialShellClassName}>
+          <RadarChart data={radarDataTriangle} metrics={radarMetrics3}>
             <RadarGrid />
             <RadarLabels fontSize={10} offset={16} />
             {radarDataTriangle.map((item, index) => (
@@ -2601,8 +2624,8 @@ function makeRingExamples(): ChartExample[] {
   <RingCenter defaultLabel="Sessions" />
 </RingChart>`,
       render: () => (
-        <div className="flex items-center justify-center">
-          <RingChart data={ringData} size={250}>
+        <div className={chartExampleRadialShellClassName}>
+          <RingChart data={ringData}>
             {ringData.map((item, index) => (
               <Ring index={index} key={item.label} />
             ))}
@@ -2621,8 +2644,8 @@ function makeRingExamples(): ChartExample[] {
   <RingCenter defaultLabel="Sessions" />
 </RingChart>`,
       render: () => (
-        <div className="flex items-center justify-center">
-          <RingChart data={ringData} size={250}>
+        <div className={chartExampleRadialShellClassName}>
+          <RingChart data={ringData}>
             {ringData.map((item, index) => (
               <Ring index={index} key={item.label} lineCap="butt" />
             ))}
@@ -2634,20 +2657,15 @@ function makeRingExamples(): ChartExample[] {
     {
       title: "Ring Chart - Thick Rings",
       description: "Wider stroke with larger gap between rings",
-      code: `<RingChart data={financeData} size={250} strokeWidth={18} ringGap={8}>
+      code: `<RingChart data={financeData} ringGap={8} size={250} strokeWidth={18}>
   {financeData.map((item, index) => (
     <Ring index={index} key={item.label} />
   ))}
-  <RingCenter defaultLabel="Total" prefix="$" formatOptions={{ notation: "compact" }} />
+  <RingCenter defaultLabel="Total" formatOptions={{ notation: "compact" }} prefix="$" />
 </RingChart>`,
       render: () => (
-        <div className="flex items-center justify-center">
-          <RingChart
-            data={ringFinanceData}
-            ringGap={8}
-            size={250}
-            strokeWidth={18}
-          >
+        <div className={chartExampleRadialShellClassName}>
+          <RingChart data={ringFinanceData} ringGap={8} strokeWidth={18}>
             {ringFinanceData.map((item, index) => (
               <Ring index={index} key={item.label} />
             ))}
@@ -2665,9 +2683,9 @@ function makeRingExamples(): ChartExample[] {
       description: "270-degree arc from top-left to bottom-left",
       code: `<RingChart
   data={goalData}
+  endAngle={Math.PI / 2}
   size={250}
   startAngle={-Math.PI}
-  endAngle={Math.PI / 2}
 >
   {goalData.map((item, index) => (
     <Ring index={index} key={item.label} />
@@ -2675,11 +2693,10 @@ function makeRingExamples(): ChartExample[] {
   <RingCenter defaultLabel="Activity" />
 </RingChart>`,
       render: () => (
-        <div className="flex items-center justify-center">
+        <div className={chartExampleRadialShellClassName}>
           <RingChart
             data={ringGoalData}
             endAngle={Math.PI / 2}
-            size={250}
             startAngle={-Math.PI}
           >
             {ringGoalData.map((item, index) => (
@@ -2695,22 +2712,17 @@ function makeRingExamples(): ChartExample[] {
       description: "180-degree arc across the top",
       code: `<RingChart
   data={ringData}
+  endAngle={0}
   size={250}
   startAngle={-Math.PI}
-  endAngle={0}
 >
   {ringData.map((item, index) => (
     <Ring index={index} key={item.label} />
   ))}
 </RingChart>`,
       render: () => (
-        <div className="flex items-center justify-center">
-          <RingChart
-            data={ringData}
-            endAngle={0}
-            size={250}
-            startAngle={-Math.PI}
-          >
+        <div className={chartExampleRadialShellClassName}>
+          <RingChart data={ringData} endAngle={0} startAngle={-Math.PI}>
             {ringData.map((item, index) => (
               <Ring index={index} key={item.label} />
             ))}
@@ -2726,16 +2738,16 @@ function makeRingExamples(): ChartExample[] {
 
 <RingChart
   data={ringData}
-  size={180}
   hoveredIndex={hoveredIndex}
   onHoverChange={setHoveredIndex}
+  size={180}
 >
   {ringData.map((_, i) => <Ring index={i} key={i} />)}
   <RingCenter defaultLabel="Sessions" />
 </RingChart>
 <Legend
-  items={ringData}
   hoveredIndex={hoveredIndex}
+  items={ringData}
   onHoverChange={setHoveredIndex}
 >
   <LegendItemComponent>
@@ -2763,21 +2775,23 @@ function makeGaugeHero(): ChartExample {
     description:
       "Notch arc with PieCenter-style NumberFlow, theme fills, optional patterns in defs, and separate active / inactive arc gradients when enabled.",
     code: `<Gauge
-  value={66}
   centerValue={428_000}
-  spacing={25}
-  inactiveFillOpacity={0.4}
   defaultLabel="ARR run rate"
   formatOptions={{ style: "currency", currency: "USD", maximumFractionDigits: 0 }}
+  inactiveFillOpacity={0.4}
+  spacing={25}
+  value={66}
 />`,
     data: "// Omit width and height for a responsive layout (min-width 300px by default).",
     render: () => (
-      <div className="mx-auto w-full min-w-[300px] max-w-lg py-2">
+      <div className={chartExampleGaugeShellClassName}>
         <Gauge
           centerValue={428_000}
+          className={chartExampleGaugeClassName}
           defaultLabel="ARR run rate"
           formatOptions={gaugeGalleryUsdFormat}
           inactiveFillOpacity={0.4}
+          minWidth={0}
           spacing={25}
           value={66}
         />
@@ -2793,24 +2807,26 @@ function makeGaugeExamples(): ChartExample[] {
       description:
         "No spacing between notches, 7px corner radius, custom sweep from 140° to 400°.",
       code: `<Gauge
-  value={66}
   centerValue={428_000}
-  spacing={0}
-  notchCornerRadius={7}
-  startAngle={140}
-  endAngle={400}
-  inactiveFillOpacity={0.4}
   defaultLabel="ARR run rate"
+  endAngle={400}
   formatOptions={{ style: "currency", currency: "USD", maximumFractionDigits: 0 }}
+  inactiveFillOpacity={0.4}
+  notchCornerRadius={7}
+  spacing={0}
+  startAngle={140}
+  value={66}
 />`,
       render: () => (
-        <div className="mx-auto w-full min-w-[300px] max-w-md py-2">
+        <div className={chartExampleGaugeShellClassName}>
           <Gauge
             centerValue={428_000}
+            className={chartExampleGaugeClassName}
             defaultLabel="ARR run rate"
             endAngle={400}
             formatOptions={gaugeGalleryUsdFormat}
             inactiveFillOpacity={0.4}
+            minWidth={0}
             notchCornerRadius={7}
             spacing={0}
             startAngle={140}
@@ -2824,29 +2840,31 @@ function makeGaugeExamples(): ChartExample[] {
       description:
         "Foreground and background notches each get their own hex ramp along the arc (requires useGradient).",
       code: `<Gauge
-  value={66}
-  centerValue={428_000}
-  useGradient
   activeGradient={["#a855f7", "#06b6d4"]}
-  inactiveGradient={["#334155", "#38bdf8"]}
-  spacing={0}
-  notchCornerRadius={7}
-  startAngle={140}
-  endAngle={400}
-  inactiveFillOpacity={0.4}
+  centerValue={428_000}
   defaultLabel="ARR run rate"
+  endAngle={400}
   formatOptions={{ style: "currency", currency: "USD", maximumFractionDigits: 0 }}
+  inactiveFillOpacity={0.4}
+  inactiveGradient={["#334155", "#38bdf8"]}
+  notchCornerRadius={7}
+  spacing={0}
+  startAngle={140}
+  useGradient
+  value={66}
 />`,
       render: () => (
-        <div className="mx-auto w-full min-w-[300px] max-w-md py-2">
+        <div className={chartExampleGaugeShellClassName}>
           <Gauge
             activeGradient={["#a855f7", "#06b6d4"]}
             centerValue={428_000}
+            className={chartExampleGaugeClassName}
             defaultLabel="ARR run rate"
             endAngle={400}
             formatOptions={gaugeGalleryUsdFormat}
             inactiveFillOpacity={0.4}
             inactiveGradient={["#334155", "#38bdf8"]}
+            minWidth={0}
             notchCornerRadius={7}
             spacing={0}
             startAngle={140}
@@ -2861,37 +2879,39 @@ function makeGaugeExamples(): ChartExample[] {
       description:
         "Diagonal PatternLines on active notches; inactive track uses `chart-1` at 0.4 fill opacity.",
       code: `<Gauge
-  value={66}
-  centerValue={1840}
-  spacing={0}
-  notchCornerRadius={7}
-  startAngle={140}
-  endAngle={400}
   activeFill="url(#gauge-gallery-ex3-fg)"
+  centerValue={1840}
+  defaultLabel="Trials converted (30d)"
+  endAngle={400}
+  formatOptions={{ maximumFractionDigits: 0 }}
   inactiveFill="var(--chart-1)"
   inactiveFillOpacity={0.4}
-  defaultLabel="Trials converted (30d)"
-  formatOptions={{ maximumFractionDigits: 0 }}
+  notchCornerRadius={7}
+  spacing={0}
+  startAngle={140}
+  value={66}
 >
   <PatternLines
-    id="gauge-gallery-ex3-fg"
-    width={6}
     height={6}
+    id="gauge-gallery-ex3-fg"
     orientation={["diagonal"]}
     stroke="var(--chart-1)"
     strokeWidth={1}
+    width={6}
   />
 </Gauge>`,
       render: () => (
-        <div className="mx-auto w-full min-w-[300px] max-w-md py-2">
+        <div className={chartExampleGaugeShellClassName}>
           <Gauge
             activeFill="url(#gauge-gallery-ex3-fg)"
             centerValue={1840}
+            className={chartExampleGaugeClassName}
             defaultLabel="Trials converted (30d)"
             endAngle={400}
             formatOptions={{ maximumFractionDigits: 0 }}
             inactiveFill="var(--chart-1)"
             inactiveFillOpacity={0.4}
+            minWidth={0}
             notchCornerRadius={7}
             spacing={0}
             startAngle={140}
@@ -2914,24 +2934,26 @@ function makeGaugeExamples(): ChartExample[] {
       description:
         "Fewer notches, wide spacing, sharp corners, 90° → 270° sweep — reads like a progress ring segment.",
       code: `<Gauge
-  value={66}
   centerValue={12}
-  totalNotches={33}
+  defaultLabel="Active squads"
+  endAngle={270}
+  formatOptions={{ maximumFractionDigits: 0 }}
+  inactiveFillOpacity={0.4}
   spacing={60}
   startAngle={90}
-  endAngle={270}
-  inactiveFillOpacity={0.4}
-  defaultLabel="Active squads"
-  formatOptions={{ maximumFractionDigits: 0 }}
+  totalNotches={33}
+  value={66}
 />`,
       render: () => (
-        <div className="mx-auto w-full min-w-[300px] max-w-md py-2">
+        <div className={chartExampleGaugeShellClassName}>
           <Gauge
             centerValue={12}
+            className={chartExampleGaugeClassName}
             defaultLabel="Active squads"
             endAngle={270}
             formatOptions={{ maximumFractionDigits: 0 }}
             inactiveFillOpacity={0.4}
+            minWidth={0}
             spacing={60}
             startAngle={90}
             totalNotches={33}
@@ -2945,24 +2967,26 @@ function makeGaugeExamples(): ChartExample[] {
       description:
         "Same notch layout as the sparse ring example, but the arc runs 180° → 360° (lower semicircle emphasis).",
       code: `<Gauge
-  value={66}
   centerValue={12}
-  totalNotches={33}
+  defaultLabel="Active squads"
+  endAngle={360}
+  formatOptions={{ maximumFractionDigits: 0 }}
+  inactiveFillOpacity={0.4}
   spacing={60}
   startAngle={180}
-  endAngle={360}
-  inactiveFillOpacity={0.4}
-  defaultLabel="Active squads"
-  formatOptions={{ maximumFractionDigits: 0 }}
+  totalNotches={33}
+  value={66}
 />`,
       render: () => (
-        <div className="mx-auto w-full min-w-[300px] max-w-md py-2">
+        <div className={chartExampleGaugeShellClassName}>
           <Gauge
             centerValue={12}
+            className={chartExampleGaugeClassName}
             defaultLabel="Active squads"
             endAngle={360}
             formatOptions={{ maximumFractionDigits: 0 }}
             inactiveFillOpacity={0.4}
+            minWidth={0}
             spacing={60}
             startAngle={180}
             totalNotches={33}
@@ -2976,24 +3000,26 @@ function makeGaugeExamples(): ChartExample[] {
       description:
         "Same spacing and notch count as the quarter sweep, rotated so the gap sits on the opposite side of the ring.",
       code: `<Gauge
-  value={66}
   centerValue={12}
-  totalNotches={33}
+  defaultLabel="Active squads"
+  endAngle={450}
+  formatOptions={{ maximumFractionDigits: 0 }}
+  inactiveFillOpacity={0.4}
   spacing={60}
   startAngle={270}
-  endAngle={450}
-  inactiveFillOpacity={0.4}
-  defaultLabel="Active squads"
-  formatOptions={{ maximumFractionDigits: 0 }}
+  totalNotches={33}
+  value={66}
 />`,
       render: () => (
-        <div className="mx-auto w-full min-w-[300px] max-w-md py-2">
+        <div className={chartExampleGaugeShellClassName}>
           <Gauge
             centerValue={12}
+            className={chartExampleGaugeClassName}
             defaultLabel="Active squads"
             endAngle={450}
             formatOptions={{ maximumFractionDigits: 0 }}
             inactiveFillOpacity={0.4}
+            minWidth={0}
             spacing={60}
             startAngle={270}
             totalNotches={33}
@@ -3007,22 +3033,24 @@ function makeGaugeExamples(): ChartExample[] {
       description:
         "Default notch length with an 8px corner radius — smooth joints without going fully pill-shaped.",
       code: `<Gauge
-  value={66}
   centerValue={428_000}
-  spacing={25}
-  notchCornerRadius={8}
-  notchLengthPercent={100}
-  inactiveFillOpacity={0.4}
   defaultLabel="ARR run rate"
   formatOptions={{ style: "currency", currency: "USD", maximumFractionDigits: 0 }}
+  inactiveFillOpacity={0.4}
+  notchCornerRadius={8}
+  notchLengthPercent={100}
+  spacing={25}
+  value={66}
 />`,
       render: () => (
-        <div className="mx-auto w-full min-w-[300px] max-w-md py-2">
+        <div className={chartExampleGaugeShellClassName}>
           <Gauge
             centerValue={428_000}
+            className={chartExampleGaugeClassName}
             defaultLabel="ARR run rate"
             formatOptions={gaugeGalleryUsdFormat}
             inactiveFillOpacity={0.4}
+            minWidth={0}
             notchCornerRadius={8}
             notchLengthPercent={100}
             spacing={25}
@@ -3036,22 +3064,24 @@ function makeGaugeExamples(): ChartExample[] {
       description:
         "Radial depth at 38% with a 12px fillet — stubbier ticks that still read soft at the tips.",
       code: `<Gauge
-  value={66}
   centerValue={428_000}
-  spacing={25}
-  notchCornerRadius={12}
-  notchLengthPercent={38}
-  inactiveFillOpacity={0.4}
   defaultLabel="ARR run rate"
   formatOptions={{ style: "currency", currency: "USD", maximumFractionDigits: 0 }}
+  inactiveFillOpacity={0.4}
+  notchCornerRadius={12}
+  notchLengthPercent={38}
+  spacing={25}
+  value={66}
 />`,
       render: () => (
-        <div className="mx-auto w-full min-w-[300px] max-w-md py-2">
+        <div className={chartExampleGaugeShellClassName}>
           <Gauge
             centerValue={428_000}
+            className={chartExampleGaugeClassName}
             defaultLabel="ARR run rate"
             formatOptions={gaugeGalleryUsdFormat}
             inactiveFillOpacity={0.4}
+            minWidth={0}
             notchCornerRadius={12}
             notchLengthPercent={38}
             spacing={25}
@@ -3065,25 +3095,27 @@ function makeGaugeExamples(): ChartExample[] {
       description:
         "Full default depth with a 22px corner radius (geometry-clamped) for a capsule / almost-round look.",
       code: `<Gauge
-  value={66}
   centerValue={428_000}
-  spacing={0}
+  defaultLabel="ARR run rate"
+  endAngle={400}
+  formatOptions={{ style: "currency", currency: "USD", maximumFractionDigits: 0 }}
+  inactiveFillOpacity={0.4}
   notchCornerRadius={22}
   notchLengthPercent={100}
+  spacing={0}
   startAngle={140}
-  endAngle={400}
-  inactiveFillOpacity={0.4}
-  defaultLabel="ARR run rate"
-  formatOptions={{ style: "currency", currency: "USD", maximumFractionDigits: 0 }}
+  value={66}
 />`,
       render: () => (
-        <div className="mx-auto w-full min-w-[300px] max-w-md py-2">
+        <div className={chartExampleGaugeShellClassName}>
           <Gauge
             centerValue={428_000}
+            className={chartExampleGaugeClassName}
             defaultLabel="ARR run rate"
             endAngle={400}
             formatOptions={gaugeGalleryUsdFormat}
             inactiveFillOpacity={0.4}
+            minWidth={0}
             notchCornerRadius={22}
             notchLengthPercent={100}
             spacing={0}
@@ -3101,13 +3133,13 @@ function makeSankeyExamples(): ChartExample[] {
     {
       title: "Sankey Chart",
       description: "User flow with labels and tooltip",
-      code: `<SankeyChart data={data} nodeWidth={16} nodePadding={24}>
+      code: `<SankeyChart data={data} margin={{ top: 8, right: 8, bottom: 40, left: 8 }} nodePadding={24} nodeWidth={16}>
   <SankeyLink />
   <SankeyNode lineCap={4} />
   <SankeyTooltip />
 </SankeyChart>`,
       render: () => (
-        <SankeyChart
+        <SankeyExampleChart
           aspectRatio="4 / 3"
           data={sankeyAnalytics}
           nodePadding={24}
@@ -3116,7 +3148,7 @@ function makeSankeyExamples(): ChartExample[] {
           <SankeyLink />
           <SankeyNode lineCap={4} />
           <SankeyTooltip />
-        </SankeyChart>
+        </SankeyExampleChart>
       ),
     },
     {
@@ -3124,38 +3156,37 @@ function makeSankeyExamples(): ChartExample[] {
       description: "Compact diagram without node labels",
       code: `<SankeyChart
   data={data}
-  nodeWidth={16}
+  margin={{ top: 8, right: 8, bottom: 40, left: 8 }}
   nodePadding={24}
-  margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+  nodeWidth={16}
 >
   <SankeyLink />
   <SankeyNode lineCap={4} showLabels={false} />
   <SankeyTooltip />
 </SankeyChart>`,
       render: () => (
-        <SankeyChart
+        <SankeyExampleChart
           aspectRatio="4 / 3"
           data={sankeyAnalytics}
-          margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
           nodePadding={24}
           nodeWidth={16}
         >
           <SankeyLink />
           <SankeyNode lineCap={4} showLabels={false} />
           <SankeyTooltip />
-        </SankeyChart>
+        </SankeyExampleChart>
       ),
     },
     {
       title: "Sankey Chart - Simple",
       description: "Minimal flow with fewer nodes",
-      code: `<SankeyChart data={simpleData} nodePadding={20} nodeWidth={12}>
+      code: `<SankeyChart data={simpleData} margin={{ top: 8, right: 8, bottom: 40, left: 8 }} nodePadding={20} nodeWidth={12}>
   <SankeyLink strokeOpacity={0.5} />
   <SankeyNode lineCap={3} />
   <SankeyTooltip />
 </SankeyChart>`,
       render: () => (
-        <SankeyChart
+        <SankeyExampleChart
           aspectRatio="4 / 3"
           data={sankeySimple}
           nodePadding={20}
@@ -3164,19 +3195,19 @@ function makeSankeyExamples(): ChartExample[] {
           <SankeyLink strokeOpacity={0.5} />
           <SankeyNode lineCap={3} />
           <SankeyTooltip />
-        </SankeyChart>
+        </SankeyExampleChart>
       ),
     },
     {
       title: "Sankey Chart - Solid Links",
       description: "Single-color links instead of gradients",
-      code: `<SankeyChart data={data} nodeWidth={16} nodePadding={24}>
-  <SankeyLink useGradient={false} stroke="var(--chart-3)" strokeOpacity={0.3} />
+      code: `<SankeyChart data={data} margin={{ top: 8, right: 8, bottom: 40, left: 8 }} nodePadding={24} nodeWidth={16}>
+  <SankeyLink stroke="var(--chart-3)" strokeOpacity={0.3} useGradient={false} />
   <SankeyNode lineCap={4} />
   <SankeyTooltip />
 </SankeyChart>`,
       render: () => (
-        <SankeyChart
+        <SankeyExampleChart
           aspectRatio="4 / 3"
           data={sankeyAnalytics}
           nodePadding={24}
@@ -3189,7 +3220,7 @@ function makeSankeyExamples(): ChartExample[] {
           />
           <SankeyNode lineCap={4} />
           <SankeyTooltip />
-        </SankeyChart>
+        </SankeyExampleChart>
       ),
     },
   ];
@@ -3200,7 +3231,7 @@ function makeChoroplethExamples(): ChartExample[] {
     {
       title: "Choropleth Chart",
       description: "World map with single fill color and graticule",
-      code: `<ChoroplethChart data={geojson} aspectRatio="16 / 9">
+      code: `<ChoroplethChart aspectRatio="16 / 9" data={geojson} margin={{ top: 8, right: 8, bottom: 40, left: 8 }}>
   <ChoroplethGraticule />
   <ChoroplethFeatureComponent fill="var(--chart-3)" />
   <ChoroplethTooltip />
@@ -3210,7 +3241,7 @@ function makeChoroplethExamples(): ChartExample[] {
     {
       title: "Choropleth Chart - Analytics",
       description: "Color scale based on visitor traffic by country",
-      code: `<ChoroplethChart data={geojson} aspectRatio="16 / 9">
+      code: `<ChoroplethChart aspectRatio="16 / 9" data={geojson} margin={{ top: 8, right: 8, bottom: 40, left: 8 }}>
   <ChoroplethFeatureComponent getFeatureColor={getVisitorColor} />
   <ChoroplethTooltip
     getFeatureValue={getVisitorValue}
@@ -3222,7 +3253,7 @@ function makeChoroplethExamples(): ChartExample[] {
     {
       title: "Choropleth Chart - Graticule",
       description: "Visible latitude and longitude grid lines",
-      code: `<ChoroplethChart data={geojson} aspectRatio="16 / 9">
+      code: `<ChoroplethChart aspectRatio="16 / 9" data={geojson} margin={{ top: 8, right: 8, bottom: 40, left: 8 }}>
   <ChoroplethGraticule stroke="rgba(255,255,255,0.15)" />
   <ChoroplethFeatureComponent fill="var(--chart-1)" />
   <ChoroplethTooltip />
@@ -3232,7 +3263,7 @@ function makeChoroplethExamples(): ChartExample[] {
     {
       title: "Choropleth Chart - Patterns",
       description: "Diagonal line patterns colored by region",
-      code: `<ChoroplethChart data={geojson} aspectRatio="16 / 9">
+      code: `<ChoroplethChart aspectRatio="16 / 9" data={geojson} margin={{ top: 8, right: 8, bottom: 40, left: 8 }}>
   <ChoroplethFeatureComponent
     patterns={<PatternLines id="p-americas" stroke="var(--chart-1)" ... />}
     getFeaturePattern={(feat) => \`pattern-\${getRegion(feat)}\`}
@@ -3256,9 +3287,9 @@ function makeCandlestickExamples(): ChartExample[] {
       title: "Candlestick – Tooltip line matches candle",
       description:
         "Lime–emerald and yellow–red gradients. Crosshair color matches the focused candle (green/red); no dot.",
-      code: `<LinearGradient id="candle-up" from="var(--color-lime-400)" to="var(--color-emerald-500)" />
-<LinearGradient id="candle-down" from="var(--color-yellow-400)" to="var(--color-red-500)" />
-<CandlestickChart data={ohlcData} margin={{ top: 16, right: 16, bottom: 40, left: 16 }} style={{ height: 320 }}>
+      code: `<LinearGradient from="var(--color-lime-400)" id="candle-up" to="var(--color-emerald-500)" />
+<LinearGradient from="var(--color-yellow-400)" id="candle-down" to="var(--color-red-500)" />
+<CandlestickChart data={ohlcData} margin={{ top: 8, right: 8, bottom: 40, left: 8 }} style={{ height: 320 }}>
   <Candlestick
     fadedOpacity={0.25}
     negativeFill="url(#candle-down)"
@@ -3272,9 +3303,8 @@ function makeCandlestickExamples(): ChartExample[] {
   <XAxis />
 </CandlestickChart>`,
       render: () => (
-        <CandlestickChart
+        <CandlestickExampleChart
           data={candlestickOhlcData}
-          margin={{ top: 16, right: 16, bottom: 40, left: 16 }}
           style={{ height: 320 }}
         >
           <LinearGradient
@@ -3298,13 +3328,13 @@ function makeCandlestickExamples(): ChartExample[] {
             showDots={false}
           />
           <XAxis />
-        </CandlestickChart>
+        </CandlestickExampleChart>
       ),
     },
     {
       title: "Candlestick – Chart 1 & 3",
       description: "Using --chart-1 and --chart-3 for a stronger contrast",
-      code: `<CandlestickChart data={ohlcData} margin={{ top: 16, right: 16, bottom: 40, left: 16 }} style={{ height: 320 }}>
+      code: `<CandlestickChart data={ohlcData} margin={{ top: 8, right: 8, bottom: 40, left: 8 }} style={{ height: 320 }}>
   <Candlestick
     fadedOpacity={0.25}
     negativeFill="var(--chart-3)"
@@ -3314,9 +3344,8 @@ function makeCandlestickExamples(): ChartExample[] {
   <XAxis />
 </CandlestickChart>`,
       render: () => (
-        <CandlestickChart
+        <CandlestickExampleChart
           data={candlestickOhlcData}
-          margin={{ top: 16, right: 16, bottom: 40, left: 16 }}
           style={{ height: 320 }}
         >
           <Candlestick
@@ -3326,23 +3355,22 @@ function makeCandlestickExamples(): ChartExample[] {
           />
           <ChartTooltip content={CandlestickTooltipContent} />
           <XAxis />
-        </CandlestickChart>
+        </CandlestickExampleChart>
       ),
     },
     {
       title: "Candlestick – Lime to emerald, yellow to red",
       description: "Custom gradients: lime–emerald for up, yellow–red for down",
-      code: `<LinearGradient id="up" from="var(--color-lime-400)" to="var(--color-emerald-500)" />
-<LinearGradient id="down" from="var(--color-yellow-400)" to="var(--color-red-500)" />
-<CandlestickChart data={ohlcData} margin={{ top: 16, right: 16, bottom: 40, left: 16 }} style={{ height: 320 }}>
-  <Candlestick negativeFill="url(#down)" positiveFill="url(#up)" fadedOpacity={0.25} />
+      code: `<LinearGradient from="var(--color-lime-400)" id="up" to="var(--color-emerald-500)" />
+<LinearGradient from="var(--color-yellow-400)" id="down" to="var(--color-red-500)" />
+<CandlestickChart data={ohlcData} margin={{ top: 8, right: 8, bottom: 40, left: 8 }} style={{ height: 320 }}>
+  <Candlestick fadedOpacity={0.25} negativeFill="url(#down)" positiveFill="url(#up)" />
   <ChartTooltip content={CandlestickTooltipContent} />
   <XAxis />
 </CandlestickChart>`,
       render: () => (
-        <CandlestickChart
+        <CandlestickExampleChart
           data={candlestickOhlcData}
-          margin={{ top: 16, right: 16, bottom: 40, left: 16 }}
           style={{ height: 320 }}
         >
           <LinearGradient
@@ -3362,13 +3390,13 @@ function makeCandlestickExamples(): ChartExample[] {
           />
           <ChartTooltip content={CandlestickTooltipContent} />
           <XAxis />
-        </CandlestickChart>
+        </CandlestickExampleChart>
       ),
     },
     {
       title: "Candlestick – Solid colors",
       description: "Solid emerald/red fills instead of gradients",
-      code: `<CandlestickChart data={ohlcData} candleWidth={8} margin={{ top: 16, right: 16, bottom: 40, left: 16 }} style={{ height: 320 }}>
+      code: `<CandlestickChart candleWidth={8} data={ohlcData} margin={{ top: 8, right: 8, bottom: 40, left: 8 }} style={{ height: 320 }}>
   <Candlestick
     negativeFill="var(--color-red-500)"
     positiveFill="var(--color-emerald-500)"
@@ -3377,10 +3405,9 @@ function makeCandlestickExamples(): ChartExample[] {
   <XAxis />
 </CandlestickChart>`,
       render: () => (
-        <CandlestickChart
+        <CandlestickExampleChart
           candleWidth={8}
           data={candlestickOhlcData}
-          margin={{ top: 16, right: 16, bottom: 40, left: 16 }}
           style={{ height: 320 }}
         >
           <Candlestick
@@ -3389,24 +3416,23 @@ function makeCandlestickExamples(): ChartExample[] {
           />
           <ChartTooltip content={CandlestickTooltipContent} />
           <XAxis />
-        </CandlestickChart>
+        </CandlestickExampleChart>
       ),
     },
     {
       title: "Candlestick – Pattern",
       description: "Diagonal pattern overlay on candle bodies",
-      code: `<CandlestickChart data={ohlcData} candleGap={0.15} margin={{ top: 16, right: 16, bottom: 40, left: 16 }} style={{ height: 320 }}>
-  <PatternLines id="candle-up" orientation={["diagonal"]} stroke="rgba(0,0,0,0.35)" ... />
-  <PatternLines id="candle-down" orientation={["diagonal"]} stroke="rgba(0,0,0,0.35)" ... />
-  <Candlestick bodyPatternNegative="url(#candle-down)" bodyPatternPositive="url(#candle-up)" />
+      code: `<CandlestickChart candleGap={0.15} data={ohlcData} margin={{ top: 8, right: 8, bottom: 40, left: 8 }} style={{ height: 320 }}>
+  <PatternLines id="candle-up" orientation={["diagonal"]} stroke="rgba(0,0,0,0.35)" ... PatternLines
+  >/> id="candle-down" orientation={["diagonal"]} stroke="rgba(0,0,0,0.35)" ... Candlestick
+  >/> bodyPatternNegative="url(#candle-down)" bodyPatternPositive="url(#candle-up)" />
   <ChartTooltip content={CandlestickTooltipContent} />
   <XAxis />
 </CandlestickChart>`,
       render: () => (
-        <CandlestickChart
+        <CandlestickExampleChart
           candleGap={0.15}
           data={candlestickOhlcData}
-          margin={{ top: 16, right: 16, bottom: 40, left: 16 }}
           style={{ height: 320 }}
         >
           <PatternLines
@@ -3432,21 +3458,20 @@ function makeCandlestickExamples(): ChartExample[] {
           />
           <ChartTooltip content={CandlestickTooltipContent} />
           <XAxis />
-        </CandlestickChart>
+        </CandlestickExampleChart>
       ),
     },
     {
       title: "Candlestick – Tooltip only",
       description: "Tooltip box without crosshair or dots",
-      code: `<CandlestickChart data={ohlcData} margin={{ top: 16, right: 16, bottom: 40, left: 16 }} style={{ height: 320 }}>
+      code: `<CandlestickChart data={ohlcData} margin={{ top: 8, right: 8, bottom: 40, left: 8 }} style={{ height: 320 }}>
   <Candlestick fadedOpacity={0.25} />
   <ChartTooltip content={CandlestickTooltipContent} showCrosshair={false} showDots={false} />
   <XAxis />
 </CandlestickChart>`,
       render: () => (
-        <CandlestickChart
+        <CandlestickExampleChart
           data={candlestickOhlcData}
-          margin={{ top: 16, right: 16, bottom: 40, left: 16 }}
           style={{ height: 320 }}
         >
           <Candlestick fadedOpacity={0.25} />
@@ -3456,7 +3481,7 @@ function makeCandlestickExamples(): ChartExample[] {
             showDots={false}
           />
           <XAxis />
-        </CandlestickChart>
+        </CandlestickExampleChart>
       ),
     },
   ];
@@ -3475,7 +3500,7 @@ function makeCandlestickHero(): ChartExample {
     title: "Candlestick Chart – Tooltip line matches candle",
     description:
       "Default palette (--chart-1 and --chart-5). The crosshair color follows the focused candle; no dot.",
-    code: `<CandlestickChart data={ohlcData} margin={{ top: 16, right: 16, bottom: 40, left: 16 }} style={{ height: 320 }}>
+    code: `<CandlestickChart data={ohlcData} margin={{ top: 8, right: 8, bottom: 40, left: 8 }} style={{ height: 320 }}>
   <Candlestick
     fadedOpacity={0.25}
     negativeFill="var(--chart-5)"
@@ -3497,9 +3522,8 @@ function makeCandlestickHero(): ChartExample {
 }
 const ohlcData: OHLCDataPoint[] = [ ... ];`,
     render: () => (
-      <CandlestickChart
+      <CandlestickExampleChart
         data={candlestickOhlcData}
-        margin={{ top: 16, right: 16, bottom: 40, left: 16 }}
         style={{ height: 320 }}
       >
         <Candlestick
@@ -3513,7 +3537,7 @@ const ohlcData: OHLCDataPoint[] = [ ... ];`,
           showDots={false}
         />
         <XAxis />
-      </CandlestickChart>
+      </CandlestickExampleChart>
     ),
   };
 }
@@ -3599,7 +3623,7 @@ function LineHeroWithCurveSelect() {
   return (
     <div className="space-y-3">
       <ChartHeroCurveToolbar onValueChange={setCurveId} value={curveId} />
-      <LineChart aspectRatio="4 / 1" data={lineHeroData}>
+      <LineExampleChart aspectRatio="4 / 1" data={lineHeroData}>
         <Grid horizontal />
         <Line
           curve={curve}
@@ -3615,7 +3639,7 @@ function LineHeroWithCurveSelect() {
         />
         <XAxis />
         <ChartTooltip />
-      </LineChart>
+      </LineExampleChart>
     </div>
   );
 }
@@ -3630,7 +3654,7 @@ function AreaHeroWithCurveSelect() {
   return (
     <div className="space-y-3">
       <ChartHeroCurveToolbar onValueChange={setCurveId} value={curveId} />
-      <AreaChart aspectRatio="4 / 1" data={areaHeroData}>
+      <AreaExampleChart aspectRatio="4 / 1" data={areaHeroData}>
         <Grid horizontal />
         <Area
           curve={curve}
@@ -3651,7 +3675,7 @@ function AreaHeroWithCurveSelect() {
         <SegmentLineTo />
         <XAxis />
         <ChartTooltip />
-      </AreaChart>
+      </AreaExampleChart>
     </div>
   );
 }
@@ -3666,7 +3690,7 @@ function ComposedHeroWithCurveSelect() {
   return (
     <div className="space-y-3">
       <ChartHeroCurveToolbar onValueChange={setCurveId} value={curveId} />
-      <ComposedChart
+      <ComposedExampleChart
         aspectRatio="2 / 1"
         barGap={0}
         data={composedDemoData as unknown as Record<string, unknown>[]}
@@ -3689,7 +3713,7 @@ function ComposedHeroWithCurveSelect() {
         />
         <ChartTooltip showCrosshair={false} />
         <XAxis numTicks={8} />
-      </ComposedChart>
+      </ComposedExampleChart>
     </div>
   );
 }
@@ -3712,7 +3736,7 @@ function makeLineHero(): ChartExample {
       "Desktop vs mobile visitors over 30 days. Use the curve menu to compare @visx/curve factories on both lines.",
     code: `import { curveNatural } from "@visx/curve";
 
-<LineChart data={chartData}>
+<LineChart data={chartData} margin={{ top: 8, right: 8, bottom: 40, left: 8 }}>
   <Grid horizontal />
   <Line curve={curveNatural} dataKey="desktop" stroke="var(--chart-1)" strokeWidth={2} />
   <Line curve={curveNatural} dataKey="mobile" stroke="var(--chart-3)" strokeWidth={2} />
@@ -3737,7 +3761,7 @@ function makeAreaHero(): ChartExample {
       "Revenue vs costs over 30 days with segment selection. Use the curve menu to compare @visx/curve on both areas.",
     code: `import { curveMonotoneX } from "@visx/curve";
 
-<AreaChart data={chartData} aspectRatio="4 / 1">
+<AreaChart aspectRatio="4 / 1" data={chartData}>
   <Grid horizontal />
   <Area curve={curveMonotoneX} dataKey="revenue" fill="var(--chart-line-primary)" fillOpacity={0.3} strokeWidth={2} />
   <Area curve={curveMonotoneX} dataKey="costs" fill="var(--chart-line-secondary)" fillOpacity={0.2} strokeWidth={1.5} />
@@ -3762,7 +3786,7 @@ function makeBarHero(): ChartExample {
   return {
     title: "Bar Chart - Interactive",
     description: "Daily activity over the last 90 days",
-    code: `<BarChart data={dailyData} xDataKey="day" barGap={0.1} aspectRatio="4 / 1">
+    code: `<BarChart aspectRatio="4 / 1" barGap={0.1} data={dailyData} margin={{ top: 8, right: 8, bottom: 40, left: 8 }} xDataKey="day">
   <Grid horizontal />
   <Bar dataKey="value" lineCap="butt" />
   <BarXAxis maxLabels={8} />
@@ -3777,7 +3801,7 @@ function makeBarHero(): ChartExample {
   };
 });`,
     render: () => (
-      <BarChart
+      <BarExampleChart
         aspectRatio="4 / 1"
         barGap={0.1}
         data={barHeroData}
@@ -3787,14 +3811,14 @@ function makeBarHero(): ChartExample {
         <Bar dataKey="value" lineCap="butt" />
         <BarXAxis maxLabels={8} />
         <ChartTooltip />
-      </BarChart>
+      </BarExampleChart>
     ),
   };
 }
 
 function SankeyHeroInner() {
   return (
-    <SankeyChart
+    <SankeyExampleChart
       aspectRatio="5 / 2"
       data={sankeyAnalytics}
       nodePadding={24}
@@ -3803,7 +3827,7 @@ function SankeyHeroInner() {
       <SankeyLink />
       <SankeyNode lineCap={4} />
       <SankeyTooltip />
-    </SankeyChart>
+    </SankeyExampleChart>
   );
 }
 
@@ -3811,7 +3835,7 @@ function makeSankeyHero(): ChartExample {
   return {
     title: "Sankey Chart - Interactive",
     description: "User flow from source to outcome",
-    code: `<SankeyChart data={analyticsData} nodeWidth={16} nodePadding={24}>
+    code: `<SankeyChart data={analyticsData} margin={{ top: 8, right: 8, bottom: 40, left: 8 }} nodePadding={24} nodeWidth={16}>
   <SankeyLink />
   <SankeyNode lineCap={4} />
   <SankeyTooltip />
@@ -3826,14 +3850,14 @@ function ChoroplethHeroInner() {
     return <ChoroplethLoading />;
   }
   return (
-    <ChoroplethChart aspectRatio="2 / 1" data={worldData}>
+    <ChoroplethExampleChart aspectRatio="2 / 1" data={worldData}>
       <ChoroplethGraticule />
       <ChoroplethFeatureComponent getFeatureColor={getVisitorColor} />
       <ChoroplethTooltip
         getFeatureValue={getVisitorValue}
         valueLabel="Visitors"
       />
-    </ChoroplethChart>
+    </ChoroplethExampleChart>
   );
 }
 
@@ -3841,7 +3865,7 @@ function makeChoroplethHero(): ChartExample {
   return {
     title: "Choropleth Chart - Interactive",
     description: "Visitor traffic by country",
-    code: `<ChoroplethChart data={geojson} aspectRatio="2 / 1">
+    code: `<ChoroplethChart aspectRatio="2 / 1" data={geojson} margin={{ top: 8, right: 8, bottom: 40, left: 8 }}>
   <ChoroplethGraticule />
   <ChoroplethFeatureComponent getFeatureColor={getVisitorColor} />
   <ChoroplethTooltip getFeatureValue={getVisitorValue} valueLabel="Visitors" />
@@ -3960,15 +3984,15 @@ const legendItems = data.map((d) => ({
 }));
 
 <FunnelChart
-  data={data}
   color="var(--chart-1)"
-  layers={3}
+  data={data}
   hoveredIndex={hoveredIndex}
+  layers={3}
   onHoverChange={setHoveredIndex}
 />
 <Legend
-  items={legendItems}
   hoveredIndex={hoveredIndex}
+  items={legendItems}
   onHoverChange={setHoveredIndex}
 >
   <LegendItemComponent>
@@ -3993,10 +4017,10 @@ function makeFunnelExamples(): ChartExample[] {
       title: "Vertical",
       description: "Vertical orientation with top-to-bottom flow",
       code: `<FunnelChart
-  data={data}
-  orientation="vertical"
   color="var(--chart-1)"
+  data={data}
   layers={3}
+  orientation="vertical"
 />`,
       render: () => (
         <FunnelChart
@@ -4012,12 +4036,12 @@ function makeFunnelExamples(): ChartExample[] {
       title: "Vertical Straight with Grid",
       description: "Combining vertical orientation, straight edges, and grid",
       code: `<FunnelChart
-  data={data}
-  orientation="vertical"
   color="var(--chart-1)"
-  layers={3}
+  data={data}
   edges="straight"
   grid={{ bands: false, lines: true }}
+  layers={3}
+  orientation="vertical"
 />`,
       render: () => (
         <FunnelChart
@@ -4035,11 +4059,11 @@ function makeFunnelExamples(): ChartExample[] {
       title: "Straight Edges",
       description: "Sharp geometric edges instead of smooth curves",
       code: `<FunnelChart
-  data={data}
-  orientation="horizontal"
   color="var(--chart-1)"
-  layers={3}
+  data={data}
   edges="straight"
+  layers={3}
+  orientation="horizontal"
 />`,
       render: () => (
         <FunnelChart
@@ -4090,18 +4114,18 @@ function makeFunnelExamples(): ChartExample[] {
       description:
         "Diagonal line pattern on the innermost ring via renderPattern",
       code: `<FunnelChart
-  data={data}
   color="var(--chart-3)"
+  data={data}
   layers={3}
   renderPattern={(id, color) => (
     <PatternLines
-      id={id}
+      background={color}
       height={8}
-      width={8}
+      id={id}
+      orientation={["diagonal"]}
       stroke="rgba(255,255,255,0.35)"
       strokeWidth={2}
-      orientation={["diagonal"]}
-      background={color}
+      width={8}
     />
   )}
 />`,
@@ -4128,12 +4152,12 @@ function makeFunnelExamples(): ChartExample[] {
       title: "Grouped Labels",
       description: "Labels stacked together in a compact group",
       code: `<FunnelChart
-  data={data}
   color="var(--chart-1)"
-  layers={3}
-  labelLayout="grouped"
+  data={data}
   labelAlign="center"
+  labelLayout="grouped"
   labelOrientation="vertical"
+  layers={3}
 />`,
       render: () => (
         <FunnelChart
@@ -4150,10 +4174,10 @@ function makeFunnelExamples(): ChartExample[] {
       title: "Grid Background",
       description: "Alternating bands and grid lines for easier comparison",
       code: `<FunnelChart
-  data={data}
   color="var(--chart-1)"
-  layers={3}
+  data={data}
   grid
+  layers={3}
 />`,
       render: () => (
         <FunnelChart color="var(--chart-1)" data={funnelData} grid layers={3} />
@@ -4172,7 +4196,7 @@ function makeScatterExamples(): ChartExample[] {
       title: "Scatter Chart - No Rings",
       description:
         "Solid fills only — set `strokeWidth={0}` to hide the outer ring",
-      code: `<ScatterChart data={chartData}>
+      code: `<ScatterChart data={chartData} margin={{ top: 8, right: 8, bottom: 40, left: 8 }}>
   <Grid horizontal />
   <Scatter dataKey="desktop" strokeWidth={0} />
   <Scatter dataKey="mobile" strokeWidth={0} />
@@ -4180,60 +4204,60 @@ function makeScatterExamples(): ChartExample[] {
   <ChartTooltip />
 </ScatterChart>`,
       render: () => (
-        <ScatterChart data={multiLineData}>
+        <ScatterExampleChart data={multiLineData}>
           <Grid horizontal />
           <Scatter dataKey="desktop" strokeWidth={0} />
           <Scatter dataKey="mobile" strokeWidth={0} />
           <XAxis />
           <ChartTooltip />
-        </ScatterChart>
+        </ScatterExampleChart>
       ),
     },
     {
       title: "Scatter Chart - Small Dots",
       description: "Compact markers with a 2px radius and thin 1px rings",
-      code: `<ScatterChart data={chartData}>
+      code: `<ScatterChart data={chartData} margin={{ top: 8, right: 8, bottom: 40, left: 8 }}>
   <Grid horizontal />
-  <Scatter dataKey="desktop" radius={2} strokeWidth={1} ringGap={1} />
-  <Scatter dataKey="mobile" radius={2} strokeWidth={1} ringGap={1} />
+  <Scatter dataKey="desktop" radius={2} ringGap={1} strokeWidth={1} />
+  <Scatter dataKey="mobile" radius={2} ringGap={1} strokeWidth={1} />
   <XAxis />
   <ChartTooltip />
 </ScatterChart>`,
       render: () => (
-        <ScatterChart data={multiLineData}>
+        <ScatterExampleChart data={multiLineData}>
           <Grid horizontal />
           <Scatter dataKey="desktop" radius={2} ringGap={1} strokeWidth={1} />
           <Scatter dataKey="mobile" radius={2} ringGap={1} strokeWidth={1} />
           <XAxis />
           <ChartTooltip />
-        </ScatterChart>
+        </ScatterExampleChart>
       ),
     },
     {
       title: "Scatter Chart - Wide Ring Gap",
       description:
         "1px ring, 3px dot, 5px gap between fill and ring (`outlineWidth={0}`)",
-      code: `<ScatterChart data={chartData}>
+      code: `<ScatterChart data={chartData} margin={{ top: 8, right: 8, bottom: 40, left: 8 }}>
   <Grid horizontal />
   <Scatter
     dataKey="desktop"
-    radius={3}
-    strokeWidth={1}
-    ringGap={5}
     outlineWidth={0}
+    radius={3}
+    ringGap={5}
+    strokeWidth={1}
   />
   <Scatter
     dataKey="mobile"
-    radius={3}
-    strokeWidth={1}
-    ringGap={5}
     outlineWidth={0}
+    radius={3}
+    ringGap={5}
+    strokeWidth={1}
   />
   <XAxis />
   <ChartTooltip />
 </ScatterChart>`,
       render: () => (
-        <ScatterChart data={multiLineData}>
+        <ScatterExampleChart data={multiLineData}>
           <Grid horizontal />
           <Scatter
             dataKey="desktop"
@@ -4251,7 +4275,7 @@ function makeScatterExamples(): ChartExample[] {
           />
           <XAxis />
           <ChartTooltip />
-        </ScatterChart>
+        </ScatterExampleChart>
       ),
     },
   ];
@@ -4262,7 +4286,7 @@ function makeScatterHero(): ChartExample {
     title: "Scatter Chart",
     description:
       "Desktop vs mobile over 24 months with default offset rings and crosshair tooltip",
-    code: `<ScatterChart data={chartData}>
+    code: `<ScatterChart data={chartData} margin={{ top: 8, right: 8, bottom: 40, left: 8 }}>
   <Grid horizontal />
   <Scatter dataKey="desktop" />
   <Scatter dataKey="mobile" />
@@ -4271,13 +4295,13 @@ function makeScatterHero(): ChartExample {
 </ScatterChart>`,
     data: scatterChartDataSnippet,
     render: () => (
-      <ScatterChart data={scatterMultiSeriesData}>
+      <ScatterExampleChart data={scatterMultiSeriesData}>
         <Grid horizontal />
         <Scatter dataKey="desktop" />
         <Scatter dataKey="mobile" />
         <XAxis />
         <ChartTooltip />
-      </ScatterChart>
+      </ScatterExampleChart>
     ),
   };
 }
@@ -4307,27 +4331,29 @@ function ChartNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="no-scrollbar flex gap-1 overflow-x-auto pb-6">
-      {chartTypes.map((chart) => {
-        const href = `/charts/${chart.slug}`;
-        const isActive = pathname === href;
+    <HorizontalScrollArea className="pb-6">
+      <nav className="flex gap-1">
+        {chartTypes.map((chart) => {
+          const href = `/charts/${chart.slug}`;
+          const isActive = pathname === href;
 
-        return (
-          <Link
-            className={cn(
-              "shrink-0 rounded-md px-3 py-1.5 font-medium text-sm transition-colors",
-              isActive
-                ? "bg-foreground text-background"
-                : "text-muted-foreground hover:bg-muted hover:text-foreground"
-            )}
-            href={href}
-            key={chart.slug}
-          >
-            {chart.label}
-          </Link>
-        );
-      })}
-    </nav>
+          return (
+            <Link
+              className={cn(
+                "shrink-0 rounded-md px-3 py-1.5 font-medium text-sm transition-colors",
+                isActive
+                  ? "bg-foreground text-background"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              )}
+              href={href}
+              key={chart.slug}
+            >
+              {chart.label}
+            </Link>
+          );
+        })}
+      </nav>
+    </HorizontalScrollArea>
   );
 }
 
@@ -4340,6 +4366,7 @@ interface RegistryEntry {
   columns?: 2 | 3;
   hero?: () => ChartExample;
   notice?: string;
+  previewLayout?: ChartExamplePreviewLayout;
 }
 
 const chartExamplesRegistry: Record<string, RegistryEntry> = {
@@ -4353,6 +4380,7 @@ const chartExamplesRegistry: Record<string, RegistryEntry> = {
     factory: makeChoroplethExamples,
     columns: 2,
     hero: makeChoroplethHero,
+    previewLayout: "wide",
   },
   "composed-chart": {
     factory: makeComposedExamples,
@@ -4363,22 +4391,28 @@ const chartExamplesRegistry: Record<string, RegistryEntry> = {
     factory: makeFunnelExamples,
     columns: 2,
     hero: makeFunnelHero,
+    previewLayout: "compact",
   },
-  "gauge-chart": { factory: makeGaugeExamples, hero: makeGaugeHero },
+  "gauge-chart": {
+    factory: makeGaugeExamples,
+    hero: makeGaugeHero,
+    previewLayout: "compact",
+  },
   "line-chart": { factory: makeLineExamples, hero: makeLineHero },
   "live-line-chart": {
     columns: 2,
     factory: makeLiveLineExamples,
     hero: makeLiveLineHero,
   },
-  "pie-chart": { factory: makePieExamples },
-  "radar-chart": { factory: makeRadarExamples },
-  "ring-chart": { factory: makeRingExamples },
+  "pie-chart": { factory: makePieExamples, previewLayout: "compact" },
+  "radar-chart": { factory: makeRadarExamples, previewLayout: "compact" },
+  "ring-chart": { factory: makeRingExamples, previewLayout: "compact" },
   "scatter-chart": { factory: makeScatterExamples, hero: makeScatterHero },
   "sankey-chart": {
     factory: makeSankeyExamples,
     columns: 2,
     hero: makeSankeyHero,
+    previewLayout: "wide",
     notice:
       "The Sankey chart is in pre-alpha and is being actively developed. APIs may change.",
   },
@@ -4422,6 +4456,8 @@ export function ChartExamplesGrid({ chartSlug }: { chartSlug: string }) {
           data={hero.data}
           description={hero.description}
           footer={hero.footer}
+          previewLayout={entry.previewLayout}
+          previewRole="hero"
           title={hero.title}
         >
           {hero.render()}
@@ -4436,6 +4472,7 @@ export function ChartExamplesGrid({ chartSlug }: { chartSlug: string }) {
             description={example.description}
             footer={example.footer}
             key={example.title}
+            previewLayout={entry.previewLayout}
             title={example.title}
           >
             {example.render()}

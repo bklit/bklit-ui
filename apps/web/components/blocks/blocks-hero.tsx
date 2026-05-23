@@ -1,45 +1,30 @@
 "use client";
 
-import { ArrowRightIcon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
-import Link from "next/link";
+import {
+  HeroActions,
+  HeroBadgeRow,
+  HeroDescription,
+  HeroShell,
+  HeroStudioPill,
+  HeroTitle,
+} from "@/components/hero";
 import { Button } from "@/components/ui/button";
-
-function StudioPill() {
-  return (
-    <Button
-      className="h-auto rounded-full px-0.5 py-0.5"
-      nativeButton={false}
-      render={<Link href="/studio" title="Studio" />}
-      size="lg"
-      variant="outline"
-    >
-      <span className="flex items-center gap-1 rounded-full bg-muted px-2.5 py-1">
-        Introducing
-      </span>
-      <span className="flex items-center gap-1 px-2.5 py-1">
-        Studio
-        <HugeiconsIcon icon={ArrowRightIcon} size={14} />
-      </span>
-    </Button>
-  );
-}
 
 export function BlocksHero() {
   return (
-    <div className="max-w-xl space-y-5">
-      <div className="mx-auto flex w-fit">
-        <StudioPill />
-      </div>
+    <HeroShell>
+      <HeroBadgeRow>
+        <HeroStudioPill />
+      </HeroBadgeRow>
 
-      <h1 className="font-bold text-2xl sm:text-4xl">Ready to go Blocks</h1>
+      <HeroTitle>Ready to go Blocks</HeroTitle>
 
-      <p className="text-lg sm:text-xl">
+      <HeroDescription>
         Beautiful open-source chart blocks for dashboards and analytics. Copy
         and paste into your apps. Works with any React framework.
-      </p>
+      </HeroDescription>
 
-      <div className="flex flex-col items-center justify-center">
+      <HeroActions>
         <Button
           onClick={() => {
             document
@@ -51,7 +36,7 @@ export function BlocksHero() {
         >
           Browse Blocks
         </Button>
-      </div>
-    </div>
+      </HeroActions>
+    </HeroShell>
   );
 }

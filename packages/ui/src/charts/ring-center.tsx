@@ -3,6 +3,11 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import {
+  chartCenterContainerClassName,
+  chartCenterLabelClassName,
+  chartCenterValueClassName,
+} from "./chart-center-typography";
+import {
   ChartStatFlow,
   type ChartStatFlowFormat,
   defaultChartStatFlowFormat,
@@ -23,9 +28,9 @@ export interface RingCenterProps {
   }) => ReactNode;
   /** Additional class name for the container */
   className?: string;
-  /** Class name for the value text. Default: "text-2xl font-bold" */
+  /** Class name for the value text. Scales with center size via container queries. */
   valueClassName?: string;
-  /** Class name for the label text. Default: "text-xs" */
+  /** Class name for the label text. Scales with center size via container queries. */
   labelClassName?: string;
   /** Prefix to show before the number (e.g., "$") */
   prefix?: string;
@@ -48,8 +53,8 @@ export function RingCenter({
   formatOptions = defaultChartStatFlowFormat,
   children,
   className = "",
-  valueClassName = "text-2xl font-bold",
-  labelClassName = "text-xs",
+  valueClassName = chartCenterValueClassName,
+  labelClassName = chartCenterLabelClassName,
   prefix,
   suffix,
 }: RingCenterProps) {
@@ -67,7 +72,11 @@ export function RingCenter({
   if (children && hoveredData) {
     return (
       <div
-        className={cn("flex items-center justify-center", className)}
+        className={cn(
+          chartCenterContainerClassName,
+          "flex items-center justify-center",
+          className
+        )}
         style={{ width: centerSize, height: centerSize }}
       >
         {children({
@@ -85,6 +94,7 @@ export function RingCenter({
   return (
     <div
       className={cn(
+        chartCenterContainerClassName,
         "flex flex-col items-center justify-center text-center",
         className
       )}

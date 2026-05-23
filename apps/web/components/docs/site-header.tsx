@@ -379,7 +379,7 @@ export function SiteHeader({
             <nav className="hidden items-center gap-1 md:flex">
               {links.map((link) => (
                 <Link href={link.url} key={link.url}>
-                  <Button size="lg" variant="ghost">
+                  <Button variant="ghost">
                     <NavLinkLabel text={link.text} url={link.url} />
                   </Button>
                 </Link>

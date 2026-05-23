@@ -2,6 +2,8 @@
 
 import { motion, useAnimationControls } from "motion/react";
 import { useEffect, useRef, useState } from "react";
+import { heroTitleClassName } from "@/components/hero";
+import { cn } from "@/lib/utils";
 
 interface AnimatedBrandProps {
   onAnimationComplete?: () => void;
@@ -103,7 +105,7 @@ export function AnimatedBrand({
 
   return (
     <motion.h1
-      className={`font-bold text-2xl sm:text-4xl ${className}`}
+      className={cn(heroTitleClassName, className)}
       style={{ perspective: "1000px" }}
     >
       <motion.span

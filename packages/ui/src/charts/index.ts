@@ -39,6 +39,11 @@ export {
   type ChartBrushSelection,
 } from "./chart-brush";
 export {
+  chartCenterContainerClassName,
+  chartCenterLabelClassName,
+  chartCenterValueClassName,
+} from "./chart-center-typography";
+export {
   type ChartContextValue,
   ChartProvider,
   chartCssVars,
