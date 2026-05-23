@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
 import { useChoropleth } from "@/components/charts";
+import { useEffect } from "react";
 import { computeVisitorTrend, getVisitorValue } from "../data/visitors";
 import type { StatCardHoverState } from "./stat-card-stat-styles";
 
