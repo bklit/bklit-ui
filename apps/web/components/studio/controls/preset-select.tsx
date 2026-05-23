@@ -48,25 +48,27 @@ export function PresetSelect({
 
   return (
     <Popover onOpenChange={setOpen} open={open}>
-      <PopoverTrigger asChild>
-        <Button
-          aria-expanded={open}
-          aria-label="Color preset"
-          className="h-10 gap-2 px-3 text-sm"
-          disabled={disabled}
-          type="button"
-          variant="outline"
-        >
-          <PresetSwatch id={value} />
-          <span className="max-w-[7.5rem] truncate">
-            {active?.label ?? "Theme"}
-          </span>
-          <HugeiconsIcon
-            className="size-3.5 shrink-0 text-muted-foreground"
-            icon={UnfoldMoreIcon}
-            strokeWidth={2}
+      <PopoverTrigger
+        render={
+          <Button
+            aria-expanded={open}
+            aria-label="Color preset"
+            className="h-10 gap-2 px-3 text-sm"
+            disabled={disabled}
+            type="button"
+            variant="outline"
           />
-        </Button>
+        }
+      >
+        <PresetSwatch id={value} />
+        <span className="max-w-[7.5rem] truncate">
+          {active?.label ?? "Theme"}
+        </span>
+        <HugeiconsIcon
+          className="size-3.5 shrink-0 text-muted-foreground"
+          icon={UnfoldMoreIcon}
+          strokeWidth={2}
+        />
       </PopoverTrigger>
       <PopoverContent
         align="end"

@@ -49,14 +49,16 @@ export function StudioCodeSheet({ state }: { state: StudioUrlState }) {
 
   return (
     <Sheet onOpenChange={setOpen} open={open}>
-      <SheetTrigger asChild>
-        <Button
-          className="h-10 px-4 font-mono text-[11px]"
-          type="button"
-          variant="white"
-        >
-          Get code_
-        </Button>
+      <SheetTrigger
+        render={
+          <Button
+            className="h-10 px-4 font-mono text-[11px]"
+            type="button"
+            variant="white"
+          />
+        }
+      >
+        Get code_
       </SheetTrigger>
       <SheetContent className="overflow-y-auto">
         <SheetHeader>
@@ -70,14 +72,13 @@ export function StudioCodeSheet({ state }: { state: StudioUrlState }) {
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <Button
-                asChild
                 className="h-8 text-xs"
+                nativeButton={false}
+                render={<Link href={studioChartDocsHref(state.chart)} />}
                 size="sm"
                 variant="outline"
               >
-                <Link href={studioChartDocsHref(state.chart)}>
-                  Documentation
-                </Link>
+                Documentation
               </Button>
               <OpenInV0Button
                 registryJsonUrl={registryV0ExampleJsonUrl(state.chart)}

@@ -5,6 +5,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { Monitor, Smartphone, Terminal } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useMemo, useState } from "react";
+import { CODE_PANEL_HEADER_CLASS } from "@/components/blocks/block-code-panel-header";
 import { BlockFileTree } from "@/components/blocks/block-file-tree";
 import { CopyButton } from "@/components/copy-button";
 import { V0Icon } from "@/components/icons/v0";
@@ -168,14 +169,21 @@ export function BlockViewer({
               />
             </div>
 
-            <Button asChild className="gap-1.5 px-3 text-xs" variant="white">
-              <a
-                href={blockOpenInV0Href(registryName)}
-                rel="noreferrer"
-                target="_blank"
-              >
-                Open in <V0Icon className="size-4" />
-              </a>
+            <Button
+              className="gap-1.5 px-3 text-xs"
+              nativeButton={false}
+              render={
+                // biome-ignore lint/a11y/useAnchorContent: Base UI merges Button children into this anchor
+                <a
+                  aria-label="Open in v0"
+                  href={blockOpenInV0Href(registryName)}
+                  rel="noreferrer"
+                  target="_blank"
+                />
+              }
+              variant="white"
+            >
+              Open in <V0Icon className="size-4" />
             </Button>
           </div>
         </div>
@@ -213,7 +221,12 @@ export function BlockViewer({
             <div className="flex h-full min-h-0 min-w-0 flex-col">
               {selectedFile ? (
                 <>
-                  <div className="flex items-center justify-between gap-3 border-border border-b px-4 py-2.5">
+                  <div
+                    className={cn(
+                      CODE_PANEL_HEADER_CLASS,
+                      "justify-between gap-3"
+                    )}
+                  >
                     <p className="truncate font-mono text-muted-foreground text-xs">
                       {selectedFile.path}
                     </p>

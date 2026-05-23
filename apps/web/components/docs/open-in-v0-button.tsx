@@ -14,13 +14,20 @@ export function OpenInV0Button({
   return (
     <Button
       aria-label="Open in v0"
-      asChild
       className="h-8 gap-1 px-3 text-xs"
+      nativeButton={false}
+      render={
+        // biome-ignore lint/a11y/useAnchorContent: Base UI merges Button children into this anchor
+        <a
+          aria-label="Open in v0"
+          href={openInV0Href(registryJsonUrl)}
+          rel="noreferrer"
+          target="_blank"
+        />
+      }
       variant="white"
     >
-      <a href={openInV0Href(registryJsonUrl)} rel="noreferrer" target="_blank">
-        Open in <V0Icon className="h-5 w-5" />
-      </a>
+      Open in <V0Icon className="h-5 w-5" />
     </Button>
   );
 }

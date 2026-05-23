@@ -74,18 +74,20 @@ export function StudioRecordPopover({
     >
       <Tooltip>
         <TooltipTrigger render={<span className="inline-flex" />}>
-          <PopoverTrigger asChild>
-            <Button
-              aria-expanded={open}
-              aria-label="Record animation"
-              className="size-10"
-              disabled={disabled}
-              size="icon"
-              type="button"
-              variant="outline"
-            >
-              <VideoCameraIcon aria-hidden className="size-5" />
-            </Button>
+          <PopoverTrigger
+            render={
+              <Button
+                aria-expanded={open}
+                aria-label="Record animation"
+                className="size-10"
+                disabled={disabled}
+                size="icon"
+                type="button"
+                variant="outline"
+              />
+            }
+          >
+            <VideoCameraIcon aria-hidden className="size-5" />
           </PopoverTrigger>
         </TooltipTrigger>
         <TooltipContent>

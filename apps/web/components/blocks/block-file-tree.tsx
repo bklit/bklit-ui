@@ -7,6 +7,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useMemo, useState } from "react";
+import { CODE_PANEL_HEADER_CLASS } from "@/components/blocks/block-code-panel-header";
 import { buildFileTree } from "@/lib/blocks/build-file-tree";
 import type { BlockFile, BlockFileTreeNode } from "@/lib/blocks/types";
 import { cn } from "@/lib/utils";
@@ -130,7 +131,7 @@ export function BlockFileTree({
 
   return (
     <div className="flex h-full min-h-0 flex-col border-border border-r bg-muted/10">
-      <div className="border-border border-b px-4 py-3">
+      <div className={CODE_PANEL_HEADER_CLASS}>
         <p className="font-medium text-muted-foreground text-xs uppercase tracking-wider">
           Files
         </p>

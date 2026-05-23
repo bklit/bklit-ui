@@ -8,20 +8,19 @@ import { Button } from "@/components/ui/button";
 function StudioPill() {
   return (
     <Button
-      asChild
       className="h-auto rounded-full px-0.5 py-0.5"
+      nativeButton={false}
+      render={<Link href="/studio" title="Studio" />}
       size="lg"
       variant="outline"
     >
-      <Link href="/studio" title="Studio">
-        <span className="flex items-center gap-1 rounded-full bg-muted px-2.5 py-1">
-          Introducing
-        </span>
-        <span className="flex items-center gap-1 px-2.5 py-1">
-          Studio
-          <HugeiconsIcon icon={ArrowRightIcon} size={14} />
-        </span>
-      </Link>
+      <span className="flex items-center gap-1 rounded-full bg-muted px-2.5 py-1">
+        Introducing
+      </span>
+      <span className="flex items-center gap-1 px-2.5 py-1">
+        Studio
+        <HugeiconsIcon icon={ArrowRightIcon} size={14} />
+      </span>
     </Button>
   );
 }

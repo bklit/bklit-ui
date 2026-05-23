@@ -67,7 +67,7 @@ function CodeFileBlock({
           "[&_pre]:!my-0 [&_pre]:!rounded-none [&_pre]:!border-0",
           "[&_[data-rehype-pretty-code-figure]]:!mt-0"
         )}
-        forceMount
+        keepMounted
       >
         <DynamicCodeBlock
           code={file.content}

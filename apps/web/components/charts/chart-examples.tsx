@@ -3563,14 +3563,21 @@ function ChartHeroCurveToolbar({
   return (
     <div className="flex flex-wrap items-center justify-end gap-2">
       <span className="text-muted-foreground text-xs">Curve</span>
-      <Select onValueChange={onValueChange} value={value}>
+      <Select
+        onValueChange={(v) => {
+          if (v != null) {
+            onValueChange(v);
+          }
+        }}
+        value={value}
+      >
         <SelectTrigger
           aria-label="Chart curve"
           className="h-8 w-[min(100%,11rem)] text-xs"
         >
           <SelectValue placeholder="Curve" />
         </SelectTrigger>
-        <SelectContent position="popper">
+        <SelectContent alignItemWithTrigger={false}>
           {HERO_CURVE_OPTIONS.map((opt) => (
             <SelectItem key={opt.value} value={opt.value}>
               {opt.label}

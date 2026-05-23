@@ -22,20 +22,19 @@ interface HomeHeroProps {
 function StudioPill() {
   return (
     <Button
-      asChild
       className="h-auto rounded-full px-0.5 py-0.5"
+      nativeButton={false}
+      render={<Link href="/studio" title="Studio" />}
       size="lg"
       variant="outline"
     >
-      <Link href="/studio" title="Studio">
-        <span className="flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-xs">
-          Introducing
-        </span>
-        <span className="flex items-center gap-1 px-2.5 py-1 text-xs">
-          Studio
-          <HugeiconsIcon icon={ArrowRightIcon} size={14} />
-        </span>
-      </Link>
+      <span className="flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-xs">
+        Introducing
+      </span>
+      <span className="flex items-center gap-1 px-2.5 py-1 text-xs">
+        Studio
+        <HugeiconsIcon icon={ArrowRightIcon} size={14} />
+      </span>
     </Button>
   );
 }
@@ -82,11 +81,21 @@ export function HomeHero({ onContentReady }: HomeHeroProps) {
               transition={{ delay: staggerDelay * 1, duration: 0.5 }}
               variants={fadeInBlur}
             >
-              <Button asChild size="lg" variant="outline">
-                <Link href="/docs">Get Started</Link>
+              <Button
+                nativeButton={false}
+                render={<Link href="/docs" />}
+                size="lg"
+                variant="outline"
+              >
+                Get Started
               </Button>
-              <Button asChild size="lg" variant="ghost">
-                <Link href="/docs/components">Components</Link>
+              <Button
+                nativeButton={false}
+                render={<Link href="/docs/components" />}
+                size="lg"
+                variant="ghost"
+              >
+                Components
               </Button>
             </motion.div>
           </>
