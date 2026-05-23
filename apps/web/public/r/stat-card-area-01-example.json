@@ -22,7 +22,7 @@
     },
     {
       "path": "registry/examples/stat-card-area-01-index.ts",
-      "content": "/** biome-ignore-all lint/performance/noBarrelFile: v0 registry example barrel for shadcn install */\nexport { AreaChart } from \"./area-chart\";\nexport { Area } from \"./area\";\nexport { ChartStatFlow } from \"./chart-stat-flow\";\nexport { LinearGradient } from \"@visx/gradient\";\n",
+      "content": "/** biome-ignore-all lint/performance/noBarrelFile: v0 registry example barrel for shadcn install */\nexport { AreaChart } from \"./area-chart\";\nexport { Area } from \"./area\";\nexport { ChartStatFlow } from \"./chart-stat-flow\";\nexport { useChart } from \"./chart-context\";\nexport { LinearGradient } from \"@visx/gradient\";\n",
       "type": "registry:lib",
       "target": "components/charts/index.ts"
     }

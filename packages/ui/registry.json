@@ -1259,6 +1259,11 @@
           "path": "registry/blocks/stat-card-area-01/data/revenue-series.ts",
           "type": "registry:lib",
           "target": "data/revenue-series.ts"
+        },
+        {
+          "path": "registry/examples/stat-card-area-01-index.ts",
+          "type": "registry:lib",
+          "target": "components/charts/index.ts"
         }
       ]
     },
@@ -1328,6 +1333,11 @@
           "path": "registry/blocks/stat-card-line-01/data/sessions-series.ts",
           "type": "registry:lib",
           "target": "data/sessions-series.ts"
+        },
+        {
+          "path": "registry/examples/stat-card-line-01-index.ts",
+          "type": "registry:lib",
+          "target": "components/charts/index.ts"
         }
       ]
     },
@@ -1369,6 +1379,7 @@
       "dependencies": [
         "@number-flow/react",
         "@types/geojson",
+        "@types/topojson-specification",
         "lucide-react",
         "topojson-client"
       ],
@@ -1402,6 +1413,11 @@
           "path": "registry/blocks/stat-card-choropleth-01/lib/use-world-data.tsx",
           "type": "registry:component",
           "target": "lib/use-world-data.tsx"
+        },
+        {
+          "path": "registry/examples/stat-card-choropleth-01-index.ts",
+          "type": "registry:lib",
+          "target": "components/charts/index.ts"
         }
       ]
     },
@@ -1414,6 +1430,7 @@
       "dependencies": [
         "@number-flow/react",
         "@types/geojson",
+        "@types/topojson-specification",
         "lucide-react",
         "topojson-client"
       ],

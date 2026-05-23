@@ -46,6 +46,12 @@
       "content": "export const revenueSeries = [\n  { date: new Date(\"2024-01-01\"), value: 5200 },\n  { date: new Date(\"2024-02-01\"), value: 6100 },\n  { date: new Date(\"2024-03-01\"), value: 5400 },\n  { date: new Date(\"2024-04-01\"), value: 4700 },\n  { date: new Date(\"2024-05-01\"), value: 5100 },\n  { date: new Date(\"2024-06-01\"), value: 6800 },\n  { date: new Date(\"2024-07-01\"), value: 6400 },\n  { date: new Date(\"2024-08-01\"), value: 7200 },\n  { date: new Date(\"2024-09-01\"), value: 6900 },\n  { date: new Date(\"2024-10-01\"), value: 8100 },\n  { date: new Date(\"2024-11-01\"), value: 7600 },\n  { date: new Date(\"2024-12-01\"), value: 8800 },\n];\n\nexport const revenueStats = {\n  average:\n    revenueSeries.reduce((sum, point) => sum + point.value, 0) /\n    revenueSeries.length,\n  trend: 12.4,\n};\n",
       "type": "registry:lib",
       "target": "data/revenue-series.ts"
+    },
+    {
+      "path": "registry/examples/stat-card-area-01-index.ts",
+      "content": "/** biome-ignore-all lint/performance/noBarrelFile: v0 registry example barrel for shadcn install */\nexport { AreaChart } from \"./area-chart\";\nexport { Area } from \"./area\";\nexport { ChartStatFlow } from \"./chart-stat-flow\";\nexport { useChart } from \"./chart-context\";\nexport { LinearGradient } from \"@visx/gradient\";\n",
+      "type": "registry:lib",
+      "target": "components/charts/index.ts"
     }
   ]
 }

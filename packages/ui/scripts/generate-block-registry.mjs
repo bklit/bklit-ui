@@ -56,11 +56,13 @@ const BLOCK_CHART_INDEX = {
   "stat-card-area-01": `export { AreaChart } from "./area-chart";
 export { Area } from "./area";
 export { ChartStatFlow } from "./chart-stat-flow";
+export { useChart } from "./chart-context";
 export { LinearGradient } from "@visx/gradient";`,
   "stat-card-line-01": `export { LineChart } from "./line-chart";
 export { Line } from "./line";
-export { ChartStatFlow } from "./chart-stat-flow";`,
-  "stat-card-choropleth-01": `export { ChoroplethChart, ChoroplethFeatureComponent, ChoroplethTooltip } from "./choropleth";
+export { ChartStatFlow } from "./chart-stat-flow";
+export { useChart } from "./chart-context";`,
+  "stat-card-choropleth-01": `export { type ChoroplethFeature, ChoroplethChart, ChoroplethFeatureComponent, ChoroplethTooltip, useChoropleth } from "./choropleth";
 export { ChartStatFlow } from "./chart-stat-flow";`,
 };
 
@@ -129,6 +131,7 @@ const BLOCKS = {
     dependencies: [
       "@number-flow/react",
       "@types/geojson",
+      "@types/topojson-specification",
       "lucide-react",
       "topojson-client",
     ],
@@ -191,6 +194,18 @@ function blockRegistryFiles(blockId, relativePaths) {
     type: relativePath.endsWith(".ts") ? "registry:lib" : "registry:component",
     target: relativePath,
   }));
+}
+
+function blockChartIndexFile(blockId) {
+  if (!BLOCK_CHART_INDEX[blockId]) {
+    return null;
+  }
+
+  return {
+    path: `registry/examples/${blockId}-index.ts`,
+    type: "registry:lib",
+    target: "components/charts/index.ts",
+  };
 }
 
 const chartStatFlowItem = {
@@ -261,6 +276,12 @@ registry.items = registry.items.filter(
 registry.items.push(chartStatFlowItem);
 
 for (const [blockId, spec] of Object.entries(BLOCKS)) {
+  const blockFiles = blockRegistryFiles(blockId, spec.files);
+  const chartIndexFile = blockChartIndexFile(blockId);
+  if (chartIndexFile) {
+    blockFiles.push(chartIndexFile);
+  }
+
   registry.items.push({
     name: blockId,
     type: "registry:block",
@@ -268,7 +289,7 @@ for (const [blockId, spec] of Object.entries(BLOCKS)) {
     description: spec.description,
     registryDependencies: spec.registryDependencies,
     dependencies: spec.dependencies,
-    files: blockRegistryFiles(blockId, spec.files),
+    files: blockFiles,
   });
 
   const exampleFiles = [
@@ -279,12 +300,8 @@ for (const [blockId, spec] of Object.entries(BLOCKS)) {
     },
   ];
 
-  if (BLOCK_CHART_INDEX[blockId]) {
-    exampleFiles.push({
-      path: `registry/examples/${blockId}-index.ts`,
-      type: "registry:lib",
-      target: "components/charts/index.ts",
-    });
+  if (chartIndexFile) {
+    exampleFiles.push(chartIndexFile);
   }
 
   registry.items.push({

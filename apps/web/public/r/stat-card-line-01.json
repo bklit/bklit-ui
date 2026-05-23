@@ -45,6 +45,12 @@
       "content": "export const sessionsSeries = [\n  { date: new Date(\"2024-06-03\"), value: 920 },\n  { date: new Date(\"2024-06-04\"), value: 1380 },\n  { date: new Date(\"2024-06-05\"), value: 1120 },\n  { date: new Date(\"2024-06-06\"), value: 1580 },\n  { date: new Date(\"2024-06-07\"), value: 1240 },\n  { date: new Date(\"2024-06-08\"), value: 1710 },\n  { date: new Date(\"2024-06-09\"), value: 1460 },\n];\n\nexport const sessionsStats = {\n  average:\n    sessionsSeries.reduce((sum, point) => sum + point.value, 0) /\n    sessionsSeries.length,\n  trend: 8.2,\n};\n",
       "type": "registry:lib",
       "target": "data/sessions-series.ts"
+    },
+    {
+      "path": "registry/examples/stat-card-line-01-index.ts",
+      "content": "/** biome-ignore-all lint/performance/noBarrelFile: v0 registry example barrel for shadcn install */\nexport { LineChart } from \"./line-chart\";\nexport { Line } from \"./line\";\nexport { ChartStatFlow } from \"./chart-stat-flow\";\nexport { useChart } from \"./chart-context\";\n",
+      "type": "registry:lib",
+      "target": "components/charts/index.ts"
     }
   ]
 }
