@@ -21,16 +21,14 @@ import {
   getVisitorValue,
   visitorStats,
 } from "../data/visitors";
-import { StatCardChart } from "./stat-card-chart";
-import { StatCardChoroplethHoverBridge } from "./stat-card-choropleth-hover-bridge";
 import {
+  StatCardChart,
   type StatCardHoverState,
   statCardLabelClassName,
   statCardValueClassName,
-} from "./stat-card-stat-styles";
+} from "./stat-card-chart";
+import { StatCardChoroplethHoverBridge } from "./stat-card-choropleth-hover-bridge";
 import { TrendBadge } from "./trend-badge";
-
-const CHOROPLETH_CHART_HEIGHT = 420;
 
 export function StatCardChoropleth() {
   const { worldData, isLoading } = useWorldDataStandalone();
@@ -62,19 +60,13 @@ export function StatCardChoropleth() {
 
       <CardContent className="p-0">
         {isLoading || !worldData ? (
-          <StatCardChart
-            className="mx-0 mb-0 min-h-[420px]"
-            height={CHOROPLETH_CHART_HEIGHT}
-          >
+          <StatCardChart className="mx-0 mb-0 min-h-[420px]" size="lg">
             <div className="flex h-full min-h-[420px] items-center justify-center text-muted-foreground text-xs">
               Loading map…
             </div>
           </StatCardChart>
         ) : (
-          <StatCardChart
-            className="mx-0 mb-0 min-h-[420px]"
-            height={CHOROPLETH_CHART_HEIGHT}
-          >
+          <StatCardChart className="mx-0 mb-0 min-h-[420px]" size="lg">
             <ChoroplethChart
               aspectRatio="2.5 / 1"
               className="min-h-[420px] w-full"

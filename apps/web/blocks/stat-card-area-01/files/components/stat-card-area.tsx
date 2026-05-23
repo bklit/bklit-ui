@@ -16,16 +16,16 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { revenueSeries, revenueStats } from "../data/revenue-series";
-import { StatCardChart } from "./stat-card-chart";
+import {
+  StatCardChart,
+  statCardLabelClassName,
+  statCardValueClassName,
+} from "./stat-card-chart";
 import {
   formatStatCardMonth,
   StatCardHoverBridge,
   type StatCardHoverState,
 } from "./stat-card-hover-bridge";
-import {
-  statCardLabelClassName,
-  statCardValueClassName,
-} from "./stat-card-stat-styles";
 import { TrendBadge } from "./trend-badge";
 
 export function StatCardArea() {
@@ -60,7 +60,7 @@ export function StatCardArea() {
           valueClassName={statCardValueClassName}
         />
 
-        <StatCardChart height={190}>
+        <StatCardChart size="md">
           <AreaChart
             aspectRatio="2.5 / 1"
             className="w-full"

@@ -2,7 +2,6 @@ export const statCardArea01Files = [
   "components/stat-card-area.tsx",
   "components/stat-card-chart.tsx",
   "components/stat-card-hover-bridge.tsx",
-  "components/stat-card-stat-styles.ts",
   "components/trend-badge.tsx",
   "data/revenue-series.ts",
 ] as const;
@@ -11,7 +10,6 @@ export const statCardLine01Files = [
   "components/stat-card-line.tsx",
   "components/stat-card-chart.tsx",
   "components/stat-card-hover-bridge.tsx",
-  "components/stat-card-stat-styles.ts",
   "components/trend-badge.tsx",
   "data/sessions-series.ts",
 ] as const;
@@ -20,7 +18,6 @@ export const statCardChoropleth01Files = [
   "components/stat-card-choropleth.tsx",
   "components/stat-card-choropleth-hover-bridge.tsx",
   "components/stat-card-chart.tsx",
-  "components/stat-card-stat-styles.ts",
   "components/trend-badge.tsx",
   "data/visitors.ts",
 ] as const;

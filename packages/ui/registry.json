@@ -1251,11 +1251,6 @@
           "target": "components/stat-card-hover-bridge.tsx"
         },
         {
-          "path": "registry/blocks/stat-card-area-01/components/stat-card-stat-styles.ts",
-          "type": "registry:lib",
-          "target": "components/stat-card-stat-styles.ts"
-        },
-        {
           "path": "registry/blocks/stat-card-area-01/components/trend-badge.tsx",
           "type": "registry:component",
           "target": "components/trend-badge.tsx"
@@ -1325,11 +1320,6 @@
           "target": "components/stat-card-hover-bridge.tsx"
         },
         {
-          "path": "registry/blocks/stat-card-line-01/components/stat-card-stat-styles.ts",
-          "type": "registry:lib",
-          "target": "components/stat-card-stat-styles.ts"
-        },
-        {
           "path": "registry/blocks/stat-card-line-01/components/trend-badge.tsx",
           "type": "registry:component",
           "target": "components/trend-badge.tsx"
@@ -1397,11 +1387,6 @@
           "path": "registry/blocks/stat-card-choropleth-01/components/stat-card-chart.tsx",
           "type": "registry:component",
           "target": "components/stat-card-chart.tsx"
-        },
-        {
-          "path": "registry/blocks/stat-card-choropleth-01/components/stat-card-stat-styles.ts",
-          "type": "registry:lib",
-          "target": "components/stat-card-stat-styles.ts"
         },
         {
           "path": "registry/blocks/stat-card-choropleth-01/components/trend-badge.tsx",

@@ -2,9 +2,9 @@
 
 import { useEffect } from "react";
 import { useChart } from "@/components/charts";
-import type { StatCardHoverState } from "./stat-card-stat-styles";
+import type { StatCardHoverState } from "./stat-card-chart";
 
-export type { StatCardHoverState } from "./stat-card-stat-styles";
+export type { StatCardHoverState } from "./stat-card-chart";
 
 export function formatStatCardMonth(date: Date) {
   return date.toLocaleDateString("en-US", { month: "short" });

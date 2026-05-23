@@ -11,16 +11,16 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { sessionsSeries, sessionsStats } from "../data/sessions-series";
-import { StatCardChart } from "./stat-card-chart";
+import {
+  StatCardChart,
+  statCardLabelClassName,
+  statCardValueClassName,
+} from "./stat-card-chart";
 import {
   formatStatCardWeekday,
   StatCardHoverBridge,
   type StatCardHoverState,
 } from "./stat-card-hover-bridge";
-import {
-  statCardLabelClassName,
-  statCardValueClassName,
-} from "./stat-card-stat-styles";
 import { TrendBadge } from "./trend-badge";
 
 export function StatCardLine() {
@@ -44,7 +44,7 @@ export function StatCardLine() {
       </CardHeader>
 
       <CardContent className="px-4 pt-2 pb-3">
-        <StatCardChart height={190}>
+        <StatCardChart size="md">
           <div className="pointer-events-none absolute right-4 bottom-4 z-10 flex flex-col items-end text-right">
             <ChartStatFlow
               label={displayLabel}
