@@ -42,7 +42,7 @@ const BlockCodeBlock = dynamic(
 type BlockView = "preview" | "code";
 type BlockViewport = "desktop" | "mobile";
 
-const DEFAULT_PREVIEW_HEIGHT = 640;
+const DEFAULT_PREVIEW_HEIGHT = 720;
 const DEFAULT_MOBILE_WIDTH = 390;
 
 function DeviceToggle({
@@ -99,8 +99,8 @@ export function BlockViewer({
 
   return (
     <TooltipProvider>
-      <div className="overflow-hidden rounded-xl border border-border bg-background">
-        <div className="flex flex-col gap-3 border-border border-b px-4 py-3 lg:flex-row lg:items-center lg:gap-4">
+      <div className="overflow-hidden rounded-xl border border-border bg-card/70">
+        <div className="flex flex-col gap-3 px-4 py-3 lg:flex-row lg:items-center lg:gap-4">
           <div className="flex min-w-0 flex-1 items-center gap-3">
             <Tabs
               className="shrink-0"
@@ -158,7 +158,7 @@ export function BlockViewer({
               <TooltipContent>Restart animation</TooltipContent>
             </Tooltip>
 
-            <div className="hidden min-w-0 max-w-[300px] items-center gap-2 rounded-md border border-border/60 bg-muted/20 px-2.5 py-1.5 font-mono text-[11px] text-muted-foreground lg:flex">
+            <div className="hidden h-9 min-w-0 max-w-[300px] items-center gap-2 rounded-md border border-border/60 bg-muted/20 px-2.5 font-mono text-[11px] text-muted-foreground lg:flex">
               <Terminal className="size-3.5 shrink-0" />
               <span className="min-w-0 flex-1 truncate">{installCommand}</span>
               <CopyButton
@@ -168,11 +168,7 @@ export function BlockViewer({
               />
             </div>
 
-            <Button
-              asChild
-              className="h-8 gap-1.5 px-3 text-xs"
-              variant="white"
-            >
+            <Button asChild className="gap-1.5 px-3 text-xs" variant="white">
               <a
                 href={blockOpenInV0Href(registryName)}
                 rel="noreferrer"
@@ -186,8 +182,8 @@ export function BlockViewer({
 
         {view === "preview" ? (
           <div
-            className="studio-preview-canvas flex items-center justify-center overflow-auto px-6 py-[90px]"
-            style={{ minHeight: previewHeight }}
+            className="studio-preview-canvas flex items-center justify-center overflow-auto border-t px-6 py-[90px]"
+            style={{ height: previewHeight }}
           >
             <div
               className={cn(
@@ -205,8 +201,8 @@ export function BlockViewer({
           </div>
         ) : (
           <div
-            className="grid min-h-0 grid-cols-1 lg:grid-cols-[240px_minmax(0,1fr)]"
-            style={{ minHeight: previewHeight }}
+            className="grid min-h-0 grid-cols-1 overflow-hidden border-t lg:grid-cols-[240px_minmax(0,1fr)]"
+            style={{ height: previewHeight }}
           >
             <BlockFileTree
               files={files}
@@ -214,7 +210,7 @@ export function BlockViewer({
               selectedPath={selectedPath}
             />
 
-            <div className="flex min-h-0 min-w-0 flex-col">
+            <div className="flex h-full min-h-0 min-w-0 flex-col">
               {selectedFile ? (
                 <>
                   <div className="flex items-center justify-between gap-3 border-border border-b px-4 py-2.5">

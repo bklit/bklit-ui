@@ -5,7 +5,7 @@ export const statCardLine01Meta = {
   description:
     "Session KPI card with NumberFlow average, trend badge, and minimal line sparkline.",
   registryName: "stat-card-line-01",
-  previewHeight: 400,
+  previewHeight: 720,
 } as const;
 
 export interface BlockDisplayProps {

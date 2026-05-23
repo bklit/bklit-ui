@@ -16,7 +16,7 @@ export function BlockCodeBlock({
   return (
     <div
       className={cn(
-        "block-code-block overflow-hidden [&_figure]:my-0! [&_pre]:my-0!",
+        "block-code-block min-h-0 [&_figure]:my-0! [&_figure]:min-h-0 [&_pre]:my-0!",
         className
       )}
     >
@@ -26,10 +26,7 @@ export function BlockCodeBlock({
           allowCopy: false,
           "data-line-numbers": true,
           className:
-            "my-0 rounded-none border-0 bg-transparent shadow-none text-base",
-          viewportProps: {
-            className: "max-h-none py-4 text-sm",
-          },
+            "my-0 rounded-none border-0 bg-transparent py-4 text-sm shadow-none text-base",
         }}
         lang={lang}
         options={{ themes: codeThemes }}

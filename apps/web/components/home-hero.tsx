@@ -28,10 +28,10 @@ function StudioPill() {
       variant="outline"
     >
       <Link href="/studio" title="Studio">
-        <span className="flex items-center gap-1 rounded-full bg-muted px-2.5 py-1">
+        <span className="flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-xs">
           Introducing
         </span>
-        <span className="flex items-center gap-1 px-2.5 py-1">
+        <span className="flex items-center gap-1 px-2.5 py-1 text-xs">
           Studio
           <HugeiconsIcon icon={ArrowRightIcon} size={14} />
         </span>

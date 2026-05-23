@@ -102,14 +102,14 @@ function ShowcaseReplayAction({
         >
           <Button
             aria-label="Replay animation"
-            className="size-6 [&_svg]:size-3"
+            className="size-7 [&_svg]:size-2"
             onClick={onReplay}
-            size="icon-xs"
+            size="icon"
             title="Replay animation"
             type="button"
             variant="outline"
           >
-            <HugeiconsIcon icon={Refresh01Icon} size={14} strokeWidth={1.5} />
+            <HugeiconsIcon icon={Refresh01Icon} size={10} strokeWidth={1.5} />
           </Button>
         </motion.div>
       )}
