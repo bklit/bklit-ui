@@ -57,18 +57,20 @@ export function SliderInputGroup({
         className="min-w-0 flex-1 **:data-[slot=slider-thumb]:size-3.5 **:data-[slot=slider-track]:h-1.5"
         max={max}
         min={min}
-        onValueChange={([v]) => {
-          const next = clamp(v ?? min, min, max);
+        onValueChange={(v) => {
+          const raw = Array.isArray(v) ? v[0] : v;
+          const next = clamp(raw ?? min, min, max);
           setLocal(next);
           onPreview(next);
         }}
-        onValueCommit={([v]) => {
-          const next = clamp(v ?? min, min, max);
+        onValueCommitted={(v) => {
+          const raw = Array.isArray(v) ? v[0] : v;
+          const next = clamp(raw ?? min, min, max);
           setLocal(next);
           onCommit(next);
         }}
         step={step}
-        value={[local]}
+        value={local}
       />
       <Input
         className="h-8 w-16 shrink-0 px-1.5 text-center text-xs tabular-nums"

@@ -80,7 +80,7 @@ export function ComponentShowcase({
           onOpenChange={setIsOpen}
           open={isOpen}
         >
-          <CollapsibleContent className={codePanelContentClassName} forceMount>
+          <CollapsibleContent className={codePanelContentClassName} keepMounted>
             {codeBlock || (
               <DynamicCodeBlock
                 code={code || ""}

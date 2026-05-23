@@ -66,37 +66,51 @@ export function CopyPageButton({ content, url }: CopyPageButtonProps) {
         <span>Copy Page</span>
       </Button>
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            className="rounded-l-none px-2.5"
-            size="default"
-            variant="outline"
-          >
-            <ChevronDownIcon />
-          </Button>
+        <DropdownMenuTrigger
+          render={
+            <Button
+              className="rounded-l-none px-2.5"
+              size="default"
+              variant="outline"
+            />
+          }
+        >
+          <ChevronDownIcon />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="!w-auto min-w-max">
-          <DropdownMenuItem asChild className="text-sm">
-            <a
-              className="whitespace-nowrap"
-              href={getPromptUrl("https://chatgpt.com", fullUrl, content)}
-              rel="noreferrer"
-              target="_blank"
-            >
-              <ChatGPTIcon />
-              Open in ChatGPT
-            </a>
+          <DropdownMenuItem
+            className="text-sm"
+            nativeButton={false}
+            render={
+              // biome-ignore lint/a11y/useAnchorContent: Base UI merges menu item children into this anchor
+              <a
+                aria-label="Open in ChatGPT"
+                className="whitespace-nowrap"
+                href={getPromptUrl("https://chatgpt.com", fullUrl, content)}
+                rel="noreferrer"
+                target="_blank"
+              />
+            }
+          >
+            <ChatGPTIcon />
+            Open in ChatGPT
           </DropdownMenuItem>
-          <DropdownMenuItem asChild className="text-sm">
-            <a
-              className="whitespace-nowrap"
-              href={getPromptUrl("https://claude.ai/new", fullUrl, content)}
-              rel="noreferrer"
-              target="_blank"
-            >
-              <ClaudeIcon />
-              Open in Claude
-            </a>
+          <DropdownMenuItem
+            className="text-sm"
+            nativeButton={false}
+            render={
+              // biome-ignore lint/a11y/useAnchorContent: Base UI merges menu item children into this anchor
+              <a
+                aria-label="Open in Claude"
+                className="whitespace-nowrap"
+                href={getPromptUrl("https://claude.ai/new", fullUrl, content)}
+                rel="noreferrer"
+                target="_blank"
+              />
+            }
+          >
+            <ClaudeIcon />
+            Open in Claude
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

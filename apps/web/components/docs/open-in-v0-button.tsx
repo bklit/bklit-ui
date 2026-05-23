@@ -1,3 +1,5 @@
+"use client";
+
 import { V0Icon } from "@/components/icons/v0";
 import { Button } from "@/components/ui/button";
 import { openInV0Href } from "@/lib/studio/chart-links";
@@ -14,13 +16,20 @@ export function OpenInV0Button({
   return (
     <Button
       aria-label="Open in v0"
-      asChild
       className="h-8 gap-1 px-3 text-xs"
-      variant="outline"
+      nativeButton={false}
+      render={
+        // biome-ignore lint/a11y/useAnchorContent: Base UI merges Button children into this anchor
+        <a
+          aria-label="Open in v0"
+          href={openInV0Href(registryJsonUrl)}
+          rel="noreferrer"
+          target="_blank"
+        />
+      }
+      variant="white"
     >
-      <a href={openInV0Href(registryJsonUrl)} rel="noreferrer" target="_blank">
-        Open in <V0Icon className="h-5 w-5" />
-      </a>
+      Open in <V0Icon className="h-5 w-5" />
     </Button>
   );
 }

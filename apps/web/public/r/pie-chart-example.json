@@ -14,13 +14,13 @@
   "files": [
     {
       "path": "registry/examples/pie-chart.tsx",
-      "content": "\"use client\";\n\n// In your app (monorepo/npm): import { PieChart, PieSlice, PieCenter } from \"@bklitui/ui/charts\"\nimport { PieCenter, PieChart, PieSlice } from \"@/components/charts\";\n\nconst pieData = [\n  { label: \"Direct\", value: 320 },\n  { label: \"Organic\", value: 280 },\n  { label: \"Referral\", value: 190 },\n  { label: \"Social\", value: 140 },\n];\n\nexport default function Component() {\n  return (\n    <main className=\"flex min-h-svh w-full items-center justify-center p-6 md:p-10\">\n      <div className=\"w-full max-w-3xl\">\n        <PieChart data={pieData} size={280}>\n          {pieData.map((slice, i) => (\n            <PieSlice index={i} key={slice.label} />\n          ))}\n          <PieCenter defaultLabel=\"Traffic\" />\n        </PieChart>\n      </div>\n    </main>\n  );\n}\n",
+      "content": "\"use client\"\n\n// In your app (monorepo/npm): import { PieChart, PieSlice, PieCenter } from \"@bklitui/ui/charts\"\nimport { PieChart, PieSlice, PieCenter } from \"@/components/charts\"\n\nconst pieData = [\n  { label: \"Direct\", value: 320 },\n  { label: \"Organic\", value: 280 },\n  { label: \"Referral\", value: 190 },\n  { label: \"Social\", value: 140 },\n];\n\nexport default function Component() {\n  return (\n    <main className=\"flex min-h-svh w-full items-center justify-center p-6 md:p-10\">\n      <div className=\"w-full max-w-3xl\">\n        <PieChart data={pieData} size={280}>\n  {pieData.map((_, i) => (\n    <PieSlice index={i} key={i} />\n  ))}\n  <PieCenter defaultLabel=\"Traffic\" />\n</PieChart>\n      </div>\n    </main>\n  )\n}\n",
       "type": "registry:page",
       "target": "app/page.tsx"
     },
     {
       "path": "registry/examples/pie-chart-index.ts",
-      "content": "// biome-ignore lint/performance/noBarrelFile: v0 registry example barrel for shadcn install\nexport { PieCenter } from \"./pie-center\";\nexport { PieChart } from \"./pie-chart\";\nexport { PieSlice } from \"./pie-slice\";\n",
+      "content": "// biome-ignore lint/performance/noBarrelFile: v0 registry example barrel for shadcn install\nexport { PieChart } from \"./pie-chart\";\nexport { PieSlice } from \"./pie-slice\";\nexport { PieCenter } from \"./pie-center\";\n",
       "type": "registry:lib",
       "target": "components/charts/index.ts"
     }

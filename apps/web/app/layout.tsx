@@ -3,14 +3,11 @@ import "./globals.css";
 import { BklitComponent } from "@bklit/sdk/nextjs";
 import { RootProvider } from "fumadocs-ui/provider";
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Inter } from "next/font/google";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-const geistSans = Geist({
-  subsets: ["latin"],
-  variable: "--font-sans",
-});
+const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 const geistMono = Geist_Mono({
   subsets: ["latin"],
@@ -48,7 +45,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
       className={cn(
-        geistSans.variable,
+        inter.variable,
         geistMono.variable,
         geistHeading.variable,
         "font-sans"

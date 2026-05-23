@@ -1,0 +1,30 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "stat-card-choropleth-01-example",
+  "type": "registry:example",
+  "title": "Stat Card Choropleth Example",
+  "description": "Visitor map stat card with choropleth sparkline, NumberFlow, and trend badge — demo for Open in v0",
+  "dependencies": [
+    "@number-flow/react",
+    "@types/geojson",
+    "lucide-react",
+    "topojson-client"
+  ],
+  "registryDependencies": [
+    "@bklit/stat-card-choropleth-01"
+  ],
+  "files": [
+    {
+      "path": "registry/examples/stat-card-choropleth-01.tsx",
+      "content": "\"use client\";\n\nimport { StatCardChoropleth } from \"@/components/stat-card-choropleth\";\n\nexport default function Component() {\n  return (\n    <main className=\"flex min-h-svh w-full items-center justify-center p-6 md:p-10\">\n      <div className=\"w-full max-w-3xl\">\n        <StatCardChoropleth />\n      </div>\n    </main>\n  );\n}\n",
+      "type": "registry:page",
+      "target": "app/page.tsx"
+    },
+    {
+      "path": "registry/examples/stat-card-choropleth-01-index.ts",
+      "content": "/** biome-ignore-all lint/performance/noBarrelFile: v0 registry example barrel for shadcn install */\nexport { ChoroplethChart, ChoroplethFeatureComponent, ChoroplethTooltip } from \"./choropleth\";\nexport { ChartStatFlow } from \"./chart-stat-flow\";\n",
+      "type": "registry:lib",
+      "target": "components/charts/index.ts"
+    }
+  ]
+}

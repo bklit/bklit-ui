@@ -102,14 +102,14 @@ function ShowcaseReplayAction({
         >
           <Button
             aria-label="Replay animation"
-            className="size-7 [&_svg]:size-3.5"
+            className="size-7 [&_svg]:size-2"
             onClick={onReplay}
-            size="icon-sm"
+            size="icon"
             title="Replay animation"
             type="button"
             variant="outline"
           >
-            <HugeiconsIcon icon={Refresh01Icon} size={14} strokeWidth={1.5} />
+            <HugeiconsIcon icon={Refresh01Icon} size={10} strokeWidth={1.5} />
           </Button>
         </motion.div>
       )}
@@ -163,8 +163,13 @@ function CardAction({
           }
           initial={reducedMotion ? false : { opacity: 0, y: 6 }}
         >
-          <Button asChild size="lg" variant={variant}>
-            <Link href={href}>{label}</Link>
+          <Button
+            nativeButton={false}
+            render={<Link href={href} />}
+            size="sm"
+            variant={variant}
+          >
+            {label}
           </Button>
         </motion.div>
       )}
