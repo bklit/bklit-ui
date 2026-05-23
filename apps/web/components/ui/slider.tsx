@@ -37,7 +37,7 @@ function Slider({
       {...props}
     >
       <SliderPrimitive.Track
-        className="relative grow overflow-hidden rounded-md bg-muted data-horizontal:h-2 data-vertical:h-full data-horizontal:w-full data-vertical:w-1"
+        className="relative grow overflow-hidden rounded-full bg-muted data-horizontal:h-1.5 data-vertical:h-full data-horizontal:w-full data-vertical:w-1.5"
         data-slot="slider-track"
       >
         <SliderPrimitive.Range
@@ -45,11 +45,12 @@ function Slider({
           data-slot="slider-range"
         />
       </SliderPrimitive.Track>
-      {_values.map((_thumbValue, index) => (
+      {Array.from({ length: _values.length }, (_, index) => (
         <SliderPrimitive.Thumb
-          className="relative block size-3 shrink-0 cursor-grab select-none rounded-md border border-ring bg-white ring-ring/30 transition-[color,box-shadow,transform] after:absolute after:-inset-2 hover:ring-2 focus-visible:outline-hidden focus-visible:ring-2 active:scale-110 active:cursor-grabbing active:ring-2 disabled:pointer-events-none disabled:opacity-50"
+          className="block size-4 shrink-0 select-none rounded-full border border-primary bg-white shadow-sm ring-ring/50 transition-[color,box-shadow] hover:ring-4 focus-visible:outline-hidden focus-visible:ring-4 disabled:pointer-events-none disabled:opacity-50"
           data-slot="slider-thumb"
-          key={_values.length === 1 ? "slider-thumb" : `slider-thumb-${index}`}
+          // biome-ignore lint/suspicious/noArrayIndexKey: thumb count is fixed and order matches slider values
+          key={index}
         />
       ))}
     </SliderPrimitive.Root>

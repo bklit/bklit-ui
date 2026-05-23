@@ -16,7 +16,7 @@ export function OpenInV0Button({
       aria-label="Open in v0"
       asChild
       className="h-8 gap-1 px-3 text-xs"
-      variant="outline"
+      variant="white"
     >
       <a href={openInV0Href(registryJsonUrl)} rel="noreferrer" target="_blank">
         Open in <V0Icon className="h-5 w-5" />

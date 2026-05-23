@@ -147,8 +147,8 @@ importers:
         specifier: 4.0.462
         version: 4.0.462(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       shadcn:
-        specifier: ^4.7.0
-        version: 4.7.0(@types/node@22.15.3)(typescript@5.9.2)
+        specifier: ^4.8.0
+        version: 4.8.0(@types/node@22.15.3)(typescript@5.9.2)
       shiki:
         specifier: ^3.21.0
         version: 3.21.0
@@ -4962,8 +4962,8 @@ packages:
     resolution: {integrity: sha512-/zxjmHGbaYVFtI6bUridFVV7VFStIv3vU/w1h7xenhz7KRzc9pqHsyFvcExZprG7dlA5kW9knRgv8+Cl/H7w9w==}
     hasBin: true
 
-  shadcn@4.7.0:
-    resolution: {integrity: sha512-70fwnesNrY1GgeD7Kdzn+3SsYeyfibm8immsA5L68+OusoPTvYF01oWExl8/latKpMpvVXcbgdbbE6VFBJQ38w==}
+  shadcn@4.8.0:
+    resolution: {integrity: sha512-LAm3I/1FdoU/zu5GVG8Hbna4X9zlzEG5TeeCPXqsopkjvGk8QUF9OFhqeRN8oM6Oh/ynUI/yQHZxQAO3Ymcqsg==}
     hasBin: true
 
   sharp@0.34.5:
@@ -10800,7 +10800,7 @@ snapshots:
       - supports-color
       - typescript
 
-  shadcn@4.7.0(@types/node@22.15.3)(typescript@5.9.2):
+  shadcn@4.8.0(@types/node@22.15.3)(typescript@5.9.2):
     dependencies:
       '@babel/core': 7.29.0
       '@babel/parser': 7.29.0

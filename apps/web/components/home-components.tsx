@@ -102,9 +102,9 @@ function ShowcaseReplayAction({
         >
           <Button
             aria-label="Replay animation"
-            className="size-7 [&_svg]:size-3.5"
+            className="size-6 [&_svg]:size-3"
             onClick={onReplay}
-            size="icon-sm"
+            size="icon-xs"
             title="Replay animation"
             type="button"
             variant="outline"
@@ -163,7 +163,7 @@ function CardAction({
           }
           initial={reducedMotion ? false : { opacity: 0, y: 6 }}
         >
-          <Button asChild size="lg" variant={variant}>
+          <Button asChild size="sm" variant={variant}>
             <Link href={href}>{label}</Link>
           </Button>
         </motion.div>
