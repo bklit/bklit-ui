@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import type { ChoroplethFeature } from "@/components/charts";
 import {
   ChartStatFlow,
@@ -7,8 +8,6 @@ import {
   ChoroplethFeatureComponent,
   ChoroplethTooltip,
 } from "@/components/charts";
-import { useState } from "react";
-import { useWorldDataStandalone } from "@/lib/use-world-data";
 import {
   Card,
   CardAction,
@@ -16,6 +15,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useWorldDataStandalone } from "@/lib/use-world-data";
 import {
   getVisitorColor,
   getVisitorValue,
