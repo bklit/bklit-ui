@@ -23,7 +23,7 @@
     },
     {
       "path": "registry/examples/stat-card-choropleth-01-index.ts",
-      "content": "/** biome-ignore-all lint/performance/noBarrelFile: v0 registry example barrel for shadcn install */\nexport { type ChoroplethFeature, ChoroplethChart, ChoroplethFeatureComponent, ChoroplethTooltip, useChoropleth } from \"./choropleth\";\nexport { ChartStatFlow } from \"./chart-stat-flow\";\n",
+      "content": "/** biome-ignore-all lint/performance/noBarrelFile: v0 registry example barrel for shadcn install */\n\nexport { ChartStatFlow } from \"./chart-stat-flow\";\nexport {\n  ChoroplethChart,\n  type ChoroplethFeature,\n  ChoroplethFeatureComponent,\n  ChoroplethTooltip,\n  useChoropleth,\n} from \"./choropleth\";\n",
       "type": "registry:lib",
       "target": "components/charts/index.ts"
     }

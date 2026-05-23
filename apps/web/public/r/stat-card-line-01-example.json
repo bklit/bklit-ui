@@ -21,7 +21,7 @@
     },
     {
       "path": "registry/examples/stat-card-line-01-index.ts",
-      "content": "/** biome-ignore-all lint/performance/noBarrelFile: v0 registry example barrel for shadcn install */\nexport { LineChart } from \"./line-chart\";\nexport { Line } from \"./line\";\nexport { ChartStatFlow } from \"./chart-stat-flow\";\nexport { useChart } from \"./chart-context\";\n",
+      "content": "/** biome-ignore-all lint/performance/noBarrelFile: v0 registry example barrel for shadcn install */\n\nexport { useChart } from \"./chart-context\";\nexport { ChartStatFlow } from \"./chart-stat-flow\";\nexport { Line } from \"./line\";\nexport { LineChart } from \"./line-chart\";\n",
       "type": "registry:lib",
       "target": "components/charts/index.ts"
     }
