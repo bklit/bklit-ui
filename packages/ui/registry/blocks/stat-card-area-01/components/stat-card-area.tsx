@@ -1,13 +1,13 @@
 "use client";
 
+import { curveCardinal } from "@visx/curve";
+import { useState } from "react";
 import {
   Area,
   AreaChart,
   ChartStatFlow,
   LinearGradient,
 } from "@/components/charts";
-import { curveCardinal } from "@visx/curve";
-import { useState } from "react";
 import {
   Card,
   CardAction,
