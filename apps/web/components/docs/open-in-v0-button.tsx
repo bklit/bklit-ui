@@ -1,3 +1,5 @@
+"use client";
+
 import { V0Icon } from "@/components/icons/v0";
 import { Button } from "@/components/ui/button";
 import { openInV0Href } from "@/lib/studio/chart-links";

@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import type { ChartSlug } from "@/components/charts/chart-slugs";
 import { Button } from "@/components/ui/button";
