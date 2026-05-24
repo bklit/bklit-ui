@@ -8,7 +8,7 @@ interface UseAreaSegmentHighlightOptions {
   data: Record<string, unknown>[];
   dataKey: string;
   tooltipData: TooltipData | null;
-  selection: ChartSelection | null;
+  selection: ChartSelection | null | undefined;
   xScale: (value: Date | number) => number | undefined;
   yScale: (value: number) => number | undefined;
   xAccessor: (datum: Record<string, unknown>) => Date | number;

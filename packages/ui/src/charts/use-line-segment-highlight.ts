@@ -11,7 +11,7 @@ interface UseLineSegmentHighlightOptions {
   pathLength: number;
   data: Record<string, unknown>[];
   tooltipData: TooltipData | null;
-  selection: ChartSelection | null;
+  selection: ChartSelection | null | undefined;
   xScale: (value: Date | number) => number | undefined;
   xAccessor: (datum: Record<string, unknown>) => Date | number;
 }
