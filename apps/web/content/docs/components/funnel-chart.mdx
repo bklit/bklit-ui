@@ -3,7 +3,7 @@ title: Funnel Chart
 description: An animated funnel chart with multi-layer halo rings, hover interactions, and staggered entrance animations
 ---
 
-import { FunnelChart, PatternLines } from "@bklitui/ui/charts";
+import { FunnelChart } from "@bklitui/ui/charts";
 
 export const funnelData = [
   { label: "Visitors", value: 12400, displayValue: "12.4k" },
@@ -11,14 +11,6 @@ export const funnelData = [
   { label: "Qualified", value: 3200, displayValue: "3.2k" },
   { label: "Proposals", value: 1500, displayValue: "1.5k" },
   { label: "Closed", value: 620, displayValue: "620" },
-];
-
-export const coloredData = [
-  { label: "Awareness", value: 4100, color: "var(--chart-1)" },
-  { label: "Interest", value: 2957, color: "var(--chart-2)" },
-  { label: "Consideration", value: 1084, color: "var(--chart-3)" },
-  { label: "Intent", value: 1038, color: "var(--chart-4)" },
-  { label: "Purchase", value: 320, color: "var(--chart-5)" },
 ];
 
 <ComponentPreview registryName="funnel-chart">
@@ -110,163 +102,4 @@ When passing an object to `grid`, the following options are available:
 | `lineOpacity` | `number` | `1` | Opacity of the grid lines |
 | `lineWidth` | `number` | `1` | Width of the grid lines in pixels |
 
-## Examples
-
-### Vertical
-
-<ComponentPreview>
-  <div className="mx-auto max-w-md">
-    <FunnelChart
-      data={funnelData}
-      orientation="vertical"
-      color="var(--chart-1)"
-      layers={3}
-    />
-  </div>
-</ComponentPreview>
-
-```tsx
-<FunnelChart
-  data={data}
-  orientation="vertical"
-  color="var(--chart-1)"
-  layers={3}
-/>
-```
-
-### Straight Edges
-
-<ComponentPreview>
-  <FunnelChart
-    data={funnelData}
-    color="var(--chart-1)"
-    layers={3}
-    edges="straight"
-  />
-</ComponentPreview>
-
-```tsx
-<FunnelChart data={data} color="var(--chart-1)" layers={3} edges="straight" />
-```
-
-### Per-Segment Colors
-
-Each segment can have its own `color` from the chart palette:
-
-<ComponentPreview>
-  <FunnelChart data={coloredData} layers={3} />
-</ComponentPreview>
-
-```tsx
-const data = [
-  { label: "Awareness", value: 4100, color: "var(--chart-1)" },
-  { label: "Interest", value: 2957, color: "var(--chart-2)" },
-  { label: "Consideration", value: 1084, color: "var(--chart-3)" },
-  { label: "Intent", value: 1038, color: "var(--chart-4)" },
-  { label: "Purchase", value: 320, color: "var(--chart-5)" },
-];
-
-<FunnelChart data={data} layers={3} />
-```
-
-### Grouped Labels
-
-Use `labelLayout="grouped"` to stack labels in a compact group:
-
-<ComponentPreview>
-  <FunnelChart
-    data={funnelData}
-    color="var(--chart-1)"
-    layers={3}
-    labelLayout="grouped"
-    labelAlign="center"
-    labelOrientation="vertical"
-  />
-</ComponentPreview>
-
-```tsx
-<FunnelChart
-  data={data}
-  color="var(--chart-1)"
-  layers={3}
-  labelLayout="grouped"
-  labelAlign="center"
-  labelOrientation="vertical"
-/>
-```
-
-### Grid
-
-Pass `grid` to show alternating background bands and grid lines:
-
-<ComponentPreview>
-  <FunnelChart
-    data={funnelData}
-    color="var(--chart-1)"
-    layers={3}
-    grid
-  />
-</ComponentPreview>
-
-```tsx
-<FunnelChart data={data} color="var(--chart-1)" layers={3} grid />
-```
-
-### Pattern Fill
-
-Use `renderPattern` with `@visx/pattern` to fill the innermost ring with a pattern while outer halo rings remain solid:
-
-```tsx
-import { FunnelChart, PatternLines } from "@bklitui/ui/charts";
-
-<FunnelChart
-  data={data}
-  color="var(--chart-3)"
-  layers={3}
-  renderPattern={(id, color) => (
-    <PatternLines
-      id={id}
-      height={8}
-      width={8}
-      stroke="rgba(255,255,255,0.35)"
-      strokeWidth={2}
-      orientation={["diagonal"]}
-      background={color}
-    />
-  )}
-/>
-```
-
-### Legend
-
-Use `hoveredIndex` and `onHoverChange` to wire the funnel chart with a `Legend` for synchronized hover:
-
-```tsx
-import { FunnelChart, Legend, LegendItemComponent, LegendMarker, LegendLabel } from "@bklitui/ui/charts";
-
-const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-
-const legendItems = data.map((d) => ({
-  label: d.label,
-  value: d.value,
-  color: "var(--chart-1)",
-}));
-
-<FunnelChart
-  data={data}
-  color="var(--chart-1)"
-  layers={3}
-  hoveredIndex={hoveredIndex}
-  onHoverChange={setHoveredIndex}
-/>
-<Legend
-  items={legendItems}
-  hoveredIndex={hoveredIndex}
-  onHoverChange={setHoveredIndex}
->
-  <LegendItemComponent>
-    <LegendMarker />
-    <LegendLabel />
-  </LegendItemComponent>
-</Legend>
-```
+See the [charts gallery](/charts/funnel-chart) for vertical layouts, per-segment colors, patterns, and legend sync.

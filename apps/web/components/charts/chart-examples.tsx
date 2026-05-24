@@ -1022,7 +1022,6 @@ function makeAreaExamples(): ChartExample[] {
     dashFromIndex={5}
     fill="var(--chart-line-primary)"
     fillOpacity={0.35}
-    showMarkers
     stroke="var(--chart-line-primary)"
   />
   <XAxis tickMode="data" />
@@ -1039,7 +1038,6 @@ function makeAreaExamples(): ChartExample[] {
             dataKey="visitors"
             fill="var(--chart-line-primary)"
             fillOpacity={0.35}
-            showMarkers
             stroke="var(--chart-line-primary)"
           />
           <XAxis tickMode="data" />
@@ -1795,7 +1793,6 @@ function makeLineExamples(): ChartExample[] {
     dataKey="visitors"
     dashArray="6,4"
     dashFromIndex={5}
-    showMarkers
     stroke="var(--chart-line-primary)"
     strokeWidth={2.5}
   />
@@ -1811,7 +1808,6 @@ function makeLineExamples(): ChartExample[] {
             dashArray="6,4"
             dashFromIndex={weeklyVisitorsDashFromIndex}
             dataKey="visitors"
-            showMarkers
             stroke="var(--chart-line-primary)"
             strokeWidth={2.5}
           />

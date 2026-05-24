@@ -3,8 +3,7 @@ title: Sankey Chart
 description: A composable sankey diagram for visualizing flow between nodes with animated links and interactive tooltips
 ---
 
-import { SankeyChart, SankeyNode, SankeyLink, SankeyTooltip, PatternLines } from "@bklitui/ui/charts";
-import { SankeyPatternDemo, SankeyNoLabelsDemo } from "@/components/docs/sankey-pattern-demo";
+import { SankeyChart, SankeyNode, SankeyLink, SankeyTooltip } from "@bklitui/ui/charts";
 
 export const analyticsData = {
   nodes: [
@@ -200,46 +199,7 @@ When hovering over a node or link:
 - All other links and nodes fade
 - Tooltip appears showing relevant data
 
-## Examples
-
-### Without Labels
-
-For a cleaner look, hide the node labels:
-
-<ComponentShowcase code={`<SankeyChart 
-  data={analyticsData} 
-  aspectRatio="16 / 9" 
-  nodeWidth={16} 
-  nodePadding={24} 
-  margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
->
-  <SankeyLink />
-  <SankeyNode lineCap={4} showLabels={false} />
-  <SankeyTooltip />
-</SankeyChart>`}>
-  <SankeyNoLabelsDemo />
-</ComponentShowcase>
-
-### With Patterns
-
-Use `@visx/pattern` to style specific links with patterns instead of gradients:
-
-<ComponentShowcase code={`<SankeyChart data={analyticsData} aspectRatio="16 / 9" nodeWidth={16} nodePadding={24}>
-  <SankeyLink
-    getLinkPattern={getOutcomePattern}
-    patterns={
-      <>
-        <PatternLines id="converted" stroke="#22c55e" ... />
-        <PatternLines id="engaged" stroke="#eab308" ... />
-        <PatternLines id="bounced" stroke="#ef4444" ... />
-      </>
-    }
-  />
-  <SankeyNode lineCap={4} />
-  <SankeyTooltip />
-</SankeyChart>`}>
-  <SankeyPatternDemo />
-</ComponentShowcase>
+See the [charts gallery](/charts/sankey-chart) for label-free layouts and pattern fills.
 
 ## Dependencies
 

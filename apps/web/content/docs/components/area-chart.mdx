@@ -5,8 +5,6 @@ description: A composable area chart with gradient fills, tooltips, and hover in
 
 import { AreaChart, Area, Grid, XAxis, ChartTooltip, PatternLines, PatternArea } from "@bklitui/ui/charts";
 import { AreaTooltipDemo } from "@/components/docs/area-tooltip-demo";
-import { AreaChartPatternDemo } from "@/components/docs/area-chart-pattern-demo";
-import { SeriesStrokeDocsDemo } from "@/components/docs/series-stroke-docs-demo";
 
 export const chartData = [
   { date: new Date(Date.now() - 29 * 24 * 60 * 60 * 1000), revenue: 12000, costs: 8500 },
@@ -59,7 +57,7 @@ export const chartData = [
 
 ## Usage
 
-The Area Chart uses the same composable API as the Line Chart. Build charts by combining components:
+The Area Chart uses the same composable API as the Line Chart. See the [charts gallery](/charts/area-chart) for interactive examples.
 
 ```tsx
 import { AreaChart, Area, Grid, XAxis, ChartTooltip } from "@bklitui/ui/charts";
@@ -115,279 +113,193 @@ Renders a filled area on the chart with a gradient fill.
 | `showHighlight` | `boolean` | `true` | Show highlight on hover |
 | `gradientToOpacity` | `number` | `0` | Opacity at bottom of gradient |
 | `fadeEdges` | `boolean` | `false` | Fade area fill at left/right edges |
-| `showMarkers` | `boolean` | `false` | Render ring markers at each point |
-| `markers` | `SeriesPointMarkerStyle` | — | Marker radius, ring gap, ring width, hover fade |
-| `dashFromIndex` | `number` | — | Data index where the dashed tail begins (inclusive) |
+| `showMarkers` | `boolean` | `false` | Render scatter-style ring markers at each point |
+| `markers` | `SeriesPointMarkerStyle` | — | Marker styling (same options as [`Scatter`](/docs/components/scatter-chart)) |
+| `dashFromIndex` | `number` | — | Inclusive data index where the dashed tail begins; solid stroke before, dashed through the end |
 | `dashArray` | `string` | `"6,4"` | SVG dash pattern for the tail segment |
 
-## Examples
+### PatternArea
 
-### Series markers and dashed tail
+Renders a filled area using an SVG pattern (`url(#id)`). Define the pattern (e.g. `PatternLines`) as a child of `AreaChart`, then pair `PatternArea` with an `Area` that has `fillOpacity={0}` for the stroke line.
 
-`Area` supports the same `showMarkers`, `markers`, `dashFromIndex`, and `dashArray` props as `Line`. The dashed stroke follows the full curved path and respects the stroke gradient fade.
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `dataKey` | `string` | required | Key in data for y values |
+| `fill` | `string` | required | Fill color or pattern URL (e.g. `url(#pattern-id)`) |
+| `curve` | `CurveFactory` | `curveMonotoneX` | D3 curve function |
 
-```tsx
-<AreaChart data={weeklyData} xDataKey="date">
-  <Grid horizontal />
-  <Area
-    dataKey="visitors"
-    dashFromIndex={5}
-    dashArray="6,4"
-    showMarkers
-    fill="var(--chart-line-primary)"
-    fillOpacity={0.35}
-  />
-  <XAxis tickMode="data" />
-  <ChartTooltip />
-</AreaChart>
-```
+### Grid
 
-<SeriesStrokeDocsDemo />
+Renders grid lines.
 
-### Single Area
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `horizontal` | `boolean` | `true` | Show horizontal lines |
+| `vertical` | `boolean` | `false` | Show vertical lines |
+| `numTicksRows` | `number` | `5` | Number of horizontal lines |
+| `numTicksColumns` | `number` | `10` | Number of vertical lines |
+| `stroke` | `string` | `var(--chart-grid)` | Line color |
+| `strokeDasharray` | `string` | `"4,4"` | Dash pattern |
 
-A minimal area chart with one metric:
+### XAxis
 
-```tsx
-<AreaChart data={data}>
-  <Area dataKey="value" fill="#3b82f6" />
-  <ChartTooltip />
-</AreaChart>
-```
+Renders x-axis labels that fade when the crosshair passes.
 
-### Stacked Appearance
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `numTicks` | `number` | `5` | Number of tick labels when `tickMode` is `"domain"` |
+| `tickerHalfWidth` | `number` | `50` | Fade radius for labels |
+| `tickMode` | `"domain" \| "data"` | `"domain"` | `"domain"` for evenly spaced ticks; `"data"` for one label per row |
 
-Layer multiple areas to show composition. Note: This creates a visual layering effect, not true stacking:
+### ChartTooltip
 
-```tsx
-<AreaChart data={data}>
-  <Grid horizontal />
-  <Area
-    dataKey="total"
-    fill="var(--chart-line-primary)"
-    fillOpacity={0.2}
-  />
-  <Area
-    dataKey="completed"
-    fill="#10b981"
-    fillOpacity={0.4}
-  />
-  <XAxis />
-  <ChartTooltip />
-</AreaChart>
-```
+Renders the tooltip with crosshair, dots, and content box.
 
-### Custom Gradient
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `showDatePill` | `boolean` | `true` | Show animated date ticker |
+| `showCrosshair` | `boolean` | `true` | Show vertical crosshair |
+| `showDots` | `boolean` | `true` | Show dots on series |
+| `content` | `(props) => ReactNode` | - | Custom content renderer |
+| `rows` | `(point) => TooltipRow[]` | - | Custom row generator |
 
-Control the gradient fade with `gradientToOpacity`:
+## Markers
 
-```tsx
-// Solid fill (no gradient fade)
-<Area
-  dataKey="revenue"
-  fill="#3b82f6"
-  fillOpacity={0.3}
-  gradientToOpacity={0.3}
-/>
-
-// Soft gradient (default)
-<Area
-  dataKey="revenue"
-  fill="#3b82f6"
-  fillOpacity={0.4}
-  gradientToOpacity={0}
-/>
-
-// Strong contrast gradient
-<Area
-  dataKey="revenue"
-  fill="#3b82f6"
-  fillOpacity={0.6}
-  gradientToOpacity={0.05}
-/>
-```
-
-### Area Without Stroke Line
-
-Hide the top line for a softer appearance:
-
-```tsx
-<AreaChart data={data}>
-  <Area
-    dataKey="value"
-    fill="var(--chart-line-primary)"
-    fillOpacity={0.5}
-    showLine={false}
-  />
-  <ChartTooltip />
-</AreaChart>
-```
-
-### Pattern Fill
-
-Use `PatternLines` (or other `@visx/pattern` components) with `PatternArea` for a tiled fill. Keep an `Area` with `fillOpacity={0}` for the stroke line.
-
-<ComponentPreview>
-  <AreaChartPatternDemo />
-</ComponentPreview>
+Add markers to annotate specific dates on the chart:
 
 ```tsx
 import {
   AreaChart,
   Area,
-  PatternArea,
-  PatternLines,
-  Grid,
-  XAxis,
   ChartTooltip,
+  ChartMarkers,
+  MarkerTooltipContent,
+  useActiveMarkers,
+  type ChartMarker,
 } from "@bklitui/ui/charts";
 
-<AreaChart data={chartData}>
-  <PatternLines
-    id="area-pattern"
-    height={6}
-    width={6}
-    orientation={["diagonal"]}
-    stroke="var(--chart-1)"
-    strokeWidth={1}
-  />
-  <Grid horizontal />
-  <PatternArea dataKey="desktop" fill="url(#area-pattern)" />
-  <Area dataKey="desktop" fillOpacity={0} strokeWidth={2} />
-  <XAxis />
-  <ChartTooltip />
-</AreaChart>
-```
+const markers: ChartMarker[] = [
+  {
+    date: new Date("2025-01-05"),
+    icon: "🚀",
+    title: "v1.2.0 Released",
+    description: "New chart animations",
+  },
+];
 
-### Different Curves
-
-The Area component supports different curve interpolations:
-
-```tsx
-import { curveMonotoneX, curveLinear, curveStep, curveBasis } from "@visx/curve";
-
-// Smooth monotonic (default) - prevents overshooting
-<Area dataKey="value" curve={curveMonotoneX} />
-
-// Linear - straight lines between points
-<Area dataKey="value" curve={curveLinear} />
-
-// Step - discrete steps
-<Area dataKey="value" curve={curveStep} />
-
-// Basis - very smooth, may not pass through points
-<Area dataKey="value" curve={curveBasis} />
-```
-
-### With Custom Tooltip
-
-```tsx
-<AreaChart data={data}>
-  <Grid horizontal />
-  <Area dataKey="revenue" fill="var(--chart-line-primary)" />
-  <XAxis />
-  <ChartTooltip
-    rows={(point) => [
-      {
-        color: "var(--chart-line-primary)",
-        label: "Revenue",
-        value: `$${point.revenue?.toLocaleString()}`,
-      },
-    ]}
-  />
-</AreaChart>
-```
-
-### Dashboard Metrics Card
-
-```tsx
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AreaChart, Area, ChartTooltip } from "@bklitui/ui/charts";
-
-export function MetricsCard({ title, data, dataKey, color }) {
-  const latestValue = data[data.length - 1]?.[dataKey] ?? 0;
-
+function MyChart({ data }) {
   return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">
-          {title}
-        </CardTitle>
-        <div className="text-2xl font-bold">
-          ${latestValue.toLocaleString()}
-        </div>
-      </CardHeader>
-      <CardContent>
-        <AreaChart
-          data={data}
-          aspectRatio="3 / 1"
-          margin={{ top: 5, right: 5, bottom: 5, left: 5 }}
-        >
-          <Area
-            dataKey={dataKey}
-            fill={color}
-            fillOpacity={0.3}
-            strokeWidth={1.5}
-            showHighlight={false}
-          />
-          <ChartTooltip showDatePill={false} />
-        </AreaChart>
-      </CardContent>
-    </Card>
+    <AreaChart data={data}>
+      <Area dataKey="revenue" fill="var(--chart-line-primary)" />
+      <ChartMarkers items={markers} />
+      <ChartTooltip>
+        <MarkerContent markers={markers} />
+      </ChartTooltip>
+    </AreaChart>
   );
+}
+
+function MarkerContent({ markers }) {
+  const activeMarkers = useActiveMarkers(markers);
+  if (activeMarkers.length === 0) return null;
+  return <MarkerTooltipContent markers={activeMarkers} />;
 }
 ```
 
-### Comparison Chart
+### ChartMarker Interface
 
-Compare two time series with different colored areas:
+```ts
+interface ChartMarker {
+  date: Date;
+  icon: React.ReactNode;
+  title: string;
+  description?: string;
+  content?: React.ReactNode;
+  color?: string;
+  onClick?: () => void;
+  href?: string;
+  target?: "_blank" | "_self";
+}
+```
+
+### ChartMarkers Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `items` | `ChartMarker[]` | required | Array of markers |
+| `size` | `number` | `28` | Marker circle size |
+| `showLines` | `boolean` | `true` | Show vertical guide lines |
+| `animate` | `boolean` | `true` | Animate markers on entrance |
+
+## Segment Selection
+
+Add click-drag and touch segment selection with composable components. The area highlight automatically shows the selected path segment.
+
+### Basic Usage
 
 ```tsx
-<AreaChart data={comparisonData}>
+import {
+  AreaChart,
+  Area,
+  Grid,
+  XAxis,
+  ChartTooltip,
+  SegmentBackground,
+  SegmentLineFrom,
+  SegmentLineTo,
+} from "@bklitui/ui/charts";
+
+<AreaChart data={data}>
   <Grid horizontal />
-  <Area
-    dataKey="thisYear"
-    fill="var(--chart-line-primary)"
-    fillOpacity={0.4}
-    strokeWidth={2}
-  />
-  <Area
-    dataKey="lastYear"
-    fill="var(--chart-line-secondary)"
-    fillOpacity={0.2}
-    strokeWidth={1.5}
-  />
+  <Area dataKey="revenue" fill="var(--chart-line-primary)" />
+  <SegmentBackground />
+  <SegmentLineFrom />
+  <SegmentLineTo />
   <XAxis />
-  <ChartTooltip
-    rows={(point) => [
-      { color: "var(--chart-line-primary)", label: "This Year", value: point.thisYear },
-      { color: "var(--chart-line-secondary)", label: "Last Year", value: point.lastYear },
-    ]}
-  />
+  <ChartTooltip />
 </AreaChart>
 ```
 
-## Combining with Line Chart
+Use `SegmentBackground`, `SegmentLineFrom`, and `SegmentLineTo` independently — you do not need all three. Boundary lines support `variant="dashed" | "solid" | "gradient"`.
 
-You can mix `Area` and `Line` components in the same chart using the `LineChart` container:
+### Reading Selection Data
+
+Use the `useChart` hook inside a child component to read the active selection:
 
 ```tsx
-import { LineChart, Line, Area, Grid, ChartTooltip } from "@bklitui/ui/charts";
+import { useChart } from "@bklitui/ui/charts";
 
-<LineChart data={data}>
-  <Grid horizontal />
-  {/* Background area for context */}
-  <Area
-    dataKey="baseline"
-    fill="var(--chart-grid)"
-    fillOpacity={0.3}
-    showLine={false}
-  />
-  {/* Main line for the primary metric */}
-  <Line dataKey="actual" stroke="var(--chart-line-primary)" />
-  <ChartTooltip />
-</LineChart>
+function SelectionStats({ onSelectionChange }) {
+  const { selection, data, xAccessor } = useChart();
+
+  useEffect(() => {
+    if (!selection?.active) {
+      onSelectionChange(null);
+      return;
+    }
+
+    const startPoint = data[selection.startIndex];
+    const endPoint = data[selection.endIndex];
+    onSelectionChange({ startPoint, endPoint });
+  }, [selection, data, xAccessor, onSelectionChange]);
+
+  return null;
+}
 ```
+
+### SegmentBackground
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `fill` | `string` | `var(--chart-segment-background)` | Fill color for the selected region |
+
+### SegmentLineFrom / SegmentLineTo
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `stroke` | `string` | `var(--chart-segment-line)` | Line color |
+| `strokeWidth` | `number` | `1` | Line width |
+| `variant` | `"dashed" \| "solid" \| "gradient"` | `"dashed"` | Line style |
 
 ## Theming
 
@@ -402,6 +314,15 @@ The Area Chart uses the same CSS variables as the Line Chart:
   --chart-line-secondary: oklch(0.705 0.015 265);
   --chart-crosshair: oklch(0.4 0.1828 274.34);
   --chart-grid: oklch(0.9 0 0);
+  --chart-tooltip-foreground: oklch(0.985 0 0);
+  --chart-tooltip-muted: oklch(0.65 0.01 260);
+  --chart-marker-background: oklch(0.97 0.005 260);
+  --chart-marker-border: oklch(0.85 0.01 260);
+  --chart-marker-foreground: oklch(0.3 0.01 260);
+  --chart-marker-badge-background: oklch(0 0 0);
+  --chart-marker-badge-foreground: oklch(1 0 0);
+  --chart-segment-background: oklch(0.5 0 0 / 0.06);
+  --chart-segment-line: oklch(0.5 0 0 / 0.25);
 }
 
 .dark {
@@ -409,6 +330,13 @@ The Area Chart uses the same CSS variables as the Line Chart:
   --chart-foreground: oklch(0.45 0 0);
   --chart-crosshair: oklch(0.45 0 0);
   --chart-grid: oklch(0.25 0 0);
+  --chart-marker-background: oklch(0.25 0.01 260);
+  --chart-marker-border: oklch(0.4 0.01 260);
+  --chart-marker-foreground: oklch(0.9 0 0);
+  --chart-marker-badge-background: oklch(1 0 0);
+  --chart-marker-badge-foreground: oklch(0.15 0 0);
+  --chart-segment-background: oklch(1 0 0 / 0.06);
+  --chart-segment-line: oklch(1 0 0 / 0.25);
 }
 ```
 

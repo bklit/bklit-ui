@@ -7,27 +7,9 @@ import {
   BarChart,
   Bar,
   BarXAxis,
-  BarYAxis,
   Grid,
   ChartTooltip,
-  Legend,
-  LegendItemComponent as LegendItem,
-  LegendMarker,
-  LegendLabel,
-  LinearGradient,
-  PatternLines,
 } from "@bklitui/ui/charts";
-import {
-  BarChartStackedDemo,
-  BarChartHorizontalDemo,
-  BarChart90DaysDemo,
-  BarChartGradientDemo,
-  BarChartPatternDemo,
-  BarChartStackedWithLegendDemo,
-  BarChartNarrowGapsDemo,
-  BarChartCustomTooltipDemo,
-  BarChartNoGapGradientDemo,
-} from "@/components/docs/bar-chart-demo";
 
 export const chartData = [
   { month: "Jan", revenue: 12000, profit: 4500 },
@@ -37,32 +19,6 @@ export const chartData = [
   { month: "May", revenue: 16800, profit: 5400 },
   { month: "Jun", revenue: 21200, profit: 8800 },
 ];
-
-export const stackedData = [
-  { month: "Jan", desktop: 4000, mobile: 2400 },
-  { month: "Feb", desktop: 5000, mobile: 3000 },
-  { month: "Mar", desktop: 3500, mobile: 2800 },
-  { month: "Apr", desktop: 4200, mobile: 3200 },
-  { month: "May", desktop: 3800, mobile: 2600 },
-  { month: "Jun", desktop: 5500, mobile: 3800 },
-];
-
-export const browserData = [
-  { browser: "Chrome", users: 275 },
-  { browser: "Safari", users: 200 },
-  { browser: "Firefox", users: 187 },
-  { browser: "Edge", users: 173 },
-  { browser: "Other", users: 90 },
-];
-
-export const dailyData = Array.from({ length: 90 }, (_, i) => {
-  const date = new Date(2026, 0, 1);
-  date.setDate(date.getDate() + i);
-  return {
-    day: date.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
-    value: Math.floor(Math.random() * 80) + 20 + Math.sin(i / 7) * 30,
-  };
-});
 
 <ComponentPreview registryName="bar-chart">
   <div className="w-full">
@@ -123,109 +79,7 @@ export default function RevenueChart() {
 }
 ```
 
-## Stacked Bars
-
-Use the `stacked` prop to stack bars on top of each other. Add `stackGap` to create visual separation between segments, allowing each bar to have its own rounded corners.
-
-<ComponentShowcase
-  code={`<BarChart data={data} xDataKey="month" stacked stackGap={3}>
-  <Grid horizontal />
-  <Bar dataKey="desktop" fill="hsl(217, 91%, 60%)" lineCap={4} stackGap={3} />
-  <Bar dataKey="mobile" fill="hsl(217, 91%, 75%)" lineCap={4} stackGap={3} />
-  <BarXAxis />
-  <ChartTooltip />
-</BarChart>`}
->
-  <BarChartStackedDemo />
-</ComponentShowcase>
-
-## Horizontal Bars
-
-Use `orientation="horizontal"` to create horizontal bar charts with categories on the Y-axis.
-
-<ComponentShowcase
-  code={`<BarChart data={data} xDataKey="browser" orientation="horizontal" margin={{ left: 80 }}>
-  <Grid horizontal={false} vertical fadeVertical />
-  <Bar dataKey="users" fill="hsl(217, 91%, 60%)" lineCap={4} />
-  <BarYAxis />
-  <ChartTooltip showCrosshair={false} />
-</BarChart>`}
->
-  <BarChartHorizontalDemo />
-</ComponentShowcase>
-
-## 90 Days of Data
-
-A single series bar chart showing 90 days of data with square caps.
-
-<ComponentShowcase
-  code={`<BarChart data={dailyData} xDataKey="day" barGap={0.1}>
-  <Grid horizontal />
-  <Bar dataKey="value" lineCap="butt" />
-  <BarXAxis maxLabels={8} />
-  <ChartTooltip />
-</BarChart>`}
->
-  <BarChart90DaysDemo />
-</ComponentShowcase>
-
-## Gradients and Patterns
-
-Use visx gradient and pattern components to create custom bar fills. Place them as children of `BarChart` and reference them by ID.
-
-### Gradient Fill
-
-Use the `stroke` prop to set the tooltip dot color when using gradient fills.
-
-<ComponentShowcase code={`import { LinearGradient } from "@bklitui/ui/charts";
-
-<BarChart data={data} xDataKey="month">
-  <LinearGradient id="barGradient" from="hsl(217, 91%, 60%)" to="hsl(280, 87%, 65%)" />
-  <Grid horizontal />
-  <Bar dataKey="revenue" fill="url(#barGradient)" stroke="hsl(217, 91%, 60%)" lineCap={4} />
-  <BarXAxis />
-  <ChartTooltip />
-</BarChart>`}>
-  <BarChartGradientDemo />
-</ComponentShowcase>
-
-### Pattern Fill
-
-Use the `stroke` prop to set a solid tooltip dot color when using pattern fills.
-
-<ComponentShowcase code={`import { PatternLines } from "@bklitui/ui/charts";
-
-<BarChart data={data} xDataKey="month">
-  <PatternLines
-    id="barPattern"
-    height={8}
-    width={8}
-    stroke="hsl(217, 91%, 60%)"
-    strokeWidth={2}
-    orientation={["diagonal"]}
-  />
-  <Grid horizontal />
-  <Bar dataKey="revenue" fill="url(#barPattern)" stroke="hsl(217, 91%, 60%)" lineCap={4} />
-  <BarXAxis />
-  <ChartTooltip />
-</BarChart>`}>
-  <BarChartPatternDemo />
-</ComponentShowcase>
-
-### Available Fills
-
-**Gradients** (from `@visx/gradient`):
-
-- `LinearGradient` - Custom linear gradient with `from`, `to`, and optional `fromOpacity`/`toOpacity`
-- `RadialGradient` - Radial gradient with `from`, `to`, and `r` (radius)
-- Pre-built: `GradientDarkgreenGreen`, `GradientOrangeRed`, `GradientPinkBlue`, `GradientPurpleTeal`, `GradientTealBlue`, etc.
-
-**Patterns** (from `@visx/pattern`):
-
-- `PatternLines` - Diagonal, horizontal, or vertical lines
-- `PatternCircles` - Dot pattern
-- `PatternHexagons` - Hexagonal pattern
-- `PatternWaves` - Wave pattern
+See the [charts gallery](/charts/bar-chart) for stacked bars, horizontal layouts, gradients, patterns, and more.
 
 ## Components
 
@@ -340,119 +194,6 @@ Control the bar end style:
 <Bar dataKey="revenue" lineCap={4} />
 <Bar dataKey="revenue" lineCap={8} />
 ```
-
-## Examples
-
-### Stacked with Legend
-
-<ComponentShowcase code={`const legendItems = [
-  { label: "Desktop", value: 0, color: "hsl(217, 91%, 60%)" },
-  { label: "Mobile", value: 0, color: "hsl(217, 91%, 75%)" },
-];
-
-<div>
-  <BarChart data={data} xDataKey="month" stacked stackGap={3}>
-    <Grid horizontal />
-    <Bar dataKey="desktop" fill="hsl(217, 91%, 60%)" lineCap={4} stackGap={3} />
-    <Bar dataKey="mobile" fill="hsl(217, 91%, 75%)" lineCap={4} stackGap={3} />
-    <BarXAxis />
-    <ChartTooltip />
-  </BarChart>
-  <Legend items={legendItems} className="flex-row justify-center gap-6">
-    <LegendItem className="flex items-center gap-2">
-      <LegendMarker />
-      <LegendLabel />
-    </LegendItem>
-  </Legend>
-</div>`}>
-  <BarChartStackedWithLegendDemo />
-</ComponentShowcase>
-
-### Narrow Gaps
-
-<ComponentShowcase
-  code={`<BarChart data={data} xDataKey="month" barGap={0.1}>
-  <Grid horizontal />
-  <Bar dataKey="revenue" fill="var(--chart-line-primary)" lineCap="round" />
-  <BarXAxis />
-  <ChartTooltip />
-</BarChart>`}
->
-  <BarChartNarrowGapsDemo />
-</ComponentShowcase>
-
-### Custom Tooltip
-
-<ComponentShowcase
-  code={`<BarChart data={data} xDataKey="month">
-  <Grid horizontal />
-  <Bar dataKey="revenue" fill="var(--chart-line-primary)" lineCap="round" />
-  <BarXAxis />
-  <ChartTooltip
-    rows={(point) => [
-      {
-        color: "var(--chart-line-primary)",
-        label: "Revenue",
-        value: \`$\${point.revenue?.toLocaleString()}\`,
-      },
-    ]}
-  />
-</BarChart>`}
->
-  <BarChartCustomTooltipDemo />
-</ComponentShowcase>
-
-### No Gap with Custom Line Indicator
-
-A bar chart with zero gap between bars, gradient fill, and a custom horizontal line indicator. Each bar has its own line that rises from the bottom on hover.
-
-<ComponentShowcase
-  code={`// Each bar gets an animated line that rises on hover
-function AnimatedBarLine({ barX, barTopY, barBottomY, width, isHovered }) {
-  const animatedY = useSpring(barBottomY, { stiffness: 300, damping: 30 });
-
-  useEffect(() => {
-    animatedY.set(isHovered ? barTopY : barBottomY);
-  }, [isHovered, barTopY, barBottomY]);
-
-  return (
-    <motion.rect
-      x={barX}
-      width={width}
-      height={2}
-      fill="white"
-      style={{ opacity: isHovered ? 1 : 0, y: animatedY }}
-    />
-  );
-}
-
-// Renders a line indicator for each bar
-function BarLineIndicators({ data }) {
-  const { barScale, bandWidth, innerHeight, yScale, hoveredBarIndex } = useChart();
-
-  return data.map((d, i) => (
-    <AnimatedBarLine
-      key={d.month}
-      barX={barScale(d.month)}
-      barTopY={yScale(d.revenue)}
-      barBottomY={innerHeight}
-      width={bandWidth}
-      isHovered={hoveredBarIndex === i}
-    />
-  ));
-}
-
-<BarChart data={data} xDataKey="month" barGap={0}>
-  <LinearGradient id="gradient" from="var(--chart-3)" to="transparent" />
-  <Grid horizontal />
-  <Bar dataKey="revenue" fill="url(#gradient)" lineCap="butt" stroke="var(--chart-3)" />
-  <BarXAxis />
-  <ChartTooltip showCrosshair={false} showDots={false} />
-  <BarLineIndicators data={data} />
-</BarChart>`}
->
-  <BarChartNoGapGradientDemo />
-</ComponentShowcase>
 
 ## Theming
 
