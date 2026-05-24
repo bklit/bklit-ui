@@ -84,8 +84,6 @@ Renders a line on the chart.
 | `showHighlight` | `boolean` | `true` | Show highlight on hover |
 | `showMarkers` | `boolean` | `false` | Render scatter-style ring markers at each point |
 | `markers` | `SeriesPointMarkerStyle` | — | Marker styling (same options as [`Scatter`](/docs/components/scatter-chart)) |
-| `dashFromIndex` | `number` | — | Inclusive data index where the dashed tail begins; solid stroke before, dashed through the end |
-| `dashArray` | `string` | `"6,4"` | SVG dash pattern for the tail segment |
 
 ### Grid
 
@@ -121,6 +119,26 @@ Renders the tooltip with crosshair, dots, and content box.
 | `showDots` | `boolean` | `true` | Show dots on lines |
 | `content` | `(props) => ReactNode` | - | Custom content renderer |
 | `rows` | `(point) => TooltipRow[]` | - | Custom row generator |
+
+## Dashed tail
+
+Set `dashFromIndex` on `Line` to draw a solid stroke through one data point, then a dashed segment through the end of the series. Useful when the final period is still in progress (e.g. yesterday → today).
+
+`dashFromIndex` is **inclusive** — dashing starts at that row and continues through the last point. The dashed segment follows the same curved path as the solid stroke and respects `fadeEdges`.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `dashFromIndex` | `number` | — | Inclusive data index where the dashed tail begins |
+| `dashArray` | `string` | `"6,4"` | SVG `stroke-dasharray` pattern for the tail segment |
+
+```tsx
+<Line
+  dataKey="visitors"
+  dashFromIndex={5}
+  dashArray="6,4"
+  stroke="var(--chart-line-primary)"
+/>
+```
 
 ## Markers
 
