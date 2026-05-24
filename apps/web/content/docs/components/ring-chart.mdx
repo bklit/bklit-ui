@@ -3,8 +3,8 @@ title: Ring Chart
 description: A composable multi-ring progress chart with animated arcs, hover interactions, and a reusable legend component
 ---
 
-import { RingChart, Ring, RingCenter, Legend, LegendItemComponent, LegendMarker, LegendLabel, LegendValue, LegendProgress } from "@bklitui/ui/charts";
-import { RingChartDemo, RingChartBasicDemo, RingChartCustomColorsDemo } from "@/components/docs/ring-chart-demo";
+import { RingChart, Ring, RingCenter } from "@bklitui/ui/charts";
+import { RingChartDemo } from "@/components/docs/ring-chart-demo";
 
 <ComponentPreview registryName="ring-chart">
   <RingChartDemo />
@@ -101,138 +101,7 @@ interface LegendItem {
 }
 ```
 
-## Examples
-
-### Basic Ring Chart
-
-<ComponentShowcase code={`<RingChart data={sessionsData} size={280}>
-  {sessionsData.map((_, index) => (
-    <Ring key={index} index={index} />
-  ))}
-  <RingCenter />
-</RingChart>`}>
-  <RingChartBasicDemo />
-</ComponentShowcase>
-
-### With Custom Colors and Formatting
-
-<ComponentShowcase code={`const customData = [
-  { label: "Revenue", value: 85000, maxValue: 100000, color: "var(--chart-1)" },
-  { label: "Expenses", value: 62000, maxValue: 100000, color: "var(--chart-2)" },
-  { label: "Profit", value: 23000, maxValue: 100000, color: "var(--chart-3)" },
-];
-
-<RingChart data={customData} size={240} strokeWidth={16} ringGap={8}>
-  {customData.map((_, index) => (
-    <Ring key={index} index={index} />
-  ))}
-  <RingCenter
-    formatValue={(v) => \`$\${(v / 1000).toFixed(0)}k\`}
-    defaultLabel="Total"
-  />
-</RingChart>`}>
-  <RingChartCustomColorsDemo />
-</ComponentShowcase>
-
-### Synchronized Legend
-
-Connect the legend hover state to the chart for bidirectional interaction. See the [Legend documentation](/docs/components/legend) for more customization options.
-
-```tsx
-import { useState } from "react";
-import { 
-  RingChart, Ring, RingCenter,
-  Legend, LegendItemComponent, LegendMarker, LegendLabel, LegendValue, LegendProgress
-} from "@bklitui/ui/charts";
-
-function SyncedRingChart() {
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-
-  return (
-    <div className="flex items-center gap-12">
-      <RingChart
-        data={data}
-        size={320}
-        hoveredIndex={hoveredIndex}
-        onHoverChange={setHoveredIndex}
-      >
-        {data.map((item, index) => (
-          <Ring key={item.label} index={index} />
-        ))}
-        <RingCenter />
-      </RingChart>
-
-      <Legend
-        items={data}
-        hoveredIndex={hoveredIndex}
-        onHoverChange={setHoveredIndex}
-        title="Sessions by Channel"
-      >
-        <LegendItemComponent className="grid grid-cols-[auto_1fr_auto] items-center gap-x-3 gap-y-1">
-          <LegendMarker />
-          <LegendLabel />
-          <LegendValue showPercentage />
-          <div className="col-span-full">
-            <LegendProgress />
-          </div>
-        </LegendItemComponent>
-      </Legend>
-    </div>
-  );
-}
-```
-
-### Custom Center Content
-
-Use the render prop for complete control over the center content:
-
-```tsx
-<RingChart data={data} size={300}>
-  {data.map((_, index) => (
-    <Ring key={index} index={index} />
-  ))}
-  <RingCenter>
-    {({ value, label, isHovered, data }) => (
-      <div className="text-center">
-        <div className="text-3xl font-bold" style={{ color: data.color }}>
-          {value.toLocaleString()}
-        </div>
-        <div className="text-sm text-muted-foreground">{label}</div>
-        {isHovered && (
-          <div className="text-xs text-muted-foreground mt-1">
-            {((data.value / data.maxValue) * 100).toFixed(0)}% of goal
-          </div>
-        )}
-      </div>
-    )}
-  </RingCenter>
-</RingChart>
-```
-
-### Simple Legend (No Progress Bars)
-
-```tsx
-<Legend items={data} title="Traffic Sources">
-  <LegendItemComponent className="flex items-center gap-3">
-    <LegendMarker />
-    <LegendLabel className="flex-1" />
-    <LegendValue />
-  </LegendItemComponent>
-</Legend>
-```
-
-### Flat Ring Ends (Butt Line Cap)
-
-Use `lineCap="butt"` for square/flat ring ends instead of rounded:
-
-```tsx
-<RingChart data={data} size={300}>
-  {data.map((item, index) => (
-    <Ring key={item.label} index={index} lineCap="butt" />
-  ))}
-  <RingCenter />
-</RingChart>
-```
+See the [charts gallery](/charts/ring-chart) for custom colors, legend sync, and center content variations.
 
 ## Theming
 

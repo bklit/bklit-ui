@@ -4,7 +4,7 @@ description: A composable multi-series radar chart with animated polygons, hover
 ---
 
 import { RadarChart, RadarGrid, RadarAxis, RadarLabels, RadarArea } from "@bklitui/ui/charts";
-import { RadarChartDemo, RadarChartBasicDemo, RadarChartMinimalDemo } from "@/components/docs/radar-chart-demo";
+import { RadarChartDemo } from "@/components/docs/radar-chart-demo";
 
 <ComponentPreview registryName="radar-chart">
   <RadarChartDemo />
@@ -119,102 +119,7 @@ interface RadarData {
 }
 ```
 
-## Examples
-
-### Basic Radar Chart
-
-<ComponentShowcase code={`<RadarChart data={data} metrics={metrics} size={350}>
-  <RadarGrid />
-  <RadarAxis />
-  <RadarLabels />
-  {data.map((item, index) => (
-    <RadarArea key={item.label} index={index} />
-  ))}
-</RadarChart>`}>
-  <RadarChartBasicDemo />
-</ComponentShowcase>
-
-### Minimal Style
-
-<ComponentShowcase code={`<RadarChart data={data} metrics={metrics} size={300} levels={4}>
-  <RadarGrid showLabels={false} />
-  <RadarAxis />
-  <RadarLabels fontSize={12} offset={20} />
-  {data.map((item, index) => (
-    <RadarArea key={item.label} index={index} />
-  ))}
-</RadarChart>`}>
-  <RadarChartMinimalDemo />
-</ComponentShowcase>
-
-### Synchronized Legend
-
-Connect the legend hover state to the chart for bidirectional interaction. See the [Legend documentation](/docs/components/legend) for more customization options.
-
-```tsx
-import { useState } from "react";
-import {
-  RadarChart, RadarGrid, RadarAxis, RadarLabels, RadarArea,
-  Legend, LegendItemComponent, LegendMarker, LegendLabel, LegendValue
-} from "@bklitui/ui/charts";
-
-function SyncedRadarChart() {
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-
-  // Convert radar data to legend items
-  const legendItems = data.map((d) => ({
-    label: d.label,
-    value: Object.values(d.values).reduce((a, b) => a + b, 0) / metrics.length,
-    maxValue: 100,
-    color: d.color,
-  }));
-
-  return (
-    <div className="flex items-center gap-12">
-      <RadarChart
-        data={data}
-        metrics={metrics}
-        size={400}
-        hoveredIndex={hoveredIndex}
-        onHoverChange={setHoveredIndex}
-      >
-        <RadarGrid />
-        <RadarAxis />
-        <RadarLabels />
-        {data.map((item, index) => (
-          <RadarArea key={item.label} index={index} />
-        ))}
-      </RadarChart>
-
-      <Legend
-        items={legendItems}
-        hoveredIndex={hoveredIndex}
-        onHoverChange={setHoveredIndex}
-        title="Campaign Performance"
-      >
-        <LegendItemComponent className="flex items-center gap-3">
-          <LegendMarker />
-          <LegendLabel className="flex-1" />
-          <LegendValue formatValue={(v) => `${v.toFixed(0)}%`} />
-        </LegendItemComponent>
-      </Legend>
-    </div>
-  );
-}
-```
-
-### Without Points
-
-```tsx
-<RadarChart data={data} metrics={metrics} size={350}>
-  <RadarGrid />
-  <RadarAxis />
-  <RadarLabels />
-  {data.map((item, index) => (
-    <RadarArea key={item.label} index={index} showPoints={false} />
-  ))}
-</RadarChart>
-```
+See the [charts gallery](/charts/radar-chart) for minimal styles, legend sync, and layout variations.
 
 ## Hooks
 

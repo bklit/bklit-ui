@@ -32,6 +32,8 @@ import { ComposedChartDocsPreview } from "@/components/docs/composed-chart-docs-
 - **`stacked`** / **`stackGap`** — stack `SeriesBar` segments in child order at each x (lines and areas are not stacked).
 - **`SeriesBar`** — default **`radius` is 0** (square tops). Pass **`radius={4}`** (or similar) for rounded corners.
 - **`Line`** / **`Area`** — pass a **`curve`** from `@visx/curve` (e.g. **`curveCatmullRom.alpha(0.42)`**) to soften paths when you have many daily points (preview + hero use the same curve for `revenue` and `runRate`).
+- **`Line`** / **`Area`** — use **`showMarkers`** for scatter-style ring markers at each point; pass **`markers={{ radius, ringGap, strokeWidth }}`** to tune styling.
+- **`Line`** / **`Area`** — use **`dashFromIndex`** and **`dashArray`** for a dashed tail on incomplete periods (the dashed segment follows the same curve and edge fade).
 - **`XAxis`** — for **many rows** (e.g. daily), use **`numTicks={8}`** (default domain ticks). Use **`tickMode="data"`** when you only have a few points (e.g. one column per month) so labels sit on the data.
 - **`ChartTooltip`** — for bar-heavy layouts, **`showCrosshair={false}`** often looks cleaner because the hover band is already vertical columns.
 - **Hover dimming** — `SeriesBar` fades non-hovered columns using `tooltipData.index`, like grouped bars in `BarChart`. Tune with **`fadedOpacity`** on each `SeriesBar`.
@@ -80,9 +82,7 @@ export default function Example() {
 
 `composedDemoData` is 30 daily rows with ISO `date` strings, one slow wave across the month plus light ripples (kept readable next to dense bars). Outside this monorepo, copy the helpers from `apps/web/lib/composed-demo-data.ts` into your app.
 
-### More examples
-
-See the [charts gallery](/charts/composed-chart) for stacked bars, pattern fills, **rounded bars** (`SeriesBar` `radius`), a **lime / amber / red** accent composition, and more.
+See the [charts gallery](/charts/composed-chart) for stacked bars, pattern fills, rounded bars, and more compositions.
 
 ## See also
 

@@ -81,6 +81,47 @@ export const gaugeControlGroups: StudioControlGroup[] = [
   ]),
 ];
 
+export const seriesMarkersControlGroup = controlGroup("Markers", [
+  { type: "boolean", key: "seriesShowMarkers", label: "Show markers" },
+  {
+    type: "number",
+    key: "seriesMarkerRadius",
+    label: "Radius",
+    min: 3,
+    max: 12,
+    step: 1,
+  },
+  {
+    type: "number",
+    key: "seriesMarkerRingGap",
+    label: "Ring gap",
+    min: 0,
+    max: 8,
+    step: 1,
+  },
+  {
+    type: "number",
+    key: "seriesMarkerRingWidth",
+    label: "Ring width",
+    min: 0,
+    max: 6,
+    step: 0.5,
+  },
+]);
+
+export const seriesDashTailControlGroup = controlGroup("Dash tail", [
+  { type: "boolean", key: "seriesDashTail", label: "Dashed tail" },
+  {
+    type: "number",
+    key: "seriesDashFromIndex",
+    label: "Dash from index",
+    min: 0,
+    max: 48,
+    step: 1,
+  },
+  { type: "text", key: "seriesDashArray", label: "Dash array" },
+]);
+
 export const areaChartControlGroups: StudioControlGroup[] = [
   designGroup([
     patternControl(),
@@ -118,6 +159,8 @@ export const areaChartControlGroups: StudioControlGroup[] = [
     { type: "boolean", key: "showHighlight", label: "Highlight on hover" },
     { type: "boolean", key: "fadeEdges", label: "Fade edges" },
   ]),
+  seriesMarkersControlGroup,
+  seriesDashTailControlGroup,
 ];
 
 export const lineChartControlGroups: StudioControlGroup[] = [
@@ -134,6 +177,8 @@ export const lineChartControlGroups: StudioControlGroup[] = [
     { type: "boolean", key: "fadeEdges", label: "Fade edges" },
     { type: "boolean", key: "showHighlight", label: "Highlight on hover" },
   ]),
+  seriesMarkersControlGroup,
+  seriesDashTailControlGroup,
 ];
 
 export const barChartControlGroups: StudioControlGroup[] = [
@@ -220,6 +265,8 @@ export const composedChartControlGroups: StudioControlGroup[] = [
     },
     { type: "boolean", key: "fadeEdges", label: "Line fade edges" },
   ]),
+  seriesMarkersControlGroup,
+  seriesDashTailControlGroup,
 ];
 
 export const pieChartControlGroups: StudioControlGroup[] = [

@@ -31,500 +31,25 @@ import {
 
 ## Usage
 
-The chart uses a composable API where you build charts by combining components. This design allows you to mix and match features while keeping your code clean and maintainable.
-
-### Basic Example
-
-The simplest chart with a single line:
+Build charts by composing components. See the [charts gallery](/charts/line-chart) for interactive examples.
 
 ```tsx
-import { LineChart, Line, ChartTooltip } from "@bklitui/ui/charts";
+import { LineChart, Line, Grid, XAxis, ChartTooltip } from "@bklitui/ui/charts";
 
 const data = [
   { date: new Date("2025-01-01"), users: 1200 },
   { date: new Date("2025-01-02"), users: 1350 },
-  { date: new Date("2025-01-03"), users: 1100 },
-  // ... more data points
+  // ...
 ];
 
 export default function SimpleChart() {
   return (
     <LineChart data={data}>
-      <Line dataKey="users" />
-      <ChartTooltip />
-    </LineChart>
-  );
-}
-```
-
-### Multiple Lines
-
-Display multiple metrics on the same chart:
-
-```tsx
-import { LineChart, Line, Grid, XAxis, ChartTooltip } from "@bklitui/ui/charts";
-
-const data = [
-  { date: new Date("2025-01-01"), users: 1200, pageviews: 4500, sessions: 800 },
-  { date: new Date("2025-01-02"), users: 1350, pageviews: 4800, sessions: 920 },
-  // ... more data
-];
-
-export default function MultiLineChart() {
-  return (
-    <LineChart data={data}>
       <Grid horizontal />
-      <Line dataKey="users" stroke="var(--chart-line-primary)" />
-      <Line dataKey="pageviews" stroke="var(--chart-line-secondary)" />
-      <Line dataKey="sessions" stroke="#10b981" />
+      <Line dataKey="users" />
       <XAxis />
       <ChartTooltip />
     </LineChart>
-  );
-}
-```
-
-### Custom Data Key
-
-By default, the chart uses `date` as the x-axis key. Use `xDataKey` for different field names:
-
-```tsx
-// Data with timestamp instead of date
-const apiData = [
-  { timestamp: new Date("2025-01-01"), value: 100 },
-  { timestamp: new Date("2025-01-02"), value: 150 },
-];
-
-<LineChart data={apiData} xDataKey="timestamp">
-  <Line dataKey="value" />
-  <ChartTooltip />
-</LineChart>
-```
-
-### Chart Sizing
-
-Control the chart's aspect ratio and add custom styling:
-
-```tsx
-// Wide chart (3:1 aspect ratio)
-<LineChart data={data} aspectRatio="3 / 1">
-  <Line dataKey="users" />
-</LineChart>
-
-// Square chart
-<LineChart data={data} aspectRatio="1 / 1">
-  <Line dataKey="users" />
-</LineChart>
-
-// With custom margins for more breathing room
-<LineChart
-  data={data}
-  margin={{ top: 60, right: 60, bottom: 60, left: 60 }}
->
-  <Line dataKey="users" />
-</LineChart>
-
-// Compact margins for dense layouts
-<LineChart
-  data={data}
-  margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
->
-  <Line dataKey="users" />
-</LineChart>
-```
-
-### Line Customization
-
-Fine-tune each line's appearance:
-
-```tsx
-import { curveStep, curveMonotoneX, curveBasis } from "@visx/curve";
-
-<LineChart data={data}>
-  {/* Thick primary line */}
-  <Line
-    dataKey="users"
-    stroke="var(--chart-line-primary)"
-    strokeWidth={3}
-  />
-
-  {/* Stepped line for discrete data */}
-  <Line
-    dataKey="sessions"
-    stroke="#10b981"
-    curve={curveStep}
-    strokeWidth={2}
-  />
-
-  {/* Smooth monotonic curve */}
-  <Line
-    dataKey="pageviews"
-    stroke="var(--chart-line-secondary)"
-    curve={curveMonotoneX}
-  />
-
-  {/* Disable edge fading */}
-  <Line
-    dataKey="revenue"
-    stroke="#f59e0b"
-    fadeEdges={false}
-  />
-
-  {/* No hover highlight */}
-  <Line
-    dataKey="conversions"
-    stroke="#ef4444"
-    showHighlight={false}
-  />
-
-  <ChartTooltip />
-</LineChart>
-```
-
-### Grid Variations
-
-Configure grid lines for different visual styles:
-
-```tsx
-// Horizontal grid only (default)
-<LineChart data={data}>
-  <Grid horizontal />
-  <Line dataKey="users" />
-</LineChart>
-
-// Vertical grid only
-<LineChart data={data}>
-  <Grid vertical horizontal={false} />
-  <Line dataKey="users" />
-</LineChart>
-
-// Both horizontal and vertical
-<LineChart data={data}>
-  <Grid horizontal vertical />
-  <Line dataKey="users" />
-</LineChart>
-
-// Custom grid density
-<LineChart data={data}>
-  <Grid
-    horizontal
-    vertical
-    numTicksRows={10}
-    numTicksColumns={15}
-  />
-  <Line dataKey="users" />
-</LineChart>
-
-// Solid grid lines instead of dashed
-<LineChart data={data}>
-  <Grid
-    horizontal
-    strokeDasharray=""
-    stroke="var(--border)"
-  />
-  <Line dataKey="users" />
-</LineChart>
-```
-
-### Animation Control
-
-Customize or disable animations:
-
-```tsx
-// Faster animation (500ms)
-<LineChart data={data} animationDuration={500}>
-  <Line dataKey="users" animate />
-  <ChartTooltip />
-</LineChart>
-
-// Slower, dramatic entrance (2 seconds)
-<LineChart data={data} animationDuration={2000}>
-  <Line dataKey="users" animate />
-  <ChartTooltip />
-</LineChart>
-
-// Disable all line animation
-<LineChart data={data}>
-  <Line dataKey="users" animate={false} />
-  <ChartTooltip />
-</LineChart>
-```
-
-### Tooltip Customization
-
-#### Hide Specific Tooltip Elements
-
-```tsx
-// Minimal tooltip - just the content box
-<LineChart data={data}>
-  <Line dataKey="users" />
-  <ChartTooltip
-    showCrosshair={false}
-    showDots={false}
-    showDatePill={false}
-  />
-</LineChart>
-
-// Crosshair only, no date pill
-<LineChart data={data}>
-  <Line dataKey="users" />
-  <ChartTooltip showDatePill={false} />
-</LineChart>
-```
-
-#### Custom Row Labels
-
-```tsx
-<LineChart data={data}>
-  <Line dataKey="users" stroke="var(--chart-line-primary)" />
-  <Line dataKey="pageviews" stroke="var(--chart-line-secondary)" />
-  <ChartTooltip
-    rows={(point) => [
-      {
-        color: "var(--chart-line-primary)",
-        label: "Active Users",
-        value: point.users.toLocaleString(),
-      },
-      {
-        color: "var(--chart-line-secondary)",
-        label: "Page Views",
-        value: point.pageviews.toLocaleString(),
-      },
-    ]}
-  />
-</LineChart>
-```
-
-#### Fully Custom Content
-
-```tsx
-<LineChart data={data}>
-  <Line dataKey="users" />
-  <Line dataKey="pageviews" />
-  <ChartTooltip
-    content={({ point, index }) => (
-      <div className="flex flex-col gap-2 p-3">
-        <div className="text-sm font-medium">
-          {point.date.toLocaleDateString("en-US", {
-            weekday: "short",
-            month: "short",
-            day: "numeric",
-          })}
-        </div>
-        <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
-          <span className="text-muted-foreground">Users</span>
-          <span className="font-mono">{point.users.toLocaleString()}</span>
-          <span className="text-muted-foreground">Views</span>
-          <span className="font-mono">{point.pageviews.toLocaleString()}</span>
-          <span className="text-muted-foreground">Ratio</span>
-          <span className="font-mono">
-            {(point.pageviews / point.users).toFixed(2)}x
-          </span>
-        </div>
-      </div>
-    )}
-  />
-</LineChart>
-```
-
-### Real-World Examples
-
-#### Dashboard Metrics Card
-
-```tsx
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LineChart, Line, ChartTooltip } from "@bklitui/ui/charts";
-
-export function MetricsCard({ title, data, dataKey, trend }) {
-  const latestValue = data[data.length - 1]?.[dataKey] ?? 0;
-
-  return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">
-          {title}
-        </CardTitle>
-        <div className="flex items-baseline gap-2">
-          <span className="text-2xl font-bold">
-            {latestValue.toLocaleString()}
-          </span>
-          <span className={trend >= 0 ? "text-green-500" : "text-red-500"}>
-            {trend >= 0 ? "↑" : "↓"} {Math.abs(trend)}%
-          </span>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <LineChart
-          data={data}
-          aspectRatio="3 / 1"
-          margin={{ top: 10, right: 10, bottom: 10, left: 10 }}
-        >
-          <Line dataKey={dataKey} strokeWidth={2} />
-          <ChartTooltip showDatePill={false} />
-        </LineChart>
-      </CardContent>
-    </Card>
-  );
-}
-```
-
-#### Comparative Analytics
-
-```tsx
-import { LineChart, Line, Grid, XAxis, ChartTooltip } from "@bklitui/ui/charts";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-export function AnalyticsDashboard({ data }) {
-  return (
-    <Tabs defaultValue="overview">
-      <TabsList>
-        <TabsTrigger value="overview">Overview</TabsTrigger>
-        <TabsTrigger value="traffic">Traffic</TabsTrigger>
-        <TabsTrigger value="engagement">Engagement</TabsTrigger>
-      </TabsList>
-
-      <TabsContent value="overview">
-        <LineChart data={data}>
-          <Grid horizontal />
-          <Line dataKey="users" stroke="var(--chart-line-primary)" />
-          <Line dataKey="pageviews" stroke="var(--chart-line-secondary)" />
-          <XAxis />
-          <ChartTooltip
-            rows={(point) => [
-              { color: "var(--chart-line-primary)", label: "Users", value: point.users },
-              { color: "var(--chart-line-secondary)", label: "Views", value: point.pageviews },
-            ]}
-          />
-        </LineChart>
-      </TabsContent>
-
-      <TabsContent value="traffic">
-        <LineChart data={data}>
-          <Grid horizontal vertical />
-          <Line dataKey="pageviews" stroke="var(--chart-line-primary)" strokeWidth={3} />
-          <XAxis />
-          <ChartTooltip />
-        </LineChart>
-      </TabsContent>
-
-      <TabsContent value="engagement">
-        <LineChart data={data}>
-          <Grid horizontal />
-          <Line dataKey="sessions" stroke="#10b981" />
-          <Line dataKey="bounceRate" stroke="#ef4444" />
-          <XAxis />
-          <ChartTooltip />
-        </LineChart>
-      </TabsContent>
-    </Tabs>
-  );
-}
-```
-
-#### With Loading State
-
-```tsx
-import { LineChart, Line, Grid, ChartTooltip } from "@bklitui/ui/charts";
-import { Skeleton } from "@/components/ui/skeleton";
-
-export function ChartWithLoading({ data, isLoading }) {
-  if (isLoading) {
-    return <Skeleton className="h-[300px] w-full" />;
-  }
-
-  if (!data || data.length === 0) {
-    return (
-      <div className="flex h-[300px] items-center justify-center text-muted-foreground">
-        No data available
-      </div>
-    );
-  }
-
-  return (
-    <LineChart data={data}>
-      <Grid horizontal />
-      <Line dataKey="value" />
-      <ChartTooltip />
-    </LineChart>
-  );
-}
-```
-
-### Data Formatting Tips
-
-#### Working with API Responses
-
-```tsx
-// Transform API data with string dates
-const apiResponse = [
-  { timestamp: "2025-01-01T00:00:00Z", count: 1200 },
-  { timestamp: "2025-01-02T00:00:00Z", count: 1350 },
-];
-
-const chartData = apiResponse.map(item => ({
-  date: new Date(item.timestamp),
-  users: item.count,
-}));
-
-<LineChart data={chartData}>
-  <Line dataKey="users" />
-</LineChart>
-```
-
-#### Aggregating Data
-
-```tsx
-// Group hourly data into daily averages
-function aggregateToDaily(hourlyData) {
-  const grouped = {};
-
-  for (const point of hourlyData) {
-    const dateKey = point.date.toDateString();
-    if (!grouped[dateKey]) {
-      grouped[dateKey] = { date: new Date(dateKey), values: [] };
-    }
-    grouped[dateKey].values.push(point.value);
-  }
-
-  return Object.values(grouped).map(group => ({
-    date: group.date,
-    value: group.values.reduce((a, b) => a + b, 0) / group.values.length,
-  }));
-}
-
-const dailyData = aggregateToDaily(hourlyData);
-
-<LineChart data={dailyData}>
-  <Line dataKey="value" />
-</LineChart>
-```
-
-### Accessibility
-
-The chart includes several accessibility features:
-
-- SVG elements are marked with `aria-hidden="true"` as they are decorative
-- Keyboard users can navigate the tooltip using standard browser interactions
-- Color alone is not used to convey information—values are always displayed in the tooltip
-
-For maximum accessibility, provide a text summary or data table alongside the chart:
-
-```tsx
-export function AccessibleChart({ data }) {
-  return (
-    <div>
-      <LineChart data={data}>
-        <Line dataKey="users" />
-        <ChartTooltip />
-      </LineChart>
-
-      {/* Screen reader summary */}
-      <p className="sr-only">
-        Chart showing user growth from {data[0].users.toLocaleString()} to{" "}
-        {data[data.length - 1].users.toLocaleString()} users over{" "}
-        {data.length} days.
-      </p>
-    </div>
   );
 }
 ```
@@ -557,6 +82,10 @@ Renders a line on the chart.
 | `animate` | `boolean` | `true` | Enable grow animation |
 | `fadeEdges` | `boolean` | `true` | Fade line at edges |
 | `showHighlight` | `boolean` | `true` | Show highlight on hover |
+| `showMarkers` | `boolean` | `false` | Render scatter-style ring markers at each point |
+| `markers` | `SeriesPointMarkerStyle` | — | Marker styling (same options as [`Scatter`](/docs/components/scatter-chart)) |
+| `dashFromIndex` | `number` | — | Inclusive data index where the dashed tail begins; solid stroke before, dashed through the end |
+| `dashArray` | `string` | `"6,4"` | SVG dash pattern for the tail segment |
 
 ### Grid
 
@@ -579,6 +108,7 @@ Renders x-axis labels that fade when the crosshair passes.
 |------|------|---------|-------------|
 | `numTicks` | `number` | `6` | Number of tick labels |
 | `tickerHalfWidth` | `number` | `50` | Fade radius for labels |
+| `tickMode` | `"domain" \| "data"` | `"domain"` | `"domain"` for evenly spaced ticks; `"data"` for one label per row |
 
 ### ChartTooltip
 
@@ -659,46 +189,13 @@ interface ChartMarker {
 | `showLines` | `boolean` | `true` | Show vertical guide lines |
 | `animate` | `boolean` | `true` | Animate markers on entrance |
 
-## Custom Tooltip Content
-
-You can fully customize the tooltip content:
-
-```tsx
-<ChartTooltip
-  content={({ point, index }) => (
-    <div className="p-3">
-      <h3 className="font-bold">{point.date.toLocaleDateString()}</h3>
-      <p>Users: {point.users}</p>
-      <p>Views: {point.pageviews}</p>
-    </div>
-  )}
-/>
-```
-
-Or customize just the rows:
-
-```tsx
-<ChartTooltip
-  rows={(point) => [
-    { color: "var(--chart-line-primary)", label: "Active Users", value: point.users },
-    { color: "var(--chart-line-secondary)", label: "Page Views", value: point.pageviews },
-  ]}
-/>
-```
-
 ## Segment Selection
 
-import { SegmentDemo } from "@/components/docs/segment-demo";
-
-Add click-drag and touch segment selection to your chart with composable components. The line highlight automatically shows the selected path segment.
-
-<ComponentPreview>
-  <SegmentDemo />
-</ComponentPreview>
+Add click-drag and touch segment selection with composable components. The line highlight automatically shows the selected path segment.
 
 ### Basic Usage
 
-Click and drag (or two-finger touch on mobile) to select a range. The three segment components are fully composable -- use all of them or just the ones you need:
+Click and drag (or two-finger touch on mobile) to select a range:
 
 ```tsx
 import { LineChart, Line, Grid, XAxis, ChartTooltip, SegmentBackground, SegmentLineFrom, SegmentLineTo } from "@bklitui/ui/charts";
@@ -714,52 +211,11 @@ import { LineChart, Line, Grid, XAxis, ChartTooltip, SegmentBackground, SegmentL
 </LineChart>
 ```
 
-### Line Variants
-
-Each segment boundary line supports three visual styles:
-
-```tsx
-{/* Dashed lines (default) */}
-<SegmentLineFrom variant="dashed" />
-<SegmentLineTo variant="dashed" />
-
-{/* Solid lines */}
-<SegmentLineFrom variant="solid" />
-<SegmentLineTo variant="solid" />
-
-{/* Gradient fade (transparent at top/bottom edges) */}
-<SegmentLineFrom variant="gradient" />
-<SegmentLineTo variant="gradient" />
-```
-
-### Background Only
-
-Use just the background highlight without boundary lines:
-
-```tsx
-<LineChart data={data}>
-  <Line dataKey="users" />
-  <SegmentBackground />
-  <ChartTooltip />
-</LineChart>
-```
-
-### Lines Only
-
-Use just the boundary lines without the background:
-
-```tsx
-<LineChart data={data}>
-  <Line dataKey="users" />
-  <SegmentLineFrom variant="solid" />
-  <SegmentLineTo variant="solid" />
-  <ChartTooltip />
-</LineChart>
-```
+Use `SegmentBackground`, `SegmentLineFrom`, and `SegmentLineTo` independently — you do not need all three. Boundary lines support `variant="dashed" | "solid" | "gradient"`.
 
 ### Reading Selection Data
 
-Use the `useChart` hook inside a child component to read the active selection and update external UI (like a header card):
+Use the `useChart` hook inside a child component to read the active selection:
 
 ```tsx
 import { useChart } from "@bklitui/ui/charts";

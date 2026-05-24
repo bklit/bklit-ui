@@ -8,9 +8,18 @@ import { AreaClosed, LinePath } from "@visx/shape";
 type CurveFactory = any;
 
 import { motion, useMotionTemplate, useSpring } from "motion/react";
-import { useCallback, useId, useMemo, useRef } from "react";
+import { useId, useMemo, useRef } from "react";
+import { AreaGradientDefs } from "./area-gradient-defs";
 import { chartCssVars, useChart } from "./chart-context";
 import { ChartRevealClip } from "./chart-reveal-clip";
+import {
+  resolveDashTailBounds,
+  usePathStrokeMetrics,
+} from "./path-stroke-utils";
+import { SeriesDashTailOverlay } from "./series-dash-tail-overlay";
+import { SeriesMarkers } from "./series-markers";
+import type { SeriesPointMarkerStyle } from "./series-point-marker";
+import { useAreaSegmentHighlight } from "./use-area-segment-highlight";
 
 export interface AreaProps {
   /** Key in data to use for y values */
@@ -35,8 +44,20 @@ export interface AreaProps {
   gradientToOpacity?: number;
   /** Whether to fade the area fill at left/right edges. Default: false */
   fadeEdges?: boolean;
+  /** Render scatter-style circle markers at each data point. Default: false */
+  showMarkers?: boolean;
+  /** Marker styling (same options as Scatter). */
+  markers?: SeriesPointMarkerStyle;
+  /**
+   * Data index from which the line stroke becomes dashed (inclusive).
+   * Useful for projecting incomplete periods, e.g. dashed from yesterday through today.
+   */
+  dashFromIndex?: number;
+  /** Dash pattern for the tail segment when `dashFromIndex` is set. Default: "6,4" */
+  dashArray?: string;
 }
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: gradient defs and fill/stroke layers share one composable entry point
 export function Area({
   dataKey,
   fill = chartCssVars.linePrimary,
@@ -49,6 +70,10 @@ export function Area({
   showHighlight = true,
   gradientToOpacity = 0,
   fadeEdges = false,
+  showMarkers = false,
+  markers,
+  dashFromIndex,
+  dashArray = "6,4",
 }: AreaProps) {
   const {
     data,
@@ -65,6 +90,8 @@ export function Area({
   } = useChart();
 
   const pathRef = useRef<SVGPathElement>(null);
+  const pathMetricsKey = `${data.length}:${innerWidth}:${dashFromIndex}:${showLine}`;
+  const { pathLength, pathD } = usePathStrokeMetrics(pathRef, pathMetricsKey);
 
   // Unique IDs for this area
   const uniqueId = useId();
@@ -90,116 +117,15 @@ export function Area({
   const resolvedStroke =
     stroke || (isPatternFill ? chartCssVars.linePrimary : fill);
 
-  const getY = useCallback(
-    (d: Record<string, unknown>) => {
-      const value = d[dataKey];
-      return typeof value === "number" ? (yScale(value) ?? 0) : 0;
-    },
-    [dataKey, yScale]
-  );
-
-  /** Polyline chord lengths along data order (no DOM); used for highlight dash math */
-  const chordMetrics = useMemo(() => {
-    const cumulative: number[] = [0];
-    let total = 0;
-    for (let i = 1; i < data.length; i++) {
-      const d0 = data[i - 1];
-      const d1 = data[i];
-      if (!(d0 && d1)) {
-        continue;
-      }
-      const x0 = xScale(xAccessor(d0)) ?? 0;
-      const x1 = xScale(xAccessor(d1)) ?? 0;
-      const y0 = getY(d0);
-      const y1 = getY(d1);
-      total += Math.hypot(x1 - x0, y1 - y0);
-      cumulative.push(total);
-    }
-    return { cumulative, total };
-  }, [data, xScale, xAccessor, getY]);
-
-  const approximateLengthAtX = useCallback(
-    (targetX: number) => {
-      if (data.length < 2) {
-        return 0;
-      }
-      const { cumulative } = chordMetrics;
-      for (let i = 1; i < data.length; i++) {
-        const dPrev = data[i - 1];
-        const dCur = data[i];
-        if (!(dPrev && dCur)) {
-          continue;
-        }
-        const x0 = xScale(xAccessor(dPrev)) ?? 0;
-        const x1 = xScale(xAccessor(dCur)) ?? 0;
-        const atLast = i === data.length - 1;
-        const spanEnd = Math.max(x0, x1);
-        if (targetX <= spanEnd || atLast) {
-          const prev = cumulative[i - 1] ?? 0;
-          const segLen = (cumulative[i] ?? 0) - prev;
-          const denom = x1 - x0;
-          if (Math.abs(denom) < 1e-6) {
-            return prev;
-          }
-          const t = Math.max(0, Math.min(1, (targetX - x0) / denom));
-          return prev + t * segLen;
-        }
-      }
-      return chordMetrics.total;
-    },
-    [data, xScale, xAccessor, chordMetrics]
-  );
-
-  // Calculate segment bounds for highlight from either selection or hover
-  const segmentBounds = useMemo(() => {
-    if (data.length < 2 || chordMetrics.total <= 0) {
-      return { startLength: 0, segmentLength: 0, isActive: false };
-    }
-
-    if (selection?.active) {
-      const startLength = approximateLengthAtX(selection.startX);
-      const endLength = approximateLengthAtX(selection.endX);
-      return {
-        startLength,
-        segmentLength: Math.max(0, endLength - startLength),
-        isActive: true,
-      };
-    }
-
-    if (!tooltipData) {
-      return { startLength: 0, segmentLength: 0, isActive: false };
-    }
-
-    const idx = tooltipData.index;
-    const startIdx = Math.max(0, idx - 1);
-    const endIdx = Math.min(data.length - 1, idx + 1);
-
-    const startPoint = data[startIdx];
-    const endPoint = data[endIdx];
-    if (!(startPoint && endPoint)) {
-      return { startLength: 0, segmentLength: 0, isActive: false };
-    }
-
-    const startX = xScale(xAccessor(startPoint)) ?? 0;
-    const endX = xScale(xAccessor(endPoint)) ?? 0;
-
-    const startLength = approximateLengthAtX(startX);
-    const endLength = approximateLengthAtX(endX);
-
-    return {
-      startLength,
-      segmentLength: Math.max(0, endLength - startLength),
-      isActive: true,
-    };
-  }, [
+  const { chordMetrics, segmentBounds, getY } = useAreaSegmentHighlight({
+    data,
+    dataKey,
     tooltipData,
     selection,
-    data,
     xScale,
+    yScale,
     xAccessor,
-    chordMetrics.total,
-    approximateLengthAtX,
-  ]);
+  });
 
   // Springs for smooth highlight animation (both offset AND segment length)
   const springConfig = { stiffness: 180, damping: 28 };
@@ -213,81 +139,25 @@ export function Area({
   const animatedDasharray = useMotionTemplate`${segmentLengthSpring} ${chordMetrics.total}`;
 
   const isHovering = tooltipData !== null || selection?.active === true;
+  const hasDashTail = resolveDashTailBounds(dashFromIndex, data.length);
+  const strokePaint = `url(#${strokeGradientId})`;
 
   return (
     <>
-      {/* Gradient definitions (pattern fills use fill directly) */}
-      <defs>
-        {!isPatternFill && (
-          <linearGradient id={gradientId} x1="0%" x2="0%" y1="0%" y2="100%">
-            <stop
-              offset="0%"
-              style={{ stopColor: fill, stopOpacity: fillOpacity }}
-            />
-            <stop
-              offset="100%"
-              style={{ stopColor: fill, stopOpacity: gradientToOpacity }}
-            />
-          </linearGradient>
-        )}
-
-        <linearGradient id={strokeGradientId} x1="0%" x2="100%" y1="0%" y2="0%">
-          <stop
-            offset="0%"
-            style={{ stopColor: resolvedStroke, stopOpacity: 0 }}
-          />
-          <stop
-            offset="15%"
-            style={{ stopColor: resolvedStroke, stopOpacity: 1 }}
-          />
-          <stop
-            offset="85%"
-            style={{ stopColor: resolvedStroke, stopOpacity: 1 }}
-          />
-          <stop
-            offset="100%"
-            style={{ stopColor: resolvedStroke, stopOpacity: 0 }}
-          />
-        </linearGradient>
-
-        {fadeEdges && !isPatternFill && (
-          <>
-            <linearGradient
-              id={edgeGradientId}
-              x1="0%"
-              x2="100%"
-              y1="0%"
-              y2="0%"
-            >
-              <stop
-                offset="0%"
-                style={{ stopColor: "white", stopOpacity: 0 }}
-              />
-              <stop
-                offset="20%"
-                style={{ stopColor: "white", stopOpacity: 1 }}
-              />
-              <stop
-                offset="80%"
-                style={{ stopColor: "white", stopOpacity: 1 }}
-              />
-              <stop
-                offset="100%"
-                style={{ stopColor: "white", stopOpacity: 0 }}
-              />
-            </linearGradient>
-            <mask id={edgeMaskId}>
-              <rect
-                fill={`url(#${edgeGradientId})`}
-                height={innerHeight}
-                width={innerWidth}
-                x="0"
-                y="0"
-              />
-            </mask>
-          </>
-        )}
-      </defs>
+      <AreaGradientDefs
+        edgeGradientId={edgeGradientId}
+        edgeMaskId={edgeMaskId}
+        fadeEdges={fadeEdges}
+        fill={fill}
+        fillOpacity={fillOpacity}
+        gradientId={gradientId}
+        gradientToOpacity={gradientToOpacity}
+        innerHeight={innerHeight}
+        innerWidth={innerWidth}
+        isPatternFill={isPatternFill}
+        resolvedStroke={resolvedStroke}
+        strokeGradientId={strokeGradientId}
+      />
 
       {/* Clip path for grow animation - unique per area */}
       {useRevealClip ? (
@@ -328,18 +198,34 @@ export function Area({
           ) : null}
 
           {/* Stroke line on top of area */}
-          {showLine && (
-            <LinePath
-              curve={curve}
-              data={data}
-              innerRef={pathRef}
-              stroke={`url(#${strokeGradientId})`}
-              strokeLinecap="round"
-              strokeWidth={strokeWidth}
-              x={(d) => xScale(xAccessor(d)) ?? 0}
-              y={getY}
-            />
-          )}
+          {showLine ? (
+            <>
+              <LinePath
+                curve={curve}
+                data={data}
+                innerRef={pathRef}
+                stroke={hasDashTail ? "transparent" : strokePaint}
+                strokeLinecap="round"
+                strokeWidth={strokeWidth}
+                x={(d) => xScale(xAccessor(d)) ?? 0}
+                y={getY}
+              />
+              <SeriesDashTailOverlay
+                dashArray={dashArray}
+                dashFromIndex={dashFromIndex}
+                data={data}
+                innerHeight={innerHeight}
+                innerWidth={innerWidth}
+                pathD={pathD}
+                pathLength={pathLength}
+                pathRef={pathRef}
+                stroke={strokePaint}
+                strokeWidth={strokeWidth}
+                xAccessor={xAccessor}
+                xScale={xScale}
+              />
+            </>
+          ) : null}
         </motion.g>
       </g>
 
@@ -365,6 +251,16 @@ export function Area({
             transition={{ duration: 0.4, ease: "easeInOut" }}
           />
         )}
+
+      {showMarkers ? (
+        <SeriesMarkers
+          animate={animate}
+          dataKey={dataKey}
+          {...markers}
+          fill={markers?.fill ?? resolvedStroke}
+          stroke={markers?.stroke ?? markers?.fill ?? resolvedStroke}
+        />
+      ) : null}
     </>
   );
 }

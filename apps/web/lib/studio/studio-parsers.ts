@@ -131,6 +131,13 @@ export const studioSearchParams = {
   scatterInactiveOpacity: parseAsFloat.withDefault(0.5),
   scatterSecondSeries: parseAsBoolean.withDefault(true),
   scatterShowActiveHighlight: parseAsBoolean.withDefault(true),
+  seriesShowMarkers: parseAsBoolean.withDefault(false),
+  seriesMarkerRadius: parseAsFloat.withDefault(5),
+  seriesMarkerRingGap: parseAsFloat.withDefault(2),
+  seriesMarkerRingWidth: parseAsFloat.withDefault(2),
+  seriesDashTail: parseAsBoolean.withDefault(false),
+  seriesDashFromIndex: parseAsInteger.withDefault(4),
+  seriesDashArray: parseAsString.withDefault("6,4"),
 };
 
 export interface StudioUrlState {
@@ -227,6 +234,13 @@ export interface StudioUrlState {
   scatterInactiveOpacity: number;
   scatterSecondSeries: boolean;
   scatterShowActiveHighlight: boolean;
+  seriesShowMarkers: boolean;
+  seriesMarkerRadius: number;
+  seriesMarkerRingGap: number;
+  seriesMarkerRingWidth: number;
+  seriesDashTail: boolean;
+  seriesDashFromIndex: number;
+  seriesDashArray: string;
 }
 
 export function defaultsForChart(): Partial<
@@ -335,6 +349,13 @@ export function defaultStudioState(
     scatterInactiveOpacity: 0.5,
     scatterSecondSeries: true,
     scatterShowActiveHighlight: true,
+    seriesShowMarkers: false,
+    seriesMarkerRadius: 5,
+    seriesMarkerRingGap: 2,
+    seriesMarkerRingWidth: 2,
+    seriesDashTail: false,
+    seriesDashFromIndex: 4,
+    seriesDashArray: "6,4",
     ...overrides,
   };
 }

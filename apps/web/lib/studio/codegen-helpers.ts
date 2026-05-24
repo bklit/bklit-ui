@@ -21,6 +21,7 @@ import {
   motionEnterPropsCodegen,
 } from "./motion-codegen";
 import { patternCodegenBlock } from "./patterns";
+import { seriesStrokePropsCodegen } from "./series-stroke-props";
 import type { StudioUrlState } from "./studio-parsers";
 
 export function cartesianCodegen(
@@ -32,13 +33,15 @@ export function cartesianCodegen(
   const fill = "url(#studio-pattern-fill)";
   const anim = `\n  ${cssRevealAnimationCodegen(state.animationDuration, motionSliceFromState(state))}`;
 
+  const seriesProps = seriesStrokePropsCodegen(state);
+
   let child = "";
   if (chartType === "LineChart") {
-    child = `\n  <Line dataKey="${dataKey}" curve={${curveName}} strokeWidth={${state.strokeWidth}} fadeEdges={${state.fadeEdges}} showHighlight={${state.showHighlight}} />`;
+    child = `\n  <Line dataKey="${dataKey}" curve={${curveName}} strokeWidth={${state.strokeWidth}} fadeEdges={${state.fadeEdges}} showHighlight={${state.showHighlight}}${seriesProps} />`;
   } else if (state.pattern === "none") {
-    child = `\n  <Area dataKey="${dataKey}" curve={${curveName}} fillOpacity={${state.fillOpacity}} strokeWidth={${state.strokeWidth}} fadeEdges={${state.fadeEdges}} gradientToOpacity={${state.gradientToOpacity}} showLine={${state.showLine}} showHighlight={${state.showHighlight}} />`;
+    child = `\n  <Area dataKey="${dataKey}" curve={${curveName}} fillOpacity={${state.fillOpacity}} strokeWidth={${state.strokeWidth}} fadeEdges={${state.fadeEdges}} gradientToOpacity={${state.gradientToOpacity}} showLine={${state.showLine}} showHighlight={${state.showHighlight}}${seriesProps} />`;
   } else {
-    child = `\n  ${patternCodegenBlock(state.pattern)}\n  <PatternArea dataKey="${dataKey}" fill="${fill}" curve={${curveName}} />\n  <Area dataKey="${dataKey}" fillOpacity={0} curve={${curveName}} strokeWidth={${state.strokeWidth}} fadeEdges={${state.fadeEdges}} gradientToOpacity={${state.gradientToOpacity}} showLine={${state.showLine}} showHighlight={${state.showHighlight}} />`;
+    child = `\n  ${patternCodegenBlock(state.pattern)}\n  <PatternArea dataKey="${dataKey}" fill="${fill}" curve={${curveName}} />\n  <Area dataKey="${dataKey}" fillOpacity={0} curve={${curveName}} strokeWidth={${state.strokeWidth}} fadeEdges={${state.fadeEdges}} gradientToOpacity={${state.gradientToOpacity}} showLine={${state.showLine}} showHighlight={${state.showHighlight}}${seriesProps} />`;
   }
 
   let extraImports = "";
@@ -156,6 +159,7 @@ export function composedCodegen(state: StudioUrlState) {
   const curveName = curveImportName(state.curve);
   const barPattern =
     state.pattern === "none" ? "" : `\n  ${patternCodegenBlock(state.pattern)}`;
+  const seriesProps = seriesStrokePropsCodegen(state);
 
   return {
     code: `import { ComposedChart, SeriesBar, Area, Line, Grid, XAxis, ChartTooltip${state.pattern === "none" ? "" : ", PatternLines"} } from "@bklitui/ui/charts";
@@ -165,8 +169,8 @@ import { ${curveName} } from "@visx/curve";
   ${cssRevealAnimationCodegen(state.animationDuration, motionSliceFromState(state))}>
   <Grid horizontal />${barPattern}
   <SeriesBar dataKey="revenue" radius={${state.composedBarRadius}} ${state.pattern === "none" ? 'fill="var(--chart-1)"' : 'fill="url(#studio-pattern-fill)"'} />
-  <Area dataKey="runRate" curve={${curveName}} fillOpacity={${state.fillOpacity}} fadeEdges={${state.fadeEdges}} fill="var(--chart-4)" />
-  <Line dataKey="runRate" curve={${curveName}} strokeWidth={${state.strokeWidth}} fadeEdges={${state.fadeEdges}} stroke="var(--chart-2)" />
+  <Area dataKey="runRate" curve={${curveName}} fillOpacity={${state.fillOpacity}} fadeEdges={${state.fadeEdges}} fill="var(--chart-4)"${seriesProps} />
+  <Line dataKey="runRate" curve={${curveName}} strokeWidth={${state.strokeWidth}} fadeEdges={${state.fadeEdges}} stroke="var(--chart-2)"${seriesProps} />
   <XAxis />
   <ChartTooltip />
 </ComposedChart>`,

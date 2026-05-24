@@ -133,6 +133,10 @@ import {
   composedTriSeriesData,
 } from "@/lib/composed-demo-data";
 import { cn } from "@/lib/utils";
+import {
+  weeklyVisitorsDashFromIndex,
+  weeklyVisitorsData,
+} from "@/lib/weekly-visitors-demo-data";
 
 /** tailwind fuchsia-400 — patterned SeriesBar stroke in composed pattern demo */
 const COMPOSED_PATTERN_FUCHSIA = "#e879f9";
@@ -175,6 +179,11 @@ const multiLineData = [
   { date: new Date(2024, 4, 1), desktop: 209, mobile: 130 },
   { date: new Date(2024, 5, 1), desktop: 214, mobile: 140 },
 ];
+
+const weeklyVisitorsCast = weeklyVisitorsData as unknown as Record<
+  string,
+  unknown
+>[];
 
 /** 24 months — desktop vs mobile for scatter hero and gallery examples */
 const scatterMultiSeriesData = Array.from({ length: 24 }, (_, i) => ({
@@ -970,6 +979,72 @@ function makeAreaExamples(): ChartExample[] {
         </AreaExampleChart>
       ),
     },
+    {
+      title: "Area Chart - Series Markers",
+      description:
+        "Scatter-style ring markers at each point — same styling as Scatter",
+      code: `<AreaChart data={chartData} xDataKey="date">
+  <Grid horizontal />
+  <Area
+    dataKey="visitors"
+    fill="var(--chart-line-primary)"
+    fillOpacity={0.35}
+    showMarkers
+    markers={{ radius: 5, ringGap: 2, strokeWidth: 2 }}
+  />
+  <XAxis tickMode="data" />
+  <ChartTooltip />
+</AreaChart>`,
+      render: () => (
+        <AreaExampleChart data={weeklyVisitorsCast} xDataKey="date">
+          <Grid horizontal />
+          <Area
+            dataKey="visitors"
+            fill="var(--chart-line-primary)"
+            fillOpacity={0.35}
+            showMarkers
+            stroke="var(--chart-line-primary)"
+          />
+          <XAxis tickMode="data" />
+          <ChartTooltip />
+        </AreaExampleChart>
+      ),
+    },
+    {
+      title: "Area Chart - Dashed Tail",
+      description:
+        "Solid stroke through yesterday, dashed projection for the in-progress day",
+      code: `<AreaChart data={chartData} xDataKey="date">
+  <Grid horizontal />
+  <Area
+    dataKey="visitors"
+    dashArray="6,4"
+    dashFromIndex={5}
+    fill="var(--chart-line-primary)"
+    fillOpacity={0.35}
+    stroke="var(--chart-line-primary)"
+  />
+  <XAxis tickMode="data" />
+  <ChartTooltip />
+</AreaChart>`,
+      footer:
+        "dashFromIndex is inclusive — the stroke dashes from that data row through the end",
+      render: () => (
+        <AreaExampleChart data={weeklyVisitorsCast} xDataKey="date">
+          <Grid horizontal />
+          <Area
+            dashArray="6,4"
+            dashFromIndex={weeklyVisitorsDashFromIndex}
+            dataKey="visitors"
+            fill="var(--chart-line-primary)"
+            fillOpacity={0.35}
+            stroke="var(--chart-line-primary)"
+          />
+          <XAxis tickMode="data" />
+          <ChartTooltip />
+        </AreaExampleChart>
+      ),
+    },
   ];
 }
 
@@ -1475,6 +1550,63 @@ function makeComposedExamples(): ChartExample[] {
         </ComposedExampleChart>
       ),
     },
+    {
+      title: "Composed Chart — Markers & dashed tail",
+      description:
+        "Ring markers and a dashed projection on the run-rate line and area stroke",
+      code: `<ComposedChart data={data} xDataKey="date" aspectRatio="3 / 2">
+  <Grid horizontal />
+  <SeriesBar dataKey="revenue" fill="var(--chart-1)" radius={4} />
+  <Area
+    dataKey="runRate"
+    dashArray="6,4"
+    dashFromIndex={4}
+    fill="var(--chart-4)"
+    fillOpacity={0.3}
+    showMarkers
+  />
+  <Line
+    dataKey="runRate"
+    dashArray="6,4"
+    dashFromIndex={4}
+    showMarkers
+    stroke="var(--chart-2)"
+    strokeWidth={2}
+  />
+  <ChartTooltip showCrosshair={false} />
+  <XAxis tickMode="data" />
+</ComposedChart>`,
+      footer:
+        "Use dashFromIndex on Line and Area when projecting an incomplete final period",
+      render: () => (
+        <ComposedExampleChart
+          aspectRatio="3 / 2"
+          data={dataCast}
+          xDataKey="date"
+        >
+          <Grid horizontal />
+          <SeriesBar dataKey="revenue" fill="var(--chart-1)" radius={4} />
+          <Area
+            dashArray="6,4"
+            dashFromIndex={4}
+            dataKey="runRate"
+            fill="var(--chart-4)"
+            fillOpacity={0.3}
+            showMarkers
+          />
+          <Line
+            dashArray="6,4"
+            dashFromIndex={4}
+            dataKey="runRate"
+            showMarkers
+            stroke="var(--chart-2)"
+            strokeWidth={2}
+          />
+          <ChartTooltip showCrosshair={false} />
+          <XAxis tickMode="data" />
+        </ComposedExampleChart>
+      ),
+    },
   ];
 }
 
@@ -1616,6 +1748,70 @@ function makeLineExamples(): ChartExample[] {
           <Grid horizontal vertical />
           <Line dataKey="desktop" strokeWidth={2} />
           <XAxis />
+          <ChartTooltip />
+        </LineExampleChart>
+      ),
+    },
+    {
+      title: "Line Chart - Series Markers",
+      description:
+        "Ring markers at each data point with the same config as Scatter",
+      code: `<LineChart data={chartData} xDataKey="date">
+  <Grid horizontal />
+  <Line
+    dataKey="visitors"
+    fadeEdges={false}
+    showMarkers
+    stroke="var(--chart-line-primary)"
+    strokeWidth={2.5}
+  />
+  <XAxis tickMode="data" />
+  <ChartTooltip />
+</LineChart>`,
+      render: () => (
+        <LineExampleChart data={weeklyVisitorsCast} xDataKey="date">
+          <Grid horizontal />
+          <Line
+            dataKey="visitors"
+            fadeEdges={false}
+            showMarkers
+            stroke="var(--chart-line-primary)"
+            strokeWidth={2.5}
+          />
+          <XAxis tickMode="data" />
+          <ChartTooltip />
+        </LineExampleChart>
+      ),
+    },
+    {
+      title: "Line Chart - Dashed Tail",
+      description:
+        "Curved dashed segment from a chosen index — useful for incomplete periods",
+      code: `<LineChart data={chartData} xDataKey="date">
+  <Grid horizontal />
+  <Line
+    dataKey="visitors"
+    dashArray="6,4"
+    dashFromIndex={5}
+    stroke="var(--chart-line-primary)"
+    strokeWidth={2.5}
+  />
+  <XAxis tickMode="data" />
+  <ChartTooltip />
+</LineChart>`,
+      footer:
+        "The dashed tail follows the same curve and edge fade as the solid stroke",
+      render: () => (
+        <LineExampleChart data={weeklyVisitorsCast} xDataKey="date">
+          <Grid horizontal />
+          <Line
+            dashArray="6,4"
+            dashFromIndex={weeklyVisitorsDashFromIndex}
+            dataKey="visitors"
+            stroke="var(--chart-line-primary)"
+            strokeWidth={2.5}
+          />
+          <XAxis tickMode="data" />
           <ChartTooltip />
         </LineExampleChart>
       ),
