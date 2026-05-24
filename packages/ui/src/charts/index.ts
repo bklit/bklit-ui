@@ -242,6 +242,16 @@ export {
 } from "./segment";
 // Series bar (time-based columns for ComposedChart)
 export { SeriesBar, type SeriesBarProps } from "./series-bar";
+export {
+  SeriesMarkers,
+  type SeriesMarkersProps,
+} from "./series-markers";
+export {
+  getSeriesMarkerVisualExtent,
+  SeriesPointMarker,
+  type SeriesPointMarkerProps,
+  type SeriesPointMarkerStyle,
+} from "./series-point-marker";
 // Tooltip components
 export {
   ChartTooltip,

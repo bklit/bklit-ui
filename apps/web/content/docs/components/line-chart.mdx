@@ -5,6 +5,7 @@ description: A composable line chart with tooltips, markers, and hover interacti
 
 import { LineChart, Line, Grid, XAxis, ChartTooltip, ChartMarkers } from "@bklitui/ui/charts";
 import { MarkerContentDemo } from "@/components/docs/marker-content-demo";
+import { SeriesStrokeDocsDemo } from "@/components/docs/series-stroke-docs-demo";
 import {
   lineChartDocsData as chartData,
   lineChartDocsMarkers as demoMarkers,
@@ -180,6 +181,43 @@ import { curveStep, curveMonotoneX, curveBasis } from "@visx/curve";
   <ChartTooltip />
 </LineChart>
 ```
+
+### Series point markers
+
+Add scatter-style ring markers at each data point with `showMarkers`. Marker styling uses the same options as [`Scatter`](/docs/components/scatter-chart) via the `markers` prop:
+
+```tsx
+<LineChart data={data} xDataKey="date">
+  <Line
+    dataKey="visitors"
+    showMarkers
+    markers={{ radius: 5, ringGap: 2, strokeWidth: 2 }}
+    stroke="var(--chart-line-primary)"
+  />
+  <XAxis tickMode="data" />
+  <ChartTooltip />
+</LineChart>
+```
+
+### Dashed tail
+
+Use `dashFromIndex` to draw a solid stroke through one point, then a dashed segment through the end of the series. Useful when the final period is still in progress (e.g. yesterday → today). The dashed segment follows the same curve and `fadeEdges` gradient as the solid stroke.
+
+```tsx
+<LineChart data={weeklyData} xDataKey="date">
+  <Line
+    dataKey="visitors"
+    dashFromIndex={5}
+    dashArray="6,4"
+    showMarkers
+    stroke="var(--chart-line-primary)"
+  />
+  <XAxis tickMode="data" />
+  <ChartTooltip />
+</LineChart>
+```
+
+<SeriesStrokeDocsDemo />
 
 ### Grid Variations
 
@@ -557,6 +595,10 @@ Renders a line on the chart.
 | `animate` | `boolean` | `true` | Enable grow animation |
 | `fadeEdges` | `boolean` | `true` | Fade line at edges |
 | `showHighlight` | `boolean` | `true` | Show highlight on hover |
+| `showMarkers` | `boolean` | `false` | Render ring markers at each point |
+| `markers` | `SeriesPointMarkerStyle` | — | Marker radius, ring gap, ring width, hover fade |
+| `dashFromIndex` | `number` | — | Data index where the dashed tail begins (inclusive) |
+| `dashArray` | `string` | `"6,4"` | SVG dash pattern for the tail segment |
 
 ### Grid
 

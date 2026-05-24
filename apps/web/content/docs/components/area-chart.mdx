@@ -6,6 +6,7 @@ description: A composable area chart with gradient fills, tooltips, and hover in
 import { AreaChart, Area, Grid, XAxis, ChartTooltip, PatternLines, PatternArea } from "@bklitui/ui/charts";
 import { AreaTooltipDemo } from "@/components/docs/area-tooltip-demo";
 import { AreaChartPatternDemo } from "@/components/docs/area-chart-pattern-demo";
+import { SeriesStrokeDocsDemo } from "@/components/docs/series-stroke-docs-demo";
 
 export const chartData = [
   { date: new Date(Date.now() - 29 * 24 * 60 * 60 * 1000), revenue: 12000, costs: 8500 },
@@ -113,8 +114,35 @@ Renders a filled area on the chart with a gradient fill.
 | `showLine` | `boolean` | `true` | Show stroke line on top |
 | `showHighlight` | `boolean` | `true` | Show highlight on hover |
 | `gradientToOpacity` | `number` | `0` | Opacity at bottom of gradient |
+| `fadeEdges` | `boolean` | `false` | Fade area fill at left/right edges |
+| `showMarkers` | `boolean` | `false` | Render ring markers at each point |
+| `markers` | `SeriesPointMarkerStyle` | — | Marker radius, ring gap, ring width, hover fade |
+| `dashFromIndex` | `number` | — | Data index where the dashed tail begins (inclusive) |
+| `dashArray` | `string` | `"6,4"` | SVG dash pattern for the tail segment |
 
 ## Examples
+
+### Series markers and dashed tail
+
+`Area` supports the same `showMarkers`, `markers`, `dashFromIndex`, and `dashArray` props as `Line`. The dashed stroke follows the full curved path and respects the stroke gradient fade.
+
+```tsx
+<AreaChart data={weeklyData} xDataKey="date">
+  <Grid horizontal />
+  <Area
+    dataKey="visitors"
+    dashFromIndex={5}
+    dashArray="6,4"
+    showMarkers
+    fill="var(--chart-line-primary)"
+    fillOpacity={0.35}
+  />
+  <XAxis tickMode="data" />
+  <ChartTooltip />
+</AreaChart>
+```
+
+<SeriesStrokeDocsDemo />
 
 ### Single Area
 

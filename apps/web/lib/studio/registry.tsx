@@ -96,6 +96,7 @@ import {
   sankeyChartControlGroups,
   scatterChartControlGroups,
 } from "./registry-control-groups";
+import { seriesStrokePropsFromState } from "./series-stroke-props";
 import type { ChartSlug, StudioChartConfig } from "./types";
 import { chartLabels } from "./types";
 
@@ -122,6 +123,7 @@ const areaConfig: StudioChartConfig = {
   render: (state, ctx) => {
     const curve = resolveCurve(state.curve);
     const fill = ctx.patternFill ?? undefined;
+    const seriesStroke = seriesStrokePropsFromState(state, areaData.length);
     return (
       <StudioCartesianFill>
         <AreaChart
@@ -144,6 +146,7 @@ const areaConfig: StudioChartConfig = {
             showHighlight={state.showHighlight}
             showLine={state.showLine}
             strokeWidth={state.strokeWidth}
+            {...seriesStroke}
           />
           <XAxis />
           <ChartTooltip />
@@ -179,6 +182,7 @@ const lineConfig: StudioChartConfig = {
           fadeEdges={state.fadeEdges}
           showHighlight={state.showHighlight}
           strokeWidth={state.strokeWidth}
+          {...seriesStrokePropsFromState(state, lineHeroData.length)}
         />
         <XAxis />
         <ChartTooltip />
@@ -317,6 +321,10 @@ const composedConfig: StudioChartConfig = {
   controlGroups: composedChartControlGroups,
   render: (state, ctx) => {
     const curve = resolveCurve(state.curve);
+    const seriesStroke = seriesStrokePropsFromState(
+      state,
+      composedDemoData.length
+    );
     return (
       <StudioCartesianFill>
         <ComposedChart
@@ -338,6 +346,7 @@ const composedConfig: StudioChartConfig = {
             fadeEdges={state.fadeEdges}
             fill="var(--chart-4)"
             fillOpacity={state.fillOpacity}
+            {...seriesStroke}
           />
           <Line
             curve={curve}
@@ -345,6 +354,7 @@ const composedConfig: StudioChartConfig = {
             fadeEdges={state.fadeEdges}
             stroke="var(--chart-2)"
             strokeWidth={state.strokeWidth}
+            {...seriesStroke}
           />
           <XAxis />
           <ChartTooltip />
