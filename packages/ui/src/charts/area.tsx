@@ -7,11 +7,12 @@ import { AreaClosed, LinePath } from "@visx/shape";
 // biome-ignore lint/suspicious/noExplicitAny: d3 curve factory type
 type CurveFactory = any;
 
-import { motion, useMotionTemplate, useSpring } from "motion/react";
-import { useId, useMemo, useRef } from "react";
+import { motion } from "motion/react";
+import { useCallback, useId, useMemo, useRef } from "react";
 import { AreaGradientDefs } from "./area-gradient-defs";
 import { chartCssVars, useChart } from "./chart-context";
 import { ChartRevealClip } from "./chart-reveal-clip";
+import { HighlightSegment } from "./highlight-segment";
 import {
   resolveDashTailBounds,
   usePathStrokeMetrics,
@@ -19,7 +20,7 @@ import {
 import { SeriesDashTailOverlay } from "./series-dash-tail-overlay";
 import { SeriesMarkers } from "./series-markers";
 import type { SeriesPointMarkerStyle } from "./series-point-marker";
-import { useAreaSegmentHighlight } from "./use-area-segment-highlight";
+import { useHighlightSegment } from "./use-highlight-segment";
 
 export interface AreaProps {
   /** Key in data to use for y values */
@@ -117,26 +118,19 @@ export function Area({
   const resolvedStroke =
     stroke || (isPatternFill ? chartCssVars.linePrimary : fill);
 
-  const { chordMetrics, segmentBounds, getY } = useAreaSegmentHighlight({
-    data,
-    dataKey,
-    tooltipData,
-    selection,
-    xScale,
-    yScale,
-    xAccessor,
+  const getY = useCallback(
+    (d: Record<string, unknown>) => {
+      const value = d[dataKey];
+      return typeof value === "number" ? (yScale(value) ?? 0) : 0;
+    },
+    [dataKey, yScale]
+  );
+
+  // Hover-highlight band via the shared hook. Disabled when there is no stroke
+  // to highlight (showLine={false}) or the highlight is off.
+  const { xSpring, widthSpring, isActive } = useHighlightSegment({
+    enabled: showHighlight && showLine,
   });
-
-  // Springs for smooth highlight animation (both offset AND segment length)
-  const springConfig = { stiffness: 180, damping: 28 };
-  const offsetSpring = useSpring(0, springConfig);
-  const segmentLengthSpring = useSpring(0, springConfig);
-
-  offsetSpring.set(-segmentBounds.startLength);
-  segmentLengthSpring.set(segmentBounds.segmentLength);
-
-  // Create animated strokeDasharray using motion template
-  const animatedDasharray = useMotionTemplate`${segmentLengthSpring} ${chordMetrics.total}`;
 
   const isHovering = tooltipData !== null || selection?.active === true;
   const hasDashTail = resolveDashTailBounds(dashFromIndex, data.length);
@@ -230,27 +224,15 @@ export function Area({
       </g>
 
       {/* Highlight segment on hover */}
-      {showHighlight &&
-        showLine &&
-        isHovering &&
-        isLoaded &&
-        pathRef.current && (
-          <motion.path
-            animate={{ opacity: 1 }}
-            d={pathRef.current.getAttribute("d") || ""}
-            exit={{ opacity: 0 }}
-            fill="none"
-            initial={{ opacity: 0 }}
-            stroke={resolvedStroke}
-            strokeLinecap="round"
-            strokeWidth={strokeWidth}
-            style={{
-              strokeDasharray: animatedDasharray,
-              strokeDashoffset: offsetSpring,
-            }}
-            transition={{ duration: 0.4, ease: "easeInOut" }}
-          />
-        )}
+      <HighlightSegment
+        height={innerHeight}
+        pathRef={pathRef}
+        stroke={resolvedStroke}
+        strokeWidth={strokeWidth}
+        visible={showHighlight && showLine && isActive && isLoaded}
+        width={widthSpring}
+        x={xSpring}
+      />
 
       {showMarkers ? (
         <SeriesMarkers
