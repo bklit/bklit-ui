@@ -78,6 +78,7 @@ export function Area({
 }: AreaProps) {
   const {
     data,
+    renderData,
     xScale,
     yScale,
     innerHeight,
@@ -91,7 +92,7 @@ export function Area({
   } = useChart();
 
   const pathRef = useRef<SVGPathElement>(null);
-  const pathMetricsKey = `${data.length}:${innerWidth}:${dashFromIndex}:${showLine}`;
+  const pathMetricsKey = `${renderData.length}:${innerWidth}:${dashFromIndex}:${showLine}`;
   const { pathLength, pathD } = usePathStrokeMetrics(pathRef, pathMetricsKey);
 
   // Unique IDs for this area
@@ -101,7 +102,7 @@ export function Area({
   const edgeMaskId = `area-edge-mask-${dataKey}-${uniqueId}`;
   const edgeGradientId = `${edgeMaskId}-gradient`;
   const revealClipId = `grow-clip-area-${dataKey}-${uniqueId}`;
-  const useRevealClip = animate && data.length > 1 && innerWidth > 0;
+  const useRevealClip = animate && renderData.length > 1 && innerWidth > 0;
 
   const isPatternFill = fill.startsWith("url(");
   const showAreaFill = isPatternFill || fillOpacity > 0;
@@ -175,7 +176,7 @@ export function Area({
             >
               <AreaClosed
                 curve={curve}
-                data={data}
+                data={renderData}
                 fill={areaFill}
                 x={(d) => xScale(xAccessor(d)) ?? 0}
                 y={getY}
@@ -189,7 +190,7 @@ export function Area({
             <>
               <LinePath
                 curve={curve}
-                data={data}
+                data={renderData}
                 innerRef={pathRef}
                 stroke={hasDashTail ? "transparent" : strokePaint}
                 strokeLinecap="round"

@@ -4,12 +4,29 @@ import { motion, useSpring } from "motion/react";
 import { memo, useMemo, useRef } from "react";
 
 const TICKER_ITEM_HEIGHT = 24;
+/** Full scroll stacks are skipped above this count — single label + instant updates. */
+const COMPACT_TICKER_THRESHOLD = 60;
 
 export interface DateTickerProps {
   currentIndex: number;
   labels: string[];
   visible: boolean;
 }
+
+const DateTickerCompact = memo(function DateTickerCompact({
+  currentIndex,
+  labels,
+}: Omit<DateTickerProps, "visible">) {
+  const label = labels[currentIndex] ?? labels[0] ?? "";
+
+  return (
+    <div className="overflow-hidden rounded-full bg-zinc-900 px-4 py-1 text-white shadow-lg dark:bg-zinc-100 dark:text-zinc-900">
+      <div className="flex h-6 items-center justify-center">
+        <span className="whitespace-nowrap font-medium text-sm">{label}</span>
+      </div>
+    </div>
+  );
+});
 
 const DateTickerInner = memo(function DateTickerInner({
   currentIndex,
@@ -119,6 +136,10 @@ const DateTickerInner = memo(function DateTickerInner({
 export function DateTicker({ currentIndex, labels, visible }: DateTickerProps) {
   if (!visible || labels.length === 0) {
     return null;
+  }
+
+  if (labels.length > COMPACT_TICKER_THRESHOLD) {
+    return <DateTickerCompact currentIndex={currentIndex} labels={labels} />;
   }
 
   return <DateTickerInner currentIndex={currentIndex} labels={labels} />;

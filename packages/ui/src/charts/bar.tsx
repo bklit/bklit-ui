@@ -111,18 +111,20 @@ function AnimatedBar({
     : { width, height, x, y };
 
   return (
-    <motion.rect
-      animate={{
-        ...target,
-        opacity: isFaded ? fadedOpacity : 1,
-      }}
-      fill={fill}
-      initial={initial}
-      key={`grow-${index}-${revealEpoch}`}
-      rx={rx}
-      ry={ry}
-      transition={enterAnim}
-    />
+    <g
+      opacity={isFaded ? fadedOpacity : 1}
+      style={{ transition: "opacity 0.15s ease-in-out" }}
+    >
+      <motion.rect
+        animate={target}
+        fill={fill}
+        initial={initial}
+        key={`grow-${index}-${revealEpoch}`}
+        rx={rx}
+        ry={ry}
+        transition={enterAnim}
+      />
+    </g>
   );
 }
 
@@ -146,7 +148,6 @@ const BarInner = memo(function BarInner({
     innerHeight,
     isLoaded,
     hoveredBarIndex,
-    setHoveredBarIndex,
     lines,
     orientation,
     stacked,
@@ -309,22 +310,16 @@ const BarInner = memo(function BarInner({
 
         // Static bar after animation completes
         return (
-          <motion.rect
-            animate={{
-              opacity: isFaded ? fadedOpacity : 1,
-            }}
+          <rect
             fill={fill}
             height={barHeight}
             key={barKey}
-            onMouseEnter={() => setHoveredBarIndex?.(i)}
-            onMouseLeave={() => setHoveredBarIndex?.(null)}
+            opacity={isFaded ? fadedOpacity : 1}
             rx={effectiveRx}
             ry={effectiveRy}
             style={{
-              cursor: "pointer",
-            }}
-            transition={{
-              opacity: { duration: 0.15 },
+              cursor: "default",
+              transition: "opacity 0.15s ease-in-out",
             }}
             width={barW}
             x={x}

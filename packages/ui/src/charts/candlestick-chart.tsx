@@ -19,6 +19,10 @@ import {
 import { cn } from "@/lib/utils";
 import { ChartProvider, type LineConfig, type Margin } from "./chart-context";
 import { shortDateFmt } from "./chart-formatters";
+import {
+  decimateOhlcData,
+  maxRenderPointsForWidth,
+} from "./decimate-time-series";
 import { useChartInteraction } from "./use-chart-interaction";
 
 export interface OHLCDataPoint {
@@ -105,9 +109,6 @@ const ChartCore = memo(function ChartCore({
 }: ChartInnerProps) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [revealEpoch, setRevealEpoch] = useState(0);
-  const [hoveredCandleIndex, setHoveredCandleIndex] = useState<number | null>(
-    null
-  );
 
   const innerWidth = width - margin.left - margin.right;
   const innerHeight = height - margin.top - margin.bottom;
@@ -179,6 +180,11 @@ const ChartCore = memo(function ChartCore({
     []
   );
 
+  const renderData = useMemo(
+    () => decimateOhlcData(data, maxRenderPointsForWidth(innerWidth)),
+    [data, innerWidth]
+  );
+
   const dateLabels = useMemo(
     () => data.map((d) => shortDateFmt.format(xAccessor(d))),
     [data, xAccessor]
@@ -210,10 +216,7 @@ const ChartCore = memo(function ChartCore({
     canInteract: isLoaded,
   });
 
-  // Sync hovered candle index from tooltip (so Candlestick can fade others)
-  useEffect(() => {
-    setHoveredCandleIndex(tooltipData?.index ?? null);
-  }, [tooltipData?.index]);
+  const hoveredCandleIndex = tooltipData?.index ?? null;
 
   const isDefsComponent = (child: ReactElement): boolean => {
     const displayName =
@@ -245,6 +248,7 @@ const ChartCore = memo(function ChartCore({
 
   const contextValue = {
     data,
+    renderData,
     xScale,
     yScale,
     width,
@@ -267,7 +271,6 @@ const ChartCore = memo(function ChartCore({
     clearSelection,
     bandWidth,
     hoveredCandleIndex,
-    setHoveredCandleIndex,
   };
 
   return (

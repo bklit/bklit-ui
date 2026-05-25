@@ -68,6 +68,8 @@ export interface LiveLineChartProps {
 
 const LERP_SPEED = 0.08;
 const DEFAULT_MARGIN: Margin = { top: 24, right: 16, bottom: 32, left: 16 };
+/** React commit interval for the live animation loop (~30fps). */
+const LIVE_FRAME_COMMIT_MS = 32;
 
 interface AnimFrame {
   now: number;
@@ -206,6 +208,73 @@ function extractLiveLineConfigs(children: ReactNode): LineConfig[] {
 // Inner chart
 // ---------------------------------------------------------------------------
 
+function liveTooltipKey(
+  tooltip: TooltipData | null,
+  dataKey: string
+): string | null {
+  if (!tooltip) {
+    return null;
+  }
+  return `${Math.round(tooltip.x)}:${Math.round(tooltip.yPositions[dataKey] ?? 0)}`;
+}
+
+function resolveLiveTooltip(
+  cursorX: number | null,
+  innerWidth: number,
+  innerHeight: number,
+  frame: AnimFrame,
+  leadingMs: number,
+  windowMs: number,
+  xTickUnitMs: number,
+  data: LiveLinePoint[],
+  dataKey: string
+): TooltipData | null {
+  if (cursorX === null || innerWidth <= 0 || innerHeight <= 0) {
+    return null;
+  }
+
+  const domainEndMs = frame.now + leadingMs;
+  const xScaleNext = scaleTime({
+    domain: [new Date(domainEndMs - windowMs), new Date(domainEndMs)],
+    range: [0, innerWidth],
+  });
+  const yScaleNext = scaleLinear({
+    domain: [frame.yMin, frame.yMax],
+    range: [innerHeight, 0],
+    nice: true,
+  });
+  const timeMs = xScaleNext.invert(cursorX).getTime();
+  const timeSec = timeMs / 1000;
+  const visible = data.filter((p) => p.time >= (domainEndMs - windowMs) / 1000);
+  visible.push({ time: frame.now / 1000, value: frame.displayValue });
+  visible.push({
+    time: (frame.now + xTickUnitMs) / 1000,
+    value: frame.displayValue,
+  });
+  const val = interpolateAtTime(visible, timeSec);
+  if (val === null) {
+    return null;
+  }
+
+  return {
+    point: { date: new Date(timeMs), [dataKey]: val },
+    index: 0,
+    x: cursorX,
+    yPositions: { [dataKey]: yScaleNext(val) ?? 0 },
+  };
+}
+
+function shouldCommitLiveUpdates(
+  now: number,
+  lastFrameCommit: number,
+  tooltipKey: string | null,
+  lastTooltipKey: string | null
+): { commitFrame: boolean; commitTooltip: boolean } {
+  const commitFrame = now - lastFrameCommit >= LIVE_FRAME_COMMIT_MS;
+  const commitTooltip = tooltipKey !== lastTooltipKey;
+  return { commitFrame, commitTooltip };
+}
+
 interface InnerProps {
   data: LiveLinePoint[];
   value: number;
@@ -293,6 +362,8 @@ const LiveLineChartCore = memo(function LiveLineChartCore({
   // ---- rAF loop: update frame and tooltip in one place to avoid effect→setState loops ----
   const cursorXRef = useRef<number | null>(null);
   const [tooltipData, setTooltipData] = useState<TooltipData | null>(null);
+  const lastFrameCommitRef = useRef(0);
+  const lastTooltipKeyRef = useRef<string | null>(null);
 
   useEffect(() => {
     let raf: number;
@@ -306,49 +377,47 @@ const LiveLineChartCore = memo(function LiveLineChartCore({
       );
       animRef.current = next;
 
-      const domainEndMsNext = next.now + leadingMs;
-      const cursorX = cursorXRef.current;
-      let nextTooltip: TooltipData | null = null;
-      if (cursorX !== null && innerWidth > 0 && innerHeight > 0) {
-        const xScaleNext = scaleTime({
-          domain: [
-            new Date(domainEndMsNext - windowMs),
-            new Date(domainEndMsNext),
-          ],
-          range: [0, innerWidth],
-        });
-        const yScaleNext = scaleLinear({
-          domain: [next.yMin, next.yMax],
-          range: [innerHeight, 0],
-          nice: true,
-        });
-        const timeMs = xScaleNext.invert(cursorX).getTime();
-        const timeSec = timeMs / 1000;
-        const currentData = dataRef.current;
-        const visible = currentData.filter(
-          (p) => p.time >= (domainEndMsNext - windowMs) / 1000
-        );
-        visible.push({ time: next.now / 1000, value: next.displayValue });
-        visible.push({
-          time: (next.now + xTickUnitMs) / 1000,
-          value: next.displayValue,
-        });
-        const val = interpolateAtTime(visible, timeSec);
-        const key = dataKeyRef.current;
-        if (val !== null) {
-          nextTooltip = {
-            point: { date: new Date(timeMs), [key]: val },
-            index: 0,
-            x: cursorX,
-            yPositions: { [key]: yScaleNext(val) ?? 0 },
-          };
-        }
+      const nextTooltip = resolveLiveTooltip(
+        cursorXRef.current,
+        innerWidth,
+        innerHeight,
+        next,
+        leadingMs,
+        windowMs,
+        xTickUnitMs,
+        dataRef.current,
+        dataKeyRef.current
+      );
+      const now = performance.now();
+      const tooltipKey = liveTooltipKey(nextTooltip, dataKeyRef.current);
+      const { commitFrame, commitTooltip } = shouldCommitLiveUpdates(
+        now,
+        lastFrameCommitRef.current,
+        tooltipKey,
+        lastTooltipKeyRef.current
+      );
+
+      if (!(commitFrame || commitTooltip)) {
+        raf = requestAnimationFrame(tick);
+        return;
+      }
+
+      if (commitFrame) {
+        lastFrameCommitRef.current = now;
+      }
+      if (commitTooltip) {
+        lastTooltipKeyRef.current = tooltipKey;
       }
 
       startTransition(() => {
-        setTooltipData(nextTooltip);
-        setFrame(next);
+        if (commitFrame) {
+          setFrame(next);
+        }
+        if (commitTooltip) {
+          setTooltipData(nextTooltip);
+        }
       });
+
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
@@ -443,6 +512,7 @@ const LiveLineChartCore = memo(function LiveLineChartCore({
 
   const handleMouseLeave = useCallback(() => {
     cursorXRef.current = null;
+    lastTooltipKeyRef.current = null;
     setTooltipData(null);
   }, []);
 
@@ -462,6 +532,7 @@ const LiveLineChartCore = memo(function LiveLineChartCore({
   const contextValue = useMemo(
     () => ({
       data: contextData,
+      renderData: contextData,
       xScale,
       yScale,
       width,

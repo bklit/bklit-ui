@@ -69,6 +69,7 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
   } = useChart();
 
   const isHorizontal = orientation === "horizontal";
+  const discreteInteraction = dateLabels.length > 60;
 
   const visible = tooltipData !== null;
   const x = tooltipData?.x ?? 0;
@@ -81,10 +82,12 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
     : 0;
   const yWithMargin = firstLineY + margin.top;
 
-  // Animated crosshair position
+  // Animated crosshair position (springs are skipped for large discrete datasets)
   const animatedX = useSpring(xWithMargin, crosshairSpringConfig);
 
-  animatedX.set(xWithMargin);
+  if (!discreteInteraction) {
+    animatedX.set(xWithMargin);
+  }
 
   // Generate rows from lines
   const tooltipRows = useMemo(() => {
@@ -145,6 +148,7 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
         >
           <g transform={`translate(${margin.left},${margin.top})`}>
             <TooltipIndicator
+              animate={!discreteInteraction}
               colorEdge={indicatorColor}
               colorMid={indicatorColor}
               columnWidth={columnWidth}
@@ -209,7 +213,7 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
         <motion.div
           className="pointer-events-none absolute z-50"
           style={{
-            left: animatedX,
+            left: discreteInteraction ? xWithMargin : animatedX,
             transform: "translateX(-50%)",
             bottom: 4,
           }}

@@ -38,6 +38,8 @@ export interface TooltipIndicatorProps {
   colorMid?: string;
   /** Whether to fade to transparent at 0% and 100% */
   fadeEdges?: boolean;
+  /** Animate position with a spring. Default: true */
+  animate?: boolean;
   /** Unique ID for the gradient */
   gradientId?: string;
 }
@@ -70,6 +72,7 @@ export function TooltipIndicator({
   colorEdge = chartCssVars.crosshair,
   colorMid = chartCssVars.crosshair,
   fadeEdges = true,
+  animate = true,
   gradientId = "tooltip-indicator-gradient",
 }: TooltipIndicatorProps) {
   const pixelWidth =
@@ -77,9 +80,12 @@ export function TooltipIndicator({
       ? span * columnWidth
       : resolveWidth(width);
 
-  const animatedX = useSpring(x - pixelWidth / 2, crosshairSpringConfig);
+  const rectX = x - pixelWidth / 2;
+  const animatedX = useSpring(rectX, crosshairSpringConfig);
 
-  animatedX.set(x - pixelWidth / 2);
+  if (animate) {
+    animatedX.set(rectX);
+  }
 
   if (!visible) {
     return null;
@@ -104,13 +110,23 @@ export function TooltipIndicator({
           />
         </linearGradient>
       </defs>
-      <motion.rect
-        fill={`url(#${gradientId})`}
-        height={height}
-        width={pixelWidth}
-        x={animatedX}
-        y={0}
-      />
+      {animate ? (
+        <motion.rect
+          fill={`url(#${gradientId})`}
+          height={height}
+          width={pixelWidth}
+          x={animatedX}
+          y={0}
+        />
+      ) : (
+        <rect
+          fill={`url(#${gradientId})`}
+          height={height}
+          width={pixelWidth}
+          x={rectX}
+          y={0}
+        />
+      )}
     </g>
   );
 }

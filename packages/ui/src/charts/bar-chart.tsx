@@ -27,6 +27,7 @@ import {
 } from "./chart-context";
 import { isGradientDefComponent, isPatternDefComponent } from "./chart-defs";
 import { shortDateFmt } from "./chart-formatters";
+import { useScheduledTooltip } from "./use-scheduled-tooltip";
 
 export type BarOrientation = "vertical" | "horizontal";
 
@@ -169,10 +170,11 @@ const ChartCore = memo(function ChartCore({
   children,
   containerRef,
 }: ChartInnerProps) {
-  const [tooltipData, setTooltipData] = useState<TooltipData | null>(null);
+  const { tooltipData, setTooltipData, scheduleTooltip, clearTooltip } =
+    useScheduledTooltip<TooltipData>();
   const [isLoaded, setIsLoaded] = useState(false);
   const [revealEpoch, setRevealEpoch] = useState(0);
-  const [hoveredBarIndex, setHoveredBarIndex] = useState<number | null>(null);
+  const hoveredBarIndex = tooltipData?.index ?? null;
 
   const isHorizontal = orientation === "horizontal";
 
@@ -430,14 +432,13 @@ const ChartCore = memo(function ChartCore({
         tooltipX = barPos + bandWidth / 2;
       }
 
-      setTooltipData({
+      scheduleTooltip({
         point: d,
         index: clampedIndex,
         x: tooltipX,
         yPositions,
         xPositions: Object.keys(xPositions).length > 0 ? xPositions : undefined,
       });
-      setHoveredBarIndex(clampedIndex);
     },
     [
       categoryScale,
@@ -452,13 +453,13 @@ const ChartCore = memo(function ChartCore({
       isHorizontal,
       stacked,
       stackGap,
+      scheduleTooltip,
     ]
   );
 
   const handleMouseLeave = useCallback(() => {
-    setTooltipData(null);
-    setHoveredBarIndex(null);
-  }, []);
+    clearTooltip();
+  }, [clearTooltip]);
 
   const canInteract = isLoaded;
 
@@ -485,6 +486,7 @@ const ChartCore = memo(function ChartCore({
 
   const contextValue = {
     data,
+    renderData: data,
     xScale: fakeTimeScale as unknown as ReturnType<
       typeof import("@visx/scale").scaleTime<number>
     >,
@@ -510,7 +512,6 @@ const ChartCore = memo(function ChartCore({
     barScale: categoryScale,
     bandWidth,
     hoveredBarIndex,
-    setHoveredBarIndex,
     barXAccessor: categoryAccessor,
     orientation,
     stacked,
