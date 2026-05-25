@@ -75,10 +75,10 @@ describe("myFn", () => {
 **New package test script:** add to `package.json`:
 
 ```json
-"test": "node --import tsx --test src/**/__tests__/**/*.test.ts"
+"test": "node scripts/run-tests.mjs"
 ```
 
-Add `tsx` as a devDependency if missing. Wire into root `turbo.json` `test` task; CI runs `pnpm test`.
+Use a small `scripts/run-tests.mjs` that collects `*.test.ts` from `__tests__` and invokes `node --import tsx --test` — shell globs break on Linux CI. Add `tsx` as a devDependency if missing. Wire into root `turbo.json` `test` task; CI runs `pnpm test`.
 
 ---
 

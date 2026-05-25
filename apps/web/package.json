@@ -10,7 +10,7 @@
     "start": "next start",
     "lint": "next lint",
     "check-types": "tsc --noEmit",
-    "test": "node --import tsx --test lib/studio/__tests__/**/*.test.ts"
+    "test": "node scripts/run-tests.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.1.0",
