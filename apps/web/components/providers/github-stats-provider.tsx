@@ -14,9 +14,19 @@ interface GithubRepo {
   forks_count: number;
 }
 
+export interface GithubContributor {
+  id: number;
+  login: string;
+  avatar_url: string;
+  html_url: string;
+  contributions: number;
+}
+
 interface GithubStatsContextType {
   data: GithubRepo | null;
+  contributors: GithubContributor[];
   isLoading: boolean;
+  isContributorsLoading: boolean;
 }
 
 const GithubStatsContext = createContext<GithubStatsContextType | undefined>(
@@ -29,20 +39,32 @@ export const GithubStatsProvider = ({
   children: React.ReactNode;
 }) => {
   const [data, setData] = useState<GithubRepo | null>(null);
+  const [contributors, setContributors] = useState<GithubContributor[]>([]);
   const [isLoading, setLoading] = useState(true);
+  const [isContributorsLoading, setContributorsLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const repoResponse = await fetch(
-          "https://api.github.com/repos/bklit/bklit-ui"
-        );
-        const repoData = await repoResponse.json();
+        const [repoResponse, contributorsResponse] = await Promise.all([
+          fetch("https://api.github.com/repos/bklit/bklit-ui"),
+          fetch(
+            "https://api.github.com/repos/bklit/bklit-ui/contributors?per_page=30"
+          ),
+        ]);
+        const [repoData, contributorsData] = await Promise.all([
+          repoResponse.json(),
+          contributorsResponse.json(),
+        ]);
         setData(repoData);
+        if (Array.isArray(contributorsData)) {
+          setContributors(contributorsData);
+        }
       } catch (error) {
         console.error("Error fetching GitHub data:", error);
       } finally {
         setLoading(false);
+        setContributorsLoading(false);
       }
     };
 
@@ -50,7 +72,9 @@ export const GithubStatsProvider = ({
   }, []);
 
   return (
-    <GithubStatsContext.Provider value={{ data, isLoading }}>
+    <GithubStatsContext.Provider
+      value={{ data, contributors, isLoading, isContributorsLoading }}
+    >
       {children}
     </GithubStatsContext.Provider>
   );

@@ -4,6 +4,8 @@ import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import { HomeComponents } from "@/components/home-components";
 import { HomeHero } from "@/components/home-hero";
+import { HomeSponsorsSection } from "@/components/home-sponsors-section";
+import { HomeStudioSection } from "@/components/home-studio-section";
 import { TestimonialGrid } from "@/components/testimonial-grid";
 
 const staggerDelay = 0.12;
@@ -40,6 +42,26 @@ export default function HomePage() {
               className="container mx-auto w-full max-w-6xl"
               initial="initial"
               transition={{ delay: staggerDelay * 3, duration: 0.6 }}
+              variants={fadeInOnly}
+            >
+              <HomeStudioSection />
+            </motion.div>
+
+            <motion.div
+              animate="animate"
+              className="container mx-auto w-full max-w-6xl"
+              initial="initial"
+              transition={{ delay: staggerDelay * 4, duration: 0.6 }}
+              variants={fadeInOnly}
+            >
+              <HomeSponsorsSection />
+            </motion.div>
+
+            <motion.div
+              animate="animate"
+              className="container mx-auto w-full max-w-6xl"
+              initial="initial"
+              transition={{ delay: staggerDelay * 5, duration: 0.6 }}
               variants={fadeInOnly}
             >
               <TestimonialGrid />
