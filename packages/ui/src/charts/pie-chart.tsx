@@ -7,6 +7,7 @@ import type { Transition } from "motion/react";
 import {
   Children,
   isValidElement,
+  memo,
   type ReactElement,
   type ReactNode,
   useCallback,
@@ -103,7 +104,17 @@ function isDefsComponent(child: ReactElement): boolean {
   );
 }
 
-function PieChartInner({
+function PieChartInner(props: PieChartInnerProps) {
+  const size = Math.min(props.width, props.height);
+
+  if (size < 10) {
+    return null;
+  }
+
+  return <PieChartCore {...props} />;
+}
+
+const PieChartCore = memo(function PieChartCore({
   width,
   height,
   data,
@@ -238,11 +249,6 @@ function PieChartInner({
     };
   }, [children]);
 
-  // Early return if dimensions not ready
-  if (size < 10) {
-    return null;
-  }
-
   const contextValue: PieContextValue = {
     data,
     arcs,
@@ -305,7 +311,7 @@ function PieChartInner({
       </div>
     </PieProvider>
   );
-}
+});
 
 export function PieChart({
   data,

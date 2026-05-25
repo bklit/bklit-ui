@@ -6,6 +6,7 @@ import type { Transition } from "motion/react";
 import {
   Children,
   isValidElement,
+  memo,
   type ReactNode,
   useCallback,
   useEffect,
@@ -79,7 +80,17 @@ function isRingCenter(child: ReactNode): boolean {
   );
 }
 
-function RingChartInner({
+function RingChartInner(props: RingChartInnerProps) {
+  const size = Math.min(props.width, props.height);
+
+  if (size < 10) {
+    return null;
+  }
+
+  return <RingChartCore {...props} />;
+}
+
+const RingChartCore = memo(function RingChartCore({
   width,
   height,
   data,
@@ -193,11 +204,6 @@ function RingChartInner({
     return { svgChildren: svgNodes, centerChildren: centerNodes };
   }, [children]);
 
-  // Early return if dimensions not ready
-  if (size < 10) {
-    return null;
-  }
-
   const contextValue: RingContextValue = {
     data,
     size,
@@ -257,7 +263,7 @@ function RingChartInner({
       </div>
     </RingProvider>
   );
-}
+});
 
 export function RingChart({
   data,

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
-import { useEffect, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useChart } from "./chart-context";
 
@@ -54,25 +54,33 @@ function BarYAxisLabel({
   );
 }
 
-export function BarYAxis({
-  showAllLabels = true,
-  maxLabels = 20,
-}: BarYAxisProps) {
-  const {
-    margin,
-    containerRef,
-    barScale,
-    bandWidth,
-    barXAccessor,
-    data,
-    hoveredBarIndex,
-  } = useChart();
+export function BarYAxis(props: BarYAxisProps) {
+  const { containerRef, barScale } = useChart();
   const [mounted, setMounted] = useState(false);
 
-  // Only render on client side after mount
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const container = containerRef.current;
+  if (!(mounted && container)) {
+    return null;
+  }
+
+  if (!barScale) {
+    return null;
+  }
+
+  return <BarYAxisInner {...props} container={container} />;
+}
+
+const BarYAxisInner = memo(function BarYAxisInner({
+  showAllLabels = true,
+  maxLabels = 20,
+  container,
+}: BarYAxisProps & { container: HTMLDivElement }) {
+  const { margin, barScale, bandWidth, barXAccessor, data, hoveredBarIndex } =
+    useChart();
 
   // Generate labels for each bar
   const labelsToShow = useMemo(() => {
@@ -106,18 +114,6 @@ export function BarYAxis({
     maxLabels,
   ]);
 
-  // Use portal to render into the chart container
-  const container = containerRef.current;
-  if (!(mounted && container)) {
-    return null;
-  }
-
-  // Early return if not in a BarChart
-  if (!barScale) {
-    return null;
-  }
-
-  // Dynamic import to avoid SSR issues
   const { createPortal } = require("react-dom") as typeof import("react-dom");
 
   return createPortal(
@@ -140,7 +136,7 @@ export function BarYAxis({
     </div>,
     container
   );
-}
+});
 
 BarYAxis.displayName = "BarYAxis";
 

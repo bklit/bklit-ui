@@ -7,6 +7,7 @@ import { bisector } from "d3-array";
 import {
   Children,
   isValidElement,
+  memo,
   type ReactNode,
   startTransition,
   useCallback,
@@ -22,6 +23,7 @@ import {
   type Margin,
   type TooltipData,
 } from "./chart-context";
+import { hmsTimeFmt } from "./chart-formatters";
 import type { LiveLineProps } from "./live-line";
 
 // ---------------------------------------------------------------------------
@@ -221,7 +223,19 @@ interface InnerProps {
   children: ReactNode;
 }
 
-function LiveLineChartInner({
+function LiveLineChartInner(props: InnerProps) {
+  const { width, height, margin } = props;
+  const innerWidth = width - margin.left - margin.right;
+  const innerHeight = height - margin.top - margin.bottom;
+
+  if (innerWidth <= 0 || innerHeight <= 0) {
+    return null;
+  }
+
+  return <LiveLineChartCore {...props} />;
+}
+
+const LiveLineChartCore = memo(function LiveLineChartCore({
   data,
   value,
   dataKey,
@@ -434,15 +448,7 @@ function LiveLineChartInner({
 
   // Date labels (for ChartTooltip's DateTicker — not used in live but needed for context)
   const dateLabels = useMemo(
-    () =>
-      contextData.map((d) =>
-        xAccessor(d).toLocaleTimeString("en-US", {
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-          hour12: false,
-        })
-      ),
+    () => contextData.map((d) => hmsTimeFmt.format(xAccessor(d))),
     [contextData, xAccessor]
   );
 
@@ -491,10 +497,6 @@ function LiveLineChartInner({
     ]
   );
 
-  if (innerWidth <= 0 || innerHeight <= 0) {
-    return null;
-  }
-
   return (
     <ChartProvider value={contextValue}>
       <svg
@@ -522,7 +524,7 @@ function LiveLineChartInner({
       </svg>
     </ChartProvider>
   );
-}
+});
 
 // ---------------------------------------------------------------------------
 // Public component

@@ -1,8 +1,9 @@
 "use client";
 
 import { motion, useSpring } from "motion/react";
-import { useEffect, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import { chartCssVars, useChart } from "../chart-context";
+import { weekdayDateFmt } from "../chart-formatters";
 import { DateTicker } from "./date-ticker";
 import { TooltipBox } from "./tooltip-box";
 import { TooltipContent, type TooltipRow } from "./tooltip-content";
@@ -37,7 +38,11 @@ export interface ChartTooltipProps {
   className?: string;
 }
 
-export function ChartTooltip({
+interface ChartTooltipInnerProps extends ChartTooltipProps {
+  container: HTMLElement;
+}
+
+const ChartTooltipInner = memo(function ChartTooltipInner({
   showDatePill = true,
   showCrosshair = true,
   showDots = true,
@@ -46,7 +51,8 @@ export function ChartTooltip({
   rows: rowsRenderer,
   children,
   className = "",
-}: ChartTooltipProps) {
+  container,
+}: ChartTooltipInnerProps) {
   const {
     tooltipData,
     width,
@@ -63,13 +69,6 @@ export function ChartTooltip({
   } = useChart();
 
   const isHorizontal = orientation === "horizontal";
-
-  const [mounted, setMounted] = useState(false);
-
-  // Only render portals on client side after mount
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const visible = tooltipData !== null;
   const x = tooltipData?.x ?? 0;
@@ -128,19 +127,8 @@ export function ChartTooltip({
       return barXAccessor(tooltipData.point);
     }
     // For line/area charts, use the date
-    return xAccessor(tooltipData.point).toLocaleDateString("en-US", {
-      weekday: "short",
-      month: "short",
-      day: "numeric",
-    });
+    return weekdayDateFmt.format(xAccessor(tooltipData.point));
   }, [tooltipData, barXAccessor, xAccessor]);
-
-  // Use portal to render into the chart container
-  // Only render after mount on client side
-  const container = containerRef.current;
-  if (!(mounted && container)) {
-    return null;
-  }
 
   // Dynamic import to avoid SSR issues
   const { createPortal } = require("react-dom") as typeof import("react-dom");
@@ -237,6 +225,23 @@ export function ChartTooltip({
   );
 
   return createPortal(tooltipContent, container);
+});
+
+export function ChartTooltip(props: ChartTooltipProps) {
+  const { containerRef } = useChart();
+  const [mounted, setMounted] = useState(false);
+
+  // Only render portals on client side after mount
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const container = containerRef.current;
+  if (!(mounted && container)) {
+    return null;
+  }
+
+  return <ChartTooltipInner {...props} container={container} />;
 }
 
 ChartTooltip.displayName = "ChartTooltip";

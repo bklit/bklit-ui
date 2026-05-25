@@ -1,8 +1,9 @@
 "use client";
 
 import { motion, useSpring } from "motion/react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { useChart } from "./chart-context";
+import { hmsTimeFmt } from "./chart-formatters";
 
 const TICKER_HALF_WIDTH = 50;
 const FADE_BUFFER = 20;
@@ -34,26 +35,30 @@ export interface LiveXAxisProps {
   formatTime?: (t: number) => string;
 }
 
-const defaultFormatTime = (t: number) => {
-  const d = new Date(t);
-  return d.toLocaleTimeString("en-US", {
-    hour12: false,
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  });
-};
+const defaultFormatTime = (t: number) => hmsTimeFmt.format(new Date(t));
 
-export function LiveXAxis({
-  numTicks = 5,
-  formatTime = defaultFormatTime,
-}: LiveXAxisProps) {
-  const { xScale, margin, tooltipData, containerRef } = useChart();
+export function LiveXAxis(props: LiveXAxisProps) {
+  const { containerRef } = useChart();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const container = containerRef.current;
+  if (!(mounted && container)) {
+    return null;
+  }
+
+  return <LiveXAxisInner {...props} container={container} />;
+}
+
+const LiveXAxisInner = memo(function LiveXAxisInner({
+  numTicks = 5,
+  formatTime = defaultFormatTime,
+  container,
+}: LiveXAxisProps & { container: HTMLDivElement }) {
+  const { xScale, margin, tooltipData } = useChart();
 
   const domain = xScale.domain();
   const startMs = domain[0]?.getTime() ?? 0;
@@ -90,11 +95,6 @@ export function LiveXAxis({
   useEffect(() => {
     springRef.current.set(pillX);
   }, [pillX]);
-
-  const container = containerRef.current;
-  if (!(mounted && container)) {
-    return null;
-  }
 
   const { createPortal } = require("react-dom") as typeof import("react-dom");
 
@@ -145,7 +145,7 @@ export function LiveXAxis({
     </div>,
     container
   );
-}
+});
 
 LiveXAxis.displayName = "LiveXAxis";
 

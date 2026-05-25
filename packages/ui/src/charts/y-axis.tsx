@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import { useChart } from "./chart-context";
 
 export interface YAxisProps {
@@ -26,17 +26,29 @@ function formatLabel(
   return String(value);
 }
 
-export function YAxis({
-  numTicks = 5,
-  formatLargeNumbers = true,
-  formatValue,
-}: YAxisProps) {
-  const { yScale, margin, containerRef } = useChart();
+export function YAxis(props: YAxisProps) {
+  const { containerRef } = useChart();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const container = containerRef.current;
+  if (!(mounted && container)) {
+    return null;
+  }
+
+  return <YAxisInner {...props} container={container} />;
+}
+
+const YAxisInner = memo(function YAxisInner({
+  numTicks = 5,
+  formatLargeNumbers = true,
+  formatValue,
+  container,
+}: YAxisProps & { container: HTMLDivElement }) {
+  const { yScale, margin } = useChart();
 
   const ticks = useMemo(() => {
     const tickValues = yScale.ticks(numTicks);
@@ -46,11 +58,6 @@ export function YAxis({
       label: formatLabel(value, formatLargeNumbers, formatValue),
     }));
   }, [yScale, margin.top, numTicks, formatLargeNumbers, formatValue]);
-
-  const container = containerRef.current;
-  if (!(mounted && container)) {
-    return null;
-  }
 
   const { createPortal } = require("react-dom") as typeof import("react-dom");
 
@@ -71,7 +78,7 @@ export function YAxis({
     </div>,
     container
   );
-}
+});
 
 YAxis.displayName = "YAxis";
 

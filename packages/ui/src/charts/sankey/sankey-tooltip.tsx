@@ -1,6 +1,7 @@
 "use client";
 
 import type { SankeyLink, SankeyNode } from "d3-sankey";
+import { intFmt } from "../chart-formatters";
 import { TooltipBox } from "../tooltip/tooltip-box";
 import { TooltipContent, type TooltipRow } from "../tooltip/tooltip-content";
 import {
@@ -39,7 +40,7 @@ export interface SankeyTooltipProps {
 export function SankeyTooltip({
   nodeContent,
   linkContent,
-  formatValue = (v) => v.toLocaleString(),
+  formatValue = intFmt,
   className = "",
 }: SankeyTooltipProps) {
   const {

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useSpring } from "motion/react";
-import { useMemo, useRef } from "react";
+import { memo, useMemo, useRef } from "react";
 
 const TICKER_ITEM_HEIGHT = 24;
 
@@ -11,7 +11,10 @@ export interface DateTickerProps {
   visible: boolean;
 }
 
-export function DateTicker({ currentIndex, labels, visible }: DateTickerProps) {
+const DateTickerInner = memo(function DateTickerInner({
+  currentIndex,
+  labels,
+}: Omit<DateTickerProps, "visible">) {
   // Parse labels into month and day parts
   const parsedLabels = useMemo(() => {
     return labels.map((label, index) => {
@@ -72,10 +75,6 @@ export function DateTicker({ currentIndex, labels, visible }: DateTickerProps) {
     }
   }
 
-  if (!visible || labels.length === 0) {
-    return null;
-  }
-
   return (
     <div className="overflow-hidden rounded-full bg-zinc-900 px-4 py-1 text-white shadow-lg dark:bg-zinc-100 dark:text-zinc-900">
       <div className="relative h-6 overflow-hidden">
@@ -115,6 +114,14 @@ export function DateTicker({ currentIndex, labels, visible }: DateTickerProps) {
       </div>
     </div>
   );
+});
+
+export function DateTicker({ currentIndex, labels, visible }: DateTickerProps) {
+  if (!visible || labels.length === 0) {
+    return null;
+  }
+
+  return <DateTickerInner currentIndex={currentIndex} labels={labels} />;
 }
 
 DateTicker.displayName = "DateTicker";

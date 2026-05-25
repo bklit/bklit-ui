@@ -8,7 +8,7 @@ import { LinePath } from "@visx/shape";
 type CurveFactory = any;
 
 import { motion } from "motion/react";
-import { useCallback, useMemo, useRef } from "react";
+import { useCallback, useId, useRef } from "react";
 import { chartCssVars, useChart } from "./chart-context";
 import { ChartRevealClip } from "./chart-reveal-clip";
 import { HighlightSegment } from "./highlight-segment";
@@ -80,10 +80,8 @@ export function Line({
   const pathMetricsKey = `${data.length}:${innerWidth}:${dashFromIndex}:${animate}`;
   const { pathLength, pathD } = usePathStrokeMetrics(pathRef, pathMetricsKey);
 
-  const gradientId = useMemo(
-    () => `line-gradient-${dataKey}-${Math.random().toString(36).slice(2, 9)}`,
-    [dataKey]
-  );
+  const reactId = useId();
+  const gradientId = `line-gradient-${dataKey}-${reactId}`;
 
   const { xSpring, widthSpring, isActive } = useHighlightSegment({
     enabled: showHighlight,

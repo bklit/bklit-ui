@@ -2,7 +2,8 @@
 
 import { Brush } from "@visx/brush";
 import type { Bounds } from "@visx/brush/lib/types";
-import React, { useCallback } from "react";
+import type React from "react";
+import { memo, useCallback, useMemo } from "react";
 import { chartCssVars, useChart } from "./chart-context";
 
 interface BrushProps {
@@ -46,6 +47,19 @@ export interface ChartBrushProps {
   useWindowMoveEvents?: boolean;
 }
 
+interface ChartBrushInnerProps {
+  brushDirection?: ChartBrushProps["brushDirection"];
+  selectedBoxStyle?: ChartBrushProps["selectedBoxStyle"];
+  initialSelection?: ChartBrushProps["initialSelection"];
+  useWindowMoveEvents?: ChartBrushProps["useWindowMoveEvents"];
+  xScale: ReturnType<typeof useChart>["xScale"];
+  yScale: ReturnType<typeof useChart>["yScale"];
+  innerWidth: number;
+  innerHeight: number;
+  margin: ReturnType<typeof useChart>["margin"];
+  onBrushChange: (bounds: Bounds | null) => void;
+}
+
 function toDate(value: number | Date | unknown): Date {
   if (value instanceof Date) {
     return value;
@@ -56,18 +70,19 @@ function toDate(value: number | Date | unknown): Date {
   return new Date(Number(value));
 }
 
-export function ChartBrush({
-  onSelectionChange,
+const ChartBrushInner = memo(function ChartBrushInner({
   brushDirection = "horizontal",
   selectedBoxStyle,
   initialSelection,
-  selection: _selection,
   useWindowMoveEvents = true,
-}: ChartBrushProps) {
-  const { xScale, yScale, innerWidth, innerHeight, margin, isLoaded } =
-    useChart();
-
-  const initialBrushPosition = React.useMemo(() => {
+  xScale,
+  yScale,
+  innerWidth,
+  innerHeight,
+  margin,
+  onBrushChange,
+}: ChartBrushInnerProps) {
+  const initialBrushPosition = useMemo(() => {
     if (!initialSelection || innerWidth <= 0 || innerHeight <= 0) {
       return undefined;
     }
@@ -85,6 +100,50 @@ export function ChartBrush({
       end: { x: x1, y: innerHeight },
     };
   }, [initialSelection, xScale, innerWidth, innerHeight]);
+
+  const defaultStyle = {
+    fill: chartCssVars.segmentBackground,
+    fillOpacity: 0.4,
+    stroke: chartCssVars.segmentLine ?? "var(--chart-segment-line)",
+    strokeWidth: 1,
+    strokeOpacity: 0.8,
+  };
+
+  return (
+    <g className="chart-brush">
+      <BrushComponent
+        brushDirection={brushDirection}
+        handleSize={6}
+        height={innerHeight}
+        initialBrushPosition={initialBrushPosition}
+        key={`brush-${innerWidth}-${innerHeight}`}
+        margin={
+          useWindowMoveEvents
+            ? margin
+            : { top: 0, left: 0, right: 0, bottom: 0 }
+        }
+        onBrushEnd={onBrushChange}
+        onChange={onBrushChange}
+        selectedBoxStyle={selectedBoxStyle ?? defaultStyle}
+        useWindowMoveEvents={useWindowMoveEvents}
+        width={innerWidth}
+        xScale={xScale}
+        yScale={yScale}
+      />
+    </g>
+  );
+});
+
+export function ChartBrush({
+  onSelectionChange,
+  brushDirection = "horizontal",
+  selectedBoxStyle,
+  initialSelection,
+  selection: _selection,
+  useWindowMoveEvents = true,
+}: ChartBrushProps) {
+  const { xScale, yScale, innerWidth, innerHeight, margin, isLoaded } =
+    useChart();
 
   const boundsToSelection = useCallback(
     (bounds: Bounds | null): ChartBrushSelection | null => {
@@ -118,40 +177,23 @@ export function ChartBrush({
     [onSelectionChange, boundsToSelection]
   );
 
-  const defaultStyle = {
-    fill: chartCssVars.segmentBackground,
-    fillOpacity: 0.4,
-    stroke: chartCssVars.segmentLine ?? "var(--chart-segment-line)",
-    strokeWidth: 1,
-    strokeOpacity: 0.8,
-  };
-
   if (!isLoaded || innerWidth <= 0 || innerHeight <= 0) {
     return null;
   }
 
   return (
-    <g className="chart-brush">
-      <BrushComponent
-        brushDirection={brushDirection}
-        handleSize={6}
-        height={innerHeight}
-        initialBrushPosition={initialBrushPosition}
-        key={`brush-${innerWidth}-${innerHeight}`}
-        margin={
-          useWindowMoveEvents
-            ? margin
-            : { top: 0, left: 0, right: 0, bottom: 0 }
-        }
-        onBrushEnd={handleBrushChange}
-        onChange={handleBrushChange}
-        selectedBoxStyle={selectedBoxStyle ?? defaultStyle}
-        useWindowMoveEvents={useWindowMoveEvents}
-        width={innerWidth}
-        xScale={xScale}
-        yScale={yScale}
-      />
-    </g>
+    <ChartBrushInner
+      brushDirection={brushDirection}
+      initialSelection={initialSelection}
+      innerHeight={innerHeight}
+      innerWidth={innerWidth}
+      margin={margin}
+      onBrushChange={handleBrushChange}
+      selectedBoxStyle={selectedBoxStyle}
+      useWindowMoveEvents={useWindowMoveEvents}
+      xScale={xScale}
+      yScale={yScale}
+    />
   );
 }
 

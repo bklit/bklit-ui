@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { useChart } from "./chart-context";
 
 // ---------------------------------------------------------------------------
@@ -87,19 +87,31 @@ export interface LiveYAxisProps {
 
 const tickSpring = { type: "spring" as const, stiffness: 180, damping: 24 };
 
-export function LiveYAxis({
-  minGap = 36,
-  position = "left",
-  formatValue = (v: number) => v.toFixed(2),
-  allowDecimals = true,
-}: LiveYAxisProps) {
-  const { yScale, margin, innerHeight, containerRef } = useChart();
+export function LiveYAxis(props: LiveYAxisProps) {
+  const { containerRef } = useChart();
   const [mounted, setMounted] = useState(false);
-  const intervalRef = useRef(0);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const container = containerRef.current;
+  if (!(mounted && container)) {
+    return null;
+  }
+
+  return <LiveYAxisInner {...props} container={container} />;
+}
+
+const LiveYAxisInner = memo(function LiveYAxisInner({
+  minGap = 36,
+  position = "left",
+  formatValue = (v: number) => v.toFixed(2),
+  allowDecimals = true,
+  container,
+}: LiveYAxisProps & { container: HTMLDivElement }) {
+  const { yScale, margin, innerHeight } = useChart();
+  const intervalRef = useRef(0);
 
   const domain = yScale.domain() as [number, number];
   const minVal = domain[0];
@@ -172,11 +184,6 @@ export function LiveYAxis({
 
   const isLeft = position === "left";
 
-  const container = containerRef.current;
-  if (!(mounted && container)) {
-    return null;
-  }
-
   const { createPortal } = require("react-dom") as typeof import("react-dom");
 
   return createPortal(
@@ -216,7 +223,7 @@ export function LiveYAxis({
     </div>,
     container
   );
-}
+});
 
 LiveYAxis.displayName = "LiveYAxis";
 

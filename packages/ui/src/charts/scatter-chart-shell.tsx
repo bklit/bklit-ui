@@ -21,6 +21,7 @@ import {
   type Margin,
 } from "./chart-context";
 import { isGradientDefComponent, isPatternDefComponent } from "./chart-defs";
+import { shortDateFmt } from "./chart-formatters";
 import { isPostOverlayComponent } from "./time-series-chart-shell";
 import { useScatterChartInteraction } from "./use-scatter-chart-interaction";
 
@@ -122,13 +123,7 @@ export function ScatterChartInner({
   }, [innerHeight, data, lines]);
 
   const dateLabels = useMemo(
-    () =>
-      data.map((d) =>
-        xAccessor(d).toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-        })
-      ),
+    () => data.map((d) => shortDateFmt.format(xAccessor(d))),
     [data, xAccessor]
   );
 

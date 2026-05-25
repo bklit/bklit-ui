@@ -8,7 +8,7 @@ import { AreaClosed, LinePath } from "@visx/shape";
 type CurveFactory = any;
 
 import { motion } from "motion/react";
-import { useCallback, useId, useMemo, useRef } from "react";
+import { useCallback, useId, useRef } from "react";
 import { AreaGradientDefs } from "./area-gradient-defs";
 import { chartCssVars, useChart } from "./chart-context";
 import { ChartRevealClip } from "./chart-reveal-clip";
@@ -96,15 +96,8 @@ export function Area({
 
   // Unique IDs for this area
   const uniqueId = useId();
-  const gradientId = useMemo(
-    () => `area-gradient-${dataKey}-${Math.random().toString(36).slice(2, 9)}`,
-    [dataKey]
-  );
-  const strokeGradientId = useMemo(
-    () =>
-      `area-stroke-gradient-${dataKey}-${Math.random().toString(36).slice(2, 9)}`,
-    [dataKey]
-  );
+  const gradientId = `area-gradient-${dataKey}-${uniqueId}`;
+  const strokeGradientId = `area-stroke-gradient-${dataKey}-${uniqueId}`;
   const edgeMaskId = `area-edge-mask-${dataKey}-${uniqueId}`;
   const edgeGradientId = `${edgeMaskId}-gradient`;
   const revealClipId = `grow-clip-area-${dataKey}-${uniqueId}`;

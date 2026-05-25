@@ -6,6 +6,7 @@ import type { Transition } from "motion/react";
 import {
   Children,
   isValidElement,
+  memo,
   type ReactElement,
   type ReactNode,
   useCallback,
@@ -16,6 +17,7 @@ import {
 import { DEFAULT_ANIMATION_EASING } from "./animation";
 import { ChartProvider, type LineConfig, type Margin } from "./chart-context";
 import { isGradientDefComponent, isPatternDefComponent } from "./chart-defs";
+import { shortDateFmt } from "./chart-formatters";
 import { useChartInteraction } from "./use-chart-interaction";
 
 /** Markers render after the interaction overlay so they stay clickable. */
@@ -67,7 +69,15 @@ export interface TimeSeriesChartInnerProps {
   yScaleDomainMax?: number;
 }
 
-export function TimeSeriesChartInner({
+export function TimeSeriesChartInner(props: TimeSeriesChartInnerProps) {
+  const { width, height } = props;
+  if (width < 10 || height < 10) {
+    return null;
+  }
+  return <TimeSeriesChartCore {...props} />;
+}
+
+const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
   width,
   height,
   data,
@@ -154,13 +164,7 @@ export function TimeSeriesChartInner({
   }, [innerHeight, data, lines, yScaleDomainMax]);
 
   const dateLabels = useMemo(
-    () =>
-      data.map((d) =>
-        xAccessor(d).toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-        })
-      ),
+    () => data.map((d) => shortDateFmt.format(xAccessor(d))),
     [data, xAccessor]
   );
 
@@ -193,10 +197,6 @@ export function TimeSeriesChartInner({
     bisectDate,
     canInteract,
   });
-
-  if (width < 10 || height < 10) {
-    return null;
-  }
 
   const defsChildren: ReactElement[] = [];
   const preOverlayChildren: ReactElement[] = [];
@@ -277,4 +277,4 @@ export function TimeSeriesChartInner({
       </svg>
     </ChartProvider>
   );
-}
+});

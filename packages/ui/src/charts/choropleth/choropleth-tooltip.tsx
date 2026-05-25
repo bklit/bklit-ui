@@ -1,5 +1,6 @@
 "use client";
 
+import { intFmt } from "../chart-formatters";
 import { TooltipBox } from "../tooltip/tooltip-box";
 import { TooltipContent, type TooltipRow } from "../tooltip/tooltip-content";
 import {
@@ -31,7 +32,7 @@ export interface ChoroplethTooltipProps {
 
 export function ChoroplethTooltip({
   content,
-  formatValue = (v) => v.toLocaleString(),
+  formatValue = intFmt,
   getFeatureName,
   getFeatureValue,
   valueLabel = "Value",

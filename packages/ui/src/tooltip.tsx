@@ -3,6 +3,7 @@
 import { AnimatePresence, motion, useSpring } from "motion/react";
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import useMeasure from "react-use-measure";
+import { intFmt } from "./charts/chart-formatters";
 
 // Spring config for smooth tooltip movement - matches dash array for consistency
 const springConfig = { stiffness: 100, damping: 20 };
@@ -217,9 +218,7 @@ function TooltipContent({
                 <span className="text-sm text-zinc-100">{row.label}</span>
               </div>
               <span className="font-medium text-sm text-white tabular-nums">
-                {typeof row.value === "number"
-                  ? row.value.toLocaleString()
-                  : row.value}
+                {typeof row.value === "number" ? intFmt(row.value) : row.value}
               </span>
             </div>
           ))}

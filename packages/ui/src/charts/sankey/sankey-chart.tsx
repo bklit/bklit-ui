@@ -5,6 +5,7 @@ import { ParentSize } from "@visx/responsive";
 import { sankey, sankeyCenter, sankeyLinkHorizontal } from "@visx/sankey";
 import type { Transition } from "motion/react";
 import {
+  memo,
   type ReactNode,
   useCallback,
   useEffect,
@@ -51,18 +52,7 @@ export interface SankeyChartProps {
 
 const DEFAULT_MARGIN: Margin = { top: 40, right: 180, bottom: 40, left: 180 };
 
-function SankeyChartInner({
-  data,
-  width,
-  height,
-  margin,
-  animationDuration,
-  enterTransition,
-  revealSignature = "",
-  nodeWidth,
-  nodePadding,
-  children,
-}: {
+interface SankeyChartInnerProps {
   data: SankeyData;
   width: number;
   height: number;
@@ -73,7 +63,30 @@ function SankeyChartInner({
   nodeWidth: number;
   nodePadding: number;
   children: ReactNode;
-}) {
+}
+
+function SankeyChartInner(props: SankeyChartInnerProps) {
+  const { width, height } = props;
+
+  if (width < 10 || height < 10) {
+    return null;
+  }
+
+  return <SankeyChartCore {...props} />;
+}
+
+const SankeyChartCore = memo(function SankeyChartCore({
+  data,
+  width,
+  height,
+  margin,
+  animationDuration,
+  enterTransition,
+  revealSignature = "",
+  nodeWidth,
+  nodePadding,
+  children,
+}: SankeyChartInnerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [revealEpoch, setRevealEpoch] = useState(0);
@@ -145,10 +158,6 @@ function SankeyChartInner({
     setMousePos(null);
   }, []);
 
-  if (width < 10 || height < 10) {
-    return null;
-  }
-
   const contextValue = {
     graph,
     nodes: graph.nodes,
@@ -190,7 +199,7 @@ function SankeyChartInner({
       </div>
     </SankeyProvider>
   );
-}
+});
 
 export function SankeyChart({
   data,

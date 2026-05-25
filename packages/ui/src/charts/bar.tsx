@@ -1,10 +1,15 @@
 "use client";
 
+import type { scaleBand } from "@visx/scale";
 import type { Transition } from "motion/react";
 import { motion } from "motion/react";
-import { useId, useMemo } from "react";
+import { memo, useId, useMemo } from "react";
 import { chartCssVars, useChart } from "./chart-context";
 import { transitionWithDelay } from "./motion-utils";
+
+type ScaleBand<Domain extends { toString(): string }> = ReturnType<
+  typeof scaleBand<Domain>
+>;
 
 export type BarLineCap = "round" | "butt" | number;
 export type BarAnimationType = "grow" | "fade";
@@ -30,6 +35,12 @@ export interface BarProps {
   stackGap?: number;
   /** Gap between grouped bars in pixels. Default: 4 */
   groupGap?: number;
+}
+
+interface BarInnerProps extends BarProps {
+  barScale: ScaleBand<string>;
+  bandWidth: number;
+  barXAccessor: (d: Record<string, unknown>) => string;
 }
 
 interface AnimatedBarProps {
@@ -115,7 +126,7 @@ function AnimatedBar({
   );
 }
 
-export function Bar({
+const BarInner = memo(function BarInner({
   dataKey,
   fill = chartCssVars.linePrimary,
   lineCap = "round",
@@ -125,17 +136,17 @@ export function Bar({
   staggerDelay,
   stackGap = 0,
   groupGap = 4,
-}: BarProps) {
+  barScale,
+  bandWidth,
+  barXAccessor,
+}: BarInnerProps) {
   const {
     data,
     yScale,
     innerHeight,
     isLoaded,
-    barScale,
-    bandWidth,
     hoveredBarIndex,
     setHoveredBarIndex,
-    barXAccessor,
     lines,
     orientation,
     stacked,
@@ -188,12 +199,6 @@ export function Bar({
     }
     return 0;
   }, [lineCap, barWidth]);
-
-  // Early return if bar scale not available (not in BarChart)
-  if (!(barScale && bandWidth && barXAccessor)) {
-    console.warn("Bar component must be used within a BarChart");
-    return null;
-  }
 
   return (
     <g className={`bar-series-${uniqueId}`}>
@@ -328,6 +333,24 @@ export function Bar({
         );
       })}
     </g>
+  );
+});
+
+export function Bar(props: BarProps) {
+  const { barScale, bandWidth, barXAccessor } = useChart();
+
+  if (!(barScale && bandWidth && barXAccessor)) {
+    console.warn("Bar component must be used within a BarChart");
+    return null;
+  }
+
+  return (
+    <BarInner
+      {...props}
+      bandWidth={bandWidth}
+      barScale={barScale}
+      barXAccessor={barXAccessor}
+    />
   );
 }
 

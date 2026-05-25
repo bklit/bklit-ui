@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
-import { useEffect, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useChart } from "./chart-context";
 
@@ -66,26 +66,34 @@ function BarXAxisLabel({
   );
 }
 
-export function BarXAxis({
-  tickerHalfWidth = 50,
-  showAllLabels = false,
-  maxLabels = 12,
-}: BarXAxisProps) {
-  const {
-    margin,
-    tooltipData,
-    containerRef,
-    barScale,
-    bandWidth,
-    barXAccessor,
-    data,
-  } = useChart();
+export function BarXAxis(props: BarXAxisProps) {
+  const { containerRef, barScale } = useChart();
   const [mounted, setMounted] = useState(false);
 
-  // Only render on client side after mount
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const container = containerRef.current;
+  if (!(mounted && container)) {
+    return null;
+  }
+
+  if (!barScale) {
+    return null;
+  }
+
+  return <BarXAxisInner {...props} container={container} />;
+}
+
+const BarXAxisInner = memo(function BarXAxisInner({
+  tickerHalfWidth = 50,
+  showAllLabels = false,
+  maxLabels = 12,
+  container,
+}: BarXAxisProps & { container: HTMLDivElement }) {
+  const { margin, tooltipData, barScale, bandWidth, barXAccessor, data } =
+    useChart();
 
   // Generate labels for each bar
   const labelsToShow = useMemo(() => {
@@ -122,18 +130,6 @@ export function BarXAxis({
   const isHovering = tooltipData !== null;
   const crosshairX = tooltipData ? tooltipData.x + margin.left : null;
 
-  // Use portal to render into the chart container
-  const container = containerRef.current;
-  if (!(mounted && container)) {
-    return null;
-  }
-
-  // Early return if not in a BarChart
-  if (!barScale) {
-    return null;
-  }
-
-  // Dynamic import to avoid SSR issues
   const { createPortal } = require("react-dom") as typeof import("react-dom");
 
   return createPortal(
@@ -151,7 +147,7 @@ export function BarXAxis({
     </div>,
     container
   );
-}
+});
 
 BarXAxis.displayName = "BarXAxis";
 

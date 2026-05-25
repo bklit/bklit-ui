@@ -10,6 +10,7 @@ import { AnimatePresence, motion, useSpring } from "motion/react";
 import type React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ChartGrid } from "./chart-grid";
+import { shortDateFmt, weekdayDateFmt } from "./charts/chart-formatters";
 import { MarkerTooltipContent } from "./charts/markers/chart-markers";
 import { type ChartMarker, MarkerGroup } from "./charts/markers/marker-group";
 
@@ -148,10 +149,7 @@ function XAxisLabels({
     return tickValues.map((date) => ({
       date,
       x: xScale(date) + marginLeft,
-      label: date.toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-      }),
+      label: shortDateFmt.format(date),
     }));
   }, [xScale, marginLeft, numTicks]);
 
@@ -279,13 +277,7 @@ function Chart({
 
   // Pre-compute all date labels for the ticker animation
   const dateLabels = useMemo(
-    () =>
-      data.map((d) =>
-        d.date.toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-        })
-      ),
+    () => data.map((d) => shortDateFmt.format(d.date)),
     [data]
   );
 
@@ -694,11 +686,11 @@ function Chart({
           ) : undefined
         }
         rows={tooltipData ? getTooltipRows(tooltipData.point) : []}
-        title={tooltipData?.point.date.toLocaleDateString("en-US", {
-          weekday: "short",
-          month: "short",
-          day: "numeric",
-        })}
+        title={
+          tooltipData
+            ? weekdayDateFmt.format(tooltipData.point.date)
+            : undefined
+        }
         visible={!!tooltipData}
         x={(tooltipData?.x ?? 0) + margin.left}
       />

@@ -3,6 +3,7 @@
 import type { SankeyNode as SankeyNodeType } from "d3-sankey";
 import { motion } from "motion/react";
 import { useCallback, useMemo } from "react";
+import { intFmt } from "../chart-formatters";
 import { transitionWithDelay } from "../motion-utils";
 import {
   type SankeyLinkDatum,
@@ -137,7 +138,7 @@ function AnimatedNode({
             transition={valueEnter}
             y={y + height / 2 + 16}
           >
-            {value.toLocaleString()} sessions
+            {intFmt(value)} sessions
           </motion.text>
         </>
       )}

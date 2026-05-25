@@ -7,6 +7,7 @@ import type { Transition } from "motion/react";
 import {
   Children,
   isValidElement,
+  memo,
   type ReactElement,
   type ReactNode,
   useCallback,
@@ -17,6 +18,7 @@ import {
 } from "react";
 import { cn } from "@/lib/utils";
 import { ChartProvider, type LineConfig, type Margin } from "./chart-context";
+import { shortDateFmt } from "./chart-formatters";
 import { useChartInteraction } from "./use-chart-interaction";
 
 export interface OHLCDataPoint {
@@ -77,7 +79,15 @@ interface ChartInnerProps {
   containerRef: React.RefObject<HTMLDivElement | null>;
 }
 
-function ChartInner({
+function ChartInner(props: ChartInnerProps) {
+  const { width, height } = props;
+  if (width < 10 || height < 10) {
+    return null;
+  }
+  return <ChartCore {...props} />;
+}
+
+const ChartCore = memo(function ChartCore({
   width,
   height,
   data,
@@ -170,13 +180,7 @@ function ChartInner({
   );
 
   const dateLabels = useMemo(
-    () =>
-      data.map((d) =>
-        xAccessor(d).toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-        })
-      ),
+    () => data.map((d) => shortDateFmt.format(xAccessor(d))),
     [data, xAccessor]
   );
 
@@ -210,10 +214,6 @@ function ChartInner({
   useEffect(() => {
     setHoveredCandleIndex(tooltipData?.index ?? null);
   }, [tooltipData?.index]);
-
-  if (width < 10 || height < 10) {
-    return null;
-  }
 
   const isDefsComponent = (child: ReactElement): boolean => {
     const displayName =
@@ -303,7 +303,7 @@ function ChartInner({
       </svg>
     </ChartProvider>
   );
-}
+});
 
 export function CandlestickChart({
   data,

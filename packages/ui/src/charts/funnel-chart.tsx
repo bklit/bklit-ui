@@ -109,8 +109,10 @@ export interface FunnelChartProps {
 
 // ─── Defaults ───────────────────────────────────────────────────────
 
+import { intFmt } from "./chart-formatters";
+
 const fmtPct = (p: number) => `${Math.round(p)}%`;
-const fmtVal = (v: number) => v.toLocaleString("en-US");
+const fmtVal = intFmt;
 
 const hoverSpring = { stiffness: 300, damping: 24 };
 

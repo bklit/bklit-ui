@@ -7,6 +7,7 @@ import type { Transition } from "motion/react";
 import {
   Children,
   isValidElement,
+  memo,
   type ReactElement,
   type ReactNode,
   useCallback,
@@ -25,6 +26,7 @@ import {
   type TooltipData,
 } from "./chart-context";
 import { isGradientDefComponent, isPatternDefComponent } from "./chart-defs";
+import { shortDateFmt } from "./chart-formatters";
 
 export type BarOrientation = "vertical" | "horizontal";
 
@@ -141,7 +143,15 @@ interface ChartInnerProps {
   containerRef: React.RefObject<HTMLDivElement | null>;
 }
 
-function ChartInner({
+function ChartInner(props: ChartInnerProps) {
+  const { width, height } = props;
+  if (width < 10 || height < 10) {
+    return null;
+  }
+  return <ChartCore {...props} />;
+}
+
+const ChartCore = memo(function ChartCore({
   width,
   height,
   data,
@@ -177,10 +187,7 @@ function ChartInner({
     (d: Record<string, unknown>): string => {
       const value = d[xDataKey];
       if (value instanceof Date) {
-        return value.toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-        });
+        return shortDateFmt.format(value);
       }
       return String(value ?? "");
     },
@@ -453,11 +460,6 @@ function ChartInner({
     setHoveredBarIndex(null);
   }, []);
 
-  // Early return if dimensions not ready
-  if (width < 10 || height < 10) {
-    return null;
-  }
-
   const canInteract = isLoaded;
 
   // Separate children into defs, pre-overlay, and post-overlay
@@ -548,7 +550,7 @@ function ChartInner({
       </svg>
     </ChartProvider>
   );
-}
+});
 
 export function BarChart({
   data,
