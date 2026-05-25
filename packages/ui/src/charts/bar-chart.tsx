@@ -485,6 +485,7 @@ const ChartCore = memo(function ChartCore({
 
   const contextValue = {
     data,
+    renderData: data,
     xScale: fakeTimeScale as unknown as ReturnType<
       typeof import("@visx/scale").scaleTime<number>
     >,

@@ -462,6 +462,7 @@ const LiveLineChartCore = memo(function LiveLineChartCore({
   const contextValue = useMemo(
     () => ({
       data: contextData,
+      renderData: contextData,
       xScale,
       yScale,
       width,

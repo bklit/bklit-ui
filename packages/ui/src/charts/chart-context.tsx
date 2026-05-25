@@ -81,6 +81,8 @@ export interface LineConfig {
 export interface ChartContextValue {
   // Data
   data: Record<string, unknown>[];
+  /** Decimated subset for SVG path rendering; equals `data` when no decimation is needed. */
+  renderData: Record<string, unknown>[];
 
   // Scales
   xScale: ScaleTime<number, number>;

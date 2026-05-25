@@ -183,6 +183,7 @@ export function ScatterChartInner({
 
   const contextValue: ChartContextValue = {
     data,
+    renderData: data,
     xScale: xScale as ChartContextValue["xScale"],
     yScale: yScale as ChartContextValue["yScale"],
     width,

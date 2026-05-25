@@ -1,7 +1,7 @@
 "use client";
 
 import { scaleLinear, scaleTime } from "@visx/scale";
-import { bisector } from "d3-array";
+import { bisector, extent } from "d3-array";
 import type { Transition } from "motion/react";
 import {
   Children,
@@ -18,6 +18,10 @@ import { DEFAULT_ANIMATION_EASING } from "./animation";
 import { ChartProvider, type LineConfig, type Margin } from "./chart-context";
 import { isGradientDefComponent, isPatternDefComponent } from "./chart-defs";
 import { shortDateFmt } from "./chart-formatters";
+import {
+  decimateTimeSeries,
+  maxRenderPointsForWidth,
+} from "./decimate-time-series";
 import { useChartInteraction } from "./use-chart-interaction";
 
 /** Markers render after the interaction overlay so they stay clickable. */
@@ -120,15 +124,24 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
   );
 
   const xScale = useMemo(() => {
-    const dates = data.map((d) => xAccessor(d));
-    const minTime = Math.min(...dates.map((d) => d.getTime()));
-    const maxTime = Math.max(...dates.map((d) => d.getTime()));
+    const timeExtent = extent(data, (d) => xAccessor(d).getTime());
+    const minTime = timeExtent[0] ?? 0;
+    const maxTime = timeExtent[1] ?? minTime;
 
     return scaleTime({
       range: [0, innerWidth],
       domain: [minTime, maxTime],
     });
   }, [innerWidth, data, xAccessor]);
+
+  const renderData = useMemo(() => {
+    const valueKeys = lines.map((line) => line.dataKey);
+    return decimateTimeSeries(
+      data,
+      maxRenderPointsForWidth(innerWidth),
+      valueKeys
+    );
+  }, [data, innerWidth, lines]);
 
   const columnWidth = useMemo(() => {
     if (data.length < 2) {
@@ -142,9 +155,10 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
     if (yScaleDomainMax != null && yScaleDomainMax > 0) {
       maxValue = yScaleDomainMax;
     } else {
-      for (const line of lines) {
-        for (const d of data) {
-          const value = d[line.dataKey];
+      const dataKeys = lines.map((line) => line.dataKey);
+      for (const d of data) {
+        for (const key of dataKeys) {
+          const value = d[key];
           if (typeof value === "number" && value > maxValue) {
             maxValue = value;
           }
@@ -221,6 +235,7 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
 
   const contextValue = {
     data,
+    renderData,
     xScale,
     yScale,
     width,

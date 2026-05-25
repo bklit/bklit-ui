@@ -64,6 +64,7 @@ export function Line({
 }: LineProps) {
   const {
     data,
+    renderData,
     xScale,
     yScale,
     innerHeight,
@@ -77,7 +78,7 @@ export function Line({
   } = useChart();
 
   const pathRef = useRef<SVGPathElement>(null);
-  const pathMetricsKey = `${data.length}:${innerWidth}:${dashFromIndex}:${animate}`;
+  const pathMetricsKey = `${renderData.length}:${innerWidth}:${dashFromIndex}:${animate}`;
   const { pathLength, pathD } = usePathStrokeMetrics(pathRef, pathMetricsKey);
 
   const reactId = useId();
@@ -112,7 +113,7 @@ export function Line({
         </defs>
       ) : null}
 
-      {animate && data.length > 1 ? (
+      {animate && renderData.length > 1 ? (
         <defs>
           <ChartRevealClip
             clipPathId={`grow-clip-${dataKey}`}
@@ -126,7 +127,9 @@ export function Line({
 
       <g
         clipPath={
-          animate && data.length > 1 ? `url(#grow-clip-${dataKey})` : undefined
+          animate && renderData.length > 1
+            ? `url(#grow-clip-${dataKey})`
+            : undefined
         }
       >
         <motion.g
@@ -136,7 +139,7 @@ export function Line({
         >
           <LinePath
             curve={curve}
-            data={data}
+            data={renderData}
             innerRef={pathRef}
             stroke={hasDashTail ? "transparent" : lineStroke}
             strokeLinecap="round"
