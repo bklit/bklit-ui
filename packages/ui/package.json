@@ -18,6 +18,7 @@
   "scripts": {
     "lint": "eslint . --max-warnings 0",
     "check-types": "tsc --noEmit",
+    "test": "node --import tsx --test src/**/__tests__/**/*.test.ts",
     "registry:build": "node scripts/verify-registry-deps.mjs && node scripts/generate-v0-examples.mjs && node scripts/generate-block-registry.mjs && shadcn build --output ../../apps/web/public/r && cp registry.json ../../apps/web/public/r/registry.json"
   },
   "devDependencies": {
@@ -37,6 +38,7 @@
     "@types/topojson-specification": "^1.0.5",
     "eslint": "^9.39.1",
     "tailwindcss": "^4.1.8",
+    "tsx": "^4.19.4",
     "typescript": "5.9.2"
   },
   "peerDependencies": {

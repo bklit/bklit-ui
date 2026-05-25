@@ -8,6 +8,7 @@
     "lint:fix": "ultracite fix",
     "format": "ultracite fix",
     "check-types": "turbo run check-types",
+    "test": "turbo run test",
     "prepare": "husky",
     "registry:build": "pnpm --filter @bklitui/ui registry:build"
   },
