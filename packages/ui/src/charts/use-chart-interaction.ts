@@ -2,8 +2,9 @@
 
 import { localPoint } from "@visx/event";
 import type { scaleLinear, scaleTime } from "@visx/scale";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import type { LineConfig, Margin, TooltipData } from "./chart-context";
+import { useScheduledTooltip } from "./use-scheduled-tooltip";
 
 type ScaleTime = ReturnType<typeof scaleTime<number>>;
 type ScaleLinear = ReturnType<typeof scaleLinear<number>>;
@@ -58,50 +59,17 @@ export function useChartInteraction({
   bisectDate,
   canInteract,
 }: UseChartInteractionParams): ChartInteractionResult {
-  const [tooltipData, setTooltipData] = useState<TooltipData | null>(null);
   const [selection, setSelection] = useState<ChartSelection | null>(null);
+  const {
+    tooltipData,
+    setTooltipData,
+    scheduleTooltip,
+    clearTooltip,
+    resetTooltipDedupe,
+  } = useScheduledTooltip<TooltipData>();
 
   const isDraggingRef = useRef(false);
   const dragStartXRef = useRef<number>(0);
-  const lastTooltipIndexRef = useRef<number | null>(null);
-  const pendingTooltipRef = useRef<TooltipData | null>(null);
-  const tooltipRafRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    return () => {
-      if (tooltipRafRef.current !== null) {
-        cancelAnimationFrame(tooltipRafRef.current);
-      }
-    };
-  }, []);
-
-  const commitTooltip = useCallback((tooltip: TooltipData) => {
-    if (tooltip.index === lastTooltipIndexRef.current) {
-      return;
-    }
-    lastTooltipIndexRef.current = tooltip.index;
-    setTooltipData(tooltip);
-  }, []);
-
-  const scheduleTooltip = useCallback(
-    (tooltip: TooltipData) => {
-      pendingTooltipRef.current = tooltip;
-      if (tooltip.index === lastTooltipIndexRef.current) {
-        return;
-      }
-      if (tooltipRafRef.current !== null) {
-        return;
-      }
-      tooltipRafRef.current = requestAnimationFrame(() => {
-        tooltipRafRef.current = null;
-        const next = pendingTooltipRef.current;
-        if (next) {
-          commitTooltip(next);
-        }
-      });
-    },
-    [commitTooltip]
-  );
 
   const resolveTooltipFromX = useCallback(
     (pixelX: number): TooltipData | null => {
@@ -193,8 +161,6 @@ export function useChartInteraction({
     [margin.left]
   );
 
-  // --- Mouse handlers ---
-
   const handleMouseMove = useCallback(
     (event: React.MouseEvent<SVGGElement>) => {
       const chartX = getChartX(event);
@@ -224,18 +190,12 @@ export function useChartInteraction({
   );
 
   const handleMouseLeave = useCallback(() => {
-    if (tooltipRafRef.current !== null) {
-      cancelAnimationFrame(tooltipRafRef.current);
-      tooltipRafRef.current = null;
-    }
-    pendingTooltipRef.current = null;
-    lastTooltipIndexRef.current = null;
-    setTooltipData(null);
+    clearTooltip();
     if (isDraggingRef.current) {
       isDraggingRef.current = false;
     }
     setSelection(null);
-  }, []);
+  }, [clearTooltip]);
 
   const handleMouseDown = useCallback(
     (event: React.MouseEvent<SVGGElement>) => {
@@ -245,10 +205,10 @@ export function useChartInteraction({
       }
       isDraggingRef.current = true;
       dragStartXRef.current = chartX;
-      setTooltipData(null);
+      clearTooltip();
       setSelection(null);
     },
-    [getChartX]
+    [getChartX, clearTooltip]
   );
 
   const handleMouseUp = useCallback(() => {
@@ -257,8 +217,6 @@ export function useChartInteraction({
     }
     setSelection(null);
   }, []);
-
-  // --- Touch handlers ---
 
   const handleTouchStart = useCallback(
     (event: React.TouchEvent<SVGGElement>) => {
@@ -274,8 +232,8 @@ export function useChartInteraction({
         }
       } else if (event.touches.length === 2) {
         event.preventDefault();
-        lastTooltipIndexRef.current = null;
-        setTooltipData(null);
+        resetTooltipDedupe();
+        clearTooltip();
         const x0 = getChartX(event, 0);
         const x1 = getChartX(event, 1);
         if (x0 === null || x1 === null) {
@@ -292,7 +250,14 @@ export function useChartInteraction({
         });
       }
     },
-    [getChartX, resolveTooltipFromX, resolveIndexFromX, scheduleTooltip]
+    [
+      getChartX,
+      resolveTooltipFromX,
+      resolveIndexFromX,
+      scheduleTooltip,
+      resetTooltipDedupe,
+      clearTooltip,
+    ]
   );
 
   const handleTouchMove = useCallback(
@@ -329,15 +294,9 @@ export function useChartInteraction({
   );
 
   const handleTouchEnd = useCallback(() => {
-    if (tooltipRafRef.current !== null) {
-      cancelAnimationFrame(tooltipRafRef.current);
-      tooltipRafRef.current = null;
-    }
-    pendingTooltipRef.current = null;
-    lastTooltipIndexRef.current = null;
-    setTooltipData(null);
+    clearTooltip();
     setSelection(null);
-  }, []);
+  }, [clearTooltip]);
 
   const clearSelection = useCallback(() => {
     setSelection(null);

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
+  decimateOhlcData,
   decimateTimeSeries,
   maxRenderPointsForWidth,
 } from "../decimate-time-series";
@@ -25,6 +26,22 @@ describe("decimateTimeSeries", () => {
     }));
     const sampled = decimateTimeSeries(data, 10, ["v"]);
     assert(sampled.some((point) => point.v === 1000));
+  });
+});
+
+describe("decimateOhlcData", () => {
+  it("preserves bucket high/low extremes", () => {
+    const data = Array.from({ length: 100 }, (_, i) => ({
+      date: new Date(i),
+      open: i,
+      high: i === 50 ? 999 : i + 5,
+      low: i === 50 ? 1 : i - 5,
+      close: i + 1,
+    }));
+    const sampled = decimateOhlcData(data, 10);
+    assert(sampled.some((row) => row.high === 999));
+    assert(sampled.some((row) => row.low === 1));
+    assert.equal(sampled.length, 10);
   });
 });
 

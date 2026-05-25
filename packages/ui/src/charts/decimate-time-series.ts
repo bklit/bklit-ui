@@ -89,3 +89,52 @@ export function decimateTimeSeries<T extends Record<string, unknown>>(
 export function maxRenderPointsForWidth(innerWidth: number): number {
   return Math.max(64, Math.ceil(innerWidth * 1.5));
 }
+
+/** Bucket OHLC rows into fewer candles while preserving high/low extremes. */
+export function decimateOhlcData<T extends Record<string, unknown>>(
+  data: T[],
+  maxPoints: number
+): T[] {
+  const len = data.length;
+  if (maxPoints >= len || maxPoints < 2) {
+    return data;
+  }
+
+  const bucketSize = len / maxPoints;
+  const sampled: T[] = [];
+
+  for (let i = 0; i < maxPoints; i++) {
+    const start = Math.floor(i * bucketSize);
+    const end = Math.min(len, Math.floor((i + 1) * bucketSize));
+    if (start >= end) {
+      continue;
+    }
+
+    const bucket = data.slice(start, end);
+    const first = bucket[0] as T;
+    const last = bucket.at(-1) as T;
+
+    let high = Number.NEGATIVE_INFINITY;
+    let low = Number.POSITIVE_INFINITY;
+    for (const row of bucket) {
+      const rowHigh = row.high;
+      const rowLow = row.low;
+      if (typeof rowHigh === "number" && rowHigh > high) {
+        high = rowHigh;
+      }
+      if (typeof rowLow === "number" && rowLow < low) {
+        low = rowLow;
+      }
+    }
+
+    sampled.push({
+      ...last,
+      open: first.open,
+      high: Number.isFinite(high) ? high : last.high,
+      low: Number.isFinite(low) ? low : last.low,
+      close: last.close,
+    } as T);
+  }
+
+  return sampled;
+}
