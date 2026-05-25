@@ -7,10 +7,11 @@ import { LinePath } from "@visx/shape";
 // biome-ignore lint/suspicious/noExplicitAny: d3 curve factory type
 type CurveFactory = any;
 
-import { motion, useMotionTemplate, useSpring } from "motion/react";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { motion } from "motion/react";
+import { useCallback, useMemo, useRef } from "react";
 import { chartCssVars, useChart } from "./chart-context";
 import { ChartRevealClip } from "./chart-reveal-clip";
+import { HighlightSegment } from "./highlight-segment";
 import {
   resolveDashTailBounds,
   usePathStrokeMetrics,
@@ -18,7 +19,7 @@ import {
 import { SeriesDashTailOverlay } from "./series-dash-tail-overlay";
 import { SeriesMarkers } from "./series-markers";
 import type { SeriesPointMarkerStyle } from "./series-point-marker";
-import { useLineSegmentHighlight } from "./use-line-segment-highlight";
+import { useHighlightSegment } from "./use-highlight-segment";
 
 export interface LineProps {
   /** Key in data to use for y values */
@@ -84,31 +85,9 @@ export function Line({
     [dataKey]
   );
 
-  const segmentBounds = useLineSegmentHighlight({
-    pathRef,
-    pathLength,
-    data,
-    tooltipData,
-    selection,
-    xScale,
-    xAccessor,
+  const { xSpring, widthSpring, isActive } = useHighlightSegment({
+    enabled: showHighlight,
   });
-
-  const springConfig = { stiffness: 180, damping: 28 };
-  const offsetSpring = useSpring(0, springConfig);
-  const segmentLengthSpring = useSpring(0, springConfig);
-
-  useEffect(() => {
-    offsetSpring.set(-segmentBounds.startLength);
-    segmentLengthSpring.set(segmentBounds.segmentLength);
-  }, [
-    segmentBounds.startLength,
-    segmentBounds.segmentLength,
-    offsetSpring,
-    segmentLengthSpring,
-  ]);
-
-  const animatedDasharray = useMotionTemplate`${segmentLengthSpring} ${pathLength}`;
 
   const getY = useCallback(
     (d: Record<string, unknown>) => {
@@ -195,23 +174,15 @@ export function Line({
         />
       ) : null}
 
-      {showHighlight && isHovering && isLoaded && pathRef.current ? (
-        <motion.path
-          animate={{ opacity: 1 }}
-          d={pathRef.current.getAttribute("d") || ""}
-          exit={{ opacity: 0 }}
-          fill="none"
-          initial={{ opacity: 0 }}
-          stroke={stroke}
-          strokeLinecap="round"
-          strokeWidth={strokeWidth}
-          style={{
-            strokeDasharray: animatedDasharray,
-            strokeDashoffset: offsetSpring,
-          }}
-          transition={{ duration: 0.4, ease: "easeInOut" }}
-        />
-      ) : null}
+      <HighlightSegment
+        height={innerHeight}
+        pathRef={pathRef}
+        stroke={stroke}
+        strokeWidth={strokeWidth}
+        visible={showHighlight && isActive && isLoaded}
+        width={widthSpring}
+        x={xSpring}
+      />
     </>
   );
 }
