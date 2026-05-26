@@ -1,14 +1,9 @@
-"use client";
+"use client"
+
+// In your app (monorepo/npm): import { AreaChart, Area, Grid, XAxis, ChartTooltip } from "@bklitui/ui/charts"
+import { AreaChart, Area, Grid, XAxis, ChartTooltip } from "@/components/charts"
 
 import { curveNatural } from "@visx/curve";
-// In your app (monorepo/npm): import { AreaChart, Area, Grid, XAxis, ChartTooltip } from "@bklitui/ui/charts"
-import {
-  Area,
-  AreaChart,
-  ChartTooltip,
-  Grid,
-  XAxis,
-} from "@/components/charts";
 
 const chartData = [
   { date: new Date("2024-01-01"), desktop: 186 },
@@ -23,18 +18,13 @@ export default function Component() {
   return (
     <main className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
       <div className="w-full max-w-3xl">
-        <AreaChart animationDuration={1100} data={chartData}>
-          <Grid horizontal />
-          <Area
-            curve={curveNatural}
-            dataKey="desktop"
-            fillOpacity={0.4}
-            strokeWidth={2.5}
-          />
-          <XAxis />
-          <ChartTooltip />
-        </AreaChart>
+        <AreaChart data={chartData} animationDuration={1100}>
+  <Grid horizontal />
+  <Area dataKey="desktop" curve={curveNatural} strokeWidth={2.5} fillOpacity={0.4} />
+  <XAxis />
+  <ChartTooltip />
+</AreaChart>
       </div>
     </main>
-  );
+  )
 }

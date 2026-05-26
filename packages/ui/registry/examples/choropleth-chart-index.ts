@@ -1,6 +1,2 @@
-// biome-ignore lint/performance/noBarrelFile: v0 registry example barrel for shadcn install
-export {
-  ChoroplethChart,
-  ChoroplethFeatureComponent,
-  ChoroplethTooltip,
-} from "./choropleth";
+// biome-ignore-all lint/performance/noBarrelFile: v0 registry example barrel for shadcn install
+export { ChoroplethChart, ChoroplethFeatureComponent, ChoroplethTooltip } from "./choropleth";

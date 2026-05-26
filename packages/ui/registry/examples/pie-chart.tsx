@@ -1,7 +1,7 @@
-"use client";
+"use client"
 
 // In your app (monorepo/npm): import { PieChart, PieSlice, PieCenter } from "@bklitui/ui/charts"
-import { PieCenter, PieChart, PieSlice } from "@/components/charts";
+import { PieChart, PieSlice, PieCenter } from "@/components/charts"
 
 const pieData = [
   { label: "Direct", value: 320 },
@@ -15,12 +15,12 @@ export default function Component() {
     <main className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
       <div className="w-full max-w-3xl">
         <PieChart data={pieData} size={280}>
-          {pieData.map((slice, i) => (
-            <PieSlice index={i} key={slice.label} />
-          ))}
-          <PieCenter defaultLabel="Traffic" />
-        </PieChart>
+  {pieData.map((item, i) => (
+    <PieSlice index={i} key={item.label} />
+  ))}
+  <PieCenter defaultLabel="Traffic" />
+</PieChart>
       </div>
     </main>
-  );
+  )
 }

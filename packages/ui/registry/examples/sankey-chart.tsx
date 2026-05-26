@@ -1,12 +1,7 @@
-"use client";
+"use client"
 
 // In your app (monorepo/npm): import { SankeyChart, SankeyLink, SankeyNode, SankeyTooltip } from "@bklitui/ui/charts"
-import {
-  SankeyChart,
-  SankeyLink,
-  SankeyNode,
-  SankeyTooltip,
-} from "@/components/charts";
+import { SankeyChart, SankeyLink, SankeyNode, SankeyTooltip } from "@/components/charts"
 
 const data = {
   nodes: [
@@ -28,12 +23,12 @@ export default function Component() {
   return (
     <main className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
       <div className="w-full max-w-3xl">
-        <SankeyChart aspectRatio="16 / 9" data={data}>
-          <SankeyLink />
-          <SankeyNode />
-          <SankeyTooltip />
-        </SankeyChart>
+        <SankeyChart data={data} aspectRatio="16 / 9">
+  <SankeyLink />
+  <SankeyNode />
+  <SankeyTooltip />
+</SankeyChart>
       </div>
     </main>
-  );
+  )
 }

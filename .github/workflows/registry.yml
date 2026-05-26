@@ -1,0 +1,50 @@
+name: Registry
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  registry-sync:
+    name: shadcn Registry
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify registry is in sync with chart source
+        env:
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_BASE_REF: ${{ github.base_ref }}
+          GITHUB_EVENT_BEFORE: ${{ github.event.before }}
+          GITHUB_SHA: ${{ github.sha }}
+        run: pnpm registry:verify
+
+      - name: Job summary
+        if: always()
+        run: |
+          {
+            echo "## shadcn Registry"
+            echo ""
+            echo "![shadcn](https://raw.githubusercontent.com/${{ github.repository }}/${{ github.sha }}/.github/icons/shadcn-favicon.png)"
+            echo ""
+            echo "Ensures \`apps/web/public/r\` is rebuilt when \`packages/ui/src/charts\` changes."
+            echo "Run \`pnpm registry:build\` locally if this check fails."
+          } >> "$GITHUB_STEP_SUMMARY"

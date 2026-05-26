@@ -20,7 +20,7 @@
     },
     {
       "path": "registry/examples/funnel-chart-index.ts",
-      "content": "// biome-ignore lint/performance/noBarrelFile: v0 registry example barrel for shadcn install\nexport { FunnelChart } from \"./funnel-chart\";\n",
+      "content": "// biome-ignore-all lint/performance/noBarrelFile: v0 registry example barrel for shadcn install\nexport { FunnelChart } from \"./funnel-chart\";\n",
       "type": "registry:lib",
       "target": "components/charts/index.ts"
     }

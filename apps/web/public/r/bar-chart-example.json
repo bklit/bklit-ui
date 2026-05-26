@@ -24,7 +24,7 @@
     },
     {
       "path": "registry/examples/bar-chart-index.ts",
-      "content": "// biome-ignore lint/performance/noBarrelFile: v0 registry example barrel for shadcn install\nexport { BarChart } from \"./bar-chart\";\nexport { Bar } from \"./bar\";\nexport { BarXAxis } from \"./bar-x-axis\";\nexport { Grid } from \"./grid\";\nexport { ChartTooltip } from \"./tooltip\";\n",
+      "content": "// biome-ignore-all lint/performance/noBarrelFile: v0 registry example barrel for shadcn install\nexport { BarChart } from \"./bar-chart\";\nexport { Bar } from \"./bar\";\nexport { BarXAxis } from \"./bar-x-axis\";\nexport { Grid } from \"./grid\";\nexport { ChartTooltip } from \"./tooltip\";\n",
       "type": "registry:lib",
       "target": "components/charts/index.ts"
     }

@@ -25,7 +25,7 @@
     },
     {
       "path": "registry/examples/scatter-chart-index.ts",
-      "content": "// biome-ignore lint/performance/noBarrelFile: v0 registry example barrel for shadcn install\nexport { ScatterChart } from \"./scatter-chart\";\nexport { Scatter } from \"./scatter\";\nexport { Grid } from \"./grid\";\nexport { XAxis } from \"./x-axis\";\nexport { ChartTooltip } from \"./tooltip\";\n",
+      "content": "// biome-ignore-all lint/performance/noBarrelFile: v0 registry example barrel for shadcn install\nexport { ScatterChart } from \"./scatter-chart\";\nexport { Scatter } from \"./scatter\";\nexport { Grid } from \"./grid\";\nexport { XAxis } from \"./x-axis\";\nexport { ChartTooltip } from \"./tooltip\";\n",
       "type": "registry:lib",
       "target": "components/charts/index.ts"
     }

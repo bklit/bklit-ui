@@ -21,7 +21,7 @@
     },
     {
       "path": "registry/examples/sankey-chart-index.ts",
-      "content": "// biome-ignore lint/performance/noBarrelFile: v0 registry example barrel for shadcn install\nexport { SankeyChart, SankeyLink, SankeyNode, SankeyTooltip } from \"./sankey\";\n",
+      "content": "// biome-ignore-all lint/performance/noBarrelFile: v0 registry example barrel for shadcn install\nexport { SankeyChart, SankeyLink, SankeyNode, SankeyTooltip } from \"./sankey\";\n",
       "type": "registry:lib",
       "target": "components/charts/index.ts"
     }

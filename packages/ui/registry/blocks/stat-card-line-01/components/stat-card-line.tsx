@@ -1,8 +1,8 @@
 "use client";
 
+import { ChartStatFlow, Line, LineChart } from "@/components/charts";
 import { curveBasis } from "@visx/curve";
 import { useState } from "react";
-import { ChartStatFlow, Line, LineChart } from "@/components/charts";
 import {
   Card,
   CardAction,

@@ -1,14 +1,7 @@
-"use client";
+"use client"
 
 // In your app (monorepo/npm): import { CandlestickChart, Candlestick, Grid, XAxis, YAxis, ChartTooltip } from "@bklitui/ui/charts"
-import {
-  Candlestick,
-  CandlestickChart,
-  ChartTooltip,
-  Grid,
-  XAxis,
-  YAxis,
-} from "@/components/charts";
+import { CandlestickChart, Candlestick, Grid, XAxis, YAxis, ChartTooltip } from "@/components/charts"
 
 const ohlcData = [
   { date: new Date("2024-01-02"), open: 100, high: 108, low: 98, close: 105 },
@@ -22,13 +15,13 @@ export default function Component() {
     <main className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
       <div className="w-full max-w-3xl">
         <CandlestickChart data={ohlcData}>
-          <Grid horizontal vertical />
-          <Candlestick />
-          <XAxis />
-          <YAxis />
-          <ChartTooltip />
-        </CandlestickChart>
+  <Grid horizontal vertical />
+  <Candlestick />
+  <XAxis />
+  <YAxis />
+  <ChartTooltip />
+</CandlestickChart>
       </div>
     </main>
-  );
+  )
 }
