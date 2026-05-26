@@ -2,6 +2,7 @@
 
 import { motion, useSpring } from "motion/react";
 import { memo, useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { type SpringConfig, useChartConfig } from "../chart-config-context";
 import { chartCssVars, useChart, useChartStable } from "../chart-context";
 import { weekdayDateFmt } from "../chart-formatters";
@@ -128,9 +129,6 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
     // For line/area charts, use the date
     return weekdayDateFmt.format(xAccessor(tooltipData.point));
   }, [tooltipData, barXAccessor, xAccessor]);
-
-  // Dynamic import to avoid SSR issues
-  const { createPortal } = require("react-dom") as typeof import("react-dom");
 
   const tooltipContent = (
     <>

@@ -19,8 +19,8 @@
     "lint": "eslint . --max-warnings 0",
     "check-types": "tsc --noEmit",
     "test": "node scripts/run-tests.mjs",
-    "registry:build": "node scripts/verify-registry-deps.mjs && node scripts/generate-v0-examples.mjs && node scripts/generate-block-registry.mjs && shadcn build --output ../../apps/web/public/r && cp registry.json ../../apps/web/public/r/registry.json",
-    "registry:verify": "node scripts/verify-registry-sync.mjs"
+    "registry:build": "node scripts/verify-registry-files.mjs && node scripts/verify-registry-deps.mjs && node scripts/generate-v0-examples.mjs && node scripts/generate-block-registry.mjs && shadcn build --output ../../apps/web/public/r && cp registry.json ../../apps/web/public/r/registry.json",
+    "registry:verify": "node scripts/verify-registry-files.mjs && node scripts/verify-registry-deps.mjs && node scripts/verify-registry-sync.mjs"
   },
   "devDependencies": {
     "@bklitui/eslint-config": "workspace:*",

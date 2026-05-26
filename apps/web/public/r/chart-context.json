@@ -12,7 +12,8 @@
     "motion"
   ],
   "registryDependencies": [
-    "@bklit/utils"
+    "@bklit/utils",
+    "@bklit/chart-utils"
   ],
   "files": [
     {

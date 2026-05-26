@@ -9,7 +9,8 @@
   ],
   "registryDependencies": [
     "@bklit/chart-animation",
-    "@bklit/utils"
+    "@bklit/utils",
+    "@bklit/chart-utils"
   ],
   "files": [
     {

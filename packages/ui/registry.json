@@ -18,11 +18,34 @@
       ]
     },
     {
+      "name": "chart-utils",
+      "type": "registry:lib",
+      "title": "Chart Utilities",
+      "description": "Shared Intl formatters, time-series decimation, and RAF tooltip scheduling for Bklit charts",
+      "files": [
+        {
+          "path": "src/charts/chart-formatters.ts",
+          "type": "registry:lib",
+          "target": "components/charts/chart-formatters.ts"
+        },
+        {
+          "path": "src/charts/decimate-time-series.ts",
+          "type": "registry:lib",
+          "target": "components/charts/decimate-time-series.ts"
+        },
+        {
+          "path": "src/charts/use-scheduled-tooltip.ts",
+          "type": "registry:lib",
+          "target": "components/charts/use-scheduled-tooltip.ts"
+        }
+      ]
+    },
+    {
       "name": "chart-context",
       "type": "registry:component",
       "title": "Chart Context",
       "description": "Shared context and hooks for Bklit chart components",
-      "registryDependencies": ["@bklit/utils"],
+      "registryDependencies": ["@bklit/utils", "@bklit/chart-utils"],
       "dependencies": [
         "@visx/event@4.0.1-alpha.0",
         "@visx/responsive@4.0.1-alpha.0",
@@ -119,6 +142,65 @@
       ]
     },
     {
+      "name": "chart-series",
+      "type": "registry:component",
+      "title": "Chart Series Layer",
+      "description": "Shared line and area series rendering helpers (paths, markers, highlights, dash tails)",
+      "registryDependencies": [
+        "@bklit/chart-context",
+        "@bklit/chart-animation",
+        "@bklit/chart-tooltip"
+      ],
+      "dependencies": ["@visx/shape@4.0.1-alpha.0", "motion"],
+      "files": [
+        {
+          "path": "src/charts/path-stroke-utils.ts",
+          "type": "registry:component",
+          "target": "components/charts/path-stroke-utils.ts"
+        },
+        {
+          "path": "src/charts/highlight-segment-bounds.ts",
+          "type": "registry:component",
+          "target": "components/charts/highlight-segment-bounds.ts"
+        },
+        {
+          "path": "src/charts/highlight-segment.tsx",
+          "type": "registry:component",
+          "target": "components/charts/highlight-segment.tsx"
+        },
+        {
+          "path": "src/charts/dash-tail-stroke.tsx",
+          "type": "registry:component",
+          "target": "components/charts/dash-tail-stroke.tsx"
+        },
+        {
+          "path": "src/charts/series-dash-tail-overlay.tsx",
+          "type": "registry:component",
+          "target": "components/charts/series-dash-tail-overlay.tsx"
+        },
+        {
+          "path": "src/charts/series-point-marker.tsx",
+          "type": "registry:component",
+          "target": "components/charts/series-point-marker.tsx"
+        },
+        {
+          "path": "src/charts/series-markers.tsx",
+          "type": "registry:component",
+          "target": "components/charts/series-markers.tsx"
+        },
+        {
+          "path": "src/charts/use-highlight-segment.ts",
+          "type": "registry:component",
+          "target": "components/charts/use-highlight-segment.ts"
+        },
+        {
+          "path": "src/charts/area-gradient-defs.tsx",
+          "type": "registry:component",
+          "target": "components/charts/area-gradient-defs.tsx"
+        }
+      ]
+    },
+    {
       "name": "grid",
       "type": "registry:component",
       "title": "Chart Grid",
@@ -170,6 +252,11 @@
       "dependencies": ["@number-flow/react", "motion"],
       "files": [
         {
+          "path": "src/charts/chart-config-context.tsx",
+          "type": "registry:component",
+          "target": "components/charts/chart-config-context.tsx"
+        },
+        {
           "path": "src/charts/tooltip/chart-tooltip.tsx",
           "type": "registry:component",
           "target": "components/charts/tooltip/chart-tooltip.tsx"
@@ -211,7 +298,7 @@
       "type": "registry:component",
       "title": "Chart Legend",
       "description": "Composable legend components for charts",
-      "registryDependencies": ["@bklit/utils"],
+      "registryDependencies": ["@bklit/utils", "@bklit/chart-utils"],
       "dependencies": ["@base-ui/react", "@number-flow/react"],
       "cssVars": {
         "light": {
@@ -308,6 +395,7 @@
       "registryDependencies": [
         "@bklit/chart-context",
         "@bklit/chart-animation",
+        "@bklit/chart-series",
         "@bklit/grid",
         "@bklit/x-axis",
         "@bklit/chart-tooltip",
@@ -432,6 +520,7 @@
       "registryDependencies": [
         "@bklit/chart-context",
         "@bklit/chart-animation",
+        "@bklit/chart-series",
         "@bklit/grid",
         "@bklit/x-axis",
         "@bklit/chart-tooltip",
@@ -468,6 +557,7 @@
       "registryDependencies": [
         "@bklit/chart-context",
         "@bklit/chart-animation",
+        "@bklit/chart-series",
         "@bklit/grid",
         "@bklit/x-axis",
         "@bklit/chart-tooltip",
@@ -484,6 +574,11 @@
           "path": "src/charts/scatter-chart-shell.tsx",
           "type": "registry:component",
           "target": "components/charts/scatter-chart-shell.tsx"
+        },
+        {
+          "path": "src/charts/time-series-chart-shell.tsx",
+          "type": "registry:component",
+          "target": "components/charts/time-series-chart-shell.tsx"
         },
         {
           "path": "src/charts/scatter.tsx",
@@ -621,6 +716,11 @@
           "path": "src/charts/pie-center.tsx",
           "type": "registry:component",
           "target": "components/charts/pie-center.tsx"
+        },
+        {
+          "path": "src/charts/chart-center-typography.ts",
+          "type": "registry:component",
+          "target": "components/charts/chart-center-typography.ts"
         }
       ]
     },
@@ -709,6 +809,11 @@
           "path": "src/charts/ring-center.tsx",
           "type": "registry:component",
           "target": "components/charts/ring-center.tsx"
+        },
+        {
+          "path": "src/charts/chart-center-typography.ts",
+          "type": "registry:component",
+          "target": "components/charts/chart-center-typography.ts"
         }
       ]
     },
@@ -750,6 +855,11 @@
           "path": "src/charts/gauge.tsx",
           "type": "registry:component",
           "target": "components/charts/gauge.tsx"
+        },
+        {
+          "path": "src/charts/chart-center-typography.ts",
+          "type": "registry:component",
+          "target": "components/charts/chart-center-typography.ts"
         }
       ]
     },
@@ -758,7 +868,12 @@
       "type": "registry:component",
       "title": "Choropleth Map",
       "description": "A geographic map chart with zoom, pan, and data visualization",
-      "registryDependencies": ["@bklit/chart-animation", "@bklit/utils"],
+      "registryDependencies": [
+        "@bklit/chart-animation",
+        "@bklit/utils",
+        "@bklit/chart-utils",
+        "@bklit/chart-tooltip"
+      ],
       "dependencies": [
         "@types/geojson",
         "@visx/geo@4.0.1-alpha.0",
@@ -806,7 +921,11 @@
       "type": "registry:component",
       "title": "Funnel Chart",
       "description": "An animated funnel chart with multi-layer halo rings, hover interactions, and staggered entrance animations",
-      "registryDependencies": ["@bklit/chart-animation", "@bklit/utils"],
+      "registryDependencies": [
+        "@bklit/chart-animation",
+        "@bklit/utils",
+        "@bklit/chart-utils"
+      ],
       "dependencies": ["motion"],
       "files": [
         {
@@ -821,7 +940,12 @@
       "type": "registry:component",
       "title": "Sankey Diagram",
       "description": "A flow diagram for visualizing data transfers between nodes",
-      "registryDependencies": ["@bklit/chart-animation", "@bklit/utils"],
+      "registryDependencies": [
+        "@bklit/chart-animation",
+        "@bklit/utils",
+        "@bklit/chart-utils",
+        "@bklit/chart-tooltip"
+      ],
       "dependencies": [
         "@visx/event@4.0.1-alpha.0",
         "@visx/gradient@4.0.1-alpha.0",

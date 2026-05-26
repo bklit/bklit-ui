@@ -2,6 +2,7 @@
 
 import { motion } from "motion/react";
 import { memo, useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
 import { useChart, useChartStable } from "./chart-context";
 
@@ -129,8 +130,6 @@ const BarXAxisInner = memo(function BarXAxisInner({
 
   const isHovering = tooltipData !== null;
   const crosshairX = tooltipData ? tooltipData.x + margin.left : null;
-
-  const { createPortal } = require("react-dom") as typeof import("react-dom");
 
   return createPortal(
     <div className="pointer-events-none absolute inset-0">

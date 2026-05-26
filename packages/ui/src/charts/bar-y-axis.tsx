@@ -2,6 +2,7 @@
 
 import { motion } from "motion/react";
 import { memo, useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
 import { useChart, useChartStable } from "./chart-context";
 
@@ -113,8 +114,6 @@ const BarYAxisInner = memo(function BarYAxisInner({
     showAllLabels,
     maxLabels,
   ]);
-
-  const { createPortal } = require("react-dom") as typeof import("react-dom");
 
   return createPortal(
     <div

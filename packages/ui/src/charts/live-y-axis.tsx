@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import { memo, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useChartStable } from "./chart-context";
 
 // ---------------------------------------------------------------------------
@@ -183,8 +184,6 @@ const LiveYAxisInner = memo(function LiveYAxisInner({
   );
 
   const isLeft = position === "left";
-
-  const { createPortal } = require("react-dom") as typeof import("react-dom");
 
   return createPortal(
     <div className="pointer-events-none absolute inset-0">

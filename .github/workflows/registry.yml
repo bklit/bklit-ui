@@ -29,6 +29,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Verify registry file closure and npm dependencies
+        run: |
+          node packages/ui/scripts/verify-registry-files.mjs
+          node packages/ui/scripts/verify-registry-deps.mjs
+
       - name: Verify registry is in sync with chart source
         env:
           GITHUB_EVENT_NAME: ${{ github.event_name }}
@@ -45,6 +50,6 @@ jobs:
             echo ""
             echo "![shadcn](https://raw.githubusercontent.com/${{ github.repository }}/${{ github.sha }}/.github/icons/shadcn-favicon.png)"
             echo ""
-            echo "Ensures \`apps/web/public/r\` is rebuilt when \`packages/ui/src/charts\` changes."
-            echo "Run \`pnpm registry:build\` locally if this check fails."
+            echo "Ensures registry items ship every local \`./\` import, npm deps are declared, and \`apps/web/public/r\` is rebuilt when \`packages/ui/src/charts\` changes."
+            echo "Run \`pnpm registry:build\` locally if the sync check fails."
           } >> "$GITHUB_STEP_SUMMARY"

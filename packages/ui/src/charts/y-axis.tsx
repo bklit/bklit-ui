@@ -1,6 +1,7 @@
 "use client";
 
 import { memo, useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { useChartStable } from "./chart-context";
 
 export interface YAxisProps {
@@ -58,8 +59,6 @@ const YAxisInner = memo(function YAxisInner({
       label: formatLabel(value, formatLargeNumbers, formatValue),
     }));
   }, [yScale, margin.top, numTicks, formatLargeNumbers, formatValue]);
-
-  const { createPortal } = require("react-dom") as typeof import("react-dom");
 
   return createPortal(
     <div

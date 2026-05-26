@@ -2,6 +2,7 @@
 
 import { motion, useSpring } from "motion/react";
 import { memo, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useChart, useChartStable } from "./chart-context";
 import { hmsTimeFmt } from "./chart-formatters";
 
@@ -95,8 +96,6 @@ const LiveXAxisInner = memo(function LiveXAxisInner({
   useEffect(() => {
     springRef.current.set(pillX);
   }, [pillX]);
-
-  const { createPortal } = require("react-dom") as typeof import("react-dom");
 
   return createPortal(
     <div className="pointer-events-none absolute inset-0">

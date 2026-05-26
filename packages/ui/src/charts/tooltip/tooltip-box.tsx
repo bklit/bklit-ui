@@ -3,6 +3,7 @@
 import { motion, useSpring } from "motion/react";
 import type { RefObject } from "react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
 import { type SpringConfig, useChartConfig } from "../chart-config-context";
 
@@ -149,8 +150,6 @@ function TooltipBoxInner({
   const finalTop = topOverride ?? animatedTop;
   const isFlipped = flippedOverride ?? shouldFlipX;
   const transformOrigin = isFlipped ? "right top" : "left top";
-
-  const { createPortal } = require("react-dom") as typeof import("react-dom");
 
   return createPortal(
     <motion.div
