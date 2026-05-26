@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import { memo, useEffect, useMemo, useRef, useState } from "react";
-import { useChart } from "./chart-context";
+import { useChartStable } from "./chart-context";
 
 // ---------------------------------------------------------------------------
 // Interval picker (inspired by liveline's pickInterval)
@@ -88,7 +88,7 @@ export interface LiveYAxisProps {
 const tickSpring = { type: "spring" as const, stiffness: 180, damping: 24 };
 
 export function LiveYAxis(props: LiveYAxisProps) {
-  const { containerRef } = useChart();
+  const { containerRef } = useChartStable();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -110,7 +110,7 @@ const LiveYAxisInner = memo(function LiveYAxisInner({
   allowDecimals = true,
   container,
 }: LiveYAxisProps & { container: HTMLDivElement }) {
-  const { yScale, margin, innerHeight } = useChart();
+  const { yScale, margin, innerHeight } = useChartStable();
   const intervalRef = useRef(0);
 
   const domain = yScale.domain() as [number, number];

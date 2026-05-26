@@ -4,7 +4,7 @@ import type { scaleBand } from "@visx/scale";
 import type { Transition } from "motion/react";
 import { motion } from "motion/react";
 import { memo, useId, useMemo } from "react";
-import { chartCssVars, useChart } from "./chart-context";
+import { chartCssVars, useChart, useChartStable } from "./chart-context";
 import { transitionWithDelay } from "./motion-utils";
 
 type ScaleBand<Domain extends { toString(): string }> = ReturnType<
@@ -332,7 +332,7 @@ const BarInner = memo(function BarInner({
 });
 
 export function Bar(props: BarProps) {
-  const { barScale, bandWidth, barXAccessor } = useChart();
+  const { barScale, bandWidth, barXAccessor } = useChartStable();
 
   if (!(barScale && bandWidth && barXAccessor)) {
     console.warn("Bar component must be used within a BarChart");

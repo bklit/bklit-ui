@@ -2,7 +2,7 @@
 
 import { memo, useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
-import { useChart } from "./chart-context";
+import { useChart, useChartStable } from "./chart-context";
 import { shortDateFmt } from "./chart-formatters";
 
 export interface XAxisProps {
@@ -73,7 +73,7 @@ function XAxisLabel({
 }
 
 export function XAxis(props: XAxisProps) {
-  const { containerRef } = useChart();
+  const { containerRef } = useChartStable();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {

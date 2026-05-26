@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useEffect, useMemo, useState } from "react";
-import { useChart } from "./chart-context";
+import { useChartStable } from "./chart-context";
 
 export interface YAxisProps {
   /** Number of ticks to show. Default: 5 */
@@ -27,7 +27,7 @@ function formatLabel(
 }
 
 export function YAxis(props: YAxisProps) {
-  const { containerRef } = useChart();
+  const { containerRef } = useChartStable();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -48,7 +48,7 @@ const YAxisInner = memo(function YAxisInner({
   formatValue,
   container,
 }: YAxisProps & { container: HTMLDivElement }) {
-  const { yScale, margin } = useChart();
+  const { yScale, margin } = useChartStable();
 
   const ticks = useMemo(() => {
     const tickValues = yScale.ticks(numTicks);

@@ -4,7 +4,7 @@ import { Brush } from "@visx/brush";
 import type { Bounds } from "@visx/brush/lib/types";
 import type React from "react";
 import { memo, useCallback, useMemo } from "react";
-import { chartCssVars, useChart } from "./chart-context";
+import { chartCssVars, useChartStable } from "./chart-context";
 
 interface BrushProps {
   xScale: unknown;
@@ -52,11 +52,11 @@ interface ChartBrushInnerProps {
   selectedBoxStyle?: ChartBrushProps["selectedBoxStyle"];
   initialSelection?: ChartBrushProps["initialSelection"];
   useWindowMoveEvents?: ChartBrushProps["useWindowMoveEvents"];
-  xScale: ReturnType<typeof useChart>["xScale"];
-  yScale: ReturnType<typeof useChart>["yScale"];
+  xScale: ReturnType<typeof useChartStable>["xScale"];
+  yScale: ReturnType<typeof useChartStable>["yScale"];
   innerWidth: number;
   innerHeight: number;
-  margin: ReturnType<typeof useChart>["margin"];
+  margin: ReturnType<typeof useChartStable>["margin"];
   onBrushChange: (bounds: Bounds | null) => void;
 }
 
@@ -143,7 +143,7 @@ export function ChartBrush({
   useWindowMoveEvents = true,
 }: ChartBrushProps) {
   const { xScale, yScale, innerWidth, innerHeight, margin, isLoaded } =
-    useChart();
+    useChartStable();
 
   const boundsToSelection = useCallback(
     (bounds: Bounds | null): ChartBrushSelection | null => {
