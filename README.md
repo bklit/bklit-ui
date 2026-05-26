@@ -70,9 +70,12 @@ cd apps/web && pnpm dev
 bklit-ui/
 ├── apps/
 │   └── web/          # Documentation site (Next.js + Fumadocs)
+│       └── app/playground/   # Local chart playground (see README; page.tsx is gitignored)
 └── packages/
     └── ui/           # Component library
 ```
+
+**Contributors:** chart prototyping uses the local `/playground` route. Agents: see [`AGENTS.md`](./AGENTS.md) and `.agents/skills/bklit-playground/SKILL.md`. Copy `.agents/skills/bklit-playground/templates/page.tsx` → `apps/web/app/playground/page.tsx`.
 
 ## Tech Stack
 
