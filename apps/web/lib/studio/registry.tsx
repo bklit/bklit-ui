@@ -300,9 +300,9 @@ const barConfig: StudioChartConfig = {
       chartData = generateStudioCartesianData({
         seriesCount,
         pointCount: state.dataPoints,
-        xAxis: "month",
+        xAxis: "date",
       }) as unknown as Record<string, unknown>[];
-      xKey = "month";
+      xKey = "date";
       seriesKeys = STUDIO_SERIES_KEYS.slice(0, seriesCount);
     }
 

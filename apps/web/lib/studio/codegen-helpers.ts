@@ -182,8 +182,8 @@ export function barCodegen(state: StudioUrlState) {
     keys = ["users"];
   } else {
     keys = STUDIO_SERIES_KEYS.slice(0, seriesCount);
-    dataSnippet = studioCartesianDataSnippet(state, "month", keys);
-    xKey = "month";
+    dataSnippet = studioCartesianDataSnippet(state, "date", keys);
+    xKey = "date";
   }
 
   const chartProps = [
