@@ -195,3 +195,122 @@ export const liveLineSampleData = Array.from({ length: 24 }, (_, i) => ({
   time: Date.now() - (23 - i) * 1000,
   value: Math.floor(40 + Math.sin(i / 3) * 18 + ((i * 5) % 11)),
 }));
+
+/**
+ * Series keys + matching chart-N CSS vars used by procedural generators.
+ * Only 5 chart-N vars exist, so series 6–10 cycle back through chart-1…chart-5.
+ */
+export const STUDIO_SERIES_KEYS = [
+  "desktop",
+  "mobile",
+  "tablet",
+  "watch",
+  "tv",
+  "console",
+  "vr",
+  "kiosk",
+  "ereader",
+  "wearable",
+] as const;
+export const STUDIO_SERIES_COLORS = [
+  "var(--chart-1)",
+  "var(--chart-2)",
+  "var(--chart-3)",
+  "var(--chart-4)",
+  "var(--chart-5)",
+  "var(--chart-1)",
+  "var(--chart-2)",
+  "var(--chart-3)",
+  "var(--chart-4)",
+  "var(--chart-5)",
+] as const;
+const MONTH_LABELS = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+] as const;
+export const STUDIO_MAX_DATA_SERIES = STUDIO_SERIES_KEYS.length;
+
+/** Clamp the user-supplied series count to the supported range. */
+export function clampStudioSeriesCount(n: number): number {
+  if (!Number.isFinite(n) || n < 1) {
+    return 1;
+  }
+  return Math.min(STUDIO_MAX_DATA_SERIES, Math.floor(n));
+}
+
+/** Clamp the user-supplied point count to the supported range. */
+export function clampStudioPointCount(n: number): number {
+  if (!Number.isFinite(n) || n < 2) {
+    return 2;
+  }
+  return Math.min(365, Math.floor(n));
+}
+
+/**
+ * Deterministic, non-repeating series value — four sine/cosine waves at
+ * geometrically-spaced periods (~30, ~10.7, ~3.8, ~1.9) so the signal looks
+ * lively at every zoom (12 → 365 pts) without ever cycling exactly.
+ * Keep in sync with the inline formula emitted by `studioCartesianDataSnippet`.
+ */
+function studioSeriesValue(index: number, seriesIndex: number): number {
+  const arc =
+    Math.sin((index + seriesIndex * 17) / 4.77) * (38 + seriesIndex * 3);
+  const swell = Math.cos((index + seriesIndex * 7) / 1.7) * 24;
+  const ripple = Math.sin((index + seriesIndex * 3) / 0.61) * 14;
+  const jitter = Math.cos((index + seriesIndex * 11) / 0.31) * 8;
+  const base = 180 + seriesIndex * 18;
+  return Math.max(10, Math.floor(base + arc + swell + ripple + jitter));
+}
+
+export type StudioCartesianXAxis = "date" | "month";
+
+interface StudioCartesianDatum {
+  date?: Date;
+  month?: string;
+  [seriesKey: string]: Date | string | number | undefined;
+}
+
+/** Generate cartesian rows with N series + M points, x-axis is `date` or `month`. */
+export function generateStudioCartesianData({
+  seriesCount,
+  pointCount,
+  xAxis,
+}: {
+  seriesCount: number;
+  pointCount: number;
+  xAxis: StudioCartesianXAxis;
+}): StudioCartesianDatum[] {
+  const series = clampStudioSeriesCount(seriesCount);
+  const points = clampStudioPointCount(pointCount);
+  const baseYear = 2024;
+  return Array.from({ length: points }, (_, i) => {
+    const row: StudioCartesianDatum = {};
+    if (xAxis === "date") {
+      row.date = new Date(baseYear, 0, i + 1);
+    } else {
+      const monthIdx = i % MONTH_LABELS.length;
+      const yearOffset = Math.floor(i / MONTH_LABELS.length);
+      row.month =
+        yearOffset > 0
+          ? `${MONTH_LABELS[monthIdx]} ${(baseYear + yearOffset) % 100}`
+          : MONTH_LABELS[monthIdx];
+    }
+    for (let s = 0; s < series; s++) {
+      const key = STUDIO_SERIES_KEYS[s];
+      if (key) {
+        row[key] = studioSeriesValue(i, s);
+      }
+    }
+    return row;
+  });
+}

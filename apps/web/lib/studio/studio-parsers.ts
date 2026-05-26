@@ -76,11 +76,9 @@ export const studioSearchParams = {
   barWidth: parseAsInteger.withDefault(0),
   groupGap: parseAsInteger.withDefault(4),
   barFadedOpacity: parseAsFloat.withDefault(0.3),
-  barSeriesMode: parseAsStringLiteral([
-    "single",
-    "grouped",
-    "stacked",
-  ]).withDefault("single"),
+  barSeriesMode: parseAsStringLiteral(["grouped", "stacked"]).withDefault(
+    "grouped"
+  ),
   barLineCap: parseAsStringLiteral(["round", "butt"]).withDefault("round"),
   barOrientation: parseAsStringLiteral(["vertical", "horizontal"]).withDefault(
     "vertical"
@@ -138,6 +136,8 @@ export const studioSearchParams = {
   seriesDashTail: parseAsBoolean.withDefault(false),
   seriesDashFromIndex: parseAsInteger.withDefault(4),
   seriesDashArray: parseAsString.withDefault("6,4"),
+  dataSeries: parseAsInteger.withDefault(1),
+  dataPoints: parseAsInteger.withDefault(12),
 };
 
 export interface StudioUrlState {
@@ -190,7 +190,7 @@ export interface StudioUrlState {
   barWidth: number;
   groupGap: number;
   barFadedOpacity: number;
-  barSeriesMode: "single" | "grouped" | "stacked";
+  barSeriesMode: "grouped" | "stacked";
   barLineCap: "round" | "butt";
   barOrientation: "vertical" | "horizontal";
   ringGap: number;
@@ -241,6 +241,8 @@ export interface StudioUrlState {
   seriesDashTail: boolean;
   seriesDashFromIndex: number;
   seriesDashArray: string;
+  dataSeries: number;
+  dataPoints: number;
 }
 
 export function defaultsForChart(): Partial<
@@ -305,7 +307,7 @@ export function defaultStudioState(
     barWidth: 0,
     groupGap: 4,
     barFadedOpacity: 0.3,
-    barSeriesMode: "single",
+    barSeriesMode: "grouped",
     barLineCap: "round",
     barOrientation: "vertical",
     ringGap: 6,
@@ -356,6 +358,8 @@ export function defaultStudioState(
     seriesDashTail: false,
     seriesDashFromIndex: 4,
     seriesDashArray: "6,4",
+    dataSeries: 1,
+    dataPoints: 12,
     ...overrides,
   };
 }
