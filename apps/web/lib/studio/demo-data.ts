@@ -224,7 +224,7 @@ export const STUDIO_SERIES_COLORS = [
   "var(--chart-4)",
   "var(--chart-5)",
 ] as const;
-const MONTH_LABELS = [
+export const STUDIO_MONTH_LABELS = [
   "Jan",
   "Feb",
   "Mar",
@@ -238,6 +238,34 @@ const MONTH_LABELS = [
   "Nov",
   "Dec",
 ] as const;
+
+const STUDIO_CARTESIAN_BASE_YEAR = 2024;
+
+/** Month label for procedural cartesian rows — adds a 2-digit year after the first 12 points. */
+export function studioCartesianMonthLabel(
+  index: number,
+  baseYear = STUDIO_CARTESIAN_BASE_YEAR
+): string {
+  const monthIdx = index % STUDIO_MONTH_LABELS.length;
+  const yearOffset = Math.floor(index / STUDIO_MONTH_LABELS.length);
+  if (yearOffset > 0) {
+    return `${STUDIO_MONTH_LABELS[monthIdx]} ${(baseYear + yearOffset) % 100}`;
+  }
+  return STUDIO_MONTH_LABELS[monthIdx] ?? "Jan";
+}
+
+/** Inline JS for codegen — keep in sync with `studioCartesianMonthLabel`. */
+export function studioCartesianMonthCodegenLine(
+  baseYear = STUDIO_CARTESIAN_BASE_YEAR
+): string {
+  return `  month: (() => {
+  const labels = ${JSON.stringify([...STUDIO_MONTH_LABELS])};
+  const idx = i % labels.length;
+  const yearOffset = Math.floor(i / labels.length);
+  return yearOffset > 0 ? \`\${labels[idx]} \${(${baseYear} + yearOffset) % 100}\` : labels[idx];
+})(),`;
+}
+
 export const STUDIO_MAX_DATA_SERIES = STUDIO_SERIES_KEYS.length;
 
 /** Clamp the user-supplied series count to the supported range. */
@@ -292,18 +320,12 @@ export function generateStudioCartesianData({
 }): StudioCartesianDatum[] {
   const series = clampStudioSeriesCount(seriesCount);
   const points = clampStudioPointCount(pointCount);
-  const baseYear = 2024;
   return Array.from({ length: points }, (_, i) => {
     const row: StudioCartesianDatum = {};
     if (xAxis === "date") {
-      row.date = new Date(baseYear, 0, i + 1);
+      row.date = new Date(STUDIO_CARTESIAN_BASE_YEAR, 0, i + 1);
     } else {
-      const monthIdx = i % MONTH_LABELS.length;
-      const yearOffset = Math.floor(i / MONTH_LABELS.length);
-      row.month =
-        yearOffset > 0
-          ? `${MONTH_LABELS[monthIdx]} ${(baseYear + yearOffset) % 100}`
-          : MONTH_LABELS[monthIdx];
+      row.month = studioCartesianMonthLabel(i);
     }
     for (let s = 0; s < series; s++) {
       const key = STUDIO_SERIES_KEYS[s];

@@ -2,7 +2,12 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { validChartSlugs } from "@/components/charts/chart-slugs";
 import { generateStudioCode } from "../codegen";
-import { barCodegen, liveLineCodegen } from "../codegen-helpers";
+import {
+  barCodegen,
+  liveLineCodegen,
+  studioCartesianDataSnippet,
+} from "../codegen-helpers";
+import { generateStudioCartesianData } from "../demo-data";
 import { defaultStudioState } from "../studio-parsers";
 
 const SHOW_LINE_FALSE_RE = /showLine=\{false\}/;
@@ -16,6 +21,8 @@ const DEFAULT_LABEL_REVENUE_RE = /defaultLabel="Revenue"/;
 const START_ANGLE_90_RE = /startAngle=\{90\}/;
 const DATA_KEY_MOBILE_RE = /dataKey="mobile"/;
 const INTERVAL_750_RE = /750/;
+const MONTH_YEAR_OFFSET_RE = /yearOffset > 0/;
+const MONTH_YEAR_SUFFIX_RE = /\(2024 \+ yearOffset\) % 100/;
 
 describe("generateStudioCode", () => {
   for (const slug of validChartSlugs) {
@@ -88,6 +95,21 @@ describe("barCodegen", () => {
       defaultStudioState({ barSeriesMode: "grouped", dataSeries: 2 })
     );
     assert.match(code, DATA_KEY_MOBILE_RE);
+  });
+});
+
+describe("studioCartesianDataSnippet", () => {
+  it("month axis codegen adds year suffix when points exceed 12", () => {
+    const state = defaultStudioState({ dataPoints: 24, dataSeries: 1 });
+    const runtime = generateStudioCartesianData({
+      seriesCount: 1,
+      pointCount: 24,
+      xAxis: "month",
+    });
+    assert.equal(runtime[12]?.month, "Jan 25");
+    const snippet = studioCartesianDataSnippet(state, "month");
+    assert.match(snippet, MONTH_YEAR_OFFSET_RE);
+    assert.match(snippet, MONTH_YEAR_SUFFIX_RE);
   });
 });
 

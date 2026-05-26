@@ -14,6 +14,7 @@ import {
   type StudioCartesianXAxis,
   sankeySimple,
   scatterStudioData,
+  studioCartesianMonthCodegenLine,
 } from "./demo-data";
 import {
   cssRevealAnimationCodegen,
@@ -53,7 +54,7 @@ export function studioCartesianDataSnippet(
   const xLine =
     xAxis === "date"
       ? "  date: new Date(2024, 0, i + 1),"
-      : '  month: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][i % 12],';
+      : studioCartesianMonthCodegenLine();
   // Four layered waves at geometrically-spaced periods (~30, ~10.7, ~3.8, ~1.9) for lively, non-repeating output.
   const seriesLines = keys
     .map(
