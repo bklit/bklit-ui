@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
 import { useChart } from "@/components/charts";
+import { useEffect } from "react";
 import type { StatCardHoverState } from "./stat-card-chart";
 
 export type { StatCardHoverState } from "./stat-card-chart";

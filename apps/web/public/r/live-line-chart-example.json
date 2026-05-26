@@ -22,7 +22,7 @@
     },
     {
       "path": "registry/examples/live-line-chart-index.ts",
-      "content": "// biome-ignore lint/performance/noBarrelFile: v0 registry example barrel for shadcn install\nexport { LiveLineChart } from \"./live-line-chart\";\nexport { LiveLine } from \"./live-line\";\nexport { LiveXAxis } from \"./live-x-axis\";\nexport { LiveYAxis } from \"./live-y-axis\";\nexport { ChartTooltip } from \"./tooltip\";\n",
+      "content": "// biome-ignore-all lint/performance/noBarrelFile: v0 registry example barrel for shadcn install\nexport { LiveLineChart } from \"./live-line-chart\";\nexport { LiveLine } from \"./live-line\";\nexport { LiveXAxis } from \"./live-x-axis\";\nexport { LiveYAxis } from \"./live-y-axis\";\nexport { ChartTooltip } from \"./tooltip\";\n",
       "type": "registry:lib",
       "target": "components/charts/index.ts"
     }

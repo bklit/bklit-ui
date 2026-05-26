@@ -24,7 +24,7 @@
     },
     {
       "path": "registry/examples/line-chart-index.ts",
-      "content": "// biome-ignore lint/performance/noBarrelFile: v0 registry example barrel for shadcn install\nexport { LineChart } from \"./line-chart\";\nexport { Line } from \"./line\";\nexport { Grid } from \"./grid\";\nexport { XAxis } from \"./x-axis\";\nexport { ChartTooltip } from \"./tooltip\";\n",
+      "content": "// biome-ignore-all lint/performance/noBarrelFile: v0 registry example barrel for shadcn install\nexport { LineChart } from \"./line-chart\";\nexport { Line } from \"./line\";\nexport { Grid } from \"./grid\";\nexport { XAxis } from \"./x-axis\";\nexport { ChartTooltip } from \"./tooltip\";\n",
       "type": "registry:lib",
       "target": "components/charts/index.ts"
     }

@@ -12,6 +12,13 @@
       "assist": { "enabled": false }
     },
     {
+      // Generated shadcn registry sources (registry:build); not hand-edited
+      "includes": ["packages/ui/registry/**"],
+      "formatter": { "enabled": false },
+      "linter": { "enabled": false },
+      "assist": { "enabled": false }
+    },
+    {
       // Allow barrel files for library exports - standard pattern for component libraries
       "includes": [
         "packages/ui/src/**/index.ts",

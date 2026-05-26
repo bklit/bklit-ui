@@ -192,8 +192,8 @@ const EXAMPLES = {
   { label: "Social", value: 140 },
 ];`,
     body: `<PieChart data={pieData} size={280}>
-  {pieData.map((_, i) => (
-    <PieSlice index={i} key={i} />
+  {pieData.map((item, i) => (
+    <PieSlice index={i} key={item.label} />
   ))}
   <PieCenter defaultLabel="Traffic" />
 </PieChart>`,
@@ -222,8 +222,8 @@ const EXAMPLES = {
   { label: "Other", value: 12 },
 ];`,
     body: `<RingChart data={ringData} size={280} strokeWidth={14}>
-  {ringData.map((_, i) => (
-    <Ring index={i} key={i} />
+  {ringData.map((item, i) => (
+    <Ring index={i} key={item.label} />
   ))}
   <RingCenter defaultLabel="Channels" />
 </RingChart>`,
@@ -246,8 +246,8 @@ const data = [
   <RadarGrid />
   <RadarAxis />
   <RadarLabels fontSize={10} offset={16} />
-  {data.map((_, i) => (
-    <RadarArea key={i} index={i} fill="var(--chart-line-primary)" fillOpacity={0.35} />
+  {data.map((row, i) => (
+    <RadarArea key={row.id} index={i} fill="var(--chart-line-primary)" fillOpacity={0.35} />
   ))}
 </RadarChart>`,
   },
@@ -417,7 +417,7 @@ export default function Component() {
   if (indexExports) {
     writeFileSync(
       join(examplesDir, `${slug}-index.ts`),
-      `// biome-ignore lint/performance/noBarrelFile: v0 registry example barrel for shadcn install\n${indexExports}\n`
+      `// biome-ignore-all lint/performance/noBarrelFile: v0 registry example barrel for shadcn install\n${indexExports}\n`
     );
   }
 }

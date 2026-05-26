@@ -1,2 +1,2 @@
-// biome-ignore lint/performance/noBarrelFile: v0 registry example barrel for shadcn install
+// biome-ignore-all lint/performance/noBarrelFile: v0 registry example barrel for shadcn install
 export { Gauge } from "./gauge";

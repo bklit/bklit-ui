@@ -21,7 +21,7 @@
     },
     {
       "path": "registry/examples/choropleth-chart-index.ts",
-      "content": "// biome-ignore lint/performance/noBarrelFile: v0 registry example barrel for shadcn install\nexport { ChoroplethChart, ChoroplethFeatureComponent, ChoroplethTooltip } from \"./choropleth\";\n",
+      "content": "// biome-ignore-all lint/performance/noBarrelFile: v0 registry example barrel for shadcn install\nexport { ChoroplethChart, ChoroplethFeatureComponent, ChoroplethTooltip } from \"./choropleth\";\n",
       "type": "registry:lib",
       "target": "components/charts/index.ts"
     }

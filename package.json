@@ -10,7 +10,8 @@
     "check-types": "turbo run check-types",
     "test": "turbo run test",
     "prepare": "husky",
-    "registry:build": "pnpm --filter @bklitui/ui registry:build"
+    "registry:build": "pnpm --filter @bklitui/ui registry:build",
+    "registry:verify": "node packages/ui/scripts/verify-registry-sync.mjs"
   },
   "devDependencies": {
     "@biomejs/biome": "2.3.11",

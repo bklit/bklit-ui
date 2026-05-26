@@ -1,13 +1,7 @@
-"use client";
+"use client"
 
 // In your app (monorepo/npm): import { ScatterChart, Scatter, Grid, XAxis, ChartTooltip } from "@bklitui/ui/charts"
-import {
-  ChartTooltip,
-  Grid,
-  Scatter,
-  ScatterChart,
-  XAxis,
-} from "@/components/charts";
+import { ScatterChart, Scatter, Grid, XAxis, ChartTooltip } from "@/components/charts"
 
 const chartData = [
   { date: new Date("2024-01-01"), sessions: 420, conversions: 28 },
@@ -23,13 +17,13 @@ export default function Component() {
     <main className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
       <div className="w-full max-w-3xl">
         <ScatterChart data={chartData}>
-          <Grid horizontal />
-          <Scatter dataKey="sessions" />
-          <Scatter dataKey="conversions" />
-          <XAxis />
-          <ChartTooltip />
-        </ScatterChart>
+  <Grid horizontal />
+  <Scatter dataKey="sessions" />
+  <Scatter dataKey="conversions" />
+  <XAxis />
+  <ChartTooltip />
+</ScatterChart>
       </div>
     </main>
-  );
+  )
 }

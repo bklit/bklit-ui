@@ -20,7 +20,7 @@
     },
     {
       "path": "registry/examples/gauge-chart-index.ts",
-      "content": "// biome-ignore lint/performance/noBarrelFile: v0 registry example barrel for shadcn install\nexport { Gauge } from \"./gauge\";\n",
+      "content": "// biome-ignore-all lint/performance/noBarrelFile: v0 registry example barrel for shadcn install\nexport { Gauge } from \"./gauge\";\n",
       "type": "registry:lib",
       "target": "components/charts/index.ts"
     }
