@@ -49,16 +49,24 @@ describe("generateStudioCode", () => {
     assert.match(code, STROKE_WIDTH_3_RE);
   });
 
-  it("bar horizontal stacked includes orientation and primary key", () => {
+  it("bar horizontal uses categorical browser dataset", () => {
     const state = defaultStudioState({
       chart: "bar-chart",
       barOrientation: "horizontal",
-      barSeriesMode: "stacked",
     });
     const { code } = generateStudioCode("bar-chart", state);
     assert.match(code, ORIENTATION_HORIZONTAL_RE);
-    assert.match(code, STACKED_RE);
     assert.match(code, DATA_KEY_USERS_RE);
+  });
+
+  it("bar vertical stacked emits stacked prop with multi-series", () => {
+    const state = defaultStudioState({
+      chart: "bar-chart",
+      barSeriesMode: "stacked",
+      dataSeries: 3,
+    });
+    const { code } = generateStudioCode("bar-chart", state);
+    assert.match(code, STACKED_RE);
   });
 
   it("gauge uses dynamic label and angles", () => {
@@ -75,9 +83,9 @@ describe("generateStudioCode", () => {
 });
 
 describe("barCodegen", () => {
-  it("grouped vertical adds mobile series", () => {
+  it("grouped vertical adds mobile series when dataSeries > 1", () => {
     const { code } = barCodegen(
-      defaultStudioState({ barSeriesMode: "grouped" })
+      defaultStudioState({ barSeriesMode: "grouped", dataSeries: 2 })
     );
     assert.match(code, DATA_KEY_MOBILE_RE);
   });

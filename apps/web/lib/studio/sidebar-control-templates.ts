@@ -30,3 +30,28 @@ export const patternControl = (): StudioControl => ({
   key: "pattern",
   label: "Pattern",
 });
+
+/**
+ * "Data" group with series + point count sliders.
+ *
+ * @param maxSeries - Cap series count (default 10, matches `STUDIO_SERIES_KEYS`).
+ */
+export const dataGroup = (maxSeries = 10): StudioControlGroup =>
+  controlGroup("Data", [
+    {
+      type: "number",
+      key: "dataSeries",
+      label: "Series",
+      min: 1,
+      max: maxSeries,
+      step: 1,
+    },
+    {
+      type: "number",
+      key: "dataPoints",
+      label: "Points",
+      min: 3,
+      max: 365,
+      step: 1,
+    },
+  ]);

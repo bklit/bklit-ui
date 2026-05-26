@@ -1,18 +1,17 @@
 import { motionSliceFromState } from "./chart-animation";
 import { curveImportName } from "./curves";
 import {
-  areaData,
-  barData,
   barHorizontalData,
-  barStackedData,
   candlestickOhlcData,
-  composedDemoData,
+  clampStudioPointCount,
+  clampStudioSeriesCount,
   funnelData,
-  lineHeroData,
   liveLineSampleData,
   radarDataDual,
   radarMetrics5,
   ringData,
+  STUDIO_SERIES_KEYS,
+  type StudioCartesianXAxis,
   sankeySimple,
   scatterStudioData,
 } from "./demo-data";
@@ -24,24 +23,91 @@ import { patternCodegenBlock } from "./patterns";
 import { seriesStrokePropsCodegen } from "./series-stroke-props";
 import type { StudioUrlState } from "./studio-parsers";
 
+// Only 5 chart-N vars exist; series 6–10 cycle back through chart-1…chart-5.
+const SERIES_COLOR_BY_INDEX = [
+  "var(--chart-1)",
+  "var(--chart-2)",
+  "var(--chart-3)",
+  "var(--chart-4)",
+  "var(--chart-5)",
+  "var(--chart-1)",
+  "var(--chart-2)",
+  "var(--chart-3)",
+  "var(--chart-4)",
+  "var(--chart-5)",
+];
+
+function seriesKeysForState(state: StudioUrlState): string[] {
+  const count = clampStudioSeriesCount(state.dataSeries);
+  return STUDIO_SERIES_KEYS.slice(0, count);
+}
+
+/** Procedural `Array.from(...)` chart data snippet — matches `generateStudioCartesianData`. */
+export function studioCartesianDataSnippet(
+  state: StudioUrlState,
+  xAxis: StudioCartesianXAxis,
+  keysOverride?: readonly string[]
+): string {
+  const keys = keysOverride ?? seriesKeysForState(state);
+  const points = clampStudioPointCount(state.dataPoints);
+  const xLine =
+    xAxis === "date"
+      ? "  date: new Date(2024, 0, i + 1),"
+      : '  month: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][i % 12],';
+  // Four layered waves at geometrically-spaced periods (~30, ~10.7, ~3.8, ~1.9) for lively, non-repeating output.
+  const seriesLines = keys
+    .map(
+      (key, s) =>
+        `  ${key}: Math.max(10, Math.floor(${180 + s * 18} + Math.sin((i + ${s * 17}) / 4.77) * ${38 + s * 3} + Math.cos((i + ${s * 7}) / 1.7) * 24 + Math.sin((i + ${s * 3}) / 0.61) * 14 + Math.cos((i + ${s * 11}) / 0.31) * 8)),`
+    )
+    .join("\n");
+  return `const chartData = Array.from({ length: ${points} }, (_, i) => ({
+${xLine}
+${seriesLines}
+}));`;
+}
+
 export function cartesianCodegen(
   chartType: "AreaChart" | "LineChart",
-  state: StudioUrlState,
-  dataKey: string
+  state: StudioUrlState
 ) {
   const curveName = curveImportName(state.curve);
   const fill = "url(#studio-pattern-fill)";
   const anim = `\n  ${cssRevealAnimationCodegen(state.animationDuration, motionSliceFromState(state))}`;
 
   const seriesProps = seriesStrokePropsCodegen(state);
+  const keys = seriesKeysForState(state);
 
   let child = "";
   if (chartType === "LineChart") {
-    child = `\n  <Line dataKey="${dataKey}" curve={${curveName}} strokeWidth={${state.strokeWidth}} fadeEdges={${state.fadeEdges}} showHighlight={${state.showHighlight}}${seriesProps} />`;
+    child = keys
+      .map((key, idx) => {
+        const strokeAttr =
+          idx === 0 ? "" : ` stroke="${SERIES_COLOR_BY_INDEX[idx]}"`;
+        return `\n  <Line dataKey="${key}"${strokeAttr} curve={${curveName}} strokeWidth={${state.strokeWidth}} fadeEdges={${state.fadeEdges}} showHighlight={${state.showHighlight}}${seriesProps} />`;
+      })
+      .join("");
   } else if (state.pattern === "none") {
-    child = `\n  <Area dataKey="${dataKey}" curve={${curveName}} fillOpacity={${state.fillOpacity}} strokeWidth={${state.strokeWidth}} fadeEdges={${state.fadeEdges}} gradientToOpacity={${state.gradientToOpacity}} showLine={${state.showLine}} showHighlight={${state.showHighlight}}${seriesProps} />`;
+    child = keys
+      .map((key, idx) => {
+        const fillAttr =
+          idx === 0 ? "" : ` fill="${SERIES_COLOR_BY_INDEX[idx]}"`;
+        return `\n  <Area dataKey="${key}"${fillAttr} curve={${curveName}} fillOpacity={${state.fillOpacity}} strokeWidth={${state.strokeWidth}} fadeEdges={${state.fadeEdges}} gradientToOpacity={${state.gradientToOpacity}} showLine={${state.showLine}} showHighlight={${state.showHighlight}}${seriesProps} />`;
+      })
+      .join("");
   } else {
-    child = `\n  ${patternCodegenBlock(state.pattern)}\n  <PatternArea dataKey="${dataKey}" fill="${fill}" curve={${curveName}} />\n  <Area dataKey="${dataKey}" fillOpacity={0} curve={${curveName}} strokeWidth={${state.strokeWidth}} fadeEdges={${state.fadeEdges}} gradientToOpacity={${state.gradientToOpacity}} showLine={${state.showLine}} showHighlight={${state.showHighlight}}${seriesProps} />`;
+    // Pattern fill applies only to the primary series; secondaries fall back to solid chart-N color.
+    const [primaryKey, ...rest] = keys;
+    const primary = primaryKey
+      ? `\n  ${patternCodegenBlock(state.pattern)}\n  <PatternArea dataKey="${primaryKey}" fill="${fill}" curve={${curveName}} />\n  <Area dataKey="${primaryKey}" fillOpacity={0} curve={${curveName}} strokeWidth={${state.strokeWidth}} fadeEdges={${state.fadeEdges}} gradientToOpacity={${state.gradientToOpacity}} showLine={${state.showLine}} showHighlight={${state.showHighlight}}${seriesProps} />`
+      : "";
+    const others = rest
+      .map(
+        (key, idx) =>
+          `\n  <Area dataKey="${key}" fill="${SERIES_COLOR_BY_INDEX[idx + 1]}" curve={${curveName}} fillOpacity={${state.fillOpacity}} strokeWidth={${state.strokeWidth}} fadeEdges={${state.fadeEdges}} gradientToOpacity={${state.gradientToOpacity}} showLine={${state.showLine}} showHighlight={${state.showHighlight}}${seriesProps} />`
+      )
+      .join("");
+    child = `${primary}${others}`;
   }
 
   let extraImports = "";
@@ -99,20 +165,24 @@ export function gaugeCodegen(state: StudioUrlState) {
 
 export function barCodegen(state: StudioUrlState) {
   const horizontal = state.barOrientation === "horizontal";
-  const stacked = state.barSeriesMode === "stacked";
-  const multi = state.barSeriesMode !== "single";
-  const xKey = horizontal ? "browser" : "month";
-  const primaryKey = horizontal ? "users" : "desktop";
-  const fill =
+  const seriesCount = clampStudioSeriesCount(state.dataSeries);
+  // "single" mode is treated as grouped when dataSeries > 1.
+  const stacked = seriesCount > 1 && state.barSeriesMode === "stacked";
+  const primaryFill =
     state.pattern === "none" ? "var(--chart-1)" : "url(#studio-pattern-fill)";
 
   let dataSnippet: string;
+  let xKey: string;
+  let keys: string[];
   if (horizontal) {
+    // Horizontal bar keeps the categorical browser dataset.
     dataSnippet = `const chartData = ${JSON.stringify(barHorizontalData, null, 2)};`;
-  } else if (multi) {
-    dataSnippet = `const chartData = ${JSON.stringify(barStackedData, null, 2)};`;
+    xKey = "browser";
+    keys = ["users"];
   } else {
-    dataSnippet = `const chartData = ${JSON.stringify(barData, null, 2)};`;
+    keys = STUDIO_SERIES_KEYS.slice(0, seriesCount);
+    dataSnippet = studioCartesianDataSnippet(state, "month", keys);
+    xKey = "month";
   }
 
   const chartProps = [
@@ -137,17 +207,18 @@ export function barCodegen(state: StudioUrlState) {
   const patternBlock =
     state.pattern === "none" ? "" : `\n  ${patternCodegenBlock(state.pattern)}`;
 
-  const secondBar =
-    multi && !horizontal
-      ? `\n  <Bar dataKey="mobile" fill="var(--chart-3)" lineCap="${state.barLineCap}" fadedOpacity={${state.barFadedOpacity}} groupGap={${state.groupGap}}${stacked ? " stackGap={3}" : ""} />`
-      : "";
+  const bars = keys
+    .map((key, idx) => {
+      const fill = idx === 0 ? primaryFill : SERIES_COLOR_BY_INDEX[idx];
+      return `\n  <Bar dataKey="${key}" lineCap="${state.barLineCap}" fill="${fill}" fadedOpacity={${state.barFadedOpacity}} groupGap={${state.groupGap}}${stacked ? " stackGap={3}" : ""} />`;
+    })
+    .join("");
 
   return {
     code: `import { BarChart, Bar, BarXAxis, Grid, ChartTooltip${state.pattern === "none" ? "" : ", PatternLines"} } from "@bklitui/ui/charts";
 
 <BarChart ${chartProps}>
-  <Grid ${gridProps} />${patternBlock}
-  <Bar dataKey="${primaryKey}" lineCap="${state.barLineCap}" fill="${fill}" fadedOpacity={${state.barFadedOpacity}} groupGap={${state.groupGap}}${stacked ? " stackGap={3}" : ""} />${secondBar}
+  <Grid ${gridProps} />${patternBlock}${bars}
   <BarXAxis />
   <ChartTooltip showCrosshair={false} />
 </BarChart>`,
@@ -160,6 +231,19 @@ export function composedCodegen(state: StudioUrlState) {
   const barPattern =
     state.pattern === "none" ? "" : `\n  ${patternCodegenBlock(state.pattern)}`;
   const seriesProps = seriesStrokePropsCodegen(state);
+  const keys = seriesKeysForState(state);
+  const [barKey, ...secondaryKeys] = keys;
+
+  const barLine = barKey
+    ? `\n  <SeriesBar dataKey="${barKey}" radius={${state.composedBarRadius}} ${state.pattern === "none" ? 'fill="var(--chart-1)"' : 'fill="url(#studio-pattern-fill)"'} />`
+    : "";
+
+  const overlays = secondaryKeys
+    .map((key, idx) => {
+      const color = SERIES_COLOR_BY_INDEX[idx + 1];
+      return `\n  <Area dataKey="${key}" curve={${curveName}} fillOpacity={${state.fillOpacity}} fadeEdges={${state.fadeEdges}} fill="${color}"${seriesProps} />\n  <Line dataKey="${key}" curve={${curveName}} strokeWidth={${state.strokeWidth}} fadeEdges={${state.fadeEdges}} stroke="${color}"${seriesProps} />`;
+    })
+    .join("");
 
   return {
     code: `import { ComposedChart, SeriesBar, Area, Line, Grid, XAxis, ChartTooltip${state.pattern === "none" ? "" : ", PatternLines"} } from "@bklitui/ui/charts";
@@ -167,14 +251,11 @@ import { ${curveName} } from "@visx/curve";
 
 <ComposedChart data={chartData}
   ${cssRevealAnimationCodegen(state.animationDuration, motionSliceFromState(state))}>
-  <Grid horizontal />${barPattern}
-  <SeriesBar dataKey="revenue" radius={${state.composedBarRadius}} ${state.pattern === "none" ? 'fill="var(--chart-1)"' : 'fill="url(#studio-pattern-fill)"'} />
-  <Area dataKey="runRate" curve={${curveName}} fillOpacity={${state.fillOpacity}} fadeEdges={${state.fadeEdges}} fill="var(--chart-4)"${seriesProps} />
-  <Line dataKey="runRate" curve={${curveName}} strokeWidth={${state.strokeWidth}} fadeEdges={${state.fadeEdges}} stroke="var(--chart-2)"${seriesProps} />
+  <Grid horizontal />${barPattern}${barLine}${overlays}
   <XAxis />
   <ChartTooltip />
 </ComposedChart>`,
-    data: `const chartData = ${JSON.stringify(composedDemoData, null, 2)};`,
+    data: studioCartesianDataSnippet(state, "date"),
   };
 }
 
@@ -325,12 +406,12 @@ export function scatterChartDataSnippet() {
   return `const chartData = ${JSON.stringify(scatterStudioData.slice(0, 12), null, 2)};`;
 }
 
-export function lineChartDataSnippet() {
-  return `const chartData = ${JSON.stringify(lineHeroData, null, 2)};`;
+export function lineChartDataSnippet(state: StudioUrlState) {
+  return studioCartesianDataSnippet(state, "date");
 }
 
-export function areaChartDataSnippet() {
-  return `const chartData = ${JSON.stringify(areaData, null, 2)};`;
+export function areaChartDataSnippet(state: StudioUrlState) {
+  return studioCartesianDataSnippet(state, "date");
 }
 
 export function gaugeDataSnippet(state: StudioUrlState) {

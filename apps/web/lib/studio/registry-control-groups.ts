@@ -1,6 +1,7 @@
 import {
   controlGroup,
   curveControl,
+  dataGroup,
   designGroup,
   lineGroup,
   patternControl,
@@ -123,6 +124,7 @@ export const seriesDashTailControlGroup = controlGroup("Dash tail", [
 ]);
 
 export const areaChartControlGroups: StudioControlGroup[] = [
+  dataGroup(),
   designGroup([
     patternControl(),
     {
@@ -164,6 +166,7 @@ export const areaChartControlGroups: StudioControlGroup[] = [
 ];
 
 export const lineChartControlGroups: StudioControlGroup[] = [
+  dataGroup(),
   lineGroup([
     curveControl(),
     {
@@ -182,13 +185,13 @@ export const lineChartControlGroups: StudioControlGroup[] = [
 ];
 
 export const barChartControlGroups: StudioControlGroup[] = [
+  dataGroup(),
   controlGroup("Series", [
     {
       type: "select",
       key: "barSeriesMode",
-      label: "Series",
+      label: "Series mode",
       options: [
-        { value: "single", label: "Single" },
         { value: "grouped", label: "Grouped" },
         { value: "stacked", label: "Stacked" },
       ],
@@ -234,6 +237,7 @@ export const barChartControlGroups: StudioControlGroup[] = [
 ];
 
 export const composedChartControlGroups: StudioControlGroup[] = [
+  dataGroup(),
   designGroup([
     patternControl(),
     {

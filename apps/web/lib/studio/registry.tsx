@@ -66,16 +66,15 @@ import {
 } from "./codegen-helpers";
 import { resolveCurve } from "./curves";
 import {
-  areaData,
-  barData,
   barHorizontalData,
-  barStackedData,
   candlestickOhlcData,
-  composedDemoData,
-  lineHeroData,
+  clampStudioSeriesCount,
+  generateStudioCartesianData,
   pieData,
   radarDataDual,
   radarMetrics5,
+  STUDIO_SERIES_COLORS,
+  STUDIO_SERIES_KEYS,
   sankeySimple,
   scatterStudioData,
 } from "./demo-data";
@@ -123,31 +122,54 @@ const areaConfig: StudioChartConfig = {
   render: (state, ctx) => {
     const curve = resolveCurve(state.curve);
     const fill = ctx.patternFill ?? undefined;
-    const seriesStroke = seriesStrokePropsFromState(state, areaData.length);
+    const seriesCount = clampStudioSeriesCount(state.dataSeries);
+    const data = generateStudioCartesianData({
+      seriesCount,
+      pointCount: state.dataPoints,
+      xAxis: "date",
+    });
+    const seriesStroke = seriesStrokePropsFromState(state, data.length);
     return (
       <StudioCartesianFill>
         <AreaChart
           {...getStudioCssRevealPropsForPreview(state, ctx)}
           className="size-full"
-          data={areaData}
+          data={data}
           key={studioPreviewChartKey(ctx)}
         >
           <Grid horizontal />
           {ctx.patternDefs}
-          {fill ? (
-            <PatternArea curve={curve} dataKey="desktop" fill={fill} />
-          ) : null}
-          <Area
-            curve={curve}
-            dataKey="desktop"
-            fadeEdges={fill ? false : state.fadeEdges}
-            fillOpacity={fill ? 0 : state.fillOpacity}
-            gradientToOpacity={state.gradientToOpacity}
-            showHighlight={state.showHighlight}
-            showLine={state.showLine}
-            strokeWidth={state.strokeWidth}
-            {...seriesStroke}
-          />
+          {STUDIO_SERIES_KEYS.slice(0, seriesCount).flatMap((key, idx) => {
+            // AreaChart picks up series via `Children.forEach` — wrapping in <Fragment> hides children, so flatten.
+            const isPrimary = idx === 0;
+            const patternThisSeries = isPrimary ? fill : undefined;
+            const nodes = [
+              <Area
+                curve={curve}
+                dataKey={key}
+                fadeEdges={patternThisSeries ? false : state.fadeEdges}
+                fill={isPrimary ? undefined : STUDIO_SERIES_COLORS[idx]}
+                fillOpacity={patternThisSeries ? 0 : state.fillOpacity}
+                gradientToOpacity={state.gradientToOpacity}
+                key={`area-${key}`}
+                showHighlight={state.showHighlight}
+                showLine={state.showLine}
+                strokeWidth={state.strokeWidth}
+                {...seriesStroke}
+              />,
+            ];
+            if (patternThisSeries) {
+              nodes.unshift(
+                <PatternArea
+                  curve={curve}
+                  dataKey={key}
+                  fill={patternThisSeries}
+                  key={`pattern-${key}`}
+                />
+              );
+            }
+            return nodes;
+          })}
           <XAxis />
           <ChartTooltip />
         </AreaChart>
@@ -155,8 +177,8 @@ const areaConfig: StudioChartConfig = {
     );
   },
   generateCode: (state) => ({
-    code: cartesianCodegen("AreaChart", state, "desktop"),
-    data: areaChartDataSnippet(),
+    code: cartesianCodegen("AreaChart", state),
+    data: areaChartDataSnippet(state),
   }),
 };
 
@@ -167,31 +189,44 @@ const lineConfig: StudioChartConfig = {
   motionPanel: true,
   controls: [],
   controlGroups: lineChartControlGroups,
-  render: (state, ctx) => (
-    <StudioCartesianFill>
-      <LineChart
-        {...getStudioCssRevealPropsForPreview(state, ctx)}
-        className="size-full"
-        data={lineHeroData}
-        key={studioPreviewChartKey(ctx)}
-      >
-        <Grid horizontal />
-        <Line
-          curve={resolveCurve(state.curve)}
-          dataKey="desktop"
-          fadeEdges={state.fadeEdges}
-          showHighlight={state.showHighlight}
-          strokeWidth={state.strokeWidth}
-          {...seriesStrokePropsFromState(state, lineHeroData.length)}
-        />
-        <XAxis />
-        <ChartTooltip />
-      </LineChart>
-    </StudioCartesianFill>
-  ),
+  render: (state, ctx) => {
+    const seriesCount = clampStudioSeriesCount(state.dataSeries);
+    const data = generateStudioCartesianData({
+      seriesCount,
+      pointCount: state.dataPoints,
+      xAxis: "date",
+    });
+    const seriesStroke = seriesStrokePropsFromState(state, data.length);
+    return (
+      <StudioCartesianFill>
+        <LineChart
+          {...getStudioCssRevealPropsForPreview(state, ctx)}
+          className="size-full"
+          data={data}
+          key={studioPreviewChartKey(ctx)}
+        >
+          <Grid horizontal />
+          {STUDIO_SERIES_KEYS.slice(0, seriesCount).map((key, idx) => (
+            <Line
+              curve={resolveCurve(state.curve)}
+              dataKey={key}
+              fadeEdges={state.fadeEdges}
+              key={key}
+              showHighlight={state.showHighlight}
+              stroke={idx === 0 ? undefined : STUDIO_SERIES_COLORS[idx]}
+              strokeWidth={state.strokeWidth}
+              {...seriesStroke}
+            />
+          ))}
+          <XAxis />
+          <ChartTooltip />
+        </LineChart>
+      </StudioCartesianFill>
+    );
+  },
   generateCode: (state) => ({
-    code: cartesianCodegen("LineChart", state, "desktop"),
-    data: lineChartDataSnippet(),
+    code: cartesianCodegen("LineChart", state),
+    data: lineChartDataSnippet(state),
   }),
 };
 
@@ -247,21 +282,29 @@ const barConfig: StudioChartConfig = {
   controlGroups: barChartControlGroups,
   render: (state, ctx) => {
     const horizontal = state.barOrientation === "horizontal";
-    const stacked = state.barSeriesMode === "stacked";
-    const multi = state.barSeriesMode !== "single";
-    type BarStudioDatum =
-      | (typeof barData)[number]
-      | (typeof barHorizontalData)[number]
-      | (typeof barStackedData)[number];
-    let chartData: BarStudioDatum[] = barData;
-    if (horizontal) {
-      chartData = barHorizontalData;
-    } else if (multi) {
-      chartData = barStackedData;
-    }
-    const xKey = horizontal ? "browser" : "month";
-    const fill = ctx.patternFill ?? "var(--chart-1)";
+    const seriesCount = clampStudioSeriesCount(state.dataSeries);
+    // barSeriesMode "single" is treated as grouped when dataSeries > 1.
+    const stacked = seriesCount > 1 && state.barSeriesMode === "stacked";
     const lineCap = state.barLineCap;
+    const primaryFill = ctx.patternFill ?? "var(--chart-1)";
+
+    let chartData: Record<string, unknown>[];
+    let xKey: string;
+    let seriesKeys: readonly string[];
+    if (horizontal) {
+      // Horizontal bar keeps its categorical browser dataset for readability.
+      chartData = barHorizontalData as unknown as Record<string, unknown>[];
+      xKey = "browser";
+      seriesKeys = ["users"];
+    } else {
+      chartData = generateStudioCartesianData({
+        seriesCount,
+        pointCount: state.dataPoints,
+        xAxis: "month",
+      }) as unknown as Record<string, unknown>[];
+      xKey = "month";
+      seriesKeys = STUDIO_SERIES_KEYS.slice(0, seriesCount);
+    }
 
     return (
       <StudioCartesianFill>
@@ -284,24 +327,17 @@ const barConfig: StudioChartConfig = {
             vertical={horizontal}
           />
           {ctx.patternDefs}
-          <Bar
-            dataKey={horizontal ? "users" : "desktop"}
-            fadedOpacity={state.barFadedOpacity}
-            fill={fill}
-            groupGap={state.groupGap}
-            lineCap={lineCap}
-            stackGap={stacked ? 3 : 0}
-          />
-          {multi && !horizontal ? (
+          {seriesKeys.map((key, idx) => (
             <Bar
-              dataKey="mobile"
+              dataKey={key}
               fadedOpacity={state.barFadedOpacity}
-              fill="var(--chart-3)"
+              fill={idx === 0 ? primaryFill : STUDIO_SERIES_COLORS[idx]}
               groupGap={state.groupGap}
+              key={key}
               lineCap={lineCap}
               stackGap={stacked ? 3 : 0}
             />
-          ) : null}
+          ))}
           <BarXAxis />
           <ChartTooltip showCrosshair={false} />
         </BarChart>
@@ -321,41 +357,58 @@ const composedConfig: StudioChartConfig = {
   controlGroups: composedChartControlGroups,
   render: (state, ctx) => {
     const curve = resolveCurve(state.curve);
-    const seriesStroke = seriesStrokePropsFromState(
-      state,
-      composedDemoData.length
-    );
+    const seriesCount = clampStudioSeriesCount(state.dataSeries);
+    const data = generateStudioCartesianData({
+      seriesCount,
+      pointCount: state.dataPoints,
+      xAxis: "date",
+    });
+    const seriesStroke = seriesStrokePropsFromState(state, data.length);
+    const barKey = STUDIO_SERIES_KEYS[0];
     return (
       <StudioCartesianFill>
         <ComposedChart
           {...getStudioCssRevealPropsForPreview(state, ctx)}
           className="size-full"
-          data={composedDemoData}
+          data={data}
           key={studioPreviewChartKey(ctx)}
         >
           <Grid horizontal />
           {ctx.patternDefs}
-          <SeriesBar
-            dataKey="revenue"
-            fill={ctx.patternFill ?? "var(--chart-1)"}
-            radius={state.composedBarRadius}
-          />
-          <Area
-            curve={curve}
-            dataKey="runRate"
-            fadeEdges={state.fadeEdges}
-            fill="var(--chart-4)"
-            fillOpacity={state.fillOpacity}
-            {...seriesStroke}
-          />
-          <Line
-            curve={curve}
-            dataKey="runRate"
-            fadeEdges={state.fadeEdges}
-            stroke="var(--chart-2)"
-            strokeWidth={state.strokeWidth}
-            {...seriesStroke}
-          />
+          {barKey ? (
+            <SeriesBar
+              dataKey={barKey}
+              fill={ctx.patternFill ?? "var(--chart-1)"}
+              radius={state.composedBarRadius}
+            />
+          ) : null}
+          {STUDIO_SERIES_KEYS.slice(1, seriesCount).flatMap(
+            (key, secondaryIdx) => {
+              // ComposedChart picks up series via `Children.forEach` — keep Area+Line as flat siblings, not inside a Fragment.
+              const colorIdx = secondaryIdx + 1;
+              const color = STUDIO_SERIES_COLORS[colorIdx];
+              return [
+                <Area
+                  curve={curve}
+                  dataKey={key}
+                  fadeEdges={state.fadeEdges}
+                  fill={color}
+                  fillOpacity={state.fillOpacity}
+                  key={`area-${key}`}
+                  {...seriesStroke}
+                />,
+                <Line
+                  curve={curve}
+                  dataKey={key}
+                  fadeEdges={state.fadeEdges}
+                  key={`line-${key}`}
+                  stroke={color}
+                  strokeWidth={state.strokeWidth}
+                  {...seriesStroke}
+                />,
+              ];
+            }
+          )}
           <XAxis />
           <ChartTooltip />
         </ComposedChart>
