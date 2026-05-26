@@ -190,6 +190,16 @@
           "target": "components/charts/series-dash-tail-overlay.tsx"
         },
         {
+          "path": "src/charts/series-highlight-layer.tsx",
+          "type": "registry:component",
+          "target": "components/charts/series-highlight-layer.tsx"
+        },
+        {
+          "path": "src/charts/series-hover-dim.tsx",
+          "type": "registry:component",
+          "target": "components/charts/series-hover-dim.tsx"
+        },
+        {
           "path": "src/charts/series-point-marker.tsx",
           "type": "registry:component",
           "target": "components/charts/series-point-marker.tsx"

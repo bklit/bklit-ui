@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useMemo } from "react";
-import { chartCssVars, useChart } from "../chart-context";
+import { chartCssVars, useChart, useChartHover } from "../chart-context";
 import { type ChartMarker, MarkerGroup } from "./marker-group";
 
 export interface ChartMarkersProps {
@@ -190,7 +190,7 @@ export function ChartMarkers({
 
 // Hook to get active markers for tooltip
 export function useActiveMarkers(items: ChartMarker[]) {
-  const { tooltipData } = useChart();
+  const { tooltipData } = useChartHover();
 
   return useMemo(() => {
     if (!tooltipData) {
