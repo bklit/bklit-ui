@@ -6,7 +6,7 @@
   },
   "overrides": [
     {
-      "includes": ["apps/web/public/r/**/*.json"],
+      "includes": ["apps/web/public/r/**/*.json", "packages/ui/registry.json"],
       "formatter": { "enabled": false },
       "linter": { "enabled": false },
       "assist": { "enabled": false }
