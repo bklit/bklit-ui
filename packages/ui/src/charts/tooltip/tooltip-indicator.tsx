@@ -101,9 +101,7 @@ function TooltipIndicatorInner({
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: we need to jump the animatedX when the visible prop changes
   useEffect(() => {
-    if (visible) {
-      animatedX.jump(rectX);
-    }
+    animatedX.set(rectX);
   }, [animatedX, visible]);
 
   const edgeOpacity = fadeEdges ? 0 : 1;
