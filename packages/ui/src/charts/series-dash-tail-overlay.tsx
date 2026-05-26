@@ -1,6 +1,6 @@
 "use client";
 
-import type { RefObject } from "react";
+import { memo, type RefObject, useMemo } from "react";
 import { DashTailStroke } from "./dash-tail-stroke";
 import {
   findPathLengthAtX,
@@ -23,7 +23,7 @@ interface SeriesDashTailOverlayProps {
   xAccessor: (datum: Record<string, unknown>) => Date | number;
 }
 
-export function SeriesDashTailOverlay({
+function SeriesDashTailOverlayImpl({
   dashFromIndex,
   dashArray,
   data,
@@ -38,16 +38,28 @@ export function SeriesDashTailOverlay({
   xAccessor,
 }: SeriesDashTailOverlayProps) {
   const hasDashTail = resolveDashTailBounds(dashFromIndex, data.length);
+
+  const dashStartX = useMemo(() => {
+    if (!hasDashTail || dashFromIndex == null) {
+      return 0;
+    }
+    return resolveDashStartX(data, dashFromIndex, xScale, xAccessor);
+  }, [hasDashTail, dashFromIndex, data, xScale, xAccessor]);
+
+  // `pathD` participates in the dep list so the binary-search lookup re-runs
+  // after the SVG path geometry actually changes (data, width, curve, …).
+  // Skipping it would leave us calling `getPointAtLength` on a stale DOM.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: pathD is intentional — see comment above
+  const dashStartLength = useMemo(() => {
+    if (!hasDashTail || dashFromIndex == null || pathLength <= 0) {
+      return 0;
+    }
+    return findPathLengthAtX(pathRef.current, pathLength, dashStartX);
+  }, [hasDashTail, dashFromIndex, pathLength, dashStartX, pathD, pathRef]);
+
   if (!hasDashTail || dashFromIndex == null || pathLength <= 0) {
     return null;
   }
-
-  const dashStartX = resolveDashStartX(data, dashFromIndex, xScale, xAccessor);
-  const dashStartLength = findPathLengthAtX(
-    pathRef.current,
-    pathLength,
-    dashStartX
-  );
 
   return (
     <DashTailStroke
@@ -63,3 +75,8 @@ export function SeriesDashTailOverlay({
     />
   );
 }
+
+// All props originate from the chart's stable context slice (data, xScale,
+// xAccessor, …) or are mount-stable strings (gradient `url(#…)` ids). Shallow
+// compare lets us skip the path-length binary search on every cursor move.
+export const SeriesDashTailOverlay = memo(SeriesDashTailOverlayImpl);

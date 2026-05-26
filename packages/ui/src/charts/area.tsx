@@ -7,20 +7,19 @@ import { AreaClosed, LinePath } from "@visx/shape";
 // biome-ignore lint/suspicious/noExplicitAny: d3 curve factory type
 type CurveFactory = any;
 
-import { motion } from "motion/react";
 import { useCallback, useId, useRef } from "react";
 import { AreaGradientDefs } from "./area-gradient-defs";
-import { chartCssVars, useChart } from "./chart-context";
+import { chartCssVars, useChartStable } from "./chart-context";
 import { ChartRevealClip } from "./chart-reveal-clip";
-import { HighlightSegment } from "./highlight-segment";
 import {
   resolveDashTailBounds,
   usePathStrokeMetrics,
 } from "./path-stroke-utils";
 import { SeriesDashTailOverlay } from "./series-dash-tail-overlay";
+import { SeriesHighlightLayer } from "./series-highlight-layer";
+import { SeriesHoverDim } from "./series-hover-dim";
 import { SeriesMarkers } from "./series-markers";
 import type { SeriesPointMarkerStyle } from "./series-point-marker";
-import { useHighlightSegment } from "./use-highlight-segment";
 
 export interface AreaProps {
   /** Key in data to use for y values */
@@ -58,7 +57,6 @@ export interface AreaProps {
   dashArray?: string;
 }
 
-// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: gradient defs and fill/stroke layers share one composable entry point
 export function Area({
   dataKey,
   fill = chartCssVars.linePrimary,
@@ -76,6 +74,9 @@ export function Area({
   dashFromIndex,
   dashArray = "6,4",
 }: AreaProps) {
+  // Stable slice only: hover state lives inside `<SeriesHoverDim>` and
+  // `<SeriesHighlightLayer>` so this component (and its expensive
+  // <SeriesDashTailOverlay> child) does not re-render on cursor motion.
   const {
     data,
     renderData,
@@ -83,13 +84,10 @@ export function Area({
     yScale,
     innerHeight,
     innerWidth,
-    tooltipData,
-    selection,
-    isLoaded,
     enterTransition,
     revealEpoch,
     xAccessor,
-  } = useChart();
+  } = useChartStable();
 
   const pathRef = useRef<SVGPathElement>(null);
   const pathMetricsKey = `${renderData.length}:${innerWidth}:${dashFromIndex}:${showLine}`;
@@ -120,15 +118,9 @@ export function Area({
     [dataKey, yScale]
   );
 
-  // Hover-highlight band via the shared hook. Disabled when there is no stroke
-  // to highlight (showLine={false}) or the highlight is off.
-  const { xSpring, widthSpring, isActive } = useHighlightSegment({
-    enabled: showHighlight && showLine,
-  });
-
-  const isHovering = tooltipData !== null || selection?.active === true;
   const hasDashTail = resolveDashTailBounds(dashFromIndex, data.length);
   const strokePaint = `url(#${strokeGradientId})`;
+  const highlightEnabled = showHighlight && showLine;
 
   return (
     <>
@@ -162,11 +154,7 @@ export function Area({
 
       {/* Main area with clip path */}
       <g clipPath={useRevealClip ? `url(#${revealClipId})` : undefined}>
-        <motion.g
-          animate={{ opacity: isHovering && showHighlight ? 0.6 : 1 }}
-          initial={{ opacity: 1 }}
-          transition={{ duration: 0.4, ease: "easeInOut" }}
-        >
+        <SeriesHoverDim dimOpacity={0.6} enabled={showHighlight}>
           {/* Area fill */}
           {showAreaFill ? (
             <g
@@ -214,18 +202,16 @@ export function Area({
               />
             </>
           ) : null}
-        </motion.g>
+        </SeriesHoverDim>
       </g>
 
-      {/* Highlight segment on hover */}
-      <HighlightSegment
+      {/* Highlight segment on hover — isolated hover subscriber. */}
+      <SeriesHighlightLayer
+        enabled={highlightEnabled}
         height={innerHeight}
         pathRef={pathRef}
         stroke={resolvedStroke}
         strokeWidth={strokeWidth}
-        visible={showHighlight && showLine && isActive && isLoaded}
-        width={widthSpring}
-        x={xSpring}
       />
 
       {showMarkers ? (

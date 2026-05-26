@@ -7,19 +7,18 @@ import { LinePath } from "@visx/shape";
 // biome-ignore lint/suspicious/noExplicitAny: d3 curve factory type
 type CurveFactory = any;
 
-import { motion } from "motion/react";
 import { useCallback, useId, useRef } from "react";
-import { chartCssVars, useChart } from "./chart-context";
+import { chartCssVars, useChartStable } from "./chart-context";
 import { ChartRevealClip } from "./chart-reveal-clip";
-import { HighlightSegment } from "./highlight-segment";
 import {
   resolveDashTailBounds,
   usePathStrokeMetrics,
 } from "./path-stroke-utils";
 import { SeriesDashTailOverlay } from "./series-dash-tail-overlay";
+import { SeriesHighlightLayer } from "./series-highlight-layer";
+import { SeriesHoverDim } from "./series-hover-dim";
 import { SeriesMarkers } from "./series-markers";
 import type { SeriesPointMarkerStyle } from "./series-point-marker";
-import { useHighlightSegment } from "./use-highlight-segment";
 
 export interface LineProps {
   /** Key in data to use for y values */
@@ -62,6 +61,9 @@ export function Line({
   dashFromIndex,
   dashArray = "6,4",
 }: LineProps) {
+  // Stable slice only: hover state lives inside `<SeriesHoverDim>` and
+  // `<SeriesHighlightLayer>` so this component (and its expensive
+  // <SeriesDashTailOverlay> child) does not re-render on cursor motion.
   const {
     data,
     renderData,
@@ -69,13 +71,10 @@ export function Line({
     yScale,
     innerHeight,
     innerWidth,
-    tooltipData,
-    selection,
-    isLoaded,
     enterTransition,
     revealEpoch,
     xAccessor,
-  } = useChart();
+  } = useChartStable();
 
   const pathRef = useRef<SVGPathElement>(null);
   const pathMetricsKey = `${renderData.length}:${innerWidth}:${dashFromIndex}:${animate}`;
@@ -83,10 +82,6 @@ export function Line({
 
   const reactId = useId();
   const gradientId = `line-gradient-${dataKey}-${reactId}`;
-
-  const { xSpring, widthSpring, isActive } = useHighlightSegment({
-    enabled: showHighlight,
-  });
 
   const getY = useCallback(
     (d: Record<string, unknown>) => {
@@ -96,7 +91,6 @@ export function Line({
     [dataKey, yScale]
   );
 
-  const isHovering = tooltipData !== null || selection?.active === true;
   const hasDashTail = resolveDashTailBounds(dashFromIndex, data.length);
   const lineStroke = fadeEdges ? `url(#${gradientId})` : stroke;
 
@@ -132,11 +126,7 @@ export function Line({
             : undefined
         }
       >
-        <motion.g
-          animate={{ opacity: isHovering && showHighlight ? 0.3 : 1 }}
-          initial={{ opacity: 1 }}
-          transition={{ duration: 0.4, ease: "easeInOut" }}
-        >
+        <SeriesHoverDim dimOpacity={0.3} enabled={showHighlight}>
           <LinePath
             curve={curve}
             data={renderData}
@@ -162,7 +152,7 @@ export function Line({
             xAccessor={xAccessor}
             xScale={xScale}
           />
-        </motion.g>
+        </SeriesHoverDim>
       </g>
 
       {showMarkers ? (
@@ -175,14 +165,12 @@ export function Line({
         />
       ) : null}
 
-      <HighlightSegment
+      <SeriesHighlightLayer
+        enabled={showHighlight}
         height={innerHeight}
         pathRef={pathRef}
         stroke={stroke}
         strokeWidth={strokeWidth}
-        visible={showHighlight && isActive && isLoaded}
-        width={widthSpring}
-        x={xSpring}
       />
     </>
   );
