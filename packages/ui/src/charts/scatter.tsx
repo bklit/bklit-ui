@@ -1,7 +1,7 @@
 "use client";
 
 import { useId } from "react";
-import { useChart } from "./chart-context";
+import { useChartStable } from "./chart-context";
 import { SeriesMarkers, type SeriesMarkersProps } from "./series-markers";
 
 export interface ScatterProps extends Omit<SeriesMarkersProps, "animate"> {
@@ -34,7 +34,7 @@ export function Scatter({
   showActiveHighlight = true,
   yGradient,
 }: ScatterProps) {
-  const { innerHeight } = useChart();
+  const { innerHeight } = useChartStable();
 
   const yGradientConfig = (() => {
     if (!yGradient) {

@@ -4,9 +4,7 @@ import { motion, useSpring } from "motion/react";
 import type { RefObject } from "react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
-
-// Spring config for smooth tooltip movement
-const springConfig = { stiffness: 100, damping: 20 };
+import { type SpringConfig, useChartConfig } from "../chart-config-context";
 
 export interface TooltipBoxProps {
   /** X position in pixels (relative to container) */
@@ -33,13 +31,32 @@ export interface TooltipBoxProps {
   top?: number | ReturnType<typeof useSpring>;
   /** Force flip direction (for custom positioning) */
   flipped?: boolean;
+  /** Per-chart override; falls back to `ChartConfigProvider.tooltipBoxSpring`. */
+  springConfig?: SpringConfig;
 }
 
-export function TooltipBox({
+// Inner-only-on-visible so `useSpring` initializes at the cursor's actual x/y
+// instead of (0, 0) on first hover.
+export function TooltipBox(props: TooltipBoxProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const container = props.containerRef.current;
+  if (!(mounted && container)) {
+    return null;
+  }
+  if (!props.visible) {
+    return null;
+  }
+  return <TooltipBoxInner {...props} container={container} />;
+}
+
+function TooltipBoxInner({
   x,
   y,
-  visible,
-  containerRef,
   containerWidth,
   containerHeight,
   offset = 16,
@@ -48,18 +65,17 @@ export function TooltipBox({
   left: leftOverride,
   top: topOverride,
   flipped: flippedOverride,
-}: TooltipBoxProps) {
+  springConfig,
+  container,
+}: Omit<TooltipBoxProps, "visible" | "containerRef"> & {
+  container: HTMLElement;
+}) {
+  const { tooltipBoxSpring } = useChartConfig();
+  const effectiveSpring = springConfig ?? tooltipBoxSpring;
+
   const tooltipRef = useRef<HTMLDivElement>(null);
   const tooltipWidthRef = useRef(180);
   const tooltipHeightRef = useRef(80);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const animatedLeft = useSpring(x + offset, springConfig);
-  const animatedTop = useSpring(y, springConfig);
 
   const tw = tooltipWidthRef.current;
   const th = tooltipHeightRef.current;
@@ -70,6 +86,9 @@ export function TooltipBox({
     Math.min(y - th / 2, containerHeight - th - offset)
   );
 
+  const animatedLeft = useSpring(targetX, effectiveSpring);
+  const animatedTop = useSpring(targetY, effectiveSpring);
+
   if (leftOverride === undefined) {
     animatedLeft.set(targetX);
   }
@@ -78,7 +97,7 @@ export function TooltipBox({
   }
 
   useLayoutEffect(() => {
-    if (!(visible && tooltipRef.current)) {
+    if (!tooltipRef.current) {
       return;
     }
     const el = tooltipRef.current;
@@ -105,7 +124,6 @@ export function TooltipBox({
       animatedTop.set(ty);
     }
   }, [
-    visible,
     x,
     y,
     containerWidth,
@@ -132,16 +150,7 @@ export function TooltipBox({
   const isFlipped = flippedOverride ?? shouldFlipX;
   const transformOrigin = isFlipped ? "right top" : "left top";
 
-  const container = containerRef.current;
-  if (!(mounted && container)) {
-    return null;
-  }
-
   const { createPortal } = require("react-dom") as typeof import("react-dom");
-
-  if (!visible) {
-    return null;
-  }
 
   return createPortal(
     <motion.div

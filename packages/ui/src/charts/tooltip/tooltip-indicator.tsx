@@ -1,10 +1,8 @@
 "use client";
 
 import { motion, useSpring } from "motion/react";
+import { type SpringConfig, useChartConfig } from "../chart-config-context";
 import { chartCssVars } from "../chart-context";
-
-// Faster spring for crosshair - responsive to mouse movement
-const crosshairSpringConfig = { stiffness: 300, damping: 30 };
 
 export type IndicatorWidth =
   | number // Pixel width
@@ -42,6 +40,8 @@ export interface TooltipIndicatorProps {
   animate?: boolean;
   /** Unique ID for the gradient */
   gradientId?: string;
+  /** Per-chart override; falls back to `ChartConfigProvider.tooltipSpring`. */
+  springConfig?: SpringConfig;
 }
 
 function resolveWidth(width: IndicatorWidth): number {
@@ -62,10 +62,18 @@ function resolveWidth(width: IndicatorWidth): number {
   }
 }
 
-export function TooltipIndicator({
+// Inner-only-on-visible so `useSpring` initializes at the real cursor x
+// instead of 0 on first hover.
+export function TooltipIndicator(props: TooltipIndicatorProps) {
+  if (!props.visible) {
+    return null;
+  }
+  return <TooltipIndicatorInner {...props} />;
+}
+
+function TooltipIndicatorInner({
   x,
   height,
-  visible,
   width = "line",
   span,
   columnWidth,
@@ -74,21 +82,21 @@ export function TooltipIndicator({
   fadeEdges = true,
   animate = true,
   gradientId = "tooltip-indicator-gradient",
-}: TooltipIndicatorProps) {
+  springConfig,
+}: Omit<TooltipIndicatorProps, "visible">) {
+  const { tooltipSpring } = useChartConfig();
+  const effectiveSpring = springConfig ?? tooltipSpring;
+
   const pixelWidth =
     span !== undefined && columnWidth !== undefined
       ? span * columnWidth
       : resolveWidth(width);
 
   const rectX = x - pixelWidth / 2;
-  const animatedX = useSpring(rectX, crosshairSpringConfig);
+  const animatedX = useSpring(rectX, effectiveSpring);
 
   if (animate) {
     animatedX.set(rectX);
-  }
-
-  if (!visible) {
-    return null;
   }
 
   const edgeOpacity = fadeEdges ? 0 : 1;

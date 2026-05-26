@@ -16,9 +16,11 @@ import type { Transition } from "motion/react";
 import {
   createContext,
   type Dispatch,
+  type ReactNode,
   type RefObject,
   type SetStateAction,
   useContext,
+  useMemo,
 } from "react";
 import type { ChartSelection } from "./use-chart-interaction";
 
@@ -78,7 +80,36 @@ export interface LineConfig {
   strokeWidth: number;
 }
 
-export interface ChartContextValue {
+/**
+ * Hover/selection state — every field here changes on mouse movement.
+ * Lives in its own context so cold consumers (Grid, YAxis, PatternArea, …)
+ * can subscribe to the stable slice and skip re-rendering on every hover.
+ */
+export interface ChartHoverContextValue {
+  // Tooltip state
+  tooltipData: TooltipData | null;
+  setTooltipData: Dispatch<SetStateAction<TooltipData | null>>;
+
+  // Selection state (optional - only present when useChartInteraction is used)
+  /** Current drag/pinch selection range */
+  selection?: ChartSelection | null;
+  /** Clear the current selection */
+  clearSelection?: () => void;
+
+  // Bar chart hover (optional - only present in BarChart)
+  /** Index of currently hovered bar */
+  hoveredBarIndex?: number | null;
+  /** Setter for hovered bar index */
+  setHoveredBarIndex?: (index: number | null) => void;
+
+  // Candlestick hover (optional - only present in CandlestickChart)
+  /** Index of currently hovered candle */
+  hoveredCandleIndex?: number | null;
+  /** Setter for hovered candle index */
+  setHoveredCandleIndex?: (index: number | null) => void;
+}
+
+export interface ChartContextValue extends ChartHoverContextValue {
   // Data
   data: Record<string, unknown>[];
   /** Decimated subset for SVG path rendering; equals `data` when no decimation is needed. */
@@ -97,10 +128,6 @@ export interface ChartContextValue {
 
   // Column width for spacing calculations
   columnWidth: number;
-
-  // Tooltip state
-  tooltipData: TooltipData | null;
-  setTooltipData: Dispatch<SetStateAction<TooltipData | null>>;
 
   // Container ref for portals
   containerRef: RefObject<HTMLDivElement | null>;
@@ -124,21 +151,11 @@ export interface ChartContextValue {
   // Pre-computed date labels for ticker animation
   dateLabels: string[];
 
-  // Selection state (optional - only present when useChartInteraction is used)
-  /** Current drag/pinch selection range */
-  selection?: ChartSelection | null;
-  /** Clear the current selection */
-  clearSelection?: () => void;
-
   // Bar chart specific (optional - only present in BarChart)
   /** Band scale for categorical x-axis (bar charts) */
   barScale?: ScaleBand<string>;
   /** Width of each bar band */
   bandWidth?: number;
-  /** Index of currently hovered bar */
-  hoveredBarIndex?: number | null;
-  /** Setter for hovered bar index */
-  setHoveredBarIndex?: (index: number | null) => void;
   /** X accessor for bar charts (returns string instead of Date) */
   barXAccessor?: (d: Record<string, unknown>) => string;
   /** Bar chart orientation */
@@ -147,12 +164,6 @@ export interface ChartContextValue {
   stacked?: boolean;
   /** Stack offsets: Map of data index -> Map of dataKey -> cumulative offset */
   stackOffsets?: Map<number, Map<string, number>>;
-
-  // Candlestick chart specific (optional)
-  /** Index of currently hovered candle */
-  hoveredCandleIndex?: number | null;
-  /** Setter for hovered candle index */
-  setHoveredCandleIndex?: (index: number | null) => void;
 
   // ComposedChart + SeriesBar (optional)
   /** `SeriesBar` dataKeys in tree order, for grouped columns at each x */
@@ -171,29 +182,180 @@ export interface ChartContextValue {
   composedStackGap?: number;
 }
 
-const ChartContext = createContext<ChartContextValue | null>(null);
+/**
+ * Stable slice of the chart context — everything that doesn't change on hover
+ * (data, scales, dimensions, animation state, layout config). Consumers that
+ * subscribe via `useChartStable()` skip re-renders on every mouse move.
+ */
+export type ChartStableContextValue = Omit<
+  ChartContextValue,
+  keyof ChartHoverContextValue
+>;
 
+const ChartStableContext = createContext<ChartStableContextValue | null>(null);
+const ChartHoverContext = createContext<ChartHoverContextValue | null>(null);
+
+/**
+ * Splits the merged `value` into a stable slice and a volatile hover slice,
+ * publishing each to its own context. Each slice is memoized on its own
+ * field identities, so changing `tooltipData` does not bust the stable
+ * slice — consumers of `useChartStable()` skip re-renders on hover.
+ */
 export function ChartProvider({
   children,
   value,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
   value: ChartContextValue;
 }) {
+  const stable = useMemo<ChartStableContextValue>(
+    () => ({
+      data: value.data,
+      renderData: value.renderData,
+      xScale: value.xScale,
+      yScale: value.yScale,
+      width: value.width,
+      height: value.height,
+      innerWidth: value.innerWidth,
+      innerHeight: value.innerHeight,
+      margin: value.margin,
+      columnWidth: value.columnWidth,
+      containerRef: value.containerRef,
+      lines: value.lines,
+      isLoaded: value.isLoaded,
+      animationDuration: value.animationDuration,
+      animationEasing: value.animationEasing,
+      enterTransition: value.enterTransition,
+      revealEpoch: value.revealEpoch,
+      xAccessor: value.xAccessor,
+      dateLabels: value.dateLabels,
+      barScale: value.barScale,
+      bandWidth: value.bandWidth,
+      barXAccessor: value.barXAccessor,
+      orientation: value.orientation,
+      stacked: value.stacked,
+      stackOffsets: value.stackOffsets,
+      composedBarDataKeys: value.composedBarDataKeys,
+      composedBarSize: value.composedBarSize,
+      composedMaxBarSize: value.composedMaxBarSize,
+      composedBarGap: value.composedBarGap,
+      composedStacked: value.composedStacked,
+      composedStackOffsets: value.composedStackOffsets,
+      composedStackGap: value.composedStackGap,
+    }),
+    [
+      value.data,
+      value.renderData,
+      value.xScale,
+      value.yScale,
+      value.width,
+      value.height,
+      value.innerWidth,
+      value.innerHeight,
+      value.margin,
+      value.columnWidth,
+      value.containerRef,
+      value.lines,
+      value.isLoaded,
+      value.animationDuration,
+      value.animationEasing,
+      value.enterTransition,
+      value.revealEpoch,
+      value.xAccessor,
+      value.dateLabels,
+      value.barScale,
+      value.bandWidth,
+      value.barXAccessor,
+      value.orientation,
+      value.stacked,
+      value.stackOffsets,
+      value.composedBarDataKeys,
+      value.composedBarSize,
+      value.composedMaxBarSize,
+      value.composedBarGap,
+      value.composedStacked,
+      value.composedStackOffsets,
+      value.composedStackGap,
+    ]
+  );
+
+  const hover = useMemo<ChartHoverContextValue>(
+    () => ({
+      tooltipData: value.tooltipData,
+      setTooltipData: value.setTooltipData,
+      selection: value.selection,
+      clearSelection: value.clearSelection,
+      hoveredBarIndex: value.hoveredBarIndex,
+      setHoveredBarIndex: value.setHoveredBarIndex,
+      hoveredCandleIndex: value.hoveredCandleIndex,
+      setHoveredCandleIndex: value.setHoveredCandleIndex,
+    }),
+    [
+      value.tooltipData,
+      value.setTooltipData,
+      value.selection,
+      value.clearSelection,
+      value.hoveredBarIndex,
+      value.setHoveredBarIndex,
+      value.hoveredCandleIndex,
+      value.setHoveredCandleIndex,
+    ]
+  );
+
   return (
-    <ChartContext.Provider value={value}>{children}</ChartContext.Provider>
+    <ChartStableContext.Provider value={stable}>
+      <ChartHoverContext.Provider value={hover}>
+        {children}
+      </ChartHoverContext.Provider>
+    </ChartStableContext.Provider>
   );
 }
 
-export function useChart(): ChartContextValue {
-  const context = useContext(ChartContext);
+/**
+ * Stable slice — data, scales, dimensions, animation state, layout config.
+ * Subscribers skip re-renders on hover (the hover slice lives in a separate
+ * context). Prefer this in cold consumers like axes, grid, pattern fills.
+ */
+export function useChartStable(): ChartStableContextValue {
+  const context = useContext(ChartStableContext);
   if (!context) {
     throw new Error(
-      "useChart must be used within a ChartProvider. " +
+      "useChartStable must be used within a ChartProvider. " +
         "Make sure your component is wrapped in <LineChart>, <AreaChart>, <BarChart>, or <ComposedChart>."
     );
   }
   return context;
 }
 
-export default ChartContext;
+/**
+ * Hover slice — tooltipData, selection, hovered bar / candle indices.
+ * Subscribers re-render on every mouse move. Use only when the component
+ * actually reads hover state.
+ */
+export function useChartHover(): ChartHoverContextValue {
+  const context = useContext(ChartHoverContext);
+  if (!context) {
+    throw new Error(
+      "useChartHover must be used within a ChartProvider. " +
+        "Make sure your component is wrapped in <LineChart>, <AreaChart>, <BarChart>, or <ComposedChart>."
+    );
+  }
+  return context;
+}
+
+/**
+ * Merged stable + hover context. Convenient for components that need both,
+ * but re-renders on every hover (because hover changes). Prefer
+ * `useChartStable()` or `useChartHover()` for hot consumers that only need
+ * one slice.
+ */
+export function useChart(): ChartContextValue {
+  const stable = useChartStable();
+  const hover = useChartHover();
+  // Identity changes on every hover (hover is the volatile slice) — that's
+  // fine for consumers using this merged hook; they explicitly opted in to
+  // re-rendering on hover.
+  return { ...stable, ...hover };
+}
+
+export default ChartStableContext;

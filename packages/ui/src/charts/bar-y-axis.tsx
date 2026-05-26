@@ -3,7 +3,7 @@
 import { motion } from "motion/react";
 import { memo, useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
-import { useChart } from "./chart-context";
+import { useChart, useChartStable } from "./chart-context";
 
 export interface BarYAxisProps {
   /** Whether to show all labels or skip some for dense data. Default: true */
@@ -55,7 +55,7 @@ function BarYAxisLabel({
 }
 
 export function BarYAxis(props: BarYAxisProps) {
-  const { containerRef, barScale } = useChart();
+  const { containerRef, barScale } = useChartStable();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {

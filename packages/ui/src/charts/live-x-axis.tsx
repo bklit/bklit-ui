@@ -2,7 +2,7 @@
 
 import { motion, useSpring } from "motion/react";
 import { memo, useEffect, useMemo, useRef, useState } from "react";
-import { useChart } from "./chart-context";
+import { useChart, useChartStable } from "./chart-context";
 import { hmsTimeFmt } from "./chart-formatters";
 
 const TICKER_HALF_WIDTH = 50;
@@ -38,7 +38,7 @@ export interface LiveXAxisProps {
 const defaultFormatTime = (t: number) => hmsTimeFmt.format(new Date(t));
 
 export function LiveXAxis(props: LiveXAxisProps) {
-  const { containerRef } = useChart();
+  const { containerRef } = useChartStable();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {

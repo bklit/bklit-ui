@@ -44,14 +44,26 @@ export {
   chartCenterValueClassName,
 } from "./chart-center-typography";
 export {
+  ChartConfigProvider,
+  type ChartConfigProviderProps,
+  type ChartConfigValue,
+  DEFAULT_CHART_CONFIG,
+  type SpringConfig,
+  useChartConfig,
+} from "./chart-config-context";
+export {
   type ChartContextValue,
+  type ChartHoverContextValue,
   ChartProvider,
+  type ChartStableContextValue,
   chartCssVars,
   defaultScatterColors,
   type LineConfig,
   type Margin,
   type TooltipData,
   useChart,
+  useChartHover,
+  useChartStable,
 } from "./chart-context";
 // Legacy legend component (backward compatibility)
 export {
