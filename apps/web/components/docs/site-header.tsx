@@ -11,27 +11,12 @@ import { GitHubIcon } from "../icons/github";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
 import { DocsSearchTrigger } from "./docs-search-trigger";
+import { NavLinkLabel } from "./nav-link-label";
 
 interface NavLink {
   text: string;
   url: string;
   active?: "url" | "nested-url";
-}
-
-function isStudioLink(url: string) {
-  return url === "/studio";
-}
-
-function NavLinkLabel({ text, url }: { text: string; url: string }) {
-  if (!isStudioLink(url)) {
-    return text;
-  }
-  return (
-    <span className="flex items-center gap-1.5">
-      {text}
-      <span aria-hidden className="size-1.5 shrink-0 rounded-full bg-chart-1" />
-    </span>
-  );
 }
 
 interface SiteHeaderProps {
