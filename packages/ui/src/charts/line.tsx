@@ -9,7 +9,6 @@ type CurveFactory = any;
 
 import { useCallback, useId, useRef } from "react";
 import { chartCssVars, useChartStable } from "./chart-context";
-import { ChartRevealClip } from "./chart-reveal-clip";
 import {
   resolveDashTailBounds,
   usePathStrokeMetrics,
@@ -64,6 +63,9 @@ export function Line({
   // Stable slice only: hover state lives inside `<SeriesHoverDim>` and
   // `<SeriesHighlightLayer>` so this component (and its expensive
   // <SeriesDashTailOverlay> child) does not re-render on cursor motion.
+  // The reveal-clip is now a single shared clipPath at the chart-shell
+  // level (`time-series-chart-shell.tsx`); we no longer render a per-line
+  // `<ChartRevealClip>` or read `revealEpoch` here.
   const {
     data,
     renderData,
@@ -71,8 +73,6 @@ export function Line({
     yScale,
     innerHeight,
     innerWidth,
-    enterTransition,
-    revealEpoch,
     xAccessor,
   } = useChartStable();
 
@@ -107,53 +107,32 @@ export function Line({
         </defs>
       ) : null}
 
-      {animate && renderData.length > 1 ? (
-        <defs>
-          <ChartRevealClip
-            clipPathId={`grow-clip-${dataKey}`}
-            enterTransition={enterTransition}
-            height={innerHeight + 20}
-            revealEpoch={revealEpoch ?? 0}
-            targetWidth={innerWidth}
-          />
-        </defs>
-      ) : null}
+      <SeriesHoverDim dimOpacity={0.3} enabled={showHighlight}>
+        <LinePath
+          curve={curve}
+          data={renderData}
+          innerRef={pathRef}
+          stroke={hasDashTail ? "transparent" : lineStroke}
+          strokeLinecap="round"
+          strokeWidth={strokeWidth}
+          x={(d) => xScale(xAccessor(d)) ?? 0}
+          y={getY}
+        />
 
-      <g
-        clipPath={
-          animate && renderData.length > 1
-            ? `url(#grow-clip-${dataKey})`
-            : undefined
-        }
-      >
-        <SeriesHoverDim dimOpacity={0.3} enabled={showHighlight}>
-          <LinePath
-            curve={curve}
-            data={renderData}
-            innerRef={pathRef}
-            stroke={hasDashTail ? "transparent" : lineStroke}
-            strokeLinecap="round"
-            strokeWidth={strokeWidth}
-            x={(d) => xScale(xAccessor(d)) ?? 0}
-            y={getY}
-          />
-
-          <SeriesDashTailOverlay
-            dashArray={dashArray}
-            dashFromIndex={dashFromIndex}
-            data={data}
-            innerHeight={innerHeight}
-            innerWidth={innerWidth}
-            pathD={pathD}
-            pathLength={pathLength}
-            pathRef={pathRef}
-            stroke={lineStroke}
-            strokeWidth={strokeWidth}
-            xAccessor={xAccessor}
-            xScale={xScale}
-          />
-        </SeriesHoverDim>
-      </g>
+        <SeriesDashTailOverlay
+          dashArray={dashArray}
+          dashFromIndex={dashFromIndex}
+          data={data}
+          innerHeight={innerHeight}
+          innerWidth={innerWidth}
+          pathD={pathD}
+          pathLength={pathLength}
+          stroke={lineStroke}
+          strokeWidth={strokeWidth}
+          xAccessor={xAccessor}
+          xScale={xScale}
+        />
+      </SeriesHoverDim>
 
       {showMarkers ? (
         <SeriesMarkers
