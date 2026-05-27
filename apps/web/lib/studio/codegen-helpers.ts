@@ -1,3 +1,4 @@
+import { fadeEdgesCodegen } from "@/components/studio/controls/fade-edges-picker";
 import { motionSliceFromState } from "./chart-animation";
 import { curveImportName } from "./curves";
 import {
@@ -84,7 +85,7 @@ export function cartesianCodegen(
       .map((key, idx) => {
         const strokeAttr =
           idx === 0 ? "" : ` stroke="${SERIES_COLOR_BY_INDEX[idx]}"`;
-        return `\n  <Line dataKey="${key}"${strokeAttr} curve={${curveName}} strokeWidth={${state.strokeWidth}} fadeEdges={${state.fadeEdges}} showHighlight={${state.showHighlight}}${seriesProps} />`;
+        return `\n  <Line dataKey="${key}"${strokeAttr} curve={${curveName}} strokeWidth={${state.strokeWidth}} ${fadeEdgesCodegen(state.fadeEdges)} showHighlight={${state.showHighlight}}${seriesProps} />`;
       })
       .join("");
   } else if (state.pattern === "none") {
@@ -92,19 +93,19 @@ export function cartesianCodegen(
       .map((key, idx) => {
         const fillAttr =
           idx === 0 ? "" : ` fill="${SERIES_COLOR_BY_INDEX[idx]}"`;
-        return `\n  <Area dataKey="${key}"${fillAttr} curve={${curveName}} fillOpacity={${state.fillOpacity}} strokeWidth={${state.strokeWidth}} fadeEdges={${state.fadeEdges}} gradientToOpacity={${state.gradientToOpacity}} showLine={${state.showLine}} showHighlight={${state.showHighlight}}${seriesProps} />`;
+        return `\n  <Area dataKey="${key}"${fillAttr} curve={${curveName}} fillOpacity={${state.fillOpacity}} strokeWidth={${state.strokeWidth}} ${fadeEdgesCodegen(state.fadeEdges)} gradientToOpacity={${state.gradientToOpacity}} showLine={${state.showLine}} showHighlight={${state.showHighlight}}${seriesProps} />`;
       })
       .join("");
   } else {
     // Pattern fill applies only to the primary series; secondaries fall back to solid chart-N color.
     const [primaryKey, ...rest] = keys;
     const primary = primaryKey
-      ? `\n  ${patternCodegenBlock(state.pattern)}\n  <PatternArea dataKey="${primaryKey}" fill="${fill}" curve={${curveName}} />\n  <Area dataKey="${primaryKey}" fillOpacity={0} curve={${curveName}} strokeWidth={${state.strokeWidth}} fadeEdges={${state.fadeEdges}} gradientToOpacity={${state.gradientToOpacity}} showLine={${state.showLine}} showHighlight={${state.showHighlight}}${seriesProps} />`
+      ? `\n  ${patternCodegenBlock(state.pattern)}\n  <PatternArea dataKey="${primaryKey}" fill="${fill}" curve={${curveName}} />\n  <Area dataKey="${primaryKey}" fillOpacity={0} curve={${curveName}} strokeWidth={${state.strokeWidth}} ${fadeEdgesCodegen(state.fadeEdges)} gradientToOpacity={${state.gradientToOpacity}} showLine={${state.showLine}} showHighlight={${state.showHighlight}}${seriesProps} />`
       : "";
     const others = rest
       .map(
         (key, idx) =>
-          `\n  <Area dataKey="${key}" fill="${SERIES_COLOR_BY_INDEX[idx + 1]}" curve={${curveName}} fillOpacity={${state.fillOpacity}} strokeWidth={${state.strokeWidth}} fadeEdges={${state.fadeEdges}} gradientToOpacity={${state.gradientToOpacity}} showLine={${state.showLine}} showHighlight={${state.showHighlight}}${seriesProps} />`
+          `\n  <Area dataKey="${key}" fill="${SERIES_COLOR_BY_INDEX[idx + 1]}" curve={${curveName}} fillOpacity={${state.fillOpacity}} strokeWidth={${state.strokeWidth}} ${fadeEdgesCodegen(state.fadeEdges)} gradientToOpacity={${state.gradientToOpacity}} showLine={${state.showLine}} showHighlight={${state.showHighlight}}${seriesProps} />`
       )
       .join("");
     child = `${primary}${others}`;
@@ -241,7 +242,7 @@ export function composedCodegen(state: StudioUrlState) {
   const overlays = secondaryKeys
     .map((key, idx) => {
       const color = SERIES_COLOR_BY_INDEX[idx + 1];
-      return `\n  <Area dataKey="${key}" curve={${curveName}} fillOpacity={${state.fillOpacity}} fadeEdges={${state.fadeEdges}} fill="${color}"${seriesProps} />\n  <Line dataKey="${key}" curve={${curveName}} strokeWidth={${state.strokeWidth}} fadeEdges={${state.fadeEdges}} stroke="${color}"${seriesProps} />`;
+      return `\n  <Area dataKey="${key}" curve={${curveName}} fillOpacity={${state.fillOpacity}} ${fadeEdgesCodegen(state.fadeEdges)} fill="${color}"${seriesProps} />\n  <Line dataKey="${key}" curve={${curveName}} strokeWidth={${state.strokeWidth}} ${fadeEdgesCodegen(state.fadeEdges)} stroke="${color}"${seriesProps} />`;
     })
     .join("");
 

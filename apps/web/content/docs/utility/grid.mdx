@@ -41,6 +41,11 @@ import { LineChart, Line, Grid, ChartTooltip } from "@bklitui/ui/charts";
 | `strokeOpacity` | `number` | `1` | Line opacity |
 | `strokeWidth` | `number` | `1` | Line width |
 | `strokeDasharray` | `string` | `"4,4"` | Dash pattern (empty string for solid) |
+| `highlightRowValues` | `number[]` | — | Emphasize horizontal lines at specific y values (e.g. `[0]` for break-even) |
+| `highlightRowStroke` | `string` | `var(--chart-foreground-muted)` | Stroke for highlighted rows |
+| `highlightRowStrokeOpacity` | `number` | `1` | Opacity for highlighted rows |
+| `highlightRowStrokeWidth` | `number` | `1` | Width for highlighted rows |
+| `highlightRowStrokeDasharray` | `string` | `"0"` | Dash pattern for highlighted rows |
 | `fadeHorizontal` | `boolean` | `true` | Fade horizontal lines at left/right edges |
 | `fadeVertical` | `boolean` | `false` | Fade vertical lines at top/bottom edges |
 

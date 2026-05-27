@@ -227,7 +227,7 @@ export function EditorChartFrame({
     >
       <div
         className={cn(
-          "relative overflow-hidden border-2 bg-card shadow-sm transition-[border-color]",
+          "relative overflow-visible border-2 bg-card shadow-sm transition-[border-color]",
           isDragging ? "border-accent" : "border-border hover:border-accent"
         )}
         style={{ width: size.width, height: size.height }}

@@ -10,6 +10,11 @@ type CurveFactory = any;
 import { useCallback, useId, useRef } from "react";
 import { chartCssVars, useChartStable } from "./chart-context";
 import {
+  type FadeEdges,
+  fadeGradientStops,
+  resolveFadeSides,
+} from "./fade-edges";
+import {
   resolveDashTailBounds,
   usePathStrokeMetrics,
 } from "./path-stroke-utils";
@@ -30,8 +35,13 @@ export interface LineProps {
   curve?: CurveFactory;
   /** Whether to animate the line. Default: true */
   animate?: boolean;
-  /** Whether to fade edges with gradient. Default: true */
-  fadeEdges?: boolean;
+  /**
+   * Fade the line stroke toward transparent at the chart edges.
+   * - `true` fades both edges, `false` disables the fade entirely.
+   * - `"left"` / `"right"` fades only that side.
+   * Default: true
+   */
+  fadeEdges?: FadeEdges;
   /** Whether to show highlight segment on hover. Default: true */
   showHighlight?: boolean;
   /** Render scatter-style circle markers at each data point. Default: false */
@@ -77,8 +87,12 @@ export function Line({
   } = useChartStable();
 
   const pathRef = useRef<SVGPathElement>(null);
-  const pathMetricsKey = `${renderData.length}:${innerWidth}:${dashFromIndex}:${animate}`;
-  const { pathLength, pathD } = usePathStrokeMetrics(pathRef, pathMetricsKey);
+  const { pathLength, pathD } = usePathStrokeMetrics(pathRef, [
+    renderData,
+    innerWidth,
+    dashFromIndex,
+    animate,
+  ]);
 
   const reactId = useId();
   const gradientId = `line-gradient-${dataKey}-${reactId}`;
@@ -92,17 +106,22 @@ export function Line({
   );
 
   const hasDashTail = resolveDashTailBounds(dashFromIndex, data.length);
-  const lineStroke = fadeEdges ? `url(#${gradientId})` : stroke;
+  const fadeSides = resolveFadeSides(fadeEdges);
+  const lineStroke = fadeSides.any ? `url(#${gradientId})` : stroke;
+  const fadeStops = fadeSides.any ? fadeGradientStops(fadeSides) : null;
 
   return (
     <>
-      {fadeEdges ? (
+      {fadeStops ? (
         <defs>
           <linearGradient id={gradientId} x1="0%" x2="100%" y1="0%" y2="0%">
-            <stop offset="0%" style={{ stopColor: stroke, stopOpacity: 0 }} />
-            <stop offset="15%" style={{ stopColor: stroke, stopOpacity: 1 }} />
-            <stop offset="85%" style={{ stopColor: stroke, stopOpacity: 1 }} />
-            <stop offset="100%" style={{ stopColor: stroke, stopOpacity: 0 }} />
+            {fadeStops.map((stop) => (
+              <stop
+                key={stop.offset}
+                offset={stop.offset}
+                style={{ stopColor: stroke, stopOpacity: stop.opacity }}
+              />
+            ))}
           </linearGradient>
         </defs>
       ) : null}

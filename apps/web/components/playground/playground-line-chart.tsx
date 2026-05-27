@@ -2,6 +2,7 @@
 
 import { ChartTooltip, Grid, Line, LineChart, XAxis } from "@bklitui/ui/charts";
 import { StudioCartesianFill } from "@/components/studio/charts/studio-chart-layout";
+import { fadeEdgesPropValue } from "@/components/studio/controls/fade-edges-picker";
 import { useStudioMotionRemountKey } from "@/components/studio/use-studio-motion-remount";
 import { getStudioCssRevealPropsForPreview } from "@/lib/studio/chart-animation";
 import { resolveCurve } from "@/lib/studio/curves";
@@ -52,7 +53,7 @@ export function PlaygroundLineChart({
           <Line
             curve={resolveCurve(state.curve)}
             dataKey={key}
-            fadeEdges={state.fadeEdges}
+            fadeEdges={fadeEdgesPropValue(state.fadeEdges)}
             key={key}
             showHighlight={state.showHighlight}
             stroke={idx === 0 ? undefined : STUDIO_SERIES_COLORS[idx]}

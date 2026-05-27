@@ -60,7 +60,7 @@ export function ComponentShowcase({
   return (
     <Card
       className={cn(
-        "not-prose my-6 flex flex-col overflow-hidden",
+        "not-prose my-6 flex flex-col overflow-visible",
         previewCardClassName,
         className
       )}

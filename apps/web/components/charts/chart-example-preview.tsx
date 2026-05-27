@@ -64,6 +64,8 @@ export const chartExampleGaugeClassName =
 export const chartExampleRadialShellClassName =
   "mx-auto aspect-square w-full max-w-[min(100%,300px)] sm:max-w-[260px]";
 
+export const chartExampleCardClassName = "overflow-visible gap-0 py-0";
+
 export function ChartExamplePreviewFrame({
   layout = "cartesian",
   role = "example",

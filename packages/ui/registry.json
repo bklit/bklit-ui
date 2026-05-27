@@ -218,6 +218,11 @@
           "path": "src/charts/area-gradient-defs.tsx",
           "type": "registry:component",
           "target": "components/charts/area-gradient-defs.tsx"
+        },
+        {
+          "path": "src/charts/fade-edges.ts",
+          "type": "registry:component",
+          "target": "components/charts/fade-edges.ts"
         }
       ]
     },
@@ -462,6 +467,11 @@
           "target": "components/charts/time-series-chart-shell.tsx"
         },
         {
+          "path": "src/charts/series-bar-layout.ts",
+          "type": "registry:component",
+          "target": "components/charts/series-bar-layout.ts"
+        },
+        {
           "path": "src/charts/area.tsx",
           "type": "registry:component",
           "target": "components/charts/area.tsx"
@@ -506,6 +516,11 @@
           "path": "src/charts/series-bar.tsx",
           "type": "registry:component",
           "target": "components/charts/series-bar.tsx"
+        },
+        {
+          "path": "src/charts/series-bar-layout.ts",
+          "type": "registry:component",
+          "target": "components/charts/series-bar-layout.ts"
         },
         {
           "path": "src/charts/time-series-chart-shell.tsx",
@@ -586,9 +601,54 @@
           "target": "components/charts/time-series-chart-shell.tsx"
         },
         {
+          "path": "src/charts/series-bar-layout.ts",
+          "type": "registry:component",
+          "target": "components/charts/series-bar-layout.ts"
+        },
+        {
           "path": "src/charts/line.tsx",
           "type": "registry:component",
           "target": "components/charts/line.tsx"
+        }
+      ]
+    },
+    {
+      "name": "profit-loss-line",
+      "type": "registry:component",
+      "title": "Profit/Loss Line",
+      "description": "Sign-colored line segments for profit and loss on LineChart",
+      "registryDependencies": [
+        "@bklit/line-chart",
+        "@bklit/grid",
+        "@bklit/x-axis",
+        "@bklit/chart-tooltip",
+        "@bklit/legend",
+        "@bklit/utils"
+      ],
+      "dependencies": [
+        "@visx/curve@4.0.1-alpha.0",
+        "@visx/shape@4.0.1-alpha.0"
+      ],
+      "files": [
+        {
+          "path": "src/charts/profit-loss-line.tsx",
+          "type": "registry:component",
+          "target": "components/charts/profit-loss-line.tsx"
+        },
+        {
+          "path": "src/charts/profit-loss-segments.ts",
+          "type": "registry:lib",
+          "target": "lib/profit-loss-segments.ts"
+        },
+        {
+          "path": "src/charts/profit-loss-legend-hover.tsx",
+          "type": "registry:component",
+          "target": "components/charts/profit-loss-legend-hover.tsx"
+        },
+        {
+          "path": "src/charts/profit-loss-legend.tsx",
+          "type": "registry:component",
+          "target": "components/charts/profit-loss-legend.tsx"
         }
       ]
     },
@@ -627,6 +687,11 @@
           "path": "src/charts/time-series-chart-shell.tsx",
           "type": "registry:component",
           "target": "components/charts/time-series-chart-shell.tsx"
+        },
+        {
+          "path": "src/charts/series-bar-layout.ts",
+          "type": "registry:component",
+          "target": "components/charts/series-bar-layout.ts"
         },
         {
           "path": "src/charts/scatter.tsx",

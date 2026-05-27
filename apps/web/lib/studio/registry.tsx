@@ -33,6 +33,7 @@ import { validChartSlugs } from "@/components/charts/chart-slugs";
 import { ChoroplethStudioPreview } from "@/components/studio/charts/choropleth-studio";
 import { FunnelStudioPreview } from "@/components/studio/charts/funnel-studio-preview";
 import { GaugeStudioPreview } from "@/components/studio/charts/gauge-studio-preview";
+import { LineProfitLossStudioChart } from "@/components/studio/charts/line-profit-loss-studio";
 import { LiveLineStudioPreview } from "@/components/studio/charts/live-line-studio";
 import { PieStudioPreview } from "@/components/studio/charts/pie-studio-preview";
 import { RingStudioPreview } from "@/components/studio/charts/ring-studio-preview";
@@ -41,6 +42,7 @@ import {
   StudioRadialCenter,
   studioRadialSize,
 } from "@/components/studio/charts/studio-chart-layout";
+import { fadeEdgesPropValue } from "@/components/studio/controls/fade-edges-picker";
 import {
   getStudioCssRevealPropsForPreview,
   getStudioMotionEnterProps,
@@ -78,7 +80,9 @@ import {
   sankeySimple,
   scatterStudioData,
 } from "./demo-data";
+import { isProfitLossLineMode } from "./line-chart-mode";
 import { motionEnterPropsCodegen } from "./motion-codegen";
+import { profitLossLineCodegen } from "./profit-loss-line-codegen";
 import {
   areaChartControlGroups,
   barChartControlGroups,
@@ -87,6 +91,7 @@ import {
   composedChartControlGroups,
   funnelChartControlGroups,
   gaugeControlGroups,
+  getLineChartControlGroups,
   lineChartControlGroups,
   liveLineChartControlGroups,
   pieChartControlGroups,
@@ -127,6 +132,7 @@ const areaConfig: StudioChartConfig = {
       seriesCount,
       pointCount: state.dataPoints,
       xAxis: "date",
+      seed: ctx.dataSeed,
     });
     const seriesStroke = seriesStrokePropsFromState(state, data.length);
     return (
@@ -147,7 +153,11 @@ const areaConfig: StudioChartConfig = {
               <Area
                 curve={curve}
                 dataKey={key}
-                fadeEdges={patternThisSeries ? false : state.fadeEdges}
+                fadeEdges={
+                  patternThisSeries
+                    ? false
+                    : fadeEdgesPropValue(state.fadeEdges)
+                }
                 fill={isPrimary ? undefined : STUDIO_SERIES_COLORS[idx]}
                 fillOpacity={patternThisSeries ? 0 : state.fillOpacity}
                 gradientToOpacity={state.gradientToOpacity}
@@ -189,12 +199,25 @@ const lineConfig: StudioChartConfig = {
   motionPanel: true,
   controls: [],
   controlGroups: lineChartControlGroups,
+  resolveControlGroups: (state) =>
+    getLineChartControlGroups({
+      lineChartMode: isProfitLossLineMode(state) ? "profitLoss" : "standard",
+    }),
   render: (state, ctx) => {
+    if (isProfitLossLineMode(state)) {
+      return (
+        <StudioCartesianFill className="size-full">
+          <LineProfitLossStudioChart ctx={ctx} state={state} />
+        </StudioCartesianFill>
+      );
+    }
+
     const seriesCount = clampStudioSeriesCount(state.dataSeries);
     const data = generateStudioCartesianData({
       seriesCount,
       pointCount: state.dataPoints,
       xAxis: "date",
+      seed: ctx.dataSeed,
     });
     const seriesStroke = seriesStrokePropsFromState(state, data.length);
     return (
@@ -210,7 +233,7 @@ const lineConfig: StudioChartConfig = {
             <Line
               curve={resolveCurve(state.curve)}
               dataKey={key}
-              fadeEdges={state.fadeEdges}
+              fadeEdges={fadeEdgesPropValue(state.fadeEdges)}
               key={key}
               showHighlight={state.showHighlight}
               stroke={idx === 0 ? undefined : STUDIO_SERIES_COLORS[idx]}
@@ -224,10 +247,13 @@ const lineConfig: StudioChartConfig = {
       </StudioCartesianFill>
     );
   },
-  generateCode: (state) => ({
-    code: cartesianCodegen("LineChart", state),
-    data: lineChartDataSnippet(state),
-  }),
+  generateCode: (state) =>
+    isProfitLossLineMode(state)
+      ? profitLossLineCodegen(state)
+      : {
+          code: cartesianCodegen("LineChart", state),
+          data: lineChartDataSnippet(state),
+        },
 };
 
 const scatterConfig: StudioChartConfig = {
@@ -301,6 +327,7 @@ const barConfig: StudioChartConfig = {
         seriesCount,
         pointCount: state.dataPoints,
         xAxis: "month",
+        seed: ctx.dataSeed,
       }) as unknown as Record<string, unknown>[];
       xKey = "month";
       seriesKeys = STUDIO_SERIES_KEYS.slice(0, seriesCount);
@@ -362,6 +389,7 @@ const composedConfig: StudioChartConfig = {
       seriesCount,
       pointCount: state.dataPoints,
       xAxis: "date",
+      seed: ctx.dataSeed,
     });
     const seriesStroke = seriesStrokePropsFromState(state, data.length);
     const barKey = STUDIO_SERIES_KEYS[0];
@@ -391,7 +419,7 @@ const composedConfig: StudioChartConfig = {
                 <Area
                   curve={curve}
                   dataKey={key}
-                  fadeEdges={state.fadeEdges}
+                  fadeEdges={fadeEdgesPropValue(state.fadeEdges)}
                   fill={color}
                   fillOpacity={state.fillOpacity}
                   key={`area-${key}`}
@@ -400,7 +428,7 @@ const composedConfig: StudioChartConfig = {
                 <Line
                   curve={curve}
                   dataKey={key}
-                  fadeEdges={state.fadeEdges}
+                  fadeEdges={fadeEdgesPropValue(state.fadeEdges)}
                   key={`line-${key}`}
                   stroke={color}
                   strokeWidth={state.strokeWidth}
@@ -688,6 +716,7 @@ export const studioRegistry: Record<ChartSlug, StudioChartConfig> = {
   "gauge-chart": gaugeConfig,
   "area-chart": areaConfig,
   "line-chart": lineConfig,
+  "profit-loss-line": lineConfig,
   "scatter-chart": scatterConfig,
   "bar-chart": barConfig,
   "composed-chart": composedConfig,
@@ -709,7 +738,9 @@ export function getStudioConfig(slug: ChartSlug): StudioChartConfig {
   return config;
 }
 
-export const studioChartList = validChartSlugs.map((slug) => ({
-  slug,
-  label: chartLabels[slug],
-}));
+export const studioChartList = validChartSlugs
+  .filter((slug) => slug !== "profit-loss-line")
+  .map((slug) => ({
+    slug,
+    label: chartLabels[slug],
+  }));

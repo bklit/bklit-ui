@@ -14,6 +14,7 @@ import type { PatternPresetId } from "@/lib/studio/patterns";
 import type { StudioUrlState } from "@/lib/studio/studio-parsers";
 import type { StudioControl } from "@/lib/studio/types";
 import { CurvePicker } from "./curve-picker";
+import { type FadeEdgesOption, FadeEdgesPicker } from "./fade-edges-picker";
 import { FunnelEdgesPicker } from "./funnel-edges-picker";
 import { GraticuleToggle } from "./graticule-toggle";
 import { LineCapPicker } from "./line-cap-picker";
@@ -135,6 +136,13 @@ export function ControlFieldInputs({
         <FunnelEdgesPicker
           onChange={(v) => onChange("funnelEdges", v)}
           value={value as "curved" | "straight"}
+        />
+      );
+    case "fadeEdges":
+      return (
+        <FadeEdgesPicker
+          onChange={(v) => onChange("fadeEdges", v)}
+          value={value as FadeEdgesOption}
         />
       );
     case "graticuleToggle":

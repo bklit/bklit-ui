@@ -42,14 +42,23 @@ export function studioFitAspectSize(
   return { width: Math.round(width), height: Math.round(height) };
 }
 
+import { cn } from "@/lib/utils";
+
 /** Wraps ParentSize cartesian charts so they fill the frame instead of using aspect-ratio. */
 export function StudioCartesianFill({
   children,
+  className,
 }: {
   children: React.ReactNode;
+  className?: string;
 }) {
   return (
-    <div className="studio-cartesian-fill size-full min-h-0 min-w-0">
+    <div
+      className={cn(
+        "studio-cartesian-fill size-full min-h-0 min-w-0",
+        className
+      )}
+    >
       {children}
     </div>
   );

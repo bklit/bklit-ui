@@ -52,7 +52,12 @@ export const studioSearchParams = {
   motionStaggerScale: parseAsFloat.withDefault(1),
   showLine: parseAsBoolean.withDefault(true),
   showHighlight: parseAsBoolean.withDefault(true),
-  fadeEdges: parseAsBoolean.withDefault(true),
+  fadeEdges: parseAsStringLiteral([
+    "both",
+    "none",
+    "left",
+    "right",
+  ]).withDefault("both"),
   gradientToOpacity: parseAsFloat.withDefault(0),
   innerRadius: parseAsInteger.withDefault(0),
   padAngle: parseAsFloat.withDefault(0),
@@ -138,6 +143,24 @@ export const studioSearchParams = {
   seriesDashArray: parseAsString.withDefault("6,4"),
   dataSeries: parseAsInteger.withDefault(1),
   dataPoints: parseAsInteger.withDefault(12),
+  lineChartMode: parseAsStringLiteral(["standard", "profitLoss"]).withDefault(
+    "standard"
+  ),
+  showZeroLine: parseAsBoolean.withDefault(true),
+  zeroLineStroke: parseAsString.withDefault("var(--color-muted-foreground)"),
+  zeroLineStrokeWidth: parseAsFloat.withDefault(1.5),
+  zeroLineStyle: parseAsStringLiteral(["solid", "dashed"]).withDefault("solid"),
+  tooltipLabel: parseAsString.withDefault("Profit/Loss"),
+  showTooltipDots: parseAsBoolean.withDefault(true),
+  showTooltipDatePill: parseAsBoolean.withDefault(true),
+  showCrosshair: parseAsBoolean.withDefault(true),
+  crosshairFollowsValue: parseAsBoolean.withDefault(true),
+  crosshairColor: parseAsString.withDefault("var(--chart-crosshair)"),
+  showLegend: parseAsBoolean.withDefault(true),
+  legendPlacement: parseAsStringLiteral(["top", "bottom"]).withDefault("top"),
+  legendAlign: parseAsStringLiteral(["start", "center", "end"]).withDefault(
+    "end"
+  ),
 };
 
 export interface StudioUrlState {
@@ -172,7 +195,7 @@ export interface StudioUrlState {
   motionStaggerScale: number;
   showLine: boolean;
   showHighlight: boolean;
-  fadeEdges: boolean;
+  fadeEdges: "both" | "none" | "left" | "right";
   gradientToOpacity: number;
   innerRadius: number;
   padAngle: number;
@@ -243,6 +266,20 @@ export interface StudioUrlState {
   seriesDashArray: string;
   dataSeries: number;
   dataPoints: number;
+  lineChartMode: "standard" | "profitLoss";
+  showZeroLine: boolean;
+  zeroLineStroke: string;
+  zeroLineStrokeWidth: number;
+  zeroLineStyle: "solid" | "dashed";
+  tooltipLabel: string;
+  showTooltipDots: boolean;
+  showTooltipDatePill: boolean;
+  showCrosshair: boolean;
+  crosshairFollowsValue: boolean;
+  crosshairColor: string;
+  showLegend: boolean;
+  legendPlacement: "top" | "bottom";
+  legendAlign: "start" | "center" | "end";
 }
 
 export function defaultsForChart(): Partial<
@@ -289,7 +326,7 @@ export function defaultStudioState(
     motionStaggerScale: 1,
     showLine: true,
     showHighlight: true,
-    fadeEdges: true,
+    fadeEdges: "both",
     gradientToOpacity: 0,
     innerRadius: 0,
     padAngle: 0,
@@ -360,6 +397,20 @@ export function defaultStudioState(
     seriesDashArray: "6,4",
     dataSeries: 1,
     dataPoints: 12,
+    lineChartMode: "standard",
+    showZeroLine: true,
+    zeroLineStroke: "var(--color-muted-foreground)",
+    zeroLineStrokeWidth: 1.5,
+    zeroLineStyle: "solid",
+    tooltipLabel: "Profit/Loss",
+    showTooltipDots: true,
+    showTooltipDatePill: true,
+    showCrosshair: true,
+    crosshairFollowsValue: true,
+    crosshairColor: "var(--chart-crosshair)",
+    showLegend: true,
+    legendPlacement: "top",
+    legendAlign: "end",
     ...overrides,
   };
 }

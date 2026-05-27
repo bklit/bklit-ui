@@ -2,6 +2,7 @@
 
 import { CheckIcon, ChevronDownIcon, CopyIcon } from "lucide-react";
 import { useState } from "react";
+import { getAnalyticsUrl, trackEvent } from "@/lib/analytics/track-client";
 import { Button } from "../ui/button";
 import {
   DropdownMenu,
@@ -13,6 +14,7 @@ import {
 interface CopyPageButtonProps {
   content: string;
   url: string;
+  title?: string;
 }
 
 function getPromptUrl(baseURL: string, url: string, content: string) {
@@ -26,16 +28,30 @@ Help me understand how to use it. Be ready to explain concepts, give examples, o
   return `${baseURL}?q=${encodeURIComponent(prompt)}`;
 }
 
-export function CopyPageButton({ content, url }: CopyPageButtonProps) {
+export function CopyPageButton({ content, url, title }: CopyPageButtonProps) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(content);
+    trackEvent("docs_copy_page", {
+      url: getAnalyticsUrl() || url,
+      page_path: url,
+      title,
+    });
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
   const fullUrl = typeof window === "undefined" ? url : window.location.href;
+
+  const trackLlmOpen = (provider: "chatgpt" | "claude") => {
+    trackEvent("docs_copy_page_llm", {
+      provider,
+      url: fullUrl,
+      page_path: url,
+      title,
+    });
+  };
 
   return (
     <div className="hidden md:flex">
@@ -87,6 +103,7 @@ export function CopyPageButton({ content, url }: CopyPageButtonProps) {
                 aria-label="Open in ChatGPT"
                 className="whitespace-nowrap"
                 href={getPromptUrl("https://chatgpt.com", fullUrl, content)}
+                onClick={() => trackLlmOpen("chatgpt")}
                 rel="noreferrer"
                 target="_blank"
               />
@@ -104,6 +121,7 @@ export function CopyPageButton({ content, url }: CopyPageButtonProps) {
                 aria-label="Open in Claude"
                 className="whitespace-nowrap"
                 href={getPromptUrl("https://claude.ai/new", fullUrl, content)}
+                onClick={() => trackLlmOpen("claude")}
                 rel="noreferrer"
                 target="_blank"
               />

@@ -37,6 +37,7 @@ export type StudioControl =
   | { type: "lineCap"; key: "barLineCap"; label: string }
   | { type: "pieHoverEffect"; key: "pieHoverEffect"; label: string }
   | { type: "funnelEdges"; key: "funnelEdges"; label: string }
+  | { type: "fadeEdges"; key: "fadeEdges"; label: string }
   | { type: "graticuleToggle"; key: "showGraticule"; label: string }
   | ({
       type: "innerRadius";
@@ -69,6 +70,8 @@ export interface StudioChartConfig {
   controls: StudioControl[];
   /** Grouped sidebar sections (takes precedence over `controls` in the studio UI) */
   controlGroups?: StudioControlGroup[];
+  /** Dynamic control groups based on current studio state (e.g. line chart mode). */
+  resolveControlGroups?: (state: StudioUrlState) => StudioControlGroup[];
   /** When true, sidebar shows the motion spline editor at the top. */
   motionPanel?: boolean;
   /** Show stagger scale slider in Motion (gauge, radar, funnel). */
@@ -88,6 +91,7 @@ export const chartLabels = {
   "funnel-chart": "Funnel Chart",
   "gauge-chart": "Gauge",
   "line-chart": "Line Chart",
+  "profit-loss-line": "Profit/Loss Line",
   "live-line-chart": "Live Line Chart",
   "pie-chart": "Pie Chart",
   "radar-chart": "Radar Chart",

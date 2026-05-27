@@ -46,7 +46,10 @@ export function ComponentPreview({
           </h2>
           <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
             {studioSlug ? <OpenInStudioButton slug={studioSlug} /> : null}
-            <OpenInV0Button registryJsonUrl={registryJsonUrl} />
+            <OpenInV0Button
+              chart={registryName}
+              registryJsonUrl={registryJsonUrl}
+            />
           </div>
         </div>
       ) : null}

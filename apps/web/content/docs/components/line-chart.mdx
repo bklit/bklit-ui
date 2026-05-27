@@ -97,6 +97,11 @@ Renders grid lines.
 | `numTicksColumns` | `number` | `10` | Number of vertical lines |
 | `stroke` | `string` | `var(--chart-grid)` | Line color |
 | `strokeDasharray` | `string` | `"4,4"` | Dash pattern |
+| `highlightRowValues` | `number[]` | — | Draw emphasized horizontal lines at specific y values (e.g. `[0]` for break-even) |
+| `highlightRowStroke` | `string` | `var(--chart-foreground-muted)` | Stroke for highlighted rows |
+| `highlightRowStrokeOpacity` | `number` | `1` | Opacity for highlighted rows |
+| `highlightRowStrokeWidth` | `number` | `1` | Width for highlighted rows |
+| `highlightRowStrokeDasharray` | `string` | `"0"` | Dash pattern for highlighted rows (`"0"` = solid) |
 
 ### XAxis
 
@@ -117,8 +122,26 @@ Renders the tooltip with crosshair, dots, and content box.
 | `showDatePill` | `boolean` | `true` | Show animated date ticker |
 | `showCrosshair` | `boolean` | `true` | Show vertical crosshair |
 | `showDots` | `boolean` | `true` | Show dots on lines |
+| `indicatorColor` | `string \| (point) => string` | — | Crosshair and dot color; use a function for value-based colors |
 | `content` | `(props) => ReactNode` | - | Custom content renderer |
 | `rows` | `(point) => TooltipRow[]` | - | Custom row generator |
+
+## Profit/Loss line
+
+For a single series that crosses zero, use [`ProfitLossLine`](/docs/components/profit-loss-line) inside `LineChart`. Pair it with a hidden `Line` (same `dataKey`) so the chart registers the series for the y-domain and tooltip. When any value is negative, the y-axis automatically includes the full data extent instead of anchoring at zero.
+
+Highlight the break-even baseline with `Grid highlightRowValues={[0]}`:
+
+```tsx
+<Grid
+  highlightRowValues={[0]}
+  highlightRowStroke="var(--foreground)"
+  highlightRowStrokeOpacity={0.35}
+  horizontal
+/>
+```
+
+See the [Profit/Loss Line](/docs/components/profit-loss-line) docs and the [line chart gallery](/charts/line-chart) (**Profit/Loss** example).
 
 ## Dashed tail
 

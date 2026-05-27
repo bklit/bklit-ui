@@ -1,6 +1,6 @@
 "use client";
 
-import { Refresh01Icon } from "@hugeicons/core-free-icons";
+import { Refresh01Icon, ShuffleIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useReducedMotion } from "motion/react";
 import { useCallback, useMemo, useRef, useState } from "react";
@@ -27,6 +27,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { getAnalyticsUrl, trackEvent } from "@/lib/analytics/track-client";
 import { presetStyle } from "@/lib/studio/color-presets";
 import { StudioPatternDefs, studioPatternFill } from "@/lib/studio/patterns";
 import type { StudioRenderContext } from "@/lib/studio/render-context";
@@ -50,6 +51,7 @@ export function StudioPreview() {
     motionCurveDragging,
   } = useStudioState();
   const [animationKey, setAnimationKey] = useState(0);
+  const [dataSeed, setDataSeed] = useState(0);
   const motionRemountKey = useStudioMotionRemountKey(displayState);
   const canvasRef = useRef<HTMLDivElement>(null);
   const chartAreaRef = useRef<HTMLDivElement>(null);
@@ -78,6 +80,13 @@ export function StudioPreview() {
 
   const replay = useCallback(() => {
     setAnimationKey((k) => k + 1);
+  }, []);
+
+  // Bumps only the data seed — the chart's `key` is unchanged so React
+  // reconciles instead of remounting, exercising the same-length data-mutation
+  // path (where stale stroke geometry can hide).
+  const scrambleData = useCallback(() => {
+    setDataSeed((s) => s + 1);
   }, []);
 
   const replayForRecording = useCallback(() => {
@@ -155,6 +164,14 @@ export function StudioPreview() {
       }
 
       try {
+        trackEvent("studio_recording_start", {
+          chart: state.chart,
+          format,
+          aspect,
+          interaction_ms: interactionMs,
+          url: getAnalyticsUrl(),
+        });
+
         await startRecording({
           element,
           width: dimensions.captureWidth,
@@ -211,7 +228,15 @@ export function StudioPreview() {
       height: state.frameH,
       filename: `${state.chart}.svg`,
     });
-  }, [state.chart, state.frameH, state.frameW]);
+
+    trackEvent("studio_export_svg", {
+      chart: state.chart,
+      url: getAnalyticsUrl(),
+      frame_w: state.frameW,
+      frame_h: state.frameH,
+      preset: displayState.preset,
+    });
+  }, [displayState.preset, state.chart, state.frameH, state.frameW]);
 
   return (
     <TooltipProvider>
@@ -236,6 +261,22 @@ export function StudioPreview() {
               </Button>
             </TooltipTrigger>
             <TooltipContent>Replay animation</TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger render={<span className="inline-flex" />}>
+              <Button
+                aria-label="Scramble data"
+                className="size-10"
+                disabled={controlsDisabled}
+                onClick={scrambleData}
+                size="icon"
+                type="button"
+                variant="outline"
+              >
+                <HugeiconsIcon icon={ShuffleIcon} size={20} strokeWidth={1.5} />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Scramble data</TooltipContent>
           </Tooltip>
           <StudioExportSvgButton
             disabled={controlsDisabled}
@@ -351,6 +392,7 @@ export function StudioPreview() {
                           {(frame) => {
                             const renderCtx: StudioRenderContext = {
                               animationKey,
+                              dataSeed,
                               isRecording,
                               motionRemountKey,
                               committedState: state,

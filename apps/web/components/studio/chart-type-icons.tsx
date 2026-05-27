@@ -24,6 +24,7 @@ const CHART_TYPE_ICONS: Record<ChartSlug, IconSvgElement> = {
   "area-chart": ChartAreaIcon,
   "bar-chart": BarChartIcon,
   "line-chart": ChartLineData01Icon,
+  "profit-loss-line": ChartBarLineIcon,
   "scatter-chart": ChartScatterIcon,
   "composed-chart": ChartBarLineIcon,
   "pie-chart": PieChartIcon,

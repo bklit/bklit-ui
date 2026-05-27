@@ -13,6 +13,10 @@ import {
   STUDIO_CHART_FRAME_HEIGHT,
   STUDIO_CHART_FRAME_WIDTH,
 } from "@/components/studio/studio-chart-frame";
+import {
+  lineChartProfitLossDefaults,
+  lineChartStandardDefaults,
+} from "@/lib/studio/line-chart-mode";
 import { getStudioConfig } from "@/lib/studio/registry";
 import {
   defaultsForChart,
@@ -94,6 +98,16 @@ export function StudioStateProvider({
     });
   }, [params.frameH, params.frameW, setParams]);
 
+  useEffect(() => {
+    if (params.chart !== "profit-loss-line") {
+      return;
+    }
+    setParams({
+      chart: "line-chart",
+      ...lineChartProfitLossDefaults,
+    });
+  }, [params.chart, setParams]);
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: reset slider previews when chart changes via URL
   useEffect(() => {
     setPreviewOverrides({});
@@ -102,13 +116,28 @@ export function StudioStateProvider({
 
   const config = useMemo(() => getStudioConfig(state.chart), [state.chart]);
 
+  const applyLineChartMode = useCallback(
+    (mode: StudioUrlState["lineChartMode"]) => {
+      setPreviewOverrides({});
+      setParams({
+        lineChartMode: mode,
+        ...(mode === "profitLoss"
+          ? lineChartProfitLossDefaults
+          : lineChartStandardDefaults),
+      });
+    },
+    [setParams]
+  );
+
   const setChart = useCallback(
     (slug: ChartSlug) => {
       setPreviewOverrides({});
       setParams({
         ...defaultsForChart(),
-        chart: slug,
+        chart: slug === "profit-loss-line" ? "line-chart" : slug,
         ...(slug === "live-line-chart" ? { curve: "monotoneX" } : {}),
+        ...(slug === "profit-loss-line" ? lineChartProfitLossDefaults : {}),
+        ...(slug === "line-chart" ? lineChartStandardDefaults : {}),
       });
     },
     [setParams]
@@ -116,6 +145,10 @@ export function StudioStateProvider({
 
   const setParam = useCallback(
     <K extends keyof StudioUrlState>(key: K, value: StudioUrlState[K]) => {
+      if (key === "lineChartMode") {
+        applyLineChartMode(value as StudioUrlState["lineChartMode"]);
+        return;
+      }
       setPreviewOverrides((prev) => {
         if (!(key in prev)) {
           return prev;
@@ -126,7 +159,7 @@ export function StudioStateProvider({
       });
       setParams({ [key]: value });
     },
-    [setParams]
+    [applyLineChartMode, setParams]
   );
 
   const setPreviewParam = useCallback(
@@ -138,6 +171,10 @@ export function StudioStateProvider({
 
   const commitParam = useCallback(
     <K extends keyof StudioUrlState>(key: K, value: StudioUrlState[K]) => {
+      if (key === "lineChartMode") {
+        applyLineChartMode(value as StudioUrlState["lineChartMode"]);
+        return;
+      }
       setPreviewOverrides((prev) => {
         if (!(key in prev)) {
           return prev;
@@ -148,7 +185,7 @@ export function StudioStateProvider({
       });
       setParams({ [key]: value });
     },
-    [setParams]
+    [applyLineChartMode, setParams]
   );
 
   const setFrameSize = useCallback(

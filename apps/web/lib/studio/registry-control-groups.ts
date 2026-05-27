@@ -8,6 +8,16 @@ import {
 } from "./sidebar-control-templates";
 import type { StudioControlGroup } from "./types";
 
+const chartAccentColorOptions = [
+  { value: "var(--color-muted-foreground)", label: "Muted" },
+  { value: "var(--foreground)", label: "Foreground" },
+  { value: "var(--border)", label: "Border" },
+  { value: "var(--chart-grid)", label: "Grid" },
+  { value: "var(--chart-crosshair)", label: "Crosshair" },
+  { value: "var(--color-emerald-500)", label: "Emerald" },
+  { value: "var(--color-red-500)", label: "Red" },
+] as const;
+
 export const gaugeControlGroups: StudioControlGroup[] = [
   designGroup([
     patternControl(),
@@ -159,7 +169,7 @@ export const areaChartControlGroups: StudioControlGroup[] = [
     },
     { type: "boolean", key: "showLine", label: "Show line" },
     { type: "boolean", key: "showHighlight", label: "Highlight on hover" },
-    { type: "boolean", key: "fadeEdges", label: "Fade edges" },
+    { type: "fadeEdges", key: "fadeEdges", label: "Fade edges" },
   ]),
   seriesMarkersControlGroup,
   seriesDashTailControlGroup,
@@ -177,12 +187,135 @@ export const lineChartControlGroups: StudioControlGroup[] = [
       max: 5,
       step: 0.5,
     },
-    { type: "boolean", key: "fadeEdges", label: "Fade edges" },
+    { type: "fadeEdges", key: "fadeEdges", label: "Fade edges" },
     { type: "boolean", key: "showHighlight", label: "Highlight on hover" },
   ]),
   seriesMarkersControlGroup,
   seriesDashTailControlGroup,
 ];
+
+const lineChartModeGroup = controlGroup("Series style", [
+  {
+    type: "select",
+    key: "lineChartMode",
+    label: "Line type",
+    options: [
+      { value: "standard", label: "Standard" },
+      { value: "profitLoss", label: "Profit / loss" },
+    ],
+  },
+]);
+
+const profitLossDataGroup = controlGroup("Data", [
+  {
+    type: "number",
+    key: "dataPoints",
+    label: "Points",
+    min: 3,
+    max: 365,
+    step: 1,
+  },
+]);
+
+const profitLossLineSettingsGroups: StudioControlGroup[] = [
+  lineGroup([
+    curveControl(),
+    {
+      type: "number",
+      key: "strokeWidth",
+      label: "Stroke width",
+      min: 1,
+      max: 5,
+      step: 0.5,
+    },
+    { type: "fadeEdges", key: "fadeEdges", label: "Fade edges" },
+  ]),
+  controlGroup("Zero line", [
+    { type: "boolean", key: "showZeroLine", label: "Show zero line" },
+    {
+      type: "select",
+      key: "zeroLineStroke",
+      label: "Color",
+      options: [...chartAccentColorOptions],
+    },
+    {
+      type: "number",
+      key: "zeroLineStrokeWidth",
+      label: "Stroke width",
+      min: 0.5,
+      max: 4,
+      step: 0.5,
+    },
+    {
+      type: "select",
+      key: "zeroLineStyle",
+      label: "Style",
+      options: [
+        { value: "solid", label: "Solid" },
+        { value: "dashed", label: "Dashed" },
+      ],
+    },
+  ]),
+  controlGroup("Tooltip", [
+    { type: "text", key: "tooltipLabel", label: "Label" },
+    { type: "boolean", key: "showTooltipDots", label: "Show dot" },
+    { type: "boolean", key: "showTooltipDatePill", label: "Show date pill" },
+  ]),
+  controlGroup("Crosshair", [
+    { type: "boolean", key: "showCrosshair", label: "Show crosshair" },
+    {
+      type: "boolean",
+      key: "crosshairFollowsValue",
+      label: "Color follows value",
+    },
+    {
+      type: "select",
+      key: "crosshairColor",
+      label: "Fixed color",
+      options: [...chartAccentColorOptions],
+    },
+  ]),
+  controlGroup("Legend", [
+    { type: "boolean", key: "showLegend", label: "Show legend" },
+    {
+      type: "select",
+      key: "legendPlacement",
+      label: "Placement",
+      options: [
+        { value: "top", label: "Above chart" },
+        { value: "bottom", label: "Below chart" },
+      ],
+    },
+    {
+      type: "select",
+      key: "legendAlign",
+      label: "Align",
+      options: [
+        { value: "start", label: "Start" },
+        { value: "center", label: "Center" },
+        { value: "end", label: "End" },
+      ],
+    },
+  ]),
+];
+
+export function getLineChartControlGroups(state: {
+  lineChartMode: "standard" | "profitLoss";
+}): StudioControlGroup[] {
+  if (state.lineChartMode === "profitLoss") {
+    return [
+      lineChartModeGroup,
+      profitLossDataGroup,
+      ...profitLossLineSettingsGroups,
+    ];
+  }
+
+  return [lineChartModeGroup, ...lineChartControlGroups];
+}
+
+export const profitLossLineChartControlGroups = getLineChartControlGroups({
+  lineChartMode: "profitLoss",
+});
 
 export const barChartControlGroups: StudioControlGroup[] = [
   dataGroup(),
@@ -267,7 +400,7 @@ export const composedChartControlGroups: StudioControlGroup[] = [
       max: 5,
       step: 0.5,
     },
-    { type: "boolean", key: "fadeEdges", label: "Line fade edges" },
+    { type: "fadeEdges", key: "fadeEdges", label: "Line fade edges" },
   ]),
   seriesMarkersControlGroup,
   seriesDashTailControlGroup,

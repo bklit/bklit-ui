@@ -1,0 +1,115 @@
+---
+title: Profit/Loss Line
+description: Sign-colored line segments for profit and loss on a shared zero baseline
+---
+
+import { ProfitLossLineDemo } from "@/components/docs/profit-loss-line-demo";
+
+<ComponentPreview registryName="profit-loss-line">
+  <ProfitLossLineDemo />
+</ComponentPreview>
+
+## Installation
+
+<InstallationTabs name="profit-loss-line" dependencies={["@visx/curve", "@visx/shape"]} />
+
+## Usage
+
+Use `ProfitLossLine` inside `LineChart` for a single series that crosses zero. Pair it with a hidden `Line` (same `dataKey`) so the chart registers the series for the y-domain and tooltip. Highlight the zero baseline with `Grid highlightRowValues`.
+
+```tsx
+import {
+  LineChart,
+  Line,
+  Grid,
+  XAxis,
+  ChartTooltip,
+  ProfitLossLine,
+  profitLossColor,
+  resolveProfitLossTooltipLabel,
+} from "@bklitui/ui/charts";
+import { curveLinear } from "@visx/curve";
+
+const data = [
+  { date: new Date("2024-01-01"), pnl: 420 },
+  { date: new Date("2024-01-02"), pnl: -180 },
+  // ...
+];
+
+export default function ProfitLossChart() {
+  return (
+    <LineChart data={data}>
+      <Grid highlightRowValues={[0]} horizontal />
+      <Line
+        curve={curveLinear}
+        dataKey="pnl"
+        fadeEdges={false}
+        showHighlight={false}
+        stroke="transparent"
+        strokeWidth={0}
+      />
+      <ProfitLossLine dataKey="pnl" />
+      <XAxis />
+      <ChartTooltip
+        indicatorColor={(point) => profitLossColor((point.pnl as number) ?? 0)}
+        rows={(point) => {
+          const value = (point.pnl as number) ?? 0;
+          return [
+            {
+              color: profitLossColor(value),
+              label: resolveProfitLossTooltipLabel(""),
+              value,
+            },
+          ];
+        }}
+      />
+    </LineChart>
+  );
+}
+```
+
+## Components
+
+### ProfitLossLine
+
+Renders linear segments colored by sign. Values ≥ 0 use emerald; values &lt; 0 use red (Tailwind CSS variables by default).
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `dataKey` | `string` | required | Key in data for y values |
+| `xDataKey` | `string` | `"date"` | Key in data for x values |
+| `strokeWidth` | `number` | `2.5` | Line width |
+| `curve` | `CurveFactory` | `curveLinear` | Interpolation curve (same as `Line`) |
+| `fadeEdges` | `FadeEdges` | `false` | Fade stroke toward transparent at chart edges |
+| `positiveColor` | `string` | `var(--color-emerald-500)` | Color for profit segments |
+| `negativeColor` | `string` | `var(--color-red-500)` | Color for loss segments |
+
+### ProfitLossLegend
+
+Optional legend with Profit/Loss items. Hover dims the opposite segment when wrapped with `ProfitLossLegendHoverProvider`.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `hoveredIndex` | `number \| null` | `null` | Controlled hover index |
+| `onHoverChange` | `(index: number \| null) => void` | — | Hover callback |
+| `align` | `"start" \| "center" \| "end"` | `"start"` | Horizontal alignment |
+| `className` | `string` | — | Additional CSS class |
+
+### Grid zero line
+
+Use `highlightRowValues={[0]}` on `Grid` to emphasize the break-even baseline:
+
+```tsx
+<Grid
+  highlightRowValues={[0]}
+  highlightRowStroke="var(--foreground)"
+  highlightRowStrokeOpacity={0.35}
+  horizontal
+/>
+```
+
+See the [Line Chart](/docs/components/line-chart) docs for full `Grid` props.
+
+## Gallery
+
+Interactive examples live on the [line chart gallery](/charts/line-chart) under **Profit/Loss**.

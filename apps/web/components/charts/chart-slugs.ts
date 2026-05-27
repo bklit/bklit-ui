@@ -7,6 +7,7 @@ export const validChartSlugs = [
   "funnel-chart",
   "gauge-chart",
   "line-chart",
+  "profit-loss-line",
   "live-line-chart",
   "pie-chart",
   "radar-chart",

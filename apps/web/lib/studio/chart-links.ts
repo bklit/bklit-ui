@@ -31,6 +31,9 @@ export function studioChartDocsHref(slug: ChartSlug) {
 }
 
 export function studioChartHref(slug: ChartSlug) {
+  if (slug === "profit-loss-line") {
+    return "/studio?chart=line-chart&lineChartMode=profitLoss";
+  }
   return `/studio?chart=${slug}`;
 }
 
