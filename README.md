@@ -6,13 +6,10 @@
     A collection of Open Source charts and utility components that you can customize and extend.
     <br />
     <br />
-    <a href="https://ui.bklit.com">Docs</a>
-    ·
-    <a href="https://x.com/bklitai">X.com</a>
-    ·
-    <a href="https://discord.gg/9yyK8FwPcU">Discord</a>
-    ·
-    <a href="https://github.com/bklit/bklit-ui/issues">Issues</a>
+    <a href="https://github.com/bklit/bklit-ui"><img src="https://www.shieldcn.dev/github/stars/bklit/bklit-ui.svg?variant=secondary&size=xs&theme=zinc" alt="GitHub Stars" /></a>
+    <a href="https://github.com/bklit/bklit-ui/actions"><img src="https://www.shieldcn.dev/github/ci/bklit/bklit-ui.svg?variant=secondary&size=xs&theme=zinc" alt="CI" /></a>
+    <a href="https://discord.gg/9yyK8FwPcU"><img src="https://www.shieldcn.dev/discord/members/9yyK8FwPcU.svg?variant=secondary&size=xs&theme=zinc" alt="Discord Members" /></a>
+    <a href="https://x.com/uixmat"><img src="https://www.shieldcn.dev/x/follow/uixmat.svg?variant=branded&size=xs&theme=zinc" alt="X Follow" /></a>
   </p>
 </p>
 
