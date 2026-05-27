@@ -7,6 +7,7 @@ import {
   type TOCItemType,
 } from "fumadocs-core/toc";
 import { useRef } from "react";
+import { getAnalyticsUrl, trackEvent } from "@/lib/analytics/track-client";
 import { Button } from "../ui/button";
 
 interface TableOfContentsProps {
@@ -28,6 +29,12 @@ function SidebarCTA() {
       <a
         className="absolute inset-0"
         href="https://discord.com/invite/9yyK8FwPcU"
+        onClick={() => {
+          trackEvent("discord_click", {
+            location: "docs_toc",
+            url: getAnalyticsUrl(),
+          });
+        }}
         rel="noreferrer"
         target="_blank"
       >

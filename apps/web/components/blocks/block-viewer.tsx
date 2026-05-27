@@ -17,6 +17,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { getAnalyticsUrl, trackEvent } from "@/lib/analytics/track-client";
 import {
   blockOpenInV0Href,
   blockShadcnAddCommand,
@@ -177,6 +178,17 @@ export function BlockViewer({
                 <a
                   aria-label="Open in v0"
                   href={blockOpenInV0Href(registryName)}
+                  onClick={() => {
+                    trackEvent("blocks_open_v0", {
+                      name,
+                      description,
+                      registry_name: registryName,
+                      install_command: installCommand,
+                      preview_height: previewHeight,
+                      mobile_preview_width: mobilePreviewWidth,
+                      url: getAnalyticsUrl(),
+                    });
+                  }}
                   rel="noreferrer"
                   target="_blank"
                 />

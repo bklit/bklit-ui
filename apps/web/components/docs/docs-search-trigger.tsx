@@ -4,6 +4,7 @@ import { Search01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useSearchContext } from "fumadocs-ui/contexts/search";
 import { useEffect, useState } from "react";
+import { markSearchOpenedFromClick } from "@/lib/analytics/search-source";
 import { cn } from "@/lib/utils";
 
 function SearchShortcut() {
@@ -46,7 +47,10 @@ export function DocsSearchTrigger({
         className
       )}
       data-search-full=""
-      onClick={() => setOpenSearch(true)}
+      onClick={() => {
+        markSearchOpenedFromClick();
+        setOpenSearch(true);
+      }}
       type="button"
     >
       <HugeiconsIcon

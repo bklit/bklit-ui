@@ -17,6 +17,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { getAnalyticsUrl, trackEvent } from "@/lib/analytics/track-client";
 import {
   registryV0ExampleJsonUrl,
   studioChartDocsHref,
@@ -48,7 +49,18 @@ export function StudioCodeSheet({ state }: { state: StudioUrlState }) {
   const { code, data, title } = generated;
 
   return (
-    <Sheet onOpenChange={setOpen} open={open}>
+    <Sheet
+      onOpenChange={(nextOpen) => {
+        if (nextOpen) {
+          trackEvent("studio_get_code", {
+            chart: state.chart,
+            url: getAnalyticsUrl(),
+          });
+        }
+        setOpen(nextOpen);
+      }}
+      open={open}
+    >
       <SheetTrigger
         render={
           <Button
@@ -81,7 +93,9 @@ export function StudioCodeSheet({ state }: { state: StudioUrlState }) {
                 Documentation
               </Button>
               <OpenInV0Button
+                chart={state.chart}
                 registryJsonUrl={registryV0ExampleJsonUrl(state.chart)}
+                surface="studio"
               />
             </div>
           </div>

@@ -11,6 +11,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { getAnalyticsUrl, trackEvent } from "@/lib/analytics/track-client";
 import { cn } from "@/lib/utils";
 
 const sponsorLink = "https://github.com/sponsors/uixmat";
@@ -30,6 +31,14 @@ const containerVariants = {
   },
 };
 
+function trackSponsorClick(location: "button" | "card") {
+  trackEvent("homepage_sponsor_click", {
+    location,
+    url: getAnalyticsUrl(),
+    sponsor_url: sponsorLink,
+  });
+}
+
 function SponsorSkeletonCard({ className }: { className?: string }) {
   return (
     <Link
@@ -40,6 +49,7 @@ function SponsorSkeletonCard({ className }: { className?: string }) {
       )}
       external
       href={sponsorLink}
+      onClick={() => trackSponsorClick("card")}
     >
       <span className="font-light font-mono text-muted-foreground text-xs transition-colors group-hover:text-foreground">
         +
@@ -164,7 +174,11 @@ export function HomeSponsorsSection() {
           <Button
             nativeButton={false}
             render={
-              <Link external href={sponsorLink}>
+              <Link
+                external
+                href={sponsorLink}
+                onClick={() => trackSponsorClick("button")}
+              >
                 Become a sponsor
               </Link>
             }

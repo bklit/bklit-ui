@@ -27,6 +27,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { getAnalyticsUrl, trackEvent } from "@/lib/analytics/track-client";
 import { presetStyle } from "@/lib/studio/color-presets";
 import { StudioPatternDefs, studioPatternFill } from "@/lib/studio/patterns";
 import type { StudioRenderContext } from "@/lib/studio/render-context";
@@ -155,6 +156,14 @@ export function StudioPreview() {
       }
 
       try {
+        trackEvent("studio_recording_start", {
+          chart: state.chart,
+          format,
+          aspect,
+          interaction_ms: interactionMs,
+          url: getAnalyticsUrl(),
+        });
+
         await startRecording({
           element,
           width: dimensions.captureWidth,
@@ -211,7 +220,15 @@ export function StudioPreview() {
       height: state.frameH,
       filename: `${state.chart}.svg`,
     });
-  }, [state.chart, state.frameH, state.frameW]);
+
+    trackEvent("studio_export_svg", {
+      chart: state.chart,
+      url: getAnalyticsUrl(),
+      frame_w: state.frameW,
+      frame_h: state.frameH,
+      preset: displayState.preset,
+    });
+  }, [displayState.preset, state.chart, state.frameH, state.frameW]);
 
   return (
     <TooltipProvider>
