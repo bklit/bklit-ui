@@ -152,12 +152,9 @@ Bklit UI is supported by our premium sponsors.
 Studio is Bklit's interactive chart playground. Pick a chart, tweak styling and animation controls in real time, then copy the generated React code or export a registry JSON for your project.
 
 <p align="center">
-  <video
-    src="https://github.com/bklit/bklit-ui/raw/main/apps/web/public/video/bklit-studio-promo.mp4"
-    poster="https://github.com/bklit/bklit-ui/raw/main/apps/web/public/img/bklit-studio-cover.png"
-    controls
-    width="720"
-  ></video>
+  <a href="https://github.com/bklit/bklit-ui/raw/main/apps/web/public/video/bklit-studio-promo.mp4">
+    <img src="https://github.com/bklit/bklit-ui/raw/main/apps/web/public/img/bklit-studio-cover.png" alt="Bklit Studio — click to play" width="720" />
+  </a>
 </p>
 
 [Open Studio →](https://ui.bklit.com/studio)
