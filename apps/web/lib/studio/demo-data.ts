@@ -281,14 +281,22 @@ export function generateStudioProfitLossData(pointCount: number) {
  * Deterministic, non-repeating series value — four sine/cosine waves at
  * geometrically-spaced periods (~30, ~10.7, ~3.8, ~1.9) so the signal looks
  * lively at every zoom (12 → 365 pts) without ever cycling exactly.
- * Keep in sync with the inline formula emitted by `studioCartesianDataSnippet`.
+ *
+ * `seed = 0` preserves the original formula (kept in sync with the inline
+ * snippet emitted by `studioCartesianDataSnippet`). Non-zero seeds shift the
+ * waveform by a non-integer phase so the curves look visibly different —
+ * used by the studio's "scramble data" button to exercise re-render paths.
  */
-function studioSeriesValue(index: number, seriesIndex: number): number {
-  const arc =
-    Math.sin((index + seriesIndex * 17) / 4.77) * (38 + seriesIndex * 3);
-  const swell = Math.cos((index + seriesIndex * 7) / 1.7) * 24;
-  const ripple = Math.sin((index + seriesIndex * 3) / 0.61) * 14;
-  const jitter = Math.cos((index + seriesIndex * 11) / 0.31) * 8;
+function studioSeriesValue(
+  index: number,
+  seriesIndex: number,
+  seed = 0
+): number {
+  const i = seed === 0 ? index : index + seed * 11.31;
+  const arc = Math.sin((i + seriesIndex * 17) / 4.77) * (38 + seriesIndex * 3);
+  const swell = Math.cos((i + seriesIndex * 7) / 1.7) * 24;
+  const ripple = Math.sin((i + seriesIndex * 3) / 0.61) * 14;
+  const jitter = Math.cos((i + seriesIndex * 11) / 0.31) * 8;
   const base = 180 + seriesIndex * 18;
   return Math.max(10, Math.floor(base + arc + swell + ripple + jitter));
 }
@@ -306,10 +314,13 @@ export function generateStudioCartesianData({
   seriesCount,
   pointCount,
   xAxis,
+  seed = 0,
 }: {
   seriesCount: number;
   pointCount: number;
   xAxis: StudioCartesianXAxis;
+  /** Phase-shift the waveform without changing length — used to scramble values for re-render testing. */
+  seed?: number;
 }): StudioCartesianDatum[] {
   const series = clampStudioSeriesCount(seriesCount);
   const points = clampStudioPointCount(pointCount);
@@ -329,7 +340,7 @@ export function generateStudioCartesianData({
     for (let s = 0; s < series; s++) {
       const key = STUDIO_SERIES_KEYS[s];
       if (key) {
-        row[key] = studioSeriesValue(i, s);
+        row[key] = studioSeriesValue(i, s, seed);
       }
     }
     return row;

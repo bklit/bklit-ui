@@ -87,8 +87,12 @@ export function Line({
   } = useChartStable();
 
   const pathRef = useRef<SVGPathElement>(null);
-  const pathMetricsKey = `${renderData.length}:${innerWidth}:${dashFromIndex}:${animate}`;
-  const { pathLength, pathD } = usePathStrokeMetrics(pathRef, pathMetricsKey);
+  const { pathLength, pathD } = usePathStrokeMetrics(pathRef, [
+    renderData,
+    innerWidth,
+    dashFromIndex,
+    animate,
+  ]);
 
   const reactId = useId();
   const gradientId = `line-gradient-${dataKey}-${reactId}`;

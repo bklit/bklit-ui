@@ -97,8 +97,12 @@ export function Area({
   } = useChartStable();
 
   const pathRef = useRef<SVGPathElement>(null);
-  const pathMetricsKey = `${renderData.length}:${innerWidth}:${dashFromIndex}:${showLine}`;
-  const { pathLength, pathD } = usePathStrokeMetrics(pathRef, pathMetricsKey);
+  const { pathLength, pathD } = usePathStrokeMetrics(pathRef, [
+    renderData,
+    innerWidth,
+    dashFromIndex,
+    showLine,
+  ]);
 
   // Unique IDs for this area
   const uniqueId = useId();
