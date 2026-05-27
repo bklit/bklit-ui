@@ -210,7 +210,7 @@ function ShowcaseCard({
   return (
     <Card
       className={cn(
-        "relative flex min-h-0 flex-1 flex-col overflow-hidden",
+        "relative flex min-h-0 flex-1 flex-col overflow-visible",
         previewCardClassName,
         className
       )}

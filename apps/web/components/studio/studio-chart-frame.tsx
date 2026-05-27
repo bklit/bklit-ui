@@ -272,7 +272,7 @@ export const StudioChartFrame = forwardRef<
       <motion.div
         animate={{ width: size.width, height: size.height }}
         className={cn(
-          "relative overflow-hidden border-2 bg-card",
+          "relative overflow-visible border-2 bg-card",
           isRecording
             ? "border-transparent shadow-none"
             : cn(

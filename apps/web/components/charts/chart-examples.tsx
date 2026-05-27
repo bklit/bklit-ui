@@ -98,6 +98,7 @@ import {
 import {
   ChartExamplePreviewFrame,
   type ChartExamplePreviewLayout,
+  chartExampleCardClassName,
   chartExampleGaugeClassName,
   chartExampleGaugeShellClassName,
   chartExampleRadialShellClassName,
@@ -601,7 +602,7 @@ function ChartExampleCard({
     getChartExampleContentPaddingClassName(previewLayout);
 
   return (
-    <Card>
+    <Card className={chartExampleCardClassName}>
       <CardHeader className={cardPaddingClassName}>
         <div className="flex items-start justify-between gap-4">
           <div className="flex flex-col gap-1.5">

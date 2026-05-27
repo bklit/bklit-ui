@@ -193,7 +193,7 @@ export function ResizablePreview({
       ref={wrapRef}
     >
       <div
-        className="relative overflow-hidden rounded-xl border border-border bg-card shadow-sm"
+        className="relative overflow-visible rounded-xl border border-border bg-card shadow-sm"
         style={frameStyle}
       >
         <div className="size-full min-h-0 min-w-0 p-4">{children}</div>

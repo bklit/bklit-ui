@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 
 /** Chart demos and docs previews — use on `Card` + `CardContent`. */
 export const previewCardClassName =
-  "gap-0 rounded-xl border border-border py-0 shadow-sm ring-0";
+  "gap-0 overflow-visible rounded-xl border border-border py-0 shadow-sm ring-0";
 
 /** Centered chart area inside a preview card (docs + homepage). */
 export const previewCardContentClassName =
