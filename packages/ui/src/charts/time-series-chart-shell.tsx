@@ -23,6 +23,10 @@ import {
   decimateTimeSeries,
   maxRenderPointsForWidth,
 } from "./decimate-time-series";
+import {
+  computeSeriesBarRevealClipPadding,
+  computeSeriesBarWidth,
+} from "./series-bar-layout";
 import { useChartInteraction } from "./use-chart-interaction";
 
 function collectNumericExtents(
@@ -350,6 +354,37 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
     duration: animationDuration / 1000,
   };
 
+  const revealClipPadding = useMemo(() => {
+    if (!composedBarDataKeys?.length) {
+      return 0;
+    }
+    const barWidth = computeSeriesBarWidth({
+      innerWidth,
+      dataLength: data.length,
+      columnWidth,
+      seriesCount: composedBarDataKeys.length,
+      composedBarSize,
+      composedMaxBarSize,
+      composedBarGap,
+      stacked: composedStacked,
+    });
+    return computeSeriesBarRevealClipPadding({
+      barWidth,
+      seriesCount: composedBarDataKeys.length,
+      gap: composedBarGap,
+      stacked: composedStacked,
+    });
+  }, [
+    columnWidth,
+    composedBarDataKeys,
+    composedBarGap,
+    composedBarSize,
+    composedMaxBarSize,
+    composedStacked,
+    data.length,
+    innerWidth,
+  ]);
+
   return (
     <ChartProvider value={contextValue}>
       <svg aria-hidden="true" height={height} width={width}>
@@ -360,6 +395,7 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
               clipPathId={clipPathId}
               enterTransition={effectiveEnterTransition}
               height={innerHeight + 20}
+              padding={revealClipPadding}
               revealEpoch={revealEpoch}
               targetWidth={innerWidth}
             />

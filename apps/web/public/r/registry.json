@@ -467,6 +467,11 @@
           "target": "components/charts/time-series-chart-shell.tsx"
         },
         {
+          "path": "src/charts/series-bar-layout.ts",
+          "type": "registry:component",
+          "target": "components/charts/series-bar-layout.ts"
+        },
+        {
           "path": "src/charts/area.tsx",
           "type": "registry:component",
           "target": "components/charts/area.tsx"
@@ -511,6 +516,11 @@
           "path": "src/charts/series-bar.tsx",
           "type": "registry:component",
           "target": "components/charts/series-bar.tsx"
+        },
+        {
+          "path": "src/charts/series-bar-layout.ts",
+          "type": "registry:component",
+          "target": "components/charts/series-bar-layout.ts"
         },
         {
           "path": "src/charts/time-series-chart-shell.tsx",
@@ -589,6 +599,11 @@
           "path": "src/charts/time-series-chart-shell.tsx",
           "type": "registry:component",
           "target": "components/charts/time-series-chart-shell.tsx"
+        },
+        {
+          "path": "src/charts/series-bar-layout.ts",
+          "type": "registry:component",
+          "target": "components/charts/series-bar-layout.ts"
         },
         {
           "path": "src/charts/line.tsx",
@@ -672,6 +687,11 @@
           "path": "src/charts/time-series-chart-shell.tsx",
           "type": "registry:component",
           "target": "components/charts/time-series-chart-shell.tsx"
+        },
+        {
+          "path": "src/charts/series-bar-layout.ts",
+          "type": "registry:component",
+          "target": "components/charts/series-bar-layout.ts"
         },
         {
           "path": "src/charts/scatter.tsx",
