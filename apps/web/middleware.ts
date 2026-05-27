@@ -5,7 +5,9 @@ const canonicalUrl = new URL(SITE_URL);
 const CANONICAL_HOST = canonicalUrl.host;
 
 export function middleware(request: NextRequest) {
-  const requestHost = request.nextUrl.host.toLowerCase();
+  const requestHost = (
+    request.headers.get("host") ?? request.nextUrl.host
+  ).toLowerCase();
   const canonicalHost = CANONICAL_HOST.toLowerCase();
 
   if (
