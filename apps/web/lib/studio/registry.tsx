@@ -33,6 +33,7 @@ import { validChartSlugs } from "@/components/charts/chart-slugs";
 import { ChoroplethStudioPreview } from "@/components/studio/charts/choropleth-studio";
 import { FunnelStudioPreview } from "@/components/studio/charts/funnel-studio-preview";
 import { GaugeStudioPreview } from "@/components/studio/charts/gauge-studio-preview";
+import { LineProfitLossStudioChart } from "@/components/studio/charts/line-profit-loss-studio";
 import { LiveLineStudioPreview } from "@/components/studio/charts/live-line-studio";
 import { PieStudioPreview } from "@/components/studio/charts/pie-studio-preview";
 import { RingStudioPreview } from "@/components/studio/charts/ring-studio-preview";
@@ -79,7 +80,9 @@ import {
   sankeySimple,
   scatterStudioData,
 } from "./demo-data";
+import { isProfitLossLineMode } from "./line-chart-mode";
 import { motionEnterPropsCodegen } from "./motion-codegen";
+import { profitLossLineCodegen } from "./profit-loss-line-codegen";
 import {
   areaChartControlGroups,
   barChartControlGroups,
@@ -88,6 +91,7 @@ import {
   composedChartControlGroups,
   funnelChartControlGroups,
   gaugeControlGroups,
+  getLineChartControlGroups,
   lineChartControlGroups,
   liveLineChartControlGroups,
   pieChartControlGroups,
@@ -194,7 +198,19 @@ const lineConfig: StudioChartConfig = {
   motionPanel: true,
   controls: [],
   controlGroups: lineChartControlGroups,
+  resolveControlGroups: (state) =>
+    getLineChartControlGroups({
+      lineChartMode: isProfitLossLineMode(state) ? "profitLoss" : "standard",
+    }),
   render: (state, ctx) => {
+    if (isProfitLossLineMode(state)) {
+      return (
+        <StudioCartesianFill className="size-full">
+          <LineProfitLossStudioChart ctx={ctx} state={state} />
+        </StudioCartesianFill>
+      );
+    }
+
     const seriesCount = clampStudioSeriesCount(state.dataSeries);
     const data = generateStudioCartesianData({
       seriesCount,
@@ -229,10 +245,13 @@ const lineConfig: StudioChartConfig = {
       </StudioCartesianFill>
     );
   },
-  generateCode: (state) => ({
-    code: cartesianCodegen("LineChart", state),
-    data: lineChartDataSnippet(state),
-  }),
+  generateCode: (state) =>
+    isProfitLossLineMode(state)
+      ? profitLossLineCodegen(state)
+      : {
+          code: cartesianCodegen("LineChart", state),
+          data: lineChartDataSnippet(state),
+        },
 };
 
 const scatterConfig: StudioChartConfig = {
@@ -693,6 +712,7 @@ export const studioRegistry: Record<ChartSlug, StudioChartConfig> = {
   "gauge-chart": gaugeConfig,
   "area-chart": areaConfig,
   "line-chart": lineConfig,
+  "profit-loss-line": lineConfig,
   "scatter-chart": scatterConfig,
   "bar-chart": barConfig,
   "composed-chart": composedConfig,
@@ -714,7 +734,9 @@ export function getStudioConfig(slug: ChartSlug): StudioChartConfig {
   return config;
 }
 
-export const studioChartList = validChartSlugs.map((slug) => ({
-  slug,
-  label: chartLabels[slug],
-}));
+export const studioChartList = validChartSlugs
+  .filter((slug) => slug !== "profit-loss-line")
+  .map((slug) => ({
+    slug,
+    label: chartLabels[slug],
+  }));

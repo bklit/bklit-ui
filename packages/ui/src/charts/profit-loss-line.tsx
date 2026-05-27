@@ -2,10 +2,19 @@
 
 import { curveLinear } from "@visx/curve";
 import { LinePath } from "@visx/shape";
-import { useCallback, useMemo } from "react";
+import { useCallback, useId, useMemo } from "react";
 import { useChart, useChartStable } from "./chart-context";
+import {
+  type FadeEdges,
+  fadeGradientStops,
+  resolveFadeSides,
+} from "./fade-edges";
 import { useProfitLossLegendHover } from "./profit-loss-legend-hover";
 import { splitProfitLossSegments } from "./profit-loss-segments";
+
+// CurveFactory type - simplified version compatible with visx
+// biome-ignore lint/suspicious/noExplicitAny: d3 curve factory type
+type CurveFactory = any;
 
 export const PROFIT_LOSS_POSITIVE_COLOR = "var(--color-emerald-500)";
 export const PROFIT_LOSS_NEGATIVE_COLOR = "var(--color-red-500)";
@@ -29,6 +38,13 @@ export interface ProfitLossLineProps {
   strokeWidth?: number;
   positiveColor?: string;
   negativeColor?: string;
+  /** Curve function. Default: curveLinear */
+  curve?: CurveFactory;
+  /**
+   * Fade the line stroke toward transparent at the chart edges.
+   * Default: false
+   */
+  fadeEdges?: FadeEdges;
 }
 
 function segmentLegendIndex(isPositive: boolean) {
@@ -41,10 +57,18 @@ export function ProfitLossLine({
   strokeWidth = 2.5,
   positiveColor = PROFIT_LOSS_POSITIVE_COLOR,
   negativeColor = PROFIT_LOSS_NEGATIVE_COLOR,
+  curve = curveLinear,
+  fadeEdges = false,
 }: ProfitLossLineProps) {
   const { tooltipData } = useChart();
   const { hoveredIndex } = useProfitLossLegendHover();
-  const { renderData, xScale, yScale, xAccessor } = useChartStable();
+  const { renderData, xScale, yScale, xAccessor, innerWidth } =
+    useChartStable();
+  const reactId = useId();
+  const fadeSides = resolveFadeSides(fadeEdges);
+  const fadeStops = fadeSides.any ? fadeGradientStops(fadeSides) : null;
+  const positiveGradientId = `profit-loss-gradient-pos-${dataKey}-${reactId}`;
+  const negativeGradientId = `profit-loss-gradient-neg-${dataKey}-${reactId}`;
 
   const focusedLegendIndex = useMemo(() => {
     if (hoveredIndex !== null) {
@@ -86,6 +110,48 @@ export function ProfitLossLine({
 
   return (
     <>
+      {fadeStops ? (
+        <defs>
+          <linearGradient
+            gradientUnits="userSpaceOnUse"
+            id={positiveGradientId}
+            x1={0}
+            x2={innerWidth}
+            y1={0}
+            y2={0}
+          >
+            {fadeStops.map((stop) => (
+              <stop
+                key={stop.offset}
+                offset={stop.offset}
+                style={{
+                  stopColor: positiveColor,
+                  stopOpacity: stop.opacity,
+                }}
+              />
+            ))}
+          </linearGradient>
+          <linearGradient
+            gradientUnits="userSpaceOnUse"
+            id={negativeGradientId}
+            x1={0}
+            x2={innerWidth}
+            y1={0}
+            y2={0}
+          >
+            {fadeStops.map((stop) => (
+              <stop
+                key={stop.offset}
+                offset={stop.offset}
+                style={{
+                  stopColor: negativeColor,
+                  stopOpacity: stop.opacity,
+                }}
+              />
+            ))}
+          </linearGradient>
+        </defs>
+      ) : null}
       {segments.map((segment) => {
         const isDimmed =
           focusedLegendIndex !== null &&
@@ -93,6 +159,10 @@ export function ProfitLossLine({
         const firstPoint = segment.data[0];
         const lastPoint = segment.data.at(-1);
         const segmentKey = `${dataKey}-${segment.isPositive ? "pos" : "neg"}-${String(firstPoint?.[xDataKey])}-${String(lastPoint?.[xDataKey])}`;
+        const stroke = segment.isPositive ? positiveColor : negativeColor;
+        const segmentStroke = fadeStops
+          ? `url(#${segment.isPositive ? positiveGradientId : negativeGradientId})`
+          : stroke;
 
         return (
           <g
@@ -101,9 +171,9 @@ export function ProfitLossLine({
             style={{ transition: "opacity 0.2s ease-in-out" }}
           >
             <LinePath
-              curve={curveLinear}
+              curve={curve}
               data={segment.data}
-              stroke={segment.isPositive ? positiveColor : negativeColor}
+              stroke={segmentStroke}
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth={strokeWidth}
@@ -116,3 +186,5 @@ export function ProfitLossLine({
     </>
   );
 }
+
+ProfitLossLine.displayName = "ProfitLossLine";

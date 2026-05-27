@@ -26,11 +26,6 @@ export function ProfitLossLineDemo() {
 
   return (
     <div className="flex w-full flex-col gap-2">
-      <ProfitLossLegend
-        align="center"
-        hoveredIndex={legendHoveredIndex}
-        onHoverChange={setLegendHoveredIndex}
-      />
       <LineChart data={profitLossLineDocsData}>
         <Grid
           highlightRowStroke="var(--foreground)"
@@ -66,6 +61,11 @@ export function ProfitLossLineDemo() {
           }}
         />
       </LineChart>
+      <ProfitLossLegend
+        align="center"
+        hoveredIndex={legendHoveredIndex}
+        onHoverChange={setLegendHoveredIndex}
+      />
     </div>
   );
 }

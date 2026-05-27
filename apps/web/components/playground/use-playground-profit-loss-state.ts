@@ -21,8 +21,8 @@ export function usePlaygroundProfitLossState() {
     crosshairFollowsValue: true,
     crosshairColor: "var(--chart-crosshair)",
     showLegend: true,
-    legendPlacement: "top",
-    legendAlign: "end",
+    legendPlacement: "bottom",
+    legendAlign: "center",
   });
 }
 

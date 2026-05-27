@@ -31,50 +31,67 @@ Follow these steps in order. Treat this as a checklist; each step has concrete l
 
 Documentation lives under `apps/web/`. Do all of the following.
 
-- **Chart examples (live demos)**  
-  - In `apps/web/components/charts/chart-slugs.ts`: add the new chart’s slug to the `validChartSlugs` array (e.g. `"my-chart"`).
-  - In `apps/web/components/charts/chart-examples.tsx`:
-    - Add a nav entry in the `CHART_NAV_ITEMS` array (or equivalent list used for the chart-type tabs).
-    - Register the chart in the **chart examples registry**: add a `factory` (and optionally `hero`) for the new slug so the chart appears on `/charts/[chart]` with the same pattern as existing charts (e.g. area-chart, line-chart). Reuse or mirror the prop variants you validated in the scaffolding phase.
+- **Update existing component docs** when shipping extends an existing chart (new props, subcomponents, or behavior):
+  - Add new props to the relevant tables in the **parent** doc (e.g. `line-chart.mdx` for `Grid highlightRowValues`, `ChartTooltip indicatorColor`).
+  - Update related utility docs if needed (e.g. `content/docs/utility/grid.mdx`, `tooltip.mdx`).
+  - Keep the **primary docs preview unchanged** — do not swap the standard preview on an existing page for the new variant.
+  - Add a short section linking to a dedicated doc page when the feature warrants one (e.g. Profit/Loss → `profit-loss-line.mdx`).
 
-- **Docs page for the component**  
-  - Add a new MDX file under `apps/web/content/docs/components/`, e.g. `my-chart.mdx`, with:
-    - Frontmatter: `title`, `description`.
-    - Preview (e.g. `<ComponentPreview>`), installation (e.g. `<InstallationTabs>`), and usage sections consistent with other component docs (see e.g. `line-chart.mdx`).
+- **Chart examples (live demos on `/charts/[slug]`)**
+  - Add examples to the **corresponding gallery route** (e.g. profit/loss variants under `/charts/line-chart`, not only a new docs preview).
+  - If the feature is a new chart kind, add its slug to `apps/web/components/charts/chart-slugs.ts` and register examples in `apps/web/components/charts/chart-examples.tsx` (`CHART_NAV_ITEMS` / factory registry as appropriate).
+  - Reuse or mirror the prop variants you validated in the scaffolding phase.
 
-- **Components index**  
-  - The Components page at `apps/web/content/docs/components/index.mdx` uses `<ComponentsList />`, which lists all pages under `content/docs/components/`. Adding the new `.mdx` file is enough for it to appear **if** the sidebar includes it (see next).
+- **Dedicated doc page** (when shipping a new composable or chart kind)
+  - Add `apps/web/content/docs/components/<name>.mdx` with frontmatter, `<ComponentPreview>`, installation, usage, and props — consistent with existing component docs.
+  - Add the slug to `apps/web/content/docs/components/meta.json` (desktop sidebar).
+  - Add an entry to `apps/web/components/docs/site-header.tsx` (mobile nav).
 
-- **Sidebar (desktop and mobile)**  
-  - **Desktop:** The docs sidebar is built from the Fumadocs source (file-based). Add the new doc to the components section by adding its slug to `apps/web/content/docs/components/meta.json` in the `pages` array (e.g. `"my-chart"`), so the new page appears in the Components folder in the sidebar.
-  - **Mobile:** The mobile nav has a hardcoded `components` list in `apps/web/components/docs/site-header.tsx`. Add an entry there for the new chart (e.g. `{ text: "My Chart", url: "/docs/components/my-chart" }`) so it appears in the mobile menu under Components.
+### 3. Studio
 
-### 3. Rebuild the shadcn registry
+- **Update the existing studio chart** when the feature is a variant of an existing type, **or add a new studio chart** when it is a distinct kind.
+- Wire **all tunable props** into studio:
+  - `apps/web/lib/studio/studio-parsers.ts` — URL state keys and defaults
+  - `apps/web/lib/studio/registry-control-groups.ts` — control groups for the right pane
+  - `apps/web/lib/studio/registry.tsx` — render preview + `generateCode`
+  - Chart-type defaults in `apps/web/components/studio/studio-state-provider.tsx` when switching chart type (e.g. `setChart` overrides)
 
-- From the **repo root**: run `pnpm registry:build` (or the equivalent that runs the UI package’s `registry:build` script).
-- This updates `apps/web/public/r/` from `packages/ui` (including `registry.json` and per-component JSON). If the new chart is a shadcn-registry component, ensure it’s listed in `packages/ui/registry.json` (or the structure your registry uses) so the build outputs the new component’s registry files.
+### 4. Rebuild the shadcn registry
 
-### 4. Lint, format, and hooks
+- From the **repo root**: run `pnpm registry:build`.
+- This updates `apps/web/public/r/` from `packages/ui`. Ensure new components are listed in `packages/ui/registry.json` when they should be installable via shadcn.
 
-- Run **ultracite** (lint): e.g. `pnpm lint`; fix issues with `pnpm lint:fix` or the project’s lint:fix script.
-- Run **format**: e.g. `pnpm format` (or the script that runs the formatter).
-- Run **prepare** (husky): ensure pre-commit hooks run (e.g. `pnpm prepare` if needed, and then commit so hooks execute).
-- Fix any reported warnings or errors and **repeat** until the tree is clean (no lint/format/type errors and no hook failures).
+### 5. Lint, format, test, and build
 
-### 5. Commit, push, and open a PR
+Run from repo root until clean:
 
-- **Commit** with a short, clear message (e.g. `feat(charts): add MyChart component`).
-- **Push** the branch (e.g. `git push --set-upstream origin <branch>` if first push).
-- **Open a PR** (do not only update a template file—actually create the pull request):
-  - After pushing, run **`gh pr create`** (GitHub CLI) with a title and body, or open the “Compare & pull request” link from the repo’s PR/new view. Use a template body if one exists (e.g. `.github/PULL_REQUEST_TEMPLATE_*.md`).
-  - The PR must include:
-    - [ ] Chart/component moved to `packages/ui` and exported
-    - [ ] Chart slug and examples added (`chart-slugs.ts`, `chart-examples.tsx`)
-    - [ ] New doc page under `content/docs/components/*.mdx`
-    - [ ] Component added to `content/docs/components/meta.json` (sidebar)
-    - [ ] Component added to `site-header.tsx` components list (mobile nav)
-    - [ ] Registry rebuilt (`pnpm registry:build`)
-    - [ ] Lint/format and hooks pass with no errors or warnings
+```bash
+pnpm lint
+pnpm format
+pnpm --filter @bklitui/ui test   # when package logic changed
+pnpm build
+pnpm registry:build              # if not already run in step 4
+```
+
+Fix all errors; repeat until hooks pass on commit.
+
+### 6. Commit, push, and open a PR
+
+- **Commit** with a short, clear message (e.g. `feat(charts): add ProfitLossLine component`).
+- **Push** the branch.
+- **Open a PR** with the ship checklist filled in (see below).
+
+---
+
+## PR checklist
+
+- [ ] Chart/component moved to `packages/ui` and exported
+- [ ] **Existing docs updated** with new props/features (standard preview unchanged)
+- [ ] Gallery examples on the correct `/charts/**` route
+- [ ] Dedicated doc page + sidebar + mobile nav (if new composable/chart kind)
+- [ ] **Studio** chart updated or added with all props in control groups
+- [ ] Registry rebuilt (`pnpm registry:build`)
+- [ ] `pnpm lint`, tests (if applicable), and `pnpm build` pass
 
 ---
 
@@ -86,8 +103,11 @@ Documentation lives under `apps/web/`. Do all of the following.
 | Chart slugs | `apps/web/components/charts/chart-slugs.ts` |
 | Chart examples (nav + registry) | `apps/web/components/charts/chart-examples.tsx` |
 | Component docs | `apps/web/content/docs/components/<name>.mdx` |
-| Components index | `apps/web/content/docs/components/index.mdx` (list is auto from docs pages) |
+| Utility docs (Grid, Tooltip, …) | `apps/web/content/docs/utility/*.mdx` |
 | Sidebar (desktop) | `apps/web/content/docs/components/meta.json` → `pages` |
 | Mobile nav | `apps/web/components/docs/site-header.tsx` → `components` array |
+| Studio registry | `apps/web/lib/studio/registry.tsx` |
+| Studio controls | `apps/web/lib/studio/registry-control-groups.ts` |
+| Studio URL state | `apps/web/lib/studio/studio-parsers.ts` |
 | Registry (source) | `packages/ui/registry.json`; build output: `apps/web/public/r/` |
 | Registry build | From root: `pnpm registry:build` |

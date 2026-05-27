@@ -79,6 +79,8 @@ Renders linear segments colored by sign. Values ≥ 0 use emerald; values &lt; 0
 | `dataKey` | `string` | required | Key in data for y values |
 | `xDataKey` | `string` | `"date"` | Key in data for x values |
 | `strokeWidth` | `number` | `2.5` | Line width |
+| `curve` | `CurveFactory` | `curveLinear` | Interpolation curve (same as `Line`) |
+| `fadeEdges` | `FadeEdges` | `false` | Fade stroke toward transparent at chart edges |
 | `positiveColor` | `string` | `var(--color-emerald-500)` | Color for profit segments |
 | `negativeColor` | `string` | `var(--color-red-500)` | Color for loss segments |
 

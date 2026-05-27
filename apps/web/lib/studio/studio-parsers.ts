@@ -143,6 +143,9 @@ export const studioSearchParams = {
   seriesDashArray: parseAsString.withDefault("6,4"),
   dataSeries: parseAsInteger.withDefault(1),
   dataPoints: parseAsInteger.withDefault(12),
+  lineChartMode: parseAsStringLiteral(["standard", "profitLoss"]).withDefault(
+    "standard"
+  ),
   showZeroLine: parseAsBoolean.withDefault(true),
   zeroLineStroke: parseAsString.withDefault("var(--color-muted-foreground)"),
   zeroLineStrokeWidth: parseAsFloat.withDefault(1.5),
@@ -263,6 +266,7 @@ export interface StudioUrlState {
   seriesDashArray: string;
   dataSeries: number;
   dataPoints: number;
+  lineChartMode: "standard" | "profitLoss";
   showZeroLine: boolean;
   zeroLineStroke: string;
   zeroLineStrokeWidth: number;
@@ -393,6 +397,7 @@ export function defaultStudioState(
     seriesDashArray: "6,4",
     dataSeries: 1,
     dataPoints: 12,
+    lineChartMode: "standard",
     showZeroLine: true,
     zeroLineStroke: "var(--color-muted-foreground)",
     zeroLineStrokeWidth: 1.5,

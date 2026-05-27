@@ -792,11 +792,6 @@ function ProfitLossLineExample({
 }) {
   return (
     <div className="flex w-full flex-col gap-2">
-      <ProfitLossLegend
-        align="center"
-        hoveredIndex={legendHoveredIndex}
-        onHoverChange={onLegendHoverChange}
-      />
       <LineExampleChart data={profitLossLineDocsData}>
         <Grid
           highlightRowStroke="var(--foreground)"
@@ -832,6 +827,11 @@ function ProfitLossLineExample({
           }}
         />
       </LineExampleChart>
+      <ProfitLossLegend
+        align="center"
+        hoveredIndex={legendHoveredIndex}
+        onHoverChange={onLegendHoverChange}
+      />
     </div>
   );
 }
@@ -1919,8 +1919,7 @@ function makeLineExamples(): ChartExample[] {
     }]}
   />
 </LineChart>`,
-      footer:
-        "See the Profit/Loss Line docs for ProfitLossLegend placement above or below the chart",
+      footer: "Legend below the chart, centered",
       render: () => <ProfitLossLineExampleWithState />,
     },
   ];
@@ -4032,6 +4031,43 @@ const barHeroData = Array.from({ length: 90 }, (_, i) => {
   };
 });
 
+function makeProfitLossLineExamples(): ChartExample[] {
+  return [
+    {
+      title: "Profit/Loss Line",
+      description:
+        "Sign-colored segments with a highlighted zero baseline and legend hover",
+      code: `import {
+  ProfitLossLine,
+  ProfitLossLegend,
+  ProfitLossLegendHoverProvider,
+  profitLossColor,
+  resolveProfitLossTooltipLabel,
+} from "@bklitui/ui/charts";
+
+<LineChart data={data}>
+  <Grid highlightRowValues={[0]} horizontal />
+  <Line dataKey="pnl" stroke="transparent" strokeWidth={0} showHighlight={false} />
+  <ProfitLossLegendHoverProvider hoveredIndex={legendHoveredIndex}>
+    <ProfitLossLine dataKey="pnl" />
+  </ProfitLossLegendHoverProvider>
+  <XAxis />
+  <ChartTooltip
+    indicatorColor={(point) => profitLossColor(point.pnl ?? 0)}
+    rows={(point) => [{
+      label: resolveProfitLossTooltipLabel(""),
+      value: point.pnl ?? 0,
+      color: profitLossColor(point.pnl ?? 0),
+    }]}
+  />
+</LineChart>
+<ProfitLossLegend align="center" />`,
+      footer: "Legend below the chart, centered",
+      render: () => <ProfitLossLineExampleWithState />,
+    },
+  ];
+}
+
 function makeLineHero(): ChartExample {
   return {
     title: "Line Chart - Interactive",
@@ -4702,6 +4738,7 @@ const chartExamplesRegistry: Record<string, RegistryEntry> = {
     previewLayout: "compact",
   },
   "line-chart": { factory: makeLineExamples, hero: makeLineHero },
+  "profit-loss-line": { factory: makeProfitLossLineExamples },
   "live-line-chart": {
     columns: 2,
     factory: makeLiveLineExamples,

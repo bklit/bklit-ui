@@ -18,7 +18,7 @@ export function StudioSidebar() {
     setMotionCurveDragging,
     config,
   } = useStudioState();
-  const groups = getStudioControlGroups(config);
+  const groups = getStudioControlGroups(config, displayState);
 
   return (
     <StudioPanel

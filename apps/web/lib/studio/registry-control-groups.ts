@@ -194,9 +194,32 @@ export const lineChartControlGroups: StudioControlGroup[] = [
   seriesDashTailControlGroup,
 ];
 
-export const profitLossLineChartControlGroups: StudioControlGroup[] = [
-  dataGroup(),
+const lineChartModeGroup = controlGroup("Series style", [
+  {
+    type: "select",
+    key: "lineChartMode",
+    label: "Line type",
+    options: [
+      { value: "standard", label: "Standard" },
+      { value: "profitLoss", label: "Profit / loss" },
+    ],
+  },
+]);
+
+const profitLossDataGroup = controlGroup("Data", [
+  {
+    type: "number",
+    key: "dataPoints",
+    label: "Points",
+    min: 3,
+    max: 365,
+    step: 1,
+  },
+]);
+
+const profitLossLineSettingsGroups: StudioControlGroup[] = [
   lineGroup([
+    curveControl(),
     {
       type: "number",
       key: "strokeWidth",
@@ -205,6 +228,7 @@ export const profitLossLineChartControlGroups: StudioControlGroup[] = [
       max: 5,
       step: 0.5,
     },
+    { type: "fadeEdges", key: "fadeEdges", label: "Fade edges" },
   ]),
   controlGroup("Zero line", [
     { type: "boolean", key: "showZeroLine", label: "Show zero line" },
@@ -274,6 +298,24 @@ export const profitLossLineChartControlGroups: StudioControlGroup[] = [
     },
   ]),
 ];
+
+export function getLineChartControlGroups(state: {
+  lineChartMode: "standard" | "profitLoss";
+}): StudioControlGroup[] {
+  if (state.lineChartMode === "profitLoss") {
+    return [
+      lineChartModeGroup,
+      profitLossDataGroup,
+      ...profitLossLineSettingsGroups,
+    ];
+  }
+
+  return [lineChartModeGroup, ...lineChartControlGroups];
+}
+
+export const profitLossLineChartControlGroups = getLineChartControlGroups({
+  lineChartMode: "profitLoss",
+});
 
 export const barChartControlGroups: StudioControlGroup[] = [
   dataGroup(),
