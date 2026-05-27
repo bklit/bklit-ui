@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, useSpring } from "motion/react";
+import { useEffect } from "react";
 import { type SpringConfig, useChartConfig } from "../chart-config-context";
 import { chartCssVars } from "../chart-context";
 
@@ -73,6 +74,7 @@ export function TooltipIndicator(props: TooltipIndicatorProps) {
 
 function TooltipIndicatorInner({
   x,
+  visible,
   height,
   width = "line",
   span,
@@ -83,7 +85,7 @@ function TooltipIndicatorInner({
   animate = true,
   gradientId = "tooltip-indicator-gradient",
   springConfig,
-}: Omit<TooltipIndicatorProps, "visible">) {
+}: TooltipIndicatorProps) {
   const { tooltipSpring } = useChartConfig();
   const effectiveSpring = springConfig ?? tooltipSpring;
 
@@ -98,6 +100,11 @@ function TooltipIndicatorInner({
   if (animate) {
     animatedX.set(rectX);
   }
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: we need to jump the animatedX when the visible prop changes
+  useEffect(() => {
+    animatedX.set(rectX);
+  }, [animatedX, visible]);
 
   const edgeOpacity = fadeEdges ? 0 : 1;
 
