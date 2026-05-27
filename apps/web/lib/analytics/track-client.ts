@@ -5,7 +5,11 @@ export function trackEvent(name: string, properties?: Record<string, unknown>) {
     return;
   }
 
-  (window.op as (...args: unknown[]) => void)("track", name, properties);
+  (window.op as unknown as (...args: unknown[]) => void)(
+    "track",
+    name,
+    properties
+  );
 }
 
 export function getAnalyticsUrl() {
