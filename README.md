@@ -22,6 +22,134 @@ Bklit UI is supported by our premium sponsors.
 
 **[OpenPanel](https://openpanel.dev)** — OpenPanel is an open source analytics platform that combines web analytics and product analytics in one privacy-first tool. Track pageviews, events, funnels, retention, and user journeys — all without cookies.
 
+## Charts
+
+<table>
+  <tr>
+    <td align="center" valign="top" width="33%">
+      <a href="https://ui.bklit.com/docs/components/area-chart">
+        <img src="https://github.com/bklit/bklit-ui/raw/main/apps/web/public/svgs/area-chart.svg" alt="Area Chart" width="280" />
+      </a>
+      <br />
+      <strong>Area Chart</strong><br />
+      <a href="https://ui.bklit.com/docs/components/area-chart">Docs</a> · <a href="https://ui.bklit.com/studio?chart=area-chart">Studio</a>
+    </td>
+    <td align="center" valign="top" width="33%">
+      <a href="https://ui.bklit.com/docs/components/bar-chart">
+        <img src="https://github.com/bklit/bklit-ui/raw/main/apps/web/public/svgs/bar-chart.svg" alt="Bar Chart" width="280" />
+      </a>
+      <br />
+      <strong>Bar Chart</strong><br />
+      <a href="https://ui.bklit.com/docs/components/bar-chart">Docs</a> · <a href="https://ui.bklit.com/studio?chart=bar-chart">Studio</a>
+    </td>
+    <td align="center" valign="top" width="33%">
+      <a href="https://ui.bklit.com/docs/components/candlestick-chart">
+        <img src="https://github.com/bklit/bklit-ui/raw/main/apps/web/public/svgs/candlestick-chart.svg" alt="Candlestick Chart" width="280" />
+      </a>
+      <br />
+      <strong>Candlestick Chart</strong><br />
+      <a href="https://ui.bklit.com/docs/components/candlestick-chart">Docs</a> · <a href="https://ui.bklit.com/studio?chart=candlestick-chart">Studio</a>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" valign="top" width="33%">
+      <a href="https://ui.bklit.com/docs/components/choropleth-chart">
+        <img src="https://github.com/bklit/bklit-ui/raw/main/apps/web/public/svgs/choropleth-chart.svg" alt="Choropleth Chart" width="280" />
+      </a>
+      <br />
+      <strong>Choropleth Chart</strong><br />
+      <a href="https://ui.bklit.com/docs/components/choropleth-chart">Docs</a> · <a href="https://ui.bklit.com/studio?chart=choropleth-chart">Studio</a>
+    </td>
+    <td align="center" valign="top" width="33%">
+      <a href="https://ui.bklit.com/docs/components/composed-chart">
+        <img src="https://github.com/bklit/bklit-ui/raw/main/apps/web/public/svgs/composed-chart.svg" alt="Composed Chart" width="280" />
+      </a>
+      <br />
+      <strong>Composed Chart</strong><br />
+      <a href="https://ui.bklit.com/docs/components/composed-chart">Docs</a> · <a href="https://ui.bklit.com/studio?chart=composed-chart">Studio</a>
+    </td>
+    <td align="center" valign="top" width="33%">
+      <a href="https://ui.bklit.com/docs/components/funnel-chart">
+        <img src="https://github.com/bklit/bklit-ui/raw/main/apps/web/public/svgs/funnel-chart.svg" alt="Funnel Chart" width="280" />
+      </a>
+      <br />
+      <strong>Funnel Chart</strong><br />
+      <a href="https://ui.bklit.com/docs/components/funnel-chart">Docs</a> · <a href="https://ui.bklit.com/studio?chart=funnel-chart">Studio</a>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" valign="top" width="33%">
+      <a href="https://ui.bklit.com/docs/components/gauge-chart">
+        <img src="https://github.com/bklit/bklit-ui/raw/main/apps/web/public/svgs/gauge-chart.svg" alt="Gauge" width="280" />
+      </a>
+      <br />
+      <strong>Gauge</strong><br />
+      <a href="https://ui.bklit.com/docs/components/gauge-chart">Docs</a> · <a href="https://ui.bklit.com/studio?chart=gauge-chart">Studio</a>
+    </td>
+    <td align="center" valign="top" width="33%">
+      <a href="https://ui.bklit.com/docs/components/line-chart">
+        <img src="https://github.com/bklit/bklit-ui/raw/main/apps/web/public/svgs/line-chart.svg" alt="Line Chart" width="280" />
+      </a>
+      <br />
+      <strong>Line Chart</strong><br />
+      <a href="https://ui.bklit.com/docs/components/line-chart">Docs</a> · <a href="https://ui.bklit.com/studio?chart=line-chart">Studio</a>
+    </td>
+    <td align="center" valign="top" width="33%">
+      <a href="https://ui.bklit.com/docs/components/live-line-chart">
+        <img src="https://github.com/bklit/bklit-ui/raw/main/apps/web/public/svgs/live-line-chart.svg" alt="Live Line Chart" width="280" />
+      </a>
+      <br />
+      <strong>Live Line Chart</strong><br />
+      <a href="https://ui.bklit.com/docs/components/live-line-chart">Docs</a> · <a href="https://ui.bklit.com/studio?chart=live-line-chart">Studio</a>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" valign="top" width="33%">
+      <a href="https://ui.bklit.com/docs/components/pie-chart">
+        <img src="https://github.com/bklit/bklit-ui/raw/main/apps/web/public/svgs/pie-chart.svg" alt="Pie Chart" width="280" />
+      </a>
+      <br />
+      <strong>Pie Chart</strong><br />
+      <a href="https://ui.bklit.com/docs/components/pie-chart">Docs</a> · <a href="https://ui.bklit.com/studio?chart=pie-chart">Studio</a>
+    </td>
+    <td align="center" valign="top" width="33%">
+      <a href="https://ui.bklit.com/docs/components/radar-chart">
+        <img src="https://github.com/bklit/bklit-ui/raw/main/apps/web/public/svgs/radar-chart.svg" alt="Radar Chart" width="280" />
+      </a>
+      <br />
+      <strong>Radar Chart</strong><br />
+      <a href="https://ui.bklit.com/docs/components/radar-chart">Docs</a> · <a href="https://ui.bklit.com/studio?chart=radar-chart">Studio</a>
+    </td>
+    <td align="center" valign="top" width="33%">
+      <a href="https://ui.bklit.com/docs/components/ring-chart">
+        <img src="https://github.com/bklit/bklit-ui/raw/main/apps/web/public/svgs/ring-chart.svg" alt="Ring Chart" width="280" />
+      </a>
+      <br />
+      <strong>Ring Chart</strong><br />
+      <a href="https://ui.bklit.com/docs/components/ring-chart">Docs</a> · <a href="https://ui.bklit.com/studio?chart=ring-chart">Studio</a>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" valign="top" width="33%">
+      <a href="https://ui.bklit.com/docs/components/scatter-chart">
+        <img src="https://github.com/bklit/bklit-ui/raw/main/apps/web/public/svgs/scatter-chart.svg" alt="Scatter Chart" width="280" />
+      </a>
+      <br />
+      <strong>Scatter Chart</strong><br />
+      <a href="https://ui.bklit.com/docs/components/scatter-chart">Docs</a> · <a href="https://ui.bklit.com/studio?chart=scatter-chart">Studio</a>
+    </td>
+    <td align="center" valign="top" width="33%">
+      <a href="https://ui.bklit.com/docs/components/sankey-chart">
+        <img src="https://github.com/bklit/bklit-ui/raw/main/apps/web/public/svgs/sankey-chart.svg" alt="Sankey Chart" width="280" />
+      </a>
+      <br />
+      <strong>Sankey Chart</strong><br />
+      <a href="https://ui.bklit.com/docs/components/sankey-chart">Docs</a> · <a href="https://ui.bklit.com/studio?chart=sankey-chart">Studio</a>
+    </td>
+    <td></td>
+  </tr>
+</table>
+
 ## Studio
 
 Studio is Bklit's interactive chart playground. Pick a chart, tweak styling and animation controls in real time, then copy the generated React code or export a registry JSON for your project.
@@ -37,56 +165,16 @@ Studio is Bklit's interactive chart playground. Pick a chart, tweak styling and 
 
 [Open Studio →](https://ui.bklit.com/studio)
 
-## Charts
-
-| Chart | Docs | Studio |
-| --- | --- | --- |
-| Area Chart | [Docs](https://ui.bklit.com/docs/components/area-chart) | [Open in Studio](https://ui.bklit.com/studio?chart=area-chart) |
-| Bar Chart | [Docs](https://ui.bklit.com/docs/components/bar-chart) | [Open in Studio](https://ui.bklit.com/studio?chart=bar-chart) |
-| Candlestick Chart | [Docs](https://ui.bklit.com/docs/components/candlestick-chart) | [Open in Studio](https://ui.bklit.com/studio?chart=candlestick-chart) |
-| Choropleth Chart | [Docs](https://ui.bklit.com/docs/components/choropleth-chart) | [Open in Studio](https://ui.bklit.com/studio?chart=choropleth-chart) |
-| Composed Chart | [Docs](https://ui.bklit.com/docs/components/composed-chart) | [Open in Studio](https://ui.bklit.com/studio?chart=composed-chart) |
-| Funnel Chart | [Docs](https://ui.bklit.com/docs/components/funnel-chart) | [Open in Studio](https://ui.bklit.com/studio?chart=funnel-chart) |
-| Gauge | [Docs](https://ui.bklit.com/docs/components/gauge-chart) | [Open in Studio](https://ui.bklit.com/studio?chart=gauge-chart) |
-| Line Chart | [Docs](https://ui.bklit.com/docs/components/line-chart) | [Open in Studio](https://ui.bklit.com/studio?chart=line-chart) |
-| Live Line Chart | [Docs](https://ui.bklit.com/docs/components/live-line-chart) | [Open in Studio](https://ui.bklit.com/studio?chart=live-line-chart) |
-| Pie Chart | [Docs](https://ui.bklit.com/docs/components/pie-chart) | [Open in Studio](https://ui.bklit.com/studio?chart=pie-chart) |
-| Radar Chart | [Docs](https://ui.bklit.com/docs/components/radar-chart) | [Open in Studio](https://ui.bklit.com/studio?chart=radar-chart) |
-| Ring Chart | [Docs](https://ui.bklit.com/docs/components/ring-chart) | [Open in Studio](https://ui.bklit.com/studio?chart=ring-chart) |
-| Scatter Chart | [Docs](https://ui.bklit.com/docs/components/scatter-chart) | [Open in Studio](https://ui.bklit.com/studio?chart=scatter-chart) |
-| Sankey Chart | [Docs](https://ui.bklit.com/docs/components/sankey-chart) | [Open in Studio](https://ui.bklit.com/studio?chart=sankey-chart) |
-
 ## Getting Started
 
+Bklit UI is a shadcn registry. Initialize shadcn in your project, then add a chart:
+
 ```bash
-pnpm install
-
-cd apps/web && pnpm dev
+npx shadcn@latest init
+npx shadcn@latest add @bklit/line-chart
 ```
 
-## Project Structure
-
-```
-bklit-ui/
-├── apps/
-│   └── web/          # Documentation site (Next.js + Fumadocs)
-│       └── app/playground/   # Local chart playground (see README; page.tsx is gitignored)
-└── packages/
-    └── ui/           # Component library
-```
-
-**Contributors:** chart prototyping uses the local `/playground` route. Agents: see [`AGENTS.md`](./AGENTS.md) and `.agents/skills/bklit-playground/SKILL.md`. Copy `.agents/skills/bklit-playground/templates/page.tsx` → `apps/web/app/playground/page.tsx`.
-
-## Tech Stack
-
-- **Framework**: Next.js 15
-- **Components**: React 19
-- **Styling**: Tailwind CSS 4
-- **Charts**: Visx
-- **Animation**: Motion
-- **Docs**: Fumadocs
-- **Monorepo**: Turborepo + pnpm
-- **Linter**: Biome/Ultracite
+See [Installation](https://ui.bklit.com/docs/installation) for registry setup and all components.
 
 ## Repo activity
 
