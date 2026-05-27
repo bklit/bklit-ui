@@ -194,6 +194,29 @@ export {
   type PieSliceHoverEffect,
   type PieSliceProps,
 } from "./pie-slice";
+// Profit/loss line (sign-colored segments on LineChart)
+export {
+  PROFIT_LOSS_LEGEND_ITEMS,
+  ProfitLossLegend,
+  type ProfitLossLegendProps,
+} from "./profit-loss-legend";
+export {
+  ProfitLossLegendHoverProvider,
+  useProfitLossLegendHover,
+} from "./profit-loss-legend-hover";
+export {
+  PROFIT_LOSS_NEGATIVE_COLOR,
+  PROFIT_LOSS_POSITIVE_COLOR,
+  PROFIT_LOSS_TOOLTIP_LABEL_FALLBACK,
+  ProfitLossLine,
+  type ProfitLossLineProps,
+  profitLossColor,
+  resolveProfitLossTooltipLabel,
+} from "./profit-loss-line";
+export {
+  type ProfitLossSegment,
+  splitProfitLossSegments,
+} from "./profit-loss-segments";
 // Radar chart components
 export { RadarArea, type RadarAreaProps } from "./radar-area";
 export { RadarAxis, type RadarAxisProps } from "./radar-axis";

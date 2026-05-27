@@ -40,35 +40,41 @@ const DEFAULT_MARGIN: Margin = { top: 40, right: 40, bottom: 40, left: 40 };
 function extractLineConfigs(children: ReactNode): LineConfig[] {
   const configs: LineConfig[] = [];
 
-  Children.forEach(children, (child) => {
-    if (!isValidElement(child)) {
-      return;
-    }
+  const visit = (node: ReactNode) => {
+    Children.forEach(node, (child) => {
+      if (!isValidElement(child)) {
+        return;
+      }
 
-    const childType = child.type as {
-      displayName?: string;
-      name?: string;
-    };
-    const componentName =
-      typeof child.type === "function"
-        ? childType.displayName || childType.name || ""
-        : "";
+      const childType = child.type as {
+        displayName?: string;
+        name?: string;
+      };
+      const componentName =
+        typeof child.type === "function"
+          ? childType.displayName || childType.name || ""
+          : "";
 
-    const props = child.props as LineProps | undefined;
-    const isLineComponent =
-      componentName === "Line" ||
-      child.type === Line ||
-      (props && typeof props.dataKey === "string" && props.dataKey.length > 0);
+      const props = child.props as LineProps | undefined;
+      const isLineComponent = componentName === "Line" || child.type === Line;
 
-    if (isLineComponent && props?.dataKey) {
-      configs.push({
-        dataKey: props.dataKey,
-        stroke: props.stroke || "var(--chart-line-primary)",
-        strokeWidth: props.strokeWidth || 2.5,
-      });
-    }
-  });
+      if (isLineComponent && props?.dataKey) {
+        configs.push({
+          dataKey: props.dataKey,
+          stroke: props.stroke || "var(--chart-line-primary)",
+          strokeWidth: props.strokeWidth || 2.5,
+        });
+        return;
+      }
 
+      const childProps = child.props as { children?: ReactNode } | undefined;
+      if (childProps?.children) {
+        visit(childProps.children);
+      }
+    });
+  };
+
+  visit(children);
   return configs;
 }
 

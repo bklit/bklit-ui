@@ -42,6 +42,7 @@ const components = [
   { text: "Funnel Chart", url: "/docs/components/funnel-chart" },
   { text: "Gauge", url: "/docs/components/gauge-chart" },
   { text: "Line Chart", url: "/docs/components/line-chart" },
+  { text: "Profit/Loss Line", url: "/docs/components/profit-loss-line" },
   { text: "Live Line Chart", url: "/docs/components/live-line-chart" },
   { text: "Pie Chart", url: "/docs/components/pie-chart" },
   { text: "Radar Chart", url: "/docs/components/radar-chart" },

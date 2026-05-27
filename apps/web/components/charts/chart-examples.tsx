@@ -45,6 +45,10 @@ import {
   PieChart,
   type PieData,
   PieSlice,
+  ProfitLossLegend,
+  ProfitLossLegendHoverProvider,
+  ProfitLossLine,
+  profitLossColor,
   RadarArea,
   RadarAxis,
   RadarChart,
@@ -57,6 +61,7 @@ import {
   RingCenter,
   RingChart,
   type RingData,
+  resolveProfitLossTooltipLabel,
   SankeyChart,
   SankeyLink,
   SankeyNode,
@@ -100,6 +105,10 @@ import {
   getChartExampleContentPaddingClassName,
 } from "@/components/charts/chart-example-preview";
 import { CopyButton } from "@/components/copy-button";
+import {
+  PROFIT_LOSS_DATA_KEY,
+  profitLossLineDocsData,
+} from "@/components/docs/profit-loss-line-docs-data";
 import { useWorldDataStandalone } from "@/components/docs/use-world-data";
 import { HorizontalScrollArea } from "@/components/horizontal-scroll-area";
 import {
@@ -773,6 +782,72 @@ const LiveLineExampleChart = createChartExamplePreview(LiveLineChart);
 const ChoroplethExampleChart = createChartExamplePreview(ChoroplethChart);
 const SankeyExampleChart = createChartExamplePreview(SankeyChart);
 const ScatterExampleChart = createChartExamplePreview(ScatterChart);
+
+function ProfitLossLineExample({
+  legendHoveredIndex,
+  onLegendHoverChange,
+}: {
+  legendHoveredIndex: number | null;
+  onLegendHoverChange: (index: number | null) => void;
+}) {
+  return (
+    <div className="flex w-full flex-col gap-2">
+      <ProfitLossLegend
+        align="center"
+        hoveredIndex={legendHoveredIndex}
+        onHoverChange={onLegendHoverChange}
+      />
+      <LineExampleChart data={profitLossLineDocsData}>
+        <Grid
+          highlightRowStroke="var(--foreground)"
+          highlightRowStrokeOpacity={0.35}
+          highlightRowValues={[0]}
+          horizontal
+        />
+        <Line
+          curve={curveLinear}
+          dataKey={PROFIT_LOSS_DATA_KEY}
+          fadeEdges={false}
+          showHighlight={false}
+          stroke="transparent"
+          strokeWidth={0}
+        />
+        <ProfitLossLegendHoverProvider hoveredIndex={legendHoveredIndex}>
+          <ProfitLossLine dataKey={PROFIT_LOSS_DATA_KEY} />
+        </ProfitLossLegendHoverProvider>
+        <XAxis />
+        <ChartTooltip
+          indicatorColor={(point) =>
+            profitLossColor((point[PROFIT_LOSS_DATA_KEY] as number) ?? 0)
+          }
+          rows={(point) => {
+            const value = (point[PROFIT_LOSS_DATA_KEY] as number) ?? 0;
+            return [
+              {
+                color: profitLossColor(value),
+                label: resolveProfitLossTooltipLabel(""),
+                value,
+              },
+            ];
+          }}
+        />
+      </LineExampleChart>
+    </div>
+  );
+}
+
+function ProfitLossLineExampleWithState() {
+  const [legendHoveredIndex, setLegendHoveredIndex] = useState<number | null>(
+    null
+  );
+
+  return (
+    <ProfitLossLineExample
+      legendHoveredIndex={legendHoveredIndex}
+      onLegendHoverChange={setLegendHoveredIndex}
+    />
+  );
+}
 
 function makeAreaExamples(): ChartExample[] {
   return [
@@ -1815,6 +1890,38 @@ function makeLineExamples(): ChartExample[] {
           <ChartTooltip />
         </LineExampleChart>
       ),
+    },
+    {
+      title: "Line Chart - Profit/Loss",
+      description:
+        "Sign-colored segments with a highlighted zero baseline and optional legend hover",
+      code: `import {
+  ProfitLossLine,
+  ProfitLossLegend,
+  ProfitLossLegendHoverProvider,
+  profitLossColor,
+  resolveProfitLossTooltipLabel,
+} from "@bklitui/ui/charts";
+
+<LineChart data={data}>
+  <Grid highlightRowValues={[0]} horizontal />
+  <Line dataKey="pnl" stroke="transparent" strokeWidth={0} showHighlight={false} />
+  <ProfitLossLegendHoverProvider hoveredIndex={legendHoveredIndex}>
+    <ProfitLossLine dataKey="pnl" />
+  </ProfitLossLegendHoverProvider>
+  <XAxis />
+  <ChartTooltip
+    indicatorColor={(point) => profitLossColor(point.pnl ?? 0)}
+    rows={(point) => [{
+      label: resolveProfitLossTooltipLabel(""),
+      value: point.pnl ?? 0,
+      color: profitLossColor(point.pnl ?? 0),
+    }]}
+  />
+</LineChart>`,
+      footer:
+        "See the Profit/Loss Line docs for ProfitLossLegend placement above or below the chart",
+      render: () => <ProfitLossLineExampleWithState />,
     },
   ];
 }

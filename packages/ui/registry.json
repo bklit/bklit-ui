@@ -598,6 +598,46 @@
       ]
     },
     {
+      "name": "profit-loss-line",
+      "type": "registry:component",
+      "title": "Profit/Loss Line",
+      "description": "Sign-colored line segments for profit and loss on LineChart",
+      "registryDependencies": [
+        "@bklit/line-chart",
+        "@bklit/grid",
+        "@bklit/x-axis",
+        "@bklit/chart-tooltip",
+        "@bklit/legend",
+        "@bklit/utils"
+      ],
+      "dependencies": [
+        "@visx/curve@4.0.1-alpha.0",
+        "@visx/shape@4.0.1-alpha.0"
+      ],
+      "files": [
+        {
+          "path": "src/charts/profit-loss-line.tsx",
+          "type": "registry:component",
+          "target": "components/charts/profit-loss-line.tsx"
+        },
+        {
+          "path": "src/charts/profit-loss-segments.ts",
+          "type": "registry:lib",
+          "target": "lib/profit-loss-segments.ts"
+        },
+        {
+          "path": "src/charts/profit-loss-legend-hover.tsx",
+          "type": "registry:component",
+          "target": "components/charts/profit-loss-legend-hover.tsx"
+        },
+        {
+          "path": "src/charts/profit-loss-legend.tsx",
+          "type": "registry:component",
+          "target": "components/charts/profit-loss-legend.tsx"
+        }
+      ]
+    },
+    {
       "name": "scatter-chart",
       "type": "registry:component",
       "title": "Scatter Chart",
