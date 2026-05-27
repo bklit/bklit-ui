@@ -17,6 +17,7 @@ export function PlaygroundProfitLossLineChart({
 }) {
   const ctx: StudioRenderContext = {
     animationKey: replayKey,
+    dataSeed: 0,
     committedState,
     motionCurveDragging,
     motionRemountKey: "",
