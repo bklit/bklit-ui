@@ -2,6 +2,7 @@
 
 import { V0Icon } from "@/components/icons/v0";
 import { Button } from "@/components/ui/button";
+import { getAnalyticsUrl, trackEvent } from "@/lib/analytics/track-client";
 import { openInV0Href } from "@/lib/studio/chart-links";
 
 /**
@@ -10,9 +11,21 @@ import { openInV0Href } from "@/lib/studio/chart-links";
  */
 export function OpenInV0Button({
   registryJsonUrl,
+  chart,
+  surface = "docs",
 }: {
   registryJsonUrl: string;
+  chart?: string;
+  surface?: "docs" | "studio";
 }) {
+  const handleClick = () => {
+    trackEvent(surface === "studio" ? "studio_open_v0" : "docs_open_v0", {
+      chart,
+      url: getAnalyticsUrl(),
+      registry_json_url: registryJsonUrl,
+    });
+  };
+
   return (
     <Button
       aria-label="Open in v0"
@@ -23,6 +36,7 @@ export function OpenInV0Button({
         <a
           aria-label="Open in v0"
           href={openInV0Href(registryJsonUrl)}
+          onClick={handleClick}
           rel="noreferrer"
           target="_blank"
         />

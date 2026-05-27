@@ -4,6 +4,7 @@ import Link from "fumadocs-core/link";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { ModeToggle } from "@/components/mode-toggle";
+import { getAnalyticsUrl, trackEvent } from "@/lib/analytics/track-client";
 import { GithubStarCount } from "../github-star-count";
 import { BklitLogo } from "../icons/bklit";
 import { DiscordIcon } from "../icons/discord";
@@ -12,6 +13,13 @@ import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
 import { DocsSearchTrigger } from "./docs-search-trigger";
 import { NavLinkLabel } from "./nav-link-label";
+
+function trackDiscordClick(location: "header" | "mobile_menu") {
+  trackEvent("discord_click", {
+    location,
+    url: getAnalyticsUrl(),
+  });
+}
 
 interface NavLink {
   text: string;
@@ -292,7 +300,10 @@ function MobileMenu({
                   className="transition-[filter] duration-300 ease-out"
                   external
                   href={discordUrl}
-                  onClick={onClose}
+                  onClick={() => {
+                    trackDiscordClick("mobile_menu");
+                    onClose();
+                  }}
                   style={getBlurStyle(
                     externalLinksStartIndex + (githubUrl ? 1 : 0)
                   )}
@@ -406,6 +417,7 @@ export function SiteHeader({
                 className="hidden md:block"
                 external
                 href={discordUrl}
+                onClick={() => trackDiscordClick("header")}
               >
                 <Button size="default" variant="ghost">
                   <DiscordIcon />

@@ -64,7 +64,11 @@ export default async function Page(props: {
                 </p>
               )}
             </div>
-            <CopyPageButton content={rawContent} url={page.url} />
+            <CopyPageButton
+              content={rawContent}
+              title={data.title}
+              url={page.url}
+            />
           </div>
         </header>
         <div className="prose prose-neutral dark:prose-invert max-w-none">

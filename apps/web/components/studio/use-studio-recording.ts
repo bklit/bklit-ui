@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
+import { getAnalyticsUrl, trackEvent } from "@/lib/analytics/track-client";
 import { captureChartFrames } from "@/lib/studio/capture-chart-frames";
 import { encodeStudioRecording } from "@/lib/studio/encode-studio-recording";
 import {
@@ -151,6 +152,15 @@ export function useStudioRecording() {
             onProgress: (encodeProgress) => {
               setProgress(0.7 + encodeProgress * 0.3);
             },
+          });
+        }
+
+        if (!controller.signal.aborted) {
+          trackEvent("studio_recording_complete", {
+            chart,
+            format,
+            method: useStream ? "stream" : "frames",
+            url: getAnalyticsUrl(),
           });
         }
       } catch (caught) {

@@ -18,6 +18,7 @@ import {
   useState,
 } from "react";
 import { Button } from "@/components/ui/button";
+import { getAnalyticsUrl, trackEvent } from "@/lib/analytics/track-client";
 import { cn } from "@/lib/utils";
 
 const coverSrc = "/img/bklit-studio-cover.png";
@@ -98,6 +99,8 @@ function FloatingVideoControl({
 export function HomeStudioSection() {
   const reducedMotion = useReducedMotion();
   const videoRef = useRef<HTMLVideoElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+  const hasTrackedViewRef = useRef(false);
   const [isActive, setIsActive] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
@@ -119,6 +122,30 @@ export function HomeStudioSection() {
     return () => mq.removeEventListener("change", update);
   }, []);
 
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry?.isIntersecting || hasTrackedViewRef.current) {
+          return;
+        }
+        hasTrackedViewRef.current = true;
+        trackEvent("homepage_video_view", {
+          url: getAnalyticsUrl(),
+          video_src: videoSrc,
+        });
+      },
+      { threshold: 0.5 }
+    );
+
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
+
   const resetToPoster = useCallback(() => {
     const video = videoRef.current;
     if (video) {
@@ -126,12 +153,21 @@ export function HomeStudioSection() {
       video.currentTime = 0;
       video.muted = true;
     }
+    trackEvent("homepage_video_complete", {
+      url: getAnalyticsUrl(),
+      video_src: videoSrc,
+    });
     setIsActive(false);
     setIsPlaying(false);
     setIsMuted(true);
   }, []);
 
   const startPlayback = useCallback(() => {
+    trackEvent("homepage_video_click", {
+      action: "start",
+      url: getAnalyticsUrl(),
+      video_src: videoSrc,
+    });
     setIsActive(true);
 
     requestAnimationFrame(() => {
@@ -156,11 +192,22 @@ export function HomeStudioSection() {
     }
 
     if (video.paused) {
+      trackEvent("homepage_video_click", {
+        action: "play",
+        url: getAnalyticsUrl(),
+        video_src: videoSrc,
+      });
       video
         .play()
         .then(() => setIsPlaying(true))
         .catch(() => setIsPlaying(false));
     } else {
+      trackEvent("homepage_video_click", {
+        action: "pause",
+        url: getAnalyticsUrl(),
+        video_src: videoSrc,
+        current_time: video.currentTime,
+      });
       video.pause();
       setIsPlaying(false);
     }
@@ -174,12 +221,19 @@ export function HomeStudioSection() {
 
     video.muted = !video.muted;
     setIsMuted(video.muted);
+    trackEvent("homepage_video_click", {
+      action: video.muted ? "mute" : "unmute",
+      url: getAnalyticsUrl(),
+      video_src: videoSrc,
+      current_time: video.currentTime,
+    });
   }, []);
 
   return (
     <section
       aria-label="Studio"
       className="mx-auto w-full max-w-4xl space-y-5 text-center"
+      ref={sectionRef}
     >
       <div className="space-y-4">
         <div className="space-y-2">
@@ -237,7 +291,15 @@ export function HomeStudioSection() {
             )}
             onEnded={resetToPoster}
             onPause={() => setIsPlaying(false)}
-            onPlay={() => setIsPlaying(true)}
+            onPlay={() => {
+              setIsPlaying(true);
+              const video = videoRef.current;
+              trackEvent("homepage_video_play", {
+                url: getAnalyticsUrl(),
+                video_src: videoSrc,
+                current_time: video?.currentTime ?? 0,
+              });
+            }}
             playsInline
             preload="metadata"
             ref={videoRef}
