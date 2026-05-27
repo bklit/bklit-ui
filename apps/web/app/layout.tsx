@@ -8,6 +8,7 @@ import { Geist, Geist_Mono, Inter } from "next/font/google";
 import type { ReactNode } from "react";
 import { DocsSearchDialog } from "@/components/docs/docs-search-dialog";
 import { getOpenPanelClientId } from "@/lib/openpanel-env";
+import { SITE_URL } from "@/lib/site-url";
 import { cn } from "@/lib/utils";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
@@ -23,6 +24,7 @@ const geistHeading = Geist({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "Bklit UI - Charts & Data Visualization Components",
     template: "%s | Bklit UI",
@@ -34,7 +36,7 @@ export const metadata: Metadata = {
     description:
       "Bklit UI is a component library built on top of shadcn/ui to help you build charts and data visualizations more easily.",
     type: "website",
-    url: "https://ui.bklit.com",
+    url: SITE_URL,
   },
   twitter: {
     card: "summary_large_image",
