@@ -143,6 +143,11 @@
           "target": "components/charts/chart-reveal-clip.tsx"
         },
         {
+          "path": "src/charts/static-chart-preview-context.tsx",
+          "type": "registry:component",
+          "target": "components/charts/static-chart-preview-context.tsx"
+        },
+        {
           "path": "src/charts/chart-defs.ts",
           "type": "registry:component",
           "target": "components/charts/chart-defs.ts"
