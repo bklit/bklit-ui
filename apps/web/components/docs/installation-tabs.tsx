@@ -48,12 +48,14 @@ function CodeFileBlock({
       open={isOpen}
     >
       {/* Header with filename */}
-      <div className="flex items-center justify-between border-border border-b bg-muted/40 px-4 py-2">
+      <div className="relative z-10 flex items-center justify-between border-border border-b bg-muted/20 px-4 py-2">
         <div className="flex items-center gap-2">
-          <span className="font-mono text-muted-foreground text-xs">TS</span>
-          <span className="font-mono text-sm">{file.target}</span>
+          <span className="font-mono text-foreground/70 text-xs">TS</span>
+          <span className="font-mono text-foreground text-sm">
+            {file.target}
+          </span>
         </div>
-        <CollapsibleTrigger className="font-medium text-muted-foreground text-xs hover:text-foreground">
+        <CollapsibleTrigger className="font-medium text-foreground/70 text-xs hover:text-foreground">
           {isOpen ? "Collapse" : "Expand"}
         </CollapsibleTrigger>
       </div>
