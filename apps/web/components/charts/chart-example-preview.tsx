@@ -3,20 +3,15 @@ import { cn } from "@/lib/utils";
 
 export type ChartExamplePreviewLayout = "cartesian" | "compact" | "wide";
 
-/** Header/footer padding — consistent on all breakpoints. */
-export function getChartExampleCardPaddingClassName() {
-  return "px-4 sm:px-6";
-}
-
 /** Preview area padding — compact charts can bleed slightly on mobile. */
 export function getChartExampleContentPaddingClassName(
   layout: ChartExamplePreviewLayout = "cartesian"
 ) {
   if (layout === "compact") {
-    return "px-2 py-0 sm:px-6";
+    return "px-2 py-0 sm:px-4";
   }
 
-  return cn(getChartExampleCardPaddingClassName(), "py-3 sm:py-4");
+  return "py-3 sm:py-4";
 }
 
 /** Override inline chart aspect on narrow viewports so demos aren't paper-thin. */
@@ -64,7 +59,7 @@ export const chartExampleGaugeClassName =
 export const chartExampleRadialShellClassName =
   "mx-auto aspect-square w-full max-w-[min(100%,300px)] sm:max-w-[260px]";
 
-export const chartExampleCardClassName = "overflow-visible gap-0 py-0";
+export const chartExampleCardClassName = "overflow-visible gap-0";
 
 export function ChartExamplePreviewFrame({
   layout = "cartesian",

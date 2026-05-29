@@ -102,7 +102,6 @@ import {
   chartExampleGaugeClassName,
   chartExampleGaugeShellClassName,
   chartExampleRadialShellClassName,
-  getChartExampleCardPaddingClassName,
   getChartExampleContentPaddingClassName,
 } from "@/components/charts/chart-example-preview";
 import { CopyButton } from "@/components/copy-button";
@@ -597,13 +596,12 @@ function ChartExampleCard({
   children,
 }: ChartExampleCardProps) {
   const fullCode = data ? `${data}\n\n${code}` : code;
-  const cardPaddingClassName = getChartExampleCardPaddingClassName();
   const contentPaddingClassName =
     getChartExampleContentPaddingClassName(previewLayout);
 
   return (
     <Card className={chartExampleCardClassName}>
-      <CardHeader className={cardPaddingClassName}>
+      <CardHeader>
         <div className="flex items-start justify-between gap-4">
           <div className="flex flex-col gap-1.5">
             <CardTitle className="text-base">{title}</CardTitle>
@@ -653,7 +651,7 @@ function ChartExampleCard({
           {children}
         </ChartExamplePreviewFrame>
       </CardContent>
-      <CardFooter className={cardPaddingClassName}>
+      <CardFooter>
         <p className="text-muted-foreground text-xs">{footer}</p>
       </CardFooter>
     </Card>

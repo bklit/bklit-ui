@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { isChartSlug } from "@/components/charts/chart-slugs";
+import { DocsChartPreviewShell } from "@/components/docs/docs-chart-preview-shell";
 import { OpenInStudioButton } from "@/components/docs/open-in-studio-button";
 import { OpenInV0Button } from "@/components/docs/open-in-v0-button";
 import {
@@ -57,9 +58,11 @@ export function ComponentPreview({
         <CardContent
           className={cn(previewCardContentClassName, "min-h-[200px] shrink-0")}
         >
-          <div className="flex w-full items-center justify-center">
-            {children}
-          </div>
+          <DocsChartPreviewShell>
+            <div className="flex w-full items-center justify-center">
+              {children}
+            </div>
+          </DocsChartPreviewShell>
         </CardContent>
       </Card>
     </div>

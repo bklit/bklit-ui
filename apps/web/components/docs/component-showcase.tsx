@@ -2,6 +2,7 @@
 
 import { DynamicCodeBlock } from "fumadocs-ui/components/dynamic-codeblock";
 import { type ReactNode, useState } from "react";
+import { DocsChartPreviewShell } from "@/components/docs/docs-chart-preview-shell";
 import {
   Card,
   CardContent,
@@ -69,9 +70,11 @@ export function ComponentShowcase({
         className={cn(previewCardContentClassName, "shrink-0")}
         style={{ minHeight: previewMinHeight }}
       >
-        <div className="flex w-full items-center justify-center">
-          {children}
-        </div>
+        <DocsChartPreviewShell>
+          <div className="flex w-full items-center justify-center">
+            {children}
+          </div>
+        </DocsChartPreviewShell>
       </CardContent>
 
       {hasCode ? (

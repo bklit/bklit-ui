@@ -287,6 +287,10 @@ export {
   type SeriesPointMarkerProps,
   type SeriesPointMarkerStyle,
 } from "./series-point-marker";
+export {
+  StaticChartPreviewProvider,
+  useStaticChartPreview,
+} from "./static-chart-preview-context";
 // Tooltip components
 export {
   ChartTooltip,
