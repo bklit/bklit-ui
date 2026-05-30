@@ -12,6 +12,7 @@ export {
 } from "./components/controls/fade-edges-picker";
 export { MotionControl } from "./components/controls/motion-control";
 export { MotionResetButton } from "./components/controls/motion-reset-button";
+export { EditorChartFrame } from "./components/studio-chart-frame";
 export { StudioCodeSheetTrigger } from "./components/studio-code-sheet-trigger";
 export { StudioControlGroup } from "./components/studio-control-group";
 export { StudioControlGroups } from "./components/studio-control-groups";
@@ -21,6 +22,17 @@ export {
   useStudioState,
 } from "./components/studio-state-provider";
 export { useStudioMotionRemountKey } from "./components/use-studio-motion-remount";
+export {
+  EDITOR_MOBILE_CHART_ASPECT_RATIO,
+  fitSizeToAspectRatio,
+} from "./editor/editor-aspect-ratio";
+export { EditorShell } from "./editor/editor-shell";
+export { FpsCounter } from "./editor/fps-counter";
+export {
+  resolveViewportSize,
+  VIEWPORT_PRESETS,
+  type ViewportPreset,
+} from "./editor/viewport-presets";
 export { getStudioCssRevealPropsForPreview } from "./lib/chart-animation";
 export {
   BKLIT_REGISTRY_NAMESPACE,
@@ -43,7 +55,29 @@ export {
   STUDIO_SERIES_COLORS,
   STUDIO_SERIES_KEYS,
 } from "./lib/demo-data";
-export { profitLossLineChartControlGroups } from "./lib/registry-control-groups";
+export {
+  downloadBlob,
+  resetSaveBlobHandler,
+  type SaveBlobHandler,
+  setSaveBlobHandler,
+} from "./lib/download-blob";
+export {
+  areaChartControlGroups,
+  barChartControlGroups,
+  candlestickChartControlGroups,
+  choroplethChartControlGroups,
+  composedChartControlGroups,
+  funnelChartControlGroups,
+  gaugeControlGroups,
+  lineChartControlGroups,
+  liveLineChartControlGroups,
+  pieChartControlGroups,
+  profitLossLineChartControlGroups,
+  radarChartControlGroups,
+  ringChartControlGroups,
+  sankeyChartControlGroups,
+  scatterChartControlGroups,
+} from "./lib/registry-control-groups";
 export type { StudioRenderContext } from "./lib/render-context";
 export { seriesStrokePropsFromState } from "./lib/series-stroke-props";
 export type { StudioUrlState } from "./lib/studio-parsers";

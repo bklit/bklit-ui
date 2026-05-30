@@ -19,9 +19,9 @@ Committed building blocks the agent should reuse (do not reimplement):
 
 | Area | Path |
 |------|------|
-| Editor shell (layout, panes, mobile) | `apps/web/components/editor/` |
+| Editor shell (layout, panes, mobile) | `@bklitui/studio` (`EditorShell`, `EditorChartFrame`) |
 | Playground helpers (state, empty state, charts) | `apps/web/components/playground/` |
-| Control groups (right pane) | `apps/web/lib/studio/registry-control-groups.ts` |
+| Control groups (right pane) | `@bklitui/studio` or `packages/studio/src/lib/registry-control-groups.ts` |
 | Playground skill + template | `.agents/skills/bklit-playground/` |
 
 **Pane rules:** animation → left pane (`showMotionControls`); props/settings → right pane (`controlGroups`).

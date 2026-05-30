@@ -31,5 +31,5 @@ export async function exportStudioChartSvg({
     embeddedFontCss,
   });
   const blob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
-  downloadBlob(blob, filename);
+  await downloadBlob(blob, filename);
 }

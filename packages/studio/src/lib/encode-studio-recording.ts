@@ -88,7 +88,10 @@ export async function encodeStudioRecording(
     const blob = await getBlob();
     const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
     const extension = format === "webm" ? "webm" : "mp4";
-    downloadBlob(blob, `bklit-studio-${chartSlug}-${timestamp}.${extension}`);
+    await downloadBlob(
+      blob,
+      `bklit-studio-${chartSlug}-${timestamp}.${extension}`
+    );
   } finally {
     for (const url of frameUrls) {
       URL.revokeObjectURL(url);
