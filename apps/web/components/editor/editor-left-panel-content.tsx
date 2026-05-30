@@ -1,11 +1,13 @@
 "use client";
 
+import {
+  MotionControl,
+  MotionResetButton,
+  StudioControlGroup,
+  type StudioUrlState,
+} from "@bklitui/studio";
 import { DocsScrollArea } from "@/components/docs/docs-scroll-area";
 import { EditorPanelEmptyState } from "@/components/editor/editor-panel-empty-state";
-import { MotionControl } from "@/components/studio/controls/motion-control";
-import { MotionResetButton } from "@/components/studio/controls/motion-reset-button";
-import { StudioControlGroup } from "@/components/studio/studio-control-group";
-import type { StudioUrlState } from "@/lib/studio/studio-parsers";
 
 export function EditorLeftPanelContent({
   state,

@@ -1,0 +1,71 @@
+/* Studio chart preview: let ParentSize cartesian charts fill the frame */
+@layer components {
+  .studio-cartesian-fill > div {
+    aspect-ratio: auto !important;
+    height: 100%;
+    min-height: 0;
+    width: 100%;
+  }
+
+  .studio-preview-canvas {
+    background-color: var(--card);
+    background-image: radial-gradient(
+      circle,
+      color-mix(in oklch, var(--foreground) 14%, transparent) 1px,
+      transparent 1px
+    );
+    background-size: 20px 20px;
+    border-radius: var(--radius-lg);
+  }
+
+  .studio-recording-capture {
+    background-color: var(--card);
+    background-image: radial-gradient(
+      circle,
+      color-mix(in oklch, var(--foreground) 14%, transparent) 1px,
+      transparent 1px
+    );
+    background-size: 20px 20px;
+  }
+
+  .studio-motion-section {
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .studio-motion-curve-card {
+    background-color: var(--card);
+    background-image: radial-gradient(
+      circle,
+      color-mix(in oklch, var(--foreground) 14%, transparent) 1px,
+      transparent 1px
+    );
+    background-size: 10px 10px;
+  }
+
+  .studio-sidebar-scroll {
+    --studio-scrollbar-width: 4px;
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklch, var(--foreground) 32%, transparent)
+      transparent;
+  }
+
+  .studio-sidebar-scroll::-webkit-scrollbar {
+    width: var(--studio-scrollbar-width);
+  }
+
+  .studio-sidebar-scroll::-webkit-scrollbar-track {
+    margin-block: 6px;
+    background: transparent;
+  }
+
+  .studio-sidebar-scroll::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: color-mix(in oklch, var(--foreground) 24%, transparent);
+  }
+
+  .studio-sidebar-scroll::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in oklch, var(--foreground) 38%, transparent);
+  }
+}

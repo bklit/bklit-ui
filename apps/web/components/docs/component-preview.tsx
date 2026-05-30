@@ -1,3 +1,7 @@
+import {
+  registryJsonUrlForName,
+  registryV0ExampleJsonUrl,
+} from "@bklitui/studio";
 import type { ReactNode } from "react";
 import { isChartSlug } from "@/components/charts/chart-slugs";
 import { DocsChartPreviewShell } from "@/components/docs/docs-chart-preview-shell";
@@ -9,10 +13,6 @@ import {
   previewCardClassName,
   previewCardContentClassName,
 } from "@/components/ui/card";
-import {
-  registryJsonUrlForName,
-  registryV0ExampleJsonUrl,
-} from "@/lib/studio/chart-links";
 import { cn } from "@/lib/utils";
 
 /**

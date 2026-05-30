@@ -1,19 +1,19 @@
 "use client";
 
-import { ChartTooltip, Grid, Line, LineChart, XAxis } from "@bklitui/ui/charts";
-import { StudioCartesianFill } from "@/components/studio/charts/studio-chart-layout";
-import { fadeEdgesPropValue } from "@/components/studio/controls/fade-edges-picker";
-import { useStudioMotionRemountKey } from "@/components/studio/use-studio-motion-remount";
-import { getStudioCssRevealPropsForPreview } from "@/lib/studio/chart-animation";
-import { resolveCurve } from "@/lib/studio/curves";
 import {
   clampStudioSeriesCount,
+  fadeEdgesPropValue,
   generateStudioCartesianData,
+  getStudioCssRevealPropsForPreview,
+  resolveCurve,
   STUDIO_SERIES_COLORS,
   STUDIO_SERIES_KEYS,
-} from "@/lib/studio/demo-data";
-import { seriesStrokePropsFromState } from "@/lib/studio/series-stroke-props";
-import type { StudioUrlState } from "@/lib/studio/studio-parsers";
+  StudioCartesianFill,
+  type StudioUrlState,
+  seriesStrokePropsFromState,
+  useStudioMotionRemountKey,
+} from "@bklitui/studio";
+import { ChartTooltip, Grid, Line, LineChart, XAxis } from "@bklitui/ui/charts";
 
 export function PlaygroundLineChart({
   state,

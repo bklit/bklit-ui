@@ -1,9 +1,9 @@
 "use client";
 
+import { openInV0Href } from "@bklitui/studio";
 import { V0Icon } from "@/components/icons/v0";
 import { Button } from "@/components/ui/button";
 import { getAnalyticsUrl, trackEvent } from "@/lib/analytics/track-client";
-import { openInV0Href } from "@/lib/studio/chart-links";
 
 /**
  * Opens a public registry item JSON in v0.

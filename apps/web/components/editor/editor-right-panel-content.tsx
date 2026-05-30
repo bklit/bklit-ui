@@ -1,10 +1,12 @@
 "use client";
 
+import {
+  type StudioControlGroupConfig,
+  StudioControlGroups,
+  type StudioUrlState,
+} from "@bklitui/studio";
 import { DocsScrollArea } from "@/components/docs/docs-scroll-area";
 import { EditorPanelEmptyState } from "@/components/editor/editor-panel-empty-state";
-import { StudioControlGroups } from "@/components/studio/studio-control-groups";
-import type { StudioUrlState } from "@/lib/studio/studio-parsers";
-import type { StudioControlGroup } from "@/lib/studio/types";
 
 export function EditorRightPanelContent({
   state,
@@ -26,7 +28,7 @@ export function EditorRightPanelContent({
     key: K,
     value: StudioUrlState[K]
   ) => void;
-  controlGroups?: StudioControlGroup[];
+  controlGroups?: StudioControlGroupConfig[];
 }) {
   if (controlGroups.length === 0) {
     return (

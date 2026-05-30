@@ -1,8 +1,10 @@
 "use client";
 
-import { LineProfitLossStudioChart } from "@/components/studio/charts/line-profit-loss-studio";
-import type { StudioRenderContext } from "@/lib/studio/render-context";
-import type { StudioUrlState } from "@/lib/studio/studio-parsers";
+import {
+  LineProfitLossStudioChart,
+  type StudioRenderContext,
+  type StudioUrlState,
+} from "@bklitui/studio";
 
 export function PlaygroundProfitLossLineChart({
   state,

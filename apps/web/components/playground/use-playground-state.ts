@@ -1,8 +1,7 @@
 "use client";
 
+import { defaultStudioState, type StudioUrlState } from "@bklitui/studio";
 import { useCallback, useMemo, useState } from "react";
-import type { StudioUrlState } from "@/lib/studio/studio-parsers";
-import { defaultStudioState } from "@/lib/studio/studio-parsers";
 
 export function usePlaygroundState(initialState: Partial<StudioUrlState> = {}) {
   const [state, setState] = useState(() => defaultStudioState(initialState));

@@ -1,8 +1,8 @@
 "use client";
 
+import type { StudioUrlState } from "@bklitui/studio";
 import { EditorCollapsiblePane } from "@/components/editor/editor-collapsible-pane";
 import { EditorLeftPanelContent } from "@/components/editor/editor-left-panel-content";
-import type { StudioUrlState } from "@/lib/studio/studio-parsers";
 
 export function EditorLeftPanel({
   state,

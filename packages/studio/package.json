@@ -1,0 +1,60 @@
+{
+  "name": "@bklitui/studio",
+  "version": "0.0.0",
+  "private": true,
+  "sideEffects": [
+    "./src/styles/studio.css"
+  ],
+  "exports": {
+    ".": "./src/index.ts",
+    "./styles/studio.css": "./src/styles/studio.css"
+  },
+  "scripts": {
+    "lint": "eslint . --max-warnings 0",
+    "check-types": "tsc --noEmit",
+    "test": "node scripts/run-tests.mjs"
+  },
+  "devDependencies": {
+    "@bklitui/eslint-config": "workspace:*",
+    "@bklitui/typescript-config": "workspace:*",
+    "@types/d3-shape": "^3.1.6",
+    "@types/geojson": "^7946.0.16",
+    "@types/jsdom": "^28.0.3",
+    "@types/node": "^22.15.3",
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.2",
+    "@types/topojson-client": "^3.1.5",
+    "@types/topojson-specification": "^1.0.5",
+    "eslint": "^9.39.1",
+    "jsdom": "^29.1.1",
+    "tailwindcss": "^4.1.8",
+    "tsx": "^4.19.4",
+    "typescript": "5.9.2"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
+  },
+  "dependencies": {
+    "@base-ui/react": "^1.1.0",
+    "@bklitui/ui": "workspace:*",
+    "@heroicons/react": "^2.2.0",
+    "@hugeicons/core-free-icons": "^4.1.4",
+    "@hugeicons/react": "^1.1.6",
+    "@number-flow/react": "^0.5.4",
+    "@remotion/web-renderer": "4.0.462",
+    "@visx/curve": "4.0.1-alpha.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.562.0",
+    "mediabunny": "1.45.0",
+    "modern-screenshot": "^4.7.0",
+    "motion": "^12.27.0",
+    "nuqs": "^2.8.9",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "remotion": "4.0.462",
+    "tailwind-merge": "^2.6.0",
+    "topojson-client": "3.1.0"
+  }
+}

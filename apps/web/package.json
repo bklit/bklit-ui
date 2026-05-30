@@ -15,6 +15,7 @@
   "dependencies": {
     "@base-ui/react": "^1.1.0",
     "@bklit/sdk": "^1.0.1",
+    "@bklitui/studio": "workspace:*",
     "@bklitui/ui": "workspace:*",
     "@heroicons/react": "^2.2.0",
     "@hugeicons/core-free-icons": "^4.1.4",

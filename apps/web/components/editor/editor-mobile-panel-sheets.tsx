@@ -1,5 +1,6 @@
 "use client";
 
+import type { StudioControlGroupConfig, StudioUrlState } from "@bklitui/studio";
 import { PanelLeftOpen } from "lucide-react";
 import { EditorLeftPanelContent } from "@/components/editor/editor-left-panel-content";
 import { EditorRightPanelContent } from "@/components/editor/editor-right-panel-content";
@@ -10,8 +11,6 @@ import {
   SheetDescription,
   SheetTitle,
 } from "@/components/ui/sheet";
-import type { StudioUrlState } from "@/lib/studio/studio-parsers";
-import type { StudioControlGroup } from "@/lib/studio/types";
 import { cn } from "@/lib/utils";
 
 function MobilePanelTrigger({
@@ -98,7 +97,7 @@ export function EditorMobilePanelSheets({
   ) => void;
   onMotionCurveDragActiveChange?: (dragging: boolean) => void;
   showMotionControls?: boolean;
-  controlGroups?: StudioControlGroup[];
+  controlGroups?: StudioControlGroupConfig[];
 }) {
   return (
     <>

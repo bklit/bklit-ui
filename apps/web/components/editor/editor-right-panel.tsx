@@ -1,9 +1,8 @@
 "use client";
 
+import type { StudioControlGroupConfig, StudioUrlState } from "@bklitui/studio";
 import { EditorCollapsiblePane } from "@/components/editor/editor-collapsible-pane";
 import { EditorRightPanelContent } from "@/components/editor/editor-right-panel-content";
-import type { StudioUrlState } from "@/lib/studio/studio-parsers";
-import type { StudioControlGroup } from "@/lib/studio/types";
 
 export function EditorRightPanel({
   state,
@@ -25,7 +24,7 @@ export function EditorRightPanel({
     key: K,
     value: StudioUrlState[K]
   ) => void;
-  controlGroups?: StudioControlGroup[];
+  controlGroups?: StudioControlGroupConfig[];
 }) {
   return (
     <EditorCollapsiblePane label="Controls" side="right">

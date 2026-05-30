@@ -1,5 +1,6 @@
 "use client";
 
+import type { StudioControlGroupConfig, StudioUrlState } from "@bklitui/studio";
 import type { ReactNode, RefObject } from "react";
 import { useEffect, useState } from "react";
 import { EditorLeftPanel } from "@/components/editor/editor-left-panel";
@@ -9,8 +10,6 @@ import { EditorRightPanel } from "@/components/editor/editor-right-panel";
 import { useEditorCompactLayout } from "@/components/editor/use-editor-compact-layout";
 import { useEditorFixedViewport } from "@/components/editor/use-editor-fixed-viewport";
 import type { ViewportPreset } from "@/components/editor/viewport-presets";
-import type { StudioUrlState } from "@/lib/studio/studio-parsers";
-import type { StudioControlGroup } from "@/lib/studio/types";
 import { cn } from "@/lib/utils";
 
 function isMobileViewport(viewport: ViewportPreset | null) {
@@ -36,7 +35,7 @@ export function EditorShell({
   onSizeChange: (width: number, height: number) => void;
   onReplay: () => void;
   showMotionControls?: boolean;
-  controlGroups?: StudioControlGroup[];
+  controlGroups?: StudioControlGroupConfig[];
   chartState: {
     displayState: StudioUrlState;
     state: StudioUrlState;

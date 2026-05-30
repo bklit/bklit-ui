@@ -1,12 +1,12 @@
 "use client";
 
+import { shadcnAddItem } from "@bklitui/studio";
 import { DynamicCodeBlock } from "fumadocs-ui/components/dynamic-codeblock";
 import { Terminal } from "lucide-react";
 import { useEffect, useState } from "react";
 import { CopyButton } from "@/components/copy-button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { codeThemes } from "@/lib/code-theme";
-import { shadcnAddItem } from "@/lib/studio/chart-links";
 import { cn } from "@/lib/utils";
 
 const STORAGE_KEY = "bklit-package-manager";

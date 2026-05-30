@@ -1,10 +1,10 @@
 "use client";
 
+import { studioChartHref } from "@bklitui/studio";
 import Link from "next/link";
 import type { ChartSlug } from "@/components/charts/chart-slugs";
 import { Button } from "@/components/ui/button";
 import { getAnalyticsUrl, trackEvent } from "@/lib/analytics/track-client";
-import { studioChartHref } from "@/lib/studio/chart-links";
 
 export function OpenInStudioButton({ slug }: { slug: ChartSlug }) {
   const handleClick = () => {

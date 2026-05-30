@@ -1,5 +1,6 @@
 "use client";
 
+import { studioChartDocsHref, studioChartHref } from "@bklitui/studio";
 import {
   Area,
   AreaChart,
@@ -50,7 +51,6 @@ import {
   previewCardContentClassName,
   previewCardContentFillClassName,
 } from "@/components/ui/card";
-import { studioChartDocsHref, studioChartHref } from "@/lib/studio/chart-links";
 import { cn } from "@/lib/utils";
 
 const easeOutQuint = [0.23, 1, 0.32, 1] as const;

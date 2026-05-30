@@ -3,11 +3,13 @@
 @import "fumadocs-ui/css/shadcn.css";
 @import "fumadocs-ui/css/preset.css";
 @import "shadcn/tailwind.css";
+@import "../../../packages/studio/src/styles/studio.css";
 
 /* Note: Run `npx shadcn@latest init` to generate shadcn/tailwind.css if needed */
 
 /* Include UI package in Tailwind's content scanning */
 @source "../../../packages/ui/src/**/*.tsx";
+@source "../../../packages/studio/src/**/*.{ts,tsx}";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -237,56 +239,8 @@
   scrollbar-width: none;
 }
 
-/* Studio chart preview: let ParentSize cartesian charts fill the frame */
 @layer components {
-  .studio-cartesian-fill > div {
-    aspect-ratio: auto !important;
-    height: 100%;
-    min-height: 0;
-    width: 100%;
-  }
-
-  .studio-preview-canvas {
-    background-color: var(--card);
-    background-image: radial-gradient(
-      circle,
-      color-mix(in oklch, var(--foreground) 14%, transparent) 1px,
-      transparent 1px
-    );
-    background-size: 20px 20px;
-    border-radius: var(--radius-lg);
-  }
-
-  .studio-recording-capture {
-    background-color: var(--card);
-    background-image: radial-gradient(
-      circle,
-      color-mix(in oklch, var(--foreground) 14%, transparent) 1px,
-      transparent 1px
-    );
-    background-size: 20px 20px;
-  }
-
-  /* Motion bezier handles stay inside the sidebar (no overflow: visible on section) */
-  .studio-motion-section {
-    max-width: 100%;
-    min-width: 0;
-  }
-
-  /* Motion spline editor: preview canvas colors, finer dot grid */
-  .studio-motion-curve-card {
-    background-color: var(--card);
-    background-image: radial-gradient(
-      circle,
-      color-mix(in oklch, var(--foreground) 14%, transparent) 1px,
-      transparent 1px
-    );
-    background-size: 10px 10px;
-  }
-
-  /* Docs + studio sidebars: thin scrollbar in reserved gutter */
-  .docs-scroll-area,
-  .studio-sidebar-scroll {
+  .docs-scroll-area {
     --studio-scrollbar-width: 4px;
     scrollbar-gutter: stable;
     scrollbar-width: thin;
@@ -294,21 +248,21 @@
       transparent;
   }
 
-  .studio-sidebar-scroll::-webkit-scrollbar {
+  .docs-scroll-area::-webkit-scrollbar {
     width: var(--studio-scrollbar-width);
   }
 
-  .studio-sidebar-scroll::-webkit-scrollbar-track {
+  .docs-scroll-area::-webkit-scrollbar-track {
     margin-block: 6px;
     background: transparent;
   }
 
-  .studio-sidebar-scroll::-webkit-scrollbar-thumb {
+  .docs-scroll-area::-webkit-scrollbar-thumb {
     border-radius: 999px;
     background: color-mix(in oklch, var(--foreground) 24%, transparent);
   }
 
-  .studio-sidebar-scroll::-webkit-scrollbar-thumb:hover {
+  .docs-scroll-area::-webkit-scrollbar-thumb:hover {
     background: color-mix(in oklch, var(--foreground) 38%, transparent);
   }
 }
