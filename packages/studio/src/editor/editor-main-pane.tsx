@@ -81,8 +81,8 @@ export function EditorMainPane({
   }, []);
 
   useEffect(() => {
-    canvas.centerArtboard();
-  }, [canvas.centerArtboard]);
+    canvas.fitToView();
+  }, [canvas.fitToView]);
 
   const handleViewportChange = useCallback(
     (preset: ViewportPreset) => {
@@ -110,7 +110,7 @@ export function EditorMainPane({
 
   const artboard = (
     <div
-      className="inline-flex"
+      className="studio-preview-canvas relative shrink-0 overflow-hidden"
       style={{ width: size.width, height: size.height }}
     >
       {children({
@@ -140,6 +140,7 @@ export function EditorMainPane({
 
           <div className="relative min-h-0 flex-1">
             <EditorCanvas
+              className="absolute inset-0"
               enabled={canvasEnabled}
               onDoubleClick={canvas.onDoubleClick}
               onPointerDown={canvas.onPointerDown}

@@ -42,7 +42,7 @@ export function EditorCanvas({
     <div
       aria-label="Chart canvas"
       className={cn(
-        "studio-preview-canvas relative min-h-0 flex-1 overflow-hidden overscroll-none",
+        "relative min-h-0 overflow-hidden overscroll-none bg-background",
         enabled && (spacePressed ? "cursor-grab" : "cursor-default"),
         enabled && spacePressed && "cursor-grabbing",
         className

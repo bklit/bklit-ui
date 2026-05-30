@@ -5,7 +5,6 @@ import type { ReactNode, RefObject } from "react";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { ChartTypeSelector } from "@/components/chart-type-selector";
 import {
-  STUDIO_CHART_FRAME_MAX_WIDTH,
   STUDIO_EXPORT_ROOT_ATTR,
   StudioChartFrame,
 } from "@/components/studio-chart-frame";
@@ -92,17 +91,12 @@ function StudioEditorCanvas({
   return (
     <div
       className={cn(
-        "relative flex w-full flex-col",
+        "relative size-full min-h-0",
         showCaptureLayout
-          ? "min-h-0 flex-1 gap-4"
-          : "items-center justify-center"
+          ? "flex min-h-0 flex-1 flex-col gap-4"
+          : "overflow-hidden"
       )}
       ref={chartAreaRef}
-      style={
-        showCaptureLayout
-          ? undefined
-          : { maxWidth: STUDIO_CHART_FRAME_MAX_WIDTH }
-      }
     >
       {showCaptureLayout ? (
         <div
@@ -114,10 +108,17 @@ function StudioEditorCanvas({
       <div
         className={cn(
           "relative z-2 flex min-h-0 w-full flex-col",
-          showCaptureLayout ? "flex-1 gap-4" : "items-center justify-center"
+          showCaptureLayout ? "min-h-0 flex-1 gap-4" : "size-full"
         )}
       >
-        <div className="relative flex min-h-0 w-full flex-1 items-center justify-center">
+        <div
+          className={cn(
+            "relative flex min-h-0 w-full",
+            showCaptureLayout
+              ? "min-h-0 flex-1 items-center justify-center"
+              : "size-full"
+          )}
+        >
           <StudioRecordingMask
             active={showCaptureLayout}
             containerRef={chartAreaRef}
@@ -128,7 +129,7 @@ function StudioEditorCanvas({
             className={cn(
               showCaptureLayout
                 ? "studio-recording-capture relative shrink-0"
-                : "inline-flex"
+                : "size-full"
             )}
             ref={recordCaptureRef}
             style={
@@ -155,6 +156,7 @@ function StudioEditorCanvas({
               <StudioChartFrame
                 boundsRef={boundsRef}
                 canvasScale={canvasScale}
+                className={showCaptureLayout ? undefined : "size-full"}
                 height={size.height}
                 isRecording={isRecording}
                 onResize={onResize}

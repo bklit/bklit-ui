@@ -186,14 +186,31 @@ export function useEditorCanvasView({
       return;
     }
 
-    const persisted = readPersistedCanvasView();
-    if (persisted) {
-      setView(persisted);
+    const element = viewportRef.current;
+    if (!element) {
       return;
     }
 
-    const { width, height } = getViewportSize();
-    if (width && height) {
+    let initialized = false;
+
+    const initializeView = () => {
+      if (initialized) {
+        return;
+      }
+
+      const { width, height } = getViewportSize();
+      if (!(width && height)) {
+        return;
+      }
+
+      initialized = true;
+
+      const persisted = persist ? readPersistedCanvasView() : null;
+      if (persisted) {
+        setView(persisted);
+        return;
+      }
+
       applyView(
         computeFitView({
           viewportWidth: width,
@@ -202,8 +219,21 @@ export function useEditorCanvasView({
           artboardHeight,
         })
       );
-    }
-  }, [enabled, applyView, artboardHeight, artboardWidth, getViewportSize]);
+    };
+
+    initializeView();
+    const observer = new ResizeObserver(initializeView);
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [
+    enabled,
+    persist,
+    applyView,
+    artboardHeight,
+    artboardWidth,
+    getViewportSize,
+    viewportRef,
+  ]);
 
   useEffect(() => {
     if (!enabled) {
