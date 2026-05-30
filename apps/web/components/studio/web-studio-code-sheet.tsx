@@ -6,26 +6,11 @@ import {
   type StudioUrlState,
   studioChartDocsHref,
 } from "@bklitui/studio";
-import dynamic from "next/dynamic";
 import Link from "next/link";
+import { DocsCodeBlock } from "@/components/docs/docs-code-block";
 import { OpenInV0Button } from "@/components/docs/open-in-v0-button";
 import { PackageManagerTabs } from "@/components/docs/package-manager-tabs";
 import { Button } from "@/components/ui/button";
-
-const DocsCodeBlock = dynamic(
-  () =>
-    import("@/components/docs/docs-code-block").then(
-      (mod) => mod.DocsCodeBlock
-    ),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="overflow-hidden rounded-lg border bg-muted/30 p-4 font-mono text-muted-foreground text-xs">
-        Loading…
-      </div>
-    ),
-  }
-);
 
 export function WebStudioCodeSheet({ state }: { state: StudioUrlState }) {
   return (
