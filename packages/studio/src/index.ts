@@ -16,6 +16,12 @@ export { EditorChartFrame } from "./components/studio-chart-frame";
 export { StudioCodeSheetTrigger } from "./components/studio-code-sheet-trigger";
 export { StudioControlGroup } from "./components/studio-control-group";
 export { StudioControlGroups } from "./components/studio-control-groups";
+export {
+  StudioFrameProvider,
+  StudioScenesProvider,
+  useStudioFrame,
+  useStudioScenes,
+} from "./components/studio-scenes-provider";
 export { StudioShell } from "./components/studio-shell";
 export {
   StudioStateProvider,
@@ -26,6 +32,7 @@ export {
   EDITOR_MOBILE_CHART_ASPECT_RATIO,
   fitSizeToAspectRatio,
 } from "./editor/editor-aspect-ratio";
+export type { EditorCamera } from "./editor/editor-camera";
 export { EditorShell } from "./editor/editor-shell";
 export { FpsCounter } from "./editor/fps-counter";
 export {

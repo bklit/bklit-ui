@@ -138,7 +138,8 @@ export const StudioChartFrame = forwardRef<
     style?: CSSProperties;
     isRecording?: boolean;
     resizable?: boolean;
-    canvasScale?: number;
+    /** Screen zoom for resize pointer deltas — read from ref, not React state. */
+    canvasScaleRef?: React.RefObject<number>;
     children: React.ReactNode;
   }
 >(function StudioChartFrame(
@@ -152,7 +153,7 @@ export const StudioChartFrame = forwardRef<
     style,
     isRecording = false,
     resizable = true,
-    canvasScale = 1,
+    canvasScaleRef,
     children,
   },
   ref
@@ -183,29 +184,16 @@ export const StudioChartFrame = forwardRef<
       return;
     }
     const update = () => {
-      const scaleFactor = 1 / Math.max(canvasScale, 0.01);
       setMaxSize({
-        width: Math.max(
-          MIN_WIDTH,
-          Math.min(
-            STUDIO_CHART_FRAME_MAX_WIDTH,
-            (bounds.clientWidth - 48) * scaleFactor
-          )
-        ),
-        height: Math.max(
-          MIN_HEIGHT,
-          Math.min(
-            STUDIO_CHART_FRAME_MAX_HEIGHT,
-            (bounds.clientHeight - 48) * scaleFactor
-          )
-        ),
+        width: STUDIO_CHART_FRAME_MAX_WIDTH,
+        height: STUDIO_CHART_FRAME_MAX_HEIGHT,
       });
     };
     update();
     const observer = new ResizeObserver(update);
     observer.observe(bounds);
     return () => observer.disconnect();
-  }, [boundsRef, canvasScale]);
+  }, [boundsRef]);
 
   useEffect(() => {
     if (draggingRef.current) {
@@ -245,9 +233,9 @@ export const StudioChartFrame = forwardRef<
         maxSize.height
       );
 
-      const scaleFactor = 1 / Math.max(canvasScale, 0.01);
-
       const onPointerMove = (moveEvent: PointerEvent) => {
+        const canvasScale = Math.max(canvasScaleRef?.current ?? 1, 0.01);
+        const scaleFactor = 1 / canvasScale;
         let nextWidth = startWidth;
         let nextHeight = startHeight;
 
@@ -285,7 +273,7 @@ export const StudioChartFrame = forwardRef<
     [
       isRecording,
       resizable,
-      canvasScale,
+      canvasScaleRef,
       maxSize.height,
       maxSize.width,
       onDraggingChange,
@@ -326,7 +314,7 @@ export const StudioChartFrame = forwardRef<
               )
         )}
         data-studio-export-root=""
-        layout={resizable && !isRecording}
+        layout={false}
         ref={captureRef}
         style={
           resizable

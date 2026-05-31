@@ -21,7 +21,6 @@ import { StudioRecordingTimeline } from "@/components/studio-recording-timeline"
 import { useStudioMotionRemountKey } from "@/components/use-studio-motion-remount";
 import { useStudioRecording } from "@/components/use-studio-recording";
 import { useStudioState } from "@/components/use-studio-state";
-import { presetStyle } from "@/lib/color-presets";
 import { StudioPatternDefs, studioPatternFill } from "@/lib/patterns";
 import type { StudioRenderContext } from "@/lib/render-context";
 import type { StudioUrlState } from "@/lib/studio-parsers";
@@ -32,6 +31,11 @@ import {
   type StudioRecordingFormat,
   type StudioRecordingInteractionMs,
 } from "@/lib/studio-recording";
+import {
+  getDesignSeriesCount,
+  getSeriesPattern,
+  resolveChartThemeStyle,
+} from "@/lib/studio-series-design";
 import { exportStudioChartSvg } from "@/lib/svg-export/export-studio-chart-svg";
 import { useStudioAnalytics } from "@/providers/studio-analytics-context";
 import { Button } from "@/ui/button";
@@ -119,13 +123,21 @@ export function StudioPreview({
     [capturePrepared, isRecording, restorePreviewChart]
   );
 
-  const patternDefs = useMemo(
-    () => <StudioPatternDefs preset={displayState.pattern} />,
-    [displayState.pattern]
-  );
-  const patternFill = useMemo(
-    () => studioPatternFill(displayState.pattern),
-    [displayState.pattern]
+  const patternDefs = useMemo(() => {
+    const count = getDesignSeriesCount(displayState.chart, displayState);
+    const seriesPatterns = Array.from({ length: count }, (_, index) =>
+      getSeriesPattern(displayState, index)
+    );
+    return <StudioPatternDefs seriesPatterns={seriesPatterns} />;
+  }, [displayState]);
+
+  const patternFillAt = useCallback(
+    (seriesIndex: number) =>
+      studioPatternFill(
+        getSeriesPattern(displayState, seriesIndex),
+        seriesIndex
+      ),
+    [displayState]
   );
 
   const handleFrameResize = useCallback(
@@ -402,7 +414,7 @@ export function StudioPreview({
                     isRecording={isRecording}
                     onResize={handleFrameResize}
                     ref={frameRef}
-                    style={presetStyle(displayState.preset)}
+                    style={resolveChartThemeStyle(displayState)}
                     width={state.frameW}
                   >
                     <div className="flex size-full min-h-0 items-center justify-center">
@@ -417,7 +429,7 @@ export function StudioPreview({
                               committedState: state,
                               motionCurveDragging,
                               patternDefs,
-                              patternFill,
+                              patternFillAt,
                               frame,
                             };
                             return config.render(displayState, renderCtx);

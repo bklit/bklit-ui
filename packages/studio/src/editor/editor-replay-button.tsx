@@ -3,6 +3,7 @@
 import { Refresh01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useCallback, useState } from "react";
+import { useStudioToolbarTooltipSide } from "@/components/studio-toolbar-tooltips";
 import { cn } from "@/lib/utils";
 import { Button } from "@/ui/button";
 import { Spinner } from "@/ui/spinner";
@@ -17,21 +18,29 @@ const iconSwapStyle = {
 
 export function EditorReplayButton({
   className,
+  disabled = false,
+  iconSize = 16,
   onReplay,
+  size = "icon-sm",
 }: {
   className?: string;
+  disabled?: boolean;
+  iconSize?: number;
   onReplay: () => void;
+  size?: "icon" | "icon-sm" | "icon-xs";
 }) {
   const [busy, setBusy] = useState(false);
 
   const handleClick = useCallback(() => {
-    if (busy) {
+    if (busy || disabled) {
       return;
     }
     setBusy(true);
     onReplay();
     window.setTimeout(() => setBusy(false), REPLAY_BUSY_MS);
-  }, [busy, onReplay]);
+  }, [busy, disabled, onReplay]);
+
+  const tooltipSide = useStudioToolbarTooltipSide();
 
   return (
     <Tooltip>
@@ -39,10 +48,10 @@ export function EditorReplayButton({
         <Button
           aria-keyshortcuts="R"
           aria-label="Replay animation"
-          className={cn("size-8", className)}
-          disabled={busy}
+          className={cn(className)}
+          disabled={busy || disabled}
           onClick={handleClick}
-          size="icon-sm"
+          size={size}
           type="button"
           variant="ghost"
         >
@@ -58,7 +67,7 @@ export function EditorReplayButton({
             >
               <HugeiconsIcon
                 icon={Refresh01Icon}
-                size={16}
+                size={iconSize}
                 strokeWidth={1.75}
               />
             </span>
@@ -76,7 +85,7 @@ export function EditorReplayButton({
           </span>
         </Button>
       </TooltipTrigger>
-      <TooltipContent>Replay animation (R)</TooltipContent>
+      <TooltipContent side={tooltipSide}>Replay animation (R)</TooltipContent>
     </Tooltip>
   );
 }

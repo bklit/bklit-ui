@@ -34,7 +34,7 @@ function patternOrientation(
   }
 }
 
-function PatternSwatch({ preset }: { preset: PatternPresetId }) {
+export function PatternSwatch({ preset }: { preset: PatternPresetId }) {
   if (preset === "none") {
     return (
       <span className="block size-full rounded-sm bg-[var(--chart-1)] opacity-80" />

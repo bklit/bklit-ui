@@ -30,7 +30,7 @@ export function GaugeStudioPreview({
 
   return (
     <Gauge
-      activeFill={ctx.patternFill}
+      activeFill={ctx.patternFillAt(0)}
       activeFillOpacity={state.activeFillOpacity}
       centerValue={state.centerValue}
       defaultLabel={state.gaugeLabel}

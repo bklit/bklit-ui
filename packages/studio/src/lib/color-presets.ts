@@ -70,13 +70,19 @@ export const COLOR_PRESETS: ColorPreset[] = [
   },
 ];
 
-export function presetStyle(id: ColorPresetId): CSSProperties {
+export function presetStyle(
+  id: ColorPresetId,
+  chartAccent?: string
+): CSSProperties {
   const preset = COLOR_PRESETS.find((p) => p.id === id);
   const vars = { ...(preset?.vars ?? {}) };
+  const accent = chartAccent?.trim();
 
-  // Re-derive semantic line tokens on the frame so palette overrides flow into
-  // Area/Line charts and SVG export even when :root tokens are not re-evaluated.
-  if (Object.keys(vars).length > 0) {
+  if (accent) {
+    vars["--chart-1"] = accent;
+  }
+
+  if (Object.keys(vars).length > 0 || accent) {
     Object.assign(vars, CHART_PALETTE_DERIVED_VARS);
   }
 

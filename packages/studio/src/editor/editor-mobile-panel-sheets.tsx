@@ -1,10 +1,17 @@
 "use client";
 
 import { PanelLeftOpen } from "lucide-react";
-import { EditorLeftPanelContent } from "@/editor/editor-left-panel-content";
-import { EditorRightPanelContent } from "@/editor/editor-right-panel-content";
+import type { ReactNode } from "react";
+import { StudioComponentsPanel } from "@/components/studio-components-panel";
+import { StudioPropertiesPanel } from "@/components/studio-properties-panel";
+import { StudioScrambleDataButton } from "@/components/studio-scramble-data-button";
+import { StudioScrollArea } from "@/components/studio-scroll-area";
+import { EditorAnimationSection } from "@/editor/editor-animation-section";
+import { EditorDataSection } from "@/editor/editor-data-section";
+import { EditorPropertiesSidebarHeader } from "@/editor/editor-properties-sidebar-header";
+import { useStudioComponentSelection } from "@/editor/studio-component-selection";
 import type { StudioUrlState } from "@/lib/studio-parsers";
-import type { StudioControlGroup as StudioControlGroupConfig } from "@/lib/types";
+import type { StudioChartConfig } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Button } from "@/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/ui/sheet";
@@ -47,13 +54,13 @@ export function EditorMobilePanelTriggers({
     <>
       <MobilePanelTrigger
         className="absolute top-3 left-3 z-20"
-        label="Open motion controls"
+        label="Open chart and components"
         onClick={onLeftOpen}
         side="left"
       />
       <MobilePanelTrigger
         className="absolute top-3 right-3 z-20"
-        label="Open chart controls"
+        label="Open properties"
         onClick={onRightOpen}
         side="right"
       />
@@ -67,23 +74,29 @@ export function EditorMobilePanelSheets({
   onLeftOpenChange,
   onRightOpenChange,
   state,
+  config,
   onChange,
+  onBatchChange,
   onPreview,
   onCommit,
   onMotionCurveDragActiveChange,
   showMotionControls = false,
-  controlGroups = [],
-  header,
+  chartSelector,
+  controlsDisabled = false,
+  headerActions,
+  onScramble,
 }: {
   leftOpen: boolean;
   rightOpen: boolean;
   onLeftOpenChange: (open: boolean) => void;
   onRightOpenChange: (open: boolean) => void;
   state: StudioUrlState;
+  config: StudioChartConfig;
   onChange: <K extends keyof StudioUrlState>(
     key: K,
     value: StudioUrlState[K]
   ) => void;
+  onBatchChange: (updates: Partial<StudioUrlState>) => void;
   onPreview: <K extends keyof StudioUrlState>(
     key: K,
     value: StudioUrlState[K]
@@ -94,9 +107,19 @@ export function EditorMobilePanelSheets({
   ) => void;
   onMotionCurveDragActiveChange?: (dragging: boolean) => void;
   showMotionControls?: boolean;
-  controlGroups?: StudioControlGroupConfig[];
-  header?: React.ReactNode;
+  chartSelector?: React.ReactNode;
+  controlsDisabled?: boolean;
+  headerActions?: ReactNode;
+  onScramble: () => void;
 }) {
+  const {
+    components,
+    dataControlGroups,
+    selectedComponentId,
+    setSelectedComponentId,
+    selectedComponent,
+  } = useStudioComponentSelection();
+
   return (
     <>
       <Sheet onOpenChange={onLeftOpenChange} open={leftOpen}>
@@ -104,18 +127,45 @@ export function EditorMobilePanelSheets({
           className="flex w-[min(100vw,360px)] flex-col gap-0 p-0 sm:max-w-[360px]"
           side="left"
         >
-          <SheetTitle className="sr-only">Motion controls</SheetTitle>
+          <SheetTitle className="sr-only">Chart and components</SheetTitle>
           <SheetDescription className="sr-only">
-            Animation and motion settings for the chart preview.
+            Chart type, layer list, and animation controls.
           </SheetDescription>
-          <EditorLeftPanelContent
-            onChange={onChange}
-            onCommit={onCommit}
-            onMotionCurveDragActiveChange={onMotionCurveDragActiveChange}
-            onPreview={onPreview}
-            showMotionControls={showMotionControls}
-            state={state}
-          />
+          <StudioScrollArea className="min-h-0 flex-1">
+            <div className="flex flex-col gap-0 p-3 pb-4">
+              {chartSelector ? (
+                <section className="border-border/60 border-b pb-4">
+                  {chartSelector}
+                </section>
+              ) : null}
+              <StudioComponentsPanel
+                components={components}
+                onSelect={setSelectedComponentId}
+                selectedId={selectedComponentId}
+              />
+              <div className="border-border/60 border-b pt-1 pb-4">
+                <StudioScrambleDataButton
+                  disabled={controlsDisabled}
+                  onScramble={onScramble}
+                />
+              </div>
+              <EditorDataSection
+                groups={dataControlGroups}
+                onChange={onChange}
+                onCommit={onCommit}
+                onPreview={onPreview}
+                state={state}
+              />
+              <EditorAnimationSection
+                onChange={onChange}
+                onCommit={onCommit}
+                onMotionCurveDragActiveChange={onMotionCurveDragActiveChange}
+                onPreview={onPreview}
+                showMotionControls={showMotionControls}
+                state={state}
+              />
+            </div>
+          </StudioScrollArea>
         </SheetContent>
       </Sheet>
 
@@ -124,13 +174,16 @@ export function EditorMobilePanelSheets({
           className="flex w-[min(100vw,360px)] flex-col gap-0 p-0 sm:max-w-[360px]"
           side="right"
         >
-          <SheetTitle className="sr-only">Chart controls</SheetTitle>
+          <SheetTitle className="sr-only">Properties</SheetTitle>
           <SheetDescription className="sr-only">
-            Line chart data and styling controls.
+            Configurable options for the selected chart component.
           </SheetDescription>
-          <EditorRightPanelContent
-            controlGroups={controlGroups}
-            header={header}
+          <EditorPropertiesSidebarHeader actions={headerActions} />
+          <StudioPropertiesPanel
+            component={selectedComponent}
+            config={config}
+            disabled={controlsDisabled}
+            onBatchChange={onBatchChange}
             onChange={onChange}
             onCommit={onCommit}
             onPreview={onPreview}

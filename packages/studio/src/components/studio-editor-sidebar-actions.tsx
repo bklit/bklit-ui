@@ -1,41 +1,48 @@
 "use client";
 
-import { ShuffleIcon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
 import type { ReactNode } from "react";
-import { PresetSelect } from "@/components/controls/preset-select";
+import { useEffect } from "react";
 import { StudioCodeSheetTrigger } from "@/components/studio-code-sheet-trigger";
 import { StudioExportSvgButton } from "@/components/studio-export-svg-button";
 import { StudioRecordPopover } from "@/components/studio-record-popover";
+import { EditorReplayButton } from "@/editor/editor-replay-button";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import type {
   StudioRecordingAspect,
   StudioRecordingFormat,
   StudioRecordingInteractionMs,
 } from "@/lib/studio-recording";
-import { Button } from "@/ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/ui/tooltip";
 
-export function StudioEditorMenuActions({
-  displayState,
+function isTypingTarget(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) {
+    return false;
+  }
+  const tag = target.tagName;
+  return (
+    target.isContentEditable ||
+    tag === "INPUT" ||
+    tag === "TEXTAREA" ||
+    tag === "SELECT"
+  );
+}
+
+export function StudioEditorSidebarActions({
   state,
   controlsDisabled,
   recordingBlocked,
   isRecording,
-  onScramble,
+  onReplay,
   onExportSvg,
   onRecordPopoverOpenChange,
   onStartRecording,
   onStopRecording,
-  onPresetChange,
   renderCodeSheet,
 }: {
-  displayState: StudioUrlState;
   state: StudioUrlState;
   controlsDisabled: boolean;
   recordingBlocked: boolean;
   isRecording: boolean;
-  onScramble: () => void;
+  onReplay: () => void;
   onExportSvg: () => void;
   onRecordPopoverOpenChange: (open: boolean) => void;
   onStartRecording: (
@@ -44,32 +51,30 @@ export function StudioEditorMenuActions({
     format: StudioRecordingFormat
   ) => void;
   onStopRecording: () => void;
-  onPresetChange: (value: StudioUrlState["preset"]) => void;
   renderCodeSheet?: (state: StudioUrlState) => ReactNode;
 }) {
-  return (
-    <div className="flex shrink-0 items-center gap-1">
-      <Tooltip>
-        <TooltipTrigger render={<span className="inline-flex" />}>
-          <Button
-            aria-label="Scramble data"
-            className="size-8"
-            disabled={controlsDisabled}
-            onClick={onScramble}
-            size="icon-sm"
-            type="button"
-            variant="ghost"
-          >
-            <HugeiconsIcon icon={ShuffleIcon} size={16} strokeWidth={1.5} />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>Scramble data</TooltipContent>
-      </Tooltip>
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "r" && event.key !== "R") {
+        return;
+      }
+      if (event.metaKey || event.ctrlKey || event.altKey) {
+        return;
+      }
+      if (isTypingTarget(event.target)) {
+        return;
+      }
+      event.preventDefault();
+      onReplay();
+    };
 
-      <StudioExportSvgButton
-        disabled={controlsDisabled}
-        onExport={onExportSvg}
-      />
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [onReplay]);
+
+  return (
+    <>
+      <EditorReplayButton disabled={controlsDisabled} onReplay={onReplay} />
 
       <StudioRecordPopover
         disabled={recordingBlocked}
@@ -77,19 +82,26 @@ export function StudioEditorMenuActions({
         onOpenChange={onRecordPopoverOpenChange}
         onStart={onStartRecording}
         onStop={onStopRecording}
+        size="icon-sm"
+        variant="ghost"
       />
 
-      <PresetSelect
+      <StudioExportSvgButton
         disabled={controlsDisabled}
-        onChange={onPresetChange}
-        value={displayState.preset}
+        onExport={onExportSvg}
+        size="icon-sm"
+        variant="ghost"
       />
 
       {renderCodeSheet ? (
         renderCodeSheet(state)
       ) : (
-        <StudioCodeSheetTrigger state={state} />
+        <StudioCodeSheetTrigger
+          state={state}
+          triggerClassName="font-mono text-xs"
+          triggerSize="sm"
+        />
       )}
-    </div>
+    </>
   );
 }

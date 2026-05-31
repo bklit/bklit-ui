@@ -17,6 +17,9 @@ import type { ChartSlug } from "./types";
 export const studioSearchParams = {
   chart: parseAsStringLiteral(validChartSlugs).withDefault("gauge-chart"),
   preset: parseAsStringLiteral(COLOR_PRESET_IDS).withDefault("default"),
+  chartAccent: parseAsString.withDefault(""),
+  seriesColors: parseAsString.withDefault(""),
+  seriesPatterns: parseAsString.withDefault(""),
   frameW: parseAsInteger.withDefault(720),
   frameH: parseAsInteger.withDefault(400),
   value: parseAsInteger.withDefault(66),
@@ -166,6 +169,9 @@ export const studioSearchParams = {
 export interface StudioUrlState {
   chart: ChartSlug;
   preset: ColorPresetId;
+  chartAccent: string;
+  seriesColors: string;
+  seriesPatterns: string;
   frameW: number;
   frameH: number;
   value: number;
@@ -297,6 +303,9 @@ export function defaultStudioState(
   return {
     chart: "gauge-chart",
     preset: "default",
+    chartAccent: "",
+    seriesColors: "",
+    seriesPatterns: "",
     frameW: 720,
     frameH: 400,
     value: 66,

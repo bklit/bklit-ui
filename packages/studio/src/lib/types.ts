@@ -63,6 +63,31 @@ export interface StudioControlGroup {
   controls: StudioControl[];
 }
 
+export type StudioComponentKind =
+  | "chart"
+  | "data"
+  | "series"
+  | "text"
+  | "geometry"
+  | "line";
+
+export interface StudioComponentDesign {
+  /** Which series index this fill/pattern applies to (default 0). */
+  seriesIndex?: number;
+  supportsPattern?: boolean;
+  /** Show global palette presets (default: seriesIndex 0 or unset). */
+  showPalette?: boolean;
+}
+
+export interface StudioComponentDefinition {
+  id: string;
+  label: string;
+  parentId?: string;
+  kind?: StudioComponentKind;
+  controlGroups: StudioControlGroup[];
+  design?: StudioComponentDesign;
+}
+
 export interface StudioChartConfig {
   slug: ChartSlug;
   label: string;
@@ -72,6 +97,8 @@ export interface StudioChartConfig {
   controlGroups?: StudioControlGroup[];
   /** Dynamic control groups based on current studio state (e.g. line chart mode). */
   resolveControlGroups?: (state: StudioUrlState) => StudioControlGroup[];
+  /** Layer tree for the components panel; falls back to one component per control group. */
+  resolveComponents?: (state: StudioUrlState) => StudioComponentDefinition[];
   /** When true, sidebar shows the motion spline editor at the top. */
   motionPanel?: boolean;
   /** Show stagger scale slider in Motion (gauge, radar, funnel). */

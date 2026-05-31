@@ -101,6 +101,13 @@ import {
   scatterChartControlGroups,
 } from "./registry-control-groups";
 import { seriesStrokePropsFromState } from "./series-stroke-props";
+import {
+  resolveAreaComponents,
+  resolveBarComponents,
+  resolveComposedComponents,
+  resolveGaugeComponents,
+} from "./studio-components";
+import { getSeriesFillMode } from "./studio-series-design";
 import type { ChartSlug, StudioChartConfig } from "./types";
 import { chartLabels } from "./types";
 
@@ -112,6 +119,7 @@ const gaugeConfig: StudioChartConfig = {
   motionStagger: true,
   controls: [],
   controlGroups: gaugeControlGroups,
+  resolveComponents: () => resolveGaugeComponents(),
   render: (state, ctx) => <GaugeStudioPreview ctx={ctx} state={state} />,
   generateCode: (state) => gaugeCodegen(state),
 };
@@ -124,10 +132,12 @@ const areaConfig: StudioChartConfig = {
   motionPanel: true,
   controls: [],
   controlGroups: areaChartControlGroups,
+  resolveComponents: resolveAreaComponents,
   render: (state, ctx) => {
     const curve = resolveCurve(state.curve);
-    const fill = ctx.patternFill ?? undefined;
     const seriesCount = clampStudioSeriesCount(state.dataSeries);
+    const seriesFillAt = (idx: number) => ctx.patternFillAt(idx);
+    const seriesColorAt = (idx: number) => `var(--chart-${(idx % 5) + 1})`;
     const data = generateStudioCartesianData({
       seriesCount,
       pointCount: state.dataPoints,
@@ -146,9 +156,7 @@ const areaConfig: StudioChartConfig = {
           <Grid horizontal />
           {ctx.patternDefs}
           {STUDIO_SERIES_KEYS.slice(0, seriesCount).flatMap((key, idx) => {
-            // AreaChart picks up series via `Children.forEach` — wrapping in <Fragment> hides children, so flatten.
-            const isPrimary = idx === 0;
-            const patternThisSeries = isPrimary ? fill : undefined;
+            const patternThisSeries = seriesFillAt(idx);
             const nodes = [
               <Area
                 curve={curve}
@@ -158,7 +166,7 @@ const areaConfig: StudioChartConfig = {
                     ? false
                     : fadeEdgesPropValue(state.fadeEdges)
                 }
-                fill={isPrimary ? undefined : STUDIO_SERIES_COLORS[idx]}
+                fill={patternThisSeries ? undefined : seriesColorAt(idx)}
                 fillOpacity={patternThisSeries ? 0 : state.fillOpacity}
                 gradientToOpacity={state.gradientToOpacity}
                 key={`area-${key}`}
@@ -306,13 +314,15 @@ const barConfig: StudioChartConfig = {
   motionPanel: true,
   controls: [],
   controlGroups: barChartControlGroups,
+  resolveComponents: resolveBarComponents,
   render: (state, ctx) => {
     const horizontal = state.barOrientation === "horizontal";
     const seriesCount = clampStudioSeriesCount(state.dataSeries);
     // barSeriesMode "single" is treated as grouped when dataSeries > 1.
     const stacked = seriesCount > 1 && state.barSeriesMode === "stacked";
     const lineCap = state.barLineCap;
-    const primaryFill = ctx.patternFill ?? "var(--chart-1)";
+    const seriesFillAt = (idx: number) =>
+      ctx.patternFillAt(idx) ?? `var(--chart-${(idx % 5) + 1})`;
 
     let chartData: Record<string, unknown>[];
     let xKey: string;
@@ -358,7 +368,7 @@ const barConfig: StudioChartConfig = {
             <Bar
               dataKey={key}
               fadedOpacity={state.barFadedOpacity}
-              fill={idx === 0 ? primaryFill : STUDIO_SERIES_COLORS[idx]}
+              fill={seriesFillAt(idx)}
               groupGap={state.groupGap}
               key={key}
               lineCap={lineCap}
@@ -382,6 +392,7 @@ const composedConfig: StudioChartConfig = {
   motionPanel: true,
   controls: [],
   controlGroups: composedChartControlGroups,
+  resolveComponents: resolveComposedComponents,
   render: (state, ctx) => {
     const curve = resolveCurve(state.curve);
     const seriesCount = clampStudioSeriesCount(state.dataSeries);
@@ -406,15 +417,14 @@ const composedConfig: StudioChartConfig = {
           {barKey ? (
             <SeriesBar
               dataKey={barKey}
-              fill={ctx.patternFill ?? "var(--chart-1)"}
+              fill={ctx.patternFillAt(0) ?? "var(--chart-1)"}
               radius={state.composedBarRadius}
             />
           ) : null}
           {STUDIO_SERIES_KEYS.slice(1, seriesCount).flatMap(
             (key, secondaryIdx) => {
-              // ComposedChart picks up series via `Children.forEach` — keep Area+Line as flat siblings, not inside a Fragment.
               const colorIdx = secondaryIdx + 1;
-              const color = STUDIO_SERIES_COLORS[colorIdx];
+              const color = `var(--chart-${(colorIdx % 5) + 1})`;
               return [
                 <Area
                   curve={curve}
@@ -554,7 +564,10 @@ const candlestickConfig: StudioChartConfig = {
   controls: [],
   controlGroups: candlestickChartControlGroups,
   render: (state, ctx) => {
-    const patternUp = state.pattern === "none" ? undefined : ctx.patternFill;
+    const patternUp =
+      getSeriesFillMode(state, 0) === "pattern"
+        ? ctx.patternFillAt(0)
+        : undefined;
     const positiveFill = state.candleUseGradient
       ? "url(#studio-candle-up)"
       : "var(--chart-1)";

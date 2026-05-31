@@ -8,14 +8,21 @@ import {
   useState,
 } from "react";
 import {
-  clampCanvasScale,
-  computeCenterView,
-  computeFitView,
-  type EditorCanvasView,
-  persistCanvasView,
-  readPersistedCanvasView,
-  zoomAtPoint,
-} from "@/editor/editor-canvas-view";
+  clampCameraZoom,
+  computeCenterCamera,
+  computeFitCamera,
+  type EditorCamera,
+  persistCamera,
+  readPersistedCamera,
+  zoomCameraAtPoint,
+} from "@/editor/editor-camera";
+
+export interface EditorContentBounds {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
 
 function isEditableTarget(target: EventTarget | null) {
   if (!(target instanceof HTMLElement)) {
@@ -31,43 +38,43 @@ function isEditableTarget(target: EventTarget | null) {
   );
 }
 
-export function useEditorCanvasView({
+export function useEditorCamera({
   enabled,
   viewportRef,
-  artboardWidth,
-  artboardHeight,
+  getContentBounds,
   persist = true,
 }: {
   enabled: boolean;
   viewportRef: RefObject<HTMLElement | null>;
-  artboardWidth: number;
-  artboardHeight: number;
+  getContentBounds: () => EditorContentBounds;
   persist?: boolean;
 }) {
-  const [view, setView] = useState<EditorCanvasView>(() => ({
-    scale: 1,
-    panX: 0,
-    panY: 0,
+  const [camera, setCamera] = useState<EditorCamera>(() => ({
+    zoom: 1,
+    x: 0,
+    y: 0,
   }));
   const [spacePressed, setSpacePressed] = useState(false);
   const panSessionRef = useRef<{
     pointerId: number;
     startX: number;
     startY: number;
-    originPanX: number;
-    originPanY: number;
+    originX: number;
+    originY: number;
   } | null>(null);
   const pinchSessionRef = useRef<{
     pointerIds: [number, number];
     startDistance: number;
-    startScale: number;
-    startPanX: number;
-    startPanY: number;
+    startZoom: number;
+    startX: number;
+    startY: number;
     centerX: number;
     centerY: number;
   } | null>(null);
-  const viewRef = useRef(view);
-  viewRef.current = view;
+  const cameraRef = useRef(camera);
+  cameraRef.current = camera;
+  const getContentBoundsRef = useRef(getContentBounds);
+  getContentBoundsRef.current = getContentBounds;
 
   const getViewportSize = useCallback(() => {
     const element = viewportRef.current;
@@ -80,64 +87,53 @@ export function useEditorCanvasView({
     };
   }, [viewportRef]);
 
-  const applyView = useCallback(
-    (next: EditorCanvasView) => {
-      setView(next);
+  const applyCamera = useCallback(
+    (next: EditorCamera) => {
+      setCamera(next);
       if (persist) {
-        persistCanvasView(next);
+        persistCamera(next);
       }
     },
     [persist]
   );
 
-  const fitToView = useCallback(() => {
+  const fitToContent = useCallback(() => {
     const { width, height } = getViewportSize();
-    if (!(width && height)) {
+    const bounds = getContentBoundsRef.current();
+    if (!(width && height && bounds.width && bounds.height)) {
       return;
     }
-    applyView(
-      computeFitView({
+    applyCamera(
+      computeFitCamera({
         viewportWidth: width,
         viewportHeight: height,
-        artboardWidth,
-        artboardHeight,
+        worldX: bounds.x,
+        worldY: bounds.y,
+        worldWidth: bounds.width,
+        worldHeight: bounds.height,
       })
     );
-  }, [applyView, artboardHeight, artboardWidth, getViewportSize]);
+  }, [applyCamera, getViewportSize]);
 
   const resetTo100 = useCallback(() => {
     const { width, height } = getViewportSize();
-    if (!(width && height)) {
+    const bounds = getContentBoundsRef.current();
+    if (!(width && height && bounds.width && bounds.height)) {
       return;
     }
-    applyView({
-      scale: 1,
-      ...computeCenterView({
+    applyCamera({
+      zoom: 1,
+      ...computeCenterCamera({
         viewportWidth: width,
         viewportHeight: height,
-        artboardWidth,
-        artboardHeight,
-        scale: 1,
+        worldX: bounds.x,
+        worldY: bounds.y,
+        worldWidth: bounds.width,
+        worldHeight: bounds.height,
+        zoom: 1,
       }),
     });
-  }, [applyView, artboardHeight, artboardWidth, getViewportSize]);
-
-  const centerArtboard = useCallback(() => {
-    const { width, height } = getViewportSize();
-    if (!(width && height)) {
-      return;
-    }
-    applyView({
-      ...viewRef.current,
-      ...computeCenterView({
-        viewportWidth: width,
-        viewportHeight: height,
-        artboardWidth,
-        artboardHeight,
-        scale: viewRef.current.scale,
-      }),
-    });
-  }, [applyView, artboardHeight, artboardWidth, getViewportSize]);
+  }, [applyCamera, getViewportSize]);
 
   const zoomBy = useCallback(
     (factor: number, anchor?: { x: number; y: number }) => {
@@ -147,38 +143,38 @@ export function useEditorCanvasView({
       }
 
       const point = anchor ?? { x: width / 2, y: height / 2 };
-      applyView(
-        zoomAtPoint({
-          view: viewRef.current,
+      applyCamera(
+        zoomCameraAtPoint({
+          camera: cameraRef.current,
           pointX: point.x,
           pointY: point.y,
-          nextScale: viewRef.current.scale * factor,
+          nextZoom: cameraRef.current.zoom * factor,
         })
       );
     },
-    [applyView, getViewportSize]
+    [applyCamera, getViewportSize]
   );
 
   const panBy = useCallback(
     (deltaX: number, deltaY: number) => {
-      applyView({
-        ...viewRef.current,
-        panX: viewRef.current.panX + deltaX,
-        panY: viewRef.current.panY + deltaY,
+      applyCamera({
+        ...cameraRef.current,
+        x: cameraRef.current.x + deltaX,
+        y: cameraRef.current.y + deltaY,
       });
     },
-    [applyView]
+    [applyCamera]
   );
 
   const setPan = useCallback(
-    (panX: number, panY: number) => {
-      applyView({
-        ...viewRef.current,
-        panX,
-        panY,
+    (x: number, y: number) => {
+      applyCamera({
+        ...cameraRef.current,
+        x,
+        y,
       });
     },
-    [applyView]
+    [applyCamera]
   );
 
   useEffect(() => {
@@ -193,47 +189,42 @@ export function useEditorCanvasView({
 
     let initialized = false;
 
-    const initializeView = () => {
+    const initializeCamera = () => {
       if (initialized) {
         return;
       }
 
       const { width, height } = getViewportSize();
-      if (!(width && height)) {
+      const bounds = getContentBoundsRef.current();
+      if (!(width && height && bounds.width && bounds.height)) {
         return;
       }
 
       initialized = true;
 
-      const persisted = persist ? readPersistedCanvasView() : null;
+      const persisted = persist ? readPersistedCamera() : null;
       if (persisted) {
-        setView(persisted);
+        setCamera(persisted);
         return;
       }
 
-      applyView(
-        computeFitView({
+      applyCamera(
+        computeFitCamera({
           viewportWidth: width,
           viewportHeight: height,
-          artboardWidth,
-          artboardHeight,
+          worldX: bounds.x,
+          worldY: bounds.y,
+          worldWidth: bounds.width,
+          worldHeight: bounds.height,
         })
       );
     };
 
-    initializeView();
-    const observer = new ResizeObserver(initializeView);
+    initializeCamera();
+    const observer = new ResizeObserver(initializeCamera);
     observer.observe(element);
     return () => observer.disconnect();
-  }, [
-    enabled,
-    persist,
-    applyView,
-    artboardHeight,
-    artboardWidth,
-    getViewportSize,
-    viewportRef,
-  ]);
+  }, [enabled, persist, applyCamera, getViewportSize, viewportRef]);
 
   useEffect(() => {
     if (!enabled) {
@@ -262,27 +253,27 @@ export function useEditorCanvasView({
     };
   }, [enabled]);
 
-  const onWheel = useCallback(
-    (event: React.WheelEvent<HTMLDivElement>) => {
-      if (!enabled) {
-        return;
-      }
+  useEffect(() => {
+    if (!enabled) {
+      return;
+    }
 
-      const viewport = viewportRef.current;
-      if (!viewport) {
-        return;
-      }
+    const element = viewportRef.current;
+    if (!element) {
+      return;
+    }
 
+    const onWheel = (event: WheelEvent) => {
       if (event.ctrlKey || event.metaKey) {
         event.preventDefault();
-        const rect = viewport.getBoundingClientRect();
+        const rect = element.getBoundingClientRect();
         const factor = event.deltaY < 0 ? 1.08 : 1 / 1.08;
-        applyView(
-          zoomAtPoint({
-            view: viewRef.current,
+        applyCamera(
+          zoomCameraAtPoint({
+            camera: cameraRef.current,
             pointX: event.clientX - rect.left,
             pointY: event.clientY - rect.top,
-            nextScale: viewRef.current.scale * factor,
+            nextZoom: cameraRef.current.zoom * factor,
           })
         );
         return;
@@ -296,9 +287,24 @@ export function useEditorCanvasView({
 
       event.preventDefault();
       panBy(-event.deltaX, -event.deltaY);
-    },
-    [applyView, enabled, panBy, viewportRef]
-  );
+    };
+
+    const onGesture = (event: Event) => {
+      event.preventDefault();
+    };
+
+    element.addEventListener("wheel", onWheel, { passive: false });
+    element.addEventListener("gesturestart", onGesture);
+    element.addEventListener("gesturechange", onGesture);
+    element.addEventListener("gestureend", onGesture);
+
+    return () => {
+      element.removeEventListener("wheel", onWheel);
+      element.removeEventListener("gesturestart", onGesture);
+      element.removeEventListener("gesturechange", onGesture);
+      element.removeEventListener("gestureend", onGesture);
+    };
+  }, [applyCamera, enabled, panBy, viewportRef]);
 
   const onPointerDown = useCallback(
     (event: React.PointerEvent<HTMLDivElement>) => {
@@ -327,8 +333,8 @@ export function useEditorCanvasView({
         pointerId: event.pointerId,
         startX: event.clientX,
         startY: event.clientY,
-        originPanX: viewRef.current.panX,
-        originPanY: viewRef.current.panY,
+        originX: cameraRef.current.x,
+        originY: cameraRef.current.y,
       };
     },
     [enabled, spacePressed, viewportRef]
@@ -341,13 +347,13 @@ export function useEditorCanvasView({
         return;
       }
 
-      applyView({
-        ...viewRef.current,
-        panX: session.originPanX + (event.clientX - session.startX),
-        panY: session.originPanY + (event.clientY - session.startY),
+      applyCamera({
+        ...cameraRef.current,
+        x: session.originX + (event.clientX - session.startX),
+        y: session.originY + (event.clientY - session.startY),
       });
     },
-    [applyView]
+    [applyCamera]
   );
 
   const onPointerUp = useCallback(
@@ -368,9 +374,9 @@ export function useEditorCanvasView({
       if (!enabled || isEditableTarget(event.target)) {
         return;
       }
-      fitToView();
+      fitToContent();
     },
-    [enabled, fitToView]
+    [enabled, fitToContent]
   );
 
   const registerPinchHandlers = useCallback(
@@ -405,9 +411,9 @@ export function useEditorCanvasView({
           pinchSessionRef.current = {
             pointerIds: [first[0], second[0]],
             startDistance: Math.hypot(dx, dy),
-            startScale: viewRef.current.scale,
-            startPanX: viewRef.current.panX,
-            startPanY: viewRef.current.panY,
+            startZoom: cameraRef.current.zoom,
+            startX: cameraRef.current.x,
+            startY: cameraRef.current.y,
             centerX,
             centerY,
           };
@@ -435,18 +441,16 @@ export function useEditorCanvasView({
         const dx = second.x - first.x;
         const dy = second.y - first.y;
         const distance = Math.max(Math.hypot(dx, dy), 1);
-        const nextScale = clampCanvasScale(
-          session.startScale * (distance / session.startDistance)
+        const nextZoom = clampCameraZoom(
+          session.startZoom * (distance / session.startDistance)
         );
-        const worldX =
-          (session.centerX - session.startPanX) / session.startScale;
-        const worldY =
-          (session.centerY - session.startPanY) / session.startScale;
+        const worldX = (session.centerX - session.startX) / session.startZoom;
+        const worldY = (session.centerY - session.startY) / session.startZoom;
 
-        applyView({
-          scale: nextScale,
-          panX: session.centerX - worldX * nextScale,
-          panY: session.centerY - worldY * nextScale,
+        applyCamera({
+          zoom: nextZoom,
+          x: session.centerX - worldX * nextZoom,
+          y: session.centerY - worldY * nextZoom,
         });
       };
 
@@ -473,19 +477,21 @@ export function useEditorCanvasView({
         element.removeEventListener("pointercancel", onPointerUp);
       };
     },
-    [applyView, enabled]
+    [applyCamera, enabled]
   );
 
   return {
-    view,
+    camera,
+    /** @deprecated Use camera */
+    view: camera,
     spacePressed,
-    fitToView,
+    fitToContent,
+    /** @deprecated Use fitToContent */
+    fitToView: fitToContent,
     resetTo100,
-    centerArtboard,
     zoomBy,
     panBy,
     setPan,
-    onWheel,
     onPointerDown,
     onPointerMove,
     onPointerUp,
@@ -493,3 +499,6 @@ export function useEditorCanvasView({
     registerPinchHandlers,
   };
 }
+
+/** @deprecated Use useEditorCamera */
+export const useEditorCanvasView = useEditorCamera;

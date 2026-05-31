@@ -1,23 +1,30 @@
 "use client";
 
+import type { ReactNode } from "react";
+import { StudioPropertiesPanel } from "@/components/studio-properties-panel";
 import { EditorCollapsiblePane } from "@/editor/editor-collapsible-pane";
-import { EditorRightPanelContent } from "@/editor/editor-right-panel-content";
+import { EditorPropertiesSidebarHeader } from "@/editor/editor-properties-sidebar-header";
+import { useStudioComponentSelection } from "@/editor/studio-component-selection";
 import type { StudioUrlState } from "@/lib/studio-parsers";
-import type { StudioControlGroup as StudioControlGroupConfig } from "@/lib/types";
+import type { StudioChartConfig } from "@/lib/types";
 
 export function EditorRightPanel({
   state,
+  config,
   onChange,
+  onBatchChange,
   onPreview,
   onCommit,
-  controlGroups = [],
-  header,
+  controlsDisabled = false,
+  headerActions,
 }: {
   state: StudioUrlState;
+  config: StudioChartConfig;
   onChange: <K extends keyof StudioUrlState>(
     key: K,
     value: StudioUrlState[K]
   ) => void;
+  onBatchChange: (updates: Partial<StudioUrlState>) => void;
   onPreview: <K extends keyof StudioUrlState>(
     key: K,
     value: StudioUrlState[K]
@@ -26,14 +33,19 @@ export function EditorRightPanel({
     key: K,
     value: StudioUrlState[K]
   ) => void;
-  controlGroups?: StudioControlGroupConfig[];
-  header?: React.ReactNode;
+  controlsDisabled?: boolean;
+  headerActions?: ReactNode;
 }) {
+  const { selectedComponent } = useStudioComponentSelection();
+
   return (
-    <EditorCollapsiblePane label="Controls" side="right">
-      <EditorRightPanelContent
-        controlGroups={controlGroups}
-        header={header}
+    <EditorCollapsiblePane label="Properties" side="right">
+      <EditorPropertiesSidebarHeader actions={headerActions} />
+      <StudioPropertiesPanel
+        component={selectedComponent}
+        config={config}
+        disabled={controlsDisabled}
+        onBatchChange={onBatchChange}
         onChange={onChange}
         onCommit={onCommit}
         onPreview={onPreview}

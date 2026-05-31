@@ -3,6 +3,7 @@
 import { MoonIcon, SunIcon } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useCallback, useEffect, useState } from "react";
+import { useStudioToolbarTooltipSide } from "@/components/studio-toolbar-tooltips";
 import { cn } from "@/lib/utils";
 import { Button } from "@/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/ui/tooltip";
@@ -56,6 +57,7 @@ export function EditorThemeToggle({ className }: { className?: string }) {
   }, [mounted, toggleTheme]);
 
   const isDark = mounted && resolvedTheme === "dark";
+  const tooltipSide = useStudioToolbarTooltipSide();
 
   return (
     <Tooltip>
@@ -73,7 +75,7 @@ export function EditorThemeToggle({ className }: { className?: string }) {
           {isDark ? <SunIcon /> : <MoonIcon />}
         </Button>
       </TooltipTrigger>
-      <TooltipContent>Toggle theme (D)</TooltipContent>
+      <TooltipContent side={tooltipSide}>Toggle theme (D)</TooltipContent>
     </Tooltip>
   );
 }

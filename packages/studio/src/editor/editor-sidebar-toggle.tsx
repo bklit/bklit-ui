@@ -1,6 +1,7 @@
 "use client";
 
 import { Columns3, PanelTopBottomDashed } from "lucide-react";
+import { useStudioToolbarTooltipSide } from "@/components/studio-toolbar-tooltips";
 import { cn } from "@/lib/utils";
 import { Button } from "@/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/ui/tooltip";
@@ -18,6 +19,8 @@ export function EditorSidebarToggle({
   open: boolean;
   onToggle: () => void;
 }) {
+  const tooltipSide = useStudioToolbarTooltipSide();
+
   return (
     <Tooltip>
       <TooltipTrigger render={<span className="inline-flex" />}>
@@ -37,7 +40,7 @@ export function EditorSidebarToggle({
           )}
         </Button>
       </TooltipTrigger>
-      <TooltipContent>Toggle sidebars</TooltipContent>
+      <TooltipContent side={tooltipSide}>Toggle sidebars</TooltipContent>
     </Tooltip>
   );
 }

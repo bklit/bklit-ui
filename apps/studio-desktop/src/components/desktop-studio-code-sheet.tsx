@@ -44,6 +44,8 @@ export function DesktopStudioCodeSheet({ state }: { state: StudioUrlState }) {
       )}
       renderUsageCode={(code) => <CodeBlock code={code} lang="tsx" />}
       state={state}
+      triggerClassName="font-mono text-xs"
+      triggerSize="sm"
     />
   );
 }

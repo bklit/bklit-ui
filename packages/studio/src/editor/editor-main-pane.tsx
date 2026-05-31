@@ -1,158 +1,177 @@
 "use client";
 
 import type { ReactNode, RefObject } from "react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef } from "react";
+import { useStudioFrame } from "@/components/studio-scenes-provider";
 import { EditorCanvas } from "@/editor/editor-canvas";
-import { EditorCanvasMinimap } from "@/editor/editor-canvas-minimap";
+import { EditorFrameLabel } from "@/editor/editor-frame-label";
+import {
+  EditorGridaRuler,
+  EditorGridaRulerCorner,
+} from "@/editor/editor-grida-rulers";
 import { EditorMenuBar } from "@/editor/editor-menu-bar";
 import { EditorMobilePanelTriggers } from "@/editor/editor-mobile-panel-sheets";
-import { EditorRuler, EditorRulerCorner } from "@/editor/editor-rulers";
 import { FpsCounter } from "@/editor/fps-counter";
-import { useEditorCanvasView } from "@/editor/use-editor-canvas-view";
-import type { ViewportPreset } from "@/editor/viewport-presets";
-import { resolveViewportSize } from "@/editor/viewport-presets";
+import { useEditorCamera } from "@/editor/use-editor-canvas-view";
 import { cn } from "@/lib/utils";
 
 export function EditorMainPane({
   className,
-  viewport,
   size,
+  frameTitle,
   mobileViewport = false,
   showSidebarToggle = true,
-  onViewportChange,
-  onSizeChange,
-  onReplay,
   sidebarsOpen,
   onSidebarsOpenChange,
   onLeftSheetOpen,
   onRightSheetOpen,
   showFpsCounter = false,
-  menuBarActions,
   children,
 }: {
   className?: string;
-  viewport: ViewportPreset | null;
   size: { width: number; height: number };
+  frameTitle: string;
   mobileViewport?: boolean;
   showSidebarToggle?: boolean;
-  onViewportChange: (preset: ViewportPreset | null) => void;
-  onSizeChange: (width: number, height: number) => void;
-  onReplay: () => void;
   sidebarsOpen: boolean;
   onSidebarsOpenChange: (open: boolean) => void;
   onLeftSheetOpen?: () => void;
   onRightSheetOpen?: () => void;
   showFpsCounter?: boolean;
-  menuBarActions?: ReactNode;
   children: (ctx: {
     size: { width: number; height: number };
     boundsRef: RefObject<HTMLDivElement | null>;
     onResize: (width: number, height: number) => void;
     mobileViewport: boolean;
-    canvasScale: number;
+    /** Screen-space zoom for resize pointer math only (read via ref — not a render prop). */
+    canvasScaleRef: RefObject<number>;
   }) => ReactNode;
 }) {
   const canvasRef = useRef<HTMLDivElement>(null);
-  const [maxWidth, setMaxWidth] = useState(960);
-  const canvasEnabled = true;
+  const canvasScaleRef = useRef(1);
+  const canvasEnabled = !mobileViewport;
+  const { frame, contentBounds, updateFrame } = useStudioFrame();
 
-  const canvas = useEditorCanvasView({
+  const getContentBounds = useCallback(() => contentBounds, [contentBounds]);
+
+  const camera = useEditorCamera({
     enabled: canvasEnabled,
     viewportRef: canvasRef,
-    artboardWidth: size.width,
-    artboardHeight: size.height,
+    getContentBounds,
     persist: !mobileViewport,
   });
 
-  useEffect(() => {
-    const element = canvasRef.current;
-    if (!element) {
-      return;
-    }
-
-    const update = () => {
-      setMaxWidth(Math.max(element.clientWidth - 48, 280));
-    };
-
-    update();
-    const observer = new ResizeObserver(update);
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    canvas.fitToView();
-  }, [canvas.fitToView]);
-
-  const handleViewportChange = useCallback(
-    (preset: ViewportPreset) => {
-      onViewportChange(preset);
-      const next = resolveViewportSize(preset, maxWidth);
-      onSizeChange(next.width, next.height);
-    },
-    [maxWidth, onSizeChange, onViewportChange]
-  );
+  canvasScaleRef.current = camera.camera.zoom;
 
   const handleResize = useCallback(
     (width: number, height: number) => {
-      onViewportChange(null);
-      onSizeChange(width, height);
+      updateFrame({ width, height });
     },
-    [onSizeChange, onViewportChange]
+    [updateFrame]
   );
 
-  const handlePanTo = useCallback(
-    (panX: number, panY: number) => {
-      canvas.setPan(panX, panY);
+  const handleFrameMove = useCallback(
+    (x: number, y: number) => {
+      updateFrame({ x, y });
     },
-    [canvas]
+    [updateFrame]
   );
 
-  const artboard = (
-    <div
-      className="studio-preview-canvas relative shrink-0 overflow-hidden"
-      style={{ width: size.width, height: size.height }}
-    >
-      {children({
-        size,
-        boundsRef: canvasRef,
-        onResize: handleResize,
-        mobileViewport,
-        canvasScale: canvas.view.scale,
-      })}
-    </div>
-  );
+  const frameContent = children({
+    size: {
+      width: frame.width,
+      height: frame.height,
+    },
+    boundsRef: canvasRef,
+    canvasScaleRef,
+    mobileViewport,
+    onResize: handleResize,
+  });
+
+  if (mobileViewport) {
+    return (
+      <div className={cn("flex h-full min-h-0 flex-col", className)}>
+        <div className="studio-preview-canvas relative flex min-h-0 flex-1 flex-col items-center justify-center overflow-hidden p-3">
+          {children({
+            size: { width: size.width, height: size.height },
+            boundsRef: canvasRef,
+            onResize: handleResize,
+            mobileViewport: true,
+            canvasScaleRef,
+          })}
+          {onLeftSheetOpen && onRightSheetOpen ? (
+            <EditorMobilePanelTriggers
+              onLeftOpen={onLeftSheetOpen}
+              onRightOpen={onRightSheetOpen}
+            />
+          ) : null}
+          <EditorMenuBar
+            canvasScale={1}
+            className="pointer-events-auto absolute bottom-3 left-1/2 z-20 -translate-x-1/2"
+            height={size.height}
+            onFitView={() => undefined}
+            onResetZoom={() => undefined}
+            onSidebarsOpenChange={onSidebarsOpenChange}
+            onZoomIn={() => undefined}
+            onZoomOut={() => undefined}
+            showSidebarToggle={showSidebarToggle}
+            showZoomControls={false}
+            sidebarsOpen={sidebarsOpen}
+            width={size.width}
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={cn("flex h-full min-h-0 flex-col", className)}>
       <div className="flex h-full min-h-0 flex-1">
         <div className="flex h-full w-8 shrink-0 flex-col">
-          <EditorRulerCorner />
-          <EditorRuler
-            canvasView={canvas.view}
+          <EditorGridaRulerCorner />
+          <EditorGridaRuler
+            axis="y"
+            camera={camera.camera}
             className="min-h-0 flex-1"
-            orientation="vertical"
+            viewportRef={canvasRef}
           />
         </div>
 
         <div className="relative flex min-h-0 min-w-0 flex-1 flex-col">
-          <EditorRuler canvasView={canvas.view} orientation="horizontal" />
+          <EditorGridaRuler
+            axis="x"
+            camera={camera.camera}
+            viewportRef={canvasRef}
+          />
 
           <div className="relative min-h-0 flex-1">
             <EditorCanvas
+              camera={camera.camera}
               className="absolute inset-0"
               enabled={canvasEnabled}
-              onDoubleClick={canvas.onDoubleClick}
-              onPointerDown={canvas.onPointerDown}
-              onPointerMove={canvas.onPointerMove}
-              onPointerUp={canvas.onPointerUp}
-              onWheel={canvas.onWheel}
-              registerPinchHandlers={canvas.registerPinchHandlers}
-              spacePressed={canvas.spacePressed}
-              view={canvas.view}
+              onDoubleClick={camera.onDoubleClick}
+              onPointerDown={camera.onPointerDown}
+              onPointerMove={camera.onPointerMove}
+              onPointerUp={camera.onPointerUp}
+              registerPinchHandlers={camera.registerPinchHandlers}
+              spacePressed={camera.spacePressed}
               viewportRef={canvasRef}
             >
-              {artboard}
+              <div
+                className="absolute top-0 left-0 overflow-visible"
+                style={{
+                  transform: `translate(${frame.x}px, ${frame.y}px)`,
+                }}
+              >
+                <EditorFrameLabel
+                  canvasScaleRef={canvasScaleRef}
+                  onPositionChange={handleFrameMove}
+                  originX={frame.x}
+                  originY={frame.y}
+                  title={frameTitle}
+                />
+                {frameContent}
+              </div>
             </EditorCanvas>
 
             {mobileViewport && onLeftSheetOpen && onRightSheetOpen ? (
@@ -171,37 +190,22 @@ export function EditorMainPane({
               />
             ) : null}
 
-            {canvasEnabled && !mobileViewport ? (
-              <EditorCanvasMinimap
-                artboardHeight={size.height}
-                artboardWidth={size.width}
-                onPanTo={handlePanTo}
-                view={canvas.view}
-                viewportRef={canvasRef}
-              />
-            ) : null}
-
             <EditorMenuBar
-              actions={menuBarActions}
-              canvasScale={canvas.view.scale}
+              canvasScale={camera.camera.zoom}
               className={cn(
                 "pointer-events-auto absolute left-1/2 z-20 -translate-x-1/2",
                 mobileViewport ? "bottom-3" : "bottom-6"
               )}
-              height={size.height}
-              onFitView={canvas.fitToView}
-              onReplay={onReplay}
-              onResetZoom={canvas.resetTo100}
+              height={frame.height}
+              onFitView={camera.fitToContent}
+              onResetZoom={camera.resetTo100}
               onSidebarsOpenChange={onSidebarsOpenChange}
-              onViewportChange={handleViewportChange}
-              onZoomIn={() => canvas.zoomBy(1.12)}
-              onZoomOut={() => canvas.zoomBy(1 / 1.12)}
+              onZoomIn={() => camera.zoomBy(1.12)}
+              onZoomOut={() => camera.zoomBy(1 / 1.12)}
               showSidebarToggle={showSidebarToggle}
-              showViewportToggles={!mobileViewport}
               showZoomControls={canvasEnabled}
               sidebarsOpen={sidebarsOpen}
-              viewport={viewport}
-              width={size.width}
+              width={frame.width}
             />
           </div>
         </div>

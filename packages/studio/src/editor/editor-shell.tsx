@@ -8,41 +8,34 @@ import { EditorMobilePanelSheets } from "@/editor/editor-mobile-panel-sheets";
 import { EditorRightPanel } from "@/editor/editor-right-panel";
 import { useEditorCompactLayout } from "@/editor/use-editor-compact-layout";
 import { useEditorFixedViewport } from "@/editor/use-editor-fixed-viewport";
-import type { ViewportPreset } from "@/editor/viewport-presets";
 import type { StudioUrlState } from "@/lib/studio-parsers";
-import type { StudioControlGroup as StudioControlGroupConfig } from "@/lib/types";
+import type { StudioChartConfig } from "@/lib/types";
 import { cn } from "@/lib/utils";
-
-function isMobileViewport(viewport: ViewportPreset | null) {
-  return viewport === "mobile";
-}
 
 export function EditorShell({
   className,
-  viewport,
   size,
-  onViewportChange,
-  onSizeChange,
-  onReplay,
+  frameTitle,
   chartState,
+  config,
   showMotionControls = false,
-  controlGroups = [],
-  rightPanelHeader,
-  menuBarActions,
+  chartSelector,
+  propertiesHeaderActions,
   showFpsCounter = false,
+  controlsDisabled = false,
+  onScramble,
   children,
 }: {
   className?: string;
-  viewport: ViewportPreset | null;
   size: { width: number; height: number };
-  onViewportChange: (preset: ViewportPreset | null) => void;
-  onSizeChange: (width: number, height: number) => void;
-  onReplay: () => void;
+  frameTitle: string;
   showMotionControls?: boolean;
-  controlGroups?: StudioControlGroupConfig[];
-  rightPanelHeader?: ReactNode;
-  menuBarActions?: ReactNode;
+  config: StudioChartConfig;
+  chartSelector?: ReactNode;
+  propertiesHeaderActions?: ReactNode;
   showFpsCounter?: boolean;
+  controlsDisabled?: boolean;
+  onScramble: () => void;
   chartState: {
     displayState: StudioUrlState;
     state: StudioUrlState;
@@ -50,6 +43,7 @@ export function EditorShell({
       key: K,
       value: StudioUrlState[K]
     ) => void;
+    setStudioParams: (updates: Partial<StudioUrlState>) => void;
     setPreviewParam: <K extends keyof StudioUrlState>(
       key: K,
       value: StudioUrlState[K]
@@ -66,7 +60,7 @@ export function EditorShell({
     boundsRef: RefObject<HTMLDivElement | null>;
     onResize: (width: number, height: number) => void;
     mobileViewport: boolean;
-    canvasScale: number;
+    canvasScaleRef: RefObject<number>;
   }) => ReactNode;
 }) {
   const { compact: compactLayout, ready: layoutReady } =
@@ -74,8 +68,7 @@ export function EditorShell({
   const [sidebarsOpen, setSidebarsOpen] = useState(true);
   const [leftSheetOpen, setLeftSheetOpen] = useState(false);
   const [rightSheetOpen, setRightSheetOpen] = useState(false);
-  const mobileShell =
-    layoutReady && (compactLayout || isMobileViewport(viewport));
+  const mobileShell = layoutReady && compactLayout;
   const showInlineSidebars = layoutReady && !mobileShell && sidebarsOpen;
 
   useEffect(() => {
@@ -98,10 +91,13 @@ export function EditorShell({
     >
       {showInlineSidebars ? (
         <EditorLeftPanel
+          chartSelector={chartSelector}
+          controlsDisabled={controlsDisabled}
           onChange={chartState.setParam}
           onCommit={chartState.commitParam}
           onMotionCurveDragActiveChange={chartState.setMotionCurveDragging}
           onPreview={chartState.setPreviewParam}
+          onScramble={onScramble}
           showMotionControls={showMotionControls}
           state={chartState.displayState}
         />
@@ -109,27 +105,25 @@ export function EditorShell({
 
       <EditorMainPane
         className="min-h-0 min-w-0 flex-1"
-        menuBarActions={menuBarActions}
+        frameTitle={frameTitle}
         mobileViewport={mobileShell}
         onLeftSheetOpen={() => setLeftSheetOpen(true)}
-        onReplay={onReplay}
         onRightSheetOpen={() => setRightSheetOpen(true)}
         onSidebarsOpenChange={setSidebarsOpen}
-        onSizeChange={onSizeChange}
-        onViewportChange={onViewportChange}
         showFpsCounter={showFpsCounter}
         showSidebarToggle={!mobileShell}
         sidebarsOpen={sidebarsOpen}
         size={size}
-        viewport={viewport}
       >
         {children}
       </EditorMainPane>
 
       {showInlineSidebars ? (
         <EditorRightPanel
-          controlGroups={controlGroups}
-          header={rightPanelHeader}
+          config={config}
+          controlsDisabled={controlsDisabled}
+          headerActions={propertiesHeaderActions}
+          onBatchChange={chartState.setStudioParams}
           onChange={chartState.setParam}
           onCommit={chartState.commitParam}
           onPreview={chartState.setPreviewParam}
@@ -139,15 +133,19 @@ export function EditorShell({
 
       {mobileShell ? (
         <EditorMobilePanelSheets
-          controlGroups={controlGroups}
-          header={rightPanelHeader}
+          chartSelector={chartSelector}
+          config={config}
+          controlsDisabled={controlsDisabled}
+          headerActions={propertiesHeaderActions}
           leftOpen={leftSheetOpen}
+          onBatchChange={chartState.setStudioParams}
           onChange={chartState.setParam}
           onCommit={chartState.commitParam}
           onLeftOpenChange={setLeftSheetOpen}
           onMotionCurveDragActiveChange={chartState.setMotionCurveDragging}
           onPreview={chartState.setPreviewParam}
           onRightOpenChange={setRightSheetOpen}
+          onScramble={onScramble}
           rightOpen={rightSheetOpen}
           showMotionControls={showMotionControls}
           state={chartState.displayState}

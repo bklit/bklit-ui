@@ -1,18 +1,16 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { EditorCanvasView } from "@/editor/editor-canvas-view";
-import { pickWorldTickInterval } from "@/editor/editor-canvas-view";
+import {
+  type EditorCamera,
+  pickWorldTickInterval,
+} from "@/editor/editor-camera";
 import { cn } from "@/lib/utils";
 
-function getWorldRange(
-  length: number,
-  view: EditorCanvasView,
-  axis: "x" | "y"
-) {
-  const pan = axis === "x" ? view.panX : view.panY;
-  const start = Math.floor((0 - pan) / view.scale);
-  const end = Math.ceil((length - pan) / view.scale);
+function getWorldRange(length: number, view: EditorCamera, axis: "x" | "y") {
+  const pan = axis === "x" ? view.x : view.y;
+  const start = Math.floor((0 - pan) / view.zoom);
+  const end = Math.ceil((length - pan) / view.zoom);
   return { start, end };
 }
 
@@ -23,11 +21,11 @@ function CanvasRulerContent({
 }: {
   length: number;
   orientation: "horizontal" | "vertical";
-  view: EditorCanvasView;
+  view: EditorCamera;
 }) {
   const axis = orientation === "horizontal" ? "x" : "y";
-  const pan = axis === "x" ? view.panX : view.panY;
-  const interval = pickWorldTickInterval(view.scale);
+  const pan = axis === "x" ? view.x : view.y;
+  const interval = pickWorldTickInterval(view.zoom);
   const { end } = getWorldRange(length, view, axis);
   const firstTick =
     Math.floor(getWorldRange(length, view, axis).start / interval) * interval;
@@ -44,7 +42,7 @@ function CanvasRulerContent({
   return (
     <>
       {ticks.map((value) => {
-        const screen = value * view.scale + pan;
+        const screen = value * view.zoom + pan;
         if (screen < -2 || screen > length + 2) {
           return null;
         }
@@ -194,7 +192,7 @@ export function EditorRuler({
 }: {
   orientation: "horizontal" | "vertical";
   className?: string;
-  canvasView?: EditorCanvasView;
+  canvasView?: EditorCamera;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const [length, setLength] = useState(0);

@@ -4,6 +4,7 @@ import {
   EditorChartFrame,
   EditorShell,
   resolveViewportSize,
+  StudioScenesProvider,
   type ViewportPreset,
 } from "@bklitui/studio";
 import { useCallback, useState } from "react";
@@ -27,29 +28,42 @@ export default function PlaygroundPage() {
   }, []);
 
   return (
-    <EditorShell
-      chartState={chartState}
-      controlGroups={[]}
-      onReplay={replay}
-      onSizeChange={handleSizeChange}
-      onViewportChange={setViewport}
-      showFpsCounter
-      showMotionControls={false}
-      size={size}
-      viewport={viewport}
+    <StudioScenesProvider
+      frameHeight={size.height}
+      frameWidth={size.width}
+      onPrimaryFrameChange={handleSizeChange}
     >
-      {({ size: frameSize, boundsRef, onResize, mobileViewport, canvasScale }) => (
-        <EditorChartFrame
-          boundsRef={boundsRef}
-          canvasScale={canvasScale}
-          height={frameSize.height}
-          onResize={onResize}
-          resizable={!mobileViewport}
-          width={frameSize.width}
-        >
-          <PlaygroundEmptyState />
-        </EditorChartFrame>
-      )}
-    </EditorShell>
+      <EditorShell
+        chartState={chartState}
+        controlGroups={[]}
+        frameTitle="Playground"
+        onReplay={replay}
+        onSizeChange={handleSizeChange}
+        onViewportChange={setViewport}
+        showFpsCounter
+        showMotionControls={false}
+        size={size}
+        viewport={viewport}
+      >
+        {({
+          size: frameSize,
+          boundsRef,
+          onResize,
+          mobileViewport,
+          canvasScaleRef,
+        }) => (
+          <EditorChartFrame
+            boundsRef={boundsRef}
+            canvasScaleRef={canvasScaleRef}
+            height={frameSize.height}
+            onResize={onResize}
+            resizable={!mobileViewport}
+            width={frameSize.width}
+          >
+            <PlaygroundEmptyState />
+          </EditorChartFrame>
+        )}
+      </EditorShell>
+    </StudioScenesProvider>
   );
 }

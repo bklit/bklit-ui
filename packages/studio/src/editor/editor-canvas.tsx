@@ -2,16 +2,16 @@
 
 import type { ReactNode, RefObject } from "react";
 import { useEffect } from "react";
-import type { EditorCanvasView } from "@/editor/editor-canvas-view";
+import type { EditorCamera } from "@/editor/editor-camera";
+import { EditorCanvasWorldGrid } from "@/editor/editor-canvas-world-grid";
 import { cn } from "@/lib/utils";
 
 export function EditorCanvas({
   viewportRef,
-  view,
+  camera,
   enabled,
   spacePressed,
   className,
-  onWheel,
   onPointerDown,
   onPointerMove,
   onPointerUp,
@@ -20,11 +20,10 @@ export function EditorCanvas({
   children,
 }: {
   viewportRef: RefObject<HTMLDivElement | null>;
-  view: EditorCanvasView;
+  camera: EditorCamera;
   enabled: boolean;
   spacePressed: boolean;
   className?: string;
-  onWheel: (event: React.WheelEvent<HTMLDivElement>) => void;
   onPointerDown: (event: React.PointerEvent<HTMLDivElement>) => void;
   onPointerMove: (event: React.PointerEvent<HTMLDivElement>) => void;
   onPointerUp: (event: React.PointerEvent<HTMLDivElement>) => void;
@@ -42,7 +41,7 @@ export function EditorCanvas({
     <div
       aria-label="Chart canvas"
       className={cn(
-        "relative min-h-0 overflow-hidden overscroll-none bg-background",
+        "relative min-h-0 touch-none overflow-hidden overscroll-none bg-background",
         enabled && (spacePressed ? "cursor-grab" : "cursor-default"),
         enabled && spacePressed && "cursor-grabbing",
         className
@@ -51,21 +50,26 @@ export function EditorCanvas({
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
-      onWheel={onWheel}
       ref={viewportRef}
       role="application"
       tabIndex={-1}
     >
       <div
-        className="absolute top-0 left-0 will-change-transform"
+        className="absolute top-0 left-0 z-1"
         style={{
           transform: enabled
-            ? `translate(${view.panX}px, ${view.panY}px) scale(${view.scale})`
+            ? `translate(${camera.x}px, ${camera.y}px)`
             : undefined,
-          transformOrigin: "0 0",
         }}
       >
-        {children}
+        <div
+          style={{
+            zoom: enabled ? camera.zoom : undefined,
+          }}
+        >
+          {enabled ? <EditorCanvasWorldGrid /> : null}
+          {children}
+        </div>
       </div>
     </div>
   );

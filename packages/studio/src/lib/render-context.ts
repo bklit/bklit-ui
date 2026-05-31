@@ -14,6 +14,6 @@ export interface StudioRenderContext {
   committedState: StudioUrlState;
   motionCurveDragging: boolean;
   patternDefs: ReactNode;
-  patternFill: string | undefined;
+  patternFillAt: (seriesIndex: number) => string | undefined;
   frame: StudioFrameSize;
 }

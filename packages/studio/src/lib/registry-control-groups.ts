@@ -4,7 +4,6 @@ import {
   dataGroup,
   designGroup,
   lineGroup,
-  patternControl,
 } from "./sidebar-control-templates";
 import type { StudioControlGroup } from "./types";
 
@@ -20,7 +19,6 @@ const chartAccentColorOptions = [
 
 export const gaugeControlGroups: StudioControlGroup[] = [
   designGroup([
-    patternControl(),
     { type: "number", key: "value", label: "Fill %", min: 0, max: 100 },
     {
       type: "opacity",
@@ -133,10 +131,47 @@ export const seriesDashTailControlGroup = controlGroup("Dash tail", [
   { type: "text", key: "seriesDashArray", label: "Dash array" },
 ]);
 
+/** Line, marker, and dash controls for each area-chart series layer. */
+export const areaSeriesLineControlGroups: StudioControlGroup[] = [
+  lineGroup([
+    curveControl(),
+    {
+      type: "number",
+      key: "strokeWidth",
+      label: "Stroke width",
+      min: 0,
+      max: 4,
+      step: 0.5,
+    },
+    { type: "boolean", key: "showLine", label: "Show line" },
+    { type: "boolean", key: "showHighlight", label: "Highlight on hover" },
+    { type: "fadeEdges", key: "fadeEdges", label: "Fade edges" },
+  ]),
+  seriesMarkersControlGroup,
+  seriesDashTailControlGroup,
+];
+
+/** Line + marker controls for each composed-chart overlay series (index ≥ 1). */
+export const composedOverlayLineControlGroups: StudioControlGroup[] = [
+  lineGroup([
+    curveControl(),
+    {
+      type: "number",
+      key: "strokeWidth",
+      label: "Line width",
+      min: 1,
+      max: 5,
+      step: 0.5,
+    },
+    { type: "fadeEdges", key: "fadeEdges", label: "Line fade edges" },
+  ]),
+  seriesMarkersControlGroup,
+  seriesDashTailControlGroup,
+];
+
 export const areaChartControlGroups: StudioControlGroup[] = [
   dataGroup(),
   designGroup([
-    patternControl(),
     {
       type: "opacity",
       key: "fillOpacity",
@@ -157,22 +192,7 @@ export const areaChartControlGroups: StudioControlGroup[] = [
       secondaryColor: "transparent",
     },
   ]),
-  lineGroup([
-    curveControl(),
-    {
-      type: "number",
-      key: "strokeWidth",
-      label: "Stroke width",
-      min: 0,
-      max: 4,
-      step: 0.5,
-    },
-    { type: "boolean", key: "showLine", label: "Show line" },
-    { type: "boolean", key: "showHighlight", label: "Highlight on hover" },
-    { type: "fadeEdges", key: "fadeEdges", label: "Fade edges" },
-  ]),
-  seriesMarkersControlGroup,
-  seriesDashTailControlGroup,
+  ...areaSeriesLineControlGroups,
 ];
 
 export const lineChartControlGroups: StudioControlGroup[] = [
@@ -356,7 +376,6 @@ export const barChartControlGroups: StudioControlGroup[] = [
     { type: "lineCap", key: "barLineCap", label: "Line cap" },
   ]),
   designGroup([
-    patternControl(),
     {
       type: "opacity",
       key: "barFadedOpacity",
@@ -372,7 +391,6 @@ export const barChartControlGroups: StudioControlGroup[] = [
 export const composedChartControlGroups: StudioControlGroup[] = [
   dataGroup(),
   designGroup([
-    patternControl(),
     {
       type: "opacity",
       key: "fillOpacity",
@@ -390,20 +408,7 @@ export const composedChartControlGroups: StudioControlGroup[] = [
       max: 12,
     },
   ]),
-  lineGroup([
-    curveControl(),
-    {
-      type: "number",
-      key: "strokeWidth",
-      label: "Line width",
-      min: 1,
-      max: 5,
-      step: 0.5,
-    },
-    { type: "fadeEdges", key: "fadeEdges", label: "Line fade edges" },
-  ]),
-  seriesMarkersControlGroup,
-  seriesDashTailControlGroup,
+  ...composedOverlayLineControlGroups,
 ];
 
 export const pieChartControlGroups: StudioControlGroup[] = [
@@ -537,7 +542,6 @@ export const radarChartControlGroups: StudioControlGroup[] = [
 
 export const candlestickChartControlGroups: StudioControlGroup[] = [
   designGroup([
-    patternControl(),
     {
       type: "opacity",
       key: "candleFadedOpacity",
