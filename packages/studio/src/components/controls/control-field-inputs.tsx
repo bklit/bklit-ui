@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@bklitui/ui/lib/utils";
 import type { CurveId } from "@/lib/curves";
 import type { PatternPresetId } from "@/lib/patterns";
 import type { StudioUrlState } from "@/lib/studio-parsers";
@@ -13,6 +14,7 @@ import {
   SelectValue,
 } from "@/ui/select";
 import { Switch } from "@/ui/switch";
+import { studioControlInputClass } from "./control-field-helpers";
 import { CurvePicker } from "./curve-picker";
 import { type FadeEdgesOption, FadeEdgesPicker } from "./fade-edges-picker";
 import { FunnelEdgesPicker } from "./funnel-edges-picker";
@@ -49,7 +51,7 @@ export function ControlFieldInputs({
     case "text":
       return (
         <Input
-          className="h-8 w-full text-xs"
+          className={cn("h-8 w-full", studioControlInputClass)}
           id={String(control.key)}
           onChange={(e) =>
             onChange(

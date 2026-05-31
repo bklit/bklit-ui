@@ -4,6 +4,7 @@ import { cn } from "@bklitui/ui/lib/utils";
 import { ChevronDownIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { useState } from "react";
+import { studioSectionLabelClass } from "@/components/controls/control-field-helpers";
 
 /**
  * Sidebar section wrapper for a group of studio controls.
@@ -49,14 +50,10 @@ export function StudioControlGroup({
                 !open && "-rotate-90"
               )}
             />
-            <h3 className="font-medium text-[11px] text-muted-foreground uppercase tracking-wider">
-              {title}
-            </h3>
+            <h3 className={studioSectionLabelClass}>{title}</h3>
           </button>
         ) : (
-          <h3 className="font-medium text-[11px] text-muted-foreground uppercase tracking-wider">
-            {title}
-          </h3>
+          <h3 className={studioSectionLabelClass}>{title}</h3>
         )}
         {titleTrailing ? <div className="shrink-0">{titleTrailing}</div> : null}
       </header>

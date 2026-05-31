@@ -13,7 +13,8 @@ interface NumberControlBase {
   min: number;
   max: number;
   step?: number;
-  format?: (v: number) => string;
+  format?: Intl.NumberFormatOptions;
+  unit?: string;
   /** `number` = typed input; `slider` = drag (default) */
   input?: "slider" | "number";
   /** Live SVG preview while dragging (ring chart controls). */

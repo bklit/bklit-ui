@@ -3,6 +3,7 @@
 import { cn } from "@bklitui/ui/lib/utils";
 import { Grid3x3Icon, SquareIcon } from "lucide-react";
 import { useMemo, useState } from "react";
+import { studioFieldLabelClass } from "@/components/controls/control-field-helpers";
 import {
   PatternPicker,
   PatternSwatch,
@@ -79,9 +80,7 @@ export function FillPicker({
 
   return (
     <div className="flex flex-col gap-1.5">
-      {label ? (
-        <p className="font-medium text-[11px] text-muted-foreground">{label}</p>
-      ) : null}
+      {label ? <p className={studioFieldLabelClass}>{label}</p> : null}
       <Popover onOpenChange={setOpen} open={open}>
         <PopoverTrigger
           className={cn(

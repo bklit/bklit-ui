@@ -19,11 +19,18 @@ const chartAccentColorOptions = [
 
 export const gaugeControlGroups: StudioControlGroup[] = [
   designGroup([
-    { type: "number", key: "value", label: "Fill %", min: 0, max: 100 },
+    {
+      type: "number",
+      key: "value",
+      label: "Fill",
+      min: 0,
+      max: 100,
+      unit: "%",
+    },
     {
       type: "opacity",
       key: "inactiveFillOpacity",
-      label: "Track opacity",
+      label: "Track",
       min: 0,
       max: 1,
       step: 0.05,
@@ -33,7 +40,7 @@ export const gaugeControlGroups: StudioControlGroup[] = [
     {
       type: "opacity",
       key: "activeFillOpacity",
-      label: "Active opacity",
+      label: "Active",
       min: 0,
       max: 1,
       step: 0.05,
@@ -46,44 +53,45 @@ export const gaugeControlGroups: StudioControlGroup[] = [
     {
       type: "number",
       key: "centerValue",
-      label: "Center value",
+      label: "Value",
       min: 0,
       max: 999_999,
       step: 1000,
       input: "number",
     },
-    { type: "text", key: "gaugeLabel", label: "Center label" },
+    { type: "text", key: "gaugeLabel", label: "Label" },
   ]),
   controlGroup("Notches", [
-    { type: "number", key: "totalNotches", label: "Notches", min: 8, max: 80 },
+    { type: "number", key: "totalNotches", label: "Count", min: 8, max: 80 },
     { type: "number", key: "spacing", label: "Spacing", min: 0, max: 50 },
     {
       type: "number",
       key: "notchCornerRadius",
-      label: "Corner radius",
+      label: "Corner",
       min: 0,
       max: 12,
     },
     {
       type: "number",
       key: "notchLengthPercent",
-      label: "Notch length %",
+      label: "Length",
       min: 5,
       max: 100,
+      unit: "%",
     },
   ]),
   controlGroup("Arc", [
     {
       type: "angle",
       key: "startAngle",
-      label: "Start angle",
+      label: "Start",
       min: 0,
       max: 360,
     },
     {
       type: "angle",
       key: "endAngle",
-      label: "End angle",
+      label: "End",
       min: 180,
       max: 450,
     },
@@ -91,7 +99,7 @@ export const gaugeControlGroups: StudioControlGroup[] = [
 ];
 
 export const seriesMarkersControlGroup = controlGroup("Markers", [
-  { type: "boolean", key: "seriesShowMarkers", label: "Show markers" },
+  { type: "boolean", key: "seriesShowMarkers", label: "Show" },
   {
     type: "number",
     key: "seriesMarkerRadius",
@@ -103,7 +111,7 @@ export const seriesMarkersControlGroup = controlGroup("Markers", [
   {
     type: "number",
     key: "seriesMarkerRingGap",
-    label: "Ring gap",
+    label: "Gap",
     min: 0,
     max: 8,
     step: 1,
@@ -111,7 +119,7 @@ export const seriesMarkersControlGroup = controlGroup("Markers", [
   {
     type: "number",
     key: "seriesMarkerRingWidth",
-    label: "Ring width",
+    label: "Width",
     min: 0,
     max: 6,
     step: 0.5,
@@ -119,11 +127,11 @@ export const seriesMarkersControlGroup = controlGroup("Markers", [
 ]);
 
 export const seriesDashTailControlGroup = controlGroup("Dash tail", [
-  { type: "boolean", key: "seriesDashTail", label: "Dashed tail" },
+  { type: "boolean", key: "seriesDashTail", label: "Dash" },
   {
     type: "number",
     key: "seriesDashFromIndex",
-    label: "Dash from index",
+    label: "From index",
     min: 0,
     max: 48,
     step: 1,
@@ -138,7 +146,7 @@ export const areaSeriesLineControlGroups: StudioControlGroup[] = [
     {
       type: "number",
       key: "strokeWidth",
-      label: "Stroke width",
+      label: "Width",
       min: 0,
       max: 4,
       step: 0.5,
@@ -158,12 +166,12 @@ export const composedOverlayLineControlGroups: StudioControlGroup[] = [
     {
       type: "number",
       key: "strokeWidth",
-      label: "Line width",
+      label: "Width",
       min: 1,
       max: 5,
       step: 0.5,
     },
-    { type: "fadeEdges", key: "fadeEdges", label: "Line fade edges" },
+    { type: "fadeEdges", key: "fadeEdges", label: "Fade edges" },
   ]),
   seriesMarkersControlGroup,
   seriesDashTailControlGroup,
@@ -175,7 +183,7 @@ export const areaChartControlGroups: StudioControlGroup[] = [
     {
       type: "opacity",
       key: "fillOpacity",
-      label: "Fill opacity",
+      label: "Opacity",
       min: 0,
       max: 1,
       step: 0.05,
@@ -184,7 +192,7 @@ export const areaChartControlGroups: StudioControlGroup[] = [
     {
       type: "opacity",
       key: "gradientToOpacity",
-      label: "Gradient bottom",
+      label: "Bottom",
       min: 0,
       max: 1,
       step: 0.05,
@@ -202,7 +210,7 @@ export const lineChartControlGroups: StudioControlGroup[] = [
     {
       type: "number",
       key: "strokeWidth",
-      label: "Stroke width",
+      label: "Width",
       min: 1,
       max: 5,
       step: 0.5,
@@ -243,7 +251,7 @@ const profitLossLineSettingsGroups: StudioControlGroup[] = [
     {
       type: "number",
       key: "strokeWidth",
-      label: "Stroke width",
+      label: "Width",
       min: 1,
       max: 5,
       step: 0.5,
@@ -251,7 +259,7 @@ const profitLossLineSettingsGroups: StudioControlGroup[] = [
     { type: "fadeEdges", key: "fadeEdges", label: "Fade edges" },
   ]),
   controlGroup("Zero line", [
-    { type: "boolean", key: "showZeroLine", label: "Show zero line" },
+    { type: "boolean", key: "showZeroLine", label: "Show" },
     {
       type: "select",
       key: "zeroLineStroke",
@@ -261,7 +269,7 @@ const profitLossLineSettingsGroups: StudioControlGroup[] = [
     {
       type: "number",
       key: "zeroLineStrokeWidth",
-      label: "Stroke width",
+      label: "Width",
       min: 0.5,
       max: 4,
       step: 0.5,
@@ -343,7 +351,7 @@ export const barChartControlGroups: StudioControlGroup[] = [
     {
       type: "select",
       key: "barSeriesMode",
-      label: "Series mode",
+      label: "Mode",
       options: [
         { value: "grouped", label: "Grouped" },
         { value: "stacked", label: "Stacked" },
@@ -353,7 +361,7 @@ export const barChartControlGroups: StudioControlGroup[] = [
     {
       type: "number",
       key: "barGap",
-      label: "Bar gap",
+      label: "Gap",
       min: 0,
       max: 0.6,
       step: 0.05,
@@ -361,15 +369,16 @@ export const barChartControlGroups: StudioControlGroup[] = [
     {
       type: "number",
       key: "barWidth",
-      label: "Bar width (px)",
+      label: "Width",
       min: 0,
       max: 48,
       input: "number",
+      unit: "px",
     },
     {
       type: "number",
       key: "groupGap",
-      label: "Group gap",
+      label: "Groups",
       min: 0,
       max: 16,
     },
@@ -379,7 +388,7 @@ export const barChartControlGroups: StudioControlGroup[] = [
     {
       type: "opacity",
       key: "barFadedOpacity",
-      label: "Faded opacity",
+      label: "Faded",
       min: 0,
       max: 1,
       step: 0.05,
@@ -394,7 +403,7 @@ export const composedChartControlGroups: StudioControlGroup[] = [
     {
       type: "opacity",
       key: "fillOpacity",
-      label: "Area opacity",
+      label: "Opacity",
       min: 0,
       max: 1,
       step: 0.05,
@@ -403,9 +412,10 @@ export const composedChartControlGroups: StudioControlGroup[] = [
     {
       type: "number",
       key: "composedBarRadius",
-      label: "Bar radius",
+      label: "Radius",
       min: 0,
       max: 12,
+      unit: "px",
     },
   ]),
   ...composedOverlayLineControlGroups,
@@ -418,16 +428,17 @@ export const pieChartControlGroups: StudioControlGroup[] = [
     {
       type: "number",
       key: "pieSize",
-      label: "Scale %",
+      label: "Scale",
       min: 50,
       max: 100,
+      unit: "%",
     },
   ]),
   controlGroup("Geometry", [
     {
       type: "innerRadius",
       key: "innerRadius",
-      label: "Inner radius",
+      label: "Inner",
       min: 0,
       max: 120,
     },
@@ -442,21 +453,21 @@ export const pieChartControlGroups: StudioControlGroup[] = [
     {
       type: "number",
       key: "pieCornerRadius",
-      label: "Corner radius",
+      label: "Corner",
       min: 0,
       max: 12,
     },
     {
       type: "number",
       key: "pieHoverOffset",
-      label: "Hover offset",
+      label: "Offset",
       min: 0,
       max: 24,
     },
     {
       type: "angle",
       key: "pieStartAngleDeg",
-      label: "Start angle",
+      label: "Start",
       min: -180,
       max: 360,
       variant: "pieStart",
@@ -464,7 +475,7 @@ export const pieChartControlGroups: StudioControlGroup[] = [
     {
       type: "angle",
       key: "pieEndAngleDeg",
-      label: "End angle",
+      label: "End",
       min: 0,
       max: 720,
       variant: "pieEnd",
@@ -477,15 +488,16 @@ export const ringChartControlGroups: StudioControlGroup[] = [
     {
       type: "number",
       key: "pieSize",
-      label: "Scale %",
+      label: "Scale",
       min: 50,
       max: 100,
       preview: "ringScale",
+      unit: "%",
     },
     {
       type: "number",
       key: "strokeWidth",
-      label: "Ring width",
+      label: "Width",
       min: 4,
       max: 24,
       preview: "ringWidth",
@@ -493,7 +505,7 @@ export const ringChartControlGroups: StudioControlGroup[] = [
     {
       type: "number",
       key: "ringGap",
-      label: "Ring gap",
+      label: "Gap",
       min: 0,
       max: 20,
       preview: "ringGap",
@@ -501,7 +513,7 @@ export const ringChartControlGroups: StudioControlGroup[] = [
     {
       type: "innerRadius",
       key: "ringBaseInnerRadius",
-      label: "Inner radius",
+      label: "Inner",
       min: 40,
       max: 100,
     },
@@ -513,10 +525,11 @@ export const radarChartControlGroups: StudioControlGroup[] = [
     {
       type: "number",
       key: "radarSize",
-      label: "Scale %",
+      label: "Scale",
       min: 50,
       max: 100,
       input: "number",
+      unit: "%",
     },
     {
       type: "number",
@@ -528,7 +541,7 @@ export const radarChartControlGroups: StudioControlGroup[] = [
     {
       type: "number",
       key: "radarLevels",
-      label: "Grid levels",
+      label: "Levels",
       min: 3,
       max: 8,
     },
@@ -545,7 +558,7 @@ export const candlestickChartControlGroups: StudioControlGroup[] = [
     {
       type: "opacity",
       key: "candleFadedOpacity",
-      label: "Faded opacity",
+      label: "Faded",
       min: 0,
       max: 1,
       step: 0.05,
@@ -557,12 +570,12 @@ export const candlestickChartControlGroups: StudioControlGroup[] = [
     {
       type: "number",
       key: "candleGap",
-      label: "Candle gap",
+      label: "Gap",
       min: 0,
       max: 0.5,
       step: 0.05,
     },
-    { type: "boolean", key: "candleShowDots", label: "Tooltip dots" },
+    { type: "boolean", key: "candleShowDots", label: "Dots" },
   ]),
 ];
 
@@ -572,7 +585,7 @@ export const funnelChartControlGroups: StudioControlGroup[] = [
     {
       type: "number",
       key: "funnelGap",
-      label: "Segment gap",
+      label: "Gap",
       min: 0,
       max: 16,
     },
@@ -599,7 +612,7 @@ export const scatterChartControlGroups: StudioControlGroup[] = [
     {
       type: "number",
       key: "scatterRingGap",
-      label: "Ring gap",
+      label: "Gap",
       min: 0,
       max: 8,
       step: 1,
@@ -607,7 +620,7 @@ export const scatterChartControlGroups: StudioControlGroup[] = [
     {
       type: "number",
       key: "scatterRingWidth",
-      label: "Ring width",
+      label: "Width",
       min: 0,
       max: 6,
       step: 0.5,
@@ -618,7 +631,7 @@ export const scatterChartControlGroups: StudioControlGroup[] = [
     {
       type: "opacity",
       key: "scatterInactiveOpacity",
-      label: "Inactive opacity",
+      label: "Inactive",
       min: 0.1,
       max: 1,
       step: 0.05,
@@ -638,19 +651,21 @@ export const liveLineChartControlGroups: StudioControlGroup[] = [
     {
       type: "number",
       key: "liveInterval",
-      label: "Interval (ms)",
+      label: "Interval",
       min: 200,
       max: 2000,
       step: 100,
       input: "number",
+      unit: "ms",
     },
     {
       type: "number",
       key: "liveWindow",
-      label: "Window (sec)",
+      label: "Window",
       min: 10,
       max: 120,
       input: "number",
+      unit: "s",
     },
     {
       type: "number",
@@ -667,12 +682,12 @@ export const liveLineChartControlGroups: StudioControlGroup[] = [
     {
       type: "number",
       key: "strokeWidth",
-      label: "Stroke width",
+      label: "Width",
       min: 1,
       max: 5,
       step: 0.5,
     },
-    { type: "boolean", key: "liveFill", label: "Area fill" },
+    { type: "boolean", key: "liveFill", label: "Fill" },
     { type: "boolean", key: "livePulse", label: "Live pulse" },
     { type: "boolean", key: "liveBadge", label: "Value badge" },
     { type: "boolean", key: "liveExaggerate", label: "Tight Y-axis" },
@@ -686,12 +701,12 @@ export const choroplethChartControlGroups: StudioControlGroup[] = [
     {
       type: "pattern",
       key: "choroplethBgPattern",
-      label: "Background pattern",
+      label: "Background",
     },
     {
       type: "pattern",
       key: "choroplethFgPattern",
-      label: "Foreground pattern",
+      label: "Foreground",
     },
   ]),
 ];
@@ -701,21 +716,21 @@ export const sankeyChartControlGroups: StudioControlGroup[] = [
     {
       type: "number",
       key: "sankeyNodePadding",
-      label: "Node padding",
+      label: "Padding",
       min: 4,
       max: 32,
     },
     {
       type: "number",
       key: "sankeyNodeWidth",
-      label: "Node width",
+      label: "Width",
       min: 8,
       max: 32,
     },
     {
       type: "opacity",
       key: "linkOpacity",
-      label: "Link opacity",
+      label: "Links",
       min: 0.1,
       max: 1,
       step: 0.05,

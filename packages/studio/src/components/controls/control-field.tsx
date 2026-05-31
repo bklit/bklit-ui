@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@bklitui/ui/lib/utils";
 import { useEffect, useState } from "react";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import type { StudioControl } from "@/lib/types";
@@ -14,6 +15,7 @@ import {
   ControlFieldLabel,
   isGroupLabeledControlType,
   StudioControlRow,
+  studioControlInputClass,
   studioControlLabelClass,
   studioControlRowClass,
 } from "./control-field-helpers";
@@ -71,7 +73,10 @@ function NumberInputOnly({
         {control.label}
       </Label>
       <Input
-        className="h-8 min-w-0 flex-1 tabular-nums"
+        className={cn(
+          "h-8 min-w-0 flex-1 tabular-nums",
+          studioControlInputClass
+        )}
         id={String(control.key)}
         max={control.max}
         min={control.min}
@@ -159,6 +164,7 @@ export function ControlField({
             : undefined
         }
         step={control.step ?? 1}
+        unit={control.unit}
         value={value as number}
       />
     );

@@ -41,7 +41,7 @@ export function EditorCanvas({
     <div
       aria-label="Chart canvas"
       className={cn(
-        "relative min-h-0 touch-none overflow-hidden overscroll-none bg-background",
+        "relative min-h-0 touch-none overflow-hidden overscroll-none bg-background outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0",
         enabled && (spacePressed ? "cursor-grab" : "cursor-default"),
         enabled && spacePressed && "cursor-grabbing",
         className

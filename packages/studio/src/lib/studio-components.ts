@@ -189,9 +189,10 @@ export function resolveComposedComponents(
           {
             type: "number",
             key: "composedBarRadius",
-            label: "Bar radius",
+            label: "Radius",
             min: 0,
             max: 12,
+            unit: "px",
           },
         ])
       );
@@ -202,7 +203,7 @@ export function resolveComposedComponents(
             {
               type: "opacity",
               key: "fillOpacity",
-              label: "Area opacity",
+              label: "Opacity",
               min: 0,
               max: 1,
               step: 0.05,

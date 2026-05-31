@@ -1,5 +1,29 @@
-/* Studio chart preview: let ParentSize cartesian charts fill the frame */
+/*
+ * Studio sidebar theme tokens — override these in your app CSS to theme the editor.
+ *
+ * Example (apps/studio-desktop/src/index.css):
+ *
+ *   .dark {
+ *     --studio-label: oklch(0.72 0.014 214.4);
+ *     --studio-section-label: oklch(0.65 0.014 214.4);
+ *   }
+ */
+@layer base {
+  :root {
+    --studio-label: var(--muted-foreground);
+    --studio-section-label: var(--muted-foreground);
+  }
+}
+
 @layer components {
+  .studio-label {
+    color: var(--studio-label);
+  }
+
+  .studio-section-label {
+    color: var(--studio-section-label);
+  }
+
   .studio-cartesian-fill > div {
     aspect-ratio: auto !important;
     height: 100%;
