@@ -99,37 +99,44 @@ export function OklchColorArea({
   return (
     <fieldset
       className={cn(
-        "relative m-0 aspect-[4/3] w-full min-w-0 shrink-0 touch-none select-none overflow-hidden rounded-md border-0 p-0 ring-1 ring-border",
-        disabled && "pointer-events-none bg-muted opacity-50"
+        "relative m-0 aspect-[4/3] w-full min-w-0 shrink-0 overflow-hidden rounded-md border-0 p-0 ring-1 ring-border",
+        disabled && "pointer-events-none opacity-50"
       )}
       disabled={disabled}
-      onPointerDown={(event) => {
-        setDragging(true);
-        onPointerDown(event);
-      }}
-      onPointerMove={onPointerMove}
-      onPointerUp={(event) => {
-        setDragging(false);
-        onPointerUp(event);
-      }}
-      ref={mergeContainerRef}
     >
       <legend className="sr-only">Chroma and lightness</legend>
-      {disabled ? null : (
-        <canvas
-          aria-hidden
-          className="pointer-events-none absolute inset-0 size-full"
-          ref={canvasRef}
-        />
-      )}
-      <ColorThumb
-        dragging={dragging}
-        style={{
-          left: thumbLeft,
-          top: thumbTop,
-          backgroundColor: `rgb(${thumbColor.r} ${thumbColor.g} ${thumbColor.b})`,
+      <div
+        className={cn(
+          "relative size-full touch-none select-none",
+          disabled && "bg-muted"
+        )}
+        onPointerDown={(event) => {
+          setDragging(true);
+          onPointerDown(event);
         }}
-      />
+        onPointerMove={onPointerMove}
+        onPointerUp={(event) => {
+          setDragging(false);
+          onPointerUp(event);
+        }}
+        ref={mergeContainerRef}
+      >
+        {disabled ? null : (
+          <canvas
+            aria-hidden
+            className="pointer-events-none absolute inset-0 size-full"
+            ref={canvasRef}
+          />
+        )}
+        <ColorThumb
+          dragging={dragging}
+          style={{
+            left: thumbLeft,
+            top: thumbTop,
+            backgroundColor: `rgb(${thumbColor.r} ${thumbColor.g} ${thumbColor.b})`,
+          }}
+        />
+      </div>
     </fieldset>
   );
 }
