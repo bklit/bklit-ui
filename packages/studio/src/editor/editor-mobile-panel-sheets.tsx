@@ -76,6 +76,7 @@ export function EditorMobilePanelSheets({
   config,
   onChange,
   onBatchChange,
+  onBatchPreview,
   onPreview,
   onCommit,
   onMotionCurveDragActiveChange,
@@ -96,6 +97,7 @@ export function EditorMobilePanelSheets({
     value: StudioUrlState[K]
   ) => void;
   onBatchChange: (updates: Partial<StudioUrlState>) => void;
+  onBatchPreview?: (updates: Partial<StudioUrlState>) => void;
   onPreview: <K extends keyof StudioUrlState>(
     key: K,
     value: StudioUrlState[K]
@@ -181,6 +183,7 @@ export function EditorMobilePanelSheets({
             config={config}
             disabled={controlsDisabled}
             onBatchChange={onBatchChange}
+            onBatchPreview={onBatchPreview}
             onChange={onChange}
             onCommit={onCommit}
             onPreview={onPreview}

@@ -225,6 +225,7 @@ export function StudioEditorLayout({
     motionCurveDragging,
     setMotionCurveDragging,
     setPreviewParam,
+    setPreviewParams,
     commitParam,
   } = useStudioState();
   const { track, getUrl } = useStudioAnalytics();
@@ -303,6 +304,7 @@ export function StudioEditorLayout({
     setParam,
     setStudioParams,
     setPreviewParam,
+    setPreviewParams,
     commitParam,
     motionCurveDragging,
     setMotionCurveDragging,

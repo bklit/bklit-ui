@@ -21,7 +21,11 @@ import {
 } from "@/lib/chart-theme-color";
 import { COLOR_PRESETS, type ColorPresetId } from "@/lib/color-presets";
 import type { PatternPresetId } from "@/lib/pattern-presets";
-import { studioColorToOklchField } from "@/lib/studio-color-picker-value";
+import {
+  pickerStatePreviewCss,
+  studioColorToOklchField,
+  studioColorToPickerState,
+} from "@/lib/studio-color-picker-value";
 import type { SeriesFillMode } from "@/lib/studio-series-design";
 import { Popover, PopoverContent, PopoverTrigger } from "@/ui/popover";
 import { ToggleGroupItem } from "@/ui/toggle-group";
@@ -39,6 +43,7 @@ export function FillPicker({
   supportsPattern = true,
   disabled = false,
   onColorChange,
+  onColorPreview,
   onFillModeChange,
   onPatternChange,
 }: {
@@ -49,12 +54,19 @@ export function FillPicker({
   supportsPattern?: boolean;
   disabled?: boolean;
   onColorChange: (value: string) => void;
+  onColorPreview?: (value: string) => void;
   onFillModeChange: (mode: SeriesFillMode) => void;
   onPatternChange: (pattern: PatternPresetId) => void;
 }) {
   const [open, setOpen] = useState(false);
 
-  const previewColor = useMemo(() => resolveCssColor(color), [color]);
+  const previewColor = useMemo(() => {
+    const trimmed = color.trim();
+    if (trimmed.startsWith("oklch(")) {
+      return pickerStatePreviewCss(studioColorToPickerState(trimmed));
+    }
+    return resolveCssColor(color);
+  }, [color]);
   const opacity = useMemo(() => {
     const mix = parseColorMix(color);
     if (mix) {
@@ -142,6 +154,7 @@ export function FillPicker({
               color={color}
               disabled={disabled}
               onChange={onColorChange}
+              onPreview={onColorPreview}
             />
           )}
         </PopoverContent>

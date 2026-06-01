@@ -2,32 +2,24 @@
 
 import { cn } from "@bklitui/ui/lib/utils";
 import type { CSSProperties } from "react";
-import {
-  ColorThumb as AriaColorThumb,
-  type ColorThumbProps,
-} from "react-aria-components";
 
-const CHECKERBOARD =
-  "repeating-conic-gradient(var(--border) 0% 25%, var(--background) 0% 50%) 50% / 10px 10px";
-
-export function ColorThumb({ className, ...props }: ColorThumbProps) {
+export function ColorThumb({
+  className,
+  dragging = false,
+  style,
+}: {
+  className?: string;
+  dragging?: boolean;
+  style?: CSSProperties;
+}) {
   return (
-    <AriaColorThumb
-      {...props}
+    <span
       className={cn(
-        "top-1/2 left-1/2 box-border size-4 rounded-full border-2 border-white shadow-[0_0_0_1px_rgba(0,0,0,0.45)]",
-        "data-dragging:size-4.5 data-focus-visible:ring-2 data-focus-visible:ring-ring data-focus-visible:ring-offset-1",
-        "data-disabled:border-muted data-disabled:bg-muted",
+        "pointer-events-none absolute size-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow-[0_0_0_1px_rgba(0,0,0,0.45)]",
+        dragging && "size-4.5",
         className
       )}
-      style={({ defaultStyle, isDisabled }) => ({
-        ...defaultStyle,
-        backgroundColor: isDisabled ? undefined : defaultStyle.backgroundColor,
-      })}
+      style={style}
     />
   );
-}
-
-export function alphaSliderBackground(defaultStyle: CSSProperties) {
-  return `${defaultStyle.background}, ${CHECKERBOARD}`;
 }

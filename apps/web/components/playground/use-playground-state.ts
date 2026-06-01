@@ -66,11 +66,16 @@ export function usePlaygroundState(initialState: Partial<StudioUrlState> = {}) {
     setState((prev) => ({ ...prev, ...updates }));
   }, []);
 
+  const setPreviewParams = useCallback((updates: Partial<StudioUrlState>) => {
+    setPreviewOverrides((prev) => ({ ...prev, ...updates }));
+  }, []);
+
   return {
     state,
     displayState,
     setParam,
     setPreviewParam,
+    setPreviewParams,
     commitParam,
     setStudioParams,
     motionCurveDragging,
