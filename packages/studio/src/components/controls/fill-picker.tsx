@@ -15,25 +15,20 @@ import { PresetSwatch } from "@/components/controls/preset-select";
 import { StudioColorPicker } from "@/components/controls/studio-color-picker";
 import { StudioSingleToggleGroup } from "@/components/controls/studio-toggle-group";
 import {
-  isValidOklchColor,
   parseColorMix,
   parseOpacityFromColor,
   resolveCssColor,
-  stripOklchWrapper,
 } from "@/lib/chart-theme-color";
 import { COLOR_PRESETS, type ColorPresetId } from "@/lib/color-presets";
 import type { PatternPresetId } from "@/lib/pattern-presets";
-import { studioColorHexField } from "@/lib/studio-color-picker-value";
+import { studioColorToOklchField } from "@/lib/studio-color-picker-value";
 import type { SeriesFillMode } from "@/lib/studio-series-design";
 import { Popover, PopoverContent, PopoverTrigger } from "@/ui/popover";
 import { ToggleGroupItem } from "@/ui/toggle-group";
 
 function formatTriggerLabel(color: string): string {
-  if (isValidOklchColor(color)) {
-    const body = stripOklchWrapper(color);
-    return `oklch(${body})`;
-  }
-  return studioColorHexField(color);
+  const body = studioColorToOklchField(color);
+  return body ? `oklch(${body})` : color;
 }
 
 export function FillPicker({
