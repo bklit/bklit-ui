@@ -13,6 +13,7 @@ import {
 } from "@/lib/chart-animation";
 import { getPieData } from "@/lib/demo-data";
 import type { StudioRenderContext } from "@/lib/render-context";
+import { useStudioChartContentFrame } from "@/lib/studio-chart-content-frame";
 import { isStudioComponentVisible } from "@/lib/studio-component-visibility";
 import { useStudioLegendHover } from "@/lib/studio-legend-hover";
 import { studioStaticPieLegendItems } from "@/lib/studio-legend-items";
@@ -36,6 +37,7 @@ const PieChartBody = memo(function PieChartBody({
   showPatternDefs: boolean;
 }) {
   const { hoveredIndex, setHoveredIndex } = useStudioLegendHover();
+  const contentFrame = useStudioChartContentFrame(ctx.frame);
 
   const slices = useMemo(
     () =>
@@ -63,7 +65,7 @@ const PieChartBody = memo(function PieChartBody({
   );
 
   return (
-    <StudioRadialCenter frame={ctx.frame}>
+    <StudioRadialCenter frame={contentFrame}>
       <PieChart
         cornerRadius={state.pieCornerRadius}
         data={data}
@@ -76,7 +78,7 @@ const PieChartBody = memo(function PieChartBody({
         key={studioPreviewChartKey(ctx)}
         onHoverChange={setHoveredIndex}
         padAngle={state.padAngle}
-        size={studioRadialSize(ctx.frame, state.pieSize)}
+        size={studioRadialSize(contentFrame, state.pieSize)}
         startAngle={(state.pieStartAngleDeg * Math.PI) / 180}
       >
         {showPatternDefs ? ctx.patternDefs : null}

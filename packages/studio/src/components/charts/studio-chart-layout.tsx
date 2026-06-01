@@ -64,7 +64,7 @@ export function StudioCartesianFill({
   );
 }
 
-/** Centers fixed-size radial charts and scales them to the frame. */
+/** Centers fixed-size radial charts within the available content cell. */
 export function StudioRadialCenter({
   frame,
   children,
@@ -76,10 +76,7 @@ export function StudioRadialCenter({
     <div className="flex size-full min-h-0 min-w-0 items-center justify-center">
       <div
         className="flex max-h-full max-w-full items-center justify-center"
-        style={{
-          width: frame.width,
-          height: frame.height,
-        }}
+        style={{ maxWidth: frame.width, maxHeight: frame.height }}
       >
         {children}
       </div>

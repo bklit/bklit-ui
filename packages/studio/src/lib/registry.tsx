@@ -15,11 +15,6 @@ import {
   LinearGradient,
   LineChart,
   PatternArea,
-  RadarArea,
-  RadarAxis,
-  RadarChart,
-  RadarGrid,
-  RadarLabels,
   SankeyChart,
   SankeyLink,
   SankeyNode,
@@ -36,12 +31,9 @@ import { GaugeStudioPreview } from "@/components/charts/gauge-studio-preview";
 import { LineProfitLossStudioChart } from "@/components/charts/line-profit-loss-studio";
 import { LiveLineStudioPreview } from "@/components/charts/live-line-studio";
 import { PieStudioPreview } from "@/components/charts/pie-studio-preview";
+import { RadarStudioPreview } from "@/components/charts/radar-studio-preview";
 import { RingStudioPreview } from "@/components/charts/ring-studio-preview";
-import {
-  StudioCartesianFill,
-  StudioRadialCenter,
-  studioRadialSize,
-} from "@/components/charts/studio-chart-layout";
+import { StudioCartesianFill } from "@/components/charts/studio-chart-layout";
 import {
   StudioChartShell,
   StudioVisibleLayer,
@@ -50,9 +42,7 @@ import {
 import { fadeEdgesPropValue } from "@/components/controls/fade-edges-picker";
 import {
   getStudioCssRevealPropsForPreview,
-  getStudioMotionEnterProps,
   motionSliceFromState,
-  studioAnimationDurationMs,
   studioPreviewChartKey,
 } from "./chart-animation";
 import {
@@ -77,12 +67,10 @@ import {
   generateStudioCartesianData,
   getBarHorizontalData,
   getCandlestickData,
-  getRadarData,
   getSankeyData,
   getScatterData,
   getVisitorsByCountry,
   pieData,
-  radarMetrics5,
   STUDIO_SERIES_COLORS,
   STUDIO_SERIES_KEYS,
 } from "./demo-data";
@@ -433,41 +421,47 @@ const barConfig: StudioChartConfig = {
     }
 
     return (
-      <StudioCartesianFill>
-        <BarChart
-          {...getStudioCssRevealPropsForPreview(state, ctx)}
-          barGap={state.barGap}
-          barWidth={state.barWidth > 0 ? state.barWidth : undefined}
-          className="size-full"
-          data={chartData}
-          key={studioPreviewChartKey(ctx)}
-          margin={horizontal ? { left: 80 } : undefined}
-          orientation={state.barOrientation}
-          stacked={stacked}
-          stackGap={stacked ? 3 : 0}
-          xDataKey={xKey}
-        >
-          <Grid
-            fadeVertical={horizontal}
-            horizontal={!horizontal}
-            vertical={horizontal}
-          />
-          {ctx.patternDefs}
-          {seriesKeys.map((key, idx) => (
-            <Bar
-              dataKey={key}
-              fadedOpacity={state.barFadedOpacity}
-              fill={seriesFillAt(idx)}
-              groupGap={state.groupGap}
-              key={key}
-              lineCap={lineCap}
-              stackGap={stacked ? 3 : 0}
+      <StudioChartShell
+        legendComponentId="bar.legend"
+        legendItems={studioCartesianLegendItems(state, seriesCount)}
+        state={state}
+      >
+        <StudioCartesianFill>
+          <BarChart
+            {...getStudioCssRevealPropsForPreview(state, ctx)}
+            barGap={state.barGap}
+            barWidth={state.barWidth > 0 ? state.barWidth : undefined}
+            className="size-full"
+            data={chartData}
+            key={studioPreviewChartKey(ctx)}
+            margin={horizontal ? { left: 80 } : undefined}
+            orientation={state.barOrientation}
+            stacked={stacked}
+            stackGap={stacked ? 3 : 0}
+            xDataKey={xKey}
+          >
+            <Grid
+              fadeVertical={horizontal}
+              horizontal={!horizontal}
+              vertical={horizontal}
             />
-          ))}
-          <BarXAxis />
-          <ChartTooltip showCrosshair={false} />
-        </BarChart>
-      </StudioCartesianFill>
+            {ctx.patternDefs}
+            {seriesKeys.map((key, idx) => (
+              <Bar
+                dataKey={key}
+                fadedOpacity={state.barFadedOpacity}
+                fill={seriesFillAt(idx)}
+                groupGap={state.groupGap}
+                key={key}
+                lineCap={lineCap}
+                stackGap={stacked ? 3 : 0}
+              />
+            ))}
+            <BarXAxis />
+            <ChartTooltip showCrosshair={false} />
+          </BarChart>
+        </StudioCartesianFill>
+      </StudioChartShell>
     );
   },
   generateCode: (state) => barCodegen(state),
@@ -494,52 +488,58 @@ const composedConfig: StudioChartConfig = {
     const seriesStroke = seriesStrokePropsFromState(state, data.length);
     const barKey = STUDIO_SERIES_KEYS[0];
     return (
-      <StudioCartesianFill>
-        <ComposedChart
-          {...getStudioCssRevealPropsForPreview(state, ctx)}
-          className="size-full"
-          data={data}
-          key={studioPreviewChartKey(ctx)}
-        >
-          <Grid horizontal />
-          {ctx.patternDefs}
-          {barKey ? (
-            <SeriesBar
-              dataKey={barKey}
-              fill={ctx.patternFillAt(0) ?? "var(--chart-1)"}
-              radius={state.composedBarRadius}
-            />
-          ) : null}
-          {STUDIO_SERIES_KEYS.slice(1, seriesCount).flatMap(
-            (key, secondaryIdx) => {
-              const colorIdx = secondaryIdx + 1;
-              const color = `var(--chart-${(colorIdx % 5) + 1})`;
-              return [
-                <Area
-                  curve={curve}
-                  dataKey={key}
-                  fadeEdges={fadeEdgesPropValue(state.fadeEdges)}
-                  fill={color}
-                  fillOpacity={state.fillOpacity}
-                  key={`area-${key}`}
-                  {...seriesStroke}
-                />,
-                <Line
-                  curve={curve}
-                  dataKey={key}
-                  fadeEdges={fadeEdgesPropValue(state.fadeEdges)}
-                  key={`line-${key}`}
-                  stroke={color}
-                  strokeWidth={state.strokeWidth}
-                  {...seriesStroke}
-                />,
-              ];
-            }
-          )}
-          <XAxis />
-          <ChartTooltip />
-        </ComposedChart>
-      </StudioCartesianFill>
+      <StudioChartShell
+        legendComponentId="composed.legend"
+        legendItems={studioCartesianLegendItems(state, seriesCount)}
+        state={state}
+      >
+        <StudioCartesianFill>
+          <ComposedChart
+            {...getStudioCssRevealPropsForPreview(state, ctx)}
+            className="size-full"
+            data={data}
+            key={studioPreviewChartKey(ctx)}
+          >
+            <Grid horizontal />
+            {ctx.patternDefs}
+            {barKey ? (
+              <SeriesBar
+                dataKey={barKey}
+                fill={ctx.patternFillAt(0) ?? "var(--chart-1)"}
+                radius={state.composedBarRadius}
+              />
+            ) : null}
+            {STUDIO_SERIES_KEYS.slice(1, seriesCount).flatMap(
+              (key, secondaryIdx) => {
+                const colorIdx = secondaryIdx + 1;
+                const color = `var(--chart-${(colorIdx % 5) + 1})`;
+                return [
+                  <Area
+                    curve={curve}
+                    dataKey={key}
+                    fadeEdges={fadeEdgesPropValue(state.fadeEdges)}
+                    fill={color}
+                    fillOpacity={state.fillOpacity}
+                    key={`area-${key}`}
+                    {...seriesStroke}
+                  />,
+                  <Line
+                    curve={curve}
+                    dataKey={key}
+                    fadeEdges={fadeEdgesPropValue(state.fadeEdges)}
+                    key={`line-${key}`}
+                    stroke={color}
+                    strokeWidth={state.strokeWidth}
+                    {...seriesStroke}
+                  />,
+                ];
+              }
+            )}
+            <XAxis />
+            <ChartTooltip />
+          </ComposedChart>
+        </StudioCartesianFill>
+      </StudioChartShell>
     );
   },
   generateCode: (state) => composedCodegen(state),
@@ -608,45 +608,7 @@ const radarConfig: StudioChartConfig = {
   controls: [],
   controlGroups: radarChartControlGroups,
   resolveComponents: resolveRadarComponents,
-  render: (state, ctx) => {
-    const motionEnter = getStudioMotionEnterProps(state, {
-      linear: ctx.isRecording,
-    });
-    const radarData = getRadarData(ctx.dataSeed);
-    return (
-      <StudioRadialCenter frame={ctx.frame}>
-        <RadarChart
-          data={radarData}
-          enterDurationMs={studioAnimationDurationMs(state)}
-          enterTransition={motionEnter.enterTransition}
-          key={studioPreviewChartKey(ctx)}
-          levels={state.radarLevels}
-          margin={state.radarMargin}
-          metrics={radarMetrics5}
-          motionReplayKey={studioPreviewChartKey(ctx)}
-          size={studioRadialSize(ctx.frame, state.radarSize)}
-          staggerScale={motionEnter.enterStaggerScale}
-        >
-          {state.showRadarGrid ? (
-            <RadarGrid />
-          ) : (
-            <RadarGrid showLabels={false} />
-          )}
-          <RadarAxis />
-          <RadarLabels fontSize={10} offset={16} />
-          {radarData.map((item, index) => (
-            <RadarArea
-              index={index}
-              key={item.label}
-              showGlow={false}
-              showPoints={state.radarShowPoints}
-              showStroke={state.radarShowStroke}
-            />
-          ))}
-        </RadarChart>
-      </StudioRadialCenter>
-    );
-  },
+  render: (state, ctx) => <RadarStudioPreview ctx={ctx} state={state} />,
   generateCode: (state) => radarCodegen(state),
 };
 

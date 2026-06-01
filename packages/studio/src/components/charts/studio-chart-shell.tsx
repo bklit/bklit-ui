@@ -1,8 +1,12 @@
 "use client";
 
 import { ChartLegend, type LegendItem } from "@bklitui/ui/charts";
-import { cn } from "@bklitui/ui/lib/utils";
 import { type ReactNode, useState } from "react";
+import { StudioChartContentViewport } from "@/lib/studio-chart-content-frame";
+import {
+  studioChartGridLayout,
+  studioLegendGridCellClassName,
+} from "@/lib/studio-chart-grid";
 import {
   chartLegendPropsFromState,
   studioLegendWrapperStyle,
@@ -75,22 +79,37 @@ function StudioChartLegend({
 export function StudioChartShell({
   state,
   legendComponentId,
-  legendItems,
+  legendItems = [],
+  renderLegend,
   children,
 }: {
   state: StudioUrlState;
   legendComponentId: string;
-  legendItems: LegendItem[];
+  legendItems?: LegendItem[];
+  /** Custom legend (e.g. ProfitLossLegend). When set, `legendItems` is optional. */
+  renderLegend?: () => ReactNode;
   children: ReactNode;
 }) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const hasLegendContent = renderLegend == null ? legendItems.length > 0 : true;
   const legendVisible =
     state.showLegend &&
     isStudioComponentVisible(state, legendComponentId) &&
-    legendItems.length > 0;
+    hasLegendContent;
+
+  const grid = studioChartGridLayout(state, legendVisible);
 
   const legend = legendVisible ? (
-    <StudioChartLegend legendItems={legendItems} state={state} />
+    <div
+      className={studioLegendGridCellClassName(state)}
+      style={{ gridArea: grid.legendGridArea }}
+    >
+      {renderLegend ? (
+        renderLegend()
+      ) : (
+        <StudioChartLegend legendItems={legendItems} state={state} />
+      )}
+    </div>
   ) : null;
 
   return (
@@ -99,16 +118,19 @@ export function StudioChartShell({
       onHoverChange={setHoveredIndex}
     >
       <div
-        className={cn(
-          "flex size-full min-h-0 min-w-0 flex-col",
-          state.legendAlign === "start" && "items-start",
-          state.legendAlign === "center" && "items-center",
-          state.legendAlign === "end" && "items-end"
-        )}
+        className="grid size-full min-h-0 min-w-0"
+        style={{
+          gridTemplateColumns: grid.gridTemplateColumns,
+          gridTemplateRows: grid.gridTemplateRows,
+        }}
       >
-        {state.legendPlacement === "top" ? legend : null}
-        <div className="relative min-h-0 w-full flex-1">{children}</div>
-        {state.legendPlacement === "bottom" ? legend : null}
+        {legend}
+        <div
+          className="min-h-0 min-w-0"
+          style={{ gridArea: grid.chartGridArea }}
+        >
+          <StudioChartContentViewport>{children}</StudioChartContentViewport>
+        </div>
       </div>
     </StudioLegendHoverProvider>
   );
