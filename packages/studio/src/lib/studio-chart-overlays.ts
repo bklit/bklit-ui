@@ -56,6 +56,7 @@ export function chartLegendPropsFromState(
   return {
     showProgress: state.legendShowProgress,
     showMarker: state.legendShowMarker,
+    showValue: state.legendShowValue,
     className: studioLegendClassName(state),
     itemClassName: horizontal ? "w-auto shrink-0" : "",
     labelClassName: "font-medium tabular-nums",

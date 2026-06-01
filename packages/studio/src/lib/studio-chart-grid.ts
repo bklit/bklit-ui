@@ -5,28 +5,40 @@ export interface StudioChartGridLayout {
   gridTemplateRows: string;
   /** CSS grid-area for the legend (row / column), e.g. "1 / 3". */
   legendGridArea: string;
-  chartGridArea: "2 / 2";
+  /** Middle row spanning all columns, e.g. "2 / 1 / 3 / -1". */
+  chartGridArea: string;
 }
 
-/** 3×3 grid: chart in center; legend in one peripheral cell; empty tracks collapse to 0. */
+function studioChartGridColumns(
+  align: StudioUrlState["legendAlign"],
+  legendVisible: boolean
+): string {
+  if (!legendVisible) {
+    return "0 minmax(0, 1fr) 0";
+  }
+  if (align === "start") {
+    return "auto minmax(0, 1fr) minmax(0, 1fr)";
+  }
+  if (align === "end") {
+    return "minmax(0, 1fr) minmax(0, 1fr) auto";
+  }
+  return "minmax(0, 1fr) auto minmax(0, 1fr)";
+}
+
+/** 3 rows × 3 columns: legend on top/bottom row; chart spans all columns in the middle. */
 export function studioChartGridLayout(
   state: Pick<StudioUrlState, "legendPlacement" | "legendAlign">,
   legendVisible: boolean
 ): StudioChartGridLayout {
+  const columns = studioChartGridColumns(state.legendAlign, legendVisible);
+
   if (!legendVisible) {
     return {
-      gridTemplateColumns: "0 minmax(0, 1fr) 0",
+      gridTemplateColumns: columns,
       gridTemplateRows: "0 minmax(0, 1fr) 0",
       legendGridArea: "1 / 1",
-      chartGridArea: "2 / 2",
+      chartGridArea: "2 / 1 / 3 / -1",
     };
-  }
-
-  let columns = "0 minmax(0, 1fr) 0";
-  if (state.legendAlign === "start") {
-    columns = "auto minmax(0, 1fr) 0";
-  } else if (state.legendAlign === "end") {
-    columns = "0 minmax(0, 1fr) auto";
   }
 
   const rows =
@@ -46,7 +58,7 @@ export function studioChartGridLayout(
     gridTemplateColumns: columns,
     gridTemplateRows: rows,
     legendGridArea: `${legendRow} / ${legendCol}`,
-    chartGridArea: "2 / 2",
+    chartGridArea: "2 / 1 / 3 / -1",
   };
 }
 

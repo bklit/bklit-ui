@@ -267,26 +267,8 @@ export const standardChartTooltipControlGroups: StudioControlGroup[] = [
 export const standardLegendControlGroups: StudioControlGroup[] = [
   controlGroup("Legend", [
     { type: "boolean", key: "showLegend", label: "Show" },
-    {
-      type: "select",
-      key: "legendPlacement",
-      label: "Placement",
-      options: [
-        { value: "top", label: "Above chart" },
-        { value: "bottom", label: "Below chart" },
-      ],
-    },
-    {
-      type: "select",
-      key: "legendAlign",
-      label: "Align",
-      options: [
-        { value: "start", label: "Start" },
-        { value: "center", label: "Center" },
-        { value: "end", label: "End" },
-      ],
-    },
-    { type: "orientation", key: "legendLayout", label: "Layout" },
+    { type: "legendPosition", key: "legendPlacement", label: "Placement" },
+    { type: "orientation", key: "legendLayout", label: "Orientation" },
     {
       type: "number",
       key: "legendFontSize",
@@ -298,6 +280,7 @@ export const standardLegendControlGroups: StudioControlGroup[] = [
     },
     { type: "boolean", key: "legendShowProgress", label: "Progress bars" },
     { type: "boolean", key: "legendShowMarker", label: "Markers" },
+    { type: "boolean", key: "legendShowValue", label: "Values" },
   ]),
 ];
 
