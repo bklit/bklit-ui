@@ -4,10 +4,11 @@ import {
   AlignBottomIcon,
   AlignLeftIcon,
   ChartAreaIcon,
-  CursorPointer01Icon,
+  CursorPointer02Icon,
   GridIcon,
   LayerIcon,
   LeftToRightListDashIcon,
+  TextIcon,
 } from "@hugeicons/core-free-icons";
 import { resolveStudioComponentTreeIcon } from "../studio-component-tree-icon";
 import type { StudioComponentDefinition } from "../types";
@@ -76,7 +77,7 @@ describe("resolveStudioComponentTreeIcon", () => {
         }),
         "area-chart"
       ),
-      CursorPointer01Icon
+      CursorPointer02Icon
     );
     assert.equal(
       resolveStudioComponentTreeIcon(
@@ -99,6 +100,28 @@ describe("resolveStudioComponentTreeIcon", () => {
         "choropleth-chart"
       ),
       GridIcon
+    );
+    assert.equal(
+      resolveStudioComponentTreeIcon(
+        component({
+          id: "pie.center",
+          label: "PieCenter",
+          parentId: "pie.chart",
+        }),
+        "pie-chart"
+      ),
+      TextIcon
+    );
+    assert.equal(
+      resolveStudioComponentTreeIcon(
+        component({
+          id: "gauge.center",
+          label: "PieCenterShell",
+          parentId: "gauge.chart",
+        }),
+        "gauge-chart"
+      ),
+      TextIcon
     );
   });
 

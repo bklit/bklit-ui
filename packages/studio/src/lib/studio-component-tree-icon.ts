@@ -1,10 +1,11 @@
 import {
   AlignBottomIcon,
   AlignLeftIcon,
-  CursorPointer01Icon,
+  CursorPointer02Icon,
   GridIcon,
   LayerIcon,
   LeftToRightListDashIcon,
+  TextIcon,
 } from "@hugeicons/core-free-icons";
 import type { IconSvgElement } from "@hugeicons/react";
 import { getChartTypeIcon } from "@/components/chart-type-icons";
@@ -46,6 +47,12 @@ function isTooltip(component: StudioComponentDefinition): boolean {
   );
 }
 
+function isCenterText(component: StudioComponentDefinition): boolean {
+  return (
+    component.label === "PieCenter" || component.label === "PieCenterShell"
+  );
+}
+
 /** Hugeicons marker for a row in the studio components panel (excluding color dots). */
 export function resolveStudioComponentTreeIcon(
   component: StudioComponentDefinition,
@@ -67,7 +74,10 @@ export function resolveStudioComponentTreeIcon(
     return AlignBottomIcon;
   }
   if (isTooltip(component)) {
-    return CursorPointer01Icon;
+    return CursorPointer02Icon;
+  }
+  if (isCenterText(component)) {
+    return TextIcon;
   }
   return LayerIcon;
 }
