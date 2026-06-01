@@ -15,7 +15,7 @@ import { PATTERN_PRESET_IDS } from "./pattern-presets";
 import type { ChartSlug } from "./types";
 
 export const studioSearchParams = {
-  chart: parseAsStringLiteral(validChartSlugs).withDefault("gauge-chart"),
+  chart: parseAsStringLiteral(validChartSlugs).withDefault("area-chart"),
   preset: parseAsStringLiteral(COLOR_PRESET_IDS).withDefault("default"),
   chartAccent: parseAsString.withDefault(""),
   seriesColors: parseAsString.withDefault(""),
@@ -153,7 +153,7 @@ export const studioSearchParams = {
   seriesDashTail: parseAsBoolean.withDefault(false),
   seriesDashFromIndex: parseAsInteger.withDefault(4),
   seriesDashArray: parseAsString.withDefault("6,4"),
-  dataSeries: parseAsInteger.withDefault(1),
+  dataSeries: parseAsInteger.withDefault(2),
   dataPoints: parseAsInteger.withDefault(12),
   lineChartMode: parseAsStringLiteral(["standard", "profitLoss"]).withDefault(
     "standard"
@@ -339,7 +339,7 @@ export function defaultStudioState(
   overrides: Partial<StudioUrlState> = {}
 ): StudioUrlState {
   return {
-    chart: "gauge-chart",
+    chart: "area-chart",
     preset: "default",
     chartAccent: "",
     seriesColors: "",
@@ -451,7 +451,7 @@ export function defaultStudioState(
     seriesDashTail: false,
     seriesDashFromIndex: 4,
     seriesDashArray: "6,4",
-    dataSeries: 1,
+    dataSeries: 2,
     dataPoints: 12,
     lineChartMode: "standard",
     showZeroLine: true,
