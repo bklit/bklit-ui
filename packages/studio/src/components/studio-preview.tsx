@@ -352,7 +352,7 @@ export function StudioPreview({
 
         <div
           className={cn(
-            "studio-preview-canvas relative flex min-h-0 flex-1 flex-col overflow-auto p-6 pt-16",
+            "studio-preview-canvas studio-sidebar-scroll relative flex min-h-0 flex-1 flex-col overflow-auto p-6 pt-16",
             showCaptureLayout ? "gap-4" : "items-center justify-center gap-5"
           )}
           ref={canvasRef}

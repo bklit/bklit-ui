@@ -60,7 +60,12 @@ export function EditorPanelContent({
   children: ReactNode;
 }) {
   return (
-    <div className={cn("min-h-0 flex-1 overflow-auto p-3", className)}>
+    <div
+      className={cn(
+        "studio-sidebar-scroll min-h-0 flex-1 overflow-auto p-3",
+        className
+      )}
+    >
       {children}
     </div>
   );

@@ -15,6 +15,41 @@
     --studio-section-label: var(--muted-foreground);
     /** Sidebar control surfaces (Fill trigger, scrub inputs, selects). */
     --studio-input-background: var(--background);
+    --studio-scrollbar-width: 8px;
+    --studio-scrollbar-thumb: color-mix(
+      in oklch,
+      var(--foreground) 24%,
+      transparent
+    );
+    --studio-scrollbar-thumb-hover: color-mix(
+      in oklch,
+      var(--foreground) 38%,
+      transparent
+    );
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--studio-scrollbar-thumb) transparent;
+  }
+
+  *::-webkit-scrollbar {
+    width: var(--studio-scrollbar-width);
+    height: var(--studio-scrollbar-width);
+  }
+
+  *::-webkit-scrollbar-track,
+  *::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: var(--studio-scrollbar-thumb);
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background: var(--studio-scrollbar-thumb-hover);
   }
 }
 
@@ -73,27 +108,10 @@
   .studio-sidebar-scroll {
     --studio-scrollbar-width: 4px;
     scrollbar-gutter: stable;
-    scrollbar-width: thin;
-    scrollbar-color: color-mix(in oklch, var(--foreground) 32%, transparent)
-      transparent;
-  }
-
-  .studio-sidebar-scroll::-webkit-scrollbar {
-    width: var(--studio-scrollbar-width);
   }
 
   .studio-sidebar-scroll::-webkit-scrollbar-track {
     margin-block: 6px;
-    background: transparent;
-  }
-
-  .studio-sidebar-scroll::-webkit-scrollbar-thumb {
-    border-radius: 999px;
-    background: color-mix(in oklch, var(--foreground) 24%, transparent);
-  }
-
-  .studio-sidebar-scroll::-webkit-scrollbar-thumb:hover {
-    background: color-mix(in oklch, var(--foreground) 38%, transparent);
   }
 
   /* Legend position — segmented 3×2 grid */

@@ -10,6 +10,7 @@
     "check-types": "tsc --noEmit",
     "lint": "eslint . --max-warnings 0",
     "tauri": "tauri",
+    "icon:generate": "tauri icon app-icon.png",
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build"
   },
