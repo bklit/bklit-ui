@@ -44,6 +44,7 @@ export function EditorShell({
       value: StudioUrlState[K]
     ) => void;
     setStudioParams: (updates: Partial<StudioUrlState>) => void;
+    setPreviewParams: (updates: Partial<StudioUrlState>) => void;
     setPreviewParam: <K extends keyof StudioUrlState>(
       key: K,
       value: StudioUrlState[K]
@@ -124,6 +125,7 @@ export function EditorShell({
           controlsDisabled={controlsDisabled}
           headerActions={propertiesHeaderActions}
           onBatchChange={chartState.setStudioParams}
+          onBatchPreview={chartState.setPreviewParams}
           onChange={chartState.setParam}
           onCommit={chartState.commitParam}
           onPreview={chartState.setPreviewParam}
@@ -139,6 +141,7 @@ export function EditorShell({
           headerActions={propertiesHeaderActions}
           leftOpen={leftSheetOpen}
           onBatchChange={chartState.setStudioParams}
+          onBatchPreview={chartState.setPreviewParams}
           onChange={chartState.setParam}
           onCommit={chartState.commitParam}
           onLeftOpenChange={setLeftSheetOpen}

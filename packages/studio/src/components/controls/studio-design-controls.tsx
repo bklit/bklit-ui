@@ -18,12 +18,14 @@ import type { StudioComponentDesign } from "@/lib/types";
 export function StudioDesignControls({
   state,
   onBatchChange,
+  onBatchPreview,
   design,
   disabled = false,
   supportsPatterns = false,
 }: {
   state: StudioUrlState;
   onBatchChange: (updates: Partial<StudioUrlState>) => void;
+  onBatchPreview?: (updates: Partial<StudioUrlState>) => void;
   design: StudioComponentDesign;
   disabled?: boolean;
   supportsPatterns?: boolean;
@@ -40,14 +42,22 @@ export function StudioDesignControls({
     });
   };
 
-  const handleColorChange = (color: string) => {
+  const colorUpdates = (color: string): Partial<StudioUrlState> => {
     const updates: Partial<StudioUrlState> = {
       seriesColors: buildSeriesColorsUpdate(state, seriesIndex, color),
     };
     if (seriesIndex === 0) {
       updates.chartAccent = color;
     }
-    onBatchChange(updates);
+    return updates;
+  };
+
+  const handleColorPreview = (color: string) => {
+    onBatchPreview?.(colorUpdates(color));
+  };
+
+  const handleColorCommit = (color: string) => {
+    onBatchChange(colorUpdates(color));
   };
 
   const handleFillModeChange = (mode: SeriesFillMode) => {
@@ -101,7 +111,8 @@ export function StudioDesignControls({
         disabled={disabled}
         fillMode={getSeriesFillMode(state, seriesIndex)}
         label="Fill"
-        onColorChange={handleColorChange}
+        onColorChange={handleColorCommit}
+        onColorPreview={handleColorPreview}
         onFillModeChange={handleFillModeChange}
         onPatternChange={handlePatternChange}
         pattern={getSeriesPattern(state, seriesIndex)}

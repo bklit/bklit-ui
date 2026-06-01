@@ -4,6 +4,13 @@ import {
   presetStyle,
   presetSwatchColor,
 } from "@/lib/color-presets";
+import {
+  formatOklchComponent,
+  isValidOklchBody,
+  oklchBodyToHex,
+  parseOklchBody,
+  srgbBytesToOklchBody as srgbBytesToOklchBodyFromToolkit,
+} from "@/lib/oklch-color";
 
 const HEX6_RE = /^[0-9a-f]{6}$/i;
 const OKLCH_RE = /^oklch\(/i;
@@ -15,7 +22,7 @@ const CSS_VAR_RE = /var\((--[^,)]+)/;
 const OKLCH_INLINE_OPACITY_RE = /\/\s*([\d.]+%?)\s*\)/;
 const COLOR_MIX_RE =
   /^color-mix\(\s*in\s+[\w-]+\s*,\s*(.+?)\s+([\d.]+)%\s*,\s*transparent\s*\)$/i;
-const OKLCH_COMPONENTS_RE = /^[\d.]+\s+[\d.]+\s+[\d.]+/;
+const OKLCH_COMPONENTS_RE = /^[\d.]+\s+[\d.]+\s+[\d.]+/; // legacy; prefer isValidOklchBody
 const RGB_COLOR_RE = /^rgba?\(\s*(\d+)[,\s]+(\d+)[,\s]+(\d+)/;
 const SRGB_COLOR_RE = /^color\(srgb\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)/;
 const LAB_COLOR_RE = /^lab\(/i;
@@ -39,7 +46,7 @@ export function isValidOklchColor(value: string) {
   }
   const body = stripOklchWrapper(trimmed);
   const lch = stripOklchAlphaSuffix(body);
-  return OKLCH_COMPONENTS_RE.test(lch);
+  return isValidOklchBody(lch) || OKLCH_COMPONENTS_RE.test(lch);
 }
 
 export function parseColorMix(color: string): {
@@ -90,6 +97,22 @@ export function resolveStudioColorForPicker(
     return { parseable: value, opacity };
   }
 
+  if (isValidOklchColor(value)) {
+    const body = stripOklchAlphaSuffix(stripOklchWrapper(value));
+    const hex = oklchBodyToHex(body);
+    if (hex) {
+      return { parseable: `#${hex}`, opacity };
+    }
+  }
+
+  const bodyOnly = parseOklchBody(value);
+  if (bodyOnly) {
+    const hex = oklchBodyToHex(`${bodyOnly.l} ${bodyOnly.c} ${bodyOnly.h}`);
+    if (hex) {
+      return { parseable: `#${hex}`, opacity };
+    }
+  }
+
   return { parseable: `#${cssColorToHex(value)}`, opacity };
 }
 
@@ -100,53 +123,8 @@ function rgbComponentsToHex(r: number, g: number, b: number): string {
     .toUpperCase();
 }
 
-function srgbChannelToLinear(channel: number): number {
-  const normalized = channel / 255;
-  return normalized <= 0.040_45
-    ? normalized / 12.92
-    : ((normalized + 0.055) / 1.055) ** 2.4;
-}
-
-function formatOklchComponent(value: number): string {
-  return Number(value.toFixed(3)).toString();
-}
-
 export function srgbBytesToOklchBody(r: number, g: number, b: number): string {
-  const red = srgbChannelToLinear(r);
-  const green = srgbChannelToLinear(g);
-  const blue = srgbChannelToLinear(b);
-
-  const long =
-    0.412_221_470_8 * red + 0.536_332_536_3 * green + 0.051_445_992_9 * blue;
-  const medium =
-    0.211_903_498_2 * red + 0.680_699_545_1 * green + 0.107_396_956_6 * blue;
-  const short =
-    0.088_302_461_9 * red + 0.281_718_837_6 * green + 0.629_978_700_5 * blue;
-
-  const longRoot = Math.cbrt(long);
-  const mediumRoot = Math.cbrt(medium);
-  const shortRoot = Math.cbrt(short);
-
-  const lightness =
-    0.210_454_255_3 * longRoot +
-    0.793_617_785 * mediumRoot -
-    0.004_072_046_8 * shortRoot;
-  const a =
-    1.977_998_495_1 * longRoot -
-    2.428_592_205 * mediumRoot +
-    0.450_593_709_9 * shortRoot;
-  const bLab =
-    0.025_904_037_1 * longRoot +
-    0.782_771_766_2 * mediumRoot -
-    0.808_675_766 * shortRoot;
-
-  const chroma = Math.sqrt(a * a + bLab * bLab);
-  let hue = (Math.atan2(bLab, a) * 180) / Math.PI;
-  if (hue < 0) {
-    hue += 360;
-  }
-
-  return `${formatOklchComponent(lightness)} ${formatOklchComponent(chroma)} ${formatOklchComponent(hue)}`;
+  return srgbBytesToOklchBodyFromToolkit(r, g, b);
 }
 
 function browserOklchFromCssColor(color: string): string | null {
@@ -182,8 +160,18 @@ function normalizeResolvedCssColor(color: string): string {
 }
 
 export function oklchBodyFromColor(color: string): string | null {
+  const trimmed = color.trim();
+  if (isValidOklchColor(trimmed)) {
+    return stripOklchAlphaSuffix(stripOklchWrapper(trimmed));
+  }
+
+  const toolkitBody = parseOklchBody(stripOklchWrapper(trimmed));
+  if (toolkitBody) {
+    return `${formatOklchComponent(toolkitBody.l)} ${formatOklchComponent(toolkitBody.c)} ${formatOklchComponent(toolkitBody.h)}`;
+  }
+
   const resolved = unwrapStudioColorValue(
-    normalizeResolvedCssColor(resolveCssColor(color.trim()))
+    normalizeResolvedCssColor(resolveCssColor(trimmed))
   );
   if (isValidOklchColor(resolved)) {
     return stripOklchAlphaSuffix(stripOklchWrapper(resolved));

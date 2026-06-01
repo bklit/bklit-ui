@@ -46,6 +46,8 @@ interface StudioStateContextValue {
     key: K,
     value: StudioUrlState[K]
   ) => void;
+  /** Merge multiple preview overrides (chart updates without touching the URL). */
+  setPreviewParams: (updates: Partial<StudioUrlState>) => void;
   commitParam: <K extends keyof StudioUrlState>(
     key: K,
     value: StudioUrlState[K]
@@ -190,6 +192,10 @@ export function StudioStateProvider({
     []
   );
 
+  const setPreviewParams = useCallback((updates: Partial<StudioUrlState>) => {
+    setPreviewOverrides((prev) => ({ ...prev, ...updates }));
+  }, []);
+
   const commitParam = useCallback(
     <K extends keyof StudioUrlState>(key: K, value: StudioUrlState[K]) => {
       if (key === "lineChartMode") {
@@ -234,6 +240,7 @@ export function StudioStateProvider({
       setParam,
       setStudioParams,
       setPreviewParam,
+      setPreviewParams,
       commitParam,
       setFrameSize,
       motionCurveDragging,
@@ -249,6 +256,7 @@ export function StudioStateProvider({
       setParam,
       setStudioParams,
       setPreviewParam,
+      setPreviewParams,
       state,
     ]
   );

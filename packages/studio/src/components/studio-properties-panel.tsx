@@ -13,6 +13,7 @@ export function StudioPropertiesPanel({
   config,
   onChange,
   onBatchChange,
+  onBatchPreview,
   onPreview,
   onCommit,
   disabled = false,
@@ -25,6 +26,7 @@ export function StudioPropertiesPanel({
     value: StudioUrlState[K]
   ) => void;
   onBatchChange: (updates: Partial<StudioUrlState>) => void;
+  onBatchPreview?: (updates: Partial<StudioUrlState>) => void;
   onPreview: <K extends keyof StudioUrlState>(
     key: K,
     value: StudioUrlState[K]
@@ -64,6 +66,7 @@ export function StudioPropertiesPanel({
             design={component.design}
             disabled={disabled}
             onBatchChange={onBatchChange}
+            onBatchPreview={onBatchPreview}
             state={state}
             supportsPatterns={
               component.design.supportsPattern ?? config.supportsPatterns

@@ -13,6 +13,7 @@ export function EditorRightPanel({
   config,
   onChange,
   onBatchChange,
+  onBatchPreview,
   onPreview,
   onCommit,
   controlsDisabled = false,
@@ -25,6 +26,7 @@ export function EditorRightPanel({
     value: StudioUrlState[K]
   ) => void;
   onBatchChange: (updates: Partial<StudioUrlState>) => void;
+  onBatchPreview?: (updates: Partial<StudioUrlState>) => void;
   onPreview: <K extends keyof StudioUrlState>(
     key: K,
     value: StudioUrlState[K]
@@ -46,6 +48,7 @@ export function EditorRightPanel({
         config={config}
         disabled={controlsDisabled}
         onBatchChange={onBatchChange}
+        onBatchPreview={onBatchPreview}
         onChange={onChange}
         onCommit={onCommit}
         onPreview={onPreview}
