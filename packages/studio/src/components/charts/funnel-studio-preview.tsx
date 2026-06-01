@@ -1,15 +1,16 @@
 "use client";
 
 import { FunnelChart } from "@bklitui/ui/charts";
-import { studioFitAspectSize } from "@/components/charts/studio-chart-layout";
+import { StudioCartesianFill } from "@/components/charts/studio-chart-layout";
 import {
   getStudioMotionEnterProps,
   studioEnterStaggerScale,
   studioPreviewChartKey,
 } from "@/lib/chart-animation";
-import { funnelData } from "@/lib/demo-data";
+import { getFunnelData } from "@/lib/demo-data";
 import type { StudioRenderContext } from "@/lib/render-context";
 import type { StudioUrlState } from "@/lib/studio-parsers";
+import { getEffectiveSeriesColor } from "@/lib/studio-series-design";
 
 export function FunnelStudioPreview({
   state,
@@ -18,18 +19,20 @@ export function FunnelStudioPreview({
   state: StudioUrlState;
   ctx: StudioRenderContext;
 }) {
-  const widthOverHeight =
-    state.funnelOrientation === "horizontal" ? 2.2 : 1 / 1.8;
-  const { width, height } = studioFitAspectSize(ctx.frame, widthOverHeight);
   const motionEnter = getStudioMotionEnterProps(state, {
     linear: ctx.isRecording,
   });
+  const stages = getFunnelData(ctx.dataSeed).map((stage, index) => ({
+    ...stage,
+    color: getEffectiveSeriesColor(state, index),
+  }));
+
   return (
-    <div className="shrink-0" style={{ width, height }}>
+    <StudioCartesianFill>
       <FunnelChart
         className="size-full"
-        color="var(--chart-1)"
-        data={funnelData}
+        color={getEffectiveSeriesColor(state, 0)}
+        data={stages}
         edges={state.funnelEdges}
         enterTransition={motionEnter.enterTransition}
         gap={state.funnelGap}
@@ -41,6 +44,6 @@ export function FunnelStudioPreview({
         showValues={state.funnelShowValues}
         staggerDelay={0.12 * studioEnterStaggerScale(state)}
       />
-    </div>
+    </StudioCartesianFill>
   );
 }

@@ -14,6 +14,7 @@ import {
 } from "@bklitui/ui/charts";
 import { useState } from "react";
 import { StudioCartesianFill } from "@/components/charts/studio-chart-layout";
+import { StudioVisibleLayer } from "@/components/charts/studio-chart-shell";
 import { fadeEdgesPropValue } from "@/components/controls/fade-edges-picker";
 import { useStudioMotionRemountKey } from "@/components/use-studio-motion-remount";
 import { getStudioCssRevealPropsForPreview } from "@/lib/chart-animation";
@@ -24,6 +25,8 @@ import {
   STUDIO_PROFIT_LOSS_DATA_KEY,
 } from "@/lib/demo-data";
 import type { StudioRenderContext } from "@/lib/render-context";
+import { chartTooltipPropsFromState } from "@/lib/studio-chart-overlays";
+import { isStudioComponentVisible } from "@/lib/studio-component-visibility";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 
 function zeroLineDasharray(style: StudioUrlState["zeroLineStyle"]) {
@@ -85,7 +88,8 @@ export function LineProfitLossStudioChart({
   );
   const motionRemountKey = useStudioMotionRemountKey(state);
   const data = generateStudioProfitLossData(
-    clampStudioPointCount(state.dataPoints)
+    clampStudioPointCount(state.dataPoints),
+    ctx.dataSeed
   );
   const motionProps = getStudioCssRevealPropsForPreview(state, {
     motionCurveDragging: ctx.motionCurveDragging,
@@ -105,7 +109,11 @@ export function LineProfitLossStudioChart({
 
   return (
     <div className="flex size-full min-h-0 min-w-0 flex-col">
-      {state.showLegend && state.legendPlacement === "top" ? legend : null}
+      {state.showLegend &&
+      state.legendPlacement === "top" &&
+      isStudioComponentVisible(state, "line.legend")
+        ? legend
+        : null}
       <div className="relative min-h-0 flex-1">
         <StudioCartesianFill className="absolute inset-0">
           <LineChart
@@ -114,15 +122,17 @@ export function LineProfitLossStudioChart({
             data={data}
             key={`${ctx.animationKey}-${motionRemountKey}`}
           >
-            <Grid
-              highlightRowStroke={state.zeroLineStroke}
-              highlightRowStrokeDasharray={zeroLineDasharray(
-                state.zeroLineStyle
-              )}
-              highlightRowStrokeWidth={state.zeroLineStrokeWidth}
-              highlightRowValues={state.showZeroLine ? [0] : undefined}
-              horizontal
-            />
+            <StudioVisibleLayer componentId="line.grid" state={state}>
+              <Grid
+                highlightRowStroke={state.zeroLineStroke}
+                highlightRowStrokeDasharray={zeroLineDasharray(
+                  state.zeroLineStyle
+                )}
+                highlightRowStrokeWidth={state.zeroLineStrokeWidth}
+                highlightRowValues={state.showZeroLine ? [0] : undefined}
+                horizontal
+              />
+            </StudioVisibleLayer>
             <Line
               curve={curve}
               dataKey={STUDIO_PROFIT_LOSS_DATA_KEY}
@@ -131,24 +141,34 @@ export function LineProfitLossStudioChart({
               stroke="transparent"
               strokeWidth={0}
             />
-            <ProfitLossLineWithLegendHover
-              curve={curve}
-              fadeEdges={fadeEdges}
-              hoveredIndex={legendHoveredIndex}
-              strokeWidth={state.strokeWidth}
-            />
-            <XAxis />
-            <ChartTooltip
-              indicatorColor={crosshairIndicatorColor(state)}
-              rows={(point) => profitLossTooltipRows(point, state.tooltipLabel)}
-              showCrosshair={state.showCrosshair}
-              showDatePill={state.showTooltipDatePill}
-              showDots={state.showTooltipDots}
-            />
+            <StudioVisibleLayer componentId="line.profit-loss" state={state}>
+              <ProfitLossLineWithLegendHover
+                curve={curve}
+                fadeEdges={fadeEdges}
+                hoveredIndex={legendHoveredIndex}
+                strokeWidth={state.strokeWidth}
+              />
+            </StudioVisibleLayer>
+            <StudioVisibleLayer componentId="line.xaxis" state={state}>
+              <XAxis />
+            </StudioVisibleLayer>
+            <StudioVisibleLayer componentId="line.tooltip" state={state}>
+              <ChartTooltip
+                {...chartTooltipPropsFromState(state, {
+                  indicatorColor: crosshairIndicatorColor(state),
+                  rows: (point) =>
+                    profitLossTooltipRows(point, state.tooltipLabel),
+                })}
+              />
+            </StudioVisibleLayer>
           </LineChart>
         </StudioCartesianFill>
       </div>
-      {state.showLegend && state.legendPlacement === "bottom" ? legend : null}
+      {state.showLegend &&
+      state.legendPlacement === "bottom" &&
+      isStudioComponentVisible(state, "line.legend")
+        ? legend
+        : null}
     </div>
   );
 }

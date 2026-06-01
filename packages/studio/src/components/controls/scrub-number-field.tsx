@@ -3,7 +3,10 @@
 import { cn } from "@bklitui/ui/lib/utils";
 import { ArrowLeftRight, ArrowUpDown } from "lucide-react";
 import type { ReactNode } from "react";
-import { studioControlInputClass } from "@/components/controls/control-field-helpers";
+import {
+  studioControlInputClass,
+  studioInputSurfaceClass,
+} from "@/components/controls/control-field-helpers";
 import {
   NumberFieldGroup,
   NumberFieldInput,
@@ -61,9 +64,14 @@ export function ScrubNumberField({
       step={step}
       value={safe}
     >
-      <NumberFieldGroup className="flex h-8 w-full min-w-0 items-center overflow-hidden rounded-md border border-input bg-transparent shadow-xs focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50 dark:bg-input/30">
+      <NumberFieldGroup
+        className={cn(
+          "flex h-8 w-full min-w-0 items-center overflow-hidden rounded-md focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50",
+          studioInputSurfaceClass
+        )}
+      >
         <NumberFieldScrubArea
-          className="flex shrink-0 cursor-ew-resize select-none items-center self-stretch border-border border-r bg-muted/20 px-1.5 text-muted-foreground hover:text-foreground data-[scrubbing]:text-foreground"
+          className="flex shrink-0 cursor-ew-resize select-none items-center self-stretch border-border border-r px-1.5 text-muted-foreground hover:text-foreground data-[scrubbing]:text-foreground"
           direction="horizontal"
         >
           {scrubIcon ?? (

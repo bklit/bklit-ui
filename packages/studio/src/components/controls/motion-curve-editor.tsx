@@ -5,6 +5,7 @@ import { PlayIcon, StopIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { animate, motion, type Transition } from "motion/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { studioInputSurfaceClass } from "@/components/controls/control-field-helpers";
 import {
   bezierFromSvgPoint,
   clampEaseBezierControl,
@@ -273,9 +274,9 @@ export function MotionCurveEditor({
   }, [applyHandleDrag, dragging, onCommit, onDragActiveChange]);
 
   return (
-    <div className="overflow-hidden rounded-lg border border-border">
+    <div className="flex flex-col">
       <div
-        className="studio-motion-curve-card relative w-full max-w-full px-1"
+        className="studio-motion-curve-card relative w-full max-w-full overflow-hidden rounded-t-lg border border-border border-b-0 px-1"
         ref={containerRef}
       >
         <svg
@@ -373,7 +374,12 @@ export function MotionCurveEditor({
         </svg>
       </div>
 
-      <div className="flex h-8 items-stretch border-border border-t bg-muted/20">
+      <div
+        className={cn(
+          "flex h-8 items-stretch overflow-hidden rounded-b-lg border-border border-t",
+          studioInputSurfaceClass
+        )}
+      >
         {isEase ? (
           <Input
             className="h-8 min-w-0 flex-1 rounded-none border-0 bg-transparent px-2.5 font-mono text-xs shadow-none focus-visible:ring-0"

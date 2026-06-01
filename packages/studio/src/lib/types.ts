@@ -72,6 +72,13 @@ export type StudioComponentKind =
   | "geometry"
   | "line";
 
+/** Optional icon override in the components tree (matches chart JSX where useful). */
+export type StudioComponentTreeIcon =
+  | "pie-chart"
+  | "funnel"
+  | "line-chart"
+  | "layers";
+
 export interface StudioComponentDesign {
   /** Which series index this fill/pattern applies to (default 0). */
   seriesIndex?: number;
@@ -85,6 +92,12 @@ export interface StudioComponentDefinition {
   label: string;
   parentId?: string;
   kind?: StudioComponentKind;
+  /** Lucide-style tree icon; falls back to `kind` when omitted. */
+  treeIcon?: StudioComponentTreeIcon;
+  /** Render a color swatch instead of an icon (segment rows). */
+  listMarker?: "icon" | "color-dot";
+  /** CSS color for `listMarker="color-dot"` (resolved when the tree is built). */
+  swatchColor?: string;
   controlGroups: StudioControlGroup[];
   design?: StudioComponentDesign;
 }
@@ -104,6 +117,8 @@ export interface StudioChartConfig {
   motionPanel?: boolean;
   /** Show stagger scale slider in Motion (gauge, radar, funnel). */
   motionStagger?: boolean;
+  /** Show scramble-data button in the components panel. Default true. */
+  scrambleData?: boolean;
   supportsPatterns?: boolean;
   supportsCurves?: boolean;
   render: (state: StudioUrlState, ctx: StudioRenderContext) => ReactNode;

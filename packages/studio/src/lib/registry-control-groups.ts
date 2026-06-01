@@ -60,6 +60,8 @@ export const gaugeControlGroups: StudioControlGroup[] = [
       input: "number",
     },
     { type: "text", key: "gaugeLabel", label: "Label" },
+    { type: "text", key: "gaugeCenterPrefix", label: "Prefix" },
+    { type: "text", key: "gaugeCenterSuffix", label: "Suffix" },
   ]),
   controlGroup("Notches", [
     { type: "number", key: "totalNotches", label: "Count", min: 8, max: 80 },
@@ -222,6 +224,82 @@ export const lineChartControlGroups: StudioControlGroup[] = [
   seriesDashTailControlGroup,
 ];
 
+export const tooltipAppearanceControlGroup = controlGroup("Appearance", [
+  {
+    type: "opacity",
+    key: "tooltipBackgroundOpacity",
+    label: "Background",
+    min: 0.2,
+    max: 1,
+    step: 0.05,
+    color: "var(--chart-tooltip-background)",
+  },
+  {
+    type: "number",
+    key: "tooltipBlur",
+    label: "Blur",
+    min: 0,
+    max: 24,
+    step: 1,
+    unit: "px",
+  },
+]);
+
+export const standardCrosshairControlGroup = controlGroup("Crosshair", [
+  { type: "boolean", key: "showCrosshair", label: "Show" },
+  { type: "boolean", key: "showTooltipDots", label: "Dots" },
+  {
+    type: "select",
+    key: "crosshairColor",
+    label: "Color",
+    options: [...chartAccentColorOptions],
+  },
+]);
+
+export const standardChartTooltipControlGroups: StudioControlGroup[] = [
+  controlGroup("Tooltip", [
+    { type: "boolean", key: "showTooltipDatePill", label: "Date pill" },
+  ]),
+  tooltipAppearanceControlGroup,
+  standardCrosshairControlGroup,
+];
+
+export const standardLegendControlGroups: StudioControlGroup[] = [
+  controlGroup("Legend", [
+    { type: "boolean", key: "showLegend", label: "Show" },
+    {
+      type: "select",
+      key: "legendPlacement",
+      label: "Placement",
+      options: [
+        { value: "top", label: "Above chart" },
+        { value: "bottom", label: "Below chart" },
+      ],
+    },
+    {
+      type: "select",
+      key: "legendAlign",
+      label: "Align",
+      options: [
+        { value: "start", label: "Start" },
+        { value: "center", label: "Center" },
+        { value: "end", label: "End" },
+      ],
+    },
+    {
+      type: "number",
+      key: "legendFontSize",
+      label: "Size",
+      min: 10,
+      max: 18,
+      step: 1,
+      unit: "px",
+    },
+    { type: "boolean", key: "legendShowProgress", label: "Progress bars" },
+    { type: "boolean", key: "legendShowMarker", label: "Markers" },
+  ]),
+];
+
 const lineChartModeGroup = controlGroup("Series style", [
   {
     type: "select",
@@ -289,6 +367,7 @@ const profitLossLineSettingsGroups: StudioControlGroup[] = [
     { type: "boolean", key: "showTooltipDots", label: "Show dot" },
     { type: "boolean", key: "showTooltipDatePill", label: "Show date pill" },
   ]),
+  tooltipAppearanceControlGroup,
   controlGroup("Crosshair", [
     { type: "boolean", key: "showCrosshair", label: "Show crosshair" },
     {
@@ -303,28 +382,7 @@ const profitLossLineSettingsGroups: StudioControlGroup[] = [
       options: [...chartAccentColorOptions],
     },
   ]),
-  controlGroup("Legend", [
-    { type: "boolean", key: "showLegend", label: "Show legend" },
-    {
-      type: "select",
-      key: "legendPlacement",
-      label: "Placement",
-      options: [
-        { value: "top", label: "Above chart" },
-        { value: "bottom", label: "Below chart" },
-      ],
-    },
-    {
-      type: "select",
-      key: "legendAlign",
-      label: "Align",
-      options: [
-        { value: "start", label: "Start" },
-        { value: "center", label: "Center" },
-        { value: "end", label: "End" },
-      ],
-    },
-  ]),
+  ...standardLegendControlGroups,
 ];
 
 export function getLineChartControlGroups(state: {
@@ -422,9 +480,7 @@ export const composedChartControlGroups: StudioControlGroup[] = [
 ];
 
 export const pieChartControlGroups: StudioControlGroup[] = [
-  designGroup([
-    { type: "pieFill", key: "pieFillMode", label: "Fill" },
-    { type: "pieHoverEffect", key: "pieHoverEffect", label: "Hover effect" },
+  controlGroup("Chart", [
     {
       type: "number",
       key: "pieSize",
@@ -433,8 +489,6 @@ export const pieChartControlGroups: StudioControlGroup[] = [
       max: 100,
       unit: "%",
     },
-  ]),
-  controlGroup("Geometry", [
     {
       type: "innerRadius",
       key: "innerRadius",
@@ -480,8 +534,21 @@ export const pieChartControlGroups: StudioControlGroup[] = [
       max: 720,
       variant: "pieEnd",
     },
+    { type: "pieHoverEffect", key: "pieHoverEffect", label: "Hover effect" },
   ]),
 ];
+
+export const pieCenterControlGroup = controlGroup("Center", [
+  { type: "text", key: "pieCenterLabel", label: "Label" },
+  { type: "text", key: "pieCenterPrefix", label: "Prefix" },
+  { type: "text", key: "pieCenterSuffix", label: "Suffix" },
+]);
+
+export const ringCenterControlGroup = controlGroup("Center", [
+  { type: "text", key: "ringCenterLabel", label: "Label" },
+  { type: "text", key: "ringCenterPrefix", label: "Prefix" },
+  { type: "text", key: "ringCenterSuffix", label: "Suffix" },
+]);
 
 export const ringChartControlGroups: StudioControlGroup[] = [
   designGroup([
@@ -496,7 +563,7 @@ export const ringChartControlGroups: StudioControlGroup[] = [
     },
     {
       type: "number",
-      key: "strokeWidth",
+      key: "ringStrokeWidth",
       label: "Width",
       min: 4,
       max: 24,

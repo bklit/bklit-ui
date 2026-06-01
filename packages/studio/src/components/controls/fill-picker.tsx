@@ -3,13 +3,20 @@
 import { cn } from "@bklitui/ui/lib/utils";
 import { Grid3x3Icon, SquareIcon } from "lucide-react";
 import { useMemo, useState } from "react";
-import { studioFieldLabelClass } from "@/components/controls/control-field-helpers";
+import {
+  studioFieldLabelClass,
+  studioInputSurfaceClass,
+} from "@/components/controls/control-field-helpers";
 import {
   PatternPicker,
   PatternSwatch,
 } from "@/components/controls/pattern-picker";
 import { PresetSwatch } from "@/components/controls/preset-select";
 import { StudioColorPicker } from "@/components/controls/studio-color-picker";
+import {
+  StudioSingleToggleGroup,
+  ToggleGroupItem,
+} from "@/components/controls/studio-toggle-group";
 import {
   isValidOklchColor,
   parseColorMix,
@@ -84,8 +91,9 @@ export function FillPicker({
       <Popover onOpenChange={setOpen} open={open}>
         <PopoverTrigger
           className={cn(
-            "flex h-9 w-full items-center gap-2 rounded-lg border border-input bg-background px-2 text-left shadow-xs outline-none transition-colors",
-            "hover:bg-muted/30 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
+            "flex h-9 w-full items-center gap-2 rounded-lg px-2 text-left outline-none transition-colors",
+            studioInputSurfaceClass,
+            "hover:bg-[var(--studio-input-background)] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
             disabled && "pointer-events-none opacity-50"
           )}
           disabled={disabled}
@@ -109,36 +117,29 @@ export function FillPicker({
           sideOffset={8}
         >
           {supportsPattern ? (
-            <div className="flex items-center gap-1 rounded-md border border-input bg-muted/20 p-1">
-              <button
+            <StudioSingleToggleGroup
+              className="rounded-md border border-input bg-muted/20 p-1"
+              onValueChange={onFillModeChange}
+              size="sm"
+              spacing={2}
+              value={fillMode}
+              variant="studio"
+            >
+              <ToggleGroupItem
                 aria-label="Solid fill"
-                aria-pressed={fillMode === "solid"}
-                className={cn(
-                  "flex size-8 flex-1 items-center justify-center rounded-md transition-colors",
-                  fillMode === "solid"
-                    ? "bg-background text-foreground shadow-xs"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-                onClick={() => onFillModeChange("solid")}
-                type="button"
+                className="size-8 min-h-8 flex-1"
+                value="solid"
               >
                 <SquareIcon className="size-3.5 fill-current" strokeWidth={0} />
-              </button>
-              <button
+              </ToggleGroupItem>
+              <ToggleGroupItem
                 aria-label="Pattern fill"
-                aria-pressed={fillMode === "pattern"}
-                className={cn(
-                  "flex size-8 flex-1 items-center justify-center rounded-md transition-colors",
-                  fillMode === "pattern"
-                    ? "bg-background text-foreground shadow-xs"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-                onClick={() => onFillModeChange("pattern")}
-                type="button"
+                className="size-8 min-h-8 flex-1"
+                value="pattern"
               >
                 <Grid3x3Icon className="size-3.5" strokeWidth={1.75} />
-              </button>
-            </div>
+              </ToggleGroupItem>
+            </StudioSingleToggleGroup>
           ) : null}
 
           {fillMode === "pattern" && supportsPattern ? (

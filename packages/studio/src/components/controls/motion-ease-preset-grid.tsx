@@ -1,7 +1,10 @@
 "use client";
 
-import { cn } from "@bklitui/ui/lib/utils";
 import { studioFieldLabelClass } from "@/components/controls/control-field-helpers";
+import {
+  StudioSingleToggleGroup,
+  ToggleGroupItem,
+} from "@/components/controls/studio-toggle-group";
 import { MotionEasePreviewIcon } from "@/components/motion-ease-preview-icons";
 import {
   MOTION_EASE_IDS,
@@ -19,32 +22,25 @@ export function MotionEasePresetGrid({
   onSelect: (id: Exclude<MotionEaseId, "custom">) => void;
 }) {
   return (
-    <div className="space-y-2">
+    <div className="flex flex-col gap-2">
       <span className={studioFieldLabelClass}>{label}</span>
-      <div className="grid grid-cols-2 gap-1.5">
-        {MOTION_EASE_IDS.filter((id) => id !== "custom").map((id) => {
-          const selected = value === id;
-          return (
-            <button
-              aria-pressed={selected}
-              className={cn(
-                "group flex flex-col items-center gap-1 rounded-md border px-1.5 py-2 transition-colors",
-                selected
-                  ? "border-accent bg-accent/10 text-foreground"
-                  : "border-border bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-foreground"
-              )}
-              key={id}
-              onClick={() => onSelect(id)}
-              type="button"
-            >
-              <MotionEasePreviewIcon className="text-current" easeId={id} />
-              <span className="text-center text-[10px] leading-tight">
-                {MOTION_EASE_PRESETS[id].label}
-              </span>
-            </button>
-          );
-        })}
-      </div>
+      <StudioSingleToggleGroup
+        className="grid w-full grid-cols-2 gap-1.5"
+        onValueChange={(id) => onSelect(id as Exclude<MotionEaseId, "custom">)}
+        size="card"
+        spacing={2}
+        value={value}
+        variant="studio"
+      >
+        {MOTION_EASE_IDS.filter((id) => id !== "custom").map((id) => (
+          <ToggleGroupItem key={id} value={id}>
+            <MotionEasePreviewIcon className="text-current" easeId={id} />
+            <span className="text-center leading-tight">
+              {MOTION_EASE_PRESETS[id].label}
+            </span>
+          </ToggleGroupItem>
+        ))}
+      </StudioSingleToggleGroup>
     </div>
   );
 }

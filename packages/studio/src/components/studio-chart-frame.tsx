@@ -19,12 +19,12 @@ import {
 
 export const STUDIO_CHART_FRAME_HEIGHT = 400;
 export const STUDIO_CHART_FRAME_WIDTH = 720;
-export const STUDIO_CHART_FRAME_MAX_WIDTH = 1000;
-export const STUDIO_CHART_FRAME_MAX_HEIGHT = 800;
+export const STUDIO_CHART_FRAME_MAX_WIDTH = 16_384;
+export const STUDIO_CHART_FRAME_MAX_HEIGHT = 16_384;
 export const STUDIO_EXPORT_ROOT_ATTR = "data-studio-export-root";
 
-const MIN_WIDTH = 280;
-const MIN_HEIGHT = 200;
+const MIN_WIDTH = 1;
+const MIN_HEIGHT = 1;
 
 const frameSpring = { type: "spring" as const, stiffness: 420, damping: 36 };
 
@@ -184,9 +184,16 @@ export const StudioChartFrame = forwardRef<
       return;
     }
     const update = () => {
+      const rect = bounds.getBoundingClientRect();
       setMaxSize({
-        width: STUDIO_CHART_FRAME_MAX_WIDTH,
-        height: STUDIO_CHART_FRAME_MAX_HEIGHT,
+        width: Math.max(
+          MIN_WIDTH,
+          Math.min(STUDIO_CHART_FRAME_MAX_WIDTH, Math.floor(rect.width))
+        ),
+        height: Math.max(
+          MIN_HEIGHT,
+          Math.min(STUDIO_CHART_FRAME_MAX_HEIGHT, Math.floor(rect.height))
+        ),
       });
     };
     update();

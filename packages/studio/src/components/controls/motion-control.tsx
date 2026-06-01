@@ -1,8 +1,11 @@
 "use client";
 
-import { cn } from "@bklitui/ui/lib/utils";
 import { MotionEasePresetGrid } from "@/components/controls/motion-ease-preset-grid";
 import { SliderInputGroup } from "@/components/controls/slider-input-group";
+import {
+  StudioSingleToggleGroup,
+  ToggleGroupItem,
+} from "@/components/controls/studio-toggle-group";
 import { motionDurationToAnimationMs } from "@/lib/chart-animation";
 import { MOTION_EASE_PRESETS, type MotionType } from "@/lib/motion-config";
 import type { StudioUrlState } from "@/lib/studio-parsers";
@@ -16,24 +19,20 @@ function MotionTypeToggle({
   onChange: (v: MotionType) => void;
 }) {
   return (
-    <fieldset className="flex gap-1 rounded-lg border border-border bg-muted/30 p-1">
+    <StudioSingleToggleGroup
+      className="rounded-lg border border-border bg-muted/30 p-1"
+      onValueChange={onChange}
+      size="sm"
+      spacing={0}
+      value={value}
+      variant="outline"
+    >
       {(["ease", "spring"] as const).map((type) => (
-        <button
-          aria-pressed={value === type}
-          className={cn(
-            "flex-1 rounded-md px-3 py-1.5 font-medium text-xs capitalize transition-colors",
-            value === type
-              ? "bg-background text-foreground shadow-sm"
-              : "text-muted-foreground hover:text-foreground"
-          )}
-          key={type}
-          onClick={() => onChange(type)}
-          type="button"
-        >
+        <ToggleGroupItem className="flex-1 capitalize" key={type} value={type}>
           {type}
-        </button>
+        </ToggleGroupItem>
       ))}
-    </fieldset>
+    </StudioSingleToggleGroup>
   );
 }
 
@@ -77,7 +76,7 @@ export function MotionControl({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       <MotionTypeToggle
         onChange={(v) => onChange("motionType", v)}
         value={state.motionType}
@@ -90,7 +89,7 @@ export function MotionControl({
         state={motionSlice}
       />
 
-      <div className="space-y-3">
+      <div className="flex flex-col gap-3">
         <SliderInputGroup
           label="Duration"
           max={2}

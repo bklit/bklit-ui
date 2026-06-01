@@ -5,6 +5,7 @@ import { UnfoldMoreIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useState } from "react";
 import { ChartTypeIcon } from "@/components/chart-type-icons";
+import { studioInputSurfaceClass } from "@/components/controls/control-field-helpers";
 import { studioChartList } from "@/lib/registry";
 import type { ChartSlug } from "@/lib/types";
 import { Popover, PopoverContent, PopoverTrigger } from "@/ui/popover";
@@ -23,8 +24,9 @@ export function ChartTypeSelector({
     <Popover onOpenChange={setOpen} open={open}>
       <PopoverTrigger
         className={cn(
-          "flex h-10 w-full items-center gap-2.5 rounded-lg border border-input bg-background px-2.5 text-left text-xs shadow-xs outline-none transition-colors",
-          "hover:bg-muted/40 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+          "flex h-10 w-full items-center gap-2.5 rounded-lg px-2.5 text-left text-xs outline-none transition-colors",
+          studioInputSurfaceClass,
+          "hover:bg-[var(--studio-input-background)] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
         )}
         id="studio-chart"
         type="button"

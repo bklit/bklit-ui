@@ -3,24 +3,49 @@
 import { cn } from "@bklitui/ui/lib/utils";
 import {
   BarChart3Icon,
+  ChartPieIcon,
   CircleDotIcon,
   DatabaseIcon,
+  EyeIcon,
+  EyeOffIcon,
+  FilterIcon,
   LayersIcon,
   LineChartIcon,
   TypeIcon,
 } from "lucide-react";
 import { StudioControlGroup } from "@/components/studio-control-group";
 import { StudioScrambleDataButton } from "@/components/studio-scramble-data-button";
+import { resolveCssColor } from "@/lib/chart-theme-color";
+import {
+  isStudioComponentConfigurable,
+  isStudioComponentVisible,
+  toggleStudioComponentVisibility,
+} from "@/lib/studio-component-visibility";
 import {
   flattenStudioComponents,
   studioComponentDepth,
 } from "@/lib/studio-components";
+import type { StudioUrlState } from "@/lib/studio-parsers";
 import type {
   StudioComponentDefinition,
   StudioComponentKind,
+  StudioComponentTreeIcon,
 } from "@/lib/types";
 
-function componentIcon(kind: StudioComponentKind | undefined) {
+function componentIcon(
+  kind: StudioComponentKind | undefined,
+  treeIcon?: StudioComponentTreeIcon
+) {
+  if (treeIcon === "pie-chart") {
+    return ChartPieIcon;
+  }
+  if (treeIcon === "funnel") {
+    return FilterIcon;
+  }
+  if (treeIcon === "line-chart") {
+    return LineChartIcon;
+  }
+
   switch (kind) {
     case "data":
       return DatabaseIcon;
@@ -37,16 +62,43 @@ function componentIcon(kind: StudioComponentKind | undefined) {
   }
 }
 
+function ComponentListMarker({
+  component,
+}: {
+  component: StudioComponentDefinition;
+}) {
+  if (component.listMarker === "color-dot") {
+    const color = resolveCssColor(component.swatchColor ?? "var(--chart-1)");
+    return (
+      <span
+        aria-hidden
+        className="size-2 shrink-0 rounded-full ring-1 ring-border"
+        style={{ backgroundColor: color }}
+      />
+    );
+  }
+
+  const Icon = componentIcon(component.kind, component.treeIcon);
+  return <Icon className="size-3.5 shrink-0 opacity-70" strokeWidth={1.75} />;
+}
+
 export function StudioComponentsPanel({
   components,
   selectedId,
   onSelect,
+  state,
+  onChange,
   controlsDisabled = false,
   onScramble,
 }: {
   components: StudioComponentDefinition[];
   selectedId: string;
   onSelect: (id: string) => void;
+  state: StudioUrlState;
+  onChange: <K extends keyof StudioUrlState>(
+    key: K,
+    value: StudioUrlState[K]
+  ) => void;
   controlsDisabled?: boolean;
   onScramble?: () => void;
 }) {
@@ -60,29 +112,64 @@ export function StudioComponentsPanel({
     <StudioControlGroup collapsible defaultOpen title="Components">
       <ul className="flex flex-col gap-0.5">
         {ordered.map((component) => {
-          const Icon = componentIcon(component.kind);
           const depth = studioComponentDepth(components, component.id);
           const selected = component.id === selectedId;
+          const configurable = isStudioComponentConfigurable(component);
+          const visible = isStudioComponentVisible(state, component.id);
 
           return (
             <li key={component.id}>
-              <button
+              <div
                 className={cn(
-                  "flex w-full min-w-0 items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs transition-colors",
+                  "group flex w-full min-w-0 items-center gap-1 rounded-md pr-1 transition-colors",
                   selected
                     ? "bg-accent/10 text-foreground ring-1 ring-accent/25"
-                    : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+                    : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
+                  !configurable && "opacity-45"
                 )}
-                onClick={() => onSelect(component.id)}
                 style={{ paddingLeft: `${8 + depth * 12}px` }}
-                type="button"
               >
-                <Icon
-                  className="size-3.5 shrink-0 opacity-70"
-                  strokeWidth={1.75}
-                />
-                <span className="truncate">{component.label}</span>
-              </button>
+                <button
+                  className={cn(
+                    "flex min-w-0 flex-1 items-center gap-2 py-1.5 text-left text-xs",
+                    configurable ? "cursor-pointer" : "cursor-not-allowed"
+                  )}
+                  disabled={!configurable}
+                  onClick={() => {
+                    if (configurable) {
+                      onSelect(component.id);
+                    }
+                  }}
+                  type="button"
+                >
+                  <ComponentListMarker component={component} />
+                  <span className="truncate">{component.label}</span>
+                </button>
+                <button
+                  aria-label={visible ? "Hide layer" : "Show layer"}
+                  className={cn(
+                    "shrink-0 rounded p-1 opacity-0 transition-opacity hover:bg-muted/80 group-hover:opacity-100",
+                    !visible && "opacity-100"
+                  )}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onChange(
+                      "hiddenComponents",
+                      toggleStudioComponentVisibility(state, component.id)
+                    );
+                  }}
+                  type="button"
+                >
+                  {visible ? (
+                    <EyeIcon className="size-3.5" strokeWidth={1.75} />
+                  ) : (
+                    <EyeOffIcon
+                      className="size-3.5 opacity-60"
+                      strokeWidth={1.75}
+                    />
+                  )}
+                </button>
+              </div>
             </li>
           );
         })}

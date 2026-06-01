@@ -6,12 +6,15 @@
  *   .dark {
  *     --studio-label: oklch(0.72 0.014 214.4);
  *     --studio-section-label: oklch(0.65 0.014 214.4);
+ *     --studio-input-background: oklch(0.12 0.004 263);
  *   }
  */
 @layer base {
   :root {
     --studio-label: var(--muted-foreground);
     --studio-section-label: var(--muted-foreground);
+    /** Sidebar control surfaces (Fill trigger, scrub inputs, selects). */
+    --studio-input-background: var(--background);
   }
 }
 

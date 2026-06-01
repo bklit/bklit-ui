@@ -4,6 +4,7 @@ import { cn } from "@bklitui/ui/lib/utils";
 import { useEffect, useState } from "react";
 import type { Color } from "react-aria-components";
 import { ColorPicker as AriaColorPicker } from "react-aria-components";
+import { studioInputSurfaceClass } from "@/components/controls/control-field-helpers";
 import {
   applyOpacityToColor,
   isValidOklchColor,
@@ -158,7 +159,10 @@ export function StudioColorPicker({
             ))}
           </div>
           <input
-            className="h-8 min-w-0 flex-1 rounded-md border border-input bg-background px-2 font-mono text-foreground text-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+            className={cn(
+              "h-8 min-w-0 flex-1 rounded-md px-2 font-mono text-foreground text-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
+              studioInputSurfaceClass
+            )}
             disabled={disabled}
             onBlur={() => commitDraft(draft, inputMode)}
             onChange={(event) => setDraft(event.target.value)}
@@ -172,7 +176,10 @@ export function StudioColorPicker({
           />
           <input
             aria-label="Fill opacity percent"
-            className="h-8 w-14 rounded-md border border-input bg-background px-2 text-center font-mono text-muted-foreground text-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+            className={cn(
+              "h-8 w-14 rounded-md px-2 text-center font-mono text-muted-foreground text-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
+              studioInputSurfaceClass
+            )}
             disabled={disabled}
             max={100}
             min={0}

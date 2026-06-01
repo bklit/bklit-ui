@@ -15,6 +15,13 @@ const CHARTS_WITH_DATA_SERIES = new Set<ChartSlug>([
   "composed-chart",
 ]);
 
+const CHART_FIXED_SERIES_COUNTS: Partial<Record<ChartSlug, number>> = {
+  "pie-chart": 5,
+  "funnel-chart": 5,
+  "ring-chart": 4,
+  "radar-chart": 2,
+};
+
 const SERIES_FIELD_SEP = "|";
 
 export type SeriesFillMode = "solid" | "pattern";
@@ -25,6 +32,10 @@ export function getDesignSeriesCount(
 ): number {
   if (CHARTS_WITH_DATA_SERIES.has(chart)) {
     return clampStudioSeriesCount(state.dataSeries);
+  }
+  const fixed = CHART_FIXED_SERIES_COUNTS[chart];
+  if (fixed !== undefined) {
+    return fixed;
   }
   return 1;
 }

@@ -11,18 +11,12 @@ export function LineCapPicker({
   onChange: (v: "round" | "butt") => void;
 }) {
   return (
-    <IconToggleGroup>
-      <IconToggleButton
-        icon={SquareIcon}
-        label="Butt cap"
-        onClick={() => onChange("butt")}
-        pressed={value === "butt"}
-      />
+    <IconToggleGroup onValueChange={onChange} value={value}>
+      <IconToggleButton icon={SquareIcon} label="Butt cap" value="butt" />
       <IconToggleButton
         icon={SquareRoundCornerIcon}
         label="Round cap"
-        onClick={() => onChange("round")}
-        pressed={value === "round"}
+        value="round"
       />
     </IconToggleGroup>
   );

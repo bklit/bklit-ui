@@ -113,21 +113,51 @@ export function normalizeColorInput(raw: string): string | null {
   return null;
 }
 
+const RGB_COLOR_RE = /^rgba?\(\s*(\d+)[,\s]+(\d+)[,\s]+(\d+)/;
+
+function rgbComponentsToHex(r: number, g: number, b: number): string {
+  return [r, g, b]
+    .map((n) => Math.min(255, Math.max(0, n)).toString(16).padStart(2, "0"))
+    .join("")
+    .toUpperCase();
+}
+
 export function cssColorToHex(color: string): string {
+  const trimmed = color.trim();
+  if (trimmed.startsWith("#")) {
+    const hex = trimmed.slice(1);
+    if (HEX6_RE.test(hex)) {
+      return hex.toUpperCase();
+    }
+  }
+  if (HEX6_RE.test(trimmed)) {
+    return trimmed.toUpperCase();
+  }
+
   if (typeof document === "undefined") {
     return "000000";
   }
-  const canvas = document.createElement("canvas");
-  const ctx = canvas.getContext("2d");
-  if (!ctx) {
+
+  const resolved = trimmed.includes("var(")
+    ? resolveCssColor(trimmed)
+    : trimmed;
+  const probe = document.createElement("span");
+  probe.hidden = true;
+  probe.style.color = resolved;
+  document.documentElement.appendChild(probe);
+  const computed = getComputedStyle(probe).color;
+  probe.remove();
+
+  const match = computed.match(RGB_COLOR_RE);
+  if (!(match?.[1] && match[2] && match[3])) {
     return "000000";
   }
-  ctx.fillStyle = color;
-  const normalized = ctx.fillStyle;
-  if (typeof normalized === "string" && normalized.startsWith("#")) {
-    return normalized.slice(1).toUpperCase();
-  }
-  return "000000";
+
+  return rgbComponentsToHex(
+    Number(match[1]),
+    Number(match[2]),
+    Number(match[3])
+  );
 }
 
 export function resolveCssColor(color: string): string {

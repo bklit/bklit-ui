@@ -259,14 +259,15 @@ export function clampStudioPointCount(n: number): number {
 export const STUDIO_PROFIT_LOSS_DATA_KEY = "pnl";
 
 /** Deterministic profit/loss sample data that crosses zero several times. */
-export function generateStudioProfitLossData(pointCount: number) {
+export function generateStudioProfitLossData(pointCount: number, seed = 0) {
   const points = clampStudioPointCount(pointCount);
   const baseYear = 2024;
 
   return Array.from({ length: points }, (_, index) => {
+    const i = seed === 0 ? index : index + seed * 9.17;
     const pnl = Math.round(
-      Math.sin(index / 2.5) * 800 +
-        Math.cos(index / 6) * 400 +
+      Math.sin(i / 2.5) * 800 +
+        Math.cos(i / 6) * 400 +
         (index - points / 2) * 15
     );
 
@@ -275,6 +276,134 @@ export function generateStudioProfitLossData(pointCount: number) {
       [STUDIO_PROFIT_LOSS_DATA_KEY]: pnl,
     };
   });
+}
+
+function scrambleFactor(index: number, seed: number): number {
+  if (seed === 0) {
+    return 1;
+  }
+  return 0.65 + (((index + seed * 13) * 17) % 70) / 100;
+}
+
+function seededRandom(seed: number) {
+  let state = seed * 9973 + 1;
+  return () => {
+    state = (state * 16_807 + 0) % 2_147_483_647;
+    return state / 2_147_483_647;
+  };
+}
+
+export function getFunnelData(seed = 0): FunnelStage[] {
+  return funnelData.map((stage, index) => ({
+    ...stage,
+    value: Math.max(1, Math.round(stage.value * scrambleFactor(index, seed))),
+  }));
+}
+
+export function getPieData(seed = 0): PieData[] {
+  return pieData.map((slice, index) => ({
+    ...slice,
+    value: Math.max(1, Math.round(slice.value * scrambleFactor(index, seed))),
+  }));
+}
+
+export function getRingData(seed = 0): RingData[] {
+  return ringData.map((ring, index) => ({
+    ...ring,
+    value: Math.max(1, Math.round(ring.value * scrambleFactor(index, seed))),
+  }));
+}
+
+export function getRadarData(seed = 0): RadarData[] {
+  if (seed === 0) {
+    return radarDataDual;
+  }
+  return radarDataDual.map((series, seriesIndex) => ({
+    ...series,
+    values: Object.fromEntries(
+      Object.entries(series.values).map(([key, value], metricIndex) => [
+        key,
+        Math.max(
+          5,
+          Math.min(
+            100,
+            Math.round(value * scrambleFactor(seriesIndex + metricIndex, seed))
+          )
+        ),
+      ])
+    ),
+  }));
+}
+
+export function getScatterData(seed = 0) {
+  return lineHeroData.map((row, index) => ({
+    date: row.date,
+    desktop: studioSeriesValue(index, 0, seed),
+    mobile: studioSeriesValue(index, 1, seed),
+  }));
+}
+
+export function getBarHorizontalData(seed = 0) {
+  return barHorizontalData.map((row, index) => ({
+    ...row,
+    users: Math.max(1, Math.round(row.users * scrambleFactor(index, seed))),
+  }));
+}
+
+export function getCandlestickData(seed = 0): OHLCDataPoint[] {
+  if (seed === 0) {
+    return candlestickOhlcData;
+  }
+  const random = seededRandom(seed);
+  const points: OHLCDataPoint[] = [];
+  const days = 30;
+  let open = 100;
+  const base = new Date(2024, 0, 1).getTime();
+  for (let i = 0; i < days; i++) {
+    const date = new Date(base + i * 24 * 60 * 60 * 1000);
+    const volatility = 1.5 + random() * 1.5;
+    const drift = (random() - 0.48) * volatility;
+    const high = open + Math.abs(drift) * (1.5 + random());
+    const low = open - Math.abs(drift) * (1.5 + random());
+    const close = low + random() * (high - low);
+    points.push({ date, open, high, low, close });
+    open = close;
+  }
+  return points;
+}
+
+export function getSankeyData(seed = 0) {
+  if (seed === 0) {
+    return sankeySimple;
+  }
+  return {
+    ...sankeySimple,
+    links: sankeySimple.links.map((link, index) => ({
+      ...link,
+      value: Math.max(1, Math.round(link.value * scrambleFactor(index, seed))),
+    })),
+  };
+}
+
+export function getVisitorsByCountry(seed = 0): Record<string, number> {
+  if (seed === 0) {
+    return visitorsByCountry;
+  }
+  return Object.fromEntries(
+    Object.entries(visitorsByCountry).map(([country, value], index) => [
+      country,
+      Math.max(1, Math.round(value * scrambleFactor(index, seed))),
+    ])
+  );
+}
+
+export function scrambleGaugeValue(value: number, seed: number): number {
+  if (seed === 0) {
+    return value;
+  }
+  const span = Math.max(value * 0.35, 5000);
+  const offset = ((seed * 7919) % 100) / 100 - 0.5;
+  return Math.max(0, Math.round(value + span * offset));
 }
 
 /**

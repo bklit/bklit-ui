@@ -2,6 +2,7 @@
 
 import { StudioComponentsPanel } from "@/components/studio-components-panel";
 import { StudioScrollArea } from "@/components/studio-scroll-area";
+import { useStudioState } from "@/components/use-studio-state";
 import { EditorAnimationSection } from "@/editor/editor-animation-section";
 import { EditorCollapsiblePane } from "@/editor/editor-collapsible-pane";
 import { EditorDataSection } from "@/editor/editor-data-section";
@@ -44,6 +45,8 @@ export function EditorLeftPanel({
     selectedComponentId,
     setSelectedComponentId,
   } = useStudioComponentSelection();
+  const { config } = useStudioState();
+  const showScramble = config.scrambleData !== false;
 
   return (
     <EditorCollapsiblePane label="Controls" side="left">
@@ -58,9 +61,11 @@ export function EditorLeftPanel({
           <StudioComponentsPanel
             components={components}
             controlsDisabled={controlsDisabled}
-            onScramble={onScramble}
+            onChange={onChange}
+            onScramble={showScramble ? onScramble : undefined}
             onSelect={setSelectedComponentId}
             selectedId={selectedComponentId}
+            state={state}
           />
 
           <EditorDataSection

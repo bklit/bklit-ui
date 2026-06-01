@@ -17,30 +17,6 @@ import {
   studioChoroplethFgPatternId,
 } from "@/lib/patterns";
 
-function getVisitorColor(feat: ChoroplethFeature): string {
-  const visitors = visitorsByCountry[feat.properties?.name as string];
-  if (!visitors) {
-    return "var(--muted)";
-  }
-  if (visitors >= 17) {
-    return "var(--chart-1)";
-  }
-  if (visitors >= 13) {
-    return "var(--chart-2)";
-  }
-  if (visitors >= 9) {
-    return "var(--chart-3)";
-  }
-  if (visitors >= 5) {
-    return "var(--chart-4)";
-  }
-  return "var(--chart-5)";
-}
-
-function getVisitorValue(feat: ChoroplethFeature): number | undefined {
-  return visitorsByCountry[feat.properties?.name as string];
-}
-
 export function ChoroplethStudioPreview({
   showGraticule,
   analytics,
@@ -50,6 +26,7 @@ export function ChoroplethStudioPreview({
   animationEasing: _animationEasing,
   enterTransition,
   revealSignature: _revealSignature,
+  visitorCounts = visitorsByCountry,
 }: {
   showGraticule: boolean;
   analytics: boolean;
@@ -59,8 +36,33 @@ export function ChoroplethStudioPreview({
   animationEasing?: string;
   enterTransition?: Transition;
   revealSignature?: string;
+  visitorCounts?: Record<string, number>;
 }) {
   const { worldData, isLoading } = useWorldDataStandalone();
+
+  function getVisitorColor(feat: ChoroplethFeature): string {
+    const visitors = visitorCounts[feat.properties?.name as string];
+    if (!visitors) {
+      return "var(--muted)";
+    }
+    if (visitors >= 17) {
+      return "var(--chart-1)";
+    }
+    if (visitors >= 13) {
+      return "var(--chart-2)";
+    }
+    if (visitors >= 9) {
+      return "var(--chart-3)";
+    }
+    if (visitors >= 5) {
+      return "var(--chart-4)";
+    }
+    return "var(--chart-5)";
+  }
+
+  function getVisitorValue(feat: ChoroplethFeature): number | undefined {
+    return visitorCounts[feat.properties?.name as string];
+  }
 
   if (isLoading || !worldData) {
     return (

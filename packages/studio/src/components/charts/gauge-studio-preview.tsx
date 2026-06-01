@@ -6,6 +6,7 @@ import {
   getStudioMotionEnterProps,
   studioPreviewChartKey,
 } from "@/lib/chart-animation";
+import { scrambleGaugeValue } from "@/lib/demo-data";
 import type { StudioRenderContext } from "@/lib/render-context";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 
@@ -43,12 +44,14 @@ export function GaugeStudioPreview({
       key={studioPreviewChartKey(ctx)}
       notchCornerRadius={state.notchCornerRadius}
       notchLengthPercent={state.notchLengthPercent}
+      prefix={state.gaugeCenterPrefix || undefined}
       spacing={state.spacing}
       startAngle={state.startAngle}
+      suffix={state.gaugeCenterSuffix || undefined}
       totalNotches={state.totalNotches}
       uniformWidth={state.uniformWidth}
       useGradient={state.useGradient}
-      value={state.value}
+      value={scrambleGaugeValue(state.value, ctx.dataSeed)}
       width={width}
     >
       {ctx.patternDefs}

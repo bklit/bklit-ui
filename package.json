@@ -25,5 +25,10 @@
   "packageManager": "pnpm@9.0.0",
   "engines": {
     "node": ">=18"
+  },
+  "pnpm": {
+    "overrides": {
+      "esm-env": "npm:esm-env-runtime@^0.1.1"
+    }
   }
 }

@@ -140,9 +140,11 @@ export function EditorMobilePanelSheets({
               <StudioComponentsPanel
                 components={components}
                 controlsDisabled={controlsDisabled}
+                onChange={onChange}
                 onScramble={onScramble}
                 onSelect={setSelectedComponentId}
                 selectedId={selectedComponentId}
+                state={state}
               />
               <EditorDataSection
                 groups={dataControlGroups}
