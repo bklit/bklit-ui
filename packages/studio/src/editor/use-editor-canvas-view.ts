@@ -9,11 +9,10 @@ import {
 } from "react";
 import {
   clampCameraZoom,
-  computeCenterCamera,
+  compute100PercentCamera,
   computeFitCamera,
   type EditorCamera,
   persistCamera,
-  readPersistedCamera,
   zoomCameraAtPoint,
 } from "@/editor/editor-camera";
 
@@ -82,6 +81,7 @@ export function useEditorCamera({
   cameraRef.current = camera;
   const getContentBoundsRef = useRef(getContentBounds);
   getContentBoundsRef.current = getContentBounds;
+  const userAdjustedCameraRef = useRef(false);
 
   const getViewportSize = useCallback(() => {
     const element = viewportRef.current;
@@ -95,9 +95,14 @@ export function useEditorCamera({
   }, [viewportRef]);
 
   const applyCamera = useCallback(
-    (next: EditorCamera) => {
+    (next: EditorCamera, options?: { userInitiated?: boolean }) => {
+      if (options?.userInitiated) {
+        userAdjustedCameraRef.current = true;
+      }
+
       setCamera(next);
-      if (persist) {
+
+      if (persist && userAdjustedCameraRef.current) {
         persistCamera(next);
       }
     },
@@ -118,7 +123,8 @@ export function useEditorCamera({
         worldY: bounds.y,
         worldWidth: bounds.width,
         worldHeight: bounds.height,
-      })
+      }),
+      { userInitiated: true }
     );
   }, [applyCamera, getViewportSize]);
 
@@ -128,19 +134,41 @@ export function useEditorCamera({
     if (!(width && height && bounds.width && bounds.height)) {
       return;
     }
-    applyCamera({
-      zoom: 1,
-      ...computeCenterCamera({
+    applyCamera(
+      compute100PercentCamera({
         viewportWidth: width,
         viewportHeight: height,
         worldX: bounds.x,
         worldY: bounds.y,
         worldWidth: bounds.width,
         worldHeight: bounds.height,
-        zoom: 1,
       }),
-    });
+      { userInitiated: true }
+    );
   }, [applyCamera, getViewportSize]);
+
+  const applyDefaultCamera = useCallback(() => {
+    if (userAdjustedCameraRef.current) {
+      return;
+    }
+
+    const { width, height } = getViewportSize();
+    const bounds = getContentBoundsRef.current();
+    if (!(width && height && bounds.width && bounds.height)) {
+      return;
+    }
+
+    setCamera(
+      compute100PercentCamera({
+        viewportWidth: width,
+        viewportHeight: height,
+        worldX: bounds.x,
+        worldY: bounds.y,
+        worldWidth: bounds.width,
+        worldHeight: bounds.height,
+      })
+    );
+  }, [getViewportSize]);
 
   const zoomBy = useCallback(
     (factor: number, anchor?: { x: number; y: number }) => {
@@ -156,7 +184,8 @@ export function useEditorCamera({
           pointX: point.x,
           pointY: point.y,
           nextZoom: cameraRef.current.zoom * factor,
-        })
+        }),
+        { userInitiated: true }
       );
     },
     [applyCamera, getViewportSize]
@@ -164,25 +193,44 @@ export function useEditorCamera({
 
   const panBy = useCallback(
     (deltaX: number, deltaY: number) => {
-      applyCamera({
-        ...cameraRef.current,
-        x: cameraRef.current.x + deltaX,
-        y: cameraRef.current.y + deltaY,
-      });
+      applyCamera(
+        {
+          ...cameraRef.current,
+          x: cameraRef.current.x + deltaX,
+          y: cameraRef.current.y + deltaY,
+        },
+        { userInitiated: true }
+      );
     },
     [applyCamera]
   );
 
   const setPan = useCallback(
     (x: number, y: number) => {
-      applyCamera({
-        ...cameraRef.current,
-        x,
-        y,
-      });
+      applyCamera(
+        {
+          ...cameraRef.current,
+          x,
+          y,
+        },
+        { userInitiated: true }
+      );
     },
     [applyCamera]
   );
+
+  useEffect(() => {
+    if (!enabled) {
+      return;
+    }
+
+    userAdjustedCameraRef.current = false;
+  }, [enabled]);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: re-center when artboard bounds change
+  useEffect(() => {
+    applyDefaultCamera();
+  }, [applyDefaultCamera, getContentBounds]);
 
   useEffect(() => {
     if (!enabled) {
@@ -194,44 +242,11 @@ export function useEditorCamera({
       return;
     }
 
-    let initialized = false;
-
-    const initializeCamera = () => {
-      if (initialized) {
-        return;
-      }
-
-      const { width, height } = getViewportSize();
-      const bounds = getContentBoundsRef.current();
-      if (!(width && height && bounds.width && bounds.height)) {
-        return;
-      }
-
-      initialized = true;
-
-      const persisted = persist ? readPersistedCamera() : null;
-      if (persisted) {
-        setCamera(persisted);
-        return;
-      }
-
-      applyCamera(
-        computeFitCamera({
-          viewportWidth: width,
-          viewportHeight: height,
-          worldX: bounds.x,
-          worldY: bounds.y,
-          worldWidth: bounds.width,
-          worldHeight: bounds.height,
-        })
-      );
-    };
-
-    initializeCamera();
-    const observer = new ResizeObserver(initializeCamera);
+    applyDefaultCamera();
+    const observer = new ResizeObserver(applyDefaultCamera);
     observer.observe(element);
     return () => observer.disconnect();
-  }, [enabled, persist, applyCamera, getViewportSize, viewportRef]);
+  }, [applyDefaultCamera, enabled, viewportRef]);
 
   useEffect(() => {
     if (!enabled) {
@@ -281,7 +296,8 @@ export function useEditorCamera({
             pointX: event.clientX - rect.left,
             pointY: event.clientY - rect.top,
             nextZoom: cameraRef.current.zoom * factor,
-          })
+          }),
+          { userInitiated: true }
         );
         return;
       }
@@ -334,7 +350,8 @@ export function useEditorCamera({
           pointX: gestureSession.centerX,
           pointY: gestureSession.centerY,
           nextZoom: gestureSession.startZoom * gesture.scale,
-        })
+        }),
+        { userInitiated: true }
       );
     };
 
@@ -397,11 +414,14 @@ export function useEditorCamera({
         return;
       }
 
-      applyCamera({
-        ...cameraRef.current,
-        x: session.originX + (event.clientX - session.startX),
-        y: session.originY + (event.clientY - session.startY),
-      });
+      applyCamera(
+        {
+          ...cameraRef.current,
+          x: session.originX + (event.clientX - session.startX),
+          y: session.originY + (event.clientY - session.startY),
+        },
+        { userInitiated: true }
+      );
     },
     [applyCamera]
   );
@@ -497,11 +517,14 @@ export function useEditorCamera({
         const worldX = (session.centerX - session.startX) / session.startZoom;
         const worldY = (session.centerY - session.startY) / session.startZoom;
 
-        applyCamera({
-          zoom: nextZoom,
-          x: session.centerX - worldX * nextZoom,
-          y: session.centerY - worldY * nextZoom,
-        });
+        applyCamera(
+          {
+            zoom: nextZoom,
+            x: session.centerX - worldX * nextZoom,
+            y: session.centerY - worldY * nextZoom,
+          },
+          { userInitiated: true }
+        );
       };
 
       const onPointerUp = (event: PointerEvent) => {

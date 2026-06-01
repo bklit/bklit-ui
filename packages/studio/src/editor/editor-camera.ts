@@ -1,6 +1,6 @@
 export const EDITOR_CAMERA_MIN_ZOOM = 0.25;
 export const EDITOR_CAMERA_MAX_ZOOM = 4;
-export const EDITOR_CAMERA_SESSION_KEY = "bklit-studio-canvas-view";
+export const EDITOR_CAMERA_SESSION_KEY = "bklit-studio-canvas-view-v2";
 export const EDITOR_CAMERA_VIEW_PADDING = 64;
 
 /** Viewport camera in screen space. */
@@ -71,6 +71,37 @@ export function computeFitCamera({
     zoom,
     x: (viewportWidth - worldWidth * zoom) / 2 - worldX * zoom,
     y: (viewportHeight - worldHeight * zoom) / 2 - worldY * zoom,
+  };
+}
+
+export function compute100PercentCamera({
+  viewportWidth,
+  viewportHeight,
+  worldX,
+  worldY,
+  worldWidth,
+  worldHeight,
+}: {
+  viewportWidth: number;
+  viewportHeight: number;
+  worldX: number;
+  worldY: number;
+  worldWidth: number;
+  worldHeight: number;
+}): EditorCamera {
+  const zoom = 1;
+
+  return {
+    zoom,
+    ...computeCenterCamera({
+      viewportWidth,
+      viewportHeight,
+      worldX,
+      worldY,
+      worldWidth,
+      worldHeight,
+      zoom,
+    }),
   };
 }
 
