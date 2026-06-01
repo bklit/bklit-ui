@@ -1,6 +1,7 @@
 "use client";
 
 import { PieCenter, PieChart, PieSlice } from "@bklitui/ui/charts";
+import { memo, useMemo } from "react";
 import {
   StudioRadialCenter,
   studioRadialSize,
@@ -21,18 +22,45 @@ import {
   getSeriesFillMode,
 } from "@/lib/studio-series-design";
 
-function PieChartBody({
+const PieChartBody = memo(function PieChartBody({
   state,
   ctx,
   data,
   motionEnter,
+  showPatternDefs,
 }: {
   state: StudioUrlState;
   ctx: StudioRenderContext;
   data: ReturnType<typeof getPieData>;
   motionEnter: ReturnType<typeof getStudioMotionEnterProps>;
+  showPatternDefs: boolean;
 }) {
   const { hoveredIndex, setHoveredIndex } = useStudioLegendHover();
+
+  const slices = useMemo(
+    () =>
+      data.map((item, index) => {
+        if (!isStudioComponentVisible(state, `pie.slice.${index}`)) {
+          return null;
+        }
+        const patternFill = ctx.patternFillAt(index);
+        const fill =
+          getSeriesFillMode(state, index) === "pattern" && patternFill
+            ? patternFill
+            : item.color;
+
+        return (
+          <PieSlice
+            fill={fill}
+            hoverEffect={state.pieHoverEffect}
+            index={index}
+            key={item.label}
+            showGlow={false}
+          />
+        );
+      }),
+    [ctx.patternFillAt, data, state]
+  );
 
   return (
     <StudioRadialCenter frame={ctx.frame}>
@@ -51,27 +79,8 @@ function PieChartBody({
         size={studioRadialSize(ctx.frame, state.pieSize)}
         startAngle={(state.pieStartAngleDeg * Math.PI) / 180}
       >
-        {ctx.patternDefs}
-        {data.map((item, index) => {
-          if (!isStudioComponentVisible(state, `pie.slice.${index}`)) {
-            return null;
-          }
-          const patternFill = ctx.patternFillAt(index);
-          const fill =
-            getSeriesFillMode(state, index) === "pattern" && patternFill
-              ? patternFill
-              : item.color;
-
-          return (
-            <PieSlice
-              fill={fill}
-              hoverEffect={state.pieHoverEffect}
-              index={index}
-              key={item.label}
-              showGlow={false}
-            />
-          );
-        })}
+        {showPatternDefs ? ctx.patternDefs : null}
+        {slices}
         {state.innerRadius > 0 &&
         isStudioComponentVisible(state, "pie.center") ? (
           <PieCenter
@@ -83,7 +92,7 @@ function PieChartBody({
       </PieChart>
     </StudioRadialCenter>
   );
-}
+});
 
 export function PieStudioPreview({
   state,
@@ -92,24 +101,42 @@ export function PieStudioPreview({
   state: StudioUrlState;
   ctx: StudioRenderContext;
 }) {
-  const motionEnter = getStudioMotionEnterProps(state, {
-    linear: ctx.isRecording,
-  });
-  const data = getPieData(ctx.dataSeed).map((item, index) => ({
-    ...item,
-    color: getEffectiveSeriesColor(state, index),
-  }));
+  const motionEnter = useMemo(
+    () =>
+      getStudioMotionEnterProps(state, {
+        linear: ctx.isRecording,
+      }),
+    [ctx.isRecording, state]
+  );
+
+  const data = useMemo(
+    () =>
+      getPieData(ctx.dataSeed).map((item, index) => ({
+        ...item,
+        color: getEffectiveSeriesColor(state, index),
+      })),
+    [ctx.dataSeed, state]
+  );
+
+  const showPatternDefs = useMemo(
+    () =>
+      data.some((_, index) => getSeriesFillMode(state, index) === "pattern"),
+    [data, state]
+  );
+
+  const legendItems = useMemo(() => studioStaticPieLegendItems(state), [state]);
 
   return (
     <StudioChartShell
       legendComponentId="pie.legend"
-      legendItems={studioStaticPieLegendItems(state)}
+      legendItems={legendItems}
       state={state}
     >
       <PieChartBody
         ctx={ctx}
         data={data}
         motionEnter={motionEnter}
+        showPatternDefs={showPatternDefs}
         state={state}
       />
     </StudioChartShell>

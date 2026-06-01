@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, type ReactNode, useContext } from "react";
+import { createContext, type ReactNode, useContext, useMemo } from "react";
 
 interface StudioLegendHoverContextValue {
   hoveredIndex: number | null;
@@ -19,10 +19,13 @@ export function StudioLegendHoverProvider({
   onHoverChange: (index: number | null) => void;
   children: ReactNode;
 }) {
+  const value = useMemo(
+    () => ({ hoveredIndex, setHoveredIndex: onHoverChange }),
+    [hoveredIndex, onHoverChange]
+  );
+
   return (
-    <StudioLegendHoverContext.Provider
-      value={{ hoveredIndex, setHoveredIndex: onHoverChange }}
-    >
+    <StudioLegendHoverContext.Provider value={value}>
       {children}
     </StudioLegendHoverContext.Provider>
   );

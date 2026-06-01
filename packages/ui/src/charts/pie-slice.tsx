@@ -1,9 +1,10 @@
 "use client";
 
 import { arc as arcGenerator } from "@visx/shape";
+import type { MotionValue } from "motion/react";
 import { motion, useSpring, useTransform } from "motion/react";
-import { useEffect, useRef } from "react";
-import { usePie } from "./pie-context";
+import { memo, useEffect, useState } from "react";
+import { usePieHover, usePieStable } from "./pie-context";
 import { useMountProgress } from "./use-mount-progress";
 
 // Helper to generate arc path using d3 arc generator
@@ -38,6 +39,25 @@ function getSliceOffset(
     x: Math.sin(midAngle) * distance,
     y: -Math.cos(midAngle) * distance,
   };
+}
+
+function useEnterComplete(mountProgress: MotionValue<number>): boolean {
+  const [complete, setComplete] = useState(() => mountProgress.get() >= 1);
+
+  useEffect(() => {
+    if (mountProgress.get() >= 1) {
+      setComplete(true);
+      return;
+    }
+
+    return mountProgress.on("change", (value) => {
+      if (value >= 1) {
+        setComplete(true);
+      }
+    });
+  }, [mountProgress]);
+
+  return complete;
 }
 
 /** Hover effect types */
@@ -104,13 +124,14 @@ function AnimatedSliceTranslate({
     enterTransition,
     enterStaggerScale,
     animationKey: pieAnimationKey,
-  } = usePie();
+  } = usePieStable();
   const animationDelay = (0.1 + index * 0.08) * enterStaggerScale;
   const mountProgress = useMountProgress(
     enterTransition,
     animationDelay,
     pieAnimationKey
   );
+  const enterComplete = useEnterComplete(mountProgress);
 
   const animatedPath = useTransform(mountProgress, (mount) => {
     const currentEndAngle = startAngle + (endAngle - startAngle) * mount;
@@ -129,6 +150,41 @@ function AnimatedSliceTranslate({
 
   const offset = getSliceOffset(startAngle, endAngle, hoverOffset);
   const glowColor = color;
+  const hitboxPath = generateArcPath(
+    innerRadius,
+    outerRadius,
+    startAngle,
+    endAngle,
+    cornerRadius,
+    padAngle
+  );
+
+  if (enterComplete) {
+    const shouldTranslate = isHovered;
+    return (
+      <motion.path
+        animate={{
+          opacity: isFaded ? 0.4 : 1,
+          x: shouldTranslate ? offset.x : 0,
+          y: shouldTranslate ? offset.y : 0,
+        }}
+        d={hitboxPath}
+        fill={fill}
+        pointerEvents="none"
+        style={{
+          filter:
+            showGlow && isHovered
+              ? `drop-shadow(0 0 12px ${glowColor})`
+              : "none",
+        }}
+        transition={{
+          opacity: { duration: 0.15 },
+          x: { type: "spring", stiffness: 400, damping: 25 },
+          y: { type: "spring", stiffness: 400, damping: 25 },
+        }}
+      />
+    );
+  }
 
   return (
     <motion.path
@@ -191,13 +247,14 @@ function AnimatedSliceGrow({
     enterTransition,
     enterStaggerScale,
     animationKey: pieAnimationKey,
-  } = usePie();
+  } = usePieStable();
   const animationDelay = (0.1 + index * 0.08) * enterStaggerScale;
   const mountProgress = useMountProgress(
     enterTransition,
     animationDelay,
     pieAnimationKey
   );
+  const enterComplete = useEnterComplete(mountProgress);
 
   const growSpring = useSpring(outerRadius, {
     stiffness: 400,
@@ -228,6 +285,39 @@ function AnimatedSliceGrow({
   );
 
   const glowColor = color;
+  const grownOuterRadius = isHovered ? outerRadius + hoverOffset : outerRadius;
+  const grownPath = generateArcPath(
+    innerRadius,
+    grownOuterRadius,
+    startAngle,
+    endAngle,
+    cornerRadius,
+    padAngle
+  );
+
+  if (enterComplete) {
+    return (
+      <motion.path
+        animate={{
+          opacity: isFaded ? 0.4 : 1,
+          d: grownPath,
+        }}
+        d={grownPath}
+        fill={fill}
+        pointerEvents="none"
+        style={{
+          filter:
+            showGlow && isHovered
+              ? `drop-shadow(0 0 12px ${glowColor})`
+              : "none",
+        }}
+        transition={{
+          opacity: { duration: 0.15 },
+          d: { type: "spring", stiffness: 400, damping: 25 },
+        }}
+      />
+    );
+  }
 
   return (
     <motion.path
@@ -249,7 +339,7 @@ function AnimatedSliceGrow({
   );
 }
 
-export function PieSlice({
+export const PieSlice = memo(function PieSlice({
   index,
   color: colorProp,
   fill: fillProp,
@@ -264,31 +354,14 @@ export function PieSlice({
     outerRadius,
     cornerRadius,
     hoverOffset: contextHoverOffset,
-    hoveredIndex,
-    setHoveredIndex,
     animationKey,
     getColor,
     getFill,
-  } = usePie();
+  } = usePieStable();
+  const { hoveredIndex, setHoveredIndex } = usePieHover();
 
   // Use prop if provided, otherwise use context value
   const hoverOffset = hoverOffsetProp ?? contextHoverOffset;
-
-  // Track if initial mount animation is complete
-  const hasAnimated = useRef(false);
-  const sliceExpandDelay = index * 0.08;
-
-  useEffect(() => {
-    if (animate && !hasAnimated.current) {
-      const timeout = setTimeout(
-        () => {
-          hasAnimated.current = true;
-        },
-        (sliceExpandDelay + 0.5) * 1000
-      );
-      return () => clearTimeout(timeout);
-    }
-  }, [animate, sliceExpandDelay]);
 
   const arcData = arcs[index];
   if (!arcData) {
@@ -440,7 +513,7 @@ export function PieSlice({
       {animate ? renderAnimatedSlice() : renderStaticSlice()}
     </g>
   );
-}
+});
 
 PieSlice.displayName = "PieSlice";
 
