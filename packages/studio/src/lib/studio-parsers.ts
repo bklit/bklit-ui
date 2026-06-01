@@ -175,6 +175,9 @@ export const studioSearchParams = {
   legendAlign: parseAsStringLiteral(["start", "center", "end"]).withDefault(
     "end"
   ),
+  legendLayout: parseAsStringLiteral(["vertical", "horizontal"]).withDefault(
+    "vertical"
+  ),
   legendFontSize: parseAsInteger.withDefault(13),
   legendShowProgress: parseAsBoolean.withDefault(false),
   legendShowMarker: parseAsBoolean.withDefault(true),
@@ -312,6 +315,7 @@ export interface StudioUrlState {
   showLegend: boolean;
   legendPlacement: "top" | "bottom";
   legendAlign: "start" | "center" | "end";
+  legendLayout: "vertical" | "horizontal";
   legendFontSize: number;
   legendShowProgress: boolean;
   legendShowMarker: boolean;
@@ -461,6 +465,7 @@ export function defaultStudioState(
     showLegend: false,
     legendPlacement: "bottom",
     legendAlign: "end",
+    legendLayout: "vertical",
     legendFontSize: 13,
     legendShowProgress: false,
     legendShowMarker: true,

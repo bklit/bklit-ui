@@ -13,9 +13,54 @@ import {
 import { getRingData } from "@/lib/demo-data";
 import type { StudioRenderContext } from "@/lib/render-context";
 import { isStudioComponentVisible } from "@/lib/studio-component-visibility";
+import { useStudioLegendHover } from "@/lib/studio-legend-hover";
 import { studioStaticRingLegendItems } from "@/lib/studio-legend-items";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import { getEffectiveSeriesColor } from "@/lib/studio-series-design";
+
+function RingChartBody({
+  state,
+  ctx,
+  data,
+  motionEnter,
+}: {
+  state: StudioUrlState;
+  ctx: StudioRenderContext;
+  data: ReturnType<typeof getRingData>;
+  motionEnter: ReturnType<typeof getStudioMotionEnterProps>;
+}) {
+  const { hoveredIndex, setHoveredIndex } = useStudioLegendHover();
+
+  return (
+    <StudioRadialCenter frame={ctx.frame}>
+      <RingChart
+        baseInnerRadius={state.ringBaseInnerRadius}
+        data={data}
+        enterStaggerScale={motionEnter.enterStaggerScale}
+        enterTransition={motionEnter.enterTransition}
+        hoveredIndex={hoveredIndex}
+        key={studioPreviewChartKey(ctx)}
+        onHoverChange={setHoveredIndex}
+        ringGap={state.ringGap}
+        size={studioRadialSize(ctx.frame, state.pieSize)}
+        strokeWidth={state.ringStrokeWidth}
+      >
+        {data.map((item, index) =>
+          isStudioComponentVisible(state, `ring.layer.${index}`) ? (
+            <Ring index={index} key={item.label} />
+          ) : null
+        )}
+        {isStudioComponentVisible(state, "ring.center") ? (
+          <RingCenter
+            defaultLabel={state.ringCenterLabel}
+            prefix={state.ringCenterPrefix || undefined}
+            suffix={state.ringCenterSuffix || undefined}
+          />
+        ) : null}
+      </RingChart>
+    </StudioRadialCenter>
+  );
+}
 
 export function RingStudioPreview({
   state,
@@ -38,31 +83,12 @@ export function RingStudioPreview({
       legendItems={studioStaticRingLegendItems(state)}
       state={state}
     >
-      <StudioRadialCenter frame={ctx.frame}>
-        <RingChart
-          baseInnerRadius={state.ringBaseInnerRadius}
-          data={data}
-          enterStaggerScale={motionEnter.enterStaggerScale}
-          enterTransition={motionEnter.enterTransition}
-          key={studioPreviewChartKey(ctx)}
-          ringGap={state.ringGap}
-          size={studioRadialSize(ctx.frame, state.pieSize)}
-          strokeWidth={state.ringStrokeWidth}
-        >
-          {data.map((item, index) =>
-            isStudioComponentVisible(state, `ring.layer.${index}`) ? (
-              <Ring index={index} key={item.label} />
-            ) : null
-          )}
-          {isStudioComponentVisible(state, "ring.center") ? (
-            <RingCenter
-              defaultLabel={state.ringCenterLabel}
-              prefix={state.ringCenterPrefix || undefined}
-              suffix={state.ringCenterSuffix || undefined}
-            />
-          ) : null}
-        </RingChart>
-      </StudioRadialCenter>
+      <RingChartBody
+        ctx={ctx}
+        data={data}
+        motionEnter={motionEnter}
+        state={state}
+      />
     </StudioChartShell>
   );
 }

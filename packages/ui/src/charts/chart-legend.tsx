@@ -212,6 +212,7 @@ export function ChartLegend({
             className={cn(
               "cursor-pointer rounded-lg px-2 py-1.5 transition-all duration-150 ease-out",
               isHovered && "bg-legend-muted",
+              isFaded && "opacity-40",
               itemClassName
             )}
             data-hovered={isHovered ? "" : undefined}

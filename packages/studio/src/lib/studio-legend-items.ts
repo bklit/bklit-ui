@@ -17,20 +17,25 @@ export function studioCartesianLegendItems(
   seriesCount: number,
   values?: number[]
 ): LegendItem[] {
-  return Array.from({ length: seriesCount }, (_, index) => ({
+  const items = Array.from({ length: seriesCount }, (_, index) => ({
     label: STUDIO_SERIES_KEYS[index] ?? `Series ${index + 1}`,
     value: values?.[index] ?? 100 - index * 12,
     color: getEffectiveSeriesColor(state, index),
   }));
+  const maxValue = Math.max(...items.map((item) => item.value), 1);
+  return items.map((item) => ({ ...item, maxValue }));
 }
 
 export function studioPieLegendItems(
   state: StudioUrlState,
   seed = 0
 ): LegendItem[] {
-  return getPieData(seed).map((slice, index) => ({
+  const slices = getPieData(seed);
+  const maxValue = Math.max(...slices.map((slice) => slice.value), 1);
+  return slices.map((slice, index) => ({
     label: slice.label,
     value: slice.value,
+    maxValue,
     color: getEffectiveSeriesColor(state, index),
   }));
 }
@@ -79,9 +84,11 @@ export function studioRadarLegendItems(
 export function studioStaticPieLegendItems(
   state: StudioUrlState
 ): LegendItem[] {
+  const maxValue = Math.max(...pieData.map((slice) => slice.value), 1);
   return pieData.map((slice, index) => ({
     label: slice.label,
     value: slice.value,
+    maxValue,
     color: getEffectiveSeriesColor(state, index),
   }));
 }

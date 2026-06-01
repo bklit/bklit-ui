@@ -286,10 +286,11 @@ export const standardLegendControlGroups: StudioControlGroup[] = [
         { value: "end", label: "End" },
       ],
     },
+    { type: "orientation", key: "legendLayout", label: "Layout" },
     {
       type: "number",
       key: "legendFontSize",
-      label: "Size",
+      label: "Font size",
       min: 10,
       max: 18,
       step: 1,
