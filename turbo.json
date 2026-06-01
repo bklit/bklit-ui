@@ -7,13 +7,21 @@
     "OPENPANEL_CLIENT_ID",
     "OPENPANEL_CLIENT_SECRET",
     "CLIENT_ID",
-    "CLIENT_SECRET"
+    "CLIENT_SECRET",
+    "TAURI_ENV_PLATFORM",
+    "TAURI_ENV_DEBUG"
   ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**", ".source/**"]
+      "outputs": [
+        ".next/**",
+        "!.next/cache/**",
+        ".source/**",
+        "dist/**",
+        "src-tauri/target/release/bundle/**"
+      ]
     },
     "lint": {
       "dependsOn": ["^lint"]

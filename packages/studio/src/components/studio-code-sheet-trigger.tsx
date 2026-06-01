@@ -5,6 +5,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { type ReactNode, useMemo, useState } from "react";
 import { generateStudioCode } from "@/lib/codegen";
 import type { StudioUrlState } from "@/lib/studio-parsers";
+import { cn } from "@/lib/utils";
 import { useStudioAnalytics } from "@/providers/studio-analytics-context";
 import { Alert, AlertDescription, AlertTitle } from "@/ui/alert";
 import { Button } from "@/ui/button";
@@ -23,9 +24,13 @@ export function StudioCodeSheetTrigger({
   installSection,
   renderUsageCode,
   renderDataCode,
+  triggerClassName,
+  triggerSize = "lg",
 }: {
   state: StudioUrlState;
   headerActions?: ReactNode;
+  triggerClassName?: string;
+  triggerSize?: "sm" | "lg";
   installSection?: ReactNode;
   renderUsageCode?: (code: string) => ReactNode;
   renderDataCode?: (data: string | undefined) => ReactNode;
@@ -54,7 +59,13 @@ export function StudioCodeSheetTrigger({
       <SheetTrigger
         render={
           <Button
-            className="h-10 px-4 font-mono text-[11px]"
+            className={cn(
+              triggerSize === "sm"
+                ? "font-mono text-xs"
+                : "h-10 px-4 font-mono text-[11px]",
+              triggerClassName
+            )}
+            size={triggerSize}
             type="button"
             variant="white"
           />

@@ -5,9 +5,24 @@ import type { ReactNode } from "react";
 import type { StudioControl } from "@/lib/types";
 import { Label } from "@/ui/label";
 
-export const studioControlLabelClass = "w-28 shrink-0 text-xs leading-tight";
+export const studioControlLabelClass =
+  "studio-label w-28 shrink-0 font-medium text-xs leading-tight";
+
+export const studioSectionLabelClass =
+  "studio-section-label font-medium text-[11px] uppercase tracking-wider";
+
+/** Stacked label above a control (Fill, Presets, etc.) — same size as row labels. */
+export const studioFieldLabelClass =
+  "studio-label font-medium text-xs leading-tight";
 
 export const studioControlRowClass = "flex min-w-0 items-center gap-2.5";
+
+/** Compact font size for sidebar inputs — overrides the Input default `text-sm`. */
+export const studioControlInputClass = "text-xs";
+
+/** Shared surface for sidebar inputs/triggers — tune via `--studio-input-background`. */
+export const studioInputSurfaceClass =
+  "border border-input bg-[var(--studio-input-background)] shadow-xs";
 
 const GROUP_LABELED_TYPES = new Set<StudioControl["type"]>([
   "pattern",
@@ -18,6 +33,7 @@ const GROUP_LABELED_TYPES = new Set<StudioControl["type"]>([
   "pieHoverEffect",
   "funnelEdges",
   "graticuleToggle",
+  "legendPosition",
 ]);
 
 export function StudioControlRow({
@@ -51,10 +67,10 @@ export function StudioControlRow({
 
 export function ControlFieldLabel({ control }: { control: StudioControl }) {
   if (GROUP_LABELED_TYPES.has(control.type)) {
-    return <Label className="text-xs">{control.label}</Label>;
+    return <Label className={studioFieldLabelClass}>{control.label}</Label>;
   }
   return (
-    <Label className="text-xs" htmlFor={String(control.key)}>
+    <Label className={studioControlLabelClass} htmlFor={String(control.key)}>
       {control.label}
     </Label>
   );

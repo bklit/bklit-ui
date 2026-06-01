@@ -1,7 +1,8 @@
 "use client";
 
 import { PatternLines } from "@bklitui/ui/charts";
-import { cn } from "@bklitui/ui/lib/utils";
+import { StudioSingleToggleGroup } from "@/components/controls/studio-toggle-group";
+import { ToggleGroupItem } from "@/ui/toggle-group";
 
 export type PieFillMode = "solid" | "lines";
 
@@ -46,25 +47,26 @@ export function PieFillPicker({
     ];
 
   return (
-    <div className="grid grid-cols-2 gap-2">
+    <StudioSingleToggleGroup
+      className="grid w-full grid-cols-2 gap-2"
+      onValueChange={onChange}
+      size="default"
+      spacing={2}
+      value={value}
+      variant="studio"
+    >
       {options.map((opt) => (
-        <button
-          className={cn(
-            "flex h-9 items-center gap-2 rounded-lg border px-2.5 transition-colors",
-            value === opt.id
-              ? "border-accent bg-accent/10 text-accent"
-              : "border-border bg-muted/30 text-muted-foreground hover:bg-muted/50"
-          )}
+        <ToggleGroupItem
+          className="h-9 min-h-9 flex-row justify-start gap-2 px-2.5 font-normal text-xs"
           key={opt.id}
-          onClick={() => onChange(opt.id)}
-          type="button"
+          value={opt.id}
         >
           <span className="size-5 shrink-0 overflow-hidden rounded ring-1 ring-border">
             {opt.swatch}
           </span>
-          <span className="text-xs">{opt.label}</span>
-        </button>
+          {opt.label}
+        </ToggleGroupItem>
       ))}
-    </div>
+    </StudioSingleToggleGroup>
   );
 }

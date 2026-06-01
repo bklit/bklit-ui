@@ -34,6 +34,8 @@ export interface TooltipBoxProps {
   flipped?: boolean;
   /** Per-chart override; falls back to `ChartConfigProvider.tooltipBoxSpring`. */
   springConfig?: SpringConfig;
+  /** Inline styles for the inner tooltip panel. */
+  panelStyle?: React.CSSProperties;
 }
 
 // Inner-only-on-visible so `useSpring` initializes at the cursor's actual x/y
@@ -67,6 +69,7 @@ function TooltipBoxInner({
   top: topOverride,
   flipped: flippedOverride,
   springConfig,
+  panelStyle,
   container,
 }: Omit<TooltipBoxProps, "visible" | "containerRef"> & {
   container: HTMLElement;
@@ -166,7 +169,7 @@ function TooltipBoxInner({
         className="min-w-[140px] overflow-hidden rounded-lg bg-chart-tooltip-background text-chart-tooltip-foreground shadow-lg backdrop-blur-md"
         initial={{ scale: 0.85, opacity: 0, x: isFlipped ? 20 : -20 }}
         key={flipKey}
-        style={{ transformOrigin }}
+        style={{ transformOrigin, ...panelStyle }}
         transition={{ type: "spring", stiffness: 300, damping: 25 }}
       >
         {children}

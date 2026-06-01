@@ -40,10 +40,14 @@ interface StudioStateContextValue {
     key: K,
     value: StudioUrlState[K]
   ) => void;
+  /** Atomically update multiple URL params (avoids nuqs races). */
+  setStudioParams: (updates: Partial<StudioUrlState>) => void;
   setPreviewParam: <K extends keyof StudioUrlState>(
     key: K,
     value: StudioUrlState[K]
   ) => void;
+  /** Merge multiple preview overrides (chart updates without touching the URL). */
+  setPreviewParams: (updates: Partial<StudioUrlState>) => void;
   commitParam: <K extends keyof StudioUrlState>(
     key: K,
     value: StudioUrlState[K]
@@ -138,9 +142,28 @@ export function StudioStateProvider({
         ...(slug === "live-line-chart" ? { curve: "monotoneX" } : {}),
         ...(slug === "profit-loss-line" ? lineChartProfitLossDefaults : {}),
         ...(slug === "line-chart" ? lineChartStandardDefaults : {}),
+        ...(slug === "composed-chart" ? { dataSeries: 2 } : {}),
       });
     },
     [setParams]
+  );
+
+  const setStudioParams = useCallback(
+    (updates: Partial<StudioUrlState>) => {
+      if ("lineChartMode" in updates && updates.lineChartMode !== undefined) {
+        applyLineChartMode(updates.lineChartMode);
+        return;
+      }
+      setPreviewOverrides((prev) => {
+        const next = { ...prev };
+        for (const key of Object.keys(updates) as (keyof StudioUrlState)[]) {
+          delete next[key];
+        }
+        return next;
+      });
+      setParams(updates);
+    },
+    [applyLineChartMode, setParams]
   );
 
   const setParam = useCallback(
@@ -168,6 +191,10 @@ export function StudioStateProvider({
     },
     []
   );
+
+  const setPreviewParams = useCallback((updates: Partial<StudioUrlState>) => {
+    setPreviewOverrides((prev) => ({ ...prev, ...updates }));
+  }, []);
 
   const commitParam = useCallback(
     <K extends keyof StudioUrlState>(key: K, value: StudioUrlState[K]) => {
@@ -211,7 +238,9 @@ export function StudioStateProvider({
       config,
       setChart,
       setParam,
+      setStudioParams,
       setPreviewParam,
+      setPreviewParams,
       commitParam,
       setFrameSize,
       motionCurveDragging,
@@ -225,7 +254,9 @@ export function StudioStateProvider({
       setChart,
       setFrameSize,
       setParam,
+      setStudioParams,
       setPreviewParam,
+      setPreviewParams,
       state,
     ]
   );

@@ -1,15 +1,18 @@
 "use client";
 
 import { FunnelChart } from "@bklitui/ui/charts";
-import { studioFitAspectSize } from "@/components/charts/studio-chart-layout";
+import { StudioCartesianFill } from "@/components/charts/studio-chart-layout";
+import { StudioChartShell } from "@/components/charts/studio-chart-shell";
 import {
   getStudioMotionEnterProps,
   studioEnterStaggerScale,
   studioPreviewChartKey,
 } from "@/lib/chart-animation";
-import { funnelData } from "@/lib/demo-data";
+import { getFunnelData } from "@/lib/demo-data";
 import type { StudioRenderContext } from "@/lib/render-context";
+import { studioFunnelLegendItems } from "@/lib/studio-legend-items";
 import type { StudioUrlState } from "@/lib/studio-parsers";
+import { getEffectiveSeriesColor } from "@/lib/studio-series-design";
 
 export function FunnelStudioPreview({
   state,
@@ -18,29 +21,37 @@ export function FunnelStudioPreview({
   state: StudioUrlState;
   ctx: StudioRenderContext;
 }) {
-  const widthOverHeight =
-    state.funnelOrientation === "horizontal" ? 2.2 : 1 / 1.8;
-  const { width, height } = studioFitAspectSize(ctx.frame, widthOverHeight);
   const motionEnter = getStudioMotionEnterProps(state, {
     linear: ctx.isRecording,
   });
+  const stages = getFunnelData(ctx.dataSeed).map((stage, index) => ({
+    ...stage,
+    color: getEffectiveSeriesColor(state, index),
+  }));
+
   return (
-    <div className="shrink-0" style={{ width, height }}>
-      <FunnelChart
-        className="size-full"
-        color="var(--chart-1)"
-        data={funnelData}
-        edges={state.funnelEdges}
-        enterTransition={motionEnter.enterTransition}
-        gap={state.funnelGap}
-        key={studioPreviewChartKey(ctx)}
-        layers={state.funnelLayers}
-        orientation={state.funnelOrientation}
-        showLabels={state.funnelShowLabels}
-        showPercentage={state.funnelShowPercentage}
-        showValues={state.funnelShowValues}
-        staggerDelay={0.12 * studioEnterStaggerScale(state)}
-      />
-    </div>
+    <StudioChartShell
+      legendComponentId="funnel.legend"
+      legendItems={studioFunnelLegendItems(state)}
+      state={state}
+    >
+      <StudioCartesianFill>
+        <FunnelChart
+          className="size-full"
+          color={getEffectiveSeriesColor(state, 0)}
+          data={stages}
+          edges={state.funnelEdges}
+          enterTransition={motionEnter.enterTransition}
+          gap={state.funnelGap}
+          key={studioPreviewChartKey(ctx)}
+          layers={state.funnelLayers}
+          orientation={state.funnelOrientation}
+          showLabels={state.funnelShowLabels}
+          showPercentage={state.funnelShowPercentage}
+          showValues={state.funnelShowValues}
+          staggerDelay={0.12 * studioEnterStaggerScale(state)}
+        />
+      </StudioCartesianFill>
+    </StudioChartShell>
   );
 }

@@ -30,7 +30,7 @@ The playground **page** is not in git — only the skill, template, and shared c
 2. **`apps/web/app/playground/README.md`** — same copy command and pointers (committed)
 3. **This skill** — `.agents/skills/bklit-playground/SKILL.md` (committed; auto-trigger description)
 4. **Template** — `.agents/skills/bklit-playground/templates/page.tsx` (committed source of truth)
-5. **Shared UI** — `apps/web/components/editor/`, `apps/web/components/playground/` (committed)
+5. **Shared UI** — `@bklitui/studio` editor shell + `apps/web/components/playground/` (committed)
 
 If `apps/web/app/playground/page.tsx` is missing, create it by copying the template. Do not invent a new layout.
 
@@ -73,7 +73,7 @@ As you add chart functionality, **automatically** wire controls — do not leave
 
 Pass `controlGroups` to `EditorShell`. Each group maps `StudioUrlState` keys to sidebar controls.
 
-1. **Prefer existing groups** from `apps/web/lib/studio/registry-control-groups.ts`:
+1. **Prefer existing groups** from `@bklitui/studio` (`lineChartControlGroups`, `barChartControlGroups`, etc.) or `packages/studio/src/lib/registry-control-groups.ts`:
    - `lineChartControlGroups`, `barChartControlGroups`, `gaugeControlGroups`, etc.
 2. **Add new controls** when introducing props:
    - Extend the chart's group in `registry-control-groups.ts`, or
@@ -81,7 +81,7 @@ Pass `controlGroups` to `EditorShell`. Each group maps `StudioUrlState` keys to 
 3. **Wire state** with `usePlaygroundState({ chart: "your-chart", … })` or chart-specific hooks built on top of it.
 
 ```tsx
-import { lineChartControlGroups } from "@/lib/studio/registry-control-groups";
+import { lineChartControlGroups } from "@bklitui/studio";
 
 <EditorShell
   controlGroups={lineChartControlGroups}
@@ -136,13 +136,13 @@ Do **not** rebuild these — import from committed paths:
 
 | Export | Path | Purpose |
 |--------|------|---------|
-| `EditorShell` | `@/components/editor/editor-shell` | Full editor layout |
-| `EditorChartFrame` | `@/components/editor/editor-chart-frame` | Resizable chart container |
+| `EditorShell` | `@bklitui/studio` | Full editor layout |
+| `EditorChartFrame` | `@bklitui/studio` | Resizable chart container |
+| `lineChartControlGroups`, etc. | `@bklitui/studio` | Right-pane control groups |
 | `PlaygroundEmptyState` | `@/components/playground/playground-empty-state` | Default empty chart message |
 | `usePlaygroundState` | `@/components/playground/use-playground-state` | Local studio-like state |
 | `useReplayKey` | `@/components/playground/use-replay-key` | `[key, replay]` remount hook |
 | `PlaygroundLineChart` | `@/components/playground/playground-line-chart` | Reference line chart wiring |
-| `lineChartControlGroups` | `@/lib/studio/registry-control-groups` | Example right-pane groups |
 
 Legacy components (`PlaygroundShell`, `PlaygroundToolbar`, `ResizablePreview`) are superseded by the editor shell — do not use them in new playgrounds.
 
@@ -152,14 +152,16 @@ Legacy components (`PlaygroundShell`, `PlaygroundToolbar`, `ResizablePreview`) a
 "use client";
 
 import { useState } from "react";
-import { EditorChartFrame } from "@/components/editor/editor-chart-frame";
-import { EditorShell } from "@/components/editor/editor-shell";
-import type { ViewportPreset } from "@/components/editor/viewport-presets";
-import { resolveViewportSize } from "@/components/editor/viewport-presets";
+import {
+  EditorChartFrame,
+  EditorShell,
+  lineChartControlGroups,
+  resolveViewportSize,
+  type ViewportPreset,
+} from "@bklitui/studio";
 import { PlaygroundLineChart } from "@/components/playground/playground-line-chart";
 import { usePlaygroundLineChartState } from "@/components/playground/use-playground-line-chart-state";
 import { useReplayKey } from "@/components/playground/use-replay-key";
-import { lineChartControlGroups } from "@/lib/studio/registry-control-groups";
 
 export default function PlaygroundPage() {
   const chartState = usePlaygroundLineChartState();
@@ -176,6 +178,7 @@ export default function PlaygroundPage() {
       onReplay={replay}
       onSizeChange={(width, height) => setSize({ width, height })}
       onViewportChange={setViewport}
+      showFpsCounter
       showMotionControls
       size={size}
       viewport={viewport}
@@ -226,9 +229,9 @@ When the API is stable, follow `.agents/skills/bklit-ship/SKILL.md` to move the 
 |------|------|
 | Playground route (gitignored) | `apps/web/app/playground/page.tsx` |
 | Template | `.agents/skills/bklit-playground/templates/page.tsx` |
-| Editor components | `apps/web/components/editor/` |
+| Editor shell + control groups | `@bklitui/studio` |
 | Playground helpers | `apps/web/components/playground/` |
-| Control group registry | `apps/web/lib/studio/registry-control-groups.ts` |
+| Control group registry | `packages/studio/src/lib/registry-control-groups.ts` |
 | Control templates | `apps/web/lib/studio/sidebar-control-templates.ts` |
 | Ship checklist | `.agents/skills/bklit-ship/SKILL.md` |
 | Gitignore entry | `.gitignore` → `apps/web/app/playground/` |

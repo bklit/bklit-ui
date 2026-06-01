@@ -29,12 +29,13 @@ export function MotionStaggerControl({
   return (
     <div className="space-y-3">
       <SliderInputGroup
-        label="Duration (s)"
+        label="Duration"
         max={2}
         min={0.2}
         onCommit={(v) => syncDuration(v, true)}
         onPreview={(v) => syncDuration(v, false)}
         step={0.1}
+        unit="s"
         value={state.motionDuration}
       />
       <SliderInputGroup

@@ -5,6 +5,7 @@ import { PlayIcon, StopIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { animate, motion, type Transition } from "motion/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { studioInputSurfaceClass } from "@/components/controls/control-field-helpers";
 import {
   bezierFromSvgPoint,
   clampEaseBezierControl,
@@ -20,7 +21,6 @@ import {
   targetMotionCurvePoints,
 } from "@/lib/motion-config";
 import type { StudioUrlState } from "@/lib/studio-parsers";
-import { Button } from "@/ui/button";
 import { Input } from "@/ui/input";
 
 const PREVIEW_H = 180;
@@ -274,9 +274,9 @@ export function MotionCurveEditor({
   }, [applyHandleDrag, dragging, onCommit, onDragActiveChange]);
 
   return (
-    <div className="space-y-2">
+    <div className="flex flex-col">
       <div
-        className="studio-motion-curve-card relative w-full max-w-full overflow-hidden rounded-lg border border-border px-1"
+        className="studio-motion-curve-card relative w-full max-w-full overflow-hidden rounded-t-lg border border-border border-b-0 px-1"
         ref={containerRef}
       >
         <svg
@@ -325,9 +325,8 @@ export function MotionCurveEditor({
                     />
                     <circle
                       className={cn(
-                        "pointer-events-none fill-background stroke-2 stroke-foreground",
-                        dragging === id && "stroke-accent",
-                        pt.clamped && dragging !== id && "stroke-chart-1"
+                        "pointer-events-none fill-background stroke-2 stroke-primary",
+                        dragging === id && "fill-primary/15"
                       )}
                       cx={pt.x}
                       cy={pt.y}
@@ -362,7 +361,7 @@ export function MotionCurveEditor({
 
           <motion.circle
             animate={{ cx: notchPosition.x, cy: notchPosition.y }}
-            className="fill-chart-1 stroke-background"
+            className="fill-primary stroke-background"
             cx={notchPosition.x}
             cy={notchPosition.y}
             initial={false}
@@ -373,33 +372,17 @@ export function MotionCurveEditor({
             }
           />
         </svg>
-
-        <Button
-          aria-label={isPlaying ? "Stop motion preview" : "Play motion preview"}
-          className="absolute right-2.5 bottom-2.5 z-10 size-8 shadow-sm"
-          onClick={isPlaying ? stopPlay : runPlay}
-          size="icon"
-          type="button"
-          variant="secondary"
-        >
-          <HugeiconsIcon
-            icon={isPlaying ? StopIcon : PlayIcon}
-            size={16}
-            strokeWidth={1.75}
-          />
-        </Button>
       </div>
 
-      {isEase ? (
-        <div className="space-y-1.5">
-          <label
-            className="font-medium text-muted-foreground text-xs"
-            htmlFor="motion-bezier-input"
-          >
-            cubic-bezier()
-          </label>
+      <div
+        className={cn(
+          "flex h-8 items-stretch overflow-hidden rounded-b-lg border-border border-t",
+          studioInputSurfaceClass
+        )}
+      >
+        {isEase ? (
           <Input
-            className="h-8 font-mono text-xs"
+            className="h-8 min-w-0 flex-1 rounded-none border-0 bg-transparent px-2.5 font-mono text-xs shadow-none focus-visible:ring-0"
             id="motion-bezier-input"
             onChange={(e) => {
               const parsed = parseMotionBezier(e.target.value);
@@ -416,8 +399,22 @@ export function MotionCurveEditor({
             spellCheck={false}
             value={state.motionBezier}
           />
-        </div>
-      ) : null}
+        ) : (
+          <div aria-hidden className="min-w-0 flex-1" />
+        )}
+        <button
+          aria-label={isPlaying ? "Stop motion preview" : "Play motion preview"}
+          className="flex w-9 shrink-0 items-center justify-center border-border border-l text-muted-foreground transition-colors hover:bg-muted/40 hover:text-foreground"
+          onClick={isPlaying ? stopPlay : runPlay}
+          type="button"
+        >
+          <HugeiconsIcon
+            icon={isPlaying ? StopIcon : PlayIcon}
+            size={16}
+            strokeWidth={1.75}
+          />
+        </button>
+      </div>
     </div>
   );
 }

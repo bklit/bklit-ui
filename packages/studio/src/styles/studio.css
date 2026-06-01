@@ -1,5 +1,67 @@
-/* Studio chart preview: let ParentSize cartesian charts fill the frame */
+/*
+ * Studio sidebar theme tokens — override these in your app CSS to theme the editor.
+ *
+ * Example (apps/studio-desktop/src/index.css):
+ *
+ *   .dark {
+ *     --studio-label: oklch(0.72 0.014 214.4);
+ *     --studio-section-label: oklch(0.65 0.014 214.4);
+ *     --studio-input-background: oklch(0.12 0.004 263);
+ *   }
+ */
+@layer base {
+  :root {
+    --studio-label: var(--muted-foreground);
+    --studio-section-label: var(--muted-foreground);
+    /** Sidebar control surfaces (Fill trigger, scrub inputs, selects). */
+    --studio-input-background: var(--background);
+    --studio-scrollbar-width: 8px;
+    --studio-scrollbar-thumb: color-mix(
+      in oklch,
+      var(--foreground) 24%,
+      transparent
+    );
+    --studio-scrollbar-thumb-hover: color-mix(
+      in oklch,
+      var(--foreground) 38%,
+      transparent
+    );
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--studio-scrollbar-thumb) transparent;
+  }
+
+  *::-webkit-scrollbar {
+    width: var(--studio-scrollbar-width);
+    height: var(--studio-scrollbar-width);
+  }
+
+  *::-webkit-scrollbar-track,
+  *::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: var(--studio-scrollbar-thumb);
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background: var(--studio-scrollbar-thumb-hover);
+  }
+}
+
 @layer components {
+  .studio-label {
+    color: var(--studio-label);
+  }
+
+  .studio-section-label {
+    color: var(--studio-section-label);
+  }
+
   .studio-cartesian-fill > div {
     aspect-ratio: auto !important;
     height: 100%;
@@ -46,26 +108,111 @@
   .studio-sidebar-scroll {
     --studio-scrollbar-width: 4px;
     scrollbar-gutter: stable;
-    scrollbar-width: thin;
-    scrollbar-color: color-mix(in oklch, var(--foreground) 32%, transparent)
-      transparent;
-  }
-
-  .studio-sidebar-scroll::-webkit-scrollbar {
-    width: var(--studio-scrollbar-width);
   }
 
   .studio-sidebar-scroll::-webkit-scrollbar-track {
     margin-block: 6px;
-    background: transparent;
   }
 
-  .studio-sidebar-scroll::-webkit-scrollbar-thumb {
-    border-radius: 999px;
-    background: color-mix(in oklch, var(--foreground) 24%, transparent);
+  /* Legend position — segmented 3×2 grid */
+  .legend-position-picker {
+    position: relative;
+    width: 100%;
   }
 
-  .studio-sidebar-scroll::-webkit-scrollbar-thumb:hover {
-    background: color-mix(in oklch, var(--foreground) 38%, transparent);
+  .legend-position-picker__grid {
+    position: relative;
+    z-index: 1;
+    display: grid !important;
+    width: 100%;
+    overflow: hidden;
+    border: 1px solid var(--input);
+    border-radius: var(--radius-md);
+    background: var(--studio-input-background);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: repeat(2, auto);
+    gap: 0;
+  }
+
+  .legend-position-picker__grid.flex {
+    display: grid !important;
+  }
+
+  .legend-position-picker__toggle {
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .legend-position-picker__toggle:not(:nth-child(3n)) {
+    border-right: 1px solid var(--input) !important;
+  }
+
+  .legend-position-picker__toggle:nth-child(-n + 3) {
+    border-bottom: 1px solid var(--input) !important;
+  }
+
+  .legend-position-picker__toggle--top-start {
+    border-top-left-radius: calc(var(--radius-md) - 1px) !important;
+  }
+
+  .legend-position-picker__toggle--top-end {
+    border-top-right-radius: calc(var(--radius-md) - 1px) !important;
+  }
+
+  .legend-position-picker__toggle--bottom-start {
+    border-bottom-left-radius: calc(var(--radius-md) - 1px) !important;
+  }
+
+  .legend-position-picker__toggle--bottom-end {
+    border-bottom-right-radius: calc(var(--radius-md) - 1px) !important;
+  }
+
+  .legend-position-picker__toggle[data-pressed] {
+    background: color-mix(in oklch, var(--accent) 12%, transparent) !important;
+    box-shadow: inset 0 0 0 1px var(--accent) !important;
+  }
+
+  .legend-position-picker__toggle:active:not([data-pressed]) {
+    transform: scale(0.97);
+  }
+
+  .legend-position-picker__ring-path {
+    fill: none;
+    stroke: color-mix(in oklch, var(--muted-foreground) 70%, transparent);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-dasharray: 0.028 0.055;
+    stroke-dashoffset: 0;
+    transform: rotate(-90deg);
+    transform-origin: center;
+    transition:
+      stroke 180ms ease,
+      stroke-dasharray 220ms cubic-bezier(0.215, 0.61, 0.355, 1),
+      stroke-dashoffset 220ms cubic-bezier(0.215, 0.61, 0.355, 1),
+      transform 240ms cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
+
+  .legend-position-picker__toggle[data-pressed]
+    .legend-position-picker__ring-path {
+    stroke: var(--foreground);
+    stroke-dasharray: 1 0;
+    stroke-dashoffset: 0;
+    transform: rotate(90deg);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .legend-position-picker__ring-path {
+      transition: none;
+    }
+
+    .legend-position-picker__toggle[data-pressed]
+      .legend-position-picker__ring-path {
+      transform: none;
+    }
+
+    .legend-position-picker__toggle:active:not([data-pressed]) {
+      transform: none;
+    }
   }
 }

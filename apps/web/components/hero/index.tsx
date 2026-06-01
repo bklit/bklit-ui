@@ -4,6 +4,8 @@ import { ArrowRightIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import Link from "next/link";
 import type { ComponentProps, ReactNode } from "react";
+import { ParticleBadge } from "@/components/particle-badge";
+import { ShimmeringText } from "@/components/shimmering-text";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -17,26 +19,27 @@ export function HeroShell({ children }: { children: ReactNode }) {
 }
 
 export function HeroBadgeRow({ children }: { children: ReactNode }) {
-  return <div className="mx-auto flex w-fit">{children}</div>;
+  return <div className="mx-auto flex w-fit overflow-visible">{children}</div>;
 }
 
 export function HeroStudioPill() {
   return (
-    <Button
-      className="h-auto rounded-full px-0.5 py-0.5"
-      nativeButton={false}
-      render={<Link href="/studio" title="Studio" />}
-      size="lg"
-      variant="outline"
-    >
-      <span className="flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-xs">
-        Introducing
-      </span>
-      <span className="flex items-center gap-1 px-2.5 py-1 text-xs">
-        Studio
-        <HugeiconsIcon icon={ArrowRightIcon} size={14} />
-      </span>
-    </Button>
+    <ParticleBadge>
+      <Button
+        className="relative isolate inline-flex h-auto items-center gap-0 rounded-full bg-background px-0.5 py-0.5 text-xs"
+        nativeButton={false}
+        render={<Link aria-label="Studio Version 2" href="/studio" />}
+        variant="outline"
+      >
+        <span className="flex h-6 items-center rounded-full bg-muted px-2.5 text-xs leading-none">
+          Studio
+        </span>
+        <span className="flex h-6 items-center gap-1 px-2.5 text-xs leading-none">
+          <ShimmeringText className="leading-none" text="Version 2" />
+          <HugeiconsIcon className="size-3.5" icon={ArrowRightIcon} />
+        </span>
+      </Button>
+    </ParticleBadge>
   );
 }
 

@@ -13,6 +13,8 @@ import type { StudioFrameSize } from "@/components/studio-chart-viewport";
 import type { CurveId } from "@/lib/curves";
 import { resolveCurve } from "@/lib/curves";
 
+const LIVE_LINE_MARGIN = { top: 24, right: 16, bottom: 32, left: 52 };
+
 function useStudioLiveData(
   intervalMs: number,
   paused: boolean,
@@ -77,6 +79,7 @@ export function LiveLineStudioPreview({
   paused,
   windowSecs,
   strokeWidth,
+  stroke,
   curve,
   fill,
   pulse,
@@ -90,6 +93,7 @@ export function LiveLineStudioPreview({
   paused: boolean;
   windowSecs: number;
   strokeWidth: number;
+  stroke: string;
   curve: CurveId;
   fill: boolean;
   pulse: boolean;
@@ -108,6 +112,7 @@ export function LiveLineStudioPreview({
       exaggerate={exaggerate}
       key={chartKey}
       lerpSpeed={lerpSpeed}
+      margin={LIVE_LINE_MARGIN}
       paused={paused}
       style={{ height: frame.height, touchAction: "none" }}
       value={value}
@@ -120,6 +125,7 @@ export function LiveLineStudioPreview({
         dataKey="value"
         fill={fill}
         pulse={pulse}
+        stroke={stroke}
         strokeWidth={strokeWidth}
       />
       <LiveXAxis />

@@ -40,7 +40,7 @@ export function StudioControlGroups({
   onMotionCurveDragActiveChange?: (dragging: boolean) => void;
 }) {
   return (
-    <div className="studio-control-groups w-full min-w-0 space-y-7 pb-4">
+    <div className="studio-control-groups w-full min-w-0 space-y-0 pb-4">
       {motionPanel ? (
         <StudioControlGroup
           className="studio-motion-section"

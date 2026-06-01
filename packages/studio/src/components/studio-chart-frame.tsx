@@ -19,12 +19,12 @@ import {
 
 export const STUDIO_CHART_FRAME_HEIGHT = 400;
 export const STUDIO_CHART_FRAME_WIDTH = 720;
-export const STUDIO_CHART_FRAME_MAX_WIDTH = 1000;
-export const STUDIO_CHART_FRAME_MAX_HEIGHT = 800;
+export const STUDIO_CHART_FRAME_MAX_WIDTH = 16_384;
+export const STUDIO_CHART_FRAME_MAX_HEIGHT = 16_384;
 export const STUDIO_EXPORT_ROOT_ATTR = "data-studio-export-root";
 
-const MIN_WIDTH = 280;
-const MIN_HEIGHT = 200;
+const MIN_WIDTH = 1;
+const MIN_HEIGHT = 1;
 
 const frameSpring = { type: "spring" as const, stiffness: 420, damping: 36 };
 
@@ -107,6 +107,24 @@ function ResizeHandle({
   );
 }
 
+function CornerHandle({
+  className,
+  visible,
+}: {
+  className?: string;
+  visible?: boolean;
+}) {
+  return (
+    <span
+      className={cn(
+        "pointer-events-none absolute z-30 size-3 bg-accent opacity-0 transition-opacity group-hover/editor-frame:opacity-100 group-hover/studio-frame:opacity-100",
+        visible && "opacity-100",
+        className
+      )}
+    />
+  );
+}
+
 export const StudioChartFrame = forwardRef<
   HTMLDivElement,
   {
@@ -119,6 +137,9 @@ export const StudioChartFrame = forwardRef<
     className?: string;
     style?: CSSProperties;
     isRecording?: boolean;
+    resizable?: boolean;
+    /** Screen zoom for resize pointer deltas — read from ref, not React state. */
+    canvasScaleRef?: React.RefObject<number>;
     children: React.ReactNode;
   }
 >(function StudioChartFrame(
@@ -131,6 +152,8 @@ export const StudioChartFrame = forwardRef<
     className,
     style,
     isRecording = false,
+    resizable = true,
+    canvasScaleRef,
     children,
   },
   ref
@@ -161,11 +184,15 @@ export const StudioChartFrame = forwardRef<
       return;
     }
     const update = () => {
+      const rect = bounds.getBoundingClientRect();
       setMaxSize({
-        width: STUDIO_CHART_FRAME_MAX_WIDTH,
-        height: Math.min(
-          STUDIO_CHART_FRAME_MAX_HEIGHT,
-          Math.max(bounds.clientHeight, STUDIO_CHART_FRAME_HEIGHT)
+        width: Math.max(
+          MIN_WIDTH,
+          Math.min(STUDIO_CHART_FRAME_MAX_WIDTH, Math.floor(rect.width))
+        ),
+        height: Math.max(
+          MIN_HEIGHT,
+          Math.min(STUDIO_CHART_FRAME_MAX_HEIGHT, Math.floor(rect.height))
         ),
       });
     };
@@ -179,12 +206,16 @@ export const StudioChartFrame = forwardRef<
     if (draggingRef.current) {
       return;
     }
+    if (!resizable) {
+      setSize({ width, height });
+      return;
+    }
     setSize(clampFrameSize(width, height, maxSize.width, maxSize.height));
-  }, [width, height, maxSize.width, maxSize.height]);
+  }, [width, height, maxSize.width, maxSize.height, resizable]);
 
   const startDrag = useCallback(
     (edge: ResizeEdge) => (event: React.PointerEvent<HTMLButtonElement>) => {
-      if (isRecording) {
+      if (isRecording || !resizable) {
         return;
       }
       event.preventDefault();
@@ -210,14 +241,16 @@ export const StudioChartFrame = forwardRef<
       );
 
       const onPointerMove = (moveEvent: PointerEvent) => {
+        const canvasScale = Math.max(canvasScaleRef?.current ?? 1, 0.01);
+        const scaleFactor = 1 / canvasScale;
         let nextWidth = startWidth;
         let nextHeight = startHeight;
 
         if (edge === "right" || edge === "corner") {
-          nextWidth = startWidth + (moveEvent.clientX - startX);
+          nextWidth = startWidth + (moveEvent.clientX - startX) * scaleFactor;
         }
         if (edge === "bottom" || edge === "corner") {
-          nextHeight = startHeight + (moveEvent.clientY - startY);
+          nextHeight = startHeight + (moveEvent.clientY - startY) * scaleFactor;
         }
 
         latest = clampFrameSize(
@@ -246,6 +279,8 @@ export const StudioChartFrame = forwardRef<
     },
     [
       isRecording,
+      resizable,
+      canvasScaleRef,
       maxSize.height,
       maxSize.width,
       onDraggingChange,
@@ -264,40 +299,64 @@ export const StudioChartFrame = forwardRef<
   return (
     <motion.div
       className={cn(
-        "group/studio-frame relative inline-block max-w-full overflow-visible",
+        "group/studio-frame group/editor-frame relative inline-block max-w-full overflow-visible",
         className
       )}
       ref={wrapRef}
     >
       <motion.div
-        animate={{ width: size.width, height: size.height }}
+        animate={
+          resizable ? { width: size.width, height: size.height } : undefined
+        }
         className={cn(
           "relative overflow-visible border-2 bg-card",
           isRecording
             ? "border-transparent shadow-none"
             : cn(
-                "rounded-lg shadow-sm transition-[border-color,border-style]",
+                resizable &&
+                  "rounded-lg shadow-sm transition-[border-color,border-style]",
                 isDragging
-                  ? "border-foreground/50 border-dotted"
-                  : "border-border hover:border-foreground/35"
+                  ? "border-accent border-dotted"
+                  : "border-border hover:border-accent"
               )
         )}
         data-studio-export-root=""
-        layout={!isRecording}
+        layout={false}
         ref={captureRef}
-        style={style}
+        style={
+          resizable
+            ? style
+            : { ...style, width: size.width, height: size.height }
+        }
         transition={
-          isDragging || reducedMotion || isRecording
+          isDragging || reducedMotion || isRecording || !resizable
             ? { duration: 0 }
             : { ...frameSpring, layout: frameSpring }
         }
       >
         {frameContent}
-        {isRecording ? null : (
+        {isRecording || !resizable ? null : (
           <>
             <ResizeHandle edge="right" onPointerDown={startDrag("right")} />
             <ResizeHandle edge="bottom" onPointerDown={startDrag("bottom")} />
             <ResizeHandle edge="corner" onPointerDown={startDrag("corner")} />
+
+            <CornerHandle
+              className="top-0 left-0 -translate-x-1/2 -translate-y-1/2"
+              visible={isDragging}
+            />
+            <CornerHandle
+              className="top-0 right-0 translate-x-1/2 -translate-y-1/2"
+              visible={isDragging}
+            />
+            <CornerHandle
+              className="bottom-0 left-0 -translate-x-1/2 translate-y-1/2"
+              visible={isDragging}
+            />
+            <CornerHandle
+              className="right-0 bottom-0 translate-x-1/2 translate-y-1/2"
+              visible={isDragging}
+            />
           </>
         )}
       </motion.div>
@@ -320,3 +379,5 @@ export const StudioChartFrame = forwardRef<
     </motion.div>
   );
 });
+
+export { StudioChartFrame as EditorChartFrame };

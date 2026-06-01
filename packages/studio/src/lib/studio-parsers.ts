@@ -17,6 +17,9 @@ import type { ChartSlug } from "./types";
 export const studioSearchParams = {
   chart: parseAsStringLiteral(validChartSlugs).withDefault("gauge-chart"),
   preset: parseAsStringLiteral(COLOR_PRESET_IDS).withDefault("default"),
+  chartAccent: parseAsString.withDefault(""),
+  seriesColors: parseAsString.withDefault(""),
+  seriesPatterns: parseAsString.withDefault(""),
   frameW: parseAsInteger.withDefault(720),
   frameH: parseAsInteger.withDefault(400),
   value: parseAsInteger.withDefault(66),
@@ -32,6 +35,15 @@ export const studioSearchParams = {
   inactiveFillOpacity: parseAsFloat.withDefault(0.4),
   activeFillOpacity: parseAsFloat.withDefault(1),
   gaugeLabel: parseAsString.withDefault("Total Revenue"),
+  gaugeCenterPrefix: parseAsString.withDefault(""),
+  gaugeCenterSuffix: parseAsString.withDefault(""),
+  pieCenterLabel: parseAsString.withDefault("Total"),
+  pieCenterPrefix: parseAsString.withDefault(""),
+  pieCenterSuffix: parseAsString.withDefault(""),
+  ringCenterLabel: parseAsString.withDefault("Channels"),
+  ringCenterPrefix: parseAsString.withDefault(""),
+  ringCenterSuffix: parseAsString.withDefault(""),
+  ringStrokeWidth: parseAsFloat.withDefault(12),
   curve: parseAsStringLiteral(CURVE_IDS).withDefault("natural"),
   fillOpacity: parseAsFloat.withDefault(0.3),
   strokeWidth: parseAsFloat.withDefault(2),
@@ -156,16 +168,31 @@ export const studioSearchParams = {
   showCrosshair: parseAsBoolean.withDefault(true),
   crosshairFollowsValue: parseAsBoolean.withDefault(true),
   crosshairColor: parseAsString.withDefault("var(--chart-crosshair)"),
-  showLegend: parseAsBoolean.withDefault(true),
-  legendPlacement: parseAsStringLiteral(["top", "bottom"]).withDefault("top"),
+  showLegend: parseAsBoolean.withDefault(false),
+  legendPlacement: parseAsStringLiteral(["top", "bottom"]).withDefault(
+    "bottom"
+  ),
   legendAlign: parseAsStringLiteral(["start", "center", "end"]).withDefault(
     "end"
   ),
+  legendLayout: parseAsStringLiteral(["vertical", "horizontal"]).withDefault(
+    "vertical"
+  ),
+  legendFontSize: parseAsInteger.withDefault(13),
+  legendShowProgress: parseAsBoolean.withDefault(false),
+  legendShowMarker: parseAsBoolean.withDefault(true),
+  legendShowValue: parseAsBoolean.withDefault(true),
+  tooltipBackgroundOpacity: parseAsFloat.withDefault(0.8),
+  tooltipBlur: parseAsInteger.withDefault(12),
+  hiddenComponents: parseAsString.withDefault(""),
 };
 
 export interface StudioUrlState {
   chart: ChartSlug;
   preset: ColorPresetId;
+  chartAccent: string;
+  seriesColors: string;
+  seriesPatterns: string;
   frameW: number;
   frameH: number;
   value: number;
@@ -181,6 +208,15 @@ export interface StudioUrlState {
   inactiveFillOpacity: number;
   activeFillOpacity: number;
   gaugeLabel: string;
+  gaugeCenterPrefix: string;
+  gaugeCenterSuffix: string;
+  pieCenterLabel: string;
+  pieCenterPrefix: string;
+  pieCenterSuffix: string;
+  ringCenterLabel: string;
+  ringCenterPrefix: string;
+  ringCenterSuffix: string;
+  ringStrokeWidth: number;
   curve: CurveId;
   fillOpacity: number;
   strokeWidth: number;
@@ -280,6 +316,14 @@ export interface StudioUrlState {
   showLegend: boolean;
   legendPlacement: "top" | "bottom";
   legendAlign: "start" | "center" | "end";
+  legendLayout: "vertical" | "horizontal";
+  legendFontSize: number;
+  legendShowProgress: boolean;
+  legendShowMarker: boolean;
+  legendShowValue: boolean;
+  tooltipBackgroundOpacity: number;
+  tooltipBlur: number;
+  hiddenComponents: string;
 }
 
 export function defaultsForChart(): Partial<
@@ -297,6 +341,9 @@ export function defaultStudioState(
   return {
     chart: "gauge-chart",
     preset: "default",
+    chartAccent: "",
+    seriesColors: "",
+    seriesPatterns: "",
     frameW: 720,
     frameH: 400,
     value: 66,
@@ -312,6 +359,15 @@ export function defaultStudioState(
     inactiveFillOpacity: 0.4,
     activeFillOpacity: 1,
     gaugeLabel: "Total Revenue",
+    gaugeCenterPrefix: "",
+    gaugeCenterSuffix: "",
+    pieCenterLabel: "Total",
+    pieCenterPrefix: "",
+    pieCenterSuffix: "",
+    ringCenterLabel: "Channels",
+    ringCenterPrefix: "",
+    ringCenterSuffix: "",
+    ringStrokeWidth: 12,
     curve: "natural",
     fillOpacity: 0.3,
     strokeWidth: 2,
@@ -408,9 +464,17 @@ export function defaultStudioState(
     showCrosshair: true,
     crosshairFollowsValue: true,
     crosshairColor: "var(--chart-crosshair)",
-    showLegend: true,
-    legendPlacement: "top",
+    showLegend: false,
+    legendPlacement: "bottom",
     legendAlign: "end",
+    legendLayout: "vertical",
+    legendFontSize: 13,
+    legendShowProgress: false,
+    legendShowMarker: true,
+    legendShowValue: true,
+    tooltipBackgroundOpacity: 0.8,
+    tooltipBlur: 12,
+    hiddenComponents: "",
     ...overrides,
   };
 }

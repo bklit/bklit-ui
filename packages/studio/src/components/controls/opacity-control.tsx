@@ -50,7 +50,7 @@ export function OpacityControl({
 }) {
   return (
     <SliderInputGroup
-      format={(v) => v.toFixed(2)}
+      format={{ maximumFractionDigits: 2, minimumFractionDigits: 0 }}
       label={label}
       max={max}
       min={min}

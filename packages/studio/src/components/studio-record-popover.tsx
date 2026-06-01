@@ -3,6 +3,7 @@
 import { cn } from "@bklitui/ui/lib/utils";
 import { VideoCameraIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
+import { useStudioToolbarTooltipSide } from "@/components/studio-toolbar-tooltips";
 import {
   STUDIO_RECORDING_ASPECT_OPTIONS,
   STUDIO_RECORDING_FORMAT_OPTIONS,
@@ -18,15 +19,23 @@ import { RadioGroup, RadioGroupItem } from "@/ui/radio-group";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/ui/tooltip";
 
 export function StudioRecordPopover({
+  buttonClassName,
   disabled,
+  iconClassName = "size-5",
   isRecording,
   onOpenChange,
   onStart,
   onStop,
+  size = "icon-lg",
+  variant = "outline",
 }: {
+  buttonClassName?: string;
   disabled?: boolean;
+  iconClassName?: string;
   isRecording: boolean;
   onOpenChange?: (open: boolean) => void;
+  size?: "icon" | "icon-sm" | "icon-xs" | "icon-lg";
+  variant?: "ghost" | "outline";
   onStart: (
     interactionMs: StudioRecordingInteractionMs,
     aspect: StudioRecordingAspect,
@@ -40,18 +49,20 @@ export function StudioRecordPopover({
   const [aspect, setAspect] = useState<StudioRecordingAspect>("16:9");
   const [format, setFormat] = useState<StudioRecordingFormat>("webm");
 
+  const tooltipSide = useStudioToolbarTooltipSide();
+
   if (isRecording) {
     return (
       <Button
         aria-label="Stop recording"
-        className="size-10"
+        className={buttonClassName}
         onClick={onStop}
-        size="icon"
+        size={size}
         title="Stop recording"
         type="button"
-        variant="outline"
+        variant={variant}
       >
-        <span className="size-2.5 rounded-sm bg-destructive" />
+        <span className="size-2 rounded-sm bg-destructive" />
       </Button>
     );
   }
@@ -71,18 +82,18 @@ export function StudioRecordPopover({
               <Button
                 aria-expanded={open}
                 aria-label="Record animation"
-                className="size-10"
+                className={buttonClassName}
                 disabled={disabled}
-                size="icon"
+                size={size}
                 type="button"
-                variant="outline"
+                variant={variant}
               />
             }
           >
-            <VideoCameraIcon aria-hidden className="size-5" />
+            <VideoCameraIcon aria-hidden className={iconClassName} />
           </PopoverTrigger>
         </TooltipTrigger>
-        <TooltipContent>
+        <TooltipContent side={tooltipSide}>
           {disabled ? "Recording requires motion" : "Record"}
         </TooltipContent>
       </Tooltip>

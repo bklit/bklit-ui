@@ -1,57 +1,59 @@
 "use client";
 
-import { cn } from "@bklitui/ui/lib/utils";
 import type { IconSvgElement } from "@hugeicons/react";
 import { HugeiconsIcon } from "@hugeicons/react";
+import type { ReactNode } from "react";
+import { StudioSingleToggleGroup } from "@/components/controls/studio-toggle-group";
+import { ToggleGroupItem } from "@/ui/toggle-group";
+
+export function IconToggleGroup<T extends string>({
+  value,
+  onValueChange,
+  className,
+  children,
+}: {
+  value: T;
+  onValueChange: (value: T) => void;
+  className?: string;
+  children: ReactNode;
+}) {
+  return (
+    <StudioSingleToggleGroup
+      className={className}
+      onValueChange={onValueChange}
+      size="icon"
+      value={value}
+      variant="studio"
+    >
+      {children}
+    </StudioSingleToggleGroup>
+  );
+}
 
 export function IconToggleButton({
-  pressed,
-  onClick,
+  value,
   label,
   icon,
   children,
   className,
 }: {
-  pressed: boolean;
-  onClick: () => void;
+  value: string;
   label: string;
   icon?: IconSvgElement;
-  children?: React.ReactNode;
+  children?: ReactNode;
   className?: string;
 }) {
   return (
-    <button
+    <ToggleGroupItem
       aria-label={label}
-      aria-pressed={pressed}
-      className={cn(
-        "flex h-11 flex-1 items-center justify-center rounded-lg border transition-colors",
-        pressed
-          ? "border-accent bg-accent/10 text-accent"
-          : "border-border bg-muted/30 text-muted-foreground hover:bg-muted/50",
-        className
-      )}
-      onClick={onClick}
+      className={className}
       title={label}
-      type="button"
+      value={value}
     >
       {children ??
         (icon ? (
           <HugeiconsIcon className="size-5" icon={icon} strokeWidth={1.75} />
         ) : null)}
-    </button>
-  );
-}
-
-export function IconToggleGroup({
-  children,
-  className,
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <fieldset className={cn("flex gap-2 border-0 p-0", className)}>
-      {children}
-    </fieldset>
+    </ToggleGroupItem>
   );
 }

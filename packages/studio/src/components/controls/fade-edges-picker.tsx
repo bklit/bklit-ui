@@ -1,7 +1,7 @@
 "use client";
 
-import { cn } from "@bklitui/ui/lib/utils";
-import { IconToggleGroup } from "./icon-toggle-group";
+import { IconToggleGroup } from "@/components/controls/icon-toggle-group";
+import { ToggleGroupItem } from "@/ui/toggle-group";
 
 export type FadeEdgesOption = "both" | "none" | "left" | "right";
 
@@ -53,24 +53,16 @@ export function FadeEdgesPicker({
   onChange: (v: FadeEdgesOption) => void;
 }) {
   return (
-    <IconToggleGroup>
+    <IconToggleGroup onValueChange={onChange} value={value}>
       {OPTIONS.map((opt) => (
-        <button
+        <ToggleGroupItem
           aria-label={opt.label}
-          aria-pressed={value === opt.value}
-          className={cn(
-            "flex h-11 flex-1 items-center justify-center rounded-lg border transition-colors",
-            value === opt.value
-              ? "border-accent bg-accent/10 text-accent"
-              : "border-border bg-muted/30 text-muted-foreground hover:bg-muted/50"
-          )}
           key={opt.value}
-          onClick={() => onChange(opt.value)}
           title={opt.label}
-          type="button"
+          value={opt.value}
         >
           <FadeIcon stops={opt.stops} />
-        </button>
+        </ToggleGroupItem>
       ))}
     </IconToggleGroup>
   );

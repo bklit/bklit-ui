@@ -1,10 +1,13 @@
 "use client";
 
+import {
+  EditorChartFrame,
+  EditorShell,
+  resolveViewportSize,
+  StudioScenesProvider,
+  type ViewportPreset,
+} from "@bklitui/studio";
 import { useCallback, useState } from "react";
-import { EditorChartFrame } from "@/components/editor/editor-chart-frame";
-import { EditorShell } from "@/components/editor/editor-shell";
-import type { ViewportPreset } from "@/components/editor/viewport-presets";
-import { resolveViewportSize } from "@/components/editor/viewport-presets";
 import { PlaygroundEmptyState } from "@/components/playground/playground-empty-state";
 import { usePlaygroundState } from "@/components/playground/use-playground-state";
 import { useReplayKey } from "@/components/playground/use-replay-key";
@@ -25,27 +28,42 @@ export default function PlaygroundPage() {
   }, []);
 
   return (
-    <EditorShell
-      chartState={chartState}
-      controlGroups={[]}
-      onReplay={replay}
-      onSizeChange={handleSizeChange}
-      onViewportChange={setViewport}
-      showMotionControls={false}
-      size={size}
-      viewport={viewport}
+    <StudioScenesProvider
+      frameHeight={size.height}
+      frameWidth={size.width}
+      onPrimaryFrameChange={handleSizeChange}
     >
-      {({ size: frameSize, boundsRef, onResize, mobileViewport }) => (
-        <EditorChartFrame
-          boundsRef={boundsRef}
-          height={frameSize.height}
-          onResize={onResize}
-          resizable={!mobileViewport}
-          width={frameSize.width}
-        >
-          <PlaygroundEmptyState />
-        </EditorChartFrame>
-      )}
-    </EditorShell>
+      <EditorShell
+        chartState={chartState}
+        controlGroups={[]}
+        frameTitle="Playground"
+        onReplay={replay}
+        onSizeChange={handleSizeChange}
+        onViewportChange={setViewport}
+        showFpsCounter
+        showMotionControls={false}
+        size={size}
+        viewport={viewport}
+      >
+        {({
+          size: frameSize,
+          boundsRef,
+          onResize,
+          mobileViewport,
+          canvasScaleRef,
+        }) => (
+          <EditorChartFrame
+            boundsRef={boundsRef}
+            canvasScaleRef={canvasScaleRef}
+            height={frameSize.height}
+            onResize={onResize}
+            resizable={!mobileViewport}
+            width={frameSize.width}
+          >
+            <PlaygroundEmptyState />
+          </EditorChartFrame>
+        )}
+      </EditorShell>
+    </StudioScenesProvider>
   );
 }

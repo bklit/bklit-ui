@@ -20,7 +20,7 @@ import {
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
 import type { ChartSlug } from "@/lib/types";
 
-const CHART_TYPE_ICONS: Record<ChartSlug, IconSvgElement> = {
+export const CHART_TYPE_ICONS: Record<ChartSlug, IconSvgElement> = {
   "area-chart": ChartAreaIcon,
   "bar-chart": BarChartIcon,
   "line-chart": ChartLineData01Icon,
@@ -37,6 +37,10 @@ const CHART_TYPE_ICONS: Record<ChartSlug, IconSvgElement> = {
   "choropleth-chart": GlobeIcon,
   "sankey-chart": Flowchart02Icon,
 };
+
+export function getChartTypeIcon(slug: ChartSlug): IconSvgElement {
+  return CHART_TYPE_ICONS[slug];
+}
 
 export function ChartTypeIcon({
   slug,

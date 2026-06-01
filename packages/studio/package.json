@@ -38,6 +38,7 @@
   "dependencies": {
     "@base-ui/react": "^1.1.0",
     "@bklitui/ui": "workspace:*",
+    "@grida/ruler": "^0.0.1",
     "@heroicons/react": "^2.2.0",
     "@hugeicons/core-free-icons": "^4.1.4",
     "@hugeicons/react": "^1.1.6",
@@ -50,6 +51,7 @@
     "mediabunny": "1.45.0",
     "modern-screenshot": "^4.7.0",
     "motion": "^12.27.0",
+    "next-themes": "^0.4.6",
     "nuqs": "^2.8.9",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",

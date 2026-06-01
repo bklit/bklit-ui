@@ -51,6 +51,8 @@ export interface ChartTooltipProps {
   springConfig?: SpringConfig;
   /** Per-chart override for the floating-panel spring. */
   boxSpringConfig?: SpringConfig;
+  /** Inline styles for the tooltip panel (background, blur, etc.). */
+  panelStyle?: React.CSSProperties;
 }
 
 interface ChartTooltipInnerProps extends ChartTooltipProps {
@@ -70,6 +72,7 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
   container,
   springConfig,
   boxSpringConfig,
+  panelStyle,
 }: ChartTooltipInnerProps) {
   const {
     tooltipData,
@@ -217,6 +220,7 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
         containerHeight={height}
         containerRef={containerRef}
         containerWidth={width}
+        panelStyle={panelStyle}
         springConfig={boxSpringConfig}
         top={isHorizontal ? undefined : margin.top}
         visible={visible}

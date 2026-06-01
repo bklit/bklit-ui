@@ -188,6 +188,8 @@ export {
   PieProvider,
   pieCssVars,
   usePie,
+  usePieHover,
+  usePieStable,
 } from "./pie-context";
 export {
   PieSlice,

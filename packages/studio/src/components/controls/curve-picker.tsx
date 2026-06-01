@@ -1,7 +1,8 @@
 "use client";
 
-import { cn } from "@bklitui/ui/lib/utils";
+import { StudioSingleToggleGroup } from "@/components/controls/studio-toggle-group";
 import { CURVE_OPTIONS, type CurveId } from "@/lib/curves";
+import { ToggleGroupItem } from "@/ui/toggle-group";
 import { CurvePreviewIcon } from "../curve-preview-icons";
 
 export function CurvePicker({
@@ -12,27 +13,25 @@ export function CurvePicker({
   onChange: (v: CurveId) => void;
 }) {
   return (
-    <div className="grid grid-cols-3 gap-1.5">
+    <StudioSingleToggleGroup
+      className="grid w-full grid-cols-3 gap-1.5"
+      onValueChange={onChange}
+      size="card"
+      spacing={2}
+      value={value}
+      variant="studio"
+    >
       {CURVE_OPTIONS.map((opt) => (
-        <button
+        <ToggleGroupItem
           aria-label={opt.label}
-          className={cn(
-            "flex flex-col items-center gap-1 rounded-md border px-1 py-2 transition-colors",
-            value === opt.value
-              ? "border-accent bg-background/80 text-foreground shadow-sm"
-              : "border-transparent bg-transparent text-muted-foreground hover:border-border hover:bg-background/50 hover:text-foreground"
-          )}
           key={opt.value}
-          onClick={() => onChange(opt.value)}
           title={opt.label}
-          type="button"
+          value={opt.value}
         >
           <CurvePreviewIcon className="text-current" curveId={opt.value} />
-          <span className="text-center text-[10px] leading-tight">
-            {opt.label}
-          </span>
-        </button>
+          <span className="text-center leading-tight">{opt.label}</span>
+        </ToggleGroupItem>
       ))}
-    </div>
+    </StudioSingleToggleGroup>
   );
 }

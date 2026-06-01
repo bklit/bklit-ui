@@ -24,7 +24,7 @@ export function PlaygroundProfitLossLineChart({
     motionCurveDragging,
     motionRemountKey: "",
     patternDefs: null,
-    patternFill: undefined,
+    patternFillAt: () => undefined,
     frame: { width: 0, height: 0 },
   };
 

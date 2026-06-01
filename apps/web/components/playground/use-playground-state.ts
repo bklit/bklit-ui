@@ -55,12 +55,29 @@ export function usePlaygroundState(initialState: Partial<StudioUrlState> = {}) {
     []
   );
 
+  const setStudioParams = useCallback((updates: Partial<StudioUrlState>) => {
+    setPreviewOverrides((prev) => {
+      const next = { ...prev };
+      for (const key of Object.keys(updates) as (keyof StudioUrlState)[]) {
+        delete next[key];
+      }
+      return next;
+    });
+    setState((prev) => ({ ...prev, ...updates }));
+  }, []);
+
+  const setPreviewParams = useCallback((updates: Partial<StudioUrlState>) => {
+    setPreviewOverrides((prev) => ({ ...prev, ...updates }));
+  }, []);
+
   return {
     state,
     displayState,
     setParam,
     setPreviewParam,
+    setPreviewParams,
     commitParam,
+    setStudioParams,
     motionCurveDragging,
     setMotionCurveDragging,
   };
