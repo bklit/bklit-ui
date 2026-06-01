@@ -24,6 +24,13 @@ export interface EditorContentBounds {
   height: number;
 }
 
+/** WebKit trackpad pinch (Safari, Tauri/WKWebView on macOS). */
+interface WebKitGestureEvent extends Event {
+  clientX: number;
+  clientY: number;
+  scale: number;
+}
+
 function isEditableTarget(target: EventTarget | null) {
   if (!(target instanceof HTMLElement)) {
     return false;
@@ -289,20 +296,63 @@ export function useEditorCamera({
       panBy(-event.deltaX, -event.deltaY);
     };
 
-    const onGesture = (event: Event) => {
+    let gestureSession: {
+      startZoom: number;
+      startX: number;
+      startY: number;
+      centerX: number;
+      centerY: number;
+    } | null = null;
+
+    const onGestureStart = (event: Event) => {
       event.preventDefault();
+      const gesture = event as WebKitGestureEvent;
+      const rect = element.getBoundingClientRect();
+      gestureSession = {
+        startZoom: cameraRef.current.zoom,
+        startX: cameraRef.current.x,
+        startY: cameraRef.current.y,
+        centerX: gesture.clientX - rect.left,
+        centerY: gesture.clientY - rect.top,
+      };
+    };
+
+    const onGestureChange = (event: Event) => {
+      event.preventDefault();
+      const gesture = event as WebKitGestureEvent;
+      if (!gestureSession) {
+        return;
+      }
+
+      applyCamera(
+        zoomCameraAtPoint({
+          camera: {
+            zoom: gestureSession.startZoom,
+            x: gestureSession.startX,
+            y: gestureSession.startY,
+          },
+          pointX: gestureSession.centerX,
+          pointY: gestureSession.centerY,
+          nextZoom: gestureSession.startZoom * gesture.scale,
+        })
+      );
+    };
+
+    const onGestureEnd = (event: Event) => {
+      event.preventDefault();
+      gestureSession = null;
     };
 
     element.addEventListener("wheel", onWheel, { passive: false });
-    element.addEventListener("gesturestart", onGesture);
-    element.addEventListener("gesturechange", onGesture);
-    element.addEventListener("gestureend", onGesture);
+    element.addEventListener("gesturestart", onGestureStart);
+    element.addEventListener("gesturechange", onGestureChange);
+    element.addEventListener("gestureend", onGestureEnd);
 
     return () => {
       element.removeEventListener("wheel", onWheel);
-      element.removeEventListener("gesturestart", onGesture);
-      element.removeEventListener("gesturechange", onGesture);
-      element.removeEventListener("gestureend", onGesture);
+      element.removeEventListener("gesturestart", onGestureStart);
+      element.removeEventListener("gesturechange", onGestureChange);
+      element.removeEventListener("gestureend", onGestureEnd);
     };
   }, [applyCamera, enabled, panBy, viewportRef]);
 
