@@ -5,37 +5,17 @@ import { useEffect, useState } from "react";
 import type { Color } from "react-aria-components";
 import { ColorPicker as AriaColorPicker } from "react-aria-components";
 import { studioInputSurfaceClass } from "@/components/controls/control-field-helpers";
-import {
-  applyOpacityToColor,
-  isValidOklchColor,
-  normalizeColorInput,
-  parseColorMix,
-} from "@/lib/chart-theme-color";
+import { isValidOklchColor, parseColorMix } from "@/lib/chart-theme-color";
 import {
   pickerColorToStudioColor,
-  studioColorHexField,
   studioColorToOklchField,
   studioColorToPickerColor,
-  studioColorUsesOklchInput,
 } from "@/lib/studio-color-picker-value";
 import { ColorArea } from "@/ui/color-picker/color-area";
 import { ColorSlider } from "@/ui/color-picker/color-slider";
 
-type ColorInputMode = "hex" | "oklch";
-
 const OKLCH_PREFIX_RE = /^oklch\(/i;
 const OKLCH_COMPONENTS_BODY_RE = /^[\d.]+\s+[\d.]+\s+[\d.]+/;
-
-function colorInputMode(color: string): ColorInputMode {
-  return studioColorUsesOklchInput(color) ? "oklch" : "hex";
-}
-
-function formatInputField(color: string, mode: ColorInputMode): string {
-  if (mode === "oklch") {
-    return studioColorToOklchField(color);
-  }
-  return studioColorHexField(color);
-}
 
 function commitOklchDraft(
   raw: string,
@@ -73,47 +53,25 @@ export function StudioColorPicker({
   disabled?: boolean;
   onChange: (value: string) => void;
 }) {
-  const [inputMode, setInputMode] = useState<ColorInputMode>(() =>
-    colorInputMode(color)
-  );
-  const [draft, setDraft] = useState(() =>
-    formatInputField(color, colorInputMode(color))
-  );
+  const [draft, setDraft] = useState(() => studioColorToOklchField(color));
   const [pickerColor, setPickerColor] = useState(() =>
     studioColorToPickerColor(color)
   );
 
   useEffect(() => {
-    const mode = colorInputMode(color);
-    setInputMode(mode);
-    setDraft(formatInputField(color, mode));
+    setDraft(studioColorToOklchField(color));
     setPickerColor(studioColorToPickerColor(color));
   }, [color]);
 
-  const commitPickerColor = (next: Color, mode: ColorInputMode = inputMode) => {
+  const commitPickerColor = (next: Color) => {
     setPickerColor(next);
-    const studioColor = pickerColorToStudioColor(next, mode);
+    const studioColor = pickerColorToStudioColor(next);
     onChange(studioColor);
-    if (mode === "hex") {
-      setDraft(next.toString("hex").replace("#", "").toUpperCase());
-    } else {
-      setDraft(formatInputField(studioColor, mode));
-    }
-    setInputMode(mode);
+    setDraft(studioColorToOklchField(studioColor));
   };
 
-  const commitDraft = (raw: string, mode: ColorInputMode) => {
-    if (mode === "oklch") {
-      commitOklchDraft(raw, pickerColor, onChange);
-      return;
-    }
-
-    const normalized = normalizeColorInput(raw);
-    if (!normalized) {
-      return;
-    }
-    const opacity = Math.round(pickerColor.getChannelValue("alpha") * 100);
-    onChange(applyOpacityToColor(normalized, opacity));
+  const commitDraft = (raw: string) => {
+    commitOklchDraft(raw, pickerColor, onChange);
   };
 
   const opacity = Math.round(pickerColor.getChannelValue("alpha") * 100);
@@ -137,41 +95,23 @@ export function StudioColorPicker({
         </div>
 
         <div className="flex items-center gap-1.5">
-          <div className="flex rounded-md border border-input p-0.5">
-            {(["hex", "oklch"] as const).map((mode) => (
-              <button
-                className={cn(
-                  "rounded px-2 py-1 font-medium text-[10px] uppercase tracking-wide transition-colors",
-                  inputMode === mode
-                    ? "bg-muted text-foreground"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-                disabled={disabled}
-                key={mode}
-                onClick={() => {
-                  setInputMode(mode);
-                  setDraft(formatInputField(color, mode));
-                }}
-                type="button"
-              >
-                {mode}
-              </button>
-            ))}
-          </div>
+          <span className="shrink-0 px-1 font-medium text-[10px] text-muted-foreground uppercase tracking-wide">
+            oklch
+          </span>
           <input
             className={cn(
               "h-8 min-w-0 flex-1 rounded-md px-2 font-mono text-foreground text-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
               studioInputSurfaceClass
             )}
             disabled={disabled}
-            onBlur={() => commitDraft(draft, inputMode)}
+            onBlur={() => commitDraft(draft)}
             onChange={(event) => setDraft(event.target.value)}
             onKeyDown={(event) => {
               if (event.key === "Enter") {
-                commitDraft(draft, inputMode);
+                commitDraft(draft);
               }
             }}
-            placeholder={inputMode === "hex" ? "000000" : "0.84 0.18 128"}
+            placeholder="0.865 0.127 207"
             value={draft}
           />
           <input
@@ -212,5 +152,3 @@ export function StudioColorPicker({
     </AriaColorPicker>
   );
 }
-
-export { colorInputMode };
