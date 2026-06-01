@@ -181,6 +181,7 @@ export const studioSearchParams = {
   legendFontSize: parseAsInteger.withDefault(13),
   legendShowProgress: parseAsBoolean.withDefault(false),
   legendShowMarker: parseAsBoolean.withDefault(true),
+  legendShowValue: parseAsBoolean.withDefault(true),
   tooltipBackgroundOpacity: parseAsFloat.withDefault(0.8),
   tooltipBlur: parseAsInteger.withDefault(12),
   hiddenComponents: parseAsString.withDefault(""),
@@ -319,6 +320,7 @@ export interface StudioUrlState {
   legendFontSize: number;
   legendShowProgress: boolean;
   legendShowMarker: boolean;
+  legendShowValue: boolean;
   tooltipBackgroundOpacity: number;
   tooltipBlur: number;
   hiddenComponents: string;
@@ -469,6 +471,7 @@ export function defaultStudioState(
     legendFontSize: 13,
     legendShowProgress: false,
     legendShowMarker: true,
+    legendShowValue: true,
     tooltipBackgroundOpacity: 0.8,
     tooltipBlur: 12,
     hiddenComponents: "",

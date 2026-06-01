@@ -40,6 +40,7 @@ export type StudioControl =
   | { type: "funnelEdges"; key: "funnelEdges"; label: string }
   | { type: "fadeEdges"; key: "fadeEdges"; label: string }
   | { type: "graticuleToggle"; key: "showGraticule"; label: string }
+  | { type: "legendPosition"; key: "legendPlacement"; label: string }
   | ({
       type: "innerRadius";
       key: keyof StudioUrlState;

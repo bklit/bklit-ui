@@ -22,6 +22,7 @@ import {
 import { ControlFieldInputs } from "./control-field-inputs";
 import { GaugeAngleControl } from "./gauge-angle-control";
 import { InnerRadiusControl } from "./inner-radius-control";
+import { LegendPositionPicker } from "./legend-position-picker";
 import { OpacityControl } from "./opacity-control";
 import { PieEndAngleControl, PieStartAngleControl } from "./pie-angle-control";
 import { SliderInputGroup } from "./slider-input-group";
@@ -97,6 +98,35 @@ function NumberInputOnly({
   );
 }
 
+function LegendPositionControlField({
+  state,
+  onChange,
+  onCommit,
+}: {
+  state: StudioUrlState;
+  onChange: <K extends keyof StudioUrlState>(
+    key: K,
+    value: StudioUrlState[K]
+  ) => void;
+  onCommit?: <K extends keyof StudioUrlState>(
+    key: K,
+    value: StudioUrlState[K]
+  ) => void;
+}) {
+  const commit = onCommit ?? onChange;
+  return (
+    <LegendPositionPicker
+      align={state.legendAlign}
+      onChange={(placement, align) => {
+        commit("legendPlacement", placement);
+        commit("legendAlign", align);
+      }}
+      placement={state.legendPlacement}
+    />
+  );
+}
+
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: discriminated union over many control types
 export function ControlField({
   control,
   state,
@@ -121,6 +151,16 @@ export function ControlField({
     value: StudioUrlState[K]
   ) => void;
 }) {
+  if (control.type === "legendPosition") {
+    return (
+      <LegendPositionControlField
+        onChange={onChange}
+        onCommit={onCommit}
+        state={state}
+      />
+    );
+  }
+
   const value = state[control.key];
 
   if (control.type === "number") {

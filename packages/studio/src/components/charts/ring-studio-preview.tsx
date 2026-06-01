@@ -12,6 +12,7 @@ import {
 } from "@/lib/chart-animation";
 import { getRingData } from "@/lib/demo-data";
 import type { StudioRenderContext } from "@/lib/render-context";
+import { useStudioChartContentFrame } from "@/lib/studio-chart-content-frame";
 import { isStudioComponentVisible } from "@/lib/studio-component-visibility";
 import { useStudioLegendHover } from "@/lib/studio-legend-hover";
 import { studioStaticRingLegendItems } from "@/lib/studio-legend-items";
@@ -30,9 +31,10 @@ function RingChartBody({
   motionEnter: ReturnType<typeof getStudioMotionEnterProps>;
 }) {
   const { hoveredIndex, setHoveredIndex } = useStudioLegendHover();
+  const contentFrame = useStudioChartContentFrame(ctx.frame);
 
   return (
-    <StudioRadialCenter frame={ctx.frame}>
+    <StudioRadialCenter frame={contentFrame}>
       <RingChart
         baseInnerRadius={state.ringBaseInnerRadius}
         data={data}
@@ -42,7 +44,7 @@ function RingChartBody({
         key={studioPreviewChartKey(ctx)}
         onHoverChange={setHoveredIndex}
         ringGap={state.ringGap}
-        size={studioRadialSize(ctx.frame, state.pieSize)}
+        size={studioRadialSize(contentFrame, state.pieSize)}
         strokeWidth={state.ringStrokeWidth}
       >
         {data.map((item, index) =>

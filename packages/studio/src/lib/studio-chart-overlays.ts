@@ -34,11 +34,10 @@ export function chartTooltipPropsFromState(
 }
 
 export function studioLegendClassName(state: StudioUrlState): string {
+  const horizontal = state.legendLayout === "horizontal";
   return cn(
-    "w-full max-w-full px-2",
-    state.legendAlign === "start" && "self-start",
-    state.legendAlign === "center" && "self-center",
-    state.legendAlign === "end" && "self-end",
+    "max-w-full px-2",
+    horizontal ? "w-full" : "w-auto",
     state.legendLayout === "horizontal" && "flex-row flex-wrap gap-x-4 gap-y-2"
   );
 }
@@ -57,6 +56,7 @@ export function chartLegendPropsFromState(
   return {
     showProgress: state.legendShowProgress,
     showMarker: state.legendShowMarker,
+    showValue: state.legendShowValue,
     className: studioLegendClassName(state),
     itemClassName: horizontal ? "w-auto shrink-0" : "",
     labelClassName: "font-medium tabular-nums",
