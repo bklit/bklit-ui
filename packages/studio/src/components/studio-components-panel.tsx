@@ -1,21 +1,12 @@
 "use client";
 
 import { cn } from "@bklitui/ui/lib/utils";
-import {
-  BarChart3Icon,
-  ChartPieIcon,
-  CircleDotIcon,
-  DatabaseIcon,
-  EyeIcon,
-  EyeOffIcon,
-  FilterIcon,
-  LayersIcon,
-  LineChartIcon,
-  TypeIcon,
-} from "lucide-react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { StudioControlGroup } from "@/components/studio-control-group";
 import { StudioScrambleDataButton } from "@/components/studio-scramble-data-button";
 import { resolveCssColor } from "@/lib/chart-theme-color";
+import { resolveStudioComponentTreeIcon } from "@/lib/studio-component-tree-icon";
 import {
   isStudioComponentConfigurable,
   isStudioComponentVisible,
@@ -26,46 +17,14 @@ import {
   studioComponentDepth,
 } from "@/lib/studio-components";
 import type { StudioUrlState } from "@/lib/studio-parsers";
-import type {
-  StudioComponentDefinition,
-  StudioComponentKind,
-  StudioComponentTreeIcon,
-} from "@/lib/types";
-
-function componentIcon(
-  kind: StudioComponentKind | undefined,
-  treeIcon?: StudioComponentTreeIcon
-) {
-  if (treeIcon === "pie-chart") {
-    return ChartPieIcon;
-  }
-  if (treeIcon === "funnel") {
-    return FilterIcon;
-  }
-  if (treeIcon === "line-chart") {
-    return LineChartIcon;
-  }
-
-  switch (kind) {
-    case "data":
-      return DatabaseIcon;
-    case "series":
-      return BarChart3Icon;
-    case "line":
-      return LineChartIcon;
-    case "text":
-      return TypeIcon;
-    case "geometry":
-      return CircleDotIcon;
-    default:
-      return LayersIcon;
-  }
-}
+import type { StudioComponentDefinition } from "@/lib/types";
 
 function ComponentListMarker({
   component,
+  chartSlug,
 }: {
   component: StudioComponentDefinition;
+  chartSlug: StudioUrlState["chart"];
 }) {
   if (component.listMarker === "color-dot") {
     const color = resolveCssColor(component.swatchColor ?? "var(--chart-1)");
@@ -78,8 +37,13 @@ function ComponentListMarker({
     );
   }
 
-  const Icon = componentIcon(component.kind, component.treeIcon);
-  return <Icon className="size-3.5 shrink-0 opacity-70" strokeWidth={1.75} />;
+  return (
+    <HugeiconsIcon
+      className="size-3.5 shrink-0 opacity-70"
+      icon={resolveStudioComponentTreeIcon(component, chartSlug)}
+      strokeWidth={1.75}
+    />
+  );
 }
 
 export function StudioComponentsPanel({
@@ -142,7 +106,10 @@ export function StudioComponentsPanel({
                   }}
                   type="button"
                 >
-                  <ComponentListMarker component={component} />
+                  <ComponentListMarker
+                    chartSlug={state.chart}
+                    component={component}
+                  />
                   <span className="truncate">{component.label}</span>
                 </button>
                 <button
