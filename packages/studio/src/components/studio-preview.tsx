@@ -31,6 +31,7 @@ import {
   type StudioRecordingFormat,
   type StudioRecordingInteractionMs,
 } from "@/lib/studio-recording";
+import { supportsStudioExportFeatures } from "@/lib/studio-runtime";
 import {
   getDesignSeriesCount,
   getSeriesPattern,
@@ -233,6 +234,7 @@ export function StudioPreview({
   const controlsDisabled = isRecording || capturePrepared || recordingChartHeld;
   const showCaptureLayout = isRecording || capturePrepared;
   const showRecordingChrome = isRecording && timeline;
+  const showExportFeatures = supportsStudioExportFeatures();
 
   const handleExportSvg = useCallback(async () => {
     const root = chartAreaRef.current?.querySelector<HTMLElement>(
@@ -305,17 +307,21 @@ export function StudioPreview({
             </TooltipTrigger>
             <TooltipContent>Scramble data</TooltipContent>
           </Tooltip>
-          <StudioExportSvgButton
-            disabled={controlsDisabled}
-            onExport={handleExportSvg}
-          />
-          <StudioRecordPopover
-            disabled={recordingBlocked}
-            isRecording={isRecording}
-            onOpenChange={handleRecordPopoverOpenChange}
-            onStart={handleStartRecording}
-            onStop={stopRecording}
-          />
+          {showExportFeatures ? (
+            <>
+              <StudioExportSvgButton
+                disabled={controlsDisabled}
+                onExport={handleExportSvg}
+              />
+              <StudioRecordPopover
+                disabled={recordingBlocked}
+                isRecording={isRecording}
+                onOpenChange={handleRecordPopoverOpenChange}
+                onStart={handleStartRecording}
+                onStop={stopRecording}
+              />
+            </>
+          ) : null}
           <PresetSelect
             disabled={controlsDisabled}
             onChange={(v) => setParam("preset", v)}

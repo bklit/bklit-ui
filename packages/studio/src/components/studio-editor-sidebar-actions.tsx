@@ -12,6 +12,7 @@ import type {
   StudioRecordingFormat,
   StudioRecordingInteractionMs,
 } from "@/lib/studio-recording";
+import { supportsStudioExportFeatures } from "@/lib/studio-runtime";
 
 function isTypingTarget(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) {
@@ -72,26 +73,32 @@ export function StudioEditorSidebarActions({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [onReplay]);
 
+  const showExportFeatures = supportsStudioExportFeatures();
+
   return (
     <>
       <EditorReplayButton disabled={controlsDisabled} onReplay={onReplay} />
 
-      <StudioRecordPopover
-        disabled={recordingBlocked}
-        isRecording={isRecording}
-        onOpenChange={onRecordPopoverOpenChange}
-        onStart={onStartRecording}
-        onStop={onStopRecording}
-        size="icon-sm"
-        variant="ghost"
-      />
+      {showExportFeatures ? (
+        <>
+          <StudioRecordPopover
+            disabled={recordingBlocked}
+            isRecording={isRecording}
+            onOpenChange={onRecordPopoverOpenChange}
+            onStart={onStartRecording}
+            onStop={onStopRecording}
+            size="icon-sm"
+            variant="ghost"
+          />
 
-      <StudioExportSvgButton
-        disabled={controlsDisabled}
-        onExport={onExportSvg}
-        size="icon-sm"
-        variant="ghost"
-      />
+          <StudioExportSvgButton
+            disabled={controlsDisabled}
+            onExport={onExportSvg}
+            size="icon-sm"
+            variant="ghost"
+          />
+        </>
+      ) : null}
 
       {renderCodeSheet ? (
         renderCodeSheet(state)
