@@ -2,13 +2,11 @@
 
 import { MotionEasePresetGrid } from "@/components/controls/motion-ease-preset-grid";
 import { SliderInputGroup } from "@/components/controls/slider-input-group";
-import {
-  StudioSingleToggleGroup,
-  ToggleGroupItem,
-} from "@/components/controls/studio-toggle-group";
+import { StudioSingleToggleGroup } from "@/components/controls/studio-toggle-group";
 import { motionDurationToAnimationMs } from "@/lib/chart-animation";
 import { MOTION_EASE_PRESETS, type MotionType } from "@/lib/motion-config";
 import type { StudioUrlState } from "@/lib/studio-parsers";
+import { ToggleGroupItem } from "@/ui/toggle-group";
 import { MotionCurveEditor } from "./motion-curve-editor";
 
 function MotionTypeToggle({

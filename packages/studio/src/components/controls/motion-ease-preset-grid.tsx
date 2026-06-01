@@ -1,16 +1,14 @@
 "use client";
 
 import { studioFieldLabelClass } from "@/components/controls/control-field-helpers";
-import {
-  StudioSingleToggleGroup,
-  ToggleGroupItem,
-} from "@/components/controls/studio-toggle-group";
+import { StudioSingleToggleGroup } from "@/components/controls/studio-toggle-group";
 import { MotionEasePreviewIcon } from "@/components/motion-ease-preview-icons";
 import {
   MOTION_EASE_IDS,
   MOTION_EASE_PRESETS,
   type MotionEaseId,
 } from "@/lib/motion-config";
+import { ToggleGroupItem } from "@/ui/toggle-group";
 
 export function MotionEasePresetGrid({
   value,

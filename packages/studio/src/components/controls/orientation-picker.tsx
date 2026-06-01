@@ -1,10 +1,8 @@
 "use client";
 
 import { ArrowRightLeft, ArrowUpDown } from "lucide-react";
-import {
-  StudioSingleToggleGroup,
-  ToggleGroupItem,
-} from "@/components/controls/studio-toggle-group";
+import { StudioSingleToggleGroup } from "@/components/controls/studio-toggle-group";
+import { ToggleGroupItem } from "@/ui/toggle-group";
 
 export function OrientationPicker({
   value,

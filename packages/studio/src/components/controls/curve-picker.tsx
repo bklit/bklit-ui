@@ -1,10 +1,8 @@
 "use client";
 
-import {
-  StudioSingleToggleGroup,
-  ToggleGroupItem,
-} from "@/components/controls/studio-toggle-group";
+import { StudioSingleToggleGroup } from "@/components/controls/studio-toggle-group";
 import { CURVE_OPTIONS, type CurveId } from "@/lib/curves";
+import { ToggleGroupItem } from "@/ui/toggle-group";
 import { CurvePreviewIcon } from "../curve-preview-icons";
 
 export function CurvePicker({

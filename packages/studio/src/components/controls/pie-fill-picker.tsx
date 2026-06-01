@@ -1,10 +1,8 @@
 "use client";
 
 import { PatternLines } from "@bklitui/ui/charts";
-import {
-  StudioSingleToggleGroup,
-  ToggleGroupItem,
-} from "@/components/controls/studio-toggle-group";
+import { StudioSingleToggleGroup } from "@/components/controls/studio-toggle-group";
+import { ToggleGroupItem } from "@/ui/toggle-group";
 
 export type PieFillMode = "solid" | "lines";
 

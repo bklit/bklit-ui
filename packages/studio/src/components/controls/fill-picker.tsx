@@ -13,10 +13,7 @@ import {
 } from "@/components/controls/pattern-picker";
 import { PresetSwatch } from "@/components/controls/preset-select";
 import { StudioColorPicker } from "@/components/controls/studio-color-picker";
-import {
-  StudioSingleToggleGroup,
-  ToggleGroupItem,
-} from "@/components/controls/studio-toggle-group";
+import { StudioSingleToggleGroup } from "@/components/controls/studio-toggle-group";
 import {
   isValidOklchColor,
   parseColorMix,
@@ -29,6 +26,7 @@ import type { PatternPresetId } from "@/lib/pattern-presets";
 import { studioColorHexField } from "@/lib/studio-color-picker-value";
 import type { SeriesFillMode } from "@/lib/studio-series-design";
 import { Popover, PopoverContent, PopoverTrigger } from "@/ui/popover";
+import { ToggleGroupItem } from "@/ui/toggle-group";
 
 function formatTriggerLabel(color: string): string {
   if (isValidOklchColor(color)) {
