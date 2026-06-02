@@ -100,7 +100,12 @@ export function useEditorCamera({
         userAdjustedCameraRef.current = true;
       }
 
-      setCamera(next);
+      setCamera((prev) => {
+        if (prev.zoom === next.zoom && prev.x === next.x && prev.y === next.y) {
+          return prev;
+        }
+        return next;
+      });
 
       if (persist && userAdjustedCameraRef.current) {
         persistCamera(next);

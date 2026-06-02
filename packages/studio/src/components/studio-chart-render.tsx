@@ -1,0 +1,91 @@
+"use client";
+
+import { memo, type ReactNode, useMemo } from "react";
+import type { StudioFrameSize } from "@/components/studio-chart-viewport";
+import type { StudioRenderContext } from "@/lib/render-context";
+import type { StudioUrlState } from "@/lib/studio-parsers";
+import type { StudioChartConfig } from "@/lib/types";
+
+/** Props that may change chart output — compared explicitly for pan isolation. */
+interface StudioChartRenderProps {
+  displayState: StudioUrlState;
+  config: StudioChartConfig;
+  animationKey: number;
+  dataSeed: number;
+  isRecording: boolean;
+  motionRemountKey: string;
+  committedState: StudioUrlState;
+  motionCurveDragging: boolean;
+  patternDefs: ReactNode;
+  patternFillAt: (seriesIndex: number) => string | undefined;
+  frame: StudioFrameSize;
+}
+
+function studioChartRenderPropsEqual(
+  prev: StudioChartRenderProps,
+  next: StudioChartRenderProps
+): boolean {
+  return (
+    prev.displayState === next.displayState &&
+    prev.config === next.config &&
+    prev.animationKey === next.animationKey &&
+    prev.dataSeed === next.dataSeed &&
+    prev.isRecording === next.isRecording &&
+    prev.motionRemountKey === next.motionRemountKey &&
+    prev.committedState === next.committedState &&
+    prev.motionCurveDragging === next.motionCurveDragging &&
+    prev.patternDefs === next.patternDefs &&
+    prev.patternFillAt === next.patternFillAt &&
+    prev.frame.width === next.frame.width &&
+    prev.frame.height === next.frame.height
+  );
+}
+
+/**
+ * Memo boundary between the editor shell (camera pan, FPS counter, rulers) and
+ * chart previews. Skips re-rendering when only unrelated parent state changes.
+ */
+export const StudioChartRender = memo(function StudioChartRender(
+  props: StudioChartRenderProps
+) {
+  const {
+    displayState,
+    config,
+    animationKey,
+    dataSeed,
+    isRecording,
+    motionRemountKey,
+    committedState,
+    motionCurveDragging,
+    patternDefs,
+    patternFillAt,
+    frame,
+  } = props;
+
+  const renderCtx = useMemo<StudioRenderContext>(
+    () => ({
+      animationKey,
+      dataSeed,
+      isRecording,
+      motionRemountKey,
+      committedState,
+      motionCurveDragging,
+      patternDefs,
+      patternFillAt,
+      frame,
+    }),
+    [
+      animationKey,
+      dataSeed,
+      isRecording,
+      motionRemountKey,
+      committedState,
+      motionCurveDragging,
+      patternDefs,
+      patternFillAt,
+      frame,
+    ]
+  );
+
+  return config.render(displayState, renderCtx);
+}, studioChartRenderPropsEqual);

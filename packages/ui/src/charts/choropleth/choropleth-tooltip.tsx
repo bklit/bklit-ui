@@ -5,7 +5,8 @@ import { TooltipBox } from "../tooltip/tooltip-box";
 import { TooltipContent, type TooltipRow } from "../tooltip/tooltip-content";
 import {
   type ChoroplethFeature,
-  useChoropleth,
+  useChoroplethInteraction,
+  useChoroplethStable,
   useChoroplethZoom,
 } from "./choropleth-context";
 
@@ -38,8 +39,8 @@ export function ChoroplethTooltip({
   valueLabel = "Value",
   className = "",
 }: ChoroplethTooltipProps) {
-  const { tooltipData, containerRef, width, height, features } =
-    useChoropleth();
+  const { containerRef, width, height, features } = useChoroplethStable();
+  const { tooltipData } = useChoroplethInteraction();
   const { zoom } = useChoroplethZoom();
 
   if (!tooltipData) {

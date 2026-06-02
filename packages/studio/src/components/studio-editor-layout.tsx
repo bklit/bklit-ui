@@ -8,6 +8,7 @@ import {
   STUDIO_EXPORT_ROOT_ATTR,
   StudioChartFrame,
 } from "@/components/studio-chart-frame";
+import { StudioChartRender } from "@/components/studio-chart-render";
 import { StudioChartViewport } from "@/components/studio-chart-viewport";
 import { StudioEditorSidebarActions } from "@/components/studio-editor-sidebar-actions";
 import { StudioRecordingMask } from "@/components/studio-recording-mask";
@@ -20,7 +21,6 @@ import { useStudioState } from "@/components/use-studio-state";
 import { EditorShell } from "@/editor/editor-shell";
 import { StudioComponentSelectionProvider } from "@/editor/studio-component-selection";
 import { StudioPatternDefs, studioPatternFill } from "@/lib/patterns";
-import type { StudioRenderContext } from "@/lib/render-context";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import {
   STUDIO_RECORDING_CAPTURE_INSET_PX,
@@ -172,20 +172,21 @@ const StudioEditorCanvas = memo(function StudioEditorCanvas({
                 <div className="flex size-full min-h-0 items-center justify-center">
                   {recordingChartHeld ? null : (
                     <StudioChartViewport>
-                      {(frame) => {
-                        const renderCtx: StudioRenderContext = {
-                          animationKey,
-                          dataSeed,
-                          isRecording,
-                          motionRemountKey,
-                          committedState: state,
-                          motionCurveDragging,
-                          patternDefs,
-                          patternFillAt,
-                          frame,
-                        };
-                        return config.render(displayState, renderCtx);
-                      }}
+                      {(frame) => (
+                        <StudioChartRender
+                          animationKey={animationKey}
+                          committedState={state}
+                          config={config}
+                          dataSeed={dataSeed}
+                          displayState={displayState}
+                          frame={frame}
+                          isRecording={isRecording}
+                          motionCurveDragging={motionCurveDragging}
+                          motionRemountKey={motionRemountKey}
+                          patternDefs={patternDefs}
+                          patternFillAt={patternFillAt}
+                        />
+                      )}
                     </StudioChartViewport>
                   )}
                 </div>

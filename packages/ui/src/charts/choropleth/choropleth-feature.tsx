@@ -1,102 +1,214 @@
 "use client";
 
 import { geoCentroid } from "d3-geo";
-import { motion } from "motion/react";
-import { useCallback, useMemo } from "react";
-import { transitionWithDelay } from "../motion-utils";
+import { motion, useTransform } from "motion/react";
+import { memo, useCallback, useMemo } from "react";
+import { useEnterComplete } from "../use-enter-complete";
+import { useMountProgress } from "../use-mount-progress";
 import {
   type ChoroplethFeature as ChoroplethFeatureType,
   defaultChoroplethColors,
-  useChoropleth,
+  useChoroplethInteraction,
+  useChoroplethStable,
 } from "./choropleth-context";
 
 export interface ChoroplethFeatureProps {
-  /** Fill color for all features (overrides getFeatureColor). Default: uses getFeatureColor or chart-1 */
   fill?: string;
-  /** Stroke color for feature borders. Default: var(--chart-grid) */
   stroke?: string;
-  /** Stroke width for feature borders. Default: 0.5 */
   strokeWidth?: number;
-  /** Opacity when another feature is hovered. Default: 0.4 */
   fadedOpacity?: number;
-  /** Custom function to get feature fill color */
   getFeatureColor?: (feature: ChoroplethFeatureType, index: number) => string;
-  /** Pattern definitions to render in defs. Use @visx/pattern components (PatternLines, PatternCircles, etc.) */
   patterns?: React.ReactNode;
-  /** Return pattern ID for a feature, or null/undefined to use solid fill */
   getFeaturePattern?: (
     feature: ChoroplethFeatureType,
     index: number
   ) => string | null | undefined;
 }
 
-interface AnimatedFeaturePathProps {
+interface FeatureRecord {
+  index: number;
   path: string;
   fill: string;
-  stroke: string;
-  strokeWidth: number;
-  isFaded: boolean;
-  isHighlighted: boolean;
-  fadedOpacity: number;
-  animationDuration: number;
-  index: number;
-  totalFeatures: number;
-  onMouseEnter: () => void;
-  onMouseLeave: () => void;
+  feature: ChoroplethFeatureType;
+  centroid: { x: number; y: number } | null;
 }
 
-function AnimatedFeaturePath({
-  path,
-  fill,
-  stroke,
-  strokeWidth,
-  isFaded,
-  isHighlighted,
-  fadedOpacity,
-  animationDuration,
-  index,
-  totalFeatures,
-  onMouseEnter,
-  onMouseLeave,
-}: AnimatedFeaturePathProps) {
-  const { enterTransition, revealEpoch } = useChoropleth();
-  const staggerDelaySec =
-    ((index / totalFeatures) * animationDuration * 0.5) / 1000;
-  const enterAnim = transitionWithDelay(enterTransition, staggerDelaySec);
-
-  // Calculate target opacity - slightly boost highlighted features
-  const getTargetOpacity = () => {
-    if (isFaded) {
-      return fadedOpacity;
-    }
-    if (isHighlighted) {
-      return 1;
-    }
-    return 0.85;
-  };
-  const targetOpacity = getTargetOpacity();
-
+function resolveFeatureFill(
+  feature: ChoroplethFeatureType,
+  index: number,
+  fill: string | undefined,
+  getFeatureColor: ChoroplethFeatureProps["getFeatureColor"],
+  getFeaturePattern: ChoroplethFeatureProps["getFeaturePattern"]
+): string {
+  const patternId = getFeaturePattern?.(feature, index);
+  if (patternId) {
+    return `url(#${patternId})`;
+  }
+  if (fill) {
+    return fill;
+  }
+  if (getFeatureColor) {
+    return getFeatureColor(feature, index);
+  }
   return (
-    <motion.path
-      animate={{ opacity: targetOpacity }}
-      className="cursor-pointer"
-      d={path}
-      fill={fill}
-      initial={{ opacity: 0 }}
-      key={`feature-${index}-${revealEpoch}`}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
-      stroke={stroke}
-      strokeWidth={strokeWidth}
-      transition={{
-        opacity: { duration: 0.18, ease: "easeOut" },
-        default: enterAnim,
-      }}
-    />
+    defaultChoroplethColors[index % defaultChoroplethColors.length] ??
+    "var(--chart-1)"
   );
 }
 
-export function ChoroplethFeature({
+const StaticFeatureLayer = memo(function StaticFeatureLayer({
+  records,
+  stroke,
+  strokeWidth,
+  baseOpacity,
+  dimOpacity,
+  hoveredIndex,
+  onFeatureEnter,
+  onFeatureLeave,
+}: {
+  records: FeatureRecord[];
+  stroke: string;
+  strokeWidth: number;
+  baseOpacity: number;
+  dimOpacity: number;
+  hoveredIndex: number | null;
+  onFeatureEnter: (record: FeatureRecord) => void;
+  onFeatureLeave: () => void;
+}) {
+  const isDimmed = hoveredIndex !== null;
+
+  if (!isDimmed) {
+    return (
+      <g opacity={baseOpacity}>
+        {records.map((record) => (
+          // biome-ignore lint/a11y/noStaticElementInteractions: SVG path used as hover hitbox
+          <path
+            className="cursor-pointer"
+            d={record.path}
+            fill={record.fill}
+            key={`base-${record.index}`}
+            onMouseEnter={() => onFeatureEnter(record)}
+            onMouseLeave={onFeatureLeave}
+            stroke={stroke}
+            strokeWidth={strokeWidth}
+          />
+        ))}
+      </g>
+    );
+  }
+
+  const highlighted = records.find((record) => record.index === hoveredIndex);
+
+  return (
+    <>
+      <g opacity={dimOpacity} style={{ transition: "opacity 0.18s ease-out" }}>
+        {records
+          .filter((record) => record.index !== hoveredIndex)
+          .map((record) => (
+            // biome-ignore lint/a11y/noStaticElementInteractions: SVG path used as hover hitbox
+            <path
+              className="cursor-pointer"
+              d={record.path}
+              fill={record.fill}
+              key={`base-${record.index}`}
+              onMouseEnter={() => onFeatureEnter(record)}
+              onMouseLeave={onFeatureLeave}
+              stroke={stroke}
+              strokeWidth={strokeWidth}
+            />
+          ))}
+      </g>
+      {highlighted ? (
+        // biome-ignore lint/a11y/noStaticElementInteractions: SVG path used as hover hitbox
+        <path
+          className="cursor-pointer"
+          d={highlighted.path}
+          fill={highlighted.fill}
+          key={`highlight-${highlighted.index}`}
+          onMouseEnter={() => onFeatureEnter(highlighted)}
+          onMouseLeave={onFeatureLeave}
+          opacity={1}
+          stroke={stroke}
+          strokeWidth={strokeWidth}
+          style={{ transition: "opacity 0.18s ease-out" }}
+        />
+      ) : null}
+    </>
+  );
+});
+
+const EnterFeatureLayer = memo(function EnterFeatureLayer({
+  records,
+  stroke,
+  strokeWidth,
+  baseOpacity,
+  dimOpacity,
+  hoveredIndex,
+  onFeatureEnter,
+  onFeatureLeave,
+  revealEpoch,
+}: {
+  records: FeatureRecord[];
+  stroke: string;
+  strokeWidth: number;
+  baseOpacity: number;
+  dimOpacity: number;
+  hoveredIndex: number | null;
+  onFeatureEnter: (record: FeatureRecord) => void;
+  onFeatureLeave: () => void;
+  revealEpoch: number;
+}) {
+  const { enterTransition, animationDuration } = useChoroplethStable();
+  const mountProgress = useMountProgress(
+    enterTransition,
+    0,
+    `choropleth-layer-${revealEpoch}`
+  );
+  const enterComplete = useEnterComplete(mountProgress);
+  const layerOpacity = useTransform(mountProgress, (t) => t * baseOpacity);
+
+  if (enterComplete) {
+    return (
+      <StaticFeatureLayer
+        baseOpacity={baseOpacity}
+        dimOpacity={dimOpacity}
+        hoveredIndex={hoveredIndex}
+        onFeatureEnter={onFeatureEnter}
+        onFeatureLeave={onFeatureLeave}
+        records={records}
+        stroke={stroke}
+        strokeWidth={strokeWidth}
+      />
+    );
+  }
+
+  return (
+    <motion.g
+      key={`enter-${revealEpoch}`}
+      opacity={layerOpacity}
+      transition={{
+        duration: animationDuration / 1000,
+        ease: "easeOut",
+      }}
+    >
+      {records.map((record) => (
+        // biome-ignore lint/a11y/noStaticElementInteractions: SVG path used as hover hitbox
+        <path
+          className="cursor-pointer"
+          d={record.path}
+          fill={record.fill}
+          key={`enter-${record.index}`}
+          onMouseEnter={() => onFeatureEnter(record)}
+          onMouseLeave={onFeatureLeave}
+          stroke={stroke}
+          strokeWidth={strokeWidth}
+        />
+      ))}
+    </motion.g>
+  );
+});
+
+export const ChoroplethFeature = memo(function ChoroplethFeature({
   fill,
   stroke = "var(--background)",
   strokeWidth = 0.5,
@@ -107,17 +219,17 @@ export function ChoroplethFeature({
 }: ChoroplethFeatureProps) {
   const {
     features,
+    featurePaths,
     pathGenerator,
     projectPoint,
-    hoveredFeatureIndex,
-    setHoveredFeatureIndex,
-    setTooltipData,
-    animationDuration,
+    isLoaded,
+    revealEpoch,
     width,
     height,
-  } = useChoropleth();
+  } = useChoroplethStable();
+  const { hoveredFeatureIndex, setHoveredFeatureIndex, setTooltipData } =
+    useChoroplethInteraction();
 
-  // Pre-calculate centroids for all features (only recalculates when features change)
   const featureCentroids = useMemo(() => {
     return features.map((feature) => {
       try {
@@ -129,17 +241,11 @@ export function ChoroplethFeature({
         ) {
           const projected = projectPoint(centroid as [number, number]);
           if (projected) {
-            // Clamp to chart bounds with padding
             const padding = 60;
-            const x = Math.max(
-              padding,
-              Math.min(width - padding, projected[0])
-            );
-            const y = Math.max(
-              padding,
-              Math.min(height - padding, projected[1])
-            );
-            return { x, y };
+            return {
+              x: Math.max(padding, Math.min(width - padding, projected[0])),
+              y: Math.max(padding, Math.min(height - padding, projected[1])),
+            };
           }
         }
       } catch {
@@ -149,92 +255,84 @@ export function ChoroplethFeature({
     });
   }, [features, projectPoint, width, height]);
 
-  // Get color for a feature
-  const getFeatureColorFn = useCallback(
-    (feature: ChoroplethFeatureType, index: number): string => {
-      if (fill) {
-        return fill;
+  const records = useMemo(() => {
+    const items: FeatureRecord[] = [];
+    for (let index = 0; index < features.length; index++) {
+      const feature = features[index];
+      if (!feature) {
+        continue;
       }
-      if (getFeatureColor) {
-        return getFeatureColor(feature, index);
+
+      const path = featurePaths[index] ?? pathGenerator(feature);
+      if (!path) {
+        continue;
       }
-      // Default: use chart colors cycling through
-      return (
-        defaultChoroplethColors[index % defaultChoroplethColors.length] ??
-        "var(--chart-1)"
-      );
+
+      items.push({
+        index,
+        path,
+        fill: resolveFeatureFill(
+          feature,
+          index,
+          fill,
+          getFeatureColor,
+          getFeaturePattern
+        ),
+        feature,
+        centroid: featureCentroids[index] ?? null,
+      });
+    }
+    return items;
+  }, [
+    featureCentroids,
+    featurePaths,
+    features,
+    fill,
+    getFeatureColor,
+    getFeaturePattern,
+    pathGenerator,
+  ]);
+
+  const handleFeatureEnter = useCallback(
+    (record: FeatureRecord) => {
+      setHoveredFeatureIndex(record.index);
+      setTooltipData({
+        featureIndex: record.index,
+        x: record.centroid?.x ?? width / 2,
+        y: record.centroid?.y ?? height / 2,
+        feature: record.feature,
+      });
     },
-    [fill, getFeatureColor]
+    [height, setHoveredFeatureIndex, setTooltipData, width]
   );
 
-  // Check if any element is hovered
-  const isAnyHovered = hoveredFeatureIndex !== null;
+  const handleFeatureLeave = useCallback(() => {
+    setHoveredFeatureIndex(null);
+    setTooltipData(null);
+  }, [setHoveredFeatureIndex, setTooltipData]);
+
+  const layerProps = {
+    baseOpacity: 0.85,
+    dimOpacity: fadedOpacity,
+    hoveredIndex: hoveredFeatureIndex,
+    onFeatureEnter: handleFeatureEnter,
+    onFeatureLeave: handleFeatureLeave,
+    records,
+    stroke,
+    strokeWidth,
+  };
 
   return (
     <g className="choropleth-features">
-      {/* Pattern definitions */}
-      {patterns && <defs>{patterns}</defs>}
-
-      {/* Feature paths */}
-      {features.map((feature, index) => {
-        const path = pathGenerator(feature);
-
-        // Skip if path is empty or undefined
-        if (!path || path.trim() === "") {
-          return null;
-        }
-
-        const isHighlighted = hoveredFeatureIndex === index;
-        const isFaded = isAnyHovered && !isHighlighted;
-
-        // Get pre-calculated centroid for tooltip positioning
-        const centroid = featureCentroids[index];
-
-        const handleMouseEnter = () => {
-          setHoveredFeatureIndex(index);
-          setTooltipData({
-            featureIndex: index,
-            x: centroid?.x ?? width / 2,
-            y: centroid?.y ?? height / 2,
-            feature,
-          });
-        };
-
-        const handleMouseLeave = () => {
-          setHoveredFeatureIndex(null);
-          setTooltipData(null);
-        };
-
-        // Determine fill (pattern URL or solid color)
-        let featureFill: string;
-        const patternId = getFeaturePattern?.(feature, index);
-        if (patternId) {
-          featureFill = `url(#${patternId})`;
-        } else {
-          featureFill = getFeatureColorFn(feature, index);
-        }
-
-        return (
-          <AnimatedFeaturePath
-            animationDuration={animationDuration}
-            fadedOpacity={fadedOpacity}
-            fill={featureFill}
-            index={index}
-            isFaded={isFaded}
-            isHighlighted={isHighlighted}
-            key={`feature-${feature.properties?.name ?? feature.properties?.id ?? feature.id ?? path}`}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-            path={path}
-            stroke={stroke}
-            strokeWidth={strokeWidth}
-            totalFeatures={features.length}
-          />
-        );
-      })}
+      {patterns ? <defs>{patterns}</defs> : null}
+      {isLoaded ? (
+        <StaticFeatureLayer {...layerProps} />
+      ) : (
+        <EnterFeatureLayer {...layerProps} revealEpoch={revealEpoch} />
+      )}
     </g>
   );
-}
+});
 
 ChoroplethFeature.displayName = "ChoroplethFeature";
 

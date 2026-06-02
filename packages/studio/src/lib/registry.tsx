@@ -728,11 +728,12 @@ const choroplethConfig: StudioChartConfig = {
     <StudioCartesianFill>
       <ChoroplethStudioPreview
         analytics={state.choroplethAnalytics}
-        {...getStudioCssRevealPropsForPreview(state, ctx)}
         bgPattern={state.choroplethBgPattern}
+        ctx={ctx}
         fgPattern={state.choroplethFgPattern}
         key={studioPreviewChartKey(ctx)}
         showGraticule={state.showGraticule}
+        state={state}
         visitorCounts={getVisitorsByCountry(ctx.dataSeed)}
       />
     </StudioCartesianFill>
@@ -780,9 +781,9 @@ const sankeyConfig: StudioChartConfig = {
         nodePadding={state.sankeyNodePadding}
         nodeWidth={state.sankeyNodeWidth}
       >
-        <SankeyNode />
-        <SankeyLink strokeOpacity={state.linkOpacity} />
-        <SankeyTooltip />
+        <SankeyNode key="nodes" />
+        <SankeyLink key="links" strokeOpacity={state.linkOpacity} />
+        <SankeyTooltip key="tooltip" />
       </SankeyChart>
     </StudioCartesianFill>
   ),

@@ -138,6 +138,11 @@
           "target": "components/charts/use-mount-progress.ts"
         },
         {
+          "path": "src/charts/use-enter-complete.ts",
+          "type": "registry:component",
+          "target": "components/charts/use-enter-complete.ts"
+        },
+        {
           "path": "src/charts/chart-reveal-clip.tsx",
           "type": "registry:component",
           "target": "components/charts/chart-reveal-clip.tsx"

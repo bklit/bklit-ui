@@ -1,10 +1,10 @@
 "use client";
 
 import { arc as arcGenerator } from "@visx/shape";
-import type { MotionValue } from "motion/react";
 import { motion, useSpring, useTransform } from "motion/react";
-import { memo, useEffect, useState } from "react";
+import { memo, useEffect } from "react";
 import { usePieHover, usePieStable } from "./pie-context";
+import { useEnterComplete } from "./use-enter-complete";
 import { useMountProgress } from "./use-mount-progress";
 
 // Helper to generate arc path using d3 arc generator
@@ -39,25 +39,6 @@ function getSliceOffset(
     x: Math.sin(midAngle) * distance,
     y: -Math.cos(midAngle) * distance,
   };
-}
-
-function useEnterComplete(mountProgress: MotionValue<number>): boolean {
-  const [complete, setComplete] = useState(() => mountProgress.get() >= 1);
-
-  useEffect(() => {
-    if (mountProgress.get() >= 1) {
-      setComplete(true);
-      return;
-    }
-
-    return mountProgress.on("change", (value) => {
-      if (value >= 1) {
-        setComplete(true);
-      }
-    });
-  }, [mountProgress]);
-
-  return complete;
 }
 
 /** Hover effect types */
