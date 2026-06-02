@@ -12,7 +12,7 @@ import {
   type ChartStatFlowFormat,
   defaultChartStatFlowFormat,
 } from "./chart-stat-flow";
-import { useRing } from "./ring-context";
+import { useRingHover, useRingStable } from "./ring-context";
 
 export interface RingCenterProps {
   /** Label shown below the value. Default: "Total" when not hovering */
@@ -58,7 +58,8 @@ export function RingCenter({
   prefix,
   suffix,
 }: RingCenterProps) {
-  const { data, hoveredIndex, totalValue, baseInnerRadius } = useRing();
+  const { data, totalValue, baseInnerRadius } = useRingStable();
+  const { hoveredIndex } = useRingHover();
 
   const hoveredData = hoveredIndex === null ? null : data[hoveredIndex];
   const displayValue = hoveredData ? hoveredData.value : totalValue;

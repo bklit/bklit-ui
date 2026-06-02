@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
-import { radarCssVars, useRadar } from "./radar-context";
+import { radarCssVars, useRadarStable } from "./radar-context";
 
 export interface RadarLabelsProps {
   /** Distance from the chart edge. Default: 24 */
@@ -20,7 +20,7 @@ export function RadarLabels({
   interactive = false,
   className = "",
 }: RadarLabelsProps) {
-  const { metrics, radius, levels, getAngle, animate } = useRadar();
+  const { metrics, radius, levels, getAngle, animate } = useRadarStable();
 
   // Label animation delay (starts after grid begins)
   const gridStagger = 0.08;

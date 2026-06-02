@@ -36,6 +36,7 @@ Read `.agents/skills/bklit-ship/SKILL.md` when moving a prototype from the playg
 |-------|------|
 | `bklit-playground` | New chart, edit chart, tune props/animation, `/playground` |
 | `bklit-ship` | Ship chart to `packages/ui` + docs + registry |
+| `bklit-studio-chart-performance` | Studio chart FPS audit, pan/zoom jank, Motion subscription cleanup |
 | `pr-open` | Commit, push, open PR (bklit-ui checklist) |
 | `unit-tests` | Adding tests — avoid over-testing |
 | `turborepo` | Monorepo tasks, turbo.json, caching |

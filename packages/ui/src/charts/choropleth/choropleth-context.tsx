@@ -9,6 +9,8 @@ import {
   type RefObject,
   type SetStateAction,
   useContext,
+  useMemo,
+  useState,
 } from "react";
 
 // ZoomState from visx/zoom that includes isDragging
@@ -56,10 +58,20 @@ export interface ChoroplethTooltipData {
   feature: ChoroplethFeature;
 }
 
-export interface ChoroplethContextValue {
+export interface ChoroplethInteractionContextValue {
+  hoveredFeatureIndex: number | null;
+  setHoveredFeatureIndex: (index: number | null) => void;
+  tooltipData: ChoroplethTooltipData | null;
+  setTooltipData: Dispatch<SetStateAction<ChoroplethTooltipData | null>>;
+}
+
+export interface ChoroplethStableContextValue {
   // Geo data
   features: ChoroplethFeature[];
   featureCollection: FeatureCollection<Geometry, ChoroplethFeatureProperties>;
+
+  /** Precomputed SVG path strings — one per feature index. */
+  featurePaths: readonly (string | null)[];
 
   // Projection function (returns path string)
   pathGenerator: (feature: ChoroplethFeature) => string | undefined;
@@ -78,13 +90,6 @@ export interface ChoroplethContextValue {
   innerHeight: number;
   margin: Margin;
 
-  // Hover state
-  hoveredFeatureIndex: number | null;
-  setHoveredFeatureIndex: (index: number | null) => void;
-
-  // Tooltip
-  tooltipData: ChoroplethTooltipData | null;
-  setTooltipData: Dispatch<SetStateAction<ChoroplethTooltipData | null>>;
   containerRef: RefObject<HTMLDivElement | null>;
 
   // Animation
@@ -94,7 +99,56 @@ export interface ChoroplethContextValue {
   revealEpoch: number;
 }
 
-const ChoroplethContext = createContext<ChoroplethContextValue | null>(null);
+export type ChoroplethContextValue = ChoroplethStableContextValue &
+  ChoroplethInteractionContextValue;
+
+const ChoroplethStableContext =
+  createContext<ChoroplethStableContextValue | null>(null);
+const ChoroplethInteractionContext =
+  createContext<ChoroplethInteractionContextValue | null>(null);
+
+export function ChoroplethStableProvider({
+  children,
+  value,
+}: {
+  children: React.ReactNode;
+  value: ChoroplethStableContextValue;
+}) {
+  return (
+    <ChoroplethStableContext.Provider value={value}>
+      {children}
+    </ChoroplethStableContext.Provider>
+  );
+}
+
+export function ChoroplethInteractionShell({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const [hoveredFeatureIndex, setHoveredFeatureIndex] = useState<number | null>(
+    null
+  );
+  const [tooltipData, setTooltipData] = useState<ChoroplethTooltipData | null>(
+    null
+  );
+
+  const interaction = useMemo<ChoroplethInteractionContextValue>(
+    () => ({
+      hoveredFeatureIndex,
+      setHoveredFeatureIndex,
+      tooltipData,
+      setTooltipData,
+    }),
+    [hoveredFeatureIndex, tooltipData]
+  );
+
+  return (
+    <ChoroplethInteractionContext.Provider value={interaction}>
+      {children}
+    </ChoroplethInteractionContext.Provider>
+  );
+}
 
 export function ChoroplethProvider({
   children,
@@ -103,19 +157,91 @@ export function ChoroplethProvider({
   children: React.ReactNode;
   value: ChoroplethContextValue;
 }) {
+  const stable = useMemo<ChoroplethStableContextValue>(
+    () => ({
+      features: value.features,
+      featureCollection: value.featureCollection,
+      featurePaths: value.featurePaths,
+      pathGenerator: value.pathGenerator,
+      rawPathGenerator: value.rawPathGenerator,
+      projectPoint: value.projectPoint,
+      width: value.width,
+      height: value.height,
+      innerWidth: value.innerWidth,
+      innerHeight: value.innerHeight,
+      margin: value.margin,
+      containerRef: value.containerRef,
+      isLoaded: value.isLoaded,
+      animationDuration: value.animationDuration,
+      enterTransition: value.enterTransition,
+      revealEpoch: value.revealEpoch,
+    }),
+    [
+      value.features,
+      value.featureCollection,
+      value.featurePaths,
+      value.pathGenerator,
+      value.rawPathGenerator,
+      value.projectPoint,
+      value.width,
+      value.height,
+      value.innerWidth,
+      value.innerHeight,
+      value.margin,
+      value.containerRef,
+      value.isLoaded,
+      value.animationDuration,
+      value.enterTransition,
+      value.revealEpoch,
+    ]
+  );
+
+  const interaction = useMemo<ChoroplethInteractionContextValue>(
+    () => ({
+      hoveredFeatureIndex: value.hoveredFeatureIndex,
+      setHoveredFeatureIndex: value.setHoveredFeatureIndex,
+      tooltipData: value.tooltipData,
+      setTooltipData: value.setTooltipData,
+    }),
+    [
+      value.hoveredFeatureIndex,
+      value.setHoveredFeatureIndex,
+      value.tooltipData,
+      value.setTooltipData,
+    ]
+  );
+
   return (
-    <ChoroplethContext.Provider value={value}>
-      {children}
-    </ChoroplethContext.Provider>
+    <ChoroplethStableProvider value={stable}>
+      <ChoroplethInteractionContext.Provider value={interaction}>
+        {children}
+      </ChoroplethInteractionContext.Provider>
+    </ChoroplethStableProvider>
   );
 }
 
-export function useChoropleth(): ChoroplethContextValue {
-  const context = useContext(ChoroplethContext);
+export function useChoroplethStable(): ChoroplethStableContextValue {
+  const context = useContext(ChoroplethStableContext);
   if (!context) {
-    throw new Error("useChoropleth must be used within a ChoroplethProvider");
+    throw new Error(
+      "useChoroplethStable must be used within a ChoroplethProvider"
+    );
   }
   return context;
+}
+
+export function useChoroplethInteraction(): ChoroplethInteractionContextValue {
+  const context = useContext(ChoroplethInteractionContext);
+  if (!context) {
+    throw new Error(
+      "useChoroplethInteraction must be used within a ChoroplethProvider"
+    );
+  }
+  return context;
+}
+
+export function useChoropleth(): ChoroplethContextValue {
+  return { ...useChoroplethStable(), ...useChoroplethInteraction() };
 }
 
 // CSS variables for choropleth theming

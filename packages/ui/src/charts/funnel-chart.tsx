@@ -1,7 +1,7 @@
 "use client";
 
 import type { Transition } from "motion/react";
-import { motion, useSpring, useTransform } from "motion/react";
+import { motion, useTransform } from "motion/react";
 import {
   type CSSProperties,
   type ReactNode,
@@ -11,6 +11,7 @@ import {
   useState,
 } from "react";
 import { cn } from "@/lib/utils";
+import { useEnterComplete } from "./use-enter-complete";
 import { useMountProgress } from "./use-mount-progress";
 
 // ─── Public types ───────────────────────────────────────────────────
@@ -114,8 +115,6 @@ import { intFmt } from "./chart-formatters";
 const fmtPct = (p: number) => `${Math.round(p)}%`;
 const fmtVal = intFmt;
 
-const hoverSpring = { stiffness: 300, damping: 24 };
-
 // ─── SVG helpers ────────────────────────────────────────────────────
 
 /**
@@ -186,24 +185,20 @@ function HRing({
   ringIndex: number;
   totalRings: number;
 }) {
-  // Outer rings get progressively more hover expansion and a softer spring
   const extraScale = 1 + (ringIndex / Math.max(totalRings - 1, 1)) * 0.12;
-  const ringSpring = {
-    stiffness: 300 - ringIndex * 60,
-    damping: 24 - ringIndex * 3,
-  };
-  const scaleY = useSpring(1, ringSpring);
-
-  useEffect(() => {
-    scaleY.set(hovered ? extraScale : 1);
-  }, [hovered, scaleY, extraScale]);
 
   return (
     <motion.path
+      animate={{ scaleY: hovered ? extraScale : 1 }}
       d={d}
       fill={fill ?? color}
       opacity={opacity}
-      style={{ scaleY, transformOrigin: "center center" }}
+      style={{ transformOrigin: "center center" }}
+      transition={{
+        type: "spring",
+        stiffness: 300 - ringIndex * 60,
+        damping: 24 - ringIndex * 3,
+      }}
     />
   );
 }
@@ -246,15 +241,9 @@ function HSegment({
     index * staggerDelay,
     index
   );
+  const enterComplete = useEnterComplete(mountProgress);
   const entranceScaleX = useTransform(mountProgress, [0, 1], [0, 1]);
   const entranceScaleY = useTransform(mountProgress, [0, 1], [0, 1]);
-
-  // Dim spring: reduces opacity when another segment is hovered
-  const dimOpacity = useSpring(1, hoverSpring);
-
-  useEffect(() => {
-    dimOpacity.set(dimmed ? 0.4 : 1);
-  }, [dimmed, dimOpacity]);
 
   const rings = Array.from({ length: layers }, (_, l) => {
     const scale = 1 - (l / layers) * 0.35;
@@ -267,72 +256,125 @@ function HSegment({
 
   return (
     <motion.div
+      animate={{ opacity: dimmed ? 0.4 : 1 }}
       className="pointer-events-none relative shrink-0 overflow-visible"
       style={{
         width: segW,
         height: fullH,
         zIndex: hovered ? 10 : 1,
-        opacity: dimOpacity,
       }}
+      transition={{ opacity: { duration: 0.15 } }}
     >
-      {/* Entrance animation wrapper: grows from left-center */}
-      <motion.div
-        className="absolute inset-0 overflow-visible"
-        style={{
-          scaleX: entranceScaleX,
-          scaleY: entranceScaleY,
-          transformOrigin: "left center",
-        }}
-      >
-        <svg
-          aria-hidden="true"
-          className="absolute inset-0 h-full w-full overflow-visible"
-          preserveAspectRatio="none"
-          role="presentation"
-          viewBox={`0 0 ${segW} ${fullH}`}
+      {enterComplete ? (
+        <div className="absolute inset-0 overflow-visible">
+          <svg
+            aria-hidden="true"
+            className="absolute inset-0 h-full w-full overflow-visible"
+            preserveAspectRatio="none"
+            role="presentation"
+            viewBox={`0 0 ${segW} ${fullH}`}
+          >
+            <defs>
+              {gradientStops && (
+                <linearGradient id={gradientId} x1="0" x2="1" y1="0" y2="0">
+                  {gradientStops.map((stop) => (
+                    <stop
+                      key={`${stop.offset}-${stop.color}`}
+                      offset={
+                        typeof stop.offset === "number"
+                          ? `${stop.offset * 100}%`
+                          : stop.offset
+                      }
+                      stopColor={stop.color}
+                    />
+                  ))}
+                </linearGradient>
+              )}
+              {renderPattern?.(patternId, color)}
+            </defs>
+            {rings.map((r, i) => {
+              const isInnermost = i === rings.length - 1;
+              let ringFill: string | undefined;
+              if (isInnermost && renderPattern) {
+                ringFill = `url(#${patternId})`;
+              } else if (isInnermost && gradientStops) {
+                ringFill = `url(#${gradientId})`;
+              }
+              const ringKey = `h-ring-${r.opacity.toFixed(2)}`;
+              return (
+                <HRing
+                  color={color}
+                  d={r.d}
+                  fill={ringFill}
+                  hovered={hovered}
+                  key={ringKey}
+                  opacity={r.opacity}
+                  ringIndex={i}
+                  totalRings={layers}
+                />
+              );
+            })}
+          </svg>
+        </div>
+      ) : (
+        <motion.div
+          className="absolute inset-0 overflow-visible"
+          style={{
+            scaleX: entranceScaleX,
+            scaleY: entranceScaleY,
+            transformOrigin: "left center",
+          }}
         >
-          <defs>
-            {gradientStops && (
-              <linearGradient id={gradientId} x1="0" x2="1" y1="0" y2="0">
-                {gradientStops.map((stop) => (
-                  <stop
-                    key={`${stop.offset}-${stop.color}`}
-                    offset={
-                      typeof stop.offset === "number"
-                        ? `${stop.offset * 100}%`
-                        : stop.offset
-                    }
-                    stopColor={stop.color}
-                  />
-                ))}
-              </linearGradient>
-            )}
-            {renderPattern?.(patternId, color)}
-          </defs>
-          {rings.map((r, i) => {
-            const isInnermost = i === rings.length - 1;
-            let ringFill: string | undefined;
-            if (isInnermost && renderPattern) {
-              ringFill = `url(#${patternId})`;
-            } else if (isInnermost && gradientStops) {
-              ringFill = `url(#${gradientId})`;
-            }
-            const ringKey = `h-ring-${r.opacity.toFixed(2)}`;
-            return (
-              <HRing
-                color={color}
-                d={r.d}
-                fill={ringFill}
-                hovered={hovered}
-                key={ringKey}
-                opacity={r.opacity}
-                ringIndex={i}
-                totalRings={layers}
-              />
-            );
-          })}
-        </svg>
-      </motion.div>
+          <svg
+            aria-hidden="true"
+            className="absolute inset-0 h-full w-full overflow-visible"
+            preserveAspectRatio="none"
+            role="presentation"
+            viewBox={`0 0 ${segW} ${fullH}`}
+          >
+            <defs>
+              {gradientStops && (
+                <linearGradient id={gradientId} x1="0" x2="1" y1="0" y2="0">
+                  {gradientStops.map((stop) => (
+                    <stop
+                      key={`${stop.offset}-${stop.color}`}
+                      offset={
+                        typeof stop.offset === "number"
+                          ? `${stop.offset * 100}%`
+                          : stop.offset
+                      }
+                      stopColor={stop.color}
+                    />
+                  ))}
+                </linearGradient>
+              )}
+              {renderPattern?.(patternId, color)}
+            </defs>
+            {rings.map((r, i) => {
+              const isInnermost = i === rings.length - 1;
+              let ringFill: string | undefined;
+              if (isInnermost && renderPattern) {
+                ringFill = `url(#${patternId})`;
+              } else if (isInnermost && gradientStops) {
+                ringFill = `url(#${gradientId})`;
+              }
+              const ringKey = `h-ring-${r.opacity.toFixed(2)}`;
+              return (
+                <HRing
+                  color={color}
+                  d={r.d}
+                  fill={ringFill}
+                  hovered={hovered}
+                  key={ringKey}
+                  opacity={r.opacity}
+                  ringIndex={i}
+                  totalRings={layers}
+                />
+              );
+            })}
+          </svg>
+        </motion.div>
+      )}
     </motion.div>
   );
 }
@@ -354,24 +396,20 @@ function VRing({
   ringIndex: number;
   totalRings: number;
 }) {
-  // Outer rings get progressively more hover expansion and a softer spring
   const extraScale = 1 + (ringIndex / Math.max(totalRings - 1, 1)) * 0.12;
-  const ringSpring = {
-    stiffness: 300 - ringIndex * 60,
-    damping: 24 - ringIndex * 3,
-  };
-  const scaleX = useSpring(1, ringSpring);
-
-  useEffect(() => {
-    scaleX.set(hovered ? extraScale : 1);
-  }, [hovered, scaleX, extraScale]);
 
   return (
     <motion.path
+      animate={{ scaleX: hovered ? extraScale : 1 }}
       d={d}
       fill={fill ?? color}
       opacity={opacity}
-      style={{ scaleX, transformOrigin: "center center" }}
+      style={{ transformOrigin: "center center" }}
+      transition={{
+        type: "spring",
+        stiffness: 300 - ringIndex * 60,
+        damping: 24 - ringIndex * 3,
+      }}
     />
   );
 }
@@ -414,15 +452,9 @@ function VSegment({
     index * staggerDelay,
     index
   );
+  const enterComplete = useEnterComplete(mountProgress);
   const entranceScaleY = useTransform(mountProgress, [0, 1], [0, 1]);
   const entranceScaleX = useTransform(mountProgress, [0, 1], [0, 1]);
-
-  // Dim spring: reduces opacity when another segment is hovered
-  const dimOpacity = useSpring(1, hoverSpring);
-
-  useEffect(() => {
-    dimOpacity.set(dimmed ? 0.4 : 1);
-  }, [dimmed, dimOpacity]);
 
   const rings = Array.from({ length: layers }, (_, l) => {
     const scale = 1 - (l / layers) * 0.35;
@@ -435,72 +467,125 @@ function VSegment({
 
   return (
     <motion.div
+      animate={{ opacity: dimmed ? 0.4 : 1 }}
       className="pointer-events-none relative shrink-0 overflow-visible"
       style={{
         width: fullW,
         height: segH,
         zIndex: hovered ? 10 : 1,
-        opacity: dimOpacity,
       }}
+      transition={{ opacity: { duration: 0.15 } }}
     >
-      {/* Entrance animation wrapper: grows from top-center */}
-      <motion.div
-        className="absolute inset-0 overflow-visible"
-        style={{
-          scaleY: entranceScaleY,
-          scaleX: entranceScaleX,
-          transformOrigin: "center top",
-        }}
-      >
-        <svg
-          aria-hidden="true"
-          className="absolute inset-0 h-full w-full overflow-visible"
-          preserveAspectRatio="none"
-          role="presentation"
-          viewBox={`0 0 ${fullW} ${segH}`}
+      {enterComplete ? (
+        <div className="absolute inset-0 overflow-visible">
+          <svg
+            aria-hidden="true"
+            className="absolute inset-0 h-full w-full overflow-visible"
+            preserveAspectRatio="none"
+            role="presentation"
+            viewBox={`0 0 ${fullW} ${segH}`}
+          >
+            <defs>
+              {gradientStops && (
+                <linearGradient id={gradientId} x1="0" x2="0" y1="0" y2="1">
+                  {gradientStops.map((stop) => (
+                    <stop
+                      key={`${stop.offset}-${stop.color}`}
+                      offset={
+                        typeof stop.offset === "number"
+                          ? `${stop.offset * 100}%`
+                          : stop.offset
+                      }
+                      stopColor={stop.color}
+                    />
+                  ))}
+                </linearGradient>
+              )}
+              {renderPattern?.(patternId, color)}
+            </defs>
+            {rings.map((r, i) => {
+              const isInnermost = i === rings.length - 1;
+              let ringFill: string | undefined;
+              if (isInnermost && renderPattern) {
+                ringFill = `url(#${patternId})`;
+              } else if (isInnermost && gradientStops) {
+                ringFill = `url(#${gradientId})`;
+              }
+              const ringKey = `v-ring-${r.opacity.toFixed(2)}`;
+              return (
+                <VRing
+                  color={color}
+                  d={r.d}
+                  fill={ringFill}
+                  hovered={hovered}
+                  key={ringKey}
+                  opacity={r.opacity}
+                  ringIndex={i}
+                  totalRings={layers}
+                />
+              );
+            })}
+          </svg>
+        </div>
+      ) : (
+        <motion.div
+          className="absolute inset-0 overflow-visible"
+          style={{
+            scaleY: entranceScaleY,
+            scaleX: entranceScaleX,
+            transformOrigin: "center top",
+          }}
         >
-          <defs>
-            {gradientStops && (
-              <linearGradient id={gradientId} x1="0" x2="0" y1="0" y2="1">
-                {gradientStops.map((stop) => (
-                  <stop
-                    key={`${stop.offset}-${stop.color}`}
-                    offset={
-                      typeof stop.offset === "number"
-                        ? `${stop.offset * 100}%`
-                        : stop.offset
-                    }
-                    stopColor={stop.color}
-                  />
-                ))}
-              </linearGradient>
-            )}
-            {renderPattern?.(patternId, color)}
-          </defs>
-          {rings.map((r, i) => {
-            const isInnermost = i === rings.length - 1;
-            let ringFill: string | undefined;
-            if (isInnermost && renderPattern) {
-              ringFill = `url(#${patternId})`;
-            } else if (isInnermost && gradientStops) {
-              ringFill = `url(#${gradientId})`;
-            }
-            const ringKey = `v-ring-${r.opacity.toFixed(2)}`;
-            return (
-              <VRing
-                color={color}
-                d={r.d}
-                fill={ringFill}
-                hovered={hovered}
-                key={ringKey}
-                opacity={r.opacity}
-                ringIndex={i}
-                totalRings={layers}
-              />
-            );
-          })}
-        </svg>
-      </motion.div>
+          <svg
+            aria-hidden="true"
+            className="absolute inset-0 h-full w-full overflow-visible"
+            preserveAspectRatio="none"
+            role="presentation"
+            viewBox={`0 0 ${fullW} ${segH}`}
+          >
+            <defs>
+              {gradientStops && (
+                <linearGradient id={gradientId} x1="0" x2="0" y1="0" y2="1">
+                  {gradientStops.map((stop) => (
+                    <stop
+                      key={`${stop.offset}-${stop.color}`}
+                      offset={
+                        typeof stop.offset === "number"
+                          ? `${stop.offset * 100}%`
+                          : stop.offset
+                      }
+                      stopColor={stop.color}
+                    />
+                  ))}
+                </linearGradient>
+              )}
+              {renderPattern?.(patternId, color)}
+            </defs>
+            {rings.map((r, i) => {
+              const isInnermost = i === rings.length - 1;
+              let ringFill: string | undefined;
+              if (isInnermost && renderPattern) {
+                ringFill = `url(#${patternId})`;
+              } else if (isInnermost && gradientStops) {
+                ringFill = `url(#${gradientId})`;
+              }
+              const ringKey = `v-ring-${r.opacity.toFixed(2)}`;
+              return (
+                <VRing
+                  color={color}
+                  d={r.d}
+                  fill={ringFill}
+                  hovered={hovered}
+                  key={ringKey}
+                  opacity={r.opacity}
+                  ringIndex={i}
+                  totalRings={layers}
+                />
+              );
+            })}
+          </svg>
+        </motion.div>
+      )}
     </motion.div>
   );
 }

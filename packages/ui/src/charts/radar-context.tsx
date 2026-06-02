@@ -1,7 +1,7 @@
 "use client";
 
 import type { Transition } from "motion/react";
-import { createContext, useContext } from "react";
+import { createContext, type ReactNode, useContext, useMemo } from "react";
 
 // CSS variable references for radar chart theming
 export const radarCssVars = {
@@ -44,7 +44,12 @@ export interface RadarData {
   values: Record<string, number>;
 }
 
-export interface RadarContextValue {
+export interface RadarHoverContextValue {
+  hoveredIndex: number | null;
+  setHoveredIndex: (index: number | null) => void;
+}
+
+export interface RadarStableContextValue {
   // Data
   data: RadarData[];
   metrics: RadarMetric[];
@@ -53,10 +58,6 @@ export interface RadarContextValue {
   size: number;
   radius: number;
   levels: number;
-
-  // Hover state
-  hoveredIndex: number | null;
-  setHoveredIndex: (index: number | null) => void;
 
   // Animation
   animate: boolean;
@@ -79,29 +80,95 @@ export interface RadarContextValue {
   yScale: (value: number) => number;
 }
 
-const RadarContext = createContext<RadarContextValue | null>(null);
+export type RadarContextValue = RadarStableContextValue &
+  RadarHoverContextValue;
+
+const RadarStableContext = createContext<RadarStableContextValue | null>(null);
+const RadarHoverContext = createContext<RadarHoverContextValue | null>(null);
 
 export function RadarProvider({
   children,
   value,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
   value: RadarContextValue;
 }) {
+  const stable = useMemo<RadarStableContextValue>(
+    () => ({
+      data: value.data,
+      metrics: value.metrics,
+      size: value.size,
+      radius: value.radius,
+      levels: value.levels,
+      animate: value.animate,
+      enterDurationMs: value.enterDurationMs,
+      staggerScale: value.staggerScale,
+      enterTransition: value.enterTransition,
+      motionReplayKey: value.motionReplayKey,
+      getColor: value.getColor,
+      getAngle: value.getAngle,
+      getPointPosition: value.getPointPosition,
+      yScale: value.yScale,
+    }),
+    [
+      value.data,
+      value.metrics,
+      value.size,
+      value.radius,
+      value.levels,
+      value.animate,
+      value.enterDurationMs,
+      value.staggerScale,
+      value.enterTransition,
+      value.motionReplayKey,
+      value.getColor,
+      value.getAngle,
+      value.getPointPosition,
+      value.yScale,
+    ]
+  );
+
+  const hover = useMemo<RadarHoverContextValue>(
+    () => ({
+      hoveredIndex: value.hoveredIndex,
+      setHoveredIndex: value.setHoveredIndex,
+    }),
+    [value.hoveredIndex, value.setHoveredIndex]
+  );
+
   return (
-    <RadarContext.Provider value={value}>{children}</RadarContext.Provider>
+    <RadarStableContext.Provider value={stable}>
+      <RadarHoverContext.Provider value={hover}>
+        {children}
+      </RadarHoverContext.Provider>
+    </RadarStableContext.Provider>
   );
 }
 
-export function useRadar(): RadarContextValue {
-  const context = useContext(RadarContext);
+export function useRadarStable(): RadarStableContextValue {
+  const context = useContext(RadarStableContext);
   if (!context) {
     throw new Error(
-      "useRadar must be used within a RadarProvider. " +
+      "useRadarStable must be used within a RadarProvider. " +
         "Make sure your component is wrapped in <RadarChart>."
     );
   }
   return context;
 }
 
-export default RadarContext;
+export function useRadarHover(): RadarHoverContextValue {
+  const context = useContext(RadarHoverContext);
+  if (!context) {
+    throw new Error(
+      "useRadarHover must be used within a RadarProvider. " +
+        "Make sure your component is wrapped in <RadarChart>."
+    );
+  }
+  return context;
+}
+
+export function useRadar(): RadarContextValue {
+  return { ...useRadarStable(), ...useRadarHover() };
+}
+
+export default RadarStableContext;
