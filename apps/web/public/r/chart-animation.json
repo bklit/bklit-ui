@@ -27,6 +27,12 @@
       "target": "components/charts/use-mount-progress.ts"
     },
     {
+      "path": "src/charts/use-enter-complete.ts",
+      "content": "\"use client\";\n\nimport type { MotionValue } from \"motion/react\";\nimport { useEffect, useState } from \"react\";\n\n/**\n * Returns true once a mount-progress MotionValue reaches 1.\n * Use to swap animated MotionValue-driven props for static values after\n * enter completes — drops per-frame subscriptions during pan/hover.\n */\nexport function useEnterComplete(mountProgress: MotionValue<number>): boolean {\n  const [complete, setComplete] = useState(() => mountProgress.get() >= 1);\n\n  useEffect(() => {\n    if (mountProgress.get() >= 1) {\n      setComplete(true);\n      return;\n    }\n\n    return mountProgress.on(\"change\", (value) => {\n      if (value >= 1) {\n        setComplete(true);\n      }\n    });\n  }, [mountProgress]);\n\n  return complete;\n}\n",
+      "type": "registry:component",
+      "target": "components/charts/use-enter-complete.ts"
+    },
+    {
       "path": "src/charts/chart-reveal-clip.tsx",
       "content": "\"use client\";\n\nimport type { Transition } from \"motion/react\";\nimport { motion } from \"motion/react\";\nimport { clipRevealTransition } from \"./animation\";\n\nexport interface ChartRevealClipProps {\n  clipPathId: string;\n  height: number;\n  targetWidth: number;\n  enterTransition?: Transition;\n  /** Bumps when motion settings change to replay the reveal. */\n  revealEpoch: number;\n  /** Extra inset around the clip rect so edge glyphs are not cut off. */\n  padding?: number;\n}\n\n/**\n * Left-to-right clip reveal for cartesian series.\n * Grows clip rect width from 0 → full (true LTR; scaleX is avoided — it reveals from center).\n */\nexport function ChartRevealClip({\n  clipPathId,\n  height,\n  targetWidth,\n  enterTransition,\n  revealEpoch,\n  padding = 0,\n}: ChartRevealClipProps) {\n  const transition = clipRevealTransition(enterTransition);\n  const paddedWidth = Math.max(0, targetWidth + padding * 2);\n  const paddedHeight = height + padding * 2;\n\n  return (\n    <clipPath id={clipPathId}>\n      <motion.rect\n        animate={{ width: paddedWidth }}\n        height={paddedHeight}\n        initial={{ width: 0 }}\n        key={`reveal-${revealEpoch}`}\n        transition={transition}\n        width={paddedWidth}\n        x={-padding}\n        y={-padding}\n      />\n    </clipPath>\n  );\n}\n",
       "type": "registry:component",
