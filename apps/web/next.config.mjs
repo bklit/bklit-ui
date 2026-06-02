@@ -5,7 +5,7 @@ const withMDX = createMDX();
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  transpilePackages: ["@bklitui/ui", "@bklitui/studio"],
+  transpilePackages: ["@bklitui/ui", "@bklitui/studio", "geist"],
   experimental: {
     // Keeps dev/prod from pulling the entire charts package per MDX page.
     optimizePackageImports: ["@bklitui/ui", "@bklitui/ui/charts"],
