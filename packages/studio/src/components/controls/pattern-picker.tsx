@@ -2,6 +2,7 @@
 
 import { PatternLines } from "@bklitui/ui/charts";
 import { cn } from "@bklitui/ui/lib/utils";
+import { useId } from "react";
 import { PATTERN_PRESETS, type PatternPresetId } from "@/lib/patterns";
 
 function patternStroke(preset: PatternPresetId): string {
@@ -34,34 +35,58 @@ function patternOrientation(
   }
 }
 
-export function PatternSwatch({ preset }: { preset: PatternPresetId }) {
+export function PatternSwatch({
+  preset,
+  className,
+}: {
+  preset: PatternPresetId;
+  className?: string;
+}) {
+  const uid = useId();
+  const patternId = `${uid}-${preset}`;
+
   if (preset === "none") {
     return (
-      <span className="block size-full rounded-sm bg-[var(--chart-1)] opacity-80" />
+      <span
+        className={cn(
+          "block size-full rounded-[3px] bg-[var(--chart-1)]",
+          className
+        )}
+      />
     );
   }
 
-  const id = `swatch-${preset}`;
   const stroke = patternStroke(preset);
   const orientation = patternOrientation(preset);
 
   return (
-    <svg aria-hidden className="size-full rounded-sm" viewBox="0 0 24 24">
+    <svg
+      aria-hidden
+      className={cn(
+        "block size-full shrink-0 overflow-hidden rounded-[3px]",
+        className
+      )}
+      viewBox="0 0 24 24"
+    >
       <title>{preset}</title>
       <defs>
         <PatternLines
           height={preset === "dots" ? 4 : 6}
-          id={id}
+          id={patternId}
           orientation={orientation}
           stroke={stroke}
           strokeWidth={preset === "dots" ? 2 : 1}
           width={preset === "dots" ? 4 : 6}
         />
       </defs>
-      <rect fill={`url(#${id})`} height={24} width={24} />
+      <rect fill={`url(#${patternId})`} height={24} width={24} />
     </svg>
   );
 }
+
+const PATTERN_FILL_PRESETS = PATTERN_PRESETS.filter(
+  (preset) => preset.id !== "none"
+);
 
 export function PatternPicker({
   value,
@@ -72,11 +97,11 @@ export function PatternPicker({
 }) {
   return (
     <div className="flex flex-wrap gap-1.5">
-      {PATTERN_PRESETS.map((preset) => (
+      {PATTERN_FILL_PRESETS.map((preset) => (
         <button
           className={cn(
-            "size-8 shrink-0 overflow-hidden rounded-md ring-1 ring-foreground/10 ring-inset transition-[box-shadow,ring-color]",
-            value === preset.id && "ring-2 ring-foreground ring-inset"
+            "size-6 shrink-0 overflow-hidden rounded-[4px] bg-muted/20 ring-1 ring-border transition-[box-shadow,ring-color]",
+            value === preset.id && "ring-2 ring-foreground"
           )}
           key={preset.id}
           onClick={() => onChange(preset.id)}

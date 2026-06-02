@@ -1,9 +1,7 @@
 "use client";
 
-import { ShuffleIcon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { cn } from "@/lib/utils";
-import { Button } from "@/ui/button";
+import { cn } from "@bklitui/ui/lib/utils";
+import { studioSurfaceClasses } from "@/ui/toggle";
 
 export function StudioScrambleDataButton({
   className,
@@ -15,17 +13,17 @@ export function StudioScrambleDataButton({
   onScramble: () => void;
 }) {
   return (
-    <Button
-      aria-label="Scramble data"
-      className={cn("h-8 w-full justify-start gap-2 px-2 text-xs", className)}
+    <button
+      className={cn(
+        "flex h-8 w-full items-center justify-center px-2.5 text-center font-medium text-xs outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50",
+        studioSurfaceClasses,
+        className
+      )}
       disabled={disabled}
       onClick={onScramble}
-      size="sm"
       type="button"
-      variant="outline"
     >
-      <HugeiconsIcon icon={ShuffleIcon} size={14} strokeWidth={1.5} />
       Scramble data
-    </Button>
+    </button>
   );
 }

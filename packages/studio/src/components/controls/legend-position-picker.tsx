@@ -1,6 +1,5 @@
 "use client";
 
-import { cn } from "@bklitui/ui/lib/utils";
 import { motion, useReducedMotion } from "motion/react";
 import {
   type RefObject,
@@ -11,13 +10,16 @@ import {
 } from "react";
 import { studioFieldLabelClass } from "@/components/controls/control-field-helpers";
 import {
+  StudioTab,
+  StudioTabs,
+} from "@/components/controls/studio-toggle-group";
+import {
   type LegendPositionId,
   legendPositionId,
   parseLegendPositionId,
 } from "@/lib/legend-position";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import { Label } from "@/ui/label";
-import { ToggleGroup, ToggleGroupItem } from "@/ui/toggle-group";
 
 const POSITIONS: {
   id: LegendPositionId;
@@ -58,18 +60,15 @@ function LegendPositionToggle({
   label: string;
 }) {
   return (
-    <ToggleGroupItem
+    <StudioTab
       aria-label={label}
-      className={cn(
-        "legend-position-picker__toggle h-11 min-h-11 w-full",
-        `legend-position-picker__toggle--${id}`
-      )}
+      className={`legend-position-picker__toggle--${id}`}
       data-position={id}
       title={label}
       value={id}
     >
       <LegendToggleRing />
-    </ToggleGroupItem>
+    </StudioTab>
   );
 }
 
@@ -152,24 +151,18 @@ export function LegendPositionPicker({
             }
           />
         ) : null}
-        <ToggleGroup
-          className="legend-position-picker__grid w-full"
-          onValueChange={(values) => {
-            const next = values.at(-1) ?? values[0];
-            if (next == null) {
-              return;
-            }
+        <StudioTabs
+          layout="legend"
+          onValueChange={(next) => {
             const parsed = parseLegendPositionId(next as LegendPositionId);
             onChange(parsed.placement, parsed.align);
           }}
-          spacing={0}
-          value={[active]}
-          variant="studio"
+          value={active}
         >
           {POSITIONS.map((pos) => (
             <LegendPositionToggle id={pos.id} key={pos.id} label={pos.label} />
           ))}
-        </ToggleGroup>
+        </StudioTabs>
       </div>
     </div>
   );

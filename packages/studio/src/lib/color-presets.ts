@@ -94,3 +94,11 @@ export function presetSwatchColor(id: ColorPresetId): string {
   const preset = COLOR_PRESETS.find((p) => p.id === id);
   return preset?.vars["--chart-1"] ?? "var(--chart-1)";
 }
+
+/** Radial preview from chart-1 (top-left) to chart-5 for palette circles. */
+export function presetSwatchGradient(id: ColorPresetId): string {
+  const preset = COLOR_PRESETS.find((p) => p.id === id);
+  const chart1 = preset?.vars["--chart-1"] ?? "var(--chart-1)";
+  const chart5 = preset?.vars["--chart-5"] ?? "var(--chart-5)";
+  return `radial-gradient(circle at 0% 0%, ${chart1}, ${chart5})`;
+}

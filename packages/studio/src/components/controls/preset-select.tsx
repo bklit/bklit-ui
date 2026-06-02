@@ -7,7 +7,7 @@ import { useState } from "react";
 import {
   COLOR_PRESETS,
   type ColorPresetId,
-  presetSwatchColor,
+  presetSwatchGradient,
 } from "@/lib/color-presets";
 import { Button } from "@/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/ui/popover";
@@ -22,10 +22,10 @@ export function PresetSwatch({
   return (
     <span
       className={cn(
-        "size-3 shrink-0 rounded-full ring-1 ring-border",
+        "block shrink-0 rounded-full ring-1 ring-border",
         className
       )}
-      style={{ background: presetSwatchColor(id) }}
+      style={{ background: presetSwatchGradient(id) }}
     />
   );
 }

@@ -1,8 +1,10 @@
 "use client";
 
-import { StudioSingleToggleGroup } from "@/components/controls/studio-toggle-group";
+import {
+  StudioTab,
+  StudioTabs,
+} from "@/components/controls/studio-toggle-group";
 import { CURVE_OPTIONS, type CurveId } from "@/lib/curves";
-import { ToggleGroupItem } from "@/ui/toggle-group";
 import { CurvePreviewIcon } from "../curve-preview-icons";
 
 export function CurvePicker({
@@ -13,16 +15,9 @@ export function CurvePicker({
   onChange: (v: CurveId) => void;
 }) {
   return (
-    <StudioSingleToggleGroup
-      className="grid w-full grid-cols-3 gap-1.5"
-      onValueChange={onChange}
-      size="card"
-      spacing={2}
-      value={value}
-      variant="studio"
-    >
+    <StudioTabs layout="cards-3" onValueChange={onChange} value={value}>
       {CURVE_OPTIONS.map((opt) => (
-        <ToggleGroupItem
+        <StudioTab
           aria-label={opt.label}
           key={opt.value}
           title={opt.label}
@@ -30,8 +25,8 @@ export function CurvePicker({
         >
           <CurvePreviewIcon className="text-current" curveId={opt.value} />
           <span className="text-center leading-tight">{opt.label}</span>
-        </ToggleGroupItem>
+        </StudioTab>
       ))}
-    </StudioSingleToggleGroup>
+    </StudioTabs>
   );
 }
