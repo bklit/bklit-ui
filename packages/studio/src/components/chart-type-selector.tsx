@@ -9,6 +9,10 @@ import { studioChartList } from "@/lib/registry";
 import type { ChartSlug } from "@/lib/types";
 import { Popover, PopoverContent, PopoverTrigger } from "@/ui/popover";
 import { StudioControlSurface } from "@/ui/studio-control-surface";
+import {
+  studioSidebarPopoverCollisionAvoidance,
+  studioSidebarPopoverSideOffset,
+} from "@/ui/studio-sidebar-popover";
 
 export function ChartTypeSelector({
   value,
@@ -46,8 +50,10 @@ export function ChartTypeSelector({
       <PopoverContent
         align="start"
         className="w-max min-w-[var(--radix-popover-trigger-width)] p-2"
+        collisionAvoidance={studioSidebarPopoverCollisionAvoidance}
+        positionMethod="fixed"
         side="right"
-        // sideOffset={5}
+        sideOffset={studioSidebarPopoverSideOffset}
       >
         <p className="px-2 py-1.5 font-medium text-[11px] text-muted-foreground uppercase tracking-wide">
           Chart type

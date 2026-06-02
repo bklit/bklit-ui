@@ -30,6 +30,10 @@ import {
 } from "@/lib/studio-color-picker-value";
 import type { SeriesFillMode } from "@/lib/studio-series-design";
 import { Popover, PopoverContent, PopoverTrigger } from "@/ui/popover";
+import {
+  studioSidebarPopoverCollisionAvoidance,
+  studioSidebarPopoverSideOffset,
+} from "@/ui/studio-sidebar-popover";
 
 function formatTriggerLabel(color: string): string {
   const body = studioColorToOklchField(color);
@@ -114,48 +118,54 @@ export function FillPicker({
         </StudioTabs>
       ) : null}
 
-      <div
-        className={cn(
-          "flex h-9 w-full min-w-0 items-center gap-2 rounded-lg px-2",
-          studioInputSurfaceClass,
-          disabled && "pointer-events-none opacity-50"
-        )}
-      >
-        <Popover onOpenChange={setColorOpen} open={colorOpen}>
-          <PopoverTrigger
-            className="flex size-4 shrink-0 items-center justify-center overflow-hidden rounded-[4px] outline-none transition-opacity hover:opacity-80 focus-visible:ring-[3px] focus-visible:ring-ring/50"
-            disabled={disabled}
-            type="button"
-          >
+      <Popover onOpenChange={setColorOpen} open={colorOpen}>
+        <PopoverTrigger
+          aria-expanded={colorOpen}
+          disabled={disabled}
+          render={
+            <button
+              aria-expanded={colorOpen}
+              className={cn(
+                "flex h-9 w-full min-w-0 items-center gap-2 rounded-lg px-2 text-left outline-none transition-opacity hover:opacity-90 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
+                studioInputSurfaceClass,
+                disabled && "pointer-events-none opacity-50"
+              )}
+              type="button"
+            />
+          }
+        >
+          <span className="flex size-4 shrink-0 items-center justify-center overflow-hidden rounded-[4px]">
             <FillSwatch
               fillMode={fillMode}
               pattern={pattern}
               previewColor={previewColor}
             />
-          </PopoverTrigger>
+          </span>
 
-          <PopoverContent
-            align="start"
-            className="w-[min(calc(100vw-2rem),18rem)] gap-3 p-3"
-            side="left"
-            sideOffset={8}
-          >
-            <StudioColorPicker
-              color={color}
-              disabled={disabled}
-              onChange={onColorChange}
-              onPreview={onColorPreview}
-            />
-          </PopoverContent>
-        </Popover>
+          <span className="min-w-0 flex-1 truncate font-mono text-foreground text-xs lowercase">
+            {triggerLabel}
+          </span>
+          <span className="shrink-0 border-border border-l pl-2 font-mono text-muted-foreground text-xs tabular-nums">
+            {opacity}%
+          </span>
+        </PopoverTrigger>
 
-        <span className="min-w-0 flex-1 truncate font-mono text-foreground text-xs lowercase">
-          {triggerLabel}
-        </span>
-        <span className="shrink-0 border-border border-l pl-2 font-mono text-muted-foreground text-xs tabular-nums">
-          {opacity}%
-        </span>
-      </div>
+        <PopoverContent
+          align="start"
+          className="w-[min(calc(100vw-2rem),18rem)] gap-3 p-3"
+          collisionAvoidance={studioSidebarPopoverCollisionAvoidance}
+          positionMethod="fixed"
+          side="left"
+          sideOffset={studioSidebarPopoverSideOffset}
+        >
+          <StudioColorPicker
+            color={color}
+            disabled={disabled}
+            onChange={onColorChange}
+            onPreview={onColorPreview}
+          />
+        </PopoverContent>
+      </Popover>
 
       {fillMode === "pattern" && supportsPattern ? (
         <PatternPicker onChange={onPatternChange} value={pattern} />
