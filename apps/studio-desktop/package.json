@@ -12,7 +12,8 @@
     "tauri": "tauri",
     "icon:generate": "tauri icon app-icon.png",
     "tauri:dev": "tauri dev",
-    "tauri:build": "tauri build"
+    "tauri:build": "tauri build",
+    "publish:mac-beta": "pnpm tauri:build && cp \"src-tauri/target/release/bundle/dmg/Bklit Studio_0.1.0_aarch64.dmg\" ../../apps/web/public/downloads/bklit-studio-beta.dmg"
   },
   "dependencies": {
     "@base-ui/react": "^1.1.0",

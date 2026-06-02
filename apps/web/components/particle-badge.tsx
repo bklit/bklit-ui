@@ -396,17 +396,25 @@ export function ParticleBadge({
   return (
     <div
       className={cn(
-        "relative isolate inline-flex items-center justify-center overflow-visible",
+        "relative isolate inline-flex items-center justify-center",
         className
       )}
-      ref={containerRef}
-      style={{ padding: bleed }}
       {...props}
     >
-      <canvas
-        className="pointer-events-none absolute inset-0 z-0"
-        ref={canvasRef}
-      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute top-1/2 left-1/2 z-0 -translate-x-1/2 -translate-y-1/2 overflow-hidden"
+        ref={containerRef}
+        style={{
+          width: `calc(100% + ${bleed * 2}px)`,
+          height: `calc(100% + ${bleed * 2}px)`,
+        }}
+      >
+        <canvas
+          className="pointer-events-none absolute inset-0"
+          ref={canvasRef}
+        />
+      </div>
       <div className="relative z-10 inline-flex items-center" ref={targetRef}>
         {children}
       </div>
