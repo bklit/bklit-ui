@@ -92,6 +92,8 @@ export function MotionCurveEditor({
   const displayRef = useRef(displayPoints);
   const skipMorphRef = useRef(false);
   const hasMountedRef = useRef(false);
+  const previewRafRef = useRef<number | null>(null);
+  const pendingPreviewRef = useRef<string | null>(null);
   const [curveA11yLabel, setCurveA11yLabel] = useState(
     "Interactive motion curve"
   );
@@ -195,6 +197,36 @@ export function MotionCurveEditor({
 
   useEffect(() => () => stopPlay(), [stopPlay]);
 
+  const flushPreview = useCallback(() => {
+    previewRafRef.current = null;
+    const formatted = pendingPreviewRef.current;
+    if (!formatted) {
+      return;
+    }
+    pendingPreviewRef.current = null;
+    onPreview("motionBezier", formatted);
+    onPreview("motionEase", "custom");
+  }, [onPreview]);
+
+  const schedulePreview = useCallback(
+    (formatted: string) => {
+      pendingPreviewRef.current = formatted;
+      if (previewRafRef.current == null) {
+        previewRafRef.current = requestAnimationFrame(flushPreview);
+      }
+    },
+    [flushPreview]
+  );
+
+  useEffect(
+    () => () => {
+      if (previewRafRef.current != null) {
+        cancelAnimationFrame(previewRafRef.current);
+      }
+    },
+    []
+  );
+
   // Recover handles stuck off-canvas from a previous drag (URL may hold extreme values).
   useEffect(() => {
     if (state.motionEase !== "custom") {
@@ -237,11 +269,9 @@ export function MotionCurveEditor({
       setDisplayPoints(
         targetMotionCurvePoints({ ...state, motionType: "ease" }, clamped)
       );
-      const formatted = formatMotionBezier(clamped);
-      onPreview("motionBezier", formatted);
-      onPreview("motionEase", "custom");
+      schedulePreview(formatMotionBezier(clamped));
     },
-    [activeBezier, onPreview, state, width]
+    [activeBezier, schedulePreview, state, width]
   );
 
   useEffect(() => {
@@ -252,6 +282,11 @@ export function MotionCurveEditor({
       applyHandleDrag(e.clientX, e.clientY, dragging);
     };
     const onUp = () => {
+      if (previewRafRef.current != null) {
+        cancelAnimationFrame(previewRafRef.current);
+        previewRafRef.current = null;
+      }
+      flushPreview();
       setDragging(null);
       onDragActiveChange?.(false);
       const next = dragBezierRef.current
@@ -271,7 +306,7 @@ export function MotionCurveEditor({
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup", onUp);
     };
-  }, [applyHandleDrag, dragging, onCommit, onDragActiveChange]);
+  }, [applyHandleDrag, dragging, flushPreview, onCommit, onDragActiveChange]);
 
   return (
     <div className="flex flex-col">

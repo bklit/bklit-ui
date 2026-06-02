@@ -25,8 +25,10 @@ function studioChartRenderPropsEqual(
   prev: StudioChartRenderProps,
   next: StudioChartRenderProps
 ): boolean {
-  return (
-    prev.displayState === next.displayState &&
+  const frameEqual =
+    prev.frame.width === next.frame.width &&
+    prev.frame.height === next.frame.height;
+  const sharedEqual =
     prev.config === next.config &&
     prev.animationKey === next.animationKey &&
     prev.dataSeed === next.dataSeed &&
@@ -36,9 +38,14 @@ function studioChartRenderPropsEqual(
     prev.motionCurveDragging === next.motionCurveDragging &&
     prev.patternDefs === next.patternDefs &&
     prev.patternFillAt === next.patternFillAt &&
-    prev.frame.width === next.frame.width &&
-    prev.frame.height === next.frame.height
-  );
+    frameEqual;
+
+  // Bezier handle drags preview motion params every frame; chart stays on committed state.
+  if (prev.motionCurveDragging && next.motionCurveDragging) {
+    return sharedEqual;
+  }
+
+  return prev.displayState === next.displayState && sharedEqual;
 }
 
 /**
@@ -87,5 +94,7 @@ export const StudioChartRender = memo(function StudioChartRender(
     ]
   );
 
-  return config.render(displayState, renderCtx);
+  const chartState = motionCurveDragging ? committedState : displayState;
+
+  return config.render(chartState, renderCtx);
 }, studioChartRenderPropsEqual);

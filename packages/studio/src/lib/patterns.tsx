@@ -46,6 +46,7 @@ function patternLinesForPreset(
       return (
         <PatternLines
           {...common}
+          key={id}
           orientation={["diagonal"]}
           stroke={strokeVar}
         />
@@ -54,6 +55,7 @@ function patternLinesForPreset(
       return (
         <PatternLines
           {...common}
+          key={id}
           orientation={["horizontal"]}
           stroke={strokeVar}
         />
@@ -62,6 +64,7 @@ function patternLinesForPreset(
       return (
         <PatternLines
           {...common}
+          key={id}
           orientation={["vertical"]}
           stroke={strokeVar}
         />
@@ -71,6 +74,7 @@ function patternLinesForPreset(
         <PatternLines
           {...common}
           height={8}
+          key={id}
           orientation={["diagonal", "diagonalRightToLeft"]}
           stroke={strokeVar}
           width={8}
@@ -81,6 +85,7 @@ function patternLinesForPreset(
         <PatternLines
           {...common}
           height={4}
+          key={id}
           orientation={["diagonal"]}
           stroke={strokeVar}
           strokeWidth={2}
@@ -89,7 +94,12 @@ function patternLinesForPreset(
       );
     case "accent":
       return (
-        <PatternLines {...common} orientation={["diagonal"]} stroke="#e879f9" />
+        <PatternLines
+          {...common}
+          key={id}
+          orientation={["diagonal"]}
+          stroke="#e879f9"
+        />
       );
     default:
       return null;
