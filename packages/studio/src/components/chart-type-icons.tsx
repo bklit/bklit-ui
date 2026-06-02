@@ -56,7 +56,7 @@ export function ChartTypeIcon({
       className={cn(
         variant === "plain"
           ? "inline-flex size-5 shrink-0 items-center justify-center text-foreground"
-          : "inline-flex size-8 shrink-0 items-center justify-center rounded-md bg-muted/50 text-foreground",
+          : "inline-flex size-8 shrink-0 items-center justify-center rounded-sm bg-muted/50 text-foreground",
         className
       )}
     >

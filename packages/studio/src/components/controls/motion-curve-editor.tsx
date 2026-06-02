@@ -415,28 +415,32 @@ export function MotionCurveEditor({
           studioInputSurfaceClass
         )}
       >
-        {isEase ? (
-          <Input
-            className="h-8 min-w-0 flex-1 rounded-none border-0 bg-transparent px-2.5 font-mono text-xs shadow-none focus-visible:ring-0"
-            id="motion-bezier-input"
-            onChange={(e) => {
-              const parsed = parseMotionBezier(e.target.value);
-              onPreview("motionBezier", e.target.value);
-              if (parsed) {
-                const clamped = clampEaseBezierControl(parsed);
-                setDragBezier(null);
-                onPreview("motionEase", "custom");
-                onCommit("motionBezier", formatMotionBezier(clamped));
-                onCommit("motionEase", "custom");
-              }
-            }}
-            placeholder="0.85, 0, 0.15, 1"
-            spellCheck={false}
-            value={state.motionBezier}
-          />
-        ) : (
-          <div aria-hidden className="min-w-0 flex-1" />
-        )}
+        <Input
+          className={cn(
+            "h-8 min-w-0 flex-1 rounded-none border-0 bg-transparent px-2.5 font-mono text-xs shadow-none focus-visible:ring-0",
+            !isEase && "cursor-default text-muted-foreground"
+          )}
+          id="motion-bezier-input"
+          onChange={
+            isEase
+              ? (e) => {
+                  const parsed = parseMotionBezier(e.target.value);
+                  onPreview("motionBezier", e.target.value);
+                  if (parsed) {
+                    const clamped = clampEaseBezierControl(parsed);
+                    setDragBezier(null);
+                    onPreview("motionEase", "custom");
+                    onCommit("motionBezier", formatMotionBezier(clamped));
+                    onCommit("motionEase", "custom");
+                  }
+                }
+              : undefined
+          }
+          placeholder="0.85, 0, 0.15, 1"
+          readOnly={!isEase}
+          spellCheck={false}
+          value={state.motionBezier}
+        />
         <button
           aria-label={isPlaying ? "Stop motion preview" : "Play motion preview"}
           className="flex w-9 shrink-0 items-center justify-center border-border border-l text-muted-foreground transition-colors hover:bg-muted/40 hover:text-foreground"

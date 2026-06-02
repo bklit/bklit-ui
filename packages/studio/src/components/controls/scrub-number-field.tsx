@@ -66,12 +66,12 @@ export function ScrubNumberField({
     >
       <NumberFieldGroup
         className={cn(
-          "flex h-8 w-full min-w-0 items-center overflow-hidden rounded-md focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50",
+          "flex h-8 w-full min-w-0 items-center overflow-hidden rounded-sm focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50",
           studioInputSurfaceClass
         )}
       >
         <NumberFieldScrubArea
-          className="flex shrink-0 cursor-ew-resize select-none items-center self-stretch border-border border-r px-1.5 text-muted-foreground hover:text-foreground data-[scrubbing]:text-foreground"
+          className="flex shrink-0 cursor-ew-resize select-none items-center self-stretch px-1.5 text-muted-foreground hover:text-foreground data-[scrubbing]:text-foreground"
           direction="horizontal"
         >
           {scrubIcon ?? (

@@ -5,10 +5,10 @@ import { UnfoldMoreIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useState } from "react";
 import { ChartTypeIcon } from "@/components/chart-type-icons";
-import { studioInputSurfaceClass } from "@/components/controls/control-field-helpers";
 import { studioChartList } from "@/lib/registry";
 import type { ChartSlug } from "@/lib/types";
 import { Popover, PopoverContent, PopoverTrigger } from "@/ui/popover";
+import { studioSurfaceClasses } from "@/ui/toggle";
 
 export function ChartTypeSelector({
   value,
@@ -23,10 +23,10 @@ export function ChartTypeSelector({
   return (
     <Popover onOpenChange={setOpen} open={open}>
       <PopoverTrigger
+        aria-expanded={open}
         className={cn(
-          "flex h-10 w-full items-center gap-2.5 rounded-lg px-2.5 text-left text-xs outline-none transition-colors",
-          studioInputSurfaceClass,
-          "hover:bg-[var(--studio-input-background)] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+          "flex h-8 w-full items-center gap-2.5 px-2.5 text-left font-medium text-xs outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
+          studioSurfaceClasses
         )}
         id="studio-chart"
         type="button"
@@ -44,7 +44,7 @@ export function ChartTypeSelector({
       <PopoverContent
         align="start"
         className="w-max min-w-[var(--radix-popover-trigger-width)] p-2"
-        side="bottom"
+        side="right"
         // sideOffset={5}
       >
         <p className="px-2 py-1.5 font-medium text-[11px] text-muted-foreground uppercase tracking-wide">
@@ -58,7 +58,7 @@ export function ChartTypeSelector({
                 className={cn(
                   "flex items-center gap-2 rounded-lg px-2 py-2 text-left transition-colors",
                   selected
-                    ? "bg-accent/10 text-foreground ring-1 ring-accent/25"
+                    ? "bg-accent/50 text-foreground ring-1 ring-accent/25"
                     : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
                 )}
                 key={item.slug}
