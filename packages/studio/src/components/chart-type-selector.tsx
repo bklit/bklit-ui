@@ -8,7 +8,7 @@ import { ChartTypeIcon } from "@/components/chart-type-icons";
 import { studioChartList } from "@/lib/registry";
 import type { ChartSlug } from "@/lib/types";
 import { Popover, PopoverContent, PopoverTrigger } from "@/ui/popover";
-import { studioSurfaceClasses } from "@/ui/toggle";
+import { StudioControlSurface } from "@/ui/studio-control-surface";
 
 export function ChartTypeSelector({
   value,
@@ -24,12 +24,14 @@ export function ChartTypeSelector({
     <Popover onOpenChange={setOpen} open={open}>
       <PopoverTrigger
         aria-expanded={open}
-        className={cn(
-          "flex h-8 w-full items-center gap-2.5 px-2.5 text-left font-medium text-xs outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
-          studioSurfaceClasses
-        )}
         id="studio-chart"
-        type="button"
+        render={
+          <StudioControlSurface
+            align="start"
+            aria-expanded={open}
+            type="button"
+          />
+        }
       >
         <ChartTypeIcon slug={value} variant="plain" />
         <span className="min-w-0 flex-1 truncate font-medium">

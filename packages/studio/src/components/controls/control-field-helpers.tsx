@@ -20,7 +20,10 @@ export const studioControlRowClass = "flex min-w-0 items-center gap-2.5";
 /** Compact font size for sidebar inputs — overrides the Input default `text-sm`. */
 export const studioControlInputClass = "text-xs";
 
-/** Shared surface for sidebar inputs/triggers — tune via `--studio-input-background`. */
+/**
+ * Bordered field row (scrub inputs, fill color row) — tune via `--studio-input-background`.
+ * Accent triggers / segmented tabs use `.studio-control-surface` in `styles/studio.css`.
+ */
 export const studioInputSurfaceClass =
   "border border-input bg-[var(--studio-input-background)] shadow-xs";
 

@@ -9,6 +9,12 @@ import {
 import { motionDurationToAnimationMs } from "@/lib/chart-animation";
 import { MOTION_EASE_PRESETS, type MotionType } from "@/lib/motion-config";
 import type { StudioUrlState } from "@/lib/studio-parsers";
+
+const MOTION_TYPE_LABELS: Record<MotionType, string> = {
+  ease: "Ease",
+  spring: "Spring",
+};
+
 import { MotionCurveEditor } from "./motion-curve-editor";
 
 function MotionTypeToggle({
@@ -22,7 +28,7 @@ function MotionTypeToggle({
     <StudioTabs layout="segmented" onValueChange={onChange} value={value}>
       {(["ease", "spring"] as const).map((type) => (
         <StudioTab key={type} value={type}>
-          {type}
+          {MOTION_TYPE_LABELS[type]}
         </StudioTab>
       ))}
     </StudioTabs>

@@ -1,7 +1,6 @@
 "use client";
 
-import { cn } from "@bklitui/ui/lib/utils";
-import { studioSurfaceClasses } from "@/ui/toggle";
+import { StudioControlSurface } from "@/ui/studio-control-surface";
 
 export function StudioScrambleDataButton({
   className,
@@ -13,17 +12,13 @@ export function StudioScrambleDataButton({
   onScramble: () => void;
 }) {
   return (
-    <button
-      className={cn(
-        "flex h-8 w-full items-center justify-center px-2.5 text-center font-medium text-xs outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50",
-        studioSurfaceClasses,
-        className
-      )}
+    <StudioControlSurface
+      className={className}
       disabled={disabled}
       onClick={onScramble}
       type="button"
     >
       Scramble data
-    </button>
+    </StudioControlSurface>
   );
 }

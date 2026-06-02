@@ -7,6 +7,8 @@
  *     --studio-label: oklch(0.72 0.014 214.4);
  *     --studio-section-label: oklch(0.65 0.014 214.4);
  *     --studio-input-background: oklch(0.12 0.004 263);
+ *     --studio-control-surface-top: oklch(0.28 0.02 290 / 0.5);
+ *     --studio-control-surface-bottom: oklch(0.28 0.02 290 / 0.1);
  *   }
  */
 @layer base {
@@ -15,6 +17,24 @@
     --studio-section-label: var(--muted-foreground);
     /** Sidebar control surfaces (Fill trigger, scrub inputs, selects). */
     --studio-input-background: var(--background);
+    /** Accent gradient triggers, segmented tabs, toggle items — `.studio-control-surface`. */
+    --studio-control-surface-top: var(--accent);
+    --studio-control-surface-bottom: color-mix(
+      in oklch,
+      var(--accent) 10%,
+      transparent
+    );
+    --studio-control-surface-pressed: color-mix(
+      in oklch,
+      var(--input) 40%,
+      transparent
+    );
+    --studio-control-surface-pressed-shadow:
+      inset 0 0 0 1px var(--input), inset 0 -2px 2px 0 var(--background),
+      inset 0 1px 1px 0 var(--input);
+    /** Pressed cells on the bottom row of a grid (no top bevel). */
+    --studio-control-surface-pressed-shadow-grid-bottom:
+      inset 0 0 0 1px var(--input), inset 0 -2px 2px 0 var(--background);
     --studio-scrollbar-width: 8px;
     --studio-scrollbar-thumb: color-mix(
       in oklch,
@@ -54,6 +74,162 @@
 }
 
 @layer components {
+  /**
+   * Shared chrome for chart selector, scramble data, StudioTabs / toggle `variant="studio"`.
+   * Override the `--studio-control-surface-*` tokens above to theme every control at once.
+   */
+  .studio-control-surface {
+    border-left-width: 0;
+    border-right-width: 0;
+    border-radius: var(--radius-sm);
+    background-image: linear-gradient(
+      to bottom,
+      var(--studio-control-surface-top),
+      var(--studio-control-surface-bottom)
+    );
+    color: var(--muted-foreground);
+    box-shadow:
+      inset 0 0 0 1px var(--input),
+      inset 0 -2px 2px 0 var(--background),
+      inset 0 1px 1px 0 var(--input);
+  }
+
+  .studio-control-surface:hover {
+    color: var(--foreground);
+  }
+
+  /** Selected / pressed — tabs, icon toggles, triggers (same tokens everywhere). */
+  .studio-control-surface-pressed,
+  .studio-control-surface[data-pressed],
+  .studio-control-surface[aria-pressed="true"],
+  .studio-control-surface[aria-expanded="true"] {
+    background-color: var(--studio-control-surface-pressed);
+    background-image: none;
+    box-shadow: var(--studio-control-surface-pressed-shadow);
+    color: var(--foreground);
+  }
+
+  /**
+   * Segmented tabs (Ease / Spring), placement grid — one outer bevel, flat segments.
+   */
+  .studio-control-surface-group {
+    overflow: hidden;
+    border-radius: var(--radius-sm);
+    background-image: linear-gradient(
+      to bottom,
+      var(--studio-control-surface-top),
+      var(--studio-control-surface-bottom)
+    );
+    box-shadow:
+      inset 0 0 0 1px var(--input),
+      inset 0 -2px 2px 0 var(--background),
+      inset 0 1px 1px 0 var(--input);
+  }
+
+  .studio-control-surface-group > .studio-control-surface {
+    border-radius: 0;
+    background-color: transparent;
+    background-image: none;
+    box-shadow: none;
+    color: var(--muted-foreground);
+  }
+
+  .studio-control-surface-group > .studio-control-surface:hover {
+    color: var(--foreground);
+  }
+
+  .studio-control-surface-group
+    > .studio-control-surface
+    + .studio-control-surface {
+    border-left: 1px solid var(--input);
+  }
+
+  .studio-control-surface-group > .studio-control-surface-pressed,
+  .studio-control-surface-group > .studio-control-surface[data-pressed],
+  .studio-control-surface-group > .studio-control-surface[aria-pressed="true"] {
+    background-color: var(--studio-control-surface-pressed);
+    background-image: none;
+    box-shadow: var(--studio-control-surface-pressed-shadow);
+    color: var(--foreground);
+  }
+
+  /* 2×2 preset grid — joined layout, gradient + bevel on each cell (not the group). */
+  .studio-control-surface-group--2col {
+    background-image: none;
+    background-color: transparent;
+    box-shadow: none;
+  }
+
+  .studio-control-surface-group--2col > .studio-control-surface {
+    border-radius: 0 !important;
+    background-image: linear-gradient(
+      to bottom,
+      var(--studio-control-surface-top),
+      var(--studio-control-surface-bottom)
+    );
+    background-color: transparent;
+    box-shadow:
+      inset 0 0 0 1px var(--input),
+      inset 0 -2px 2px 0 var(--background),
+      inset 0 1px 1px 0 var(--input);
+    color: var(--muted-foreground);
+  }
+
+  .studio-control-surface-group--2col > .studio-control-surface:hover {
+    color: var(--foreground);
+  }
+
+  .studio-control-surface-group--2col > .studio-control-surface-pressed,
+  .studio-control-surface-group--2col > .studio-control-surface[data-pressed],
+  .studio-control-surface-group--2col
+    > .studio-control-surface[aria-pressed="true"] {
+    background-color: var(--studio-control-surface-pressed);
+    background-image: none;
+    box-shadow: var(--studio-control-surface-pressed-shadow);
+    color: var(--foreground);
+  }
+
+  .studio-control-surface-group--2col
+    > .studio-control-surface
+    + .studio-control-surface {
+    border-left: 0;
+  }
+
+  .studio-control-surface-group--2col
+    > .studio-control-surface:not(:nth-child(2n)) {
+    border-right: 1px solid var(--input);
+  }
+
+  .studio-control-surface-group--2col
+    > .studio-control-surface:nth-child(-n + 2) {
+    border-bottom: 1px solid var(--input);
+  }
+
+  .studio-control-surface-group--2col > .studio-control-surface:nth-child(1) {
+    border-top-left-radius: var(--radius-sm) !important;
+  }
+
+  .studio-control-surface-group--2col > .studio-control-surface:nth-child(2) {
+    border-top-right-radius: var(--radius-sm) !important;
+  }
+
+  .studio-control-surface-group--2col > .studio-control-surface:nth-child(3) {
+    border-bottom-left-radius: var(--radius-sm) !important;
+  }
+
+  .studio-control-surface-group--2col > .studio-control-surface:nth-child(4) {
+    border-bottom-right-radius: var(--radius-sm) !important;
+  }
+
+  .studio-control-surface-group--2col
+    > .studio-control-surface:nth-child(n + 3).studio-control-surface-pressed,
+  .studio-control-surface-group--2col
+    > .studio-control-surface:nth-child(n + 3)[data-pressed],
+  .studio-control-surface-group--2col
+    > .studio-control-surface:nth-child(n + 3)[aria-pressed="true"] {
+    box-shadow: var(--studio-control-surface-pressed-shadow-grid-bottom);
+  }
+
   .studio-label {
     color: var(--studio-label);
   }
@@ -125,10 +301,6 @@
     z-index: 1;
     display: grid !important;
     width: 100%;
-    overflow: hidden;
-    border: 1px solid var(--input);
-    border-radius: var(--radius-md);
-    background: var(--studio-input-background);
     grid-template-columns: repeat(3, minmax(0, 1fr));
     grid-template-rows: repeat(2, auto);
     gap: 0;
@@ -138,39 +310,49 @@
     display: grid !important;
   }
 
-  .legend-position-picker__toggle {
-    border: 0 !important;
+  /* Grid dividers — override single-row `border-left` from surface group. */
+  .legend-position-picker__grid > .studio-control-surface
+    + .studio-control-surface {
+    border-left: 0;
+  }
+
+  .legend-position-picker__grid > .studio-control-surface:not(:nth-child(3n)) {
+    border-right: 1px solid var(--input);
+  }
+
+  .legend-position-picker__grid > .studio-control-surface:nth-child(-n + 3) {
+    border-bottom: 1px solid var(--input);
+  }
+
+  /* Flat inner joints — only the group’s outer corners stay rounded. */
+  .legend-position-picker__grid > .studio-control-surface {
     border-radius: 0 !important;
-    box-shadow: none !important;
   }
 
-  .legend-position-picker__toggle:not(:nth-child(3n)) {
-    border-right: 1px solid var(--input) !important;
+  .legend-position-picker__grid > .legend-position-picker__toggle--top-start {
+    border-top-left-radius: var(--radius-sm) !important;
   }
 
-  .legend-position-picker__toggle:nth-child(-n + 3) {
-    border-bottom: 1px solid var(--input) !important;
+  .legend-position-picker__grid > .legend-position-picker__toggle--top-end {
+    border-top-right-radius: var(--radius-sm) !important;
   }
 
-  .legend-position-picker__toggle--top-start {
-    border-top-left-radius: calc(var(--radius-md) - 1px) !important;
+  .legend-position-picker__grid
+    > .legend-position-picker__toggle--bottom-start {
+    border-bottom-left-radius: var(--radius-sm) !important;
   }
 
-  .legend-position-picker__toggle--top-end {
-    border-top-right-radius: calc(var(--radius-md) - 1px) !important;
+  .legend-position-picker__grid > .legend-position-picker__toggle--bottom-end {
+    border-bottom-right-radius: var(--radius-sm) !important;
   }
 
-  .legend-position-picker__toggle--bottom-start {
-    border-bottom-left-radius: calc(var(--radius-md) - 1px) !important;
-  }
-
-  .legend-position-picker__toggle--bottom-end {
-    border-bottom-right-radius: calc(var(--radius-md) - 1px) !important;
-  }
-
-  .legend-position-picker__toggle[data-pressed] {
-    background: color-mix(in oklch, var(--accent) 12%, transparent) !important;
-    box-shadow: inset 0 0 0 1px var(--accent) !important;
+  .legend-position-picker__grid
+    > .studio-control-surface:nth-child(n + 4).studio-control-surface-pressed,
+  .legend-position-picker__grid
+    > .studio-control-surface:nth-child(n + 4)[data-pressed],
+  .legend-position-picker__grid
+    > .studio-control-surface:nth-child(n + 4)[aria-pressed="true"] {
+    box-shadow: var(--studio-control-surface-pressed-shadow-grid-bottom);
   }
 
   .legend-position-picker__toggle:active:not([data-pressed]) {

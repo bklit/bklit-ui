@@ -1,7 +1,11 @@
 "use client";
 
 import { cn } from "@bklitui/ui/lib/utils";
-import { PlayIcon, StopIcon } from "@hugeicons/core-free-icons";
+import {
+  EaseCurveControlPointsIcon,
+  PlayIcon,
+  StopIcon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { animate, motion, type Transition } from "motion/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -411,13 +415,23 @@ export function MotionCurveEditor({
 
       <div
         className={cn(
-          "flex h-8 items-stretch overflow-hidden rounded-b-lg border-border border-t",
+          "flex h-9 items-stretch overflow-hidden rounded-b-lg border-border border-t",
           studioInputSurfaceClass
         )}
       >
+        <div
+          aria-hidden
+          className="flex w-9 shrink-0 items-center justify-center border-border border-r text-muted-foreground"
+        >
+          <HugeiconsIcon
+            icon={EaseCurveControlPointsIcon}
+            size={16}
+            strokeWidth={1.75}
+          />
+        </div>
         <Input
           className={cn(
-            "h-8 min-w-0 flex-1 rounded-none border-0 bg-transparent px-2.5 font-mono text-xs shadow-none focus-visible:ring-0",
+            "h-9 min-w-0 flex-1 rounded-none border-0 bg-transparent px-2.5 font-mono text-xs shadow-none focus-visible:ring-0",
             !isEase && "cursor-default text-muted-foreground"
           )}
           id="motion-bezier-input"

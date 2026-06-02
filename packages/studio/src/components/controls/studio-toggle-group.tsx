@@ -45,11 +45,13 @@ export const STUDIO_TABS_LAYOUTS: Record<StudioTabsLayout, LayoutConfig> = {
     spacing: 2,
     variant: "studio",
   },
-  /** Two-column preview cards (motion ease presets). */
+  /** Two-column preview cards (motion ease presets) — joined surface group like Ease/Spring. */
   "cards-2": {
-    groupClassName: "grid w-full grid-cols-2 gap-1.5",
+    groupClassName:
+      "studio-control-surface-group--2col grid w-full grid-cols-2 gap-0",
+    itemClassName: "w-full",
     size: "card",
-    spacing: 2,
+    spacing: 0,
     variant: "studio",
   },
   /** Three-column preview cards (curve type). */
