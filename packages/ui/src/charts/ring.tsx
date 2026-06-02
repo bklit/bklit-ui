@@ -1,7 +1,7 @@
 "use client";
 
 import { arc as arcGenerator } from "@visx/shape";
-import { motion, useTransform } from "motion/react";
+import { type MotionValue, motion, useTransform } from "motion/react";
 import { memo, useCallback } from "react";
 import { ringCssVars, useRingHover, useRingStable } from "./ring-context";
 import { useEnterComplete } from "./use-enter-complete";
@@ -50,7 +50,7 @@ function RingProgressPath({
 }: {
   progressComplete: boolean;
   progressPath: string;
-  animatedProgressPath: string | undefined;
+  animatedProgressPath: MotionValue<string>;
   color: string;
 }) {
   if (progressComplete) {
