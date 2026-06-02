@@ -15,25 +15,14 @@ export function PieHoverEffectPicker({
   onChange: (v: "translate" | "grow" | "none") => void;
 }) {
   return (
-    <IconToggleGroup>
+    <IconToggleGroup onValueChange={onChange} value={value}>
       <IconToggleButton
         icon={PieChart02Icon}
         label="Translate"
-        onClick={() => onChange("translate")}
-        pressed={value === "translate"}
+        value="translate"
       />
-      <IconToggleButton
-        icon={PieChart09Icon}
-        label="Grow"
-        onClick={() => onChange("grow")}
-        pressed={value === "grow"}
-      />
-      <IconToggleButton
-        icon={PieChart03Icon}
-        label="None"
-        onClick={() => onChange("none")}
-        pressed={value === "none"}
-      />
+      <IconToggleButton icon={PieChart09Icon} label="Grow" value="grow" />
+      <IconToggleButton icon={PieChart03Icon} label="None" value="none" />
     </IconToggleGroup>
   );
 }

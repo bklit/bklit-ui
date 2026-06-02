@@ -42,6 +42,8 @@ export function WebStudioCodeSheet({ state }: { state: StudioUrlState }) {
       )}
       renderUsageCode={(code) => <DocsCodeBlock code={code} lang="tsx" />}
       state={state}
+      triggerClassName="font-mono text-xs"
+      triggerSize="sm"
     />
   );
 }

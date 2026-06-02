@@ -2,8 +2,9 @@
 
 import type { MotionValue } from "motion/react";
 import { motion, useTransform } from "motion/react";
-import { useMemo } from "react";
-import { radarCssVars, useRadar } from "./radar-context";
+import { memo, useMemo } from "react";
+import { radarCssVars, useRadarHover, useRadarStable } from "./radar-context";
+import { useEnterComplete } from "./use-enter-complete";
 import { useMountProgress } from "./use-mount-progress";
 
 export interface RadarAreaProps {
@@ -25,21 +26,48 @@ function getStrokeWidth(isHovered: boolean): number {
   return isHovered ? 3 : 2;
 }
 
-function RadarPoint({
+function positionsToPath(positions: { x: number; y: number }[]): string {
+  if (positions.length === 0) {
+    return "";
+  }
+  return `M ${positions.map((p) => `${p.x},${p.y}`).join(" L ")} Z`;
+}
+
+const RadarPoint = memo(function RadarPoint({
   mountProgress,
   target,
   color,
   isHovered,
   metricKey,
+  enterComplete,
 }: {
   mountProgress: MotionValue<number>;
   target: { x: number; y: number };
   color: string;
   isHovered: boolean;
   metricKey: string;
+  enterComplete: boolean;
 }) {
   const cx = useTransform(mountProgress, (t) => target.x * t);
   const cy = useTransform(mountProgress, (t) => target.y * t);
+
+  if (enterComplete) {
+    return (
+      <motion.circle
+        animate={{ r: isHovered ? 6 : 4 }}
+        cx={target.x}
+        cy={target.y}
+        fill={color}
+        key={metricKey}
+        r={isHovered ? 6 : 4}
+        stroke={radarCssVars.background}
+        strokeWidth={2}
+        transition={{
+          r: { type: "spring", stiffness: 300, damping: 20 },
+        }}
+      />
+    );
+  }
 
   return (
     <motion.circle
@@ -55,9 +83,10 @@ function RadarPoint({
       }}
     />
   );
-}
+});
 
-export function RadarArea({
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: radar area enter/hover branches mirror pie slice
+export const RadarArea = memo(function RadarArea({
   index,
   color: colorProp,
   showPoints = true,
@@ -69,8 +98,6 @@ export function RadarArea({
     data,
     metrics,
     levels,
-    hoveredIndex,
-    setHoveredIndex,
     animate,
     enterDurationMs,
     staggerScale,
@@ -78,7 +105,8 @@ export function RadarArea({
     motionReplayKey,
     getColor,
     getPointPosition,
-  } = useRadar();
+  } = useRadarStable();
+  const { hoveredIndex, setHoveredIndex } = useRadarHover();
 
   const durationFactor = enterDurationMs / 1100;
   const areaData = data[index];
@@ -93,6 +121,11 @@ export function RadarArea({
     });
   }, [metrics, areaData, getPointPosition]);
 
+  const staticPath = useMemo(
+    () => positionsToPath(targetPositions),
+    [targetPositions]
+  );
+
   const gridStagger = 0.08 * staggerScale * durationFactor;
   const campaignBaseDelay = (levels * gridStagger + 0.2) * durationFactor;
   const campaignStagger = 0.15 * staggerScale * durationFactor;
@@ -103,17 +136,13 @@ export function RadarArea({
     animationDelay,
     `${motionReplayKey}-${index}`
   );
+  const enterComplete = useEnterComplete(mountProgress);
 
   const animatedPositions = useTransform(mountProgress, (t) =>
     targetPositions.map((p) => ({ x: p.x * t, y: p.y * t }))
   );
 
-  const pathD = useTransform(animatedPositions, (positions) => {
-    if (positions.length === 0) {
-      return "";
-    }
-    return `M ${positions.map((p) => `${p.x},${p.y}`).join(" L ")} Z`;
-  });
+  const pathD = useTransform(animatedPositions, positionsToPath);
 
   if (!areaData) {
     return null;
@@ -139,24 +168,45 @@ export function RadarArea({
         scale: { type: "spring", stiffness: 400, damping: 25 },
       }}
     >
-      <motion.path
-        animate={{
-          fillOpacity: isHovered ? 0.35 : 0.15,
-          strokeWidth: showStroke ? getStrokeWidth(isHovered) : 0,
-        }}
-        d={pathD}
-        fill={color}
-        stroke={showStroke ? color : "none"}
-        strokeLinejoin="round"
-        style={{
-          filter:
-            showGlow && isHovered ? `drop-shadow(0 0 12px ${color})` : "none",
-        }}
-        transition={{
-          fillOpacity: { duration: 0.2 },
-          strokeWidth: { duration: 0.2 },
-        }}
-      />
+      {enterComplete ? (
+        <motion.path
+          animate={{
+            fillOpacity: isHovered ? 0.35 : 0.15,
+            strokeWidth: showStroke ? getStrokeWidth(isHovered) : 0,
+          }}
+          d={staticPath}
+          fill={color}
+          stroke={showStroke ? color : "none"}
+          strokeLinejoin="round"
+          style={{
+            filter:
+              showGlow && isHovered ? `drop-shadow(0 0 12px ${color})` : "none",
+          }}
+          transition={{
+            fillOpacity: { duration: 0.2 },
+            strokeWidth: { duration: 0.2 },
+          }}
+        />
+      ) : (
+        <motion.path
+          animate={{
+            fillOpacity: isHovered ? 0.35 : 0.15,
+            strokeWidth: showStroke ? getStrokeWidth(isHovered) : 0,
+          }}
+          d={pathD}
+          fill={color}
+          stroke={showStroke ? color : "none"}
+          strokeLinejoin="round"
+          style={{
+            filter:
+              showGlow && isHovered ? `drop-shadow(0 0 12px ${color})` : "none",
+          }}
+          transition={{
+            fillOpacity: { duration: 0.2 },
+            strokeWidth: { duration: 0.2 },
+          }}
+        />
+      )}
 
       {showPoints &&
         metrics.map((metric, i) => {
@@ -167,6 +217,7 @@ export function RadarArea({
           return (
             <RadarPoint
               color={color}
+              enterComplete={enterComplete}
               isHovered={isHovered}
               key={metric.key}
               metricKey={metric.key}
@@ -177,7 +228,7 @@ export function RadarArea({
         })}
     </motion.g>
   );
-}
+});
 
 RadarArea.displayName = "RadarArea";
 

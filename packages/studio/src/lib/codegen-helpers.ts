@@ -156,7 +156,7 @@ export function gaugeCodegen(state: StudioUrlState) {
   uniformWidth={${state.uniformWidth}}
   inactiveFillOpacity={${state.inactiveFillOpacity}}
   activeFillOpacity={${state.activeFillOpacity}}
-  defaultLabel="${state.gaugeLabel}"
+  defaultLabel="${state.gaugeLabel}"${state.gaugeCenterPrefix ? `\n  prefix="${state.gaugeCenterPrefix}"` : ""}${state.gaugeCenterSuffix ? `\n  suffix="${state.gaugeCenterSuffix}"` : ""}
   formatOptions={{ style: "currency", currency: "USD", maximumFractionDigits: 0 }}${activeFill}
   ${motionEnterPropsCodegen(motionSliceFromState(state), state.motionStaggerScale)}
 >${patternChild}</Gauge>`,
@@ -265,9 +265,9 @@ export function ringCodegen(state: StudioUrlState) {
     code: `import { RingChart, Ring, RingCenter } from "@bklitui/ui/charts";
 
 <RingChart data={ringData} size={${state.pieSize}}
-  ${cssRevealAnimationCodegen(state.animationDuration, motionSliceFromState(state))} strokeWidth={${state.strokeWidth}} ringGap={${state.ringGap}} baseInnerRadius={${state.ringBaseInnerRadius}}>
+  ${cssRevealAnimationCodegen(state.animationDuration, motionSliceFromState(state))} strokeWidth={${state.ringStrokeWidth}} ringGap={${state.ringGap}} baseInnerRadius={${state.ringBaseInnerRadius}}>
   {ringData.map((_, i) => <Ring index={i} key={i} />)}
-  <RingCenter defaultLabel="Channels" />
+  <RingCenter defaultLabel="${state.ringCenterLabel}"${state.ringCenterPrefix ? ` prefix="${state.ringCenterPrefix}"` : ""}${state.ringCenterSuffix ? ` suffix="${state.ringCenterSuffix}"` : ""} />
 </RingChart>`,
     data: `const ringData = ${JSON.stringify(ringData, null, 2)};`,
   };

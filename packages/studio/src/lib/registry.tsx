@@ -15,11 +15,6 @@ import {
   LinearGradient,
   LineChart,
   PatternArea,
-  RadarArea,
-  RadarAxis,
-  RadarChart,
-  RadarGrid,
-  RadarLabels,
   SankeyChart,
   SankeyLink,
   SankeyNode,
@@ -36,18 +31,18 @@ import { GaugeStudioPreview } from "@/components/charts/gauge-studio-preview";
 import { LineProfitLossStudioChart } from "@/components/charts/line-profit-loss-studio";
 import { LiveLineStudioPreview } from "@/components/charts/live-line-studio";
 import { PieStudioPreview } from "@/components/charts/pie-studio-preview";
+import { RadarStudioPreview } from "@/components/charts/radar-studio-preview";
 import { RingStudioPreview } from "@/components/charts/ring-studio-preview";
+import { StudioCartesianFill } from "@/components/charts/studio-chart-layout";
 import {
-  StudioCartesianFill,
-  StudioRadialCenter,
-  studioRadialSize,
-} from "@/components/charts/studio-chart-layout";
+  StudioChartShell,
+  StudioVisibleLayer,
+} from "@/components/charts/studio-chart-shell";
+
 import { fadeEdgesPropValue } from "@/components/controls/fade-edges-picker";
 import {
   getStudioCssRevealPropsForPreview,
-  getStudioMotionEnterProps,
   motionSliceFromState,
-  studioAnimationDurationMs,
   studioPreviewChartKey,
 } from "./chart-animation";
 import {
@@ -68,17 +63,16 @@ import {
 } from "./codegen-helpers";
 import { resolveCurve } from "./curves";
 import {
-  barHorizontalData,
-  candlestickOhlcData,
   clampStudioSeriesCount,
   generateStudioCartesianData,
+  getBarHorizontalData,
+  getCandlestickData,
+  getSankeyData,
+  getScatterData,
+  getVisitorsByCountry,
   pieData,
-  radarDataDual,
-  radarMetrics5,
   STUDIO_SERIES_COLORS,
   STUDIO_SERIES_KEYS,
-  sankeySimple,
-  scatterStudioData,
 } from "./demo-data";
 import { isProfitLossLineMode } from "./line-chart-mode";
 import { motionEnterPropsCodegen } from "./motion-codegen";
@@ -101,6 +95,32 @@ import {
   scatterChartControlGroups,
 } from "./registry-control-groups";
 import { seriesStrokePropsFromState } from "./series-stroke-props";
+import { chartTooltipPropsFromState } from "./studio-chart-overlays";
+import { isStudioComponentVisible } from "./studio-component-visibility";
+import {
+  resolveAreaComponents,
+  resolveBarComponents,
+  resolveCandlestickComponents,
+  resolveChoroplethComponents,
+  resolveComposedComponents,
+  resolveFunnelComponents,
+  resolveGaugeComponents,
+  resolveLineComponents,
+  resolveLiveLineComponents,
+  resolvePieComponents,
+  resolveRadarComponents,
+  resolveRingComponents,
+  resolveSankeyComponents,
+  resolveScatterComponents,
+} from "./studio-components";
+import {
+  studioAreaLegendItems,
+  studioCartesianLegendItems,
+} from "./studio-legend-items";
+import {
+  getEffectiveSeriesColor,
+  getSeriesFillMode,
+} from "./studio-series-design";
 import type { ChartSlug, StudioChartConfig } from "./types";
 import { chartLabels } from "./types";
 
@@ -112,6 +132,7 @@ const gaugeConfig: StudioChartConfig = {
   motionStagger: true,
   controls: [],
   controlGroups: gaugeControlGroups,
+  resolveComponents: () => resolveGaugeComponents(),
   render: (state, ctx) => <GaugeStudioPreview ctx={ctx} state={state} />,
   generateCode: (state) => gaugeCodegen(state),
 };
@@ -124,10 +145,12 @@ const areaConfig: StudioChartConfig = {
   motionPanel: true,
   controls: [],
   controlGroups: areaChartControlGroups,
+  resolveComponents: resolveAreaComponents,
   render: (state, ctx) => {
     const curve = resolveCurve(state.curve);
-    const fill = ctx.patternFill ?? undefined;
     const seriesCount = clampStudioSeriesCount(state.dataSeries);
+    const seriesFillAt = (idx: number) => ctx.patternFillAt(idx);
+    const seriesColorAt = (idx: number) => `var(--chart-${(idx % 5) + 1})`;
     const data = generateStudioCartesianData({
       seriesCount,
       pointCount: state.dataPoints,
@@ -136,54 +159,67 @@ const areaConfig: StudioChartConfig = {
     });
     const seriesStroke = seriesStrokePropsFromState(state, data.length);
     return (
-      <StudioCartesianFill>
-        <AreaChart
-          {...getStudioCssRevealPropsForPreview(state, ctx)}
-          className="size-full"
-          data={data}
-          key={studioPreviewChartKey(ctx)}
-        >
-          <Grid horizontal />
-          {ctx.patternDefs}
-          {STUDIO_SERIES_KEYS.slice(0, seriesCount).flatMap((key, idx) => {
-            // AreaChart picks up series via `Children.forEach` — wrapping in <Fragment> hides children, so flatten.
-            const isPrimary = idx === 0;
-            const patternThisSeries = isPrimary ? fill : undefined;
-            const nodes = [
-              <Area
-                curve={curve}
-                dataKey={key}
-                fadeEdges={
-                  patternThisSeries
-                    ? false
-                    : fadeEdgesPropValue(state.fadeEdges)
-                }
-                fill={isPrimary ? undefined : STUDIO_SERIES_COLORS[idx]}
-                fillOpacity={patternThisSeries ? 0 : state.fillOpacity}
-                gradientToOpacity={state.gradientToOpacity}
-                key={`area-${key}`}
-                showHighlight={state.showHighlight}
-                showLine={state.showLine}
-                strokeWidth={state.strokeWidth}
-                {...seriesStroke}
-              />,
-            ];
-            if (patternThisSeries) {
-              nodes.unshift(
-                <PatternArea
+      <StudioChartShell
+        legendComponentId="area.legend"
+        legendItems={studioAreaLegendItems(state)}
+        state={state}
+      >
+        <StudioCartesianFill>
+          <AreaChart
+            {...getStudioCssRevealPropsForPreview(state, ctx)}
+            className="size-full"
+            data={data}
+            key={studioPreviewChartKey(ctx)}
+          >
+            <StudioVisibleLayer componentId="area.grid" state={state}>
+              <Grid horizontal />
+            </StudioVisibleLayer>
+            {ctx.patternDefs}
+            {STUDIO_SERIES_KEYS.slice(0, seriesCount).flatMap((key, idx) => {
+              if (!isStudioComponentVisible(state, `area.series.${idx}`)) {
+                return [];
+              }
+              const patternThisSeries = seriesFillAt(idx);
+              const nodes = [
+                <Area
                   curve={curve}
                   dataKey={key}
-                  fill={patternThisSeries}
-                  key={`pattern-${key}`}
-                />
-              );
-            }
-            return nodes;
-          })}
-          <XAxis />
-          <ChartTooltip />
-        </AreaChart>
-      </StudioCartesianFill>
+                  fadeEdges={
+                    patternThisSeries
+                      ? false
+                      : fadeEdgesPropValue(state.fadeEdges)
+                  }
+                  fill={patternThisSeries ? undefined : seriesColorAt(idx)}
+                  fillOpacity={patternThisSeries ? 0 : state.fillOpacity}
+                  gradientToOpacity={state.gradientToOpacity}
+                  key={`area-${key}`}
+                  showHighlight={state.showHighlight}
+                  showLine={state.showLine}
+                  strokeWidth={state.strokeWidth}
+                  {...seriesStroke}
+                />,
+              ];
+              if (patternThisSeries) {
+                nodes.unshift(
+                  <PatternArea
+                    curve={curve}
+                    dataKey={key}
+                    fill={patternThisSeries}
+                    key={`pattern-${key}`}
+                  />
+                );
+              }
+              return nodes;
+            })}
+            <StudioVisibleLayer componentId="area.xaxis" state={state}>
+              <XAxis />
+            </StudioVisibleLayer>
+            <StudioVisibleLayer componentId="area.tooltip" state={state}>
+              <ChartTooltip {...chartTooltipPropsFromState(state)} />
+            </StudioVisibleLayer>
+          </AreaChart>
+        </StudioCartesianFill>
+      </StudioChartShell>
     );
   },
   generateCode: (state) => ({
@@ -203,6 +239,7 @@ const lineConfig: StudioChartConfig = {
     getLineChartControlGroups({
       lineChartMode: isProfitLossLineMode(state) ? "profitLoss" : "standard",
     }),
+  resolveComponents: resolveLineComponents,
   render: (state, ctx) => {
     if (isProfitLossLineMode(state)) {
       return (
@@ -221,30 +258,44 @@ const lineConfig: StudioChartConfig = {
     });
     const seriesStroke = seriesStrokePropsFromState(state, data.length);
     return (
-      <StudioCartesianFill>
-        <LineChart
-          {...getStudioCssRevealPropsForPreview(state, ctx)}
-          className="size-full"
-          data={data}
-          key={studioPreviewChartKey(ctx)}
-        >
-          <Grid horizontal />
-          {STUDIO_SERIES_KEYS.slice(0, seriesCount).map((key, idx) => (
-            <Line
-              curve={resolveCurve(state.curve)}
-              dataKey={key}
-              fadeEdges={fadeEdgesPropValue(state.fadeEdges)}
-              key={key}
-              showHighlight={state.showHighlight}
-              stroke={idx === 0 ? undefined : STUDIO_SERIES_COLORS[idx]}
-              strokeWidth={state.strokeWidth}
-              {...seriesStroke}
-            />
-          ))}
-          <XAxis />
-          <ChartTooltip />
-        </LineChart>
-      </StudioCartesianFill>
+      <StudioChartShell
+        legendComponentId="line.legend"
+        legendItems={studioCartesianLegendItems(state, seriesCount)}
+        state={state}
+      >
+        <StudioCartesianFill>
+          <LineChart
+            {...getStudioCssRevealPropsForPreview(state, ctx)}
+            className="size-full"
+            data={data}
+            key={studioPreviewChartKey(ctx)}
+          >
+            <StudioVisibleLayer componentId="line.grid" state={state}>
+              <Grid horizontal />
+            </StudioVisibleLayer>
+            {STUDIO_SERIES_KEYS.slice(0, seriesCount).map((key, idx) =>
+              isStudioComponentVisible(state, `line.series.${idx}`) ? (
+                <Line
+                  curve={resolveCurve(state.curve)}
+                  dataKey={key}
+                  fadeEdges={fadeEdgesPropValue(state.fadeEdges)}
+                  key={key}
+                  showHighlight={state.showHighlight}
+                  stroke={idx === 0 ? undefined : STUDIO_SERIES_COLORS[idx]}
+                  strokeWidth={state.strokeWidth}
+                  {...seriesStroke}
+                />
+              ) : null
+            )}
+            <StudioVisibleLayer componentId="line.xaxis" state={state}>
+              <XAxis />
+            </StudioVisibleLayer>
+            <StudioVisibleLayer componentId="line.tooltip" state={state}>
+              <ChartTooltip {...chartTooltipPropsFromState(state)} />
+            </StudioVisibleLayer>
+          </LineChart>
+        </StudioCartesianFill>
+      </StudioChartShell>
     );
   },
   generateCode: (state) =>
@@ -262,39 +313,70 @@ const scatterConfig: StudioChartConfig = {
   motionPanel: true,
   controls: [],
   controlGroups: scatterChartControlGroups,
+  resolveComponents: resolveScatterComponents,
   render: (state, ctx) => (
-    <StudioCartesianFill>
-      <ScatterChart
-        {...getStudioCssRevealPropsForPreview(state, ctx)}
-        className="size-full"
-        data={scatterStudioData}
-        key={studioPreviewChartKey(ctx)}
-      >
-        <Grid horizontal />
-        <Scatter
-          dataKey="desktop"
-          fadeOnHover={state.scatterFadeOnHover}
-          inactiveOpacity={state.scatterInactiveOpacity}
-          radius={state.scatterRadius}
-          ringGap={state.scatterRingGap}
-          showActiveHighlight={state.scatterShowActiveHighlight}
-          strokeWidth={state.scatterRingWidth}
-        />
-        {state.scatterSecondSeries ? (
-          <Scatter
-            dataKey="mobile"
-            fadeOnHover={state.scatterFadeOnHover}
-            inactiveOpacity={state.scatterInactiveOpacity}
-            radius={state.scatterRadius}
-            ringGap={state.scatterRingGap}
-            showActiveHighlight={state.scatterShowActiveHighlight}
-            strokeWidth={state.scatterRingWidth}
-          />
-        ) : null}
-        <XAxis />
-        <ChartTooltip />
-      </ScatterChart>
-    </StudioCartesianFill>
+    <StudioChartShell
+      legendComponentId="scatter.legend"
+      legendItems={[
+        {
+          label: "desktop",
+          value: 100,
+          color: getEffectiveSeriesColor(state, 0),
+        },
+        ...(state.scatterSecondSeries
+          ? [
+              {
+                label: "mobile",
+                value: 80,
+                color: getEffectiveSeriesColor(state, 1),
+              },
+            ]
+          : []),
+      ]}
+      state={state}
+    >
+      <StudioCartesianFill>
+        <ScatterChart
+          {...getStudioCssRevealPropsForPreview(state, ctx)}
+          className="size-full"
+          data={getScatterData(ctx.dataSeed)}
+          key={studioPreviewChartKey(ctx)}
+        >
+          <StudioVisibleLayer componentId="scatter.grid" state={state}>
+            <Grid horizontal />
+          </StudioVisibleLayer>
+          {isStudioComponentVisible(state, "scatter.desktop") ? (
+            <Scatter
+              dataKey="desktop"
+              fadeOnHover={state.scatterFadeOnHover}
+              inactiveOpacity={state.scatterInactiveOpacity}
+              radius={state.scatterRadius}
+              ringGap={state.scatterRingGap}
+              showActiveHighlight={state.scatterShowActiveHighlight}
+              strokeWidth={state.scatterRingWidth}
+            />
+          ) : null}
+          {state.scatterSecondSeries &&
+          isStudioComponentVisible(state, "scatter.mobile") ? (
+            <Scatter
+              dataKey="mobile"
+              fadeOnHover={state.scatterFadeOnHover}
+              inactiveOpacity={state.scatterInactiveOpacity}
+              radius={state.scatterRadius}
+              ringGap={state.scatterRingGap}
+              showActiveHighlight={state.scatterShowActiveHighlight}
+              strokeWidth={state.scatterRingWidth}
+            />
+          ) : null}
+          <StudioVisibleLayer componentId="scatter.xaxis" state={state}>
+            <XAxis />
+          </StudioVisibleLayer>
+          <StudioVisibleLayer componentId="scatter.tooltip" state={state}>
+            <ChartTooltip {...chartTooltipPropsFromState(state)} />
+          </StudioVisibleLayer>
+        </ScatterChart>
+      </StudioCartesianFill>
+    </StudioChartShell>
   ),
   generateCode: (state) => scatterCodegen(state),
 };
@@ -306,20 +388,25 @@ const barConfig: StudioChartConfig = {
   motionPanel: true,
   controls: [],
   controlGroups: barChartControlGroups,
+  resolveComponents: resolveBarComponents,
   render: (state, ctx) => {
     const horizontal = state.barOrientation === "horizontal";
     const seriesCount = clampStudioSeriesCount(state.dataSeries);
     // barSeriesMode "single" is treated as grouped when dataSeries > 1.
     const stacked = seriesCount > 1 && state.barSeriesMode === "stacked";
     const lineCap = state.barLineCap;
-    const primaryFill = ctx.patternFill ?? "var(--chart-1)";
+    const seriesFillAt = (idx: number) =>
+      ctx.patternFillAt(idx) ?? `var(--chart-${(idx % 5) + 1})`;
 
     let chartData: Record<string, unknown>[];
     let xKey: string;
     let seriesKeys: readonly string[];
     if (horizontal) {
       // Horizontal bar keeps its categorical browser dataset for readability.
-      chartData = barHorizontalData as unknown as Record<string, unknown>[];
+      chartData = getBarHorizontalData(ctx.dataSeed) as unknown as Record<
+        string,
+        unknown
+      >[];
       xKey = "browser";
       seriesKeys = ["users"];
     } else {
@@ -334,41 +421,47 @@ const barConfig: StudioChartConfig = {
     }
 
     return (
-      <StudioCartesianFill>
-        <BarChart
-          {...getStudioCssRevealPropsForPreview(state, ctx)}
-          barGap={state.barGap}
-          barWidth={state.barWidth > 0 ? state.barWidth : undefined}
-          className="size-full"
-          data={chartData}
-          key={studioPreviewChartKey(ctx)}
-          margin={horizontal ? { left: 80 } : undefined}
-          orientation={state.barOrientation}
-          stacked={stacked}
-          stackGap={stacked ? 3 : 0}
-          xDataKey={xKey}
-        >
-          <Grid
-            fadeVertical={horizontal}
-            horizontal={!horizontal}
-            vertical={horizontal}
-          />
-          {ctx.patternDefs}
-          {seriesKeys.map((key, idx) => (
-            <Bar
-              dataKey={key}
-              fadedOpacity={state.barFadedOpacity}
-              fill={idx === 0 ? primaryFill : STUDIO_SERIES_COLORS[idx]}
-              groupGap={state.groupGap}
-              key={key}
-              lineCap={lineCap}
-              stackGap={stacked ? 3 : 0}
+      <StudioChartShell
+        legendComponentId="bar.legend"
+        legendItems={studioCartesianLegendItems(state, seriesCount)}
+        state={state}
+      >
+        <StudioCartesianFill>
+          <BarChart
+            {...getStudioCssRevealPropsForPreview(state, ctx)}
+            barGap={state.barGap}
+            barWidth={state.barWidth > 0 ? state.barWidth : undefined}
+            className="size-full"
+            data={chartData}
+            key={studioPreviewChartKey(ctx)}
+            margin={horizontal ? { left: 80 } : undefined}
+            orientation={state.barOrientation}
+            stacked={stacked}
+            stackGap={stacked ? 3 : 0}
+            xDataKey={xKey}
+          >
+            <Grid
+              fadeVertical={horizontal}
+              horizontal={!horizontal}
+              vertical={horizontal}
             />
-          ))}
-          <BarXAxis />
-          <ChartTooltip showCrosshair={false} />
-        </BarChart>
-      </StudioCartesianFill>
+            {ctx.patternDefs}
+            {seriesKeys.map((key, idx) => (
+              <Bar
+                dataKey={key}
+                fadedOpacity={state.barFadedOpacity}
+                fill={seriesFillAt(idx)}
+                groupGap={state.groupGap}
+                key={key}
+                lineCap={lineCap}
+                stackGap={stacked ? 3 : 0}
+              />
+            ))}
+            <BarXAxis />
+            <ChartTooltip showCrosshair={false} />
+          </BarChart>
+        </StudioCartesianFill>
+      </StudioChartShell>
     );
   },
   generateCode: (state) => barCodegen(state),
@@ -382,6 +475,7 @@ const composedConfig: StudioChartConfig = {
   motionPanel: true,
   controls: [],
   controlGroups: composedChartControlGroups,
+  resolveComponents: resolveComposedComponents,
   render: (state, ctx) => {
     const curve = resolveCurve(state.curve);
     const seriesCount = clampStudioSeriesCount(state.dataSeries);
@@ -394,53 +488,58 @@ const composedConfig: StudioChartConfig = {
     const seriesStroke = seriesStrokePropsFromState(state, data.length);
     const barKey = STUDIO_SERIES_KEYS[0];
     return (
-      <StudioCartesianFill>
-        <ComposedChart
-          {...getStudioCssRevealPropsForPreview(state, ctx)}
-          className="size-full"
-          data={data}
-          key={studioPreviewChartKey(ctx)}
-        >
-          <Grid horizontal />
-          {ctx.patternDefs}
-          {barKey ? (
-            <SeriesBar
-              dataKey={barKey}
-              fill={ctx.patternFill ?? "var(--chart-1)"}
-              radius={state.composedBarRadius}
-            />
-          ) : null}
-          {STUDIO_SERIES_KEYS.slice(1, seriesCount).flatMap(
-            (key, secondaryIdx) => {
-              // ComposedChart picks up series via `Children.forEach` — keep Area+Line as flat siblings, not inside a Fragment.
-              const colorIdx = secondaryIdx + 1;
-              const color = STUDIO_SERIES_COLORS[colorIdx];
-              return [
-                <Area
-                  curve={curve}
-                  dataKey={key}
-                  fadeEdges={fadeEdgesPropValue(state.fadeEdges)}
-                  fill={color}
-                  fillOpacity={state.fillOpacity}
-                  key={`area-${key}`}
-                  {...seriesStroke}
-                />,
-                <Line
-                  curve={curve}
-                  dataKey={key}
-                  fadeEdges={fadeEdgesPropValue(state.fadeEdges)}
-                  key={`line-${key}`}
-                  stroke={color}
-                  strokeWidth={state.strokeWidth}
-                  {...seriesStroke}
-                />,
-              ];
-            }
-          )}
-          <XAxis />
-          <ChartTooltip />
-        </ComposedChart>
-      </StudioCartesianFill>
+      <StudioChartShell
+        legendComponentId="composed.legend"
+        legendItems={studioCartesianLegendItems(state, seriesCount)}
+        state={state}
+      >
+        <StudioCartesianFill>
+          <ComposedChart
+            {...getStudioCssRevealPropsForPreview(state, ctx)}
+            className="size-full"
+            data={data}
+            key={studioPreviewChartKey(ctx)}
+          >
+            <Grid horizontal />
+            {ctx.patternDefs}
+            {barKey ? (
+              <SeriesBar
+                dataKey={barKey}
+                fill={ctx.patternFillAt(0) ?? "var(--chart-1)"}
+                radius={state.composedBarRadius}
+              />
+            ) : null}
+            {STUDIO_SERIES_KEYS.slice(1, seriesCount).flatMap(
+              (key, secondaryIdx) => {
+                const colorIdx = secondaryIdx + 1;
+                const color = `var(--chart-${(colorIdx % 5) + 1})`;
+                return [
+                  <Area
+                    curve={curve}
+                    dataKey={key}
+                    fadeEdges={fadeEdgesPropValue(state.fadeEdges)}
+                    fill={color}
+                    fillOpacity={state.fillOpacity}
+                    key={`area-${key}`}
+                    {...seriesStroke}
+                  />,
+                  <Line
+                    curve={curve}
+                    dataKey={key}
+                    fadeEdges={fadeEdgesPropValue(state.fadeEdges)}
+                    key={`line-${key}`}
+                    stroke={color}
+                    strokeWidth={state.strokeWidth}
+                    {...seriesStroke}
+                  />,
+                ];
+              }
+            )}
+            <XAxis />
+            <ChartTooltip />
+          </ComposedChart>
+        </StudioCartesianFill>
+      </StudioChartShell>
     );
   },
   generateCode: (state) => composedCodegen(state),
@@ -450,8 +549,10 @@ const pieConfig: StudioChartConfig = {
   slug: "pie-chart",
   label: chartLabels["pie-chart"],
   motionPanel: true,
+  supportsPatterns: true,
   controls: [],
   controlGroups: pieChartControlGroups,
+  resolveComponents: resolvePieComponents,
   render: (state, ctx) => <PieStudioPreview ctx={ctx} state={state} />,
   generateCode: (state) => {
     const useLines = state.pieFillMode === "lines";
@@ -481,7 +582,7 @@ const pieConfig: StudioChartConfig = {
     return {
       code: `<PieChart data={pieData} size={${state.pieSize}}${state.innerRadius ? ` innerRadius={${state.innerRadius}}` : ""} padAngle={${state.padAngle}} cornerRadius={${state.pieCornerRadius}} hoverOffset={${state.pieHoverOffset}}${angleProps}
   ${motionProps}>${patternDefs}${slices}
-  ${state.innerRadius > 0 ? '<PieCenter defaultLabel="Total" />' : ""}
+  ${state.innerRadius > 0 ? `<PieCenter defaultLabel="${state.pieCenterLabel}"${state.pieCenterPrefix ? ` prefix="${state.pieCenterPrefix}"` : ""}${state.pieCenterSuffix ? ` suffix="${state.pieCenterSuffix}"` : ""} />` : ""}
 </PieChart>`,
       data: `const pieData = ${JSON.stringify(pieData, null, 2)};`,
     };
@@ -494,6 +595,7 @@ const ringConfig: StudioChartConfig = {
   motionPanel: true,
   controls: [],
   controlGroups: ringChartControlGroups,
+  resolveComponents: resolveRingComponents,
   render: (state, ctx) => <RingStudioPreview ctx={ctx} state={state} />,
   generateCode: (state) => ringCodegen(state),
 };
@@ -505,44 +607,8 @@ const radarConfig: StudioChartConfig = {
   motionStagger: true,
   controls: [],
   controlGroups: radarChartControlGroups,
-  render: (state, ctx) => {
-    const motionEnter = getStudioMotionEnterProps(state, {
-      linear: ctx.isRecording,
-    });
-    return (
-      <StudioRadialCenter frame={ctx.frame}>
-        <RadarChart
-          data={radarDataDual}
-          enterDurationMs={studioAnimationDurationMs(state)}
-          enterTransition={motionEnter.enterTransition}
-          key={studioPreviewChartKey(ctx)}
-          levels={state.radarLevels}
-          margin={state.radarMargin}
-          metrics={radarMetrics5}
-          motionReplayKey={studioPreviewChartKey(ctx)}
-          size={studioRadialSize(ctx.frame, state.radarSize)}
-          staggerScale={motionEnter.enterStaggerScale}
-        >
-          {state.showRadarGrid ? (
-            <RadarGrid />
-          ) : (
-            <RadarGrid showLabels={false} />
-          )}
-          <RadarAxis />
-          <RadarLabels fontSize={10} offset={16} />
-          {radarDataDual.map((item, index) => (
-            <RadarArea
-              index={index}
-              key={item.label}
-              showGlow={false}
-              showPoints={state.radarShowPoints}
-              showStroke={state.radarShowStroke}
-            />
-          ))}
-        </RadarChart>
-      </StudioRadialCenter>
-    );
-  },
+  resolveComponents: resolveRadarComponents,
+  render: (state, ctx) => <RadarStudioPreview ctx={ctx} state={state} />,
   generateCode: (state) => radarCodegen(state),
 };
 
@@ -553,8 +619,12 @@ const candlestickConfig: StudioChartConfig = {
   motionPanel: true,
   controls: [],
   controlGroups: candlestickChartControlGroups,
+  resolveComponents: resolveCandlestickComponents,
   render: (state, ctx) => {
-    const patternUp = state.pattern === "none" ? undefined : ctx.patternFill;
+    const patternUp =
+      getSeriesFillMode(state, 0) === "pattern"
+        ? ctx.patternFillAt(0)
+        : undefined;
     const positiveFill = state.candleUseGradient
       ? "url(#studio-candle-up)"
       : "var(--chart-1)";
@@ -568,7 +638,7 @@ const candlestickConfig: StudioChartConfig = {
           {...getStudioCssRevealPropsForPreview(state, ctx)}
           candleGap={state.candleGap}
           className="size-full"
-          data={candlestickOhlcData}
+          data={getCandlestickData(ctx.dataSeed)}
           key={studioPreviewChartKey(ctx)}
           margin={{ top: 16, right: 16, bottom: 40, left: 16 }}
         >
@@ -611,6 +681,7 @@ const funnelConfig: StudioChartConfig = {
   motionStagger: true,
   controls: [],
   controlGroups: funnelChartControlGroups,
+  resolveComponents: resolveFunnelComponents,
   render: (state, ctx) => <FunnelStudioPreview ctx={ctx} state={state} />,
   generateCode: (state) => funnelCodegen(state),
 };
@@ -620,8 +691,10 @@ const liveLineConfig: StudioChartConfig = {
   label: chartLabels["live-line-chart"],
   supportsCurves: true,
   motionPanel: true,
+  scrambleData: false,
   controls: [],
   controlGroups: liveLineChartControlGroups,
+  resolveComponents: () => resolveLiveLineComponents(),
   render: (state, ctx) => (
     <StudioCartesianFill>
       <LiveLineStudioPreview
@@ -635,6 +708,7 @@ const liveLineConfig: StudioChartConfig = {
         lerpSpeed={state.liveLerpSpeed}
         paused={state.livePaused}
         pulse={state.livePulse}
+        stroke={getEffectiveSeriesColor(state, 0)}
         strokeWidth={state.strokeWidth}
         windowSecs={state.liveWindow}
       />
@@ -649,15 +723,18 @@ const choroplethConfig: StudioChartConfig = {
   motionPanel: true,
   controls: [],
   controlGroups: choroplethChartControlGroups,
+  resolveComponents: resolveChoroplethComponents,
   render: (state, ctx) => (
     <StudioCartesianFill>
       <ChoroplethStudioPreview
         analytics={state.choroplethAnalytics}
-        {...getStudioCssRevealPropsForPreview(state, ctx)}
         bgPattern={state.choroplethBgPattern}
+        ctx={ctx}
         fgPattern={state.choroplethFgPattern}
         key={studioPreviewChartKey(ctx)}
         showGraticule={state.showGraticule}
+        state={state}
+        visitorCounts={getVisitorsByCountry(ctx.dataSeed)}
       />
     </StudioCartesianFill>
   ),
@@ -693,19 +770,20 @@ const sankeyConfig: StudioChartConfig = {
   motionPanel: true,
   controls: [],
   controlGroups: sankeyChartControlGroups,
+  resolveComponents: resolveSankeyComponents,
   render: (state, ctx) => (
     <StudioCartesianFill>
       <SankeyChart
         {...getStudioCssRevealPropsForPreview(state, ctx)}
         className="size-full"
-        data={sankeySimple}
+        data={getSankeyData(ctx.dataSeed)}
         key={studioPreviewChartKey(ctx)}
         nodePadding={state.sankeyNodePadding}
         nodeWidth={state.sankeyNodeWidth}
       >
-        <SankeyNode />
-        <SankeyLink strokeOpacity={state.linkOpacity} />
-        <SankeyTooltip />
+        <SankeyNode key="nodes" />
+        <SankeyLink key="links" strokeOpacity={state.linkOpacity} />
+        <SankeyTooltip key="tooltip" />
       </SankeyChart>
     </StudioCartesianFill>
   ),

@@ -12,7 +12,7 @@ import {
   type ChartStatFlowFormat,
   defaultChartStatFlowFormat,
 } from "./chart-stat-flow";
-import { usePie } from "./pie-context";
+import { usePieHover, usePieStable } from "./pie-context";
 
 export interface PieCenterProps {
   /** Label shown below the value. Default: "Total" when not hovering */
@@ -58,7 +58,8 @@ export function PieCenter({
   prefix,
   suffix,
 }: PieCenterProps) {
-  const { data, hoveredIndex, totalValue, innerRadius } = usePie();
+  const { data, totalValue, innerRadius } = usePieStable();
+  const { hoveredIndex } = usePieHover();
 
   const hoveredData = hoveredIndex === null ? null : data[hoveredIndex];
   const displayValue = hoveredData ? hoveredData.value : totalValue;

@@ -1,12 +1,12 @@
 "use client";
 
-import { Arc, arc as arcGenerator } from "@visx/shape";
-import { motion, useTransform } from "motion/react";
-import { useEffect, useRef } from "react";
-import { ringCssVars, useRing } from "./ring-context";
+import { arc as arcGenerator } from "@visx/shape";
+import { type MotionValue, motion, useTransform } from "motion/react";
+import { memo, useCallback } from "react";
+import { ringCssVars, useRingHover, useRingStable } from "./ring-context";
+import { useEnterComplete } from "./use-enter-complete";
 import { useMountProgress } from "./use-mount-progress";
 
-// Helper to generate arc path using d3 arc generator
 function generateArcPath(
   innerRadius: number,
   outerRadius: number,
@@ -25,114 +25,44 @@ function generateArcPath(
 export type RingLineCap = "round" | "butt";
 
 export interface RingProps {
-  /** Index of the ring in the data array */
   index: number;
-  /** Optional color override - falls back to data color or palette */
   color?: string;
-  /** Animate the progress arc. Default: true */
   animate?: boolean;
-  /** Show glow effect on hover. Default: true */
   showGlow?: boolean;
-  /** Line cap style for ring ends. Default: "round" */
   lineCap?: RingLineCap;
 }
 
-interface AnimatedProgressArcProps {
-  index: number;
-  innerRadius: number;
-  outerRadius: number;
-  progress: number;
-  color: string;
-  isHovered: boolean;
-  isFaded: boolean;
-  isPushedOut: boolean;
-  animationKey: number;
-  showGlow: boolean;
-  lineCap: RingLineCap;
-  startAngle: number;
-  arcRange: number;
+function ringHoverScale(isHovered: boolean, isPushedOut: boolean): number {
+  if (isHovered) {
+    return 1.03;
+  }
+  if (isPushedOut) {
+    return 1.02;
+  }
+  return 1;
 }
 
-function AnimatedProgressArc({
-  index,
-  innerRadius,
-  outerRadius,
-  progress,
+function RingProgressPath({
+  progressComplete,
+  progressPath,
+  animatedProgressPath,
   color,
-  isHovered,
-  isFaded,
-  isPushedOut,
-  animationKey,
-  showGlow,
-  lineCap,
-  startAngle,
-  arcRange,
-}: AnimatedProgressArcProps) {
-  const {
-    enterTransition,
-    enterStaggerScale,
-    animationKey: ringAnimationKey,
-  } = useRing();
-  const targetEndAngle = startAngle + arcRange * progress;
-  const cornerRadius =
-    lineCap === "round" ? (outerRadius - innerRadius) / 2 : 0;
-
-  // Progress arc delay - starts after background rings expand
-  const progressDelay = (0.6 + index * 0.1) * enterStaggerScale;
-  const mountProgress = useMountProgress(
-    enterTransition,
-    progressDelay,
-    ringAnimationKey
-  );
-
-  const animatedPath = useTransform(mountProgress, (v) => {
-    const currentEndAngle = startAngle + (targetEndAngle - startAngle) * v;
-    if (currentEndAngle <= startAngle + 0.01) {
-      return "";
+}: {
+  progressComplete: boolean;
+  progressPath: string;
+  animatedProgressPath: MotionValue<string>;
+  color: string;
+}) {
+  if (progressComplete) {
+    if (!progressPath) {
+      return null;
     }
-    return generateArcPath(
-      innerRadius,
-      outerRadius,
-      startAngle,
-      currentEndAngle,
-      cornerRadius
-    );
-  });
-
-  // Calculate scale: hovered ring scales up, outer rings pushed out
-  const getScale = () => {
-    if (isHovered) {
-      return 1.03;
-    }
-    if (isPushedOut) {
-      return 1.02;
-    }
-    return 1;
-  };
-
-  return (
-    <motion.path
-      animate={{
-        opacity: isFaded ? 0.4 : 1,
-        scale: getScale(),
-      }}
-      d={animatedPath}
-      fill={color}
-      key={`progress-${animationKey}`}
-      style={{
-        transformOrigin: "center",
-        filter:
-          showGlow && isHovered ? `drop-shadow(0 0 12px ${color})` : "none",
-      }}
-      transition={{
-        opacity: { duration: 0.15 },
-        scale: { type: "spring", stiffness: 400, damping: 25 },
-      }}
-    />
-  );
+    return <path d={progressPath} fill={color} />;
+  }
+  return <motion.path d={animatedProgressPath} fill={color} />;
 }
 
-export function Ring({
+export const Ring = memo(function Ring({
   index,
   color: colorProp,
   animate = true,
@@ -141,145 +71,164 @@ export function Ring({
 }: RingProps) {
   const {
     data,
-    hoveredIndex,
-    setHoveredIndex,
-    animationKey,
-    enterStaggerScale,
     getColor,
     getRingRadii,
-    startAngle: ctxStartAngle,
-    endAngle: ctxEndAngle,
-  } = useRing();
+    startAngle,
+    endAngle,
+    enterTransition,
+    enterStaggerScale,
+    animationKey,
+  } = useRingStable();
+  const { hoveredIndex, setHoveredIndex } = useRingHover();
 
-  const arcRange = ctxEndAngle - ctxStartAngle;
+  const expandDelay = index * 0.08 * enterStaggerScale;
+  const expandProgress = useMountProgress(
+    enterTransition,
+    expandDelay,
+    `${animationKey}-expand-${index}`
+  );
+  const expandComplete = useEnterComplete(expandProgress);
 
-  const hasAnimated = useRef(false);
-  const ringExpandDelay = index * 0.08 * enterStaggerScale;
-
-  useEffect(() => {
-    if (animate && !hasAnimated.current) {
-      const timeout = setTimeout(
-        () => {
-          hasAnimated.current = true;
-        },
-        (ringExpandDelay + 0.3) * 1000
-      );
-      return () => clearTimeout(timeout);
-    }
-  }, [animate, ringExpandDelay]);
+  const progressDelay = (0.6 + index * 0.1) * enterStaggerScale;
+  const progressMount = useMountProgress(
+    enterTransition,
+    progressDelay,
+    `${animationKey}-progress-${index}`
+  );
+  const progressComplete = useEnterComplete(progressMount);
 
   const ringData = data[index];
+  const progress = ringData ? ringData.value / ringData.maxValue : 0;
+  const arcRange = endAngle - startAngle;
+
+  const animatedProgressPath = useTransform(progressMount, (v) => {
+    if (!ringData) {
+      return "";
+    }
+    const currentEndAngle = startAngle + arcRange * progress * v;
+    if (currentEndAngle <= startAngle + 0.01) {
+      return "";
+    }
+    const radii = getRingRadii(index);
+    const corner =
+      lineCap === "round" ? (radii.outerRadius - radii.innerRadius) / 2 : 0;
+    return generateArcPath(
+      radii.innerRadius,
+      radii.outerRadius,
+      startAngle,
+      currentEndAngle,
+      corner
+    );
+  });
+
+  const enterScale = useTransform(expandProgress, [0, 1], [0, 1]);
+
+  const handleMouseEnter = useCallback(
+    () => setHoveredIndex(index),
+    [index, setHoveredIndex]
+  );
+  const handleMouseLeave = useCallback(
+    () => setHoveredIndex(null),
+    [setHoveredIndex]
+  );
+
   if (!ringData) {
     return null;
   }
 
   const { innerRadius, outerRadius } = getRingRadii(index);
   const color = colorProp || getColor(index);
-  const progress = ringData.value / ringData.maxValue;
 
   const isHovered = hoveredIndex === index;
   const isFaded = hoveredIndex !== null && hoveredIndex !== index;
-  // Ring is pushed out when a ring with lower index (inner ring) is hovered
   const isPushedOut = hoveredIndex !== null && hoveredIndex < index;
 
-  // Only apply delay on initial mount, not on hover changes
-  const shouldDelay = animate && !hasAnimated.current;
+  const cornerRadius =
+    lineCap === "round" ? (outerRadius - innerRadius) / 2 : 0;
+  const bgPath = generateArcPath(
+    innerRadius,
+    outerRadius,
+    startAngle,
+    endAngle,
+    cornerRadius
+  );
+  const progressEndAngle = startAngle + arcRange * progress;
+  const progressPath =
+    progressEndAngle <= startAngle + 0.01
+      ? ""
+      : generateArcPath(
+          innerRadius,
+          outerRadius,
+          startAngle,
+          progressEndAngle,
+          cornerRadius
+        );
 
-  // Calculate scale for background and progress arcs
-  const getScale = () => {
-    if (isHovered) {
-      return 1.03;
-    }
-    if (isPushedOut) {
-      return 1.02;
-    }
-    return 1;
+  const hoverScale = ringHoverScale(isHovered, isPushedOut);
+  const layerOpacity = isFaded ? 0.35 : 1;
+  const enterDone = !animate || (expandComplete && progressComplete);
+
+  const groupStyle = {
+    cursor: "pointer" as const,
+    transformOrigin: "0px 0px",
+    filter: showGlow && isHovered ? `drop-shadow(0 0 12px ${color})` : "none",
   };
 
-  return (
-    // biome-ignore lint/a11y/noStaticElementInteractions: SVG group for hover interaction
-    <g
-      onMouseEnter={() => setHoveredIndex(index)}
-      onMouseLeave={() => setHoveredIndex(null)}
-      style={{ cursor: "pointer" }}
-    >
-      {/* Background track */}
-      <Arc
-        cornerRadius={lineCap === "round" ? (outerRadius - innerRadius) / 2 : 0}
-        endAngle={ctxEndAngle}
-        innerRadius={innerRadius}
-        outerRadius={outerRadius}
-        startAngle={ctxStartAngle}
+  if (enterDone) {
+    return (
+      <motion.g
+        animate={{ scale: hoverScale, opacity: layerOpacity }}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        style={groupStyle}
+        transition={{
+          scale: { type: "spring", stiffness: 400, damping: 25 },
+          opacity: { duration: 0.15 },
+        }}
       >
-        {({ path }) => (
-          <motion.path
-            animate={{
-              scale: animate ? getScale() : 1,
-              opacity: isFaded ? 0.3 : 1,
-            }}
-            d={path(null) || ""}
-            fill={ringCssVars.ringBackground}
-            initial={animate ? { scale: 0 } : { scale: 1 }}
-            key={`bg-${animationKey}`}
-            style={{ transformOrigin: "center" }}
-            transition={{
-              scale: {
-                type: "spring",
-                stiffness: 400,
-                damping: 25,
-                delay: shouldDelay ? ringExpandDelay : 0,
-              },
-              opacity: { duration: 0.15 },
-            }}
-          />
-        )}
-      </Arc>
+        <path d={bgPath} fill={ringCssVars.ringBackground} />
+        {progressPath ? <path d={progressPath} fill={color} /> : null}
+      </motion.g>
+    );
+  }
 
-      {/* Animated Progress arc */}
-      {animate ? (
-        <AnimatedProgressArc
-          animationKey={animationKey}
-          arcRange={arcRange}
-          color={color}
-          index={index}
-          innerRadius={innerRadius}
-          isFaded={isFaded}
-          isHovered={isHovered}
-          isPushedOut={isPushedOut}
-          lineCap={lineCap}
-          outerRadius={outerRadius}
-          progress={progress}
-          showGlow={showGlow}
-          startAngle={ctxStartAngle}
-        />
-      ) : (
-        <motion.path
-          animate={{
-            opacity: isFaded ? 0.4 : 1,
-            scale: getScale(),
-          }}
-          d={generateArcPath(
-            innerRadius,
-            outerRadius,
-            ctxStartAngle,
-            ctxStartAngle + arcRange * progress,
-            lineCap === "round" ? (outerRadius - innerRadius) / 2 : 0
-          )}
-          fill={color}
-          style={{
-            transformOrigin: "center",
-            filter:
-              showGlow && isHovered ? `drop-shadow(0 0 12px ${color})` : "none",
-          }}
-          transition={{
-            opacity: { duration: 0.15 },
-            scale: { type: "spring", stiffness: 400, damping: 25 },
-          }}
-        />
-      )}
-    </g>
+  if (!expandComplete) {
+    return (
+      <motion.g
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        style={{
+          ...groupStyle,
+          scale: enterScale,
+          opacity: layerOpacity,
+        }}
+      >
+        <path d={bgPath} fill={ringCssVars.ringBackground} />
+      </motion.g>
+    );
+  }
+
+  return (
+    <motion.g
+      animate={{ scale: hoverScale, opacity: layerOpacity }}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      style={groupStyle}
+      transition={{
+        scale: { type: "spring", stiffness: 400, damping: 25 },
+        opacity: { duration: 0.15 },
+      }}
+    >
+      <path d={bgPath} fill={ringCssVars.ringBackground} />
+      <RingProgressPath
+        animatedProgressPath={animatedProgressPath}
+        color={color}
+        progressComplete={progressComplete}
+        progressPath={progressPath}
+      />
+    </motion.g>
   );
-}
+});
 
 Ring.displayName = "Ring";
 

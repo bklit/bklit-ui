@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@bklitui/ui/lib/utils";
 import { useEffect, useState } from "react";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import type { StudioControl } from "@/lib/types";
@@ -14,12 +15,14 @@ import {
   ControlFieldLabel,
   isGroupLabeledControlType,
   StudioControlRow,
+  studioControlInputClass,
   studioControlLabelClass,
   studioControlRowClass,
 } from "./control-field-helpers";
 import { ControlFieldInputs } from "./control-field-inputs";
 import { GaugeAngleControl } from "./gauge-angle-control";
 import { InnerRadiusControl } from "./inner-radius-control";
+import { LegendPositionPicker } from "./legend-position-picker";
 import { OpacityControl } from "./opacity-control";
 import { PieEndAngleControl, PieStartAngleControl } from "./pie-angle-control";
 import { SliderInputGroup } from "./slider-input-group";
@@ -71,7 +74,10 @@ function NumberInputOnly({
         {control.label}
       </Label>
       <Input
-        className="h-8 min-w-0 flex-1 tabular-nums"
+        className={cn(
+          "h-8 min-w-0 flex-1 tabular-nums",
+          studioControlInputClass
+        )}
         id={String(control.key)}
         max={control.max}
         min={control.min}
@@ -92,6 +98,35 @@ function NumberInputOnly({
   );
 }
 
+function LegendPositionControlField({
+  state,
+  onChange,
+  onCommit,
+}: {
+  state: StudioUrlState;
+  onChange: <K extends keyof StudioUrlState>(
+    key: K,
+    value: StudioUrlState[K]
+  ) => void;
+  onCommit?: <K extends keyof StudioUrlState>(
+    key: K,
+    value: StudioUrlState[K]
+  ) => void;
+}) {
+  const commit = onCommit ?? onChange;
+  return (
+    <LegendPositionPicker
+      align={state.legendAlign}
+      onChange={(placement, align) => {
+        commit("legendPlacement", placement);
+        commit("legendAlign", align);
+      }}
+      placement={state.legendPlacement}
+    />
+  );
+}
+
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: discriminated union over many control types
 export function ControlField({
   control,
   state,
@@ -116,6 +151,16 @@ export function ControlField({
     value: StudioUrlState[K]
   ) => void;
 }) {
+  if (control.type === "legendPosition") {
+    return (
+      <LegendPositionControlField
+        onChange={onChange}
+        onCommit={onCommit}
+        state={state}
+      />
+    );
+  }
+
   const value = state[control.key];
 
   if (control.type === "number") {
@@ -159,6 +204,7 @@ export function ControlField({
             : undefined
         }
         step={control.step ?? 1}
+        unit={control.unit}
         value={value as number}
       />
     );

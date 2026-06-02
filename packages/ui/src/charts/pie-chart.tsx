@@ -11,6 +11,7 @@ import {
   type ReactElement,
   type ReactNode,
   useCallback,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -213,13 +214,14 @@ const PieChartCore = memo(function PieChartCore({
     })) as PieArcData[];
   }, [data, startAngle, endAngle, padAngle]);
 
-  // Mark as loaded after initial render
-  useState(() => {
+  // biome-ignore lint/correctness/useExhaustiveDependencies: enterTransition
+  useEffect(() => {
+    setIsLoaded(false);
     const timer = setTimeout(() => {
       setIsLoaded(true);
     }, 100);
     return () => clearTimeout(timer);
-  });
+  }, [enterTransition, enterStaggerScale]);
 
   // Separate children into categories
   const { svgChildren, centerChildren, defsChildren } = useMemo(() => {
@@ -249,27 +251,50 @@ const PieChartCore = memo(function PieChartCore({
     };
   }, [children]);
 
-  const contextValue: PieContextValue = {
-    data,
-    arcs,
-    size,
-    center,
-    outerRadius,
-    innerRadius,
-    padAngle,
-    cornerRadius,
-    hoverOffset,
-    hoveredIndex,
-    setHoveredIndex,
-    animationKey,
-    isLoaded,
-    enterTransition,
-    enterStaggerScale,
-    containerRef,
-    totalValue,
-    getColor,
-    getFill,
-  };
+  const contextValue: PieContextValue = useMemo(
+    () => ({
+      data,
+      arcs,
+      size,
+      center,
+      outerRadius,
+      innerRadius,
+      padAngle,
+      cornerRadius,
+      hoverOffset,
+      hoveredIndex,
+      setHoveredIndex,
+      animationKey,
+      isLoaded,
+      enterTransition,
+      enterStaggerScale,
+      containerRef,
+      totalValue,
+      getColor,
+      getFill,
+    }),
+    [
+      data,
+      arcs,
+      size,
+      center,
+      outerRadius,
+      innerRadius,
+      padAngle,
+      cornerRadius,
+      hoverOffset,
+      hoveredIndex,
+      setHoveredIndex,
+      animationKey,
+      isLoaded,
+      enterTransition,
+      enterStaggerScale,
+      containerRef,
+      totalValue,
+      getColor,
+      getFill,
+    ]
+  );
 
   // Use CSS Grid stacking to layer SVG and HTML content
   // This avoids Safari's foreignObject rendering bugs

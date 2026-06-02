@@ -20,7 +20,7 @@ import {
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
 import type { ChartSlug } from "@/lib/types";
 
-const CHART_TYPE_ICONS: Record<ChartSlug, IconSvgElement> = {
+export const CHART_TYPE_ICONS: Record<ChartSlug, IconSvgElement> = {
   "area-chart": ChartAreaIcon,
   "bar-chart": BarChartIcon,
   "line-chart": ChartLineData01Icon,
@@ -38,6 +38,10 @@ const CHART_TYPE_ICONS: Record<ChartSlug, IconSvgElement> = {
   "sankey-chart": Flowchart02Icon,
 };
 
+export function getChartTypeIcon(slug: ChartSlug): IconSvgElement {
+  return CHART_TYPE_ICONS[slug];
+}
+
 export function ChartTypeIcon({
   slug,
   className,
@@ -52,7 +56,7 @@ export function ChartTypeIcon({
       className={cn(
         variant === "plain"
           ? "inline-flex size-5 shrink-0 items-center justify-center text-foreground"
-          : "inline-flex size-8 shrink-0 items-center justify-center rounded-md bg-muted/50 text-foreground",
+          : "inline-flex size-8 shrink-0 items-center justify-center rounded-sm bg-muted/50 text-foreground",
         className
       )}
     >

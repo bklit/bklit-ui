@@ -188,6 +188,8 @@ export {
   PieProvider,
   pieCssVars,
   usePie,
+  usePieHover,
+  usePieStable,
 } from "./pie-context";
 export {
   PieSlice,
@@ -229,6 +231,8 @@ export {
   RadarProvider,
   radarCssVars,
   useRadar,
+  useRadarHover,
+  useRadarStable,
 } from "./radar-context";
 export { RadarGrid, type RadarGridProps } from "./radar-grid";
 export { RadarLabels, type RadarLabelsProps } from "./radar-labels";
@@ -243,6 +247,8 @@ export {
   RingProvider,
   ringCssVars,
   useRing,
+  useRingHover,
+  useRingStable,
 } from "./ring-context";
 // Sankey chart components
 export {

@@ -204,26 +204,48 @@ const RingChartCore = memo(function RingChartCore({
     return { svgChildren: svgNodes, centerChildren: centerNodes };
   }, [children]);
 
-  const contextValue: RingContextValue = {
-    data,
-    size,
-    center,
-    strokeWidth,
-    ringGap,
-    baseInnerRadius,
-    hoveredIndex,
-    setHoveredIndex,
-    animationKey,
-    isLoaded,
-    enterTransition,
-    enterStaggerScale,
-    containerRef,
-    totalValue,
-    getColor,
-    getRingRadii,
-    startAngle,
-    endAngle,
-  };
+  const contextValue: RingContextValue = useMemo(
+    () => ({
+      data,
+      size,
+      center,
+      strokeWidth,
+      ringGap,
+      baseInnerRadius,
+      hoveredIndex,
+      setHoveredIndex,
+      animationKey,
+      isLoaded,
+      enterTransition,
+      enterStaggerScale,
+      containerRef,
+      totalValue,
+      getColor,
+      getRingRadii,
+      startAngle,
+      endAngle,
+    }),
+    [
+      data,
+      size,
+      center,
+      strokeWidth,
+      ringGap,
+      baseInnerRadius,
+      hoveredIndex,
+      setHoveredIndex,
+      animationKey,
+      isLoaded,
+      enterTransition,
+      enterStaggerScale,
+      containerRef,
+      totalValue,
+      getColor,
+      getRingRadii,
+      startAngle,
+      endAngle,
+    ]
+  );
 
   // Use CSS Grid stacking to layer SVG and HTML content
   // This avoids Safari's foreignObject rendering bugs where HTML content
@@ -243,7 +265,7 @@ const RingChartCore = memo(function RingChartCore({
         <svg
           aria-hidden="true"
           height={size}
-          style={{ gridArea: "1 / 1" }}
+          style={{ gridArea: "1 / 1", contain: "layout style paint" }}
           width={size}
         >
           <Group left={center} top={center}>

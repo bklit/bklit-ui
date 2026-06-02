@@ -5,6 +5,7 @@ import { usePlaygroundState } from "@/components/playground/use-playground-state
 export function usePlaygroundProfitLossState() {
   return usePlaygroundState({
     chart: "line-chart",
+    lineChartMode: "profitLoss",
     dataSeries: 1,
     dataPoints: 24,
     curve: "linear",

@@ -27,6 +27,8 @@ export interface ChartLegendProps {
   showProgress?: boolean;
   /** Show color marker dot. Default: true */
   showMarker?: boolean;
+  /** Show numeric value column. Default: true */
+  showValue?: boolean;
   /** Show percentage value. Default: true when showProgress is true */
   showPercentage?: boolean;
   /** Format function for displaying values. Default: toLocaleString() */
@@ -57,6 +59,7 @@ export interface ChartLegendProps {
 interface ProgressItemProps {
   item: LegendItem;
   showMarker: boolean;
+  showValue: boolean;
   showPercentage: boolean;
   formatValue: (value: number) => string;
   labelClassName: string;
@@ -66,6 +69,7 @@ interface ProgressItemProps {
 function ProgressItem({
   item,
   showMarker,
+  showValue,
   showPercentage,
   formatValue,
   labelClassName,
@@ -93,10 +97,11 @@ function ProgressItem({
         {item.label}
       </Progress.Label>
 
-      {/* Value */}
-      <span className={cn("text-legend-muted-foreground", valueClassName)}>
-        {formatValue(item.value)}
-      </span>
+      {showValue ? (
+        <span className={cn("text-legend-muted-foreground", valueClassName)}>
+          {formatValue(item.value)}
+        </span>
+      ) : null}
 
       {/* Progress track and indicator */}
       <Progress.Track className="col-span-full h-1.5 overflow-hidden rounded-full bg-legend-track">
@@ -120,6 +125,7 @@ function ProgressItem({
 interface SimpleItemProps {
   item: LegendItem;
   showMarker: boolean;
+  showValue: boolean;
   formatValue: (value: number) => string;
   labelClassName: string;
   valueClassName: string;
@@ -128,6 +134,7 @@ interface SimpleItemProps {
 function SimpleItem({
   item,
   showMarker,
+  showValue,
   formatValue,
   labelClassName,
   valueClassName,
@@ -148,10 +155,11 @@ function SimpleItem({
         {item.label}
       </span>
 
-      {/* Value */}
-      <span className={cn("text-legend-muted-foreground", valueClassName)}>
-        {formatValue(item.value)}
-      </span>
+      {showValue ? (
+        <span className={cn("text-legend-muted-foreground", valueClassName)}>
+          {formatValue(item.value)}
+        </span>
+      ) : null}
     </div>
   );
 }
@@ -162,6 +170,7 @@ export function ChartLegend({
   onHover,
   showProgress = false,
   showMarker = true,
+  showValue = true,
   showPercentage,
   formatValue = intFmt,
   title,
@@ -212,6 +221,7 @@ export function ChartLegend({
             className={cn(
               "cursor-pointer rounded-lg px-2 py-1.5 transition-all duration-150 ease-out",
               isHovered && "bg-legend-muted",
+              isFaded && "opacity-40",
               itemClassName
             )}
             data-hovered={isHovered ? "" : undefined}
@@ -226,6 +236,7 @@ export function ChartLegend({
                 labelClassName={labelClassName}
                 showMarker={showMarker}
                 showPercentage={displayPercentage}
+                showValue={showValue}
                 valueClassName={valueClassName}
               />
             ) : (
@@ -234,6 +245,7 @@ export function ChartLegend({
                 item={item}
                 labelClassName={labelClassName}
                 showMarker={showMarker}
+                showValue={showValue}
                 valueClassName={valueClassName}
               />
             )}

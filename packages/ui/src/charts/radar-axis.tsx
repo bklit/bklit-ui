@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
-import { radarCssVars, useRadar } from "./radar-context";
+import { radarCssVars, useRadarStable } from "./radar-context";
 
 export interface RadarAxisProps {
   /** Additional class name */
@@ -9,7 +9,7 @@ export interface RadarAxisProps {
 }
 
 export function RadarAxis({ className = "" }: RadarAxisProps) {
-  const { metrics, radius, getAngle, animate } = useRadar();
+  const { metrics, radius, getAngle, animate } = useRadarStable();
 
   // Animation delay base
   const axisBaseDelay = 0;

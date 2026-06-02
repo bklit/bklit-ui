@@ -4,7 +4,7 @@ import { scaleLinear } from "@visx/scale";
 import { LineRadial } from "@visx/shape";
 import { motion } from "motion/react";
 import { transitionWithDelay } from "./motion-utils";
-import { radarCssVars, useRadar } from "./radar-context";
+import { radarCssVars, useRadarStable } from "./radar-context";
 
 export interface RadarGridProps {
   /** Show level value labels. Default: true */
@@ -26,7 +26,7 @@ export function RadarGrid({
     staggerScale,
     enterDurationMs,
     motionReplayKey,
-  } = useRadar();
+  } = useRadarStable();
 
   const durationFactor = enterDurationMs / 1100;
   const gridStagger = 0.08 * staggerScale * durationFactor;

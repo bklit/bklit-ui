@@ -1,17 +1,12 @@
 "use client";
 
-import { type ReactNode, useEffect, useState } from "react";
+import type { ReactNode } from "react";
 import {
   studioControlLabelClass,
   studioControlRowClass,
 } from "@/components/controls/control-field-helpers";
-import { Input } from "@/ui/input";
+import { ScrubNumberField } from "@/components/controls/scrub-number-field";
 import { Label } from "@/ui/label";
-import { Slider } from "@/ui/slider";
-
-function clamp(n: number, min: number, max: number) {
-  return Math.min(max, Math.max(min, n));
-}
 
 export function SliderInputGroup({
   label,
@@ -19,8 +14,11 @@ export function SliderInputGroup({
   min,
   max,
   step = 1,
+  unit,
   icon,
+  scrubIcon,
   renderIcon,
+  format,
   onPreview,
   onCommit,
 }: {
@@ -29,21 +27,19 @@ export function SliderInputGroup({
   min: number;
   max: number;
   step?: number;
-  format?: (v: number) => string;
+  unit?: string;
+  format?: Intl.NumberFormatOptions;
+  /** Preview icon shown between the label and input (e.g. opacity swatch). */
   icon?: ReactNode;
-  /** Live icon while dragging (defaults to `icon`). */
+  /** Icon inside the scrub handle — overrides the default arrows. */
+  scrubIcon?: ReactNode;
+  /** Live icon while scrubbing (defaults to `icon`). */
   renderIcon?: (local: number) => ReactNode;
   onPreview: (n: number) => void;
   onCommit: (n: number) => void;
 }) {
   const safe = Number.isFinite(value) ? value : min;
-  const [local, setLocal] = useState(safe);
-
-  useEffect(() => {
-    setLocal(Number.isFinite(value) ? value : min);
-  }, [min, value]);
-
-  const iconNode = renderIcon?.(local) ?? icon;
+  const iconNode = renderIcon?.(safe) ?? icon;
 
   return (
     <div className={studioControlRowClass}>
@@ -53,41 +49,16 @@ export function SliderInputGroup({
           {iconNode}
         </div>
       ) : null}
-      <Slider
-        className="min-w-0 flex-1 **:data-[slot=slider-thumb]:size-3.5 **:data-[slot=slider-track]:h-1.5"
+      <ScrubNumberField
+        format={format}
         max={max}
         min={min}
-        onValueChange={(v) => {
-          const raw = Array.isArray(v) ? v[0] : v;
-          const next = clamp(raw ?? min, min, max);
-          setLocal(next);
-          onPreview(next);
-        }}
-        onValueCommitted={(v) => {
-          const raw = Array.isArray(v) ? v[0] : v;
-          const next = clamp(raw ?? min, min, max);
-          setLocal(next);
-          onCommit(next);
-        }}
+        onCommit={onCommit}
+        onPreview={onPreview}
+        scrubIcon={scrubIcon}
         step={step}
-        value={local}
-      />
-      <Input
-        className="h-8 w-16 shrink-0 px-1.5 text-center text-xs tabular-nums"
-        max={max}
-        min={min}
-        onChange={(e) => {
-          const parsed = Number(e.target.value);
-          if (!Number.isNaN(parsed)) {
-            const next = clamp(parsed, min, max);
-            setLocal(next);
-            onPreview(next);
-            onCommit(next);
-          }
-        }}
-        step={step}
-        type="number"
-        value={local}
+        unit={unit}
+        value={safe}
       />
     </div>
   );

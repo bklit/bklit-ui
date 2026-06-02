@@ -13,22 +13,29 @@ import type { PatternPresetId } from "@/lib/pattern-presets";
 
 const STUDIO_PATTERN_ID = "studio-pattern-fill";
 
+export function studioPatternIdForSeries(seriesIndex: number) {
+  return seriesIndex === 0
+    ? STUDIO_PATTERN_ID
+    : `${STUDIO_PATTERN_ID}-${seriesIndex}`;
+}
+
 export function studioPatternFill(
-  statePattern: PatternPresetId
+  statePattern: PatternPresetId,
+  seriesIndex = 0
 ): string | undefined {
   if (statePattern === "none") {
     return undefined;
   }
-  return `url(#${STUDIO_PATTERN_ID})`;
+  return `url(#${studioPatternIdForSeries(seriesIndex)})`;
 }
 
-export function StudioPatternDefs({ preset }: { preset: PatternPresetId }) {
-  if (preset === "none") {
-    return null;
-  }
-
+function patternLinesForPreset(
+  preset: PatternPresetId,
+  id: string,
+  strokeVar: string
+) {
   const common = {
-    id: STUDIO_PATTERN_ID,
+    id,
     height: 6,
     width: 6,
     strokeWidth: 1,
@@ -39,24 +46,27 @@ export function StudioPatternDefs({ preset }: { preset: PatternPresetId }) {
       return (
         <PatternLines
           {...common}
+          key={id}
           orientation={["diagonal"]}
-          stroke="var(--chart-1)"
+          stroke={strokeVar}
         />
       );
     case "horizontal":
       return (
         <PatternLines
           {...common}
+          key={id}
           orientation={["horizontal"]}
-          stroke="var(--chart-2)"
+          stroke={strokeVar}
         />
       );
     case "vertical":
       return (
         <PatternLines
           {...common}
+          key={id}
           orientation={["vertical"]}
-          stroke="var(--chart-3)"
+          stroke={strokeVar}
         />
       );
     case "cross":
@@ -64,8 +74,9 @@ export function StudioPatternDefs({ preset }: { preset: PatternPresetId }) {
         <PatternLines
           {...common}
           height={8}
+          key={id}
           orientation={["diagonal", "diagonalRightToLeft"]}
-          stroke="var(--chart-1)"
+          stroke={strokeVar}
           width={8}
         />
       );
@@ -74,19 +85,59 @@ export function StudioPatternDefs({ preset }: { preset: PatternPresetId }) {
         <PatternLines
           {...common}
           height={4}
+          key={id}
           orientation={["diagonal"]}
-          stroke="var(--chart-4)"
+          stroke={strokeVar}
           strokeWidth={2}
           width={4}
         />
       );
     case "accent":
       return (
-        <PatternLines {...common} orientation={["diagonal"]} stroke="#e879f9" />
+        <PatternLines
+          {...common}
+          key={id}
+          orientation={["diagonal"]}
+          stroke="#e879f9"
+        />
       );
     default:
       return null;
   }
+}
+
+export function StudioPatternDefs({
+  preset,
+  seriesPatterns,
+}: {
+  preset?: PatternPresetId;
+  seriesPatterns?: PatternPresetId[];
+}) {
+  let entries: PatternPresetId[] = [];
+  if (seriesPatterns && seriesPatterns.length > 0) {
+    entries = seriesPatterns;
+  } else if (preset) {
+    entries = [preset];
+  }
+
+  const nodes = entries.flatMap((entry, index) => {
+    if (entry === "none") {
+      return [];
+    }
+    const strokeVar = `var(${`--chart-${(index % 5) + 1}`})`;
+    const node = patternLinesForPreset(
+      entry,
+      studioPatternIdForSeries(index),
+      strokeVar
+    );
+    return node ? [node] : [];
+  });
+
+  if (nodes.length === 0) {
+    return null;
+  }
+
+  return <>{nodes}</>;
 }
 
 /** Per-slice line patterns (matches pie chart docs example). */

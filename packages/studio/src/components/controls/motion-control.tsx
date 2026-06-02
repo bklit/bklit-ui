@@ -1,14 +1,20 @@
 "use client";
 
-import { cn } from "@bklitui/ui/lib/utils";
+import { MotionEasePresetGrid } from "@/components/controls/motion-ease-preset-grid";
 import { SliderInputGroup } from "@/components/controls/slider-input-group";
-import { motionDurationToAnimationMs } from "@/lib/chart-animation";
 import {
-  MOTION_EASE_IDS,
-  MOTION_EASE_PRESETS,
-  type MotionType,
-} from "@/lib/motion-config";
+  StudioTab,
+  StudioTabs,
+} from "@/components/controls/studio-toggle-group";
+import { motionDurationToAnimationMs } from "@/lib/chart-animation";
+import { MOTION_EASE_PRESETS, type MotionType } from "@/lib/motion-config";
 import type { StudioUrlState } from "@/lib/studio-parsers";
+
+const MOTION_TYPE_LABELS: Record<MotionType, string> = {
+  ease: "Ease",
+  spring: "Spring",
+};
+
 import { MotionCurveEditor } from "./motion-curve-editor";
 
 function MotionTypeToggle({
@@ -19,24 +25,13 @@ function MotionTypeToggle({
   onChange: (v: MotionType) => void;
 }) {
   return (
-    <fieldset className="flex gap-1 rounded-lg border border-border bg-muted/30 p-1">
+    <StudioTabs layout="segmented" onValueChange={onChange} value={value}>
       {(["ease", "spring"] as const).map((type) => (
-        <button
-          aria-pressed={value === type}
-          className={cn(
-            "flex-1 rounded-md px-3 py-1.5 font-medium text-xs capitalize transition-colors",
-            value === type
-              ? "bg-background text-foreground shadow-sm"
-              : "text-muted-foreground hover:text-foreground"
-          )}
-          key={type}
-          onClick={() => onChange(type)}
-          type="button"
-        >
-          {type}
-        </button>
+        <StudioTab key={type} value={type}>
+          {MOTION_TYPE_LABELS[type]}
+        </StudioTab>
       ))}
-    </fieldset>
+    </StudioTabs>
   );
 }
 
@@ -80,7 +75,7 @@ export function MotionControl({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       <MotionTypeToggle
         onChange={(v) => onChange("motionType", v)}
         value={state.motionType}
@@ -93,14 +88,15 @@ export function MotionControl({
         state={motionSlice}
       />
 
-      <div className="space-y-3">
+      <div className="flex flex-col gap-3">
         <SliderInputGroup
-          label="Duration (s)"
+          label="Duration"
           max={2}
           min={0.2}
           onCommit={(v) => syncDuration(v, true)}
           onPreview={(v) => syncDuration(v, false)}
           step={0.1}
+          unit="s"
           value={state.motionDuration}
         />
 
@@ -127,36 +123,14 @@ export function MotionControl({
             value={state.motionBounce}
           />
         ) : (
-          <div className="space-y-2">
-            <span className="font-medium text-muted-foreground text-xs">
-              Presets
-            </span>
-            <div className="grid grid-cols-2 gap-1.5">
-              {MOTION_EASE_IDS.filter((id) => id !== "custom").map((id) => (
-                <button
-                  aria-pressed={state.motionEase === id}
-                  className={cn(
-                    "rounded-md border px-2 py-1.5 text-left text-xs transition-colors",
-                    state.motionEase === id
-                      ? "border-accent bg-accent/10 text-foreground"
-                      : "border-border bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-foreground"
-                  )}
-                  key={id}
-                  onClick={() => {
-                    onChange("motionEase", id);
-                    const b = MOTION_EASE_PRESETS[id].bezier;
-                    onChange(
-                      "motionBezier",
-                      `${b[0]}, ${b[1]}, ${b[2]}, ${b[3]}`
-                    );
-                  }}
-                  type="button"
-                >
-                  {MOTION_EASE_PRESETS[id].label}
-                </button>
-              ))}
-            </div>
-          </div>
+          <MotionEasePresetGrid
+            onSelect={(id) => {
+              onChange("motionEase", id);
+              const b = MOTION_EASE_PRESETS[id].bezier;
+              onChange("motionBezier", `${b[0]}, ${b[1]}, ${b[2]}, ${b[3]}`);
+            }}
+            value={state.motionEase}
+          />
         )}
       </div>
     </div>

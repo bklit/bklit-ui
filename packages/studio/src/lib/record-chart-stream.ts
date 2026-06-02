@@ -1,3 +1,4 @@
+import { downloadBlob } from "./download-blob";
 import type {
   StudioRecordingFormat,
   StudioRecordingTimeline,
@@ -42,18 +43,16 @@ function pickRecorderMimeType(): string {
   return candidates.find((type) => MediaRecorder.isTypeSupported(type)) ?? "";
 }
 
-function downloadRecordingBlob(
+async function downloadRecordingBlob(
   blob: Blob,
   chartSlug: string,
   extension: string
 ) {
-  const url = URL.createObjectURL(blob);
-  const anchor = document.createElement("a");
-  anchor.href = url;
   const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-  anchor.download = `bklit-studio-${chartSlug}-${timestamp}.${extension}`;
-  anchor.click();
-  URL.revokeObjectURL(url);
+  await downloadBlob(
+    blob,
+    `bklit-studio-${chartSlug}-${timestamp}.${extension}`
+  );
 }
 
 export interface RecordChartStreamOptions {
@@ -220,7 +219,7 @@ export async function recordChartStream(
     }
 
     if (format === "webm") {
-      downloadRecordingBlob(blob, chartSlug, "webm");
+      await downloadRecordingBlob(blob, chartSlug, "webm");
       onProgress?.(1);
       return;
     }
@@ -238,7 +237,7 @@ export async function recordChartStream(
       throw new DOMException("Aborted", "AbortError");
     }
 
-    downloadRecordingBlob(mp4, chartSlug, "mp4");
+    await downloadRecordingBlob(mp4, chartSlug, "mp4");
     onProgress?.(1);
   } catch (caught) {
     if (caught instanceof DOMException && caught.name === "NotAllowedError") {

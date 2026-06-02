@@ -8,6 +8,11 @@ import { ChartTypeIcon } from "@/components/chart-type-icons";
 import { studioChartList } from "@/lib/registry";
 import type { ChartSlug } from "@/lib/types";
 import { Popover, PopoverContent, PopoverTrigger } from "@/ui/popover";
+import { StudioControlSurface } from "@/ui/studio-control-surface";
+import {
+  studioSidebarPopoverCollisionAvoidance,
+  studioSidebarPopoverSideOffset,
+} from "@/ui/studio-sidebar-popover";
 
 export function ChartTypeSelector({
   value,
@@ -22,12 +27,15 @@ export function ChartTypeSelector({
   return (
     <Popover onOpenChange={setOpen} open={open}>
       <PopoverTrigger
-        className={cn(
-          "flex h-10 w-full items-center gap-2.5 rounded-lg border border-input bg-background px-2.5 text-left text-xs shadow-xs outline-none transition-colors",
-          "hover:bg-muted/40 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
-        )}
+        aria-expanded={open}
         id="studio-chart"
-        type="button"
+        render={
+          <StudioControlSurface
+            align="start"
+            aria-expanded={open}
+            type="button"
+          />
+        }
       >
         <ChartTypeIcon slug={value} variant="plain" />
         <span className="min-w-0 flex-1 truncate font-medium">
@@ -42,8 +50,10 @@ export function ChartTypeSelector({
       <PopoverContent
         align="start"
         className="w-max min-w-[var(--radix-popover-trigger-width)] p-2"
-        side="bottom"
-        // sideOffset={5}
+        collisionAvoidance={studioSidebarPopoverCollisionAvoidance}
+        positionMethod="fixed"
+        side="right"
+        sideOffset={studioSidebarPopoverSideOffset}
       >
         <p className="px-2 py-1.5 font-medium text-[11px] text-muted-foreground uppercase tracking-wide">
           Chart type
@@ -56,7 +66,7 @@ export function ChartTypeSelector({
                 className={cn(
                   "flex items-center gap-2 rounded-lg px-2 py-2 text-left transition-colors",
                   selected
-                    ? "bg-accent/10 text-foreground ring-1 ring-accent/25"
+                    ? "bg-accent/50 text-foreground ring-1 ring-accent/25"
                     : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
                 )}
                 key={item.slug}

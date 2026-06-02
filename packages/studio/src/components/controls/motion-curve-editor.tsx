@@ -1,10 +1,15 @@
 "use client";
 
 import { cn } from "@bklitui/ui/lib/utils";
-import { PlayIcon, StopIcon } from "@hugeicons/core-free-icons";
+import {
+  EaseCurveControlPointsIcon,
+  PlayIcon,
+  StopIcon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { animate, motion, type Transition } from "motion/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { studioInputSurfaceClass } from "@/components/controls/control-field-helpers";
 import {
   bezierFromSvgPoint,
   clampEaseBezierControl,
@@ -20,7 +25,6 @@ import {
   targetMotionCurvePoints,
 } from "@/lib/motion-config";
 import type { StudioUrlState } from "@/lib/studio-parsers";
-import { Button } from "@/ui/button";
 import { Input } from "@/ui/input";
 
 const PREVIEW_H = 180;
@@ -92,6 +96,8 @@ export function MotionCurveEditor({
   const displayRef = useRef(displayPoints);
   const skipMorphRef = useRef(false);
   const hasMountedRef = useRef(false);
+  const previewRafRef = useRef<number | null>(null);
+  const pendingPreviewRef = useRef<string | null>(null);
   const [curveA11yLabel, setCurveA11yLabel] = useState(
     "Interactive motion curve"
   );
@@ -195,6 +201,36 @@ export function MotionCurveEditor({
 
   useEffect(() => () => stopPlay(), [stopPlay]);
 
+  const flushPreview = useCallback(() => {
+    previewRafRef.current = null;
+    const formatted = pendingPreviewRef.current;
+    if (!formatted) {
+      return;
+    }
+    pendingPreviewRef.current = null;
+    onPreview("motionBezier", formatted);
+    onPreview("motionEase", "custom");
+  }, [onPreview]);
+
+  const schedulePreview = useCallback(
+    (formatted: string) => {
+      pendingPreviewRef.current = formatted;
+      if (previewRafRef.current == null) {
+        previewRafRef.current = requestAnimationFrame(flushPreview);
+      }
+    },
+    [flushPreview]
+  );
+
+  useEffect(
+    () => () => {
+      if (previewRafRef.current != null) {
+        cancelAnimationFrame(previewRafRef.current);
+      }
+    },
+    []
+  );
+
   // Recover handles stuck off-canvas from a previous drag (URL may hold extreme values).
   useEffect(() => {
     if (state.motionEase !== "custom") {
@@ -237,11 +273,9 @@ export function MotionCurveEditor({
       setDisplayPoints(
         targetMotionCurvePoints({ ...state, motionType: "ease" }, clamped)
       );
-      const formatted = formatMotionBezier(clamped);
-      onPreview("motionBezier", formatted);
-      onPreview("motionEase", "custom");
+      schedulePreview(formatMotionBezier(clamped));
     },
-    [activeBezier, onPreview, state, width]
+    [activeBezier, schedulePreview, state, width]
   );
 
   useEffect(() => {
@@ -252,6 +286,11 @@ export function MotionCurveEditor({
       applyHandleDrag(e.clientX, e.clientY, dragging);
     };
     const onUp = () => {
+      if (previewRafRef.current != null) {
+        cancelAnimationFrame(previewRafRef.current);
+        previewRafRef.current = null;
+      }
+      flushPreview();
       setDragging(null);
       onDragActiveChange?.(false);
       const next = dragBezierRef.current
@@ -271,12 +310,12 @@ export function MotionCurveEditor({
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup", onUp);
     };
-  }, [applyHandleDrag, dragging, onCommit, onDragActiveChange]);
+  }, [applyHandleDrag, dragging, flushPreview, onCommit, onDragActiveChange]);
 
   return (
-    <div className="space-y-2">
+    <div className="flex flex-col">
       <div
-        className="studio-motion-curve-card relative w-full max-w-full overflow-hidden rounded-lg border border-border px-1"
+        className="studio-motion-curve-card relative w-full max-w-full overflow-hidden rounded-t-lg border border-border border-b-0 px-1"
         ref={containerRef}
       >
         <svg
@@ -325,9 +364,8 @@ export function MotionCurveEditor({
                     />
                     <circle
                       className={cn(
-                        "pointer-events-none fill-background stroke-2 stroke-foreground",
-                        dragging === id && "stroke-accent",
-                        pt.clamped && dragging !== id && "stroke-chart-1"
+                        "pointer-events-none fill-background stroke-2 stroke-primary",
+                        dragging === id && "fill-primary/15"
                       )}
                       cx={pt.x}
                       cy={pt.y}
@@ -362,7 +400,7 @@ export function MotionCurveEditor({
 
           <motion.circle
             animate={{ cx: notchPosition.x, cy: notchPosition.y }}
-            className="fill-chart-1 stroke-background"
+            className="fill-primary stroke-background"
             cx={notchPosition.x}
             cy={notchPosition.y}
             initial={false}
@@ -373,51 +411,63 @@ export function MotionCurveEditor({
             }
           />
         </svg>
+      </div>
 
-        <Button
+      <div
+        className={cn(
+          "flex h-9 items-stretch overflow-hidden rounded-b-lg border-border border-t",
+          studioInputSurfaceClass
+        )}
+      >
+        <div
+          aria-hidden
+          className="flex w-9 shrink-0 items-center justify-center border-border border-r text-muted-foreground"
+        >
+          <HugeiconsIcon
+            icon={EaseCurveControlPointsIcon}
+            size={16}
+            strokeWidth={1.75}
+          />
+        </div>
+        <Input
+          className={cn(
+            "h-9 min-w-0 flex-1 rounded-none border-0 bg-transparent px-2.5 font-mono text-xs shadow-none focus-visible:ring-0",
+            !isEase && "cursor-default text-muted-foreground"
+          )}
+          id="motion-bezier-input"
+          onChange={
+            isEase
+              ? (e) => {
+                  const parsed = parseMotionBezier(e.target.value);
+                  onPreview("motionBezier", e.target.value);
+                  if (parsed) {
+                    const clamped = clampEaseBezierControl(parsed);
+                    setDragBezier(null);
+                    onPreview("motionEase", "custom");
+                    onCommit("motionBezier", formatMotionBezier(clamped));
+                    onCommit("motionEase", "custom");
+                  }
+                }
+              : undefined
+          }
+          placeholder="0.85, 0, 0.15, 1"
+          readOnly={!isEase}
+          spellCheck={false}
+          value={state.motionBezier}
+        />
+        <button
           aria-label={isPlaying ? "Stop motion preview" : "Play motion preview"}
-          className="absolute right-2.5 bottom-2.5 z-10 size-8 shadow-sm"
+          className="flex w-9 shrink-0 items-center justify-center border-border border-l text-muted-foreground transition-colors hover:bg-muted/40 hover:text-foreground"
           onClick={isPlaying ? stopPlay : runPlay}
-          size="icon"
           type="button"
-          variant="secondary"
         >
           <HugeiconsIcon
             icon={isPlaying ? StopIcon : PlayIcon}
             size={16}
             strokeWidth={1.75}
           />
-        </Button>
+        </button>
       </div>
-
-      {isEase ? (
-        <div className="space-y-1.5">
-          <label
-            className="font-medium text-muted-foreground text-xs"
-            htmlFor="motion-bezier-input"
-          >
-            cubic-bezier()
-          </label>
-          <Input
-            className="h-8 font-mono text-xs"
-            id="motion-bezier-input"
-            onChange={(e) => {
-              const parsed = parseMotionBezier(e.target.value);
-              onPreview("motionBezier", e.target.value);
-              if (parsed) {
-                const clamped = clampEaseBezierControl(parsed);
-                setDragBezier(null);
-                onPreview("motionEase", "custom");
-                onCommit("motionBezier", formatMotionBezier(clamped));
-                onCommit("motionEase", "custom");
-              }
-            }}
-            placeholder="0.85, 0, 0.15, 1"
-            spellCheck={false}
-            value={state.motionBezier}
-          />
-        </div>
-      ) : null}
     </div>
   );
 }

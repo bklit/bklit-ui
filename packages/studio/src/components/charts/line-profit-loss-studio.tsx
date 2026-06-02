@@ -14,6 +14,10 @@ import {
 } from "@bklitui/ui/charts";
 import { useState } from "react";
 import { StudioCartesianFill } from "@/components/charts/studio-chart-layout";
+import {
+  StudioChartShell,
+  StudioVisibleLayer,
+} from "@/components/charts/studio-chart-shell";
 import { fadeEdgesPropValue } from "@/components/controls/fade-edges-picker";
 import { useStudioMotionRemountKey } from "@/components/use-studio-motion-remount";
 import { getStudioCssRevealPropsForPreview } from "@/lib/chart-animation";
@@ -24,6 +28,7 @@ import {
   STUDIO_PROFIT_LOSS_DATA_KEY,
 } from "@/lib/demo-data";
 import type { StudioRenderContext } from "@/lib/render-context";
+import { chartTooltipPropsFromState } from "@/lib/studio-chart-overlays";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 
 function zeroLineDasharray(style: StudioUrlState["zeroLineStyle"]) {
@@ -85,7 +90,8 @@ export function LineProfitLossStudioChart({
   );
   const motionRemountKey = useStudioMotionRemountKey(state);
   const data = generateStudioProfitLossData(
-    clampStudioPointCount(state.dataPoints)
+    clampStudioPointCount(state.dataPoints),
+    ctx.dataSeed
   );
   const motionProps = getStudioCssRevealPropsForPreview(state, {
     motionCurveDragging: ctx.motionCurveDragging,
@@ -95,25 +101,26 @@ export function LineProfitLossStudioChart({
   const curve = resolveCurve(state.curve);
   const fadeEdges = fadeEdgesPropValue(state.fadeEdges);
 
-  const legend = state.showLegend ? (
-    <ProfitLossLegend
-      align={state.legendAlign}
-      hoveredIndex={legendHoveredIndex}
-      onHoverChange={setLegendHoveredIndex}
-    />
-  ) : null;
-
   return (
-    <div className="flex size-full min-h-0 min-w-0 flex-col">
-      {state.showLegend && state.legendPlacement === "top" ? legend : null}
-      <div className="relative min-h-0 flex-1">
-        <StudioCartesianFill className="absolute inset-0">
-          <LineChart
-            {...motionProps}
-            className="size-full"
-            data={data}
-            key={`${ctx.animationKey}-${motionRemountKey}`}
-          >
+    <StudioChartShell
+      legendComponentId="line.legend"
+      renderLegend={() => (
+        <ProfitLossLegend
+          align={state.legendAlign}
+          hoveredIndex={legendHoveredIndex}
+          onHoverChange={setLegendHoveredIndex}
+        />
+      )}
+      state={state}
+    >
+      <StudioCartesianFill className="size-full">
+        <LineChart
+          {...motionProps}
+          className="size-full"
+          data={data}
+          key={`${ctx.animationKey}-${motionRemountKey}`}
+        >
+          <StudioVisibleLayer componentId="line.grid" state={state}>
             <Grid
               highlightRowStroke={state.zeroLineStroke}
               highlightRowStrokeDasharray={zeroLineDasharray(
@@ -123,32 +130,37 @@ export function LineProfitLossStudioChart({
               highlightRowValues={state.showZeroLine ? [0] : undefined}
               horizontal
             />
-            <Line
-              curve={curve}
-              dataKey={STUDIO_PROFIT_LOSS_DATA_KEY}
-              fadeEdges={fadeEdges}
-              showHighlight={false}
-              stroke="transparent"
-              strokeWidth={0}
-            />
+          </StudioVisibleLayer>
+          <Line
+            curve={curve}
+            dataKey={STUDIO_PROFIT_LOSS_DATA_KEY}
+            fadeEdges={fadeEdges}
+            showHighlight={false}
+            stroke="transparent"
+            strokeWidth={0}
+          />
+          <StudioVisibleLayer componentId="line.profit-loss" state={state}>
             <ProfitLossLineWithLegendHover
               curve={curve}
               fadeEdges={fadeEdges}
               hoveredIndex={legendHoveredIndex}
               strokeWidth={state.strokeWidth}
             />
+          </StudioVisibleLayer>
+          <StudioVisibleLayer componentId="line.xaxis" state={state}>
             <XAxis />
+          </StudioVisibleLayer>
+          <StudioVisibleLayer componentId="line.tooltip" state={state}>
             <ChartTooltip
-              indicatorColor={crosshairIndicatorColor(state)}
-              rows={(point) => profitLossTooltipRows(point, state.tooltipLabel)}
-              showCrosshair={state.showCrosshair}
-              showDatePill={state.showTooltipDatePill}
-              showDots={state.showTooltipDots}
+              {...chartTooltipPropsFromState(state, {
+                indicatorColor: crosshairIndicatorColor(state),
+                rows: (point) =>
+                  profitLossTooltipRows(point, state.tooltipLabel),
+              })}
             />
-          </LineChart>
-        </StudioCartesianFill>
-      </div>
-      {state.showLegend && state.legendPlacement === "bottom" ? legend : null}
-    </div>
+          </StudioVisibleLayer>
+        </LineChart>
+      </StudioCartesianFill>
+    </StudioChartShell>
   );
 }

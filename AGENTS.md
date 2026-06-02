@@ -19,9 +19,9 @@ Committed building blocks the agent should reuse (do not reimplement):
 
 | Area | Path |
 |------|------|
-| Editor shell (layout, panes, mobile) | `apps/web/components/editor/` |
+| Editor shell (layout, panes, mobile) | `@bklitui/studio` (`EditorShell`, `EditorChartFrame`) |
 | Playground helpers (state, empty state, charts) | `apps/web/components/playground/` |
-| Control groups (right pane) | `apps/web/lib/studio/registry-control-groups.ts` |
+| Control groups (right pane) | `@bklitui/studio` or `packages/studio/src/lib/registry-control-groups.ts` |
 | Playground skill + template | `.agents/skills/bklit-playground/` |
 
 **Pane rules:** animation → left pane (`showMotionControls`); props/settings → right pane (`controlGroups`).
@@ -36,6 +36,7 @@ Read `.agents/skills/bklit-ship/SKILL.md` when moving a prototype from the playg
 |-------|------|
 | `bklit-playground` | New chart, edit chart, tune props/animation, `/playground` |
 | `bklit-ship` | Ship chart to `packages/ui` + docs + registry |
+| `bklit-studio-chart-performance` | Studio chart FPS audit, pan/zoom jank, Motion subscription cleanup |
 | `pr-open` | Commit, push, open PR (bklit-ui checklist) |
 | `unit-tests` | Adding tests — avoid over-testing |
 | `turborepo` | Monorepo tasks, turbo.json, caching |

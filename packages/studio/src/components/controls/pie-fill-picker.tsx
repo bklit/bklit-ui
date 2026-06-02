@@ -1,7 +1,10 @@
 "use client";
 
 import { PatternLines } from "@bklitui/ui/charts";
-import { cn } from "@bklitui/ui/lib/utils";
+import {
+  StudioTab,
+  StudioTabs,
+} from "@/components/controls/studio-toggle-group";
 
 export type PieFillMode = "solid" | "lines";
 
@@ -46,25 +49,15 @@ export function PieFillPicker({
     ];
 
   return (
-    <div className="grid grid-cols-2 gap-2">
+    <StudioTabs layout="swatch" onValueChange={onChange} value={value}>
       {options.map((opt) => (
-        <button
-          className={cn(
-            "flex h-9 items-center gap-2 rounded-lg border px-2.5 transition-colors",
-            value === opt.id
-              ? "border-accent bg-accent/10 text-accent"
-              : "border-border bg-muted/30 text-muted-foreground hover:bg-muted/50"
-          )}
-          key={opt.id}
-          onClick={() => onChange(opt.id)}
-          type="button"
-        >
+        <StudioTab key={opt.id} value={opt.id}>
           <span className="size-5 shrink-0 overflow-hidden rounded ring-1 ring-border">
             {opt.swatch}
           </span>
-          <span className="text-xs">{opt.label}</span>
-        </button>
+          {opt.label}
+        </StudioTab>
       ))}
-    </div>
+    </StudioTabs>
   );
 }

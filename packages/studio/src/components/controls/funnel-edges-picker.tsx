@@ -1,7 +1,7 @@
 "use client";
 
-import { cn } from "@bklitui/ui/lib/utils";
-import { IconToggleGroup } from "./icon-toggle-group";
+import { IconToggleGroup } from "@/components/controls/icon-toggle-group";
+import { StudioTab } from "@/components/controls/studio-toggle-group";
 
 function FunnelStraightIcon() {
   return (
@@ -31,37 +31,17 @@ export function FunnelEdgesPicker({
   onChange: (v: "curved" | "straight") => void;
 }) {
   return (
-    <IconToggleGroup>
-      <button
-        aria-label="Curved edges"
-        aria-pressed={value === "curved"}
-        className={cn(
-          "flex h-11 flex-1 items-center justify-center rounded-lg border transition-colors",
-          value === "curved"
-            ? "border-accent bg-accent/10 text-accent"
-            : "border-border bg-muted/30 text-muted-foreground hover:bg-muted/50"
-        )}
-        onClick={() => onChange("curved")}
-        title="Curved edges"
-        type="button"
-      >
+    <IconToggleGroup onValueChange={onChange} value={value}>
+      <StudioTab aria-label="Curved edges" title="Curved edges" value="curved">
         <FunnelCurvedIcon />
-      </button>
-      <button
+      </StudioTab>
+      <StudioTab
         aria-label="Straight edges"
-        aria-pressed={value === "straight"}
-        className={cn(
-          "flex h-11 flex-1 items-center justify-center rounded-lg border transition-colors",
-          value === "straight"
-            ? "border-accent bg-accent/10 text-accent"
-            : "border-border bg-muted/30 text-muted-foreground hover:bg-muted/50"
-        )}
-        onClick={() => onChange("straight")}
         title="Straight edges"
-        type="button"
+        value="straight"
       >
         <FunnelStraightIcon />
-      </button>
+      </StudioTab>
     </IconToggleGroup>
   );
 }

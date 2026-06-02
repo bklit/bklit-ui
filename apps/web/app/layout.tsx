@@ -3,24 +3,20 @@ import "./globals.css";
 import { BklitComponent } from "@bklit/sdk/nextjs";
 import { OpenPanelComponent } from "@openpanel/nextjs";
 import { RootProvider } from "fumadocs-ui/provider";
+import { GeistMono } from "geist/font/mono";
+import { GeistSans } from "geist/font/sans";
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Inter } from "next/font/google";
+import { Source_Serif_4 } from "next/font/google";
 import type { ReactNode } from "react";
 import { DocsSearchDialog } from "@/components/docs/docs-search-dialog";
 import { getOpenPanelClientId } from "@/lib/openpanel-env";
 import { SITE_URL } from "@/lib/site-url";
 import { cn } from "@/lib/utils";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
-
-const geistMono = Geist_Mono({
+/** Paired serif until `geist/font/serif` ships in the geist package. */
+const geistSerif = Source_Serif_4({
   subsets: ["latin"],
-  variable: "--font-mono",
-});
-
-const geistHeading = Geist({
-  subsets: ["latin"],
-  variable: "--font-heading",
+  variable: "--font-serif",
 });
 
 export const metadata: Metadata = {
@@ -52,10 +48,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
       className={cn(
-        inter.variable,
-        geistMono.variable,
-        geistHeading.variable,
-        "font-sans"
+        GeistSans.variable,
+        GeistMono.variable,
+        geistSerif.variable,
+        GeistSans.className
       )}
       lang="en"
       suppressHydrationWarning
