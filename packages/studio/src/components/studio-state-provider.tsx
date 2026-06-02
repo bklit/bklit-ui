@@ -142,7 +142,9 @@ export function StudioStateProvider({
         ...(slug === "live-line-chart" ? { curve: "monotoneX" } : {}),
         ...(slug === "profit-loss-line" ? lineChartProfitLossDefaults : {}),
         ...(slug === "line-chart" ? lineChartStandardDefaults : {}),
-        ...(slug === "composed-chart" ? { dataSeries: 2 } : {}),
+        ...(slug === "area-chart" || slug === "composed-chart"
+          ? { dataSeries: 2 }
+          : {}),
       });
     },
     [setParams]
