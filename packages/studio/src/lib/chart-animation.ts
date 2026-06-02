@@ -71,7 +71,11 @@ export function getStudioCssRevealPropsForPreview(
     "motionCurveDragging" | "committedState" | "isRecording"
   >
 ) {
-  return getStudioCssRevealProps(displayState, {
+  const motionState = ctx.motionCurveDragging
+    ? ctx.committedState
+    : displayState;
+
+  return getStudioCssRevealProps(motionState, {
     revealFrom: ctx.motionCurveDragging ? ctx.committedState : undefined,
     linear: ctx.isRecording,
   });
