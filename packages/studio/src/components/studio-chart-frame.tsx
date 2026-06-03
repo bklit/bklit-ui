@@ -219,6 +219,7 @@ export const StudioChartFrame = forwardRef<
         return;
       }
       event.preventDefault();
+      event.stopPropagation();
       const handle = event.currentTarget;
       handle.setPointerCapture(event.pointerId);
       draggingRef.current = true;

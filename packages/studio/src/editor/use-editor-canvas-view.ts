@@ -8,6 +8,7 @@ import {
   useState,
 } from "react";
 import {
+  adjustCameraForContentBoundsChange,
   clampCameraZoom,
   compute100PercentCamera,
   computeFitCamera,
@@ -41,6 +42,22 @@ function isEditableTarget(target: EventTarget | null) {
     tag === "TEXTAREA" ||
     tag === "SELECT" ||
     tag === "BUTTON"
+  );
+}
+
+function isChartFrameResizeTarget(target: EventTarget | null) {
+  if (!(target instanceof Element)) {
+    return false;
+  }
+  const control = target.closest("button");
+  if (!control) {
+    return false;
+  }
+  const label = control.getAttribute("aria-label");
+  return (
+    label === "Resize width" ||
+    label === "Resize height" ||
+    label === "Resize width and height"
   );
 }
 
@@ -81,6 +98,7 @@ export function useEditorCamera({
   cameraRef.current = camera;
   const getContentBoundsRef = useRef(getContentBounds);
   getContentBoundsRef.current = getContentBounds;
+  const prevContentBoundsRef = useRef<EditorContentBounds | null>(null);
   const userAdjustedCameraRef = useRef(false);
 
   const getViewportSize = useCallback(() => {
@@ -232,10 +250,35 @@ export function useEditorCamera({
     userAdjustedCameraRef.current = false;
   }, [enabled]);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: re-center when artboard bounds change
+  // biome-ignore lint/correctness/useExhaustiveDependencies: react to artboard bounds changes
   useEffect(() => {
+    const bounds = getContentBoundsRef.current();
+    const prev = prevContentBoundsRef.current;
+    prevContentBoundsRef.current = bounds;
+
+    if (!prev) {
+      applyDefaultCamera();
+      return;
+    }
+
+    if (
+      prev.x === bounds.x &&
+      prev.y === bounds.y &&
+      prev.width === bounds.width &&
+      prev.height === bounds.height
+    ) {
+      return;
+    }
+
+    if (userAdjustedCameraRef.current) {
+      applyCamera(
+        adjustCameraForContentBoundsChange(cameraRef.current, prev, bounds)
+      );
+      return;
+    }
+
     applyDefaultCamera();
-  }, [applyDefaultCamera, getContentBounds]);
+  }, [applyCamera, applyDefaultCamera, getContentBounds]);
 
   useEffect(() => {
     if (!enabled) {
@@ -378,6 +421,26 @@ export function useEditorCamera({
     };
   }, [applyCamera, enabled, panBy, viewportRef]);
 
+  useEffect(() => {
+    if (!enabled) {
+      return;
+    }
+
+    const element = viewportRef.current;
+    if (!element) {
+      return;
+    }
+
+    const onLostPointerCapture = () => {
+      panSessionRef.current = null;
+    };
+
+    element.addEventListener("lostpointercapture", onLostPointerCapture);
+    return () => {
+      element.removeEventListener("lostpointercapture", onLostPointerCapture);
+    };
+  }, [enabled, viewportRef]);
+
   const onPointerDown = useCallback(
     (event: React.PointerEvent<HTMLDivElement>) => {
       if (!enabled) {
@@ -390,6 +453,10 @@ export function useEditorCamera({
       }
 
       if (viewport.dataset.pinchActive === "true") {
+        return;
+      }
+
+      if (isChartFrameResizeTarget(event.target)) {
         return;
       }
 

@@ -128,6 +128,39 @@ export function computeCenterCamera({
   };
 }
 
+/** Keep the same world anchor when the artboard grows from a fixed origin. */
+export function adjustCameraForContentBoundsChange(
+  camera: EditorCamera,
+  prev: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  },
+  next: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  }
+): EditorCamera {
+  if (prev.x !== next.x || prev.y !== next.y) {
+    return camera;
+  }
+  if (prev.width === next.width && prev.height === next.height) {
+    return camera;
+  }
+
+  const dw = next.width - prev.width;
+  const dh = next.height - prev.height;
+
+  return {
+    ...camera,
+    x: camera.x - (dw * camera.zoom) / 2,
+    y: camera.y - (dh * camera.zoom) / 2,
+  };
+}
+
 export function zoomCameraAtPoint({
   camera,
   pointX,
