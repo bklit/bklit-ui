@@ -44,6 +44,22 @@ function isEditableTarget(target: EventTarget | null) {
   );
 }
 
+function isChartFrameResizeTarget(target: EventTarget | null) {
+  if (!(target instanceof Element)) {
+    return false;
+  }
+  const control = target.closest("button");
+  if (!control) {
+    return false;
+  }
+  const label = control.getAttribute("aria-label");
+  return (
+    label === "Resize width" ||
+    label === "Resize height" ||
+    label === "Resize width and height"
+  );
+}
+
 export function useEditorCamera({
   enabled,
   viewportRef,
@@ -81,6 +97,7 @@ export function useEditorCamera({
   cameraRef.current = camera;
   const getContentBoundsRef = useRef(getContentBounds);
   getContentBoundsRef.current = getContentBounds;
+  const prevContentBoundsRef = useRef<EditorContentBounds | null>(null);
   const userAdjustedCameraRef = useRef(false);
 
   const getViewportSize = useCallback(() => {
@@ -232,8 +249,16 @@ export function useEditorCamera({
     userAdjustedCameraRef.current = false;
   }, [enabled]);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: re-center when artboard bounds change
+  // biome-ignore lint/correctness/useExhaustiveDependencies: initial center only — artboard move/resize keeps camera fixed
   useEffect(() => {
+    const bounds = getContentBoundsRef.current();
+    const prev = prevContentBoundsRef.current;
+    prevContentBoundsRef.current = bounds;
+
+    if (prev) {
+      return;
+    }
+
     applyDefaultCamera();
   }, [applyDefaultCamera, getContentBounds]);
 
@@ -378,6 +403,26 @@ export function useEditorCamera({
     };
   }, [applyCamera, enabled, panBy, viewportRef]);
 
+  useEffect(() => {
+    if (!enabled) {
+      return;
+    }
+
+    const element = viewportRef.current;
+    if (!element) {
+      return;
+    }
+
+    const onLostPointerCapture = () => {
+      panSessionRef.current = null;
+    };
+
+    element.addEventListener("lostpointercapture", onLostPointerCapture);
+    return () => {
+      element.removeEventListener("lostpointercapture", onLostPointerCapture);
+    };
+  }, [enabled, viewportRef]);
+
   const onPointerDown = useCallback(
     (event: React.PointerEvent<HTMLDivElement>) => {
       if (!enabled) {
@@ -390,6 +435,10 @@ export function useEditorCamera({
       }
 
       if (viewport.dataset.pinchActive === "true") {
+        return;
+      }
+
+      if (isChartFrameResizeTarget(event.target)) {
         return;
       }
 
