@@ -8,7 +8,6 @@ import {
   useState,
 } from "react";
 import {
-  adjustCameraForContentBoundsChange,
   clampCameraZoom,
   compute100PercentCamera,
   computeFitCamera,
@@ -250,46 +249,18 @@ export function useEditorCamera({
     userAdjustedCameraRef.current = false;
   }, [enabled]);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: react to artboard bounds changes
+  // biome-ignore lint/correctness/useExhaustiveDependencies: initial center only — artboard move/resize keeps camera fixed
   useEffect(() => {
     const bounds = getContentBoundsRef.current();
     const prev = prevContentBoundsRef.current;
     prevContentBoundsRef.current = bounds;
 
-    if (!prev) {
-      applyDefaultCamera();
-      return;
-    }
-
-    if (
-      prev.x === bounds.x &&
-      prev.y === bounds.y &&
-      prev.width === bounds.width &&
-      prev.height === bounds.height
-    ) {
-      return;
-    }
-
-    const positionChanged = prev.x !== bounds.x || prev.y !== bounds.y;
-    const sizeChanged =
-      prev.width !== bounds.width || prev.height !== bounds.height;
-
-    // Dragging the frame label moves artboard x/y — camera must stay fixed.
-    if (positionChanged && !sizeChanged) {
-      return;
-    }
-
-    if (userAdjustedCameraRef.current) {
-      if (sizeChanged) {
-        applyCamera(
-          adjustCameraForContentBoundsChange(cameraRef.current, prev, bounds)
-        );
-      }
+    if (prev) {
       return;
     }
 
     applyDefaultCamera();
-  }, [applyCamera, applyDefaultCamera, getContentBounds]);
+  }, [applyDefaultCamera, getContentBounds]);
 
   useEffect(() => {
     if (!enabled) {

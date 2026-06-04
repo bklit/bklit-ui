@@ -26,8 +26,6 @@ export const STUDIO_EXPORT_ROOT_ATTR = "data-studio-export-root";
 const MIN_WIDTH = 1;
 const MIN_HEIGHT = 1;
 
-const frameSpring = { type: "spring" as const, stiffness: 420, damping: 36 };
-
 type ResizeEdge = "right" | "bottom" | "corner";
 
 interface FrameSize {
@@ -306,9 +304,6 @@ export const StudioChartFrame = forwardRef<
       ref={wrapRef}
     >
       <motion.div
-        animate={
-          resizable ? { width: size.width, height: size.height } : undefined
-        }
         className={cn(
           "relative overflow-visible border-2 bg-card",
           isRecording
@@ -324,16 +319,7 @@ export const StudioChartFrame = forwardRef<
         data-studio-export-root=""
         layout={false}
         ref={captureRef}
-        style={
-          resizable
-            ? style
-            : { ...style, width: size.width, height: size.height }
-        }
-        transition={
-          isDragging || reducedMotion || isRecording || !resizable
-            ? { duration: 0 }
-            : { ...frameSpring, layout: frameSpring }
-        }
+        style={{ ...style, width: size.width, height: size.height }}
       >
         {frameContent}
         {isRecording || !resizable ? null : (
