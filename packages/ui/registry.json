@@ -799,6 +799,11 @@
           "target": "components/charts/candlestick-chart.tsx"
         },
         {
+          "path": "src/charts/chart-legend-hover.tsx",
+          "type": "registry:component",
+          "target": "components/charts/chart-legend-hover.tsx"
+        },
+        {
           "path": "src/charts/candlestick.tsx",
           "type": "registry:component",
           "target": "components/charts/candlestick.tsx"

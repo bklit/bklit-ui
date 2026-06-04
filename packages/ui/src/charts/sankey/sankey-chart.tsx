@@ -48,6 +48,10 @@ export interface SankeyChartProps {
   className?: string;
   /** Child components (SankeyNode, SankeyLink, SankeyTooltip) */
   children: ReactNode;
+  /** Controlled hovered node index (e.g. from ChartLegend). */
+  hoveredNodeIndex?: number | null;
+  /** Called when node hover changes from the chart surface. */
+  onNodeHoverChange?: (index: number | null) => void;
 }
 
 const DEFAULT_MARGIN: Margin = { top: 40, right: 180, bottom: 40, left: 180 };
@@ -63,6 +67,8 @@ interface SankeyChartInnerProps {
   nodeWidth: number;
   nodePadding: number;
   children: ReactNode;
+  hoveredNodeIndexProp?: number | null;
+  onNodeHoverChange?: (index: number | null) => void;
 }
 
 function SankeyChartInner(props: SankeyChartInnerProps) {
@@ -86,11 +92,29 @@ const SankeyChartCore = memo(function SankeyChartCore({
   nodeWidth,
   nodePadding,
   children,
+  hoveredNodeIndexProp,
+  onNodeHoverChange,
 }: SankeyChartInnerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [revealEpoch, setRevealEpoch] = useState(0);
-  const [hoveredNodeIndex, setHoveredNodeIndex] = useState<number | null>(null);
+  const [internalHoveredNodeIndex, setInternalHoveredNodeIndex] = useState<
+    number | null
+  >(null);
+  const isNodeHoverControlled = hoveredNodeIndexProp !== undefined;
+  const hoveredNodeIndex = isNodeHoverControlled
+    ? hoveredNodeIndexProp
+    : internalHoveredNodeIndex;
+  const setHoveredNodeIndex = useCallback(
+    (index: number | null) => {
+      if (isNodeHoverControlled) {
+        onNodeHoverChange?.(index);
+      } else {
+        setInternalHoveredNodeIndex(index);
+      }
+    },
+    [isNodeHoverControlled, onNodeHoverChange]
+  );
   const [hoveredLinkIndex, setHoveredLinkIndex] = useState<number | null>(null);
   const [tooltipData, setTooltipData] = useState<SankeyTooltipData | null>(
     null
@@ -156,7 +180,7 @@ const SankeyChartCore = memo(function SankeyChartCore({
     setHoveredLinkIndex(null);
     setTooltipData(null);
     setMousePos(null);
-  }, []);
+  }, [setHoveredNodeIndex]);
 
   const contextValue = {
     graph,
@@ -212,6 +236,8 @@ export function SankeyChart({
   nodePadding = 24,
   className = "",
   children,
+  hoveredNodeIndex,
+  onNodeHoverChange,
 }: SankeyChartProps) {
   const margin = { ...DEFAULT_MARGIN, ...marginProp };
 
@@ -224,9 +250,11 @@ export function SankeyChart({
             data={data}
             enterTransition={enterTransition}
             height={height}
+            hoveredNodeIndexProp={hoveredNodeIndex}
             margin={margin}
             nodePadding={nodePadding}
             nodeWidth={nodeWidth}
+            onNodeHoverChange={onNodeHoverChange}
             revealSignature={revealSignature}
             width={width}
           >

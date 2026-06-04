@@ -1,10 +1,11 @@
-import type { LegendItem } from "@bklitui/ui/charts";
+import type { LegendItem, SankeyData } from "@bklitui/ui/charts";
 import {
   clampStudioSeriesCount,
   funnelData,
   getPieData,
   getRadarData,
   getRingData,
+  getSankeyData,
   pieData,
   ringData,
   STUDIO_SERIES_KEYS,
@@ -109,4 +110,52 @@ export function studioAreaLegendItems(state: StudioUrlState): LegendItem[] {
     state,
     clampStudioSeriesCount(state.dataSeries)
   );
+}
+
+function sankeyNodeDisplayValue(nodeIndex: number, data: SankeyData): number {
+  const node = data.nodes[nodeIndex];
+  if (!node) {
+    return 0;
+  }
+  let displayValue = 0;
+  for (const link of data.links) {
+    if (node.category === "source" && link.source === nodeIndex) {
+      displayValue += link.value;
+    } else if (node.category !== "source" && link.target === nodeIndex) {
+      displayValue += link.value;
+    }
+  }
+  return displayValue;
+}
+
+export function studioSankeyLegendItems(
+  state: StudioUrlState,
+  seed = 0
+): LegendItem[] {
+  const data = getSankeyData(seed);
+  const values = data.nodes.map((_, index) =>
+    sankeyNodeDisplayValue(index, data)
+  );
+  const maxValue = Math.max(...values, 1);
+  return data.nodes.map((node, index) => ({
+    label: node.name,
+    value: values[index] ?? 0,
+    maxValue,
+    color: getEffectiveSeriesColor(state, index),
+  }));
+}
+
+export function studioCandlestickLegendItems(
+  state: StudioUrlState
+): LegendItem[] {
+  const bullishColor = state.candleUseGradient
+    ? "var(--chart-1)"
+    : getEffectiveSeriesColor(state, 0);
+  const bearishColor = state.candleUseGradient
+    ? "var(--chart-3)"
+    : getEffectiveSeriesColor(state, 1);
+  return [
+    { label: "Bullish", value: 100, color: bullishColor },
+    { label: "Bearish", value: 100, color: bearishColor },
+  ];
 }
