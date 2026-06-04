@@ -397,13 +397,14 @@ export function getVisitorsByCountry(seed = 0): Record<string, number> {
   );
 }
 
+/** Phase-shift a 0–100 gauge fill percentage (not currency-scale center values). */
 export function scrambleGaugeValue(value: number, seed: number): number {
   if (seed === 0) {
     return value;
   }
-  const span = Math.max(value * 0.35, 5000);
+  const span = Math.max(value * 0.35, 25);
   const offset = ((seed * 7919) % 100) / 100 - 0.5;
-  return Math.max(0, Math.round(value + span * offset));
+  return Math.min(100, Math.max(0, Math.round(value + span * offset)));
 }
 
 /**

@@ -53,8 +53,7 @@ const RadarPoint = memo(function RadarPoint({
 
   if (enterComplete) {
     return (
-      <motion.circle
-        animate={{ r: isHovered ? 6 : 4 }}
+      <circle
         cx={target.x}
         cy={target.y}
         fill={color}
@@ -62,9 +61,6 @@ const RadarPoint = memo(function RadarPoint({
         r={isHovered ? 6 : 4}
         stroke={radarCssVars.background}
         strokeWidth={2}
-        transition={{
-          r: { type: "spring", stiffness: 300, damping: 20 },
-        }}
       />
     );
   }
@@ -169,22 +165,16 @@ export const RadarArea = memo(function RadarArea({
       }}
     >
       {enterComplete ? (
-        <motion.path
-          animate={{
-            fillOpacity: isHovered ? 0.35 : 0.15,
-            strokeWidth: showStroke ? getStrokeWidth(isHovered) : 0,
-          }}
+        <path
           d={staticPath}
           fill={color}
+          fillOpacity={isHovered ? 0.35 : 0.15}
           stroke={showStroke ? color : "none"}
           strokeLinejoin="round"
+          strokeWidth={showStroke ? getStrokeWidth(isHovered) : 0}
           style={{
             filter:
               showGlow && isHovered ? `drop-shadow(0 0 12px ${color})` : "none",
-          }}
-          transition={{
-            fillOpacity: { duration: 0.2 },
-            strokeWidth: { duration: 0.2 },
           }}
         />
       ) : (
