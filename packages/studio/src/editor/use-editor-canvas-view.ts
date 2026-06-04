@@ -270,10 +270,21 @@ export function useEditorCamera({
       return;
     }
 
+    const positionChanged = prev.x !== bounds.x || prev.y !== bounds.y;
+    const sizeChanged =
+      prev.width !== bounds.width || prev.height !== bounds.height;
+
+    // Dragging the frame label moves artboard x/y — camera must stay fixed.
+    if (positionChanged && !sizeChanged) {
+      return;
+    }
+
     if (userAdjustedCameraRef.current) {
-      applyCamera(
-        adjustCameraForContentBoundsChange(cameraRef.current, prev, bounds)
-      );
+      if (sizeChanged) {
+        applyCamera(
+          adjustCameraForContentBoundsChange(cameraRef.current, prev, bounds)
+        );
+      }
       return;
     }
 
