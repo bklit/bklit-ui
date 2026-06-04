@@ -74,6 +74,7 @@ function extractScatterConfigs(children: ReactNode): LineConfig[] {
         dataKey: props.dataKey,
         stroke: props.fill || props.stroke || seriesColor,
         strokeWidth: props.radius ?? 5,
+        yAxisId: props.yAxisId,
       });
       seriesIndex += 1;
     }

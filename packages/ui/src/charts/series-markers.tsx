@@ -6,6 +6,7 @@ import {
   defaultScatterColors,
   useChartHover,
   useChartStable,
+  useYScale,
 } from "./chart-context";
 import { useChartLegendHover } from "./chart-legend-hover";
 import {
@@ -62,7 +63,6 @@ export function SeriesMarkers({
   const {
     data,
     xScale,
-    yScale,
     innerWidth,
     enterTransition,
     animationDuration,
@@ -78,6 +78,7 @@ export function SeriesMarkers({
   }, [lines, dataKey]);
 
   const seriesConfig = lines[seriesIndex];
+  const yScale = useYScale(seriesConfig?.yAxisId);
   const seriesColor =
     defaultScatterColors[seriesIndex % defaultScatterColors.length] ??
     defaultScatterColors[0];

@@ -6,6 +6,7 @@ import {
   Bar,
   BarChart,
   BarXAxis,
+  BarYAxis,
   ChartTooltip,
   ComposedChart,
   Grid,
@@ -33,7 +34,10 @@ import {
   StudioChartShell,
   StudioVisibleLayer,
 } from "@/components/charts/studio-chart-shell";
-
+import {
+  StudioChartYAxisLayers,
+  timeSeriesChartMargin,
+} from "@/components/charts/studio-chart-y-axis";
 import { fadeEdgesPropValue } from "@/components/controls/fade-edges-picker";
 import {
   getStudioCssRevealPropsForPreview,
@@ -68,6 +72,7 @@ import {
   STUDIO_SERIES_KEYS,
 } from "./demo-data";
 import { isProfitLossLineMode } from "./line-chart-mode";
+import { getLineSeriesYAxisId } from "./line-series-y-axis";
 import { motionEnterPropsCodegen } from "./motion-codegen";
 import { profitLossLineCodegen } from "./profit-loss-line-codegen";
 import {
@@ -160,6 +165,7 @@ const areaConfig: StudioChartConfig = {
             className="size-full"
             data={data}
             key={studioPreviewChartKey(ctx)}
+            margin={timeSeriesChartMargin(state)}
           >
             <StudioVisibleLayer componentId="area.grid" state={state}>
               <Grid horizontal />
@@ -186,6 +192,7 @@ const areaConfig: StudioChartConfig = {
                   showHighlight={state.showHighlight}
                   showLine={state.showLine}
                   strokeWidth={state.strokeWidth}
+                  yAxisId={getLineSeriesYAxisId(state, idx)}
                   {...seriesStroke}
                 />,
               ];
@@ -201,6 +208,7 @@ const areaConfig: StudioChartConfig = {
               }
               return nodes;
             })}
+            <StudioChartYAxisLayers chartPrefix="area" state={state} />
             <StudioVisibleLayer componentId="area.xaxis" state={state}>
               <XAxis />
             </StudioVisibleLayer>
@@ -259,6 +267,7 @@ const lineConfig: StudioChartConfig = {
             className="size-full"
             data={data}
             key={studioPreviewChartKey(ctx)}
+            margin={timeSeriesChartMargin(state)}
           >
             <StudioVisibleLayer componentId="line.grid" state={state}>
               <Grid horizontal />
@@ -273,10 +282,12 @@ const lineConfig: StudioChartConfig = {
                   showHighlight={state.showHighlight}
                   stroke={idx === 0 ? undefined : STUDIO_SERIES_COLORS[idx]}
                   strokeWidth={state.strokeWidth}
+                  yAxisId={getLineSeriesYAxisId(state, idx)}
                   {...seriesStroke}
                 />
               ) : null
             )}
+            <StudioChartYAxisLayers chartPrefix="line" state={state} />
             <StudioVisibleLayer componentId="line.xaxis" state={state}>
               <XAxis />
             </StudioVisibleLayer>
@@ -331,6 +342,7 @@ const scatterConfig: StudioChartConfig = {
           className="size-full"
           data={getScatterData(ctx.dataSeed)}
           key={studioPreviewChartKey(ctx)}
+          margin={timeSeriesChartMargin(state)}
         >
           <StudioVisibleLayer componentId="scatter.grid" state={state}>
             <Grid horizontal />
@@ -344,6 +356,7 @@ const scatterConfig: StudioChartConfig = {
               ringGap={state.scatterRingGap}
               showActiveHighlight={state.scatterShowActiveHighlight}
               strokeWidth={state.scatterRingWidth}
+              yAxisId={getLineSeriesYAxisId(state, 0)}
             />
           ) : null}
           {state.scatterSecondSeries &&
@@ -356,8 +369,10 @@ const scatterConfig: StudioChartConfig = {
               ringGap={state.scatterRingGap}
               showActiveHighlight={state.scatterShowActiveHighlight}
               strokeWidth={state.scatterRingWidth}
+              yAxisId={getLineSeriesYAxisId(state, 1)}
             />
           ) : null}
+          <StudioChartYAxisLayers chartPrefix="scatter" state={state} />
           <StudioVisibleLayer componentId="scatter.xaxis" state={state}>
             <XAxis />
           </StudioVisibleLayer>
@@ -424,7 +439,11 @@ const barConfig: StudioChartConfig = {
             className="size-full"
             data={chartData}
             key={studioPreviewChartKey(ctx)}
-            margin={horizontal ? { left: 80 } : undefined}
+            margin={
+              horizontal
+                ? { left: 80 }
+                : timeSeriesChartMargin(state, { left: 56 })
+            }
             orientation={state.barOrientation}
             stacked={stacked}
             stackGap={stacked ? 3 : 0}
@@ -445,10 +464,24 @@ const barConfig: StudioChartConfig = {
                 key={key}
                 lineCap={lineCap}
                 stackGap={stacked ? 3 : 0}
+                yAxisId={
+                  horizontal ? undefined : getLineSeriesYAxisId(state, idx)
+                }
               />
             ))}
-            <BarXAxis />
-            <ChartTooltip showCrosshair={false} />
+            {horizontal ? (
+              <StudioVisibleLayer componentId="bar.baryaxis" state={state}>
+                <BarYAxis />
+              </StudioVisibleLayer>
+            ) : (
+              <StudioChartYAxisLayers chartPrefix="bar" state={state} />
+            )}
+            <StudioVisibleLayer componentId="bar.xaxis" state={state}>
+              <BarXAxis />
+            </StudioVisibleLayer>
+            <StudioVisibleLayer componentId="bar.tooltip" state={state}>
+              <ChartTooltip showCrosshair={false} />
+            </StudioVisibleLayer>
           </BarChart>
         </StudioCartesianFill>
       </StudioChartShell>
@@ -489,8 +522,11 @@ const composedConfig: StudioChartConfig = {
             className="size-full"
             data={data}
             key={studioPreviewChartKey(ctx)}
+            margin={timeSeriesChartMargin(state)}
           >
-            <Grid horizontal />
+            <StudioVisibleLayer componentId="composed.grid" state={state}>
+              <Grid horizontal />
+            </StudioVisibleLayer>
             {ctx.patternDefs}
             {barKey ? (
               <SeriesBar
@@ -501,8 +537,10 @@ const composedConfig: StudioChartConfig = {
             ) : null}
             {STUDIO_SERIES_KEYS.slice(1, seriesCount).flatMap(
               (key, secondaryIdx) => {
-                const colorIdx = secondaryIdx + 1;
+                const seriesIndex = secondaryIdx + 1;
+                const colorIdx = seriesIndex;
                 const color = `var(--chart-${(colorIdx % 5) + 1})`;
+                const yAxisId = getLineSeriesYAxisId(state, seriesIndex);
                 return [
                   <Area
                     curve={curve}
@@ -511,6 +549,7 @@ const composedConfig: StudioChartConfig = {
                     fill={color}
                     fillOpacity={state.fillOpacity}
                     key={`area-${key}`}
+                    yAxisId={yAxisId}
                     {...seriesStroke}
                   />,
                   <Line
@@ -520,13 +559,19 @@ const composedConfig: StudioChartConfig = {
                     key={`line-${key}`}
                     stroke={color}
                     strokeWidth={state.strokeWidth}
+                    yAxisId={yAxisId}
                     {...seriesStroke}
                   />,
                 ];
               }
             )}
-            <XAxis />
-            <ChartTooltip />
+            <StudioChartYAxisLayers chartPrefix="composed" state={state} />
+            <StudioVisibleLayer componentId="composed.xaxis" state={state}>
+              <XAxis />
+            </StudioVisibleLayer>
+            <StudioVisibleLayer componentId="composed.tooltip" state={state}>
+              <ChartTooltip {...chartTooltipPropsFromState(state)} />
+            </StudioVisibleLayer>
           </ComposedChart>
         </StudioCartesianFill>
       </StudioChartShell>

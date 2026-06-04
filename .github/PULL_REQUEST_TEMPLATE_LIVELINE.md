@@ -79,7 +79,7 @@ This PR adds a **Live Line Chart** component and docs: a real-time, composable c
 
 ## How to test
 
-1. **Playground** – `apps/web` → `/playground`: run multiple live chart cards, pause/play, hover for crosshair and tooltip; confirm no “Maximum update depth” in console.
+1. **Studio** – `apps/web` → `/studio?chart=live-line-chart`: pause/play, hover for crosshair and tooltip; confirm no “Maximum update depth” in console.
 2. **Docs** – `/docs/components/live-line-chart`: preview and code samples.
 3. **Charts** – `/charts/live-line-chart`: hero + variant examples in 2-column layout.
 4. **Theming** – Toggle light/dark; confirm badge and tooltip text remain readable (popover vars).

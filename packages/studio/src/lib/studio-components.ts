@@ -7,6 +7,7 @@ import {
   STUDIO_SERIES_KEYS,
 } from "@/lib/demo-data";
 import { isProfitLossLineMode } from "@/lib/line-chart-mode";
+import type { LineYAxisId } from "@/lib/line-series-y-axis";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import {
   getDesignSeriesLabel,
@@ -88,6 +89,46 @@ function passiveNode(
     kind: "chart",
     controlGroups: [],
   };
+}
+
+function chartYAxisNode(
+  chartPrefix: string,
+  axis: LineYAxisId,
+  label: string
+): StudioComponentDefinition {
+  return {
+    id: `${chartPrefix}.yaxis.${axis}`,
+    label,
+    parentId: `${chartPrefix}.chart`,
+    kind: "chart",
+    controlGroups: [
+      controlGroup("Ticks", [
+        {
+          type: "lineYAxisNumTicks",
+          key: "lineYAxisNumTicks",
+          label: "Approx. tick count",
+          axis,
+        },
+        {
+          type: "lineYAxisFormatLarge",
+          key: "lineYAxisFormatLarge",
+          label: "Format large numbers (1k)",
+          axis,
+        },
+      ]),
+    ],
+  };
+}
+
+function seriesYAxisControlGroup(seriesIndex: number): StudioControlGroup {
+  return controlGroup("Axis", [
+    {
+      type: "lineSeriesYAxis",
+      key: "lineSeriesYAxes",
+      label: "Y axis",
+      seriesIndex,
+    },
+  ]);
 }
 
 function slugifyComponentId(title: string): string {
@@ -218,7 +259,10 @@ export function resolveAreaComponents(
     if (index === 0 && design) {
       controlGroups.push(design);
     }
-    controlGroups.push(...areaSeriesLineControlGroups);
+    controlGroups.push(
+      seriesYAxisControlGroup(index),
+      ...areaSeriesLineControlGroups
+    );
 
     components.push({
       id: `area.series.${index}`,
@@ -237,6 +281,8 @@ export function resolveAreaComponents(
   }
 
   components.push(
+    chartYAxisNode("area", "left", "YAxis · left"),
+    chartYAxisNode("area", "right", "YAxis · right"),
     passiveNode("area", "xaxis", "XAxis"),
     chartTooltipNode("area"),
     legendNode("area")
@@ -264,7 +310,17 @@ export function resolveBarComponents(
     passiveNode("bar", "grid", "Grid"),
   ];
 
+  const horizontal = state.barOrientation === "horizontal";
+
   for (let index = 0; index < seriesCount; index += 1) {
+    const controlGroups: StudioControlGroup[] = [];
+    if (index === 0 && design) {
+      controlGroups.push(design);
+    }
+    if (!horizontal) {
+      controlGroups.push(seriesYAxisControlGroup(index));
+    }
+
     components.push({
       id: `bar.series.${index}`,
       label:
@@ -275,7 +331,7 @@ export function resolveBarComponents(
       kind: "series",
       listMarker: "color-dot",
       swatchColor: getEffectiveSeriesColor(state, index),
-      controlGroups: index === 0 && design ? [design] : [],
+      controlGroups,
       design: {
         seriesIndex: index,
         supportsPattern: true,
@@ -284,8 +340,17 @@ export function resolveBarComponents(
     });
   }
 
+  if (horizontal) {
+    components.push(passiveNode("bar", "baryaxis", "BarYAxis"));
+  } else {
+    components.push(
+      chartYAxisNode("bar", "left", "YAxis · left"),
+      chartYAxisNode("bar", "right", "YAxis · right")
+    );
+  }
+
   components.push(
-    passiveNode("bar", "xaxis", "XAxis"),
+    passiveNode("bar", "xaxis", "BarXAxis"),
     chartTooltipNode("bar"),
     legendNode("bar")
   );
@@ -336,7 +401,10 @@ export function resolveComposedComponents(
           ])
         );
       }
-      controlGroups.push(...composedOverlayLineControlGroups);
+      controlGroups.push(
+        seriesYAxisControlGroup(index),
+        ...composedOverlayLineControlGroups
+      );
     }
 
     components.push({
@@ -358,6 +426,8 @@ export function resolveComposedComponents(
   }
 
   components.push(
+    chartYAxisNode("composed", "left", "YAxis · left"),
+    chartYAxisNode("composed", "right", "YAxis · right"),
     passiveNode("composed", "xaxis", "XAxis"),
     chartTooltipNode("composed"),
     legendNode("composed")
@@ -521,6 +591,10 @@ function resolveProfitLossLineComponents(): StudioComponentDefinition[] {
       kind: "line",
       controlGroups: lineControls ? [lineControls] : [],
     },
+    chartYAxisNode("line", "left", "YAxis · left"),
+    chartYAxisNode("line", "right", "YAxis · right"),
+    chartYAxisNode("line", "left", "YAxis · left"),
+    chartYAxisNode("line", "right", "YAxis · right"),
     passiveNode("line", "xaxis", "XAxis"),
     chartTooltipNode("line", [
       ...(tooltip ? [tooltip] : []),
@@ -573,6 +647,7 @@ export function resolveLineComponents(
       listMarker: "color-dot",
       swatchColor: getEffectiveSeriesColor(state, index),
       controlGroups: [
+        seriesYAxisControlGroup(index),
         ...(lineControls ? [lineControls] : []),
         ...(markers ? [markers] : []),
         ...(dashTail ? [dashTail] : []),
@@ -586,6 +661,8 @@ export function resolveLineComponents(
   }
 
   components.push(
+    chartYAxisNode("line", "left", "YAxis · left"),
+    chartYAxisNode("line", "right", "YAxis · right"),
     passiveNode("line", "xaxis", "XAxis"),
     chartTooltipNode("line"),
     legendNode("line")
@@ -695,6 +772,7 @@ export function resolveScatterComponents(
       listMarker: "color-dot",
       swatchColor: getEffectiveSeriesColor(state, 0),
       controlGroups: [
+        seriesYAxisControlGroup(0),
         ...(points ? [points] : []),
         ...(interaction ? [interaction] : []),
       ],
@@ -710,12 +788,14 @@ export function resolveScatterComponents(
       kind: "series",
       listMarker: "color-dot",
       swatchColor: getEffectiveSeriesColor(state, 1),
-      controlGroups: [],
+      controlGroups: [seriesYAxisControlGroup(1)],
       design: { seriesIndex: 1, supportsPattern: false, showPalette: false },
     });
   }
 
   components.push(
+    chartYAxisNode("scatter", "left", "YAxis · left"),
+    chartYAxisNode("scatter", "right", "YAxis · right"),
     passiveNode("scatter", "xaxis", "XAxis"),
     chartTooltipNode("scatter"),
     legendNode("scatter")

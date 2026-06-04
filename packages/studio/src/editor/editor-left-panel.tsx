@@ -2,14 +2,15 @@
 
 import { StudioComponentsPanel } from "@/components/studio-components-panel";
 import { StudioScrollArea } from "@/components/studio-scroll-area";
-import { useStudioState } from "@/components/use-studio-state";
 import { EditorAnimationSection } from "@/editor/editor-animation-section";
 import { EditorCollapsiblePane } from "@/editor/editor-collapsible-pane";
 import { EditorDataSection } from "@/editor/editor-data-section";
 import { useStudioComponentSelection } from "@/editor/studio-component-selection";
 import type { StudioUrlState } from "@/lib/studio-parsers";
+import type { StudioChartConfig } from "@/lib/types";
 
 export function EditorLeftPanel({
+  config,
   state,
   onChange,
   onPreview,
@@ -20,6 +21,7 @@ export function EditorLeftPanel({
   controlsDisabled = false,
   onScramble,
 }: {
+  config: StudioChartConfig;
   state: StudioUrlState;
   onChange: <K extends keyof StudioUrlState>(
     key: K,
@@ -45,7 +47,6 @@ export function EditorLeftPanel({
     selectedComponentId,
     setSelectedComponentId,
   } = useStudioComponentSelection();
-  const { config } = useStudioState();
   const showScramble = config.scrambleData !== false;
 
   return (

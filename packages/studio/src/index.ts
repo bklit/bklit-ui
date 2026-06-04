@@ -7,6 +7,10 @@ export {
   studioRadialSize,
 } from "./components/charts/studio-chart-layout";
 export {
+  StudioChartShell,
+  StudioVisibleLayer,
+} from "./components/charts/studio-chart-shell";
+export {
   fadeEdgesCodegen,
   fadeEdgesPropValue,
 } from "./components/controls/fade-edges-picker";
@@ -35,6 +39,7 @@ export {
 export type { EditorCamera } from "./editor/editor-camera";
 export { EditorShell } from "./editor/editor-shell";
 export { FpsCounter } from "./editor/fps-counter";
+export { StudioComponentSelectionProvider } from "./editor/studio-component-selection";
 export {
   resolveViewportSize,
   VIEWPORT_PRESETS,
@@ -68,6 +73,7 @@ export {
   type SaveBlobHandler,
   setSaveBlobHandler,
 } from "./lib/download-blob";
+export { getStudioConfig } from "./lib/registry";
 export {
   areaChartControlGroups,
   barChartControlGroups,
@@ -87,6 +93,8 @@ export {
 } from "./lib/registry-control-groups";
 export type { StudioRenderContext } from "./lib/render-context";
 export { seriesStrokePropsFromState } from "./lib/series-stroke-props";
+export { chartTooltipPropsFromState } from "./lib/studio-chart-overlays";
+export { studioCartesianLegendItems } from "./lib/studio-legend-items";
 export type { StudioUrlState } from "./lib/studio-parsers";
 export {
   defaultStudioState,

@@ -58,7 +58,25 @@ export type StudioControl =
       label: string;
       color: string;
       secondaryColor?: string;
-    } & Pick<NumberControlBase, "min" | "max" | "step">);
+    } & Pick<NumberControlBase, "min" | "max" | "step">)
+  | {
+      type: "lineSeriesYAxis";
+      key: "lineSeriesYAxes";
+      label: string;
+      seriesIndex: number;
+    }
+  | {
+      type: "lineYAxisNumTicks";
+      key: "lineYAxisNumTicks";
+      label: string;
+      axis: "left" | "right";
+    }
+  | {
+      type: "lineYAxisFormatLarge";
+      key: "lineYAxisFormatLarge";
+      label: string;
+      axis: "left" | "right";
+    };
 
 export interface StudioControlGroup {
   title: string;

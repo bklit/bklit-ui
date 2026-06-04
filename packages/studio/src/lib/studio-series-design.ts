@@ -48,7 +48,7 @@ export function getDesignSeriesLabel(index: number): string {
   return `Series ${index + 1} · ${key}`;
 }
 
-function parsePipeField(raw: string): string[] {
+export function parsePipeField(raw: string): string[] {
   if (!raw.trim()) {
     return [];
   }
@@ -64,7 +64,7 @@ function parsePipeField(raw: string): string[] {
   });
 }
 
-function serializePipeField(values: string[]): string {
+export function serializePipeField(values: string[]): string {
   return values
     .map((value) => (value.trim() ? encodeURIComponent(value.trim()) : ""))
     .join(SERIES_FIELD_SEP);

@@ -158,6 +158,12 @@ export const studioSearchParams = {
   lineChartMode: parseAsStringLiteral(["standard", "profitLoss"]).withDefault(
     "standard"
   ),
+  /** Pipe-encoded Y axis id per line series (`left` / `right`). */
+  lineSeriesYAxes: parseAsString.withDefault("left|left"),
+  /** Pipe-encoded tick count per Y axis (left | right). */
+  lineYAxisNumTicks: parseAsString.withDefault("5|5"),
+  /** Pipe-encoded `formatLargeNumbers` per Y axis (`1` / `0`). */
+  lineYAxisFormatLarge: parseAsString.withDefault("1|1"),
   showZeroLine: parseAsBoolean.withDefault(true),
   zeroLineStroke: parseAsString.withDefault("var(--color-muted-foreground)"),
   zeroLineStrokeWidth: parseAsFloat.withDefault(1.5),
@@ -303,6 +309,9 @@ export interface StudioUrlState {
   dataSeries: number;
   dataPoints: number;
   lineChartMode: "standard" | "profitLoss";
+  lineSeriesYAxes: string;
+  lineYAxisNumTicks: string;
+  lineYAxisFormatLarge: string;
   showZeroLine: boolean;
   zeroLineStroke: string;
   zeroLineStrokeWidth: number;
@@ -454,6 +463,9 @@ export function defaultStudioState(
     dataSeries: 2,
     dataPoints: 12,
     lineChartMode: "standard",
+    lineSeriesYAxes: "left|left",
+    lineYAxisNumTicks: "5|5",
+    lineYAxisFormatLarge: "1|1",
     showZeroLine: true,
     zeroLineStroke: "var(--color-muted-foreground)",
     zeroLineStrokeWidth: 1.5,

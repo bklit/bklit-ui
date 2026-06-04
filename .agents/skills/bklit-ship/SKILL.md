@@ -1,16 +1,16 @@
 ---
 name: bklit-ship
-description: bklit-ui monorepo contributors only — ship a chart or component from playground prototype to production in packages/ui with docs and registry.
+description: bklit-ui monorepo contributors only — ship a chart or component from Studio prototype to production in packages/ui with docs and registry.
 disable-model-invocation: true
 ---
 
 # Bklit Ship Skill
 
-This skill is for **bklit-ui monorepo contributors** taking an experimental chart or component from **prototype** (usually on an untracked route like the playground) into **production**: published in the UI package, documented, and ready for users.
+This skill is for **bklit-ui monorepo contributors** taking a chart or component validated in **Studio** into **production**: published in the UI package, documented, and ready for users.
 
 ## When to use this skill
 
-- You cloned `bklit/bklit-ui` and have a working prototype on a temporary route (e.g. `apps/web/app/playground/page.tsx`) and want to ship it.
+- You cloned `bklit/bklit-ui` and have a working prototype validated in **Studio** (`/studio`) and want to ship it.
 - You are ready to move from "scaffolding" to "permanent": the API and key props/variants are decided from the prototyping phase.
 
 ---
@@ -21,11 +21,11 @@ Follow these steps in order. Treat this as a checklist; each step has concrete l
 
 ### 1. Move into the UI package and export
 
-- **Move** the chart/component source files from the app (e.g. playground) into `packages/ui/` in the right place (e.g. `packages/ui/src/charts/` for charts).
+- **Move** or finalize chart/component source in `packages/ui/` (e.g. `packages/ui/src/charts/` for charts). Prototypes should already live here if you followed **bklit-studio**; remove any leftover copies under `apps/web/components/playground/` if present.
 - **Export** the new chart/component from the package’s public API:
   - For charts: add exports in `packages/ui/src/charts/index.ts`.
   - If the package uses `exports` in `package.json` for specific entry points, add or update the relevant entry so the new component is importable as `@bklitui/ui/charts` (or the appropriate path).
-- **Remove** or trim the prototype code from the temporary route (e.g. `apps/web/app/playground/page.tsx`) so the app no longer depends on in-app-only copies of the component.
+- **Do not** add app-only chart copies under `apps/web/components/playground/` (deprecated). Studio previews belong in `packages/studio`.
 
 ### 2. Documentation and examples (apps/web)
 
@@ -50,11 +50,12 @@ Documentation lives under `apps/web/`. Do all of the following.
 ### 3. Studio
 
 - **Update the existing studio chart** when the feature is a variant of an existing type, **or add a new studio chart** when it is a distinct kind.
-- Wire **all tunable props** into studio:
-  - `apps/web/lib/studio/studio-parsers.ts` — URL state keys and defaults
-  - `apps/web/lib/studio/registry-control-groups.ts` — control groups for the right pane
-  - `apps/web/lib/studio/registry.tsx` — render preview + `generateCode`
-  - Chart-type defaults in `apps/web/components/studio/studio-state-provider.tsx` when switching chart type (e.g. `setChart` overrides)
+- Wire **all tunable props** into studio (if not already done while prototyping):
+  - `packages/studio/src/lib/studio-parsers.ts` — URL state keys and defaults
+  - `packages/studio/src/lib/registry-control-groups.ts` — control groups
+  - `packages/studio/src/lib/registry.tsx` — render preview + `generateCode`
+  - `packages/studio/src/lib/studio-components.ts` — layer tree
+  - Chart-type defaults in `packages/studio/src/components/studio-state-provider.tsx` when switching chart type
 
 ### 4. Rebuild the shadcn registry
 
@@ -106,8 +107,9 @@ Fix all errors; repeat until hooks pass on commit.
 | Utility docs (Grid, Tooltip, …) | `apps/web/content/docs/utility/*.mdx` |
 | Sidebar (desktop) | `apps/web/content/docs/components/meta.json` → `pages` |
 | Mobile nav | `apps/web/components/docs/site-header.tsx` → `components` array |
-| Studio registry | `apps/web/lib/studio/registry.tsx` |
-| Studio controls | `apps/web/lib/studio/registry-control-groups.ts` |
-| Studio URL state | `apps/web/lib/studio/studio-parsers.ts` |
+| Studio registry | `packages/studio/src/lib/registry.tsx` |
+| Studio components tree | `packages/studio/src/lib/studio-components.ts` |
+| Studio controls | `packages/studio/src/lib/registry-control-groups.ts` |
+| Studio URL state | `packages/studio/src/lib/studio-parsers.ts` |
 | Registry (source) | `packages/ui/registry.json`; build output: `apps/web/public/r/` |
 | Registry build | From root: `pnpm registry:build` |

@@ -36,6 +36,7 @@ import { ComposedChartDocsPreview } from "@/components/docs/composed-chart-docs-
 - **`Line`** / **`Area`** — use **`dashFromIndex`** and **`dashArray`** for a dashed tail on incomplete periods (the dashed segment follows the same curve and edge fade).
 - **`XAxis`** — for **many rows** (e.g. daily), use **`numTicks={8}`** (default domain ticks). Use **`tickMode="data"`** when you only have a few points (e.g. one column per month) so labels sit on the data.
 - **`ChartTooltip`** — for bar-heavy layouts, **`showCrosshair={false}`** often looks cleaner because the hover band is already vertical columns.
+- **`YAxis`** / **`yAxisId`** — `Line` and `Area` support independent left/right scales (see [Y Axis](/docs/utility/axis/y-axis)). `SeriesBar` uses the primary scale.
 - **Hover dimming** — `SeriesBar` fades non-hovered columns using `tooltipData.index`, like grouped bars in `BarChart`. Tune with **`fadedOpacity`** on each `SeriesBar`.
 
 ### Basic example

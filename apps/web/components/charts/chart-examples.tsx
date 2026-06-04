@@ -74,6 +74,7 @@ import {
   SeriesBar,
   useChart,
   XAxis,
+  YAxis,
 } from "@bklitui/ui/charts";
 import {
   curveBasis,
@@ -188,6 +189,22 @@ const multiLineData = [
   { date: new Date(2024, 4, 1), desktop: 209, mobile: 130 },
   { date: new Date(2024, 5, 1), desktop: 214, mobile: 140 },
 ];
+
+/** Room for Y-axis tick labels on the left; default right margin. */
+const chartMarginLeftYAxis = {
+  top: 8,
+  right: 8,
+  bottom: 40,
+  left: 56,
+} as const;
+
+/** Biaxial charts with labels on both sides. */
+const chartMarginBiaxialYAxis = {
+  top: 8,
+  right: 56,
+  bottom: 40,
+  left: 56,
+} as const;
 
 const weeklyVisitorsCast = weeklyVisitorsData as unknown as Record<
   string,
@@ -1119,6 +1136,69 @@ function makeAreaExamples(): ChartExample[] {
         </AreaExampleChart>
       ),
     },
+    {
+      title: "Area Chart - Left Y axis",
+      description:
+        "Both series share the left scale with explicit Y-axis labels",
+      code: `<AreaChart data={chartData} margin={{ top: 8, right: 8, bottom: 40, left: 56 }}>
+  <Grid horizontal />
+  <Area dataKey="desktop" fillOpacity={0.3} strokeWidth={2} />
+  <Area dataKey="mobile" fill="var(--chart-2)" fillOpacity={0.3} strokeWidth={2} />
+  <YAxis yAxisId="left" />
+  <XAxis />
+  <ChartTooltip />
+</AreaChart>`,
+      render: () => (
+        <AreaExampleChart data={areaData} margin={chartMarginLeftYAxis}>
+          <Grid horizontal />
+          <Area dataKey="desktop" fillOpacity={0.3} strokeWidth={2} />
+          <Area
+            dataKey="mobile"
+            fill="var(--chart-2)"
+            fillOpacity={0.3}
+            strokeWidth={2}
+          />
+          <YAxis yAxisId="left" />
+          <XAxis />
+          <ChartTooltip />
+        </AreaExampleChart>
+      ),
+    },
+    {
+      title: "Area Chart - Left and right Y axes",
+      description: "Independent left and right scales (biaxial)",
+      code: `<AreaChart data={chartData} margin={{ top: 8, right: 56, bottom: 40, left: 56 }}>
+  <Grid horizontal />
+  <Area dataKey="desktop" yAxisId="left" fillOpacity={0.3} strokeWidth={2} />
+  <Area dataKey="mobile" yAxisId="right" fill="var(--chart-2)" fillOpacity={0.3} strokeWidth={2} />
+  <YAxis yAxisId="left" />
+  <YAxis yAxisId="right" orientation="right" />
+  <XAxis />
+  <ChartTooltip />
+</AreaChart>`,
+      render: () => (
+        <AreaExampleChart data={areaData} margin={chartMarginBiaxialYAxis}>
+          <Grid horizontal />
+          <Area
+            dataKey="desktop"
+            fillOpacity={0.3}
+            strokeWidth={2}
+            yAxisId="left"
+          />
+          <Area
+            dataKey="mobile"
+            fill="var(--chart-2)"
+            fillOpacity={0.3}
+            strokeWidth={2}
+            yAxisId="right"
+          />
+          <YAxis yAxisId="left" />
+          <YAxis orientation="right" yAxisId="right" />
+          <XAxis />
+          <ChartTooltip />
+        </AreaExampleChart>
+      ),
+    },
   ];
 }
 
@@ -1406,6 +1486,66 @@ function makeBarExamples(): ChartExample[] {
         </BarExampleChart>
       ),
     },
+    {
+      title: "Bar Chart - Left Y axis",
+      description:
+        "Grouped vertical bars with a single left value scale and Y-axis labels",
+      code: `<BarChart data={chartData} xDataKey="month" margin={{ top: 8, right: 8, bottom: 40, left: 56 }}>
+  <Grid horizontal />
+  <Bar dataKey="desktop" lineCap="round" />
+  <Bar dataKey="mobile" fill="var(--chart-3)" lineCap="round" />
+  <YAxis yAxisId="left" />
+  <BarXAxis />
+  <ChartTooltip />
+</BarChart>`,
+      render: () => (
+        <BarExampleChart
+          data={barStackedData}
+          margin={chartMarginLeftYAxis}
+          xDataKey="month"
+        >
+          <Grid horizontal />
+          <Bar dataKey="desktop" lineCap="round" />
+          <Bar dataKey="mobile" fill="var(--chart-3)" lineCap="round" />
+          <YAxis yAxisId="left" />
+          <BarXAxis />
+          <ChartTooltip />
+        </BarExampleChart>
+      ),
+    },
+    {
+      title: "Bar Chart - Left and right Y axes",
+      description: "Independent left and right value scales (biaxial)",
+      code: `<BarChart data={chartData} xDataKey="month" margin={{ top: 8, right: 56, bottom: 40, left: 56 }}>
+  <Grid horizontal />
+  <Bar dataKey="desktop" yAxisId="left" lineCap="round" />
+  <Bar dataKey="mobile" yAxisId="right" fill="var(--chart-3)" lineCap="round" />
+  <YAxis yAxisId="left" />
+  <YAxis yAxisId="right" orientation="right" />
+  <BarXAxis />
+  <ChartTooltip />
+</BarChart>`,
+      render: () => (
+        <BarExampleChart
+          data={barStackedData}
+          margin={chartMarginBiaxialYAxis}
+          xDataKey="month"
+        >
+          <Grid horizontal />
+          <Bar dataKey="desktop" lineCap="round" yAxisId="left" />
+          <Bar
+            dataKey="mobile"
+            fill="var(--chart-3)"
+            lineCap="round"
+            yAxisId="right"
+          />
+          <YAxis yAxisId="left" />
+          <YAxis orientation="right" yAxisId="right" />
+          <BarXAxis />
+          <ChartTooltip />
+        </BarExampleChart>
+      ),
+    },
   ];
 }
 
@@ -1681,6 +1821,66 @@ function makeComposedExamples(): ChartExample[] {
         </ComposedExampleChart>
       ),
     },
+    {
+      title: "Composed Chart — Left Y axis",
+      description:
+        "Bars and line share one left value scale with Y-axis labels",
+      code: `<ComposedChart data={data} xDataKey="date" margin={{ top: 8, right: 8, bottom: 40, left: 56 }} barGap={0} maxBarSize={32}>
+  <Grid horizontal />
+  <SeriesBar dataKey="units" fill="var(--chart-3)" radius={4} />
+  <Line dataKey="revenue" stroke="var(--chart-1)" />
+  <YAxis yAxisId="left" />
+  <ChartTooltip showCrosshair={false} />
+  <XAxis numTicks={8} />
+</ComposedChart>`,
+      render: () => (
+        <ComposedExampleChart
+          barGap={0}
+          data={dataCast}
+          margin={chartMarginLeftYAxis}
+          maxBarSize={32}
+          xDataKey="date"
+        >
+          <Grid horizontal />
+          <SeriesBar dataKey="units" fill="var(--chart-3)" radius={4} />
+          <Line dataKey="revenue" stroke="var(--chart-1)" />
+          <YAxis yAxisId="left" />
+          <ChartTooltip showCrosshair={false} />
+          <XAxis numTicks={8} />
+        </ComposedExampleChart>
+      ),
+    },
+    {
+      title: "Composed Chart — Left and right Y axes",
+      description:
+        "Units on the left scale, revenue line on the right (biaxial)",
+      code: `<ComposedChart data={data} xDataKey="date" margin={{ top: 8, right: 56, bottom: 40, left: 56 }} barGap={0} maxBarSize={32}>
+  <Grid horizontal />
+  <SeriesBar dataKey="units" fill="var(--chart-3)" radius={4} />
+  <Line dataKey="revenue" yAxisId="right" stroke="var(--chart-1)" />
+  <YAxis yAxisId="left" />
+  <YAxis yAxisId="right" orientation="right" />
+  <ChartTooltip showCrosshair={false} />
+  <XAxis numTicks={8} />
+</ComposedChart>`,
+      render: () => (
+        <ComposedExampleChart
+          barGap={0}
+          data={dataCast}
+          margin={chartMarginBiaxialYAxis}
+          maxBarSize={32}
+          xDataKey="date"
+        >
+          <Grid horizontal />
+          <SeriesBar dataKey="units" fill="var(--chart-3)" radius={4} />
+          <Line dataKey="revenue" stroke="var(--chart-1)" yAxisId="right" />
+          <YAxis yAxisId="left" />
+          <YAxis orientation="right" yAxisId="right" />
+          <ChartTooltip showCrosshair={false} />
+          <XAxis numTicks={8} />
+        </ComposedExampleChart>
+      ),
+    },
   ];
 }
 
@@ -1886,6 +2086,53 @@ function makeLineExamples(): ChartExample[] {
             strokeWidth={2.5}
           />
           <XAxis tickMode="data" />
+          <ChartTooltip />
+        </LineExampleChart>
+      ),
+    },
+    {
+      title: "Line Chart - Left Y axis",
+      description:
+        "Both series on the left scale with explicit Y-axis tick labels",
+      code: `<LineChart data={chartData} margin={{ top: 8, right: 8, bottom: 40, left: 56 }}>
+  <Grid horizontal />
+  <Line dataKey="desktop" strokeWidth={2.5} />
+  <Line dataKey="mobile" stroke="var(--chart-2)" strokeWidth={2.5} />
+  <YAxis yAxisId="left" />
+  <XAxis />
+  <ChartTooltip />
+</LineChart>`,
+      render: () => (
+        <LineExampleChart data={multiLineData} margin={chartMarginLeftYAxis}>
+          <Grid horizontal />
+          <Line dataKey="desktop" strokeWidth={2.5} />
+          <Line dataKey="mobile" stroke="var(--chart-2)" strokeWidth={2.5} />
+          <YAxis yAxisId="left" />
+          <XAxis />
+          <ChartTooltip />
+        </LineExampleChart>
+      ),
+    },
+    {
+      title: "Line Chart - Left and right Y axes",
+      description: "Independent left and right scales (biaxial)",
+      code: `<LineChart data={chartData} margin={{ top: 8, right: 56, bottom: 40, left: 56 }}>
+  <Grid horizontal />
+  <Line dataKey="desktop" yAxisId="left" />
+  <Line dataKey="mobile" yAxisId="right" stroke="var(--chart-2)" />
+  <YAxis yAxisId="left" />
+  <YAxis yAxisId="right" orientation="right" />
+  <XAxis />
+  <ChartTooltip />
+</LineChart>`,
+      render: () => (
+        <LineExampleChart data={multiLineData} margin={chartMarginBiaxialYAxis}>
+          <Grid horizontal />
+          <Line dataKey="desktop" yAxisId="left" />
+          <Line dataKey="mobile" stroke="var(--chart-2)" yAxisId="right" />
+          <YAxis yAxisId="left" />
+          <YAxis orientation="right" yAxisId="right" />
+          <XAxis />
           <ChartTooltip />
         </LineExampleChart>
       ),
@@ -4064,6 +4311,48 @@ function makeProfitLossLineExamples(): ChartExample[] {
       footer: "Legend below the chart, centered",
       render: () => <ProfitLossLineExampleWithState />,
     },
+    {
+      title: "Profit/Loss Line - Left Y axis",
+      description:
+        "Sign-colored line with a left Y-axis scale and zero baseline",
+      code: `<LineChart data={data} margin={{ top: 40, right: 40, bottom: 40, left: 56 }}>
+  <Grid highlightRowValues={[0]} horizontal />
+  <Line dataKey="pnl" stroke="transparent" strokeWidth={0} showHighlight={false} />
+  <ProfitLossLine dataKey="pnl" />
+  <YAxis yAxisId="left" />
+  <XAxis />
+  <ChartTooltip />
+</LineChart>`,
+      render: () => (
+        <LineExampleChart
+          data={profitLossLineDocsData}
+          margin={{ top: 40, right: 40, bottom: 40, left: 56 }}
+        >
+          <Grid highlightRowValues={[0]} horizontal />
+          <Line
+            dataKey="pnl"
+            showHighlight={false}
+            stroke="transparent"
+            strokeWidth={0}
+          />
+          <ProfitLossLine dataKey="pnl" />
+          <YAxis yAxisId="left" />
+          <XAxis />
+          <ChartTooltip
+            indicatorColor={(point) =>
+              profitLossColor((point.pnl as number) ?? 0)
+            }
+            rows={(point) => [
+              {
+                label: resolveProfitLossTooltipLabel(""),
+                value: (point.pnl as number) ?? 0,
+                color: profitLossColor((point.pnl as number) ?? 0),
+              },
+            ]}
+          />
+        </LineExampleChart>
+      ),
+    },
   ];
 }
 
@@ -4611,6 +4900,55 @@ function makeScatterExamples(): ChartExample[] {
             ringGap={5}
             strokeWidth={1}
           />
+          <XAxis />
+          <ChartTooltip />
+        </ScatterExampleChart>
+      ),
+    },
+    {
+      title: "Scatter Chart - Left Y axis",
+      description: "Both series share the left scale with Y-axis value labels",
+      code: `<ScatterChart data={chartData} margin={{ top: 8, right: 8, bottom: 40, left: 56 }}>
+  <Grid horizontal />
+  <Scatter dataKey="desktop" />
+  <Scatter dataKey="mobile" stroke="var(--chart-2)" />
+  <YAxis yAxisId="left" />
+  <XAxis />
+  <ChartTooltip />
+</ScatterChart>`,
+      render: () => (
+        <ScatterExampleChart data={multiLineData} margin={chartMarginLeftYAxis}>
+          <Grid horizontal />
+          <Scatter dataKey="desktop" />
+          <Scatter dataKey="mobile" stroke="var(--chart-2)" />
+          <YAxis yAxisId="left" />
+          <XAxis />
+          <ChartTooltip />
+        </ScatterExampleChart>
+      ),
+    },
+    {
+      title: "Scatter Chart - Left and right Y axes",
+      description: "Independent left and right scales (biaxial)",
+      code: `<ScatterChart data={chartData} margin={{ top: 8, right: 56, bottom: 40, left: 56 }}>
+  <Grid horizontal />
+  <Scatter dataKey="desktop" yAxisId="left" />
+  <Scatter dataKey="mobile" yAxisId="right" stroke="var(--chart-2)" />
+  <YAxis yAxisId="left" />
+  <YAxis yAxisId="right" orientation="right" />
+  <XAxis />
+  <ChartTooltip />
+</ScatterChart>`,
+      render: () => (
+        <ScatterExampleChart
+          data={multiLineData}
+          margin={chartMarginBiaxialYAxis}
+        >
+          <Grid horizontal />
+          <Scatter dataKey="desktop" yAxisId="left" />
+          <Scatter dataKey="mobile" stroke="var(--chart-2)" yAxisId="right" />
+          <YAxis yAxisId="left" />
+          <YAxis orientation="right" yAxisId="right" />
           <XAxis />
           <ChartTooltip />
         </ScatterExampleChart>

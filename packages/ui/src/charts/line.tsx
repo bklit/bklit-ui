@@ -8,7 +8,7 @@ import { LinePath } from "@visx/shape";
 type CurveFactory = any;
 
 import { useCallback, useId, useMemo, useRef } from "react";
-import { chartCssVars, useChartStable } from "./chart-context";
+import { chartCssVars, useChartStable, useYScale } from "./chart-context";
 import {
   type FadeEdges,
   fadeGradientStops,
@@ -27,6 +27,8 @@ import type { SeriesPointMarkerStyle } from "./series-point-marker";
 export interface LineProps {
   /** Key in data to use for y values */
   dataKey: string;
+  /** Y-scale group id (Recharts `yAxisId`). Default: `"left"`. */
+  yAxisId?: string | number;
   /** Stroke color. Default: var(--chart-line-primary) */
   stroke?: string;
   /** Stroke width. Default: 2.5 */
@@ -59,6 +61,7 @@ export interface LineProps {
 
 export function Line({
   dataKey,
+  yAxisId,
   stroke = chartCssVars.linePrimary,
   strokeWidth = 2.5,
   curve = curveNatural,
@@ -80,12 +83,12 @@ export function Line({
     data,
     renderData,
     xScale,
-    yScale,
     innerHeight,
     innerWidth,
     xAccessor,
     lines,
   } = useChartStable();
+  const yScale = useYScale(yAxisId);
 
   const seriesIndex = useMemo(() => {
     const index = lines.findIndex((line) => line.dataKey === dataKey);

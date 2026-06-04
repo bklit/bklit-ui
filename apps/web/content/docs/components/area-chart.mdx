@@ -103,6 +103,7 @@ Renders a filled area on the chart with a gradient fill.
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `dataKey` | `string` | required | Key in data for y values |
+| `yAxisId` | `string \| number` | `"left"` | Y-scale group for biaxial charts (pair with `YAxis`) |
 | `fill` | `string` | `var(--chart-line-primary)` | Gradient fill color |
 | `fillOpacity` | `number` | `0.4` | Fill opacity at the top |
 | `stroke` | `string` | Same as `fill` | Line stroke color |
@@ -138,6 +139,10 @@ Renders grid lines.
 | `numTicksColumns` | `number` | `10` | Number of vertical lines |
 | `stroke` | `string` | `var(--chart-grid)` | Line color |
 | `strokeDasharray` | `string` | `"4,4"` | Dash pattern |
+
+### YAxis
+
+Value labels on the left or right. See [Y Axis](/docs/utility/axis/y-axis) for `yAxisId`, `orientation`, and biaxial usage.
 
 ### XAxis
 

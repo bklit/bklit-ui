@@ -1,3 +1,4 @@
+import { chartDefaultHiddenYAxes } from "./studio-component-visibility";
 import type { StudioUrlState } from "./studio-parsers";
 
 export function isProfitLossLineMode(state: StudioUrlState) {
@@ -8,6 +9,7 @@ export function isProfitLossLineMode(state: StudioUrlState) {
 
 export const lineChartProfitLossDefaults: Partial<StudioUrlState> = {
   lineChartMode: "profitLoss",
+  hiddenComponents: chartDefaultHiddenYAxes("line"),
   dataSeries: 1,
   dataPoints: 24,
   curve: "linear",
@@ -34,4 +36,5 @@ export const lineChartStandardDefaults: Partial<StudioUrlState> = {
   curve: "natural",
   fadeEdges: "both",
   showHighlight: true,
+  hiddenComponents: chartDefaultHiddenYAxes("line"),
 };

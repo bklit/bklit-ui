@@ -24,6 +24,7 @@ import {
   maxRenderPointsForWidth,
 } from "./decimate-time-series";
 import { useChartInteraction } from "./use-chart-interaction";
+import { wrapSingleYScale } from "./y-axis-scales";
 
 export interface OHLCDataPoint {
   date: Date;
@@ -208,6 +209,7 @@ const ChartCore = memo(function ChartCore({
   } = useChartInteraction({
     xScale,
     yScale,
+    yScales: wrapSingleYScale(yScale),
     data,
     lines,
     margin,
@@ -251,6 +253,7 @@ const ChartCore = memo(function ChartCore({
     renderData,
     xScale,
     yScale,
+    yScales: wrapSingleYScale(yScale),
     width,
     height,
     innerWidth,

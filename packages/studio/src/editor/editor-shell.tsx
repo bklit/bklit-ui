@@ -93,6 +93,7 @@ export function EditorShell({
       {showInlineSidebars ? (
         <EditorLeftPanel
           chartSelector={chartSelector}
+          config={config}
           controlsDisabled={controlsDisabled}
           onChange={chartState.setParam}
           onCommit={chartState.commitParam}

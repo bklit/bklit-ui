@@ -4,7 +4,12 @@ import type { scaleBand } from "@visx/scale";
 import type { Transition } from "motion/react";
 import { motion } from "motion/react";
 import { memo, useId, useMemo } from "react";
-import { chartCssVars, useChart, useChartStable } from "./chart-context";
+import {
+  chartCssVars,
+  useChart,
+  useChartStable,
+  useYScale,
+} from "./chart-context";
 import { useChartLegendHover } from "./chart-legend-hover";
 import { transitionWithDelay } from "./motion-utils";
 
@@ -18,6 +23,8 @@ export type BarAnimationType = "grow" | "fade";
 export interface BarProps {
   /** Key in data to use for y values */
   dataKey: string;
+  /** Y-scale group id for vertical bars (Recharts `yAxisId`). Default: `"left"`. */
+  yAxisId?: string | number;
   /** Fill color for the bar. Can be a color, gradient url, or pattern url. Default: var(--chart-line-primary) */
   fill?: string;
   /** Color for tooltip dot. Use when fill is a gradient/pattern. Default: uses fill value */
@@ -131,6 +138,7 @@ function AnimatedBar({
 
 const BarInner = memo(function BarInner({
   dataKey,
+  yAxisId,
   fill = chartCssVars.linePrimary,
   lineCap = "round",
   animate = true,
@@ -145,7 +153,7 @@ const BarInner = memo(function BarInner({
 }: BarInnerProps) {
   const {
     data,
-    yScale,
+    yScale: chartYScale,
     innerHeight,
     isLoaded,
     hoveredBarIndex,
@@ -175,6 +183,9 @@ const BarInner = memo(function BarInner({
     const idx = lines.findIndex((l) => l.dataKey === dataKey);
     return idx >= 0 ? idx : 0;
   }, [lines, dataKey]);
+
+  const seriesConfig = lines[seriesIndex];
+  const valueScale = useYScale(yAxisId ?? seriesConfig?.yAxisId);
 
   const isLegendDimmed =
     legendHoveredIndex !== null && legendHoveredIndex !== seriesIndex;
@@ -223,15 +234,17 @@ const BarInner = memo(function BarInner({
         let barHeight: number;
         let barW: number;
 
+        const scale = isHorizontal ? chartYScale : valueScale;
+
         if (isHorizontal) {
           // Horizontal bars: category on y-axis, value on x-axis
-          const valuePos = yScale(value) ?? 0;
+          const valuePos = scale(value) ?? 0;
           barW = valuePos; // Width is the value position (grows from left)
           barHeight = barWidth;
 
           if (stacked && stackOffsets) {
             const offset = stackOffsets.get(i)?.get(dataKey) ?? 0;
-            x = yScale(offset) ?? 0;
+            x = scale(offset) ?? 0;
             barW = valuePos - x;
             // Apply stack gap for horizontal: shift right and reduce width
             const gapOffset = seriesIndex * stackGap;
@@ -251,13 +264,13 @@ const BarInner = memo(function BarInner({
               seriesIndex * (barWidth + (seriesCount > 1 ? groupGap : 0));
         } else {
           // Vertical bars: category on x-axis, value on y-axis
-          const valuePos = yScale(value) ?? 0;
+          const valuePos = scale(value) ?? 0;
           barHeight = innerHeight - valuePos;
           barW = barWidth;
 
           if (stacked && stackOffsets) {
             const offset = stackOffsets.get(i)?.get(dataKey) ?? 0;
-            const offsetY = yScale(offset) ?? innerHeight;
+            const offsetY = scale(offset) ?? innerHeight;
             // Apply stack gap: shift up and reduce height
             const gapOffset = seriesIndex * stackGap;
             y = offsetY - barHeight - gapOffset;

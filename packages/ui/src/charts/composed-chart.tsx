@@ -95,6 +95,7 @@ function tryAppendLine(child: ReactElement, lines: LineConfig[]): boolean {
       dataKey: props.dataKey,
       stroke: props.stroke || "var(--chart-line-primary)",
       strokeWidth: props.strokeWidth ?? 2.5,
+      yAxisId: props.yAxisId,
     });
   }
   return true;
@@ -111,6 +112,7 @@ function tryAppendArea(child: ReactElement, lines: LineConfig[]): boolean {
       dataKey: props.dataKey,
       stroke: props.stroke || props.fill || "var(--chart-line-primary)",
       strokeWidth: props.strokeWidth ?? 2,
+      yAxisId: props.yAxisId,
     });
   }
   return true;

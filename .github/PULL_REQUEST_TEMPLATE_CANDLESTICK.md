@@ -33,7 +33,8 @@ This PR ships the **Candlestick Chart** from prototype to production: OHLC chart
 ### Registry and skill
 
 - **Shadcn registry**: `candlestick-chart` entry in `packages/ui/registry.json`; `pnpm registry:build` outputs to `apps/web/public/r/`.
-- **Bklit ship skill** (`.agents/skills/bklit-ship/SKILL.md`): Step-by-step plan for moving a chart/component from playground to production (UI package, docs, chart slugs/examples, sidebar, mobile nav, registry, lint/format, commit, PR checklist). Use **bklit-playground** (`.agents/skills/bklit-playground/SKILL.md`) for local prototyping.
+- **Bklit studio skill** (`.agents/skills/bklit-studio/SKILL.md`): Prototype and edit charts in `/studio` (`packages/studio` + `packages/ui`).
+- **Bklit ship skill** (`.agents/skills/bklit-ship/SKILL.md`): Ship to docs, gallery, registry, lint/format, commit, PR checklist.
 
 ---
 

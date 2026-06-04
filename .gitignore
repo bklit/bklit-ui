@@ -41,8 +41,7 @@ yarn-error.log*
 .DS_Store
 *.pem
 
-# Playground (local experimentation — page only; see apps/web/app/playground/README.md)
-apps/web/app/playground/page.tsx
+# Playground (deprecated — optional local overrides only; route redirects to /studio)
 apps/web/app/playground/components/
 apps/web/app/playground/lib/
 

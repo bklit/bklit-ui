@@ -9,7 +9,7 @@ type CurveFactory = any;
 
 import { useCallback, useId, useMemo, useRef } from "react";
 import { AreaGradientDefs } from "./area-gradient-defs";
-import { chartCssVars, useChartStable } from "./chart-context";
+import { chartCssVars, useChartStable, useYScale } from "./chart-context";
 import { type FadeEdges, resolveFadeSides } from "./fade-edges";
 import {
   resolveDashTailBounds,
@@ -24,6 +24,8 @@ import type { SeriesPointMarkerStyle } from "./series-point-marker";
 export interface AreaProps {
   /** Key in data to use for y values */
   dataKey: string;
+  /** Y-scale group id (Recharts `yAxisId`). Default: `"left"`. */
+  yAxisId?: string | number;
   /** Fill color for the area gradient start. Default: var(--chart-line-primary) */
   fill?: string;
   /** Fill opacity at the top of the area. Default: 0.4 */
@@ -65,6 +67,7 @@ export interface AreaProps {
 
 export function Area({
   dataKey,
+  yAxisId,
   fill = chartCssVars.linePrimary,
   fillOpacity = 0.4,
   stroke,
@@ -90,12 +93,12 @@ export function Area({
     data,
     renderData,
     xScale,
-    yScale,
     innerHeight,
     innerWidth,
     xAccessor,
     lines,
   } = useChartStable();
+  const yScale = useYScale(yAxisId);
 
   const seriesIndex = useMemo(() => {
     const index = lines.findIndex((line) => line.dataKey === dataKey);

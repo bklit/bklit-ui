@@ -28,6 +28,12 @@ import {
 import { isGradientDefComponent, isPatternDefComponent } from "./chart-defs";
 import { shortDateFmt } from "./chart-formatters";
 import { useScheduledTooltip } from "./use-scheduled-tooltip";
+import {
+  buildYScalesForLines,
+  getPrimaryYScale,
+  normalizeYAxisId,
+  wrapSingleYScale,
+} from "./y-axis-scales";
 
 export type BarOrientation = "vertical" | "horizontal";
 
@@ -98,6 +104,7 @@ function extractBarConfigs(children: ReactNode): LineConfig[] {
         dataKey: props.dataKey,
         stroke: dotColor,
         strokeWidth: 0,
+        yAxisId: props.yAxisId,
       });
     }
   });
@@ -266,6 +273,31 @@ const ChartCore = memo(function ChartCore({
     });
   }, [innerWidth, innerHeight, maxValue, isHorizontal]);
 
+  const yScales = useMemo(() => {
+    if (isHorizontal) {
+      return wrapSingleYScale(valueScale);
+    }
+    return buildYScalesForLines({
+      lines,
+      data,
+      innerHeight,
+      resolveDomain: (dataKeys) => {
+        let max = 0;
+        for (const d of data) {
+          for (const key of dataKeys) {
+            const value = d[key];
+            if (typeof value === "number" && value > max) {
+              max = value;
+            }
+          }
+        }
+        return [0, (max || 100) * 1.1];
+      },
+    });
+  }, [data, innerHeight, isHorizontal, lines, valueScale]);
+
+  const primaryYScale = getPrimaryYScale(yScales, valueScale);
+
   // Compute stack offsets for stacked bars
   const stackOffsets = useMemo(() => {
     if (!stacked) {
@@ -370,7 +402,9 @@ const ChartCore = memo(function ChartCore({
             const value = d[line.dataKey];
             if (typeof value === "number") {
               cumulative += value;
-              xPositions[line.dataKey] = valueScale(cumulative) ?? 0;
+              const axisScale =
+                yScales[normalizeYAxisId(line.yAxisId)] ?? valueScale;
+              xPositions[line.dataKey] = axisScale(cumulative) ?? 0;
               yPositions[line.dataKey] = barPos + bandWidth / 2;
             }
           }
@@ -379,7 +413,9 @@ const ChartCore = memo(function ChartCore({
           lines.forEach((line, idx) => {
             const value = d[line.dataKey];
             if (typeof value === "number") {
-              xPositions[line.dataKey] = valueScale(value) ?? 0;
+              const axisScale =
+                yScales[normalizeYAxisId(line.yAxisId)] ?? valueScale;
+              xPositions[line.dataKey] = axisScale(value) ?? 0;
               yPositions[line.dataKey] =
                 barPos +
                 idx * (individualBarHeight + groupGap) +
@@ -395,9 +431,10 @@ const ChartCore = memo(function ChartCore({
           const value = d[line.dataKey];
           if (typeof value === "number") {
             cumulative += value;
+            const axisScale =
+              yScales[normalizeYAxisId(line.yAxisId)] ?? primaryYScale;
             const gapOffset = seriesIdx * stackGap;
-            yPositions[line.dataKey] =
-              (valueScale(cumulative) ?? 0) - gapOffset;
+            yPositions[line.dataKey] = (axisScale(cumulative) ?? 0) - gapOffset;
             seriesIdx++;
           }
         }
@@ -413,7 +450,9 @@ const ChartCore = memo(function ChartCore({
         lines.forEach((line, idx) => {
           const value = d[line.dataKey];
           if (typeof value === "number") {
-            yPositions[line.dataKey] = valueScale(value) ?? 0;
+            const axisScale =
+              yScales[normalizeYAxisId(line.yAxisId)] ?? primaryYScale;
+            yPositions[line.dataKey] = axisScale(value) ?? 0;
             xPositions[line.dataKey] =
               barPos +
               idx * (individualBarWidth + groupGap) +
@@ -454,6 +493,8 @@ const ChartCore = memo(function ChartCore({
       stacked,
       stackGap,
       scheduleTooltip,
+      yScales,
+      primaryYScale,
     ]
   );
 
@@ -490,7 +531,8 @@ const ChartCore = memo(function ChartCore({
     xScale: fakeTimeScale as unknown as ReturnType<
       typeof import("@visx/scale").scaleTime<number>
     >,
-    yScale: valueScale,
+    yScale: isHorizontal ? valueScale : primaryYScale,
+    yScales,
     width,
     height,
     innerWidth,

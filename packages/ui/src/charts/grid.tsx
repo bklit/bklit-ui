@@ -2,7 +2,7 @@
 
 import { GridColumns, GridRows } from "@visx/grid";
 import { useId } from "react";
-import { chartCssVars, useChartStable } from "./chart-context";
+import { chartCssVars, useChartStable, useYScale } from "./chart-context";
 
 export interface GridProps {
   /** Show horizontal grid lines. Default: true */
@@ -37,6 +37,8 @@ export interface GridProps {
   fadeHorizontal?: boolean;
   /** Enable vertical fade effect on grid columns (fades at top/bottom). Default: false */
   fadeVertical?: boolean;
+  /** Y-scale for horizontal grid lines. Default: primary (`"left"`) axis. */
+  yAxisId?: string | number;
 }
 
 export function Grid({
@@ -56,9 +58,11 @@ export function Grid({
   highlightRowStrokeDasharray = "0",
   fadeHorizontal = true,
   fadeVertical = false,
+  yAxisId,
 }: GridProps) {
-  const { xScale, yScale, innerWidth, innerHeight, orientation, barScale } =
+  const { xScale, innerWidth, innerHeight, orientation, barScale } =
     useChartStable();
+  const yScale = useYScale(yAxisId);
 
   // For bar charts, determine which scale to use for grid lines
   // Horizontal bar charts: vertical grid should use yScale (value scale)

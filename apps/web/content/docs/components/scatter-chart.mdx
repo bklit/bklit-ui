@@ -113,6 +113,7 @@ Color dots by vertical position with a chart-space gradient — lower values tow
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `dataKey` | `string` | required | Y value field |
+| `yAxisId` | `string \| number` | `"left"` | Y-scale group for biaxial charts (pair with `YAxis`) |
 | `fill` | `string` | series palette | Inner dot fill |
 | `stroke` | `string` | same as `fill` | Outer ring color |
 | `strokeWidth` | `number` | `2` | Outer ring width (0 disables) |
@@ -129,5 +130,6 @@ Color dots by vertical position with a chart-space gradient — lower values tow
 Use the same cartesian building blocks as `LineChart`:
 
 - `Grid` — horizontal/vertical grid lines
+- `YAxis` — value labels (single shared scale; see [Y Axis](/docs/utility/axis/y-axis))
 - `XAxis` — date labels with crosshair fade
 - `ChartTooltip` — crosshair, date pill, and series rows

@@ -25,6 +25,7 @@ import {
 } from "./chart-context";
 import { hmsTimeFmt } from "./chart-formatters";
 import type { LiveLineProps } from "./live-line";
+import { wrapSingleYScale } from "./y-axis-scales";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -535,6 +536,7 @@ const LiveLineChartCore = memo(function LiveLineChartCore({
       renderData: contextData,
       xScale,
       yScale,
+      yScales: wrapSingleYScale(yScale),
       width,
       height,
       innerWidth,

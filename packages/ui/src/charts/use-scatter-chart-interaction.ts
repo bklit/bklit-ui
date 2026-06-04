@@ -6,6 +6,7 @@ import type { LineConfig, Margin, TooltipData } from "./chart-context";
 import { localPointFromSvg } from "./scatter-svg";
 import type { ChartSelection } from "./use-chart-interaction";
 import { useScheduledTooltip } from "./use-scheduled-tooltip";
+import { normalizeYAxisId } from "./y-axis-scales";
 
 type XScale = ScaleTime<number, number>;
 type YScale = ScaleLinear<number, number>;
@@ -13,6 +14,7 @@ type YScale = ScaleLinear<number, number>;
 interface UseScatterChartInteractionParams {
   xScale: XScale;
   yScale: YScale;
+  yScales: Record<string, YScale>;
   data: Record<string, unknown>[];
   lines: LineConfig[];
   margin: Margin;
@@ -45,6 +47,7 @@ interface ScatterChartInteractionResult {
 export function useScatterChartInteraction({
   xScale,
   yScale,
+  yScales,
   data,
   lines,
   margin,
@@ -90,7 +93,8 @@ export function useScatterChartInteraction({
       for (const line of lines) {
         const value = d[line.dataKey];
         if (typeof value === "number") {
-          yPositions[line.dataKey] = yScale(value) ?? 0;
+          const axisScale = yScales[normalizeYAxisId(line.yAxisId)] ?? yScale;
+          yPositions[line.dataKey] = axisScale(value) ?? 0;
         }
       }
 
@@ -101,7 +105,7 @@ export function useScatterChartInteraction({
         yPositions,
       };
     },
-    [xScale, yScale, data, lines, xAccessor, bisectDate]
+    [xScale, yScale, yScales, data, lines, xAccessor, bisectDate]
   );
 
   const resolveIndexFromX = useCallback(

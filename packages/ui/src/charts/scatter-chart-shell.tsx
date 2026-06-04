@@ -24,6 +24,7 @@ import { isGradientDefComponent, isPatternDefComponent } from "./chart-defs";
 import { shortDateFmt } from "./chart-formatters";
 import { isPostOverlayComponent } from "./time-series-chart-shell";
 import { useScatterChartInteraction } from "./use-scatter-chart-interaction";
+import { buildYScalesForLines, getPrimaryYScale } from "./y-axis-scales";
 
 export interface ScatterChartInnerProps {
   width: number;
@@ -101,26 +102,33 @@ export function ScatterChartInner({
     return innerWidth / (data.length - 1);
   }, [innerWidth, data.length]);
 
-  const yScale = useMemo(() => {
-    let maxValue = 0;
-    for (const line of lines) {
-      for (const d of data) {
-        const value = d[line.dataKey];
-        if (typeof value === "number" && value > maxValue) {
-          maxValue = value;
-        }
-      }
-    }
+  const yScales = useMemo(
+    () =>
+      buildYScalesForLines({
+        lines,
+        data,
+        innerHeight,
+        resolveDomain: (dataKeys) => {
+          let maxValue = 0;
+          for (const d of data) {
+            for (const key of dataKeys) {
+              const value = d[key];
+              if (typeof value === "number" && value > maxValue) {
+                maxValue = value;
+              }
+            }
+          }
+          const top = maxValue <= 0 ? 100 : maxValue * 1.1;
+          return [0, top];
+        },
+      }),
+    [innerHeight, data, lines]
+  );
 
-    if (maxValue === 0) {
-      maxValue = 100;
-    }
-
-    return scaleLinear<number>()
-      .range([innerHeight, 0])
-      .domain([0, maxValue * 1.1])
-      .nice();
-  }, [innerHeight, data, lines]);
+  const yScale = getPrimaryYScale(
+    yScales,
+    scaleLinear<number>().range([innerHeight, 0]).domain([0, 100])
+  );
 
   const dateLabels = useMemo(
     () => data.map((d) => shortDateFmt.format(xAccessor(d))),
@@ -148,7 +156,8 @@ export function ScatterChartInner({
     interactionStyle,
   } = useScatterChartInteraction({
     xScale,
-    yScale,
+    yScale: yScale as ChartContextValue["yScale"],
+    yScales: yScales as ChartContextValue["yScales"],
     data,
     lines,
     margin,
@@ -186,6 +195,7 @@ export function ScatterChartInner({
     renderData: data,
     xScale: xScale as ChartContextValue["xScale"],
     yScale: yScale as ChartContextValue["yScale"],
+    yScales: yScales as ChartContextValue["yScales"],
     width,
     height,
     innerWidth,

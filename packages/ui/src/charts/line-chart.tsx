@@ -91,6 +91,7 @@ function extractLineConfigs(children: ReactNode): LineConfig[] {
           dataKey: props.dataKey,
           stroke: props.stroke || "var(--chart-line-primary)",
           strokeWidth: props.strokeWidth || 2.5,
+          yAxisId: props.yAxisId,
         });
         return;
       }

@@ -76,6 +76,7 @@ Renders a line on the chart.
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `dataKey` | `string` | required | Key in data for y values |
+| `yAxisId` | `string \| number` | `"left"` | Y-scale group for biaxial charts (pair with `YAxis`) |
 | `stroke` | `string` | `var(--chart-line-primary)` | Line color |
 | `strokeWidth` | `number` | `2.5` | Line width |
 | `curve` | `CurveFactory` | `curveNatural` | D3 curve function |
@@ -125,6 +126,10 @@ Renders the tooltip with crosshair, dots, and content box.
 | `indicatorColor` | `string \| (point) => string` | — | Crosshair and dot color; use a function for value-based colors |
 | `content` | `(props) => ReactNode` | - | Custom content renderer |
 | `rows` | `(point) => TooltipRow[]` | - | Custom row generator |
+
+## Dual Y axes (biaxial)
+
+Pair `yAxisId` on each `Line` with matching `YAxis` components. Increase `margin.left` and `margin.right` so labels fit. See [Y Axis](/docs/utility/axis/y-axis) and the **Left and right Y axes** examples on the [line chart gallery](/charts/line-chart).
 
 ## Profit/Loss line
 

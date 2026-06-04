@@ -18,6 +18,10 @@ import {
   StudioChartShell,
   StudioVisibleLayer,
 } from "@/components/charts/studio-chart-shell";
+import {
+  StudioChartYAxisLayers,
+  timeSeriesChartMargin,
+} from "@/components/charts/studio-chart-y-axis";
 import { fadeEdgesPropValue } from "@/components/controls/fade-edges-picker";
 import { useStudioMotionRemountKey } from "@/components/use-studio-motion-remount";
 import { getStudioCssRevealPropsForPreview } from "@/lib/chart-animation";
@@ -119,6 +123,7 @@ export function LineProfitLossStudioChart({
           className="size-full"
           data={data}
           key={`${ctx.animationKey}-${motionRemountKey}`}
+          margin={timeSeriesChartMargin(state, { right: 40 })}
         >
           <StudioVisibleLayer componentId="line.grid" state={state}>
             <Grid
@@ -147,6 +152,7 @@ export function LineProfitLossStudioChart({
               strokeWidth={state.strokeWidth}
             />
           </StudioVisibleLayer>
+          <StudioChartYAxisLayers chartPrefix="line" state={state} />
           <StudioVisibleLayer componentId="line.xaxis" state={state}>
             <XAxis />
           </StudioVisibleLayer>

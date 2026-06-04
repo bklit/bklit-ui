@@ -7,6 +7,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import {
@@ -18,12 +19,21 @@ import {
   lineChartStandardDefaults,
 } from "@/lib/line-chart-mode";
 import { getStudioConfig } from "@/lib/registry";
+import { chartDefaultHiddenYAxes } from "@/lib/studio-component-visibility";
 import {
   defaultsForChart,
   type StudioUrlState,
   studioSearchParams,
 } from "@/lib/studio-parsers";
 import type { ChartSlug, StudioChartConfig } from "@/lib/types";
+
+const STUDIO_Y_AXIS_CHART_PREFIX: Partial<Record<ChartSlug, string>> = {
+  "line-chart": "line",
+  "area-chart": "area",
+  "scatter-chart": "scatter",
+  "composed-chart": "composed",
+  "bar-chart": "bar",
+};
 
 function finiteFrameDimension(value: number, fallback: number) {
   return Number.isFinite(value) ? value : fallback;
@@ -74,6 +84,7 @@ export function StudioStateProvider({
     Partial<StudioUrlState>
   >({});
   const [motionCurveDragging, setMotionCurveDragging] = useState(false);
+  const appliedYAxisHiddenDefault = useRef(false);
 
   const state = useMemo(
     (): StudioUrlState => ({
@@ -91,6 +102,8 @@ export function StudioStateProvider({
     }),
     [previewOverrides, state]
   );
+
+  const yAxisChartPrefix = STUDIO_Y_AXIS_CHART_PREFIX[state.chart as ChartSlug];
 
   useEffect(() => {
     if (Number.isFinite(params.frameW) && Number.isFinite(params.frameH)) {
@@ -111,6 +124,24 @@ export function StudioStateProvider({
       ...lineChartProfitLossDefaults,
     });
   }, [params.chart, setParams]);
+
+  // Time-series studio charts: hide both Y axes until toggled in the components tree.
+  useEffect(() => {
+    if (!yAxisChartPrefix) {
+      appliedYAxisHiddenDefault.current = false;
+      return;
+    }
+    if (appliedYAxisHiddenDefault.current) {
+      return;
+    }
+    appliedYAxisHiddenDefault.current = true;
+    if (params.hiddenComponents !== "") {
+      return;
+    }
+    setParams({
+      hiddenComponents: chartDefaultHiddenYAxes(yAxisChartPrefix),
+    });
+  }, [params.hiddenComponents, setParams, yAxisChartPrefix]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: reset slider previews when chart changes via URL
   useEffect(() => {
@@ -145,6 +176,12 @@ export function StudioStateProvider({
         ...(slug === "area-chart" || slug === "composed-chart"
           ? { dataSeries: 2 }
           : {}),
+        ...(() => {
+          const prefix = STUDIO_Y_AXIS_CHART_PREFIX[slug];
+          return prefix && slug !== "line-chart"
+            ? { hiddenComponents: chartDefaultHiddenYAxes(prefix) }
+            : {};
+        })(),
       });
     },
     [setParams]

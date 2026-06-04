@@ -23,6 +23,11 @@ import { ControlFieldInputs } from "./control-field-inputs";
 import { GaugeAngleControl } from "./gauge-angle-control";
 import { InnerRadiusControl } from "./inner-radius-control";
 import { LegendPositionPicker } from "./legend-position-picker";
+import { LineSeriesYAxisControl } from "./line-series-y-axis-control";
+import {
+  LineYAxisFormatLargeControl,
+  LineYAxisNumTicksControl,
+} from "./line-y-axis-settings-controls";
 import { OpacityControl } from "./opacity-control";
 import { PieEndAngleControl, PieStartAngleControl } from "./pie-angle-control";
 import { SliderInputGroup } from "./slider-input-group";
@@ -310,6 +315,41 @@ export function ControlField({
           value={value}
         />
       </StudioControlRow>
+    );
+  }
+
+  if (control.type === "lineSeriesYAxis") {
+    return (
+      <LineSeriesYAxisControl
+        label={control.label}
+        onChange={onChange}
+        onCommit={onCommit}
+        seriesIndex={control.seriesIndex}
+        state={state}
+      />
+    );
+  }
+
+  if (control.type === "lineYAxisNumTicks") {
+    return (
+      <LineYAxisNumTicksControl
+        axis={control.axis}
+        label={control.label}
+        onChange={onChange}
+        onCommit={onCommit}
+        state={state}
+      />
+    );
+  }
+
+  if (control.type === "lineYAxisFormatLarge") {
+    return (
+      <LineYAxisFormatLargeControl
+        axis={control.axis}
+        label={control.label}
+        onChange={onChange}
+        state={state}
+      />
     );
   }
 

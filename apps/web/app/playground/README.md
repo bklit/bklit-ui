@@ -1,26 +1,23 @@
-# Local chart playground
+# Deprecated: local playground
 
-This folder holds a **local-only** Next.js route for chart prototyping. It is not deployed and the page file is not committed.
+**Chart development moved to [Studio](/studio).**
 
-## First-time setup
+The `/playground` route redirects to `/studio`. Contributors and agents should follow **`.agents/skills/bklit-studio/SKILL.md`** (not `bklit-playground`).
 
-Copy the committed template to create your playground page:
+## Why
+
+Studio includes the full editor (component tree, properties, motion, codegen, registry previews). Maintaining a separate gitignored playground duplicated providers and drifted from what ships.
+
+## What to use instead
 
 ```bash
-cp .agents/skills/bklit-playground/templates/page.tsx apps/web/app/playground/page.tsx
+pnpm dev   # repo root
 ```
 
-Then visit [http://localhost:3000/playground](http://localhost:3000/playground) (`pnpm dev` from repo root).
+Open **http://localhost:3000/studio** — e.g. `?chart=line-chart`.
 
-## For AI agents
+Implement previews in `packages/studio/src/lib/registry.tsx` and chart UI in `packages/ui/src/charts/`.
 
-**Read `.agents/skills/bklit-playground/SKILL.md`** before creating or editing `page.tsx`.
+## Legacy files
 
-- **Template:** `.agents/skills/bklit-playground/templates/page.tsx`
-- **Default:** empty editor shell + empty panes + `PlaygroundEmptyState` in the chart frame
-- **Left pane:** motion/animation (`showMotionControls`)
-- **Right pane:** chart props (`controlGroups` from `registry-control-groups.ts`)
-- **Editor components:** `apps/web/components/editor/`
-- **Playground helpers:** `apps/web/components/playground/`
-
-Repo-wide agent notes: [`AGENTS.md`](../../../../AGENTS.md) at the monorepo root.
+`apps/web/components/playground/` is **deprecated** and may be removed. Do not add new prototypes there.

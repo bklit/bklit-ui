@@ -73,6 +73,7 @@ function extractAreaConfigs(children: ReactNode): LineConfig[] {
         dataKey: props.dataKey,
         stroke: props.stroke || props.fill || "var(--chart-line-primary)",
         strokeWidth: props.strokeWidth || 2,
+        yAxisId: props.yAxisId,
       });
     }
   });

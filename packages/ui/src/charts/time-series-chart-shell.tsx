@@ -30,6 +30,12 @@ import {
 } from "./series-bar-layout";
 import { useStaticChartPreview } from "./static-chart-preview-context";
 import { useChartInteraction } from "./use-chart-interaction";
+import {
+  buildYScalesForLines,
+  DEFAULT_Y_AXIS_ID,
+  getPrimaryYScale,
+  groupLinesByYAxisId,
+} from "./y-axis-scales";
 
 function collectNumericExtents(
   data: Record<string, unknown>[],
@@ -213,16 +219,30 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
     return innerWidth / (data.length - 1);
   }, [innerWidth, data.length]);
 
-  const yScale = useMemo(() => {
-    const dataKeys = lines.map((line) => line.dataKey);
-    const domain = resolveTimeSeriesYDomain(data, dataKeys, yScaleDomainMax);
+  const yScales = useMemo(
+    () =>
+      buildYScalesForLines({
+        lines,
+        data,
+        innerHeight,
+        resolveDomain: (dataKeys) => {
+          const axisGroups = groupLinesByYAxisId(lines);
+          const usesDefaultOnly =
+            axisGroups.size === 1 && axisGroups.has(DEFAULT_Y_AXIS_ID);
+          const domainMax =
+            usesDefaultOnly && yScaleDomainMax != null
+              ? yScaleDomainMax
+              : undefined;
+          return resolveTimeSeriesYDomain(data, dataKeys, domainMax);
+        },
+      }),
+    [innerHeight, data, lines, yScaleDomainMax]
+  );
 
-    return scaleLinear({
-      range: [innerHeight, 0],
-      domain,
-      nice: true,
-    });
-  }, [innerHeight, data, lines, yScaleDomainMax]);
+  const yScale = getPrimaryYScale(
+    yScales,
+    scaleLinear({ range: [innerHeight, 0], domain: [0, 100], nice: true })
+  );
 
   const dateLabels = useMemo(
     () => data.map((d) => shortDateFmt.format(xAccessor(d))),
@@ -256,6 +276,7 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
   } = useChartInteraction({
     xScale,
     yScale,
+    yScales,
     data,
     lines,
     margin,
@@ -293,6 +314,7 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
       renderData,
       xScale,
       yScale,
+      yScales,
       width,
       height,
       innerWidth,
@@ -325,6 +347,7 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
       renderData,
       xScale,
       yScale,
+      yScales,
       width,
       height,
       innerWidth,

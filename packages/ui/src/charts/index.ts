@@ -64,6 +64,7 @@ export {
   useChart,
   useChartHover,
   useChartStable,
+  useYScale,
 } from "./chart-context";
 // Legacy legend component (backward compatibility)
 export {
@@ -331,3 +332,14 @@ export {
 } from "./visx-pattern";
 export { XAxis, type XAxisProps } from "./x-axis";
 export { YAxis, type YAxisProps } from "./y-axis";
+export {
+  DEFAULT_Y_AXIS_ID,
+  getPrimaryYScale,
+  type YAxisOrientation,
+} from "./y-axis-scales";
+export {
+  resolveYAxisTickCount,
+  Y_AXIS_DEFAULT_TICK_COUNT,
+  Y_AXIS_MAX_TICK_COUNT,
+  Y_AXIS_MIN_TICK_COUNT,
+} from "./y-axis-ticks";

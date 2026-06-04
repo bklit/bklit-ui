@@ -5,6 +5,8 @@ import { useChartStable } from "./chart-context";
 import { SeriesMarkers, type SeriesMarkersProps } from "./series-markers";
 
 export interface ScatterProps extends Omit<SeriesMarkersProps, "animate"> {
+  /** Y-scale group id (Recharts `yAxisId`). Default: `"left"`. */
+  yAxisId?: string | number;
   /** Whether to animate points with clip reveal. Default: true */
   animate?: boolean;
   /**

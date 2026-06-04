@@ -23,6 +23,7 @@ import {
   useMemo,
 } from "react";
 import type { ChartSelection } from "./use-chart-interaction";
+import { DEFAULT_Y_AXIS_ID } from "./y-axis-scales";
 
 // CSS variable references for theming
 export const chartCssVars = {
@@ -78,6 +79,8 @@ export interface LineConfig {
   dataKey: string;
   stroke: string;
   strokeWidth: number;
+  /** Scale group id (Recharts `yAxisId`). Default: `"left"`. */
+  yAxisId?: string | number;
 }
 
 /**
@@ -117,7 +120,10 @@ export interface ChartContextValue extends ChartHoverContextValue {
 
   // Scales
   xScale: ScaleTime<number, number>;
+  /** Primary (left) y-scale — alias for `yScales[DEFAULT_Y_AXIS_ID]`. */
   yScale: ScaleLinear<number, number>;
+  /** Per-axis y-scales keyed by `yAxisId`. */
+  yScales: Record<string, ScaleLinear<number, number>>;
 
   // Dimensions
   width: number;
@@ -214,6 +220,7 @@ export function ChartProvider({
       renderData: value.renderData,
       xScale: value.xScale,
       yScale: value.yScale,
+      yScales: value.yScales,
       width: value.width,
       height: value.height,
       innerWidth: value.innerWidth,
@@ -248,6 +255,7 @@ export function ChartProvider({
       value.renderData,
       value.xScale,
       value.yScale,
+      value.yScales,
       value.width,
       value.height,
       value.innerWidth,
@@ -325,6 +333,16 @@ export function useChartStable(): ChartStableContextValue {
     );
   }
   return context;
+}
+
+/** Y-scale for a series axis (`yAxisId` on Line / Area / YAxis). */
+export function useYScale(
+  yAxisId?: string | number
+): ScaleLinear<number, number> {
+  const { yScales, yScale } = useChartStable();
+  const id =
+    yAxisId == null || yAxisId === "" ? DEFAULT_Y_AXIS_ID : String(yAxisId);
+  return yScales[id] ?? yScale;
 }
 
 /**

@@ -5,6 +5,7 @@ import type { scaleLinear, scaleTime } from "@visx/scale";
 import { useCallback, useRef, useState } from "react";
 import type { LineConfig, Margin, TooltipData } from "./chart-context";
 import { useScheduledTooltip } from "./use-scheduled-tooltip";
+import { normalizeYAxisId } from "./y-axis-scales";
 
 type ScaleTime = ReturnType<typeof scaleTime<number>>;
 type ScaleLinear = ReturnType<typeof scaleLinear<number>>;
@@ -20,6 +21,7 @@ export interface ChartSelection {
 interface UseChartInteractionParams {
   xScale: ScaleTime;
   yScale: ScaleLinear;
+  yScales: Record<string, ScaleLinear>;
   data: Record<string, unknown>[];
   lines: LineConfig[];
   margin: Margin;
@@ -52,6 +54,7 @@ interface ChartInteractionResult {
 export function useChartInteraction({
   xScale,
   yScale,
+  yScales,
   data,
   lines,
   margin,
@@ -97,7 +100,8 @@ export function useChartInteraction({
       for (const line of lines) {
         const value = d[line.dataKey];
         if (typeof value === "number") {
-          yPositions[line.dataKey] = yScale(value) ?? 0;
+          const axisScale = yScales[normalizeYAxisId(line.yAxisId)] ?? yScale;
+          yPositions[line.dataKey] = axisScale(value) ?? 0;
         }
       }
 
@@ -108,7 +112,7 @@ export function useChartInteraction({
         yPositions,
       };
     },
-    [xScale, yScale, data, lines, xAccessor, bisectDate]
+    [xScale, yScale, yScales, data, lines, xAccessor, bisectDate]
   );
 
   const resolveIndexFromX = useCallback(
