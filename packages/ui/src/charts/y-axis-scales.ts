@@ -36,8 +36,8 @@ export function getPrimaryYScale(
   if (primary) {
     return primary;
   }
-  const values = Object.values(yScales);
-  return values.length > 0 ? values[0] : fallback;
+  const first = Object.values(yScales)[0];
+  return first ?? fallback;
 }
 
 export function buildYScalesForLines({
