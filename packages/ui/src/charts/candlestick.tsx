@@ -4,6 +4,7 @@ import type { Transition } from "motion/react";
 import { motion } from "motion/react";
 import { memo, useMemo } from "react";
 import { useChart } from "./chart-context";
+import { useChartLegendHover } from "./chart-legend-hover";
 import { transitionWithDelay } from "./motion-utils";
 
 const DEFAULT_POSITIVE = "url(#candlestick-positive)";
@@ -46,6 +47,7 @@ interface CandleGeometry {
   wickFill: string;
   bodyPattern?: string;
   insideStrokeWidth: number;
+  isPositive: boolean;
 }
 
 function getSolidColor(isPositive: boolean): string {
@@ -100,8 +102,27 @@ function computeGeometries(
       wickFill: hasPatternOverlay ? bodySolidFill : fill,
       bodyPattern: hasPatternOverlay ? bodyPattern : undefined,
       insideStrokeWidth,
+      isPositive,
     };
   });
+}
+
+function geometryDimOpacity(
+  geometry: CandleGeometry,
+  fadedOpacity: number,
+  legendHoveredIndex: number | null,
+  hoveredTime: number | null
+): number {
+  if (legendHoveredIndex !== null) {
+    const dimFromLegend =
+      (legendHoveredIndex === 0 && !geometry.isPositive) ||
+      (legendHoveredIndex === 1 && geometry.isPositive);
+    return dimFromLegend ? fadedOpacity : 1;
+  }
+  if (hoveredTime !== null && geometry.time !== hoveredTime) {
+    return fadedOpacity;
+  }
+  return 1;
 }
 
 const CandlestickBody = memo(function CandlestickBody({
@@ -173,13 +194,28 @@ const CandlestickBody = memo(function CandlestickBody({
 
 const CandlestickBodies = memo(function CandlestickBodies({
   geometries,
+  fadedOpacity,
+  legendHoveredIndex,
+  hoveredTime,
 }: {
   geometries: CandleGeometry[];
+  fadedOpacity: number;
+  legendHoveredIndex: number | null;
+  hoveredTime: number | null;
 }) {
   return (
     <>
       {geometries.map((geometry) => (
-        <g key={geometry.time}>
+        <g
+          key={geometry.time}
+          opacity={geometryDimOpacity(
+            geometry,
+            fadedOpacity,
+            legendHoveredIndex,
+            hoveredTime
+          )}
+          style={{ transition: "opacity 0.15s ease-in-out" }}
+        >
           <CandlestickBody geometry={geometry} />
         </g>
       ))}
@@ -280,6 +316,7 @@ export function Candlestick({
     columnWidth,
     hoveredCandleIndex,
   } = useChart();
+  const { hoveredIndex: legendHoveredIndex } = useChartLegendHover();
 
   const candleWidth = Math.min(bandWidth ?? columnWidth * 0.8, columnWidth);
 
@@ -380,16 +417,14 @@ export function Candlestick({
     );
   }
 
-  const dimBase = showHoverFade && hoveredTime !== null;
-
   return (
     <g className="chart-candlesticks">
-      <g
-        opacity={dimBase ? fadedOpacity : 1}
-        style={{ transition: "opacity 0.15s ease-in-out" }}
-      >
-        <CandlestickBodies geometries={geometries} />
-      </g>
+      <CandlestickBodies
+        fadedOpacity={fadedOpacity}
+        geometries={geometries}
+        hoveredTime={showHoverFade ? hoveredTime : null}
+        legendHoveredIndex={legendHoveredIndex}
+      />
       {highlightGeometry ? (
         <g>
           <CandlestickBody geometry={highlightGeometry} />

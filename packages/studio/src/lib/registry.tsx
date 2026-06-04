@@ -6,25 +6,19 @@ import {
   Bar,
   BarChart,
   BarXAxis,
-  Candlestick,
-  CandlestickChart,
   ChartTooltip,
   ComposedChart,
   Grid,
   Line,
-  LinearGradient,
   LineChart,
   PatternArea,
-  SankeyChart,
-  SankeyLink,
-  SankeyNode,
-  SankeyTooltip,
   Scatter,
   ScatterChart,
   SeriesBar,
   XAxis,
 } from "@bklitui/ui/charts";
 import { validChartSlugs } from "@/chart-slugs";
+import { CandlestickStudioPreview } from "@/components/charts/candlestick-studio-preview";
 import { ChoroplethStudioPreview } from "@/components/charts/choropleth-studio";
 import { FunnelStudioPreview } from "@/components/charts/funnel-studio-preview";
 import { GaugeStudioPreview } from "@/components/charts/gauge-studio-preview";
@@ -33,6 +27,7 @@ import { LiveLineStudioPreview } from "@/components/charts/live-line-studio";
 import { PieStudioPreview } from "@/components/charts/pie-studio-preview";
 import { RadarStudioPreview } from "@/components/charts/radar-studio-preview";
 import { RingStudioPreview } from "@/components/charts/ring-studio-preview";
+import { SankeyStudioPreview } from "@/components/charts/sankey-studio-preview";
 import { StudioCartesianFill } from "@/components/charts/studio-chart-layout";
 import {
   StudioChartShell,
@@ -66,8 +61,6 @@ import {
   clampStudioSeriesCount,
   generateStudioCartesianData,
   getBarHorizontalData,
-  getCandlestickData,
-  getSankeyData,
   getScatterData,
   getVisitorsByCountry,
   pieData,
@@ -117,10 +110,7 @@ import {
   studioAreaLegendItems,
   studioCartesianLegendItems,
 } from "./studio-legend-items";
-import {
-  getEffectiveSeriesColor,
-  getSeriesFillMode,
-} from "./studio-series-design";
+import { getEffectiveSeriesColor } from "./studio-series-design";
 import type { ChartSlug, StudioChartConfig } from "./types";
 import { chartLabels } from "./types";
 
@@ -620,56 +610,7 @@ const candlestickConfig: StudioChartConfig = {
   controls: [],
   controlGroups: candlestickChartControlGroups,
   resolveComponents: resolveCandlestickComponents,
-  render: (state, ctx) => {
-    const patternUp =
-      getSeriesFillMode(state, 0) === "pattern"
-        ? ctx.patternFillAt(0)
-        : undefined;
-    const positiveFill = state.candleUseGradient
-      ? "url(#studio-candle-up)"
-      : "var(--chart-1)";
-    const negativeFill = state.candleUseGradient
-      ? "url(#studio-candle-down)"
-      : "var(--chart-3)";
-
-    return (
-      <StudioCartesianFill>
-        <CandlestickChart
-          {...getStudioCssRevealPropsForPreview(state, ctx)}
-          candleGap={state.candleGap}
-          className="size-full"
-          data={getCandlestickData(ctx.dataSeed)}
-          key={studioPreviewChartKey(ctx)}
-          margin={{ top: 16, right: 16, bottom: 40, left: 16 }}
-        >
-          {state.candleUseGradient ? (
-            <>
-              <LinearGradient
-                from="var(--chart-1)"
-                id="studio-candle-up"
-                to="var(--chart-3)"
-              />
-              <LinearGradient
-                from="var(--chart-4)"
-                id="studio-candle-down"
-                to="var(--chart-5)"
-              />
-            </>
-          ) : null}
-          {ctx.patternDefs}
-          <Candlestick
-            bodyPatternNegative={patternUp}
-            bodyPatternPositive={patternUp}
-            fadedOpacity={state.candleFadedOpacity}
-            negativeFill={negativeFill}
-            positiveFill={positiveFill}
-          />
-          <ChartTooltip showDots={state.candleShowDots} />
-          <XAxis />
-        </CandlestickChart>
-      </StudioCartesianFill>
-    );
-  },
+  render: (state, ctx) => <CandlestickStudioPreview ctx={ctx} state={state} />,
   generateCode: (state) => candlestickCodegen(state),
 };
 
@@ -771,22 +712,7 @@ const sankeyConfig: StudioChartConfig = {
   controls: [],
   controlGroups: sankeyChartControlGroups,
   resolveComponents: resolveSankeyComponents,
-  render: (state, ctx) => (
-    <StudioCartesianFill>
-      <SankeyChart
-        {...getStudioCssRevealPropsForPreview(state, ctx)}
-        className="size-full"
-        data={getSankeyData(ctx.dataSeed)}
-        key={studioPreviewChartKey(ctx)}
-        nodePadding={state.sankeyNodePadding}
-        nodeWidth={state.sankeyNodeWidth}
-      >
-        <SankeyNode key="nodes" />
-        <SankeyLink key="links" strokeOpacity={state.linkOpacity} />
-        <SankeyTooltip key="tooltip" />
-      </SankeyChart>
-    </StudioCartesianFill>
-  ),
+  render: (state, ctx) => <SankeyStudioPreview ctx={ctx} state={state} />,
   generateCode: (state) => sankeyCodegen(state),
 };
 
