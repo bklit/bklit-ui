@@ -2,8 +2,9 @@
 name: pr-open
 description: |
   Open a pull request the bklit-ui way: stage and commit with pre-commit hooks,
-  run ultracite from the repo root, run a production test build, fix failures, push,
-  and create a PR with a structured summary. Use when the user asks to commit, push,
+  run ultracite from the repo root, rebuild the shadcn registry, run a production test
+  build, fix failures, push, and create a PR with a structured summary. Use when the
+  user asks to commit, push,
   open a PR, "ship it", or run the full pre-PR checklist.
 ---
 
@@ -119,7 +120,37 @@ Do not open a PR while `pnpm lint` fails or while lint fixes are unstaged.
 
 ---
 
-## Step 4 — Test build
+## Step 4 — Rebuild shadcn registry (required)
+
+**Always** run this before the production build on every PR — not only when `packages/ui` changed. Registry artifacts under `apps/web/public/r/` must stay in sync with the committed UI package.
+
+From the repo root:
+
+```bash
+pnpm registry:build
+```
+
+This updates `apps/web/public/r/` from `packages/ui` (see `packages/ui/package.json` → `registry:build`).
+
+1. Review `git diff` after the build. **Include** intentional changes under `apps/web/public/r/`.
+2. **Do not** commit incidental reformats on `packages/ui/registry/examples/*` unless those edits are intentional.
+3. If `apps/web/public/r/` (or `packages/ui/registry.json` when you edited it) changed:
+
+```bash
+git add apps/web/public/r packages/ui/registry.json
+git commit -m "$(cat <<'EOF'
+chore(registry): rebuild shadcn registry for PR
+EOF
+)"
+```
+
+4. Re-run **Step 3** (`pnpm lint`) if any source files changed outside `public/r/`.
+
+Do not open a PR while registry outputs are stale (uncommitted `apps/web/public/r/` diffs after `registry:build`).
+
+---
+
+## Step 5 — Test build
 
 Run a production build to catch type and compile errors before the PR.
 
@@ -151,11 +182,11 @@ pnpm check-types
 
 1. Fix the root cause (types, imports, missing registry files, etc.).
 2. Re-run the failing command until it passes.
-3. Commit fixes with a clear message, then re-run **Step 3** (`pnpm lint`) if source files changed.
+3. Commit fixes with a clear message, then re-run **Step 3** (`pnpm lint`) and **Step 4** (`pnpm registry:build`) if source files under `packages/ui` changed.
 
 ---
 
-## Step 5 — Push
+## Step 6 — Push
 
 Only when the user asked to push or open a PR:
 
@@ -167,7 +198,7 @@ If the branch was already pushed and you added commits, `git push` is enough.
 
 ---
 
-## Step 6 — Open the PR
+## Step 7 — Open the PR
 
 Use GitHub CLI from the repo root:
 
@@ -182,6 +213,7 @@ gh pr create --title "<PR title>" --body "$(cat <<'EOF'
 ## Test plan
 
 - [ ] `pnpm lint` passes at repo root
+- [ ] `pnpm registry:build` run; `apps/web/public/r/` committed if updated
 - [ ] `pnpm build` (or `apps/web` build for web-only changes)
 - [ ] <manual verification step 1>
 - [ ] <manual verification step 2>
@@ -207,6 +239,7 @@ Return the PR URL to the user.
 ## Test plan
 
 - [ ] `pnpm lint` passes at repo root
+- [ ] `pnpm registry:build` run; registry outputs committed if changed
 - [ ] Production build succeeds (`pnpm build` or scoped web build)
 - [ ] <feature-specific check>
 - [ ] <regression check if applicable>
@@ -219,7 +252,7 @@ Add extra sections only when useful:
 
 ### Repo-specific PR notes
 
-- **Registry changes**: run `pnpm registry:build` from root (or `packages/ui`) before commit; include `apps/web/public/r/` outputs in the commit.
+- **Registry**: Step 4 always runs `pnpm registry:build`; commit `apps/web/public/r/` when the build updates it.
 - **Do not** commit incidental reformats from `registry:build` on `packages/ui/registry/examples/*` unless intentional.
 - Chart/docs work: mention manual checks for docs pages, Studio, or Open in v0 when relevant.
 
@@ -232,9 +265,10 @@ Add extra sections only when useful:
 | 1 | `git status` / `git diff` / `git log` | Understand scope |
 | 2 | `git add` → `git commit` | Pre-commit hook clean; working tree clean |
 | 3 | `pnpm lint` → `pnpm lint:fix` if needed → re-commit | `pnpm lint` exits 0 |
-| 4 | `pnpm build` (and `pnpm check-types` if TS changed) | Build exits 0 |
-| 5 | `git push -u origin HEAD` | Only if user requested push/PR |
-| 6 | `gh pr create` with Summary + Test plan | PR URL returned |
+| 4 | `pnpm registry:build` → commit `apps/web/public/r/` if changed | No stale registry diff |
+| 5 | `pnpm build` (and `pnpm check-types` if TS changed) | Build exits 0 |
+| 6 | `git push -u origin HEAD` | Only if user requested push/PR |
+| 7 | `gh pr create` with Summary + Test plan | PR URL returned |
 
 ---
 
@@ -258,7 +292,8 @@ User: "commit this and open a PR"
 1. `git status` + `git diff` + `git log -3`
 2. `git add apps/web packages/ui` → `git commit` (fix pre-commit until clean)
 3. `pnpm lint` → `pnpm lint:fix` if needed → commit → `pnpm lint`
-4. `pnpm build` (fix until green) → commit if needed
-5. `git push -u origin HEAD`
-6. `gh pr create` with Summary + Test plan template
-7. Reply with PR link and one-line summary of what was validated
+4. `pnpm registry:build` → commit `apps/web/public/r/` if changed
+5. `pnpm build` (fix until green) → commit if needed
+6. `git push -u origin HEAD`
+7. `gh pr create` with Summary + Test plan template
+8. Reply with PR link and one-line summary of what was validated
