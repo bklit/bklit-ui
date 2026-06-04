@@ -6,6 +6,7 @@ import {
   RadarChart,
   RadarGrid,
   RadarLabels,
+  useChartLegendHover,
 } from "@bklitui/ui/charts";
 import { memo, useMemo } from "react";
 import {
@@ -37,6 +38,7 @@ const RadarChartBody = memo(function RadarChartBody({
   motionEnter: ReturnType<typeof getStudioMotionEnterProps>;
   contentFrame: ReturnType<typeof useStudioChartContentFrame>;
 }) {
+  const { hoveredIndex, setHoveredIndex } = useChartLegendHover();
   const chartKey = studioPreviewChartKey(ctx);
 
   return (
@@ -45,11 +47,13 @@ const RadarChartBody = memo(function RadarChartBody({
         data={radarData}
         enterDurationMs={studioAnimationDurationMs(state)}
         enterTransition={motionEnter.enterTransition}
+        hoveredIndex={hoveredIndex}
         key={chartKey}
         levels={state.radarLevels}
         margin={state.radarMargin}
         metrics={radarMetrics5}
         motionReplayKey={chartKey}
+        onHoverChange={setHoveredIndex}
         size={studioRadialSize(contentFrame, state.radarSize)}
         staggerScale={motionEnter.enterStaggerScale}
       >

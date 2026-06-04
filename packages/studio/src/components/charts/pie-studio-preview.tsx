@@ -1,6 +1,11 @@
 "use client";
 
-import { PieCenter, PieChart, PieSlice } from "@bklitui/ui/charts";
+import {
+  PieCenter,
+  PieChart,
+  PieSlice,
+  useChartLegendHover,
+} from "@bklitui/ui/charts";
 import { memo, useMemo } from "react";
 import {
   StudioRadialCenter,
@@ -15,7 +20,6 @@ import { getPieData } from "@/lib/demo-data";
 import type { StudioRenderContext } from "@/lib/render-context";
 import { useStudioChartContentFrame } from "@/lib/studio-chart-content-frame";
 import { isStudioComponentVisible } from "@/lib/studio-component-visibility";
-import { useStudioLegendHover } from "@/lib/studio-legend-hover";
 import { studioStaticPieLegendItems } from "@/lib/studio-legend-items";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import {
@@ -36,7 +40,7 @@ const PieChartBody = memo(function PieChartBody({
   motionEnter: ReturnType<typeof getStudioMotionEnterProps>;
   showPatternDefs: boolean;
 }) {
-  const { hoveredIndex, setHoveredIndex } = useStudioLegendHover();
+  const { hoveredIndex, setHoveredIndex } = useChartLegendHover();
   const contentFrame = useStudioChartContentFrame(ctx.frame);
 
   const slices = useMemo(

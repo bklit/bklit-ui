@@ -7,6 +7,7 @@ import {
   useChartHover,
   useChartStable,
 } from "./chart-context";
+import { useChartLegendHover } from "./chart-legend-hover";
 import {
   getSeriesMarkerVisualExtent,
   SeriesPointMarker,
@@ -199,6 +200,7 @@ export function SeriesMarkers({
         enabled={fadeOnHover}
         inactiveBlur={inactiveBlur}
         inactiveOpacity={inactiveOpacity}
+        seriesIndex={seriesIndex}
       >
         {baseMarkers}
       </SeriesMarkersDimWrapper>
@@ -218,6 +220,7 @@ interface SeriesMarkersDimWrapperProps {
   enabled: boolean;
   inactiveOpacity: number;
   inactiveBlur: number;
+  seriesIndex: number;
   children: ReactNode;
 }
 
@@ -230,10 +233,14 @@ function SeriesMarkersDimWrapper({
   enabled,
   inactiveOpacity,
   inactiveBlur,
+  seriesIndex,
   children,
 }: SeriesMarkersDimWrapperProps) {
   const { tooltipData } = useChartHover();
-  const dimBase = enabled && tooltipData !== null;
+  const { hoveredIndex: legendHoveredIndex } = useChartLegendHover();
+  const isLegendDimmed =
+    legendHoveredIndex !== null && legendHoveredIndex !== seriesIndex;
+  const dimBase = enabled && (tooltipData !== null || isLegendDimmed);
   return (
     <g
       opacity={dimBase ? inactiveOpacity : 1}

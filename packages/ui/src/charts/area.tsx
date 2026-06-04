@@ -7,7 +7,7 @@ import { AreaClosed, LinePath } from "@visx/shape";
 // biome-ignore lint/suspicious/noExplicitAny: d3 curve factory type
 type CurveFactory = any;
 
-import { useCallback, useId, useRef } from "react";
+import { useCallback, useId, useMemo, useRef } from "react";
 import { AreaGradientDefs } from "./area-gradient-defs";
 import { chartCssVars, useChartStable } from "./chart-context";
 import { type FadeEdges, resolveFadeSides } from "./fade-edges";
@@ -94,7 +94,13 @@ export function Area({
     innerHeight,
     innerWidth,
     xAccessor,
+    lines,
   } = useChartStable();
+
+  const seriesIndex = useMemo(() => {
+    const index = lines.findIndex((line) => line.dataKey === dataKey);
+    return index >= 0 ? index : 0;
+  }, [lines, dataKey]);
 
   const pathRef = useRef<SVGPathElement>(null);
   const { pathLength, pathD } = usePathStrokeMetrics(pathRef, [
@@ -153,7 +159,11 @@ export function Area({
         strokeGradientId={strokeGradientId}
       />
 
-      <SeriesHoverDim dimOpacity={0.6} enabled={showHighlight}>
+      <SeriesHoverDim
+        dimOpacity={0.6}
+        enabled={showHighlight}
+        seriesIndex={seriesIndex}
+      >
         {/* Area fill */}
         {showAreaFill ? (
           <g

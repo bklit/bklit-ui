@@ -1,6 +1,6 @@
 "use client";
 
-import { FunnelChart } from "@bklitui/ui/charts";
+import { FunnelChart, useChartLegendHover } from "@bklitui/ui/charts";
 import { memo, useMemo } from "react";
 import { StudioCartesianFill } from "@/components/charts/studio-chart-layout";
 import { StudioChartShell } from "@/components/charts/studio-chart-shell";
@@ -26,6 +26,8 @@ const FunnelChartBody = memo(function FunnelChartBody({
   stages: ReturnType<typeof getFunnelData>;
   motionEnter: ReturnType<typeof getStudioMotionEnterProps>;
 }) {
+  const { hoveredIndex, setHoveredIndex } = useChartLegendHover();
+
   return (
     <StudioCartesianFill>
       <FunnelChart
@@ -35,8 +37,10 @@ const FunnelChartBody = memo(function FunnelChartBody({
         edges={state.funnelEdges}
         enterTransition={motionEnter.enterTransition}
         gap={state.funnelGap}
+        hoveredIndex={hoveredIndex}
         key={studioPreviewChartKey(ctx)}
         layers={state.funnelLayers}
+        onHoverChange={setHoveredIndex}
         orientation={state.funnelOrientation}
         showLabels={state.funnelShowLabels}
         showPercentage={state.funnelShowPercentage}

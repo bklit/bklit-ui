@@ -1,6 +1,11 @@
 "use client";
 
-import { Ring, RingCenter, RingChart } from "@bklitui/ui/charts";
+import {
+  Ring,
+  RingCenter,
+  RingChart,
+  useChartLegendHover,
+} from "@bklitui/ui/charts";
 import { memo, useMemo } from "react";
 import {
   StudioRadialCenter,
@@ -15,7 +20,6 @@ import { getRingData } from "@/lib/demo-data";
 import type { StudioRenderContext } from "@/lib/render-context";
 import { useStudioChartContentFrame } from "@/lib/studio-chart-content-frame";
 import { isStudioComponentVisible } from "@/lib/studio-component-visibility";
-import { useStudioLegendHover } from "@/lib/studio-legend-hover";
 import { studioStaticRingLegendItems } from "@/lib/studio-legend-items";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import { getEffectiveSeriesColor } from "@/lib/studio-series-design";
@@ -33,7 +37,7 @@ const RingChartBody = memo(function RingChartBody({
   data: ReturnType<typeof getRingData>;
   motionEnter: ReturnType<typeof getStudioMotionEnterProps>;
 }) {
-  const { hoveredIndex, setHoveredIndex } = useStudioLegendHover();
+  const { hoveredIndex, setHoveredIndex } = useChartLegendHover();
 
   const rings = useMemo(
     () =>
