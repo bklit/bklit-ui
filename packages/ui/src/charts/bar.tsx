@@ -5,6 +5,7 @@ import type { Transition } from "motion/react";
 import { motion } from "motion/react";
 import { memo, useId, useMemo } from "react";
 import { chartCssVars, useChart, useChartStable } from "./chart-context";
+import { useChartLegendHover } from "./chart-legend-hover";
 import { transitionWithDelay } from "./motion-utils";
 
 type ScaleBand<Domain extends { toString(): string }> = ReturnType<
@@ -168,10 +169,15 @@ const BarInner = memo(function BarInner({
   const isHorizontal = orientation === "horizontal";
 
   // Find the index of this bar series among all bar series
+  const { hoveredIndex: legendHoveredIndex } = useChartLegendHover();
+
   const seriesIndex = useMemo(() => {
     const idx = lines.findIndex((l) => l.dataKey === dataKey);
     return idx >= 0 ? idx : 0;
   }, [lines, dataKey]);
+
+  const isLegendDimmed =
+    legendHoveredIndex !== null && legendHoveredIndex !== seriesIndex;
 
   const seriesCount = lines.length;
   const isLastSeries = seriesIndex === seriesCount - 1;
@@ -271,7 +277,8 @@ const BarInner = memo(function BarInner({
               seriesIndex * (barWidth + (seriesCount > 1 ? groupGap : 0));
         }
 
-        const isFaded = hoveredBarIndex !== null && hoveredBarIndex !== i;
+        const isFaded =
+          (hoveredBarIndex !== null && hoveredBarIndex !== i) || isLegendDimmed;
 
         // Use categoryValue as key since it's the unique identifier from data
         const barKey = `bar-${dataKey}-${categoryValue}`;

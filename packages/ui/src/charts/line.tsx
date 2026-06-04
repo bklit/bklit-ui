@@ -7,7 +7,7 @@ import { LinePath } from "@visx/shape";
 // biome-ignore lint/suspicious/noExplicitAny: d3 curve factory type
 type CurveFactory = any;
 
-import { useCallback, useId, useRef } from "react";
+import { useCallback, useId, useMemo, useRef } from "react";
 import { chartCssVars, useChartStable } from "./chart-context";
 import {
   type FadeEdges,
@@ -84,7 +84,13 @@ export function Line({
     innerHeight,
     innerWidth,
     xAccessor,
+    lines,
   } = useChartStable();
+
+  const seriesIndex = useMemo(() => {
+    const index = lines.findIndex((line) => line.dataKey === dataKey);
+    return index >= 0 ? index : 0;
+  }, [lines, dataKey]);
 
   const pathRef = useRef<SVGPathElement>(null);
   const { pathLength, pathD } = usePathStrokeMetrics(pathRef, [
@@ -126,7 +132,11 @@ export function Line({
         </defs>
       ) : null}
 
-      <SeriesHoverDim dimOpacity={0.3} enabled={showHighlight}>
+      <SeriesHoverDim
+        dimOpacity={0.3}
+        enabled={showHighlight}
+        seriesIndex={seriesIndex}
+      >
         <LinePath
           curve={curve}
           data={renderData}

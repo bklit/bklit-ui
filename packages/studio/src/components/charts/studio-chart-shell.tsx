@@ -1,6 +1,10 @@
 "use client";
 
-import { ChartLegend, type LegendItem } from "@bklitui/ui/charts";
+import {
+  ChartLegend,
+  ChartLegendHoverProvider,
+  type LegendItem,
+} from "@bklitui/ui/charts";
 import { type ReactNode, useState } from "react";
 import { StudioChartContentViewport } from "@/lib/studio-chart-content-frame";
 import {
@@ -12,10 +16,6 @@ import {
   studioLegendWrapperStyle,
 } from "@/lib/studio-chart-overlays";
 import { isStudioComponentVisible } from "@/lib/studio-component-visibility";
-import {
-  StudioLegendHoverProvider,
-  useStudioLegendHover,
-} from "@/lib/studio-legend-hover";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 
 export function StudioVisibleLayer({
@@ -55,12 +55,14 @@ function enrichLegendItemsForProgress(
 function StudioChartLegend({
   state,
   legendItems,
+  hoveredIndex,
+  onHover,
 }: {
   state: StudioUrlState;
   legendItems: LegendItem[];
+  hoveredIndex: number | null;
+  onHover: (index: number | null) => void;
 }) {
-  const { hoveredIndex, setHoveredIndex } = useStudioLegendHover();
-
   return (
     <div style={studioLegendWrapperStyle(state)}>
       <ChartLegend
@@ -69,7 +71,7 @@ function StudioChartLegend({
           legendItems,
           state.legendShowProgress
         )}
-        onHover={setHoveredIndex}
+        onHover={onHover}
         {...chartLegendPropsFromState(state)}
       />
     </div>
@@ -107,13 +109,18 @@ export function StudioChartShell({
       {renderLegend ? (
         renderLegend()
       ) : (
-        <StudioChartLegend legendItems={legendItems} state={state} />
+        <StudioChartLegend
+          hoveredIndex={hoveredIndex}
+          legendItems={legendItems}
+          onHover={setHoveredIndex}
+          state={state}
+        />
       )}
     </div>
   ) : null;
 
   return (
-    <StudioLegendHoverProvider
+    <ChartLegendHoverProvider
       hoveredIndex={hoveredIndex}
       onHoverChange={setHoveredIndex}
     >
@@ -132,6 +139,6 @@ export function StudioChartShell({
           <StudioChartContentViewport>{children}</StudioChartContentViewport>
         </div>
       </div>
-    </StudioLegendHoverProvider>
+    </ChartLegendHoverProvider>
   );
 }

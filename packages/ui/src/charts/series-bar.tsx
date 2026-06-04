@@ -4,6 +4,7 @@ import type { Transition } from "motion/react";
 import { motion } from "motion/react";
 import { useMemo } from "react";
 import { chartCssVars, useChart } from "./chart-context";
+import { useChartLegendHover } from "./chart-legend-hover";
 import { transitionWithDelay } from "./motion-utils";
 import { computeSeriesBarWidth } from "./series-bar-layout";
 
@@ -175,14 +176,17 @@ export function SeriesBar({
   const staggerSpread = totalAnimDuration * 0.4;
   const calculatedStaggerDelay =
     data.length > 1 ? staggerSpread / 1000 / data.length : 0;
+  const { hoveredIndex: legendHoveredIndex } = useChartLegendHover();
+  const isLegendDimmed =
+    legendHoveredIndex !== null && legendHoveredIndex !== seriesIndex;
+  const hoveredIndex = tooltipData?.index ?? null;
+
   if (barScale) {
     console.warn(
       "SeriesBar is for time-based ComposedChart / LineChart context. Use Bar inside BarChart for categorical x."
     );
     return null;
   }
-
-  const hoveredIndex = tooltipData?.index ?? null;
 
   return (
     <g className="series-bar">
@@ -214,7 +218,8 @@ export function SeriesBar({
           });
 
         const categoryLabel = String(xAccessor(d).getTime());
-        const isFaded = hoveredIndex !== null && hoveredIndex !== i;
+        const isFaded =
+          (hoveredIndex !== null && hoveredIndex !== i) || isLegendDimmed;
 
         if (animate && !isLoaded) {
           return (

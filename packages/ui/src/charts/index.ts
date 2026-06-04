@@ -72,6 +72,10 @@ export {
   type LegendItem,
 } from "./chart-legend";
 export {
+  ChartLegendHoverProvider,
+  useChartLegendHover,
+} from "./chart-legend-hover";
+export {
   ChartRevealClip,
   type ChartRevealClipProps,
 } from "./chart-reveal-clip";
