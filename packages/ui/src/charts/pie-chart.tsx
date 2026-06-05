@@ -2,6 +2,7 @@
 
 import { Group } from "@visx/group";
 import { ParentSize } from "@visx/responsive";
+import { arc as arcGenerator } from "@visx/shape";
 import { pie as d3Pie } from "d3-shape";
 import type { Transition } from "motion/react";
 import {
@@ -61,6 +62,11 @@ export interface PieChartProps {
   enterTransition?: Transition;
   /** Scales slice stagger delays (1 = default). */
   enterStaggerScale?: number;
+  /**
+   * High-frequency geometry updates (e.g. studio NumberField scrub).
+   * Uses plain SVG paths instead of Motion `d` / spring hover morphing.
+   */
+  geometryScrubbing?: boolean;
 }
 
 interface PieChartInnerProps {
@@ -79,6 +85,24 @@ interface PieChartInnerProps {
   onHoverChange?: (index: number | null) => void;
   enterTransition?: Transition;
   enterStaggerScale: number;
+  geometryScrubbing: boolean;
+}
+
+function generatePieArcPath(
+  innerRadius: number,
+  outerRadius: number,
+  startAngle: number,
+  endAngle: number,
+  cornerRadius: number,
+  padAngle: number
+): string {
+  const generator = arcGenerator<unknown>({
+    innerRadius,
+    outerRadius,
+    cornerRadius,
+    padAngle,
+  });
+  return generator({ startAngle, endAngle } as unknown as null) || "";
 }
 
 // Helper to check if a child is a PieCenter component
@@ -88,6 +112,15 @@ function isPieCenter(child: ReactNode): boolean {
     typeof child.type === "function" &&
     ((child.type as { displayName?: string }).displayName === "PieCenter" ||
       (child.type as { name?: string }).name === "PieCenter")
+  );
+}
+
+function isPieSlice(child: ReactNode): boolean {
+  return (
+    isValidElement(child) &&
+    typeof child.type === "function" &&
+    ((child.type as { displayName?: string }).displayName === "PieSlice" ||
+      (child.type as { name?: string }).name === "PieSlice")
   );
 }
 
@@ -131,6 +164,7 @@ const PieChartCore = memo(function PieChartCore({
   onHoverChange,
   enterTransition,
   enterStaggerScale,
+  geometryScrubbing,
 }: PieChartInnerProps) {
   const [internalHoveredIndex, setInternalHoveredIndex] = useState<
     number | null
@@ -214,14 +248,35 @@ const PieChartCore = memo(function PieChartCore({
     })) as PieArcData[];
   }, [data, startAngle, endAngle, padAngle]);
 
+  const scrubSlicePaths = useMemo((): readonly string[] | null => {
+    if (!geometryScrubbing) {
+      return null;
+    }
+    return arcs.map((arc) =>
+      generatePieArcPath(
+        innerRadius,
+        outerRadius,
+        arc.startAngle,
+        arc.endAngle,
+        cornerRadius,
+        arc.padAngle
+      )
+    );
+  }, [geometryScrubbing, arcs, innerRadius, outerRadius, cornerRadius]);
+
+  const effectiveIsLoaded = geometryScrubbing || isLoaded;
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: enterTransition
   useEffect(() => {
+    if (geometryScrubbing) {
+      return;
+    }
     setIsLoaded(false);
     const timer = setTimeout(() => {
       setIsLoaded(true);
     }, 100);
     return () => clearTimeout(timer);
-  }, [enterTransition, enterStaggerScale]);
+  }, [enterTransition, enterStaggerScale, geometryScrubbing]);
 
   // Separate children into categories
   const { svgChildren, centerChildren, defsChildren } = useMemo(() => {
@@ -239,6 +294,8 @@ const PieChartCore = memo(function PieChartCore({
         centerNodes.push(child);
       } else if (isDefsComponent(child)) {
         defsNodes.push(child);
+      } else if (geometryScrubbing && isPieSlice(child)) {
+        return;
       } else {
         svgNodes.push(child);
       }
@@ -249,7 +306,14 @@ const PieChartCore = memo(function PieChartCore({
       centerChildren: centerNodes,
       defsChildren: defsNodes,
     };
-  }, [children]);
+  }, [children, geometryScrubbing]);
+
+  const scrubSliceFills = useMemo(() => {
+    if (!(geometryScrubbing && scrubSlicePaths)) {
+      return null;
+    }
+    return scrubSlicePaths.map((_, index) => getFill(index));
+  }, [geometryScrubbing, scrubSlicePaths, getFill]);
 
   const contextValue: PieContextValue = useMemo(
     () => ({
@@ -265,13 +329,15 @@ const PieChartCore = memo(function PieChartCore({
       hoveredIndex,
       setHoveredIndex,
       animationKey,
-      isLoaded,
+      isLoaded: effectiveIsLoaded,
       enterTransition,
       enterStaggerScale,
       containerRef,
       totalValue,
       getColor,
       getFill,
+      geometryScrubbing,
+      scrubSlicePaths,
     }),
     [
       data,
@@ -286,13 +352,15 @@ const PieChartCore = memo(function PieChartCore({
       hoveredIndex,
       setHoveredIndex,
       animationKey,
-      isLoaded,
+      effectiveIsLoaded,
       enterTransition,
       enterStaggerScale,
       containerRef,
       totalValue,
       getColor,
       getFill,
+      geometryScrubbing,
+      scrubSlicePaths,
     ]
   );
 
@@ -313,13 +381,25 @@ const PieChartCore = memo(function PieChartCore({
         <svg
           aria-hidden="true"
           height={size}
-          style={{ gridArea: "1 / 1" }}
+          style={{ gridArea: "1 / 1", contain: "layout style paint" }}
           width={size}
         >
           {/* Defs for patterns and gradients */}
           {defsChildren.length > 0 && <defs>{defsChildren}</defs>}
 
           <Group left={center} top={center}>
+            {scrubSlicePaths && scrubSliceFills
+              ? scrubSlicePaths.map((d, index) =>
+                  d ? (
+                    <path
+                      d={d}
+                      fill={scrubSliceFills[index]}
+                      key={data[index]?.label ?? index}
+                      pointerEvents="none"
+                    />
+                  ) : null
+                )
+              : null}
             {svgChildren}
           </Group>
         </svg>
@@ -336,7 +416,30 @@ const PieChartCore = memo(function PieChartCore({
       </div>
     </PieProvider>
   );
-});
+}, pieChartCorePropsEqual);
+
+function pieChartCorePropsEqual(
+  prev: PieChartInnerProps,
+  next: PieChartInnerProps
+): boolean {
+  return (
+    prev.width === next.width &&
+    prev.height === next.height &&
+    prev.data === next.data &&
+    prev.innerRadius === next.innerRadius &&
+    prev.padAngle === next.padAngle &&
+    prev.cornerRadius === next.cornerRadius &&
+    prev.startAngle === next.startAngle &&
+    prev.endAngle === next.endAngle &&
+    prev.hoverOffset === next.hoverOffset &&
+    prev.hoveredIndexProp === next.hoveredIndexProp &&
+    prev.onHoverChange === next.onHoverChange &&
+    prev.enterTransition === next.enterTransition &&
+    prev.enterStaggerScale === next.enterStaggerScale &&
+    prev.geometryScrubbing === next.geometryScrubbing &&
+    prev.children === next.children
+  );
+}
 
 export function PieChart({
   data,
@@ -352,6 +455,7 @@ export function PieChart({
   hoverOffset = DEFAULT_HOVER_OFFSET,
   enterTransition,
   enterStaggerScale = 1,
+  geometryScrubbing = false,
   children,
 }: PieChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -371,6 +475,7 @@ export function PieChart({
           endAngle={endAngle}
           enterStaggerScale={enterStaggerScale}
           enterTransition={enterTransition}
+          geometryScrubbing={geometryScrubbing}
           height={fixedSize}
           hoveredIndexProp={hoveredIndex}
           hoverOffset={hoverOffset}
@@ -401,6 +506,7 @@ export function PieChart({
             endAngle={endAngle}
             enterStaggerScale={enterStaggerScale}
             enterTransition={enterTransition}
+            geometryScrubbing={geometryScrubbing}
             height={height}
             hoveredIndexProp={hoveredIndex}
             hoverOffset={hoverOffset}

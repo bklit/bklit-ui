@@ -81,6 +81,12 @@ export interface RingStableContextValue {
   // Arc angle range
   startAngle: number;
   endAngle: number;
+
+  /**
+   * Studio geometry scrub — skip Motion path morphing and use plain SVG paths.
+   * @default false
+   */
+  geometryScrubbing: boolean;
 }
 
 export type RingContextValue = RingStableContextValue & RingHoverContextValue;
@@ -113,6 +119,7 @@ export function RingProvider({
       getRingRadii: value.getRingRadii,
       startAngle: value.startAngle,
       endAngle: value.endAngle,
+      geometryScrubbing: value.geometryScrubbing,
     }),
     [
       value.data,
@@ -131,6 +138,7 @@ export function RingProvider({
       value.getRingRadii,
       value.startAngle,
       value.endAngle,
+      value.geometryScrubbing,
     ]
   );
 

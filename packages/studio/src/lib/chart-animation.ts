@@ -68,15 +68,14 @@ export function getStudioCssRevealPropsForPreview(
   displayState: StudioUrlState,
   ctx: Pick<
     StudioRenderContext,
-    "motionCurveDragging" | "committedState" | "isRecording"
+    "motionCurveDragging" | "numberScrubbing" | "committedState" | "isRecording"
   >
 ) {
-  const motionState = ctx.motionCurveDragging
-    ? ctx.committedState
-    : displayState;
+  const freezeMotion = ctx.motionCurveDragging || ctx.numberScrubbing;
+  const motionState = freezeMotion ? ctx.committedState : displayState;
 
   return getStudioCssRevealProps(motionState, {
-    revealFrom: ctx.motionCurveDragging ? ctx.committedState : undefined,
+    revealFrom: freezeMotion ? ctx.committedState : undefined,
     linear: ctx.isRecording,
   });
 }

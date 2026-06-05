@@ -14,12 +14,12 @@ import { useStudioAnalytics } from "@/providers/studio-analytics-context";
 
 export function useStudioEditorRecording({
   state,
-  displayState,
+  getDisplayState,
   setFrameSize,
   onReplay,
 }: {
   state: StudioUrlState;
-  displayState: StudioUrlState;
+  getDisplayState: () => StudioUrlState;
   setFrameSize: (width: number, height: number) => void;
   onReplay: () => void;
 }) {
@@ -117,7 +117,7 @@ export function useStudioEditorRecording({
           element,
           width: dimensions.captureWidth,
           height: dimensions.captureHeight,
-          state: displayState,
+          state: getDisplayState(),
           chart: state.chart,
           replay: replayForRecording,
           interactionMs,
@@ -139,7 +139,7 @@ export function useStudioEditorRecording({
       }
     },
     [
-      displayState,
+      getDisplayState,
       getUrl,
       replayForRecording,
       restorePreviewChart,

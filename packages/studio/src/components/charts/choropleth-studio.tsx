@@ -135,7 +135,11 @@ export function ChoroplethStudioPreview({
   state: StudioUrlState;
   ctx: Pick<
     StudioRenderContext,
-    "motionCurveDragging" | "committedState" | "isRecording" | "dataSeed"
+    | "motionCurveDragging"
+    | "numberScrubbing"
+    | "committedState"
+    | "isRecording"
+    | "dataSeed"
   >;
   showGraticule: boolean;
   analytics: boolean;
@@ -149,10 +153,17 @@ export function ChoroplethStudioPreview({
     () =>
       getStudioCssRevealPropsForPreview(state, {
         motionCurveDragging: ctx.motionCurveDragging,
+        numberScrubbing: ctx.numberScrubbing,
         committedState: ctx.committedState,
         isRecording: ctx.isRecording,
       }),
-    [state, ctx.committedState, ctx.isRecording, ctx.motionCurveDragging]
+    [
+      state,
+      ctx.committedState,
+      ctx.isRecording,
+      ctx.motionCurveDragging,
+      ctx.numberScrubbing,
+    ]
   );
 
   if (isLoading || !worldData) {

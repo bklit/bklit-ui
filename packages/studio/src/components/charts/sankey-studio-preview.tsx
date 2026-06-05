@@ -64,7 +64,7 @@ export function SankeyStudioPreview({
     <StudioChartShell
       legendComponentId="sankey.legend"
       legendItems={legendItems}
-      state={state}
+      state={ctx.chromeState}
     >
       <SankeyChartBody ctx={ctx} state={state} />
     </StudioChartShell>

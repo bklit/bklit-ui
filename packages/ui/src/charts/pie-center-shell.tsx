@@ -149,6 +149,8 @@ export function PieCenterShell({
       totalValue,
       getColor,
       getFill,
+      geometryScrubbing: false,
+      scrubSlicePaths: null,
     }),
     [
       data,

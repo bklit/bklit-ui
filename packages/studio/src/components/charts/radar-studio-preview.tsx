@@ -99,7 +99,7 @@ export function RadarStudioPreview({
     <StudioChartShell
       legendComponentId="radar.legend"
       legendItems={legendItems}
-      state={state}
+      state={ctx.chromeState}
     >
       <RadarChartBody
         contentFrame={contentFrame}

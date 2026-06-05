@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode, RefObject } from "react";
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import { EditorLeftPanel } from "@/editor/editor-left-panel";
 import { EditorMainPane } from "@/editor/editor-main-pane";
 import { EditorMobilePanelSheets } from "@/editor/editor-mobile-panel-sheets";
@@ -12,7 +12,27 @@ import type { StudioUrlState } from "@/lib/studio-parsers";
 import type { StudioChartConfig } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-export function EditorShell({
+export interface StudioEditorChartState {
+  state: StudioUrlState;
+  setParam: <K extends keyof StudioUrlState>(
+    key: K,
+    value: StudioUrlState[K]
+  ) => void;
+  setStudioParams: (updates: Partial<StudioUrlState>) => void;
+  setPreviewParams: (updates: Partial<StudioUrlState>) => void;
+  setPreviewParam: <K extends keyof StudioUrlState>(
+    key: K,
+    value: StudioUrlState[K]
+  ) => void;
+  commitParam: <K extends keyof StudioUrlState>(
+    key: K,
+    value: StudioUrlState[K]
+  ) => void;
+  motionCurveDragging: boolean;
+  setMotionCurveDragging: (dragging: boolean) => void;
+}
+
+export const EditorShell = memo(function EditorShell({
   className,
   size,
   frameTitle,
@@ -36,26 +56,7 @@ export function EditorShell({
   showFpsCounter?: boolean;
   controlsDisabled?: boolean;
   onScramble: () => void;
-  chartState: {
-    displayState: StudioUrlState;
-    state: StudioUrlState;
-    setParam: <K extends keyof StudioUrlState>(
-      key: K,
-      value: StudioUrlState[K]
-    ) => void;
-    setStudioParams: (updates: Partial<StudioUrlState>) => void;
-    setPreviewParams: (updates: Partial<StudioUrlState>) => void;
-    setPreviewParam: <K extends keyof StudioUrlState>(
-      key: K,
-      value: StudioUrlState[K]
-    ) => void;
-    commitParam: <K extends keyof StudioUrlState>(
-      key: K,
-      value: StudioUrlState[K]
-    ) => void;
-    motionCurveDragging: boolean;
-    setMotionCurveDragging: (dragging: boolean) => void;
-  };
+  chartState: StudioEditorChartState;
   children: (ctx: {
     size: { width: number; height: number };
     boundsRef: RefObject<HTMLDivElement | null>;
@@ -101,7 +102,7 @@ export function EditorShell({
           onPreview={chartState.setPreviewParam}
           onScramble={onScramble}
           showMotionControls={showMotionControls}
-          state={chartState.displayState}
+          state={chartState.state}
         />
       ) : null}
 
@@ -130,7 +131,7 @@ export function EditorShell({
           onChange={chartState.setParam}
           onCommit={chartState.commitParam}
           onPreview={chartState.setPreviewParam}
-          state={chartState.displayState}
+          state={chartState.state}
         />
       ) : null}
 
@@ -152,9 +153,9 @@ export function EditorShell({
           onScramble={onScramble}
           rightOpen={rightSheetOpen}
           showMotionControls={showMotionControls}
-          state={chartState.displayState}
+          state={chartState.state}
         />
       ) : null}
     </div>
   );
-}
+});

@@ -1,12 +1,15 @@
 "use client";
 
+import type { NumberField as NumberFieldPrimitive } from "@base-ui/react/number-field";
 import { cn } from "@bklitui/ui/lib/utils";
 import { ArrowLeftRight, ArrowUpDown } from "lucide-react";
-import type { ReactNode } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import {
   studioControlInputClass,
   studioInputSurfaceClass,
 } from "@/components/controls/control-field-helpers";
+import { useStudioShellState } from "@/components/use-studio-state";
+import { useRafPreview } from "@/hooks/use-raf-preview";
 import {
   NumberFieldGroup,
   NumberFieldInput,
@@ -19,6 +22,14 @@ function clamp(n: number, min: number, max: number) {
   return Math.min(max, Math.max(min, n));
 }
 
+const RAF_PREVIEW_REASONS =
+  new Set<NumberFieldPrimitive.Root.ChangeEventReason>([
+    "scrub",
+    "wheel",
+    "increment-press",
+    "decrement-press",
+  ]);
+
 export function ScrubNumberField({
   className,
   value,
@@ -28,6 +39,7 @@ export function ScrubNumberField({
   format,
   unit,
   scrubIcon,
+  onLiveValueChange,
   onPreview,
   onCommit,
 }: {
@@ -40,10 +52,57 @@ export function ScrubNumberField({
   unit?: string;
   /** Replaces the default scrub handle icon inside the input. */
   scrubIcon?: ReactNode;
+  /** Fires on every local value change (for live icons without parent re-renders). */
+  onLiveValueChange?: (value: number) => void;
   onPreview: (value: number) => void;
   onCommit: (value: number) => void;
 }) {
   const safe = Number.isFinite(value) ? clamp(value, min, max) : min;
+  const [localValue, setLocalValue] = useState(safe);
+  const { setNumberScrubbing } = useStudioShellState();
+  const scrubbingRef = useRef(false);
+  const {
+    schedule: schedulePreview,
+    flush: flushPreview,
+    cancel: cancelPreview,
+  } = useRafPreview(onPreview);
+
+  useEffect(() => {
+    setLocalValue(safe);
+  }, [safe]);
+
+  useEffect(
+    () => () => {
+      if (scrubbingRef.current) {
+        scrubbingRef.current = false;
+        setNumberScrubbing(false);
+      }
+    },
+    [setNumberScrubbing]
+  );
+
+  const endScrubbing = () => {
+    if (!scrubbingRef.current) {
+      return;
+    }
+    scrubbingRef.current = false;
+    setNumberScrubbing(false);
+  };
+
+  const beginScrubbing = () => {
+    if (scrubbingRef.current) {
+      return;
+    }
+    scrubbingRef.current = true;
+    setNumberScrubbing(true);
+  };
+
+  const applyLocalValue = (next: number) => {
+    const clamped = clamp(next, min, max);
+    setLocalValue(clamped);
+    onLiveValueChange?.(clamped);
+    return clamped;
+  };
 
   return (
     <NumberFieldRoot
@@ -51,18 +110,30 @@ export function ScrubNumberField({
       format={format}
       max={max}
       min={min}
-      onValueChange={(next) => {
-        if (next !== null) {
-          onPreview(clamp(next, min, max));
+      onValueChange={(next, eventDetails) => {
+        if (next === null) {
+          return;
         }
+        const clamped = applyLocalValue(next);
+        if (RAF_PREVIEW_REASONS.has(eventDetails.reason)) {
+          beginScrubbing();
+          schedulePreview(clamped);
+          return;
+        }
+        cancelPreview();
+        onPreview(clamped);
       }}
       onValueCommitted={(next) => {
-        if (next !== null) {
-          onCommit(clamp(next, min, max));
+        if (next === null) {
+          return;
         }
+        const clamped = applyLocalValue(next);
+        endScrubbing();
+        flushPreview();
+        onCommit(clamped);
       }}
       step={step}
-      value={safe}
+      value={localValue}
     >
       <NumberFieldGroup
         className={cn(
@@ -73,6 +144,7 @@ export function ScrubNumberField({
         <NumberFieldScrubArea
           className="flex shrink-0 cursor-ew-resize select-none items-center self-stretch px-1.5 text-muted-foreground hover:text-foreground data-[scrubbing]:text-foreground"
           direction="horizontal"
+          pixelSensitivity={5}
         >
           {scrubIcon ?? (
             <ArrowUpDown aria-hidden className="size-3.5" strokeWidth={1.75} />

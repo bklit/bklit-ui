@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import {
   studioControlLabelClass,
   studioControlRowClass,
@@ -39,7 +39,13 @@ export function SliderInputGroup({
   onCommit: (n: number) => void;
 }) {
   const safe = Number.isFinite(value) ? value : min;
-  const iconNode = renderIcon?.(safe) ?? icon;
+  const [liveValue, setLiveValue] = useState(safe);
+
+  useEffect(() => {
+    setLiveValue(safe);
+  }, [safe]);
+
+  const iconNode = renderIcon?.(liveValue) ?? icon;
 
   return (
     <div className={studioControlRowClass}>
@@ -54,6 +60,7 @@ export function SliderInputGroup({
         max={max}
         min={min}
         onCommit={onCommit}
+        onLiveValueChange={setLiveValue}
         onPreview={onPreview}
         scrubIcon={scrubIcon}
         step={step}

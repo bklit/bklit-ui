@@ -4,6 +4,7 @@ import { memo, type ReactNode, useMemo } from "react";
 import type { StudioFrameSize } from "@/components/studio-chart-viewport";
 import type { StudioRenderContext } from "@/lib/render-context";
 import type { StudioUrlState } from "@/lib/studio-parsers";
+import { studioPatternChromeState } from "@/lib/studio-pattern-chrome";
 import type { StudioChartConfig } from "@/lib/types";
 
 /** Props that may change chart output — compared explicitly for pan isolation. */
@@ -16,6 +17,7 @@ interface StudioChartRenderProps {
   motionRemountKey: string;
   committedState: StudioUrlState;
   motionCurveDragging: boolean;
+  numberScrubbing: boolean;
   patternDefs: ReactNode;
   patternFillAt: (seriesIndex: number) => string | undefined;
   frame: StudioFrameSize;
@@ -36,11 +38,11 @@ function studioChartRenderPropsEqual(
     prev.motionRemountKey === next.motionRemountKey &&
     prev.committedState === next.committedState &&
     prev.motionCurveDragging === next.motionCurveDragging &&
+    prev.numberScrubbing === next.numberScrubbing &&
     prev.patternDefs === next.patternDefs &&
     prev.patternFillAt === next.patternFillAt &&
     frameEqual;
 
-  // Bezier handle drags preview motion params every frame; chart stays on committed state.
   if (prev.motionCurveDragging && next.motionCurveDragging) {
     return sharedEqual;
   }
@@ -64,10 +66,17 @@ export const StudioChartRender = memo(function StudioChartRender(
     motionRemountKey,
     committedState,
     motionCurveDragging,
+    numberScrubbing,
     patternDefs,
     patternFillAt,
     frame,
   } = props;
+
+  const chromeState = useMemo(
+    () =>
+      studioPatternChromeState(committedState, displayState, numberScrubbing),
+    [committedState, displayState, numberScrubbing]
+  );
 
   const renderCtx = useMemo<StudioRenderContext>(
     () => ({
@@ -77,6 +86,8 @@ export const StudioChartRender = memo(function StudioChartRender(
       motionRemountKey,
       committedState,
       motionCurveDragging,
+      numberScrubbing,
+      chromeState,
       patternDefs,
       patternFillAt,
       frame,
@@ -88,6 +99,8 @@ export const StudioChartRender = memo(function StudioChartRender(
       motionRemountKey,
       committedState,
       motionCurveDragging,
+      numberScrubbing,
+      chromeState,
       patternDefs,
       patternFillAt,
       frame,

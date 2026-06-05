@@ -91,6 +91,15 @@ export interface PieStableContextValue {
 
   // Get fill for a slice index (supports patterns/gradients)
   getFill: (index: number) => string;
+
+  /**
+   * Studio geometry scrub — skip Motion path morphing and use plain SVG paths.
+   * @default false
+   */
+  geometryScrubbing: boolean;
+
+  /** Precomputed slice paths during geometry scrub (one per arc). */
+  scrubSlicePaths: readonly string[] | null;
 }
 
 export type PieContextValue = PieStableContextValue & PieHoverContextValue;
@@ -124,6 +133,8 @@ export function PieProvider({
       totalValue: value.totalValue,
       getColor: value.getColor,
       getFill: value.getFill,
+      geometryScrubbing: value.geometryScrubbing,
+      scrubSlicePaths: value.scrubSlicePaths,
     }),
     [
       value.data,
@@ -143,6 +154,8 @@ export function PieProvider({
       value.totalValue,
       value.getColor,
       value.getFill,
+      value.geometryScrubbing,
+      value.scrubSlicePaths,
     ]
   );
 

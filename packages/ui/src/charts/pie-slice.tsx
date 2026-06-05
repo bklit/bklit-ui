@@ -336,6 +336,8 @@ export const PieSlice = memo(function PieSlice({
     cornerRadius,
     hoverOffset: contextHoverOffset,
     animationKey,
+    geometryScrubbing,
+    scrubSlicePaths,
     getColor,
     getFill,
   } = usePieStable();
@@ -351,6 +353,14 @@ export const PieSlice = memo(function PieSlice({
 
   const color = colorProp || getColor(index);
   const fill = fillProp || getFill(index);
+
+  if (geometryScrubbing) {
+    const scrubPath = scrubSlicePaths?.[index];
+    if (!scrubPath) {
+      return null;
+    }
+    return <path d={scrubPath} fill={fill} pointerEvents="none" />;
+  }
 
   const isHovered = hoveredIndex === index;
   const isFaded = hoveredIndex !== null && hoveredIndex !== index;

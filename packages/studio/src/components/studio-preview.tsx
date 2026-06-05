@@ -59,6 +59,7 @@ export function StudioPreview({
     setFrameSize,
     config,
     motionCurveDragging,
+    numberScrubbing,
   } = useStudioState();
   const { track, getUrl } = useStudioAnalytics();
   const [animationKey, setAnimationKey] = useState(0);
@@ -434,6 +435,10 @@ export function StudioPreview({
                               motionRemountKey,
                               committedState: state,
                               motionCurveDragging,
+                              numberScrubbing,
+                              chromeState: numberScrubbing
+                                ? state
+                                : displayState,
                               patternDefs,
                               patternFillAt,
                               frame,

@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { memo, type ReactNode } from "react";
 import { StudioPropertiesPanel } from "@/components/studio-properties-panel";
 import { EditorCollapsiblePane } from "@/editor/editor-collapsible-pane";
 import { EditorPropertiesSidebarHeader } from "@/editor/editor-properties-sidebar-header";
@@ -8,7 +8,7 @@ import { useStudioComponentSelection } from "@/editor/studio-component-selection
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import type { StudioChartConfig } from "@/lib/types";
 
-export function EditorRightPanel({
+export const EditorRightPanel = memo(function EditorRightPanel({
   state,
   config,
   onChange,
@@ -56,4 +56,4 @@ export function EditorRightPanel({
       />
     </EditorCollapsiblePane>
   );
-}
+});

@@ -17,11 +17,15 @@ import { StudioScenesProvider } from "@/components/studio-scenes-provider";
 import { useStudioEditorRecording } from "@/components/use-studio-editor-recording";
 import { useStudioMotionRemountKey } from "@/components/use-studio-motion-remount";
 import type { StudioRecordingPhase } from "@/components/use-studio-recording";
-import { useStudioState } from "@/components/use-studio-state";
+import {
+  useStudioDisplayState,
+  useStudioShellState,
+} from "@/components/use-studio-state";
 import { EditorShell } from "@/editor/editor-shell";
 import { StudioComponentSelectionProvider } from "@/editor/studio-component-selection";
 import { StudioPatternDefs, studioPatternFill } from "@/lib/patterns";
 import type { StudioUrlState } from "@/lib/studio-parsers";
+import { studioPatternChromeState } from "@/lib/studio-pattern-chrome";
 import {
   STUDIO_RECORDING_CAPTURE_INSET_PX,
   type StudioRecordingTimeline as StudioRecordingTimelineModel,
@@ -39,9 +43,11 @@ const StudioEditorCanvas = memo(function StudioEditorCanvas({
   animationKey,
   dataSeed,
   displayState,
+  themeState,
   state,
   config,
   motionCurveDragging,
+  numberScrubbing,
   motionRemountKey,
   patternDefs,
   patternFillAt,
@@ -67,9 +73,11 @@ const StudioEditorCanvas = memo(function StudioEditorCanvas({
   animationKey: number;
   dataSeed: number;
   displayState: StudioUrlState;
+  themeState: StudioUrlState;
   state: StudioUrlState;
   config: StudioChartConfig;
   motionCurveDragging: boolean;
+  numberScrubbing: boolean;
   motionRemountKey: string;
   patternDefs: ReactNode;
   patternFillAt: (seriesIndex: number) => string | undefined;
@@ -166,7 +174,7 @@ const StudioEditorCanvas = memo(function StudioEditorCanvas({
                 onResize={onResize}
                 ref={frameRef}
                 resizable={!(mobileViewport || showCaptureLayout)}
-                style={resolveChartThemeStyle(displayState)}
+                style={resolveChartThemeStyle(themeState)}
                 width={size.width}
               >
                 <div className="flex size-full min-h-0 items-center justify-center">
@@ -183,6 +191,7 @@ const StudioEditorCanvas = memo(function StudioEditorCanvas({
                           isRecording={isRecording}
                           motionCurveDragging={motionCurveDragging}
                           motionRemountKey={motionRemountKey}
+                          numberScrubbing={numberScrubbing}
                           patternDefs={patternDefs}
                           patternFillAt={patternFillAt}
                         />
@@ -210,6 +219,97 @@ const StudioEditorCanvas = memo(function StudioEditorCanvas({
   );
 });
 
+const StudioEditorChartRegion = memo(function StudioEditorChartRegion({
+  animationKey,
+  dataSeed,
+  chartAreaRef,
+  frameRef,
+  config,
+  recording,
+  size,
+  boundsRef,
+  onResize,
+  mobileViewport,
+  canvasScaleRef,
+}: {
+  animationKey: number;
+  dataSeed: number;
+  chartAreaRef: RefObject<HTMLDivElement | null>;
+  frameRef: RefObject<HTMLDivElement | null>;
+  config: StudioChartConfig;
+  recording: ReturnType<typeof useStudioEditorRecording>;
+  size: { width: number; height: number };
+  boundsRef: RefObject<HTMLDivElement | null>;
+  onResize: (width: number, height: number) => void;
+  mobileViewport: boolean;
+  canvasScaleRef: RefObject<number>;
+}) {
+  const { displayState } = useStudioDisplayState();
+  const { state, motionCurveDragging, numberScrubbing } = useStudioShellState();
+  const motionRemountKey = useStudioMotionRemountKey(displayState);
+
+  const patternChromeState = studioPatternChromeState(
+    state,
+    displayState,
+    numberScrubbing
+  );
+  const patternDefs = useMemo(() => {
+    const count = getDesignSeriesCount(
+      patternChromeState.chart,
+      patternChromeState
+    );
+    const seriesPatterns = Array.from({ length: count }, (_, index) =>
+      getSeriesPattern(patternChromeState, index)
+    );
+    return <StudioPatternDefs seriesPatterns={seriesPatterns} />;
+  }, [patternChromeState]);
+
+  const patternFillAt = useCallback(
+    (seriesIndex: number) =>
+      studioPatternFill(
+        getSeriesPattern(patternChromeState, seriesIndex),
+        seriesIndex
+      ),
+    [patternChromeState]
+  );
+
+  const themeState = patternChromeState;
+
+  return (
+    <StudioEditorCanvas
+      animationKey={animationKey}
+      boundsRef={boundsRef}
+      canvasScaleRef={canvasScaleRef}
+      chartAreaRef={chartAreaRef}
+      config={config}
+      dataSeed={dataSeed}
+      displayState={displayState}
+      elapsedMs={recording.elapsedMs}
+      frameRef={frameRef}
+      isPaused={recording.isPaused}
+      isRecording={recording.isRecording}
+      mobileViewport={mobileViewport}
+      motionCurveDragging={motionCurveDragging}
+      motionRemountKey={motionRemountKey}
+      numberScrubbing={numberScrubbing}
+      onResize={onResize}
+      patternDefs={patternDefs}
+      patternFillAt={patternFillAt}
+      pauseRecording={recording.pauseRecording}
+      phase={recording.phase}
+      recordCaptureRef={recording.recordCaptureRef}
+      recordingChartHeld={recording.recordingChartHeld}
+      resumeRecording={recording.resumeRecording}
+      showCaptureLayout={recording.showCaptureLayout}
+      showRecordingChrome={recording.showRecordingChrome}
+      size={size}
+      state={state}
+      themeState={themeState}
+      timeline={recording.timeline}
+    />
+  );
+});
+
 export function StudioEditorLayout({
   renderCodeSheet,
 }: {
@@ -217,7 +317,6 @@ export function StudioEditorLayout({
 }) {
   const {
     state,
-    displayState,
     setChart,
     setParam,
     setStudioParams,
@@ -228,11 +327,11 @@ export function StudioEditorLayout({
     setPreviewParam,
     setPreviewParams,
     commitParam,
-  } = useStudioState();
+    getDisplayState,
+  } = useStudioShellState();
   const { track, getUrl } = useStudioAnalytics();
   const [animationKey, setAnimationKey] = useState(0);
   const [dataSeed, setDataSeed] = useState(0);
-  const motionRemountKey = useStudioMotionRemountKey(displayState);
   const chartAreaRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef<HTMLDivElement>(null);
 
@@ -246,27 +345,10 @@ export function StudioEditorLayout({
 
   const recording = useStudioEditorRecording({
     state,
-    displayState,
+    getDisplayState,
     setFrameSize,
     onReplay: replay,
   });
-
-  const patternDefs = useMemo(() => {
-    const count = getDesignSeriesCount(displayState.chart, displayState);
-    const seriesPatterns = Array.from({ length: count }, (_, index) =>
-      getSeriesPattern(displayState, index)
-    );
-    return <StudioPatternDefs seriesPatterns={seriesPatterns} />;
-  }, [displayState]);
-
-  const patternFillAt = useCallback(
-    (seriesIndex: number) =>
-      studioPatternFill(
-        getSeriesPattern(displayState, seriesIndex),
-        seriesIndex
-      ),
-    [displayState]
-  );
 
   const handleExportSvg = useCallback(async () => {
     const root = chartAreaRef.current?.querySelector<HTMLElement>(
@@ -288,28 +370,32 @@ export function StudioEditorLayout({
       url: getUrl?.(),
       frame_w: state.frameW,
       frame_h: state.frameH,
-      preset: displayState.preset,
+      preset: state.preset,
     });
-  }, [
-    displayState.preset,
-    getUrl,
-    state.chart,
-    state.frameH,
-    state.frameW,
-    track,
-  ]);
+  }, [getUrl, state.chart, state.frameH, state.frameW, state.preset, track]);
 
-  const chartState = {
-    displayState,
-    state,
-    setParam,
-    setStudioParams,
-    setPreviewParam,
-    setPreviewParams,
-    commitParam,
-    motionCurveDragging,
-    setMotionCurveDragging,
-  };
+  const chartState = useMemo(
+    () => ({
+      state,
+      setParam,
+      setStudioParams,
+      setPreviewParam,
+      setPreviewParams,
+      commitParam,
+      motionCurveDragging,
+      setMotionCurveDragging,
+    }),
+    [
+      commitParam,
+      motionCurveDragging,
+      setMotionCurveDragging,
+      setParam,
+      setPreviewParam,
+      setPreviewParams,
+      setStudioParams,
+      state,
+    ]
+  );
 
   return (
     <>
@@ -334,7 +420,7 @@ export function StudioEditorLayout({
         frameWidth={state.frameW}
         onPrimaryFrameChange={setFrameSize}
       >
-        <StudioComponentSelectionProvider config={config} state={displayState}>
+        <StudioComponentSelectionProvider config={config} state={state}>
           <EditorShell
             chartSelector={
               <ChartTypeSelector onChange={setChart} value={state.chart} />
@@ -377,34 +463,18 @@ export function StudioEditorLayout({
               mobileViewport: boolean;
               canvasScaleRef: RefObject<number>;
             }) => (
-              <StudioEditorCanvas
+              <StudioEditorChartRegion
                 animationKey={animationKey}
                 boundsRef={boundsRef}
                 canvasScaleRef={canvasScaleRef}
                 chartAreaRef={chartAreaRef}
                 config={config}
                 dataSeed={dataSeed}
-                displayState={displayState}
-                elapsedMs={recording.elapsedMs}
                 frameRef={frameRef}
-                isPaused={recording.isPaused}
-                isRecording={recording.isRecording}
                 mobileViewport={mobileViewport}
-                motionCurveDragging={motionCurveDragging}
-                motionRemountKey={motionRemountKey}
                 onResize={onResize}
-                patternDefs={patternDefs}
-                patternFillAt={patternFillAt}
-                pauseRecording={recording.pauseRecording}
-                phase={recording.phase}
-                recordCaptureRef={recording.recordCaptureRef}
-                recordingChartHeld={recording.recordingChartHeld}
-                resumeRecording={recording.resumeRecording}
-                showCaptureLayout={recording.showCaptureLayout}
-                showRecordingChrome={recording.showRecordingChrome}
+                recording={recording}
                 size={size}
-                state={state}
-                timeline={recording.timeline}
               />
             )}
           </EditorShell>

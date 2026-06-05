@@ -3,6 +3,7 @@
 import { useQueryStates } from "nuqs";
 import {
   createContext,
+  startTransition,
   useCallback,
   useContext,
   useEffect,
@@ -39,36 +40,42 @@ function finiteFrameDimension(value: number, fallback: number) {
   return Number.isFinite(value) ? value : fallback;
 }
 
-interface StudioStateContextValue {
+interface StudioShellContextValue {
   /** Committed URL state */
   state: StudioUrlState;
-  /** URL state merged with in-flight slider previews (for chart render) */
-  displayState: StudioUrlState;
   config: StudioChartConfig;
   setChart: (slug: ChartSlug) => void;
   setParam: <K extends keyof StudioUrlState>(
     key: K,
     value: StudioUrlState[K]
   ) => void;
-  /** Atomically update multiple URL params (avoids nuqs races). */
   setStudioParams: (updates: Partial<StudioUrlState>) => void;
   setPreviewParam: <K extends keyof StudioUrlState>(
     key: K,
     value: StudioUrlState[K]
   ) => void;
-  /** Merge multiple preview overrides (chart updates without touching the URL). */
   setPreviewParams: (updates: Partial<StudioUrlState>) => void;
   commitParam: <K extends keyof StudioUrlState>(
     key: K,
     value: StudioUrlState[K]
   ) => void;
   setFrameSize: (width: number, height: number) => void;
-  /** True while dragging bezier handles — avoids replaying chart reveal every frame. */
+  /** Latest merged preview state (ref — does not subscribe shell consumers). */
+  getDisplayState: () => StudioUrlState;
   motionCurveDragging: boolean;
   setMotionCurveDragging: (dragging: boolean) => void;
+  numberScrubbing: boolean;
+  setNumberScrubbing: (scrubbing: boolean) => void;
 }
 
-const StudioStateContext = createContext<StudioStateContextValue | null>(null);
+interface StudioDisplayContextValue {
+  displayState: StudioUrlState;
+}
+
+const StudioShellContext = createContext<StudioShellContextValue | null>(null);
+const StudioDisplayContext = createContext<StudioDisplayContextValue | null>(
+  null
+);
 
 export function StudioStateProvider({
   children,
@@ -84,6 +91,7 @@ export function StudioStateProvider({
     Partial<StudioUrlState>
   >({});
   const [motionCurveDragging, setMotionCurveDragging] = useState(false);
+  const [numberScrubbing, setNumberScrubbing] = useState(false);
   const appliedYAxisHiddenDefault = useRef(false);
 
   const state = useMemo(
@@ -102,6 +110,11 @@ export function StudioStateProvider({
     }),
     [previewOverrides, state]
   );
+
+  const displayStateRef = useRef(displayState);
+  displayStateRef.current = displayState;
+
+  const getDisplayState = useCallback(() => displayStateRef.current, []);
 
   const yAxisChartPrefix = STUDIO_Y_AXIS_CHART_PREFIX[state.chart as ChartSlug];
 
@@ -125,7 +138,6 @@ export function StudioStateProvider({
     });
   }, [params.chart, setParams]);
 
-  // Time-series studio charts: hide both Y axes until toggled in the components tree.
   useEffect(() => {
     if (!yAxisChartPrefix) {
       appliedYAxisHiddenDefault.current = false;
@@ -147,6 +159,7 @@ export function StudioStateProvider({
   useEffect(() => {
     setPreviewOverrides({});
     setMotionCurveDragging(false);
+    setNumberScrubbing(false);
   }, [params.chart]);
 
   const config = useMemo(() => getStudioConfig(state.chart), [state.chart]);
@@ -226,13 +239,27 @@ export function StudioStateProvider({
 
   const setPreviewParam = useCallback(
     <K extends keyof StudioUrlState>(key: K, value: StudioUrlState[K]) => {
-      setPreviewOverrides((prev) => ({ ...prev, [key]: value }));
+      startTransition(() => {
+        setPreviewOverrides((prev) => {
+          if (prev[key] === value) {
+            return prev;
+          }
+          return { ...prev, [key]: value };
+        });
+      });
     },
     []
   );
 
   const setPreviewParams = useCallback((updates: Partial<StudioUrlState>) => {
-    setPreviewOverrides((prev) => ({ ...prev, ...updates }));
+    startTransition(() => {
+      setPreviewOverrides((prev) => {
+        const changed = (Object.keys(updates) as (keyof StudioUrlState)[]).some(
+          (key) => prev[key] !== updates[key]
+        );
+        return changed ? { ...prev, ...updates } : prev;
+      });
+    });
   }, []);
 
   const commitParam = useCallback(
@@ -270,10 +297,9 @@ export function StudioStateProvider({
     [setParams]
   );
 
-  const value = useMemo(
-    (): StudioStateContextValue => ({
+  const shellValue = useMemo(
+    (): StudioShellContextValue => ({
       state,
-      displayState,
       config,
       setChart,
       setParam,
@@ -282,14 +308,18 @@ export function StudioStateProvider({
       setPreviewParams,
       commitParam,
       setFrameSize,
+      getDisplayState,
       motionCurveDragging,
       setMotionCurveDragging,
+      numberScrubbing,
+      setNumberScrubbing,
     }),
     [
       commitParam,
       config,
-      displayState,
+      getDisplayState,
       motionCurveDragging,
+      numberScrubbing,
       setChart,
       setFrameSize,
       setParam,
@@ -300,17 +330,43 @@ export function StudioStateProvider({
     ]
   );
 
+  const displayValue = useMemo(
+    (): StudioDisplayContextValue => ({ displayState }),
+    [displayState]
+  );
+
   return (
-    <StudioStateContext.Provider value={value}>
-      <div className="flex h-full min-h-0 flex-1 flex-col">{children}</div>
-    </StudioStateContext.Provider>
+    <StudioShellContext.Provider value={shellValue}>
+      <StudioDisplayContext.Provider value={displayValue}>
+        <div className="flex h-full min-h-0 flex-1 flex-col">{children}</div>
+      </StudioDisplayContext.Provider>
+    </StudioShellContext.Provider>
   );
 }
 
-export function useStudioState() {
-  const context = useContext(StudioStateContext);
+export function useStudioShellState() {
+  const context = useContext(StudioShellContext);
   if (!context) {
-    throw new Error("useStudioState must be used within StudioStateProvider");
+    throw new Error(
+      "useStudioShellState must be used within StudioStateProvider"
+    );
   }
   return context;
+}
+
+export function useStudioDisplayState() {
+  const context = useContext(StudioDisplayContext);
+  if (!context) {
+    throw new Error(
+      "useStudioDisplayState must be used within StudioStateProvider"
+    );
+  }
+  return context;
+}
+
+/** Full studio state — re-renders on preview ticks. Prefer shell + display hooks when possible. */
+export function useStudioState() {
+  const shell = useStudioShellState();
+  const { displayState } = useStudioDisplayState();
+  return { ...shell, displayState };
 }

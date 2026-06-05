@@ -29,6 +29,8 @@ export {
 export { StudioShell } from "./components/studio-shell";
 export {
   StudioStateProvider,
+  useStudioDisplayState,
+  useStudioShellState,
   useStudioState,
 } from "./components/studio-state-provider";
 export { useStudioMotionRemountKey } from "./components/use-studio-motion-remount";

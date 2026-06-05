@@ -81,7 +81,7 @@ export function FunnelStudioPreview({
     <StudioChartShell
       legendComponentId="funnel.legend"
       legendItems={legendItems}
-      state={state}
+      state={ctx.chromeState}
     >
       <FunnelChartBody
         ctx={ctx}
