@@ -120,6 +120,36 @@
           "path": "src/charts/y-axis-ticks.ts",
           "type": "registry:lib",
           "target": "components/charts/y-axis-ticks.ts"
+        },
+        {
+          "path": "src/charts/chart-phase.ts",
+          "type": "registry:component",
+          "target": "components/charts/chart-phase.ts"
+        },
+        {
+          "path": "src/charts/y-domain-utils.ts",
+          "type": "registry:lib",
+          "target": "components/charts/y-domain-utils.ts"
+        },
+        {
+          "path": "src/charts/generate-chart-skeleton-data.ts",
+          "type": "registry:lib",
+          "target": "components/charts/generate-chart-skeleton-data.ts"
+        },
+        {
+          "path": "src/charts/use-animated-y-domains.ts",
+          "type": "registry:component",
+          "target": "components/charts/use-animated-y-domains.ts"
+        },
+        {
+          "path": "src/charts/use-chart-phase-orchestrator.ts",
+          "type": "registry:component",
+          "target": "components/charts/use-chart-phase-orchestrator.ts"
+        },
+        {
+          "path": "src/charts/line-loading-timing.ts",
+          "type": "registry:lib",
+          "target": "components/charts/line-loading-timing.ts"
         }
       ]
     },
@@ -267,6 +297,11 @@
           "path": "src/charts/grid.tsx",
           "type": "registry:component",
           "target": "components/charts/grid.tsx"
+        },
+        {
+          "path": "src/charts/use-grid-shimmer.ts",
+          "type": "registry:component",
+          "target": "components/charts/use-grid-shimmer.ts"
         }
       ]
     },
@@ -655,11 +690,6 @@
           "path": "src/charts/line-loading-timing.ts",
           "type": "registry:component",
           "target": "components/charts/line-loading-timing.ts"
-        },
-        {
-          "path": "src/charts/loading-grid.tsx",
-          "type": "registry:component",
-          "target": "components/charts/loading-grid.tsx"
         },
         {
           "path": "src/charts/chart-loading-label.tsx",
