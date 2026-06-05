@@ -31,8 +31,13 @@ export function StudioDesignControls({
   supportsPatterns?: boolean;
 }) {
   const seriesIndex = design.seriesIndex ?? 0;
-  const showPalette = design.showPalette ?? seriesIndex === 0;
-  const patternEnabled = design.supportsPattern ?? supportsPatterns;
+  const accentKey = design.accentKey;
+  const showPalette = !accentKey && (design.showPalette ?? seriesIndex === 0);
+  const patternEnabled =
+    !accentKey && (design.supportsPattern ?? supportsPatterns);
+  const pickerColor = accentKey
+    ? String(state[accentKey] ?? "")
+    : getEffectiveSeriesColor(state, seriesIndex);
 
   const handlePresetChange = (id: ColorPresetId) => {
     onBatchChange({
@@ -53,10 +58,18 @@ export function StudioDesignControls({
   };
 
   const handleColorPreview = (color: string) => {
+    if (accentKey) {
+      onBatchPreview?.({ [accentKey]: color } as Partial<StudioUrlState>);
+      return;
+    }
     onBatchPreview?.(colorUpdates(color));
   };
 
   const handleColorCommit = (color: string) => {
+    if (accentKey) {
+      onBatchChange({ [accentKey]: color } as Partial<StudioUrlState>);
+      return;
+    }
     onBatchChange(colorUpdates(color));
   };
 
@@ -107,15 +120,15 @@ export function StudioDesignControls({
       ) : null}
 
       <FillPicker
-        color={getEffectiveSeriesColor(state, seriesIndex)}
+        color={pickerColor}
         disabled={disabled}
-        fillMode={getSeriesFillMode(state, seriesIndex)}
-        label="Fill"
+        fillMode={accentKey ? "solid" : getSeriesFillMode(state, seriesIndex)}
+        label={design.colorLabel ?? "Fill"}
         onColorChange={handleColorCommit}
         onColorPreview={handleColorPreview}
         onFillModeChange={handleFillModeChange}
         onPatternChange={handlePatternChange}
-        pattern={getSeriesPattern(state, seriesIndex)}
+        pattern={accentKey ? "none" : getSeriesPattern(state, seriesIndex)}
         supportsPattern={patternEnabled}
       />
     </div>

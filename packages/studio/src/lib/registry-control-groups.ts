@@ -284,17 +284,35 @@ export const standardLegendControlGroups: StudioControlGroup[] = [
   ]),
 ];
 
-const lineChartModeGroup = controlGroup("Series style", [
-  {
-    type: "select",
-    key: "lineChartMode",
-    label: "Line type",
-    options: [
-      { value: "standard", label: "Standard" },
-      { value: "profitLoss", label: "Profit / loss" },
-    ],
-  },
-]);
+function lineChartSettingsGroup(
+  mode: "standard" | "profitLoss"
+): StudioControlGroup {
+  const controls: StudioControlGroup["controls"] = [
+    {
+      type: "select",
+      key: "lineChartMode",
+      label: "Line type",
+      options: [
+        { value: "standard", label: "Standard" },
+        { value: "profitLoss", label: "Profit / loss" },
+      ],
+    },
+  ];
+
+  if (mode === "standard") {
+    controls.push({
+      type: "select",
+      key: "lineChartState",
+      label: "State",
+      options: [
+        { value: "ready", label: "Ready" },
+        { value: "loading", label: "Loading" },
+      ],
+    });
+  }
+
+  return controlGroup("Settings", controls);
+}
 
 const profitLossDataGroup = controlGroup("Data", [
   {
@@ -374,13 +392,13 @@ export function getLineChartControlGroups(state: {
 }): StudioControlGroup[] {
   if (state.lineChartMode === "profitLoss") {
     return [
-      lineChartModeGroup,
+      lineChartSettingsGroup("profitLoss"),
       profitLossDataGroup,
       ...profitLossLineSettingsGroups,
     ];
   }
 
-  return [lineChartModeGroup, ...lineChartControlGroups];
+  return [lineChartSettingsGroup("standard"), ...lineChartControlGroups];
 }
 
 export const profitLossLineChartControlGroups = getLineChartControlGroups({

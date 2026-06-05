@@ -3,8 +3,11 @@ title: Line Chart
 description: A composable line chart with tooltips, markers, and hover interactions
 ---
 
+import { studioChartHref } from "@bklitui/studio";
 import { LineChart, Line, Grid, XAxis, ChartTooltip, ChartMarkers } from "@bklitui/ui/charts";
+import { LineChartLoadingDemo } from "@/components/docs/line-chart-loading-demo";
 import { MarkerContentDemo } from "@/components/docs/marker-content-demo";
+import { OpenInStudioButton } from "@/components/docs/open-in-studio-button";
 import {
   lineChartDocsData as chartData,
   lineChartDocsMarkers as demoMarkers,
@@ -147,6 +150,46 @@ Highlight the break-even baseline with `Grid highlightRowValues={[0]}`:
 ```
 
 See the [Profit/Loss Line](/docs/components/profit-loss-line) docs and the [line chart gallery](/charts/line-chart) (**Profit/Loss** example).
+
+## Loading state
+
+Use `LineChartLoading` while data is fetching. It renders a static grid, a looping foreground pulse, and a centered shimmer label via [`@ncdai/shimmering-text`](https://chanhdai.com/components/shimmering-text).
+
+<div className="not-prose mb-3 flex items-center justify-between gap-4">
+  <h3 className="m-0 font-semibold text-foreground text-base tracking-tight">
+    Preview
+  </h3>
+  <OpenInStudioButton
+    href={studioChartHref("line-chart", { lineChartState: "loading" })}
+    slug="line-chart"
+  />
+</div>
+
+<ComponentShowcase
+  code={`import { LineChartLoading } from "@bklitui/ui/charts";
+
+<LineChartLoading
+  label="Loading"
+  gridStrokeOpacity={0.5}
+  stroke="var(--foreground)"
+  strokeOpacity={0.5}
+/>`}
+  previewMinHeight={280}
+>
+  <LineChartLoadingDemo />
+</ComponentShowcase>
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `stroke` | `string` | `var(--foreground)` | Color of the animated loading segment |
+| `strokeOpacity` | `number` | `0.5` | Opacity of the animated segment |
+| `gridStrokeOpacity` | `number` | `0.5` | Horizontal grid line opacity |
+| `label` | `string` | `"Loading"` | Centered shimmer text (`""` hides the label) |
+| `margin` | `Partial<Margin>` | line chart default | Chart margins |
+| `aspectRatio` | `string` | `"2 / 1"` | CSS aspect ratio |
+| `className` | `string` | `""` | Container class name |
+
+Add `@ncdai` to your [registry config](/docs/installation#registry-namespace) (`https://chanhdai.com/r/{name}.json`) — installing `@bklit/line-chart` pulls in `@ncdai/shimmering-text` automatically. Tune grid opacity, line color, and label text in [Studio](/studio?chart=line-chart&lineChartState=loading) or see the [line chart gallery](/charts/line-chart) (**Loading** example).
 
 ## Dashed tail
 

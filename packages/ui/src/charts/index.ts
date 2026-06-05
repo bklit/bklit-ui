@@ -77,6 +77,10 @@ export {
   useChartLegendHover,
 } from "./chart-legend-hover";
 export {
+  ChartLoadingLabel,
+  type ChartLoadingLabelProps,
+} from "./chart-loading-label";
+export {
   ChartRevealClip,
   type ChartRevealClipProps,
 } from "./chart-reveal-clip";
@@ -147,6 +151,14 @@ export {
 // Line chart components
 export { Line, type LineProps } from "./line";
 export { LineChart, type LineChartProps } from "./line-chart";
+export {
+  LineChartLoading,
+  type LineChartLoadingProps,
+} from "./line-chart-loading";
+export {
+  LineLoadingPulse,
+  type LineLoadingPulseProps,
+} from "./line-loading-pulse";
 export {
   detectMomentum,
   LiveLine,

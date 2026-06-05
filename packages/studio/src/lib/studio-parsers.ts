@@ -158,6 +158,13 @@ export const studioSearchParams = {
   lineChartMode: parseAsStringLiteral(["standard", "profitLoss"]).withDefault(
     "standard"
   ),
+  lineChartState: parseAsStringLiteral(["ready", "loading"]).withDefault(
+    "ready"
+  ),
+  lineLoadingStroke: parseAsString.withDefault("var(--foreground)"),
+  lineLoadingStrokeOpacity: parseAsFloat.withDefault(0.5),
+  lineLoadingGridOpacity: parseAsFloat.withDefault(0.5),
+  lineLoadingLabel: parseAsString.withDefault("Loading"),
   /** Pipe-encoded Y axis id per line series (`left` / `right`). */
   lineSeriesYAxes: parseAsString.withDefault("left|left"),
   /** Pipe-encoded tick count per Y axis (left | right). */
@@ -309,6 +316,11 @@ export interface StudioUrlState {
   dataSeries: number;
   dataPoints: number;
   lineChartMode: "standard" | "profitLoss";
+  lineChartState: "ready" | "loading";
+  lineLoadingStroke: string;
+  lineLoadingStrokeOpacity: number;
+  lineLoadingGridOpacity: number;
+  lineLoadingLabel: string;
   lineSeriesYAxes: string;
   lineYAxisNumTicks: string;
   lineYAxisFormatLarge: string;
@@ -463,6 +475,11 @@ export function defaultStudioState(
     dataSeries: 2,
     dataPoints: 12,
     lineChartMode: "standard",
+    lineChartState: "ready",
+    lineLoadingStroke: "var(--foreground)",
+    lineLoadingStrokeOpacity: 0.5,
+    lineLoadingGridOpacity: 0.5,
+    lineLoadingLabel: "Loading",
     lineSeriesYAxes: "left|left",
     lineYAxisNumTicks: "5|5",
     lineYAxisFormatLarge: "1|1",

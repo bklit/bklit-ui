@@ -4,6 +4,10 @@ import { motion, useReducedMotion, type Variants } from "motion/react";
 import { type ComponentProps, useCallback } from "react";
 import { cn } from "@/lib/utils";
 
+/**
+ * @ncdai/shimmering-text — https://chanhdai.com/components/shimmering-text
+ * Install: `pnpm dlx shadcn@latest add @ncdai/shimmering-text`
+ */
 export type ShimmeringTextProps = Omit<
   ComponentProps<typeof motion.span>,
   "children"

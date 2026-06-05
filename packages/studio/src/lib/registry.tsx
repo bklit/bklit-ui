@@ -12,6 +12,7 @@ import {
   Grid,
   Line,
   LineChart,
+  LineChartLoading,
   PatternArea,
   Scatter,
   ScatterChart,
@@ -244,6 +245,43 @@ const lineConfig: StudioChartConfig = {
         <StudioCartesianFill className="size-full">
           <LineProfitLossStudioChart ctx={ctx} state={state} />
         </StudioCartesianFill>
+      );
+    }
+
+    if (state.lineChartState === "loading") {
+      return (
+        <StudioChartShell
+          legendComponentId="line.legend"
+          legendItems={[]}
+          state={ctx.chromeState}
+        >
+          <StudioCartesianFill>
+            <LineChartLoading
+              className="size-full"
+              gridStrokeOpacity={
+                isStudioComponentVisible(state, "line.grid")
+                  ? state.lineLoadingGridOpacity
+                  : 0
+              }
+              label={
+                isStudioComponentVisible(state, "line.loading-label")
+                  ? state.lineLoadingLabel
+                  : ""
+              }
+              margin={timeSeriesChartMargin(state)}
+              stroke={
+                isStudioComponentVisible(state, "line.loading-line")
+                  ? state.lineLoadingStroke
+                  : "transparent"
+              }
+              strokeOpacity={
+                isStudioComponentVisible(state, "line.loading-line")
+                  ? state.lineLoadingStrokeOpacity
+                  : 0
+              }
+            />
+          </StudioCartesianFill>
+        </StudioChartShell>
       );
     }
 

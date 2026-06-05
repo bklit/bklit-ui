@@ -20,12 +20,15 @@ Bklit is published on the shadcn registry index as `@bklit`. Add it to your `com
 ```json
 {
   "registries": {
-    "@bklit": "https://ui.bklit.com/r/{name}.json"
+    "@bklit": "https://ui.bklit.com/r/{name}.json",
+    "@ncdai": "https://chanhdai.com/r/{name}.json"
   }
 }
 ```
 
 Then install components with the namespace, for example `npx shadcn@latest add @bklit/area-chart`.
+
+Line chart loading labels use [`@ncdai/shimmering-text`](https://chanhdai.com/components/shimmering-text). Installing `@bklit/line-chart` pulls it in automatically when `@ncdai` is configured.
 
 ## Install Components
 

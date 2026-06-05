@@ -2,9 +2,9 @@
 
 import { ArrowRightIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import { ShimmeringText } from "@/components/shimmering-text";
 import { Button } from "@/ui/button";
 import { ParticleBadge } from "./particle-badge";
-import { ShimmeringText } from "./shimmering-text";
 
 export function StudioVersionPill({
   showChevron = true,

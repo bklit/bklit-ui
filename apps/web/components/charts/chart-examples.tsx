@@ -32,6 +32,7 @@ import {
   Line,
   LinearGradient,
   LineChart,
+  LineChartLoading,
   LiveLine,
   LiveLineChart,
   type LiveLinePoint,
@@ -792,6 +793,7 @@ interface ChartExample {
 const AreaExampleChart = createChartExamplePreview(AreaChart);
 const BarExampleChart = createChartExamplePreview(BarChart);
 const LineExampleChart = createChartExamplePreview(LineChart);
+const LineChartLoadingExample = createChartExamplePreview(LineChartLoading);
 const ComposedExampleChart = createChartExamplePreview(ComposedChart);
 const CandlestickExampleChart = createChartExamplePreview(CandlestickChart);
 const LiveLineExampleChart = createChartExamplePreview(LiveLineChart);
@@ -2056,6 +2058,22 @@ function makeLineExamples(): ChartExample[] {
           <ChartTooltip />
         </LineExampleChart>
       ),
+    },
+    {
+      title: "Line Chart - Loading",
+      description:
+        "Skeleton grid, pulsing foreground segment, and shimmer label while data loads",
+      code: `import { LineChartLoading } from "@bklitui/ui/charts";
+
+<LineChartLoading
+  gridStrokeOpacity={0.5}
+  label="Loading"
+  stroke="var(--foreground)"
+  strokeOpacity={0.5}
+/>`,
+      footer:
+        "Uses @ncdai/shimmering-text for the label — installed with @bklit/line-chart",
+      render: () => <LineChartLoadingExample />,
     },
     {
       title: "Line Chart - Dashed Tail",

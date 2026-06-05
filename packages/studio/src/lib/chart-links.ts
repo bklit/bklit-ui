@@ -30,11 +30,31 @@ export function studioChartDocsHref(slug: ChartSlug) {
   return `/docs/components/${slug}`;
 }
 
-export function studioChartHref(slug: ChartSlug) {
+export function studioChartHref(
+  slug: ChartSlug,
+  searchParams?: Record<string, string | undefined>
+) {
+  let href: string;
   if (slug === "profit-loss-line") {
-    return "/studio?chart=line-chart&lineChartMode=profitLoss";
+    href = "/studio?chart=line-chart&lineChartMode=profitLoss";
+  } else {
+    href = `/studio?chart=${slug}`;
   }
-  return `/studio?chart=${slug}`;
+
+  if (searchParams) {
+    const extra = new URLSearchParams();
+    for (const [key, value] of Object.entries(searchParams)) {
+      if (value != null && value !== "") {
+        extra.set(key, value);
+      }
+    }
+    const qs = extra.toString();
+    if (qs) {
+      href += `&${qs}`;
+    }
+  }
+
+  return href;
 }
 
 /** @see https://ui.shadcn.com/docs/registry/open-in-v0 */

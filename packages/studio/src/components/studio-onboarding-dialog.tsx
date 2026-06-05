@@ -2,8 +2,8 @@
 
 import { cn } from "@bklitui/ui/lib/utils";
 import { useCallback, useEffect, useState } from "react";
-import { ShimmeringText } from "@/components/onboarding/shimmering-text";
 import { StudioVersionPill } from "@/components/onboarding/studio-version-pill";
+import { ShimmeringText } from "@/components/shimmering-text";
 import {
   dismissStudioOnboarding,
   isStudioOnboardingDismissed,

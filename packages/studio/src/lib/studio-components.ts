@@ -561,7 +561,7 @@ export function resolveLiveLineComponents(): StudioComponentDefinition[] {
 function resolveProfitLossLineComponents(): StudioComponentDefinition[] {
   const groups = getLineChartControlGroups({ lineChartMode: "profitLoss" });
   const chartId = "line.chart";
-  const seriesStyle = groups.find((group) => group.title === "Series style");
+  const settings = groups.find((group) => group.title === "Settings");
   const lineControls = groups.find((group) => group.title === "Line");
   const zeroLine = groups.find((group) => group.title === "Zero line");
   const tooltip = groups.find((group) => group.title === "Tooltip");
@@ -574,7 +574,7 @@ function resolveProfitLossLineComponents(): StudioComponentDefinition[] {
       label: "LineChart",
       kind: "chart",
       treeIcon: "line-chart",
-      controlGroups: seriesStyle ? [seriesStyle] : [],
+      controlGroups: settings ? [settings] : [],
       design: rootPaletteDesign(false),
     },
     {
@@ -618,13 +618,87 @@ export function resolveLineComponents(
     return resolveProfitLossLineComponents();
   }
 
-  const seriesCount = clampStudioSeriesCount(state.dataSeries);
+  const chartId = "line.chart";
+  const isLoading = state.lineChartState === "loading";
   const groups = getLineChartControlGroups({ lineChartMode: "standard" });
+  const settings = groups.find((group) => group.title === "Settings");
+
+  if (isLoading) {
+    return [
+      {
+        id: chartId,
+        label: "LineChart",
+        kind: "chart",
+        treeIcon: "line-chart",
+        controlGroups: settings ? [settings] : [],
+      },
+      {
+        id: "line.grid",
+        label: "Grid",
+        parentId: chartId,
+        kind: "chart",
+        controlGroups: [
+          controlGroup("Grid", [
+            {
+              type: "opacity",
+              key: "lineLoadingGridOpacity",
+              label: "Opacity",
+              min: 0.1,
+              max: 1,
+              step: 0.05,
+              color: "var(--border)",
+              secondaryColor: "var(--background)",
+            },
+          ]),
+        ],
+      },
+      {
+        id: "line.loading-label",
+        label: "Label",
+        parentId: chartId,
+        kind: "chart",
+        controlGroups: [
+          controlGroup("Label", [
+            {
+              type: "text",
+              key: "lineLoadingLabel",
+              label: "Text",
+            },
+          ]),
+        ],
+      },
+      {
+        id: "line.loading-line",
+        label: "Line",
+        parentId: chartId,
+        kind: "line",
+        controlGroups: [
+          controlGroup("Line", [
+            {
+              type: "opacity",
+              key: "lineLoadingStrokeOpacity",
+              label: "Opacity",
+              min: 0.1,
+              max: 1,
+              step: 0.05,
+              color: "var(--foreground)",
+            },
+          ]),
+        ],
+        design: {
+          accentKey: "lineLoadingStroke",
+          colorLabel: "Line",
+          showPalette: false,
+          supportsPattern: false,
+        },
+      },
+    ];
+  }
+
+  const seriesCount = clampStudioSeriesCount(state.dataSeries);
   const lineControls = groups.find((group) => group.title === "Line");
   const markers = groups.find((group) => group.title === "Markers");
   const dashTail = groups.find((group) => group.title === "Dash tail");
-  const seriesStyle = groups.find((group) => group.title === "Series style");
-  const chartId = "line.chart";
 
   const components: StudioComponentDefinition[] = [
     {
@@ -632,7 +706,7 @@ export function resolveLineComponents(
       label: "LineChart",
       kind: "chart",
       treeIcon: "line-chart",
-      controlGroups: seriesStyle ? [seriesStyle] : [],
+      controlGroups: settings ? [settings] : [],
       design: rootPaletteDesign(false),
     },
     passiveNode("line", "grid", "Grid"),
