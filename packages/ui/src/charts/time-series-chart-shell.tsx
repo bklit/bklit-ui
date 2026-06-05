@@ -19,11 +19,20 @@ import { DEFAULT_ANIMATION_EASING } from "./animation";
 import { ChartProvider, type LineConfig, type Margin } from "./chart-context";
 import { isGradientDefComponent, isPatternDefComponent } from "./chart-defs";
 import { shortDateFmt } from "./chart-formatters";
+import {
+  type ChartPhase,
+  type ChartStatus,
+  DEFAULT_CHART_STATUS,
+  DEFAULT_Y_DOMAIN_TWEEN_MS,
+  isChartInteractionPhase,
+  resolveRestingChartPhase,
+} from "./chart-phase";
 import { ChartRevealClip } from "./chart-reveal-clip";
 import {
   decimateTimeSeries,
   maxRenderPointsForWidth,
 } from "./decimate-time-series";
+import { generateChartSkeletonData } from "./generate-chart-skeleton-data";
 import {
   computeSeriesBarRevealClipPadding,
   computeSeriesBarWidth,
@@ -36,6 +45,7 @@ import {
   getPrimaryYScale,
   groupLinesByYAxisId,
 } from "./y-axis-scales";
+import { computeYDomainsByAxis } from "./y-domain-utils";
 
 function collectNumericExtents(
   data: Record<string, unknown>[],
@@ -139,6 +149,10 @@ export interface TimeSeriesChartInnerProps {
   composedStackGap?: number;
   /** When set, drives the y-axis max instead of scanning `lines` (e.g. stacked bar totals). */
   yScaleDomainMax?: number;
+  /** Loading vs ready — drives chart phase until transition orchestration lands. */
+  chartStatus?: ChartStatus;
+  loadingLabel?: string;
+  yDomainTweenDuration?: number;
 }
 
 export function TimeSeriesChartInner(props: TimeSeriesChartInnerProps) {
@@ -171,8 +185,12 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
   composedStackOffsets,
   composedStackGap,
   yScaleDomainMax,
+  chartStatus = DEFAULT_CHART_STATUS,
+  loadingLabel,
+  yDomainTweenDuration = DEFAULT_Y_DOMAIN_TWEEN_MS,
 }: TimeSeriesChartInnerProps) {
   const staticPreview = useStaticChartPreview();
+  const chartPhase: ChartPhase = resolveRestingChartPhase(chartStatus);
   const [isLoaded, setIsLoaded] = useState(staticPreview);
   const [revealEpoch, setRevealEpoch] = useState(0);
 
@@ -219,24 +237,52 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
     return innerWidth / (data.length - 1);
   }, [innerWidth, data.length]);
 
+  const resolveYDomain = useCallback(
+    (sourceData: Record<string, unknown>[], dataKeys: string[]) => {
+      const axisGroups = groupLinesByYAxisId(lines);
+      const usesDefaultOnly =
+        axisGroups.size === 1 && axisGroups.has(DEFAULT_Y_AXIS_ID);
+      const domainMax =
+        usesDefaultOnly && yScaleDomainMax != null
+          ? yScaleDomainMax
+          : undefined;
+      return resolveTimeSeriesYDomain(sourceData, dataKeys, domainMax);
+    },
+    [lines, yScaleDomainMax]
+  );
+
+  const skeletonData = useMemo(() => {
+    const primaryKey = lines[0]?.dataKey ?? "value";
+    return generateChartSkeletonData({ dataKey: primaryKey });
+  }, [lines]);
+
+  const yDomainSkeletonByAxis = useMemo(
+    () =>
+      computeYDomainsByAxis({
+        lines,
+        resolveDomain: (dataKeys) => resolveYDomain(skeletonData, dataKeys),
+      }),
+    [lines, resolveYDomain, skeletonData]
+  );
+
+  const yDomainTargetByAxis = useMemo(
+    () =>
+      computeYDomainsByAxis({
+        lines,
+        resolveDomain: (dataKeys) => resolveYDomain(data, dataKeys),
+      }),
+    [data, lines, resolveYDomain]
+  );
+
   const yScales = useMemo(
     () =>
       buildYScalesForLines({
         lines,
         data,
         innerHeight,
-        resolveDomain: (dataKeys) => {
-          const axisGroups = groupLinesByYAxisId(lines);
-          const usesDefaultOnly =
-            axisGroups.size === 1 && axisGroups.has(DEFAULT_Y_AXIS_ID);
-          const domainMax =
-            usesDefaultOnly && yScaleDomainMax != null
-              ? yScaleDomainMax
-              : undefined;
-          return resolveTimeSeriesYDomain(data, dataKeys, domainMax);
-        },
+        resolveDomain: (dataKeys) => resolveYDomain(data, dataKeys),
       }),
-    [innerHeight, data, lines, yScaleDomainMax]
+    [innerHeight, data, lines, resolveYDomain]
   );
 
   const yScale = getPrimaryYScale(
@@ -256,15 +302,20 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
       return;
     }
 
+    if (chartStatus === "loading") {
+      setIsLoaded(false);
+      return;
+    }
+
     setRevealEpoch((n) => n + 1);
     setIsLoaded(false);
     const timer = setTimeout(() => {
       setIsLoaded(true);
     }, animationDuration);
     return () => clearTimeout(timer);
-  }, [animationDuration, revealSignature, staticPreview]);
+  }, [animationDuration, chartStatus, revealSignature, staticPreview]);
 
-  const canInteract = isLoaded;
+  const canInteract = isLoaded && isChartInteractionPhase(chartPhase);
 
   const {
     tooltipData,
@@ -325,6 +376,12 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
       setTooltipData,
       containerRef,
       lines,
+      chartPhase,
+      chartStatus,
+      loadingLabel,
+      yDomainTweenDuration,
+      yDomainSkeletonByAxis,
+      yDomainTargetByAxis,
       isLoaded,
       animationDuration,
       animationEasing,
@@ -358,6 +415,12 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
       setTooltipData,
       containerRef,
       lines,
+      chartPhase,
+      chartStatus,
+      loadingLabel,
+      yDomainTweenDuration,
+      yDomainSkeletonByAxis,
+      yDomainTargetByAxis,
       isLoaded,
       animationDuration,
       animationEasing,
@@ -385,6 +448,7 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
   // animationDuration === 0 truly disables the reveal (no clipPath wrapper),
   // so consumers can opt out without having to also pass enterTransition.
   const showReveal =
+    chartStatus === "ready" &&
     !staticPreview &&
     renderData.length > 1 &&
     innerWidth > 0 &&

@@ -22,6 +22,7 @@ import {
 } from "./chart-context";
 import { isGradientDefComponent, isPatternDefComponent } from "./chart-defs";
 import { shortDateFmt } from "./chart-formatters";
+import { DEFAULT_CHART_LIFECYCLE } from "./chart-phase";
 import { isPostOverlayComponent } from "./time-series-chart-shell";
 import { useScatterChartInteraction } from "./use-scatter-chart-interaction";
 import { buildYScalesForLines, getPrimaryYScale } from "./y-axis-scales";
@@ -191,6 +192,7 @@ export function ScatterChartInner({
   });
 
   const contextValue: ChartContextValue = {
+    ...DEFAULT_CHART_LIFECYCLE,
     data,
     renderData: data,
     xScale: xScale as ChartContextValue["xScale"],

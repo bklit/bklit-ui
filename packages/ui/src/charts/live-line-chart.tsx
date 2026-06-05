@@ -24,6 +24,7 @@ import {
   type TooltipData,
 } from "./chart-context";
 import { hmsTimeFmt } from "./chart-formatters";
+import { DEFAULT_CHART_LIFECYCLE } from "./chart-phase";
 import type { LiveLineProps } from "./live-line";
 import { wrapSingleYScale } from "./y-axis-scales";
 
@@ -532,6 +533,7 @@ const LiveLineChartCore = memo(function LiveLineChartCore({
 
   const contextValue = useMemo(
     () => ({
+      ...DEFAULT_CHART_LIFECYCLE,
       data: contextData,
       renderData: contextData,
       xScale,

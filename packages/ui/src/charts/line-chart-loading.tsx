@@ -3,36 +3,24 @@
 import { useCallback, useMemo, useState } from "react";
 import type { Margin } from "./chart-context";
 import { ChartLoadingLabel } from "./chart-loading-label";
+import {
+  DEFAULT_SKELETON_DATA_KEY,
+  DEFAULT_SKELETON_POINT_COUNT,
+  generateChartSkeletonData,
+} from "./generate-chart-skeleton-data";
 import { Line } from "./line";
 import { LineChart } from "./line-chart";
 import { LineLoadingPulse } from "./line-loading-pulse";
 import { LINE_LOADING_LOOP_PAUSE_MS } from "./line-loading-timing";
 import { LoadingGrid } from "./loading-grid";
 
-const LOADING_DATA_KEY = "value";
-const LOADING_POINT_COUNT = 7;
+const LOADING_DATA_KEY = DEFAULT_SKELETON_DATA_KEY;
 const DEFAULT_LOADING_STROKE = "var(--foreground)";
 const DEFAULT_LOADING_GRID_STROKE =
   "color-mix(in oklch, var(--chart-grid) 50%, transparent)";
 const DEFAULT_LOADING_GRID_SHIMMER_STROKE =
   "color-mix(in oklch, var(--foreground) 68%, transparent)";
 const DEFAULT_LOADING_STROKE_OPACITY = 0.5;
-
-function generateLoadingLineData(
-  pointCount: number
-): Record<string, unknown>[] {
-  const baseDate = new Date("2025-01-01");
-  return Array.from({ length: pointCount }, (_, index) => {
-    const date = new Date(baseDate);
-    date.setDate(baseDate.getDate() + index);
-    return {
-      date,
-      [LOADING_DATA_KEY]: Math.round(
-        110 + Math.sin(index * 1.15) * 36 + index * 9
-      ),
-    };
-  });
-}
 
 export interface LineChartLoadingProps {
   /** Chart margins */
@@ -76,7 +64,14 @@ export function LineChartLoading({
   className = "",
 }: LineChartLoadingProps) {
   const [pulseEpoch, setPulseEpoch] = useState(0);
-  const data = useMemo(() => generateLoadingLineData(LOADING_POINT_COUNT), []);
+  const data = useMemo(
+    () =>
+      generateChartSkeletonData({
+        dataKey: DEFAULT_SKELETON_DATA_KEY,
+        pointCount: DEFAULT_SKELETON_POINT_COUNT,
+      }),
+    []
+  );
 
   const handleCycleComplete = useCallback(() => {
     window.setTimeout(() => {
@@ -92,6 +87,7 @@ export function LineChartLoading({
         className={className}
         data={data}
         margin={margin}
+        status="loading"
       >
         <LoadingGrid
           key={gridShimmerSync ? `loading-grid-${pulseEpoch}` : "loading-grid"}

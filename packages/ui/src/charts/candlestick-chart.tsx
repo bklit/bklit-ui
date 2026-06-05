@@ -19,6 +19,7 @@ import {
 import { cn } from "@/lib/utils";
 import { ChartProvider, type LineConfig, type Margin } from "./chart-context";
 import { shortDateFmt } from "./chart-formatters";
+import { DEFAULT_CHART_LIFECYCLE } from "./chart-phase";
 import {
   decimateOhlcData,
   maxRenderPointsForWidth,
@@ -249,6 +250,7 @@ const ChartCore = memo(function ChartCore({
   });
 
   const contextValue = {
+    ...DEFAULT_CHART_LIFECYCLE,
     data,
     renderData,
     xScale,

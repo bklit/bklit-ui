@@ -27,6 +27,7 @@ import {
 } from "./chart-context";
 import { isGradientDefComponent, isPatternDefComponent } from "./chart-defs";
 import { shortDateFmt } from "./chart-formatters";
+import { DEFAULT_CHART_LIFECYCLE } from "./chart-phase";
 import { useScheduledTooltip } from "./use-scheduled-tooltip";
 import {
   buildYScalesForLines,
@@ -526,6 +527,7 @@ const ChartCore = memo(function ChartCore({
   });
 
   const contextValue = {
+    ...DEFAULT_CHART_LIFECYCLE,
     data,
     renderData: data,
     xScale: fakeTimeScale as unknown as ReturnType<

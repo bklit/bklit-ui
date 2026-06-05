@@ -81,6 +81,15 @@ export {
   type ChartLoadingLabelProps,
 } from "./chart-loading-label";
 export {
+  type ChartPhase,
+  type ChartStatus,
+  DEFAULT_CHART_LIFECYCLE,
+  DEFAULT_CHART_STATUS,
+  DEFAULT_Y_DOMAIN_TWEEN_MS,
+  isChartInteractionPhase,
+  resolveRestingChartPhase,
+} from "./chart-phase";
+export {
   ChartRevealClip,
   type ChartRevealClipProps,
 } from "./chart-reveal-clip";

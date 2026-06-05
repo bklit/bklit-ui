@@ -22,8 +22,10 @@ import {
   useContext,
   useMemo,
 } from "react";
+import type { ChartPhase, ChartStatus } from "./chart-phase";
 import type { ChartSelection } from "./use-chart-interaction";
 import { DEFAULT_Y_AXIS_ID } from "./y-axis-scales";
+import type { YDomain } from "./y-domain-utils";
 
 // CSS variable references for theming
 export const chartCssVars = {
@@ -141,6 +143,18 @@ export interface ChartContextValue extends ChartHoverContextValue {
   // Line configurations (extracted from children)
   lines: LineConfig[];
 
+  // Loading / lifecycle (LineChart status transitions)
+  chartPhase: ChartPhase;
+  chartStatus: ChartStatus;
+  /** Centered label while `chartPhase` shows loading chrome. */
+  loadingLabel?: string;
+  /** Y-domain tween duration when transitioning loading ↔ ready (ms). */
+  yDomainTweenDuration: number;
+  /** Nice’d y-domains per axis from skeleton data (placeholder). */
+  yDomainSkeletonByAxis: Record<string, YDomain>;
+  /** Nice’d y-domains per axis from the current target data. */
+  yDomainTargetByAxis: Record<string, YDomain>;
+
   // Animation state
   isLoaded: boolean;
   animationDuration: number;
@@ -229,6 +243,12 @@ export function ChartProvider({
       columnWidth: value.columnWidth,
       containerRef: value.containerRef,
       lines: value.lines,
+      chartPhase: value.chartPhase,
+      chartStatus: value.chartStatus,
+      loadingLabel: value.loadingLabel,
+      yDomainTweenDuration: value.yDomainTweenDuration,
+      yDomainSkeletonByAxis: value.yDomainSkeletonByAxis,
+      yDomainTargetByAxis: value.yDomainTargetByAxis,
       isLoaded: value.isLoaded,
       animationDuration: value.animationDuration,
       animationEasing: value.animationEasing,
@@ -264,6 +284,12 @@ export function ChartProvider({
       value.columnWidth,
       value.containerRef,
       value.lines,
+      value.chartPhase,
+      value.chartStatus,
+      value.loadingLabel,
+      value.yDomainTweenDuration,
+      value.yDomainSkeletonByAxis,
+      value.yDomainTargetByAxis,
       value.isLoaded,
       value.animationDuration,
       value.animationEasing,
