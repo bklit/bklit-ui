@@ -7,6 +7,12 @@ export interface ShowcaseProject {
 
 export const showcaseProjects: ShowcaseProject[] = [
   {
+    title: "OpenPanel",
+    url: "https://openpanel.dev/",
+    image: "/img/showcase/openpanel.png",
+    imageAlt: "OpenPanel analytics dashboard",
+  },
+  {
     title: "Chánh Đại",
     url: "https://chanhdai.com",
     image:
