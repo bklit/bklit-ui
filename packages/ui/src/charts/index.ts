@@ -169,9 +169,7 @@ export {
   type LineChartLoadingProps,
 } from "./line-chart-loading";
 export {
-  LineLoadingPulse,
   type LineLoadingPulseMode,
-  type LineLoadingPulseProps,
   LineLoadingPulseStroke,
   type LineLoadingPulseStrokeProps,
   resolveLineLoadingPulseMode,
@@ -191,7 +189,6 @@ export {
 } from "./live-line-chart";
 export { LiveXAxis, type LiveXAxisProps } from "./live-x-axis";
 export { LiveYAxis, type LiveYAxisProps } from "./live-y-axis";
-export { LoadingGrid, type LoadingGridProps } from "./loading-grid";
 // Marker components
 export {
   type ChartMarker,

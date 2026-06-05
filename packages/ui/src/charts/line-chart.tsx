@@ -7,15 +7,20 @@ import {
   isValidElement,
   type ReactElement,
   type ReactNode,
+  useCallback,
   useMemo,
   useRef,
+  useState,
 } from "react";
 import { cn } from "@/lib/utils";
 import type { LineConfig, Margin } from "./chart-context";
+import { ChartLoadingLabel } from "./chart-loading-label";
 import {
+  type ChartPhase,
   type ChartStatus,
   DEFAULT_CHART_STATUS,
   DEFAULT_Y_DOMAIN_TWEEN_MS,
+  resolveRestingChartPhase,
 } from "./chart-phase";
 import { Line, type LineProps } from "./line";
 import { TimeSeriesChartInner } from "./time-series-chart-shell";
@@ -33,7 +38,7 @@ export interface LineChartProps {
   animationEasing?: string;
   enterTransition?: Transition;
   revealSignature?: string;
-  /** Aspect ratio as "width / height". Default: "2 / 1" */
+  /** Aspect ratio as "width / height". Default: "2 / 1". Omit to fill a sized parent. */
   aspectRatio?: string;
   /** Additional class name for the container */
   className?: string;
@@ -136,6 +141,7 @@ interface ChartInnerProps {
   yDomainTween: boolean;
   children: ReactNode;
   containerRef: React.RefObject<HTMLDivElement | null>;
+  onPhaseChange: (phase: ChartPhase) => void;
 }
 
 function ChartInner({
@@ -154,6 +160,7 @@ function ChartInner({
   yDomainTween,
   children,
   containerRef,
+  onPhaseChange,
 }: ChartInnerProps) {
   const lines = useMemo(() => extractLineConfigs(children), [children]);
 
@@ -170,6 +177,7 @@ function ChartInner({
       lines={lines}
       loadingLabel={loadingLabel}
       margin={margin}
+      onPhaseChange={onPhaseChange}
       revealSignature={revealSignature}
       width={width}
       xDataKey={xDataKey}
@@ -199,12 +207,29 @@ export function LineChart({
 }: LineChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const margin = { ...DEFAULT_MARGIN, ...marginProp };
+  const [chartPhase, setChartPhase] = useState<ChartPhase>(() =>
+    resolveRestingChartPhase(status)
+  );
+  const handlePhaseChange = useCallback((phase: ChartPhase) => {
+    setChartPhase(phase);
+  }, []);
+
+  const showLoadingLabel = Boolean(
+    loadingLabel?.trim() &&
+      (chartPhase === "loading" ||
+        chartPhase === "exiting" ||
+        chartPhase === "exitingReady" ||
+        chartPhase === "revealingLoading")
+  );
 
   return (
     <div
       className={cn("relative w-full", className)}
       ref={containerRef}
-      style={{ aspectRatio, touchAction: "none" }}
+      style={{
+        ...(aspectRatio ? { aspectRatio } : undefined),
+        touchAction: "none",
+      }}
     >
       <ParentSize debounceTime={10}>
         {({ width, height }) => (
@@ -218,6 +243,7 @@ export function LineChart({
             height={height}
             loadingLabel={loadingLabel}
             margin={margin}
+            onPhaseChange={handlePhaseChange}
             revealSignature={revealSignature}
             width={width}
             xDataKey={xDataKey}
@@ -228,6 +254,12 @@ export function LineChart({
           </ChartInner>
         )}
       </ParentSize>
+      {showLoadingLabel ? (
+        <ChartLoadingLabel
+          fading={chartPhase === "exiting"}
+          text={loadingLabel}
+        />
+      ) : null}
     </div>
   );
 }

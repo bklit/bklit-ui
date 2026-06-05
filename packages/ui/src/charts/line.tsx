@@ -112,6 +112,7 @@ export function Line({
     xAccessor,
     lines,
     chartPhase,
+    notifyLoadingPulseComplete,
   } = useChartStable();
   const yScale = useYScale(yAxisId);
 
@@ -126,13 +127,14 @@ export function Line({
 
   const handleLoadingPulseComplete = useCallback(() => {
     onLoadingPulseCycleComplete?.();
-    if (pulseMode !== "loop") {
+    if (pulseMode === "loop") {
+      window.setTimeout(() => {
+        setPulseEpoch((epoch) => epoch + 1);
+      }, LINE_LOADING_LOOP_PAUSE_MS);
       return;
     }
-    window.setTimeout(() => {
-      setPulseEpoch((epoch) => epoch + 1);
-    }, LINE_LOADING_LOOP_PAUSE_MS);
-  }, [onLoadingPulseCycleComplete, pulseMode]);
+    notifyLoadingPulseComplete?.();
+  }, [notifyLoadingPulseComplete, onLoadingPulseCycleComplete, pulseMode]);
 
   const seriesIndex = useMemo(() => {
     const index = lines.findIndex((line) => line.dataKey === dataKey);
@@ -162,6 +164,11 @@ export function Line({
   const fadeSides = resolveFadeSides(fadeEdges);
   const lineStroke = fadeSides.any ? `url(#${gradientId})` : stroke;
   const fadeStops = fadeSides.any ? fadeGradientStops(fadeSides) : null;
+  const showSeriesStroke = chartPhase === "revealing" || chartPhase === "ready";
+  let visibleStroke = "transparent";
+  if (showSeriesStroke && !hasDashTail) {
+    visibleStroke = lineStroke;
+  }
 
   return (
     <>
@@ -188,7 +195,7 @@ export function Line({
           curve={curve}
           data={renderData}
           innerRef={pathRef}
-          stroke={hasDashTail ? "transparent" : lineStroke}
+          stroke={visibleStroke}
           strokeLinecap="round"
           strokeWidth={strokeWidth}
           x={(d) => xScale(xAccessor(d)) ?? 0}
@@ -230,7 +237,7 @@ export function Line({
 
       {showLoadingPulse && pathD && innerWidth > 0 ? (
         <LineLoadingPulseStroke
-          key={`${pulseMode}-${pulseEpoch}`}
+          key={`${pulseMode}-${pulseMode === "loop" ? pulseEpoch : chartPhase}`}
           mode={pulseMode}
           onCycleComplete={handleLoadingPulseComplete}
           pathD={pathD}

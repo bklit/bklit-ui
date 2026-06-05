@@ -2,7 +2,6 @@
 
 import { useMemo } from "react";
 import type { Margin } from "./chart-context";
-import { ChartLoadingLabel } from "./chart-loading-label";
 import {
   DEFAULT_SKELETON_DATA_KEY,
   DEFAULT_SKELETON_POINT_COUNT,
@@ -71,36 +70,34 @@ export function LineChartLoading({
   );
 
   return (
-    <div className="relative size-full">
-      <LineChart
-        animationDuration={0}
-        aspectRatio={aspectRatio}
-        className={className}
-        data={data}
-        margin={margin}
-        status="loading"
-      >
-        <Grid
-          horizontal
-          shimmer={gridShimmer}
-          shimmerLength={gridShimmerLength}
-          shimmerSpeed={gridShimmerSpeed}
-          shimmerStroke={gridShimmerStroke}
-          shimmerSync={gridShimmerSync}
-          stroke={gridStroke}
-        />
-        <Line
-          dataKey={LOADING_DATA_KEY}
-          fadeEdges={false}
-          loadingStroke={stroke}
-          loadingStrokeOpacity={strokeOpacity}
-          showHighlight={false}
-          stroke="transparent"
-          strokeWidth={2.5}
-        />
-      </LineChart>
-      <ChartLoadingLabel text={label} />
-    </div>
+    <LineChart
+      animationDuration={0}
+      aspectRatio={aspectRatio}
+      className={className}
+      data={data}
+      loadingLabel={label}
+      margin={margin}
+      status="loading"
+    >
+      <Grid
+        horizontal
+        shimmer={gridShimmer}
+        shimmerLength={gridShimmerLength}
+        shimmerSpeed={gridShimmerSpeed}
+        shimmerStroke={gridShimmerStroke}
+        shimmerSync={gridShimmerSync}
+        stroke={gridStroke}
+      />
+      <Line
+        dataKey={LOADING_DATA_KEY}
+        fadeEdges={false}
+        loadingStroke={stroke}
+        loadingStrokeOpacity={strokeOpacity}
+        showHighlight={false}
+        stroke="transparent"
+        strokeWidth={2.5}
+      />
+    </LineChart>
   );
 }
 

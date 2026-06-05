@@ -69,7 +69,11 @@ The root component that provides context to all children.
 | `data` | `Record<string, unknown>[]` | required | Array of data points |
 | `xDataKey` | `string` | `"date"` | Key in data for x-axis values |
 | `margin` | `Partial<Margin>` | `{ top: 40, right: 40, bottom: 40, left: 40 }` | Chart margins |
-| `animationDuration` | `number` | `1100` | Animation duration in ms |
+| `animationDuration` | `number` | `1100` | Clip-reveal duration in ms (`cubic-bezier(0.85, 0, 0.15, 1)`) |
+| `status` | `"loading" \| "ready"` | `"ready"` | Loading ↔ ready choreography on one chart instance |
+| `loadingLabel` | `string` | — | Centered shimmer label while `status="loading"` (`""` hides it) |
+| `yDomainTween` | `boolean` | `true` | Animate y-domain when status or target domain changes |
+| `yDomainTweenDuration` | `number` | `500` | Y-domain tween duration in ms |
 | `aspectRatio` | `string` | `"2 / 1"` | CSS aspect ratio |
 | `className` | `string` | `""` | Additional CSS class |
 
@@ -88,6 +92,8 @@ Renders a line on the chart.
 | `fadeEdges` | `boolean` | `true` | Fade line at edges |
 | `showHighlight` | `boolean` | `true` | Show highlight on hover |
 | `showMarkers` | `boolean` | `false` | Render scatter-style ring markers at each point |
+| `loadingStroke` | `string` | `var(--foreground)` | Pulse stroke color while chart is loading |
+| `loadingStrokeOpacity` | `number` | `0.5` | Pulse stroke opacity while chart is loading |
 | `markers` | `SeriesPointMarkerStyle` | — | Marker styling (same options as [`Scatter`](/docs/components/scatter-chart)) |
 
 ### Grid
@@ -154,7 +160,42 @@ See the [Profit/Loss Line](/docs/components/profit-loss-line) docs and the [line
 
 ## Loading state
 
-Use `LineChartLoading` while data is fetching. It renders dashed grid lines with an optional sweeping shimmer, a looping foreground pulse (grow then exit), and a centered shimmer label via [`@ncdai/shimmering-text`](https://chanhdai.com/components/shimmering-text).
+### Unified `status` API (recommended)
+
+Drive loading and ready from your data layer with a single `LineChart` — one `Grid`, one `Line`, no component swap. Set `status="loading"` while fetching; switch to `"ready"` when data resolves.
+
+**Choreography:** skeleton grid shimmer and line pulse loop → pulse exit → y-domain morph (500ms) → clip-path reveal (`cubic-bezier(0.85, 0, 0.15, 1)`) → interaction enabled.
+
+Pair `Grid` shimmer props with `Line` `loadingStroke` props. Use `loadingLabel` on `LineChart` for centered shimmer text via [`@ncdai/shimmering-text`](https://chanhdai.com/components/shimmering-text).
+
+<ComponentShowcase
+  code={`const [status, setStatus] = useState<"loading" | "ready">("loading");
+
+<LineChart
+  data={data}
+  status={status}
+  loadingLabel="Loading"
+  yDomainTween
+>
+  <Grid horizontal shimmer shimmerSync />
+  <Line
+    dataKey="revenue"
+    loadingStroke="var(--foreground)"
+    loadingStrokeOpacity={0.5}
+    stroke="var(--chart-line-primary)"
+  />
+</LineChart>`}
+  liveChartPreview
+  previewMinHeight={320}
+>
+  <LineChartYDomainDemo />
+</ComponentShowcase>
+
+Toggle **Loading** / **Ready** in the preview to replay the transition. When target data spans a different y-range than the skeleton, `yDomainTween` morphs the scale before the line reveals.
+
+### Standalone `LineChartLoading`
+
+Use `LineChartLoading` for a loading-only placeholder without real chart data — dashed grid, optional shimmer, looping pulse, and label.
 
 Grid and shimmer colors accept `color-mix` or `oklch` alpha strings so color and opacity are set together. Set `gridShimmerSync` to align the shimmer loop with the line pulse (2.2s cycle plus a 280ms pause between loops).
 
@@ -180,27 +221,6 @@ Grid and shimmer colors accept `color-mix` or `oklch` alpha strings so color and
   previewMinHeight={280}
 >
   <LineChartLoadingDemo />
-</ComponentShowcase>
-
-### Status and Y-domain tween (preview)
-
-Toggle **Loading** / **Ready** on a single `LineChart` with one `Grid` and one `Line` — the loading pulse is driven by chart phase on `Line` (no separate `LineLoadingPulse` sibling).
-
-<ComponentShowcase
-  code={`const [status, setStatus] = useState<"loading" | "ready">("loading");
-
-<LineChart data={data} status={status} yDomainTween>
-  <Grid horizontal shimmer shimmerSync />
-  <Line
-    dataKey="revenue"
-    loadingStroke="var(--foreground)"
-    loadingStrokeOpacity={0.5}
-    stroke={status === "ready" ? "var(--chart-line-primary)" : "transparent"}
-  />
-</LineChart>`}
-  previewMinHeight={320}
->
-  <LineChartYDomainDemo />
 </ComponentShowcase>
 
 | Prop | Type | Default | Description |

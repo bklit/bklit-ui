@@ -1,17 +1,8 @@
 "use client";
 
-import { curveNatural } from "@visx/curve";
-import { LinePath } from "@visx/shape";
 import { animate, motion, useMotionValue, useTransform } from "motion/react";
-import {
-  useCallback,
-  useEffect,
-  useId,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
-import { chartCssVars, useChartStable, useYScale } from "./chart-context";
+import { useEffect, useId } from "react";
+import { chartCssVars, useChartStable } from "./chart-context";
 import type { ChartPhase } from "./chart-phase";
 import { fadeGradientStops, resolveFadeSides } from "./fade-edges";
 import {
@@ -36,11 +27,6 @@ export function resolveLineLoadingPulseMode(
     default:
       return null;
   }
-}
-
-interface PathMetrics {
-  pathD: string | null;
-  pathLength: number;
 }
 
 export interface LineLoadingPulseStrokeProps {
@@ -169,85 +155,6 @@ export function LineLoadingPulseStroke({
   );
 }
 
-export interface LineLoadingPulseProps {
-  dataKey: string;
-  mode?: LineLoadingPulseMode;
-  stroke?: string;
-  /** Stroke opacity for the animated segment. Default: 0.5 */
-  strokeOpacity?: number;
-  strokeWidth?: number;
-  onCycleComplete?: () => void;
-}
-
-/** Standalone loading pulse — prefer `<Line loadingStroke={…} />` on unified charts. */
-export function LineLoadingPulse({
-  dataKey,
-  mode = "loop",
-  stroke = chartCssVars.foreground,
-  strokeOpacity = 0.5,
-  strokeWidth = 2.5,
-  onCycleComplete,
-}: LineLoadingPulseProps) {
-  const { renderData, xScale, xAccessor, innerWidth, innerHeight } =
-    useChartStable();
-  const yScale = useYScale();
-  const pathRef = useRef<SVGPathElement>(null);
-  const [pathMetrics, setPathMetrics] = useState<PathMetrics>({
-    pathD: null,
-    pathLength: 0,
-  });
-
-  const getY = useCallback(
-    (d: Record<string, unknown>) => {
-      const value = d[dataKey];
-      return typeof value === "number" ? (yScale(value) ?? 0) : 0;
-    },
-    [dataKey, yScale]
-  );
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: remeasure path when chart layout or data changes
-  useLayoutEffect(() => {
-    const path = pathRef.current;
-    if (!path) {
-      return;
-    }
-
-    const pathD = path.getAttribute("d");
-    const pathLength = pathD ? path.getTotalLength() : 0;
-    setPathMetrics((current) =>
-      current.pathD === pathD && current.pathLength === pathLength
-        ? current
-        : { pathD, pathLength }
-    );
-  }, [innerHeight, innerWidth, renderData]);
-
-  return (
-    <>
-      <LinePath
-        curve={curveNatural}
-        data={renderData}
-        innerRef={pathRef}
-        stroke="transparent"
-        strokeLinecap="round"
-        strokeWidth={strokeWidth}
-        x={(d) => xScale(xAccessor(d)) ?? 0}
-        y={getY}
-      />
-      {pathMetrics.pathD && pathMetrics.pathLength > 0 && innerWidth > 0 ? (
-        <LineLoadingPulseStroke
-          mode={mode}
-          onCycleComplete={onCycleComplete}
-          pathD={pathMetrics.pathD}
-          stroke={stroke}
-          strokeOpacity={strokeOpacity}
-          strokeWidth={strokeWidth}
-        />
-      ) : null}
-    </>
-  );
-}
-
-LineLoadingPulse.displayName = "LineLoadingPulse";
 LineLoadingPulseStroke.displayName = "LineLoadingPulseStroke";
 
-export default LineLoadingPulse;
+export default LineLoadingPulseStroke;

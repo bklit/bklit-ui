@@ -1,24 +1,15 @@
 "use client";
 
 import { animate, useReducedMotion } from "motion/react";
-import { useEffect, useMemo, useRef, useState } from "react";
-import type { ChartStatus } from "./chart-phase";
+import { useEffect, useRef, useState } from "react";
+import type { ChartPhase } from "./chart-phase";
 import { LINE_LOADING_PULSE_EASE } from "./line-loading-timing";
 import {
-  mergeYDomainRecords,
+  domainsEqual,
+  resolveAnimatedYDestinationDomains,
   shouldTweenYDomain,
   type YDomain,
 } from "./y-domain-utils";
-
-function resolveDestinationDomains(
-  chartStatus: ChartStatus,
-  skeletonByAxis: Record<string, YDomain>,
-  targetByAxis: Record<string, YDomain>
-): Record<string, YDomain> {
-  return mergeYDomainRecords(
-    chartStatus === "loading" ? skeletonByAxis : targetByAxis
-  );
-}
 
 function lerpDomain(from: YDomain, to: YDomain, progress: number): YDomain {
   return [
@@ -30,56 +21,74 @@ function lerpDomain(from: YDomain, to: YDomain, progress: number): YDomain {
 export interface UseAnimatedYDomainsOptions {
   enabled: boolean;
   durationMs: number;
-  chartStatus: ChartStatus;
+  chartPhase: ChartPhase;
   skeletonByAxis: Record<string, YDomain>;
   targetByAxis: Record<string, YDomain>;
+  onSettled?: () => void;
 }
 
 export function useAnimatedYDomains({
   enabled,
   durationMs,
-  chartStatus,
+  chartPhase,
   skeletonByAxis,
   targetByAxis,
+  onSettled,
 }: UseAnimatedYDomainsOptions): Record<string, YDomain> {
   const reducedMotion = useReducedMotion();
-  const destinationByAxis = useMemo(
-    () => resolveDestinationDomains(chartStatus, skeletonByAxis, targetByAxis),
-    [chartStatus, skeletonByAxis, targetByAxis]
+  const destinationByAxis = resolveAnimatedYDestinationDomains(
+    chartPhase,
+    skeletonByAxis,
+    targetByAxis
   );
+  const destinationRef = useRef(destinationByAxis);
+  destinationRef.current = destinationByAxis;
 
   const [animatedByAxis, setAnimatedByAxis] = useState(destinationByAxis);
   const animatedRef = useRef(animatedByAxis);
-  const skipInitialTweenRef = useRef(true);
+  const prevPhaseRef = useRef(chartPhase);
+  const onSettledRef = useRef(onSettled);
+  onSettledRef.current = onSettled;
 
   useEffect(() => {
     animatedRef.current = animatedByAxis;
   }, [animatedByAxis]);
 
   useEffect(() => {
-    if (skipInitialTweenRef.current) {
-      skipInitialTweenRef.current = false;
-      setAnimatedByAxis(destinationByAxis);
-      animatedRef.current = destinationByAxis;
+    const destination = destinationRef.current;
+
+    if (
+      prevPhaseRef.current === chartPhase &&
+      domainsEqual(animatedRef.current, destination)
+    ) {
+      return;
+    }
+    prevPhaseRef.current = chartPhase;
+
+    const settle = () => {
+      onSettledRef.current?.();
+    };
+
+    if (domainsEqual(animatedRef.current, destination)) {
+      settle();
       return;
     }
 
     if (!enabled || reducedMotion) {
-      setAnimatedByAxis(destinationByAxis);
-      animatedRef.current = destinationByAxis;
+      setAnimatedByAxis(destination);
+      animatedRef.current = destination;
+      settle();
       return;
     }
 
-    const axisIds = Object.keys(destinationByAxis);
+    const axisIds = Object.keys(destination);
     const fromSnapshot = animatedRef.current;
 
     let needsTween = false;
     for (const axisId of axisIds) {
       const from =
-        fromSnapshot[axisId] ??
-        destinationByAxis[axisId] ??
-        ([0, 100] as YDomain);
-      const to = destinationByAxis[axisId] ?? from;
+        fromSnapshot[axisId] ?? destination[axisId] ?? ([0, 100] as YDomain);
+      const to = destination[axisId] ?? from;
       if (shouldTweenYDomain(from, to)) {
         needsTween = true;
         break;
@@ -87,15 +96,16 @@ export function useAnimatedYDomains({
     }
 
     if (!needsTween) {
-      setAnimatedByAxis(destinationByAxis);
-      animatedRef.current = destinationByAxis;
+      setAnimatedByAxis(destination);
+      animatedRef.current = destination;
+      settle();
       return;
     }
 
     const fromByAxis: Record<string, YDomain> = {};
     for (const axisId of axisIds) {
       fromByAxis[axisId] = fromSnapshot[axisId] ??
-        destinationByAxis[axisId] ?? [0, 100];
+        destination[axisId] ?? [0, 100];
     }
 
     const control = animate(0, 1, {
@@ -105,10 +115,8 @@ export function useAnimatedYDomains({
         const next: Record<string, YDomain> = {};
         for (const axisId of axisIds) {
           const from =
-            fromByAxis[axisId] ??
-            destinationByAxis[axisId] ??
-            ([0, 100] as YDomain);
-          const to = destinationByAxis[axisId] ?? from;
+            fromByAxis[axisId] ?? destination[axisId] ?? ([0, 100] as YDomain);
+          const to = destination[axisId] ?? from;
           next[axisId] = shouldTweenYDomain(from, to)
             ? lerpDomain(from, to, progress)
             : to;
@@ -116,10 +124,15 @@ export function useAnimatedYDomains({
         animatedRef.current = next;
         setAnimatedByAxis(next);
       },
+      onComplete: () => {
+        setAnimatedByAxis(destination);
+        animatedRef.current = destination;
+        settle();
+      },
     });
 
     return () => control.stop();
-  }, [destinationByAxis, durationMs, enabled, reducedMotion]);
+  }, [chartPhase, durationMs, enabled, reducedMotion]);
 
   return animatedByAxis;
 }

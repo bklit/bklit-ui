@@ -1,13 +1,7 @@
 "use client";
 
-import {
-  ChartLoadingLabel,
-  Grid,
-  generateChartSkeletonData,
-  Line,
-  LineChart,
-} from "@bklitui/ui/charts";
-import { useMemo, useState } from "react";
+import { Grid, Line, LineChart } from "@bklitui/ui/charts";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
 const DATA_KEY = "value";
@@ -21,18 +15,12 @@ const readyData = Array.from({ length: 12 }, (_, index) => {
   };
 });
 
-/** Local preview for loading ↔ ready y-domain tween (stack 2). */
+/** Local preview for loading ↔ ready orchestration (stack 4). */
 export function LineChartYDomainDemo() {
   const [status, setStatus] = useState<"loading" | "ready">("loading");
 
-  const loadingData = useMemo(
-    () => generateChartSkeletonData({ dataKey: DATA_KEY }),
-    []
-  );
-  const chartData = status === "loading" ? loadingData : readyData;
-
   return (
-    <div className="space-y-3">
+    <div className="w-full space-y-3">
       <div className="flex gap-2">
         <Button
           onClick={() => setStatus("loading")}
@@ -49,11 +37,11 @@ export function LineChartYDomainDemo() {
           Ready
         </Button>
       </div>
-      <div className="relative h-[280px] w-full">
+      <div className="w-full">
         <LineChart
-          animationDuration={status === "ready" ? 1100 : 0}
-          data={chartData}
-          loadingLabel={status === "loading" ? "Loading revenue…" : undefined}
+          animationDuration={1100}
+          data={readyData}
+          loadingLabel="Loading revenue…"
           status={status}
           yDomainTween
         >
@@ -65,18 +53,13 @@ export function LineChartYDomainDemo() {
           />
           <Line
             dataKey={DATA_KEY}
-            fadeEdges={status === "ready"}
+            fadeEdges
             loadingStroke="var(--foreground)"
             loadingStrokeOpacity={0.5}
-            showHighlight={status === "ready"}
-            stroke={
-              status === "ready" ? "var(--chart-line-primary)" : "transparent"
-            }
+            showHighlight
+            stroke="var(--chart-line-primary)"
           />
         </LineChart>
-        {status === "loading" ? (
-          <ChartLoadingLabel text="Loading revenue…" />
-        ) : null}
       </div>
     </div>
   );

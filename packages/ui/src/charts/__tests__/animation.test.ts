@@ -6,13 +6,23 @@ import {
 } from "../animation";
 
 describe("clipRevealTransition", () => {
-  it("passes tween transitions through unchanged", () => {
+  it("preserves explicit tween ease", () => {
     const tween = {
       type: "tween" as const,
       duration: 0.9,
       ease: [0.1, 0.2, 0.3, 0.4] as [number, number, number, number],
     };
     assert.deepEqual(clipRevealTransition(tween), tween);
+  });
+
+  it("applies default ease when tween omits ease", () => {
+    const result = clipRevealTransition({
+      type: "tween",
+      duration: 0.9,
+    });
+    assert.equal(result.type, "tween");
+    assert.equal(result.duration, 0.9);
+    assert.deepEqual(result.ease, DEFAULT_CHART_ENTER_TRANSITION.ease);
   });
 
   it("converts spring to tween for svg width reveal", () => {

@@ -40,6 +40,21 @@ export function isYDomainTweenPhase(phase: ChartPhase): boolean {
   return phase === "exiting" || phase === "exitingReady";
 }
 
+export function resolveAnimatedYDestinationDomains(
+  chartPhase: ChartPhase,
+  skeletonByAxis: Record<string, YDomain>,
+  targetByAxis: Record<string, YDomain>
+): Record<string, YDomain> {
+  switch (chartPhase) {
+    case "loading":
+    case "revealingLoading":
+    case "exitingReady":
+      return skeletonByAxis;
+    default:
+      return targetByAxis;
+  }
+}
+
 export function computeYDomainsByAxis({
   lines,
   resolveDomain,
@@ -73,4 +88,25 @@ export function mergeYDomainRecords(
     }
   }
   return merged;
+}
+
+export function domainsEqual(
+  left: Record<string, YDomain>,
+  right: Record<string, YDomain>
+): boolean {
+  const leftKeys = Object.keys(left);
+  const rightKeys = Object.keys(right);
+  if (leftKeys.length !== rightKeys.length) {
+    return false;
+  }
+
+  for (const axisId of leftKeys) {
+    const from = left[axisId];
+    const to = right[axisId];
+    if (!(from && to) || from[0] !== to[0] || from[1] !== to[1]) {
+      return false;
+    }
+  }
+
+  return true;
 }

@@ -7,11 +7,14 @@ export interface ChartLoadingLabelProps {
   /** Label shown centered over the chart. */
   text?: string;
   className?: string;
+  /** Fade out during loading → ready handoff. */
+  fading?: boolean;
 }
 
 export function ChartLoadingLabel({
   text = "Loading",
   className,
+  fading = false,
 }: ChartLoadingLabelProps) {
   if (!text.trim()) {
     return null;
@@ -21,7 +24,8 @@ export function ChartLoadingLabel({
     <div
       aria-live="polite"
       className={cn(
-        "pointer-events-none absolute inset-0 flex items-center justify-center",
+        "pointer-events-none absolute inset-0 flex items-center justify-center transition-opacity duration-300",
+        fading ? "opacity-0" : "opacity-100",
         className
       )}
       role="status"

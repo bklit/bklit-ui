@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
+  domainsEqual,
   mergeYDomainRecords,
   niceYDomain,
   shouldTweenYDomain,
@@ -33,5 +34,15 @@ describe("mergeYDomainRecords", () => {
     const merged = mergeYDomainRecords({ left: [0, 100] }, { right: [10, 50] });
     assert.deepEqual(merged.left, [0, 100]);
     assert.deepEqual(merged.right, [10, 50]);
+  });
+});
+
+describe("domainsEqual", () => {
+  it("returns true when axis domains match", () => {
+    assert.equal(domainsEqual({ left: [0, 100] }, { left: [0, 100] }), true);
+  });
+
+  it("returns false when any endpoint differs", () => {
+    assert.equal(domainsEqual({ left: [0, 100] }, { left: [0, 110] }), false);
   });
 });

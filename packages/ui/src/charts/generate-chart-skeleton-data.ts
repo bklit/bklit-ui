@@ -28,4 +28,15 @@ export function generateChartSkeletonData(
   });
 }
 
+/** Skeleton rows that mirror target dates/count with lower magnitudes for Y tween. */
+export function generateChartSkeletonFromTarget(
+  targetData: Record<string, unknown>[],
+  dataKey: string
+): Record<string, unknown>[] {
+  return targetData.map((row, index) => ({
+    ...row,
+    [dataKey]: Math.round(95 + Math.sin(index * 1.05) * 28 + index * 7),
+  }));
+}
+
 export { DEFAULT_SKELETON_DATA_KEY, DEFAULT_SKELETON_POINT_COUNT };

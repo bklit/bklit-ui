@@ -164,6 +164,8 @@ export interface ChartContextValue extends ChartHoverContextValue {
   enterTransition?: Transition;
   /** Increments when enter animation should replay. */
   revealEpoch?: number;
+  /** Fired when a one-shot loading pulse (exit / enter) completes. */
+  notifyLoadingPulseComplete?: () => void;
 
   // X accessor - how to get the x value from data points
   xAccessor: (d: Record<string, unknown>) => Date;
@@ -254,6 +256,7 @@ export function ChartProvider({
       animationEasing: value.animationEasing,
       enterTransition: value.enterTransition,
       revealEpoch: value.revealEpoch,
+      notifyLoadingPulseComplete: value.notifyLoadingPulseComplete,
       xAccessor: value.xAccessor,
       dateLabels: value.dateLabels,
       barScale: value.barScale,
@@ -295,6 +298,7 @@ export function ChartProvider({
       value.animationEasing,
       value.enterTransition,
       value.revealEpoch,
+      value.notifyLoadingPulseComplete,
       value.xAccessor,
       value.dateLabels,
       value.barScale,
