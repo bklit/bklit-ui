@@ -2062,10 +2062,11 @@ function makeLineExamples(): ChartExample[] {
     {
       title: "Line Chart - Loading",
       description:
-        "Skeleton grid, pulsing foreground segment, and shimmer label while data loads",
+        "Shimmering grid, pulsing foreground segment, and shimmer label while data loads",
       code: `import { LineChartLoading } from "@bklitui/ui/charts";
 
 <LineChartLoading
+  gridShimmerSync
   label="Loading"
   stroke="var(--foreground)"
   strokeOpacity={0.5}

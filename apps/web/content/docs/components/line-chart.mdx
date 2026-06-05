@@ -153,7 +153,9 @@ See the [Profit/Loss Line](/docs/components/profit-loss-line) docs and the [line
 
 ## Loading state
 
-Use `LineChartLoading` while data is fetching. It renders a static grid, a looping foreground pulse, and a centered shimmer label via [`@ncdai/shimmering-text`](https://chanhdai.com/components/shimmering-text).
+Use `LineChartLoading` while data is fetching. It renders dashed grid lines with an optional sweeping shimmer, a looping foreground pulse (grow then exit), and a centered shimmer label via [`@ncdai/shimmering-text`](https://chanhdai.com/components/shimmering-text).
+
+Grid and shimmer colors accept `color-mix` or `oklch` alpha strings so color and opacity are set together. Set `gridShimmerSync` to align the shimmer loop with the line pulse (2.2s cycle plus a 280ms pause between loops).
 
 <div className="not-prose mb-3 flex items-center justify-between gap-4">
   <h3 className="m-0 font-semibold text-foreground text-base tracking-tight">
@@ -169,6 +171,7 @@ Use `LineChartLoading` while data is fetching. It renders a static grid, a loopi
   code={`import { LineChartLoading } from "@bklitui/ui/charts";
 
 <LineChartLoading
+  gridShimmerSync
   label="Loading"
   stroke="var(--foreground)"
   strokeOpacity={0.5}
@@ -182,17 +185,30 @@ Use `LineChartLoading` while data is fetching. It renders a static grid, a loopi
 |------|------|---------|-------------|
 | `stroke` | `string` | `var(--foreground)` | Color of the animated loading segment |
 | `strokeOpacity` | `number` | `0.5` | Opacity of the animated segment |
-| `gridStroke` | `string` | `color-mix(…)` on `--chart-grid` at 50% | Grid line color and opacity (`color-mix` or `oklch` alpha) |
+| `gridStroke` | `string` | `color-mix(…)` on `--chart-grid` at 50% | Grid line color and opacity |
 | `gridShimmerStroke` | `string` | `color-mix(…)` on `--foreground` at 68% | Shimmer band color and opacity |
 | `gridShimmer` | `boolean` | `true` | Animate a shimmer band across grid lines |
 | `gridShimmerLength` | `number` | `140` | Shimmer band width in pixels |
-| `gridShimmerSpeed` | `number` | `1` | Shimmer speed multiplier (higher = faster) |
+| `gridShimmerSpeed` | `number` | `1` | Shimmer speed multiplier when sync is off (higher = faster) |
+| `gridShimmerSync` | `boolean` | `false` | Match shimmer timing to the line pulse (2.2s + 280ms pause) |
 | `label` | `string` | `"Loading"` | Centered shimmer text (`""` hides the label) |
 | `margin` | `Partial<Margin>` | line chart default | Chart margins |
 | `aspectRatio` | `string` | `"2 / 1"` | CSS aspect ratio |
 | `className` | `string` | `""` | Container class name |
 
-Add `@ncdai` to your [registry config](/docs/installation#registry-namespace) (`https://chanhdai.com/r/{name}.json`) — installing `@bklit/line-chart` pulls in `@ncdai/shimmering-text` automatically. Tune grid and shimmer colors, line color, and label text in [Studio](/studio?chart=line-chart&lineChartState=loading) or see the [line chart gallery](/charts/line-chart) (**Loading** example).
+### Studio
+
+Open [Studio in loading mode](/studio?chart=line-chart&lineChartState=loading) and set **State** to **Loading**. The components tree exposes **Grid**, **Label**, and **Line**:
+
+| Layer | Controls |
+|-------|----------|
+| **Grid** | Grid and shimmer color pickers, shimmer toggle, band length, **Animation** (sync with line, speed when unsynced) |
+| **Label** | Shimmer label text |
+| **Line** | Pulse stroke color and opacity |
+
+Data and animation panels stay collapsed in loading mode; scramble data is disabled. See the [line chart gallery](/charts/line-chart) (**Loading** example).
+
+Add `@ncdai` to your [registry config](/docs/installation#registry-namespace) (`https://chanhdai.com/r/{name}.json`) — installing `@bklit/line-chart` pulls in `@ncdai/shimmering-text` automatically.
 
 ## Dashed tail
 
