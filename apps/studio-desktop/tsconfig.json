@@ -16,7 +16,10 @@
       "@/*": ["../../packages/studio/src/*"],
       "@bklitui/studio": ["../../packages/studio/src/index.ts"],
       "@bklitui/ui/lib/utils": ["../../packages/ui/src/lib/utils.ts"],
-      "@bklitui/ui/charts": ["../../packages/ui/src/charts/index.ts"]
+      "@bklitui/ui/charts": ["../../packages/ui/src/charts/index.ts"],
+      "@/components/shimmering-text": [
+        "../../apps/web/components/shimmering-text.tsx"
+      ]
     },
     "types": ["vite/client"]
   },
