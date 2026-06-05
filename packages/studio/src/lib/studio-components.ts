@@ -640,16 +640,55 @@ export function resolveLineComponents(
         controlGroups: [
           controlGroup("Grid", [
             {
-              type: "opacity",
-              key: "lineLoadingGridOpacity",
-              label: "Opacity",
-              min: 0.1,
-              max: 1,
-              step: 0.05,
-              color: "var(--border)",
-              secondaryColor: "var(--background)",
+              type: "color",
+              key: "lineLoadingGridStroke",
+              label: "Grid",
             },
+            {
+              type: "boolean",
+              key: "lineLoadingGridShimmer",
+              label: "Shimmer",
+            },
+            ...(state.lineLoadingGridShimmer
+              ? [
+                  {
+                    type: "color" as const,
+                    key: "lineLoadingGridShimmerStroke" as const,
+                    label: "Shimmer",
+                  },
+                  {
+                    type: "number" as const,
+                    key: "lineLoadingGridShimmerLength" as const,
+                    label: "Length",
+                    min: 40,
+                    max: 280,
+                    step: 10,
+                    unit: "px",
+                  },
+                ]
+              : []),
           ]),
+          ...(state.lineLoadingGridShimmer
+            ? [
+                controlGroup("Animation", [
+                  {
+                    type: "boolean" as const,
+                    key: "lineLoadingGridShimmerSync" as const,
+                    label: "Sync with line",
+                  },
+                  {
+                    type: "number" as const,
+                    key: "lineLoadingGridShimmerSpeed" as const,
+                    label: "Speed",
+                    min: 0.5,
+                    max: 3,
+                    step: 0.1,
+                    unit: "×",
+                    disabledWhen: "lineLoadingGridShimmerSync" as const,
+                  },
+                ]),
+              ]
+            : []),
         ],
       },
       {

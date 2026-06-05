@@ -7,6 +7,10 @@ export function isProfitLossLineMode(state: StudioUrlState) {
   );
 }
 
+export function isLineChartLoadingMode(state: StudioUrlState) {
+  return state.chart === "line-chart" && state.lineChartState === "loading";
+}
+
 export const lineChartProfitLossDefaults: Partial<StudioUrlState> = {
   lineChartMode: "profitLoss",
   hiddenComponents: chartDefaultHiddenYAxes("line"),

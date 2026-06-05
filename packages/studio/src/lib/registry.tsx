@@ -258,10 +258,26 @@ const lineConfig: StudioChartConfig = {
           <StudioCartesianFill>
             <LineChartLoading
               className="size-full"
-              gridStrokeOpacity={
+              gridShimmer={
+                isStudioComponentVisible(state, "line.grid") &&
+                state.lineLoadingGridShimmer
+              }
+              gridShimmerLength={state.lineLoadingGridShimmerLength}
+              gridShimmerSpeed={
+                state.lineLoadingGridShimmerSync
+                  ? 1
+                  : state.lineLoadingGridShimmerSpeed
+              }
+              gridShimmerStroke={
                 isStudioComponentVisible(state, "line.grid")
-                  ? state.lineLoadingGridOpacity
-                  : 0
+                  ? state.lineLoadingGridShimmerStroke
+                  : "transparent"
+              }
+              gridShimmerSync={state.lineLoadingGridShimmerSync}
+              gridStroke={
+                isStudioComponentVisible(state, "line.grid")
+                  ? state.lineLoadingGridStroke
+                  : "transparent"
               }
               label={
                 isStudioComponentVisible(state, "line.loading-label")

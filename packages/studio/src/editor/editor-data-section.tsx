@@ -8,12 +8,14 @@ import type { StudioControlGroup as StudioControlGroupConfig } from "@/lib/types
 
 export function EditorDataSection({
   groups,
+  defaultOpen = true,
   state,
   onChange,
   onPreview,
   onCommit,
 }: {
   groups: StudioControlGroupConfig[];
+  defaultOpen?: boolean;
   state: StudioUrlState;
   onChange: <K extends keyof StudioUrlState>(
     key: K,
@@ -35,7 +37,12 @@ export function EditorDataSection({
   return (
     <>
       {groups.map((group) => (
-        <StudioControlGroup key={group.title} title={group.title}>
+        <StudioControlGroup
+          collapsible
+          defaultOpen={defaultOpen}
+          key={group.title}
+          title={group.title}
+        >
           {group.controls.map((control) => (
             <ControlField
               control={control}

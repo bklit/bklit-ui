@@ -170,7 +170,6 @@ Use `LineChartLoading` while data is fetching. It renders a static grid, a loopi
 
 <LineChartLoading
   label="Loading"
-  gridStrokeOpacity={0.5}
   stroke="var(--foreground)"
   strokeOpacity={0.5}
 />`}
@@ -183,13 +182,17 @@ Use `LineChartLoading` while data is fetching. It renders a static grid, a loopi
 |------|------|---------|-------------|
 | `stroke` | `string` | `var(--foreground)` | Color of the animated loading segment |
 | `strokeOpacity` | `number` | `0.5` | Opacity of the animated segment |
-| `gridStrokeOpacity` | `number` | `0.5` | Horizontal grid line opacity |
+| `gridStroke` | `string` | `color-mix(…)` on `--chart-grid` at 50% | Grid line color and opacity (`color-mix` or `oklch` alpha) |
+| `gridShimmerStroke` | `string` | `color-mix(…)` on `--foreground` at 68% | Shimmer band color and opacity |
+| `gridShimmer` | `boolean` | `true` | Animate a shimmer band across grid lines |
+| `gridShimmerLength` | `number` | `140` | Shimmer band width in pixels |
+| `gridShimmerSpeed` | `number` | `1` | Shimmer speed multiplier (higher = faster) |
 | `label` | `string` | `"Loading"` | Centered shimmer text (`""` hides the label) |
 | `margin` | `Partial<Margin>` | line chart default | Chart margins |
 | `aspectRatio` | `string` | `"2 / 1"` | CSS aspect ratio |
 | `className` | `string` | `""` | Container class name |
 
-Add `@ncdai` to your [registry config](/docs/installation#registry-namespace) (`https://chanhdai.com/r/{name}.json`) — installing `@bklit/line-chart` pulls in `@ncdai/shimmering-text` automatically. Tune grid opacity, line color, and label text in [Studio](/studio?chart=line-chart&lineChartState=loading) or see the [line chart gallery](/charts/line-chart) (**Loading** example).
+Add `@ncdai` to your [registry config](/docs/installation#registry-namespace) (`https://chanhdai.com/r/{name}.json`) — installing `@bklit/line-chart` pulls in `@ncdai/shimmering-text` automatically. Tune grid and shimmer colors, line color, and label text in [Studio](/studio?chart=line-chart&lineChartState=loading) or see the [line chart gallery](/charts/line-chart) (**Loading** example).
 
 ## Dashed tail
 

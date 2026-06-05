@@ -3,7 +3,7 @@
 import { cn } from "@bklitui/ui/lib/utils";
 import { ChevronDownIcon } from "lucide-react";
 import type { ReactNode } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { studioSectionLabelClass } from "@/components/controls/control-field-helpers";
 
 /**
@@ -27,6 +27,10 @@ export function StudioControlGroup({
   defaultOpen?: boolean;
 }) {
   const [open, setOpen] = useState(defaultOpen);
+
+  useEffect(() => {
+    setOpen(defaultOpen);
+  }, [defaultOpen]);
 
   return (
     <section

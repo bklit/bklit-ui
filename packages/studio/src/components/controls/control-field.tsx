@@ -11,6 +11,7 @@ import {
   RingScalePreviewIcon,
   RingWidthPreviewIcon,
 } from "../ring-preview-icons";
+import { ColorControlField } from "./color-control-field";
 import {
   ControlFieldLabel,
   isGroupLabeledControlType,
@@ -170,6 +171,9 @@ export function ControlField({
 
   if (control.type === "number") {
     const key = control.key;
+    const disabled = control.disabledWhen
+      ? Boolean(state[control.disabledWhen])
+      : false;
     if (control.input === "number") {
       return (
         <NumberInputOnly
@@ -187,6 +191,7 @@ export function ControlField({
     const preview = control.preview;
     return (
       <SliderInputGroup
+        disabled={disabled}
         format={control.format}
         label={control.label}
         max={control.max}
@@ -211,6 +216,20 @@ export function ControlField({
         step={control.step ?? 1}
         unit={control.unit}
         value={value as number}
+      />
+    );
+  }
+
+  if (control.type === "color") {
+    const key = control.key;
+    return (
+      <ColorControlField
+        color={String(value ?? "")}
+        keyName={key}
+        label={control.label}
+        onChange={onChange}
+        onCommit={onCommit}
+        onPreview={onPreview}
       />
     );
   }

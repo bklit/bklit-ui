@@ -21,6 +21,7 @@ export function SliderInputGroup({
   format,
   onPreview,
   onCommit,
+  disabled = false,
 }: {
   label: string;
   value: number;
@@ -28,6 +29,7 @@ export function SliderInputGroup({
   max: number;
   step?: number;
   unit?: string;
+  disabled?: boolean;
   format?: Intl.NumberFormatOptions;
   /** Preview icon shown between the label and input (e.g. opacity swatch). */
   icon?: ReactNode;
@@ -48,14 +50,23 @@ export function SliderInputGroup({
   const iconNode = renderIcon?.(liveValue) ?? icon;
 
   return (
-    <div className={studioControlRowClass}>
-      <Label className={studioControlLabelClass}>{label}</Label>
+    <div
+      className={studioControlRowClass}
+      data-disabled={disabled ? "" : undefined}
+    >
+      <Label
+        className={studioControlLabelClass}
+        data-disabled={disabled ? "" : undefined}
+      >
+        {label}
+      </Label>
       {iconNode ? (
         <div className="flex size-7 shrink-0 items-center justify-center">
           {iconNode}
         </div>
       ) : null}
       <ScrubNumberField
+        disabled={disabled}
         format={format}
         max={max}
         min={min}

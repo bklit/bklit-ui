@@ -13,9 +13,11 @@ import {
 } from "react";
 import { chartCssVars, useChartStable, useYScale } from "./chart-context";
 import { fadeGradientStops, resolveFadeSides } from "./fade-edges";
+import {
+  LINE_LOADING_PULSE_CYCLE_S,
+  LINE_LOADING_PULSE_EASE,
+} from "./line-loading-timing";
 
-/** Grow + exit in one timeline (first half grows, second half exits right). */
-const CYCLE_DURATION_S = 2.2;
 const CLIP_PADDING = 10;
 
 interface PathMetrics {
@@ -60,8 +62,8 @@ function useGrowExitClip(innerWidth: number, onCycleComplete?: () => void) {
 
     progress.set(0);
     const controls = animate(progress, 1, {
-      duration: CYCLE_DURATION_S,
-      ease: [0.85, 0, 0.15, 1],
+      duration: LINE_LOADING_PULSE_CYCLE_S,
+      ease: [...LINE_LOADING_PULSE_EASE],
       onComplete: () => onCycleComplete?.(),
     });
 

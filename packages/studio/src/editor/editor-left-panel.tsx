@@ -7,6 +7,7 @@ import { EditorAnimationSection } from "@/editor/editor-animation-section";
 import { EditorCollapsiblePane } from "@/editor/editor-collapsible-pane";
 import { EditorDataSection } from "@/editor/editor-data-section";
 import { useStudioComponentSelection } from "@/editor/studio-component-selection";
+import { isLineChartLoadingMode } from "@/lib/line-chart-mode";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import type { StudioChartConfig } from "@/lib/types";
 
@@ -49,6 +50,8 @@ export const EditorLeftPanel = memo(function EditorLeftPanel({
     setSelectedComponentId,
   } = useStudioComponentSelection();
   const showScramble = config.scrambleData !== false;
+  const isLineChartLoading = isLineChartLoadingMode(state);
+  const sectionDefaultOpen = !isLineChartLoading;
 
   return (
     <EditorCollapsiblePane label="Controls" side="left">
@@ -66,11 +69,13 @@ export const EditorLeftPanel = memo(function EditorLeftPanel({
             onChange={onChange}
             onScramble={showScramble ? onScramble : undefined}
             onSelect={setSelectedComponentId}
+            scrambleDisabled={isLineChartLoading}
             selectedId={selectedComponentId}
             state={state}
           />
 
           <EditorDataSection
+            defaultOpen={sectionDefaultOpen}
             groups={dataControlGroups}
             onChange={onChange}
             onCommit={onCommit}
@@ -79,6 +84,7 @@ export const EditorLeftPanel = memo(function EditorLeftPanel({
           />
 
           <EditorAnimationSection
+            defaultOpen={sectionDefaultOpen}
             onChange={onChange}
             onCommit={onCommit}
             onMotionCurveDragActiveChange={onMotionCurveDragActiveChange}

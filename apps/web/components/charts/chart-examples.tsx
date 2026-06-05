@@ -2066,7 +2066,6 @@ function makeLineExamples(): ChartExample[] {
       code: `import { LineChartLoading } from "@bklitui/ui/charts";
 
 <LineChartLoading
-  gridStrokeOpacity={0.5}
   label="Loading"
   stroke="var(--foreground)"
   strokeOpacity={0.5}

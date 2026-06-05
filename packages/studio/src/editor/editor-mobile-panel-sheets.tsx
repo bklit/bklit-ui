@@ -9,6 +9,7 @@ import { EditorAnimationSection } from "@/editor/editor-animation-section";
 import { EditorDataSection } from "@/editor/editor-data-section";
 import { EditorPropertiesSidebarHeader } from "@/editor/editor-properties-sidebar-header";
 import { useStudioComponentSelection } from "@/editor/studio-component-selection";
+import { isLineChartLoadingMode } from "@/lib/line-chart-mode";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import type { StudioChartConfig } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -120,6 +121,8 @@ export function EditorMobilePanelSheets({
     setSelectedComponentId,
     selectedComponent,
   } = useStudioComponentSelection();
+  const isLineChartLoading = isLineChartLoadingMode(state);
+  const sectionDefaultOpen = !isLineChartLoading;
 
   return (
     <>
@@ -145,10 +148,12 @@ export function EditorMobilePanelSheets({
                 onChange={onChange}
                 onScramble={onScramble}
                 onSelect={setSelectedComponentId}
+                scrambleDisabled={isLineChartLoading}
                 selectedId={selectedComponentId}
                 state={state}
               />
               <EditorDataSection
+                defaultOpen={sectionDefaultOpen}
                 groups={dataControlGroups}
                 onChange={onChange}
                 onCommit={onCommit}
@@ -156,6 +161,7 @@ export function EditorMobilePanelSheets({
                 state={state}
               />
               <EditorAnimationSection
+                defaultOpen={sectionDefaultOpen}
                 onChange={onChange}
                 onCommit={onCommit}
                 onMotionCurveDragActiveChange={onMotionCurveDragActiveChange}

@@ -163,7 +163,16 @@ export const studioSearchParams = {
   ),
   lineLoadingStroke: parseAsString.withDefault("var(--foreground)"),
   lineLoadingStrokeOpacity: parseAsFloat.withDefault(0.5),
-  lineLoadingGridOpacity: parseAsFloat.withDefault(0.5),
+  lineLoadingGridStroke: parseAsString.withDefault(
+    "color-mix(in oklch, var(--chart-grid) 50%, transparent)"
+  ),
+  lineLoadingGridShimmerStroke: parseAsString.withDefault(
+    "color-mix(in oklch, var(--foreground) 68%, transparent)"
+  ),
+  lineLoadingGridShimmer: parseAsBoolean.withDefault(true),
+  lineLoadingGridShimmerLength: parseAsFloat.withDefault(140),
+  lineLoadingGridShimmerSync: parseAsBoolean.withDefault(true),
+  lineLoadingGridShimmerSpeed: parseAsFloat.withDefault(1),
   lineLoadingLabel: parseAsString.withDefault("Loading"),
   /** Pipe-encoded Y axis id per line series (`left` / `right`). */
   lineSeriesYAxes: parseAsString.withDefault("left|left"),
@@ -319,7 +328,12 @@ export interface StudioUrlState {
   lineChartState: "ready" | "loading";
   lineLoadingStroke: string;
   lineLoadingStrokeOpacity: number;
-  lineLoadingGridOpacity: number;
+  lineLoadingGridStroke: string;
+  lineLoadingGridShimmerStroke: string;
+  lineLoadingGridShimmer: boolean;
+  lineLoadingGridShimmerLength: number;
+  lineLoadingGridShimmerSync: boolean;
+  lineLoadingGridShimmerSpeed: number;
   lineLoadingLabel: string;
   lineSeriesYAxes: string;
   lineYAxisNumTicks: string;
@@ -478,7 +492,14 @@ export function defaultStudioState(
     lineChartState: "ready",
     lineLoadingStroke: "var(--foreground)",
     lineLoadingStrokeOpacity: 0.5,
-    lineLoadingGridOpacity: 0.5,
+    lineLoadingGridStroke:
+      "color-mix(in oklch, var(--chart-grid) 50%, transparent)",
+    lineLoadingGridShimmerStroke:
+      "color-mix(in oklch, var(--foreground) 68%, transparent)",
+    lineLoadingGridShimmer: true,
+    lineLoadingGridShimmerLength: 140,
+    lineLoadingGridShimmerSync: true,
+    lineLoadingGridShimmerSpeed: 1,
     lineLoadingLabel: "Loading",
     lineSeriesYAxes: "left|left",
     lineYAxisNumTicks: "5|5",

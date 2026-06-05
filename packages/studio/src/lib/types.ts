@@ -19,10 +19,13 @@ interface NumberControlBase {
   input?: "slider" | "number";
   /** Live SVG preview while dragging (ring chart controls). */
   preview?: NumberControlPreview;
+  /** Disable when the referenced URL state value is truthy. */
+  disabledWhen?: keyof StudioUrlState;
 }
 
 export type StudioControl =
   | { type: "boolean"; key: keyof StudioUrlState; label: string }
+  | { type: "color"; key: keyof StudioUrlState; label: string }
   | ({ type: "number" } & NumberControlBase)
   | { type: "text"; key: keyof StudioUrlState; label: string }
   | {

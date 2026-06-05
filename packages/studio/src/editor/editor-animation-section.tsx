@@ -7,6 +7,7 @@ import { EditorPanelEmptyState } from "@/editor/editor-panel-empty-state";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 
 export function EditorAnimationSection({
+  defaultOpen = true,
   state,
   onChange,
   onPreview,
@@ -14,6 +15,7 @@ export function EditorAnimationSection({
   onMotionCurveDragActiveChange,
   showMotionControls = false,
 }: {
+  defaultOpen?: boolean;
   state: StudioUrlState;
   onChange: <K extends keyof StudioUrlState>(
     key: K,
@@ -32,7 +34,11 @@ export function EditorAnimationSection({
 }) {
   if (!showMotionControls) {
     return (
-      <StudioControlGroup title="Animation">
+      <StudioControlGroup
+        collapsible
+        defaultOpen={defaultOpen}
+        title="Animation"
+      >
         <EditorPanelEmptyState>
           Animation controls will appear here when your chart uses motion.
         </EditorPanelEmptyState>
@@ -43,6 +49,8 @@ export function EditorAnimationSection({
   return (
     <StudioControlGroup
       className="studio-motion-section"
+      collapsible
+      defaultOpen={defaultOpen}
       title="Animation"
       titleTrailing={<MotionResetButton onCommit={onCommit} state={state} />}
     >

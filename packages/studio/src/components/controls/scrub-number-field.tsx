@@ -42,8 +42,10 @@ export function ScrubNumberField({
   onLiveValueChange,
   onPreview,
   onCommit,
+  disabled = false,
 }: {
   className?: string;
+  disabled?: boolean;
   value: number;
   min: number;
   max: number;
@@ -107,6 +109,7 @@ export function ScrubNumberField({
   return (
     <NumberFieldRoot
       className={cn("min-w-0 flex-1", className)}
+      disabled={disabled}
       format={format}
       max={max}
       min={min}

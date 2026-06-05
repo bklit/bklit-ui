@@ -53,6 +53,7 @@ export function StudioComponentsPanel({
   state,
   onChange,
   controlsDisabled = false,
+  scrambleDisabled = false,
   onScramble,
 }: {
   components: StudioComponentDefinition[];
@@ -64,6 +65,7 @@ export function StudioComponentsPanel({
     value: StudioUrlState[K]
   ) => void;
   controlsDisabled?: boolean;
+  scrambleDisabled?: boolean;
   onScramble?: () => void;
 }) {
   const ordered = flattenStudioComponents(components);
@@ -144,7 +146,7 @@ export function StudioComponentsPanel({
       {onScramble ? (
         <div className="pt-2">
           <StudioScrambleDataButton
-            disabled={controlsDisabled}
+            disabled={controlsDisabled || scrambleDisabled}
             onScramble={onScramble}
           />
         </div>
