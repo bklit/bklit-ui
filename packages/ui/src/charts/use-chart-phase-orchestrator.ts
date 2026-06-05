@@ -13,6 +13,10 @@ export interface UseChartPhaseOrchestratorOptions {
   skeletonData: Record<string, unknown>[];
   animationDuration: number;
   yDomainTweenDuration: number;
+  /** Signature of motion URL state — replays clip reveal in Studio. */
+  revealSignature?: string;
+  /** Skip mount/signature enter reveal (static docs previews). */
+  skipEnterReveal?: boolean;
 }
 
 export function useChartPhaseOrchestrator({
@@ -21,6 +25,8 @@ export function useChartPhaseOrchestrator({
   skeletonData,
   animationDuration,
   yDomainTweenDuration,
+  revealSignature = "",
+  skipEnterReveal = false,
 }: UseChartPhaseOrchestratorOptions) {
   const [chartPhase, setChartPhase] = useState<ChartPhase>(() =>
     resolveRestingChartPhase(chartStatus)
@@ -67,6 +73,22 @@ export function useChartPhaseOrchestrator({
       setIsLoaded(false);
     }
   }, [chartStatus]);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: revealSignature replays enter
+  useEffect(() => {
+    if (skipEnterReveal) {
+      return;
+    }
+    if (chartStatus !== "ready") {
+      return;
+    }
+    if (phaseRef.current !== "ready") {
+      return;
+    }
+
+    setChartPhase("revealing");
+    setIsLoaded(false);
+  }, [animationDuration, chartStatus, revealSignature, skipEnterReveal]);
 
   useEffect(() => {
     switch (chartPhase) {

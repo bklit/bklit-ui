@@ -121,6 +121,26 @@ export function isPostOverlayComponent(child: ReactElement): boolean {
   return componentName === "ChartMarkers" || componentName === "MarkerGroup";
 }
 
+const CLIP_EXCLUDED_COMPONENT_NAMES = new Set([
+  "Grid",
+  "XAxis",
+  "YAxis",
+  "BarXAxis",
+  "BarYAxis",
+  "LiveXAxis",
+  "LiveYAxis",
+]);
+
+/** Grid and axes stay visible during series clip reveal (e.g. loading → ready). */
+export function isClipExcludedComponent(child: ReactElement): boolean {
+  const childType = child.type as { displayName?: string; name?: string };
+  const componentName =
+    typeof child.type === "function"
+      ? childType.displayName || childType.name || ""
+      : "";
+  return CLIP_EXCLUDED_COMPONENT_NAMES.has(componentName);
+}
+
 function ensureChildKey(child: ReactElement, index: number): ReactElement {
   if (child.key != null) {
     return child;
@@ -181,7 +201,7 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
   animationDuration,
   animationEasing = DEFAULT_ANIMATION_EASING,
   enterTransition,
-  revealSignature: _revealSignature = "",
+  revealSignature = "",
   children,
   containerRef,
   lines,
@@ -236,7 +256,9 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
   } = useChartPhaseOrchestrator({
     animationDuration,
     chartStatus,
+    revealSignature,
     skeletonData,
+    skipEnterReveal: staticPreview,
     targetData: data,
     yDomainTweenDuration,
   });
@@ -359,6 +381,7 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
   });
 
   const defsChildren: ReactElement[] = [];
+  const clipExcludedChildren: ReactElement[] = [];
   const preOverlayChildren: ReactElement[] = [];
   const postOverlayChildren: ReactElement[] = [];
 
@@ -375,6 +398,8 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
       preOverlayChildren.push(keyedChild);
     } else if (isPostOverlayComponent(keyedChild)) {
       postOverlayChildren.push(keyedChild);
+    } else if (isClipExcludedComponent(keyedChild)) {
+      clipExcludedChildren.push(keyedChild);
     } else {
       preOverlayChildren.push(keyedChild);
     }
@@ -541,6 +566,7 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
             y={0}
           />
 
+          {clipExcludedChildren}
           {useClipReveal ? (
             <g clipPath={`url(#${clipPathId})`}>{preOverlayChildren}</g>
           ) : (

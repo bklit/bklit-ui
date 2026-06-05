@@ -5,7 +5,6 @@ description: A composable line chart with tooltips, markers, and hover interacti
 
 import { studioChartHref } from "@bklitui/studio";
 import { LineChart, Line, Grid, XAxis, ChartTooltip, ChartMarkers } from "@bklitui/ui/charts";
-import { LineChartLoadingDemo } from "@/components/docs/line-chart-loading-demo";
 import { LineChartYDomainDemo } from "@/components/docs/line-chart-y-domain-demo";
 import { MarkerContentDemo } from "@/components/docs/marker-content-demo";
 import { OpenInStudioButton } from "@/components/docs/open-in-studio-button";
@@ -113,6 +112,11 @@ Renders grid lines.
 | `highlightRowStrokeOpacity` | `number` | `1` | Opacity for highlighted rows |
 | `highlightRowStrokeWidth` | `number` | `1` | Width for highlighted rows |
 | `highlightRowStrokeDasharray` | `string` | `"0"` | Dash pattern for highlighted rows (`"0"` = solid) |
+| `shimmer` | `boolean` | `false` | Animate a shimmer band across horizontal grid lines |
+| `shimmerStroke` | `string` | `color-mix(…)` on `--foreground` at 68% | Shimmer band color and opacity |
+| `shimmerLength` | `number` | `140` | Shimmer band width in pixels |
+| `shimmerSpeed` | `number` | `1` | Shimmer speed multiplier when sync is off (higher = faster) |
+| `shimmerSync` | `boolean` | `false` | Match shimmer timing to the line pulse (2.2s cycle + 280ms pause) |
 
 ### XAxis
 
@@ -160,13 +164,21 @@ See the [Profit/Loss Line](/docs/components/profit-loss-line) docs and the [line
 
 ## Loading state
 
-### Unified `status` API (recommended)
-
 Drive loading and ready from your data layer with a single `LineChart` — one `Grid`, one `Line`, no component swap. Set `status="loading"` while fetching; switch to `"ready"` when data resolves.
 
 **Choreography:** skeleton grid shimmer and line pulse loop → pulse exit → y-domain morph (500ms) → clip-path reveal (`cubic-bezier(0.85, 0, 0.15, 1)`) → interaction enabled.
 
 Pair `Grid` shimmer props with `Line` `loadingStroke` props. Use `loadingLabel` on `LineChart` for centered shimmer text via [`@ncdai/shimmering-text`](https://chanhdai.com/components/shimmering-text).
+
+<div className="not-prose mb-3 flex items-center justify-between gap-4">
+  <h3 className="m-0 font-semibold text-foreground text-base tracking-tight">
+    Preview
+  </h3>
+  <OpenInStudioButton
+    href={studioChartHref("line-chart", { lineChartState: "loading" })}
+    slug="line-chart"
+  />
+</div>
 
 <ComponentShowcase
   code={`const [status, setStatus] = useState<"loading" | "ready">("loading");
@@ -192,51 +204,6 @@ Pair `Grid` shimmer props with `Line` `loadingStroke` props. Use `loadingLabel` 
 </ComponentShowcase>
 
 Toggle **Loading** / **Ready** in the preview to replay the transition. When target data spans a different y-range than the skeleton, `yDomainTween` morphs the scale before the line reveals.
-
-### Standalone `LineChartLoading`
-
-Use `LineChartLoading` for a loading-only placeholder without real chart data — dashed grid, optional shimmer, looping pulse, and label.
-
-Grid and shimmer colors accept `color-mix` or `oklch` alpha strings so color and opacity are set together. Set `gridShimmerSync` to align the shimmer loop with the line pulse (2.2s cycle plus a 280ms pause between loops).
-
-<div className="not-prose mb-3 flex items-center justify-between gap-4">
-  <h3 className="m-0 font-semibold text-foreground text-base tracking-tight">
-    Preview
-  </h3>
-  <OpenInStudioButton
-    href={studioChartHref("line-chart", { lineChartState: "loading" })}
-    slug="line-chart"
-  />
-</div>
-
-<ComponentShowcase
-  code={`import { LineChartLoading } from "@bklitui/ui/charts";
-
-<LineChartLoading
-  gridShimmerSync
-  label="Loading"
-  stroke="var(--foreground)"
-  strokeOpacity={0.5}
-/>`}
-  previewMinHeight={280}
->
-  <LineChartLoadingDemo />
-</ComponentShowcase>
-
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `stroke` | `string` | `var(--foreground)` | Color of the animated loading segment |
-| `strokeOpacity` | `number` | `0.5` | Opacity of the animated segment |
-| `gridStroke` | `string` | `color-mix(…)` on `--chart-grid` at 50% | Grid line color and opacity |
-| `gridShimmerStroke` | `string` | `color-mix(…)` on `--foreground` at 68% | Shimmer band color and opacity |
-| `gridShimmer` | `boolean` | `true` | Animate a shimmer band across grid lines |
-| `gridShimmerLength` | `number` | `140` | Shimmer band width in pixels |
-| `gridShimmerSpeed` | `number` | `1` | Shimmer speed multiplier when sync is off (higher = faster) |
-| `gridShimmerSync` | `boolean` | `false` | Match shimmer timing to the line pulse (2.2s + 280ms pause) |
-| `label` | `string` | `"Loading"` | Centered shimmer text (`""` hides the label) |
-| `margin` | `Partial<Margin>` | line chart default | Chart margins |
-| `aspectRatio` | `string` | `"2 / 1"` | CSS aspect ratio |
-| `className` | `string` | `""` | Container class name |
 
 ### Studio
 

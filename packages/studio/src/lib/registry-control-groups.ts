@@ -180,6 +180,17 @@ export const composedOverlayLineControlGroups: StudioControlGroup[] = [
 ];
 
 export const areaChartControlGroups: StudioControlGroup[] = [
+  controlGroup("Settings", [
+    {
+      type: "select",
+      key: "areaChartState",
+      label: "State",
+      options: [
+        { value: "ready", label: "Ready" },
+        { value: "loading", label: "Loading" },
+      ],
+    },
+  ]),
   dataGroup(),
   designGroup([
     {

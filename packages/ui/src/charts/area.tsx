@@ -7,10 +7,17 @@ import { AreaClosed, LinePath } from "@visx/shape";
 // biome-ignore lint/suspicious/noExplicitAny: d3 curve factory type
 type CurveFactory = any;
 
-import { useCallback, useId, useMemo, useRef } from "react";
+import { useCallback, useId, useMemo, useRef, useState } from "react";
 import { AreaGradientDefs } from "./area-gradient-defs";
 import { chartCssVars, useChartStable, useYScale } from "./chart-context";
+import type { ChartPhase } from "./chart-phase";
 import { type FadeEdges, resolveFadeSides } from "./fade-edges";
+import {
+  type LineLoadingPulseMode,
+  LineLoadingPulseStroke,
+  resolveLineLoadingPulseMode,
+} from "./line-loading-pulse";
+import { LINE_LOADING_LOOP_PAUSE_MS } from "./line-loading-timing";
 import {
   resolveDashTailBounds,
   usePathStrokeMetrics,
@@ -63,8 +70,55 @@ export interface AreaProps {
   dashFromIndex?: number;
   /** Dash pattern for the tail segment when `dashFromIndex` is set. Default: "6,4" */
   dashArray?: string;
+  /** Pulse stroke color while chart is loading. Default: var(--foreground) */
+  loadingStroke?: string;
+  /** Pulse stroke opacity while chart is loading. Default: 0.5 */
+  loadingStrokeOpacity?: number;
+  /**
+   * Show the loading pulse overlay. Default: follows chart loading phase.
+   * Set `false` to disable even during loading.
+   */
+  loading?: boolean;
+  /** Override pulse animation mode (loop / exit / enter). */
+  loadingPulseMode?: LineLoadingPulseMode;
 }
 
+function useAreaLoadingPulseState(
+  chartPhase: ChartPhase,
+  loading: boolean | undefined,
+  loadingPulseMode: LineLoadingPulseMode | undefined,
+  notifyLoadingPulseComplete?: () => void
+) {
+  const phasePulseMode = resolveLineLoadingPulseMode(chartPhase);
+  const pulseMode =
+    loading === false
+      ? null
+      : (loadingPulseMode ?? (loading === true ? "loop" : phasePulseMode));
+  const showLoadingPulse = pulseMode != null;
+  const showSeriesContent =
+    chartPhase === "revealing" || chartPhase === "ready";
+  const [pulseEpoch, setPulseEpoch] = useState(0);
+
+  const handleLoadingPulseComplete = useCallback(() => {
+    if (pulseMode === "loop") {
+      window.setTimeout(() => {
+        setPulseEpoch((epoch) => epoch + 1);
+      }, LINE_LOADING_LOOP_PAUSE_MS);
+      return;
+    }
+    notifyLoadingPulseComplete?.();
+  }, [notifyLoadingPulseComplete, pulseMode]);
+
+  return {
+    handleLoadingPulseComplete,
+    pulseMode,
+    pulseEpoch,
+    showLoadingPulse,
+    showSeriesContent,
+  };
+}
+
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: mirrors Line series layout (fill, stroke, dash, markers, pulse)
 export function Area({
   dataKey,
   yAxisId,
@@ -82,6 +136,10 @@ export function Area({
   markers,
   dashFromIndex,
   dashArray = "6,4",
+  loading,
+  loadingStroke = chartCssVars.foreground,
+  loadingStrokeOpacity = 0.5,
+  loadingPulseMode,
 }: AreaProps) {
   // Stable slice only: hover state lives inside `<SeriesHoverDim>` and
   // `<SeriesHighlightLayer>` so this component (and its expensive
@@ -97,8 +155,22 @@ export function Area({
     innerWidth,
     xAccessor,
     lines,
+    chartPhase,
+    notifyLoadingPulseComplete,
   } = useChartStable();
   const yScale = useYScale(yAxisId);
+  const {
+    handleLoadingPulseComplete,
+    pulseMode,
+    pulseEpoch,
+    showLoadingPulse,
+    showSeriesContent,
+  } = useAreaLoadingPulseState(
+    chartPhase,
+    loading,
+    loadingPulseMode,
+    notifyLoadingPulseComplete
+  );
 
   const seriesIndex = useMemo(() => {
     const index = lines.findIndex((line) => line.dataKey === dataKey);
@@ -111,6 +183,8 @@ export function Area({
     innerWidth,
     dashFromIndex,
     showLine,
+    showSeriesContent,
+    showLoadingPulse,
   ]);
 
   // Unique IDs for this area
@@ -143,7 +217,14 @@ export function Area({
   const strokePaint = fadeSides.any
     ? `url(#${strokeGradientId})`
     : resolvedStroke;
-  const highlightEnabled = showHighlight && showLine;
+  const highlightEnabled =
+    showHighlight && showLine && !showLoadingPulse && showSeriesContent;
+  const showSeriesStroke = showSeriesContent && showLine;
+  let visibleStroke = "transparent";
+  if (showSeriesStroke && !hasDashTail) {
+    visibleStroke = strokePaint;
+  }
+  const shouldMeasurePath = showLine && (showSeriesContent || showLoadingPulse);
 
   return (
     <>
@@ -168,7 +249,7 @@ export function Area({
         seriesIndex={seriesIndex}
       >
         {/* Area fill */}
-        {showAreaFill ? (
+        {showSeriesContent && showAreaFill ? (
           <g
             mask={
               fadeSides.any && !isPatternFill
@@ -187,32 +268,34 @@ export function Area({
           </g>
         ) : null}
 
-        {/* Stroke line on top of area */}
-        {showLine ? (
+        {/* Keep LinePath mounted during loading pulse so path metrics stay in sync. */}
+        {shouldMeasurePath ? (
           <>
             <LinePath
               curve={curve}
               data={renderData}
               innerRef={pathRef}
-              stroke={hasDashTail ? "transparent" : strokePaint}
+              stroke={visibleStroke}
               strokeLinecap="round"
               strokeWidth={strokeWidth}
               x={(d) => xScale(xAccessor(d)) ?? 0}
               y={getY}
             />
-            <SeriesDashTailOverlay
-              dashArray={dashArray}
-              dashFromIndex={dashFromIndex}
-              data={data}
-              innerHeight={innerHeight}
-              innerWidth={innerWidth}
-              pathD={pathD}
-              pathLength={pathLength}
-              stroke={strokePaint}
-              strokeWidth={strokeWidth}
-              xAccessor={xAccessor}
-              xScale={xScale}
-            />
+            {showSeriesStroke ? (
+              <SeriesDashTailOverlay
+                dashArray={dashArray}
+                dashFromIndex={dashFromIndex}
+                data={data}
+                innerHeight={innerHeight}
+                innerWidth={innerWidth}
+                pathD={pathD}
+                pathLength={pathLength}
+                stroke={strokePaint}
+                strokeWidth={strokeWidth}
+                xAccessor={xAccessor}
+                xScale={xScale}
+              />
+            ) : null}
           </>
         ) : null}
       </SeriesHoverDim>
@@ -226,13 +309,25 @@ export function Area({
         strokeWidth={strokeWidth}
       />
 
-      {showMarkers ? (
+      {showMarkers && showSeriesContent ? (
         <SeriesMarkers
           animate={animate}
           dataKey={dataKey}
           {...markers}
           fill={markers?.fill ?? resolvedStroke}
           stroke={markers?.stroke ?? markers?.fill ?? resolvedStroke}
+        />
+      ) : null}
+
+      {showLoadingPulse && pathD && innerWidth > 0 ? (
+        <LineLoadingPulseStroke
+          key={`${pulseMode}-${pulseMode === "loop" ? pulseEpoch : chartPhase}`}
+          mode={pulseMode ?? undefined}
+          onCycleComplete={handleLoadingPulseComplete}
+          pathD={pathD}
+          stroke={loadingStroke}
+          strokeOpacity={loadingStrokeOpacity}
+          strokeWidth={strokeWidth}
         />
       ) : null}
     </>

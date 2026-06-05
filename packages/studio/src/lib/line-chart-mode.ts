@@ -11,6 +11,14 @@ export function isLineChartLoadingMode(state: StudioUrlState) {
   return state.chart === "line-chart" && state.lineChartState === "loading";
 }
 
+export function isAreaChartLoadingMode(state: StudioUrlState) {
+  return state.chart === "area-chart" && state.areaChartState === "loading";
+}
+
+export function isCartesianLoadingMode(state: StudioUrlState) {
+  return isLineChartLoadingMode(state) || isAreaChartLoadingMode(state);
+}
+
 export const lineChartProfitLossDefaults: Partial<StudioUrlState> = {
   lineChartMode: "profitLoss",
   hiddenComponents: chartDefaultHiddenYAxes("line"),
