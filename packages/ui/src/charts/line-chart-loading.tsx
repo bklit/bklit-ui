@@ -94,7 +94,7 @@ export function LineChartLoading({
         margin={margin}
       >
         <LoadingGrid
-          key={gridShimmerSync ? pulseEpoch : "loading-grid"}
+          key={gridShimmerSync ? `loading-grid-${pulseEpoch}` : "loading-grid"}
           shimmer={gridShimmer}
           shimmerLength={gridShimmerLength}
           shimmerSpeed={gridShimmerSpeed}
