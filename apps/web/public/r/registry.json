@@ -612,6 +612,7 @@
         "@bklit/grid",
         "@bklit/x-axis",
         "@bklit/chart-tooltip",
+        "@ncdai/shimmering-text",
         "@bklit/utils"
       ],
       "dependencies": [
@@ -639,6 +640,21 @@
           "path": "src/charts/line.tsx",
           "type": "registry:component",
           "target": "components/charts/line.tsx"
+        },
+        {
+          "path": "src/charts/line-chart-loading.tsx",
+          "type": "registry:component",
+          "target": "components/charts/line-chart-loading.tsx"
+        },
+        {
+          "path": "src/charts/line-loading-pulse.tsx",
+          "type": "registry:component",
+          "target": "components/charts/line-loading-pulse.tsx"
+        },
+        {
+          "path": "src/charts/chart-loading-label.tsx",
+          "type": "registry:component",
+          "target": "components/charts/chart-loading-label.tsx"
         }
       ]
     },
