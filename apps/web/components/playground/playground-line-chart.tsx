@@ -60,6 +60,7 @@ export function PlaygroundLineChart({
   const motionProps = getStudioCssRevealPropsForPreview(state, {
     motionCurveDragging,
     committedState,
+    numberScrubbing: false,
     isRecording: false,
   });
 
