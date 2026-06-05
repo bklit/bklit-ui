@@ -22,6 +22,8 @@ export function PlaygroundProfitLossLineChart({
     dataSeed: 0,
     committedState,
     motionCurveDragging,
+    numberScrubbing: false,
+    chromeState: state,
     motionRemountKey: "",
     patternDefs: null,
     patternFillAt: () => undefined,

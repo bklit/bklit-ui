@@ -5,7 +5,7 @@ import {
   ChartLegendHoverProvider,
   type LegendItem,
 } from "@bklitui/ui/charts";
-import { type ReactNode, useState } from "react";
+import { memo, type ReactNode, useState } from "react";
 import { StudioChartContentViewport } from "@/lib/studio-chart-content-frame";
 import {
   studioChartGridLayout,
@@ -52,7 +52,7 @@ function enrichLegendItemsForProgress(
   }));
 }
 
-function StudioChartLegend({
+const StudioChartLegend = memo(function StudioChartLegend({
   state,
   legendItems,
   hoveredIndex,
@@ -76,9 +76,9 @@ function StudioChartLegend({
       />
     </div>
   );
-}
+});
 
-export function StudioChartShell({
+export const StudioChartShell = memo(function StudioChartShell({
   state,
   legendComponentId,
   legendItems = [],
@@ -141,4 +141,4 @@ export function StudioChartShell({
       </div>
     </ChartLegendHoverProvider>
   );
-}
+});

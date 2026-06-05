@@ -13,6 +13,10 @@ export interface StudioRenderContext {
   /** Committed URL state (without slider / bezier preview overrides). */
   committedState: StudioUrlState;
   motionCurveDragging: boolean;
+  /** True while scrubbing a NumberField — legend/theme/patterns stay on committed state. */
+  numberScrubbing: boolean;
+  /** Shell chrome state (legend grid, theme) — committed while numberScrubbing. */
+  chromeState: StudioUrlState;
   patternDefs: ReactNode;
   patternFillAt: (seriesIndex: number) => string | undefined;
   frame: StudioFrameSize;

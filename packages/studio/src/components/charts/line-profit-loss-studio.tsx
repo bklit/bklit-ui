@@ -99,6 +99,7 @@ export function LineProfitLossStudioChart({
   );
   const motionProps = getStudioCssRevealPropsForPreview(state, {
     motionCurveDragging: ctx.motionCurveDragging,
+    numberScrubbing: ctx.numberScrubbing,
     committedState: ctx.committedState,
     isRecording: ctx.isRecording,
   });
@@ -115,7 +116,7 @@ export function LineProfitLossStudioChart({
           onHoverChange={setLegendHoveredIndex}
         />
       )}
-      state={state}
+      state={ctx.chromeState}
     >
       <StudioCartesianFill className="size-full">
         <LineChart

@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { StudioComponentsPanel } from "@/components/studio-components-panel";
 import { StudioScrollArea } from "@/components/studio-scroll-area";
 import { EditorAnimationSection } from "@/editor/editor-animation-section";
@@ -9,7 +10,7 @@ import { useStudioComponentSelection } from "@/editor/studio-component-selection
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import type { StudioChartConfig } from "@/lib/types";
 
-export function EditorLeftPanel({
+export const EditorLeftPanel = memo(function EditorLeftPanel({
   config,
   state,
   onChange,
@@ -89,4 +90,4 @@ export function EditorLeftPanel({
       </StudioScrollArea>
     </EditorCollapsiblePane>
   );
-}
+});

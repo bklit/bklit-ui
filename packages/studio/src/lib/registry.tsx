@@ -157,7 +157,7 @@ const areaConfig: StudioChartConfig = {
       <StudioChartShell
         legendComponentId="area.legend"
         legendItems={studioAreaLegendItems(state)}
-        state={state}
+        state={ctx.chromeState}
       >
         <StudioCartesianFill>
           <AreaChart
@@ -259,7 +259,7 @@ const lineConfig: StudioChartConfig = {
       <StudioChartShell
         legendComponentId="line.legend"
         legendItems={studioCartesianLegendItems(state, seriesCount)}
-        state={state}
+        state={ctx.chromeState}
       >
         <StudioCartesianFill>
           <LineChart
@@ -334,7 +334,7 @@ const scatterConfig: StudioChartConfig = {
             ]
           : []),
       ]}
-      state={state}
+      state={ctx.chromeState}
     >
       <StudioCartesianFill>
         <ScatterChart
@@ -429,7 +429,7 @@ const barConfig: StudioChartConfig = {
       <StudioChartShell
         legendComponentId="bar.legend"
         legendItems={studioCartesianLegendItems(state, seriesCount)}
-        state={state}
+        state={ctx.chromeState}
       >
         <StudioCartesianFill>
           <BarChart
@@ -514,7 +514,7 @@ const composedConfig: StudioChartConfig = {
       <StudioChartShell
         legendComponentId="composed.legend"
         legendItems={studioCartesianLegendItems(state, seriesCount)}
-        state={state}
+        state={ctx.chromeState}
       >
         <StudioCartesianFill>
           <ComposedChart

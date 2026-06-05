@@ -99,7 +99,7 @@ export function CandlestickStudioPreview({
     <StudioChartShell
       legendComponentId="candlestick.legend"
       legendItems={legendItems}
-      state={state}
+      state={ctx.chromeState}
     >
       <CandlestickChartBody
         ctx={ctx}

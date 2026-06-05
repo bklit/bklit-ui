@@ -5,20 +5,19 @@ import { StudioControlGroups } from "@/components/studio-control-groups";
 import { StudioPanel } from "@/components/studio-panel";
 import { StudioScrollArea } from "@/components/studio-scroll-area";
 import { getStudioControlGroups } from "@/lib/control-groups";
-import { useStudioState } from "./use-studio-state";
+import { useStudioShellState } from "./use-studio-state";
 
 export function StudioSidebar() {
   const {
     state,
-    displayState,
     setChart,
     setParam,
     setPreviewParam,
     commitParam,
     setMotionCurveDragging,
     config,
-  } = useStudioState();
-  const groups = getStudioControlGroups(config, displayState);
+  } = useStudioShellState();
+  const groups = getStudioControlGroups(config, state);
 
   return (
     <StudioPanel
@@ -36,7 +35,7 @@ export function StudioSidebar() {
           onCommit={commitParam}
           onMotionCurveDragActiveChange={setMotionCurveDragging}
           onPreview={setPreviewParam}
-          state={displayState}
+          state={state}
         />
       </StudioScrollArea>
     </StudioPanel>

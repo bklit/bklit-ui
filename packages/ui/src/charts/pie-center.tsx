@@ -58,10 +58,12 @@ export function PieCenter({
   prefix,
   suffix,
 }: PieCenterProps) {
-  const { data, totalValue, innerRadius } = usePieStable();
+  const { data, totalValue, innerRadius, geometryScrubbing } = usePieStable();
   const { hoveredIndex } = usePieHover();
 
-  const hoveredData = hoveredIndex === null ? null : data[hoveredIndex];
+  const effectiveHoveredIndex = geometryScrubbing ? null : hoveredIndex;
+  const hoveredData =
+    effectiveHoveredIndex === null ? null : data[effectiveHoveredIndex];
   const displayValue = hoveredData ? hoveredData.value : totalValue;
   const displayLabel = hoveredData ? hoveredData.label : defaultLabel;
 
@@ -88,7 +90,7 @@ export function PieCenter({
         {children({
           value: displayValue,
           label: displayLabel,
-          isHovered: hoveredIndex !== null,
+          isHovered: effectiveHoveredIndex !== null,
           data: hoveredData,
         })}
       </div>
