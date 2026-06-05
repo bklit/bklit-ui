@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useMemo } from "react";
 import type { Margin } from "./chart-context";
 import { ChartLoadingLabel } from "./chart-loading-label";
 import {
@@ -8,11 +8,9 @@ import {
   DEFAULT_SKELETON_POINT_COUNT,
   generateChartSkeletonData,
 } from "./generate-chart-skeleton-data";
+import { Grid } from "./grid";
 import { Line } from "./line";
 import { LineChart } from "./line-chart";
-import { LineLoadingPulse } from "./line-loading-pulse";
-import { LINE_LOADING_LOOP_PAUSE_MS } from "./line-loading-timing";
-import { LoadingGrid } from "./loading-grid";
 
 const LOADING_DATA_KEY = DEFAULT_SKELETON_DATA_KEY;
 const DEFAULT_LOADING_STROKE = "var(--foreground)";
@@ -63,7 +61,6 @@ export function LineChartLoading({
   aspectRatio = "2 / 1",
   className = "",
 }: LineChartLoadingProps) {
-  const [pulseEpoch, setPulseEpoch] = useState(0);
   const data = useMemo(
     () =>
       generateChartSkeletonData({
@@ -72,12 +69,6 @@ export function LineChartLoading({
       }),
     []
   );
-
-  const handleCycleComplete = useCallback(() => {
-    window.setTimeout(() => {
-      setPulseEpoch((epoch) => epoch + 1);
-    }, LINE_LOADING_LOOP_PAUSE_MS);
-  }, []);
 
   return (
     <div className="relative size-full">
@@ -89,8 +80,8 @@ export function LineChartLoading({
         margin={margin}
         status="loading"
       >
-        <LoadingGrid
-          key={gridShimmerSync ? `loading-grid-${pulseEpoch}` : "loading-grid"}
+        <Grid
+          horizontal
           shimmer={gridShimmer}
           shimmerLength={gridShimmerLength}
           shimmerSpeed={gridShimmerSpeed}
@@ -101,16 +92,11 @@ export function LineChartLoading({
         <Line
           dataKey={LOADING_DATA_KEY}
           fadeEdges={false}
+          loadingStroke={stroke}
+          loadingStrokeOpacity={strokeOpacity}
           showHighlight={false}
           stroke="transparent"
           strokeWidth={2.5}
-        />
-        <LineLoadingPulse
-          dataKey={LOADING_DATA_KEY}
-          key={pulseEpoch}
-          onCycleComplete={handleCycleComplete}
-          stroke={stroke}
-          strokeOpacity={strokeOpacity}
         />
       </LineChart>
       <ChartLoadingLabel text={label} />

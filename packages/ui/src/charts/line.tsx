@@ -7,13 +7,19 @@ import { LinePath } from "@visx/shape";
 // biome-ignore lint/suspicious/noExplicitAny: d3 curve factory type
 type CurveFactory = any;
 
-import { useCallback, useId, useMemo, useRef } from "react";
+import { useCallback, useId, useMemo, useRef, useState } from "react";
 import { chartCssVars, useChartStable, useYScale } from "./chart-context";
 import {
   type FadeEdges,
   fadeGradientStops,
   resolveFadeSides,
 } from "./fade-edges";
+import {
+  type LineLoadingPulseMode,
+  LineLoadingPulseStroke,
+  resolveLineLoadingPulseMode,
+} from "./line-loading-pulse";
+import { LINE_LOADING_LOOP_PAUSE_MS } from "./line-loading-timing";
 import {
   resolveDashTailBounds,
   usePathStrokeMetrics,
@@ -57,6 +63,19 @@ export interface LineProps {
   dashFromIndex?: number;
   /** Dash pattern for the tail segment when `dashFromIndex` is set. Default: "6,4" */
   dashArray?: string;
+  /**
+   * Show the loading pulse overlay. Default: follows chart loading phase.
+   * Set `false` to disable even during loading.
+   */
+  loading?: boolean;
+  /** Stroke color for the loading pulse overlay. Default: var(--foreground) */
+  loadingStroke?: string;
+  /** Loading pulse stroke opacity. Default: 0.5 */
+  loadingStrokeOpacity?: number;
+  /** Override pulse animation mode (loop / exit / enter). */
+  loadingPulseMode?: LineLoadingPulseMode;
+  /** Called when a loop-mode pulse cycle completes. */
+  onLoadingPulseCycleComplete?: () => void;
 }
 
 export function Line({
@@ -72,6 +91,11 @@ export function Line({
   markers,
   dashFromIndex,
   dashArray = "6,4",
+  loading,
+  loadingStroke = chartCssVars.foreground,
+  loadingStrokeOpacity = 0.5,
+  loadingPulseMode,
+  onLoadingPulseCycleComplete,
 }: LineProps) {
   // Stable slice only: hover state lives inside `<SeriesHoverDim>` and
   // `<SeriesHighlightLayer>` so this component (and its expensive
@@ -87,8 +111,28 @@ export function Line({
     innerWidth,
     xAccessor,
     lines,
+    chartPhase,
   } = useChartStable();
   const yScale = useYScale(yAxisId);
+
+  const phasePulseMode = resolveLineLoadingPulseMode(chartPhase);
+  const pulseMode =
+    loading === false
+      ? null
+      : (loadingPulseMode ?? (loading === true ? "loop" : phasePulseMode));
+  const showLoadingPulse = pulseMode != null;
+  const [pulseEpoch, setPulseEpoch] = useState(0);
+  const effectiveShowHighlight = showHighlight && !showLoadingPulse;
+
+  const handleLoadingPulseComplete = useCallback(() => {
+    onLoadingPulseCycleComplete?.();
+    if (pulseMode !== "loop") {
+      return;
+    }
+    window.setTimeout(() => {
+      setPulseEpoch((epoch) => epoch + 1);
+    }, LINE_LOADING_LOOP_PAUSE_MS);
+  }, [onLoadingPulseCycleComplete, pulseMode]);
 
   const seriesIndex = useMemo(() => {
     const index = lines.findIndex((line) => line.dataKey === dataKey);
@@ -137,7 +181,7 @@ export function Line({
 
       <SeriesHoverDim
         dimOpacity={0.3}
-        enabled={showHighlight}
+        enabled={effectiveShowHighlight}
         seriesIndex={seriesIndex}
       >
         <LinePath
@@ -177,12 +221,24 @@ export function Line({
       ) : null}
 
       <SeriesHighlightLayer
-        enabled={showHighlight}
+        enabled={effectiveShowHighlight}
         height={innerHeight}
         pathRef={pathRef}
         stroke={stroke}
         strokeWidth={strokeWidth}
       />
+
+      {showLoadingPulse && pathD && innerWidth > 0 ? (
+        <LineLoadingPulseStroke
+          key={`${pulseMode}-${pulseEpoch}`}
+          mode={pulseMode}
+          onCycleComplete={handleLoadingPulseComplete}
+          pathD={pathD}
+          stroke={loadingStroke}
+          strokeOpacity={loadingStrokeOpacity}
+          strokeWidth={strokeWidth}
+        />
+      ) : null}
     </>
   );
 }

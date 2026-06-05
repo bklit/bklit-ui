@@ -170,7 +170,11 @@ export {
 } from "./line-chart-loading";
 export {
   LineLoadingPulse,
+  type LineLoadingPulseMode,
   type LineLoadingPulseProps,
+  LineLoadingPulseStroke,
+  type LineLoadingPulseStrokeProps,
+  resolveLineLoadingPulseMode,
 } from "./line-loading-pulse";
 export {
   detectMomentum,

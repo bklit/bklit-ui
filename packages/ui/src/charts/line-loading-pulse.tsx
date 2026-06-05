@@ -12,6 +12,7 @@ import {
   useState,
 } from "react";
 import { chartCssVars, useChartStable, useYScale } from "./chart-context";
+import type { ChartPhase } from "./chart-phase";
 import { fadeGradientStops, resolveFadeSides } from "./fade-edges";
 import {
   LINE_LOADING_PULSE_CYCLE_S,
@@ -20,13 +21,31 @@ import {
 
 const CLIP_PADDING = 10;
 
+export type LineLoadingPulseMode = "loop" | "exit" | "enter";
+
+export function resolveLineLoadingPulseMode(
+  phase: ChartPhase
+): LineLoadingPulseMode | null {
+  switch (phase) {
+    case "loading":
+      return "loop";
+    case "exiting":
+      return "exit";
+    case "revealingLoading":
+      return "enter";
+    default:
+      return null;
+  }
+}
+
 interface PathMetrics {
   pathD: string | null;
   pathLength: number;
 }
 
-export interface LineLoadingPulseProps {
-  dataKey: string;
+export interface LineLoadingPulseStrokeProps {
+  pathD: string;
+  mode?: LineLoadingPulseMode;
   stroke?: string;
   /** Stroke opacity for the animated segment. Default: 0.5 */
   strokeOpacity?: number;
@@ -34,8 +53,12 @@ export interface LineLoadingPulseProps {
   onCycleComplete?: () => void;
 }
 
-function useGrowExitClip(innerWidth: number, onCycleComplete?: () => void) {
-  const progress = useMotionValue(0);
+function useGrowExitClip(
+  innerWidth: number,
+  mode: LineLoadingPulseMode,
+  onComplete?: () => void
+) {
+  const progress = useMotionValue(mode === "exit" ? 0.5 : 0);
   const paddedFullWidth = innerWidth + CLIP_PADDING * 2;
   const rightEdge = innerWidth + CLIP_PADDING;
 
@@ -60,43 +83,57 @@ function useGrowExitClip(innerWidth: number, onCycleComplete?: () => void) {
       return;
     }
 
-    progress.set(0);
-    const controls = animate(progress, 1, {
-      duration: LINE_LOADING_PULSE_CYCLE_S,
+    const halfCycleS = LINE_LOADING_PULSE_CYCLE_S / 2;
+    let from = 0;
+    let to = 1;
+    let duration = LINE_LOADING_PULSE_CYCLE_S;
+
+    if (mode === "exit") {
+      from = 0.5;
+      to = 1;
+      duration = halfCycleS;
+    } else if (mode === "enter") {
+      from = 0;
+      to = 0.5;
+      duration = halfCycleS;
+    }
+
+    progress.set(from);
+    const controls = animate(progress, to, {
+      duration,
       ease: [...LINE_LOADING_PULSE_EASE],
-      onComplete: () => onCycleComplete?.(),
+      onComplete: () => onComplete?.(),
     });
 
     return () => controls.stop();
-  }, [innerWidth, onCycleComplete, progress]);
+  }, [innerWidth, mode, onComplete, progress]);
 
   return { clipX, clipWidth };
 }
 
-function LoadingGrowStroke({
+export function LineLoadingPulseStroke({
   pathD,
-  clipPathId,
-  gradientId,
-  innerHeight,
-  innerWidth,
+  mode = "loop",
+  stroke = chartCssVars.foreground,
+  strokeOpacity = 0.5,
+  strokeWidth = 2.5,
   onCycleComplete,
-  stroke,
-  strokeOpacity,
-  strokeWidth,
-}: {
-  pathD: string;
-  clipPathId: string;
-  gradientId: string;
-  innerHeight: number;
-  innerWidth: number;
-  onCycleComplete?: () => void;
-  stroke: string;
-  strokeOpacity: number;
-  strokeWidth: number;
-}) {
+}: LineLoadingPulseStrokeProps) {
+  const { innerWidth, innerHeight } = useChartStable();
+  const reactId = useId();
+  const clipPathId = `line-loading-clip-${reactId}`;
+  const gradientId = `line-loading-gradient-${reactId}`;
   const fadeStops = fadeGradientStops(resolveFadeSides(true));
   const clipHeight = innerHeight + CLIP_PADDING * 2;
-  const { clipX, clipWidth } = useGrowExitClip(innerWidth, onCycleComplete);
+  const { clipX, clipWidth } = useGrowExitClip(
+    innerWidth,
+    mode,
+    onCycleComplete
+  );
+
+  if (innerWidth <= 0) {
+    return null;
+  }
 
   return (
     <>
@@ -132,8 +169,20 @@ function LoadingGrowStroke({
   );
 }
 
+export interface LineLoadingPulseProps {
+  dataKey: string;
+  mode?: LineLoadingPulseMode;
+  stroke?: string;
+  /** Stroke opacity for the animated segment. Default: 0.5 */
+  strokeOpacity?: number;
+  strokeWidth?: number;
+  onCycleComplete?: () => void;
+}
+
+/** Standalone loading pulse — prefer `<Line loadingStroke={…} />` on unified charts. */
 export function LineLoadingPulse({
   dataKey,
+  mode = "loop",
   stroke = chartCssVars.foreground,
   strokeOpacity = 0.5,
   strokeWidth = 2.5,
@@ -147,9 +196,6 @@ export function LineLoadingPulse({
     pathD: null,
     pathLength: 0,
   });
-  const reactId = useId();
-  const clipPathId = `line-loading-clip-${reactId}`;
-  const gradientId = `line-loading-gradient-${reactId}`;
 
   const getY = useCallback(
     (d: Record<string, unknown>) => {
@@ -188,11 +234,8 @@ export function LineLoadingPulse({
         y={getY}
       />
       {pathMetrics.pathD && pathMetrics.pathLength > 0 && innerWidth > 0 ? (
-        <LoadingGrowStroke
-          clipPathId={clipPathId}
-          gradientId={gradientId}
-          innerHeight={innerHeight}
-          innerWidth={innerWidth}
+        <LineLoadingPulseStroke
+          mode={mode}
           onCycleComplete={onCycleComplete}
           pathD={pathMetrics.pathD}
           stroke={stroke}
@@ -205,5 +248,6 @@ export function LineLoadingPulse({
 }
 
 LineLoadingPulse.displayName = "LineLoadingPulse";
+LineLoadingPulseStroke.displayName = "LineLoadingPulseStroke";
 
 export default LineLoadingPulse;

@@ -184,14 +184,19 @@ Grid and shimmer colors accept `color-mix` or `oklch` alpha strings so color and
 
 ### Status and Y-domain tween (preview)
 
-Toggle **Loading** / **Ready** to preview the 500ms y-axis morph when `status` changes on a single `LineChart` tree.
+Toggle **Loading** / **Ready** on a single `LineChart` with one `Grid` and one `Line` — the loading pulse is driven by chart phase on `Line` (no separate `LineLoadingPulse` sibling).
 
 <ComponentShowcase
   code={`const [status, setStatus] = useState<"loading" | "ready">("loading");
 
 <LineChart data={data} status={status} yDomainTween>
   <Grid horizontal shimmer shimmerSync />
-  <Line dataKey="revenue" />
+  <Line
+    dataKey="revenue"
+    loadingStroke="var(--foreground)"
+    loadingStrokeOpacity={0.5}
+    stroke={status === "ready" ? "var(--chart-line-primary)" : "transparent"}
+  />
 </LineChart>`}
   previewMinHeight={320}
 >
