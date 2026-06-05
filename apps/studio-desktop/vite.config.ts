@@ -28,12 +28,23 @@ function monorepoAtAlias(): Plugin {
   return {
     name: "monorepo-at-alias",
     resolveId(source, importer) {
+      if (source === "@/lib/utils") {
+        return path.resolve(uiSrc, "lib/utils.ts");
+      }
+
       if (!source.startsWith("@/")) {
         return null;
       }
 
       const subpath = source.slice(2);
       const normalizedImporter = importer?.replace(/\\/g, "/") ?? "";
+
+      if (subpath === "components/shimmering-text") {
+        return path.resolve(
+          monorepoRoot,
+          "apps/web/components/shimmering-text.tsx"
+        );
+      }
 
       if (normalizedImporter.includes("/packages/ui/")) {
         return resolveExistingFile(path.resolve(uiSrc, subpath));
