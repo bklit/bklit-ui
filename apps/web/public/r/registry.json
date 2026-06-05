@@ -652,6 +652,16 @@
           "target": "components/charts/line-loading-pulse.tsx"
         },
         {
+          "path": "src/charts/line-loading-timing.ts",
+          "type": "registry:component",
+          "target": "components/charts/line-loading-timing.ts"
+        },
+        {
+          "path": "src/charts/loading-grid.tsx",
+          "type": "registry:component",
+          "target": "components/charts/loading-grid.tsx"
+        },
+        {
           "path": "src/charts/chart-loading-label.tsx",
           "type": "registry:component",
           "target": "components/charts/chart-loading-label.tsx"
