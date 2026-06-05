@@ -38,9 +38,10 @@ import {
   computeSeriesBarWidth,
 } from "./series-bar-layout";
 import { useStaticChartPreview } from "./static-chart-preview-context";
+import { useAnimatedYDomains } from "./use-animated-y-domains";
 import { useChartInteraction } from "./use-chart-interaction";
 import {
-  buildYScalesForLines,
+  buildYScalesFromDomains,
   DEFAULT_Y_AXIS_ID,
   getPrimaryYScale,
   groupLinesByYAxisId,
@@ -152,6 +153,8 @@ export interface TimeSeriesChartInnerProps {
   /** Loading vs ready — drives chart phase until transition orchestration lands. */
   chartStatus?: ChartStatus;
   loadingLabel?: string;
+  /** Animate y-domain on status / data transitions. Default: true */
+  yDomainTween?: boolean;
   yDomainTweenDuration?: number;
 }
 
@@ -187,6 +190,7 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
   yScaleDomainMax,
   chartStatus = DEFAULT_CHART_STATUS,
   loadingLabel,
+  yDomainTween = true,
   yDomainTweenDuration = DEFAULT_Y_DOMAIN_TWEEN_MS,
 }: TimeSeriesChartInnerProps) {
   const staticPreview = useStaticChartPreview();
@@ -274,15 +278,22 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
     [data, lines, resolveYDomain]
   );
 
+  const animatedYDomainsByAxis = useAnimatedYDomains({
+    enabled: yDomainTween,
+    durationMs: yDomainTweenDuration,
+    chartStatus,
+    skeletonByAxis: yDomainSkeletonByAxis,
+    targetByAxis: yDomainTargetByAxis,
+  });
+
   const yScales = useMemo(
     () =>
-      buildYScalesForLines({
+      buildYScalesFromDomains({
         lines,
-        data,
         innerHeight,
-        resolveDomain: (dataKeys) => resolveYDomain(data, dataKeys),
+        domainsByAxis: animatedYDomainsByAxis,
       }),
-    [innerHeight, data, lines, resolveYDomain]
+    [animatedYDomainsByAxis, innerHeight, lines]
   );
 
   const yScale = getPrimaryYScale(

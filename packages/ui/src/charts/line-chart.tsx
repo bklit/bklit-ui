@@ -43,6 +43,8 @@ export interface LineChartProps {
   loadingLabel?: string;
   /** Animate y-domain over this duration (ms) on status transitions. Default: 500. */
   yDomainTweenDuration?: number;
+  /** Animate y-domain when status or target domain changes. Default: true */
+  yDomainTween?: boolean;
   /** Child components (Line, Grid, ChartTooltip, etc.) */
   children: ReactNode;
 }
@@ -131,6 +133,7 @@ interface ChartInnerProps {
   chartStatus: ChartStatus;
   loadingLabel?: string;
   yDomainTweenDuration: number;
+  yDomainTween: boolean;
   children: ReactNode;
   containerRef: React.RefObject<HTMLDivElement | null>;
 }
@@ -148,6 +151,7 @@ function ChartInner({
   chartStatus,
   loadingLabel,
   yDomainTweenDuration,
+  yDomainTween,
   children,
   containerRef,
 }: ChartInnerProps) {
@@ -169,6 +173,7 @@ function ChartInner({
       revealSignature={revealSignature}
       width={width}
       xDataKey={xDataKey}
+      yDomainTween={yDomainTween}
       yDomainTweenDuration={yDomainTweenDuration}
     >
       {children}
@@ -189,6 +194,7 @@ export function LineChart({
   status = DEFAULT_CHART_STATUS,
   loadingLabel,
   yDomainTweenDuration = DEFAULT_Y_DOMAIN_TWEEN_MS,
+  yDomainTween = true,
   children,
 }: LineChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -215,6 +221,7 @@ export function LineChart({
             revealSignature={revealSignature}
             width={width}
             xDataKey={xDataKey}
+            yDomainTween={yDomainTween}
             yDomainTweenDuration={yDomainTweenDuration}
           >
             {children}

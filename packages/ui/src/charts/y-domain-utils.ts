@@ -61,3 +61,16 @@ export function computeYDomainsByAxis({
 
   return domains;
 }
+
+/** Merge domain maps, normalizing axis ids to strings. */
+export function mergeYDomainRecords(
+  ...records: Record<string, YDomain>[]
+): Record<string, YDomain> {
+  const merged: Record<string, YDomain> = {};
+  for (const record of records) {
+    for (const [axisId, domain] of Object.entries(record)) {
+      merged[normalizeYAxisId(axisId)] = domain;
+    }
+  }
+  return merged;
+}

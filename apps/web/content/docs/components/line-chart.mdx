@@ -6,6 +6,7 @@ description: A composable line chart with tooltips, markers, and hover interacti
 import { studioChartHref } from "@bklitui/studio";
 import { LineChart, Line, Grid, XAxis, ChartTooltip, ChartMarkers } from "@bklitui/ui/charts";
 import { LineChartLoadingDemo } from "@/components/docs/line-chart-loading-demo";
+import { LineChartYDomainDemo } from "@/components/docs/line-chart-y-domain-demo";
 import { MarkerContentDemo } from "@/components/docs/marker-content-demo";
 import { OpenInStudioButton } from "@/components/docs/open-in-studio-button";
 import {
@@ -179,6 +180,22 @@ Grid and shimmer colors accept `color-mix` or `oklch` alpha strings so color and
   previewMinHeight={280}
 >
   <LineChartLoadingDemo />
+</ComponentShowcase>
+
+### Status and Y-domain tween (preview)
+
+Toggle **Loading** / **Ready** to preview the 500ms y-axis morph when `status` changes on a single `LineChart` tree.
+
+<ComponentShowcase
+  code={`const [status, setStatus] = useState<"loading" | "ready">("loading");
+
+<LineChart data={data} status={status} yDomainTween>
+  <Grid horizontal shimmer shimmerSync />
+  <Line dataKey="revenue" />
+</LineChart>`}
+  previewMinHeight={320}
+>
+  <LineChartYDomainDemo />
 </ComponentShowcase>
 
 | Prop | Type | Default | Description |

@@ -134,6 +134,10 @@ export {
 } from "./funnel-chart";
 // Gauge chart
 export { Gauge, type GaugeProps } from "./gauge";
+export {
+  type GenerateChartSkeletonDataOptions,
+  generateChartSkeletonData,
+} from "./generate-chart-skeleton-data";
 // Shared chart elements
 export { Grid, type GridProps } from "./grid";
 // Composable legend components
@@ -341,6 +345,7 @@ export {
   type TooltipIndicatorProps,
   type TooltipRow,
 } from "./tooltip";
+export { useAnimatedYDomains } from "./use-animated-y-domains";
 // Chart interaction hook
 export {
   type ChartSelection,
@@ -365,3 +370,12 @@ export {
   Y_AXIS_MAX_TICK_COUNT,
   Y_AXIS_MIN_TICK_COUNT,
 } from "./y-axis-ticks";
+export {
+  computeYDomainsByAxis,
+  isLoadingChromePhase,
+  isYDomainTweenPhase,
+  mergeYDomainRecords,
+  niceYDomain,
+  shouldTweenYDomain,
+  type YDomain,
+} from "./y-domain-utils";
