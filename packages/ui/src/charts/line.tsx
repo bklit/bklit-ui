@@ -13,6 +13,7 @@ import {
   type FadeEdges,
   fadeGradientStops,
   resolveFadeSides,
+  viewportFadeGradientAttrs,
 } from "./fade-edges";
 import {
   type LineLoadingPulseMode,
@@ -177,7 +178,10 @@ export function Line({
     <>
       {fadeStops ? (
         <defs>
-          <linearGradient id={gradientId} x1="0%" x2="100%" y1="0%" y2="0%">
+          <linearGradient
+            id={gradientId}
+            {...viewportFadeGradientAttrs(innerWidth)}
+          >
             {fadeStops.map((stop) => (
               <stop
                 key={stop.offset}

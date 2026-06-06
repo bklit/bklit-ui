@@ -4,7 +4,11 @@ import { animate, motion, useMotionValue, useTransform } from "motion/react";
 import { useEffect, useId } from "react";
 import { chartCssVars, useChartStable } from "./chart-context";
 import type { ChartPhase } from "./chart-phase";
-import { fadeGradientStops, resolveFadeSides } from "./fade-edges";
+import {
+  fadeGradientStops,
+  resolveFadeSides,
+  viewportFadeGradientAttrs,
+} from "./fade-edges";
 import {
   LINE_LOADING_PULSE_CYCLE_S,
   LINE_LOADING_PULSE_EASE,
@@ -182,7 +186,10 @@ export function LineLoadingPulseStroke({
             y={-CLIP_PADDING}
           />
         </clipPath>
-        <linearGradient id={gradientId} x1="0%" x2="100%" y1="0%" y2="0%">
+        <linearGradient
+          id={gradientId}
+          {...viewportFadeGradientAttrs(innerWidth)}
+        >
           {fadeStops.map((stop) => (
             <stop
               key={stop.offset}

@@ -31,6 +31,85 @@ function snapDomains(
   animatedRef.current = domains;
 }
 
+function tweenDomains({
+  destination,
+  durationMs,
+  enabled,
+  reducedMotion,
+  animatedRef,
+  setAnimatedByAxis,
+  onSettled,
+}: {
+  destination: Record<string, YDomain>;
+  durationMs: number;
+  enabled: boolean;
+  reducedMotion: boolean | null;
+  animatedRef: { current: Record<string, YDomain> };
+  setAnimatedByAxis: (domains: Record<string, YDomain>) => void;
+  onSettled?: () => void;
+}) {
+  if (domainsEqual(animatedRef.current, destination)) {
+    onSettled?.();
+    return;
+  }
+
+  if (!enabled || reducedMotion) {
+    snapDomains(destination, setAnimatedByAxis, animatedRef);
+    onSettled?.();
+    return;
+  }
+
+  const axisIds = Object.keys(destination);
+  const fromSnapshot = animatedRef.current;
+
+  let needsTween = false;
+  for (const axisId of axisIds) {
+    const from =
+      fromSnapshot[axisId] ?? destination[axisId] ?? ([0, 100] as YDomain);
+    const to = destination[axisId] ?? from;
+    if (shouldTweenYDomain(from, to)) {
+      needsTween = true;
+      break;
+    }
+  }
+
+  if (!needsTween) {
+    snapDomains(destination, setAnimatedByAxis, animatedRef);
+    onSettled?.();
+    return;
+  }
+
+  const fromByAxis: Record<string, YDomain> = {};
+  for (const axisId of axisIds) {
+    fromByAxis[axisId] = fromSnapshot[axisId] ??
+      destination[axisId] ?? [0, 100];
+  }
+
+  const control = animate(0, 1, {
+    duration: durationMs / 1000,
+    ease: [...LINE_LOADING_PULSE_EASE],
+    onUpdate: (progress) => {
+      const next: Record<string, YDomain> = {};
+      for (const axisId of axisIds) {
+        const from =
+          fromByAxis[axisId] ?? destination[axisId] ?? ([0, 100] as YDomain);
+        const to = destination[axisId] ?? from;
+        next[axisId] = shouldTweenYDomain(from, to)
+          ? lerpDomain(from, to, progress)
+          : to;
+      }
+      animatedRef.current = next;
+      setAnimatedByAxis(next);
+    },
+    onComplete: () => {
+      snapDomains(destination, setAnimatedByAxis, animatedRef);
+      onSettled?.();
+    },
+  });
+
+  return control;
+}
+
 export interface UseAnimatedYDomainsOptions {
   enabled: boolean;
   durationMs: number;
@@ -38,6 +117,8 @@ export interface UseAnimatedYDomainsOptions {
   skeletonByAxis: Record<string, YDomain>;
   targetByAxis: Record<string, YDomain>;
   onSettled?: () => void;
+  /** When true, tweens y-domains on target changes while the chart is in the ready phase (e.g. brush zoom). */
+  tweenOnTargetChange?: boolean;
 }
 
 export function useAnimatedYDomains({
@@ -47,6 +128,7 @@ export function useAnimatedYDomains({
   skeletonByAxis,
   targetByAxis,
   onSettled,
+  tweenOnTargetChange = false,
 }: UseAnimatedYDomainsOptions): Record<string, YDomain> {
   const reducedMotion = useReducedMotion();
   const destinationByAxis = resolveAnimatedYDestinationDomains(
@@ -71,7 +153,6 @@ export function useAnimatedYDomains({
     animatedRef.current = animatedByAxis;
   }, [animatedByAxis]);
 
-  // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: phase-driven y-domain tween with frozen exit spacing
   useEffect(() => {
     if (prevPhaseRef.current === chartPhase) {
       return;
@@ -104,69 +185,52 @@ export function useAnimatedYDomains({
       return;
     }
 
-    const destination = destinationRef.current;
-
-    if (domainsEqual(animatedRef.current, destination)) {
-      settle();
-      return;
-    }
-
-    if (!enabled || reducedMotion) {
-      snapDomains(destination, setAnimatedByAxis, animatedRef);
-      settle();
-      return;
-    }
-
-    const axisIds = Object.keys(destination);
-    const fromSnapshot = animatedRef.current;
-
-    let needsTween = false;
-    for (const axisId of axisIds) {
-      const from =
-        fromSnapshot[axisId] ?? destination[axisId] ?? ([0, 100] as YDomain);
-      const to = destination[axisId] ?? from;
-      if (shouldTweenYDomain(from, to)) {
-        needsTween = true;
-        break;
-      }
-    }
-
-    if (!needsTween) {
-      snapDomains(destination, setAnimatedByAxis, animatedRef);
-      settle();
-      return;
-    }
-
-    const fromByAxis: Record<string, YDomain> = {};
-    for (const axisId of axisIds) {
-      fromByAxis[axisId] = fromSnapshot[axisId] ??
-        destination[axisId] ?? [0, 100];
-    }
-
-    const control = animate(0, 1, {
-      duration: durationMs / 1000,
-      ease: [...LINE_LOADING_PULSE_EASE],
-      onUpdate: (progress) => {
-        const next: Record<string, YDomain> = {};
-        for (const axisId of axisIds) {
-          const from =
-            fromByAxis[axisId] ?? destination[axisId] ?? ([0, 100] as YDomain);
-          const to = destination[axisId] ?? from;
-          next[axisId] = shouldTweenYDomain(from, to)
-            ? lerpDomain(from, to, progress)
-            : to;
-        }
-        animatedRef.current = next;
-        setAnimatedByAxis(next);
-      },
-      onComplete: () => {
-        snapDomains(destination, setAnimatedByAxis, animatedRef);
-        settle();
-      },
+    const control = tweenDomains({
+      destination: destinationRef.current,
+      durationMs,
+      enabled,
+      reducedMotion,
+      animatedRef,
+      setAnimatedByAxis,
+      onSettled: settle,
     });
 
-    return () => control.stop();
+    return () => control?.stop();
   }, [chartPhase, durationMs, enabled, reducedMotion]);
+
+  const targetSignature = JSON.stringify(targetByAxis);
+  const prevTargetSignatureRef = useRef(targetSignature);
+
+  useEffect(() => {
+    if (!tweenOnTargetChange || chartPhase !== "ready") {
+      prevTargetSignatureRef.current = targetSignature;
+      return;
+    }
+
+    if (prevTargetSignatureRef.current === targetSignature) {
+      return;
+    }
+    prevTargetSignatureRef.current = targetSignature;
+
+    const control = tweenDomains({
+      destination: targetRef.current,
+      durationMs,
+      enabled,
+      reducedMotion,
+      animatedRef,
+      setAnimatedByAxis,
+      onSettled: () => onSettledRef.current?.(),
+    });
+
+    return () => control?.stop();
+  }, [
+    chartPhase,
+    durationMs,
+    enabled,
+    reducedMotion,
+    targetSignature,
+    tweenOnTargetChange,
+  ]);
 
   return animatedByAxis;
 }

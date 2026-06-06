@@ -193,6 +193,13 @@ export const studioSearchParams = {
   showCrosshair: parseAsBoolean.withDefault(true),
   crosshairFollowsValue: parseAsBoolean.withDefault(true),
   crosshairColor: parseAsString.withDefault("var(--chart-crosshair)"),
+  showBrush: parseAsBoolean.withDefault(false),
+  brushHeight: parseAsInteger.withDefault(76),
+  brushFadeEdges: parseAsBoolean.withDefault(true),
+  brushAreaOpacity: parseAsFloat.withDefault(0.15),
+  brushGradientToOpacity: parseAsFloat.withDefault(0),
+  brushGradientSpan: parseAsFloat.withDefault(0.6),
+  brushBlur: parseAsFloat.withDefault(1.5),
   showLegend: parseAsBoolean.withDefault(false),
   legendPlacement: parseAsStringLiteral(["top", "bottom"]).withDefault(
     "bottom"
@@ -352,6 +359,13 @@ export interface StudioUrlState {
   showCrosshair: boolean;
   crosshairFollowsValue: boolean;
   crosshairColor: string;
+  showBrush: boolean;
+  brushHeight: number;
+  brushFadeEdges: boolean;
+  brushAreaOpacity: number;
+  brushGradientToOpacity: number;
+  brushGradientSpan: number;
+  brushBlur: number;
   showLegend: boolean;
   legendPlacement: "top" | "bottom";
   legendAlign: "start" | "center" | "end";
@@ -519,6 +533,13 @@ export function defaultStudioState(
     showCrosshair: true,
     crosshairFollowsValue: true,
     crosshairColor: "var(--chart-crosshair)",
+    showBrush: false,
+    brushHeight: 76,
+    brushFadeEdges: true,
+    brushAreaOpacity: 0.15,
+    brushGradientToOpacity: 0,
+    brushGradientSpan: 0.6,
+    brushBlur: 1.5,
     showLegend: false,
     legendPlacement: "bottom",
     legendAlign: "end",

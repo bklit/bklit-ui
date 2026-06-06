@@ -2,7 +2,6 @@
 
 import {
   Area,
-  AreaChart,
   Bar,
   BarChart,
   BarXAxis,
@@ -11,13 +10,13 @@ import {
   ComposedChart,
   Grid,
   Line,
-  PatternArea,
   Scatter,
   ScatterChart,
   SeriesBar,
   XAxis,
 } from "@bklitui/ui/charts";
 import { validChartSlugs } from "@/chart-slugs";
+import { AreaStudioPreview } from "@/components/charts/area-studio-preview";
 import { CandlestickStudioPreview } from "@/components/charts/candlestick-studio-preview";
 import { ChoroplethStudioPreview } from "@/components/charts/choropleth-studio";
 import { FunnelStudioPreview } from "@/components/charts/funnel-studio-preview";
@@ -91,14 +90,7 @@ import {
   sankeyChartControlGroups,
   scatterChartControlGroups,
 } from "./registry-control-groups";
-import type { StudioRenderContext } from "./render-context";
 import { seriesStrokePropsFromState } from "./series-stroke-props";
-import {
-  studioCartesianGridLayer,
-  studioCartesianSeriesLoadingProp,
-  studioLoadingLabel,
-  studioLoadingStrokeProps,
-} from "./studio-cartesian-layers";
 import { chartTooltipPropsFromState } from "./studio-chart-overlays";
 import { isStudioComponentVisible } from "./studio-component-visibility";
 import {
@@ -117,11 +109,7 @@ import {
   resolveSankeyComponents,
   resolveScatterComponents,
 } from "./studio-components";
-import {
-  studioAreaLegendItems,
-  studioCartesianLegendItems,
-} from "./studio-legend-items";
-import type { StudioUrlState } from "./studio-parsers";
+import { studioCartesianLegendItems } from "./studio-legend-items";
 import { getEffectiveSeriesColor } from "./studio-series-design";
 import type { ChartSlug, StudioChartConfig } from "./types";
 import { chartLabels } from "./types";
@@ -139,126 +127,6 @@ const gaugeConfig: StudioChartConfig = {
   generateCode: (state) => gaugeCodegen(state),
 };
 
-interface StudioAreaSeriesOptions {
-  curve: ReturnType<typeof resolveCurve>;
-  isLoading: boolean;
-  key: string;
-  idx: number;
-  patternFill: string | undefined;
-  seriesColorAt: (idx: number) => string;
-  seriesStroke: ReturnType<typeof seriesStrokePropsFromState>;
-  state: StudioUrlState;
-}
-
-function studioAreaSeriesFillProps({
-  patternFill,
-  seriesColorAt,
-  idx,
-  state,
-}: Pick<
-  StudioAreaSeriesOptions,
-  "patternFill" | "seriesColorAt" | "idx" | "state"
->) {
-  if (patternFill) {
-    return {
-      fill: undefined,
-      fillOpacity: 0,
-      gradientToOpacity: state.gradientToOpacity,
-    };
-  }
-  return {
-    fill: seriesColorAt(idx),
-    fillOpacity: state.fillOpacity,
-    gradientToOpacity: state.gradientToOpacity,
-  };
-}
-
-function renderStudioAreaSeriesNodes({
-  curve,
-  isLoading,
-  key,
-  idx,
-  patternFill,
-  seriesColorAt,
-  seriesStroke,
-  state,
-}: StudioAreaSeriesOptions) {
-  const isPrimary = idx === 0;
-  const fillProps = studioAreaSeriesFillProps({
-    patternFill,
-    seriesColorAt,
-    idx,
-    state,
-  });
-  const loadingStrokeProps = isPrimary
-    ? studioLoadingStrokeProps(state, "area.loading-line")
-    : {};
-
-  const area = (
-    <Area
-      curve={curve}
-      dataKey={key}
-      fadeEdges={patternFill ? false : fadeEdgesPropValue(state.fadeEdges)}
-      {...fillProps}
-      key={`area-${key}`}
-      loading={studioCartesianSeriesLoadingProp(isPrimary)}
-      showHighlight={state.showHighlight}
-      showLine={state.showLine}
-      strokeWidth={state.strokeWidth}
-      yAxisId={getLineSeriesYAxisId(state, idx)}
-      {...seriesStroke}
-      {...loadingStrokeProps}
-    />
-  );
-
-  if (!isLoading && patternFill) {
-    return [
-      <PatternArea
-        curve={curve}
-        dataKey={key}
-        fill={patternFill}
-        key={`pattern-${key}`}
-      />,
-      area,
-    ];
-  }
-
-  return [area];
-}
-
-function renderStudioAreaChartSeries(
-  state: StudioUrlState,
-  ctx: StudioRenderContext,
-  options: {
-    curve: ReturnType<typeof resolveCurve>;
-    isLoading: boolean;
-    seriesCount: number;
-    seriesStroke: ReturnType<typeof seriesStrokePropsFromState>;
-  }
-) {
-  const seriesFillAt = (idx: number) => ctx.patternFillAt(idx);
-  const seriesColorAt = (idx: number) => `var(--chart-${(idx % 5) + 1})`;
-
-  return STUDIO_SERIES_KEYS.slice(0, options.seriesCount).flatMap(
-    (key, idx) => {
-      if (!isStudioComponentVisible(state, `area.series.${idx}`)) {
-        return [];
-      }
-
-      return renderStudioAreaSeriesNodes({
-        curve: options.curve,
-        isLoading: options.isLoading,
-        key,
-        idx,
-        patternFill: seriesFillAt(idx),
-        seriesColorAt,
-        seriesStroke: options.seriesStroke,
-        state,
-      });
-    }
-  );
-}
-
 const areaConfig: StudioChartConfig = {
   slug: "area-chart",
   label: chartLabels["area-chart"],
@@ -268,58 +136,7 @@ const areaConfig: StudioChartConfig = {
   controls: [],
   controlGroups: areaChartControlGroups,
   resolveComponents: resolveAreaComponents,
-  render: (state, ctx) => {
-    const isLoading = state.areaChartState === "loading";
-    const curve = resolveCurve(state.curve);
-    const seriesCount = clampStudioSeriesCount(state.dataSeries);
-    const data = generateStudioCartesianData({
-      seriesCount,
-      pointCount: state.dataPoints,
-      xAxis: "date",
-      seed: ctx.dataSeed,
-    });
-    const seriesStroke = seriesStrokePropsFromState(state, data.length);
-
-    return (
-      <StudioChartShell
-        legendComponentId="area.legend"
-        legendItems={isLoading ? [] : studioAreaLegendItems(state)}
-        state={ctx.chromeState}
-      >
-        <StudioCartesianFill>
-          <AreaChart
-            {...getStudioCssRevealPropsForPreview(state, ctx)}
-            className="size-full"
-            data={data}
-            loadingLabel={studioLoadingLabel(state, "area.loading-label")}
-            margin={timeSeriesChartMargin(state)}
-            status={state.areaChartState}
-            yDomainTween
-          >
-            {studioCartesianGridLayer(state, "area.grid")}
-            {ctx.patternDefs}
-            {renderStudioAreaChartSeries(state, ctx, {
-              curve,
-              isLoading,
-              seriesCount,
-              seriesStroke,
-            })}
-            {isLoading ? null : (
-              <>
-                <StudioChartYAxisLayers chartPrefix="area" state={state} />
-                <StudioVisibleLayer componentId="area.xaxis" state={state}>
-                  <XAxis />
-                </StudioVisibleLayer>
-                <StudioVisibleLayer componentId="area.tooltip" state={state}>
-                  <ChartTooltip {...chartTooltipPropsFromState(state)} />
-                </StudioVisibleLayer>
-              </>
-            )}
-          </AreaChart>
-        </StudioCartesianFill>
-      </StudioChartShell>
-    );
-  },
+  render: (state, ctx) => <AreaStudioPreview ctx={ctx} state={state} />,
   generateCode: (state) => ({
     code: cartesianCodegen("AreaChart", state),
     data: areaChartDataSnippet(state),

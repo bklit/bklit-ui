@@ -5,6 +5,10 @@ import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
 import { useChart, useChartStable } from "./chart-context";
 import { shortDateFmt } from "./chart-formatters";
+import { DEFAULT_Y_DOMAIN_TWEEN_MS } from "./chart-phase";
+import { LINE_LOADING_PULSE_EASE } from "./line-loading-timing";
+
+const X_AXIS_POSITION_TWEEN_MS = DEFAULT_Y_DOMAIN_TWEEN_MS;
 
 export interface XAxisProps {
   /** Number of ticks to show (including first and last). Default: 5. Used when `tickMode` is `"domain"`. */
@@ -58,6 +62,7 @@ function XAxisLabel({
         width: 0,
         display: "flex",
         justifyContent: "center",
+        transition: `left ${X_AXIS_POSITION_TWEEN_MS}ms cubic-bezier(${LINE_LOADING_PULSE_EASE.join(", ")})`,
       }}
     >
       <span

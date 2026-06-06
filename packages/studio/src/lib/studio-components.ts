@@ -43,6 +43,7 @@ import {
   ringChartControlGroups,
   sankeyChartControlGroups,
   scatterChartControlGroups,
+  standardBrushControlGroups,
   standardChartTooltipControlGroups,
   standardLegendControlGroups,
   tooltipAppearanceControlGroup,
@@ -65,6 +66,16 @@ function legendNode(chartPrefix: string): StudioComponentDefinition {
     parentId: `${chartPrefix}.chart`,
     kind: "chart",
     controlGroups: standardLegendControlGroups,
+  };
+}
+
+function brushNode(chartPrefix: string): StudioComponentDefinition {
+  return {
+    id: `${chartPrefix}.brush`,
+    label: "ChartBrush",
+    parentId: `${chartPrefix}.chart`,
+    kind: "chart",
+    controlGroups: standardBrushControlGroups,
   };
 }
 
@@ -448,7 +459,8 @@ export function resolveAreaComponents(
     chartYAxisNode("area", "right", "YAxis · right"),
     passiveNode("area", "xaxis", "XAxis"),
     chartTooltipNode("area"),
-    legendNode("area")
+    legendNode("area"),
+    brushNode("area")
   );
 
   return components;
