@@ -39,16 +39,18 @@ export function AreaChartBrushDemo() {
             <Area
               animate={false}
               dataKey={DATA_KEY}
+              fadeEdges
               fill="var(--chart-line-primary)"
               fillOpacity={0.15}
               showHighlight={false}
               strokeWidth={2}
             />
             <ChartBrush
+              fadeOuterEdges
               initialSelection={brushLayout.brushSelection ?? undefined}
               onSelectionChange={brushLayout.onBrushSelectionChange}
               selectionPattern={{
-                color: "var(--chart-1)",
+                color: "color-mix(in oklch, var(--chart-1) 20%, transparent)",
                 preset: "diagonal",
               }}
             />

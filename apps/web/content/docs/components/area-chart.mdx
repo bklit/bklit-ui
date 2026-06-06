@@ -186,34 +186,9 @@ Renders the tooltip with crosshair, dots, and content box.
 | `content` | `(props) => ReactNode` | - | Custom content renderer |
 | `rows` | `(point) => TooltipRow[]` | - | Custom row generator |
 
-### ChartBrushLayout
-
-Orchestrates a main chart and optional brush strip. Manages brush selection state and passes `xDomain` / `xDomainSlotCount` to the main chart.
-
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `data` | `Record<string, unknown>[]` | required | Full dataset for the brush strip and main chart |
-| `xDataKey` | `string` | `"date"` | Key in data for x-axis values |
-| `enabled` | `boolean` | required | When `false`, children render without brush zoom |
-| `height` | `number` | required | Brush strip height in pixels |
-| `brushStrip` | `(layout) => ReactNode` | — | Mini chart + `ChartBrush` rendered below the main chart |
-| `children` | `(layout) => ReactNode` | required | Main chart render function |
-
-`layout` provides `xDomain`, `xDomainSlotCount`, `brushSelection`, and `onBrushSelectionChange`.
-
-### ChartBrush
-
-Renders the brush overlay inside a time-series chart (typically the brush strip). Drag handles to pan and resize the selection; the main chart zooms via `ChartBrushLayout`.
-
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `onSelectionChange` | `(domain) => void` | — | Fires on drag with the selected date range |
-| `initialSelection` | `{ start: Date; end: Date }` | — | Initial brush window |
-| `blurPx` | `number` | `1.5` | Backdrop blur on dimmed track regions |
-| `fadeOuterEdges` | `boolean` | `true` | Fade dimmed regions at the outer track edges |
-| `selectionPattern` | `{ preset; color }` | — | Optional pattern fill inside the selection window |
-
 ## Brush zoom
+
+See the [Brush](/docs/utility/brush) utility docs for `ChartBrushLayout` and `ChartBrush` props.
 
 Wrap the main chart in `ChartBrushLayout`, render a simplified mini chart in `brushStrip`, and add `ChartBrush` as a child of that strip. Pass `xDomain`, `xDomainSlotCount`, and `tweenYDomainOnXDomainChange` to the main `AreaChart` so the y-scale adapts as users pan and resize the brush.
 
