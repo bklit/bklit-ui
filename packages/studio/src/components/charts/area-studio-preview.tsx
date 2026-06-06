@@ -31,6 +31,7 @@ import {
 import { getLineSeriesYAxisId } from "@/lib/line-series-y-axis";
 import type { StudioRenderContext } from "@/lib/render-context";
 import { seriesStrokePropsFromState } from "@/lib/series-stroke-props";
+import { studioChartBrushProps } from "@/lib/studio-brush-props";
 import {
   studioCartesianGridLayer,
   studioCartesianSeriesLoadingProp,
@@ -226,8 +227,7 @@ export function AreaStudioPreview({
               {ctx.patternDefs}
               {renderBrushStripAreas(state, ctx, { curve, seriesCount })}
               <ChartBrush
-                blurPx={state.brushBlur}
-                fadeOuterEdges={state.brushFadeEdges}
+                {...studioChartBrushProps(state)}
                 initialSelection={brushLayout.brushSelection ?? undefined}
                 onSelectionChange={brushLayout.onBrushSelectionChange}
               />

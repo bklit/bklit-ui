@@ -87,7 +87,10 @@ export function ChartBrushTrackOverlay({
   const plotTop = margin.top;
 
   return createPortal(
-    <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 z-[1]"
+    >
       {leftWidth > 0 ? (
         <div
           className="absolute"

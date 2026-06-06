@@ -275,7 +275,7 @@ export const standardChartTooltipControlGroups: StudioControlGroup[] = [
   standardCrosshairControlGroup,
 ];
 
-export const standardBrushControlGroups: StudioControlGroup[] = [
+export const standardBrushStripControlGroups: StudioControlGroup[] = [
   controlGroup("Brush", [
     { type: "boolean", key: "showBrush", label: "Show" },
     {
@@ -297,7 +297,27 @@ export const standardBrushControlGroups: StudioControlGroup[] = [
       step: 0.5,
       unit: "px",
     },
+    {
+      type: "boolean",
+      key: "brushSelectionPatternEnabled",
+      label: "Selection pattern",
+    },
+    {
+      type: "pattern",
+      key: "brushSelectionPattern",
+      label: "Pattern",
+      enabledWhen: "brushSelectionPatternEnabled",
+    },
+    {
+      type: "color",
+      key: "brushSelectionPatternColor",
+      label: "Pattern color",
+      enabledWhen: "brushSelectionPatternEnabled",
+    },
   ]),
+];
+
+export const standardBrushAreaStripControlGroups: StudioControlGroup[] = [
   controlGroup("Areas", [
     {
       type: "opacity",
@@ -327,6 +347,11 @@ export const standardBrushControlGroups: StudioControlGroup[] = [
       step: 0.05,
     },
   ]),
+];
+
+export const standardBrushControlGroups: StudioControlGroup[] = [
+  ...standardBrushStripControlGroups,
+  ...standardBrushAreaStripControlGroups,
 ];
 
 export const standardLegendControlGroups: StudioControlGroup[] = [

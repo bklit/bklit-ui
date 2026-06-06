@@ -25,7 +25,13 @@ interface NumberControlBase {
 
 export type StudioControl =
   | { type: "boolean"; key: keyof StudioUrlState; label: string }
-  | { type: "color"; key: keyof StudioUrlState; label: string }
+  | {
+      type: "color";
+      key: keyof StudioUrlState;
+      label: string;
+      /** Disable when the referenced URL state value is falsy. */
+      enabledWhen?: keyof StudioUrlState;
+    }
   | ({ type: "number" } & NumberControlBase)
   | { type: "text"; key: keyof StudioUrlState; label: string }
   | {
@@ -35,7 +41,13 @@ export type StudioControl =
       options: { value: string; label: string }[];
     }
   | { type: "curve"; key: keyof StudioUrlState; label: string }
-  | { type: "pattern"; key: keyof StudioUrlState; label: string }
+  | {
+      type: "pattern";
+      key: keyof StudioUrlState;
+      label: string;
+      /** Disable when the referenced URL state value is falsy. */
+      enabledWhen?: keyof StudioUrlState;
+    }
   | { type: "pieFill"; key: keyof StudioUrlState; label: string }
   | { type: "orientation"; key: keyof StudioUrlState; label: string }
   | { type: "lineCap"; key: "barLineCap"; label: string }

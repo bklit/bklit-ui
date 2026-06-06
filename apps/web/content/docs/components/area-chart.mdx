@@ -4,7 +4,8 @@ description: A composable area chart with gradient fills, tooltips, and hover in
 ---
 
 import { studioChartHref } from "@bklitui/studio";
-import { AreaChart, Area, Grid, XAxis, ChartTooltip, PatternLines, PatternArea } from "@bklitui/ui/charts";
+import { AreaChart, Area, Grid, XAxis, ChartTooltip, ChartBrush, ChartBrushLayout, PatternLines, PatternArea } from "@bklitui/ui/charts";
+import { AreaChartBrushDemo } from "@/components/docs/area-chart-brush-demo";
 import { AreaChartYDomainDemo } from "@/components/docs/area-chart-y-domain-demo";
 import { AreaTooltipDemo } from "@/components/docs/area-tooltip-demo";
 import { OpenInStudioButton } from "@/components/docs/open-in-studio-button";
@@ -100,8 +101,12 @@ The root component that provides context to all children. It shares the same pro
 | `loadingLabel` | `string` | — | Centered shimmer label while `status="loading"` (`""` hides it) |
 | `yDomainTween` | `boolean` | `true` | Animate y-domain when status or target domain changes |
 | `yDomainTweenDuration` | `number` | `500` | Y-domain tween duration in ms |
+| `xDomain` | `[Date, Date]` | — | Visible x-range for brush zoom |
+| `xDomainSlotCount` | `number` | — | Full dataset length for x-scale padding when `xDomain` is set |
+| `tweenYDomainOnXDomainChange` | `boolean` | `false` | Tween y-domain when the brush changes the visible x-range |
 | `aspectRatio` | `string` | `"2 / 1"` | CSS aspect ratio |
 | `className` | `string` | `""` | Additional CSS class |
+| `style` | `CSSProperties` | — | Inline container styles (e.g. fixed height for a brush strip) |
 
 ### Area
 
@@ -180,6 +185,85 @@ Renders the tooltip with crosshair, dots, and content box.
 | `showDots` | `boolean` | `true` | Show dots on series |
 | `content` | `(props) => ReactNode` | - | Custom content renderer |
 | `rows` | `(point) => TooltipRow[]` | - | Custom row generator |
+
+### ChartBrushLayout
+
+Orchestrates a main chart and optional brush strip. Manages brush selection state and passes `xDomain` / `xDomainSlotCount` to the main chart.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `data` | `Record<string, unknown>[]` | required | Full dataset for the brush strip and main chart |
+| `xDataKey` | `string` | `"date"` | Key in data for x-axis values |
+| `enabled` | `boolean` | required | When `false`, children render without brush zoom |
+| `height` | `number` | required | Brush strip height in pixels |
+| `brushStrip` | `(layout) => ReactNode` | — | Mini chart + `ChartBrush` rendered below the main chart |
+| `children` | `(layout) => ReactNode` | required | Main chart render function |
+
+`layout` provides `xDomain`, `xDomainSlotCount`, `brushSelection`, and `onBrushSelectionChange`.
+
+### ChartBrush
+
+Renders the brush overlay inside a time-series chart (typically the brush strip). Drag handles to pan and resize the selection; the main chart zooms via `ChartBrushLayout`.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `onSelectionChange` | `(domain) => void` | — | Fires on drag with the selected date range |
+| `initialSelection` | `{ start: Date; end: Date }` | — | Initial brush window |
+| `blurPx` | `number` | `1.5` | Backdrop blur on dimmed track regions |
+| `fadeOuterEdges` | `boolean` | `true` | Fade dimmed regions at the outer track edges |
+| `selectionPattern` | `{ preset; color }` | — | Optional pattern fill inside the selection window |
+
+## Brush zoom
+
+Wrap the main chart in `ChartBrushLayout`, render a simplified mini chart in `brushStrip`, and add `ChartBrush` as a child of that strip. Pass `xDomain`, `xDomainSlotCount`, and `tweenYDomainOnXDomainChange` to the main `AreaChart` so the y-scale adapts as users pan and resize the brush.
+
+<div className="not-prose mb-3 flex items-center justify-between gap-4">
+  <h3 className="m-0 font-semibold text-foreground text-base tracking-tight">
+    Preview
+  </h3>
+  <OpenInStudioButton
+    href={studioChartHref("area-chart", { showBrush: true })}
+    slug="area-chart"
+  />
+</div>
+
+<ComponentShowcase
+  code={`<ChartBrushLayout
+  data={data}
+  enabled
+  height={72}
+  brushStrip={(layout) => (
+    <AreaChart data={data} animationDuration={0} status="ready">
+      <Area dataKey="value" fillOpacity={0.15} animate={false} />
+      <ChartBrush
+        initialSelection={layout.brushSelection ?? undefined}
+        onSelectionChange={layout.onBrushSelectionChange}
+      />
+    </AreaChart>
+  )}
+>
+  {(layout) => (
+    <AreaChart
+      data={data}
+      xDomain={layout.xDomain}
+      xDomainSlotCount={layout.xDomainSlotCount}
+      tweenYDomainOnXDomainChange
+      yDomainTween
+    >
+      <Grid horizontal />
+      <Area dataKey="value" fillOpacity={0.35} />
+      <XAxis />
+      <ChartTooltip />
+    </AreaChart>
+  )}
+</ChartBrushLayout>`}
+  liveChartPreview
+  previewMinHeight={360}
+>
+  <AreaChartBrushDemo />
+</ComponentShowcase>
+
+Open [Studio with brush enabled](/studio?chart=area-chart&showBrush=true) to tune strip height, blur, and selection pattern.
 
 ## Loading state
 

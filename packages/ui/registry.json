@@ -73,6 +73,7 @@
           "--chart-line-secondary": "var(--chart-2)",
           "--chart-crosshair": "oklch(0.4 0.1828 274.34)",
           "--chart-grid": "oklch(0.9 0 0)",
+          "--chart-brush-border": "var(--chart-grid)",
           "--chart-tooltip-background": "oklch(0.21 0.006 285 / 0.8)",
           "--chart-tooltip-foreground": "oklch(0.985 0 0)",
           "--chart-tooltip-muted": "oklch(0.65 0.01 260)",
@@ -93,6 +94,7 @@
           "--chart-foreground-muted": "oklch(0.65 0.01 260)",
           "--chart-crosshair": "oklch(0.45 0 0)",
           "--chart-grid": "oklch(0.25 0 0)",
+          "--chart-brush-border": "var(--chart-grid)",
           "--chart-marker-background": "oklch(0.25 0.01 260)",
           "--chart-marker-border": "oklch(0.4 0.01 260)",
           "--chart-marker-foreground": "oklch(0.9 0 0)",
@@ -130,6 +132,11 @@
           "path": "src/charts/y-domain-utils.ts",
           "type": "registry:lib",
           "target": "components/charts/y-domain-utils.ts"
+        },
+        {
+          "path": "src/charts/filter-data-by-x-domain.ts",
+          "type": "registry:lib",
+          "target": "components/charts/filter-data-by-x-domain.ts"
         },
         {
           "path": "src/charts/generate-chart-skeleton-data.ts",

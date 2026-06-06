@@ -200,6 +200,10 @@ export const studioSearchParams = {
   brushGradientToOpacity: parseAsFloat.withDefault(0),
   brushGradientSpan: parseAsFloat.withDefault(0.6),
   brushBlur: parseAsFloat.withDefault(1.5),
+  brushSelectionPatternEnabled: parseAsBoolean.withDefault(false),
+  brushSelectionPattern:
+    parseAsStringLiteral(PATTERN_PRESET_IDS).withDefault("none"),
+  brushSelectionPatternColor: parseAsString.withDefault("var(--chart-1)"),
   showLegend: parseAsBoolean.withDefault(false),
   legendPlacement: parseAsStringLiteral(["top", "bottom"]).withDefault(
     "bottom"
@@ -366,6 +370,9 @@ export interface StudioUrlState {
   brushGradientToOpacity: number;
   brushGradientSpan: number;
   brushBlur: number;
+  brushSelectionPatternEnabled: boolean;
+  brushSelectionPattern: PatternPresetId;
+  brushSelectionPatternColor: string;
   showLegend: boolean;
   legendPlacement: "top" | "bottom";
   legendAlign: "start" | "center" | "end";
@@ -540,6 +547,9 @@ export function defaultStudioState(
     brushGradientToOpacity: 0,
     brushGradientSpan: 0.6,
     brushBlur: 1.5,
+    brushSelectionPatternEnabled: false,
+    brushSelectionPattern: "none",
+    brushSelectionPatternColor: "var(--chart-1)",
     showLegend: false,
     legendPlacement: "bottom",
     legendAlign: "end",
