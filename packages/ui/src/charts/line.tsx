@@ -164,7 +164,10 @@ export function Line({
   const fadeSides = resolveFadeSides(fadeEdges);
   const lineStroke = fadeSides.any ? `url(#${gradientId})` : stroke;
   const fadeStops = fadeSides.any ? fadeGradientStops(fadeSides) : null;
-  const showSeriesStroke = chartPhase === "revealing" || chartPhase === "ready";
+  const showSeriesStroke =
+    chartPhase === "revealing" ||
+    chartPhase === "ready" ||
+    chartPhase === "exitingReady";
   let visibleStroke = "transparent";
   if (showSeriesStroke && !hasDashTail) {
     visibleStroke = lineStroke;
@@ -237,7 +240,8 @@ export function Line({
 
       {showLoadingPulse && pathD && innerWidth > 0 ? (
         <LineLoadingPulseStroke
-          key={`${pulseMode}-${pulseMode === "loop" ? pulseEpoch : chartPhase}`}
+          key="loading-pulse"
+          loopEpoch={pulseEpoch}
           mode={pulseMode}
           onCycleComplete={handleLoadingPulseComplete}
           pathD={pathD}

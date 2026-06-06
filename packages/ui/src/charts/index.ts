@@ -17,6 +17,10 @@ export {
 // Area chart components
 export { Area, type AreaProps } from "./area";
 export { AreaChart, type AreaChartProps } from "./area-chart";
+export {
+  AreaChartLoading,
+  type AreaChartLoadingProps,
+} from "./area-chart-loading";
 // Bar chart components
 export {
   Bar,
@@ -43,6 +47,7 @@ export {
   chartCenterLabelClassName,
   chartCenterValueClassName,
 } from "./chart-center-typography";
+export { CHART_CLIP_PASSTHROUGH } from "./chart-child-passthrough";
 export {
   ChartConfigProvider,
   type ChartConfigProviderProps,

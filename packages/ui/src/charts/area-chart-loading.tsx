@@ -2,6 +2,8 @@
 
 import { curveNatural } from "@visx/curve";
 import { useMemo } from "react";
+import { Area } from "./area";
+import { AreaChart } from "./area-chart";
 import type { Margin } from "./chart-context";
 import {
   DEFAULT_SKELETON_DATA_KEY,
@@ -9,8 +11,6 @@ import {
   generateChartSkeletonData,
 } from "./generate-chart-skeleton-data";
 import { Grid } from "./grid";
-import { Line } from "./line";
-import { LineChart } from "./line-chart";
 
 const LOADING_DATA_KEY = DEFAULT_SKELETON_DATA_KEY;
 const DEFAULT_LOADING_STROKE = "var(--foreground)";
@@ -20,7 +20,7 @@ const DEFAULT_LOADING_GRID_SHIMMER_STROKE =
   "color-mix(in oklch, var(--foreground) 68%, transparent)";
 const DEFAULT_LOADING_STROKE_OPACITY = 0.5;
 
-export interface LineChartLoadingProps {
+export interface AreaChartLoadingProps {
   /** Chart margins */
   margin?: Partial<Margin>;
   /** Stroke color for the animated loading segment. */
@@ -47,7 +47,7 @@ export interface LineChartLoadingProps {
   className?: string;
 }
 
-export function LineChartLoading({
+export function AreaChartLoading({
   margin,
   stroke = DEFAULT_LOADING_STROKE,
   strokeOpacity = DEFAULT_LOADING_STROKE_OPACITY,
@@ -60,7 +60,7 @@ export function LineChartLoading({
   label = "Loading",
   aspectRatio = "2 / 1",
   className = "",
-}: LineChartLoadingProps) {
+}: AreaChartLoadingProps) {
   const data = useMemo(
     () =>
       generateChartSkeletonData({
@@ -71,7 +71,7 @@ export function LineChartLoading({
   );
 
   return (
-    <LineChart
+    <AreaChart
       animationDuration={0}
       aspectRatio={aspectRatio}
       className={className}
@@ -89,18 +89,22 @@ export function LineChartLoading({
         shimmerSync={gridShimmerSync}
         stroke={gridStroke}
       />
-      <Line
+      <Area
         curve={curveNatural}
         dataKey={LOADING_DATA_KEY}
         fadeEdges={false}
+        fill="transparent"
+        fillOpacity={0}
+        loading
         loadingStroke={stroke}
         loadingStrokeOpacity={strokeOpacity}
         showHighlight={false}
+        showLine
         stroke="transparent"
-        strokeWidth={2.5}
+        strokeWidth={2}
       />
-    </LineChart>
+    </AreaChart>
   );
 }
 
-export default LineChartLoading;
+export default AreaChartLoading;

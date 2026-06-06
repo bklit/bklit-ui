@@ -96,7 +96,9 @@ function useAreaLoadingPulseState(
       : (loadingPulseMode ?? (loading === true ? "loop" : phasePulseMode));
   const showLoadingPulse = pulseMode != null;
   const showSeriesContent =
-    chartPhase === "revealing" || chartPhase === "ready";
+    chartPhase === "revealing" ||
+    chartPhase === "ready" ||
+    chartPhase === "exitingReady";
   const [pulseEpoch, setPulseEpoch] = useState(0);
 
   const handleLoadingPulseComplete = useCallback(() => {
@@ -321,7 +323,8 @@ export function Area({
 
       {showLoadingPulse && pathD && innerWidth > 0 ? (
         <LineLoadingPulseStroke
-          key={`${pulseMode}-${pulseMode === "loop" ? pulseEpoch : chartPhase}`}
+          key="loading-pulse"
+          loopEpoch={pulseEpoch}
           mode={pulseMode ?? undefined}
           onCycleComplete={handleLoadingPulseComplete}
           pathD={pathD}

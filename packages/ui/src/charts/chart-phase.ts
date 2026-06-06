@@ -8,9 +8,11 @@ export type ChartStatus = "loading" | "ready";
 export type ChartPhase =
   | "loading"
   | "exiting"
+  | "gridTweenReady"
   | "revealing"
   | "ready"
   | "exitingReady"
+  | "gridTweenLoading"
   | "revealingLoading";
 
 export const DEFAULT_CHART_STATUS: ChartStatus = "ready";

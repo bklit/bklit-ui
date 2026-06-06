@@ -1,6 +1,6 @@
 "use client";
 
-import { Grid, Line, LineChart } from "@bklitui/ui/charts";
+import { Area, AreaChart, Grid } from "@bklitui/ui/charts";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
@@ -15,8 +15,8 @@ const readyData = Array.from({ length: 12 }, (_, index) => {
   };
 });
 
-/** Local preview for loading ↔ ready orchestration (stack 4). */
-export function LineChartYDomainDemo() {
+/** Local preview for loading ↔ ready orchestration. */
+export function AreaChartYDomainDemo() {
   const [status, setStatus] = useState<"loading" | "ready">("loading");
 
   return (
@@ -38,7 +38,7 @@ export function LineChartYDomainDemo() {
         </Button>
       </div>
       <div className="w-full">
-        <LineChart
+        <AreaChart
           animationDuration={1100}
           data={readyData}
           loadingLabel="Loading revenue…"
@@ -52,15 +52,17 @@ export function LineChartYDomainDemo() {
             shimmerSync
             stroke="var(--chart-grid)"
           />
-          <Line
+          <Area
             dataKey={DATA_KEY}
             fadeEdges
+            fill="var(--chart-line-primary)"
+            fillOpacity={0.35}
             loadingStroke="var(--foreground)"
             loadingStrokeOpacity={0.5}
             showHighlight
-            stroke="var(--chart-line-primary)"
+            strokeWidth={2}
           />
-        </LineChart>
+        </AreaChart>
       </div>
     </div>
   );

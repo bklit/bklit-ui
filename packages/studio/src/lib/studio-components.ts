@@ -397,6 +397,9 @@ export function resolveAreaComponents(
   }
 
   const seriesCount = clampStudioSeriesCount(state.dataSeries);
+  const settings = areaChartControlGroups.find(
+    (group) => group.title === "Settings"
+  );
   const design = areaChartControlGroups.find(
     (group) => group.title === "Design"
   );
@@ -407,7 +410,7 @@ export function resolveAreaComponents(
       label: "AreaChart",
       kind: "chart",
       treeIcon: "layers",
-      controlGroups: [],
+      controlGroups: settings ? [settings] : [],
       design: rootPaletteDesign(true),
     },
     passiveNode("area", "grid", "Grid"),

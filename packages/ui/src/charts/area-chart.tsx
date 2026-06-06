@@ -192,7 +192,7 @@ export function AreaChart({
     loadingLabel?.trim() &&
       (chartPhase === "loading" ||
         chartPhase === "exiting" ||
-        chartPhase === "exitingReady" ||
+        chartPhase === "gridTweenReady" ||
         chartPhase === "revealingLoading")
   );
 
@@ -227,7 +227,7 @@ export function AreaChart({
       </ParentSize>
       {showLoadingLabel ? (
         <ChartLoadingLabel
-          fading={chartPhase === "exiting"}
+          exiting={chartPhase !== "loading"}
           text={loadingLabel}
         />
       ) : null}

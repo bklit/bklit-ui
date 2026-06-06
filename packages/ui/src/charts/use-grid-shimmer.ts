@@ -21,6 +21,8 @@ export interface UseGridShimmerOptions {
   shimmerSync: boolean;
   /** When false, shimmer animation is paused (e.g. during exit transition). */
   active: boolean;
+  /** Run a single synced sweep (loading → ready handoff). */
+  oneShot?: boolean;
 }
 
 export function useGridShimmer({
@@ -30,6 +32,7 @@ export function useGridShimmer({
   shimmerSpeed,
   shimmerSync,
   active,
+  oneShot = false,
 }: UseGridShimmerOptions) {
   const progress = useMotionValue(0);
   const reducedMotion = useReducedMotion();
@@ -68,6 +71,15 @@ export function useGridShimmer({
       });
     };
 
+    if (shimmerSync && oneShot) {
+      progress.set(0);
+      controls = animate(progress, 1, {
+        duration: shimmerCycleS / 2,
+        ease: [...LINE_LOADING_PULSE_EASE],
+      });
+      return () => controls?.stop();
+    }
+
     if (shimmerSync) {
       runSyncedCycle();
       return () => {
@@ -87,7 +99,7 @@ export function useGridShimmer({
     });
 
     return () => controls?.stop();
-  }, [progress, shimmerCycleS, shimmerEnabled, shimmerSync]);
+  }, [oneShot, progress, shimmerCycleS, shimmerEnabled, shimmerSync]);
 
   const shimmerX = useTransform(
     progress,

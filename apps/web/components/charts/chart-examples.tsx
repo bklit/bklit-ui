@@ -3,6 +3,7 @@
 import {
   Area,
   AreaChart,
+  AreaChartLoading,
   Bar,
   BarChart,
   BarXAxis,
@@ -791,6 +792,7 @@ interface ChartExample {
 }
 
 const AreaExampleChart = createChartExamplePreview(AreaChart);
+const AreaChartLoadingExample = createChartExamplePreview(AreaChartLoading);
 const BarExampleChart = createChartExamplePreview(BarChart);
 const LineExampleChart = createChartExamplePreview(LineChart);
 const LineChartLoadingExample = createChartExamplePreview(LineChartLoading);
@@ -1011,6 +1013,23 @@ function makeAreaExamples(): ChartExample[] {
           <ChartTooltip />
         </AreaExampleChart>
       ),
+    },
+    {
+      title: "Area Chart - Loading",
+      description:
+        "Shimmering grid, pulsing foreground segment, and shimmer label while data loads",
+      code: `import { AreaChartLoading } from "@bklitui/ui/charts";
+
+<AreaChartLoading
+  gridShimmerSync
+  label="Loading"
+  stroke="var(--foreground)"
+  strokeOpacity={0.5}
+/>
+// Uses curveNatural for the loading pulse path`,
+      footer:
+        "Uses @ncdai/shimmering-text for the label — installed with @bklit/area-chart",
+      render: () => <AreaChartLoadingExample />,
     },
     {
       title: "Area Chart - Segment Selection",
@@ -2070,7 +2089,8 @@ function makeLineExamples(): ChartExample[] {
   label="Loading"
   stroke="var(--foreground)"
   strokeOpacity={0.5}
-/>`,
+/>
+// Uses curveNatural for the loading pulse path`,
       footer:
         "Uses @ncdai/shimmering-text for the label — installed with @bklit/line-chart",
       render: () => <LineChartLoadingExample />,

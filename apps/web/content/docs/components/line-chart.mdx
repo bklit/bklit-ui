@@ -105,7 +105,8 @@ Renders grid lines.
 | `vertical` | `boolean` | `false` | Show vertical lines |
 | `numTicksRows` | `number` | `5` | Number of horizontal lines |
 | `numTicksColumns` | `number` | `10` | Number of vertical lines |
-| `stroke` | `string` | `var(--chart-grid)` | Line color |
+| `stroke` | `string` | `var(--chart-grid)` | Line color while ready |
+| `loadingStroke` | `string` | — | Grid stroke while loading chrome is active |
 | `strokeDasharray` | `string` | `"4,4"` | Dash pattern |
 | `highlightRowValues` | `number[]` | — | Draw emphasized horizontal lines at specific y values (e.g. `[0]` for break-even) |
 | `highlightRowStroke` | `string` | `var(--chart-foreground-muted)` | Stroke for highlighted rows |
@@ -166,9 +167,11 @@ See the [Profit/Loss Line](/docs/components/profit-loss-line) docs and the [line
 
 Drive loading and ready from your data layer with a single `LineChart` — one `Grid`, one `Line`, no component swap. Set `status="loading"` while fetching; switch to `"ready"` when data resolves.
 
-**Choreography:** skeleton grid shimmer and line pulse loop → pulse exit → y-domain morph (500ms) → clip-path reveal (`cubic-bezier(0.85, 0, 0.15, 1)`) → interaction enabled.
+**Loading → ready:** pulse loop on skeleton data → pulse finishes its grow, then flows out right → loading label drifts down 30px, blurs, and fades → grid y-domain tween (500ms) → clip-path reveal (`cubic-bezier(0.85, 0, 0.15, 1)`) → interaction enabled.
 
-Pair `Grid` shimmer props with `Line` `loadingStroke` props. Use `loadingLabel` on `LineChart` for centered shimmer text via [`@ncdai/shimmering-text`](https://chanhdai.com/components/shimmering-text).
+**Ready → loading:** ready line conceals to the right → grid y-domain tween → pulse loop and shimmer resume.
+
+Pair `Grid` `stroke` / `loadingStroke` with shimmer props. Pair `Line` `loadingStroke` props. Use `loadingLabel` on `LineChart` for centered shimmer text via [`@ncdai/shimmering-text`](https://chanhdai.com/components/shimmering-text).
 
 <div className="not-prose mb-3 flex items-center justify-between gap-4">
   <h3 className="m-0 font-semibold text-foreground text-base tracking-tight">
@@ -186,12 +189,19 @@ Pair `Grid` shimmer props with `Line` `loadingStroke` props. Use `loadingLabel` 
 <LineChart
   data={data}
   status={status}
-  loadingLabel="Loading"
+  loadingLabel="Loading revenue…"
   yDomainTween
 >
-  <Grid horizontal shimmer shimmerSync />
+  <Grid
+    horizontal
+    loadingStroke="color-mix(in oklch, var(--chart-grid) 50%, transparent)"
+    shimmer
+    shimmerSync
+    stroke="var(--chart-grid)"
+  />
   <Line
     dataKey="revenue"
+    fadeEdges
     loadingStroke="var(--foreground)"
     loadingStrokeOpacity={0.5}
     stroke="var(--chart-line-primary)"

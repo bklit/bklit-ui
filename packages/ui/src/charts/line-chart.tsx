@@ -218,7 +218,7 @@ export function LineChart({
     loadingLabel?.trim() &&
       (chartPhase === "loading" ||
         chartPhase === "exiting" ||
-        chartPhase === "exitingReady" ||
+        chartPhase === "gridTweenReady" ||
         chartPhase === "revealingLoading")
   );
 
@@ -256,7 +256,7 @@ export function LineChart({
       </ParentSize>
       {showLoadingLabel ? (
         <ChartLoadingLabel
-          fading={chartPhase === "exiting"}
+          exiting={chartPhase !== "loading"}
           text={loadingLabel}
         />
       ) : null}

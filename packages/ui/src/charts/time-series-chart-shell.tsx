@@ -18,6 +18,7 @@ import {
   DEFAULT_ANIMATION_EASING,
   DEFAULT_CHART_ENTER_TRANSITION,
 } from "./animation";
+import { resolveChartChildElement } from "./chart-child-passthrough";
 import { ChartProvider, type LineConfig, type Margin } from "./chart-context";
 import { isGradientDefComponent, isPatternDefComponent } from "./chart-defs";
 import { shortDateFmt } from "./chart-formatters";
@@ -250,8 +251,10 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
     chartPhase,
     plotData,
     revealEpoch,
+    concealEpoch,
     isLoaded,
     notifyLoadingPulseComplete,
+    notifyRevealConcealComplete,
     notifyYDomainTweenComplete,
   } = useChartPhaseOrchestrator({
     animationDuration,
@@ -334,10 +337,7 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
     targetByAxis: yDomainTargetByAxis,
   });
 
-  const yDomainsForScales =
-    chartPhase === "revealing" || chartPhase === "ready"
-      ? yDomainTargetByAxis
-      : animatedYDomainsByAxis;
+  const yDomainsForScales = animatedYDomainsByAxis;
 
   const yScales = useMemo(
     () =>
@@ -391,17 +391,18 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
     }
 
     const keyedChild = ensureChildKey(child, index);
+    const resolvedChild = resolveChartChildElement(keyedChild);
 
-    if (isGradientDefComponent(keyedChild)) {
-      defsChildren.push(keyedChild);
-    } else if (isPatternDefComponent(keyedChild)) {
-      preOverlayChildren.push(keyedChild);
-    } else if (isPostOverlayComponent(keyedChild)) {
-      postOverlayChildren.push(keyedChild);
-    } else if (isClipExcludedComponent(keyedChild)) {
-      clipExcludedChildren.push(keyedChild);
+    if (isGradientDefComponent(resolvedChild)) {
+      defsChildren.push(resolvedChild);
+    } else if (isPatternDefComponent(resolvedChild)) {
+      preOverlayChildren.push(resolvedChild);
+    } else if (isPostOverlayComponent(resolvedChild)) {
+      postOverlayChildren.push(resolvedChild);
+    } else if (isClipExcludedComponent(resolvedChild)) {
+      clipExcludedChildren.push(resolvedChild);
     } else {
-      preOverlayChildren.push(keyedChild);
+      preOverlayChildren.push(resolvedChild);
     }
   });
 
@@ -494,6 +495,8 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
     innerWidth > 0 &&
     animationDuration > 0;
   const isRevealAnimating = chartPhase === "revealing";
+  const isRevealConcealing =
+    chartPhase === "exitingReady" && animationDuration > 0;
 
   const effectiveEnterTransition: Transition =
     enterTransition ??
@@ -540,12 +543,16 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
           {defsChildren}
           {useClipReveal ? (
             <ChartRevealClip
-              animating={isRevealAnimating}
+              animating={isRevealAnimating || isRevealConcealing}
               clipPathId={clipPathId}
               enterTransition={effectiveEnterTransition}
               height={innerHeight + 20}
+              mode={isRevealConcealing ? "conceal" : "reveal"}
+              onComplete={
+                isRevealConcealing ? notifyRevealConcealComplete : undefined
+              }
               padding={revealClipPadding}
-              revealEpoch={revealEpoch}
+              revealEpoch={isRevealConcealing ? concealEpoch : revealEpoch}
               targetWidth={innerWidth}
             />
           ) : null}

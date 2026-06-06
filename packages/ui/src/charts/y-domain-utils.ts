@@ -35,9 +35,16 @@ export function isLoadingChromePhase(phase: ChartPhase): boolean {
   return phase === "loading" || phase === "revealingLoading";
 }
 
-/** Phases where Y-domain tween runs (forward or reverse). */
+/** Phases where grid lines use loading stroke styling (muted / dashed chrome). */
+export function isLoadingGridChromePhase(phase: ChartPhase): boolean {
+  return (
+    phase === "loading" || phase === "exiting" || phase === "gridTweenLoading"
+  );
+}
+
+/** Phases where Y-domain tween runs after the series has exited. */
 export function isYDomainTweenPhase(phase: ChartPhase): boolean {
-  return phase === "exiting" || phase === "exitingReady";
+  return phase === "gridTweenLoading" || phase === "gridTweenReady";
 }
 
 export function resolveAnimatedYDestinationDomains(
@@ -47,9 +54,14 @@ export function resolveAnimatedYDestinationDomains(
 ): Record<string, YDomain> {
   switch (chartPhase) {
     case "loading":
-    case "revealingLoading":
-    case "exitingReady":
+    case "exiting":
+    case "gridTweenLoading":
       return skeletonByAxis;
+    case "exitingReady":
+    case "gridTweenReady":
+    case "revealing":
+    case "ready":
+      return targetByAxis;
     default:
       return targetByAxis;
   }

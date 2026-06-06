@@ -5,7 +5,10 @@ import { motion } from "motion/react";
 import { useId } from "react";
 import { chartCssVars, useChartStable, useYScale } from "./chart-context";
 import { useGridShimmer } from "./use-grid-shimmer";
-import { isLoadingChromePhase } from "./y-domain-utils";
+import {
+  isLoadingChromePhase,
+  isLoadingGridChromePhase,
+} from "./y-domain-utils";
 
 const DEFAULT_SHIMMER_LENGTH_PX = 140;
 const DEFAULT_SHIMMER_SPEED = 1;
@@ -25,6 +28,8 @@ export interface GridProps {
   rowTickValues?: number[];
   /** Grid line stroke color. Default: var(--chart-grid) */
   stroke?: string;
+  /** Grid stroke while loading chrome is active. Falls back to `stroke`. */
+  loadingStroke?: string;
   /** Grid line stroke opacity. Default: 1 */
   strokeOpacity?: number;
   /** Grid line stroke width. Default: 1 */
@@ -59,6 +64,7 @@ export interface GridProps {
   shimmerSync?: boolean;
 }
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: grid fade masks and shimmer share one layer tree
 export function Grid({
   horizontal = true,
   vertical = false,
@@ -66,6 +72,7 @@ export function Grid({
   numTicksColumns = 10,
   rowTickValues,
   stroke = chartCssVars.grid,
+  loadingStroke,
   strokeOpacity = 1,
   strokeWidth = 1,
   strokeDasharray = "4,4",
@@ -87,6 +94,10 @@ export function Grid({
     useChartStable();
   const yScale = useYScale(yAxisId);
   const shimmerActive = shimmer && isLoadingChromePhase(chartPhase);
+  const gridStroke =
+    isLoadingGridChromePhase(chartPhase) && loadingStroke != null
+      ? loadingStroke
+      : stroke;
   const { shimmerEnabled, shimmerTransform } = useGridShimmer({
     innerWidth,
     shimmer,
@@ -190,7 +201,7 @@ export function Grid({
           <GridRows
             numTicks={rowTickValues ? undefined : numTicksRows}
             scale={yScale}
-            stroke={stroke}
+            stroke={gridStroke}
             strokeDasharray={strokeDasharray}
             strokeOpacity={strokeOpacity}
             strokeWidth={strokeWidth}

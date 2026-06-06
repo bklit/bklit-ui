@@ -35,24 +35,13 @@ export function useChartPhaseOrchestrator({
     chartStatus === "loading" ? skeletonData : targetData
   );
   const [revealEpoch, setRevealEpoch] = useState(0);
+  const [concealEpoch, setConcealEpoch] = useState(0);
   const [isLoaded, setIsLoaded] = useState(() => chartStatus === "ready");
   const prevStatusRef = useRef(chartStatus);
   const phaseRef = useRef(chartPhase);
-  const pulseCompleteRef = useRef(false);
-  const yDomainTweenCompleteRef = useRef(true);
   phaseRef.current = chartPhase;
 
-  const tryAdvanceFromExiting = useCallback(() => {
-    if (phaseRef.current !== "exiting") {
-      return;
-    }
-    if (!(pulseCompleteRef.current && yDomainTweenCompleteRef.current)) {
-      return;
-    }
-    setPlotData(targetData);
-    setChartPhase("revealing");
-  }, [targetData]);
-
+  // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: status transition branches for animation durations
   useEffect(() => {
     const prevStatus = prevStatusRef.current;
     if (prevStatus === chartStatus) {
@@ -61,18 +50,41 @@ export function useChartPhaseOrchestrator({
     prevStatusRef.current = chartStatus;
 
     if (chartStatus === "ready" && prevStatus === "loading") {
-      pulseCompleteRef.current = false;
-      yDomainTweenCompleteRef.current = false;
-      setChartPhase("exiting");
       setIsLoaded(false);
+      if (animationDuration <= 0) {
+        if (yDomainTweenDuration <= 0) {
+          setPlotData(targetData);
+          setChartPhase("revealing");
+        } else {
+          setChartPhase("gridTweenReady");
+        }
+      } else {
+        setChartPhase("exiting");
+      }
       return;
     }
 
     if (chartStatus === "loading" && prevStatus === "ready") {
-      setChartPhase("exitingReady");
       setIsLoaded(false);
+      if (animationDuration <= 0) {
+        if (yDomainTweenDuration <= 0) {
+          setPlotData(skeletonData);
+          setChartPhase("loading");
+        } else {
+          setChartPhase("gridTweenLoading");
+        }
+      } else {
+        setConcealEpoch((epoch) => epoch + 1);
+        setChartPhase("exitingReady");
+      }
     }
-  }, [chartStatus]);
+  }, [
+    animationDuration,
+    chartStatus,
+    skeletonData,
+    targetData,
+    yDomainTweenDuration,
+  ]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: revealSignature replays enter
   useEffect(() => {
@@ -98,6 +110,11 @@ export function useChartPhaseOrchestrator({
         }
         break;
       case "exiting":
+        setPlotData(skeletonData);
+        break;
+      case "exitingReady":
+      case "gridTweenLoading":
+      case "gridTweenReady":
       case "revealing":
       case "ready":
         setPlotData(targetData);
@@ -107,34 +124,32 @@ export function useChartPhaseOrchestrator({
     }
   }, [chartPhase, chartStatus, skeletonData, targetData]);
 
-  useEffect(() => {
-    if (chartPhase !== "exitingReady") {
-      return;
-    }
-
-    setPlotData(targetData);
-    const timer = window.setTimeout(() => {
-      setPlotData(skeletonData);
-      setChartPhase("loading");
-    }, yDomainTweenDuration);
-    return () => window.clearTimeout(timer);
-  }, [chartPhase, skeletonData, targetData, yDomainTweenDuration]);
-
+  /** Loading pulse exit finished — tween grid to ready spacing next. */
   const notifyLoadingPulseComplete = useCallback(() => {
     if (phaseRef.current !== "exiting") {
       return;
     }
-    pulseCompleteRef.current = true;
-    tryAdvanceFromExiting();
-  }, [tryAdvanceFromExiting]);
+    setChartPhase("gridTweenReady");
+  }, []);
 
-  const notifyYDomainTweenComplete = useCallback(() => {
-    if (phaseRef.current !== "exiting") {
+  /** Ready series conceal finished — tween grid to loading spacing next. */
+  const notifyRevealConcealComplete = useCallback(() => {
+    if (phaseRef.current !== "exitingReady") {
       return;
     }
-    yDomainTweenCompleteRef.current = true;
-    tryAdvanceFromExiting();
-  }, [tryAdvanceFromExiting]);
+    setChartPhase("gridTweenLoading");
+  }, []);
+
+  /** Grid tween finished — enter the next resting phase. */
+  const notifyYDomainTweenComplete = useCallback(() => {
+    if (phaseRef.current === "gridTweenLoading") {
+      setChartPhase("loading");
+      return;
+    }
+    if (phaseRef.current === "gridTweenReady") {
+      setChartPhase("revealing");
+    }
+  }, []);
 
   useEffect(() => {
     if (chartPhase !== "revealing") {
@@ -159,8 +174,10 @@ export function useChartPhaseOrchestrator({
     chartPhase,
     plotData,
     revealEpoch,
+    concealEpoch,
     isLoaded,
     notifyLoadingPulseComplete,
+    notifyRevealConcealComplete,
     notifyYDomainTweenComplete,
   };
 }

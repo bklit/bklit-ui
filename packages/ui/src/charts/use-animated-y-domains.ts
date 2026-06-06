@@ -6,6 +6,7 @@ import type { ChartPhase } from "./chart-phase";
 import { LINE_LOADING_PULSE_EASE } from "./line-loading-timing";
 import {
   domainsEqual,
+  isYDomainTweenPhase,
   resolveAnimatedYDestinationDomains,
   shouldTweenYDomain,
   type YDomain,
@@ -16,6 +17,18 @@ function lerpDomain(from: YDomain, to: YDomain, progress: number): YDomain {
     from[0] + (to[0] - from[0]) * progress,
     from[1] + (to[1] - from[1]) * progress,
   ];
+}
+
+function snapDomains(
+  domains: Record<string, YDomain>,
+  setAnimatedByAxis: (domains: Record<string, YDomain>) => void,
+  animatedRef: { current: Record<string, YDomain> }
+) {
+  if (domainsEqual(animatedRef.current, domains)) {
+    return;
+  }
+  setAnimatedByAxis(domains);
+  animatedRef.current = domains;
 }
 
 export interface UseAnimatedYDomainsOptions {
@@ -43,6 +56,10 @@ export function useAnimatedYDomains({
   );
   const destinationRef = useRef(destinationByAxis);
   destinationRef.current = destinationByAxis;
+  const skeletonRef = useRef(skeletonByAxis);
+  skeletonRef.current = skeletonByAxis;
+  const targetRef = useRef(targetByAxis);
+  targetRef.current = targetByAxis;
 
   const [animatedByAxis, setAnimatedByAxis] = useState(destinationByAxis);
   const animatedRef = useRef(animatedByAxis);
@@ -54,13 +71,9 @@ export function useAnimatedYDomains({
     animatedRef.current = animatedByAxis;
   }, [animatedByAxis]);
 
+  // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: phase-driven y-domain tween with frozen exit spacing
   useEffect(() => {
-    const destination = destinationRef.current;
-
-    if (
-      prevPhaseRef.current === chartPhase &&
-      domainsEqual(animatedRef.current, destination)
-    ) {
+    if (prevPhaseRef.current === chartPhase) {
       return;
     }
     prevPhaseRef.current = chartPhase;
@@ -69,14 +82,37 @@ export function useAnimatedYDomains({
       onSettledRef.current?.();
     };
 
+    // Keep grid spacing frozen while the series exits the viewport.
+    if (chartPhase === "exiting") {
+      snapDomains(skeletonRef.current, setAnimatedByAxis, animatedRef);
+      return;
+    }
+    if (chartPhase === "exitingReady") {
+      snapDomains(targetRef.current, setAnimatedByAxis, animatedRef);
+      return;
+    }
+    if (chartPhase === "loading") {
+      snapDomains(skeletonRef.current, setAnimatedByAxis, animatedRef);
+      return;
+    }
+    if (chartPhase === "revealing" || chartPhase === "ready") {
+      snapDomains(targetRef.current, setAnimatedByAxis, animatedRef);
+      return;
+    }
+
+    if (!isYDomainTweenPhase(chartPhase)) {
+      return;
+    }
+
+    const destination = destinationRef.current;
+
     if (domainsEqual(animatedRef.current, destination)) {
       settle();
       return;
     }
 
     if (!enabled || reducedMotion) {
-      setAnimatedByAxis(destination);
-      animatedRef.current = destination;
+      snapDomains(destination, setAnimatedByAxis, animatedRef);
       settle();
       return;
     }
@@ -96,8 +132,7 @@ export function useAnimatedYDomains({
     }
 
     if (!needsTween) {
-      setAnimatedByAxis(destination);
-      animatedRef.current = destination;
+      snapDomains(destination, setAnimatedByAxis, animatedRef);
       settle();
       return;
     }
@@ -125,8 +160,7 @@ export function useAnimatedYDomains({
         setAnimatedByAxis(next);
       },
       onComplete: () => {
-        setAnimatedByAxis(destination);
-        animatedRef.current = destination;
+        snapDomains(destination, setAnimatedByAxis, animatedRef);
         settle();
       },
     });

@@ -32,6 +32,8 @@ export function resolveLineLoadingPulseMode(
 export interface LineLoadingPulseStrokeProps {
   pathD: string;
   mode?: LineLoadingPulseMode;
+  /** Bumps to restart loop cycles without remounting the stroke. */
+  loopEpoch?: number;
   stroke?: string;
   /** Stroke opacity for the animated segment. Default: 0.5 */
   strokeOpacity?: number;
@@ -42,9 +44,10 @@ export interface LineLoadingPulseStrokeProps {
 function useGrowExitClip(
   innerWidth: number,
   mode: LineLoadingPulseMode,
+  loopEpoch: number,
   onComplete?: () => void
 ) {
-  const progress = useMotionValue(mode === "exit" ? 0.5 : 0);
+  const progress = useMotionValue(0);
   const paddedFullWidth = innerWidth + CLIP_PADDING * 2;
   const rightEdge = innerWidth + CLIP_PADDING;
 
@@ -64,35 +67,81 @@ function useGrowExitClip(
     return rightEdge - (1 - shrink) * paddedFullWidth;
   });
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: loopEpoch restarts pulse when orchestrator advances
   useEffect(() => {
     if (innerWidth <= 0) {
       return;
     }
 
     const halfCycleS = LINE_LOADING_PULSE_CYCLE_S / 2;
-    let from = 0;
-    let to = 1;
-    let duration = LINE_LOADING_PULSE_CYCLE_S;
+    let cancelled = false;
+    let controls: ReturnType<typeof animate> | undefined;
 
-    if (mode === "exit") {
-      from = 0.5;
-      to = 1;
-      duration = halfCycleS;
-    } else if (mode === "enter") {
-      from = 0;
-      to = 0.5;
-      duration = halfCycleS;
+    const finish = () => {
+      if (!cancelled) {
+        onComplete?.();
+      }
+    };
+
+    const runShrink = (from: number) => {
+      const shrinkDuration = halfCycleS * ((1 - from) / 0.5);
+      controls = animate(progress, 1, {
+        duration: Math.max(shrinkDuration, 0.01),
+        ease: [...LINE_LOADING_PULSE_EASE],
+        onComplete: finish,
+      });
+    };
+
+    if (mode === "loop") {
+      progress.set(0);
+      controls = animate(progress, 1, {
+        duration: LINE_LOADING_PULSE_CYCLE_S,
+        ease: [...LINE_LOADING_PULSE_EASE],
+        onComplete: finish,
+      });
+      return () => {
+        cancelled = true;
+        controls?.stop();
+      };
     }
 
-    progress.set(from);
-    const controls = animate(progress, to, {
-      duration,
-      ease: [...LINE_LOADING_PULSE_EASE],
-      onComplete: () => onComplete?.(),
-    });
+    if (mode === "exit") {
+      const current = progress.get();
 
-    return () => controls.stop();
-  }, [innerWidth, mode, onComplete, progress]);
+      if (current < 0.5) {
+        const growDuration = halfCycleS * ((0.5 - current) / 0.5);
+        controls = animate(progress, 0.5, {
+          duration: Math.max(growDuration, 0.01),
+          ease: [...LINE_LOADING_PULSE_EASE],
+          onComplete: () => {
+            if (!cancelled) {
+              runShrink(0.5);
+            }
+          },
+        });
+      } else {
+        runShrink(current);
+      }
+
+      return () => {
+        cancelled = true;
+        controls?.stop();
+      };
+    }
+
+    if (mode === "enter") {
+      progress.set(0);
+      controls = animate(progress, 0.5, {
+        duration: halfCycleS,
+        ease: [...LINE_LOADING_PULSE_EASE],
+        onComplete: finish,
+      });
+      return () => {
+        cancelled = true;
+        controls?.stop();
+      };
+    }
+  }, [innerWidth, loopEpoch, mode, onComplete, progress]);
 
   return { clipX, clipWidth };
 }
@@ -100,6 +149,7 @@ function useGrowExitClip(
 export function LineLoadingPulseStroke({
   pathD,
   mode = "loop",
+  loopEpoch = 0,
   stroke = chartCssVars.foreground,
   strokeOpacity = 0.5,
   strokeWidth = 2.5,
@@ -114,6 +164,7 @@ export function LineLoadingPulseStroke({
   const { clipX, clipWidth } = useGrowExitClip(
     innerWidth,
     mode,
+    loopEpoch,
     onCycleComplete
   );
 
