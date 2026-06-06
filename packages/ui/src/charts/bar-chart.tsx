@@ -27,7 +27,7 @@ import {
 } from "./chart-context";
 import { isGradientDefComponent, isPatternDefComponent } from "./chart-defs";
 import { shortDateFmt } from "./chart-formatters";
-import { DEFAULT_CHART_LIFECYCLE } from "./chart-phase";
+import { type ChartPhase, DEFAULT_CHART_LIFECYCLE } from "./chart-phase";
 import { useScheduledTooltip } from "./use-scheduled-tooltip";
 import {
   buildYScalesForLines,

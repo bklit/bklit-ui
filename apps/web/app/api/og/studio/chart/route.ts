@@ -7,6 +7,7 @@ import {
 const STUDIO_OG_CAPTURE_SELECTOR = `[${STUDIO_OG_CAPTURE_ROOT_ATTR}]`;
 
 import { NextResponse } from "next/server";
+import type { Browser } from "puppeteer-core";
 import { SITE_URL } from "@/lib/site-url";
 import { launchStudioOgBrowser } from "@/lib/studio-og-chromium";
 

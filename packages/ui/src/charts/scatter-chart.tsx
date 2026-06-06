@@ -16,6 +16,7 @@ import {
   type LineConfig,
   type Margin,
 } from "./chart-context";
+import type { ChartPhase } from "./chart-phase";
 import { Scatter, type ScatterProps } from "./scatter";
 import { ScatterChartInner } from "./scatter-chart-shell";
 
