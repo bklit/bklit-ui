@@ -10,6 +10,7 @@ import {
 import {
   clampCameraZoom,
   compute100PercentCamera,
+  computeCenterCamera,
   computeFitCamera,
   type EditorCamera,
   persistCamera,
@@ -165,6 +166,31 @@ export function useEditorCamera({
         worldWidth: bounds.width,
         worldHeight: bounds.height,
       }),
+      { userInitiated: true }
+    );
+  }, [applyCamera, getViewportSize]);
+
+  const centerOnContent = useCallback(() => {
+    const { width, height } = getViewportSize();
+    const bounds = getContentBoundsRef.current();
+    const currentZoom = cameraRef.current.zoom;
+    if (!(width && height && bounds.width && bounds.height)) {
+      return;
+    }
+
+    applyCamera(
+      {
+        zoom: currentZoom,
+        ...computeCenterCamera({
+          viewportWidth: width,
+          viewportHeight: height,
+          worldX: bounds.x,
+          worldY: bounds.y,
+          worldWidth: bounds.width,
+          worldHeight: bounds.height,
+          zoom: currentZoom,
+        }),
+      },
       { userInitiated: true }
     );
   }, [applyCamera, getViewportSize]);
@@ -615,6 +641,7 @@ export function useEditorCamera({
     fitToContent,
     /** @deprecated Use fitToContent */
     fitToView: fitToContent,
+    centerOnContent,
     resetTo100,
     zoomBy,
     panBy,

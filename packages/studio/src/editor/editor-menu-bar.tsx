@@ -1,13 +1,19 @@
 "use client";
 
+import { ArrowsPointingInIcon } from "@heroicons/react/24/outline";
 import { Maximize2, Minus, Plus } from "lucide-react";
-import { StudioToolbarTooltips } from "@/components/studio-toolbar-tooltips";
+import { useState } from "react";
+import { StudioShareButton } from "@/components/studio-share-button";
+import {
+  EditorMenuBarTooltipItem,
+  StudioToolbarTooltips,
+} from "@/components/studio-toolbar-tooltips";
+import { EditorReplayButton } from "@/editor/editor-replay-button";
 import { EditorSidebarToggle } from "@/editor/editor-sidebar-toggle";
 import { EditorThemeToggle } from "@/editor/editor-theme-toggle";
 import { cn } from "@/lib/utils";
 import { Button } from "@/ui/button";
 import { Separator } from "@/ui/separator";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/ui/tooltip";
 
 export function EditorMenuBar({
   className,
@@ -22,6 +28,9 @@ export function EditorMenuBar({
   onZoomOut,
   onFitView,
   onResetZoom,
+  onCenterOnContent,
+  onReplay,
+  controlsDisabled = false,
 }: {
   className?: string;
   width: number;
@@ -35,7 +44,12 @@ export function EditorMenuBar({
   onZoomOut?: () => void;
   onFitView?: () => void;
   onResetZoom?: () => void;
+  onCenterOnContent?: () => void;
+  onReplay?: () => void;
+  controlsDisabled?: boolean;
 }) {
+  const [shareCopied, setShareCopied] = useState(false);
+
   return (
     <StudioToolbarTooltips>
       <div
@@ -46,36 +60,37 @@ export function EditorMenuBar({
       >
         {showSidebarToggle ? (
           <>
-            <EditorSidebarToggle
-              onToggle={() => onSidebarsOpenChange(!sidebarsOpen)}
-              open={sidebarsOpen}
-            />
+            <EditorMenuBarTooltipItem label="Toggle sidebars">
+              <EditorSidebarToggle
+                onToggle={() => onSidebarsOpenChange(!sidebarsOpen)}
+                open={sidebarsOpen}
+              />
+            </EditorMenuBarTooltipItem>
 
             <Separator className="mx-0.5 h-5" orientation="vertical" />
           </>
         ) : null}
 
-        <EditorThemeToggle />
+        <EditorMenuBarTooltipItem label="Toggle theme (D)">
+          <EditorThemeToggle />
+        </EditorMenuBarTooltipItem>
 
         {showZoomControls ? (
           <>
             <Separator className="mx-0.5 h-5 shrink-0" orientation="vertical" />
 
-            <Tooltip>
-              <TooltipTrigger render={<span className="inline-flex" />}>
-                <Button
-                  aria-label="Zoom out"
-                  className="size-8"
-                  onClick={onZoomOut}
-                  size="icon-sm"
-                  type="button"
-                  variant="ghost"
-                >
-                  <Minus />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="top">Zoom out</TooltipContent>
-            </Tooltip>
+            <EditorMenuBarTooltipItem label="Zoom out">
+              <Button
+                aria-label="Zoom out"
+                className="size-8"
+                onClick={onZoomOut}
+                size="icon-sm"
+                type="button"
+                variant="ghost"
+              >
+                <Minus />
+              </Button>
+            </EditorMenuBarTooltipItem>
 
             <button
               className="min-w-12 shrink-0 px-1 font-mono text-[11px] text-muted-foreground tabular-nums hover:text-foreground"
@@ -85,37 +100,62 @@ export function EditorMenuBar({
               {Math.round(canvasScale * 100)}%
             </button>
 
-            <Tooltip>
-              <TooltipTrigger render={<span className="inline-flex" />}>
-                <Button
-                  aria-label="Zoom in"
-                  className="size-8"
-                  onClick={onZoomIn}
-                  size="icon-sm"
-                  type="button"
-                  variant="ghost"
-                >
-                  <Plus />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Zoom in</TooltipContent>
-            </Tooltip>
+            <EditorMenuBarTooltipItem label="Zoom in">
+              <Button
+                aria-label="Zoom in"
+                className="size-8"
+                onClick={onZoomIn}
+                size="icon-sm"
+                type="button"
+                variant="ghost"
+              >
+                <Plus />
+              </Button>
+            </EditorMenuBarTooltipItem>
 
-            <Tooltip>
-              <TooltipTrigger render={<span className="inline-flex" />}>
+            <EditorMenuBarTooltipItem label="Zoom to fit (double-click canvas)">
+              <Button
+                aria-label="Zoom to fit"
+                className="size-8"
+                onClick={onFitView}
+                size="icon-sm"
+                type="button"
+                variant="ghost"
+              >
+                <Maximize2 />
+              </Button>
+            </EditorMenuBarTooltipItem>
+
+            {onCenterOnContent ? (
+              <EditorMenuBarTooltipItem label="Center chart on canvas">
                 <Button
-                  aria-label="Zoom to fit"
+                  aria-label="Center chart on canvas"
                   className="size-8"
-                  onClick={onFitView}
+                  onClick={onCenterOnContent}
                   size="icon-sm"
                   type="button"
                   variant="ghost"
                 >
-                  <Maximize2 />
+                  <ArrowsPointingInIcon aria-hidden className="size-4" />
                 </Button>
-              </TooltipTrigger>
-              <TooltipContent>Zoom to fit (double-click canvas)</TooltipContent>
-            </Tooltip>
+              </EditorMenuBarTooltipItem>
+            ) : null}
+
+            {onReplay ? (
+              <EditorMenuBarTooltipItem label="Replay animation (R)">
+                <EditorReplayButton
+                  disabled={controlsDisabled}
+                  onReplay={onReplay}
+                  size="icon-sm"
+                />
+              </EditorMenuBarTooltipItem>
+            ) : null}
+
+            <EditorMenuBarTooltipItem
+              label={shareCopied ? "Copied" : "Copy link"}
+            >
+              <StudioShareButton onCopiedChange={setShareCopied} />
+            </EditorMenuBarTooltipItem>
           </>
         ) : null}
 

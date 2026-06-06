@@ -3,10 +3,8 @@
 import { MoonIcon, SunIcon } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useCallback, useEffect, useState } from "react";
-import { useStudioToolbarTooltipSide } from "@/components/studio-toolbar-tooltips";
 import { cn } from "@/lib/utils";
 import { Button } from "@/ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/ui/tooltip";
 
 function isTypingTarget(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) {
@@ -57,25 +55,19 @@ export function EditorThemeToggle({ className }: { className?: string }) {
   }, [mounted, toggleTheme]);
 
   const isDark = mounted && resolvedTheme === "dark";
-  const tooltipSide = useStudioToolbarTooltipSide();
 
   return (
-    <Tooltip>
-      <TooltipTrigger render={<span className="inline-flex" />}>
-        <Button
-          aria-keyshortcuts="D"
-          aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
-          className={cn("size-8", className)}
-          disabled={!mounted}
-          onClick={toggleTheme}
-          size="icon-sm"
-          type="button"
-          variant="ghost"
-        >
-          {isDark ? <SunIcon /> : <MoonIcon />}
-        </Button>
-      </TooltipTrigger>
-      <TooltipContent side={tooltipSide}>Toggle theme (D)</TooltipContent>
-    </Tooltip>
+    <Button
+      aria-keyshortcuts="D"
+      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+      className={cn("size-8", className)}
+      disabled={!mounted}
+      onClick={toggleTheme}
+      size="icon-sm"
+      type="button"
+      variant="ghost"
+    >
+      {isDark ? <SunIcon /> : <MoonIcon />}
+    </Button>
   );
 }

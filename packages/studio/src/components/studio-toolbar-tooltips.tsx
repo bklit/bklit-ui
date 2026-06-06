@@ -1,7 +1,17 @@
 "use client";
 
-import { createContext, type ReactNode, useContext } from "react";
-import { TooltipProvider } from "@/ui/tooltip";
+import {
+  createContext,
+  type ReactElement,
+  type ReactNode,
+  useContext,
+} from "react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/ui/tooltip";
 
 type StudioToolbarTooltipSide = "top" | "bottom";
 
@@ -32,5 +42,24 @@ export function StudioToolbarTooltips({
         {children}
       </TooltipProvider>
     </StudioToolbarTooltipSideContext.Provider>
+  );
+}
+
+export function EditorMenuBarTooltipItem({
+  label,
+  children,
+}: {
+  label: ReactNode;
+  children: ReactElement;
+}) {
+  const side = useStudioToolbarTooltipSide();
+
+  return (
+    <Tooltip>
+      <TooltipTrigger render={<span className="inline-flex" />}>
+        {children}
+      </TooltipTrigger>
+      <TooltipContent side={side}>{label}</TooltipContent>
+    </Tooltip>
   );
 }

@@ -26,6 +26,8 @@ export function EditorMainPane({
   onLeftSheetOpen,
   onRightSheetOpen,
   showFpsCounter = false,
+  onReplay,
+  controlsDisabled = false,
   children,
 }: {
   className?: string;
@@ -38,6 +40,8 @@ export function EditorMainPane({
   onLeftSheetOpen?: () => void;
   onRightSheetOpen?: () => void;
   showFpsCounter?: boolean;
+  onReplay?: () => void;
+  controlsDisabled?: boolean;
   children: (ctx: {
     size: { width: number; height: number };
     boundsRef: RefObject<HTMLDivElement | null>;
@@ -196,8 +200,11 @@ export function EditorMainPane({
                 "pointer-events-auto absolute left-1/2 z-20 -translate-x-1/2",
                 mobileViewport ? "bottom-3" : "bottom-6"
               )}
+              controlsDisabled={controlsDisabled}
               height={frame.height}
+              onCenterOnContent={camera.centerOnContent}
               onFitView={camera.fitToContent}
+              onReplay={onReplay}
               onResetZoom={camera.resetTo100}
               onSidebarsOpenChange={onSidebarsOpenChange}
               onZoomIn={() => camera.zoomBy(1.12)}

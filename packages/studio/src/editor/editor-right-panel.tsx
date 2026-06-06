@@ -3,9 +3,15 @@
 import { memo, type ReactNode } from "react";
 import { StudioPropertiesPanel } from "@/components/studio-properties-panel";
 import { EditorCollapsiblePane } from "@/editor/editor-collapsible-pane";
+import { EditorExportSection } from "@/editor/editor-export-section";
 import { EditorPropertiesSidebarHeader } from "@/editor/editor-properties-sidebar-header";
 import { useStudioComponentSelection } from "@/editor/studio-component-selection";
 import type { StudioUrlState } from "@/lib/studio-parsers";
+import type {
+  StudioRecordingAspect,
+  StudioRecordingFormat,
+  StudioRecordingInteractionMs,
+} from "@/lib/studio-recording";
 import type { StudioChartConfig } from "@/lib/types";
 
 export const EditorRightPanel = memo(function EditorRightPanel({
@@ -18,6 +24,11 @@ export const EditorRightPanel = memo(function EditorRightPanel({
   onCommit,
   controlsDisabled = false,
   headerActions,
+  isRecording = false,
+  recordingBlocked = false,
+  onExportSvg = () => undefined,
+  onStartRecording = () => undefined,
+  onStopRecording = () => undefined,
 }: {
   state: StudioUrlState;
   config: StudioChartConfig;
@@ -37,23 +48,42 @@ export const EditorRightPanel = memo(function EditorRightPanel({
   ) => void;
   controlsDisabled?: boolean;
   headerActions?: ReactNode;
+  isRecording?: boolean;
+  recordingBlocked?: boolean;
+  onExportSvg?: () => void;
+  onStartRecording?: (
+    interactionMs: StudioRecordingInteractionMs,
+    aspect: StudioRecordingAspect,
+    format: StudioRecordingFormat
+  ) => void;
+  onStopRecording?: () => void;
 }) {
   const { selectedComponent } = useStudioComponentSelection();
 
   return (
     <EditorCollapsiblePane label="Properties" side="right">
-      <EditorPropertiesSidebarHeader actions={headerActions} />
-      <StudioPropertiesPanel
-        component={selectedComponent}
-        config={config}
-        disabled={controlsDisabled}
-        onBatchChange={onBatchChange}
-        onBatchPreview={onBatchPreview}
-        onChange={onChange}
-        onCommit={onCommit}
-        onPreview={onPreview}
-        state={state}
-      />
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+        <EditorPropertiesSidebarHeader actions={headerActions} />
+        <StudioPropertiesPanel
+          component={selectedComponent}
+          config={config}
+          disabled={controlsDisabled}
+          onBatchChange={onBatchChange}
+          onBatchPreview={onBatchPreview}
+          onChange={onChange}
+          onCommit={onCommit}
+          onPreview={onPreview}
+          state={state}
+        />
+        <EditorExportSection
+          controlsDisabled={controlsDisabled}
+          isRecording={isRecording}
+          onExportSvg={onExportSvg}
+          onStartRecording={onStartRecording}
+          onStopRecording={onStopRecording}
+          recordingBlocked={recordingBlocked}
+        />
+      </div>
     </EditorCollapsiblePane>
   );
 });

@@ -7,10 +7,16 @@ import { StudioPropertiesPanel } from "@/components/studio-properties-panel";
 import { StudioScrollArea } from "@/components/studio-scroll-area";
 import { EditorAnimationSection } from "@/editor/editor-animation-section";
 import { EditorDataSection } from "@/editor/editor-data-section";
+import { EditorExportSection } from "@/editor/editor-export-section";
 import { EditorPropertiesSidebarHeader } from "@/editor/editor-properties-sidebar-header";
 import { useStudioComponentSelection } from "@/editor/studio-component-selection";
 import { isCartesianLoadingMode } from "@/lib/line-chart-mode";
 import type { StudioUrlState } from "@/lib/studio-parsers";
+import type {
+  StudioRecordingAspect,
+  StudioRecordingFormat,
+  StudioRecordingInteractionMs,
+} from "@/lib/studio-recording";
 import type { StudioChartConfig } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Button } from "@/ui/button";
@@ -86,6 +92,11 @@ export function EditorMobilePanelSheets({
   controlsDisabled = false,
   headerActions,
   onScramble,
+  isRecording = false,
+  recordingBlocked = false,
+  onExportSvg = () => undefined,
+  onStartRecording = () => undefined,
+  onStopRecording = () => undefined,
 }: {
   leftOpen: boolean;
   rightOpen: boolean;
@@ -113,6 +124,15 @@ export function EditorMobilePanelSheets({
   controlsDisabled?: boolean;
   headerActions?: ReactNode;
   onScramble: () => void;
+  isRecording?: boolean;
+  recordingBlocked?: boolean;
+  onExportSvg: () => void;
+  onStartRecording: (
+    interactionMs: StudioRecordingInteractionMs,
+    aspect: StudioRecordingAspect,
+    format: StudioRecordingFormat
+  ) => void;
+  onStopRecording: () => void;
 }) {
   const {
     components,
@@ -195,6 +215,14 @@ export function EditorMobilePanelSheets({
             onCommit={onCommit}
             onPreview={onPreview}
             state={state}
+          />
+          <EditorExportSection
+            controlsDisabled={controlsDisabled}
+            isRecording={isRecording}
+            onExportSvg={onExportSvg}
+            onStartRecording={onStartRecording}
+            onStopRecording={onStopRecording}
+            recordingBlocked={recordingBlocked}
           />
         </SheetContent>
       </Sheet>

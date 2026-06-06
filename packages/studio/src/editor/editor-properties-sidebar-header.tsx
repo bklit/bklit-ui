@@ -1,7 +1,6 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { StudioToolbarTooltips } from "@/components/studio-toolbar-tooltips";
 import { cn } from "@/lib/utils";
 
 export function EditorPropertiesSidebarHeader({
@@ -22,7 +21,7 @@ export function EditorPropertiesSidebarHeader({
         className
       )}
     >
-      <StudioToolbarTooltips side="bottom">{actions}</StudioToolbarTooltips>
+      {actions}
     </div>
   );
 }

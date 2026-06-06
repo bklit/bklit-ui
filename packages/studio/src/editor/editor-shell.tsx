@@ -9,6 +9,11 @@ import { EditorRightPanel } from "@/editor/editor-right-panel";
 import { useEditorCompactLayout } from "@/editor/use-editor-compact-layout";
 import { useEditorFixedViewport } from "@/editor/use-editor-fixed-viewport";
 import type { StudioUrlState } from "@/lib/studio-parsers";
+import type {
+  StudioRecordingAspect,
+  StudioRecordingFormat,
+  StudioRecordingInteractionMs,
+} from "@/lib/studio-recording";
 import type { StudioChartConfig } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -44,6 +49,12 @@ export const EditorShell = memo(function EditorShell({
   showFpsCounter = false,
   controlsDisabled = false,
   onScramble,
+  onReplay = () => undefined,
+  isRecording = false,
+  recordingBlocked = false,
+  onExportSvg = () => undefined,
+  onStartRecording = () => undefined,
+  onStopRecording = () => undefined,
   children,
 }: {
   className?: string;
@@ -56,6 +67,16 @@ export const EditorShell = memo(function EditorShell({
   showFpsCounter?: boolean;
   controlsDisabled?: boolean;
   onScramble: () => void;
+  onReplay?: () => void;
+  isRecording?: boolean;
+  recordingBlocked?: boolean;
+  onExportSvg?: () => void;
+  onStartRecording?: (
+    interactionMs: StudioRecordingInteractionMs,
+    aspect: StudioRecordingAspect,
+    format: StudioRecordingFormat
+  ) => void;
+  onStopRecording?: () => void;
   chartState: StudioEditorChartState;
   children: (ctx: {
     size: { width: number; height: number };
@@ -108,9 +129,11 @@ export const EditorShell = memo(function EditorShell({
 
       <EditorMainPane
         className="min-h-0 min-w-0 flex-1"
+        controlsDisabled={controlsDisabled}
         frameTitle={frameTitle}
         mobileViewport={mobileShell}
         onLeftSheetOpen={() => setLeftSheetOpen(true)}
+        onReplay={onReplay}
         onRightSheetOpen={() => setRightSheetOpen(true)}
         onSidebarsOpenChange={setSidebarsOpen}
         showFpsCounter={showFpsCounter}
@@ -126,11 +149,16 @@ export const EditorShell = memo(function EditorShell({
           config={config}
           controlsDisabled={controlsDisabled}
           headerActions={propertiesHeaderActions}
+          isRecording={isRecording}
           onBatchChange={chartState.setStudioParams}
           onBatchPreview={chartState.setPreviewParams}
           onChange={chartState.setParam}
           onCommit={chartState.commitParam}
+          onExportSvg={onExportSvg}
           onPreview={chartState.setPreviewParam}
+          onStartRecording={onStartRecording}
+          onStopRecording={onStopRecording}
+          recordingBlocked={recordingBlocked}
           state={chartState.state}
         />
       ) : null}
@@ -141,16 +169,21 @@ export const EditorShell = memo(function EditorShell({
           config={config}
           controlsDisabled={controlsDisabled}
           headerActions={propertiesHeaderActions}
+          isRecording={isRecording}
           leftOpen={leftSheetOpen}
           onBatchChange={chartState.setStudioParams}
           onBatchPreview={chartState.setPreviewParams}
           onChange={chartState.setParam}
           onCommit={chartState.commitParam}
+          onExportSvg={onExportSvg}
           onLeftOpenChange={setLeftSheetOpen}
           onMotionCurveDragActiveChange={chartState.setMotionCurveDragging}
           onPreview={chartState.setPreviewParam}
           onRightOpenChange={setRightSheetOpen}
           onScramble={onScramble}
+          onStartRecording={onStartRecording}
+          onStopRecording={onStopRecording}
+          recordingBlocked={recordingBlocked}
           rightOpen={rightSheetOpen}
           showMotionControls={showMotionControls}
           state={chartState.state}

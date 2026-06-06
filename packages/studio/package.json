@@ -58,6 +58,7 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "remotion": "4.0.462",
+    "sonner": "^2.0.7",
     "tailwind-merge": "^2.6.0",
     "topojson-client": "3.1.0"
   }

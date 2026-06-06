@@ -21,6 +21,7 @@ import {
   useStudioDisplayState,
   useStudioShellState,
 } from "@/components/use-studio-state";
+import { useReplayKeyboardShortcut } from "@/editor/editor-replay-button";
 import { EditorShell } from "@/editor/editor-shell";
 import { StudioComponentSelectionProvider } from "@/editor/studio-component-selection";
 import { StudioPatternDefs, studioPatternFill } from "@/lib/patterns";
@@ -350,6 +351,8 @@ export function StudioEditorLayout({
     onReplay: replay,
   });
 
+  useReplayKeyboardShortcut(replay, !recording.controlsDisabled);
+
   const handleExportSvg = useCallback(async () => {
     const root = chartAreaRef.current?.querySelector<HTMLElement>(
       `[${STUDIO_EXPORT_ROOT_ATTR}]`
@@ -430,23 +433,19 @@ export function StudioEditorLayout({
             config={config}
             controlsDisabled={recording.controlsDisabled}
             frameTitle={config.label}
+            isRecording={recording.isRecording}
+            onExportSvg={handleExportSvg}
+            onReplay={replay}
             onScramble={scrambleData}
+            onStartRecording={recording.handleStartRecording}
+            onStopRecording={recording.stopRecording}
             propertiesHeaderActions={
               <StudioEditorSidebarActions
-                controlsDisabled={recording.controlsDisabled}
-                isRecording={recording.isRecording}
-                onExportSvg={handleExportSvg}
-                onRecordPopoverOpenChange={
-                  recording.handleRecordPopoverOpenChange
-                }
-                onReplay={replay}
-                onStartRecording={recording.handleStartRecording}
-                onStopRecording={recording.stopRecording}
-                recordingBlocked={recording.recordingBlocked}
                 renderCodeSheet={renderCodeSheet}
                 state={state}
               />
             }
+            recordingBlocked={recording.recordingBlocked}
             showMotionControls={Boolean(config.motionPanel)}
             size={{ width: state.frameW, height: state.frameH }}
           >
