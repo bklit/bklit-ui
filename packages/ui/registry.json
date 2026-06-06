@@ -507,6 +507,7 @@
         "@bklit/grid",
         "@bklit/x-axis",
         "@bklit/chart-tooltip",
+        "@ncdai/shimmering-text",
         "@bklit/utils"
       ],
       "dependencies": [
@@ -527,6 +528,11 @@
           "target": "components/charts/time-series-chart-shell.tsx"
         },
         {
+          "path": "src/charts/chart-child-passthrough.ts",
+          "type": "registry:component",
+          "target": "components/charts/chart-child-passthrough.ts"
+        },
+        {
           "path": "src/charts/series-bar-layout.ts",
           "type": "registry:component",
           "target": "components/charts/series-bar-layout.ts"
@@ -535,6 +541,26 @@
           "path": "src/charts/area.tsx",
           "type": "registry:component",
           "target": "components/charts/area.tsx"
+        },
+        {
+          "path": "src/charts/area-chart-loading.tsx",
+          "type": "registry:component",
+          "target": "components/charts/area-chart-loading.tsx"
+        },
+        {
+          "path": "src/charts/line-loading-pulse.tsx",
+          "type": "registry:component",
+          "target": "components/charts/line-loading-pulse.tsx"
+        },
+        {
+          "path": "src/charts/line-loading-timing.ts",
+          "type": "registry:component",
+          "target": "components/charts/line-loading-timing.ts"
+        },
+        {
+          "path": "src/charts/chart-loading-label.tsx",
+          "type": "registry:component",
+          "target": "components/charts/chart-loading-label.tsx"
         },
         {
           "path": "src/charts/pattern-area.tsx",
@@ -586,6 +612,11 @@
           "path": "src/charts/time-series-chart-shell.tsx",
           "type": "registry:component",
           "target": "components/charts/time-series-chart-shell.tsx"
+        },
+        {
+          "path": "src/charts/chart-child-passthrough.ts",
+          "type": "registry:component",
+          "target": "components/charts/chart-child-passthrough.ts"
         }
       ]
     },
@@ -665,6 +696,11 @@
           "path": "src/charts/time-series-chart-shell.tsx",
           "type": "registry:component",
           "target": "components/charts/time-series-chart-shell.tsx"
+        },
+        {
+          "path": "src/charts/chart-child-passthrough.ts",
+          "type": "registry:component",
+          "target": "components/charts/chart-child-passthrough.ts"
         },
         {
           "path": "src/charts/series-bar-layout.ts",
@@ -773,6 +809,11 @@
           "path": "src/charts/time-series-chart-shell.tsx",
           "type": "registry:component",
           "target": "components/charts/time-series-chart-shell.tsx"
+        },
+        {
+          "path": "src/charts/chart-child-passthrough.ts",
+          "type": "registry:component",
+          "target": "components/charts/chart-child-passthrough.ts"
         },
         {
           "path": "src/charts/series-bar-layout.ts",
