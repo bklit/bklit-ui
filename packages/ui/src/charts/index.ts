@@ -43,6 +43,22 @@ export {
   type ChartBrushSelection,
 } from "./chart-brush";
 export {
+  ChartBrushLayout,
+  type ChartBrushLayoutProps,
+  type ChartBrushLayoutState,
+} from "./chart-brush-layout";
+export {
+  type ChartBrushPatternPreset,
+  ChartBrushSelectionOverlay,
+  type ChartBrushSelectionOverlayProps,
+  type ChartBrushSelectionPattern,
+} from "./chart-brush-selection-overlay";
+export {
+  ChartBrushTrackOverlay,
+  type ChartBrushTrackOverlayProps,
+  type ChartBrushTrackOverlayStyle,
+} from "./chart-brush-track-overlay";
+export {
   chartCenterContainerClassName,
   chartCenterLabelClassName,
   chartCenterValueClassName,

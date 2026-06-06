@@ -275,6 +275,85 @@ export const standardChartTooltipControlGroups: StudioControlGroup[] = [
   standardCrosshairControlGroup,
 ];
 
+export const standardBrushStripControlGroups: StudioControlGroup[] = [
+  controlGroup("Brush", [
+    { type: "boolean", key: "showBrush", label: "Show" },
+    {
+      type: "number",
+      key: "brushHeight",
+      label: "Height",
+      min: 32,
+      max: 120,
+      step: 4,
+      unit: "px",
+    },
+    { type: "boolean", key: "brushFadeEdges", label: "Fade edges" },
+    {
+      type: "number",
+      key: "brushBlur",
+      label: "Blur",
+      min: 0,
+      max: 5,
+      step: 0.5,
+      unit: "px",
+    },
+    {
+      type: "boolean",
+      key: "brushSelectionPatternEnabled",
+      label: "Selection pattern",
+    },
+    {
+      type: "pattern",
+      key: "brushSelectionPattern",
+      label: "Pattern",
+      enabledWhen: "brushSelectionPatternEnabled",
+    },
+    {
+      type: "color",
+      key: "brushSelectionPatternColor",
+      label: "Pattern color",
+      enabledWhen: "brushSelectionPatternEnabled",
+    },
+  ]),
+];
+
+export const standardBrushAreaStripControlGroups: StudioControlGroup[] = [
+  controlGroup("Areas", [
+    {
+      type: "opacity",
+      key: "brushAreaOpacity",
+      label: "Opacity",
+      min: 0,
+      max: 1,
+      step: 0.05,
+      color: "var(--chart-1)",
+    },
+    {
+      type: "opacity",
+      key: "brushGradientToOpacity",
+      label: "Bottom",
+      min: 0,
+      max: 1,
+      step: 0.05,
+      color: "var(--chart-1)",
+      secondaryColor: "transparent",
+    },
+    {
+      type: "number",
+      key: "brushGradientSpan",
+      label: "Gradient height",
+      min: 0.05,
+      max: 1,
+      step: 0.05,
+    },
+  ]),
+];
+
+export const standardBrushControlGroups: StudioControlGroup[] = [
+  ...standardBrushStripControlGroups,
+  ...standardBrushAreaStripControlGroups,
+];
+
 export const standardLegendControlGroups: StudioControlGroup[] = [
   controlGroup("Legend", [
     { type: "boolean", key: "showLegend", label: "Show" },

@@ -55,6 +55,7 @@ const utilities = [
   { text: "Legend", url: "/docs/utility/legend" },
   { text: "Grid", url: "/docs/utility/grid" },
   { text: "Tooltip", url: "/docs/utility/tooltip" },
+  { text: "Brush", url: "/docs/utility/brush" },
   {
     text: "Axis",
     children: [

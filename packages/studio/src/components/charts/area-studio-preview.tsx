@@ -1,11 +1,12 @@
 "use client";
 
 import {
+  Area,
+  AreaChart,
   ChartBrush,
   ChartBrushLayout,
   ChartTooltip,
-  Line,
-  LineChart,
+  PatternArea,
   XAxis,
 } from "@bklitui/ui/charts";
 import { useMemo } from "react";
@@ -39,84 +40,141 @@ import {
 } from "@/lib/studio-cartesian-layers";
 import { chartTooltipPropsFromState } from "@/lib/studio-chart-overlays";
 import { isStudioComponentVisible } from "@/lib/studio-component-visibility";
-import { studioCartesianLegendItems } from "@/lib/studio-legend-items";
+import { studioAreaLegendItems } from "@/lib/studio-legend-items";
 import type { StudioUrlState } from "@/lib/studio-parsers";
+import { getSeriesFillMode } from "@/lib/studio-series-design";
 
-function renderBrushStripLines(
+function renderBrushStripAreas(
   state: StudioUrlState,
+  ctx: StudioRenderContext,
   options: {
     curve: ReturnType<typeof resolveCurve>;
+    seriesCount: number;
+  }
+) {
+  return STUDIO_SERIES_KEYS.slice(0, options.seriesCount).flatMap(
+    (key, idx) => {
+      if (!isStudioComponentVisible(state, `area.series.${idx}`)) {
+        return [];
+      }
+
+      const patternFill =
+        getSeriesFillMode(state, idx) === "pattern"
+          ? ctx.patternFillAt(idx)
+          : undefined;
+      const fill = patternFill ?? `var(--chart-${(idx % 5) + 1})`;
+
+      const area = (
+        <Area
+          animate={false}
+          curve={options.curve}
+          dataKey={key}
+          fadeEdges={
+            patternFill || !state.brushFadeEdges
+              ? false
+              : fadeEdgesPropValue(state.fadeEdges)
+          }
+          fill={fill}
+          fillOpacity={state.brushAreaOpacity}
+          gradientSpan={state.brushGradientSpan}
+          gradientToOpacity={state.brushGradientToOpacity}
+          key={`brush-area-${key}`}
+          showHighlight={false}
+          showLine={state.showLine}
+          stroke={idx === 0 ? undefined : STUDIO_SERIES_COLORS[idx]}
+          strokeWidth={state.strokeWidth}
+          yAxisId={getLineSeriesYAxisId(state, idx)}
+        />
+      );
+
+      if (patternFill) {
+        return [
+          <PatternArea
+            animate={false}
+            curve={options.curve}
+            dataKey={key}
+            fill={patternFill}
+            key={`brush-pattern-${key}`}
+          />,
+          area,
+        ];
+      }
+
+      return [area];
+    }
+  );
+}
+
+function renderMainAreas(
+  state: StudioUrlState,
+  ctx: StudioRenderContext,
+  options: {
+    curve: ReturnType<typeof resolveCurve>;
+    isLoading: boolean;
     seriesCount: number;
     seriesStroke: ReturnType<typeof seriesStrokePropsFromState>;
   }
 ) {
-  return STUDIO_SERIES_KEYS.slice(0, options.seriesCount).map((key, idx) => {
-    if (!isStudioComponentVisible(state, `line.series.${idx}`)) {
-      return null;
-    }
+  return STUDIO_SERIES_KEYS.slice(0, options.seriesCount).flatMap(
+    (key, idx) => {
+      if (!isStudioComponentVisible(state, `area.series.${idx}`)) {
+        return [];
+      }
 
-    return (
-      <Line
-        animate={false}
-        curve={options.curve}
-        dataKey={key}
-        fadeEdges={
-          state.brushFadeEdges ? fadeEdgesPropValue(state.fadeEdges) : false
-        }
-        key={`brush-line-${key}`}
-        showHighlight={false}
-        stroke={idx === 0 ? undefined : STUDIO_SERIES_COLORS[idx]}
-        strokeWidth={state.strokeWidth}
-        yAxisId={getLineSeriesYAxisId(state, idx)}
-        {...options.seriesStroke}
-      />
-    );
-  });
+      const isPrimary = idx === 0;
+      const patternFill =
+        getSeriesFillMode(state, idx) === "pattern"
+          ? ctx.patternFillAt(idx)
+          : undefined;
+      const fill = patternFill ?? `var(--chart-${(idx % 5) + 1})`;
+
+      const area = (
+        <Area
+          curve={options.curve}
+          dataKey={key}
+          fadeEdges={patternFill ? false : fadeEdgesPropValue(state.fadeEdges)}
+          fill={fill}
+          fillOpacity={state.fillOpacity}
+          gradientToOpacity={state.gradientToOpacity}
+          key={`area-${key}`}
+          loading={studioCartesianSeriesLoadingProp(isPrimary)}
+          showHighlight={state.showHighlight}
+          showLine={state.showLine}
+          stroke={idx === 0 ? undefined : STUDIO_SERIES_COLORS[idx]}
+          strokeWidth={state.strokeWidth}
+          yAxisId={getLineSeriesYAxisId(state, idx)}
+          {...options.seriesStroke}
+          {...(isPrimary
+            ? studioLoadingStrokeProps(state, "area.loading-line")
+            : {})}
+        />
+      );
+
+      if (!options.isLoading && patternFill) {
+        return [
+          <PatternArea
+            curve={options.curve}
+            dataKey={key}
+            fill={patternFill}
+            key={`pattern-${key}`}
+          />,
+          area,
+        ];
+      }
+
+      return [area];
+    }
+  );
 }
 
-function renderMainLines(
-  state: StudioUrlState,
-  options: {
-    curve: ReturnType<typeof resolveCurve>;
-    seriesCount: number;
-    seriesStroke: ReturnType<typeof seriesStrokePropsFromState>;
-  }
-) {
-  return STUDIO_SERIES_KEYS.slice(0, options.seriesCount).map((key, idx) => {
-    if (!isStudioComponentVisible(state, `line.series.${idx}`)) {
-      return null;
-    }
-
-    const isPrimary = idx === 0;
-
-    return (
-      <Line
-        curve={options.curve}
-        dataKey={key}
-        fadeEdges={fadeEdgesPropValue(state.fadeEdges)}
-        key={`line-${key}`}
-        loading={studioCartesianSeriesLoadingProp(isPrimary)}
-        showHighlight={state.showHighlight}
-        stroke={idx === 0 ? undefined : STUDIO_SERIES_COLORS[idx]}
-        strokeWidth={state.strokeWidth}
-        yAxisId={getLineSeriesYAxisId(state, idx)}
-        {...options.seriesStroke}
-        {...(isPrimary
-          ? studioLoadingStrokeProps(state, "line.loading-line")
-          : {})}
-      />
-    );
-  });
-}
-
-export function LineChartStudioStandardPreview({
+export function AreaStudioPreview({
   state,
   ctx,
 }: {
   state: StudioUrlState;
   ctx: StudioRenderContext;
 }) {
-  const isLoading = state.lineChartState === "loading";
+  const isLoading = state.areaChartState === "loading";
   const curve = resolveCurve(state.curve);
   const seriesCount = clampStudioSeriesCount(state.dataSeries);
   const data = useMemo(
@@ -137,7 +195,7 @@ export function LineChartStudioStandardPreview({
   const brushVisible =
     state.showBrush &&
     !isLoading &&
-    isStudioComponentVisible(state, "line.brush");
+    isStudioComponentVisible(state, "area.brush");
 
   const brushStripMargin = useMemo(
     () => ({
@@ -151,16 +209,14 @@ export function LineChartStudioStandardPreview({
 
   return (
     <StudioChartShell
-      legendComponentId="line.legend"
-      legendItems={
-        isLoading ? [] : studioCartesianLegendItems(state, seriesCount)
-      }
+      legendComponentId="area.legend"
+      legendItems={isLoading ? [] : studioAreaLegendItems(state)}
       state={ctx.chromeState}
     >
       <StudioCartesianFill>
         <ChartBrushLayout
           brushStrip={(brushLayout) => (
-            <LineChart
+            <AreaChart
               animationDuration={0}
               className="size-full"
               data={data}
@@ -168,54 +224,53 @@ export function LineChartStudioStandardPreview({
               status="ready"
               style={{ aspectRatio: "unset", height: "100%" }}
             >
-              {renderBrushStripLines(state, {
-                curve,
-                seriesCount,
-                seriesStroke,
-              })}
+              {ctx.patternDefs}
+              {renderBrushStripAreas(state, ctx, { curve, seriesCount })}
               <ChartBrush
                 {...studioChartBrushProps(state)}
                 initialSelection={brushLayout.brushSelection ?? undefined}
                 onSelectionChange={brushLayout.onBrushSelectionChange}
               />
-            </LineChart>
+            </AreaChart>
           )}
           data={data}
           enabled={brushVisible}
           height={state.brushHeight}
         >
           {(brushLayout) => (
-            <LineChart
+            <AreaChart
               {...getStudioCssRevealPropsForPreview(state, ctx)}
               className="size-full"
               data={data}
-              loadingLabel={studioLoadingLabel(state, "line.loading-label")}
+              loadingLabel={studioLoadingLabel(state, "area.loading-label")}
               margin={margin}
-              status={state.lineChartState}
+              status={state.areaChartState}
               style={{ aspectRatio: "unset", height: "100%" }}
               tweenYDomainOnXDomainChange={brushVisible}
               xDomain={brushLayout.xDomain}
               xDomainSlotCount={brushLayout.xDomainSlotCount}
               yDomainTween
             >
-              {studioCartesianGridLayer(state, "line.grid")}
-              {renderMainLines(state, {
+              {studioCartesianGridLayer(state, "area.grid")}
+              {ctx.patternDefs}
+              {renderMainAreas(state, ctx, {
                 curve,
+                isLoading,
                 seriesCount,
                 seriesStroke,
               })}
               {isLoading ? null : (
                 <>
-                  <StudioChartYAxisLayers chartPrefix="line" state={state} />
-                  <StudioVisibleLayer componentId="line.xaxis" state={state}>
+                  <StudioChartYAxisLayers chartPrefix="area" state={state} />
+                  <StudioVisibleLayer componentId="area.xaxis" state={state}>
                     <XAxis />
                   </StudioVisibleLayer>
-                  <StudioVisibleLayer componentId="line.tooltip" state={state}>
+                  <StudioVisibleLayer componentId="area.tooltip" state={state}>
                     <ChartTooltip {...chartTooltipPropsFromState(state)} />
                   </StudioVisibleLayer>
                 </>
               )}
-            </LineChart>
+            </AreaChart>
           )}
         </ChartBrushLayout>
       </StudioCartesianFill>

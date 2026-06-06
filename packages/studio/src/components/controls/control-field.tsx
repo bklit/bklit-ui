@@ -6,6 +6,7 @@ import type { StudioUrlState } from "@/lib/studio-parsers";
 import type { StudioControl } from "@/lib/types";
 import { Input } from "@/ui/input";
 import { Label } from "@/ui/label";
+import { Switch } from "@/ui/switch";
 import {
   RingGapPreviewIcon,
   RingScalePreviewIcon,
@@ -222,15 +223,22 @@ export function ControlField({
 
   if (control.type === "color") {
     const key = control.key;
+    const disabled = control.enabledWhen ? !state[control.enabledWhen] : false;
     return (
-      <ColorControlField
-        color={String(value ?? "")}
-        keyName={key}
-        label={control.label}
-        onChange={onChange}
-        onCommit={onCommit}
-        onPreview={onPreview}
-      />
+      <div
+        className={cn(
+          disabled && "pointer-events-none opacity-40 transition-opacity"
+        )}
+      >
+        <ColorControlField
+          color={String(value ?? "")}
+          keyName={key}
+          label={control.label}
+          onChange={onChange}
+          onCommit={onCommit}
+          onPreview={onPreview}
+        />
+      </div>
     );
   }
 
@@ -373,18 +381,48 @@ export function ControlField({
   }
 
   if (control.type === "boolean") {
+    const key = control.key;
     return (
       <StudioControlRow
         alignControl="end"
-        htmlFor={String(control.key)}
+        htmlFor={String(key)}
         label={control.label}
       >
+        <Switch
+          checked={Boolean(value)}
+          id={String(key)}
+          onCheckedChange={(checked) => {
+            const commit = onCommit ?? onChange;
+            commit(key, checked as StudioUrlState[typeof key]);
+            if (
+              key === "brushSelectionPatternEnabled" &&
+              checked &&
+              state.brushSelectionPattern === "none"
+            ) {
+              commit("brushSelectionPattern", "diagonal");
+            }
+          }}
+        />
+      </StudioControlRow>
+    );
+  }
+
+  if (control.type === "pattern") {
+    const disabled = control.enabledWhen ? !state[control.enabledWhen] : false;
+    return (
+      <div
+        className={cn(
+          "space-y-2",
+          disabled && "pointer-events-none opacity-40 transition-opacity"
+        )}
+      >
+        {hideGroupLabel ? null : <ControlFieldLabel control={control} />}
         <ControlFieldInputs
           control={control}
           onChange={onChange}
           value={value}
         />
-      </StudioControlRow>
+      </div>
     );
   }
 

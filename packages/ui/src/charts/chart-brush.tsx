@@ -3,7 +3,19 @@
 import { Brush } from "@visx/brush";
 import type { Bounds } from "@visx/brush/lib/types";
 import type React from "react";
-import { memo, useCallback, useMemo } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
+import {
+  ChartBrushHandleOverlay,
+  renderChartBrushHandle,
+} from "./chart-brush-handle";
+import {
+  ChartBrushSelectionOverlay,
+  type ChartBrushSelectionPattern,
+} from "./chart-brush-selection-overlay";
+import {
+  ChartBrushTrackOverlay,
+  type ChartBrushTrackOverlayStyle,
+} from "./chart-brush-track-overlay";
 import { chartCssVars, useChartStable } from "./chart-context";
 
 interface BrushProps {
@@ -17,6 +29,14 @@ interface BrushProps {
   margin?: { top: number; left: number; right: number; bottom: number };
   selectedBoxStyle?: React.SVGProps<SVGRectElement>;
   handleSize?: number;
+  renderBrushHandle?: (props: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    className: string;
+    isBrushActive: boolean;
+  }) => React.ReactNode;
   useWindowMoveEvents?: boolean;
   initialBrushPosition?: {
     start?: { x?: number; y?: number };
@@ -45,9 +65,15 @@ export interface ChartBrushProps {
   selection?: ChartBrushSelection | null;
   /** Use window move events for brush (can fix coordinate offset when SVG is in transformed container). Default: true for brush-in-strip. */
   useWindowMoveEvents?: boolean;
+  /** Backdrop blur on dimmed track (0–5 px). Default: 1.5 */
+  blurPx?: number;
+  /** Fade dimmed regions at the outer track edges. Default: true */
+  fadeOuterEdges?: boolean;
+  /** Optional pattern overlay inside the brush selection window. */
+  selectionPattern?: ChartBrushSelectionPattern;
 }
 
-interface ChartBrushInnerProps {
+interface ChartBrushInnerProps extends ChartBrushTrackOverlayStyle {
   brushDirection?: ChartBrushProps["brushDirection"];
   selectedBoxStyle?: ChartBrushProps["selectedBoxStyle"];
   initialSelection?: ChartBrushProps["initialSelection"];
@@ -57,7 +83,9 @@ interface ChartBrushInnerProps {
   innerWidth: number;
   innerHeight: number;
   margin: ReturnType<typeof useChartStable>["margin"];
-  onBrushChange: (bounds: Bounds | null) => void;
+  onBrushPreview?: (bounds: Bounds | null) => void;
+  onBrushCommit: (bounds: Bounds | null) => void;
+  selectionPattern?: ChartBrushSelectionPattern;
 }
 
 function toDate(value: number | Date | unknown): Date {
@@ -70,6 +98,35 @@ function toDate(value: number | Date | unknown): Date {
   return new Date(Number(value));
 }
 
+function boundsToPixelExtent(
+  bounds: Bounds | null,
+  xScale: ReturnType<typeof useChartStable>["xScale"],
+  innerWidth: number
+): { x0: number; x1: number } | null {
+  if (
+    !bounds ||
+    typeof bounds.x0 === "undefined" ||
+    typeof bounds.x1 === "undefined"
+  ) {
+    return null;
+  }
+
+  const start = toDate(bounds.x0);
+  const end = toDate(bounds.x1);
+  const xScaleFn = xScale as (d: Date) => number;
+  const x0 = Math.max(0, xScaleFn(start < end ? start : end) ?? 0);
+  const x1 = Math.min(
+    innerWidth,
+    xScaleFn(end > start ? end : start) ?? innerWidth
+  );
+
+  if (x1 <= x0) {
+    return null;
+  }
+
+  return { x0, x1 };
+}
+
 const ChartBrushInner = memo(function ChartBrushInner({
   brushDirection = "horizontal",
   selectedBoxStyle,
@@ -80,7 +137,11 @@ const ChartBrushInner = memo(function ChartBrushInner({
   innerWidth,
   innerHeight,
   margin,
-  onBrushChange,
+  onBrushPreview,
+  onBrushCommit,
+  blurPx,
+  fadeOuterEdges,
+  selectionPattern,
 }: ChartBrushInnerProps) {
   const initialBrushPosition = useMemo(() => {
     if (!initialSelection || innerWidth <= 0 || innerHeight <= 0) {
@@ -101,19 +162,77 @@ const ChartBrushInner = memo(function ChartBrushInner({
     };
   }, [initialSelection, xScale, innerWidth, innerHeight]);
 
+  const [pixelExtent, setPixelExtent] = useState(() => ({
+    x0: initialBrushPosition?.start.x ?? 0,
+    x1: initialBrushPosition?.end.x ?? innerWidth,
+  }));
+
+  useEffect(() => {
+    setPixelExtent({
+      x0: initialBrushPosition?.start.x ?? 0,
+      x1: initialBrushPosition?.end.x ?? innerWidth,
+    });
+  }, [initialBrushPosition, innerWidth]);
+
+  const updatePixelExtent = useCallback(
+    (bounds: Bounds | null) => {
+      const pixels = boundsToPixelExtent(bounds, xScale, innerWidth);
+      if (pixels) {
+        setPixelExtent(pixels);
+      }
+    },
+    [innerWidth, xScale]
+  );
+
+  const handleBrushPreview = useCallback(
+    (bounds: Bounds | null) => {
+      updatePixelExtent(bounds);
+      onBrushPreview?.(bounds);
+    },
+    [onBrushPreview, updatePixelExtent]
+  );
+
+  const handleBrushCommit = useCallback(
+    (bounds: Bounds | null) => {
+      updatePixelExtent(bounds);
+      onBrushCommit(bounds);
+    },
+    [onBrushCommit, updatePixelExtent]
+  );
+
   const defaultStyle = {
-    fill: chartCssVars.segmentBackground,
-    fillOpacity: 0.4,
-    stroke: chartCssVars.segmentLine ?? "var(--chart-segment-line)",
+    fill: "transparent",
+    fillOpacity: 0,
+    stroke: chartCssVars.brushBorder,
     strokeWidth: 1,
-    strokeOpacity: 0.8,
   };
 
   return (
     <g className="chart-brush">
+      <ChartBrushTrackOverlay
+        blurPx={blurPx}
+        fadeOuterEdges={fadeOuterEdges}
+        innerHeight={innerHeight}
+        innerWidth={innerWidth}
+        selectionX0={pixelExtent.x0}
+        selectionX1={pixelExtent.x1}
+      />
+      <ChartBrushSelectionOverlay
+        innerHeight={innerHeight}
+        innerWidth={innerWidth}
+        pattern={selectionPattern}
+        selectionX0={pixelExtent.x0}
+        selectionX1={pixelExtent.x1}
+      />
+      <ChartBrushHandleOverlay
+        innerHeight={innerHeight}
+        innerWidth={innerWidth}
+        selectionX0={pixelExtent.x0}
+        selectionX1={pixelExtent.x1}
+      />
       <BrushComponent
         brushDirection={brushDirection}
-        handleSize={6}
+        handleSize={8}
         height={innerHeight}
         initialBrushPosition={initialBrushPosition}
         key={`brush-${innerWidth}-${innerHeight}`}
@@ -122,8 +241,9 @@ const ChartBrushInner = memo(function ChartBrushInner({
             ? margin
             : { top: 0, left: 0, right: 0, bottom: 0 }
         }
-        onBrushEnd={onBrushChange}
-        onChange={onBrushChange}
+        onBrushEnd={handleBrushCommit}
+        onChange={handleBrushPreview}
+        renderBrushHandle={renderChartBrushHandle}
         selectedBoxStyle={selectedBoxStyle ?? defaultStyle}
         useWindowMoveEvents={useWindowMoveEvents}
         width={innerWidth}
@@ -141,6 +261,9 @@ export function ChartBrush({
   initialSelection,
   selection: _selection,
   useWindowMoveEvents = true,
+  blurPx,
+  fadeOuterEdges,
+  selectionPattern,
 }: ChartBrushProps) {
   const { xScale, yScale, innerWidth, innerHeight, margin, isLoaded } =
     useChartStable();
@@ -167,7 +290,7 @@ export function ChartBrush({
     []
   );
 
-  const handleBrushChange = useCallback(
+  const notifySelectionChange = useCallback(
     (bounds: Bounds | null) => {
       if (!onSelectionChange) {
         return;
@@ -177,19 +300,37 @@ export function ChartBrush({
     [onSelectionChange, boundsToSelection]
   );
 
+  const handleBrushPreview = useCallback(
+    (bounds: Bounds | null) => {
+      notifySelectionChange(bounds);
+    },
+    [notifySelectionChange]
+  );
+
+  const handleBrushCommit = useCallback(
+    (bounds: Bounds | null) => {
+      notifySelectionChange(bounds);
+    },
+    [notifySelectionChange]
+  );
+
   if (!isLoaded || innerWidth <= 0 || innerHeight <= 0) {
     return null;
   }
 
   return (
     <ChartBrushInner
+      blurPx={blurPx}
       brushDirection={brushDirection}
+      fadeOuterEdges={fadeOuterEdges}
       initialSelection={initialSelection}
       innerHeight={innerHeight}
       innerWidth={innerWidth}
       margin={margin}
-      onBrushChange={handleBrushChange}
+      onBrushCommit={handleBrushCommit}
+      onBrushPreview={handleBrushPreview}
       selectedBoxStyle={selectedBoxStyle}
+      selectionPattern={selectionPattern}
       useWindowMoveEvents={useWindowMoveEvents}
       xScale={xScale}
       yScale={yScale}

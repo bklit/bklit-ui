@@ -46,6 +46,7 @@ export const chartCssVars = {
   badgeForeground: "var(--chart-marker-badge-foreground)",
   segmentBackground: "var(--chart-segment-background)",
   segmentLine: "var(--chart-segment-line)",
+  brushBorder: "var(--chart-brush-border)",
 };
 
 /** Default scatter series colors from the chart palette (`--chart-1` … `--chart-5`). */
@@ -173,6 +174,11 @@ export interface ChartContextValue extends ChartHoverContextValue {
   // Pre-computed date labels for ticker animation
   dateLabels: string[];
 
+  /** Active brush zoom range — when set, axis ticks align to visible data rows. */
+  xDomain?: [Date, Date];
+  /** Full dataset length when brush zoom is enabled (for zoom vs full-range detection). */
+  xDomainSlotCount?: number;
+
   // Bar chart specific (optional - only present in BarChart)
   /** Band scale for categorical x-axis (bar charts) */
   barScale?: ScaleBand<string>;
@@ -259,6 +265,8 @@ export function ChartProvider({
       notifyLoadingPulseComplete: value.notifyLoadingPulseComplete,
       xAccessor: value.xAccessor,
       dateLabels: value.dateLabels,
+      xDomain: value.xDomain,
+      xDomainSlotCount: value.xDomainSlotCount,
       barScale: value.barScale,
       bandWidth: value.bandWidth,
       barXAccessor: value.barXAccessor,
@@ -301,6 +309,8 @@ export function ChartProvider({
       value.notifyLoadingPulseComplete,
       value.xAccessor,
       value.dateLabels,
+      value.xDomain,
+      value.xDomainSlotCount,
       value.barScale,
       value.bandWidth,
       value.barXAccessor,

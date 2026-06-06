@@ -1,0 +1,141 @@
+---
+title: Brush
+description: Time-range brush for zooming area and line charts with a mini-chart strip and draggable selection handles
+---
+
+import { studioChartHref } from "@bklitui/studio";
+import { AreaChartBrushDemo } from "@/components/docs/area-chart-brush-demo";
+import { OpenInStudioButton } from "@/components/docs/open-in-studio-button";
+
+<ComponentPreview>
+  <AreaChartBrushDemo />
+</ComponentPreview>
+
+## Installation
+
+`ChartBrush` and `ChartBrushLayout` ship with time-series charts. Install the [area chart](/docs/components/area-chart) (or [line chart](/docs/components/line-chart)) registry item, then import from your charts package:
+
+```tsx
+import {
+  AreaChart,
+  Area,
+  ChartBrush,
+  ChartBrushLayout,
+  Grid,
+  XAxis,
+  ChartTooltip,
+} from "@/components/charts";
+```
+
+## Usage
+
+Wrap the main chart in `ChartBrushLayout`. Render a simplified mini chart in `brushStrip` with `ChartBrush` as a child. Pass `xDomain`, `xDomainSlotCount`, and `tweenYDomainOnXDomainChange` to the main chart so it zooms and tweens the y-scale as the brush changes.
+
+```tsx
+<ChartBrushLayout
+  data={data}
+  enabled
+  height={72}
+  brushStrip={(layout) => (
+    <AreaChart
+      animationDuration={0}
+      data={data}
+      status="ready"
+      style={{ aspectRatio: "unset", height: "100%" }}
+    >
+      <Area dataKey="value" fillOpacity={0.15} animate={false} showHighlight={false} />
+      <ChartBrush
+        initialSelection={layout.brushSelection ?? undefined}
+        onSelectionChange={layout.onBrushSelectionChange}
+      />
+    </AreaChart>
+  )}
+>
+  {(layout) => (
+    <AreaChart
+      data={data}
+      tweenYDomainOnXDomainChange
+      xDomain={layout.xDomain}
+      xDomainSlotCount={layout.xDomainSlotCount}
+      yDomainTween
+    >
+      <Grid horizontal />
+      <Area dataKey="value" fillOpacity={0.35} />
+      <XAxis />
+      <ChartTooltip />
+    </AreaChart>
+  )}
+</ChartBrushLayout>
+```
+
+Works the same with `LineChart` and `Line` in the brush strip and main chart. See [Area Chart](/docs/components/area-chart#brush-zoom) and [Line Chart](/docs/components/line-chart#brush-zoom) for chart-specific notes.
+
+<div className="not-prose mb-3 flex items-center justify-between gap-4">
+  <h3 className="m-0 font-semibold text-foreground text-base tracking-tight">
+    Studio
+  </h3>
+  <OpenInStudioButton
+    href={studioChartHref("area-chart", { showBrush: true })}
+    slug="area-chart"
+  />
+</div>
+
+Open [Studio with brush enabled](/studio?chart=area-chart&showBrush=true) to tune strip height, blur, fade edges, and selection pattern.
+
+## ChartBrushLayout
+
+Orchestrates the main chart and optional brush strip. Owns brush selection state and derives `xDomain` for the main chart.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `data` | `Record<string, unknown>[]` | required | Full dataset for the brush strip and main chart |
+| `xDataKey` | `string` | `"date"` | Key in data for x-axis values |
+| `enabled` | `boolean` | required | When `false`, children render without brush zoom |
+| `height` | `number` | required | Brush strip height in pixels |
+| `brushStrip` | `(layout) => ReactNode` | — | Mini chart + `ChartBrush` below the main chart |
+| `children` | `(layout) => ReactNode` | required | Main chart render function |
+| `className` | `string` | — | Wrapper class name |
+
+The `layout` argument provides:
+
+| Field | Type | Description |
+|------|------|-------------|
+| `xDomain` | `[Date, Date] \| undefined` | Visible x-range for the main chart |
+| `xDomainSlotCount` | `number \| undefined` | Full dataset length for x-scale padding |
+| `brushSelection` | `{ start: Date; end: Date } \| null` | Current brush window |
+| `onBrushSelectionChange` | `(selection) => void` | Pass to `ChartBrush` `onSelectionChange` |
+
+## ChartBrush
+
+Renders inside a time-series chart (typically the brush strip). Drag handles to pan and resize; the main chart zooms via `ChartBrushLayout`.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `onSelectionChange` | `(domain) => void` | — | Fires while dragging with the selected date range |
+| `initialSelection` | `{ start: Date; end: Date }` | — | Initial brush window |
+| `selection` | `{ start: Date; end: Date }` | — | Controlled selection |
+| `brushDirection` | `"horizontal" \| "vertical" \| "both"` | `"horizontal"` | Brush axis |
+| `blurPx` | `number` | `1.5` | Backdrop blur on dimmed track (0–5 px) |
+| `fadeOuterEdges` | `boolean` | `true` | Fade dimmed regions at outer track edges |
+| `selectionPattern` | `{ preset; color }` | — | Pattern fill inside the selection window |
+| `useWindowMoveEvents` | `boolean` | `true` | Use window move events (recommended for brush strips) |
+
+### Selection pattern presets
+
+`selectionPattern.preset` accepts: `diagonal`, `horizontal`, `vertical`, `cross`, `dots`, or `accent`. Omit `selectionPattern` for a solid selection fill.
+
+## Main chart props
+
+When brush zoom is active, pass these to `AreaChart` or `LineChart`:
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `xDomain` | `[Date, Date]` | — | Visible x-range from `layout.xDomain` |
+| `xDomainSlotCount` | `number` | — | `layout.xDomainSlotCount` (full data length) |
+| `tweenYDomainOnXDomainChange` | `boolean` | `false` | Tween y-domain when the brush changes the visible range |
+
+## CSS variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `--chart-brush-border` | `var(--chart-grid)` | Brush handle border color |

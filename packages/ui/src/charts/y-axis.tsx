@@ -3,11 +3,15 @@
 import { memo, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { useChartStable, useYScale } from "./chart-context";
+import { DEFAULT_Y_DOMAIN_TWEEN_MS } from "./chart-phase";
+import { LINE_LOADING_PULSE_EASE } from "./line-loading-timing";
 import type { YAxisOrientation } from "./y-axis-scales";
 import {
   resolveYAxisTickCount,
   Y_AXIS_DEFAULT_TICK_COUNT,
 } from "./y-axis-ticks";
+
+const Y_AXIS_POSITION_TWEEN_MS = DEFAULT_Y_DOMAIN_TWEEN_MS;
 
 export interface YAxisProps {
   /** Scale group id (Recharts `yAxisId`). Default: `"left"`. */
@@ -93,6 +97,7 @@ const YAxisInner = memo(function YAxisInner({
             style={{
               top: tick.y,
               transform: "translateY(-50%)",
+              transition: `top ${Y_AXIS_POSITION_TWEEN_MS}ms cubic-bezier(${LINE_LOADING_PULSE_EASE.join(", ")})`,
               ...(isLeft
                 ? { right: 0, justifyContent: "flex-end", paddingRight: 8 }
                 : { left: 0, justifyContent: "flex-start", paddingLeft: 8 }),

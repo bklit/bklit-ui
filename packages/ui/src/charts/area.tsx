@@ -52,6 +52,11 @@ export interface AreaProps {
   /** Gradient opacity at bottom (0 = fully transparent). Default: 0 */
   gradientToOpacity?: number;
   /**
+   * Vertical extent of the fill gradient (0–1). `1` fades across the full
+   * height; lower values compress the gradient toward the top.
+   */
+  gradientSpan?: number;
+  /**
    * Fade the area fill (and stroke) toward transparent at the chart edges.
    * - `true` fades both edges, `false` disables the fade entirely.
    * - `"left"` / `"right"` fades only that side — useful when the opposite
@@ -133,6 +138,7 @@ export function Area({
   showLine = true,
   showHighlight = true,
   gradientToOpacity = 0,
+  gradientSpan = 1,
   fadeEdges = false,
   showMarkers = false,
   markers,
@@ -216,9 +222,11 @@ export function Area({
   // The stroke gradient is only emitted when at least one edge fades, so fall
   // back to the resolved solid color otherwise — avoids an invalid url(#...).
   const fadeSides = resolveFadeSides(fadeEdges);
-  const strokePaint = fadeSides.any
-    ? `url(#${strokeGradientId})`
-    : resolvedStroke;
+  const useViewportEdgeFade = fadeSides.any && !isPatternFill;
+  let strokePaint = resolvedStroke;
+  if (!useViewportEdgeFade && fadeSides.any) {
+    strokePaint = `url(#${strokeGradientId})`;
+  }
   const highlightEnabled =
     showHighlight && showLine && !showLoadingPulse && showSeriesContent;
   const showSeriesStroke = showSeriesContent && showLine;
@@ -227,6 +235,51 @@ export function Area({
     visibleStroke = strokePaint;
   }
   const shouldMeasurePath = showLine && (showSeriesContent || showLoadingPulse);
+
+  const seriesLayers = (
+    <>
+      {showSeriesContent && showAreaFill ? (
+        <AreaClosed
+          curve={curve}
+          data={renderData}
+          fill={areaFill}
+          x={(d) => xScale(xAccessor(d)) ?? 0}
+          y={getY}
+          yScale={yScale}
+        />
+      ) : null}
+
+      {shouldMeasurePath ? (
+        <>
+          <LinePath
+            curve={curve}
+            data={renderData}
+            innerRef={pathRef}
+            stroke={visibleStroke}
+            strokeLinecap="round"
+            strokeWidth={strokeWidth}
+            x={(d) => xScale(xAccessor(d)) ?? 0}
+            y={getY}
+          />
+          {showSeriesStroke ? (
+            <SeriesDashTailOverlay
+              dashArray={dashArray}
+              dashFromIndex={dashFromIndex}
+              data={data}
+              innerHeight={innerHeight}
+              innerWidth={innerWidth}
+              pathD={pathD}
+              pathLength={pathLength}
+              stroke={strokePaint}
+              strokeWidth={strokeWidth}
+              xAccessor={xAccessor}
+              xScale={xScale}
+            />
+          ) : null}
+        </>
+      ) : null}
+    </>
+  );
 
   return (
     <>
@@ -237,6 +290,7 @@ export function Area({
         fill={fill}
         fillOpacity={fillOpacity}
         gradientId={gradientId}
+        gradientSpan={gradientSpan}
         gradientToOpacity={gradientToOpacity}
         innerHeight={innerHeight}
         innerWidth={innerWidth}
@@ -250,56 +304,11 @@ export function Area({
         enabled={showHighlight}
         seriesIndex={seriesIndex}
       >
-        {/* Area fill */}
-        {showSeriesContent && showAreaFill ? (
-          <g
-            mask={
-              fadeSides.any && !isPatternFill
-                ? `url(#${edgeMaskId})`
-                : undefined
-            }
-          >
-            <AreaClosed
-              curve={curve}
-              data={renderData}
-              fill={areaFill}
-              x={(d) => xScale(xAccessor(d)) ?? 0}
-              y={getY}
-              yScale={yScale}
-            />
-          </g>
-        ) : null}
-
-        {/* Keep LinePath mounted during loading pulse so path metrics stay in sync. */}
-        {shouldMeasurePath ? (
-          <>
-            <LinePath
-              curve={curve}
-              data={renderData}
-              innerRef={pathRef}
-              stroke={visibleStroke}
-              strokeLinecap="round"
-              strokeWidth={strokeWidth}
-              x={(d) => xScale(xAccessor(d)) ?? 0}
-              y={getY}
-            />
-            {showSeriesStroke ? (
-              <SeriesDashTailOverlay
-                dashArray={dashArray}
-                dashFromIndex={dashFromIndex}
-                data={data}
-                innerHeight={innerHeight}
-                innerWidth={innerWidth}
-                pathD={pathD}
-                pathLength={pathLength}
-                stroke={strokePaint}
-                strokeWidth={strokeWidth}
-                xAccessor={xAccessor}
-                xScale={xScale}
-              />
-            ) : null}
-          </>
-        ) : null}
+        {useViewportEdgeFade ? (
+          <g mask={`url(#${edgeMaskId})`}>{seriesLayers}</g>
+        ) : (
+          seriesLayers
+        )}
       </SeriesHoverDim>
 
       {/* Highlight segment on hover — isolated hover subscriber. */}

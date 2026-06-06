@@ -4,6 +4,7 @@
     "legend",
     "grid",
     "tooltip",
+    "brush",
     "axis",
     "use-chart",
     "custom-indicator"

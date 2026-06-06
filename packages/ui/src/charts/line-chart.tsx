@@ -4,6 +4,7 @@ import { ParentSize } from "@visx/responsive";
 import type { Transition } from "motion/react";
 import {
   Children,
+  type CSSProperties,
   isValidElement,
   type ReactElement,
   type ReactNode,
@@ -50,6 +51,14 @@ export interface LineChartProps {
   yDomainTweenDuration?: number;
   /** Animate y-domain when status or target domain changes. Default: true */
   yDomainTween?: boolean;
+  /** Visible x-domain for brush zoom. */
+  xDomain?: [Date, Date];
+  /** Full dataset length for x-scale padding when `xDomain` is set. */
+  xDomainSlotCount?: number;
+  /** Tween y-domain when brush changes the visible x-range. Default: false */
+  tweenYDomainOnXDomainChange?: boolean;
+  /** Inline container styles (e.g. fixed height for brush strip). */
+  style?: CSSProperties;
   /** Child components (Line, Grid, ChartTooltip, etc.) */
   children: ReactNode;
 }
@@ -139,6 +148,9 @@ interface ChartInnerProps {
   loadingLabel?: string;
   yDomainTweenDuration: number;
   yDomainTween: boolean;
+  xDomain?: [Date, Date];
+  xDomainSlotCount?: number;
+  tweenYDomainOnXDomainChange?: boolean;
   children: ReactNode;
   containerRef: React.RefObject<HTMLDivElement | null>;
   onPhaseChange: (phase: ChartPhase) => void;
@@ -158,6 +170,9 @@ function ChartInner({
   loadingLabel,
   yDomainTweenDuration,
   yDomainTween,
+  xDomain,
+  xDomainSlotCount,
+  tweenYDomainOnXDomainChange,
   children,
   containerRef,
   onPhaseChange,
@@ -179,8 +194,11 @@ function ChartInner({
       margin={margin}
       onPhaseChange={onPhaseChange}
       revealSignature={revealSignature}
+      tweenYDomainOnXDomainChange={tweenYDomainOnXDomainChange}
       width={width}
       xDataKey={xDataKey}
+      xDomain={xDomain}
+      xDomainSlotCount={xDomainSlotCount}
       yDomainTween={yDomainTween}
       yDomainTweenDuration={yDomainTweenDuration}
     >
@@ -203,6 +221,10 @@ export function LineChart({
   loadingLabel,
   yDomainTweenDuration = DEFAULT_Y_DOMAIN_TWEEN_MS,
   yDomainTween = true,
+  xDomain,
+  xDomainSlotCount,
+  tweenYDomainOnXDomainChange = false,
+  style,
   children,
 }: LineChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -229,6 +251,7 @@ export function LineChart({
       style={{
         ...(aspectRatio ? { aspectRatio } : undefined),
         touchAction: "none",
+        ...style,
       }}
     >
       <ParentSize debounceTime={10}>
@@ -245,8 +268,11 @@ export function LineChart({
             margin={margin}
             onPhaseChange={handlePhaseChange}
             revealSignature={revealSignature}
+            tweenYDomainOnXDomainChange={tweenYDomainOnXDomainChange}
             width={width}
             xDataKey={xDataKey}
+            xDomain={xDomain}
+            xDomainSlotCount={xDomainSlotCount}
             yDomainTween={yDomainTween}
             yDomainTweenDuration={yDomainTweenDuration}
           >

@@ -34,6 +34,7 @@ import {
   decimateTimeSeries,
   maxRenderPointsForWidth,
 } from "./decimate-time-series";
+import { filterDataByXDomain } from "./filter-data-by-x-domain";
 import {
   generateChartSkeletonData,
   generateChartSkeletonFromTarget,
@@ -119,7 +120,11 @@ export function isPostOverlayComponent(child: ReactElement): boolean {
       ? childType.displayName || childType.name || ""
       : "";
 
-  return componentName === "ChartMarkers" || componentName === "MarkerGroup";
+  return (
+    componentName === "ChartMarkers" ||
+    componentName === "MarkerGroup" ||
+    componentName === "ChartBrush"
+  );
 }
 
 const CLIP_EXCLUDED_COMPONENT_NAMES = new Set([
@@ -182,6 +187,12 @@ export interface TimeSeriesChartInnerProps {
   /** Animate y-domain on status / data transitions. Default: true */
   yDomainTween?: boolean;
   yDomainTweenDuration?: number;
+  /** Visible x-domain for brush zoom. When set, y-domain and series use data in this range. */
+  xDomain?: [Date, Date];
+  /** Full dataset length for x-scale padding when `xDomain` is set. */
+  xDomainSlotCount?: number;
+  /** Tween y-domain when the visible x-range changes during the ready phase. */
+  tweenYDomainOnXDomainChange?: boolean;
   onPhaseChange?: (phase: ChartPhase) => void;
 }
 
@@ -219,6 +230,9 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
   loadingLabel,
   yDomainTween = true,
   yDomainTweenDuration = DEFAULT_Y_DOMAIN_TWEEN_MS,
+  xDomain,
+  xDomainSlotCount,
+  tweenYDomainOnXDomainChange = false,
   onPhaseChange,
 }: TimeSeriesChartInnerProps) {
   const staticPreview = useStaticChartPreview();
@@ -283,32 +297,51 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
     [xAccessor]
   );
 
+  const visiblePlotData = useMemo(() => {
+    if (!xDomain) {
+      return plotData;
+    }
+    return filterDataByXDomain(plotData, xDomain, xAccessor);
+  }, [plotData, xDomain, xAccessor]);
+
   const xScale = useMemo(() => {
-    const timeExtent = extent(plotData, (d) => xAccessor(d).getTime());
-    const minTime = timeExtent[0] ?? 0;
-    const maxTime = timeExtent[1] ?? minTime;
+    const minTime = xDomain
+      ? xDomain[0].getTime()
+      : (extent(plotData, (d) => xAccessor(d).getTime())[0] ?? 0);
+    const maxTime = xDomain
+      ? xDomain[1].getTime()
+      : (extent(plotData, (d) => xAccessor(d).getTime())[1] ?? minTime);
 
     return scaleTime({
       range: [0, innerWidth],
       domain: [minTime, maxTime],
     });
-  }, [innerWidth, plotData, xAccessor]);
+  }, [innerWidth, plotData, xAccessor, xDomain]);
+
+  // When brushing, keep the full series for path rendering so edge fades stay
+  // anchored to the viewport while the line pans through them. Y-domain and
+  // interaction still use the filtered visible slice.
+  const seriesSourceData = xDomain ? plotData : visiblePlotData;
 
   const renderData = useMemo(() => {
     const valueKeys = lines.map((line) => line.dataKey);
     return decimateTimeSeries(
-      plotData,
+      seriesSourceData,
       maxRenderPointsForWidth(innerWidth),
       valueKeys
     );
-  }, [plotData, innerWidth, lines]);
+  }, [seriesSourceData, innerWidth, lines]);
 
   const columnWidth = useMemo(() => {
-    if (plotData.length < 2) {
+    const slotCount =
+      xDomain && xDomainSlotCount != null
+        ? xDomainSlotCount
+        : visiblePlotData.length;
+    if (slotCount < 2) {
       return 0;
     }
-    return innerWidth / (plotData.length - 1);
-  }, [innerWidth, plotData.length]);
+    return innerWidth / (slotCount - 1);
+  }, [innerWidth, visiblePlotData.length, xDomain, xDomainSlotCount]);
 
   const yDomainSkeletonByAxis = useMemo(
     () =>
@@ -323,9 +356,10 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
     () =>
       computeYDomainsByAxis({
         lines,
-        resolveDomain: (dataKeys) => resolveYDomain(data, dataKeys),
+        resolveDomain: (dataKeys) =>
+          resolveYDomain(xDomain ? visiblePlotData : data, dataKeys),
       }),
-    [data, lines, resolveYDomain]
+    [data, lines, resolveYDomain, visiblePlotData, xDomain]
   );
 
   const animatedYDomainsByAxis = useAnimatedYDomains({
@@ -335,6 +369,7 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
     onSettled: notifyYDomainTweenComplete,
     skeletonByAxis: yDomainSkeletonByAxis,
     targetByAxis: yDomainTargetByAxis,
+    tweenOnTargetChange: tweenYDomainOnXDomainChange && xDomain != null,
   });
 
   const yDomainsForScales = animatedYDomainsByAxis;
@@ -355,8 +390,8 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
   );
 
   const dateLabels = useMemo(
-    () => plotData.map((d) => shortDateFmt.format(xAccessor(d))),
-    [plotData, xAccessor]
+    () => visiblePlotData.map((d) => shortDateFmt.format(xAccessor(d))),
+    [visiblePlotData, xAccessor]
   );
 
   const canInteract = isLoaded && isChartInteractionPhase(chartPhase);
@@ -371,7 +406,7 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
   } = useChartInteraction({
     bisectDate,
     canInteract,
-    data: plotData,
+    data: visiblePlotData,
     lines,
     margin,
     xAccessor,
@@ -408,7 +443,7 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
 
   const contextValue = useMemo(
     () => ({
-      data: plotData,
+      data: visiblePlotData,
       renderData,
       xScale,
       yScale,
@@ -437,6 +472,8 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
       notifyLoadingPulseComplete,
       xAccessor,
       dateLabels,
+      xDomain,
+      xDomainSlotCount,
       selection,
       clearSelection,
       composedBarDataKeys,
@@ -448,7 +485,7 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
       composedStackGap,
     }),
     [
-      plotData,
+      visiblePlotData,
       renderData,
       xScale,
       yScale,
@@ -477,6 +514,8 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
       notifyLoadingPulseComplete,
       xAccessor,
       dateLabels,
+      xDomain,
+      xDomainSlotCount,
       selection,
       clearSelection,
       composedBarDataKeys,

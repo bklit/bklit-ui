@@ -2,7 +2,7 @@
 
 import { localPoint } from "@visx/event";
 import type { scaleLinear, scaleTime } from "@visx/scale";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { LineConfig, Margin, TooltipData } from "./chart-context";
 import { useScheduledTooltip } from "./use-scheduled-tooltip";
 import { normalizeYAxisId } from "./y-axis-scales";
@@ -73,6 +73,7 @@ export function useChartInteraction({
 
   const isDraggingRef = useRef(false);
   const dragStartXRef = useRef<number>(0);
+  const lastHoveredXRef = useRef<number | null>(null);
 
   const resolveTooltipFromX = useCallback(
     (pixelX: number): TooltipData | null => {
@@ -185,6 +186,7 @@ export function useChartInteraction({
         return;
       }
 
+      lastHoveredXRef.current = chartX;
       const tooltip = resolveTooltipFromX(chartX);
       if (tooltip) {
         scheduleTooltip(tooltip);
@@ -194,6 +196,7 @@ export function useChartInteraction({
   );
 
   const handleMouseLeave = useCallback(() => {
+    lastHoveredXRef.current = null;
     clearTooltip();
     if (isDraggingRef.current) {
       isDraggingRef.current = false;
@@ -230,6 +233,7 @@ export function useChartInteraction({
         if (chartX === null) {
           return;
         }
+        lastHoveredXRef.current = chartX;
         const tooltip = resolveTooltipFromX(chartX);
         if (tooltip) {
           scheduleTooltip(tooltip);
@@ -272,6 +276,7 @@ export function useChartInteraction({
         if (chartX === null) {
           return;
         }
+        lastHoveredXRef.current = chartX;
         const tooltip = resolveTooltipFromX(chartX);
         if (tooltip) {
           scheduleTooltip(tooltip);
@@ -305,6 +310,20 @@ export function useChartInteraction({
   const clearSelection = useCallback(() => {
     setSelection(null);
   }, []);
+
+  // Re-anchor tooltip/crosshair when x-scale or visible data changes (e.g. brush zoom commit).
+  useEffect(() => {
+    if (!canInteract || lastHoveredXRef.current === null) {
+      return;
+    }
+    const tooltip = resolveTooltipFromX(lastHoveredXRef.current);
+    if (tooltip) {
+      // Bypass index-only dedupe so x re-snaps when xScale changes after brush zoom.
+      setTooltipData(tooltip);
+      return;
+    }
+    clearTooltip();
+  }, [canInteract, clearTooltip, resolveTooltipFromX, setTooltipData]);
 
   const interactionHandlers = canInteract
     ? {
