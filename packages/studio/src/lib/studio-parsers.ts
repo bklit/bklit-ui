@@ -161,6 +161,9 @@ export const studioSearchParams = {
   lineChartState: parseAsStringLiteral(["ready", "loading"]).withDefault(
     "ready"
   ),
+  areaChartState: parseAsStringLiteral(["ready", "loading"]).withDefault(
+    "ready"
+  ),
   lineLoadingStroke: parseAsString.withDefault("var(--foreground)"),
   lineLoadingStrokeOpacity: parseAsFloat.withDefault(0.5),
   lineLoadingGridStroke: parseAsString.withDefault(
@@ -326,6 +329,7 @@ export interface StudioUrlState {
   dataPoints: number;
   lineChartMode: "standard" | "profitLoss";
   lineChartState: "ready" | "loading";
+  areaChartState: "ready" | "loading";
   lineLoadingStroke: string;
   lineLoadingStrokeOpacity: number;
   lineLoadingGridStroke: string;
@@ -490,6 +494,7 @@ export function defaultStudioState(
     dataPoints: 12,
     lineChartMode: "standard",
     lineChartState: "ready",
+    areaChartState: "ready",
     lineLoadingStroke: "var(--foreground)",
     lineLoadingStrokeOpacity: 0.5,
     lineLoadingGridStroke:

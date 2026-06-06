@@ -120,6 +120,36 @@
           "path": "src/charts/y-axis-ticks.ts",
           "type": "registry:lib",
           "target": "components/charts/y-axis-ticks.ts"
+        },
+        {
+          "path": "src/charts/chart-phase.ts",
+          "type": "registry:component",
+          "target": "components/charts/chart-phase.ts"
+        },
+        {
+          "path": "src/charts/y-domain-utils.ts",
+          "type": "registry:lib",
+          "target": "components/charts/y-domain-utils.ts"
+        },
+        {
+          "path": "src/charts/generate-chart-skeleton-data.ts",
+          "type": "registry:lib",
+          "target": "components/charts/generate-chart-skeleton-data.ts"
+        },
+        {
+          "path": "src/charts/use-animated-y-domains.ts",
+          "type": "registry:component",
+          "target": "components/charts/use-animated-y-domains.ts"
+        },
+        {
+          "path": "src/charts/use-chart-phase-orchestrator.ts",
+          "type": "registry:component",
+          "target": "components/charts/use-chart-phase-orchestrator.ts"
+        },
+        {
+          "path": "src/charts/line-loading-timing.ts",
+          "type": "registry:lib",
+          "target": "components/charts/line-loading-timing.ts"
         }
       ]
     },
@@ -267,6 +297,11 @@
           "path": "src/charts/grid.tsx",
           "type": "registry:component",
           "target": "components/charts/grid.tsx"
+        },
+        {
+          "path": "src/charts/use-grid-shimmer.ts",
+          "type": "registry:component",
+          "target": "components/charts/use-grid-shimmer.ts"
         }
       ]
     },
@@ -472,6 +507,7 @@
         "@bklit/grid",
         "@bklit/x-axis",
         "@bklit/chart-tooltip",
+        "@ncdai/shimmering-text",
         "@bklit/utils"
       ],
       "dependencies": [
@@ -492,6 +528,11 @@
           "target": "components/charts/time-series-chart-shell.tsx"
         },
         {
+          "path": "src/charts/chart-child-passthrough.ts",
+          "type": "registry:component",
+          "target": "components/charts/chart-child-passthrough.ts"
+        },
+        {
           "path": "src/charts/series-bar-layout.ts",
           "type": "registry:component",
           "target": "components/charts/series-bar-layout.ts"
@@ -500,6 +541,26 @@
           "path": "src/charts/area.tsx",
           "type": "registry:component",
           "target": "components/charts/area.tsx"
+        },
+        {
+          "path": "src/charts/area-chart-loading.tsx",
+          "type": "registry:component",
+          "target": "components/charts/area-chart-loading.tsx"
+        },
+        {
+          "path": "src/charts/line-loading-pulse.tsx",
+          "type": "registry:component",
+          "target": "components/charts/line-loading-pulse.tsx"
+        },
+        {
+          "path": "src/charts/line-loading-timing.ts",
+          "type": "registry:component",
+          "target": "components/charts/line-loading-timing.ts"
+        },
+        {
+          "path": "src/charts/chart-loading-label.tsx",
+          "type": "registry:component",
+          "target": "components/charts/chart-loading-label.tsx"
         },
         {
           "path": "src/charts/pattern-area.tsx",
@@ -551,6 +612,11 @@
           "path": "src/charts/time-series-chart-shell.tsx",
           "type": "registry:component",
           "target": "components/charts/time-series-chart-shell.tsx"
+        },
+        {
+          "path": "src/charts/chart-child-passthrough.ts",
+          "type": "registry:component",
+          "target": "components/charts/chart-child-passthrough.ts"
         }
       ]
     },
@@ -632,6 +698,11 @@
           "target": "components/charts/time-series-chart-shell.tsx"
         },
         {
+          "path": "src/charts/chart-child-passthrough.ts",
+          "type": "registry:component",
+          "target": "components/charts/chart-child-passthrough.ts"
+        },
+        {
           "path": "src/charts/series-bar-layout.ts",
           "type": "registry:component",
           "target": "components/charts/series-bar-layout.ts"
@@ -655,11 +726,6 @@
           "path": "src/charts/line-loading-timing.ts",
           "type": "registry:component",
           "target": "components/charts/line-loading-timing.ts"
-        },
-        {
-          "path": "src/charts/loading-grid.tsx",
-          "type": "registry:component",
-          "target": "components/charts/loading-grid.tsx"
         },
         {
           "path": "src/charts/chart-loading-label.tsx",
@@ -743,6 +809,11 @@
           "path": "src/charts/time-series-chart-shell.tsx",
           "type": "registry:component",
           "target": "components/charts/time-series-chart-shell.tsx"
+        },
+        {
+          "path": "src/charts/chart-child-passthrough.ts",
+          "type": "registry:component",
+          "target": "components/charts/chart-child-passthrough.ts"
         },
         {
           "path": "src/charts/series-bar-layout.ts",

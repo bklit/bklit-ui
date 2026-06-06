@@ -99,6 +99,7 @@ export type StudioComponentTreeIcon =
   | "pie-chart"
   | "funnel"
   | "line-chart"
+  | "area-chart"
   | "layers";
 
 export interface StudioComponentDesign {

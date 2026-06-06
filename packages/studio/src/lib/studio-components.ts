@@ -6,7 +6,10 @@ import {
   ringData,
   STUDIO_SERIES_KEYS,
 } from "@/lib/demo-data";
-import { isProfitLossLineMode } from "@/lib/line-chart-mode";
+import {
+  isAreaChartLoadingMode,
+  isProfitLossLineMode,
+} from "@/lib/line-chart-mode";
 import type { LineYAxisId } from "@/lib/line-series-y-axis";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import {
@@ -17,6 +20,7 @@ import type {
   StudioChartConfig,
   StudioComponentDefinition,
   StudioComponentKind,
+  StudioComponentTreeIcon,
   StudioControlGroup,
 } from "@/lib/types";
 import { getStudioControlGroups } from "./control-groups";
@@ -235,12 +239,171 @@ export function getStudioDataControlGroups(
   return dataGroupConfig ? [dataGroupConfig] : [];
 }
 
+function resolveCartesianLoadingStudioComponents(options: {
+  chartId: string;
+  chartLabel: string;
+  treeIcon: StudioComponentTreeIcon;
+  gridId: string;
+  labelId: string;
+  lineId: string;
+  lineKind: StudioComponentKind;
+  lineLabel: string;
+  state: StudioUrlState;
+  settingsControlGroups: StudioControlGroup[];
+}): StudioComponentDefinition[] {
+  const {
+    chartId,
+    chartLabel,
+    gridId,
+    labelId,
+    lineId,
+    lineKind,
+    lineLabel,
+    settingsControlGroups,
+    state,
+    treeIcon,
+  } = options;
+
+  return [
+    {
+      id: chartId,
+      label: chartLabel,
+      kind: "chart",
+      treeIcon,
+      controlGroups: settingsControlGroups,
+    },
+    {
+      id: gridId,
+      label: "Grid",
+      parentId: chartId,
+      kind: "chart",
+      controlGroups: [
+        controlGroup("Grid", [
+          {
+            type: "color",
+            key: "lineLoadingGridStroke",
+            label: "Grid",
+          },
+          {
+            type: "boolean",
+            key: "lineLoadingGridShimmer",
+            label: "Shimmer",
+          },
+          ...(state.lineLoadingGridShimmer
+            ? [
+                {
+                  type: "color" as const,
+                  key: "lineLoadingGridShimmerStroke" as const,
+                  label: "Shimmer",
+                },
+                {
+                  type: "number" as const,
+                  key: "lineLoadingGridShimmerLength" as const,
+                  label: "Length",
+                  min: 40,
+                  max: 280,
+                  step: 10,
+                  unit: "px",
+                },
+              ]
+            : []),
+        ]),
+        ...(state.lineLoadingGridShimmer
+          ? [
+              controlGroup("Animation", [
+                {
+                  type: "boolean" as const,
+                  key: "lineLoadingGridShimmerSync" as const,
+                  label: "Sync with line",
+                },
+                {
+                  type: "number" as const,
+                  key: "lineLoadingGridShimmerSpeed" as const,
+                  label: "Speed",
+                  min: 0.5,
+                  max: 3,
+                  step: 0.1,
+                  unit: "×",
+                  disabledWhen: "lineLoadingGridShimmerSync" as const,
+                },
+              ]),
+            ]
+          : []),
+      ],
+    },
+    {
+      id: labelId,
+      label: "Label",
+      parentId: chartId,
+      kind: "chart",
+      controlGroups: [
+        controlGroup("Label", [
+          {
+            type: "text",
+            key: "lineLoadingLabel",
+            label: "Text",
+          },
+        ]),
+      ],
+    },
+    {
+      id: lineId,
+      label: lineLabel,
+      parentId: chartId,
+      kind: lineKind,
+      controlGroups: [
+        controlGroup("Line", [
+          {
+            type: "opacity",
+            key: "lineLoadingStrokeOpacity",
+            label: "Opacity",
+            min: 0.1,
+            max: 1,
+            step: 0.05,
+            color: "var(--foreground)",
+          },
+        ]),
+      ],
+      design: {
+        accentKey: "lineLoadingStroke",
+        colorLabel: "Line",
+        showPalette: false,
+        supportsPattern: false,
+      },
+    },
+  ];
+}
+
 export function resolveAreaComponents(
   state: StudioUrlState
 ): StudioComponentDefinition[] {
-  const seriesCount = clampStudioSeriesCount(state.dataSeries);
-  const [, design] = areaChartControlGroups;
   const chartId = "area.chart";
+
+  if (isAreaChartLoadingMode(state)) {
+    const settings = areaChartControlGroups.find(
+      (group) => group.title === "Settings"
+    );
+    return resolveCartesianLoadingStudioComponents({
+      chartId,
+      chartLabel: "AreaChart",
+      gridId: "area.grid",
+      labelId: "area.loading-label",
+      lineId: "area.loading-line",
+      lineKind: "series",
+      lineLabel: "Area",
+      settingsControlGroups: settings ? [settings] : [],
+      state,
+      treeIcon: "area-chart",
+    });
+  }
+
+  const seriesCount = clampStudioSeriesCount(state.dataSeries);
+  const settings = areaChartControlGroups.find(
+    (group) => group.title === "Settings"
+  );
+  const design = areaChartControlGroups.find(
+    (group) => group.title === "Design"
+  );
 
   const components: StudioComponentDefinition[] = [
     {
@@ -248,7 +411,7 @@ export function resolveAreaComponents(
       label: "AreaChart",
       kind: "chart",
       treeIcon: "layers",
-      controlGroups: [],
+      controlGroups: settings ? [settings] : [],
       design: rootPaletteDesign(true),
     },
     passiveNode("area", "grid", "Grid"),
@@ -624,114 +787,18 @@ export function resolveLineComponents(
   const settings = groups.find((group) => group.title === "Settings");
 
   if (isLoading) {
-    return [
-      {
-        id: chartId,
-        label: "LineChart",
-        kind: "chart",
-        treeIcon: "line-chart",
-        controlGroups: settings ? [settings] : [],
-      },
-      {
-        id: "line.grid",
-        label: "Grid",
-        parentId: chartId,
-        kind: "chart",
-        controlGroups: [
-          controlGroup("Grid", [
-            {
-              type: "color",
-              key: "lineLoadingGridStroke",
-              label: "Grid",
-            },
-            {
-              type: "boolean",
-              key: "lineLoadingGridShimmer",
-              label: "Shimmer",
-            },
-            ...(state.lineLoadingGridShimmer
-              ? [
-                  {
-                    type: "color" as const,
-                    key: "lineLoadingGridShimmerStroke" as const,
-                    label: "Shimmer",
-                  },
-                  {
-                    type: "number" as const,
-                    key: "lineLoadingGridShimmerLength" as const,
-                    label: "Length",
-                    min: 40,
-                    max: 280,
-                    step: 10,
-                    unit: "px",
-                  },
-                ]
-              : []),
-          ]),
-          ...(state.lineLoadingGridShimmer
-            ? [
-                controlGroup("Animation", [
-                  {
-                    type: "boolean" as const,
-                    key: "lineLoadingGridShimmerSync" as const,
-                    label: "Sync with line",
-                  },
-                  {
-                    type: "number" as const,
-                    key: "lineLoadingGridShimmerSpeed" as const,
-                    label: "Speed",
-                    min: 0.5,
-                    max: 3,
-                    step: 0.1,
-                    unit: "×",
-                    disabledWhen: "lineLoadingGridShimmerSync" as const,
-                  },
-                ]),
-              ]
-            : []),
-        ],
-      },
-      {
-        id: "line.loading-label",
-        label: "Label",
-        parentId: chartId,
-        kind: "chart",
-        controlGroups: [
-          controlGroup("Label", [
-            {
-              type: "text",
-              key: "lineLoadingLabel",
-              label: "Text",
-            },
-          ]),
-        ],
-      },
-      {
-        id: "line.loading-line",
-        label: "Line",
-        parentId: chartId,
-        kind: "line",
-        controlGroups: [
-          controlGroup("Line", [
-            {
-              type: "opacity",
-              key: "lineLoadingStrokeOpacity",
-              label: "Opacity",
-              min: 0.1,
-              max: 1,
-              step: 0.05,
-              color: "var(--foreground)",
-            },
-          ]),
-        ],
-        design: {
-          accentKey: "lineLoadingStroke",
-          colorLabel: "Line",
-          showPalette: false,
-          supportsPattern: false,
-        },
-      },
-    ];
+    return resolveCartesianLoadingStudioComponents({
+      chartId,
+      chartLabel: "LineChart",
+      gridId: "line.grid",
+      labelId: "line.loading-label",
+      lineId: "line.loading-line",
+      lineKind: "line",
+      lineLabel: "Line",
+      settingsControlGroups: settings ? [settings] : [],
+      state,
+      treeIcon: "line-chart",
+    });
   }
 
   const seriesCount = clampStudioSeriesCount(state.dataSeries);

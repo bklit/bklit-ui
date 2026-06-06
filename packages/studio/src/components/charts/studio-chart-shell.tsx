@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  CHART_CLIP_PASSTHROUGH,
   ChartLegend,
   ChartLegendHoverProvider,
   type LegendItem,
@@ -32,6 +33,10 @@ export function StudioVisibleLayer({
   }
   return children;
 }
+
+(StudioVisibleLayer as unknown as Record<string, boolean>)[
+  CHART_CLIP_PASSTHROUGH
+] = true;
 
 function enrichLegendItemsForProgress(
   items: LegendItem[],

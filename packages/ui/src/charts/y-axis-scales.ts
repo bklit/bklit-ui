@@ -75,6 +75,40 @@ export function buildYScalesForLines({
   return scales;
 }
 
+/** Build y-scales from pre-computed (already nice'd) domain endpoints. */
+export function buildYScalesFromDomains({
+  lines,
+  innerHeight,
+  domainsByAxis,
+}: {
+  lines: LineConfig[];
+  innerHeight: number;
+  domainsByAxis: Record<string, [number, number]>;
+}): Record<string, YScale> {
+  const groups = groupLinesByYAxisId(lines);
+  const scales: Record<string, YScale> = {};
+
+  for (const [axisId] of groups) {
+    const domain =
+      domainsByAxis[axisId] ??
+      domainsByAxis[DEFAULT_Y_AXIS_ID] ??
+      ([0, 100] as [number, number]);
+    scales[axisId] = scaleLinear({
+      range: [innerHeight, 0],
+      domain,
+    });
+  }
+
+  if (!scales[DEFAULT_Y_AXIS_ID]) {
+    scales[DEFAULT_Y_AXIS_ID] = scaleLinear({
+      range: [innerHeight, 0],
+      domain: domainsByAxis[DEFAULT_Y_AXIS_ID] ?? [0, 100],
+    });
+  }
+
+  return scales;
+}
+
 /** Single-axis charts (bar, scatter, candlestick, live line). */
 export function wrapSingleYScale(yScale: YScale): Record<string, YScale> {
   return { [DEFAULT_Y_AXIS_ID]: yScale };

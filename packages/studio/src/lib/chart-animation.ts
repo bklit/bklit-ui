@@ -69,15 +69,21 @@ export function getStudioCssRevealPropsForPreview(
   ctx: Pick<
     StudioRenderContext,
     "motionCurveDragging" | "numberScrubbing" | "committedState" | "isRecording"
-  >
+  > &
+    Partial<Pick<StudioRenderContext, "animationKey">>
 ) {
   const freezeMotion = ctx.motionCurveDragging || ctx.numberScrubbing;
   const motionState = freezeMotion ? ctx.committedState : displayState;
 
-  return getStudioCssRevealProps(motionState, {
+  const props = getStudioCssRevealProps(motionState, {
     revealFrom: freezeMotion ? ctx.committedState : undefined,
     linear: ctx.isRecording,
   });
+
+  return {
+    ...props,
+    revealSignature: `${props.revealSignature}-${ctx.animationKey ?? 0}`,
+  };
 }
 
 /** Chart remount key: manual replay + debounced motion signature. */

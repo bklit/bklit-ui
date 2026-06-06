@@ -17,6 +17,10 @@ export {
 // Area chart components
 export { Area, type AreaProps } from "./area";
 export { AreaChart, type AreaChartProps } from "./area-chart";
+export {
+  AreaChartLoading,
+  type AreaChartLoadingProps,
+} from "./area-chart-loading";
 // Bar chart components
 export {
   Bar,
@@ -43,6 +47,7 @@ export {
   chartCenterLabelClassName,
   chartCenterValueClassName,
 } from "./chart-center-typography";
+export { CHART_CLIP_PASSTHROUGH } from "./chart-child-passthrough";
 export {
   ChartConfigProvider,
   type ChartConfigProviderProps,
@@ -80,6 +85,15 @@ export {
   ChartLoadingLabel,
   type ChartLoadingLabelProps,
 } from "./chart-loading-label";
+export {
+  type ChartPhase,
+  type ChartStatus,
+  DEFAULT_CHART_LIFECYCLE,
+  DEFAULT_CHART_STATUS,
+  DEFAULT_Y_DOMAIN_TWEEN_MS,
+  isChartInteractionPhase,
+  resolveRestingChartPhase,
+} from "./chart-phase";
 export {
   ChartRevealClip,
   type ChartRevealClipProps,
@@ -125,6 +139,10 @@ export {
 } from "./funnel-chart";
 // Gauge chart
 export { Gauge, type GaugeProps } from "./gauge";
+export {
+  type GenerateChartSkeletonDataOptions,
+  generateChartSkeletonData,
+} from "./generate-chart-skeleton-data";
 // Shared chart elements
 export { Grid, type GridProps } from "./grid";
 // Composable legend components
@@ -156,8 +174,10 @@ export {
   type LineChartLoadingProps,
 } from "./line-chart-loading";
 export {
-  LineLoadingPulse,
-  type LineLoadingPulseProps,
+  type LineLoadingPulseMode,
+  LineLoadingPulseStroke,
+  type LineLoadingPulseStrokeProps,
+  resolveLineLoadingPulseMode,
 } from "./line-loading-pulse";
 export {
   detectMomentum,
@@ -174,7 +194,6 @@ export {
 } from "./live-line-chart";
 export { LiveXAxis, type LiveXAxisProps } from "./live-x-axis";
 export { LiveYAxis, type LiveYAxisProps } from "./live-y-axis";
-export { LoadingGrid, type LoadingGridProps } from "./loading-grid";
 // Marker components
 export {
   type ChartMarker,
@@ -332,6 +351,7 @@ export {
   type TooltipIndicatorProps,
   type TooltipRow,
 } from "./tooltip";
+export { useAnimatedYDomains } from "./use-animated-y-domains";
 // Chart interaction hook
 export {
   type ChartSelection,
@@ -356,3 +376,12 @@ export {
   Y_AXIS_MAX_TICK_COUNT,
   Y_AXIS_MIN_TICK_COUNT,
 } from "./y-axis-ticks";
+export {
+  computeYDomainsByAxis,
+  isLoadingChromePhase,
+  isYDomainTweenPhase,
+  mergeYDomainRecords,
+  niceYDomain,
+  shouldTweenYDomain,
+  type YDomain,
+} from "./y-domain-utils";

@@ -3,8 +3,11 @@ title: Area Chart
 description: A composable area chart with gradient fills, tooltips, and hover interactions
 ---
 
+import { studioChartHref } from "@bklitui/studio";
 import { AreaChart, Area, Grid, XAxis, ChartTooltip, PatternLines, PatternArea } from "@bklitui/ui/charts";
+import { AreaChartYDomainDemo } from "@/components/docs/area-chart-y-domain-demo";
 import { AreaTooltipDemo } from "@/components/docs/area-tooltip-demo";
+import { OpenInStudioButton } from "@/components/docs/open-in-studio-button";
 
 export const chartData = [
   { date: new Date(Date.now() - 29 * 24 * 60 * 60 * 1000), revenue: 12000, costs: 8500 },
@@ -92,7 +95,11 @@ The root component that provides context to all children. It shares the same pro
 | `data` | `Record<string, unknown>[]` | required | Array of data points |
 | `xDataKey` | `string` | `"date"` | Key in data for x-axis values |
 | `margin` | `Partial<Margin>` | `{ top: 40, right: 40, bottom: 40, left: 40 }` | Chart margins |
-| `animationDuration` | `number` | `1100` | Animation duration in ms |
+| `animationDuration` | `number` | `1100` | Clip-reveal duration in ms (`cubic-bezier(0.85, 0, 0.15, 1)`) |
+| `status` | `"loading" \| "ready"` | `"ready"` | Loading ↔ ready choreography on one chart instance |
+| `loadingLabel` | `string` | — | Centered shimmer label while `status="loading"` (`""` hides it) |
+| `yDomainTween` | `boolean` | `true` | Animate y-domain when status or target domain changes |
+| `yDomainTweenDuration` | `number` | `500` | Y-domain tween duration in ms |
 | `aspectRatio` | `string` | `"2 / 1"` | CSS aspect ratio |
 | `className` | `string` | `""` | Additional CSS class |
 
@@ -115,6 +122,8 @@ Renders a filled area on the chart with a gradient fill.
 | `gradientToOpacity` | `number` | `0` | Opacity at bottom of gradient |
 | `fadeEdges` | `boolean` | `false` | Fade area fill at left/right edges |
 | `showMarkers` | `boolean` | `false` | Render scatter-style ring markers at each point |
+| `loadingStroke` | `string` | `var(--foreground)` | Pulse stroke color while chart is loading |
+| `loadingStrokeOpacity` | `number` | `0.5` | Pulse stroke opacity while chart is loading |
 | `markers` | `SeriesPointMarkerStyle` | — | Marker styling (same options as [`Scatter`](/docs/components/scatter-chart)) |
 
 ### PatternArea
@@ -137,8 +146,14 @@ Renders grid lines.
 | `vertical` | `boolean` | `false` | Show vertical lines |
 | `numTicksRows` | `number` | `5` | Number of horizontal lines |
 | `numTicksColumns` | `number` | `10` | Number of vertical lines |
-| `stroke` | `string` | `var(--chart-grid)` | Line color |
+| `stroke` | `string` | `var(--chart-grid)` | Line color while ready |
+| `loadingStroke` | `string` | — | Grid stroke while loading chrome is active |
 | `strokeDasharray` | `string` | `"4,4"` | Dash pattern |
+| `shimmer` | `boolean` | `false` | Animate a shimmer band across horizontal grid lines |
+| `shimmerStroke` | `string` | `color-mix(…)` on `--foreground` at 68% | Shimmer band color and opacity |
+| `shimmerLength` | `number` | `140` | Shimmer band width in pixels |
+| `shimmerSpeed` | `number` | `1` | Shimmer speed multiplier when sync is off (higher = faster) |
+| `shimmerSync` | `boolean` | `false` | Match shimmer timing to the line pulse (2.2s cycle + 280ms pause) |
 
 ### YAxis
 
@@ -165,6 +180,74 @@ Renders the tooltip with crosshair, dots, and content box.
 | `showDots` | `boolean` | `true` | Show dots on series |
 | `content` | `(props) => ReactNode` | - | Custom content renderer |
 | `rows` | `(point) => TooltipRow[]` | - | Custom row generator |
+
+## Loading state
+
+Drive loading and ready from your data layer with a single `AreaChart` — one `Grid`, one `Area`, no component swap. Set `status="loading"` while fetching; switch to `"ready"` when data resolves.
+
+**Loading → ready:** pulse loop on skeleton data → pulse finishes its grow, then flows out right → loading label drifts down 30px, blurs, and fades → grid y-domain tween (500ms) → clip-path reveal (`cubic-bezier(0.85, 0, 0.15, 1)`) → interaction enabled.
+
+**Ready → loading:** ready area conceals to the right → grid y-domain tween → pulse loop and shimmer resume.
+
+Pair `Grid` `stroke` / `loadingStroke` with shimmer props. Pair `Area` `loadingStroke` props. Use `loadingLabel` on `AreaChart` for centered shimmer text via [`@ncdai/shimmering-text`](https://chanhdai.com/components/shimmering-text).
+
+<div className="not-prose mb-3 flex items-center justify-between gap-4">
+  <h3 className="m-0 font-semibold text-foreground text-base tracking-tight">
+    Preview
+  </h3>
+  <OpenInStudioButton
+    href={studioChartHref("area-chart", { areaChartState: "loading" })}
+    slug="area-chart"
+  />
+</div>
+
+<ComponentShowcase
+  code={`const [status, setStatus] = useState<"loading" | "ready">("loading");
+
+<AreaChart
+  data={data}
+  status={status}
+  loadingLabel="Loading revenue…"
+  yDomainTween
+>
+  <Grid
+    horizontal
+    loadingStroke="color-mix(in oklch, var(--chart-grid) 50%, transparent)"
+    shimmer
+    shimmerSync
+    stroke="var(--chart-grid)"
+  />
+  <Area
+    dataKey="revenue"
+    fadeEdges
+    fill="var(--chart-line-primary)"
+    fillOpacity={0.35}
+    loadingStroke="var(--foreground)"
+    loadingStrokeOpacity={0.5}
+    strokeWidth={2}
+  />
+</AreaChart>`}
+  liveChartPreview
+  previewMinHeight={320}
+>
+  <AreaChartYDomainDemo />
+</ComponentShowcase>
+
+Toggle **Loading** / **Ready** in the preview to replay the transition. When target data spans a different y-range than the skeleton, `yDomainTween` morphs the scale before the area reveals.
+
+### Studio
+
+Open [Studio in loading mode](/studio?chart=area-chart&areaChartState=loading) and set **State** to **Loading**. The components tree exposes **Grid**, **Label**, and **Area**:
+
+| Layer | Controls |
+|-------|----------|
+| **Grid** | Grid and shimmer color pickers, shimmer toggle, band length, **Animation** (sync with pulse, speed when unsynced) |
+| **Label** | Shimmer label text |
+| **Area** | Pulse stroke color and opacity |
+
+Data and animation panels stay collapsed in loading mode; scramble data is disabled. See the [area chart gallery](/charts/area-chart) (**Loading** example).
+
+Add `@ncdai` to your [registry config](/docs/installation#registry-namespace) (`https://chanhdai.com/r/{name}.json`) — installing `@bklit/area-chart` pulls in `@ncdai/shimmering-text` automatically.
 
 ## Dashed tail
 

@@ -7,11 +7,21 @@ import {
   isValidElement,
   type ReactElement,
   type ReactNode,
+  useCallback,
   useMemo,
   useRef,
+  useState,
 } from "react";
 import { cn } from "@/lib/utils";
 import type { LineConfig, Margin } from "./chart-context";
+import { ChartLoadingLabel } from "./chart-loading-label";
+import {
+  type ChartPhase,
+  type ChartStatus,
+  DEFAULT_CHART_STATUS,
+  DEFAULT_Y_DOMAIN_TWEEN_MS,
+  resolveRestingChartPhase,
+} from "./chart-phase";
 import { Line, type LineProps } from "./line";
 import { TimeSeriesChartInner } from "./time-series-chart-shell";
 
@@ -28,10 +38,18 @@ export interface LineChartProps {
   animationEasing?: string;
   enterTransition?: Transition;
   revealSignature?: string;
-  /** Aspect ratio as "width / height". Default: "2 / 1" */
+  /** Aspect ratio as "width / height". Default: "2 / 1". Omit to fill a sized parent. */
   aspectRatio?: string;
   /** Additional class name for the container */
   className?: string;
+  /** Loading vs ready — drives chart phase and loading chrome. Default: `"ready"`. */
+  status?: ChartStatus;
+  /** Centered shimmer label while loading. */
+  loadingLabel?: string;
+  /** Animate y-domain over this duration (ms) on status transitions. Default: 500. */
+  yDomainTweenDuration?: number;
+  /** Animate y-domain when status or target domain changes. Default: true */
+  yDomainTween?: boolean;
   /** Child components (Line, Grid, ChartTooltip, etc.) */
   children: ReactNode;
 }
@@ -117,8 +135,13 @@ interface ChartInnerProps {
   animationEasing?: string;
   enterTransition?: Transition;
   revealSignature?: string;
+  chartStatus: ChartStatus;
+  loadingLabel?: string;
+  yDomainTweenDuration: number;
+  yDomainTween: boolean;
   children: ReactNode;
   containerRef: React.RefObject<HTMLDivElement | null>;
+  onPhaseChange: (phase: ChartPhase) => void;
 }
 
 function ChartInner({
@@ -131,8 +154,13 @@ function ChartInner({
   animationEasing,
   enterTransition,
   revealSignature,
+  chartStatus,
+  loadingLabel,
+  yDomainTweenDuration,
+  yDomainTween,
   children,
   containerRef,
+  onPhaseChange,
 }: ChartInnerProps) {
   const lines = useMemo(() => extractLineConfigs(children), [children]);
 
@@ -140,16 +168,21 @@ function ChartInner({
     <TimeSeriesChartInner
       animationDuration={animationDuration}
       animationEasing={animationEasing}
+      chartStatus={chartStatus}
       clipPathId="chart-grow-clip"
       containerRef={containerRef}
       data={data}
       enterTransition={enterTransition}
       height={height}
       lines={lines}
+      loadingLabel={loadingLabel}
       margin={margin}
+      onPhaseChange={onPhaseChange}
       revealSignature={revealSignature}
       width={width}
       xDataKey={xDataKey}
+      yDomainTween={yDomainTween}
+      yDomainTweenDuration={yDomainTweenDuration}
     >
       {children}
     </TimeSeriesChartInner>
@@ -166,35 +199,67 @@ export function LineChart({
   revealSignature,
   aspectRatio = "2 / 1",
   className = "",
+  status = DEFAULT_CHART_STATUS,
+  loadingLabel,
+  yDomainTweenDuration = DEFAULT_Y_DOMAIN_TWEEN_MS,
+  yDomainTween = true,
   children,
 }: LineChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const margin = { ...DEFAULT_MARGIN, ...marginProp };
+  const [chartPhase, setChartPhase] = useState<ChartPhase>(() =>
+    resolveRestingChartPhase(status)
+  );
+  const handlePhaseChange = useCallback((phase: ChartPhase) => {
+    setChartPhase(phase);
+  }, []);
+
+  const showLoadingLabel = Boolean(
+    loadingLabel?.trim() &&
+      (chartPhase === "loading" ||
+        chartPhase === "exiting" ||
+        chartPhase === "gridTweenReady" ||
+        chartPhase === "revealingLoading")
+  );
 
   return (
     <div
       className={cn("relative w-full", className)}
       ref={containerRef}
-      style={{ aspectRatio, touchAction: "none" }}
+      style={{
+        ...(aspectRatio ? { aspectRatio } : undefined),
+        touchAction: "none",
+      }}
     >
       <ParentSize debounceTime={10}>
         {({ width, height }) => (
           <ChartInner
             animationDuration={animationDuration}
             animationEasing={animationEasing}
+            chartStatus={status}
             containerRef={containerRef}
             data={data}
             enterTransition={enterTransition}
             height={height}
+            loadingLabel={loadingLabel}
             margin={margin}
+            onPhaseChange={handlePhaseChange}
             revealSignature={revealSignature}
             width={width}
             xDataKey={xDataKey}
+            yDomainTween={yDomainTween}
+            yDomainTweenDuration={yDomainTweenDuration}
           >
             {children}
           </ChartInner>
         )}
       </ParentSize>
+      {showLoadingLabel ? (
+        <ChartLoadingLabel
+          exiting={chartPhase !== "loading"}
+          text={loadingLabel}
+        />
+      ) : null}
     </div>
   );
 }

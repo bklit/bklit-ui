@@ -30,6 +30,8 @@ interface ComponentShowcaseProps {
   className?: string;
   /** Minimum height of the preview section */
   previewMinHeight?: number;
+  /** Keep chart animations live (skip static docs preview shell). */
+  liveChartPreview?: boolean;
 }
 
 const codePanelContentClassName = cn(
@@ -53,10 +55,14 @@ export function ComponentShowcase({
   codeBlock,
   className,
   previewMinHeight = 200,
+  liveChartPreview = false,
 }: ComponentShowcaseProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const hasCode = code || codeBlock;
+  const preview = (
+    <div className="flex w-full items-stretch justify-stretch">{children}</div>
+  );
 
   return (
     <Card
@@ -70,11 +76,11 @@ export function ComponentShowcase({
         className={cn(previewCardContentClassName, "shrink-0")}
         style={{ minHeight: previewMinHeight }}
       >
-        <DocsChartPreviewShell>
-          <div className="flex w-full items-center justify-center">
-            {children}
-          </div>
-        </DocsChartPreviewShell>
+        {liveChartPreview ? (
+          preview
+        ) : (
+          <DocsChartPreviewShell>{preview}</DocsChartPreviewShell>
+        )}
       </CardContent>
 
       {hasCode ? (

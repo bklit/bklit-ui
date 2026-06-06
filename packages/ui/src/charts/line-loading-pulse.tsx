@@ -1,17 +1,9 @@
 "use client";
 
-import { curveNatural } from "@visx/curve";
-import { LinePath } from "@visx/shape";
 import { animate, motion, useMotionValue, useTransform } from "motion/react";
-import {
-  useCallback,
-  useEffect,
-  useId,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
-import { chartCssVars, useChartStable, useYScale } from "./chart-context";
+import { useEffect, useId } from "react";
+import { chartCssVars, useChartStable } from "./chart-context";
+import type { ChartPhase } from "./chart-phase";
 import { fadeGradientStops, resolveFadeSides } from "./fade-edges";
 import {
   LINE_LOADING_PULSE_CYCLE_S,
@@ -20,13 +12,28 @@ import {
 
 const CLIP_PADDING = 10;
 
-interface PathMetrics {
-  pathD: string | null;
-  pathLength: number;
+export type LineLoadingPulseMode = "loop" | "exit" | "enter";
+
+export function resolveLineLoadingPulseMode(
+  phase: ChartPhase
+): LineLoadingPulseMode | null {
+  switch (phase) {
+    case "loading":
+      return "loop";
+    case "exiting":
+      return "exit";
+    case "revealingLoading":
+      return "enter";
+    default:
+      return null;
+  }
 }
 
-export interface LineLoadingPulseProps {
-  dataKey: string;
+export interface LineLoadingPulseStrokeProps {
+  pathD: string;
+  mode?: LineLoadingPulseMode;
+  /** Bumps to restart loop cycles without remounting the stroke. */
+  loopEpoch?: number;
   stroke?: string;
   /** Stroke opacity for the animated segment. Default: 0.5 */
   strokeOpacity?: number;
@@ -34,7 +41,12 @@ export interface LineLoadingPulseProps {
   onCycleComplete?: () => void;
 }
 
-function useGrowExitClip(innerWidth: number, onCycleComplete?: () => void) {
+function useGrowExitClip(
+  innerWidth: number,
+  mode: LineLoadingPulseMode,
+  loopEpoch: number,
+  onComplete?: () => void
+) {
   const progress = useMotionValue(0);
   const paddedFullWidth = innerWidth + CLIP_PADDING * 2;
   const rightEdge = innerWidth + CLIP_PADDING;
@@ -55,48 +67,110 @@ function useGrowExitClip(innerWidth: number, onCycleComplete?: () => void) {
     return rightEdge - (1 - shrink) * paddedFullWidth;
   });
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: loopEpoch restarts pulse when orchestrator advances
   useEffect(() => {
     if (innerWidth <= 0) {
       return;
     }
 
-    progress.set(0);
-    const controls = animate(progress, 1, {
-      duration: LINE_LOADING_PULSE_CYCLE_S,
-      ease: [...LINE_LOADING_PULSE_EASE],
-      onComplete: () => onCycleComplete?.(),
-    });
+    const halfCycleS = LINE_LOADING_PULSE_CYCLE_S / 2;
+    let cancelled = false;
+    let controls: ReturnType<typeof animate> | undefined;
 
-    return () => controls.stop();
-  }, [innerWidth, onCycleComplete, progress]);
+    const finish = () => {
+      if (!cancelled) {
+        onComplete?.();
+      }
+    };
+
+    const runShrink = (from: number) => {
+      const shrinkDuration = halfCycleS * ((1 - from) / 0.5);
+      controls = animate(progress, 1, {
+        duration: Math.max(shrinkDuration, 0.01),
+        ease: [...LINE_LOADING_PULSE_EASE],
+        onComplete: finish,
+      });
+    };
+
+    if (mode === "loop") {
+      progress.set(0);
+      controls = animate(progress, 1, {
+        duration: LINE_LOADING_PULSE_CYCLE_S,
+        ease: [...LINE_LOADING_PULSE_EASE],
+        onComplete: finish,
+      });
+      return () => {
+        cancelled = true;
+        controls?.stop();
+      };
+    }
+
+    if (mode === "exit") {
+      const current = progress.get();
+
+      if (current < 0.5) {
+        const growDuration = halfCycleS * ((0.5 - current) / 0.5);
+        controls = animate(progress, 0.5, {
+          duration: Math.max(growDuration, 0.01),
+          ease: [...LINE_LOADING_PULSE_EASE],
+          onComplete: () => {
+            if (!cancelled) {
+              runShrink(0.5);
+            }
+          },
+        });
+      } else {
+        runShrink(current);
+      }
+
+      return () => {
+        cancelled = true;
+        controls?.stop();
+      };
+    }
+
+    if (mode === "enter") {
+      progress.set(0);
+      controls = animate(progress, 0.5, {
+        duration: halfCycleS,
+        ease: [...LINE_LOADING_PULSE_EASE],
+        onComplete: finish,
+      });
+      return () => {
+        cancelled = true;
+        controls?.stop();
+      };
+    }
+  }, [innerWidth, loopEpoch, mode, onComplete, progress]);
 
   return { clipX, clipWidth };
 }
 
-function LoadingGrowStroke({
+export function LineLoadingPulseStroke({
   pathD,
-  clipPathId,
-  gradientId,
-  innerHeight,
-  innerWidth,
+  mode = "loop",
+  loopEpoch = 0,
+  stroke = chartCssVars.foreground,
+  strokeOpacity = 0.5,
+  strokeWidth = 2.5,
   onCycleComplete,
-  stroke,
-  strokeOpacity,
-  strokeWidth,
-}: {
-  pathD: string;
-  clipPathId: string;
-  gradientId: string;
-  innerHeight: number;
-  innerWidth: number;
-  onCycleComplete?: () => void;
-  stroke: string;
-  strokeOpacity: number;
-  strokeWidth: number;
-}) {
+}: LineLoadingPulseStrokeProps) {
+  const { innerWidth, innerHeight } = useChartStable();
+  const reactId = useId();
+  const clipPathId = `line-loading-clip-${reactId}`;
+  const gradientId = `line-loading-gradient-${reactId}`;
   const fadeStops = fadeGradientStops(resolveFadeSides(true));
   const clipHeight = innerHeight + CLIP_PADDING * 2;
-  const { clipX, clipWidth } = useGrowExitClip(innerWidth, onCycleComplete);
+  const { clipX, clipWidth } = useGrowExitClip(
+    innerWidth,
+    mode,
+    loopEpoch,
+    onCycleComplete
+  );
+
+  if (innerWidth <= 0) {
+    return null;
+  }
 
   return (
     <>
@@ -132,78 +206,6 @@ function LoadingGrowStroke({
   );
 }
 
-export function LineLoadingPulse({
-  dataKey,
-  stroke = chartCssVars.foreground,
-  strokeOpacity = 0.5,
-  strokeWidth = 2.5,
-  onCycleComplete,
-}: LineLoadingPulseProps) {
-  const { renderData, xScale, xAccessor, innerWidth, innerHeight } =
-    useChartStable();
-  const yScale = useYScale();
-  const pathRef = useRef<SVGPathElement>(null);
-  const [pathMetrics, setPathMetrics] = useState<PathMetrics>({
-    pathD: null,
-    pathLength: 0,
-  });
-  const reactId = useId();
-  const clipPathId = `line-loading-clip-${reactId}`;
-  const gradientId = `line-loading-gradient-${reactId}`;
+LineLoadingPulseStroke.displayName = "LineLoadingPulseStroke";
 
-  const getY = useCallback(
-    (d: Record<string, unknown>) => {
-      const value = d[dataKey];
-      return typeof value === "number" ? (yScale(value) ?? 0) : 0;
-    },
-    [dataKey, yScale]
-  );
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: remeasure path when chart layout or data changes
-  useLayoutEffect(() => {
-    const path = pathRef.current;
-    if (!path) {
-      return;
-    }
-
-    const pathD = path.getAttribute("d");
-    const pathLength = pathD ? path.getTotalLength() : 0;
-    setPathMetrics((current) =>
-      current.pathD === pathD && current.pathLength === pathLength
-        ? current
-        : { pathD, pathLength }
-    );
-  }, [innerHeight, innerWidth, renderData]);
-
-  return (
-    <>
-      <LinePath
-        curve={curveNatural}
-        data={renderData}
-        innerRef={pathRef}
-        stroke="transparent"
-        strokeLinecap="round"
-        strokeWidth={strokeWidth}
-        x={(d) => xScale(xAccessor(d)) ?? 0}
-        y={getY}
-      />
-      {pathMetrics.pathD && pathMetrics.pathLength > 0 && innerWidth > 0 ? (
-        <LoadingGrowStroke
-          clipPathId={clipPathId}
-          gradientId={gradientId}
-          innerHeight={innerHeight}
-          innerWidth={innerWidth}
-          onCycleComplete={onCycleComplete}
-          pathD={pathMetrics.pathD}
-          stroke={stroke}
-          strokeOpacity={strokeOpacity}
-          strokeWidth={strokeWidth}
-        />
-      ) : null}
-    </>
-  );
-}
-
-LineLoadingPulse.displayName = "LineLoadingPulse";
-
-export default LineLoadingPulse;
+export default LineLoadingPulseStroke;
