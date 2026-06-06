@@ -19,4 +19,11 @@ export const showcaseProjects: ShowcaseProject[] = [
       "https://github.com/user-attachments/assets/b4fdc21a-2b8f-465b-9eb4-11f03f3a9fd0",
     imageAlt: "Chánh Đại portfolio",
   },
+  {
+    title: "Intellipickz",
+    url: "https://intellipickz.com/",
+    image:
+      "https://github.com/user-attachments/assets/3081b652-52c0-45fe-8dad-4a1b06ca08e5",
+    imageAlt: "Intellipickz sports analytics platform",
+  },
 ];
