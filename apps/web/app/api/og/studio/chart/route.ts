@@ -15,6 +15,16 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
+let sharedBrowser: Browser | undefined;
+
+async function getSharedBrowser(): Promise<Browser> {
+  if (sharedBrowser?.connected) {
+    return sharedBrowser;
+  }
+  sharedBrowser = await launchStudioOgBrowser();
+  return sharedBrowser;
+}
+
 const OG_READY_TIMEOUT_MS = 10_000;
 /** Retina capture multiplier — keep in sync with `OG_PREVIEW_MAX_WIDTH` in studio-og-preview */
 const CHART_DEVICE_SCALE_FACTOR = 3;
@@ -40,16 +50,19 @@ export async function GET(request: Request) {
   const serialized = canonicalSearchParam(request);
   const previewUrl = `${resolvePreviewOrigin(request)}/studio/og-preview?s=${encodeURIComponent(serialized)}`;
 
-  let browser: Browser | undefined;
+  let page: Awaited<ReturnType<Browser["newPage"]>> | undefined;
   try {
-    browser = await launchStudioOgBrowser();
-    const page = await browser.newPage();
+    const browser = await getSharedBrowser();
+    page = await browser.newPage();
     await page.setViewport({
       width: 1800,
       height: 1200,
       deviceScaleFactor: CHART_DEVICE_SCALE_FACTOR,
     });
-    await page.goto(previewUrl, { waitUntil: "networkidle0", timeout: 15_000 });
+    await page.goto(previewUrl, {
+      waitUntil: "domcontentloaded",
+      timeout: 15_000,
+    });
     await page.waitForSelector('[data-og-ready="true"]', {
       timeout: OG_READY_TIMEOUT_MS,
     });
@@ -79,6 +92,6 @@ export async function GET(request: Request) {
       { status: 500 }
     );
   } finally {
-    await browser?.close();
+    await page?.close();
   }
 }

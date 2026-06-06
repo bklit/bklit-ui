@@ -23,6 +23,10 @@ export function StudioShareButton({
       return;
     }
 
+    const ogUrl = new URL("/api/og/studio", window.location.origin);
+    ogUrl.search = window.location.search;
+    fetch(ogUrl.toString()).catch(() => undefined);
+
     await navigator.clipboard.writeText(window.location.href);
     toast.success("Link copied to clipboard");
     setCopied(true);

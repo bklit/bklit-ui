@@ -157,6 +157,12 @@ export function GET(request: Request) {
         </div>
       </div>
     </div>,
-    { ...size, fonts }
+    {
+      ...size,
+      fonts,
+      headers: {
+        "Cache-Control": "public, max-age=31536000, immutable",
+      },
+    }
   );
 }
