@@ -16,10 +16,14 @@ export {
 } from "./components/controls/fade-edges-picker";
 export { MotionControl } from "./components/controls/motion-control";
 export { MotionResetButton } from "./components/controls/motion-reset-button";
-export { EditorChartFrame } from "./components/studio-chart-frame";
+export {
+  EditorChartFrame,
+  STUDIO_EXPORT_ROOT_ATTR,
+} from "./components/studio-chart-frame";
 export { StudioCodeSheetTrigger } from "./components/studio-code-sheet-trigger";
 export { StudioControlGroup } from "./components/studio-control-group";
 export { StudioControlGroups } from "./components/studio-control-groups";
+export { StudioOgPreview } from "./components/studio-og-preview";
 export {
   StudioFrameProvider,
   StudioScenesProvider,
@@ -97,16 +101,41 @@ export type { StudioRenderContext } from "./lib/render-context";
 export { seriesStrokePropsFromState } from "./lib/series-stroke-props";
 export { chartTooltipPropsFromState } from "./lib/studio-chart-overlays";
 export { studioCartesianLegendItems } from "./lib/studio-legend-items";
+export {
+  STUDIO_OG_CAPTURE_ROOT_ATTR,
+  STUDIO_OG_CHART_PERSPECTIVE_PX,
+  STUDIO_OG_CHART_ROTATE_X_DEG,
+  STUDIO_OG_CHART_ROTATE_Y_DEG,
+  STUDIO_OG_CHART_ROTATE_Z_DEG,
+  STUDIO_OG_SURFACE_HEX,
+  studioOgChartTransform,
+} from "./lib/studio-og-capture";
+export { normalizeStudioStateForOg } from "./lib/studio-og-state";
 export type { StudioUrlState } from "./lib/studio-parsers";
 export {
   defaultStudioState,
   defaultsForChart,
   studioSearchParams,
 } from "./lib/studio-parsers";
+export {
+  decodeStudioUrlState,
+  encodeStudioUrlState,
+  hasCompressedStudioParam,
+  hasLegacyStudioParams,
+  STUDIO_URL_PARAM,
+  studioCompressedSearch,
+} from "./lib/studio-url-codec";
+export {
+  loadStudioSearchParams,
+  loadStudioStateFromRequest,
+  studioSerializedParam,
+} from "./lib/studio-url-loader";
+export { processStudioUrlSearchParams } from "./lib/studio-url-nuqs";
 export type {
   StudioChartConfig,
   StudioControl,
   StudioControlGroup as StudioControlGroupConfig,
 } from "./lib/types";
+export { chartLabels } from "./lib/types";
 export type { StudioAnalytics } from "./providers/studio-analytics-context";
 export { StudioAnalyticsProvider } from "./providers/studio-analytics-context";

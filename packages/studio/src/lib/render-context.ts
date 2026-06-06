@@ -1,3 +1,4 @@
+import type { ChartPhase } from "@bklitui/ui/charts";
 import type { ReactNode } from "react";
 import type { StudioFrameSize } from "@/components/studio-chart-viewport";
 import type { StudioUrlState } from "./studio-parsers";
@@ -20,4 +21,6 @@ export interface StudioRenderContext {
   patternDefs: ReactNode;
   patternFillAt: (seriesIndex: number) => string | undefined;
   frame: StudioFrameSize;
+  /** OG screenshot readiness — cartesian charts report phase transitions. */
+  reportOgPhase?: (phase: ChartPhase) => void;
 }

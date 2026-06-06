@@ -69,6 +69,8 @@ export interface BarChartProps {
   stackGap?: number;
   /** Child components (Bar, Grid, ChartTooltip, etc.) */
   children: ReactNode;
+  /** Reports reveal lifecycle for OG screenshots and loading orchestration. */
+  onPhaseChange?: (phase: ChartPhase) => void;
 }
 
 const DEFAULT_MARGIN: Margin = { top: 40, right: 40, bottom: 40, left: 40 };
@@ -150,6 +152,7 @@ interface ChartInnerProps {
   stackGap: number;
   children: ReactNode;
   containerRef: React.RefObject<HTMLDivElement | null>;
+  onPhaseChange?: (phase: ChartPhase) => void;
 }
 
 function ChartInner(props: ChartInnerProps) {
@@ -177,6 +180,7 @@ const ChartCore = memo(function ChartCore({
   stackGap,
   children,
   containerRef,
+  onPhaseChange,
 }: ChartInnerProps) {
   const { tooltipData, setTooltipData, scheduleTooltip, clearTooltip } =
     useScheduledTooltip<TooltipData>();
@@ -362,6 +366,10 @@ const ChartCore = memo(function ChartCore({
     }, animationDuration);
     return () => clearTimeout(timer);
   }, [animationDuration, revealSignature]);
+
+  useEffect(() => {
+    onPhaseChange?.(isLoaded ? "ready" : "revealing");
+  }, [isLoaded, onPhaseChange]);
 
   // Mouse move handler
   const handleMouseMove = useCallback(
@@ -613,6 +621,7 @@ export function BarChart({
   stacked = false,
   stackGap = 0,
   children,
+  onPhaseChange,
 }: BarChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const margin = { ...DEFAULT_MARGIN, ...marginProp };
@@ -635,6 +644,7 @@ export function BarChart({
             enterTransition={enterTransition}
             height={height}
             margin={margin}
+            onPhaseChange={onPhaseChange}
             orientation={orientation}
             revealSignature={revealSignature}
             stacked={stacked}

@@ -41,6 +41,7 @@ export interface ComposedChartProps {
   stacked?: boolean;
   /** Gap in px between stacked segments. Default: 0 */
   stackGap?: number;
+  onPhaseChange?: (phase: ChartPhase) => void;
 }
 
 const DEFAULT_MARGIN: Margin = { top: 40, right: 40, bottom: 40, left: 40 };
@@ -188,6 +189,7 @@ interface ChartInnerProps {
   barGap?: number;
   stacked?: boolean;
   stackGap?: number;
+  onPhaseChange?: (phase: ChartPhase) => void;
 }
 
 function ChartInner({
@@ -207,6 +209,7 @@ function ChartInner({
   barGap,
   stacked = false,
   stackGap = 0,
+  onPhaseChange,
 }: ChartInnerProps) {
   const { lines, barDataKeys } = useMemo(
     () => extractComposedSeries(children),
@@ -263,6 +266,7 @@ function ChartInner({
       height={height}
       lines={lines}
       margin={margin}
+      onPhaseChange={onPhaseChange}
       revealSignature={revealSignature}
       width={width}
       xDataKey={xDataKey}
@@ -289,6 +293,7 @@ export function ComposedChart({
   barGap = 4,
   stacked = false,
   stackGap = 0,
+  onPhaseChange,
 }: ComposedChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const margin = { ...DEFAULT_MARGIN, ...marginProp };
@@ -312,6 +317,7 @@ export function ComposedChart({
             height={height}
             margin={margin}
             maxBarSize={maxBarSize}
+            onPhaseChange={onPhaseChange}
             revealSignature={revealSignature}
             stacked={stacked}
             stackGap={stackGap}

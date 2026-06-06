@@ -1,5 +1,6 @@
 "use client";
 
+import type { ChartPhase } from "@bklitui/ui/charts";
 import { memo, type ReactNode, useMemo } from "react";
 import type { StudioFrameSize } from "@/components/studio-chart-viewport";
 import type { StudioRenderContext } from "@/lib/render-context";
@@ -21,6 +22,7 @@ interface StudioChartRenderProps {
   patternDefs: ReactNode;
   patternFillAt: (seriesIndex: number) => string | undefined;
   frame: StudioFrameSize;
+  reportOgPhase?: (phase: ChartPhase) => void;
 }
 
 function studioChartRenderPropsEqual(
@@ -70,6 +72,7 @@ export const StudioChartRender = memo(function StudioChartRender(
     patternDefs,
     patternFillAt,
     frame,
+    reportOgPhase,
   } = props;
 
   const chromeState = useMemo(
@@ -91,6 +94,7 @@ export const StudioChartRender = memo(function StudioChartRender(
       patternDefs,
       patternFillAt,
       frame,
+      reportOgPhase,
     }),
     [
       animationKey,
@@ -104,6 +108,7 @@ export const StudioChartRender = memo(function StudioChartRender(
       patternDefs,
       patternFillAt,
       frame,
+      reportOgPhase,
     ]
   );
 

@@ -191,6 +191,7 @@ export function LineChartStudioStandardPreview({
               data={data}
               loadingLabel={studioLoadingLabel(state, "line.loading-label")}
               margin={margin}
+              onPhaseChange={ctx.reportOgPhase}
               status={state.lineChartState}
               style={{ aspectRatio: "unset", height: "100%" }}
               tweenYDomainOnXDomainChange={brushVisible}

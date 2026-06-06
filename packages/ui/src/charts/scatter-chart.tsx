@@ -38,6 +38,7 @@ export interface ScatterChartProps {
   className?: string;
   /** Child components (Scatter, Grid, ChartTooltip, XAxis, etc.) */
   children: ReactNode;
+  onPhaseChange?: (phase: ChartPhase) => void;
 }
 
 const DEFAULT_MARGIN: Margin = { top: 40, right: 40, bottom: 40, left: 40 };
@@ -95,6 +96,7 @@ interface ChartInnerProps {
   revealSignature?: string;
   children: ReactNode;
   containerRef: React.RefObject<HTMLDivElement | null>;
+  onPhaseChange?: (phase: ChartPhase) => void;
 }
 
 function ChartInner({
@@ -109,6 +111,7 @@ function ChartInner({
   revealSignature,
   children,
   containerRef,
+  onPhaseChange,
 }: ChartInnerProps) {
   const lines = useMemo(() => extractScatterConfigs(children), [children]);
 
@@ -122,6 +125,7 @@ function ChartInner({
       height={height}
       lines={lines}
       margin={margin}
+      onPhaseChange={onPhaseChange}
       revealSignature={revealSignature}
       width={width}
       xDataKey={xDataKey}
@@ -142,6 +146,7 @@ export function ScatterChart({
   aspectRatio = "2 / 1",
   className = "",
   children,
+  onPhaseChange,
 }: ScatterChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const margin = { ...DEFAULT_MARGIN, ...marginProp };
@@ -170,6 +175,7 @@ export function ScatterChart({
           enterTransition={enterTransition}
           height={height}
           margin={margin}
+          onPhaseChange={onPhaseChange}
           revealSignature={revealSignature}
           width={width}
           xDataKey={xDataKey}

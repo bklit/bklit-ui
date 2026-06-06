@@ -6,9 +6,12 @@ import {
   registryJsonUrlForName,
   shadcnAddItem,
   studioChartDocsHref,
+  studioChartHref,
   studioOpenInV0Href,
   studioRegistryJsonUrl,
 } from "../chart-links";
+
+const FLAT_CHART_PARAM_RE = /chart=/;
 
 describe("chart-links", () => {
   it("studioRegistryJsonUrl points at the public registry", () => {
@@ -47,5 +50,11 @@ describe("chart-links", () => {
       studioChartDocsHref("line-chart"),
       "/docs/components/line-chart"
     );
+  });
+
+  it("studioChartHref emits compressed s param", () => {
+    const href = studioChartHref("line-chart");
+    assert.ok(href.startsWith("/studio?s=v1."));
+    assert.doesNotMatch(href, FLAT_CHART_PARAM_RE);
   });
 });

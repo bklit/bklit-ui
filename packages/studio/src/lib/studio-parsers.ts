@@ -4,7 +4,7 @@ import {
   parseAsInteger,
   parseAsString,
   parseAsStringLiteral,
-} from "nuqs";
+} from "nuqs/server";
 import { validChartSlugs } from "@/chart-slugs";
 import type { ColorPresetId } from "./color-presets";
 import { COLOR_PRESET_IDS } from "./color-presets";
@@ -386,12 +386,9 @@ export interface StudioUrlState {
   hiddenComponents: string;
 }
 
-export function defaultsForChart(): Partial<
-  Record<keyof typeof studioSearchParams, null>
-> {
-  return Object.fromEntries(
-    Object.keys(studioSearchParams).map((key) => [key, null])
-  ) as Partial<Record<keyof typeof studioSearchParams, null>>;
+/** Full default state for chart switches (nuqs used `null` to clear keys; in-memory state needs real defaults). */
+export function defaultsForChart(): StudioUrlState {
+  return defaultStudioState();
 }
 
 /** Default studio state (matches `studioSearchParams` defaults) for tests and codegen. */

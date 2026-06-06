@@ -61,6 +61,8 @@ export interface AreaChartProps {
   tweenYDomainOnXDomainChange?: boolean;
   /** Inline container styles (e.g. fixed height for brush strip). */
   style?: CSSProperties;
+  /** Fires when the internal chart phase changes (e.g. OG capture readiness). */
+  onPhaseChange?: (phase: ChartPhase) => void;
   /** Child components (Area, Grid, ChartTooltip, etc.) */
   children: ReactNode;
 }
@@ -199,6 +201,7 @@ export function AreaChart({
   xDomainSlotCount,
   tweenYDomainOnXDomainChange = false,
   style,
+  onPhaseChange,
   children,
 }: AreaChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -206,9 +209,13 @@ export function AreaChart({
   const [chartPhase, setChartPhase] = useState<ChartPhase>(() =>
     resolveRestingChartPhase(status)
   );
-  const handlePhaseChange = useCallback((phase: ChartPhase) => {
-    setChartPhase(phase);
-  }, []);
+  const handlePhaseChange = useCallback(
+    (phase: ChartPhase) => {
+      setChartPhase(phase);
+      onPhaseChange?.(phase);
+    },
+    [onPhaseChange]
+  );
 
   const showLoadingLabel = Boolean(
     loadingLabel?.trim() &&

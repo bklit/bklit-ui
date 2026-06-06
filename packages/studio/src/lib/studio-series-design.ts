@@ -48,8 +48,8 @@ export function getDesignSeriesLabel(index: number): string {
   return `Series ${index + 1} · ${key}`;
 }
 
-export function parsePipeField(raw: string): string[] {
-  if (!raw.trim()) {
+export function parsePipeField(raw: string | null | undefined): string[] {
+  if (raw == null || !raw.trim()) {
     return [];
   }
   return raw.split(SERIES_FIELD_SEP).map((part) => {
@@ -72,14 +72,14 @@ export function serializePipeField(values: string[]): string {
 
 export function parseSeriesColors(state: StudioUrlState): string[] {
   const parsed = parsePipeField(state.seriesColors);
-  if (parsed.length === 0 && state.chartAccent.trim()) {
+  if (parsed.length === 0 && state.chartAccent?.trim()) {
     return [state.chartAccent.trim()];
   }
   return parsed;
 }
 
 export function parseSeriesPatterns(state: StudioUrlState): PatternPresetId[] {
-  if (!state.seriesPatterns.trim()) {
+  if (!state.seriesPatterns?.trim()) {
     if (state.pattern !== "none") {
       return [state.pattern];
     }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useQueryStates } from "nuqs";
+import { parseAsString, useQueryState } from "nuqs";
 import {
   createContext,
   startTransition,
@@ -22,10 +22,16 @@ import {
 import { getStudioConfig } from "@/lib/registry";
 import { chartDefaultHiddenYAxes } from "@/lib/studio-component-visibility";
 import {
+  defaultStudioState,
   defaultsForChart,
   type StudioUrlState,
-  studioSearchParams,
 } from "@/lib/studio-parsers";
+import {
+  decodeStudioUrlState,
+  encodeStudioUrlState,
+  STUDIO_URL_PARAM,
+} from "@/lib/studio-url-codec";
+import { loadStudioStateFromRequest } from "@/lib/studio-url-loader";
 import type { ChartSlug, StudioChartConfig } from "@/lib/types";
 
 const STUDIO_Y_AXIS_CHART_PREFIX: Partial<Record<ChartSlug, string>> = {
@@ -38,6 +44,14 @@ const STUDIO_Y_AXIS_CHART_PREFIX: Partial<Record<ChartSlug, string>> = {
 
 function finiteFrameDimension(value: number, fallback: number) {
   return Number.isFinite(value) ? value : fallback;
+}
+
+function normalizeLoadedState(loaded: StudioUrlState): StudioUrlState {
+  return {
+    ...loaded,
+    frameW: finiteFrameDimension(loaded.frameW, STUDIO_CHART_FRAME_WIDTH),
+    frameH: finiteFrameDimension(loaded.frameH, STUDIO_CHART_FRAME_HEIGHT),
+  };
 }
 
 interface StudioShellContextValue {
@@ -82,10 +96,11 @@ export function StudioStateProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const [params, setParams] = useQueryStates(studioSearchParams, {
-    shallow: true,
-    history: "replace",
-  });
+  const [params, setParamsState] = useState<StudioUrlState>(defaultStudioState);
+  const [compressed, setCompressed] = useQueryState(
+    STUDIO_URL_PARAM,
+    parseAsString.withDefault("")
+  );
 
   const [previewOverrides, setPreviewOverrides] = useState<
     Partial<StudioUrlState>
@@ -93,6 +108,13 @@ export function StudioStateProvider({
   const [motionCurveDragging, setMotionCurveDragging] = useState(false);
   const [numberScrubbing, setNumberScrubbing] = useState(false);
   const appliedYAxisHiddenDefault = useRef(false);
+  const urlHydrated = useRef(false);
+  const lastWrittenCompressed = useRef<string | null>(null);
+  const suppressUrlCompress = useRef(false);
+
+  const setParams = useCallback((updates: Partial<StudioUrlState>) => {
+    setParamsState((prev) => ({ ...prev, ...updates }));
+  }, []);
 
   const state = useMemo(
     (): StudioUrlState => ({
@@ -161,6 +183,63 @@ export function StudioStateProvider({
     setMotionCurveDragging(false);
     setNumberScrubbing(false);
   }, [params.chart]);
+
+  useEffect(() => {
+    if (urlHydrated.current) {
+      return;
+    }
+    urlHydrated.current = true;
+    suppressUrlCompress.current = true;
+
+    const loaded = normalizeLoadedState(
+      loadStudioStateFromRequest(new URL(window.location.href))
+    );
+    setParamsState(loaded);
+
+    const initialSerialized = new URL(window.location.href).searchParams.get(
+      STUDIO_URL_PARAM
+    );
+    if (initialSerialized) {
+      lastWrittenCompressed.current = initialSerialized;
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!(urlHydrated.current && compressed)) {
+      return;
+    }
+    if (compressed === lastWrittenCompressed.current) {
+      return;
+    }
+
+    suppressUrlCompress.current = true;
+    setParamsState(normalizeLoadedState(decodeStudioUrlState(compressed)));
+    lastWrittenCompressed.current = compressed;
+  }, [compressed]);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: state triggers clearing suppress after URL hydration
+  useEffect(() => {
+    if (!suppressUrlCompress.current) {
+      return;
+    }
+    suppressUrlCompress.current = false;
+  }, [state]);
+
+  useEffect(() => {
+    if (!urlHydrated.current || suppressUrlCompress.current) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      const encoded = encodeStudioUrlState(state);
+      if (compressed !== encoded) {
+        lastWrittenCompressed.current = encoded;
+        setCompressed(encoded);
+      }
+    }, 300);
+
+    return () => window.clearTimeout(timer);
+  }, [compressed, setCompressed, state]);
 
   const config = useMemo(() => getStudioConfig(state.chart), [state.chart]);
 

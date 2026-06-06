@@ -1,3 +1,5 @@
+import { defaultStudioState, type StudioUrlState } from "./studio-parsers";
+import { encodeStudioUrlState, STUDIO_URL_PARAM } from "./studio-url-codec";
 import type { ChartSlug } from "./types";
 
 export const REGISTRY_ORIGIN = "https://ui.bklit.com";
@@ -34,27 +36,27 @@ export function studioChartHref(
   slug: ChartSlug,
   searchParams?: Record<string, string | undefined>
 ) {
-  let href: string;
-  if (slug === "profit-loss-line") {
-    href = "/studio?chart=line-chart&lineChartMode=profitLoss";
-  } else {
-    href = `/studio?chart=${slug}`;
-  }
+  const state = defaultStudioState({
+    chart: slug === "profit-loss-line" ? "line-chart" : slug,
+    ...(slug === "profit-loss-line" ? { lineChartMode: "profitLoss" } : {}),
+  });
 
   if (searchParams) {
-    const extra = new URLSearchParams();
     for (const [key, value] of Object.entries(searchParams)) {
       if (value != null && value !== "") {
-        extra.set(key, value);
+        (state as unknown as Record<string, unknown>)[key] = value;
       }
-    }
-    const qs = extra.toString();
-    if (qs) {
-      href += `&${qs}`;
     }
   }
 
-  return href;
+  const encoded = encodeURIComponent(encodeStudioUrlState(state));
+  return `/studio?${STUDIO_URL_PARAM}=${encoded}`;
+}
+
+/** Compressed studio href from a full state object. */
+export function studioStateHref(state: StudioUrlState): string {
+  const encoded = encodeURIComponent(encodeStudioUrlState(state));
+  return `/studio?${STUDIO_URL_PARAM}=${encoded}`;
 }
 
 /** @see https://ui.shadcn.com/docs/registry/open-in-v0 */

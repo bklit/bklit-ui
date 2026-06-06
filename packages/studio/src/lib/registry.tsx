@@ -210,6 +210,7 @@ const scatterConfig: StudioChartConfig = {
           data={getScatterData(ctx.dataSeed)}
           key={studioPreviewChartKey(ctx)}
           margin={timeSeriesChartMargin(state)}
+          onPhaseChange={ctx.reportOgPhase}
         >
           <StudioVisibleLayer componentId="scatter.grid" state={state}>
             <Grid horizontal />
@@ -311,6 +312,7 @@ const barConfig: StudioChartConfig = {
                 ? { left: 80 }
                 : timeSeriesChartMargin(state, { left: 56 })
             }
+            onPhaseChange={ctx.reportOgPhase}
             orientation={state.barOrientation}
             stacked={stacked}
             stackGap={stacked ? 3 : 0}
@@ -390,6 +392,7 @@ const composedConfig: StudioChartConfig = {
             data={data}
             key={studioPreviewChartKey(ctx)}
             margin={timeSeriesChartMargin(state)}
+            onPhaseChange={ctx.reportOgPhase}
           >
             <StudioVisibleLayer componentId="composed.grid" state={state}>
               <Grid horizontal />

@@ -244,6 +244,7 @@ export function AreaStudioPreview({
               data={data}
               loadingLabel={studioLoadingLabel(state, "area.loading-label")}
               margin={margin}
+              onPhaseChange={ctx.reportOgPhase}
               status={state.areaChartState}
               style={{ aspectRatio: "unset", height: "100%" }}
               tweenYDomainOnXDomainChange={brushVisible}

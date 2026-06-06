@@ -1,3 +1,4 @@
+import { processStudioUrlSearchParams } from "@bklitui/studio";
 import { ThemeProvider } from "next-themes";
 import { NuqsAdapter } from "nuqs/adapters/react";
 import { StrictMode, Suspense } from "react";
@@ -12,7 +13,7 @@ if (rootElement) {
   createRoot(rootElement).render(
     <StrictMode>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-        <NuqsAdapter>
+        <NuqsAdapter processUrlSearchParams={processStudioUrlSearchParams}>
           <Suspense
             fallback={
               <div className="flex h-dvh items-center justify-center text-muted-foreground text-sm">
