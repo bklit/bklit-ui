@@ -20,6 +20,7 @@ import type {
   StudioChartConfig,
   StudioComponentDefinition,
   StudioComponentKind,
+  StudioComponentTreeIcon,
   StudioControlGroup,
 } from "@/lib/types";
 import { getStudioControlGroups } from "./control-groups";
