@@ -192,7 +192,7 @@ importers:
       '@remotion/web-renderer':
         specifier: 4.0.462
         version: 4.0.462(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
-      '@sparticuz/chromium':
+      '@sparticuz/chromium-min':
         specifier: ^149.0.0
         version: 149.0.0
       '@visx/brush':
@@ -2272,8 +2272,8 @@ packages:
     resolution: {integrity: sha512-tlqY9xq5ukxTUZBmoOp+m61cqwQD5pHJtFY3Mn8CA8ps6yghLH/Hw8UPdqg4OLmFW3IFlcXnQNmo/dh8HzXYIQ==}
     engines: {node: '>=18'}
 
-  '@sparticuz/chromium@149.0.0':
-    resolution: {integrity: sha512-2NECBVKlUA9xIUXb4fT8OoGKdAJs+I2tNYscO8FwcxCKCWA7FmpPI0fdVxGJoIJglrFZYn+4YEJqChq4rdrxQg==}
+  '@sparticuz/chromium-min@149.0.0':
+    resolution: {integrity: sha512-/+QWJ6jDQnm/U7BITWVVcoe1CbuyW13pjonFpfBY67ZxePbaY/j4Ho+//n82AoGwugdkVVOYGY00KzMJzfYQdg==}
     engines: {node: ^22.17.0 || >=24.0.0}
 
   '@standard-schema/spec@1.0.0':
@@ -7566,7 +7566,7 @@ snapshots:
 
   '@sindresorhus/merge-streams@4.0.0': {}
 
-  '@sparticuz/chromium@149.0.0':
+  '@sparticuz/chromium-min@149.0.0':
     dependencies:
       tar-fs: 3.1.2
     transitivePeerDependencies:

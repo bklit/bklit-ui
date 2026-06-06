@@ -24,7 +24,7 @@
     "@number-flow/react": "^0.5.4",
     "@openpanel/nextjs": "^1.5.1",
     "@remotion/web-renderer": "4.0.462",
-    "@sparticuz/chromium": "^149.0.0",
+    "@sparticuz/chromium-min": "^149.0.0",
     "@visx/brush": "3.12.0",
     "@visx/curve": "4.0.1-alpha.0",
     "@visx/event": "4.0.1-alpha.0",

@@ -1,11 +1,9 @@
 import { readFileSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
-/** Satori (@vercel/og) requires TTF/OTF — woff2 throws "Unsupported OpenType signature wOF2". */
-const GEIST_SANS_DIR = join(
-  process.cwd(),
-  "node_modules/geist/dist/fonts/geist-sans"
-);
+/** Bundled TTFs avoid pnpm symlink tracing issues on Vercel Fluid compute. */
+const OG_FONTS_DIR = join(dirname(fileURLToPath(import.meta.url)), "og-fonts");
 
 interface OgFont {
   name: string;
@@ -28,21 +26,21 @@ export function loadStudioOgFonts(): OgFont[] {
   cachedFonts = [
     {
       name: "Geist",
-      data: toArrayBuffer(readFileSync(join(GEIST_SANS_DIR, "Geist-Thin.ttf"))),
+      data: toArrayBuffer(readFileSync(join(OG_FONTS_DIR, "Geist-Thin.ttf"))),
       weight: 100,
       style: "normal",
     },
     {
       name: "Geist",
       data: toArrayBuffer(
-        readFileSync(join(GEIST_SANS_DIR, "Geist-Regular.ttf"))
+        readFileSync(join(OG_FONTS_DIR, "Geist-Regular.ttf"))
       ),
       weight: 400,
       style: "normal",
     },
     {
       name: "Geist",
-      data: toArrayBuffer(readFileSync(join(GEIST_SANS_DIR, "Geist-Bold.ttf"))),
+      data: toArrayBuffer(readFileSync(join(OG_FONTS_DIR, "Geist-Bold.ttf"))),
       weight: 700,
       style: "normal",
     },

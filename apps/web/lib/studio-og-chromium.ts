@@ -1,7 +1,9 @@
-import { existsSync } from "node:fs";
-import { join } from "node:path";
-import chromium from "@sparticuz/chromium";
+import chromium from "@sparticuz/chromium-min";
 import puppeteer, { type Browser } from "puppeteer-core";
+
+const CHROMIUM_PACK_URL =
+  process.env.STUDIO_OG_CHROMIUM_PACK_URL ??
+  "https://github.com/Sparticuz/chromium/releases/download/v149.0.0/chromium-v149.0.0-pack.x64.tar";
 
 const LOCAL_CHROME_PATHS = [
   process.env.CHROME_PATH,
@@ -29,19 +31,8 @@ function shouldUseLocalChrome(): boolean {
   return process.env.NODE_ENV === "development" || process.env.VERCEL !== "1";
 }
 
-const SERVERLESS_CHROMIUM_BIN_CANDIDATES = [
-  join(process.cwd(), "node_modules/@sparticuz/chromium/bin"),
-  join(process.cwd(), "apps/web/node_modules/@sparticuz/chromium/bin"),
-];
-
 async function resolveServerlessChromiumPath(): Promise<string> {
-  for (const binPath of SERVERLESS_CHROMIUM_BIN_CANDIDATES) {
-    if (existsSync(binPath)) {
-      return await chromium.executablePath(binPath);
-    }
-  }
-
-  return await chromium.executablePath();
+  return await chromium.executablePath(CHROMIUM_PACK_URL);
 }
 
 export async function launchStudioOgBrowser(): Promise<Browser> {

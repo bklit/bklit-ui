@@ -6,13 +6,9 @@ const withMDX = createMDX();
 const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ["@bklitui/ui", "@bklitui/studio", "geist"],
-  serverExternalPackages: ["@sparticuz/chromium", "puppeteer-core"],
+  serverExternalPackages: ["@sparticuz/chromium-min", "puppeteer-core"],
   outputFileTracingIncludes: {
-    "/api/og/studio/chart": ["./node_modules/@sparticuz/chromium/bin/**"],
-    "/api/og/studio": [
-      "./node_modules/geist/dist/fonts/geist-sans/**",
-      "./node_modules/@sparticuz/chromium/bin/**",
-    ],
+    "/api/og/studio": ["./lib/og-fonts/**"],
   },
   experimental: {
     // Keeps dev/prod from pulling the entire charts package per MDX page.
