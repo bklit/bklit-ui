@@ -241,7 +241,7 @@ export function getStudioDataControlGroups(
 function resolveCartesianLoadingStudioComponents(options: {
   chartId: string;
   chartLabel: string;
-  treeIcon: string;
+  treeIcon: StudioComponentTreeIcon;
   gridId: string;
   labelId: string;
   lineId: string;
@@ -389,7 +389,7 @@ export function resolveAreaComponents(
       labelId: "area.loading-label",
       lineId: "area.loading-line",
       lineKind: "series",
-      lineLabel: "Line",
+      lineLabel: "Area",
       settingsControlGroups: settings ? [settings] : [],
       state,
       treeIcon: "area-chart",
