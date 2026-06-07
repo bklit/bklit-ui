@@ -117,6 +117,8 @@ Renders a bar for each data point with configurable styling and animations.
 | `fadedOpacity`  | `number`                      | `0.3`                       | Opacity when another bar is hovered                     |
 | `staggerDelay`  | `number`                      | auto                        | Delay between bars (auto-calculated based on bar count) |
 | `stackGap`      | `number`                      | `0`                         | Gap between stacked bars in pixels                      |
+| `perspective` | `boolean`              | `false`                     | Make this a 3D depth bar: trims the front-face top to meet the lid and forces a flat top. Pass `true` when pairing with `BarDepthBack`/`BarDepthFront` (see [3D Depth](#3d-depth--glass-surfaces)) |
+| `minBarHeight`  | `number`                      | `0`                         | Minimum rendered height in px (non-stacked, vertical) — floors short/zero bars so they stay visible. Pair with `<BarDepthProvider minBarHeight>` |
 
 ### BarXAxis
 
@@ -147,6 +149,131 @@ The Grid component now supports `fadeVertical` for vertical grid lines.
 | `vertical`       | `boolean` | `false` | Show vertical grid lines                  |
 | `fadeHorizontal` | `boolean` | `true`  | Fade horizontal lines at left/right edges |
 | `fadeVertical`   | `boolean` | `false` | Fade vertical lines at top/bottom edges   |
+
+### BarDepthBack
+
+Renders the 3D side + top faces. Place **before** `<Bar>` so the bar's front face occludes depth that would extend into the next column.
+
+| Prop            | Type                              | Default                     | Description                                              |
+| --------------- | --------------------------------- | --------------------------- | ------------------------------------------------------- |
+| `dataKey`       | `string`                          | required                    | Key in data for the bar value (match the sibling `<Bar dataKey>`) |
+| `color`         | `string`                          | `var(--chart-line-primary)` | Solid color for the side + top faces                    |
+| `colorAccessor` | `(datum, index) => string`        | -                           | Per-bar color override; takes precedence over `color`   |
+
+### BarDepthFront
+
+Renders the glossy glass sheen over the bar's fill. Place **after** `<Bar>`.
+
+| Prop      | Type     | Default  | Description                                              |
+| --------- | -------- | -------- | ------------------------------------------------------- |
+| `dataKey` | `string` | required | Key in data for the bar value (match the sibling `<Bar dataKey>`) |
+
+### BarPulse
+
+Optional looping vertical sweep over a single active bar (e.g. a live value). Place **after** `<BarDepthFront>`.
+
+| Prop          | Type      | Default | Description                                          |
+| ------------- | --------- | ------- | ---------------------------------------------------- |
+| `dataKey`     | `string`  | required| Key in data for the bar value                       |
+| `activeIndex` | `number`  | -       | Index (in the data array) of the bar to pulse       |
+| `pulsePaused` | `boolean` | `false` | Freeze the sweep while keeping the 3D/glass treatment |
+
+### BarDepthProvider
+
+Optional wrapper supplying shared depth config to every layer beneath it. Wrap it **around** `<BarChart>`, not inside it. Use it to split **stacked** bars (`segmentsAccessor`) and/or tune the baseline contact shadow (`groundShadow`).
+
+| Prop               | Type                                          | Default | Description                                          |
+| ------------------ | --------------------------------------------- | ------- | ---------------------------------------------------- |
+| `segmentsAccessor` | `(datum) => { value: number; color: string }[]` | -     | Stacked segments (bottom→top) for each datum         |
+| `groundShadow`     | `number`                                        | `0.26`  | Opacity (0–1) of the dark "contact shadow" that grounds each bar at the baseline. Set `0` to remove it (e.g. on bright fills). |
+| `minBarHeight`     | `number`                                        | `0`     | Floors short/zero bars to a min px height so they stay visible. Pass the **same** value to `<Bar minBarHeight>`. |
+
+## 3D Depth & Glass Surfaces
+
+Give bars a head-on 3D perspective and a glass-block sheen by layering `BarDepthBack` (side + top faces, before `Bar`) and `BarDepthFront` (front glass, after `Bar`). The layers read geometry from the chart context, so the only required prop is the matching `dataKey`.
+
+Add **`perspective`** to the `Bar` and you're done — it shrinks the front face's top so the lid sits flush on the bar (instead of floating above it) and forces a flat top so the lid meets it with no gap. **Always pass it when using the depth layers.**
+
+```tsx
+import {
+  BarChart,
+  Bar,
+  BarDepthBack,
+  BarDepthFront,
+  BarXAxis,
+  Grid,
+  ChartTooltip,
+} from "@bklitui/ui/charts";
+
+<BarChart data={data} xDataKey="month">
+  <Grid horizontal />
+  <BarDepthBack dataKey="revenue" color="var(--chart-1)" />
+  <Bar dataKey="revenue" fill="var(--chart-1)" perspective />
+  <BarDepthFront dataKey="revenue" />
+  <BarXAxis />
+  <ChartTooltip />
+</BarChart>;
+```
+
+Color bars individually with `colorAccessor`:
+
+```tsx
+<BarDepthBack
+  dataKey="revenue"
+  colorAccessor={(d) =>
+    (d.revenue as number) >= 15000 ? "var(--chart-1)" : "var(--chart-3)"
+  }
+/>
+```
+
+Highlight a live / in-progress bar with `BarPulse` (render it after `BarDepthFront`):
+
+```tsx
+<BarPulse dataKey="revenue" activeIndex={data.length - 1} />
+```
+
+### Stacked bars (multiple data sources)
+
+To give a **stacked** bar 3D depth, wrap the chart in `BarDepthProvider` with a `segmentsAccessor` returning one `{ value, color }` per data source (bottom→top). The side face splits into a matching parallelogram per segment, and the lid takes the topmost segment's color. The depth's height is the **sum of the segments**, so you don't need a separate total column — just stack a `<Bar>` per source (each with `perspective`) in the same order:
+
+```tsx
+<BarDepthProvider
+  segmentsAccessor={(d) => [
+    { value: d.desktop as number, color: "var(--chart-1)" },
+    { value: d.mobile as number, color: "var(--chart-3)" },
+  ]}
+>
+  <BarChart data={data} xDataKey="month" stacked>
+    <BarDepthBack dataKey="desktop" />
+    <Bar dataKey="desktop" fill="var(--chart-1)" perspective />
+    <Bar dataKey="mobile" fill="var(--chart-3)" perspective />
+    <BarDepthFront dataKey="desktop" />
+    <BarXAxis />
+  </BarChart>
+</BarDepthProvider>;
+```
+
+Each bar gets a subtle dark "contact shadow" at the baseline so it reads as sitting on the axis. Tune or remove it with `groundShadow` on the provider (it reads strongest over bright fills):
+
+```tsx
+<BarDepthProvider groundShadow={0.12}>
+  {/* ...BarChart with depth layers... */}
+</BarDepthProvider>
+```
+
+To keep **zero or very short** bars visible as a tiny bar instead of vanishing, set `minBarHeight` on **both** the `<Bar>` (floors the front face) and `<BarDepthProvider>` (floors the 3D surfaces) — they must match:
+
+```tsx
+<BarDepthProvider minBarHeight={6}>
+  <BarChart data={data} xDataKey="month">
+    <BarDepthBack dataKey="value" color="var(--chart-1)" />
+    <Bar dataKey="value" fill="var(--chart-1)" perspective minBarHeight={6} />
+    <BarDepthFront dataKey="value" />
+  </BarChart>
+</BarDepthProvider>
+```
+
+Negative values are supported (bars grow downward from the baseline) as long as the chart's value scale includes negatives. See the [charts gallery](/charts/bar-chart) for a live 3D depth example.
 
 ## Animation
 

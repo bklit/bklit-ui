@@ -4,6 +4,7 @@ import type { scaleBand } from "@visx/scale";
 import type { Transition } from "motion/react";
 import { motion } from "motion/react";
 import { memo, useId, useMemo } from "react";
+import { barDepthAndRise, barDepthMaxDepth } from "./bar-depth-geometry";
 import {
   chartCssVars,
   useChart,
@@ -19,6 +20,36 @@ type ScaleBand<Domain extends { toString(): string }> = ReturnType<
 
 export type BarLineCap = "round" | "butt" | number;
 export type BarAnimationType = "grow" | "fade";
+
+// ── Bar-depth perspective trim ───────────────────────────────────────────
+// Uses the SHARED geometry (`bar-depth-geometry.ts`) so a
+// `<Bar perspective>` front face lines up exactly with
+// `<BarDepthBack>`'s lid — the formula lives in one place for both.
+
+/** perspectiveRise for a positive bar whose visual top sits at `topY`.
+ * Returns 0 for a dead-center bar or a dense chart (degenerate depth). */
+function barDepthPerspectiveRise(
+  barScale: ScaleBand<string>,
+  bandWidth: number,
+  barXAccessor: (d: Record<string, unknown>) => string,
+  innerWidth: number,
+  datum: Record<string, unknown>,
+  topY: number,
+  baselineY: number
+): number {
+  const centerX = innerWidth / 2;
+  if (centerX <= 0) {
+    return 0;
+  }
+  const step =
+    (barScale as unknown as { step?: () => number }).step?.() ?? bandWidth;
+  const maxDepth = barDepthMaxDepth(step, bandWidth);
+  const bandX = barScale(barXAccessor(datum)) ?? 0;
+  const cx = bandX + bandWidth / 2;
+  const absOffset = Math.min(1, Math.abs((cx - centerX) / centerX));
+  const naturalHeight = Math.abs(baselineY - topY);
+  return barDepthAndRise(absOffset, naturalHeight, maxDepth).perspectiveRise;
+}
 
 export interface BarProps {
   /** Key in data to use for y values */
@@ -43,6 +74,15 @@ export interface BarProps {
   stackGap?: number;
   /** Gap between grouped bars in pixels. Default: 4 */
   groupGap?: number;
+  /** Shrink each positive bar's top by its perspective rise so the front face
+   * lines up with `<BarDepthBack>`'s lid (instead of the lid sitting above the
+   * front face). Pass `true` whenever the chart also renders the bar-depth 3D
+   * surfaces. Default: false */
+  perspective?: boolean;
+  /** Minimum rendered bar height in px (non-stacked, vertical). Floors short or
+   * zero-value bars so they stay visible. Pair with the same value on
+   * `<BarDepthProvider minBarHeight>` when using the 3D surfaces. Default: 0 */
+  minBarHeight?: number;
 }
 
 interface BarInnerProps extends BarProps {
@@ -147,6 +187,8 @@ const BarInner = memo(function BarInner({
   staggerDelay,
   stackGap = 0,
   groupGap = 4,
+  perspective = false,
+  minBarHeight = 0,
   barScale,
   bandWidth,
   barXAccessor,
@@ -155,6 +197,7 @@ const BarInner = memo(function BarInner({
     data,
     yScale: chartYScale,
     innerHeight,
+    innerWidth,
     isLoaded,
     hoveredBarIndex,
     lines,
@@ -207,8 +250,13 @@ const BarInner = memo(function BarInner({
     return (bandWidth - effectiveGroupGap * (seriesCount - 1)) / seriesCount;
   }, [bandWidth, seriesCount, stacked, groupGap]);
 
-  // Calculate corner radius based on lineCap
+  // Calculate corner radius based on lineCap. Perspective bars force a flat
+  // top (radius 0) so the 3D lid from `<BarDepthBack>` meets the bar with no
+  // gap — rounded corners would leave a wedge, so `perspective` overrides it.
   const cornerRadius = useMemo(() => {
+    if (perspective) {
+      return 0;
+    }
     if (typeof lineCap === "number") {
       return lineCap;
     }
@@ -216,7 +264,7 @@ const BarInner = memo(function BarInner({
       return Math.min(barWidth / 2, 8);
     }
     return 0;
-  }, [lineCap, barWidth]);
+  }, [lineCap, barWidth, perspective]);
 
   return (
     <g className={`bar-series-${uniqueId}`}>
@@ -288,6 +336,50 @@ const BarInner = memo(function BarInner({
             ? bandPos
             : bandPos +
               seriesIndex * (barWidth + (seriesCount > 1 ? groupGap : 0));
+
+          // Minimum visible height — floor short/zero non-stacked bars so a
+          // zero-value data point still reads as a tiny bar instead of
+          // vanishing. Grows up from the baseline. Floored bars skip the
+          // perspective trim (sub-pixel on a 3px bar; keeps the front aligned
+          // with bar-depth, which also skips trim for floored bars).
+          let isFloored = false;
+          if (
+            !stacked &&
+            minBarHeight > 0 &&
+            value >= 0 &&
+            barHeight < minBarHeight
+          ) {
+            const baselineY = scale(0) ?? innerHeight;
+            barHeight = minBarHeight;
+            y = baselineY - minBarHeight;
+            isFloored = true;
+          }
+
+          // Perspective trim — shrink the topmost positive bar's front-face
+          // top down by its perspective rise so it meets `<BarDepthBack>`'s
+          // lid back edge. Stacked: only the last (topmost) series; grouped or
+          // single: every positive bar. Clamped to `barHeight - 1` so very
+          // short bars keep a positive height (matches bar-depth's clamp).
+          if (
+            perspective &&
+            value > 0 &&
+            !isFloored &&
+            (!stacked || isLastSeries)
+          ) {
+            const baselineY = scale(0) ?? innerHeight;
+            const rise = barDepthPerspectiveRise(
+              barScale,
+              bandWidth,
+              barXAccessor,
+              innerWidth,
+              d,
+              y,
+              baselineY
+            );
+            const trim = Math.min(rise, Math.max(0, barHeight - 1));
+            y += trim;
+            barHeight -= trim;
+          }
         }
 
         const isFaded =

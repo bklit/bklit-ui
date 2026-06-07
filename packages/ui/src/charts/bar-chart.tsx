@@ -87,7 +87,14 @@ function extractBarConfigs(children: ReactNode): LineConfig[] {
     const childType = child.type as {
       displayName?: string;
       name?: string;
+      __isBarDepthLayer?: boolean;
     };
+    // Bar-depth surface layers (BarDepthBack/Front, BarPulse) carry a
+    // `dataKey` to pair with a Bar but are not series themselves — skip them
+    // so they don't inflate the series count and shrink the real bars.
+    if (childType.__isBarDepthLayer) {
+      return;
+    }
     const componentName =
       typeof child.type === "function"
         ? childType.displayName || childType.name || ""

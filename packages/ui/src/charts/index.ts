@@ -29,6 +29,20 @@ export {
   type BarProps,
 } from "./bar";
 export { BarChart, type BarChartProps, type BarOrientation } from "./bar-chart";
+// Bar 3D depth + glass surfaces (composable layers for BarChart)
+export {
+  BarDepthBack,
+  type BarDepthBackProps,
+  type BarDepthEntry,
+  BarDepthFront,
+  type BarDepthFrontProps,
+  BarDepthProvider,
+  type BarDepthProviderProps,
+  type BarDepthSegment,
+  BarPulse,
+  type BarPulseProps,
+  useBarDepthEntries,
+} from "./bar-depth";
 export { BarXAxis, type BarXAxisProps } from "./bar-x-axis";
 export { BarYAxis, type BarYAxisProps } from "./bar-y-axis";
 export { Candlestick, type CandlestickProps } from "./candlestick";

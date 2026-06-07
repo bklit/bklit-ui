@@ -662,6 +662,11 @@
           "target": "components/charts/bar.tsx"
         },
         {
+          "path": "src/charts/bar-depth-geometry.ts",
+          "type": "registry:lib",
+          "target": "components/charts/bar-depth-geometry.ts"
+        },
+        {
           "path": "src/charts/bar-x-axis.tsx",
           "type": "registry:component",
           "target": "components/charts/bar-x-axis.tsx"
@@ -778,6 +783,25 @@
           "path": "src/charts/profit-loss-legend.tsx",
           "type": "registry:component",
           "target": "components/charts/profit-loss-legend.tsx"
+        }
+      ]
+    },
+    {
+      "name": "bar-depth",
+      "type": "registry:component",
+      "title": "Bar Depth",
+      "description": "3D depth and glossy glass surfaces for BarChart bars",
+      "registryDependencies": [
+        "@bklit/bar-chart"
+      ],
+      "dependencies": [
+        "motion"
+      ],
+      "files": [
+        {
+          "path": "src/charts/bar-depth.tsx",
+          "type": "registry:component",
+          "target": "components/charts/bar-depth.tsx"
         }
       ]
     },

@@ -6,6 +6,9 @@ import {
   AreaChartLoading,
   Bar,
   BarChart,
+  BarDepthBack,
+  BarDepthFront,
+  BarDepthProvider,
   BarXAxis,
   BarYAxis,
   Candlestick,
@@ -371,6 +374,15 @@ const barData = [
   { month: "Mar", desktop: 237 },
   { month: "Apr", desktop: 73 },
   { month: "May", desktop: 209 },
+  { month: "Jun", desktop: 214 },
+];
+
+const barZeroData = [
+  { month: "Jan", desktop: 186 },
+  { month: "Feb", desktop: 0 },
+  { month: "Mar", desktop: 237 },
+  { month: "Apr", desktop: 0 },
+  { month: "May", desktop: 120 },
   { month: "Jun", desktop: 214 },
 ];
 
@@ -1241,6 +1253,97 @@ function makeBarExamples(): ChartExample[] {
           <BarXAxis />
           <ChartTooltip />
         </BarExampleChart>
+      ),
+    },
+    {
+      title: "Bar Chart - 3D Depth",
+      description: "Glass-block bars with perspective side + top faces",
+      code: `<BarChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={chartData} xDataKey="month">
+  <Grid horizontal />
+  <BarDepthBack dataKey="desktop" color="var(--chart-1)" />
+  <Bar dataKey="desktop" fill="var(--chart-1)" perspective />
+  <BarDepthFront dataKey="desktop" />
+  <BarXAxis />
+  <ChartTooltip />
+</BarChart>`,
+      render: () => (
+        <BarExampleChart data={barData} xDataKey="month">
+          <Grid horizontal />
+          <BarDepthBack color="var(--chart-1)" dataKey="desktop" />
+          <Bar dataKey="desktop" fill="var(--chart-1)" perspective />
+          <BarDepthFront dataKey="desktop" />
+          <BarXAxis />
+          <ChartTooltip />
+        </BarExampleChart>
+      ),
+    },
+    {
+      title: "Bar Chart - 3D Stacked",
+      description: "Stacked depth bars split into per-segment side faces",
+      code: `<BarDepthProvider
+  segmentsAccessor={(d) => [
+    { value: d.desktop, color: "var(--chart-1)" },
+    { value: d.mobile, color: "var(--chart-3)" },
+  ]}
+>
+  <BarChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={chartData} xDataKey="month" stacked>
+    <Grid horizontal />
+    <BarDepthBack dataKey="desktop" />
+    <Bar dataKey="desktop" fill="var(--chart-1)" perspective />
+    <Bar dataKey="mobile" fill="var(--chart-3)" perspective />
+    <BarDepthFront dataKey="desktop" />
+    <BarXAxis />
+    <ChartTooltip />
+  </BarChart>
+</BarDepthProvider>`,
+      render: () => (
+        <BarDepthProvider
+          segmentsAccessor={(d) => [
+            { value: d.desktop as number, color: "var(--chart-1)" },
+            { value: d.mobile as number, color: "var(--chart-3)" },
+          ]}
+        >
+          <BarExampleChart data={barStackedData} stacked xDataKey="month">
+            <Grid horizontal />
+            <BarDepthBack dataKey="desktop" />
+            <Bar dataKey="desktop" fill="var(--chart-1)" perspective />
+            <Bar dataKey="mobile" fill="var(--chart-3)" perspective />
+            <BarDepthFront dataKey="desktop" />
+            <BarXAxis />
+            <ChartTooltip />
+          </BarExampleChart>
+        </BarDepthProvider>
+      ),
+    },
+    {
+      title: "Bar Chart - 3D Min Height",
+      description: "Zero-value bars floored to a short, still-visible bar",
+      code: `<BarDepthProvider minBarHeight={6}>
+  <BarChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={chartData} xDataKey="month">
+    <Grid horizontal />
+    <BarDepthBack dataKey="desktop" color="var(--chart-1)" />
+    <Bar dataKey="desktop" fill="var(--chart-1)" perspective minBarHeight={6} />
+    <BarDepthFront dataKey="desktop" />
+    <BarXAxis />
+    <ChartTooltip />
+  </BarChart>
+</BarDepthProvider>`,
+      render: () => (
+        <BarDepthProvider minBarHeight={6}>
+          <BarExampleChart data={barZeroData} xDataKey="month">
+            <Grid horizontal />
+            <BarDepthBack color="var(--chart-1)" dataKey="desktop" />
+            <Bar
+              dataKey="desktop"
+              fill="var(--chart-1)"
+              minBarHeight={6}
+              perspective
+            />
+            <BarDepthFront dataKey="desktop" />
+            <BarXAxis />
+            <ChartTooltip />
+          </BarExampleChart>
+        </BarDepthProvider>
       ),
     },
     {
