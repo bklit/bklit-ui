@@ -58,6 +58,7 @@ export function Background({
   radius,
   complement,
   fill,
+  dotFill,
   tileBackground,
   showFill = true,
   opacity = 1,
@@ -91,6 +92,7 @@ export function Background({
     radius,
     complement,
     fill,
+    dotFill,
     tileBackground,
   });
   if (!patternNode) {

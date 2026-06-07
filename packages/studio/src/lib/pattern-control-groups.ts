@@ -148,7 +148,7 @@ export function patternDetailControls(
       type: "color",
       key: keys.fill,
       label: "Fill",
-      visibleWhen: circlePattern,
+      visibleWhen: circleTexture,
     }),
     withEnabled({
       type: "color",
@@ -201,6 +201,12 @@ export const backgroundControlGroups: StudioControlGroup[] = [
       key: "backgroundPatternShowFill",
       label: "Pattern fill",
       visibleWhen: activeWhen("backgroundPattern"),
+    },
+    {
+      type: "boolean",
+      key: "backgroundPatternDotsFill",
+      label: "Fill",
+      visibleWhen: dotGridWhen("backgroundPattern"),
     },
     ...patternDetailControls("backgroundPattern", BACKGROUND_PATTERN_KEYS),
   ]),

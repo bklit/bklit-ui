@@ -202,7 +202,9 @@ export function useAnimatedYDomains({
   const prevTargetSignatureRef = useRef(targetSignature);
 
   useEffect(() => {
-    if (!tweenOnTargetChange || chartPhase !== "ready") {
+    const inLivePhase = chartPhase === "ready" || chartPhase === "revealing";
+
+    if (!inLivePhase) {
       prevTargetSignatureRef.current = targetSignature;
       return;
     }
@@ -212,17 +214,21 @@ export function useAnimatedYDomains({
     }
     prevTargetSignatureRef.current = targetSignature;
 
-    const control = tweenDomains({
-      destination: targetRef.current,
-      durationMs,
-      enabled,
-      reducedMotion,
-      animatedRef,
-      setAnimatedByAxis,
-      onSettled: () => onSettledRef.current?.(),
-    });
+    if (tweenOnTargetChange && chartPhase === "ready") {
+      const control = tweenDomains({
+        destination: targetRef.current,
+        durationMs,
+        enabled,
+        reducedMotion,
+        animatedRef,
+        setAnimatedByAxis,
+        onSettled: () => onSettledRef.current?.(),
+      });
 
-    return () => control?.stop();
+      return () => control?.stop();
+    }
+
+    snapDomains(targetRef.current, setAnimatedByAxis, animatedRef);
   }, [
     chartPhase,
     durationMs,

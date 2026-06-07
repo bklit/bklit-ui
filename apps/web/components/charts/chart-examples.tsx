@@ -108,6 +108,7 @@ import {
   chartExampleRadialShellClassName,
   getChartExampleContentPaddingClassName,
 } from "@/components/charts/chart-example-preview";
+import { LineChartStudioTrioDemo } from "@/components/charts/line-chart-studio-trio-demo";
 import { CopyButton } from "@/components/copy-button";
 import {
   PROFIT_LOSS_DATA_KEY,
@@ -2077,6 +2078,44 @@ function makeLineExamples(): ChartExample[] {
           <ChartTooltip />
         </LineExampleChart>
       ),
+    },
+    {
+      title: "Line Chart - Trio with Brush",
+      description:
+        "Three Catmull–Rom series on a dot background with a top legend and brush zoom — matches the Studio trio preset.",
+      code: `import { curveCatmullRom } from "@visx/curve";
+import {
+  Background,
+  ChartBrush,
+  ChartBrushLayout,
+  ChartLegend,
+  ChartTooltip,
+  Line,
+  LineChart,
+  XAxis,
+} from "@bklitui/ui/charts";
+
+<ChartBrushLayout data={chartData} enabled height={72} brushStrip={...}>
+  {(brushLayout) => (
+    <LineChart data={chartData} xDomain={brushLayout.xDomain} tweenYDomainOnXDomainChange>
+      <Background pattern="dots" opacity={0.85} />
+      <Line dataKey="desktop" curve={curveCatmullRom} stroke="oklch(0.882 0.131 312.907)" fadeEdges strokeWidth={2} />
+      <Line dataKey="mobile" curve={curveCatmullRom} stroke="oklch(1 0 215.215)" fadeEdges strokeWidth={2} />
+      <Line dataKey="tablet" curve={curveCatmullRom} stroke="oklch(0.85 0.079 48.99)" fadeEdges strokeWidth={2} />
+      <XAxis />
+      <ChartTooltip />
+    </LineChart>
+  )}
+</ChartBrushLayout>`,
+      data: `const chartData = Array.from({ length: 30 }, (_, i) => ({
+  date: new Date(2025, 0, 1 + i),
+  desktop: Math.round(180 + Math.sin(i / 4.2) * 70 + ((i * 9) % 31)),
+  mobile: Math.round(120 + Math.cos(i / 3.8) * 55 + ((i * 5) % 23)),
+  tablet: Math.round(150 + Math.sin(i / 5.1 + 1) * 48 + ((i * 7) % 19)),
+}));`,
+      footer:
+        "Open the same preset in Studio from the Background docs or paste the share URL from /charts/line-chart.",
+      render: () => <LineChartStudioTrioDemo />,
     },
     {
       title: "Line Chart - Multiple Lines",

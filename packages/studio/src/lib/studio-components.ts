@@ -56,6 +56,39 @@ import { firstConfigurableStudioComponentId } from "./studio-component-visibilit
 
 const DESIGN_SERIES_LABEL_PREFIX = /^Series \d+ · /;
 
+const PER_SERIES_LINE_CONTROL_KEYS = new Set([
+  "curve",
+  "strokeWidth",
+  "fadeEdges",
+  "showHighlight",
+  "showLine",
+  "seriesShowMarkers",
+  "seriesMarkerRadius",
+  "seriesMarkerRingGap",
+  "seriesMarkerRingWidth",
+  "seriesDashTail",
+  "seriesDashFromIndex",
+  "seriesDashArray",
+]);
+
+function seriesScopedControlGroups(
+  groups: StudioControlGroup[],
+  seriesIndex: number
+): StudioControlGroup[] {
+  return groups.map((group) => ({
+    ...group,
+    controls: group.controls.map((control) => {
+      if (
+        "key" in control &&
+        PER_SERIES_LINE_CONTROL_KEYS.has(String(control.key))
+      ) {
+        return { ...control, seriesIndex };
+      }
+      return control;
+    }),
+  }));
+}
+
 function rootPaletteDesign(
   supportsPattern = false
 ): StudioComponentDefinition["design"] {
@@ -466,7 +499,7 @@ export function resolveAreaComponents(
     }
     controlGroups.push(
       seriesYAxisControlGroup(index),
-      ...areaSeriesLineControlGroups
+      ...seriesScopedControlGroups(areaSeriesLineControlGroups, index)
     );
 
     components.push({
@@ -611,7 +644,7 @@ export function resolveComposedComponents(
       }
       controlGroups.push(
         seriesYAxisControlGroup(index),
-        ...composedOverlayLineControlGroups
+        ...seriesScopedControlGroups(composedOverlayLineControlGroups, index)
       );
     }
 
@@ -870,9 +903,14 @@ export function resolveLineComponents(
       swatchColor: getEffectiveSeriesColor(state, index),
       controlGroups: [
         seriesYAxisControlGroup(index),
-        ...(lineControls ? [lineControls] : []),
-        ...(markers ? [markers] : []),
-        ...(dashTail ? [dashTail] : []),
+        ...seriesScopedControlGroups(
+          [
+            ...(lineControls ? [lineControls] : []),
+            ...(markers ? [markers] : []),
+            ...(dashTail ? [dashTail] : []),
+          ],
+          index
+        ),
       ],
       design: {
         seriesIndex: index,

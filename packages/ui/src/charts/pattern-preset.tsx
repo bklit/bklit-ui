@@ -23,6 +23,8 @@ export interface PatternPresetOptions {
   radius?: number;
   complement?: boolean;
   fill?: string;
+  /** Dot grid only — when false, render hollow dots (stroke only). Default: true */
+  dotFill?: boolean;
   tileBackground?: string;
 }
 
@@ -73,17 +75,22 @@ function renderPatternCircles(
   const isDotGrid = preset === "dots";
   const radius =
     options.radius ?? (isDotGrid ? Math.max(0.5, 1.5 * scale) : 2 * scale);
-  const dotFill = options.fill || color;
+  const dotFillEnabled = options.dotFill !== false;
 
   if (isDotGrid) {
+    const dotFill = dotFillEnabled ? options.fill || color : undefined;
     return (
       <PatternCircles
         {...common}
         complement={options.complement}
         fill={dotFill}
         radius={radius}
-        stroke={options.fill ? undefined : color}
-        strokeWidth={options.strokeWidth ?? 0}
+        stroke={dotFillEnabled && options.fill ? undefined : color}
+        strokeWidth={
+          dotFillEnabled && !options.fill
+            ? (options.strokeWidth ?? 0)
+            : (options.strokeWidth ?? 1)
+        }
       />
     );
   }

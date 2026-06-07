@@ -44,12 +44,19 @@ import { isStudioComponentVisible } from "@/lib/studio-component-visibility";
 import { studioAreaLegendItems } from "@/lib/studio-legend-items";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import { getSeriesFillMode } from "@/lib/studio-series-design";
+import {
+  getSeriesCurve,
+  getSeriesFadeEdges,
+  getSeriesShowHighlight,
+  getSeriesShowLine,
+  getSeriesStrokeWidth,
+} from "@/lib/studio-series-line-props";
 
 function renderBrushStripAreas(
   state: StudioUrlState,
   ctx: StudioRenderContext,
   options: {
-    curve: ReturnType<typeof resolveCurve>;
+    dataLength: number;
     seriesCount: number;
   }
 ) {
@@ -64,16 +71,17 @@ function renderBrushStripAreas(
           ? ctx.patternFillAt(idx)
           : undefined;
       const fill = patternFill ?? `var(--chart-${(idx % 5) + 1})`;
+      const curve = resolveCurve(getSeriesCurve(state, idx));
 
       const area = (
         <Area
           animate={false}
-          curve={options.curve}
+          curve={curve}
           dataKey={key}
           fadeEdges={
             patternFill || !state.brushFadeEdges
               ? false
-              : fadeEdgesPropValue(state.fadeEdges)
+              : fadeEdgesPropValue(getSeriesFadeEdges(state, idx))
           }
           fill={fill}
           fillOpacity={state.brushAreaOpacity}
@@ -81,10 +89,11 @@ function renderBrushStripAreas(
           gradientToOpacity={state.brushGradientToOpacity}
           key={`brush-area-${key}`}
           showHighlight={false}
-          showLine={state.showLine}
+          showLine={getSeriesShowLine(state, idx)}
           stroke={idx === 0 ? undefined : STUDIO_SERIES_COLORS[idx]}
-          strokeWidth={state.strokeWidth}
+          strokeWidth={getSeriesStrokeWidth(state, idx)}
           yAxisId={getLineSeriesYAxisId(state, idx)}
+          {...seriesStrokePropsFromState(state, options.dataLength, idx)}
         />
       );
 
@@ -92,7 +101,7 @@ function renderBrushStripAreas(
         return [
           <PatternArea
             animate={false}
-            curve={options.curve}
+            curve={curve}
             dataKey={key}
             fill={patternFill}
             key={`brush-pattern-${key}`}
@@ -110,10 +119,9 @@ function renderMainAreas(
   state: StudioUrlState,
   ctx: StudioRenderContext,
   options: {
-    curve: ReturnType<typeof resolveCurve>;
+    dataLength: number;
     isLoading: boolean;
     seriesCount: number;
-    seriesStroke: ReturnType<typeof seriesStrokePropsFromState>;
   }
 ) {
   return STUDIO_SERIES_KEYS.slice(0, options.seriesCount).flatMap(
@@ -128,23 +136,28 @@ function renderMainAreas(
           ? ctx.patternFillAt(idx)
           : undefined;
       const fill = patternFill ?? `var(--chart-${(idx % 5) + 1})`;
+      const curve = resolveCurve(getSeriesCurve(state, idx));
 
       const area = (
         <Area
-          curve={options.curve}
+          curve={curve}
           dataKey={key}
-          fadeEdges={patternFill ? false : fadeEdgesPropValue(state.fadeEdges)}
+          fadeEdges={
+            patternFill
+              ? false
+              : fadeEdgesPropValue(getSeriesFadeEdges(state, idx))
+          }
           fill={fill}
           fillOpacity={state.fillOpacity}
           gradientToOpacity={state.gradientToOpacity}
           key={`area-${key}`}
           loading={studioCartesianSeriesLoadingProp(isPrimary)}
-          showHighlight={state.showHighlight}
-          showLine={state.showLine}
+          showHighlight={getSeriesShowHighlight(state, idx)}
+          showLine={getSeriesShowLine(state, idx)}
           stroke={idx === 0 ? undefined : STUDIO_SERIES_COLORS[idx]}
-          strokeWidth={state.strokeWidth}
+          strokeWidth={getSeriesStrokeWidth(state, idx)}
           yAxisId={getLineSeriesYAxisId(state, idx)}
-          {...options.seriesStroke}
+          {...seriesStrokePropsFromState(state, options.dataLength, idx)}
           {...(isPrimary
             ? studioLoadingStrokeProps(state, "area.loading-line")
             : {})}
@@ -154,7 +167,7 @@ function renderMainAreas(
       if (!options.isLoading && patternFill) {
         return [
           <PatternArea
-            curve={options.curve}
+            curve={curve}
             dataKey={key}
             fill={patternFill}
             key={`pattern-${key}`}
@@ -176,7 +189,6 @@ export function AreaStudioPreview({
   ctx: StudioRenderContext;
 }) {
   const isLoading = state.areaChartState === "loading";
-  const curve = resolveCurve(state.curve);
   const seriesCount = clampStudioSeriesCount(state.dataSeries);
   const data = useMemo(
     () =>
@@ -187,10 +199,6 @@ export function AreaStudioPreview({
         seed: ctx.dataSeed,
       }),
     [ctx.dataSeed, seriesCount, state.dataPoints]
-  );
-  const seriesStroke = useMemo(
-    () => seriesStrokePropsFromState(state, data.length),
-    [data.length, state]
   );
   const margin = timeSeriesChartMargin(state);
   const brushVisible =
@@ -226,7 +234,10 @@ export function AreaStudioPreview({
               style={{ aspectRatio: "unset", height: "100%" }}
             >
               {ctx.patternDefs}
-              {renderBrushStripAreas(state, ctx, { curve, seriesCount })}
+              {renderBrushStripAreas(state, ctx, {
+                dataLength: data.length,
+                seriesCount,
+              })}
               <ChartBrush
                 {...studioChartBrushProps(state)}
                 initialSelection={brushLayout.brushSelection ?? undefined}
@@ -261,10 +272,9 @@ export function AreaStudioPreview({
               {studioCartesianGridLayer(state, "area.grid")}
               {ctx.patternDefs}
               {renderMainAreas(state, ctx, {
-                curve,
+                dataLength: data.length,
                 isLoading,
                 seriesCount,
-                seriesStroke,
               })}
               {isLoading ? null : (
                 <>

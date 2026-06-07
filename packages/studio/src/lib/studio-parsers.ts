@@ -153,6 +153,24 @@ export const studioSearchParams = {
   seriesDashTail: parseAsBoolean.withDefault(false),
   seriesDashFromIndex: parseAsInteger.withDefault(4),
   seriesDashArray: parseAsString.withDefault("6,4"),
+  /** Pipe-encoded stroke width per cartesian series layer. */
+  seriesStrokeWidths: parseAsString.withDefault(""),
+  /** Pipe-encoded fade edges per cartesian series layer. */
+  seriesFadeEdges: parseAsString.withDefault(""),
+  /** Pipe-encoded highlight-on-hover per cartesian series layer (`1` / `0`). */
+  seriesShowHighlights: parseAsString.withDefault(""),
+  /** Pipe-encoded area line visibility per series (`1` / `0`). */
+  seriesShowLines: parseAsString.withDefault(""),
+  /** Pipe-encoded point markers per series (`1` / `0`). */
+  seriesMarkersFlags: parseAsString.withDefault(""),
+  seriesMarkerRadii: parseAsString.withDefault(""),
+  seriesMarkerRingGaps: parseAsString.withDefault(""),
+  seriesMarkerRingWidths: parseAsString.withDefault(""),
+  seriesDashTailFlags: parseAsString.withDefault(""),
+  seriesDashFromIndices: parseAsString.withDefault(""),
+  seriesDashArrays: parseAsString.withDefault(""),
+  /** Pipe-encoded curve id per cartesian series layer. */
+  seriesCurves: parseAsString.withDefault(""),
   dataSeries: parseAsInteger.withDefault(2),
   dataPoints: parseAsInteger.withDefault(12),
   lineChartMode: parseAsStringLiteral(["standard", "profitLoss"]).withDefault(
@@ -196,6 +214,7 @@ export const studioSearchParams = {
   backgroundPatternRadius: parseAsFloat.withDefault(2),
   backgroundPatternComplement: parseAsBoolean.withDefault(false),
   backgroundPatternFill: parseAsString.withDefault(""),
+  backgroundPatternDotsFill: parseAsBoolean.withDefault(true),
   backgroundPatternTileBackground: parseAsString.withDefault(""),
   backgroundPatternOpacity: parseAsFloat.withDefault(1),
   backgroundPatternShowFill: parseAsBoolean.withDefault(true),
@@ -370,6 +389,18 @@ export interface StudioUrlState {
   seriesDashTail: boolean;
   seriesDashFromIndex: number;
   seriesDashArray: string;
+  seriesStrokeWidths: string;
+  seriesFadeEdges: string;
+  seriesShowHighlights: string;
+  seriesShowLines: string;
+  seriesMarkersFlags: string;
+  seriesMarkerRadii: string;
+  seriesMarkerRingGaps: string;
+  seriesMarkerRingWidths: string;
+  seriesDashTailFlags: string;
+  seriesDashFromIndices: string;
+  seriesDashArrays: string;
+  seriesCurves: string;
   dataSeries: number;
   dataPoints: number;
   lineChartMode: "standard" | "profitLoss";
@@ -402,6 +433,7 @@ export interface StudioUrlState {
   backgroundPatternRadius: number;
   backgroundPatternComplement: boolean;
   backgroundPatternFill: string;
+  backgroundPatternDotsFill: boolean;
   backgroundPatternTileBackground: string;
   backgroundPatternOpacity: number;
   backgroundPatternShowFill: boolean;
@@ -575,6 +607,18 @@ export function defaultStudioState(
     seriesDashTail: false,
     seriesDashFromIndex: 4,
     seriesDashArray: "6,4",
+    seriesStrokeWidths: "",
+    seriesFadeEdges: "",
+    seriesShowHighlights: "",
+    seriesShowLines: "",
+    seriesMarkersFlags: "",
+    seriesMarkerRadii: "",
+    seriesMarkerRingGaps: "",
+    seriesMarkerRingWidths: "",
+    seriesDashTailFlags: "",
+    seriesDashFromIndices: "",
+    seriesDashArrays: "",
+    seriesCurves: "",
     dataSeries: 2,
     dataPoints: 12,
     lineChartMode: "standard",
@@ -609,6 +653,7 @@ export function defaultStudioState(
     backgroundPatternRadius: 2,
     backgroundPatternComplement: false,
     backgroundPatternFill: "",
+    backgroundPatternDotsFill: true,
     backgroundPatternTileBackground: "",
     backgroundPatternOpacity: 1,
     backgroundPatternShowFill: true,

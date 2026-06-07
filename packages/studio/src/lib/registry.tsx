@@ -115,6 +115,11 @@ import {
 } from "./studio-components";
 import { studioCartesianLegendItems } from "./studio-legend-items";
 import { getEffectiveSeriesColor } from "./studio-series-design";
+import {
+  getSeriesCurve,
+  getSeriesFadeEdges,
+  getSeriesStrokeWidth,
+} from "./studio-series-line-props";
 import type { ChartSlug, StudioChartConfig } from "./types";
 import { chartLabels } from "./types";
 
@@ -377,7 +382,6 @@ const composedConfig: StudioChartConfig = {
   controlGroups: composedChartControlGroups,
   resolveComponents: resolveComposedComponents,
   render: (state, ctx) => {
-    const curve = resolveCurve(state.curve);
     const seriesCount = clampStudioSeriesCount(state.dataSeries);
     const data = generateStudioCartesianData({
       seriesCount,
@@ -385,7 +389,6 @@ const composedConfig: StudioChartConfig = {
       xAxis: "date",
       seed: ctx.dataSeed,
     });
-    const seriesStroke = seriesStrokePropsFromState(state, data.length);
     const barKey = STUDIO_SERIES_KEYS[0];
     return (
       <StudioChartShell
@@ -424,26 +427,39 @@ const composedConfig: StudioChartConfig = {
                 const colorIdx = seriesIndex;
                 const color = `var(--chart-${(colorIdx % 5) + 1})`;
                 const yAxisId = getLineSeriesYAxisId(state, seriesIndex);
+                const curve = resolveCurve(getSeriesCurve(state, seriesIndex));
                 return [
                   <Area
                     curve={curve}
                     dataKey={key}
-                    fadeEdges={fadeEdgesPropValue(state.fadeEdges)}
+                    fadeEdges={fadeEdgesPropValue(
+                      getSeriesFadeEdges(state, seriesIndex)
+                    )}
                     fill={color}
                     fillOpacity={state.fillOpacity}
                     key={`area-${key}`}
                     yAxisId={yAxisId}
-                    {...seriesStroke}
+                    {...seriesStrokePropsFromState(
+                      state,
+                      data.length,
+                      seriesIndex
+                    )}
                   />,
                   <Line
                     curve={curve}
                     dataKey={key}
-                    fadeEdges={fadeEdgesPropValue(state.fadeEdges)}
+                    fadeEdges={fadeEdgesPropValue(
+                      getSeriesFadeEdges(state, seriesIndex)
+                    )}
                     key={`line-${key}`}
                     stroke={color}
-                    strokeWidth={state.strokeWidth}
+                    strokeWidth={getSeriesStrokeWidth(state, seriesIndex)}
                     yAxisId={yAxisId}
-                    {...seriesStroke}
+                    {...seriesStrokePropsFromState(
+                      state,
+                      data.length,
+                      seriesIndex
+                    )}
                   />,
                 ];
               }

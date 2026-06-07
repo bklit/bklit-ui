@@ -24,6 +24,29 @@ import { patternCodegenBlock } from "./patterns";
 import { seriesStrokePropsCodegen } from "./series-stroke-props";
 import { isStudioComponentVisible } from "./studio-component-visibility";
 import type { StudioUrlState } from "./studio-parsers";
+import {
+  getSeriesCurve,
+  getSeriesFadeEdges,
+  getSeriesShowHighlight,
+  getSeriesShowLine,
+  getSeriesStrokeWidth,
+} from "./studio-series-line-props";
+
+function visxCurveImportLines(
+  state: StudioUrlState,
+  seriesIndices: number[]
+): string {
+  const names = [
+    ...new Set(
+      seriesIndices.map((index) =>
+        curveImportName(getSeriesCurve(state, index))
+      )
+    ),
+  ];
+  return names
+    .map((name) => `import { ${name} } from "@visx/curve";`)
+    .join("\n");
+}
 
 // Only 5 chart-N vars exist; series 6–10 cycle back through chart-1…chart-5.
 const SERIES_COLOR_BY_INDEX = [
@@ -114,6 +137,23 @@ export function gridPropsCodegen(state: StudioUrlState): string {
   return props.length > 0 ? ` ${props.join(" ")}` : " horizontal";
 }
 
+function backgroundCirclePatternPropsCodegen(state: StudioUrlState): string[] {
+  const props: string[] = [];
+  if (state.backgroundPatternRadius !== 2) {
+    props.push(`radius={${state.backgroundPatternRadius}}`);
+  }
+  if (state.backgroundPatternComplement) {
+    props.push("complement");
+  }
+  if (state.backgroundPattern === "circles" && state.backgroundPatternFill) {
+    props.push(`fill="${state.backgroundPatternFill}"`);
+  }
+  if (state.backgroundPattern === "dots" && !state.backgroundPatternDotsFill) {
+    props.push("dotFill={false}");
+  }
+  return props;
+}
+
 export function backgroundPropsCodegen(state: StudioUrlState): string {
   const props: string[] = [];
 
@@ -133,15 +173,7 @@ export function backgroundPropsCodegen(state: StudioUrlState): string {
     state.backgroundPattern === "circles" ||
     state.backgroundPattern === "dots"
   ) {
-    if (state.backgroundPatternRadius !== 2) {
-      props.push(`radius={${state.backgroundPatternRadius}}`);
-    }
-    if (state.backgroundPatternComplement) {
-      props.push("complement");
-    }
-    if (state.backgroundPatternFill) {
-      props.push(`fill="${state.backgroundPatternFill}"`);
-    }
+    props.push(...backgroundCirclePatternPropsCodegen(state));
   }
   if (state.backgroundPatternTileBackground) {
     props.push(`tileBackground="${state.backgroundPatternTileBackground}"`);
@@ -191,11 +223,9 @@ export function cartesianCodegen(
   chartType: "AreaChart" | "LineChart",
   state: StudioUrlState
 ) {
-  const curveName = curveImportName(state.curve);
   const fill = "url(#studio-pattern-fill)";
   const anim = `\n  ${cssRevealAnimationCodegen(state.animationDuration, motionSliceFromState(state))}`;
 
-  const seriesProps = seriesStrokePropsCodegen(state);
   const keys = seriesKeysForState(state);
 
   let child = "";
@@ -204,7 +234,9 @@ export function cartesianCodegen(
       .map((key, idx) => {
         const strokeAttr =
           idx === 0 ? "" : ` stroke="${SERIES_COLOR_BY_INDEX[idx]}"`;
-        return `\n  <Line dataKey="${key}"${strokeAttr} curve={${curveName}} strokeWidth={${state.strokeWidth}} ${fadeEdgesCodegen(state.fadeEdges)} showHighlight={${state.showHighlight}}${seriesProps} />`;
+        const seriesProps = seriesStrokePropsCodegen(state, idx);
+        const curveName = curveImportName(getSeriesCurve(state, idx));
+        return `\n  <Line dataKey="${key}"${strokeAttr} curve={${curveName}} strokeWidth={${getSeriesStrokeWidth(state, idx)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, idx))} showHighlight={${getSeriesShowHighlight(state, idx)}}${seriesProps} />`;
       })
       .join("");
   } else if (state.pattern === "none") {
@@ -212,20 +244,26 @@ export function cartesianCodegen(
       .map((key, idx) => {
         const fillAttr =
           idx === 0 ? "" : ` fill="${SERIES_COLOR_BY_INDEX[idx]}"`;
-        return `\n  <Area dataKey="${key}"${fillAttr} curve={${curveName}} fillOpacity={${state.fillOpacity}} strokeWidth={${state.strokeWidth}} ${fadeEdgesCodegen(state.fadeEdges)} gradientToOpacity={${state.gradientToOpacity}} showLine={${state.showLine}} showHighlight={${state.showHighlight}}${seriesProps} />`;
+        const seriesProps = seriesStrokePropsCodegen(state, idx);
+        const curveName = curveImportName(getSeriesCurve(state, idx));
+        return `\n  <Area dataKey="${key}"${fillAttr} curve={${curveName}} fillOpacity={${state.fillOpacity}} strokeWidth={${getSeriesStrokeWidth(state, idx)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, idx))} gradientToOpacity={${state.gradientToOpacity}} showLine={${getSeriesShowLine(state, idx)}} showHighlight={${getSeriesShowHighlight(state, idx)}}${seriesProps} />`;
       })
       .join("");
   } else {
     // Pattern fill applies only to the primary series; secondaries fall back to solid chart-N color.
     const [primaryKey, ...rest] = keys;
+    const primarySeriesProps = seriesStrokePropsCodegen(state, 0);
+    const primaryCurveName = curveImportName(getSeriesCurve(state, 0));
     const primary = primaryKey
-      ? `\n  ${patternCodegenBlock(state.pattern)}\n  <PatternArea dataKey="${primaryKey}" fill="${fill}" curve={${curveName}} />\n  <Area dataKey="${primaryKey}" fillOpacity={0} curve={${curveName}} strokeWidth={${state.strokeWidth}} ${fadeEdgesCodegen(state.fadeEdges)} gradientToOpacity={${state.gradientToOpacity}} showLine={${state.showLine}} showHighlight={${state.showHighlight}}${seriesProps} />`
+      ? `\n  ${patternCodegenBlock(state.pattern)}\n  <PatternArea dataKey="${primaryKey}" fill="${fill}" curve={${primaryCurveName}} />\n  <Area dataKey="${primaryKey}" fillOpacity={0} curve={${primaryCurveName}} strokeWidth={${getSeriesStrokeWidth(state, 0)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, 0))} gradientToOpacity={${state.gradientToOpacity}} showLine={${getSeriesShowLine(state, 0)}} showHighlight={${getSeriesShowHighlight(state, 0)}}${primarySeriesProps} />`
       : "";
     const others = rest
-      .map(
-        (key, idx) =>
-          `\n  <Area dataKey="${key}" fill="${SERIES_COLOR_BY_INDEX[idx + 1]}" curve={${curveName}} fillOpacity={${state.fillOpacity}} strokeWidth={${state.strokeWidth}} ${fadeEdgesCodegen(state.fadeEdges)} gradientToOpacity={${state.gradientToOpacity}} showLine={${state.showLine}} showHighlight={${state.showHighlight}}${seriesProps} />`
-      )
+      .map((key, idx) => {
+        const seriesIndex = idx + 1;
+        const seriesProps = seriesStrokePropsCodegen(state, seriesIndex);
+        const curveName = curveImportName(getSeriesCurve(state, seriesIndex));
+        return `\n  <Area dataKey="${key}" fill="${SERIES_COLOR_BY_INDEX[seriesIndex]}" curve={${curveName}} fillOpacity={${state.fillOpacity}} strokeWidth={${getSeriesStrokeWidth(state, seriesIndex)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, seriesIndex))} gradientToOpacity={${state.gradientToOpacity}} showLine={${getSeriesShowLine(state, seriesIndex)}} showHighlight={${getSeriesShowHighlight(state, seriesIndex)}}${seriesProps} />`;
+      })
       .join("");
     child = `${primary}${others}`;
   }
@@ -257,8 +295,13 @@ export function cartesianCodegen(
     );
   }
 
+  const curveImports = visxCurveImportLines(
+    state,
+    keys.map((_, index) => index)
+  );
+
   return `import { ${chartImports.join(", ")} } from "@bklitui/ui/charts";
-import { ${curveName} } from "@visx/curve";
+${curveImports}
 
 <${chartType} data={chartData}${anim}>${backgroundBlock}${gridBlock}${child}
   <XAxis />
@@ -367,10 +410,8 @@ export function barCodegen(state: StudioUrlState) {
 }
 
 export function composedCodegen(state: StudioUrlState) {
-  const curveName = curveImportName(state.curve);
   const barPattern =
     state.pattern === "none" ? "" : `\n  ${patternCodegenBlock(state.pattern)}`;
-  const seriesProps = seriesStrokePropsCodegen(state);
   const keys = seriesKeysForState(state);
   const [barKey, ...secondaryKeys] = keys;
 
@@ -380,8 +421,11 @@ export function composedCodegen(state: StudioUrlState) {
 
   const overlays = secondaryKeys
     .map((key, idx) => {
-      const color = SERIES_COLOR_BY_INDEX[idx + 1];
-      return `\n  <Area dataKey="${key}" curve={${curveName}} fillOpacity={${state.fillOpacity}} ${fadeEdgesCodegen(state.fadeEdges)} fill="${color}"${seriesProps} />\n  <Line dataKey="${key}" curve={${curveName}} strokeWidth={${state.strokeWidth}} ${fadeEdgesCodegen(state.fadeEdges)} stroke="${color}"${seriesProps} />`;
+      const seriesIndex = idx + 1;
+      const color = SERIES_COLOR_BY_INDEX[seriesIndex];
+      const seriesProps = seriesStrokePropsCodegen(state, seriesIndex);
+      const curveName = curveImportName(getSeriesCurve(state, seriesIndex));
+      return `\n  <Area dataKey="${key}" curve={${curveName}} fillOpacity={${state.fillOpacity}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, seriesIndex))} fill="${color}"${seriesProps} />\n  <Line dataKey="${key}" curve={${curveName}} strokeWidth={${getSeriesStrokeWidth(state, seriesIndex)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, seriesIndex))} stroke="${color}"${seriesProps} />`;
     })
     .join("");
 
@@ -391,9 +435,14 @@ export function composedCodegen(state: StudioUrlState) {
   const gridImport = gridVisible ? ", Grid" : "";
   const backgroundImport = backgroundBlock ? ", Background" : "";
 
+  const curveImports = visxCurveImportLines(
+    state,
+    secondaryKeys.map((_, index) => index + 1)
+  );
+
   return {
     code: `import { ComposedChart, SeriesBar, Area, Line, XAxis, ChartTooltip${gridImport}${backgroundImport}${state.pattern === "none" ? "" : ", PatternLines"} } from "@bklitui/ui/charts";
-import { ${curveName} } from "@visx/curve";
+${curveImports}
 
 <ComposedChart data={chartData}
   ${cssRevealAnimationCodegen(state.animationDuration, motionSliceFromState(state))}>${backgroundBlock}${gridBlock}${barPattern}${barLine}${overlays}

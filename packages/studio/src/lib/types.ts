@@ -36,9 +36,18 @@ interface NumberControlBase {
   disabledWhen?: keyof StudioUrlState;
 }
 
+interface SeriesScopedControl {
+  /** When set, read/write a pipe-encoded per-series override for this control. */
+  seriesIndex?: number;
+}
+
 export type StudioControl = StudioControlVisibility &
   (
-    | { type: "boolean"; key: keyof StudioUrlState; label: string }
+    | ({
+        type: "boolean";
+        key: keyof StudioUrlState;
+        label: string;
+      } & SeriesScopedControl)
     | {
         type: "color";
         key: keyof StudioUrlState;
@@ -46,15 +55,23 @@ export type StudioControl = StudioControlVisibility &
         /** Disable when the referenced URL state value is falsy. */
         enabledWhen?: keyof StudioUrlState;
       }
-    | ({ type: "number" } & NumberControlBase)
-    | { type: "text"; key: keyof StudioUrlState; label: string }
+    | ({ type: "number" } & NumberControlBase & SeriesScopedControl)
+    | ({
+        type: "text";
+        key: keyof StudioUrlState;
+        label: string;
+      } & SeriesScopedControl)
     | {
         type: "select";
         key: keyof StudioUrlState;
         label: string;
         options: { value: string; label: string }[];
       }
-    | { type: "curve"; key: keyof StudioUrlState; label: string }
+    | ({
+        type: "curve";
+        key: keyof StudioUrlState;
+        label: string;
+      } & SeriesScopedControl)
     | {
         type: "pattern";
         key: keyof StudioUrlState;
@@ -67,7 +84,11 @@ export type StudioControl = StudioControlVisibility &
     | { type: "lineCap"; key: "barLineCap"; label: string }
     | { type: "pieHoverEffect"; key: "pieHoverEffect"; label: string }
     | { type: "funnelEdges"; key: "funnelEdges"; label: string }
-    | { type: "fadeEdges"; key: "fadeEdges"; label: string }
+    | ({
+        type: "fadeEdges";
+        key: "fadeEdges";
+        label: string;
+      } & SeriesScopedControl)
     | { type: "graticuleToggle"; key: "showGraticule"; label: string }
     | { type: "legendPosition"; key: "legendPlacement"; label: string }
     | ({
