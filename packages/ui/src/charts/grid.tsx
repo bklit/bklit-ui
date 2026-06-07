@@ -68,7 +68,7 @@ export interface GridProps {
   shimmerSync?: boolean;
 }
 
-function hideEdgeTicks<T>(ticks: T[], hideEdgeLines: boolean): T[] | undefined {
+function hideEdgeTicks<T>(ticks: T[], hideEdgeLines: boolean): T[] {
   if (!hideEdgeLines || ticks.length <= 2) {
     return ticks;
   }
@@ -89,22 +89,6 @@ function resolveRowTickValues(options: {
   if (filtered === ticks && !rowTickValues && !hideHorizontalEdgeLines) {
     return undefined;
   }
-  return filtered.length > 0 ? filtered : undefined;
-}
-
-function resolveColumnTickValues(options: {
-  columnScale: ((value: unknown) => number) & {
-    ticks?: (count: number) => unknown[];
-  };
-  hideVerticalEdgeLines: boolean;
-  numTicksColumns: number;
-}): unknown[] | undefined {
-  const { columnScale, hideVerticalEdgeLines, numTicksColumns } = options;
-  if (!hideVerticalEdgeLines) {
-    return undefined;
-  }
-  const ticks = columnScale.ticks?.(numTicksColumns) ?? [];
-  const filtered = hideEdgeTicks(ticks, hideVerticalEdgeLines);
   return filtered.length > 0 ? filtered : undefined;
 }
 
@@ -168,12 +152,15 @@ export function Grid({
     yScale,
   });
   const columnTickValuesResolved =
-    vertical && columnScale && typeof columnScale === "function"
-      ? resolveColumnTickValues({
-          columnScale,
-          hideVerticalEdgeLines,
-          numTicksColumns,
-        })
+    vertical &&
+    columnScale &&
+    typeof columnScale === "function" &&
+    hideVerticalEdgeLines
+      ? (() => {
+          const ticks = columnScale.ticks?.(numTicksColumns) ?? [];
+          const filtered = hideEdgeTicks<number | Date>(ticks, true);
+          return filtered.length > 0 ? filtered : undefined;
+        })()
       : undefined;
   const uniqueId = useId();
 
