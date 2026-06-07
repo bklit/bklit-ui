@@ -91,6 +91,7 @@ import {
   scatterChartControlGroups,
 } from "./registry-control-groups";
 import { seriesStrokePropsFromState } from "./series-stroke-props";
+import { studioCartesianGridLayer } from "./studio-cartesian-layers";
 import { chartTooltipPropsFromState } from "./studio-chart-overlays";
 import { isStudioComponentVisible } from "./studio-component-visibility";
 import {
@@ -212,9 +213,7 @@ const scatterConfig: StudioChartConfig = {
           margin={timeSeriesChartMargin(state)}
           onPhaseChange={ctx.reportOgPhase}
         >
-          <StudioVisibleLayer componentId="scatter.grid" state={state}>
-            <Grid horizontal />
-          </StudioVisibleLayer>
+          {studioCartesianGridLayer(state, "scatter.grid")}
           {isStudioComponentVisible(state, "scatter.desktop") ? (
             <Scatter
               dataKey="desktop"
@@ -318,11 +317,7 @@ const barConfig: StudioChartConfig = {
             stackGap={stacked ? 3 : 0}
             xDataKey={xKey}
           >
-            <Grid
-              fadeVertical={horizontal}
-              horizontal={!horizontal}
-              vertical={horizontal}
-            />
+            {studioCartesianGridLayer(state, "bar.grid")}
             {ctx.patternDefs}
             {seriesKeys.map((key, idx) => (
               <Bar
@@ -564,6 +559,7 @@ const liveLineConfig: StudioChartConfig = {
         lerpSpeed={state.liveLerpSpeed}
         paused={state.livePaused}
         pulse={state.livePulse}
+        state={state}
         stroke={getEffectiveSeriesColor(state, 0)}
         strokeWidth={state.strokeWidth}
         windowSecs={state.liveWindow}

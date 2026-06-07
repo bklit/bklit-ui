@@ -68,6 +68,51 @@ ${seriesLines}
 }));`;
 }
 
+export function gridPropsCodegen(state: StudioUrlState): string {
+  const props: string[] = [];
+
+  if (state.gridHorizontal) {
+    props.push("horizontal");
+  } else {
+    props.push("horizontal={false}");
+  }
+  if (state.gridVertical) {
+    props.push("vertical");
+  }
+  if (state.gridNumTicksRows !== 5) {
+    props.push(`numTicksRows={${state.gridNumTicksRows}}`);
+  }
+  if (state.gridNumTicksColumns !== 10) {
+    props.push(`numTicksColumns={${state.gridNumTicksColumns}}`);
+  }
+  if (state.gridStroke !== "var(--chart-grid)") {
+    props.push(`stroke="${state.gridStroke}"`);
+  }
+  if (state.gridStrokeOpacity !== 1) {
+    props.push(`strokeOpacity={${state.gridStrokeOpacity}}`);
+  }
+  if (state.gridStrokeWidth !== 1) {
+    props.push(`strokeWidth={${state.gridStrokeWidth}}`);
+  }
+  if (state.gridStrokeDasharray !== "4,4") {
+    props.push(`strokeDasharray="${state.gridStrokeDasharray}"`);
+  }
+  if (!state.gridFadeHorizontal) {
+    props.push("fadeHorizontal={false}");
+  }
+  if (state.gridFadeVertical) {
+    props.push("fadeVertical");
+  }
+  if (state.gridHideHorizontalEdgeLines) {
+    props.push("hideHorizontalEdgeLines");
+  }
+  if (state.gridHideVerticalEdgeLines) {
+    props.push("hideVerticalEdgeLines");
+  }
+
+  return props.length > 0 ? ` ${props.join(" ")}` : " horizontal";
+}
+
 export function cartesianCodegen(
   chartType: "AreaChart" | "LineChart",
   state: StudioUrlState
@@ -124,7 +169,7 @@ export function cartesianCodegen(
 import { ${curveName} } from "@visx/curve";
 
 <${chartType} data={chartData}${anim}>
-  <Grid horizontal />${child}
+  <Grid${gridPropsCodegen(state)} />${child}
   <XAxis />
   <ChartTooltip />
 </${chartType}>`;
@@ -203,8 +248,6 @@ export function barCodegen(state: StudioUrlState) {
     .filter(Boolean)
     .join(" ");
 
-  const gridProps = horizontal ? "vertical fadeVertical" : "horizontal";
-
   const patternBlock =
     state.pattern === "none" ? "" : `\n  ${patternCodegenBlock(state.pattern)}`;
 
@@ -219,7 +262,7 @@ export function barCodegen(state: StudioUrlState) {
     code: `import { BarChart, Bar, BarXAxis, Grid, ChartTooltip${state.pattern === "none" ? "" : ", PatternLines"} } from "@bklitui/ui/charts";
 
 <BarChart ${chartProps}>
-  <Grid ${gridProps} />${patternBlock}${bars}
+  <Grid${gridPropsCodegen(state)} />${patternBlock}${bars}
   <BarXAxis />
   <ChartTooltip showCrosshair={false} />
 </BarChart>`,
@@ -316,6 +359,7 @@ export function candlestickCodegen(state: StudioUrlState) {
 <CandlestickChart data={ohlcData}
   ${cssRevealAnimationCodegen(state.animationDuration, motionSliceFromState(state))} candleGap={${state.candleGap}} margin={{ top: 16, right: 16, bottom: 40, left: 16 }}>
   ${gradientBlock}${patternBlock}
+  <Grid${gridPropsCodegen(state)} />
   <Candlestick fadedOpacity={${state.candleFadedOpacity}} ${positiveFill} ${negativeFill}${patternProps} />
   <ChartTooltip showDots={${state.candleShowDots}} />
   <XAxis />
@@ -356,7 +400,7 @@ import { ${curveName} } from "@visx/curve";
   exaggerate={${state.liveExaggerate}}
   paused={${state.livePaused}}
 >
-  <Grid horizontal />
+  <Grid${gridPropsCodegen(state)} />
   <LiveLine
     dataKey="value"
     curve={${curveName}}
@@ -394,7 +438,7 @@ export function scatterCodegen(state: StudioUrlState) {
     code: `import { ScatterChart, Scatter, Grid, XAxis, ChartTooltip } from "@bklitui/ui/charts";
 
 <ScatterChart data={chartData}${anim}>
-  <Grid horizontal />
+  <Grid${gridPropsCodegen(state)} />
   <Scatter dataKey="desktop" radius={${state.scatterRadius}} ringGap={${state.scatterRingGap}} strokeWidth={${state.scatterRingWidth}} fadeOnHover={${state.scatterFadeOnHover}} inactiveOpacity={${state.scatterInactiveOpacity}} showActiveHighlight={${state.scatterShowActiveHighlight}} />${secondSeries}
   <XAxis />
   <ChartTooltip />

@@ -35,6 +35,7 @@ import {
   funnelChartControlGroups,
   gaugeControlGroups,
   getLineChartControlGroups,
+  gridControlGroups,
   liveLineChartControlGroups,
   pieCenterControlGroup,
   pieChartControlGroups,
@@ -107,6 +108,19 @@ function passiveNode(
     parentId: `${chartPrefix}.chart`,
     kind: "chart",
     controlGroups: [],
+  };
+}
+
+function gridNode(
+  chartPrefix: string,
+  extraControlGroups: StudioControlGroup[] = []
+): StudioComponentDefinition {
+  return {
+    id: `${chartPrefix}.grid`,
+    label: "Grid",
+    parentId: `${chartPrefix}.chart`,
+    kind: "chart",
+    controlGroups: [...gridControlGroups, ...extraControlGroups],
   };
 }
 
@@ -293,7 +307,8 @@ function resolveCartesianLoadingStudioComponents(options: {
       parentId: chartId,
       kind: "chart",
       controlGroups: [
-        controlGroup("Grid", [
+        ...gridControlGroups,
+        controlGroup("Loading", [
           {
             type: "color",
             key: "lineLoadingGridStroke",
@@ -429,7 +444,7 @@ export function resolveAreaComponents(
       controlGroups: settings ? [settings] : [],
       design: rootPaletteDesign(true),
     },
-    passiveNode("area", "grid", "Grid"),
+    gridNode("area"),
   ];
 
   for (let index = 0; index < seriesCount; index += 1) {
@@ -486,7 +501,7 @@ export function resolveBarComponents(
       controlGroups: seriesLayout ? [seriesLayout] : [],
       design: rootPaletteDesign(true),
     },
-    passiveNode("bar", "grid", "Grid"),
+    gridNode("bar"),
   ];
 
   const horizontal = state.barOrientation === "horizontal";
@@ -704,7 +719,7 @@ export function resolveLiveLineComponents(): StudioComponentDefinition[] {
       controlGroups: [],
       design: rootPaletteDesign(true),
     },
-    passiveNode("live-line", "grid", "Grid"),
+    gridNode("live-line"),
     {
       id: "live-line.line",
       label: "LiveLine",
@@ -756,13 +771,7 @@ function resolveProfitLossLineComponents(): StudioComponentDefinition[] {
       controlGroups: settings ? [settings] : [],
       design: rootPaletteDesign(false),
     },
-    {
-      id: "line.grid",
-      label: "Grid",
-      parentId: chartId,
-      kind: "chart",
-      controlGroups: zeroLine ? [zeroLine] : [],
-    },
+    gridNode("line", zeroLine ? [zeroLine] : []),
     {
       id: "line.profit-loss",
       label: "ProfitLossLine",
@@ -831,7 +840,7 @@ export function resolveLineComponents(
       controlGroups: settings ? [settings] : [],
       design: rootPaletteDesign(false),
     },
-    passiveNode("line", "grid", "Grid"),
+    gridNode("line"),
   ];
 
   for (let index = 0; index < seriesCount; index += 1) {
@@ -960,7 +969,7 @@ export function resolveScatterComponents(
       controlGroups: [],
       design: rootPaletteDesign(false),
     },
-    passiveNode("scatter", "grid", "Grid"),
+    gridNode("scatter"),
     {
       id: "scatter.desktop",
       label: "Scatter · desktop",
@@ -1016,6 +1025,7 @@ export function resolveCandlestickComponents(
       controlGroups: design ? [design] : [],
       design: { seriesIndex: 0, supportsPattern: true, showPalette: true },
     },
+    gridNode("candlestick"),
     {
       id: "candlestick.candles",
       label: "Candlestick",

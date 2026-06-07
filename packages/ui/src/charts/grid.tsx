@@ -50,6 +50,10 @@ export interface GridProps {
   fadeHorizontal?: boolean;
   /** Enable vertical fade effect on grid columns (fades at top/bottom). Default: false */
   fadeVertical?: boolean;
+  /** Omit the first and last horizontal grid lines. Default: false */
+  hideHorizontalEdgeLines?: boolean;
+  /** Omit the first and last vertical grid lines. Default: false */
+  hideVerticalEdgeLines?: boolean;
   /** Y-scale for horizontal grid lines. Default: primary (`"left"`) axis. */
   yAxisId?: string | number;
   /** Animate a shimmer band across horizontal grid lines. Default: false */
@@ -62,6 +66,46 @@ export interface GridProps {
   shimmerSpeed?: number;
   /** Match loop timing to the loading line pulse (cycle + inter-loop pause). */
   shimmerSync?: boolean;
+}
+
+function hideEdgeTicks<T>(ticks: T[], hideEdgeLines: boolean): T[] | undefined {
+  if (!hideEdgeLines || ticks.length <= 2) {
+    return ticks;
+  }
+  return ticks.slice(1, -1);
+}
+
+function resolveRowTickValues(options: {
+  hideHorizontalEdgeLines: boolean;
+  numTicksRows: number;
+  rowTickValues?: number[];
+  yScale: { ticks?: (count: number) => number[] };
+}): number[] | undefined {
+  const { hideHorizontalEdgeLines, numTicksRows, rowTickValues, yScale } =
+    options;
+  const ticks =
+    rowTickValues ?? (yScale.ticks ? yScale.ticks(numTicksRows) : []);
+  const filtered = hideEdgeTicks(ticks, hideHorizontalEdgeLines);
+  if (filtered === ticks && !rowTickValues && !hideHorizontalEdgeLines) {
+    return undefined;
+  }
+  return filtered.length > 0 ? filtered : undefined;
+}
+
+function resolveColumnTickValues(options: {
+  columnScale: ((value: unknown) => number) & {
+    ticks?: (count: number) => unknown[];
+  };
+  hideVerticalEdgeLines: boolean;
+  numTicksColumns: number;
+}): unknown[] | undefined {
+  const { columnScale, hideVerticalEdgeLines, numTicksColumns } = options;
+  if (!hideVerticalEdgeLines) {
+    return undefined;
+  }
+  const ticks = columnScale.ticks?.(numTicksColumns) ?? [];
+  const filtered = hideEdgeTicks(ticks, hideVerticalEdgeLines);
+  return filtered.length > 0 ? filtered : undefined;
 }
 
 // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: grid fade masks and shimmer share one layer tree
@@ -83,6 +127,8 @@ export function Grid({
   highlightRowStrokeDasharray = "0",
   fadeHorizontal = true,
   fadeVertical = false,
+  hideHorizontalEdgeLines = false,
+  hideVerticalEdgeLines = false,
   yAxisId,
   shimmer = false,
   shimmerStroke = DEFAULT_SHIMMER_STROKE,
@@ -115,6 +161,20 @@ export function Grid({
   // For vertical grid lines in horizontal bar charts, use yScale (the value scale)
   // For time-based charts, use xScale
   const columnScale = isHorizontalBarChart ? yScale : xScale;
+  const rowTickValuesResolved = resolveRowTickValues({
+    hideHorizontalEdgeLines,
+    numTicksRows,
+    rowTickValues,
+    yScale,
+  });
+  const columnTickValuesResolved =
+    vertical && columnScale && typeof columnScale === "function"
+      ? resolveColumnTickValues({
+          columnScale,
+          hideVerticalEdgeLines,
+          numTicksColumns,
+        })
+      : undefined;
   const uniqueId = useId();
 
   // Horizontal fade mask (for grid rows - fades left/right)
@@ -199,24 +259,24 @@ export function Grid({
       {horizontal && (
         <g mask={fadeHorizontal || shimmer ? `url(#${hMaskId})` : undefined}>
           <GridRows
-            numTicks={rowTickValues ? undefined : numTicksRows}
+            numTicks={rowTickValuesResolved ? undefined : numTicksRows}
             scale={yScale}
             stroke={gridStroke}
             strokeDasharray={strokeDasharray}
             strokeOpacity={strokeOpacity}
             strokeWidth={strokeWidth}
-            tickValues={rowTickValues}
+            tickValues={rowTickValuesResolved}
             width={innerWidth}
           />
           {shimmerEnabled ? (
             <GridRows
-              numTicks={rowTickValues ? undefined : numTicksRows}
+              numTicks={rowTickValuesResolved ? undefined : numTicksRows}
               scale={yScale}
               stroke={`url(#${shimmerGradientId})`}
               strokeDasharray={strokeDasharray}
               strokeOpacity={1}
               strokeWidth={strokeWidth}
-              tickValues={rowTickValues}
+              tickValues={rowTickValuesResolved}
               width={innerWidth}
             />
           ) : null}
@@ -250,12 +310,13 @@ export function Grid({
         <g mask={fadeVertical ? `url(#${vMaskId})` : undefined}>
           <GridColumns
             height={innerHeight}
-            numTicks={numTicksColumns}
+            numTicks={columnTickValuesResolved ? undefined : numTicksColumns}
             scale={columnScale}
             stroke={stroke}
             strokeDasharray={strokeDasharray}
             strokeOpacity={strokeOpacity}
             strokeWidth={strokeWidth}
+            tickValues={columnTickValuesResolved}
           />
         </g>
       )}
