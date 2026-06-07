@@ -3,6 +3,11 @@
 import { cn } from "@bklitui/ui/lib/utils";
 import { useEffect, useState } from "react";
 import type { StudioUrlState } from "@/lib/studio-parsers";
+import {
+  buildSeriesScopedControlUpdate,
+  getSeriesScopedControlValue,
+  isPerSeriesLineControlKey,
+} from "@/lib/studio-series-line-props";
 import type { StudioControl } from "@/lib/types";
 import { Input } from "@/ui/input";
 import { Label } from "@/ui/label";
@@ -168,7 +173,71 @@ export function ControlField({
     );
   }
 
-  const value = state[control.key];
+  const seriesIndex =
+    "seriesIndex" in control && control.seriesIndex !== undefined
+      ? control.seriesIndex
+      : undefined;
+
+  const commitValue = (
+    key: keyof StudioUrlState,
+    nextValue: StudioUrlState[keyof StudioUrlState]
+  ) => {
+    if (
+      seriesIndex !== undefined &&
+      isPerSeriesLineControlKey(key) &&
+      key === control.key
+    ) {
+      const updates = buildSeriesScopedControlUpdate(
+        state,
+        key,
+        seriesIndex,
+        nextValue
+      );
+      const commit = onCommit ?? onChange;
+      for (const [updateKey, updateValue] of Object.entries(updates)) {
+        commit(
+          updateKey as keyof StudioUrlState,
+          updateValue as StudioUrlState[keyof StudioUrlState]
+        );
+      }
+      return;
+    }
+    (onCommit ?? onChange)(key, nextValue);
+  };
+
+  const previewValue = (
+    key: keyof StudioUrlState,
+    nextValue: StudioUrlState[keyof StudioUrlState]
+  ) => {
+    if (
+      seriesIndex !== undefined &&
+      isPerSeriesLineControlKey(key) &&
+      key === control.key
+    ) {
+      const updates = buildSeriesScopedControlUpdate(
+        state,
+        key,
+        seriesIndex,
+        nextValue
+      );
+      const preview = onPreview ?? onChange;
+      for (const [updateKey, updateValue] of Object.entries(updates)) {
+        preview(
+          updateKey as keyof StudioUrlState,
+          updateValue as StudioUrlState[keyof StudioUrlState]
+        );
+      }
+      return;
+    }
+    (onPreview ?? onChange)(key, nextValue);
+  };
+
+  const value =
+    seriesIndex !== undefined &&
+    "key" in control &&
+    isPerSeriesLineControlKey(control.key)
+      ? getSeriesScopedControlValue(state, control.key, seriesIndex)
+      : state[control.key];
 
   if (control.type === "number") {
     const key = control.key;
@@ -179,12 +248,8 @@ export function ControlField({
       return (
         <NumberInputOnly
           control={control}
-          onCommit={(n) =>
-            (onCommit ?? onChange)(key, n as StudioUrlState[typeof key])
-          }
-          onPreview={(n) =>
-            (onPreview ?? onChange)(key, n as StudioUrlState[typeof key])
-          }
+          onCommit={(n) => commitValue(key, n as StudioUrlState[typeof key])}
+          onPreview={(n) => previewValue(key, n as StudioUrlState[typeof key])}
           value={value as number}
         />
       );
@@ -197,12 +262,8 @@ export function ControlField({
         label={control.label}
         max={control.max}
         min={control.min}
-        onCommit={(n) =>
-          (onCommit ?? onChange)(key, n as StudioUrlState[typeof key])
-        }
-        onPreview={(n) =>
-          (onPreview ?? onChange)(key, n as StudioUrlState[typeof key])
-        }
+        onCommit={(n) => commitValue(key, n as StudioUrlState[typeof key])}
+        onPreview={(n) => previewValue(key, n as StudioUrlState[typeof key])}
         renderIcon={
           preview
             ? (local) =>
@@ -338,7 +399,12 @@ export function ControlField({
       <StudioControlRow htmlFor={String(control.key)} label={control.label}>
         <ControlFieldInputs
           control={control}
-          onChange={onChange}
+          onChange={(nextKey, nextValue) =>
+            commitValue(
+              nextKey,
+              nextValue as StudioUrlState[keyof StudioUrlState]
+            )
+          }
           value={value}
         />
       </StudioControlRow>
@@ -392,14 +458,13 @@ export function ControlField({
           checked={Boolean(value)}
           id={String(key)}
           onCheckedChange={(checked) => {
-            const commit = onCommit ?? onChange;
-            commit(key, checked as StudioUrlState[typeof key]);
+            commitValue(key, checked as StudioUrlState[typeof key]);
             if (
               key === "brushSelectionPatternEnabled" &&
               checked &&
               state.brushSelectionPattern === "none"
             ) {
-              commit("brushSelectionPattern", "diagonal");
+              commitValue("brushSelectionPattern", "diagonal");
             }
           }}
         />
@@ -432,7 +497,12 @@ export function ControlField({
         {hideGroupLabel ? null : <ControlFieldLabel control={control} />}
         <ControlFieldInputs
           control={control}
-          onChange={onChange}
+          onChange={(nextKey, nextValue) =>
+            commitValue(
+              nextKey,
+              nextValue as StudioUrlState[keyof StudioUrlState]
+            )
+          }
           value={value}
         />
       </div>
@@ -442,7 +512,16 @@ export function ControlField({
   return (
     <div className="space-y-2">
       <ControlFieldLabel control={control} />
-      <ControlFieldInputs control={control} onChange={onChange} value={value} />
+      <ControlFieldInputs
+        control={control}
+        onChange={(nextKey, nextValue) =>
+          commitValue(
+            nextKey,
+            nextValue as StudioUrlState[keyof StudioUrlState]
+          )
+        }
+        value={value}
+      />
     </div>
   );
 }

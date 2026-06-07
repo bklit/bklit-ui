@@ -3,6 +3,22 @@ export const EDITOR_CAMERA_MAX_ZOOM = 4;
 export const EDITOR_CAMERA_SESSION_KEY = "bklit-studio-canvas-view-v2";
 export const EDITOR_CAMERA_VIEW_PADDING = 64;
 
+export interface EditorCameraViewInsets {
+  top?: number;
+  right?: number;
+  bottom?: number;
+  left?: number;
+}
+
+function resolveViewInsets(insets?: EditorCameraViewInsets) {
+  return {
+    top: insets?.top ?? 0,
+    right: insets?.right ?? 0,
+    bottom: insets?.bottom ?? 0,
+    left: insets?.left ?? 0,
+  };
+}
+
 /** Viewport camera in screen space. */
 export interface EditorCamera {
   x: number;
@@ -52,6 +68,7 @@ export function computeFitCamera({
   worldWidth,
   worldHeight,
   padding = EDITOR_CAMERA_VIEW_PADDING,
+  viewInsets,
 }: {
   viewportWidth: number;
   viewportHeight: number;
@@ -60,36 +77,20 @@ export function computeFitCamera({
   worldWidth: number;
   worldHeight: number;
   padding?: number;
+  viewInsets?: EditorCameraViewInsets;
 }): EditorCamera {
-  const availableWidth = Math.max(viewportWidth - padding, 120);
-  const availableHeight = Math.max(viewportHeight - padding, 120);
+  const insets = resolveViewInsets(viewInsets);
+  const availableWidth = Math.max(
+    viewportWidth - padding - insets.left - insets.right,
+    120
+  );
+  const availableHeight = Math.max(
+    viewportHeight - padding - insets.top - insets.bottom,
+    120
+  );
   const zoom = clampCameraZoom(
     Math.min(availableWidth / worldWidth, availableHeight / worldHeight)
   );
-
-  return {
-    zoom,
-    x: (viewportWidth - worldWidth * zoom) / 2 - worldX * zoom,
-    y: (viewportHeight - worldHeight * zoom) / 2 - worldY * zoom,
-  };
-}
-
-export function compute100PercentCamera({
-  viewportWidth,
-  viewportHeight,
-  worldX,
-  worldY,
-  worldWidth,
-  worldHeight,
-}: {
-  viewportWidth: number;
-  viewportHeight: number;
-  worldX: number;
-  worldY: number;
-  worldWidth: number;
-  worldHeight: number;
-}): EditorCamera {
-  const zoom = 1;
 
   return {
     zoom,
@@ -101,6 +102,43 @@ export function compute100PercentCamera({
       worldWidth,
       worldHeight,
       zoom,
+      viewInsets,
+    }),
+  };
+}
+
+export function compute100PercentCamera({
+  viewportWidth,
+  viewportHeight,
+  worldX,
+  worldY,
+  worldWidth,
+  worldHeight,
+  zoom = 1,
+  viewInsets,
+}: {
+  viewportWidth: number;
+  viewportHeight: number;
+  worldX: number;
+  worldY: number;
+  worldWidth: number;
+  worldHeight: number;
+  zoom?: number;
+  viewInsets?: EditorCameraViewInsets;
+}): EditorCamera {
+  const clampedZoom = clampCameraZoom(zoom);
+
+  return {
+    zoom: clampedZoom,
+    ...computeCenterCamera({
+      viewportWidth,
+      viewportHeight,
+      worldX,
+      worldY,
+      worldWidth,
+      worldHeight,
+      zoom: clampedZoom,
+      viewInsets,
     }),
   };
 }
@@ -113,6 +151,7 @@ export function computeCenterCamera({
   worldWidth,
   worldHeight,
   zoom,
+  viewInsets,
 }: {
   viewportWidth: number;
   viewportHeight: number;
@@ -121,10 +160,15 @@ export function computeCenterCamera({
   worldWidth: number;
   worldHeight: number;
   zoom: number;
+  viewInsets?: EditorCameraViewInsets;
 }): Pick<EditorCamera, "x" | "y"> {
+  const insets = resolveViewInsets(viewInsets);
+  const availableWidth = viewportWidth - insets.left - insets.right;
+  const availableHeight = viewportHeight - insets.top - insets.bottom;
+
   return {
-    x: (viewportWidth - worldWidth * zoom) / 2 - worldX * zoom,
-    y: (viewportHeight - worldHeight * zoom) / 2 - worldY * zoom,
+    x: insets.left + (availableWidth - worldWidth * zoom) / 2 - worldX * zoom,
+    y: insets.top + (availableHeight - worldHeight * zoom) / 2 - worldY * zoom,
   };
 }
 

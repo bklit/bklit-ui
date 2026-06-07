@@ -5,6 +5,7 @@ import { isGroupLabeledControlType } from "@/components/controls/control-field-h
 import { MotionControl } from "@/components/controls/motion-control";
 import { MotionResetButton } from "@/components/controls/motion-reset-button";
 import { StudioControlGroup } from "@/components/studio-control-group";
+import { isStudioControlVisible } from "@/lib/pattern-control-visibility";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import type {
   StudioChartConfig,
@@ -60,21 +61,30 @@ export function StudioControlGroups({
         </StudioControlGroup>
       ) : null}
 
-      {groups.map((group) => (
-        <StudioControlGroup key={group.title} title={group.title}>
-          {group.controls.map((control) => (
-            <ControlField
-              control={control}
-              hideGroupLabel={isGroupLabeledControlType(control.type)}
-              key={control.key}
-              onChange={onChange}
-              onCommit={onCommit}
-              onPreview={onPreview}
-              state={state}
-            />
-          ))}
-        </StudioControlGroup>
-      ))}
+      {groups.map((group) => {
+        const visibleControls = group.controls.filter((control) =>
+          isStudioControlVisible(control, state)
+        );
+        if (visibleControls.length === 0) {
+          return null;
+        }
+
+        return (
+          <StudioControlGroup key={group.title} title={group.title}>
+            {visibleControls.map((control) => (
+              <ControlField
+                control={control}
+                hideGroupLabel={isGroupLabeledControlType(control.type)}
+                key={control.key}
+                onChange={onChange}
+                onCommit={onCommit}
+                onPreview={onPreview}
+                state={state}
+              />
+            ))}
+          </StudioControlGroup>
+        );
+      })}
     </div>
   );
 }

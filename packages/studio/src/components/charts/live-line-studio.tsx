@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  Grid,
   LiveLine,
   LiveLineChart,
   type LiveLinePoint,
@@ -12,6 +11,11 @@ import { useEffect, useRef, useState } from "react";
 import type { StudioFrameSize } from "@/components/studio-chart-viewport";
 import type { CurveId } from "@/lib/curves";
 import { resolveCurve } from "@/lib/curves";
+import {
+  studioCartesianBackgroundLayer,
+  studioCartesianGridLayer,
+} from "@/lib/studio-cartesian-layers";
+import type { StudioUrlState } from "@/lib/studio-parsers";
 
 const LIVE_LINE_MARGIN = { top: 24, right: 16, bottom: 32, left: 52 };
 
@@ -75,6 +79,7 @@ function useStudioLiveData(
 }
 
 export function LiveLineStudioPreview({
+  state,
   intervalMs,
   paused,
   windowSecs,
@@ -89,6 +94,7 @@ export function LiveLineStudioPreview({
   chartKey,
   frame,
 }: {
+  state: StudioUrlState;
   intervalMs: number;
   paused: boolean;
   windowSecs: number;
@@ -118,7 +124,12 @@ export function LiveLineStudioPreview({
       value={value}
       window={windowSecs}
     >
-      <Grid horizontal />
+      {studioCartesianBackgroundLayer(
+        state,
+        "live-line.background",
+        "live-line.grid"
+      )}
+      {studioCartesianGridLayer(state, "live-line.grid")}
       <LiveLine
         badge={badge}
         curve={resolveCurve(curve)}

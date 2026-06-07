@@ -32,6 +32,7 @@ import type { StudioRenderContext } from "@/lib/render-context";
 import { seriesStrokePropsFromState } from "@/lib/series-stroke-props";
 import { studioChartBrushProps } from "@/lib/studio-brush-props";
 import {
+  studioCartesianBackgroundLayer,
   studioCartesianGridLayer,
   studioCartesianSeriesLoadingProp,
   studioLoadingLabel,
@@ -41,13 +42,18 @@ import { chartTooltipPropsFromState } from "@/lib/studio-chart-overlays";
 import { isStudioComponentVisible } from "@/lib/studio-component-visibility";
 import { studioCartesianLegendItems } from "@/lib/studio-legend-items";
 import type { StudioUrlState } from "@/lib/studio-parsers";
+import {
+  getSeriesCurve,
+  getSeriesFadeEdges,
+  getSeriesShowHighlight,
+  getSeriesStrokeWidth,
+} from "@/lib/studio-series-line-props";
 
 function renderBrushStripLines(
   state: StudioUrlState,
   options: {
-    curve: ReturnType<typeof resolveCurve>;
+    dataLength: number;
     seriesCount: number;
-    seriesStroke: ReturnType<typeof seriesStrokePropsFromState>;
   }
 ) {
   return STUDIO_SERIES_KEYS.slice(0, options.seriesCount).map((key, idx) => {
@@ -58,17 +64,19 @@ function renderBrushStripLines(
     return (
       <Line
         animate={false}
-        curve={options.curve}
+        curve={resolveCurve(getSeriesCurve(state, idx))}
         dataKey={key}
         fadeEdges={
-          state.brushFadeEdges ? fadeEdgesPropValue(state.fadeEdges) : false
+          state.brushFadeEdges
+            ? fadeEdgesPropValue(getSeriesFadeEdges(state, idx))
+            : false
         }
         key={`brush-line-${key}`}
         showHighlight={false}
         stroke={idx === 0 ? undefined : STUDIO_SERIES_COLORS[idx]}
-        strokeWidth={state.strokeWidth}
+        strokeWidth={getSeriesStrokeWidth(state, idx)}
         yAxisId={getLineSeriesYAxisId(state, idx)}
-        {...options.seriesStroke}
+        {...seriesStrokePropsFromState(state, options.dataLength, idx)}
       />
     );
   });
@@ -77,9 +85,8 @@ function renderBrushStripLines(
 function renderMainLines(
   state: StudioUrlState,
   options: {
-    curve: ReturnType<typeof resolveCurve>;
+    dataLength: number;
     seriesCount: number;
-    seriesStroke: ReturnType<typeof seriesStrokePropsFromState>;
   }
 ) {
   return STUDIO_SERIES_KEYS.slice(0, options.seriesCount).map((key, idx) => {
@@ -91,16 +98,16 @@ function renderMainLines(
 
     return (
       <Line
-        curve={options.curve}
+        curve={resolveCurve(getSeriesCurve(state, idx))}
         dataKey={key}
-        fadeEdges={fadeEdgesPropValue(state.fadeEdges)}
+        fadeEdges={fadeEdgesPropValue(getSeriesFadeEdges(state, idx))}
         key={`line-${key}`}
         loading={studioCartesianSeriesLoadingProp(isPrimary)}
-        showHighlight={state.showHighlight}
+        showHighlight={getSeriesShowHighlight(state, idx)}
         stroke={idx === 0 ? undefined : STUDIO_SERIES_COLORS[idx]}
-        strokeWidth={state.strokeWidth}
+        strokeWidth={getSeriesStrokeWidth(state, idx)}
         yAxisId={getLineSeriesYAxisId(state, idx)}
-        {...options.seriesStroke}
+        {...seriesStrokePropsFromState(state, options.dataLength, idx)}
         {...(isPrimary
           ? studioLoadingStrokeProps(state, "line.loading-line")
           : {})}
@@ -117,7 +124,6 @@ export function LineChartStudioStandardPreview({
   ctx: StudioRenderContext;
 }) {
   const isLoading = state.lineChartState === "loading";
-  const curve = resolveCurve(state.curve);
   const seriesCount = clampStudioSeriesCount(state.dataSeries);
   const data = useMemo(
     () =>
@@ -128,10 +134,6 @@ export function LineChartStudioStandardPreview({
         seed: ctx.dataSeed,
       }),
     [ctx.dataSeed, seriesCount, state.dataPoints]
-  );
-  const seriesStroke = useMemo(
-    () => seriesStrokePropsFromState(state, data.length),
-    [data.length, state]
   );
   const margin = timeSeriesChartMargin(state);
   const brushVisible =
@@ -169,9 +171,8 @@ export function LineChartStudioStandardPreview({
               style={{ aspectRatio: "unset", height: "100%" }}
             >
               {renderBrushStripLines(state, {
-                curve,
+                dataLength: data.length,
                 seriesCount,
-                seriesStroke,
               })}
               <ChartBrush
                 {...studioChartBrushProps(state)}
@@ -199,11 +200,15 @@ export function LineChartStudioStandardPreview({
               xDomainSlotCount={brushLayout.xDomainSlotCount}
               yDomainTween
             >
+              {studioCartesianBackgroundLayer(
+                state,
+                "line.background",
+                "line.grid"
+              )}
               {studioCartesianGridLayer(state, "line.grid")}
               {renderMainLines(state, {
-                curve,
+                dataLength: data.length,
                 seriesCount,
-                seriesStroke,
               })}
               {isLoading ? null : (
                 <>

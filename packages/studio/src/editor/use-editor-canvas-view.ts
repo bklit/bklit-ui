@@ -13,6 +13,7 @@ import {
   computeCenterCamera,
   computeFitCamera,
   type EditorCamera,
+  type EditorCameraViewInsets,
   persistCamera,
   zoomCameraAtPoint,
 } from "@/editor/editor-camera";
@@ -66,11 +67,15 @@ export function useEditorCamera({
   viewportRef,
   getContentBounds,
   persist = true,
+  defaultZoom = 1,
+  viewInsets,
 }: {
   enabled: boolean;
   viewportRef: RefObject<HTMLElement | null>;
   getContentBounds: () => EditorContentBounds;
   persist?: boolean;
+  defaultZoom?: number;
+  viewInsets?: EditorCameraViewInsets;
 }) {
   const [camera, setCamera] = useState<EditorCamera>(() => ({
     zoom: 1,
@@ -98,6 +103,8 @@ export function useEditorCamera({
   cameraRef.current = camera;
   const getContentBoundsRef = useRef(getContentBounds);
   getContentBoundsRef.current = getContentBounds;
+  const viewInsetsRef = useRef(viewInsets);
+  viewInsetsRef.current = viewInsets;
   const prevContentBoundsRef = useRef<EditorContentBounds | null>(null);
   const userAdjustedCameraRef = useRef(false);
 
@@ -146,6 +153,7 @@ export function useEditorCamera({
         worldY: bounds.y,
         worldWidth: bounds.width,
         worldHeight: bounds.height,
+        viewInsets: viewInsetsRef.current,
       }),
       { userInitiated: true }
     );
@@ -165,6 +173,7 @@ export function useEditorCamera({
         worldY: bounds.y,
         worldWidth: bounds.width,
         worldHeight: bounds.height,
+        viewInsets: viewInsetsRef.current,
       }),
       { userInitiated: true }
     );
@@ -189,6 +198,7 @@ export function useEditorCamera({
           worldWidth: bounds.width,
           worldHeight: bounds.height,
           zoom: currentZoom,
+          viewInsets: viewInsetsRef.current,
         }),
       },
       { userInitiated: true }
@@ -214,9 +224,11 @@ export function useEditorCamera({
         worldY: bounds.y,
         worldWidth: bounds.width,
         worldHeight: bounds.height,
+        zoom: defaultZoom,
+        viewInsets: viewInsetsRef.current,
       })
     );
-  }, [getViewportSize]);
+  }, [defaultZoom, getViewportSize]);
 
   const zoomBy = useCallback(
     (factor: number, anchor?: { x: number; y: number }) => {

@@ -23,6 +23,7 @@ export {
 export { StudioCodeSheetTrigger } from "./components/studio-code-sheet-trigger";
 export { StudioControlGroup } from "./components/studio-control-group";
 export { StudioControlGroups } from "./components/studio-control-groups";
+export { StudioEmbedShell } from "./components/studio-embed-shell";
 export { StudioOgPreview } from "./components/studio-og-preview";
 export {
   StudioFrameProvider,
@@ -30,6 +31,7 @@ export {
   useStudioFrame,
   useStudioScenes,
 } from "./components/studio-scenes-provider";
+export { StudioSharePopover } from "./components/studio-share-popover";
 export { StudioShell } from "./components/studio-shell";
 export {
   StudioStateProvider,
@@ -58,10 +60,16 @@ export {
   REGISTRY_ORIGIN,
   registryJsonUrlForName,
   registryV0ExampleJsonUrl,
+  STUDIO_EMBED_PATH,
   shadcnAddItem,
   studioChartDocsHref,
   studioChartHref,
+  studioEmbedHref,
+  studioEmbedIframeMarkup,
   studioOpenInV0Href,
+  studioShareEmbedUrl,
+  studioShareStudioUrl,
+  studioStateHref,
 } from "./lib/chart-links";
 export { generateStudioCode } from "./lib/codegen";
 export { resolveCurve } from "./lib/curves";
@@ -100,6 +108,7 @@ export {
 export type { StudioRenderContext } from "./lib/render-context";
 export { seriesStrokePropsFromState } from "./lib/series-stroke-props";
 export { chartTooltipPropsFromState } from "./lib/studio-chart-overlays";
+export { STUDIO_EMBED_DEFAULT_HEIGHT } from "./lib/studio-embed";
 export { studioCartesianLegendItems } from "./lib/studio-legend-items";
 export {
   STUDIO_OG_CAPTURE_ROOT_ATTR,

@@ -220,7 +220,7 @@ const StudioEditorCanvas = memo(function StudioEditorCanvas({
   );
 });
 
-const StudioEditorChartRegion = memo(function StudioEditorChartRegion({
+export const StudioEditorChartRegion = memo(function StudioEditorChartRegion({
   animationKey,
   dataSeed,
   chartAreaRef,

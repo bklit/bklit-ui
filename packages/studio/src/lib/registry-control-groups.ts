@@ -1,3 +1,4 @@
+import { brushPatternDetailControls } from "./pattern-control-groups";
 import {
   controlGroup,
   curveControl,
@@ -96,6 +97,68 @@ export const gaugeControlGroups: StudioControlGroup[] = [
       label: "End",
       min: 180,
       max: 450,
+    },
+  ]),
+];
+
+export const gridControlGroups: StudioControlGroup[] = [
+  controlGroup("Lines", [
+    { type: "boolean", key: "gridHorizontal", label: "Horizontal" },
+    { type: "boolean", key: "gridVertical", label: "Vertical" },
+    {
+      type: "number",
+      key: "gridNumTicksRows",
+      label: "Row ticks",
+      min: 2,
+      max: 12,
+      step: 1,
+    },
+    {
+      type: "number",
+      key: "gridNumTicksColumns",
+      label: "Column ticks",
+      min: 2,
+      max: 20,
+      step: 1,
+    },
+  ]),
+  controlGroup("Stroke", [
+    { type: "color", key: "gridStroke", label: "Color" },
+    {
+      type: "opacity",
+      key: "gridStrokeOpacity",
+      label: "Opacity",
+      min: 0,
+      max: 1,
+      step: 0.05,
+      color: "var(--chart-grid)",
+    },
+    {
+      type: "number",
+      key: "gridStrokeWidth",
+      label: "Width",
+      min: 0.5,
+      max: 4,
+      step: 0.5,
+    },
+    { type: "text", key: "gridStrokeDasharray", label: "Dash array" },
+  ]),
+  controlGroup("Edges", [
+    {
+      type: "boolean",
+      key: "gridFadeHorizontal",
+      label: "Fade Horizontally",
+    },
+    { type: "boolean", key: "gridFadeVertical", label: "Fade Vertically" },
+    {
+      type: "boolean",
+      key: "gridHideHorizontalEdgeLines",
+      label: "Hide horizontal edge lines",
+    },
+    {
+      type: "boolean",
+      key: "gridHideVerticalEdgeLines",
+      label: "Hide vertical edge lines",
     },
   ]),
 ];
@@ -308,12 +371,7 @@ export const standardBrushStripControlGroups: StudioControlGroup[] = [
       label: "Pattern",
       enabledWhen: "brushSelectionPatternEnabled",
     },
-    {
-      type: "color",
-      key: "brushSelectionPatternColor",
-      label: "Pattern color",
-      enabledWhen: "brushSelectionPatternEnabled",
-    },
+    ...brushPatternDetailControls(),
   ]),
 ];
 

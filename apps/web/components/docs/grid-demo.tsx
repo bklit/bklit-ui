@@ -78,6 +78,19 @@ export function GridNoFadeDemo() {
   );
 }
 
+export function GridHideEdgeLinesDemo() {
+  return (
+    <div className="w-full">
+      <LineChart data={chartData}>
+        <Grid hideHorizontalEdgeLines horizontal />
+        <Line dataKey="value" />
+        <XAxis />
+        <ChartTooltip />
+      </LineChart>
+    </div>
+  );
+}
+
 export function GridDenseDemo() {
   return (
     <div className="w-full">

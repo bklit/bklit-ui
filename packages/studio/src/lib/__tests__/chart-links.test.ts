@@ -7,11 +7,18 @@ import {
   shadcnAddItem,
   studioChartDocsHref,
   studioChartHref,
+  studioEmbedHref,
+  studioEmbedIframeMarkup,
   studioOpenInV0Href,
   studioRegistryJsonUrl,
+  studioShareStudioUrl,
 } from "../chart-links";
+import { defaultStudioState } from "../studio-parsers";
 
 const FLAT_CHART_PARAM_RE = /chart=/;
+const IFRAME_TAG_RE = /^<iframe /;
+const EMBED_SRC_RE = /src="https:\/\/ui\.bklit\.com\/studio\/embed\?s=v1\./;
+const IFRAME_HEIGHT_RE = /height="520"/;
 
 describe("chart-links", () => {
   it("studioRegistryJsonUrl points at the public registry", () => {
@@ -56,5 +63,29 @@ describe("chart-links", () => {
     const href = studioChartHref("line-chart");
     assert.ok(href.startsWith("/studio?s=v1."));
     assert.doesNotMatch(href, FLAT_CHART_PARAM_RE);
+  });
+
+  it("studioEmbedHref emits compressed s param under /studio/embed", () => {
+    const state = defaultStudioState({ chart: "area-chart" });
+    const href = studioEmbedHref(state);
+    assert.ok(href.startsWith("/studio/embed?s=v1."));
+    assert.doesNotMatch(href, FLAT_CHART_PARAM_RE);
+  });
+
+  it("studioShareStudioUrl builds an absolute studio link", () => {
+    const state = defaultStudioState({ chart: "pie-chart" });
+    const url = studioShareStudioUrl(state, "https://ui.bklit.com");
+    assert.ok(url.startsWith("https://ui.bklit.com/studio?s=v1."));
+  });
+
+  it("studioEmbedIframeMarkup includes the embed src", () => {
+    const state = defaultStudioState({ chart: "line-chart" });
+    const markup = studioEmbedIframeMarkup(state, {
+      origin: "https://ui.bklit.com",
+      height: 520,
+    });
+    assert.match(markup, IFRAME_TAG_RE);
+    assert.match(markup, EMBED_SRC_RE);
+    assert.match(markup, IFRAME_HEIGHT_RE);
   });
 });

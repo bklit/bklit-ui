@@ -313,6 +313,36 @@
       ]
     },
     {
+      "name": "background",
+      "type": "registry:component",
+      "title": "Chart Background",
+      "description": "Pattern fill for the plot area when grid lines are hidden",
+      "registryDependencies": [
+        "@bklit/chart-context"
+      ],
+      "dependencies": [
+        "@visx/pattern@4.0.1-alpha.0",
+        "motion"
+      ],
+      "files": [
+        {
+          "path": "src/charts/background.tsx",
+          "type": "registry:component",
+          "target": "components/charts/background.tsx"
+        },
+        {
+          "path": "src/charts/pattern-preset.tsx",
+          "type": "registry:component",
+          "target": "components/charts/pattern-preset.tsx"
+        },
+        {
+          "path": "src/charts/visx-pattern.tsx",
+          "type": "registry:component",
+          "target": "components/charts/visx-pattern.tsx"
+        }
+      ]
+    },
+    {
       "name": "x-axis",
       "type": "registry:component",
       "title": "X Axis",

@@ -24,6 +24,7 @@ import type {
   StudioControlGroup,
 } from "@/lib/types";
 import { getStudioControlGroups } from "./control-groups";
+import { backgroundControlGroups } from "./pattern-control-groups";
 import {
   areaChartControlGroups,
   areaSeriesLineControlGroups,
@@ -35,6 +36,7 @@ import {
   funnelChartControlGroups,
   gaugeControlGroups,
   getLineChartControlGroups,
+  gridControlGroups,
   liveLineChartControlGroups,
   pieCenterControlGroup,
   pieChartControlGroups,
@@ -53,6 +55,39 @@ import { controlGroup } from "./sidebar-control-templates";
 import { firstConfigurableStudioComponentId } from "./studio-component-visibility";
 
 const DESIGN_SERIES_LABEL_PREFIX = /^Series \d+ · /;
+
+const PER_SERIES_LINE_CONTROL_KEYS = new Set([
+  "curve",
+  "strokeWidth",
+  "fadeEdges",
+  "showHighlight",
+  "showLine",
+  "seriesShowMarkers",
+  "seriesMarkerRadius",
+  "seriesMarkerRingGap",
+  "seriesMarkerRingWidth",
+  "seriesDashTail",
+  "seriesDashFromIndex",
+  "seriesDashArray",
+]);
+
+function seriesScopedControlGroups(
+  groups: StudioControlGroup[],
+  seriesIndex: number
+): StudioControlGroup[] {
+  return groups.map((group) => ({
+    ...group,
+    controls: group.controls.map((control) => {
+      if (
+        "key" in control &&
+        PER_SERIES_LINE_CONTROL_KEYS.has(String(control.key))
+      ) {
+        return { ...control, seriesIndex };
+      }
+      return control;
+    }),
+  }));
+}
 
 function rootPaletteDesign(
   supportsPattern = false
@@ -107,6 +142,29 @@ function passiveNode(
     parentId: `${chartPrefix}.chart`,
     kind: "chart",
     controlGroups: [],
+  };
+}
+
+function gridNode(
+  chartPrefix: string,
+  extraControlGroups: StudioControlGroup[] = []
+): StudioComponentDefinition {
+  return {
+    id: `${chartPrefix}.grid`,
+    label: "Grid",
+    parentId: `${chartPrefix}.chart`,
+    kind: "chart",
+    controlGroups: [...gridControlGroups, ...extraControlGroups],
+  };
+}
+
+function backgroundNode(chartPrefix: string): StudioComponentDefinition {
+  return {
+    id: `${chartPrefix}.background`,
+    label: "Background",
+    parentId: `${chartPrefix}.chart`,
+    kind: "chart",
+    controlGroups: backgroundControlGroups,
   };
 }
 
@@ -293,7 +351,8 @@ function resolveCartesianLoadingStudioComponents(options: {
       parentId: chartId,
       kind: "chart",
       controlGroups: [
-        controlGroup("Grid", [
+        ...gridControlGroups,
+        controlGroup("Loading", [
           {
             type: "color",
             key: "lineLoadingGridStroke",
@@ -429,7 +488,8 @@ export function resolveAreaComponents(
       controlGroups: settings ? [settings] : [],
       design: rootPaletteDesign(true),
     },
-    passiveNode("area", "grid", "Grid"),
+    gridNode("area"),
+    backgroundNode("area"),
   ];
 
   for (let index = 0; index < seriesCount; index += 1) {
@@ -439,7 +499,7 @@ export function resolveAreaComponents(
     }
     controlGroups.push(
       seriesYAxisControlGroup(index),
-      ...areaSeriesLineControlGroups
+      ...seriesScopedControlGroups(areaSeriesLineControlGroups, index)
     );
 
     components.push({
@@ -486,7 +546,8 @@ export function resolveBarComponents(
       controlGroups: seriesLayout ? [seriesLayout] : [],
       design: rootPaletteDesign(true),
     },
-    passiveNode("bar", "grid", "Grid"),
+    gridNode("bar"),
+    backgroundNode("bar"),
   ];
 
   const horizontal = state.barOrientation === "horizontal";
@@ -554,6 +615,7 @@ export function resolveComposedComponents(
       design: rootPaletteDesign(true),
     },
     passiveNode("composed", "grid", "Grid"),
+    backgroundNode("composed"),
   ];
 
   for (let index = 0; index < seriesCount; index += 1) {
@@ -582,7 +644,7 @@ export function resolveComposedComponents(
       }
       controlGroups.push(
         seriesYAxisControlGroup(index),
-        ...composedOverlayLineControlGroups
+        ...seriesScopedControlGroups(composedOverlayLineControlGroups, index)
       );
     }
 
@@ -704,7 +766,8 @@ export function resolveLiveLineComponents(): StudioComponentDefinition[] {
       controlGroups: [],
       design: rootPaletteDesign(true),
     },
-    passiveNode("live-line", "grid", "Grid"),
+    gridNode("live-line"),
+    backgroundNode("live-line"),
     {
       id: "live-line.line",
       label: "LiveLine",
@@ -756,13 +819,8 @@ function resolveProfitLossLineComponents(): StudioComponentDefinition[] {
       controlGroups: settings ? [settings] : [],
       design: rootPaletteDesign(false),
     },
-    {
-      id: "line.grid",
-      label: "Grid",
-      parentId: chartId,
-      kind: "chart",
-      controlGroups: zeroLine ? [zeroLine] : [],
-    },
+    gridNode("line", zeroLine ? [zeroLine] : []),
+    backgroundNode("line"),
     {
       id: "line.profit-loss",
       label: "ProfitLossLine",
@@ -831,7 +889,8 @@ export function resolveLineComponents(
       controlGroups: settings ? [settings] : [],
       design: rootPaletteDesign(false),
     },
-    passiveNode("line", "grid", "Grid"),
+    gridNode("line"),
+    backgroundNode("line"),
   ];
 
   for (let index = 0; index < seriesCount; index += 1) {
@@ -844,9 +903,14 @@ export function resolveLineComponents(
       swatchColor: getEffectiveSeriesColor(state, index),
       controlGroups: [
         seriesYAxisControlGroup(index),
-        ...(lineControls ? [lineControls] : []),
-        ...(markers ? [markers] : []),
-        ...(dashTail ? [dashTail] : []),
+        ...seriesScopedControlGroups(
+          [
+            ...(lineControls ? [lineControls] : []),
+            ...(markers ? [markers] : []),
+            ...(dashTail ? [dashTail] : []),
+          ],
+          index
+        ),
       ],
       design: {
         seriesIndex: index,
@@ -960,7 +1024,8 @@ export function resolveScatterComponents(
       controlGroups: [],
       design: rootPaletteDesign(false),
     },
-    passiveNode("scatter", "grid", "Grid"),
+    gridNode("scatter"),
+    backgroundNode("scatter"),
     {
       id: "scatter.desktop",
       label: "Scatter · desktop",
@@ -1016,6 +1081,8 @@ export function resolveCandlestickComponents(
       controlGroups: design ? [design] : [],
       design: { seriesIndex: 0, supportsPattern: true, showPalette: true },
     },
+    gridNode("candlestick"),
+    backgroundNode("candlestick"),
     {
       id: "candlestick.candles",
       label: "Candlestick",

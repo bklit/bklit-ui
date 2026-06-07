@@ -14,6 +14,19 @@ const nextConfig = {
     // Keeps dev/prod from pulling the entire charts package per MDX page.
     optimizePackageImports: ["@bklitui/ui", "@bklitui/ui/charts"],
   },
+  async headers() {
+    return [
+      {
+        source: "/studio/embed",
+        headers: [
+          {
+            key: "Content-Security-Policy",
+            value: "frame-ancestors *",
+          },
+        ],
+      },
+    ];
+  },
   images: {
     remotePatterns: [
       {

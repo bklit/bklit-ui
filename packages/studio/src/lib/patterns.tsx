@@ -1,7 +1,8 @@
 // biome-ignore-all lint/performance/noBarrelFile: re-export pattern preset ids for parsers and UI
 "use client";
 
-import { PatternLines } from "@bklitui/ui/charts";
+import { PatternLines, renderPatternPreset } from "@bklitui/ui/charts";
+import { Fragment } from "react";
 
 export {
   PATTERN_PRESET_IDS,
@@ -29,81 +30,20 @@ export function studioPatternFill(
   return `url(#${studioPatternIdForSeries(seriesIndex)})`;
 }
 
-function patternLinesForPreset(
+function patternNodeForPreset(
   preset: PatternPresetId,
   id: string,
   strokeVar: string
 ) {
-  const common = {
-    id,
-    height: 6,
-    width: 6,
-    strokeWidth: 1,
-  };
-
-  switch (preset) {
-    case "diagonal":
-      return (
-        <PatternLines
-          {...common}
-          key={id}
-          orientation={["diagonal"]}
-          stroke={strokeVar}
-        />
-      );
-    case "horizontal":
-      return (
-        <PatternLines
-          {...common}
-          key={id}
-          orientation={["horizontal"]}
-          stroke={strokeVar}
-        />
-      );
-    case "vertical":
-      return (
-        <PatternLines
-          {...common}
-          key={id}
-          orientation={["vertical"]}
-          stroke={strokeVar}
-        />
-      );
-    case "cross":
-      return (
-        <PatternLines
-          {...common}
-          height={8}
-          key={id}
-          orientation={["diagonal", "diagonalRightToLeft"]}
-          stroke={strokeVar}
-          width={8}
-        />
-      );
-    case "dots":
-      return (
-        <PatternLines
-          {...common}
-          height={4}
-          key={id}
-          orientation={["diagonal"]}
-          stroke={strokeVar}
-          strokeWidth={2}
-          width={4}
-        />
-      );
-    case "accent":
-      return (
-        <PatternLines
-          {...common}
-          key={id}
-          orientation={["diagonal"]}
-          stroke="#e879f9"
-        />
-      );
-    default:
-      return null;
+  const node = renderPatternPreset(preset, id, {
+    color: preset === "accent" ? "#e879f9" : strokeVar,
+    scale: preset === "cross" ? 1.33 : 1,
+    strokeWidth: preset === "circles" ? 1 : undefined,
+  });
+  if (!node) {
+    return null;
   }
+  return <>{node}</>;
 }
 
 export function StudioPatternDefs({
@@ -125,7 +65,7 @@ export function StudioPatternDefs({
       return [];
     }
     const strokeVar = `var(${`--chart-${(index % 5) + 1}`})`;
-    const node = patternLinesForPreset(
+    const node = patternNodeForPreset(
       entry,
       studioPatternIdForSeries(index),
       strokeVar
@@ -229,23 +169,6 @@ function choroPatternStroke(
   return chartVars[regionIndex % chartVars.length] ?? "var(--chart-1)";
 }
 
-function choroPatternOrientation(
-  preset: PatternPresetId
-): ("diagonal" | "horizontal" | "vertical" | "diagonalRightToLeft")[] {
-  switch (preset) {
-    case "horizontal":
-      return ["horizontal"];
-    case "vertical":
-      return ["vertical"];
-    case "cross":
-      return ["diagonal", "diagonalRightToLeft"];
-    case "dots":
-      return ["diagonal"];
-    default:
-      return ["diagonal"];
-  }
-}
-
 export function StudioChoroplethBgPattern({
   preset,
 }: {
@@ -255,14 +178,13 @@ export function StudioChoroplethBgPattern({
     return null;
   }
   return (
-    <PatternLines
-      height={8}
-      id="studio-choro-bg"
-      orientation={choroPatternOrientation(preset)}
-      stroke="var(--chart-5)"
-      strokeWidth={1}
-      width={8}
-    />
+    <>
+      {renderPatternPreset(preset, "studio-choro-bg", {
+        color: "var(--chart-5)",
+        scale: preset === "cross" ? 1.33 : 1,
+        strokeWidth: 1,
+      })}
+    </>
   );
 }
 
@@ -276,17 +198,13 @@ export function StudioChoroplethFgPatterns({
   }
   return (
     <>
-      {CHOROPLETH_REGIONS.map((region, index) => (
-        <PatternLines
-          height={6}
-          id={`studio-choro-fg-${region}`}
-          key={region}
-          orientation={choroPatternOrientation(preset)}
-          stroke={choroPatternStroke(preset, index)}
-          strokeWidth={2}
-          width={6}
-        />
-      ))}
+      {CHOROPLETH_REGIONS.map((region, index) => {
+        const node = renderPatternPreset(preset, `studio-choro-fg-${region}`, {
+          color: choroPatternStroke(preset, index),
+          strokeWidth: 2,
+        });
+        return node ? <Fragment key={region}>{node}</Fragment> : null;
+      })}
     </>
   );
 }
@@ -317,6 +235,12 @@ export function patternCodegenBlock(preset: PatternPresetId): string {
   if (preset === "none") {
     return "";
   }
+  if (preset === "dots") {
+    return `<PatternCircles id="${STUDIO_PATTERN_ID}" height={10} width={10} fill="var(--chart-4)" radius={1.5} />`;
+  }
+  if (preset === "circles") {
+    return `<PatternCircles id="${STUDIO_PATTERN_ID}" height={6} width={6} stroke="var(--chart-1)" strokeWidth={1} radius={2} />`;
+  }
   const orientations: Record<PatternPresetId, string> = {
     none: "",
     diagonal: 'orientation={["diagonal"]}',
@@ -324,7 +248,8 @@ export function patternCodegenBlock(preset: PatternPresetId): string {
     vertical: 'orientation={["vertical"]}',
     cross:
       'orientation={["diagonal", "diagonalRightToLeft"]} height={8} width={8}',
-    dots: 'orientation={["diagonal"]} height={4} width={4} strokeWidth={2}',
+    dots: "",
+    circles: "",
     accent: 'orientation={["diagonal"]} stroke="#e879f9"',
   };
   let stroke = 'stroke="var(--chart-1)"';
@@ -334,8 +259,6 @@ export function patternCodegenBlock(preset: PatternPresetId): string {
     stroke = 'stroke="var(--chart-2)"';
   } else if (preset === "vertical") {
     stroke = 'stroke="var(--chart-3)"';
-  } else if (preset === "dots") {
-    stroke = 'stroke="var(--chart-4)"';
   }
   return `<PatternLines id="${STUDIO_PATTERN_ID}" height={6} width={6} ${orientations[preset]} ${stroke} strokeWidth={1} />`;
 }

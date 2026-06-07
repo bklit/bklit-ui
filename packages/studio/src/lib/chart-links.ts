@@ -1,8 +1,17 @@
+import { STUDIO_EMBED_DEFAULT_HEIGHT } from "./studio-embed";
 import { defaultStudioState, type StudioUrlState } from "./studio-parsers";
-import { encodeStudioUrlState, STUDIO_URL_PARAM } from "./studio-url-codec";
+import {
+  encodeStudioUrlState,
+  STUDIO_URL_PARAM,
+  studioCompressedSearch,
+} from "./studio-url-codec";
 import type { ChartSlug } from "./types";
 
 export const REGISTRY_ORIGIN = "https://ui.bklit.com";
+
+export const STUDIO_EMBED_PATH = "/studio/embed";
+
+const TRAILING_SLASH_RE = /\/$/;
 
 /** Public shadcn namespace for `npx shadcn add @bklit/<name>`. */
 export const BKLIT_REGISTRY_NAMESPACE = "@bklit";
@@ -57,6 +66,47 @@ export function studioChartHref(
 export function studioStateHref(state: StudioUrlState): string {
   const encoded = encodeURIComponent(encodeStudioUrlState(state));
   return `/studio?${STUDIO_URL_PARAM}=${encoded}`;
+}
+
+/** Compressed embed href from a full state object. */
+export function studioEmbedHref(state: StudioUrlState): string {
+  return `${STUDIO_EMBED_PATH}${studioCompressedSearch(state)}`;
+}
+
+export function studioAbsoluteHref(
+  path: string,
+  origin: string = REGISTRY_ORIGIN
+): string {
+  return `${origin.replace(TRAILING_SLASH_RE, "")}${path}`;
+}
+
+export function studioShareStudioUrl(
+  state: StudioUrlState,
+  origin: string = REGISTRY_ORIGIN
+): string {
+  return studioAbsoluteHref(studioStateHref(state), origin);
+}
+
+export function studioShareEmbedUrl(
+  state: StudioUrlState,
+  origin: string = REGISTRY_ORIGIN
+): string {
+  return studioAbsoluteHref(studioEmbedHref(state), origin);
+}
+
+export function studioEmbedIframeMarkup(
+  state: StudioUrlState,
+  options?: {
+    origin?: string;
+    height?: number;
+    title?: string;
+  }
+): string {
+  const origin = options?.origin ?? REGISTRY_ORIGIN;
+  const src = studioShareEmbedUrl(state, origin);
+  const height = options?.height ?? STUDIO_EMBED_DEFAULT_HEIGHT;
+  const title = options?.title ?? "Bklit chart demo";
+  return `<iframe src="${src}" width="100%" height="${height}" style="border:0;border-radius:12px" loading="lazy" title="${title}"></iframe>`;
 }
 
 /** @see https://ui.shadcn.com/docs/registry/open-in-v0 */

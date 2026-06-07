@@ -5,6 +5,7 @@ export const PATTERN_PRESET_IDS = [
   "vertical",
   "cross",
   "dots",
+  "circles",
   "accent",
 ] as const;
 
@@ -20,6 +21,7 @@ export const PATTERN_PRESETS: {
   { id: "horizontal", label: "Horizontal" },
   { id: "vertical", label: "Vertical" },
   { id: "cross", label: "Cross" },
-  { id: "dots", label: "Dots" },
+  { id: "dots", label: "Dot grid" },
+  { id: "circles", label: "Circles" },
   { id: "accent", label: "Accent" },
 ];

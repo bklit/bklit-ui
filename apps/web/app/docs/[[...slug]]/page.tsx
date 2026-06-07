@@ -13,6 +13,7 @@ import { InstallationTabs } from "@/components/docs/installation-tabs";
 import { PackageManagerTabs } from "@/components/docs/package-manager-tabs";
 import { PageFooter } from "@/components/docs/page-footer";
 import { SocialLinks } from "@/components/docs/social-links";
+import { StudioEmbedPreview } from "@/components/docs/studio-embed-preview";
 import { TableOfContents } from "@/components/docs/toc";
 import { source } from "@/lib/source";
 
@@ -81,6 +82,7 @@ export default async function Page(props: {
               InstallationTabs,
               PackageManagerTabs,
               SocialLinks,
+              StudioEmbedPreview,
             }}
           />
         </div>

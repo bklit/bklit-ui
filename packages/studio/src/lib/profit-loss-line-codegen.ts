@@ -1,8 +1,10 @@
 import { fadeEdgesCodegen } from "@/components/controls/fade-edges-picker";
 import { motionSliceFromState } from "./chart-animation";
+import { backgroundCodegenBlock } from "./codegen-helpers";
 import { curveImportName } from "./curves";
 import { STUDIO_PROFIT_LOSS_DATA_KEY } from "./demo-data";
 import { cssRevealAnimationCodegen } from "./motion-codegen";
+import { isStudioComponentVisible } from "./studio-component-visibility";
 import type { StudioUrlState } from "./studio-parsers";
 
 export function profitLossLineDataSnippet(state: StudioUrlState) {
@@ -28,11 +30,23 @@ export function profitLossLineCodegen(state: StudioUrlState) {
       : "";
   const curveName = curveImportName(state.curve);
   const fadeEdges = fadeEdgesCodegen(state.fadeEdges);
+  const backgroundBlock = backgroundCodegenBlock(state, "line");
+  const gridVisible = isStudioComponentVisible(state, "line.grid");
+  const gridBlock = gridVisible
+    ? `
+        <Grid
+          highlightRowStroke="${state.zeroLineStroke}"
+          highlightRowStrokeWidth={${state.zeroLineStrokeWidth}}${zeroDash}
+          highlightRowValues={${state.showZeroLine ? "[0]" : "undefined"}}
+          horizontal
+        />`
+    : "";
+  const gridImport = gridVisible ? "\n  Grid," : "";
+  const backgroundImport = backgroundBlock ? "\n  Background," : "";
 
   return {
     code: `import {
-  ChartTooltip,
-  Grid,
+  ChartTooltip,${gridImport}${backgroundImport}
   Line,
   LineChart,
   ProfitLossLegend,
@@ -50,13 +64,7 @@ export function ProfitLossChart({ data }: { data: Record<string, unknown>[] }) {
 
   return (
     <div className="flex flex-col gap-2">
-      <LineChart data={data}${anim}>
-        <Grid
-          highlightRowStroke="${state.zeroLineStroke}"
-          highlightRowStrokeWidth={${state.zeroLineStrokeWidth}}${zeroDash}
-          highlightRowValues={${state.showZeroLine ? "[0]" : "undefined"}}
-          horizontal
-        />
+      <LineChart data={data}${anim}>${backgroundBlock}${gridBlock}
         <Line
           curve={${curveName}}
           dataKey="pnl"

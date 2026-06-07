@@ -2,8 +2,8 @@
 
 import { ArrowsPointingInIcon } from "@heroicons/react/24/outline";
 import { Maximize2, Minus, Plus } from "lucide-react";
-import { useState } from "react";
-import { StudioShareButton } from "@/components/studio-share-button";
+import { StudioOpenInStudioButton } from "@/components/studio-open-in-studio-button";
+import { StudioSharePopover } from "@/components/studio-share-popover";
 import {
   EditorMenuBarTooltipItem,
   StudioToolbarTooltips,
@@ -31,6 +31,10 @@ export function EditorMenuBar({
   onCenterOnContent,
   onReplay,
   controlsDisabled = false,
+  showDimensions = true,
+  showThemeToggle = true,
+  showFitView = true,
+  openInStudioHref,
 }: {
   className?: string;
   width: number;
@@ -47,8 +51,13 @@ export function EditorMenuBar({
   onCenterOnContent?: () => void;
   onReplay?: () => void;
   controlsDisabled?: boolean;
+  showDimensions?: boolean;
+  showThemeToggle?: boolean;
+  showFitView?: boolean;
+  openInStudioHref?: string;
 }) {
-  const [shareCopied, setShareCopied] = useState(false);
+  const hasLeadingControls =
+    Boolean(openInStudioHref) || showSidebarToggle || showThemeToggle;
 
   return (
     <StudioToolbarTooltips>
@@ -58,6 +67,15 @@ export function EditorMenuBar({
           className
         )}
       >
+        {openInStudioHref ? (
+          <>
+            <StudioOpenInStudioButton href={openInStudioHref} />
+            {showSidebarToggle || showThemeToggle || showZoomControls ? (
+              <Separator className="mx-0.5 h-5" orientation="vertical" />
+            ) : null}
+          </>
+        ) : null}
+
         {showSidebarToggle ? (
           <>
             <EditorMenuBarTooltipItem label="Toggle sidebars">
@@ -71,13 +89,20 @@ export function EditorMenuBar({
           </>
         ) : null}
 
-        <EditorMenuBarTooltipItem label="Toggle theme (D)">
-          <EditorThemeToggle />
-        </EditorMenuBarTooltipItem>
+        {showThemeToggle ? (
+          <EditorMenuBarTooltipItem label="Toggle theme (D)">
+            <EditorThemeToggle />
+          </EditorMenuBarTooltipItem>
+        ) : null}
 
         {showZoomControls ? (
           <>
-            <Separator className="mx-0.5 h-5 shrink-0" orientation="vertical" />
+            {hasLeadingControls ? (
+              <Separator
+                className="mx-0.5 h-5 shrink-0"
+                orientation="vertical"
+              />
+            ) : null}
 
             <EditorMenuBarTooltipItem label="Zoom out">
               <Button
@@ -113,18 +138,20 @@ export function EditorMenuBar({
               </Button>
             </EditorMenuBarTooltipItem>
 
-            <EditorMenuBarTooltipItem label="Zoom to fit (double-click canvas)">
-              <Button
-                aria-label="Zoom to fit"
-                className="size-8"
-                onClick={onFitView}
-                size="icon-sm"
-                type="button"
-                variant="ghost"
-              >
-                <Maximize2 />
-              </Button>
-            </EditorMenuBarTooltipItem>
+            {showFitView ? (
+              <EditorMenuBarTooltipItem label="Zoom to fit (double-click canvas)">
+                <Button
+                  aria-label="Zoom to fit"
+                  className="size-8"
+                  onClick={onFitView}
+                  size="icon-sm"
+                  type="button"
+                  variant="ghost"
+                >
+                  <Maximize2 />
+                </Button>
+              </EditorMenuBarTooltipItem>
+            ) : null}
 
             {onCenterOnContent ? (
               <EditorMenuBarTooltipItem label="Center chart on canvas">
@@ -151,19 +178,19 @@ export function EditorMenuBar({
               </EditorMenuBarTooltipItem>
             ) : null}
 
-            <EditorMenuBarTooltipItem
-              label={shareCopied ? "Copied" : "Copy link"}
-            >
-              <StudioShareButton onCopiedChange={setShareCopied} />
-            </EditorMenuBarTooltipItem>
+            <StudioSharePopover />
           </>
         ) : null}
 
-        <Separator className="mx-0.5 h-5 shrink-0" orientation="vertical" />
+        {showDimensions ? (
+          <>
+            <Separator className="mx-0.5 h-5 shrink-0" orientation="vertical" />
 
-        <span className="shrink-0 whitespace-nowrap px-2 font-mono text-[11px] text-muted-foreground tabular-nums">
-          {width} × {height}
-        </span>
+            <span className="shrink-0 whitespace-nowrap px-2 font-mono text-[11px] text-muted-foreground tabular-nums">
+              {width} × {height}
+            </span>
+          </>
+        ) : null}
       </div>
     </StudioToolbarTooltips>
   );

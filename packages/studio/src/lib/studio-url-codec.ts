@@ -110,3 +110,8 @@ export function studioCompressedSearch(state: StudioUrlState): string {
   const encoded = encodeURIComponent(encodeStudioUrlState(state));
   return `?${STUDIO_URL_PARAM}=${encoded}`;
 }
+
+/** Relative Studio href — safe for SSR (no `window.location.origin`). */
+export function studioRelativeStateHref(state: StudioUrlState): string {
+  return `/studio${studioCompressedSearch(state)}`;
+}

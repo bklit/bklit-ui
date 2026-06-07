@@ -13,6 +13,7 @@ import { EditorMenuBar } from "@/editor/editor-menu-bar";
 import { EditorMobilePanelTriggers } from "@/editor/editor-mobile-panel-sheets";
 import { FpsCounter } from "@/editor/fps-counter";
 import { useEditorCamera } from "@/editor/use-editor-canvas-view";
+import { STUDIO_EMBED_MENU_BAR_CLEARANCE } from "@/lib/studio-embed";
 import { cn } from "@/lib/utils";
 
 export function EditorMainPane({
@@ -28,6 +29,9 @@ export function EditorMainPane({
   showFpsCounter = false,
   onReplay,
   controlsDisabled = false,
+  showDimensions = true,
+  embedMode = false,
+  openInStudioHref,
   children,
 }: {
   className?: string;
@@ -42,6 +46,10 @@ export function EditorMainPane({
   showFpsCounter?: boolean;
   onReplay?: () => void;
   controlsDisabled?: boolean;
+  showDimensions?: boolean;
+  /** Minimal chrome for iframe embeds: no rulers, footer toolbar, no theme/fit. */
+  embedMode?: boolean;
+  openInStudioHref?: string;
   children: (ctx: {
     size: { width: number; height: number };
     boundsRef: RefObject<HTMLDivElement | null>;
@@ -59,10 +67,14 @@ export function EditorMainPane({
   const getContentBounds = useCallback(() => contentBounds, [contentBounds]);
 
   const camera = useEditorCamera({
+    defaultZoom: embedMode ? 0.9 : 1,
     enabled: canvasEnabled,
-    viewportRef: canvasRef,
     getContentBounds,
     persist: !mobileViewport,
+    viewInsets: embedMode
+      ? { bottom: STUDIO_EMBED_MENU_BAR_CLEARANCE }
+      : undefined,
+    viewportRef: canvasRef,
   });
 
   canvasScaleRef.current = camera.camera.zoom;
@@ -91,6 +103,69 @@ export function EditorMainPane({
     mobileViewport,
     onResize: handleResize,
   });
+
+  const menuBarProps = {
+    canvasScale: camera.camera.zoom,
+    controlsDisabled,
+    height: frame.height,
+    onCenterOnContent: camera.centerOnContent,
+    onFitView: camera.fitToContent,
+    onReplay,
+    onResetZoom: camera.resetTo100,
+    onSidebarsOpenChange,
+    onZoomIn: () => camera.zoomBy(1.12),
+    onZoomOut: () => camera.zoomBy(1 / 1.12),
+    showDimensions,
+    showFitView: !embedMode,
+    showSidebarToggle,
+    showThemeToggle: !embedMode,
+    showZoomControls: canvasEnabled,
+    sidebarsOpen,
+    width: frame.width,
+    openInStudioHref,
+  };
+
+  if (embedMode) {
+    return (
+      <div className={cn("flex h-full min-h-0 flex-col", className)}>
+        <div className="relative min-h-0 flex-1">
+          <EditorCanvas
+            camera={camera.camera}
+            className="absolute inset-0"
+            enabled={canvasEnabled}
+            onDoubleClick={camera.onDoubleClick}
+            onPointerDown={camera.onPointerDown}
+            onPointerMove={camera.onPointerMove}
+            onPointerUp={camera.onPointerUp}
+            registerPinchHandlers={camera.registerPinchHandlers}
+            spacePressed={camera.spacePressed}
+            viewportRef={canvasRef}
+          >
+            <div
+              className="absolute top-0 left-0 overflow-visible"
+              style={{
+                transform: `translate(${frame.x}px, ${frame.y}px)`,
+              }}
+            >
+              <EditorFrameLabel
+                canvasScaleRef={canvasScaleRef}
+                onPositionChange={handleFrameMove}
+                originX={frame.x}
+                originY={frame.y}
+                title={frameTitle}
+              />
+              {frameContent}
+            </div>
+          </EditorCanvas>
+
+          <EditorMenuBar
+            {...menuBarProps}
+            className="pointer-events-auto absolute bottom-6 left-1/2 z-20 -translate-x-1/2"
+          />
+        </div>
+      </div>
+    );
+  }
 
   if (mobileViewport) {
     return (
@@ -195,24 +270,11 @@ export function EditorMainPane({
             ) : null}
 
             <EditorMenuBar
-              canvasScale={camera.camera.zoom}
+              {...menuBarProps}
               className={cn(
                 "pointer-events-auto absolute left-1/2 z-20 -translate-x-1/2",
                 mobileViewport ? "bottom-3" : "bottom-6"
               )}
-              controlsDisabled={controlsDisabled}
-              height={frame.height}
-              onCenterOnContent={camera.centerOnContent}
-              onFitView={camera.fitToContent}
-              onReplay={onReplay}
-              onResetZoom={camera.resetTo100}
-              onSidebarsOpenChange={onSidebarsOpenChange}
-              onZoomIn={() => camera.zoomBy(1.12)}
-              onZoomOut={() => camera.zoomBy(1 / 1.12)}
-              showSidebarToggle={showSidebarToggle}
-              showZoomControls={canvasEnabled}
-              sidebarsOpen={sidebarsOpen}
-              width={frame.width}
             />
           </div>
         </div>
