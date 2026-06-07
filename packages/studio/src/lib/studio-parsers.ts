@@ -176,6 +176,18 @@ export const studioSearchParams = {
   lineLoadingGridShimmerLength: parseAsFloat.withDefault(140),
   lineLoadingGridShimmerSync: parseAsBoolean.withDefault(true),
   lineLoadingGridShimmerSpeed: parseAsFloat.withDefault(1),
+  gridHorizontal: parseAsBoolean.withDefault(true),
+  gridVertical: parseAsBoolean.withDefault(false),
+  gridNumTicksRows: parseAsInteger.withDefault(5),
+  gridNumTicksColumns: parseAsInteger.withDefault(10),
+  gridStroke: parseAsString.withDefault("var(--chart-grid)"),
+  gridStrokeOpacity: parseAsFloat.withDefault(1),
+  gridStrokeWidth: parseAsFloat.withDefault(1),
+  gridStrokeDasharray: parseAsString.withDefault("4,4"),
+  gridFadeHorizontal: parseAsBoolean.withDefault(true),
+  gridFadeVertical: parseAsBoolean.withDefault(false),
+  gridHideHorizontalEdgeLines: parseAsBoolean.withDefault(false),
+  gridHideVerticalEdgeLines: parseAsBoolean.withDefault(false),
   lineLoadingLabel: parseAsString.withDefault("Loading"),
   /** Pipe-encoded Y axis id per line series (`left` / `right`). */
   lineSeriesYAxes: parseAsString.withDefault("left|left"),
@@ -349,6 +361,18 @@ export interface StudioUrlState {
   lineLoadingGridShimmerLength: number;
   lineLoadingGridShimmerSync: boolean;
   lineLoadingGridShimmerSpeed: number;
+  gridHorizontal: boolean;
+  gridVertical: boolean;
+  gridNumTicksRows: number;
+  gridNumTicksColumns: number;
+  gridStroke: string;
+  gridStrokeOpacity: number;
+  gridStrokeWidth: number;
+  gridStrokeDasharray: string;
+  gridFadeHorizontal: boolean;
+  gridFadeVertical: boolean;
+  gridHideHorizontalEdgeLines: boolean;
+  gridHideVerticalEdgeLines: boolean;
   lineLoadingLabel: string;
   lineSeriesYAxes: string;
   lineYAxisNumTicks: string;
@@ -523,6 +547,18 @@ export function defaultStudioState(
     lineLoadingGridShimmerLength: 140,
     lineLoadingGridShimmerSync: true,
     lineLoadingGridShimmerSpeed: 1,
+    gridHorizontal: true,
+    gridVertical: false,
+    gridNumTicksRows: 5,
+    gridNumTicksColumns: 10,
+    gridStroke: "var(--chart-grid)",
+    gridStrokeOpacity: 1,
+    gridStrokeWidth: 1,
+    gridStrokeDasharray: "4,4",
+    gridFadeHorizontal: true,
+    gridFadeVertical: false,
+    gridHideHorizontalEdgeLines: false,
+    gridHideVerticalEdgeLines: false,
     lineLoadingLabel: "Loading",
     lineSeriesYAxes: "left|left",
     lineYAxisNumTicks: "5|5",

@@ -32,6 +32,7 @@ import {
   STUDIO_PROFIT_LOSS_DATA_KEY,
 } from "@/lib/demo-data";
 import type { StudioRenderContext } from "@/lib/render-context";
+import { gridPropsFromState } from "@/lib/studio-cartesian-layers";
 import { chartTooltipPropsFromState } from "@/lib/studio-chart-overlays";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 
@@ -128,13 +129,13 @@ export function LineProfitLossStudioChart({
         >
           <StudioVisibleLayer componentId="line.grid" state={state}>
             <Grid
+              {...gridPropsFromState(state)}
               highlightRowStroke={state.zeroLineStroke}
               highlightRowStrokeDasharray={zeroLineDasharray(
                 state.zeroLineStyle
               )}
               highlightRowStrokeWidth={state.zeroLineStrokeWidth}
               highlightRowValues={state.showZeroLine ? [0] : undefined}
-              horizontal
             />
           </StudioVisibleLayer>
           <Line

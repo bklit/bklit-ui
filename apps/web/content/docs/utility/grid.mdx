@@ -1,10 +1,12 @@
 ---
 title: Grid
-description: A customizable grid component for charts with horizontal and vertical lines, fade effects, and dashed styling
+description: A customizable grid component for charts with horizontal and vertical lines, edge fade, edge line hiding, and dashed styling
 ---
 
+import { studioChartHref } from "@bklitui/studio";
 import { LineChart, Line, Grid, ChartTooltip, XAxis } from "@bklitui/ui/charts";
-import { GridHorizontalDemo, GridVerticalDemo, GridBothDemo, GridSolidDemo, GridNoFadeDemo, GridDenseDemo } from "@/components/docs/grid-demo";
+import { GridHorizontalDemo, GridVerticalDemo, GridBothDemo, GridSolidDemo, GridNoFadeDemo, GridDenseDemo, GridHideEdgeLinesDemo } from "@/components/docs/grid-demo";
+import { OpenInStudioButton } from "@/components/docs/open-in-studio-button";
 
 <ComponentPreview registryName="grid">
   <GridBothDemo />
@@ -16,7 +18,7 @@ import { GridHorizontalDemo, GridVerticalDemo, GridBothDemo, GridSolidDemo, Grid
 
 ## Usage
 
-The Grid component adds visual reference lines to charts. It must be used inside a chart component (`LineChart`, `AreaChart`, `BarChart`).
+The Grid component adds visual reference lines to charts. It must be used inside a chart component (`LineChart`, `AreaChart`, `BarChart`, `ScatterChart`, `CandlestickChart`, `LiveLineChart`, and other cartesian charts).
 
 ```tsx
 import { LineChart, Line, Grid, ChartTooltip } from "@bklitui/ui/charts";
@@ -48,6 +50,22 @@ import { LineChart, Line, Grid, ChartTooltip } from "@bklitui/ui/charts";
 | `highlightRowStrokeDasharray` | `string` | `"0"` | Dash pattern for highlighted rows |
 | `fadeHorizontal` | `boolean` | `true` | Fade horizontal lines at left/right edges |
 | `fadeVertical` | `boolean` | `false` | Fade vertical lines at top/bottom edges |
+| `hideHorizontalEdgeLines` | `boolean` | `false` | Omit the first and last horizontal grid lines |
+| `hideVerticalEdgeLines` | `boolean` | `false` | Omit the first and last vertical grid lines |
+
+## Studio
+
+<div className="not-prose mb-3 flex items-center justify-between gap-4">
+  <h3 className="m-0 font-semibold text-foreground text-base tracking-tight">
+    Edit in Studio
+  </h3>
+  <OpenInStudioButton
+    href={studioChartHref("line-chart")}
+    slug="line-chart"
+  />
+</div>
+
+Open [Studio with the line chart](/studio?chart=line-chart), select **Grid** in the components tree, and tune lines, stroke, and edge options in the properties panel. The same controls are available on area, bar, candlestick, live line, line, and scatter charts.
 
 ## Examples
 
@@ -114,6 +132,19 @@ Disable the edge fade effect for sharp line endings.
   <ChartTooltip />
 </LineChart>`}>
   <GridNoFadeDemo />
+</ComponentShowcase>
+
+### Hide edge lines
+
+Omit the outermost horizontal or vertical grid lines — useful when the chart border already provides a frame.
+
+<ComponentShowcase code={`<LineChart data={data}>
+  <Grid horizontal hideHorizontalEdgeLines />
+  <Line dataKey="value" />
+  <XAxis />
+  <ChartTooltip />
+</LineChart>`}>
+  <GridHideEdgeLinesDemo />
 </ComponentShowcase>
 
 ### Dense Grid

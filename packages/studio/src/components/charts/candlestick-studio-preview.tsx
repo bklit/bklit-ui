@@ -16,6 +16,7 @@ import {
 } from "@/lib/chart-animation";
 import { getCandlestickData } from "@/lib/demo-data";
 import type { StudioRenderContext } from "@/lib/render-context";
+import { studioCartesianGridLayer } from "@/lib/studio-cartesian-layers";
 import { studioCandlestickLegendItems } from "@/lib/studio-legend-items";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import { getSeriesFillMode } from "@/lib/studio-series-design";
@@ -58,6 +59,7 @@ const CandlestickChartBody = memo(function CandlestickChartBody({
           </>
         ) : null}
         {ctx.patternDefs}
+        {studioCartesianGridLayer(state, "candlestick.grid")}
         <Candlestick
           bodyPatternNegative={patternUp}
           bodyPatternPositive={patternUp}
