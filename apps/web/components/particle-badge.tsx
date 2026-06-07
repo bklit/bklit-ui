@@ -25,6 +25,8 @@ export type ParticleBadgeProps = ComponentProps<"div"> & {
   children: ReactNode;
   /** Extra canvas bleed around the badge for particles. */
   bleed?: number;
+  /** Keep ambient particle emission; do not boost on hover. */
+  disableHover?: boolean;
 };
 
 function compileShader(
@@ -52,6 +54,7 @@ export function ParticleBadge({
   children,
   className,
   bleed = 64,
+  disableHover = false,
   ...props
 }: ParticleBadgeProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -65,6 +68,7 @@ export function ParticleBadge({
   const glRef = useRef<WebGLRenderingContext | null>(null);
   const programRef = useRef<WebGLProgram | null>(null);
   const [isHovering, setIsHovering] = useState(false);
+  const emitAggressively = !disableHover && isHovering;
 
   const getColors = useCallback((bright = false) => {
     if (bright) {
@@ -363,9 +367,9 @@ export function ParticleBadge({
   useEffect(() => {
     emitIntervalRef.current = setInterval(
       () => {
-        emitFromEdges(isHovering);
+        emitFromEdges(emitAggressively);
       },
-      isHovering ? 30 : 60
+      emitAggressively ? 30 : 60
     );
 
     return () => {
@@ -373,9 +377,13 @@ export function ParticleBadge({
         clearInterval(emitIntervalRef.current);
       }
     };
-  }, [emitFromEdges, isHovering]);
+  }, [emitAggressively, emitFromEdges]);
 
   useEffect(() => {
+    if (disableHover) {
+      return;
+    }
+
     const target = targetRef.current;
     if (!target) {
       return;
@@ -391,7 +399,7 @@ export function ParticleBadge({
       target.removeEventListener("mouseenter", onEnter);
       target.removeEventListener("mouseleave", onLeave);
     };
-  }, []);
+  }, [disableHover]);
 
   return (
     <div
