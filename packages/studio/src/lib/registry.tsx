@@ -91,7 +91,10 @@ import {
   scatterChartControlGroups,
 } from "./registry-control-groups";
 import { seriesStrokePropsFromState } from "./series-stroke-props";
-import { studioCartesianGridLayer } from "./studio-cartesian-layers";
+import {
+  studioCartesianBackgroundLayer,
+  studioCartesianGridLayer,
+} from "./studio-cartesian-layers";
 import { chartTooltipPropsFromState } from "./studio-chart-overlays";
 import { isStudioComponentVisible } from "./studio-component-visibility";
 import {
@@ -112,6 +115,11 @@ import {
 } from "./studio-components";
 import { studioCartesianLegendItems } from "./studio-legend-items";
 import { getEffectiveSeriesColor } from "./studio-series-design";
+import {
+  getSeriesCurve,
+  getSeriesFadeEdges,
+  getSeriesStrokeWidth,
+} from "./studio-series-line-props";
 import type { ChartSlug, StudioChartConfig } from "./types";
 import { chartLabels } from "./types";
 
@@ -213,6 +221,11 @@ const scatterConfig: StudioChartConfig = {
           margin={timeSeriesChartMargin(state)}
           onPhaseChange={ctx.reportOgPhase}
         >
+          {studioCartesianBackgroundLayer(
+            state,
+            "scatter.background",
+            "scatter.grid"
+          )}
           {studioCartesianGridLayer(state, "scatter.grid")}
           {isStudioComponentVisible(state, "scatter.desktop") ? (
             <Scatter
@@ -317,6 +330,11 @@ const barConfig: StudioChartConfig = {
             stackGap={stacked ? 3 : 0}
             xDataKey={xKey}
           >
+            {studioCartesianBackgroundLayer(
+              state,
+              "bar.background",
+              "bar.grid"
+            )}
             {studioCartesianGridLayer(state, "bar.grid")}
             {ctx.patternDefs}
             {seriesKeys.map((key, idx) => (
@@ -364,7 +382,6 @@ const composedConfig: StudioChartConfig = {
   controlGroups: composedChartControlGroups,
   resolveComponents: resolveComposedComponents,
   render: (state, ctx) => {
-    const curve = resolveCurve(state.curve);
     const seriesCount = clampStudioSeriesCount(state.dataSeries);
     const data = generateStudioCartesianData({
       seriesCount,
@@ -372,7 +389,6 @@ const composedConfig: StudioChartConfig = {
       xAxis: "date",
       seed: ctx.dataSeed,
     });
-    const seriesStroke = seriesStrokePropsFromState(state, data.length);
     const barKey = STUDIO_SERIES_KEYS[0];
     return (
       <StudioChartShell
@@ -389,6 +405,11 @@ const composedConfig: StudioChartConfig = {
             margin={timeSeriesChartMargin(state)}
             onPhaseChange={ctx.reportOgPhase}
           >
+            {studioCartesianBackgroundLayer(
+              state,
+              "composed.background",
+              "composed.grid"
+            )}
             <StudioVisibleLayer componentId="composed.grid" state={state}>
               <Grid horizontal />
             </StudioVisibleLayer>
@@ -406,26 +427,39 @@ const composedConfig: StudioChartConfig = {
                 const colorIdx = seriesIndex;
                 const color = `var(--chart-${(colorIdx % 5) + 1})`;
                 const yAxisId = getLineSeriesYAxisId(state, seriesIndex);
+                const curve = resolveCurve(getSeriesCurve(state, seriesIndex));
                 return [
                   <Area
                     curve={curve}
                     dataKey={key}
-                    fadeEdges={fadeEdgesPropValue(state.fadeEdges)}
+                    fadeEdges={fadeEdgesPropValue(
+                      getSeriesFadeEdges(state, seriesIndex)
+                    )}
                     fill={color}
                     fillOpacity={state.fillOpacity}
                     key={`area-${key}`}
                     yAxisId={yAxisId}
-                    {...seriesStroke}
+                    {...seriesStrokePropsFromState(
+                      state,
+                      data.length,
+                      seriesIndex
+                    )}
                   />,
                   <Line
                     curve={curve}
                     dataKey={key}
-                    fadeEdges={fadeEdgesPropValue(state.fadeEdges)}
+                    fadeEdges={fadeEdgesPropValue(
+                      getSeriesFadeEdges(state, seriesIndex)
+                    )}
                     key={`line-${key}`}
                     stroke={color}
-                    strokeWidth={state.strokeWidth}
+                    strokeWidth={getSeriesStrokeWidth(state, seriesIndex)}
                     yAxisId={yAxisId}
-                    {...seriesStroke}
+                    {...seriesStrokePropsFromState(
+                      state,
+                      data.length,
+                      seriesIndex
+                    )}
                   />,
                 ];
               }

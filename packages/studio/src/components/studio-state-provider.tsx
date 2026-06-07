@@ -32,6 +32,7 @@ import {
   STUDIO_URL_PARAM,
 } from "@/lib/studio-url-codec";
 import { loadStudioStateFromRequest } from "@/lib/studio-url-loader";
+import { expandStudioParamUpdate } from "@/lib/studio-visibility-sync";
 import type { ChartSlug, StudioChartConfig } from "@/lib/types";
 
 const STUDIO_Y_AXIS_CHART_PREFIX: Partial<Record<ChartSlug, string>> = {
@@ -113,7 +114,19 @@ export function StudioStateProvider({
   const suppressUrlCompress = useRef(false);
 
   const setParams = useCallback((updates: Partial<StudioUrlState>) => {
-    setParamsState((prev) => ({ ...prev, ...updates }));
+    setParamsState((prev) => {
+      let next: StudioUrlState = { ...prev };
+      for (const [key, value] of Object.entries(updates) as [
+        keyof StudioUrlState,
+        StudioUrlState[keyof StudioUrlState],
+      ][]) {
+        next = {
+          ...next,
+          ...expandStudioParamUpdate(next, { [key]: value }),
+        };
+      }
+      return next;
+    });
   }, []);
 
   const state = useMemo(

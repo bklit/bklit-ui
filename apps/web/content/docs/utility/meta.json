@@ -3,6 +3,7 @@
   "pages": [
     "legend",
     "grid",
+    "background",
     "tooltip",
     "brush",
     "axis",

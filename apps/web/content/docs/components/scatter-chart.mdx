@@ -18,7 +18,7 @@ import { ScatterChartDemo } from "@/components/docs/scatter-chart-demo";
 
 ## Usage
 
-Build scatter charts by composing `ScatterChart` with one or more `Scatter` series, plus shared cartesian pieces (`Grid`, `XAxis`, `ChartTooltip`).
+Build scatter charts by composing `ScatterChart` with one or more `Scatter` series, plus shared cartesian pieces (`Grid` or [`Background`](/docs/utility/background), `XAxis`, `ChartTooltip`).
 
 ### Basic Example
 
@@ -130,6 +130,7 @@ Color dots by vertical position with a chart-space gradient — lower values tow
 Use the same cartesian building blocks as `LineChart`:
 
 - `Grid` — horizontal/vertical grid lines
+- [`Background`](/docs/utility/background) — pattern fill when grid lines are hidden (see [gallery](/charts/scatter-chart))
 - `YAxis` — value labels (single shared scale; see [Y Axis](/docs/utility/axis/y-axis))
 - `XAxis` — date labels with crosshair fade
 - `ChartTooltip` — crosshair, date pill, and series rows

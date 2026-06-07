@@ -128,6 +128,7 @@ export function isPostOverlayComponent(child: ReactElement): boolean {
 }
 
 const CLIP_EXCLUDED_COMPONENT_NAMES = new Set([
+  "Background",
   "Grid",
   "XAxis",
   "YAxis",

@@ -11,7 +11,10 @@ import { useEffect, useRef, useState } from "react";
 import type { StudioFrameSize } from "@/components/studio-chart-viewport";
 import type { CurveId } from "@/lib/curves";
 import { resolveCurve } from "@/lib/curves";
-import { studioCartesianGridLayer } from "@/lib/studio-cartesian-layers";
+import {
+  studioCartesianBackgroundLayer,
+  studioCartesianGridLayer,
+} from "@/lib/studio-cartesian-layers";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 
 const LIVE_LINE_MARGIN = { top: 24, right: 16, bottom: 32, left: 52 };
@@ -121,6 +124,11 @@ export function LiveLineStudioPreview({
       value={value}
       window={windowSecs}
     >
+      {studioCartesianBackgroundLayer(
+        state,
+        "live-line.background",
+        "live-line.grid"
+      )}
       {studioCartesianGridLayer(state, "live-line.grid")}
       <LiveLine
         badge={badge}

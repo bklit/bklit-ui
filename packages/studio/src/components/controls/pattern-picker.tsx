@@ -1,6 +1,6 @@
 "use client";
 
-import { PatternLines } from "@bklitui/ui/charts";
+import { PatternLines, renderPatternPreset } from "@bklitui/ui/charts";
 import { cn } from "@bklitui/ui/lib/utils";
 import { useId } from "react";
 import { PATTERN_PRESETS, type PatternPresetId } from "@/lib/patterns";
@@ -15,23 +15,10 @@ function patternStroke(preset: PatternPresetId): string {
       return "var(--chart-3)";
     case "dots":
       return "var(--chart-4)";
+    case "circles":
+      return "var(--chart-5)";
     default:
       return "var(--chart-1)";
-  }
-}
-
-function patternOrientation(
-  preset: PatternPresetId
-): ("diagonal" | "horizontal" | "vertical" | "diagonalRightToLeft")[] {
-  switch (preset) {
-    case "horizontal":
-      return ["horizontal"];
-    case "vertical":
-      return ["vertical"];
-    case "cross":
-      return ["diagonal", "diagonalRightToLeft"];
-    default:
-      return ["diagonal"];
   }
 }
 
@@ -56,8 +43,11 @@ export function PatternSwatch({
     );
   }
 
-  const stroke = patternStroke(preset);
-  const orientation = patternOrientation(preset);
+  const patternNode = renderPatternPreset(preset, patternId, {
+    color: patternStroke(preset),
+    scale: 1,
+    radius: preset === "dots" ? 1.5 : 2,
+  });
 
   return (
     <svg
@@ -70,14 +60,16 @@ export function PatternSwatch({
     >
       <title>{preset}</title>
       <defs>
-        <PatternLines
-          height={preset === "dots" ? 4 : 6}
-          id={patternId}
-          orientation={orientation}
-          stroke={stroke}
-          strokeWidth={preset === "dots" ? 2 : 1}
-          width={preset === "dots" ? 4 : 6}
-        />
+        {patternNode ?? (
+          <PatternLines
+            height={6}
+            id={patternId}
+            orientation={["diagonal"]}
+            stroke={patternStroke(preset)}
+            strokeWidth={1}
+            width={6}
+          />
+        )}
       </defs>
       <rect fill={`url(#${patternId})`} height={24} width={24} />
     </svg>
