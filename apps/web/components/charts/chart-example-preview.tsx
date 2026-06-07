@@ -61,6 +61,10 @@ export const chartExampleRadialShellClassName =
 
 export const chartExampleCardClassName = "overflow-visible gap-0";
 
+/** Let chart SVGs paint 3D lids, dots, and markers outside the plot box. */
+export const chartExamplePreviewOverflowClassName =
+  "overflow-visible [&_.relative.w-full]:overflow-visible [&_svg]:overflow-visible";
+
 export function ChartExamplePreviewFrame({
   layout = "cartesian",
   role = "example",
@@ -76,6 +80,7 @@ export function ChartExamplePreviewFrame({
     <div
       className={cn(
         getChartExamplePreviewFrameClassName(layout, role),
+        chartExamplePreviewOverflowClassName,
         className
       )}
     >

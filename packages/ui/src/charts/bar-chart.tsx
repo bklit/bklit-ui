@@ -579,7 +579,12 @@ const ChartCore = memo(function ChartCore({
 
   return (
     <ChartProvider value={contextValue}>
-      <svg aria-hidden="true" height={height} width={width}>
+      <svg
+        aria-hidden="true"
+        className="overflow-visible"
+        height={height}
+        width={width}
+      >
         {/* Gradient and pattern definitions */}
         {defsChildren.length > 0 && <defs>{defsChildren}</defs>}
 
@@ -635,7 +640,7 @@ export function BarChart({
 
   return (
     <div
-      className={cn("relative w-full", className)}
+      className={cn("relative w-full overflow-visible", className)}
       ref={containerRef}
       style={{ aspectRatio }}
     >

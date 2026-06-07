@@ -77,6 +77,7 @@ import {
   SegmentLineFrom,
   SegmentLineTo,
   SeriesBar,
+  StaticChartPreviewProvider,
   useChart,
   XAxis,
   YAxis,
@@ -377,15 +378,6 @@ const barData = [
   { month: "Jun", desktop: 214 },
 ];
 
-const barZeroData = [
-  { month: "Jan", desktop: 186 },
-  { month: "Feb", desktop: 0 },
-  { month: "Mar", desktop: 237 },
-  { month: "Apr", desktop: 0 },
-  { month: "May", desktop: 120 },
-  { month: "Jun", desktop: 214 },
-];
-
 const barStackedData = [
   { month: "Jan", desktop: 4000, mobile: 2400 },
   { month: "Feb", desktop: 5000, mobile: 3000 },
@@ -677,7 +669,7 @@ function ChartExampleCard({
           </div>
         </div>
       </CardHeader>
-      <CardContent className={contentPaddingClassName}>
+      <CardContent className={cn(contentPaddingClassName, "overflow-visible")}>
         <ChartExamplePreviewFrame layout={previewLayout} role={previewRole}>
           {children}
         </ChartExamplePreviewFrame>
@@ -728,11 +720,15 @@ function AnimatedBarLine({
 function BarLineIndicator({
   data,
   valueKey,
+  valueKeys,
   xKey,
+  stacked = false,
 }: {
   data: Record<string, unknown>[];
-  valueKey: string;
+  valueKey?: string;
+  valueKeys?: string[];
   xKey: string;
+  stacked?: boolean;
 }) {
   const {
     barScale,
@@ -754,35 +750,65 @@ function BarLineIndicator({
     return null;
   }
 
+  const keys = valueKeys ?? (valueKey ? [valueKey] : []);
+  if (keys.length === 0) {
+    return null;
+  }
+
   const { createPortal } = require("react-dom") as typeof import("react-dom");
 
   return createPortal(
     <svg
       aria-hidden="true"
-      className="pointer-events-none absolute inset-0 z-50"
+      className="pointer-events-none absolute inset-0 z-50 overflow-visible"
       height="100%"
       width="100%"
     >
       <g transform={`translate(${margin.left},${margin.top})`}>
-        {data.map((d, i) => {
+        {data.flatMap((d, i) => {
           const xVal = d[xKey];
-          const barX = barScale(String(xVal)) ?? 0;
-          const yVal = d[valueKey];
-          const barTopY =
-            typeof yVal === "number"
-              ? (yScale(yVal) ?? innerHeight)
-              : innerHeight;
+          const groupX = barScale(String(xVal)) ?? 0;
+          const isHovered = hoveredBarIndex === i;
 
-          return (
-            <AnimatedBarLine
-              barBottomY={innerHeight}
-              barTopY={barTopY}
-              barX={barX}
-              isHovered={hoveredBarIndex === i}
-              key={String(xVal)}
-              width={bandWidth}
-            />
-          );
+          if (stacked) {
+            const total = keys.reduce(
+              (sum, key) => sum + (Number(d[key]) || 0),
+              0
+            );
+
+            return [
+              <AnimatedBarLine
+                barBottomY={innerHeight}
+                barTopY={yScale(total) ?? innerHeight}
+                barX={groupX}
+                isHovered={isHovered}
+                key={String(xVal)}
+                width={bandWidth}
+              />,
+            ];
+          }
+
+          const barCount = keys.length;
+          const individualBarWidth = bandWidth / barCount;
+
+          return keys.map((key, barIndex) => {
+            const yVal = d[key];
+            const barTopY =
+              typeof yVal === "number"
+                ? (yScale(yVal) ?? innerHeight)
+                : innerHeight;
+
+            return (
+              <AnimatedBarLine
+                barBottomY={innerHeight}
+                barTopY={barTopY}
+                barX={groupX + barIndex * individualBarWidth}
+                isHovered={isHovered}
+                key={`${String(xVal)}-${key}`}
+                width={individualBarWidth}
+              />
+            );
+          });
         })}
       </g>
     </svg>,
@@ -1257,15 +1283,18 @@ function makeBarExamples(): ChartExample[] {
     },
     {
       title: "Bar Chart - 3D Depth",
-      description: "Glass-block bars with perspective side + top faces",
+      description:
+        "Glass-block bars with perspective side + top faces and a custom line indicator",
       code: `<BarChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={chartData} xDataKey="month">
   <Grid horizontal />
   <BarDepthBack dataKey="desktop" color="var(--chart-1)" />
   <Bar dataKey="desktop" fill="var(--chart-1)" perspective />
   <BarDepthFront dataKey="desktop" />
   <BarXAxis />
-  <ChartTooltip />
+  <ChartTooltip showCrosshair={false} showDots={false} />
+  <BarLineIndicator data={chartData} valueKey="desktop" xKey="month" />
 </BarChart>`,
+      footer: "Hover over bars to see the animated line indicator",
       render: () => (
         <BarExampleChart data={barData} xDataKey="month">
           <Grid horizontal />
@@ -1273,7 +1302,8 @@ function makeBarExamples(): ChartExample[] {
           <Bar dataKey="desktop" fill="var(--chart-1)" perspective />
           <BarDepthFront dataKey="desktop" />
           <BarXAxis />
-          <ChartTooltip />
+          <ChartTooltip showCrosshair={false} showDots={false} />
+          <BarLineIndicator data={barData} valueKey="desktop" xKey="month" />
         </BarExampleChart>
       ),
     },
@@ -1293,7 +1323,7 @@ function makeBarExamples(): ChartExample[] {
     <Bar dataKey="mobile" fill="var(--chart-3)" perspective />
     <BarDepthFront dataKey="desktop" />
     <BarXAxis />
-    <ChartTooltip />
+    <ChartTooltip showCrosshair={false} showDots={false} />
   </BarChart>
 </BarDepthProvider>`,
       render: () => (
@@ -1310,38 +1340,7 @@ function makeBarExamples(): ChartExample[] {
             <Bar dataKey="mobile" fill="var(--chart-3)" perspective />
             <BarDepthFront dataKey="desktop" />
             <BarXAxis />
-            <ChartTooltip />
-          </BarExampleChart>
-        </BarDepthProvider>
-      ),
-    },
-    {
-      title: "Bar Chart - 3D Min Height",
-      description: "Zero-value bars floored to a short, still-visible bar",
-      code: `<BarDepthProvider minBarHeight={6}>
-  <BarChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={chartData} xDataKey="month">
-    <Grid horizontal />
-    <BarDepthBack dataKey="desktop" color="var(--chart-1)" />
-    <Bar dataKey="desktop" fill="var(--chart-1)" perspective minBarHeight={6} />
-    <BarDepthFront dataKey="desktop" />
-    <BarXAxis />
-    <ChartTooltip />
-  </BarChart>
-</BarDepthProvider>`,
-      render: () => (
-        <BarDepthProvider minBarHeight={6}>
-          <BarExampleChart data={barZeroData} xDataKey="month">
-            <Grid horizontal />
-            <BarDepthBack color="var(--chart-1)" dataKey="desktop" />
-            <Bar
-              dataKey="desktop"
-              fill="var(--chart-1)"
-              minBarHeight={6}
-              perspective
-            />
-            <BarDepthFront dataKey="desktop" />
-            <BarXAxis />
-            <ChartTooltip />
+            <ChartTooltip showCrosshair={false} showDots={false} />
           </BarExampleChart>
         </BarDepthProvider>
       ),
@@ -5259,44 +5258,46 @@ export function ChartExamplesGrid({ chartSlug }: { chartSlug: string }) {
       : "grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3";
 
   return (
-    <div className="space-y-6">
-      <ChartNav />
+    <StaticChartPreviewProvider>
+      <div className="space-y-6">
+        <ChartNav />
 
-      {entry.notice && (
-        <div className="rounded-lg border border-border/50 bg-muted/30 px-4 py-3 text-muted-foreground text-sm">
-          {entry.notice}
-        </div>
-      )}
+        {entry.notice && (
+          <div className="rounded-lg border border-border/50 bg-muted/30 px-4 py-3 text-muted-foreground text-sm">
+            {entry.notice}
+          </div>
+        )}
 
-      {hero && (
-        <ChartExampleCard
-          code={hero.code}
-          data={hero.data}
-          description={hero.description}
-          footer={hero.footer}
-          previewLayout={entry.previewLayout}
-          previewRole="hero"
-          title={hero.title}
-        >
-          {hero.render()}
-        </ChartExampleCard>
-      )}
-
-      <div className={gridCols}>
-        {examples.map((example) => (
+        {hero && (
           <ChartExampleCard
-            code={example.code}
-            data={example.data}
-            description={example.description}
-            footer={example.footer}
-            key={example.title}
+            code={hero.code}
+            data={hero.data}
+            description={hero.description}
+            footer={hero.footer}
             previewLayout={entry.previewLayout}
-            title={example.title}
+            previewRole="hero"
+            title={hero.title}
           >
-            {example.render()}
+            {hero.render()}
           </ChartExampleCard>
-        ))}
+        )}
+
+        <div className={gridCols}>
+          {examples.map((example) => (
+            <ChartExampleCard
+              code={example.code}
+              data={example.data}
+              description={example.description}
+              footer={example.footer}
+              key={example.title}
+              previewLayout={entry.previewLayout}
+              title={example.title}
+            >
+              {example.render()}
+            </ChartExampleCard>
+          ))}
+        </div>
       </div>
-    </div>
+    </StaticChartPreviewProvider>
   );
 }

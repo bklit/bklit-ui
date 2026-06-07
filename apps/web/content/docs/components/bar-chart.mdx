@@ -150,6 +150,10 @@ The Grid component now supports `fadeVertical` for vertical grid lines.
 | `fadeHorizontal` | `boolean` | `true`  | Fade horizontal lines at left/right edges |
 | `fadeVertical`   | `boolean` | `false` | Fade vertical lines at top/bottom edges   |
 
+### Background
+
+Pattern fill for the plot area when you omit `Grid`. See the [Background utility](/docs/utility/background) and **Pattern Background** examples on the [bar chart gallery](/charts/bar-chart).
+
 ### BarDepthBack
 
 Renders the 3D side + top faces. Place **before** `<Bar>` so the bar's front face occludes depth that would extend into the next column.
@@ -215,6 +219,10 @@ import {
 </BarChart>;
 ```
 
+### Custom indicator (optional)
+
+The [3D Depth gallery example](/charts/bar-chart) pairs depth bars with a rising line indicator. Disable the default crosshair and dots on `ChartTooltip`, then render your own overlay via `useChart` and a portal — see [Custom Indicator](/docs/utility/custom-indicator).
+
 Color bars individually with `colorAccessor`:
 
 ```tsx
@@ -249,6 +257,7 @@ To give a **stacked** bar 3D depth, wrap the chart in `BarDepthProvider` with a 
     <Bar dataKey="mobile" fill="var(--chart-3)" perspective />
     <BarDepthFront dataKey="desktop" />
     <BarXAxis />
+    <ChartTooltip showCrosshair={false} showDots={false} />
   </BarChart>
 </BarDepthProvider>;
 ```
