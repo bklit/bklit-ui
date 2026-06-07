@@ -1,6 +1,7 @@
-import { describe, expect, it } from "vitest";
-import { defaultStudioState } from "@/lib/studio-parsers";
-import { expandStudioParamUpdate } from "@/lib/studio-visibility-sync";
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
+import { defaultStudioState } from "../studio-parsers";
+import { expandStudioParamUpdate } from "../studio-visibility-sync";
 
 describe("expandStudioParamUpdate", () => {
   it("syncs showLegend when legend eye toggle changes", () => {
@@ -8,13 +9,13 @@ describe("expandStudioParamUpdate", () => {
     const expanded = expandStudioParamUpdate(prev, {
       hiddenComponents: "line.legend",
     });
-    expect(expanded.showLegend).toBe(false);
+    assert.equal(expanded.showLegend, false);
   });
 
   it("syncs hiddenComponents when showLegend switch changes", () => {
     const prev = { ...defaultStudioState(), chart: "line-chart" as const };
     const expanded = expandStudioParamUpdate(prev, { showLegend: false });
-    expect(expanded.hiddenComponents).toContain("line.legend");
+    assert.ok(expanded.hiddenComponents?.includes("line.legend"));
   });
 
   it("syncs showBrush when brush eye toggle changes", () => {
@@ -22,6 +23,6 @@ describe("expandStudioParamUpdate", () => {
     const expanded = expandStudioParamUpdate(prev, {
       hiddenComponents: "line.brush",
     });
-    expect(expanded.showBrush).toBe(false);
+    assert.equal(expanded.showBrush, false);
   });
 });
