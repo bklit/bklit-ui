@@ -24,6 +24,7 @@ import type {
   StudioControlGroup,
 } from "@/lib/types";
 import { getStudioControlGroups } from "./control-groups";
+import { backgroundControlGroups } from "./pattern-control-groups";
 import {
   areaChartControlGroups,
   areaSeriesLineControlGroups,
@@ -121,6 +122,16 @@ function gridNode(
     parentId: `${chartPrefix}.chart`,
     kind: "chart",
     controlGroups: [...gridControlGroups, ...extraControlGroups],
+  };
+}
+
+function backgroundNode(chartPrefix: string): StudioComponentDefinition {
+  return {
+    id: `${chartPrefix}.background`,
+    label: "Background",
+    parentId: `${chartPrefix}.chart`,
+    kind: "chart",
+    controlGroups: backgroundControlGroups,
   };
 }
 
@@ -445,6 +456,7 @@ export function resolveAreaComponents(
       design: rootPaletteDesign(true),
     },
     gridNode("area"),
+    backgroundNode("area"),
   ];
 
   for (let index = 0; index < seriesCount; index += 1) {
@@ -502,6 +514,7 @@ export function resolveBarComponents(
       design: rootPaletteDesign(true),
     },
     gridNode("bar"),
+    backgroundNode("bar"),
   ];
 
   const horizontal = state.barOrientation === "horizontal";
@@ -569,6 +582,7 @@ export function resolveComposedComponents(
       design: rootPaletteDesign(true),
     },
     passiveNode("composed", "grid", "Grid"),
+    backgroundNode("composed"),
   ];
 
   for (let index = 0; index < seriesCount; index += 1) {
@@ -720,6 +734,7 @@ export function resolveLiveLineComponents(): StudioComponentDefinition[] {
       design: rootPaletteDesign(true),
     },
     gridNode("live-line"),
+    backgroundNode("live-line"),
     {
       id: "live-line.line",
       label: "LiveLine",
@@ -772,6 +787,7 @@ function resolveProfitLossLineComponents(): StudioComponentDefinition[] {
       design: rootPaletteDesign(false),
     },
     gridNode("line", zeroLine ? [zeroLine] : []),
+    backgroundNode("line"),
     {
       id: "line.profit-loss",
       label: "ProfitLossLine",
@@ -841,6 +857,7 @@ export function resolveLineComponents(
       design: rootPaletteDesign(false),
     },
     gridNode("line"),
+    backgroundNode("line"),
   ];
 
   for (let index = 0; index < seriesCount; index += 1) {
@@ -970,6 +987,7 @@ export function resolveScatterComponents(
       design: rootPaletteDesign(false),
     },
     gridNode("scatter"),
+    backgroundNode("scatter"),
     {
       id: "scatter.desktop",
       label: "Scatter · desktop",
@@ -1026,6 +1044,7 @@ export function resolveCandlestickComponents(
       design: { seriesIndex: 0, supportsPattern: true, showPalette: true },
     },
     gridNode("candlestick"),
+    backgroundNode("candlestick"),
     {
       id: "candlestick.candles",
       label: "Candlestick",

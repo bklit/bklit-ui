@@ -91,7 +91,10 @@ import {
   scatterChartControlGroups,
 } from "./registry-control-groups";
 import { seriesStrokePropsFromState } from "./series-stroke-props";
-import { studioCartesianGridLayer } from "./studio-cartesian-layers";
+import {
+  studioCartesianBackgroundLayer,
+  studioCartesianGridLayer,
+} from "./studio-cartesian-layers";
 import { chartTooltipPropsFromState } from "./studio-chart-overlays";
 import { isStudioComponentVisible } from "./studio-component-visibility";
 import {
@@ -213,6 +216,11 @@ const scatterConfig: StudioChartConfig = {
           margin={timeSeriesChartMargin(state)}
           onPhaseChange={ctx.reportOgPhase}
         >
+          {studioCartesianBackgroundLayer(
+            state,
+            "scatter.background",
+            "scatter.grid"
+          )}
           {studioCartesianGridLayer(state, "scatter.grid")}
           {isStudioComponentVisible(state, "scatter.desktop") ? (
             <Scatter
@@ -317,6 +325,11 @@ const barConfig: StudioChartConfig = {
             stackGap={stacked ? 3 : 0}
             xDataKey={xKey}
           >
+            {studioCartesianBackgroundLayer(
+              state,
+              "bar.background",
+              "bar.grid"
+            )}
             {studioCartesianGridLayer(state, "bar.grid")}
             {ctx.patternDefs}
             {seriesKeys.map((key, idx) => (
@@ -389,6 +402,11 @@ const composedConfig: StudioChartConfig = {
             margin={timeSeriesChartMargin(state)}
             onPhaseChange={ctx.reportOgPhase}
           >
+            {studioCartesianBackgroundLayer(
+              state,
+              "composed.background",
+              "composed.grid"
+            )}
             <StudioVisibleLayer componentId="composed.grid" state={state}>
               <Grid horizontal />
             </StudioVisibleLayer>

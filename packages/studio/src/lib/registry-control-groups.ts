@@ -1,3 +1,4 @@
+import { brushPatternDetailControls } from "./pattern-control-groups";
 import {
   controlGroup,
   curveControl,
@@ -370,12 +371,7 @@ export const standardBrushStripControlGroups: StudioControlGroup[] = [
       label: "Pattern",
       enabledWhen: "brushSelectionPatternEnabled",
     },
-    {
-      type: "color",
-      key: "brushSelectionPatternColor",
-      label: "Pattern color",
-      enabledWhen: "brushSelectionPatternEnabled",
-    },
+    ...brushPatternDetailControls(),
   ]),
 ];
 

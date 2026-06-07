@@ -32,7 +32,10 @@ import {
   STUDIO_PROFIT_LOSS_DATA_KEY,
 } from "@/lib/demo-data";
 import type { StudioRenderContext } from "@/lib/render-context";
-import { gridPropsFromState } from "@/lib/studio-cartesian-layers";
+import {
+  gridPropsFromState,
+  studioCartesianBackgroundLayer,
+} from "@/lib/studio-cartesian-layers";
 import { chartTooltipPropsFromState } from "@/lib/studio-chart-overlays";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 
@@ -127,6 +130,11 @@ export function LineProfitLossStudioChart({
           key={`${ctx.animationKey}-${motionRemountKey}`}
           margin={timeSeriesChartMargin(state, { right: 40 })}
         >
+          {studioCartesianBackgroundLayer(
+            state,
+            "line.background",
+            "line.grid"
+          )}
           <StudioVisibleLayer componentId="line.grid" state={state}>
             <Grid
               {...gridPropsFromState(state)}

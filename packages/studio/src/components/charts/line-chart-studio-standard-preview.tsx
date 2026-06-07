@@ -32,6 +32,7 @@ import type { StudioRenderContext } from "@/lib/render-context";
 import { seriesStrokePropsFromState } from "@/lib/series-stroke-props";
 import { studioChartBrushProps } from "@/lib/studio-brush-props";
 import {
+  studioCartesianBackgroundLayer,
   studioCartesianGridLayer,
   studioCartesianSeriesLoadingProp,
   studioLoadingLabel,
@@ -199,6 +200,11 @@ export function LineChartStudioStandardPreview({
               xDomainSlotCount={brushLayout.xDomainSlotCount}
               yDomainTween
             >
+              {studioCartesianBackgroundLayer(
+                state,
+                "line.background",
+                "line.grid"
+              )}
               {studioCartesianGridLayer(state, "line.grid")}
               {renderMainLines(state, {
                 curve,

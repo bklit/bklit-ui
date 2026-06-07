@@ -188,6 +188,21 @@ export const studioSearchParams = {
   gridFadeVertical: parseAsBoolean.withDefault(false),
   gridHideHorizontalEdgeLines: parseAsBoolean.withDefault(false),
   gridHideVerticalEdgeLines: parseAsBoolean.withDefault(false),
+  backgroundPattern:
+    parseAsStringLiteral(PATTERN_PRESET_IDS).withDefault("diagonal"),
+  backgroundPatternColor: parseAsString.withDefault("var(--chart-grid)"),
+  backgroundPatternScale: parseAsFloat.withDefault(1),
+  backgroundPatternStrokeWidth: parseAsFloat.withDefault(1),
+  backgroundPatternRadius: parseAsFloat.withDefault(2),
+  backgroundPatternComplement: parseAsBoolean.withDefault(false),
+  backgroundPatternFill: parseAsString.withDefault(""),
+  backgroundPatternTileBackground: parseAsString.withDefault(""),
+  backgroundPatternOpacity: parseAsFloat.withDefault(1),
+  backgroundPatternShowFill: parseAsBoolean.withDefault(true),
+  backgroundFadeHorizontal: parseAsBoolean.withDefault(true),
+  backgroundFadeVertical: parseAsBoolean.withDefault(true),
+  backgroundFadeHorizontalLength: parseAsFloat.withDefault(10),
+  backgroundFadeVerticalLength: parseAsFloat.withDefault(10),
   lineLoadingLabel: parseAsString.withDefault("Loading"),
   /** Pipe-encoded Y axis id per line series (`left` / `right`). */
   lineSeriesYAxes: parseAsString.withDefault("left|left"),
@@ -216,6 +231,13 @@ export const studioSearchParams = {
   brushSelectionPattern:
     parseAsStringLiteral(PATTERN_PRESET_IDS).withDefault("none"),
   brushSelectionPatternColor: parseAsString.withDefault("var(--chart-1)"),
+  brushSelectionPatternScale: parseAsFloat.withDefault(1),
+  brushSelectionPatternStrokeWidth: parseAsFloat.withDefault(1),
+  brushSelectionPatternRadius: parseAsFloat.withDefault(2),
+  brushSelectionPatternComplement: parseAsBoolean.withDefault(false),
+  brushSelectionPatternFill: parseAsString.withDefault(""),
+  brushSelectionPatternTileBackground: parseAsString.withDefault(""),
+  brushSelectionPatternOpacity: parseAsFloat.withDefault(1),
   showLegend: parseAsBoolean.withDefault(false),
   legendPlacement: parseAsStringLiteral(["top", "bottom"]).withDefault(
     "bottom"
@@ -373,6 +395,20 @@ export interface StudioUrlState {
   gridFadeVertical: boolean;
   gridHideHorizontalEdgeLines: boolean;
   gridHideVerticalEdgeLines: boolean;
+  backgroundPattern: PatternPresetId;
+  backgroundPatternColor: string;
+  backgroundPatternScale: number;
+  backgroundPatternStrokeWidth: number;
+  backgroundPatternRadius: number;
+  backgroundPatternComplement: boolean;
+  backgroundPatternFill: string;
+  backgroundPatternTileBackground: string;
+  backgroundPatternOpacity: number;
+  backgroundPatternShowFill: boolean;
+  backgroundFadeHorizontal: boolean;
+  backgroundFadeVertical: boolean;
+  backgroundFadeHorizontalLength: number;
+  backgroundFadeVerticalLength: number;
   lineLoadingLabel: string;
   lineSeriesYAxes: string;
   lineYAxisNumTicks: string;
@@ -397,6 +433,13 @@ export interface StudioUrlState {
   brushSelectionPatternEnabled: boolean;
   brushSelectionPattern: PatternPresetId;
   brushSelectionPatternColor: string;
+  brushSelectionPatternScale: number;
+  brushSelectionPatternStrokeWidth: number;
+  brushSelectionPatternRadius: number;
+  brushSelectionPatternComplement: boolean;
+  brushSelectionPatternFill: string;
+  brushSelectionPatternTileBackground: string;
+  brushSelectionPatternOpacity: number;
   showLegend: boolean;
   legendPlacement: "top" | "bottom";
   legendAlign: "start" | "center" | "end";
@@ -559,6 +602,20 @@ export function defaultStudioState(
     gridFadeVertical: false,
     gridHideHorizontalEdgeLines: false,
     gridHideVerticalEdgeLines: false,
+    backgroundPattern: "diagonal",
+    backgroundPatternColor: "var(--chart-grid)",
+    backgroundPatternScale: 1,
+    backgroundPatternStrokeWidth: 1,
+    backgroundPatternRadius: 2,
+    backgroundPatternComplement: false,
+    backgroundPatternFill: "",
+    backgroundPatternTileBackground: "",
+    backgroundPatternOpacity: 1,
+    backgroundPatternShowFill: true,
+    backgroundFadeHorizontal: true,
+    backgroundFadeVertical: true,
+    backgroundFadeHorizontalLength: 10,
+    backgroundFadeVerticalLength: 10,
     lineLoadingLabel: "Loading",
     lineSeriesYAxes: "left|left",
     lineYAxisNumTicks: "5|5",
@@ -583,6 +640,13 @@ export function defaultStudioState(
     brushSelectionPatternEnabled: false,
     brushSelectionPattern: "none",
     brushSelectionPatternColor: "var(--chart-1)",
+    brushSelectionPatternScale: 1,
+    brushSelectionPatternStrokeWidth: 1,
+    brushSelectionPatternRadius: 2,
+    brushSelectionPatternComplement: false,
+    brushSelectionPatternFill: "",
+    brushSelectionPatternTileBackground: "",
+    brushSelectionPatternOpacity: 1,
     showLegend: false,
     legendPlacement: "bottom",
     legendAlign: "end",

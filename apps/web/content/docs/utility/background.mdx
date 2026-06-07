@@ -1,0 +1,124 @@
+---
+title: Background
+description: Pattern fill for the plot area when grid lines are hidden — presets, edge fade, and enter animation
+---
+
+import { studioChartHref } from "@bklitui/studio";
+import { LineChart, Line, Background, ChartTooltip, XAxis } from "@bklitui/ui/charts";
+import {
+  BackgroundCrossDemo,
+  BackgroundDiagonalDemo,
+  BackgroundDotsDemo,
+  BackgroundNoFadeDemo,
+} from "@/components/docs/background-demo";
+import { OpenInStudioButton } from "@/components/docs/open-in-studio-button";
+
+<ComponentPreview registryName="background">
+  <BackgroundDiagonalDemo />
+</ComponentPreview>
+
+## Installation
+
+<InstallationTabs name="background" dependencies={["@visx/pattern", "motion"]} />
+
+## Usage
+
+Use `Background` instead of `Grid` when you want a textured plot fill rather than reference lines. It must be a child of a cartesian chart (`LineChart`, `AreaChart`, `BarChart`, `ScatterChart`, `CandlestickChart`, `ComposedChart`, `LiveLineChart`, and other charts that provide chart context).
+
+```tsx
+import { LineChart, Line, Background, ChartTooltip, XAxis } from "@bklitui/ui/charts";
+
+<LineChart data={data}>
+  <Background pattern="diagonal" />
+  <Line dataKey="value" />
+  <XAxis />
+  <ChartTooltip />
+</LineChart>
+```
+
+`Background` renders behind series layers. On time-series charts it sits outside the series clip reveal and fades in after the chart finishes loading.
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `pattern` | `"diagonal" \| "horizontal" \| "vertical" \| "cross" \| "dots" \| "circles" \| "accent" \| "none"` | `"diagonal"` | Pattern preset (`"none"` renders nothing) |
+| `color` | `string` | `var(--chart-grid)` | Pattern stroke or dot color |
+| `scale` | `number` | `1` | Tile scale multiplier |
+| `strokeWidth` | `number` | preset default | Line stroke width for line-based patterns |
+| `radius` | `number` | preset default | Dot or circle radius for `dots` / `circles` |
+| `complement` | `boolean` | `false` | Alternate tile fill for circle patterns |
+| `fill` | `string` | — | Solid fill inside dots or circles |
+| `tileBackground` | `string` | — | Background color inside each pattern tile |
+| `showFill` | `boolean` | `true` | Apply the pattern texture to the plot area |
+| `opacity` | `number` | `1` | Pattern fill opacity |
+| `fadeHorizontal` | `boolean` | `true` | Fade pattern at left and right edges |
+| `fadeVertical` | `boolean` | `true` | Fade pattern at top and bottom edges |
+| `fadeHorizontalLength` | `number` | `10` | Horizontal fade zone as % of plot width per edge (0–45) |
+| `fadeVerticalLength` | `number` | `10` | Vertical fade zone as % of plot height per edge (0–45) |
+
+Patterns use [@visx/pattern](https://visx.airbnb.tech/docs/pattern) under the hood (`PatternLines` and `PatternCircles`).
+
+## Studio
+
+<div className="not-prose mb-3 flex items-center justify-between gap-4">
+  <h3 className="m-0 font-semibold text-foreground text-base tracking-tight">
+    Edit in Studio
+  </h3>
+  <OpenInStudioButton
+    href={studioChartHref("line-chart")}
+    slug="line-chart"
+  />
+</div>
+
+Open [Studio with the line chart](/studio?chart=line-chart), hide **Grid** in the layers panel, then select **Background** to tune pattern, fade, and opacity. The same layer is available on area, bar, candlestick, composed, live line, line, and scatter charts.
+
+## Examples
+
+### Diagonal (default)
+
+<ComponentShowcase code={`<LineChart data={data}>
+  <Background />
+  <Line dataKey="value" />
+  <XAxis />
+  <ChartTooltip />
+</LineChart>`}>
+  <BackgroundDiagonalDemo />
+</ComponentShowcase>
+
+### Dot grid
+
+<ComponentShowcase code={`<LineChart data={data}>
+  <Background pattern="dots" opacity={0.85} />
+  <Line dataKey="value" />
+  <XAxis />
+  <ChartTooltip />
+</LineChart>`}>
+  <BackgroundDotsDemo />
+</ComponentShowcase>
+
+### Cross hatch
+
+<ComponentShowcase code={`<LineChart data={data}>
+  <Background pattern="cross" scale={1.25} />
+  <Line dataKey="value" />
+  <XAxis />
+  <ChartTooltip />
+</ComponentShowcase>`}>
+  <BackgroundCrossDemo />
+</ComponentShowcase>
+
+### No edge fade
+
+<ComponentShowcase code={`<LineChart data={data}>
+  <Background pattern="horizontal" fadeHorizontal={false} fadeVertical={false} />
+  <Line dataKey="value" />
+  <XAxis />
+  <ChartTooltip />
+</LineChart>`}>
+  <BackgroundNoFadeDemo />
+</ComponentShowcase>
+
+## Grid vs Background
+
+Use [`Grid`](/docs/utility/grid) for reference lines. Use `Background` when you want a subtle pattern fill without ticks. They are typically mutually exclusive — pick one visual treatment for the plot area.

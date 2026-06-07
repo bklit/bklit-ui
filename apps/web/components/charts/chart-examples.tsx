@@ -4,6 +4,7 @@ import {
   Area,
   AreaChart,
   AreaChartLoading,
+  Background,
   Bar,
   BarChart,
   BarXAxis,
@@ -791,6 +792,38 @@ interface ChartExample {
   render: () => ReactNode;
 }
 
+function makeCartesianBackgroundExamples(options: {
+  titlePrefix: string;
+  chartOpen: string;
+  chartClose: string;
+  seriesSnippet: string;
+  render: (background: ReactNode) => ReactNode;
+}): ChartExample[] {
+  const { titlePrefix, chartOpen, chartClose, seriesSnippet, render } = options;
+
+  return [
+    {
+      title: `${titlePrefix} - Pattern Background`,
+      description: "Diagonal pattern fill instead of grid lines",
+      code: `${chartOpen}
+  <Background />
+  ${seriesSnippet}
+${chartClose}`,
+      footer: "Use Background instead of Grid — see /docs/utility/background",
+      render: () => render(<Background />),
+    },
+    {
+      title: `${titlePrefix} - Dot Grid Background`,
+      description: "Dot grid texture with edge fade",
+      code: `${chartOpen}
+  <Background pattern="dots" opacity={0.85} />
+  ${seriesSnippet}
+${chartClose}`,
+      render: () => render(<Background opacity={0.85} pattern="dots" />),
+    },
+  ];
+}
+
 const AreaExampleChart = createChartExamplePreview(AreaChart);
 const AreaChartLoadingExample = createChartExamplePreview(AreaChartLoading);
 const BarExampleChart = createChartExamplePreview(BarChart);
@@ -1220,6 +1253,23 @@ function makeAreaExamples(): ChartExample[] {
         </AreaExampleChart>
       ),
     },
+    ...makeCartesianBackgroundExamples({
+      titlePrefix: "Area Chart",
+      chartOpen:
+        "<AreaChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={chartData}>",
+      chartClose: "</AreaChart>",
+      seriesSnippet: `<Area dataKey="desktop" fillOpacity={0.3} strokeWidth={2} />
+  <XAxis />
+  <ChartTooltip />`,
+      render: (background) => (
+        <AreaExampleChart data={areaData}>
+          {background}
+          <Area dataKey="desktop" fillOpacity={0.3} strokeWidth={2} />
+          <XAxis />
+          <ChartTooltip />
+        </AreaExampleChart>
+      ),
+    }),
   ];
 }
 
@@ -1567,6 +1617,23 @@ function makeBarExamples(): ChartExample[] {
         </BarExampleChart>
       ),
     },
+    ...makeCartesianBackgroundExamples({
+      titlePrefix: "Bar Chart",
+      chartOpen:
+        '<BarChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={chartData} xDataKey="month">',
+      chartClose: "</BarChart>",
+      seriesSnippet: `<Bar dataKey="desktop" lineCap="round" />
+  <BarXAxis />
+  <ChartTooltip showCrosshair={false} />`,
+      render: (background) => (
+        <BarExampleChart data={barStackedData} xDataKey="month">
+          {background}
+          <Bar dataKey="desktop" lineCap="round" />
+          <BarXAxis />
+          <ChartTooltip showCrosshair={false} />
+        </BarExampleChart>
+      ),
+    }),
   ];
 }
 
@@ -1902,6 +1969,25 @@ function makeComposedExamples(): ChartExample[] {
         </ComposedExampleChart>
       ),
     },
+    ...makeCartesianBackgroundExamples({
+      titlePrefix: "Composed Chart",
+      chartOpen:
+        '<ComposedChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={data} xDataKey="date">',
+      chartClose: "</ComposedChart>",
+      seriesSnippet: `<SeriesBar dataKey="units" fill="var(--chart-3)" radius={4} />
+  <Line dataKey="revenue" stroke="var(--chart-1)" />
+  <ChartTooltip showCrosshair={false} />
+  <XAxis numTicks={8} />`,
+      render: (background) => (
+        <ComposedExampleChart data={dataCast} xDataKey="date">
+          {background}
+          <SeriesBar dataKey="units" fill="var(--chart-3)" radius={4} />
+          <Line dataKey="revenue" stroke="var(--chart-1)" />
+          <ChartTooltip showCrosshair={false} />
+          <XAxis numTicks={8} />
+        </ComposedExampleChart>
+      ),
+    }),
   ];
 }
 
@@ -2206,6 +2292,23 @@ function makeLineExamples(): ChartExample[] {
       footer: "Legend below the chart, centered",
       render: () => <ProfitLossLineExampleWithState />,
     },
+    ...makeCartesianBackgroundExamples({
+      titlePrefix: "Line Chart",
+      chartOpen:
+        "<LineChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={chartData}>",
+      chartClose: "</LineChart>",
+      seriesSnippet: `<Line dataKey="desktop" strokeWidth={2} />
+  <XAxis />
+  <ChartTooltip />`,
+      render: (background) => (
+        <LineExampleChart data={lineData}>
+          {background}
+          <Line dataKey="desktop" strokeWidth={2} />
+          <XAxis />
+          <ChartTooltip />
+        </LineExampleChart>
+      ),
+    }),
   ];
 }
 
@@ -2391,7 +2494,75 @@ function makeLiveLineExamples(): ChartExample[] {
 </LiveLineChart>`,
       render: () => <LiveLineNoFillDemo />,
     },
+    {
+      title: "Live Line - Pattern Background",
+      description: "Diagonal pattern fill instead of grid lines",
+      code: `<LiveLineChart margin={{ top: 8, right: 8, bottom: 40, left: 28 }} data={data} value={value} window={30}>
+  <Background />
+  <LiveLine dataKey="value" stroke="var(--chart-1)" formatValue={formatUsd} />
+  <LiveXAxis />
+  <LiveYAxis position="left" formatValue={formatUsd} />
+</LiveLineChart>`,
+      render: () => <LiveLineBackgroundDiagonalDemo />,
+    },
+    {
+      title: "Live Line - Dot Grid Background",
+      description: "Dot grid texture with edge fade",
+      code: `<LiveLineChart margin={{ top: 8, right: 8, bottom: 40, left: 28 }} data={data} value={value} window={30}>
+  <Background pattern="dots" opacity={0.85} />
+  <LiveLine dataKey="value" stroke="var(--chart-1)" formatValue={formatUsd} />
+  <LiveXAxis />
+  <LiveYAxis position="left" formatValue={formatUsd} />
+</LiveLineChart>`,
+      render: () => <LiveLineBackgroundDotsDemo />,
+    },
   ];
+}
+
+function LiveLineBackgroundDiagonalDemo() {
+  const { data, value } = useLiveData(142.5, 600);
+  const formatUsd = useCallback((v: number) => `$${v.toFixed(2)}`, []);
+  return (
+    <LiveLineExampleChart
+      data={data}
+      margin={{ left: 28 }}
+      style={{ height: 240 }}
+      value={value}
+      window={30}
+    >
+      <Background />
+      <LiveLine
+        dataKey="value"
+        formatValue={formatUsd}
+        stroke="var(--chart-1)"
+      />
+      <LiveXAxis />
+      <LiveYAxis formatValue={formatUsd} position="left" />
+    </LiveLineExampleChart>
+  );
+}
+
+function LiveLineBackgroundDotsDemo() {
+  const { data, value } = useLiveData(142.5, 600);
+  const formatUsd = useCallback((v: number) => `$${v.toFixed(2)}`, []);
+  return (
+    <LiveLineExampleChart
+      data={data}
+      margin={{ left: 28 }}
+      style={{ height: 240 }}
+      value={value}
+      window={30}
+    >
+      <Background opacity={0.85} pattern="dots" />
+      <LiveLine
+        dataKey="value"
+        formatValue={formatUsd}
+        stroke="var(--chart-1)"
+      />
+      <LiveXAxis />
+      <LiveYAxis formatValue={formatUsd} position="left" />
+    </LiveLineExampleChart>
+  );
 }
 
 function makeLiveLineHero(): ChartExample {
@@ -4070,6 +4241,26 @@ function makeCandlestickExamples(): ChartExample[] {
         </CandlestickExampleChart>
       ),
     },
+    ...makeCartesianBackgroundExamples({
+      titlePrefix: "Candlestick",
+      chartOpen:
+        "<CandlestickChart data={ohlcData} margin={{ top: 8, right: 8, bottom: 40, left: 8 }} style={{ height: 320 }}>",
+      chartClose: "</CandlestickChart>",
+      seriesSnippet: `<Candlestick fadedOpacity={0.25} />
+  <ChartTooltip content={CandlestickTooltipContent} />
+  <XAxis />`,
+      render: (background) => (
+        <CandlestickExampleChart
+          data={candlestickOhlcData}
+          style={{ height: 320 }}
+        >
+          {background}
+          <Candlestick fadedOpacity={0.25} />
+          <ChartTooltip content={CandlestickTooltipContent} />
+          <XAxis />
+        </CandlestickExampleChart>
+      ),
+    }),
   ];
 }
 
@@ -4391,6 +4582,40 @@ function makeProfitLossLineExamples(): ChartExample[] {
         </LineExampleChart>
       ),
     },
+    ...makeCartesianBackgroundExamples({
+      titlePrefix: "Profit/Loss Line",
+      chartOpen: "<LineChart data={data}>",
+      chartClose: "</LineChart>",
+      seriesSnippet: `<Line dataKey="pnl" stroke="transparent" strokeWidth={0} showHighlight={false} />
+  <ProfitLossLine dataKey="pnl" />
+  <XAxis />
+  <ChartTooltip />`,
+      render: (background) => (
+        <LineExampleChart data={profitLossLineDocsData}>
+          {background}
+          <Line
+            dataKey="pnl"
+            showHighlight={false}
+            stroke="transparent"
+            strokeWidth={0}
+          />
+          <ProfitLossLine dataKey="pnl" />
+          <XAxis />
+          <ChartTooltip
+            indicatorColor={(point) =>
+              profitLossColor((point.pnl as number) ?? 0)
+            }
+            rows={(point) => [
+              {
+                label: resolveProfitLossTooltipLabel(""),
+                value: (point.pnl as number) ?? 0,
+                color: profitLossColor((point.pnl as number) ?? 0),
+              },
+            ]}
+          />
+        </LineExampleChart>
+      ),
+    }),
   ];
 }
 
@@ -4992,6 +5217,23 @@ function makeScatterExamples(): ChartExample[] {
         </ScatterExampleChart>
       ),
     },
+    ...makeCartesianBackgroundExamples({
+      titlePrefix: "Scatter Chart",
+      chartOpen:
+        "<ScatterChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={chartData}>",
+      chartClose: "</ScatterChart>",
+      seriesSnippet: `<Scatter dataKey="desktop" />
+  <XAxis />
+  <ChartTooltip />`,
+      render: (background) => (
+        <ScatterExampleChart data={scatterMultiSeriesData}>
+          {background}
+          <Scatter dataKey="desktop" />
+          <XAxis />
+          <ChartTooltip />
+        </ScatterExampleChart>
+      ),
+    }),
   ];
 }
 

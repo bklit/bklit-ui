@@ -3,75 +3,18 @@
 import { useEffect, useId, useState } from "react";
 import { createPortal } from "react-dom";
 import { useChartStable } from "./chart-context";
-import { PatternLines } from "./visx-pattern";
+import {
+  type PatternPresetId,
+  type PatternPresetOptions,
+  renderPatternPreset,
+} from "./pattern-preset";
 
-export type ChartBrushPatternPreset =
-  | "none"
-  | "diagonal"
-  | "horizontal"
-  | "vertical"
-  | "cross"
-  | "dots"
-  | "accent";
+export type ChartBrushPatternPreset = PatternPresetId;
 
-export interface ChartBrushSelectionPattern {
+export interface ChartBrushSelectionPattern extends PatternPresetOptions {
   preset: ChartBrushPatternPreset;
   color: string;
-}
-
-function brushPatternLines(
-  preset: ChartBrushPatternPreset,
-  id: string,
-  color: string
-) {
-  const common = {
-    id,
-    height: 6,
-    width: 6,
-    strokeWidth: 1,
-  };
-
-  switch (preset) {
-    case "diagonal":
-      return (
-        <PatternLines {...common} orientation={["diagonal"]} stroke={color} />
-      );
-    case "horizontal":
-      return (
-        <PatternLines {...common} orientation={["horizontal"]} stroke={color} />
-      );
-    case "vertical":
-      return (
-        <PatternLines {...common} orientation={["vertical"]} stroke={color} />
-      );
-    case "cross":
-      return (
-        <PatternLines
-          {...common}
-          height={8}
-          orientation={["diagonal", "diagonalRightToLeft"]}
-          stroke={color}
-          width={8}
-        />
-      );
-    case "dots":
-      return (
-        <PatternLines
-          {...common}
-          height={4}
-          orientation={["diagonal"]}
-          stroke={color}
-          strokeWidth={2}
-          width={4}
-        />
-      );
-    case "accent":
-      return (
-        <PatternLines {...common} orientation={["diagonal"]} stroke="#e879f9" />
-      );
-    default:
-      return null;
-  }
+  opacity?: number;
 }
 
 export interface ChartBrushSelectionOverlayProps {
@@ -115,11 +58,15 @@ export function ChartBrushSelectionOverlay({
 
   const plotLeft = margin.left;
   const plotTop = margin.top;
-  const patternNode = brushPatternLines(
-    pattern.preset,
-    patternId,
-    pattern.color
-  );
+  const patternNode = renderPatternPreset(pattern.preset, patternId, {
+    color: pattern.color,
+    scale: pattern.scale,
+    strokeWidth: pattern.strokeWidth,
+    radius: pattern.radius,
+    complement: pattern.complement,
+    fill: pattern.fill,
+    tileBackground: pattern.tileBackground,
+  });
   if (!patternNode) {
     return null;
   }
@@ -134,6 +81,7 @@ export function ChartBrushSelectionOverlay({
       <defs>{patternNode}</defs>
       <rect
         fill={`url(#${patternId})`}
+        fillOpacity={pattern.opacity ?? 1}
         height={innerHeight}
         width={selectionWidth}
         x={plotLeft + x0}

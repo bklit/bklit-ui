@@ -21,6 +21,8 @@ export {
   AreaChartLoading,
   type AreaChartLoadingProps,
 } from "./area-chart-loading";
+// Shared chart elements
+export { Background, type BackgroundProps } from "./background";
 // Bar chart components
 export {
   Bar,
@@ -159,7 +161,6 @@ export {
   type GenerateChartSkeletonDataOptions,
   generateChartSkeletonData,
 } from "./generate-chart-skeleton-data";
-// Shared chart elements
 export { Grid, type GridProps } from "./grid";
 // Composable legend components
 export {
@@ -222,6 +223,15 @@ export {
   useActiveMarkers,
 } from "./markers";
 export { PatternArea, type PatternAreaProps } from "./pattern-area";
+export {
+  isCirclePattern,
+  isCirclesPattern,
+  PATTERN_PRESET_IDS,
+  type PatternPresetId,
+  type PatternPresetOptions,
+  patternPresetTileSize,
+  renderPatternPreset,
+} from "./pattern-preset";
 // Pie chart components
 export { PieCenter, type PieCenterProps } from "./pie-center";
 export {

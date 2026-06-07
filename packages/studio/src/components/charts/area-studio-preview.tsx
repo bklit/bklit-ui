@@ -33,6 +33,7 @@ import type { StudioRenderContext } from "@/lib/render-context";
 import { seriesStrokePropsFromState } from "@/lib/series-stroke-props";
 import { studioChartBrushProps } from "@/lib/studio-brush-props";
 import {
+  studioCartesianBackgroundLayer,
   studioCartesianGridLayer,
   studioCartesianSeriesLoadingProp,
   studioLoadingLabel,
@@ -252,6 +253,11 @@ export function AreaStudioPreview({
               xDomainSlotCount={brushLayout.xDomainSlotCount}
               yDomainTween
             >
+              {studioCartesianBackgroundLayer(
+                state,
+                "area.background",
+                "area.grid"
+              )}
               {studioCartesianGridLayer(state, "area.grid")}
               {ctx.patternDefs}
               {renderMainAreas(state, ctx, {

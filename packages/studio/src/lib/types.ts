@@ -7,6 +7,19 @@ export type { ChartSlug } from "@/chart-slugs";
 
 export type NumberControlPreview = "ringWidth" | "ringGap" | "ringScale";
 
+export interface StudioControlVisibilityRule {
+  key: keyof StudioUrlState;
+  equals?: string | readonly string[];
+  not?: string | readonly string[];
+  /** When set, the state value must be truthy / falsy. */
+  truthy?: boolean;
+}
+
+export interface StudioControlVisibility {
+  /** Show this control only when all rules match. */
+  visibleWhen?: StudioControlVisibilityRule | StudioControlVisibilityRule[];
+}
+
 interface NumberControlBase {
   key: keyof StudioUrlState;
   label: string;
@@ -23,75 +36,77 @@ interface NumberControlBase {
   disabledWhen?: keyof StudioUrlState;
 }
 
-export type StudioControl =
-  | { type: "boolean"; key: keyof StudioUrlState; label: string }
-  | {
-      type: "color";
-      key: keyof StudioUrlState;
-      label: string;
-      /** Disable when the referenced URL state value is falsy. */
-      enabledWhen?: keyof StudioUrlState;
-    }
-  | ({ type: "number" } & NumberControlBase)
-  | { type: "text"; key: keyof StudioUrlState; label: string }
-  | {
-      type: "select";
-      key: keyof StudioUrlState;
-      label: string;
-      options: { value: string; label: string }[];
-    }
-  | { type: "curve"; key: keyof StudioUrlState; label: string }
-  | {
-      type: "pattern";
-      key: keyof StudioUrlState;
-      label: string;
-      /** Disable when the referenced URL state value is falsy. */
-      enabledWhen?: keyof StudioUrlState;
-    }
-  | { type: "pieFill"; key: keyof StudioUrlState; label: string }
-  | { type: "orientation"; key: keyof StudioUrlState; label: string }
-  | { type: "lineCap"; key: "barLineCap"; label: string }
-  | { type: "pieHoverEffect"; key: "pieHoverEffect"; label: string }
-  | { type: "funnelEdges"; key: "funnelEdges"; label: string }
-  | { type: "fadeEdges"; key: "fadeEdges"; label: string }
-  | { type: "graticuleToggle"; key: "showGraticule"; label: string }
-  | { type: "legendPosition"; key: "legendPlacement"; label: string }
-  | ({
-      type: "innerRadius";
-      key: keyof StudioUrlState;
-      label: string;
-    } & Pick<NumberControlBase, "min" | "max" | "step">)
-  | ({
-      type: "angle";
-      key: keyof StudioUrlState;
-      label: string;
-      variant?: "gauge" | "pieStart" | "pieEnd";
-    } & Pick<NumberControlBase, "min" | "max">)
-  | ({
-      type: "opacity";
-      key: keyof StudioUrlState;
-      label: string;
-      color: string;
-      secondaryColor?: string;
-    } & Pick<NumberControlBase, "min" | "max" | "step">)
-  | {
-      type: "lineSeriesYAxis";
-      key: "lineSeriesYAxes";
-      label: string;
-      seriesIndex: number;
-    }
-  | {
-      type: "lineYAxisNumTicks";
-      key: "lineYAxisNumTicks";
-      label: string;
-      axis: "left" | "right";
-    }
-  | {
-      type: "lineYAxisFormatLarge";
-      key: "lineYAxisFormatLarge";
-      label: string;
-      axis: "left" | "right";
-    };
+export type StudioControl = StudioControlVisibility &
+  (
+    | { type: "boolean"; key: keyof StudioUrlState; label: string }
+    | {
+        type: "color";
+        key: keyof StudioUrlState;
+        label: string;
+        /** Disable when the referenced URL state value is falsy. */
+        enabledWhen?: keyof StudioUrlState;
+      }
+    | ({ type: "number" } & NumberControlBase)
+    | { type: "text"; key: keyof StudioUrlState; label: string }
+    | {
+        type: "select";
+        key: keyof StudioUrlState;
+        label: string;
+        options: { value: string; label: string }[];
+      }
+    | { type: "curve"; key: keyof StudioUrlState; label: string }
+    | {
+        type: "pattern";
+        key: keyof StudioUrlState;
+        label: string;
+        /** Disable when the referenced URL state value is falsy. */
+        enabledWhen?: keyof StudioUrlState;
+      }
+    | { type: "pieFill"; key: keyof StudioUrlState; label: string }
+    | { type: "orientation"; key: keyof StudioUrlState; label: string }
+    | { type: "lineCap"; key: "barLineCap"; label: string }
+    | { type: "pieHoverEffect"; key: "pieHoverEffect"; label: string }
+    | { type: "funnelEdges"; key: "funnelEdges"; label: string }
+    | { type: "fadeEdges"; key: "fadeEdges"; label: string }
+    | { type: "graticuleToggle"; key: "showGraticule"; label: string }
+    | { type: "legendPosition"; key: "legendPlacement"; label: string }
+    | ({
+        type: "innerRadius";
+        key: keyof StudioUrlState;
+        label: string;
+      } & Pick<NumberControlBase, "min" | "max" | "step">)
+    | ({
+        type: "angle";
+        key: keyof StudioUrlState;
+        label: string;
+        variant?: "gauge" | "pieStart" | "pieEnd";
+      } & Pick<NumberControlBase, "min" | "max">)
+    | ({
+        type: "opacity";
+        key: keyof StudioUrlState;
+        label: string;
+        color: string;
+        secondaryColor?: string;
+      } & Pick<NumberControlBase, "min" | "max" | "step">)
+    | {
+        type: "lineSeriesYAxis";
+        key: "lineSeriesYAxes";
+        label: string;
+        seriesIndex: number;
+      }
+    | {
+        type: "lineYAxisNumTicks";
+        key: "lineYAxisNumTicks";
+        label: string;
+        axis: "left" | "right";
+      }
+    | {
+        type: "lineYAxisFormatLarge";
+        key: "lineYAxisFormatLarge";
+        label: string;
+        axis: "left" | "right";
+      }
+  );
 
 export interface StudioControlGroup {
   title: string;
