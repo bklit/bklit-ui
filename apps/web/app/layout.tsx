@@ -1,6 +1,5 @@
 import { GithubStatsProvider } from "@/components/providers/github-stats-provider";
 import "./globals.css";
-import { BklitComponent } from "@bklit/sdk/nextjs";
 import { OpenPanelComponent } from "@openpanel/nextjs";
 import { RootProvider } from "fumadocs-ui/provider";
 import { GeistMono } from "geist/font/mono";
@@ -57,10 +56,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       suppressHydrationWarning
     >
       <body className="flex min-h-screen flex-col">
-        <BklitComponent
-          apiKey={process.env.BKLIT_API_KEY ?? ""}
-          projectId={process.env.BKLIT_PROJECT_ID ?? ""}
-        />
         {openPanelClientId ? (
           <OpenPanelComponent
             apiUrl="/api/op"
