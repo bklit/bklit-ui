@@ -2,8 +2,6 @@
   "$schema": "https://turborepo.dev/schema.json",
   "ui": "tui",
   "globalEnv": [
-    "BKLIT_API_KEY",
-    "BKLIT_PROJECT_ID",
     "OPENPANEL_CLIENT_ID",
     "OPENPANEL_CLIENT_SECRET",
     "CLIENT_ID",
