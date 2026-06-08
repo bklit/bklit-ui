@@ -28,7 +28,7 @@ function SidebarCTA() {
       </Button>
       <a
         className="absolute inset-0"
-        href="https://discord.com/invite/9yyK8FwPcU"
+        href="https://discord.gg/75s4frfE8X"
         onClick={() => {
           trackEvent("discord_click", {
             location: "docs_toc",

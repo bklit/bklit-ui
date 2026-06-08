@@ -7,7 +7,7 @@ export default function Layout({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-screen flex-col">
       <SiteHeader
-        discordUrl="https://discord.com/invite/9yyK8FwPcU"
+        discordUrl="https://discord.gg/75s4frfE8X"
         githubUrl="https://github.com/bklit/bklit-ui"
         links={[...siteNavLinks]}
       />

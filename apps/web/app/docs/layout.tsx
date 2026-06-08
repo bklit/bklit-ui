@@ -11,7 +11,7 @@ export default function Layout({ children }: { children: ReactNode }) {
         nav={{
           links: [...siteNavLinks],
           githubUrl: "https://github.com/bklit/bklit-ui",
-          discordUrl: "https://discord.com/invite/9yyK8FwPcU",
+          discordUrl: "https://discord.gg/75s4frfE8X",
         }}
         tree={source.pageTree}
       >

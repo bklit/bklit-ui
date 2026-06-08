@@ -16,7 +16,7 @@ export function SocialLinks() {
       </Link>
       <Link
         className="flex w-full flex-col items-center rounded-xl bg-accent/60 p-6 transition-colors hover:bg-accent sm:p-10"
-        href="https://discord.com/invite/9yyK8FwPcU"
+        href="https://discord.gg/75s4frfE8X"
         rel="noreferrer"
         target="_blank"
       >
