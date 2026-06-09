@@ -34,6 +34,8 @@ export interface TooltipBoxProps {
   flipped?: boolean;
   /** Per-chart override; falls back to `ChartConfigProvider.tooltipBoxSpring`. */
   springConfig?: SpringConfig;
+  /** Animate panel position with a spring. Default: true */
+  animate?: boolean;
   /** Inline styles for the inner tooltip panel. */
   panelStyle?: React.CSSProperties;
 }
@@ -69,6 +71,7 @@ function TooltipBoxInner({
   top: topOverride,
   flipped: flippedOverride,
   springConfig,
+  animate = true,
   panelStyle,
   container,
 }: Omit<TooltipBoxProps, "visible" | "containerRef"> & {
@@ -80,6 +83,7 @@ function TooltipBoxInner({
   const tooltipRef = useRef<HTMLDivElement>(null);
   const tooltipWidthRef = useRef(180);
   const tooltipHeightRef = useRef(80);
+  const [staticPosition, setStaticPosition] = useState({ left: x, top: y });
 
   const tw = tooltipWidthRef.current;
   const th = tooltipHeightRef.current;
@@ -93,10 +97,10 @@ function TooltipBoxInner({
   const animatedLeft = useSpring(targetX, effectiveSpring);
   const animatedTop = useSpring(targetY, effectiveSpring);
 
-  if (leftOverride === undefined) {
+  if (animate && leftOverride === undefined) {
     animatedLeft.set(targetX);
   }
-  if (topOverride === undefined) {
+  if (animate && topOverride === undefined) {
     animatedTop.set(targetY);
   }
 
@@ -121,6 +125,10 @@ function TooltipBoxInner({
       offset,
       Math.min(y - h2 / 2, containerHeight - h2 - offset)
     );
+    if (!animate) {
+      setStaticPosition({ left: tx, top: ty });
+      return;
+    }
     if (leftOverride === undefined) {
       animatedLeft.set(tx);
     }
@@ -135,6 +143,7 @@ function TooltipBoxInner({
     offset,
     leftOverride,
     topOverride,
+    animate,
     animatedLeft,
     animatedTop,
   ]);
@@ -149,8 +158,10 @@ function TooltipBoxInner({
     }
   }, [shouldFlipX]);
 
-  const finalLeft = leftOverride ?? animatedLeft;
-  const finalTop = topOverride ?? animatedTop;
+  const finalLeft = animate
+    ? (leftOverride ?? animatedLeft)
+    : staticPosition.left;
+  const finalTop = animate ? (topOverride ?? animatedTop) : staticPosition.top;
   const isFlipped = flippedOverride ?? shouldFlipX;
   const transformOrigin = isFlipped ? "right top" : "left top";
 

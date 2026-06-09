@@ -243,7 +243,7 @@ export const studioSearchParams = {
     "solid"
   ),
   crosshairDashArray: parseAsString.withDefault("4,4"),
-  tooltipDamping: parseAsInteger.withDefault(30),
+  tooltipDamping: parseAsInteger.withDefault(20),
   showBrush: parseAsBoolean.withDefault(false),
   brushHeight: parseAsInteger.withDefault(76),
   brushFadeEdges: parseAsBoolean.withDefault(true),
@@ -685,7 +685,7 @@ export function defaultStudioState(
     crosshairColor: "var(--chart-crosshair)",
     crosshairStyle: "solid",
     crosshairDashArray: "4,4",
-    tooltipDamping: 30,
+    tooltipDamping: 20,
     showBrush: false,
     brushHeight: 76,
     brushFadeEdges: true,

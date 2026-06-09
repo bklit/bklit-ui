@@ -26,7 +26,7 @@ export function chartTooltipPropsFromState(
   const indicatorDasharray =
     state.crosshairStyle === "dashed" ? state.crosshairDashArray : undefined;
   const damping =
-    state.tooltipDamping === 30 ? undefined : state.tooltipDamping;
+    state.tooltipDamping === 20 ? undefined : state.tooltipDamping;
 
   return {
     showCrosshair: state.showCrosshair,

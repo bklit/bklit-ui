@@ -338,7 +338,7 @@ export const standardChartTooltipControlGroups: StudioControlGroup[] = [
     {
       type: "number",
       key: "tooltipDamping",
-      label: "Damping",
+      label: "Panel damping",
       min: 0,
       max: 100,
       step: 1,

@@ -37,9 +37,9 @@ import { LineChart, Line, Grid, ChartTooltip } from "@bklitui/ui/charts";
 | `showDots` | `boolean` | `true` | Show dots on data points |
 | `indicatorColor` | `string \| (point) => string` | — | Crosshair and dot color; pass a function for dynamic colors |
 | `indicatorDasharray` | `string` | — | SVG dash pattern for the crosshair (e.g. `"4,4"`). Omit for solid |
-| `damping` | `number` | `30` | Spring damping for crosshair, dots, and date pill follow. `0` = instant (no spring) |
+| `damping` | `number` | `20` | Spring damping for the floating tooltip panel follow. `0` = instant (no spring) |
 | `springConfig` | `{ stiffness: number; damping: number }` | chart config | Full spring override for crosshair, dots, and date pill |
-| `boxSpringConfig` | `{ stiffness: number; damping: number }` | chart config | Spring override for the floating tooltip panel |
+| `boxSpringConfig` | `{ stiffness: number; damping: number }` | chart config | Full spring override for the floating tooltip panel |
 | `panelStyle` | `CSSProperties` | — | Inline styles for tooltip background and blur |
 | `content` | `(props) => ReactNode` | - | Custom content renderer |
 | `rows` | `(point) => TooltipRow[]` | - | Custom row generator |
@@ -201,7 +201,8 @@ Use the `content` prop for complete control over the tooltip layout.
 
 The tooltip features smooth animations:
 
-- **Crosshair** - Spring physics for snappy following; use `damping` (`0`–`100`, default `30`) or `springConfig` to tune lag. Set `damping={0}` for instant follow with no easing delay.
+- **Tooltip panel** - The floating content box eases behind the crosshair; use `damping` (`0`–`100`, default `20`) or `boxSpringConfig` to tune lag. Set `damping={0}` for instant panel follow with no easing delay.
+- **Crosshair** - Spring physics for snappy following (`springConfig`)
 - **Crosshair style** - Solid by default; pass `indicatorDasharray="4,4"` (or any SVG dash pattern) for a dashed line.
 - **Tooltip Box** - Scale/fade animation with flip detection (`boxSpringConfig`)
 - **Date Pill** - Slot machine-style number animation

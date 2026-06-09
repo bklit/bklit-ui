@@ -52,38 +52,40 @@ export function useChartConfig(): ChartConfigValue {
   return useContext(ChartConfigContext) ?? DEFAULT_CHART_CONFIG;
 }
 
-const DEFAULT_TOOLTIP_DAMPING = DEFAULT_CHART_CONFIG.tooltipSpring.damping;
+const DEFAULT_TOOLTIP_BOX_DAMPING =
+  DEFAULT_CHART_CONFIG.tooltipBoxSpring.damping;
 
-/** Maps a damping slider to crosshair/dot/date-pill spring motion. `0` = instant. */
-export function resolveTooltipMotion(damping?: number): {
+/** Maps a damping slider to the floating tooltip panel follow spring. `0` = instant. */
+export function resolveTooltipBoxMotion(damping?: number): {
   animate: boolean;
   springConfig: SpringConfig;
 } {
   if (damping === 0) {
     return {
       animate: false,
-      springConfig: DEFAULT_CHART_CONFIG.tooltipSpring,
+      springConfig: DEFAULT_CHART_CONFIG.tooltipBoxSpring,
     };
   }
 
-  const effectiveDamping = damping ?? DEFAULT_TOOLTIP_DAMPING;
-  let stiffness = DEFAULT_CHART_CONFIG.tooltipSpring.stiffness;
+  const effectiveDamping = damping ?? DEFAULT_TOOLTIP_BOX_DAMPING;
+  let stiffness = DEFAULT_CHART_CONFIG.tooltipBoxSpring.stiffness;
 
-  if (effectiveDamping < DEFAULT_TOOLTIP_DAMPING) {
+  if (effectiveDamping < DEFAULT_TOOLTIP_BOX_DAMPING) {
     const t =
-      (DEFAULT_TOOLTIP_DAMPING - effectiveDamping) / DEFAULT_TOOLTIP_DAMPING;
-    stiffness += t * 500;
-  } else if (effectiveDamping > DEFAULT_TOOLTIP_DAMPING) {
+      (DEFAULT_TOOLTIP_BOX_DAMPING - effectiveDamping) /
+      DEFAULT_TOOLTIP_BOX_DAMPING;
+    stiffness += t * 400;
+  } else if (effectiveDamping > DEFAULT_TOOLTIP_BOX_DAMPING) {
     const t =
-      (effectiveDamping - DEFAULT_TOOLTIP_DAMPING) /
-      (100 - DEFAULT_TOOLTIP_DAMPING);
-    stiffness -= t * 240;
+      (effectiveDamping - DEFAULT_TOOLTIP_BOX_DAMPING) /
+      (100 - DEFAULT_TOOLTIP_BOX_DAMPING);
+    stiffness -= t * 85;
   }
 
   return {
     animate: true,
     springConfig: {
-      stiffness: Math.max(40, Math.round(stiffness)),
+      stiffness: Math.max(12, Math.round(stiffness)),
       damping: effectiveDamping,
     },
   };

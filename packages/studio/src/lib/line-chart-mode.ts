@@ -39,7 +39,7 @@ export const lineChartProfitLossDefaults: Partial<StudioUrlState> = {
   crosshairColor: "var(--chart-crosshair)",
   crosshairStyle: "solid",
   crosshairDashArray: "4,4",
-  tooltipDamping: 30,
+  tooltipDamping: 20,
   showLegend: true,
   legendPlacement: "bottom",
   legendAlign: "center",

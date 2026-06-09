@@ -85,7 +85,7 @@ export {
   type ChartConfigProviderProps,
   type ChartConfigValue,
   DEFAULT_CHART_CONFIG,
-  resolveTooltipMotion,
+  resolveTooltipBoxMotion,
   type SpringConfig,
   useChartConfig,
 } from "./chart-config-context";

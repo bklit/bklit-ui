@@ -94,7 +94,7 @@ export function ProfitLossChart({ data }: { data: Record<string, unknown>[] }) {
           }}
           showCrosshair={${state.showCrosshair}}
           showDatePill={${state.showTooltipDatePill}}
-          showDots={${state.showTooltipDots}}${state.crosshairStyle === "dashed" ? `\n          indicatorDasharray="${state.crosshairDashArray}"` : ""}${state.tooltipDamping === 30 ? "" : `\n          damping={${state.tooltipDamping}}`}
+          showDots={${state.showTooltipDots}}${state.crosshairStyle === "dashed" ? `\n          indicatorDasharray="${state.crosshairDashArray}"` : ""}${state.tooltipDamping === 20 ? "" : `\n          damping={${state.tooltipDamping}}`}
         />
       </LineChart>
       {${state.showLegend} ? (
