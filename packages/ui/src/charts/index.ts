@@ -177,6 +177,11 @@ export {
   generateChartSkeletonData,
 } from "./generate-chart-skeleton-data";
 export { Grid, type GridProps } from "./grid";
+export {
+  type IndicatorFadeEdges,
+  indicatorFadeGradientStops,
+  resolveVerticalFadeSides,
+} from "./indicator-fade";
 // Composable legend components
 export {
   Legend,

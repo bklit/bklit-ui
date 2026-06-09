@@ -54,12 +54,21 @@ export interface ChartTooltipProps {
   /** Per-chart override for the crosshair / dot / date-pill spring. */
   springConfig?: SpringConfig;
   /**
-   * Spring damping for the floating tooltip panel follow.
+   * When `true` (default), the floating panel uses the crosshair spring and stays
+   * in sync. Set `false` to decouple panel follow and tune with `damping`.
+   */
+  matchCrosshair?: boolean;
+  /**
+   * Spring damping for the floating tooltip panel when `matchCrosshair` is `false`.
    * `0` disables spring motion (instant). Default: chart config (`20`).
    */
   damping?: number;
   /** SVG stroke dash pattern for the crosshair. Omit for solid. */
   indicatorDasharray?: string;
+  /** Vertical crosshair fade: `both`, `top`, `bottom`, or `none` (solid). Default: `both`. */
+  indicatorFadeEdges?: IndicatorFadeEdges;
+  /** Crosshair fade zone size (% of height). Default: `10`. */
+  indicatorFadeLength?: number;
   /** Per-chart override for the floating-panel spring. */
   boxSpringConfig?: SpringConfig;
   /** Inline styles for the tooltip panel (background, blur, etc.). */
@@ -82,8 +91,11 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
   className = "",
   container,
   springConfig,
+  matchCrosshair = true,
   damping,
   indicatorDasharray,
+  indicatorFadeEdges,
+  indicatorFadeLength,
   boxSpringConfig,
   panelStyle,
 }: ChartTooltipInnerProps) {
@@ -101,15 +113,32 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
     orientation,
     barXAccessor,
   } = useChart();
+  const { tooltipSpring } = useChartConfig();
 
   const isHorizontal = orientation === "horizontal";
   const discreteInteraction = dateLabels.length > 60;
   const boxMotion = useMemo(() => {
     if (boxSpringConfig) {
-      return { animate: true, springConfig: boxSpringConfig };
+      return {
+        animate: !discreteInteraction,
+        springConfig: boxSpringConfig,
+      };
+    }
+    if (matchCrosshair) {
+      return {
+        animate: !discreteInteraction,
+        springConfig: springConfig ?? tooltipSpring,
+      };
     }
     return resolveTooltipBoxMotion(damping);
-  }, [boxSpringConfig, damping]);
+  }, [
+    boxSpringConfig,
+    damping,
+    discreteInteraction,
+    matchCrosshair,
+    springConfig,
+    tooltipSpring,
+  ]);
 
   const visible = tooltipData !== null;
   const x = tooltipData?.x ?? 0;
@@ -198,7 +227,10 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
               colorEdge={indicatorColor}
               colorMid={indicatorColor}
               columnWidth={columnWidth}
-              fadeEdges={!indicatorDasharray}
+              fadeEdges={
+                indicatorDasharray ? "none" : (indicatorFadeEdges ?? "both")
+              }
+              fadeLength={indicatorFadeLength}
               height={innerHeight}
               springConfig={springConfig}
               strokeDasharray={indicatorDasharray}

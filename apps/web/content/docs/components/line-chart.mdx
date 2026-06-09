@@ -149,7 +149,10 @@ Renders the tooltip with crosshair, dots, and content box.
 | `showDots` | `boolean` | `true` | Show dots on lines |
 | `indicatorColor` | `string \| (point) => string` | — | Crosshair and dot color; use a function for value-based colors |
 | `indicatorDasharray` | `string` | — | Dash pattern for the crosshair (e.g. `"4,4"`) |
-| `damping` | `number` | `20` | Spring damping for tooltip panel follow; `0` = instant |
+| `indicatorFadeEdges` | `"both" \| "top" \| "bottom" \| "none"` | `"both"` | Vertical crosshair fade |
+| `indicatorFadeLength` | `number` | `10` | Fade size (% of height) |
+| `matchCrosshair` | `boolean` | `true` | Panel uses crosshair spring when `true` |
+| `damping` | `number` | `20` | Panel follow when `matchCrosshair={false}`; `0` = instant |
 | `content` | `(props) => ReactNode` | - | Custom content renderer |
 | `rows` | `(point) => TooltipRow[]` | - | Custom row generator |
 

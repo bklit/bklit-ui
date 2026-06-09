@@ -330,11 +330,35 @@ export const standardCrosshairControlGroup = controlGroup("Crosshair", [
     label: "Dash array",
     visibleWhen: { key: "crosshairStyle", equals: "dashed" },
   },
+  {
+    type: "crosshairFade",
+    key: "crosshairFadeEdges",
+    label: "Fade",
+    visibleWhen: { key: "crosshairStyle", not: "dashed" },
+  },
+  {
+    type: "number",
+    key: "crosshairFadeLength",
+    label: "Fade size",
+    min: 2,
+    max: 40,
+    step: 1,
+    unit: "%",
+    visibleWhen: [
+      { key: "crosshairFadeEdges", not: "none" },
+      { key: "crosshairStyle", not: "dashed" },
+    ],
+  },
 ]);
 
 export const standardChartTooltipControlGroups: StudioControlGroup[] = [
   controlGroup("Tooltip", [
     { type: "boolean", key: "showTooltipDatePill", label: "Date pill" },
+    {
+      type: "boolean",
+      key: "tooltipMatchCrosshair",
+      label: "Match crosshair",
+    },
     {
       type: "number",
       key: "tooltipDamping",
@@ -342,6 +366,7 @@ export const standardChartTooltipControlGroups: StudioControlGroup[] = [
       min: 0,
       max: 100,
       step: 1,
+      visibleWhen: { key: "tooltipMatchCrosshair", truthy: false },
     },
   ]),
   tooltipAppearanceControlGroup,
@@ -547,6 +572,25 @@ const profitLossLineSettingsGroups: StudioControlGroup[] = [
       key: "crosshairDashArray",
       label: "Dash array",
       visibleWhen: { key: "crosshairStyle", equals: "dashed" },
+    },
+    {
+      type: "crosshairFade",
+      key: "crosshairFadeEdges",
+      label: "Fade",
+      visibleWhen: { key: "crosshairStyle", not: "dashed" },
+    },
+    {
+      type: "number",
+      key: "crosshairFadeLength",
+      label: "Fade size",
+      min: 2,
+      max: 40,
+      step: 1,
+      unit: "%",
+      visibleWhen: [
+        { key: "crosshairFadeEdges", not: "none" },
+        { key: "crosshairStyle", not: "dashed" },
+      ],
     },
   ]),
   ...standardLegendControlGroups,

@@ -159,6 +159,80 @@ export function TooltipBarChartDemo() {
   );
 }
 
+const crosshairLineProps = {
+  showDatePill: false,
+  showDots: false,
+} as const;
+
+export function TooltipSolidCrosshairDemo() {
+  return (
+    <div className="w-full">
+      <LineChart data={chartData}>
+        <Grid horizontal />
+        <Line dataKey="users" stroke="var(--chart-line-primary)" />
+        <XAxis />
+        <ChartTooltip
+          {...crosshairLineProps}
+          indicatorColor="var(--chart-2)"
+          indicatorFadeEdges="none"
+        />
+      </LineChart>
+    </div>
+  );
+}
+
+export function TooltipCrosshairFadeTopDemo() {
+  return (
+    <div className="w-full">
+      <LineChart data={chartData}>
+        <Grid horizontal />
+        <Line dataKey="users" stroke="var(--chart-line-primary)" />
+        <XAxis />
+        <ChartTooltip
+          {...crosshairLineProps}
+          indicatorColor="var(--chart-2)"
+          indicatorFadeEdges="top"
+          indicatorFadeLength={22}
+        />
+      </LineChart>
+    </div>
+  );
+}
+
+export function TooltipDashedCrosshairDemo() {
+  return (
+    <div className="w-full">
+      <LineChart data={chartData}>
+        <Grid horizontal />
+        <Line dataKey="users" stroke="var(--chart-line-primary)" />
+        <XAxis />
+        <ChartTooltip
+          {...crosshairLineProps}
+          indicatorColor="var(--chart-2)"
+          indicatorDasharray="6,4"
+        />
+      </LineChart>
+    </div>
+  );
+}
+
+export function TooltipPanelDampingDemo() {
+  return (
+    <div className="w-full">
+      <LineChart data={chartData}>
+        <Grid horizontal />
+        <Line dataKey="users" stroke="var(--chart-line-primary)" />
+        <XAxis />
+        <ChartTooltip
+          damping={55}
+          indicatorColor="var(--chart-2)"
+          matchCrosshair={false}
+        />
+      </LineChart>
+    </div>
+  );
+}
+
 export function TooltipCustomContentDemo() {
   return (
     <div className="w-full">

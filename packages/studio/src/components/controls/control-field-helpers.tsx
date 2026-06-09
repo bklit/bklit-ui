@@ -37,6 +37,7 @@ const GROUP_LABELED_TYPES = new Set<StudioControl["type"]>([
   "funnelEdges",
   "graticuleToggle",
   "strokeStyle",
+  "crosshairFade",
   "legendPosition",
 ]);
 

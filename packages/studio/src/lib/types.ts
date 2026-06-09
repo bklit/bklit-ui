@@ -95,6 +95,11 @@ export type StudioControl = StudioControlVisibility &
         key: keyof StudioUrlState;
         label: string;
       }
+    | {
+        type: "crosshairFade";
+        key: keyof StudioUrlState;
+        label: string;
+      }
     | { type: "legendPosition"; key: "legendPlacement"; label: string }
     | ({
         type: "innerRadius";
