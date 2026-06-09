@@ -239,6 +239,11 @@ export const studioSearchParams = {
   showCrosshair: parseAsBoolean.withDefault(true),
   crosshairFollowsValue: parseAsBoolean.withDefault(true),
   crosshairColor: parseAsString.withDefault("var(--chart-crosshair)"),
+  crosshairStyle: parseAsStringLiteral(["solid", "dashed"]).withDefault(
+    "solid"
+  ),
+  crosshairDashArray: parseAsString.withDefault("4,4"),
+  tooltipDamping: parseAsInteger.withDefault(30),
   showBrush: parseAsBoolean.withDefault(false),
   brushHeight: parseAsInteger.withDefault(76),
   brushFadeEdges: parseAsBoolean.withDefault(true),
@@ -455,6 +460,9 @@ export interface StudioUrlState {
   showCrosshair: boolean;
   crosshairFollowsValue: boolean;
   crosshairColor: string;
+  crosshairStyle: "solid" | "dashed";
+  crosshairDashArray: string;
+  tooltipDamping: number;
   showBrush: boolean;
   brushHeight: number;
   brushFadeEdges: boolean;
@@ -675,6 +683,9 @@ export function defaultStudioState(
     showCrosshair: true,
     crosshairFollowsValue: true,
     crosshairColor: "var(--chart-crosshair)",
+    crosshairStyle: "solid",
+    crosshairDashArray: "4,4",
+    tooltipDamping: 30,
     showBrush: false,
     brushHeight: 76,
     brushFadeEdges: true,

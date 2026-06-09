@@ -322,17 +322,27 @@ export const tooltipAppearanceControlGroup = controlGroup("Appearance", [
 export const standardCrosshairControlGroup = controlGroup("Crosshair", [
   { type: "boolean", key: "showCrosshair", label: "Show" },
   { type: "boolean", key: "showTooltipDots", label: "Dots" },
+  { type: "color", key: "crosshairColor", label: "Color" },
+  { type: "strokeStyle", key: "crosshairStyle", label: "Style" },
   {
-    type: "select",
-    key: "crosshairColor",
-    label: "Color",
-    options: [...chartAccentColorOptions],
+    type: "text",
+    key: "crosshairDashArray",
+    label: "Dash array",
+    visibleWhen: { key: "crosshairStyle", equals: "dashed" },
   },
 ]);
 
 export const standardChartTooltipControlGroups: StudioControlGroup[] = [
   controlGroup("Tooltip", [
     { type: "boolean", key: "showTooltipDatePill", label: "Date pill" },
+    {
+      type: "number",
+      key: "tooltipDamping",
+      label: "Damping",
+      min: 0,
+      max: 100,
+      step: 1,
+    },
   ]),
   tooltipAppearanceControlGroup,
   standardCrosshairControlGroup,
@@ -526,10 +536,17 @@ const profitLossLineSettingsGroups: StudioControlGroup[] = [
       label: "Color follows value",
     },
     {
-      type: "select",
+      type: "color",
       key: "crosshairColor",
       label: "Fixed color",
-      options: [...chartAccentColorOptions],
+      visibleWhen: { key: "crosshairFollowsValue", truthy: false },
+    },
+    { type: "strokeStyle", key: "crosshairStyle", label: "Style" },
+    {
+      type: "text",
+      key: "crosshairDashArray",
+      label: "Dash array",
+      visibleWhen: { key: "crosshairStyle", equals: "dashed" },
     },
   ]),
   ...standardLegendControlGroups,

@@ -24,6 +24,7 @@ import { OrientationPicker } from "./orientation-picker";
 import { PatternPicker } from "./pattern-picker";
 import { PieFillPicker } from "./pie-fill-picker";
 import { PieHoverEffectPicker } from "./pie-hover-effect-picker";
+import { StrokeStylePicker } from "./stroke-style-picker";
 
 export function ControlFieldInputs({
   control,
@@ -152,6 +153,15 @@ export function ControlFieldInputs({
         <GraticuleToggle
           onChange={(v) => onChange("showGraticule", v)}
           value={Boolean(value)}
+        />
+      );
+    case "strokeStyle":
+      return (
+        <StrokeStylePicker
+          onChange={(v) =>
+            onChange(control.key, v as StudioUrlState[typeof control.key])
+          }
+          value={value as "solid" | "dashed"}
         />
       );
     default:

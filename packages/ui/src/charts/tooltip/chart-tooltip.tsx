@@ -3,7 +3,11 @@
 import { motion, useSpring } from "motion/react";
 import { memo, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
-import { type SpringConfig, useChartConfig } from "../chart-config-context";
+import {
+  resolveTooltipMotion,
+  type SpringConfig,
+  useChartConfig,
+} from "../chart-config-context";
 import {
   chartCssVars,
   type LineConfig,
@@ -49,6 +53,13 @@ export interface ChartTooltipProps {
   className?: string;
   /** Per-chart override for the crosshair / dot / date-pill spring. */
   springConfig?: SpringConfig;
+  /**
+   * Spring damping for crosshair, dots, and date pill follow.
+   * `0` disables spring motion (instant). Default: chart config (`30`).
+   */
+  damping?: number;
+  /** SVG stroke dash pattern for the crosshair. Omit for solid. */
+  indicatorDasharray?: string;
   /** Per-chart override for the floating-panel spring. */
   boxSpringConfig?: SpringConfig;
   /** Inline styles for the tooltip panel (background, blur, etc.). */
@@ -71,6 +82,8 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
   className = "",
   container,
   springConfig,
+  damping,
+  indicatorDasharray,
   boxSpringConfig,
   panelStyle,
 }: ChartTooltipInnerProps) {
@@ -91,6 +104,12 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
 
   const isHorizontal = orientation === "horizontal";
   const discreteInteraction = dateLabels.length > 60;
+  const tooltipMotion = useMemo(() => {
+    if (springConfig) {
+      return { animate: true, springConfig };
+    }
+    return resolveTooltipMotion(damping);
+  }, [damping, springConfig]);
 
   const visible = tooltipData !== null;
   const x = tooltipData?.x ?? 0;
@@ -175,13 +194,14 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
         >
           <g transform={`translate(${margin.left},${margin.top})`}>
             <TooltipIndicator
-              animate={!discreteInteraction}
+              animate={tooltipMotion.animate && !discreteInteraction}
               colorEdge={indicatorColor}
               colorMid={indicatorColor}
               columnWidth={columnWidth}
-              fadeEdges
+              fadeEdges={!indicatorDasharray}
               height={innerHeight}
-              springConfig={springConfig}
+              springConfig={tooltipMotion.springConfig}
+              strokeDasharray={indicatorDasharray}
               visible={visible}
               width="line"
               x={x}
@@ -201,9 +221,10 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
           <g transform={`translate(${margin.left},${margin.top})`}>
             {lines.map((line, index) => (
               <TooltipDot
+                animate={tooltipMotion.animate}
                 color={resolveDotColor(line, index)}
                 key={line.dataKey}
-                springConfig={springConfig}
+                springConfig={tooltipMotion.springConfig}
                 strokeColor={chartCssVars.background}
                 visible={visible}
                 x={tooltipData?.xPositions?.[line.dataKey] ?? x}
@@ -241,11 +262,12 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
 
       {/* Date/Category Ticker - only show for vertical charts */}
       <DatePillTracker
+        animate={tooltipMotion.animate}
         currentIndex={tooltipData?.index ?? 0}
         discreteInteraction={discreteInteraction}
         enabled={showDatePill && !isHorizontal}
         labels={dateLabels}
-        springConfig={springConfig}
+        springConfig={tooltipMotion.springConfig}
         visible={visible}
         xWithMargin={xWithMargin}
       />
@@ -281,6 +303,7 @@ interface DatePillTrackerProps {
   currentIndex: number;
   xWithMargin: number;
   discreteInteraction: boolean;
+  animate?: boolean;
   springConfig?: SpringConfig;
 }
 
@@ -298,27 +321,29 @@ function DatePillTrackerInner({
   currentIndex,
   xWithMargin,
   discreteInteraction,
+  animate = true,
   springConfig,
   visible,
 }: DatePillTrackerProps) {
   const { tooltipSpring } = useChartConfig();
   const effectiveSpring = springConfig ?? tooltipSpring;
   const animatedX = useSpring(xWithMargin, effectiveSpring);
+  const useSpringMotion = animate && !discreteInteraction;
 
-  if (!discreteInteraction) {
+  if (useSpringMotion) {
     animatedX.set(xWithMargin);
   }
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: we need to jump the animatedX when the visible prop changes
   useEffect(() => {
     animatedX.set(xWithMargin);
-  }, [animatedX, visible]);
+  }, [animatedX, visible, xWithMargin]);
 
   return (
     <motion.div
       className="pointer-events-none absolute z-50"
       style={{
-        left: discreteInteraction ? xWithMargin : animatedX,
+        left: useSpringMotion ? animatedX : xWithMargin,
         transform: "translateX(-50%)",
         bottom: 4,
       }}

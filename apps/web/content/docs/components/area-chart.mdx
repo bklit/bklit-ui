@@ -187,6 +187,9 @@ Renders the tooltip with crosshair, dots, and content box.
 | `showDatePill` | `boolean` | `true` | Show animated date ticker |
 | `showCrosshair` | `boolean` | `true` | Show vertical crosshair |
 | `showDots` | `boolean` | `true` | Show dots on series |
+| `indicatorColor` | `string \| (point) => string` | — | Crosshair and dot color |
+| `indicatorDasharray` | `string` | — | Dash pattern for the crosshair (e.g. `"4,4"`) |
+| `damping` | `number` | `30` | Spring damping for crosshair follow; `0` = instant |
 | `content` | `(props) => ReactNode` | - | Custom content renderer |
 | `rows` | `(point) => TooltipRow[]` | - | Custom row generator |
 

@@ -23,11 +23,18 @@ export function chartTooltipPropsFromState(
   overrides: Partial<ChartTooltipProps> = {}
 ): ChartTooltipProps {
   const panelStyle = studioTooltipPanelStyle(state);
+  const indicatorDasharray =
+    state.crosshairStyle === "dashed" ? state.crosshairDashArray : undefined;
+  const damping =
+    state.tooltipDamping === 30 ? undefined : state.tooltipDamping;
+
   return {
     showCrosshair: state.showCrosshair,
     showDots: state.showTooltipDots,
     showDatePill: state.showTooltipDatePill,
     indicatorColor: state.crosshairColor,
+    indicatorDasharray,
+    damping,
     panelStyle,
     ...overrides,
   };

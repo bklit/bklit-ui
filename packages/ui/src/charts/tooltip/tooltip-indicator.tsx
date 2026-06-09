@@ -43,6 +43,8 @@ export interface TooltipIndicatorProps {
   gradientId?: string;
   /** Per-chart override; falls back to `ChartConfigProvider.tooltipSpring`. */
   springConfig?: SpringConfig;
+  /** SVG stroke dash pattern. When set, renders a dashed stroke instead of a solid fill. */
+  strokeDasharray?: string;
 }
 
 function resolveWidth(width: IndicatorWidth): number {
@@ -85,6 +87,7 @@ function TooltipIndicatorInner({
   animate = true,
   gradientId = "tooltip-indicator-gradient",
   springConfig,
+  strokeDasharray,
 }: TooltipIndicatorProps) {
   const { tooltipSpring } = useChartConfig();
   const effectiveSpring = springConfig ?? tooltipSpring;
@@ -95,18 +98,48 @@ function TooltipIndicatorInner({
       : resolveWidth(width);
 
   const rectX = x - pixelWidth / 2;
+  const lineX = x;
   const animatedX = useSpring(rectX, effectiveSpring);
+  const animatedLineX = useSpring(lineX, effectiveSpring);
 
   if (animate) {
     animatedX.set(rectX);
+    animatedLineX.set(lineX);
   }
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: we need to jump the animatedX when the visible prop changes
   useEffect(() => {
     animatedX.set(rectX);
-  }, [animatedX, visible]);
+    animatedLineX.set(lineX);
+  }, [animatedLineX, animatedX, lineX, rectX, visible]);
 
   const edgeOpacity = fadeEdges ? 0 : 1;
+  const dashed = Boolean(strokeDasharray);
+
+  if (dashed) {
+    const strokeWidth = Math.max(1, pixelWidth);
+    return animate ? (
+      <motion.line
+        stroke={colorMid}
+        strokeDasharray={strokeDasharray}
+        strokeWidth={strokeWidth}
+        x1={animatedLineX}
+        x2={animatedLineX}
+        y1={0}
+        y2={height}
+      />
+    ) : (
+      <line
+        stroke={colorMid}
+        strokeDasharray={strokeDasharray}
+        strokeWidth={strokeWidth}
+        x1={lineX}
+        x2={lineX}
+        y1={0}
+        y2={height}
+      />
+    );
+  }
 
   return (
     <g>

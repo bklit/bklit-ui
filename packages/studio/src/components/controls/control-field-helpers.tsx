@@ -36,6 +36,7 @@ const GROUP_LABELED_TYPES = new Set<StudioControl["type"]>([
   "pieHoverEffect",
   "funnelEdges",
   "graticuleToggle",
+  "strokeStyle",
   "legendPosition",
 ]);
 

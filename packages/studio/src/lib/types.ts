@@ -90,6 +90,11 @@ export type StudioControl = StudioControlVisibility &
         label: string;
       } & SeriesScopedControl)
     | { type: "graticuleToggle"; key: "showGraticule"; label: string }
+    | {
+        type: "strokeStyle";
+        key: keyof StudioUrlState;
+        label: string;
+      }
     | { type: "legendPosition"; key: "legendPlacement"; label: string }
     | ({
         type: "innerRadius";

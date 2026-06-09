@@ -36,6 +36,11 @@ import { LineChart, Line, Grid, ChartTooltip } from "@bklitui/ui/charts";
 | `showCrosshair` | `boolean` | `true` | Show vertical crosshair line |
 | `showDots` | `boolean` | `true` | Show dots on data points |
 | `indicatorColor` | `string \| (point) => string` | — | Crosshair and dot color; pass a function for dynamic colors |
+| `indicatorDasharray` | `string` | — | SVG dash pattern for the crosshair (e.g. `"4,4"`). Omit for solid |
+| `damping` | `number` | `30` | Spring damping for crosshair, dots, and date pill follow. `0` = instant (no spring) |
+| `springConfig` | `{ stiffness: number; damping: number }` | chart config | Full spring override for crosshair, dots, and date pill |
+| `boxSpringConfig` | `{ stiffness: number; damping: number }` | chart config | Spring override for the floating tooltip panel |
+| `panelStyle` | `CSSProperties` | — | Inline styles for tooltip background and blur |
 | `content` | `(props) => ReactNode` | - | Custom content renderer |
 | `rows` | `(point) => TooltipRow[]` | - | Custom row generator |
 | `children` | `ReactNode` | - | Additional content (e.g., markers) |
@@ -196,12 +201,21 @@ Use the `content` prop for complete control over the tooltip layout.
 
 The tooltip features smooth animations:
 
-- **Crosshair** - Spring physics for snappy following
-- **Tooltip Box** - Scale/fade animation with flip detection
+- **Crosshair** - Spring physics for snappy following; use `damping` (`0`–`100`, default `30`) or `springConfig` to tune lag. Set `damping={0}` for instant follow with no easing delay.
+- **Crosshair style** - Solid by default; pass `indicatorDasharray="4,4"` (or any SVG dash pattern) for a dashed line.
+- **Tooltip Box** - Scale/fade animation with flip detection (`boxSpringConfig`)
 - **Date Pill** - Slot machine-style number animation
 - **Dots** - Fade in/out with the tooltip
 
 All animations use motion/react for fluid, natural movement.
+
+```tsx
+<ChartTooltip
+  indicatorDasharray="6,4"
+  damping={60}
+  indicatorColor="var(--chart-2)"
+/>
+```
 
 ## Theming
 

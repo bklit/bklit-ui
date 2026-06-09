@@ -14,6 +14,8 @@ export interface TooltipDotProps {
   strokeWidth?: number;
   /** Per-chart override; falls back to `ChartConfigProvider.tooltipSpring`. */
   springConfig?: SpringConfig;
+  /** Animate position with a spring. Default: true */
+  animate?: boolean;
 }
 
 export function TooltipDot({
@@ -25,17 +27,33 @@ export function TooltipDot({
   strokeColor = chartCssVars.background,
   strokeWidth = 2,
   springConfig,
+  animate = true,
 }: TooltipDotProps) {
   const { tooltipSpring } = useChartConfig();
   const effectiveSpring = springConfig ?? tooltipSpring;
   const animatedX = useSpring(x, effectiveSpring);
   const animatedY = useSpring(y, effectiveSpring);
 
-  animatedX.set(x);
-  animatedY.set(y);
+  if (animate) {
+    animatedX.set(x);
+    animatedY.set(y);
+  }
 
   if (!visible) {
     return null;
+  }
+
+  if (!animate) {
+    return (
+      <circle
+        cx={x}
+        cy={y}
+        fill={color}
+        r={size}
+        stroke={strokeColor}
+        strokeWidth={strokeWidth}
+      />
+    );
   }
 
   return (
