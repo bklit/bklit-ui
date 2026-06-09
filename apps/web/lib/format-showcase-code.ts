@@ -126,11 +126,16 @@ function startsPendingTag(trimmed: string): boolean {
   );
 }
 
+interface IndentLineResult {
+  level: number;
+  pendingTag: boolean;
+}
+
 function applyPendingTagLine(
   trimmed: string,
   level: number,
   output: string[]
-): { level: number; pendingTag: boolean } {
+): IndentLineResult {
   if (trimmed === ">") {
     output.push(" ".repeat(level * INDENT_SIZE) + trimmed);
     return { level: level + 1, pendingTag: false };
@@ -153,7 +158,7 @@ function applyNormalLine(
   trimmed: string,
   level: number,
   output: string[]
-): { level: number; pendingTag: boolean } {
+): IndentLineResult {
   output.push(" ".repeat(level * INDENT_SIZE) + trimmed);
 
   if (startsPendingTag(trimmed)) {
@@ -203,7 +208,7 @@ function indentStrippedCode(code: string): string {
       level = Math.max(0, level - 1);
     }
 
-    const result = pendingTag
+    const result: IndentLineResult = pendingTag
       ? applyPendingTagLine(trimmed, level, output)
       : applyNormalLine(trimmed, level, output);
 
