@@ -55,13 +55,13 @@ export interface ChartTooltipProps {
   /** Per-chart override for the crosshair / dot / date-pill spring. */
   springConfig?: SpringConfig;
   /**
-   * When `true` (default), the floating panel uses the crosshair spring and stays
-   * in sync. Set `false` to decouple panel follow and tune with `damping`.
+   * When `true`, the floating panel uses the crosshair spring and stays in sync.
+   * Default `false` — panel follow uses `damping` (`20`).
    */
   matchCrosshair?: boolean;
   /**
    * Spring damping for the floating tooltip panel when `matchCrosshair` is `false`.
-   * `0` disables spring motion (instant). Default: chart config (`20`).
+   * `0` disables spring motion (instant). Default: `20`.
    */
   damping?: number;
   /** SVG stroke dash pattern for the crosshair. Omit for solid. */
@@ -92,7 +92,7 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
   className = "",
   container,
   springConfig,
-  matchCrosshair = true,
+  matchCrosshair = false,
   damping,
   indicatorDasharray,
   indicatorFadeEdges,

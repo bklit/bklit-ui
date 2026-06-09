@@ -41,7 +41,7 @@ export const lineChartProfitLossDefaults: Partial<StudioUrlState> = {
   crosshairDashArray: "4,4",
   crosshairFadeEdges: "both",
   crosshairFadeLength: 10,
-  tooltipMatchCrosshair: true,
+  tooltipMatchCrosshair: false,
   tooltipDamping: 20,
   showLegend: true,
   legendPlacement: "bottom",

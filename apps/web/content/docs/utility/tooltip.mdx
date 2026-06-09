@@ -4,7 +4,7 @@ description: An interactive tooltip component for charts with crosshair, dots, d
 ---
 
 import { LineChart, Line, Grid, ChartTooltip, XAxis } from "@bklitui/ui/charts";
-import { TooltipDefaultDemo, TooltipCrosshairOnlyDemo, TooltipMinimalDemo, TooltipCustomRowsDemo, TooltipBarChartDemo, TooltipCustomContentDemo, TooltipSolidCrosshairDemo, TooltipCrosshairFadeTopDemo, TooltipDashedCrosshairDemo, TooltipPanelDampingDemo } from "@/components/docs/tooltip-demo";
+import { TooltipDefaultDemo, TooltipCrosshairOnlyDemo, TooltipMinimalDemo, TooltipCustomRowsDemo, TooltipBarChartDemo, TooltipCustomContentDemo, TooltipSolidCrosshairDemo, TooltipCrosshairFadeTopDemo, TooltipDashedCrosshairDemo, TooltipMatchCrosshairDemo, TooltipPanelDampingDemo } from "@/components/docs/tooltip-demo";
 
 <ComponentPreview registryName="chart-tooltip">
   <TooltipDefaultDemo />
@@ -39,8 +39,8 @@ import { LineChart, Line, Grid, ChartTooltip } from "@bklitui/ui/charts";
 | `indicatorDasharray` | `string` | — | SVG dash pattern for the crosshair (e.g. `"4,4"`). Omit for solid |
 | `indicatorFadeEdges` | `"both" \| "top" \| "bottom" \| "none"` | `"both"` | Vertical crosshair fade; `none` = solid line |
 | `indicatorFadeLength` | `number` | `10` | Fade zone size (% of crosshair height) when fading |
-| `matchCrosshair` | `boolean` | `true` | When `true`, the panel uses the crosshair spring and moves in sync |
-| `damping` | `number` | `20` | Panel follow damping when `matchCrosshair={false}`. `0` = instant |
+| `matchCrosshair` | `boolean` | `false` | When `true`, the panel uses the crosshair spring and moves in sync |
+| `damping` | `number` | `20` | Panel follow damping (default). `0` = instant. Ignored when `matchCrosshair` is `true` |
 | `springConfig` | `{ stiffness: number; damping: number }` | chart config | Full spring override for crosshair, dots, and date pill |
 | `boxSpringConfig` | `{ stiffness: number; damping: number }` | chart config | Full spring override for the floating tooltip panel |
 | `panelStyle` | `CSSProperties` | — | Inline styles for tooltip background and blur |
@@ -141,16 +141,28 @@ Pass an SVG dash pattern to `indicatorDasharray`.
   <TooltipDashedCrosshairDemo />
 </ComponentShowcase>
 
+### Match crosshair
+
+By default the tooltip panel eases independently with `damping={20}`. Set `matchCrosshair` to lock the panel to the crosshair spring.
+
+<ComponentShowcase code={`<LineChart data={data}>
+  <Grid horizontal />
+  <Line dataKey="users" stroke="var(--chart-line-primary)" />
+  <XAxis />
+  <ChartTooltip matchCrosshair />
+</LineChart>`}>
+  <TooltipMatchCrosshairDemo />
+</ComponentShowcase>
+
 ### Panel damping
 
-By default the tooltip panel shares the crosshair spring (`matchCrosshair`). Set `matchCrosshair={false}` and tune `damping` (`0` = instant, higher = more lag).
+The default panel uses `damping={20}` without any props. Increase `damping` for heavier lag, or set `damping={0}` for instant follow.
 
 <ComponentShowcase code={`<LineChart data={data}>
   <Grid horizontal />
   <Line dataKey="users" stroke="var(--chart-line-primary)" />
   <XAxis />
   <ChartTooltip
-    matchCrosshair={false}
     damping={55}
     indicatorColor="var(--chart-2)"
   />
@@ -276,7 +288,7 @@ Use the `content` prop for complete control over the tooltip layout.
 
 The tooltip features smooth animations:
 
-- **Tooltip panel** - By default (`matchCrosshair`) the panel shares the crosshair spring. Set `matchCrosshair={false}` to decouple panel follow, then tune lag with `damping` (`0`–`100`, default `20`) or `boxSpringConfig`.
+- **Tooltip panel** - By default the panel eases with `damping={20}`. Set `matchCrosshair` to share the crosshair spring, or tune lag with `damping` (`0`–`100`) or `boxSpringConfig`.
 - **Crosshair** - Spring physics for snappy following (`springConfig`)
 - **Crosshair style** - Solid by default; pass `indicatorDasharray="4,4"` (or any SVG dash pattern) for a dashed line.
 - **Tooltip Box** - Scale/fade animation with flip detection (`boxSpringConfig`)
@@ -288,7 +300,6 @@ All animations use motion/react for fluid, natural movement.
 ```tsx
 <ChartTooltip
   indicatorDasharray="6,4"
-  matchCrosshair={false}
   damping={60}
   indicatorColor="var(--chart-2)"
 />

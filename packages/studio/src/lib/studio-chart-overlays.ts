@@ -30,8 +30,8 @@ export function chartTooltipCodegenProps(state: StudioUrlState): string {
   if (state.crosshairFadeLength !== 10) {
     parts.push(`indicatorFadeLength={${state.crosshairFadeLength}}`);
   }
-  if (!state.tooltipMatchCrosshair) {
-    parts.push("matchCrosshair={false}");
+  if (state.tooltipMatchCrosshair) {
+    parts.push("matchCrosshair");
   }
   if (!state.tooltipMatchCrosshair && state.tooltipDamping !== 20) {
     parts.push(`damping={${state.tooltipDamping}}`);
@@ -51,7 +51,7 @@ export function chartTooltipPropsFromState(
     state.crosshairFadeEdges === "both" ? undefined : state.crosshairFadeEdges;
   const indicatorFadeLength =
     state.crosshairFadeLength === 10 ? undefined : state.crosshairFadeLength;
-  const matchCrosshair = state.tooltipMatchCrosshair ? undefined : false;
+  const matchCrosshair = state.tooltipMatchCrosshair ? true : undefined;
   const damping =
     state.tooltipMatchCrosshair || state.tooltipDamping === 20
       ? undefined

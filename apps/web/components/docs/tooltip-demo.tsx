@@ -216,6 +216,19 @@ export function TooltipDashedCrosshairDemo() {
   );
 }
 
+export function TooltipMatchCrosshairDemo() {
+  return (
+    <div className="w-full">
+      <LineChart data={chartData}>
+        <Grid horizontal />
+        <Line dataKey="users" stroke="var(--chart-line-primary)" />
+        <XAxis />
+        <ChartTooltip matchCrosshair />
+      </LineChart>
+    </div>
+  );
+}
+
 export function TooltipPanelDampingDemo() {
   return (
     <div className="w-full">
@@ -223,11 +236,7 @@ export function TooltipPanelDampingDemo() {
         <Grid horizontal />
         <Line dataKey="users" stroke="var(--chart-line-primary)" />
         <XAxis />
-        <ChartTooltip
-          damping={55}
-          indicatorColor="var(--chart-2)"
-          matchCrosshair={false}
-        />
+        <ChartTooltip damping={55} indicatorColor="var(--chart-2)" />
       </LineChart>
     </div>
   );
