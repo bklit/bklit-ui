@@ -292,3 +292,23 @@
 .component-preview-dark {
   @apply bg-background;
 }
+
+/* Docs ComponentShowcase code panels */
+.showcase-code-block {
+  --showcase-code-line-height: 1.625;
+
+  & .fd-scroll-container {
+    @apply text-sm;
+    line-height: var(--showcase-code-line-height);
+  }
+
+  & pre {
+    tab-size: 2;
+  }
+
+  & .line {
+    min-height: calc(1em * var(--showcase-code-line-height));
+    line-height: var(--showcase-code-line-height);
+    white-space: pre;
+  }
+}

@@ -1,21 +1,19 @@
 "use client";
 
-import { DynamicCodeBlock } from "fumadocs-ui/components/dynamic-codeblock";
 import { type ReactNode, useState } from "react";
 import { DocsChartPreviewShell } from "@/components/docs/docs-chart-preview-shell";
+import { ShowcaseCodeBlock } from "@/components/docs/showcase-code-block";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   previewCardClassName,
   previewCardContentClassName,
 } from "@/components/ui/card";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import { codeThemes } from "@/lib/code-theme";
 import { cn } from "@/lib/utils";
+
+/** ~3 lines at showcase line-height when the panel is collapsed. */
+const collapsedCodeMaxHeightClassName = "max-h-[5.75rem]";
 
 interface ComponentShowcaseProps {
   /** The live preview component to render */
@@ -35,8 +33,7 @@ interface ComponentShowcaseProps {
 }
 
 const codePanelContentClassName = cn(
-  "relative overflow-hidden transition-all duration-300",
-  "data-[state=closed]:max-h-[120px]",
+  "relative overflow-hidden transition-[max-height] duration-300",
   "[&_figure]:my-0! [&_figure]:rounded-none! [&_figure]:border-0!",
   "[&_pre]:my-0! [&_pre]:rounded-none! [&_pre]:border-0!",
   "[&_[data-rehype-pretty-code-figure]]:mt-0!"
@@ -84,46 +81,53 @@ export function ComponentShowcase({
       </CardContent>
 
       {hasCode ? (
-        <Collapsible
-          className="group/collapsible relative border-border border-t"
-          onOpenChange={setIsOpen}
-          open={isOpen}
-        >
-          <CollapsibleContent className={codePanelContentClassName} keepMounted>
-            {codeBlock || (
-              <DynamicCodeBlock
-                code={code || ""}
-                lang={lang}
-                options={{ themes: codeThemes }}
+        <div className="relative border-border border-t p-3">
+          <div
+            className={cn(
+              codePanelContentClassName,
+              isOpen ? "" : collapsedCodeMaxHeightClassName
+            )}
+          >
+            {codeBlock || <ShowcaseCodeBlock code={code || ""} lang={lang} />}
+          </div>
+
+          {isOpen ? null : (
+            <>
+              <div
+                aria-hidden
+                className={cn(
+                  "pointer-events-none absolute inset-0 z-10",
+                  "bg-linear-to-t from-card via-card/80 to-transparent"
+                )}
               />
-            )}
-          </CollapsibleContent>
+              <div
+                className={cn(
+                  "absolute inset-0 z-20 flex items-center justify-center"
+                )}
+              >
+                <Button onClick={() => setIsOpen(true)} variant="secondary">
+                  View Code
+                </Button>
+              </div>
+            </>
+          )}
 
-          <CollapsibleTrigger
-            className={cn(
-              "absolute inset-x-0 -bottom-px flex h-16 items-center justify-center",
-              "bg-linear-to-t from-card via-card/80 to-transparent",
-              "font-medium text-muted-foreground text-sm",
-              "cursor-pointer rounded-b-xl",
-              "group-data-[state=open]/collapsible:hidden"
-            )}
-          >
-            View Code
-          </CollapsibleTrigger>
-
-          <CollapsibleTrigger
-            className={cn(
-              "absolute right-3 bottom-3 z-10",
-              "rounded-md px-2.5 py-1 font-medium text-xs",
-              "text-muted-foreground hover:text-foreground",
-              "bg-muted/80 hover:bg-muted",
-              "cursor-pointer transition-colors",
-              "group-data-[state=closed]/collapsible:hidden"
-            )}
-          >
-            Collapse
-          </CollapsibleTrigger>
-        </Collapsible>
+          {isOpen ? (
+            <button
+              className={cn(
+                "absolute right-3 bottom-3 z-10",
+                "rounded-md px-2.5 py-1 font-medium text-xs",
+                "text-muted-foreground hover:text-foreground",
+                "bg-muted/80 hover:bg-muted",
+                "cursor-pointer transition-colors"
+              )}
+              onClick={() => setIsOpen(false)}
+              type="button"
+            >
+              Collapse
+            </button>
+          ) : null}
+        </div>
       ) : null}
     </Card>
   );
