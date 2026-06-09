@@ -396,6 +396,11 @@
           "target": "components/charts/chart-config-context.tsx"
         },
         {
+          "path": "src/charts/indicator-fade.ts",
+          "type": "registry:lib",
+          "target": "components/charts/indicator-fade.ts"
+        },
+        {
           "path": "src/charts/tooltip/chart-tooltip.tsx",
           "type": "registry:component",
           "target": "components/charts/tooltip/chart-tooltip.tsx"
