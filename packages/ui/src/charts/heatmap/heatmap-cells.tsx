@@ -2,8 +2,15 @@
 
 import { Group } from "@visx/group";
 import { HeatmapRect } from "@visx/heatmap";
-import { animate, motion, useMotionValue } from "motion/react";
+import {
+  animate,
+  type MotionValue,
+  motion,
+  type Transition,
+  useMotionValue,
+} from "motion/react";
 import { memo, useCallback, useEffect, useMemo, useRef } from "react";
+import type { ChartStatus } from "../chart-phase";
 import { transitionWithDelay } from "../motion-utils";
 import {
   computeHeatmapEnterFadeDelayMs,
@@ -13,8 +20,8 @@ import {
   heatmapLoadingCellParticipates,
   resolveHeatmapEnterFadeDurationSec,
 } from "./heatmap-animation";
+import { defaultHeatmapColorScale } from "./heatmap-colors";
 import {
-  defaultHeatmapColorScale,
   type HeatmapBin,
   type HeatmapColumn,
   useHeatmap,

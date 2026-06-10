@@ -3,10 +3,8 @@
 import { motion } from "motion/react";
 import { memo, useCallback } from "react";
 import { cn } from "@/lib/utils";
-import {
-  defaultHeatmapColorScale,
-  useHeatmapInteractionOptional,
-} from "./heatmap-context";
+import { defaultHeatmapColorScale } from "./heatmap-colors";
+import { useHeatmapInteractionOptional } from "./heatmap-context";
 import { getHeatmapContributionLevel } from "./heatmap-utils";
 
 export const HEATMAP_LEGEND_LEVELS = [0, 1, 2, 3, 4] as const;
