@@ -1,6 +1,5 @@
 "use client";
 
-import { useId } from "react";
 import { cn } from "@/lib/utils";
 
 interface IconProps {
@@ -16,7 +15,7 @@ export function BklitLogo({
   theme = "dark",
   variant = "default",
 }: IconProps) {
-  const id = useId();
+  const id = `bklit-${theme}-${variant}`;
 
   const rgbColor = theme === "dark" ? "255, 255, 255" : "0, 0, 0";
   const blendMode = variant === "blended" ? "color-burn" : "normal";

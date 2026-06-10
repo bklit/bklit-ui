@@ -180,11 +180,15 @@ export { Grid, type GridProps } from "./grid";
 // Heatmap chart components
 export {
   buildHeatmapColorScale,
+  buildHeatmapColorScaleFromStyles,
+  buildHeatmapFillScale,
   defaultHeatmapColorScale,
+  defaultHeatmapFillScale,
   filterHeatmapColumns,
   formatHeatmapContributionLabel,
   getHeatmapTimeExtent,
   HEATMAP_DEFAULT_LEVEL_COLORS,
+  HEATMAP_DEFAULT_LEVEL_STYLES,
   HEATMAP_LEGEND_LEVELS,
   type HeatmapBin,
   HeatmapCells,
@@ -201,6 +205,9 @@ export {
   HeatmapLegend,
   type HeatmapLegendProps,
   type HeatmapLevelColors,
+  type HeatmapLevelFillMode,
+  type HeatmapLevelStyle,
+  type HeatmapLevelStyles,
   HeatmapProvider,
   HeatmapTooltip,
   type HeatmapTooltipProps,
@@ -209,6 +216,11 @@ export {
   HeatmapYAxis,
   type HeatmapYAxisProps,
   heatmapCssVars,
+  heatmapLevelPatternId,
+  isHeatmapLevelPattern,
+  levelColorsFromStyles,
+  levelStylesFromColors,
+  resolveHeatmapLevelStyles,
   useHeatmap,
 } from "./heatmap";
 export {

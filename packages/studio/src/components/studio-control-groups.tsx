@@ -70,7 +70,12 @@ export function StudioControlGroups({
         }
 
         return (
-          <StudioControlGroup key={group.title} title={group.title}>
+          <StudioControlGroup
+            collapsible={group.collapsible}
+            defaultOpen={group.defaultOpen ?? true}
+            key={group.title}
+            title={group.title}
+          >
             {visibleControls.map((control) => (
               <ControlField
                 control={control}

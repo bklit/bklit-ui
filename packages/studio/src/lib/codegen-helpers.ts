@@ -1,3 +1,4 @@
+import type { HeatmapLevelStyle } from "@bklitui/ui/charts";
 import { fadeEdgesCodegen } from "@/components/controls/fade-edges-picker";
 import { motionSliceFromState } from "./chart-animation";
 import { curveImportName } from "./curves";
@@ -16,6 +17,7 @@ import {
   sankeySimple,
   scatterStudioData,
 } from "./demo-data";
+import { studioHeatmapLevelStyles } from "./heatmap-studio-colors";
 import {
   cssRevealAnimationCodegen,
   motionEnterPropsCodegen,
@@ -542,6 +544,48 @@ export function funnelCodegen(state: StudioUrlState) {
   };
 }
 
+function serializeHeatmapLevelStyle(style: HeatmapLevelStyle): string {
+  const entries = [
+    `color: ${JSON.stringify(style.color)}`,
+    `fillMode: ${JSON.stringify(style.fillMode ?? "solid")}`,
+    `pattern: ${JSON.stringify(style.pattern ?? "none")}`,
+  ];
+
+  const optionalEntries: Array<string | null> = [
+    style.patternColor
+      ? `patternColor: ${JSON.stringify(style.patternColor)}`
+      : null,
+    style.patternScale != null && style.patternScale !== 1
+      ? `patternScale: ${style.patternScale}`
+      : null,
+    style.patternStrokeWidth != null && style.patternStrokeWidth !== 1
+      ? `patternStrokeWidth: ${style.patternStrokeWidth}`
+      : null,
+    style.patternRadius != null && style.patternRadius !== 2
+      ? `patternRadius: ${style.patternRadius}`
+      : null,
+    style.patternComplement ? "patternComplement: true" : null,
+    style.patternFill
+      ? `patternFill: ${JSON.stringify(style.patternFill)}`
+      : null,
+    style.patternTileBackground
+      ? `patternTileBackground: ${JSON.stringify(style.patternTileBackground)}`
+      : null,
+    style.patternOpacity != null && style.patternOpacity !== 1
+      ? `patternOpacity: ${style.patternOpacity}`
+      : null,
+    style.patternDotsFill === false ? "patternDotsFill: false" : null,
+  ];
+
+  for (const entry of optionalEntries) {
+    if (entry) {
+      entries.push(entry);
+    }
+  }
+
+  return `{ ${entries.join(", ")} }`;
+}
+
 export function heatmapCodegen(state: StudioUrlState) {
   const motion = motionSliceFromState(state);
   const anim = cssRevealAnimationCodegen(state.animationDuration, motion);
@@ -557,26 +601,18 @@ export function heatmapCodegen(state: StudioUrlState) {
   loadingCellRandomness={${state.heatmapLoadingCellRandomness}}`
       : "";
   const cellProps = `cornerRadius={${state.heatmapCornerRadius}} fadedOpacity={${state.heatmapCellsFadedOpacity}}`;
-  const levelColorsLiteral = `[${[
-    state.heatmapLevel0Color,
-    state.heatmapLevel1Color,
-    state.heatmapLevel2Color,
-    state.heatmapLevel3Color,
-    state.heatmapLevel4Color,
-  ]
-    .map((color) => JSON.stringify(color))
-    .join(", ")}] as const`;
-  const levelColorsConst = `const heatmapLevelColors = ${levelColorsLiteral};`;
+  const levelStyles = studioHeatmapLevelStyles(state);
+  const levelStylesLiteral = `[${levelStyles.map(serializeHeatmapLevelStyle).join(", ")}] as const`;
+  const levelStylesConst = `const heatmapLevelStyles = ${levelStylesLiteral};`;
   const chartProps = `gap={${state.heatmapGap}}
-  levelColors={heatmapLevelColors}
+  levelStyles={heatmapLevelStyles}
   ${anim}
   ${enterTransition}
   ${enterStagger}${loadingProps}`;
-  const legendProps = `cornerRadius={${state.heatmapCornerRadius}} gap={${state.heatmapGap}} colorScale={buildHeatmapColorScale(heatmapLevelColors)}`;
+  const legendProps = `cornerRadius={${state.heatmapCornerRadius}} gap={${state.heatmapGap}} levelStyles={heatmapLevelStyles}`;
 
   return {
     code: `import {
-  buildHeatmapColorScale,
   HeatmapCells,
   HeatmapChart,
   HeatmapInteractionBoundary,
@@ -587,7 +623,7 @@ export function heatmapCodegen(state: StudioUrlState) {
   HeatmapYAxis,
 } from "@bklitui/ui/charts";
 
-${levelColorsConst}
+${levelStylesConst}
 
 <HeatmapInteractionProvider>
   <HeatmapInteractionBoundary>

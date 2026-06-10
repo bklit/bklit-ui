@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  buildHeatmapColorScale,
   HeatmapCells,
   HeatmapChart,
   HeatmapInteractionBoundary,
@@ -20,7 +19,7 @@ import {
   studioPreviewChartKey,
 } from "@/lib/chart-animation";
 import { getHeatmapData } from "@/lib/demo-data";
-import { studioHeatmapLevelColors } from "@/lib/heatmap-studio-colors";
+import { studioHeatmapLevelStyles } from "@/lib/heatmap-studio-colors";
 import type { StudioRenderContext } from "@/lib/render-context";
 import { StudioChartContentViewport } from "@/lib/studio-chart-content-frame";
 import {
@@ -56,7 +55,7 @@ const HeatmapChartBody = memo(function HeatmapChartBody({
   );
   const mountCells = studioHeatmapCellsMounted(state);
   const loadingCellsVisible = studioHeatmapLoadingCellsVisible(state);
-  const levelColors = useMemo(() => studioHeatmapLevelColors(state), [state]);
+  const levelStyles = useMemo(() => studioHeatmapLevelStyles(state), [state]);
 
   return (
     <HeatmapChart
@@ -66,7 +65,7 @@ const HeatmapChartBody = memo(function HeatmapChartBody({
       gap={state.heatmapGap}
       key={studioPreviewChartKey(ctx)}
       layout="fluid"
-      levelColors={levelColors}
+      levelStyles={levelStyles}
       loadingCellMaxOpacity={state.heatmapLoadingCellMaxOpacity}
       loadingCellRandomness={state.heatmapLoadingCellRandomness}
       loadingLabel={studioHeatmapLoadingLabel(state)}
@@ -101,11 +100,7 @@ export function HeatmapStudioPreview({
   state: StudioUrlState;
   ctx: StudioRenderContext;
 }) {
-  const levelColors = useMemo(() => studioHeatmapLevelColors(state), [state]);
-  const colorScale = useMemo(
-    () => buildHeatmapColorScale(levelColors),
-    [levelColors]
-  );
+  const levelStyles = useMemo(() => studioHeatmapLevelStyles(state), [state]);
   const data = useMemo(() => getHeatmapData(ctx.dataSeed), [ctx.dataSeed]);
   const chrome = ctx.chromeState;
   const legendVisible =
@@ -129,9 +124,9 @@ export function HeatmapStudioPreview({
                     <HeatmapLegend
                       align={state.legendAlign}
                       cellSize={state.heatmapLegendCellSize}
-                      colorScale={colorScale}
                       cornerRadius={state.heatmapCornerRadius}
                       gap={state.heatmapGap}
+                      levelStyles={levelStyles}
                     />
                   </div>
                 </StudioVisibleLayer>

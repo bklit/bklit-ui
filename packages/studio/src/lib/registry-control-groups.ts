@@ -6,6 +6,7 @@ import {
   designGroup,
   lineGroup,
 } from "./sidebar-control-templates";
+import type { StudioUrlState } from "./studio-parsers";
 import type { StudioControlGroup } from "./types";
 
 const chartAccentColorOptions = [
@@ -1017,6 +1018,17 @@ export const sankeyChartControlGroups: StudioControlGroup[] = [
   ]),
 ];
 
+const heatmapLevelPane = (
+  level: 0 | 1 | 2 | 3 | 4,
+  title: string,
+  colorKey: keyof StudioUrlState
+): StudioControlGroup =>
+  controlGroup(
+    title,
+    [{ type: "heatmapLevel", level, label: title, key: colorKey }],
+    { collapsible: true, defaultOpen: level === 0 }
+  );
+
 export const heatmapChartControlGroups: StudioControlGroup[] = [
   controlGroup("Settings", [
     {
@@ -1045,6 +1057,11 @@ export const heatmapChartControlGroups: StudioControlGroup[] = [
       max: 8,
     },
   ]),
+  heatmapLevelPane(0, "Empty", "heatmapLevel0Color"),
+  heatmapLevelPane(1, "Level 1", "heatmapLevel1Color"),
+  heatmapLevelPane(2, "Level 2", "heatmapLevel2Color"),
+  heatmapLevelPane(3, "Level 3", "heatmapLevel3Color"),
+  heatmapLevelPane(4, "Level 4", "heatmapLevel4Color"),
 ];
 
 export const heatmapCellsControlGroups: StudioControlGroup[] = [
@@ -1083,12 +1100,5 @@ export const heatmapLegendControlGroups: StudioControlGroup[] = [
       step: 1,
       unit: "px",
     },
-  ]),
-  controlGroup("Less → More", [
-    { type: "color", key: "heatmapLevel0Color", label: "Empty" },
-    { type: "color", key: "heatmapLevel1Color", label: "Level 1" },
-    { type: "color", key: "heatmapLevel2Color", label: "Level 2" },
-    { type: "color", key: "heatmapLevel3Color", label: "Level 3" },
-    { type: "color", key: "heatmapLevel4Color", label: "Level 4" },
   ]),
 ];

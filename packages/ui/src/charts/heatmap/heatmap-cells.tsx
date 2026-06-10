@@ -20,7 +20,7 @@ import {
   heatmapLoadingCellParticipates,
   resolveHeatmapEnterFadeDurationSec,
 } from "./heatmap-animation";
-import { defaultHeatmapColorScale } from "./heatmap-colors";
+import { heatmapLevelCellFillOpacity } from "./heatmap-colors";
 import {
   type HeatmapBin,
   type HeatmapColumn,
@@ -178,14 +178,14 @@ const HeatmapMotionCell = memo(function HeatmapMotionCell({
   cell,
   bin,
   cornerRadius,
-  colorScale,
+  fillScale,
   interactive,
   fadedOpacity,
   isFaded,
   onEnter,
   onLeave,
 }: HeatmapCellRectProps & {
-  colorScale: (count: number | null | undefined) => string;
+  fillScale: (count: number | null | undefined) => string;
 }) {
   const {
     chartStatus,
@@ -200,10 +200,14 @@ const HeatmapMotionCell = memo(function HeatmapMotionCell({
     showLoadingCells: showLoadingCellsLayer,
     loadingCellMaxOpacity,
     loadingCellRandomness,
+    levelStyles,
   } = useHeatmap();
 
-  const targetFill = colorScale(bin.count);
-  const emptyFill = colorScale(0);
+  const levelStyle =
+    levelStyles[getHeatmapContributionLevel(bin.count ?? 0)] ?? levelStyles[0];
+  const targetFill = fillScale(bin.count);
+  const emptyFill = fillScale(0);
+  const patternFillOpacity = heatmapLevelCellFillOpacity(levelStyle);
   const dataOpacity = useMotionValue(0);
   /** Orchestration layer: conceal, static loading base. */
   const shimmerOpacity = useMotionValue(0);
@@ -357,7 +361,7 @@ const HeatmapMotionCell = memo(function HeatmapMotionCell({
       <motion.rect
         {...cellProps}
         fill={targetFill}
-        fillOpacity={cell.opacity}
+        fillOpacity={(cell.opacity ?? 1) * patternFillOpacity}
         onPointerEnter={() =>
           onEnter(cell.column, cell.row, bin, cell.x, cell.y)
         }
@@ -381,7 +385,7 @@ const HeatmapMotionCell = memo(function HeatmapMotionCell({
 
 export const HeatmapCells = memo(function HeatmapCells({
   cornerRadius = 2,
-  colorScale = defaultHeatmapColorScale,
+  colorScale: colorScaleProp,
   fadedOpacity = HEATMAP_FADED_OPACITY,
   interactive = true,
 }: HeatmapCellsProps) {
@@ -394,7 +398,11 @@ export const HeatmapCells = memo(function HeatmapCells({
     xScale,
     yScale,
     chartStatus,
+    colorScale: contextColorScale,
+    fillScale: contextFillScale,
   } = useHeatmap();
+  const colorScale = colorScaleProp ?? contextColorScale;
+  const fillScale = contextFillScale;
   const cellsInteractive = interactive && chartStatus !== "loading";
   const {
     hoveredCell,
@@ -481,9 +489,9 @@ export const HeatmapCells = memo(function HeatmapCells({
                 <HeatmapMotionCell
                   bin={bin}
                   cell={cell}
-                  colorScale={colorScale}
                   cornerRadius={cornerRadius}
                   fadedOpacity={fadedOpacity}
+                  fillScale={fillScale}
                   interactive={cellsInteractive}
                   isFaded={isFaded}
                   key={`heatmap-cell-${cell.column}-${cell.row}`}

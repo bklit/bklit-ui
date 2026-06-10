@@ -154,6 +154,17 @@ export const studioSearchParams = {
   heatmapLevel2Color: parseAsString.withDefault("#006d32"),
   heatmapLevel3Color: parseAsString.withDefault("#26a641"),
   heatmapLevel4Color: parseAsString.withDefault("#39d353"),
+  heatmapLevelFillModes: parseAsString.withDefault(""),
+  heatmapLevelPatterns: parseAsString.withDefault(""),
+  heatmapLevelPatternColors: parseAsString.withDefault(""),
+  heatmapLevelPatternScales: parseAsString.withDefault(""),
+  heatmapLevelPatternStrokeWidths: parseAsString.withDefault(""),
+  heatmapLevelPatternRadii: parseAsString.withDefault(""),
+  heatmapLevelPatternComplements: parseAsString.withDefault(""),
+  heatmapLevelPatternFills: parseAsString.withDefault(""),
+  heatmapLevelPatternTileBackgrounds: parseAsString.withDefault(""),
+  heatmapLevelPatternOpacities: parseAsString.withDefault(""),
+  heatmapLevelPatternDotsFills: parseAsString.withDefault(""),
   heatmapCellsFadedOpacity: parseAsFloat.withDefault(0.3),
   linkOpacity: parseAsFloat.withDefault(0.4),
   scatterRadius: parseAsFloat.withDefault(6),
@@ -418,6 +429,17 @@ export interface StudioUrlState {
   heatmapLevel2Color: string;
   heatmapLevel3Color: string;
   heatmapLevel4Color: string;
+  heatmapLevelFillModes: string;
+  heatmapLevelPatterns: string;
+  heatmapLevelPatternColors: string;
+  heatmapLevelPatternScales: string;
+  heatmapLevelPatternStrokeWidths: string;
+  heatmapLevelPatternRadii: string;
+  heatmapLevelPatternComplements: string;
+  heatmapLevelPatternFills: string;
+  heatmapLevelPatternTileBackgrounds: string;
+  heatmapLevelPatternOpacities: string;
+  heatmapLevelPatternDotsFills: string;
   heatmapCellsFadedOpacity: number;
   linkOpacity: number;
   scatterRadius: number;
@@ -657,6 +679,17 @@ export function defaultStudioState(
     heatmapLevel2Color: "#006d32",
     heatmapLevel3Color: "#26a641",
     heatmapLevel4Color: "#39d353",
+    heatmapLevelFillModes: "",
+    heatmapLevelPatterns: "",
+    heatmapLevelPatternColors: "",
+    heatmapLevelPatternScales: "",
+    heatmapLevelPatternStrokeWidths: "",
+    heatmapLevelPatternRadii: "",
+    heatmapLevelPatternComplements: "",
+    heatmapLevelPatternFills: "",
+    heatmapLevelPatternTileBackgrounds: "",
+    heatmapLevelPatternOpacities: "",
+    heatmapLevelPatternDotsFills: "",
     heatmapCellsFadedOpacity: 0.3,
     linkOpacity: 0.4,
     scatterRadius: 6,

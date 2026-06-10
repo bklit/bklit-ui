@@ -1184,12 +1184,8 @@ export function resolveSankeyComponents(): StudioComponentDefinition[] {
 export function resolveHeatmapComponents(
   state: StudioUrlState
 ): StudioComponentDefinition[] {
-  const [settings, layout] = heatmapChartControlGroups;
   const chartId = "heatmap.chart";
-  const chartControlGroups = [
-    ...(settings ? [settings] : []),
-    ...(layout ? [layout] : []),
-  ];
+  const chartControlGroups = heatmapChartControlGroups;
 
   if (state.heatmapChartState === "loading") {
     return [

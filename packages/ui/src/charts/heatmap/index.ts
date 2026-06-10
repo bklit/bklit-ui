@@ -27,9 +27,21 @@ export {
 } from "./heatmap-chart-loading";
 export {
   buildHeatmapColorScale,
+  buildHeatmapColorScaleFromStyles,
+  buildHeatmapFillScale,
   defaultHeatmapColorScale,
+  defaultHeatmapFillScale,
   HEATMAP_DEFAULT_LEVEL_COLORS,
+  HEATMAP_DEFAULT_LEVEL_STYLES,
   type HeatmapLevelColors,
+  type HeatmapLevelFillMode,
+  type HeatmapLevelStyle,
+  type HeatmapLevelStyles,
+  heatmapLevelPatternId,
+  isHeatmapLevelPattern,
+  levelColorsFromStyles,
+  levelStylesFromColors,
+  resolveHeatmapLevelStyles,
 } from "./heatmap-colors";
 export {
   type HeatmapBin,

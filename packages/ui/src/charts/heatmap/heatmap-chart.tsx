@@ -30,10 +30,11 @@ import {
   HEATMAP_LOADING_CHART_OPACITY,
   HEATMAP_LOADING_CONCEAL_MS,
 } from "./heatmap-animation";
+import type { HeatmapLevelColors, HeatmapLevelStyles } from "./heatmap-colors";
 import {
-  buildHeatmapColorScale,
-  defaultHeatmapColorScale,
-  type HeatmapLevelColors,
+  buildHeatmapColorScaleFromStyles,
+  buildHeatmapFillScale,
+  resolveHeatmapLevelStyles,
 } from "./heatmap-colors";
 import {
   type HeatmapColumn,
@@ -44,6 +45,7 @@ import {
   useHeatmap,
   useHeatmapInteraction,
 } from "./heatmap-context";
+import { HeatmapPatternDefs } from "./heatmap-pattern-defs";
 import { filterHeatmapColumns, getHeatmapTimeExtent } from "./heatmap-utils";
 
 export type HeatmapLayout = "fluid" | "fill";
@@ -73,6 +75,8 @@ export interface HeatmapChartProps {
   colorScale?: (count: number | null | undefined) => string;
   /** Per-level colors for the Less → More scale (5 entries). */
   levelColors?: HeatmapLevelColors;
+  /** Per-level fill styles (color and optional pattern). Takes precedence over `levelColors`. */
+  levelStyles?: HeatmapLevelStyles;
   /** Optional outer aspect ratio (e.g. "2 / 1"). Omit to fill the parent. */
   aspectRatio?: string;
   /** Additional class name for the container */
@@ -174,6 +178,8 @@ interface HeatmapChartInnerProps {
   gap: number;
   layout: HeatmapLayout;
   colorScale: (count: number | null | undefined) => string;
+  fillScale: (count: number | null | undefined) => string;
+  levelStyles: HeatmapLevelStyles;
   chartStatus: ChartStatus;
   chartPhase: ChartPhase;
   isLoaded: boolean;
@@ -203,6 +209,8 @@ function HeatmapChartInner({
   gap,
   layout,
   colorScale,
+  fillScale,
+  levelStyles,
   chartStatus,
   chartPhase,
   isLoaded,
@@ -300,6 +308,8 @@ function HeatmapChartInner({
       brushYScale,
       isReady: chartWidth >= 10 && height >= 10,
       colorScale,
+      fillScale,
+      levelStyles,
       containerRef,
       chartStatus,
       chartPhase,
@@ -327,6 +337,7 @@ function HeatmapChartInner({
       chartStatus,
       chartWidth,
       colorScale,
+      fillScale,
       enterStaggerScale,
       enterTransition,
       gap,
@@ -337,6 +348,7 @@ function HeatmapChartInner({
       loadingCellMaxOpacity,
       loadingCellRandomness,
       loadingLabel,
+      levelStyles,
       loadingOpacity,
       margin,
       revealMode,
@@ -375,6 +387,7 @@ function HeatmapChartSurface({
     height,
     width,
     margin,
+    levelStyles,
     chartPhase,
     loadingOpacity,
     loadingLabel,
@@ -394,6 +407,7 @@ function HeatmapChartSurface({
       style={{ opacity: reducedOpacity }}
     >
       <svg aria-hidden="true" height={height} width={width}>
+        <HeatmapPatternDefs levelStyles={levelStyles} />
         <g transform={`translate(${margin.left},${margin.top})`}>{children}</g>
       </svg>
       {showLoadingLabel && loadingLabel?.trim() ? (
@@ -534,6 +548,7 @@ export function HeatmapChart({
   gap = 2,
   colorScale: colorScaleProp,
   levelColors,
+  levelStyles: levelStylesProp,
   aspectRatio,
   className = "",
   status = DEFAULT_CHART_STATUS,
@@ -550,12 +565,17 @@ export function HeatmapChart({
   children,
 }: HeatmapChartProps) {
   const margin = { ...DEFAULT_MARGIN, ...marginProp };
+  const levelStyles = useMemo(
+    () => resolveHeatmapLevelStyles(levelColors, levelStylesProp),
+    [levelColors, levelStylesProp]
+  );
   const colorScale = useMemo(
-    () =>
-      levelColors
-        ? buildHeatmapColorScale(levelColors)
-        : (colorScaleProp ?? defaultHeatmapColorScale),
-    [colorScaleProp, levelColors]
+    () => colorScaleProp ?? buildHeatmapColorScaleFromStyles(levelStyles),
+    [colorScaleProp, levelStyles]
+  );
+  const fillScale = useMemo(
+    () => buildHeatmapFillScale(levelStyles),
+    [levelStyles]
   );
 
   const { chartPhase, isLoaded, revealEpoch, revealMode, animateCells } =
@@ -593,10 +613,12 @@ export function HeatmapChart({
             data={data}
             enterStaggerScale={enterStaggerScale}
             enterTransition={enterTransition}
+            fillScale={fillScale}
             gap={gap}
             height={parentHeight}
             isLoaded={isLoaded}
             layout={layout}
+            levelStyles={levelStyles}
             loadingCellMaxOpacity={loadingCellMaxOpacity}
             loadingCellRandomness={loadingCellRandomness}
             loadingLabel={loadingLabel}

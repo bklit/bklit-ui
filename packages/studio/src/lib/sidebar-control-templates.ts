@@ -3,9 +3,10 @@ import type { StudioControl, StudioControlGroup } from "./types";
 /** Wrap controls in a titled sidebar section. */
 export function controlGroup(
   title: string,
-  controls: StudioControl[]
+  controls: StudioControl[],
+  options?: { collapsible?: boolean; defaultOpen?: boolean }
 ): StudioControlGroup {
-  return { title, controls };
+  return { title, controls, ...options };
 }
 
 export const designGroup = (controls: StudioControl[]) =>

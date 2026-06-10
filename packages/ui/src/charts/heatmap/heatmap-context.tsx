@@ -16,7 +16,10 @@ import {
 import { cn } from "@/lib/utils";
 import type { Margin } from "../chart-context";
 import type { ChartPhase, ChartStatus } from "../chart-phase";
-import { HEATMAP_DEFAULT_LEVEL_COLORS } from "./heatmap-colors";
+import {
+  HEATMAP_DEFAULT_LEVEL_COLORS,
+  type HeatmapLevelStyles,
+} from "./heatmap-colors";
 
 type HeatmapTimeScale = ReturnType<typeof scaleTime<number>>;
 type HeatmapLinearScale = ReturnType<typeof scaleLinear<number>>;
@@ -67,6 +70,8 @@ export interface HeatmapContextValue {
   brushYScale: HeatmapLinearScale;
   isReady: boolean;
   colorScale: (count: number | null | undefined) => string;
+  fillScale: (count: number | null | undefined) => string;
+  levelStyles: HeatmapLevelStyles;
   containerRef: RefObject<HTMLDivElement | null>;
   chartStatus: ChartStatus;
   chartPhase: ChartPhase;
