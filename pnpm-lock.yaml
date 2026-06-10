@@ -526,6 +526,9 @@ importers:
       '@visx/group':
         specifier: 4.0.1-alpha.0
         version: 4.0.1-alpha.0(react@19.2.0)
+      '@visx/heatmap':
+        specifier: 4.0.1-alpha.0
+        version: 4.0.1-alpha.0(react@19.2.0)
       '@visx/pattern':
         specifier: 4.0.1-alpha.0
         version: 4.0.1-alpha.0(react@19.2.0)
@@ -2803,6 +2806,11 @@ packages:
 
   '@visx/group@4.0.1-alpha.0':
     resolution: {integrity: sha512-V19l7iQ7jccBv8kao/EByuI6o4xtxzzLV9nqVI1hRvmdzTVsuLpqlwzYCZUXJaTVvUWf8s4D2SQFjGkj/Nw+0w==}
+    peerDependencies:
+      react: ^16.14.0 || ^17.0.0-0 || ^18.0.0-0 || ^19.0.0-0
+
+  '@visx/heatmap@4.0.1-alpha.0':
+    resolution: {integrity: sha512-fxghd5MCLSDeLxlT8f0x6ulEcBPgJZg9VyLQvCwVNHwopm3DUkk6evPJOMlcpXJiESDXsHkhSNit42O2fIZBRA==}
     peerDependencies:
       react: ^16.14.0 || ^17.0.0-0 || ^18.0.0-0 || ^19.0.0-0
 
@@ -8110,6 +8118,13 @@ snapshots:
   '@visx/group@4.0.1-alpha.0(react@19.2.0)':
     dependencies:
       '@types/react': 19.2.2
+      classnames: 2.5.1
+      react: 19.2.0
+
+  '@visx/heatmap@4.0.1-alpha.0(react@19.2.0)':
+    dependencies:
+      '@types/react': 19.2.2
+      '@visx/group': 4.0.1-alpha.0(react@19.2.0)
       classnames: 2.5.1
       react: 19.2.0
 

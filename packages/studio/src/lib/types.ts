@@ -218,6 +218,7 @@ export const chartLabels = {
   "composed-chart": "Composed Chart",
   "funnel-chart": "Funnel Chart",
   "gauge-chart": "Gauge",
+  "heatmap-chart": "Heatmap",
   "line-chart": "Line Chart",
   "profit-loss-line": "Profit/Loss Line",
   "live-line-chart": "Live Line Chart",

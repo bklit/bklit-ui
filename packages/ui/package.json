@@ -25,19 +25,19 @@
   "devDependencies": {
     "@bklitui/eslint-config": "workspace:*",
     "@bklitui/typescript-config": "workspace:*",
-    "shadcn": "^2.5.0",
     "@types/d3-array": "^3.2.1",
     "@types/d3-geo": "^3.1.0",
-    "@types/d3-scale": "^4.0.9",
     "@types/d3-sankey": "^0.12.5",
-    "@types/geojson": "^7946.0.16",
+    "@types/d3-scale": "^4.0.9",
     "@types/d3-shape": "^3.1.6",
+    "@types/geojson": "^7946.0.16",
     "@types/node": "^22.15.3",
     "@types/react": "19.2.2",
     "@types/react-dom": "19.2.2",
     "@types/topojson-client": "^3.1.5",
     "@types/topojson-specification": "^1.0.5",
     "eslint": "^9.39.1",
+    "shadcn": "^2.5.0",
     "tailwindcss": "^4.1.8",
     "tsx": "^4.19.4",
     "typescript": "5.9.2"
@@ -56,13 +56,13 @@
     "@visx/gradient": "4.0.1-alpha.0",
     "@visx/grid": "4.0.1-alpha.0",
     "@visx/group": "4.0.1-alpha.0",
+    "@visx/heatmap": "4.0.1-alpha.0",
     "@visx/pattern": "4.0.1-alpha.0",
     "@visx/responsive": "4.0.1-alpha.0",
     "@visx/sankey": "4.0.1-alpha.0",
     "@visx/scale": "4.0.1-alpha.0",
     "@visx/shape": "4.0.1-alpha.0",
     "@visx/zoom": "4.0.1-alpha.0",
-    "topojson-client": "3.1.0",
     "clsx": "^2.1.1",
     "d3-array": "3.2.4",
     "d3-geo": "3.1.0",
@@ -72,6 +72,7 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-use-measure": "^2.1.7",
-    "tailwind-merge": "^2.6.0"
+    "tailwind-merge": "^2.6.0",
+    "topojson-client": "3.1.0"
   }
 }

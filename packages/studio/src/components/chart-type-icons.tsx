@@ -14,6 +14,7 @@ import {
   DashboardSpeed01Icon,
   Flowchart02Icon,
   GlobeIcon,
+  GridIcon,
   PieChartIcon,
   PyramidStructure01Icon,
 } from "@hugeicons/core-free-icons";
@@ -30,6 +31,7 @@ export const CHART_TYPE_ICONS: Record<ChartSlug, IconSvgElement> = {
   "pie-chart": PieChartIcon,
   "ring-chart": ChartRingIcon,
   "gauge-chart": DashboardSpeed01Icon,
+  "heatmap-chart": GridIcon,
   "radar-chart": ChartRadarIcon,
   "funnel-chart": PyramidStructure01Icon,
   "candlestick-chart": ChartCandlestickIcon,

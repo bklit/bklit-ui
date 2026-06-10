@@ -1016,3 +1016,79 @@ export const sankeyChartControlGroups: StudioControlGroup[] = [
     },
   ]),
 ];
+
+export const heatmapChartControlGroups: StudioControlGroup[] = [
+  controlGroup("Settings", [
+    {
+      type: "select",
+      key: "heatmapChartState",
+      label: "State",
+      options: [
+        { value: "ready", label: "Ready" },
+        { value: "loading", label: "Loading" },
+      ],
+    },
+  ]),
+  controlGroup("Layout", [
+    {
+      type: "number",
+      key: "heatmapGap",
+      label: "Gap",
+      min: 0,
+      max: 8,
+    },
+    {
+      type: "number",
+      key: "heatmapCornerRadius",
+      label: "Radius",
+      min: 0,
+      max: 8,
+    },
+  ]),
+];
+
+export const heatmapCellsControlGroups: StudioControlGroup[] = [
+  controlGroup("Cells", [
+    {
+      type: "opacity",
+      key: "heatmapCellsFadedOpacity",
+      label: "Hover fade",
+      min: 0.1,
+      max: 1,
+      step: 0.05,
+      color: "var(--chart-1)",
+    },
+  ]),
+];
+
+export const heatmapLegendControlGroups: StudioControlGroup[] = [
+  controlGroup("Legend", [
+    { type: "boolean", key: "showLegend", label: "Show" },
+    { type: "legendPosition", key: "legendPlacement", label: "Placement" },
+    {
+      type: "number",
+      key: "legendFontSize",
+      label: "Font size",
+      min: 10,
+      max: 18,
+      step: 1,
+      unit: "px",
+    },
+    {
+      type: "number",
+      key: "heatmapLegendCellSize",
+      label: "Swatch size",
+      min: 8,
+      max: 16,
+      step: 1,
+      unit: "px",
+    },
+  ]),
+  controlGroup("Less → More", [
+    { type: "color", key: "heatmapLevel0Color", label: "Empty" },
+    { type: "color", key: "heatmapLevel1Color", label: "Level 1" },
+    { type: "color", key: "heatmapLevel2Color", label: "Level 2" },
+    { type: "color", key: "heatmapLevel3Color", label: "Level 3" },
+    { type: "color", key: "heatmapLevel4Color", label: "Level 4" },
+  ]),
+];

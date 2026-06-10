@@ -19,6 +19,7 @@ import {
 import {
   cssRevealAnimationCodegen,
   motionEnterPropsCodegen,
+  motionTransitionCodegen,
 } from "./motion-codegen";
 import { patternCodegenBlock } from "./patterns";
 import { seriesStrokePropsCodegen } from "./series-stroke-props";
@@ -538,6 +539,70 @@ export function funnelCodegen(state: StudioUrlState) {
   color="var(--chart-1)"
 />`,
     data: `const data = ${JSON.stringify(funnelData, null, 2)};`,
+  };
+}
+
+export function heatmapCodegen(state: StudioUrlState) {
+  const motion = motionSliceFromState(state);
+  const anim = cssRevealAnimationCodegen(state.animationDuration, motion);
+  const enterStagger = `enterStaggerScale={${state.motionStaggerScale.toFixed(2)}}`;
+  const enterTransition = `enterTransition={${motionTransitionCodegen(motion)}}`;
+  const loadingProps =
+    state.heatmapChartState === "loading"
+      ? `
+  status="loading"
+  loadingLabel="${state.heatmapLoadingLabel}"
+  loadingOpacity={${state.heatmapLoadingOpacity}}
+  loadingCellMaxOpacity={${state.heatmapLoadingCellMaxOpacity}}
+  loadingCellRandomness={${state.heatmapLoadingCellRandomness}}`
+      : "";
+  const cellProps = `cornerRadius={${state.heatmapCornerRadius}} fadedOpacity={${state.heatmapCellsFadedOpacity}}`;
+  const levelColorsLiteral = `[${[
+    state.heatmapLevel0Color,
+    state.heatmapLevel1Color,
+    state.heatmapLevel2Color,
+    state.heatmapLevel3Color,
+    state.heatmapLevel4Color,
+  ]
+    .map((color) => JSON.stringify(color))
+    .join(", ")}] as const`;
+  const levelColorsConst = `const heatmapLevelColors = ${levelColorsLiteral};`;
+  const chartProps = `gap={${state.heatmapGap}}
+  levelColors={heatmapLevelColors}
+  ${anim}
+  ${enterTransition}
+  ${enterStagger}${loadingProps}`;
+  const legendProps = `cornerRadius={${state.heatmapCornerRadius}} gap={${state.heatmapGap}} colorScale={buildHeatmapColorScale(heatmapLevelColors)}`;
+
+  return {
+    code: `import {
+  buildHeatmapColorScale,
+  HeatmapCells,
+  HeatmapChart,
+  HeatmapInteractionBoundary,
+  HeatmapInteractionProvider,
+  HeatmapLegend,
+  HeatmapTooltip,
+  HeatmapXAxis,
+  HeatmapYAxis,
+} from "@bklitui/ui/charts";
+
+${levelColorsConst}
+
+<HeatmapInteractionProvider>
+  <HeatmapInteractionBoundary>
+    <HeatmapChart data={contributionData} ${chartProps}>
+      <HeatmapCells ${cellProps} />
+      <HeatmapXAxis />
+      <HeatmapYAxis />
+      <HeatmapTooltip />
+    </HeatmapChart>
+    <HeatmapLegend ${legendProps} />
+  </HeatmapInteractionBoundary>
+</HeatmapInteractionProvider>`,
+    data: `import type { HeatmapColumn } from "@bklitui/ui/charts";
+
+const contributionData: HeatmapColumn[] = [/* week columns */];`,
   };
 }
 

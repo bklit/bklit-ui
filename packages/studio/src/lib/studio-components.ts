@@ -37,6 +37,9 @@ import {
   gaugeControlGroups,
   getLineChartControlGroups,
   gridControlGroups,
+  heatmapCellsControlGroups,
+  heatmapChartControlGroups,
+  heatmapLegendControlGroups,
   liveLineChartControlGroups,
   pieCenterControlGroup,
   pieChartControlGroups,
@@ -1175,6 +1178,115 @@ export function resolveSankeyComponents(): StudioComponentDefinition[] {
       controlGroups: [tooltipAppearanceControlGroup],
     },
     legendNode("sankey"),
+  ];
+}
+
+export function resolveHeatmapComponents(
+  state: StudioUrlState
+): StudioComponentDefinition[] {
+  const [settings, layout] = heatmapChartControlGroups;
+  const chartId = "heatmap.chart";
+  const chartControlGroups = [
+    ...(settings ? [settings] : []),
+    ...(layout ? [layout] : []),
+  ];
+
+  if (state.heatmapChartState === "loading") {
+    return [
+      {
+        id: chartId,
+        label: "HeatmapChart",
+        kind: "chart",
+        treeIcon: "layers",
+        controlGroups: chartControlGroups,
+      },
+      {
+        id: "heatmap.loading-label",
+        label: "Label",
+        parentId: chartId,
+        kind: "chart",
+        controlGroups: [
+          controlGroup("Label", [
+            {
+              type: "text",
+              key: "heatmapLoadingLabel",
+              label: "Text",
+            },
+          ]),
+        ],
+      },
+      {
+        id: "heatmap.loading-cells",
+        label: "Cells",
+        parentId: chartId,
+        kind: "chart",
+        controlGroups: [
+          controlGroup("Loading", [
+            {
+              type: "opacity",
+              key: "heatmapLoadingOpacity",
+              label: "Chart opacity",
+              min: 0.1,
+              max: 1,
+              step: 0.05,
+              color: "var(--foreground)",
+            },
+          ]),
+          controlGroup("Animation", [
+            {
+              type: "opacity",
+              key: "heatmapLoadingCellMaxOpacity",
+              label: "Cell max",
+              min: 0.05,
+              max: 1,
+              step: 0.05,
+              color: "var(--chart-1)",
+            },
+            {
+              type: "number",
+              key: "heatmapLoadingCellRandomness",
+              label: "Randomness",
+              min: 0,
+              max: 1,
+              step: 0.05,
+            },
+          ]),
+        ],
+      },
+    ];
+  }
+
+  return [
+    {
+      id: chartId,
+      label: "HeatmapChart",
+      kind: "chart",
+      treeIcon: "layers",
+      controlGroups: chartControlGroups,
+    },
+    {
+      id: "heatmap.cells",
+      label: "HeatmapCells",
+      parentId: chartId,
+      kind: "chart",
+      controlGroups: heatmapCellsControlGroups,
+    },
+    passiveNode("heatmap", "xaxis", "HeatmapXAxis"),
+    passiveNode("heatmap", "yaxis", "HeatmapYAxis"),
+    {
+      id: "heatmap.tooltip",
+      label: "HeatmapTooltip",
+      parentId: chartId,
+      kind: "chart",
+      controlGroups: [tooltipAppearanceControlGroup],
+    },
+    {
+      id: "heatmap.legend",
+      label: "HeatmapLegend",
+      parentId: chartId,
+      kind: "chart",
+      controlGroups: heatmapLegendControlGroups,
+    },
   ];
 }
 

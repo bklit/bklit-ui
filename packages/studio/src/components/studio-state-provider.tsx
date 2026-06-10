@@ -15,6 +15,7 @@ import {
   STUDIO_CHART_FRAME_HEIGHT,
   STUDIO_CHART_FRAME_WIDTH,
 } from "@/components/studio-chart-frame";
+import { heatmapChartDefaults } from "@/lib/heatmap-chart-defaults";
 import {
   lineChartProfitLossDefaults,
   lineChartStandardDefaults,
@@ -278,6 +279,7 @@ export function StudioStateProvider({
         ...(slug === "live-line-chart" ? { curve: "monotoneX" } : {}),
         ...(slug === "profit-loss-line" ? lineChartProfitLossDefaults : {}),
         ...(slug === "line-chart" ? lineChartStandardDefaults : {}),
+        ...(slug === "heatmap-chart" ? heatmapChartDefaults : {}),
         ...(slug === "area-chart" || slug === "composed-chart"
           ? { dataSeries: 2 }
           : {}),
