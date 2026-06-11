@@ -17,7 +17,7 @@ import { defaultStudioState } from "../studio-parsers";
 
 const FLAT_CHART_PARAM_RE = /chart=/;
 const IFRAME_TAG_RE = /^<iframe /;
-const EMBED_SRC_RE = /src="https:\/\/ui\.bklit\.com\/studio\/embed\?s=v1\./;
+const EMBED_SRC_RE = /src="https:\/\/bklit\.com\/studio\/embed\?s=v1\./;
 const IFRAME_HEIGHT_RE = /height="520"/;
 
 describe("chart-links", () => {
