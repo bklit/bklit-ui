@@ -5,7 +5,8 @@
   "private": true,
   "sideEffects": false,
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./central-icon-names": "./src/central-icon-names.ts"
   },
   "scripts": {
     "check-types": "tsc --noEmit"
