@@ -640,7 +640,7 @@ export function MotionCurveEditor({
         className="w-[min(calc(100vw-2rem),18rem)] gap-0 p-3"
         collisionAvoidance={studioSidebarPopoverCollisionAvoidance}
         positionMethod="fixed"
-        side="left"
+        side="right"
         sideOffset={studioSidebarPopoverSideOffset}
       >
         <MotionCurveEditorContent
