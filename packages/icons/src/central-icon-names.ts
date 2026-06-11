@@ -1,5 +1,8 @@
 import { readFileSync } from "node:fs";
-import { join } from "node:path";
+import { createRequire } from "node:module";
+import { dirname, join } from "node:path";
+
+const require = createRequire(import.meta.url);
 
 let cachedNames: string[] | null = null;
 
@@ -9,10 +12,8 @@ export function getCentralIconNames(): string[] {
     return cachedNames;
   }
 
-  const iconIndexPath = join(
-    process.cwd(),
-    "node_modules/@central-icons-react/all/icons/index.d.ts"
-  );
+  const pkgPath = require.resolve("@central-icons-react/all/package.json");
+  const iconIndexPath = join(dirname(pkgPath), "icons/index.d.ts");
   const content = readFileSync(iconIndexPath, "utf8");
   cachedNames = [...content.matchAll(/readonly (Icon[A-Za-z0-9]+):/g)]
     .map((match) => match[1])

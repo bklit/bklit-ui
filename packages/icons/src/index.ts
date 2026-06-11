@@ -6,6 +6,7 @@ export type {
   CentralIconRadius,
   CentralIconStroke,
 } from "@central-icons-react/all/icons";
+export { getCentralIconNames } from "./central-icon-names";
 export {
   defaultIconStyle,
   Icon,
