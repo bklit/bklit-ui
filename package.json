@@ -27,6 +27,9 @@
     "node": ">=18"
   },
   "pnpm": {
+    "neverBuiltDependencies": [
+      "@central-icons-react/all"
+    ],
     "overrides": {
       "esm-env": "npm:esm-env-runtime@^0.1.1"
     }
