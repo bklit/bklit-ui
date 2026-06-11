@@ -27,6 +27,8 @@ jobs:
           cache: pnpm
 
       - name: Install dependencies
+        env:
+          CENTRAL_LICENSE_KEY: ${{ secrets.CENTRAL_LICENSE_KEY }}
         run: pnpm install --frozen-lockfile
 
       - name: Verify registry file closure and npm dependencies
