@@ -10,8 +10,8 @@ export const metadata: Metadata = {
 
 export default function StudioLayout({ children }: { children: ReactNode }) {
   return (
-    <Suspense fallback={null}>
-      <StudioNuqsAdapter>{children}</StudioNuqsAdapter>
-    </Suspense>
+    <StudioNuqsAdapter>
+      <Suspense fallback={null}>{children}</Suspense>
+    </StudioNuqsAdapter>
   );
 }
