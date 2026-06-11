@@ -2,6 +2,7 @@
 
 import Link from "fumadocs-core/link";
 import { motion, useReducedMotion } from "motion/react";
+import { ChanhDaiIcon } from "@/components/icons/chanhdai";
 import { OpenPanelIcon } from "@/components/icons/openpanel";
 import { useGithubStats } from "@/components/providers/github-stats-provider";
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,7 @@ import { cn } from "@/lib/utils";
 
 const sponsorLink = "https://github.com/sponsors/uixmat";
 const openPanelLink = "https://openpanel.dev";
+const chanhDaiLink = "https://chanhdai.com";
 
 const fadeUp = {
   initial: { opacity: 0, y: 12 },
@@ -39,19 +41,31 @@ function trackSponsorClick(location: "button" | "card") {
   });
 }
 
-function SponsorSkeletonCard({ className }: { className?: string }) {
+function SponsorSkeletonCard({
+  className,
+  variant = "premium",
+}: {
+  className?: string;
+  variant?: "premium" | "silver";
+}) {
   return (
     <Link
       aria-label="Become a sponsor"
       className={cn(
-        "group flex aspect-[5/3] items-center justify-center rounded-xl border border-border border-dashed bg-card/40 transition-colors hover:border-foreground/20 hover:bg-card/70",
+        "group flex items-center justify-center rounded-xl border border-border border-dashed bg-card/40 transition-colors hover:border-foreground/20 hover:bg-card/70",
+        variant === "silver" ? "aspect-[5/4]" : "aspect-[5/3]",
         className
       )}
       external
       href={sponsorLink}
       onClick={() => trackSponsorClick("card")}
     >
-      <span className="font-light font-mono text-muted-foreground text-xs transition-colors group-hover:text-foreground">
+      <span
+        className={cn(
+          "font-light font-mono text-muted-foreground transition-colors group-hover:text-foreground",
+          variant === "silver" ? "text-[10px]" : "text-xs"
+        )}
+      >
         +
       </span>
     </Link>
@@ -72,6 +86,37 @@ function OpenPanelSponsorCard({ className }: { className?: string }) {
       <OpenPanelIcon className="h-6 w-16 text-foreground transition-opacity group-hover:opacity-80" />
       <span className="font-light text-muted-foreground text-xs transition-colors group-hover:text-foreground">
         OpenPanel
+      </span>
+    </Link>
+  );
+}
+
+function ChanhDaiSponsorCard({
+  className,
+  variant = "premium",
+}: {
+  className?: string;
+  variant?: "premium" | "silver";
+}) {
+  return (
+    <Link
+      aria-label="Chánh Đại"
+      className={cn(
+        "group flex flex-col items-center justify-center gap-2 rounded-xl border border-border bg-card transition-colors hover:border-foreground/20 hover:bg-card/90",
+        variant === "silver" ? "aspect-[5/4]" : "aspect-[5/3]",
+        className
+      )}
+      external
+      href={chanhDaiLink}
+    >
+      <ChanhDaiIcon className="h-4 w-8 text-foreground transition-opacity group-hover:opacity-80" />
+      <span
+        className={cn(
+          "font-light text-muted-foreground transition-colors group-hover:text-foreground",
+          variant === "silver" ? "text-[10px]" : "text-xs"
+        )}
+      >
+        Chánh Đại
       </span>
     </Link>
   );
@@ -133,9 +178,9 @@ export function HomeSponsorsSection() {
   return (
     <section
       aria-label="Sponsors and contributors"
-      className="mx-auto w-full max-w-2xl space-y-10 py-[100px]"
+      className="mx-auto w-full space-y-10 py-[100px]"
     >
-      <div className="space-y-5">
+      <div className="mx-auto w-full max-w-2xl space-y-5">
         <motion.h2
           animate="animate"
           className="font-light text-4xl text-foreground tracking-tight"
@@ -163,12 +208,46 @@ export function HomeSponsorsSection() {
             <SponsorSkeletonCard />
           </motion.div>
         </motion.div>
+      </div>
+
+      <div className="mx-auto w-full max-w-[44rem] space-y-5">
+        <motion.h2
+          animate="animate"
+          className="font-light text-2xl text-foreground tracking-tight"
+          initial="initial"
+          transition={{ ...transition, delay: reducedMotion ? 0 : 0.1 }}
+          variants={fadeUp}
+        >
+          Silver Sponsors
+        </motion.h2>
+
+        <motion.div
+          animate="animate"
+          className="grid grid-cols-5 gap-3 sm:gap-4"
+          initial="initial"
+          transition={{ ...transition, delay: reducedMotion ? 0 : 0.12 }}
+          variants={containerVariants}
+        >
+          {["a", "b"].map((id) => (
+            <motion.div key={id} transition={transition} variants={fadeUp}>
+              <SponsorSkeletonCard variant="silver" />
+            </motion.div>
+          ))}
+          <motion.div transition={transition} variants={fadeUp}>
+            <ChanhDaiSponsorCard variant="silver" />
+          </motion.div>
+          {["c", "d"].map((id) => (
+            <motion.div key={id} transition={transition} variants={fadeUp}>
+              <SponsorSkeletonCard variant="silver" />
+            </motion.div>
+          ))}
+        </motion.div>
 
         <motion.div
           animate="animate"
           className="flex justify-center pt-1"
           initial="initial"
-          transition={{ ...transition, delay: reducedMotion ? 0 : 0.12 }}
+          transition={{ ...transition, delay: reducedMotion ? 0 : 0.18 }}
           variants={fadeUp}
         >
           <Button
@@ -188,7 +267,7 @@ export function HomeSponsorsSection() {
         </motion.div>
       </div>
 
-      <div className="space-y-4">
+      <div className="mx-auto w-full max-w-2xl space-y-4">
         <motion.h3
           animate="animate"
           className="font-medium text-muted-foreground text-sm"
