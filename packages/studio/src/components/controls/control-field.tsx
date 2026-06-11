@@ -524,6 +524,21 @@ export function ControlField({
     );
   }
 
+  if (control.type === "curve") {
+    return (
+      <ControlFieldInputs
+        control={control}
+        onChange={(nextKey, nextValue) =>
+          commitValue(
+            nextKey,
+            nextValue as StudioUrlState[keyof StudioUrlState]
+          )
+        }
+        value={value}
+      />
+    );
+  }
+
   if (isGroupLabeledControlType(control.type)) {
     return (
       <div className="space-y-2">

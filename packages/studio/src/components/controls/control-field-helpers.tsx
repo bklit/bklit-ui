@@ -37,7 +37,6 @@ export const studioInputSurfaceClass = cn(
 
 const GROUP_LABELED_TYPES = new Set<StudioControl["type"]>([
   "pattern",
-  "curve",
   "pieFill",
   "orientation",
   "lineCap",
