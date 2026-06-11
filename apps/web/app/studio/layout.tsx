@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { type ReactNode, Suspense } from "react";
-import { StudioNuqsAdapter } from "./studio-nuqs-adapter";
+import type { ReactNode } from "react";
 
 export const metadata: Metadata = {
   title: "Studio",
@@ -9,9 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function StudioLayout({ children }: { children: ReactNode }) {
-  return (
-    <StudioNuqsAdapter>
-      <Suspense fallback={null}>{children}</Suspense>
-    </StudioNuqsAdapter>
-  );
+  return children;
 }

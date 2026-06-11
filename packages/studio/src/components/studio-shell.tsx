@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import type { StudioAnalytics } from "@/providers/studio-analytics-context";
 import { StudioAnalyticsProvider } from "@/providers/studio-analytics-context";
+import { StudioNuqsAdapter } from "@/providers/studio-nuqs-adapter";
 import { StudioThemeProvider } from "@/providers/studio-theme-provider";
 import { Toaster } from "@/ui/sonner";
 import { StudioEditorLayout } from "./studio-editor-layout";
@@ -18,14 +19,16 @@ export function StudioShell({
   renderCodeSheet?: (state: StudioUrlState) => ReactNode;
 }) {
   return (
-    <StudioAnalyticsProvider value={analytics ?? {}}>
-      <StudioStateProvider>
-        <StudioThemeProvider>
-          <StudioOnboardingDialog />
-          <StudioEditorLayout renderCodeSheet={renderCodeSheet} />
-          <Toaster position="top-center" />
-        </StudioThemeProvider>
-      </StudioStateProvider>
-    </StudioAnalyticsProvider>
+    <StudioNuqsAdapter>
+      <StudioAnalyticsProvider value={analytics ?? {}}>
+        <StudioStateProvider>
+          <StudioThemeProvider>
+            <StudioOnboardingDialog />
+            <StudioEditorLayout renderCodeSheet={renderCodeSheet} />
+            <Toaster position="top-center" />
+          </StudioThemeProvider>
+        </StudioStateProvider>
+      </StudioAnalyticsProvider>
+    </StudioNuqsAdapter>
   );
 }
