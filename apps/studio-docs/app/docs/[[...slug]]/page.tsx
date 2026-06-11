@@ -1,4 +1,5 @@
 import {
+  CustomComponentsDemo,
   FeedbackDemo,
   FieldsDemo,
   MotionBezierDemo,
@@ -65,6 +66,7 @@ export default async function Page(props: {
               ToggleGroupDemo,
               PrimitivesDemo,
               FieldsDemo,
+              CustomComponentsDemo,
               MotionBezierDemo,
               MotionEasePresetsDemo,
               MotionControlDemo,

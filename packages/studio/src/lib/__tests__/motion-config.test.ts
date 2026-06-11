@@ -34,7 +34,7 @@ describe("studioMotionToTransition", () => {
     const state = defaultStudioState({
       motionType: "ease",
       motionDuration: 1.2,
-      motionEase: "snappy",
+      motionEase: "ease",
     });
     const t = studioMotionToTransition(state);
     assert.equal(t.type, "tween");
@@ -90,7 +90,7 @@ describe("sampleMotionCurve", () => {
     assert.ok((points.at(-1)?.y ?? 0) > 0.95);
   });
 
-  it("ease snappy matches cubicBezierEase endpoints", () => {
+  it("ease out matches cubicBezierEase endpoints", () => {
     const bezier = [0.85, 0, 0.15, 1] as [number, number, number, number];
     assert.equal(cubicBezierEase(0, bezier), 0);
     assert.equal(cubicBezierEase(1, bezier), 1);

@@ -170,7 +170,7 @@ function OklchSliderTrack({
       aria-valuemin={ariaValueMin}
       aria-valuenow={ariaValueNow}
       className={cn(
-        "relative h-3 w-full touch-none select-none rounded-md ring-1 ring-border",
+        "relative h-3 w-full touch-none select-none rounded-md",
         disabled && "pointer-events-none bg-muted opacity-50"
       )}
       onPointerDown={onPointerDown}

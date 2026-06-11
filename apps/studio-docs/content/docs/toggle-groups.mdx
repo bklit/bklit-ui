@@ -3,9 +3,11 @@ title: Toggle groups
 description: StudioToggleGroup — shadcn ToggleGroup with sidebar chrome and layout presets
 ---
 
-`StudioToggleGroup` / `StudioToggleGroupItem` wrap shadcn `ToggleGroup` with `variant="sidebar"` and layout presets from `STUDIO_TOGGLE_LAYOUTS`. Use these for single-select option sets (2–7 choices), not `Tabs` — there is no tab panel.
+`StudioToggleGroup` / `StudioToggleGroupItem` wrap shadcn `ToggleGroup` with Studio layout presets from `STUDIO_TOGGLE_LAYOUTS`. Use these for single-select option sets (2–7 choices), not `Tabs` — there is no tab panel.
 
-**Source:** `packages/studio/src/components/controls/studio-toggle-group.tsx`
+**`segmented`**, **`icons`**, and **`cards-2`** use `SlidingToggleControl` — sliding thumb via Tailwind `:has`, CSS `linear()` spring, and `scale-[0.92]` while pressed. **`segmented`** (and [Yes / No switch](/docs/custom-components)) use a dark **`bg-background` track** (no border); the active thumb is lighter **`bg-muted`**. **`icons`** and **`cards-2`** are ghost with no track. Other layouts still use shadcn `ToggleGroup`.
+
+**Source:** `packages/studio/src/components/controls/studio-toggle-group.tsx`, `packages/studio/src/ui/segmented-control.tsx`
 
 <ComponentShowcase>
   <StudioUiPreview>
@@ -19,7 +21,7 @@ description: StudioToggleGroup — shadcn ToggleGroup with sidebar chrome and la
 |--------|----------|
 | `segmented` | Text segments (fill mode, ease/spring, export mode) |
 | `icons` | Icon row (orientation, line cap, fade edges) |
-| `cards-2` | 2-column preview cards (ease presets, curves) |
+| `cards-2` | 2-column preview cards (motion ease presets with Central icons, curve previews) |
 | `cards-3` | 3-column preview cards |
 | `swatch` | Swatch + label (pie fill) |
 | `legend` | 3×2 placement grid |

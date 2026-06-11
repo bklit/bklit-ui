@@ -1,0 +1,87 @@
+---
+title: Custom components
+description: Hand-built Studio controls — Yes/No switch, scrub number field, and more
+---
+
+These components live in `packages/studio/src/ui/` and `packages/studio/src/components/controls/`. They are **not** from `pnpm ui:add` — they are maintained for editor-specific interactions.
+
+<ComponentShowcase>
+  <StudioUiPreview>
+    <CustomComponentsDemo />
+  </StudioUiPreview>
+</ComponentShowcase>
+
+## Sliding toggle control
+
+**Source:** `packages/studio/src/ui/segmented-control.tsx` (`SlidingToggleControl`)
+
+Shared sliding-thumb control for text segments, icon rows, and 2-column card grids. Used by `StudioToggleGroup` (`segmented`, `icons`, `cards-2`) and the Yes / No switch. The active thumb and label colors animate with **Tailwind only** — no Motion — using the `:has()` pseudo-class on the root.
+
+Hidden radio inputs carry `data-segment-index`. The root uses `group/sliding` and Tailwind `has` variants:
+
+- **Thumb:** `translate-x-[N*100%]` per checked index, with a CSS `linear()` spring (`350ms`, slight overshoot)
+- **Press:** `group-has-[label:active]/sliding:scale-[0.92]` on the thumb while a segment is held
+- **Labels:** `has-[:checked]:text-foreground` on each segment label
+
+**Text** segments and Yes / No use a dark `bg-background` track (no border, `h-8`); the active thumb is lighter `bg-muted`. **Icon** toggles stay ghost (no track) by default.
+
+```tsx
+<SegmentedControl
+  value={fillMode}
+  onValueChange={setFillMode}
+  options={[
+    { value: "solid", label: "Solid" },
+    { value: "pattern", label: "Pattern" },
+  ]}
+/>
+```
+
+## Yes / No switch
+
+**Source:** `packages/studio/src/ui/yes-no-switch.tsx`
+
+Boolean wrapper around `SegmentedControl` (`yes` / `no` values).
+
+```tsx
+<YesNoSwitch value={visible} onValueChange={setVisible} />
+```
+
+Use inside a property row with `Label` + `min-w-0 flex-1` so it stretches like `ScrubNumberField`.
+
+## Studio slider
+
+**Source:** `packages/studio/src/ui/studio-slider.tsx`
+
+Click-or-drag slider with integrated **label**, **value + unit**, and a **ruler** (tick marks faded at each end via `mask-image`). Progress width animates with a CSS `linear()` spring when not dragging.
+
+```tsx
+<StudioSlider
+  label="Blur"
+  value={blur}
+  min={0}
+  max={100}
+  step={1}
+  unit="px"
+  onPreview={setBlur}
+  onCommit={setBlur}
+/>
+```
+
+| Prop | Type | Notes |
+|------|------|-------|
+| `label` | `string` | Shown inside the track (left) |
+| `format` | `(value) => string` | Optional; defaults from `step` |
+| `unit` | `string` | Appended to value (e.g. `px`) |
+| `onPreview` / `onCommit` | `(number) => void` | Live drag + final commit |
+
+Track: `bg-background`. Fill: `bg-muted/80`. Ruler: major ticks every 10th mark. Scroll wheel (horizontal or vertical) adjusts the value while hovered.
+
+**Radius:** custom controls use shadcn tokens from `studio-chrome-classes.ts` — `rounded-lg` (`--radius`) for outer chrome, `rounded-md` (`--radius-md`) for inner thumbs.
+
+## Scrub number field
+
+**Source:** `packages/studio/src/ui/number-field.tsx` (primitive), `scrub-number-field.tsx` (drag-to-scrub wrapper)
+
+Click-and-drag horizontally to scrub values; type directly for precision. `ScrubNumberField` wires preview/commit callbacks and sets shell scrubbing state so charts do not replay while dragging.
+
+See also [Fields](/docs/fields) for opacity, fill picker, and full property-row patterns.

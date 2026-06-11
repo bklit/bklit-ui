@@ -21,13 +21,18 @@ Local-only — not deployed.
 packages/studio/
 ├── src/ui/              # shadcn primitives (components.json → pnpm ui:add)
 ├── src/components/controls/  # chart property widgets
+├── src/lib/studio-chrome-classes.ts  # shared Tailwind for sidebar chrome
 ├── src/styles/
-│   ├── studio-theme.css      # scoped .studio-shell shadcn vars
-│   └── studio-chrome.css     # control surfaces, scrollbars, grids
+│   ├── studio-theme.css      # scoped .studio-shell chart + shadcn vars
+│   └── studio-chrome.css     # WebKit scrollbar rules
 └── components.json      # shadcn CLI config (ui alias → @/ui)
+
+packages/icons/          # @bklitui/icons — Central Icon System wrapper
 ```
 
-**Custom** (hand-maintained): sidebar chrome tokens, OKLCH color picker, `number-field`, motion bezier editor, fill/pattern/legend pickers, scrub inputs.
+**Custom** (hand-maintained): [Yes/No switch](/docs/custom-components), [Studio slider](/docs/custom-components#studio-slider), scrub `number-field`, OKLCH color picker, motion bezier editor + ease presets, fill/pattern/legend pickers.
+
+**Icons:** all Studio UI icons come from [`@bklitui/icons`](https://www.npmjs.com/package/@central-icons-react/all) (Central Icon System). Motion presets use `IconAnimationEaseOut`, `IconAnimationEase`, `IconAnimationEaseIn`, and `IconAnimationElastic`; the bezier editor footer uses `IconBezierCurves`. See [Motion](/docs/motion).
 
 **Shadcn-managed** (22): `button`, `dialog`, `dropdown-menu`, `input`, `popover`, `select`, `slider`, `toggle`, `toggle-group`, `tooltip`, and more — run `pnpm dlx shadcn@latest info --json` from `packages/studio`.
 
@@ -36,6 +41,7 @@ packages/studio/
 - [Control surfaces](/docs/control-surfaces) — sidebar `Button` chrome
 - [Toggle groups](/docs/toggle-groups) — `StudioToggleGroup` layouts (segmented, icons, cards)
 - [Fields](/docs/fields) — property rows, scrub numbers, fill picker
+- [Custom components](/docs/custom-components) — Yes/No switch, scrub number field
 - [Motion](/docs/motion) — bezier editor, ease presets, duration controls
 - [Pickers](/docs/pickers) — legend placement, icon toggles
 - [Patterns](/docs/patterns) — series pattern swatches

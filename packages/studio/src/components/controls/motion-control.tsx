@@ -7,8 +7,9 @@ import {
   StudioToggleGroupItem,
 } from "@/components/controls/studio-toggle-group";
 import { motionDurationToAnimationMs } from "@/lib/chart-animation";
-import { MOTION_EASE_PRESETS, type MotionType } from "@/lib/motion-config";
+import { type MotionType, motionEasePresetUpdates } from "@/lib/motion-config";
 import type { StudioUrlState } from "@/lib/studio-parsers";
+import { StudioSlider } from "@/ui/studio-slider";
 
 const MOTION_TYPE_LABELS: Record<MotionType, string> = {
   ease: "Ease",
@@ -93,7 +94,7 @@ export function MotionControl({
       />
 
       <div className="flex flex-col gap-3">
-        <SliderInputGroup
+        <StudioSlider
           label="Duration"
           max={2}
           min={0.2}
@@ -129,9 +130,9 @@ export function MotionControl({
         ) : (
           <MotionEasePresetGrid
             onSelect={(id) => {
-              onChange("motionEase", id);
-              const b = MOTION_EASE_PRESETS[id].bezier;
-              onChange("motionBezier", `${b[0]}, ${b[1]}, ${b[2]}, ${b[3]}`);
+              const preset = motionEasePresetUpdates(id);
+              onCommit("motionEase", preset.motionEase);
+              onCommit("motionBezier", preset.motionBezier);
             }}
             value={state.motionEase}
           />

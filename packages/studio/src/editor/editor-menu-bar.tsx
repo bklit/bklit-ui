@@ -147,7 +147,7 @@ export function EditorMenuBar({
                   type="button"
                   variant="ghost"
                 >
-                  <Icon className="size-4" name="IconExpand" />
+                  <Icon className="size-4" name="IconArrowsZoom" />
                 </Button>
               </EditorMenuBarTooltipItem>
             ) : null}
@@ -162,7 +162,7 @@ export function EditorMenuBar({
                   type="button"
                   variant="ghost"
                 >
-                  <Icon aria-hidden className="size-4" name="IconMinimize" />
+                  <Icon aria-hidden className="size-4" name="IconFocusSquare" />
                 </Button>
               </EditorMenuBarTooltipItem>
             ) : null}

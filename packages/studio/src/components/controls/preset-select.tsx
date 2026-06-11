@@ -20,10 +20,7 @@ export function PresetSwatch({
 }) {
   return (
     <span
-      className={cn(
-        "block shrink-0 rounded-full ring-1 ring-border",
-        className
-      )}
+      className={cn("block shrink-0 rounded-full", className)}
       style={{ background: presetSwatchGradient(id) }}
     />
   );
@@ -81,7 +78,7 @@ export function PresetSelect({
                 className={cn(
                   "flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-sm transition-colors",
                   selected
-                    ? "bg-accent/10 text-foreground ring-1 ring-accent/25"
+                    ? "bg-accent/15 text-foreground"
                     : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
                 )}
                 key={p.id}

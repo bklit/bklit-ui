@@ -52,7 +52,7 @@ export function PieFillPicker({
     <StudioToggleGroup layout="swatch" onValueChange={onChange} value={value}>
       {options.map((opt) => (
         <StudioToggleGroupItem key={opt.id} value={opt.id}>
-          <span className="size-5 shrink-0 overflow-hidden rounded ring-1 ring-border">
+          <span className="size-5 shrink-0 overflow-hidden rounded">
             {opt.swatch}
           </span>
           {opt.label}

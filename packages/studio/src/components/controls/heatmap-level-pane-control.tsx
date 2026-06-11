@@ -157,7 +157,7 @@ export function HeatmapLevelPaneControl({
       </StudioControlRow>
 
       {patternEnabled ? (
-        <div className="space-y-3 border-border border-t pt-3">
+        <div className="space-y-3 border-transparent border-t pt-3">
           <div className="space-y-2">
             <p className={studioFieldLabelClass}>Style</p>
             <PatternPicker

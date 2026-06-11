@@ -1,10 +1,13 @@
 "use client";
 
+import { Icon, type IconName } from "@bklitui/icons";
 import { cn } from "@bklitui/ui/lib/utils";
 import type { VariantProps } from "class-variance-authority";
 import {
+  Children,
   type ComponentProps,
   createContext,
+  isValidElement,
   type ReactNode,
   useContext,
 } from "react";
@@ -12,8 +15,50 @@ import {
   studioJoinedToggleGroupClass,
   studioJoinedToggleGroupItemClass,
 } from "@/lib/studio-chrome-classes";
+import {
+  SlidingToggleControl,
+  type SlidingToggleOption,
+} from "@/ui/segmented-control";
 import type { toggleVariants } from "@/ui/toggle";
 import { ToggleGroup, ToggleGroupItem } from "@/ui/toggle-group";
+
+function collectToggleOptions(
+  children: ReactNode
+): SlidingToggleOption<string>[] {
+  const options: SlidingToggleOption<string>[] = [];
+
+  for (const child of Children.toArray(children)) {
+    if (!isValidElement(child)) {
+      continue;
+    }
+
+    const props = child.props as {
+      value?: string;
+      children?: ReactNode;
+      icon?: IconName;
+      label?: string;
+      "aria-label"?: string;
+      title?: string;
+    };
+
+    if (props.value == null) {
+      continue;
+    }
+
+    options.push({
+      value: props.value,
+      label: props.icon ? (
+        <Icon className="size-5" name={props.icon} />
+      ) : (
+        props.children
+      ),
+      "aria-label": props["aria-label"] ?? props.label,
+      title: props.title ?? props.label,
+    });
+  }
+
+  return options;
+}
 
 /** Layout presets for shadcn `ToggleGroup` in the Studio sidebar. */
 export type StudioToggleLayout =
@@ -35,29 +80,22 @@ interface LayoutConfig {
 
 export const STUDIO_TOGGLE_LAYOUTS: Record<StudioToggleLayout, LayoutConfig> = {
   segmented: {
-    groupClassName: cn(
-      studioJoinedToggleGroupClass,
-      "!grid grid-cols-[repeat(auto-fit,minmax(0,1fr))]"
-    ),
-    itemClassName: cn(studioJoinedToggleGroupItemClass, "flex-1"),
+    groupClassName: "",
     size: "segmented",
     spacing: 0,
     variant: "default",
-    joined: true,
   },
   icons: {
-    groupClassName: "w-full",
+    groupClassName: "",
     size: "icon",
-    spacing: 2,
-    variant: "outline",
+    spacing: 0,
+    variant: "default",
   },
   "cards-2": {
-    groupClassName: cn(studioJoinedToggleGroupClass, "!grid grid-cols-2"),
-    itemClassName: cn(studioJoinedToggleGroupItemClass, "w-full"),
+    groupClassName: "",
     size: "card",
     spacing: 0,
     variant: "default",
-    joined: true,
   },
   "cards-3": {
     groupClassName: "grid w-full grid-cols-3 gap-1.5",
@@ -104,6 +142,29 @@ export function StudioToggleGroup<T extends string>({
   children: ReactNode;
 }) {
   const config = STUDIO_TOGGLE_LAYOUTS[layout];
+
+  if (layout === "segmented" || layout === "icons" || layout === "cards-2") {
+    const options = collectToggleOptions(children);
+    let variant: "text" | "icon" | "card" = "card";
+    if (layout === "segmented") {
+      variant = "text";
+    } else if (layout === "icons") {
+      variant = "icon";
+    }
+
+    return (
+      <StudioToggleLayoutContext.Provider value={layout}>
+        <SlidingToggleControl
+          className={className}
+          columns={layout === "cards-2" ? 2 : undefined}
+          onValueChange={onValueChange}
+          options={options as SlidingToggleOption<T>[]}
+          value={value}
+          variant={variant}
+        />
+      </StudioToggleLayoutContext.Provider>
+    );
+  }
 
   return (
     <StudioToggleLayoutContext.Provider value={layout}>

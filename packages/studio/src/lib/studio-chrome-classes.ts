@@ -1,5 +1,22 @@
 /** Shared Tailwind chrome for Studio editor surfaces (replaces `studio-chrome.css`). */
 
+/**
+ * shadcn radius scale (`studio-tailwind.css` maps these to `--radius`):
+ * - `rounded-lg` → `--radius-lg` → `var(--radius)` — default control chrome
+ * - `rounded-md` → `--radius-md` — inner thumbs / nested pills
+ * - `rounded-sm` → `--radius-sm` — compact nested elements
+ */
+export const studioControlRadiusClass = "rounded-lg";
+export const studioControlRadiusInnerClass = "rounded-md";
+export const studioControlRadiusCompactClass = "rounded-sm";
+
+/** Scrub fields, sliders, and motion curve chrome. */
+export const studioInputBackgroundClass =
+  "bg-[var(--studio-input-background,var(--background))]";
+
+/** Borderless scrub / slider track — matches `StudioSlider` chrome. */
+export const studioScrubSurfaceClass = `${studioControlRadiusClass} ${studioInputBackgroundClass}`;
+
 export const studioLabelClass = "text-[var(--studio-label)]";
 
 export const studioSectionLabelClass =
@@ -13,8 +30,8 @@ export const studioRecordingCaptureClass =
 
 export const studioMotionSectionClass = "max-w-full min-w-0";
 
-export const studioMotionCurveCardClass =
-  "bg-card bg-[radial-gradient(circle,color-mix(in_oklch,var(--foreground)_14%,transparent)_1px,transparent_1px)] [background-size:10px_10px]";
+/** Motion curve editor canvas — same surface as scrub inputs. */
+export const studioMotionCurveCardClass = studioInputBackgroundClass;
 
 export const studioSidebarScrollClass =
   "[--studio-scrollbar-width:4px] [scrollbar-gutter:stable] [&::-webkit-scrollbar-track]:my-1.5";
@@ -23,11 +40,10 @@ export const studioCartesianFillClass =
   "[&>div]:!aspect-auto [&>div]:h-full [&>div]:min-h-0 [&>div]:w-full";
 
 /**
- * Joined toggle grids — `gap-px` + `bg-border` draws 1px gutters; the shell owns
- * the outer ring so adjacent cells never stack double borders.
+ * Joined toggle grids — `gap-px` + `bg-muted/20` draws subtle 1px gutters between cells.
  */
 export const studioJoinedToggleGroupClass =
-  "isolate w-full !gap-px overflow-hidden rounded-lg border border-border bg-border";
+  "isolate w-full !gap-px overflow-hidden rounded-lg border border-transparent bg-muted/20";
 
 /** Flat cell inside `studioJoinedToggleGroupClass` — square corners, no outer ring. */
 export const studioJoinedToggleGroupItemClass =

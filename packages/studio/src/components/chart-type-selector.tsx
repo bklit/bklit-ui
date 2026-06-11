@@ -65,7 +65,7 @@ export function ChartTypeSelector({
                 className={cn(
                   "h-auto w-full justify-start gap-2 rounded-lg px-2 py-2 text-left font-normal",
                   selected
-                    ? "bg-accent/50 text-foreground ring-1 ring-accent/25"
+                    ? "bg-accent/50 text-foreground"
                     : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
                 )}
                 key={item.slug}

@@ -2,6 +2,7 @@
 "use client";
 
 export {
+  CustomComponentsDemo,
   FeedbackDemo,
   FieldsDemo,
   MotionBezierDemo,

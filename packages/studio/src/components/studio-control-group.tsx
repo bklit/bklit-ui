@@ -44,7 +44,7 @@ export function StudioControlGroup({
         {collapsible ? (
           <button
             aria-expanded={open}
-            className="flex min-w-0 flex-1 items-center gap-1.5 text-left"
+            className="flex min-w-0 flex-1 items-center gap-1.5 overflow-hidden text-left"
             onClick={() => setOpen((value) => !value)}
             type="button"
           >
@@ -55,10 +55,10 @@ export function StudioControlGroup({
               )}
               name="IconChevronDownSmall"
             />
-            <h3 className={studioSectionLabelClass}>{title}</h3>
+            <h3 className={cn(studioSectionLabelClass, "truncate")}>{title}</h3>
           </button>
         ) : (
-          <h3 className={studioSectionLabelClass}>{title}</h3>
+          <h3 className={cn(studioSectionLabelClass, "truncate")}>{title}</h3>
         )}
         {titleTrailing ? <div className="shrink-0">{titleTrailing}</div> : null}
       </header>

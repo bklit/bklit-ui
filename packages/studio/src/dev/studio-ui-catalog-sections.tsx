@@ -21,7 +21,7 @@ import {
 import { CurvePreviewIcon } from "@/components/curve-preview-icons";
 import { StudioControlGroup } from "@/components/studio-control-group";
 import type { CurveId } from "@/lib/curves";
-import { MOTION_EASE_PRESETS } from "@/lib/motion-config";
+import { motionEasePresetUpdates } from "@/lib/motion-config";
 import type { PatternPresetId } from "@/lib/pattern-presets";
 import {
   studioMotionSectionClass,
@@ -41,6 +41,7 @@ import {
   SelectValue,
 } from "@/ui/select";
 import { Spinner } from "@/ui/spinner";
+import { StudioSlider } from "@/ui/studio-slider";
 import { Switch } from "@/ui/switch";
 import { Textarea } from "@/ui/textarea";
 import {
@@ -49,6 +50,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/ui/tooltip";
+import { YesNoSwitch } from "@/ui/yes-no-switch";
 
 const SIDEBAR_WIDTH = "w-[280px]";
 
@@ -152,7 +154,7 @@ export function SurfacesSection() {
 
 export function ToggleGroupDemo() {
   const [segmented, setSegmented] = useState("solid");
-  const [icons, setIcons] = useState("left");
+  const [icons, setIcons] = useState("moon");
   const [curve, setCurve] = useState<CurveId>("natural");
 
   return (
@@ -169,21 +171,9 @@ export function ToggleGroupDemo() {
       </StudioControlGroup>
       <StudioControlGroup collapsible defaultOpen title="Icons">
         <IconToggleGroup onValueChange={setIcons} value={icons}>
-          <IconToggleButton
-            icon="IconLayoutAlignLeft"
-            label="Left"
-            value="left"
-          />
-          <IconToggleButton
-            icon="IconLayoutAlignRight"
-            label="Right"
-            value="right"
-          />
-          <IconToggleButton
-            icon="IconFormSquare"
-            label="Square"
-            value="square"
-          />
+          <IconToggleButton icon="IconMoon" label="Moon" value="moon" />
+          <IconToggleButton icon="IconGauge" label="Gauge" value="gauge" />
+          <IconToggleButton icon="IconRadar" label="Radar" value="radar" />
         </IconToggleGroup>
       </StudioControlGroup>
       <StudioControlGroup collapsible defaultOpen title="Cards (2 col)">
@@ -336,6 +326,90 @@ export function FieldsSection() {
   );
 }
 
+export function CustomComponentsDemo() {
+  const [visible, setVisible] = useState(true);
+  const [animated, setAnimated] = useState(false);
+  const [duration, setDuration] = useState(1.1);
+  const [opacity, setOpacity] = useState(1);
+  const [blur, setBlur] = useState(49);
+  const [saturation, setSaturation] = useState(8);
+
+  return (
+    <DemoControlGroups>
+      <StudioControlGroup collapsible defaultOpen title="Yes / No">
+        <div className="flex flex-col gap-1.5">
+          <div className="flex min-w-0 items-center gap-2.5">
+            <Label className="w-28 shrink-0 font-medium text-xs">Visible</Label>
+            <YesNoSwitch
+              className="min-w-0 flex-1"
+              onValueChange={setVisible}
+              value={visible}
+            />
+          </div>
+          <div className="flex min-w-0 items-center gap-2.5">
+            <Label className="w-28 shrink-0 font-medium text-xs">
+              Animated
+            </Label>
+            <YesNoSwitch
+              className="min-w-0 flex-1"
+              onValueChange={setAnimated}
+              value={animated}
+            />
+          </div>
+        </div>
+      </StudioControlGroup>
+      <StudioControlGroup collapsible defaultOpen title="Scrub number">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <Label className="w-28 shrink-0 font-medium text-xs">Duration</Label>
+          <ScrubNumberField
+            max={5}
+            min={0}
+            onCommit={setDuration}
+            onPreview={setDuration}
+            step={0.1}
+            unit="s"
+            value={duration}
+          />
+        </div>
+      </StudioControlGroup>
+      <StudioControlGroup collapsible defaultOpen title="Sliders">
+        <div className="flex flex-col gap-1.5">
+          <StudioSlider
+            format={(v) => v.toFixed(2)}
+            label="Opacity"
+            max={1}
+            min={0}
+            onCommit={setOpacity}
+            onPreview={setOpacity}
+            step={0.01}
+            value={opacity}
+          />
+          <StudioSlider
+            label="Blur"
+            max={100}
+            min={0}
+            onCommit={setBlur}
+            onPreview={setBlur}
+            step={1}
+            unit="px"
+            value={blur}
+          />
+          <StudioSlider
+            format={(v) => v.toFixed(1)}
+            label="Saturation"
+            max={10}
+            min={0}
+            onCommit={setSaturation}
+            onPreview={setSaturation}
+            step={0.1}
+            value={saturation}
+          />
+        </div>
+      </StudioControlGroup>
+    </DemoControlGroups>
+  );
+}
+
 export function MotionBezierDemo() {
   const { state, onPreview, onCommit } = useCatalogUrlState();
 
@@ -348,6 +422,7 @@ export function MotionBezierDemo() {
         title="Curve"
       >
         <MotionCurveEditor
+          layout="inline"
           onCommit={onCommit}
           onPreview={onPreview}
           state={motionSlice(state)}
@@ -365,9 +440,9 @@ export function MotionEasePresetsDemo() {
       <StudioControlGroup collapsible defaultOpen title="Presets">
         <MotionEasePresetGrid
           onSelect={(id) => {
-            onChange("motionEase", id);
-            const b = MOTION_EASE_PRESETS[id].bezier;
-            onChange("motionBezier", `${b[0]}, ${b[1]}, ${b[2]}, ${b[3]}`);
+            const preset = motionEasePresetUpdates(id);
+            onChange("motionEase", preset.motionEase);
+            onChange("motionBezier", preset.motionBezier);
           }}
           value={state.motionEase}
         />

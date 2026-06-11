@@ -12,7 +12,7 @@ export function OpacitySwatch({
   secondaryColor?: string;
 }) {
   return (
-    <span className="relative block size-6 overflow-hidden rounded-full ring-1 ring-border">
+    <span className="relative block size-6 overflow-hidden rounded-full">
       {secondaryColor ? (
         <span
           className="absolute inset-0"

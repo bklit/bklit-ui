@@ -2,7 +2,10 @@
 
 import { cn } from "@bklitui/ui/lib/utils";
 import type { ReactNode } from "react";
-import { studioLabelClass } from "@/lib/studio-chrome-classes";
+import {
+  studioControlRadiusClass,
+  studioLabelClass,
+} from "@/lib/studio-chrome-classes";
 import type { StudioControl } from "@/lib/types";
 import { Label } from "@/ui/label";
 
@@ -23,11 +26,13 @@ export const studioControlRowClass = "flex min-w-0 items-center gap-2.5";
 export const studioControlInputClass = "text-xs";
 
 /**
- * Bordered field row (scrub inputs, fill color row).
+ * Borderless field row (scrub inputs, fill color row, text inputs).
  * Sidebar triggers use `Button variant="outline"`; option sets use shadcn `ToggleGroup`.
  */
-export const studioInputSurfaceClass =
-  "border border-input bg-background shadow-xs";
+export const studioInputSurfaceClass = cn(
+  studioControlRadiusClass,
+  "bg-background"
+);
 
 const GROUP_LABELED_TYPES = new Set<StudioControl["type"]>([
   "pattern",

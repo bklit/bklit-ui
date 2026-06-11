@@ -3,6 +3,7 @@
  * UI chrome uses default shadcn theme variables from `shadcn/tailwind.css`.
  */
 .studio-shell {
+  --studio-input-background: var(--background);
   --studio-label: var(--muted-foreground);
   --studio-section-label: var(--muted-foreground);
   --studio-scrollbar-width: 8px;

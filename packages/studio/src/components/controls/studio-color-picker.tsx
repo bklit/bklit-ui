@@ -147,7 +147,7 @@ export function StudioColorPicker({
         </span>
         <input
           className={cn(
-            "h-8 min-w-0 flex-1 rounded-md px-2 font-mono text-foreground text-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
+            "h-8 min-w-0 flex-1 rounded-md px-2 font-mono text-foreground text-xs outline-none focus-visible:border-transparent focus-visible:ring-[3px] focus-visible:ring-ring/50",
             studioInputSurfaceClass
           )}
           disabled={disabled}
@@ -164,7 +164,7 @@ export function StudioColorPicker({
         <input
           aria-label="Fill opacity percent"
           className={cn(
-            "h-8 w-14 rounded-md px-2 text-center font-mono text-muted-foreground text-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
+            "h-8 w-14 rounded-md px-2 text-center font-mono text-muted-foreground text-xs outline-none focus-visible:border-transparent focus-visible:ring-[3px] focus-visible:ring-ring/50",
             studioInputSurfaceClass
           )}
           disabled={disabled}

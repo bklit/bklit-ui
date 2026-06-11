@@ -1,3 +1,4 @@
+import type { IconName } from "@bklitui/icons";
 import type { Transition } from "motion/react";
 import type { StudioUrlState } from "./studio-parsers";
 
@@ -5,35 +6,101 @@ export const MOTION_TYPES = ["spring", "ease"] as const;
 export type MotionType = (typeof MOTION_TYPES)[number];
 
 export const MOTION_EASE_IDS = [
+  "ease",
   "easeOut",
-  "easeInOut",
-  "snappy",
-  "smooth",
+  "easeIn",
+  "elastic",
   "custom",
 ] as const;
 export type MotionEaseId = (typeof MOTION_EASE_IDS)[number];
 
+/** Legacy URL values kept for shared Studio links. */
+export const LEGACY_MOTION_EASE_IDS = [
+  "easeInOut",
+  "snappy",
+  "smooth",
+] as const;
+export type LegacyMotionEaseId = (typeof LEGACY_MOTION_EASE_IDS)[number];
+export type MotionEaseUrlValue = MotionEaseId | LegacyMotionEaseId;
+
 export const MOTION_EASE_PRESETS: Record<
   Exclude<MotionEaseId, "custom">,
-  { label: string; bezier: [number, number, number, number] }
+  { label: string; icon: IconName; bezier: [number, number, number, number] }
 > = {
-  easeOut: { label: "Ease out", bezier: [0.25, 0.1, 0.25, 1] },
-  easeInOut: { label: "Ease in-out", bezier: [0.65, 0, 0.35, 1] },
-  snappy: { label: "Snappy", bezier: [0.85, 0, 0.15, 1] },
-  smooth: { label: "Smooth", bezier: [0.4, 0, 0.2, 1] },
+  easeOut: {
+    label: "Ease out",
+    icon: "IconAnimationEaseOut",
+    bezier: [0, 0, 0.58, 1],
+  },
+  ease: {
+    label: "Ease",
+    icon: "IconAnimationEase",
+    bezier: [0.85, 0, 0.15, 1],
+  },
+  easeIn: {
+    label: "Ease in",
+    icon: "IconAnimationEaseIn",
+    bezier: [0.42, 0, 1, 1],
+  },
+  elastic: {
+    label: "Elastic",
+    icon: "IconAnimationElastic",
+    bezier: [0.5, 1.35, 0.5, 1],
+  },
 };
 
-export const DEFAULT_MOTION_BEZIER: [number, number, number, number] = [
-  0.85, 0, 0.15, 1,
-];
+export function formatMotionEasePreset(
+  id: Exclude<MotionEaseId, "custom">
+): string {
+  return formatMotionBezier(MOTION_EASE_PRESETS[id].bezier);
+}
 
-/** Default motion panel values — original line chart reveal (ease, 1.1s, snappy curve). */
+export function motionEasePresetUpdates(id: Exclude<MotionEaseId, "custom">): {
+  motionEase: typeof id;
+  motionBezier: string;
+} {
+  return {
+    motionEase: id,
+    motionBezier: formatMotionEasePreset(id),
+  };
+}
+
+export function normalizeMotionEaseId(
+  value: string | null | undefined
+): MotionEaseId {
+  switch (value) {
+    case "easeInOut":
+    case "smooth":
+      return "ease";
+    case "snappy":
+      return "ease";
+    case "easeOut":
+    case "ease":
+    case "easeIn":
+    case "elastic":
+    case "custom":
+      return value;
+    default:
+      return "ease";
+  }
+}
+
+export function isMotionEasePreset(
+  value: string | null | undefined
+): value is Exclude<MotionEaseId, "custom"> {
+  return value != null && value !== "custom" && value in MOTION_EASE_PRESETS;
+}
+
+export const DEFAULT_MOTION_BEZIER: [number, number, number, number] =
+  MOTION_EASE_PRESETS.ease.bezier;
+
+/** Default motion panel values — line chart reveal (ease, 1.1s, 0.85/0/0.15/1 curve). */
 export const DEFAULT_STUDIO_MOTION = {
   motionType: "ease" as const,
   motionDuration: 1.1,
   motionBounce: 0.6,
-  motionEase: "snappy" as const,
-  motionBezier: "0.85, 0, 0.15, 1",
+  motionEase: "ease" as const,
+  motionBezier: formatMotionEasePreset("ease"),
   motionStaggerScale: 1,
   animationDuration: 1100,
 };
@@ -175,10 +242,11 @@ export function formatMotionBezier(
 export function getMotionBezier(
   state: MotionStateSlice
 ): [number, number, number, number] {
-  if (state.motionEase === "custom") {
+  const easeId = normalizeMotionEaseId(state.motionEase);
+  if (easeId === "custom") {
     return parseMotionBezier(state.motionBezier) ?? DEFAULT_MOTION_BEZIER;
   }
-  return MOTION_EASE_PRESETS[state.motionEase].bezier;
+  return MOTION_EASE_PRESETS[easeId].bezier;
 }
 
 export function motionSignature(state: MotionStateSlice): string {
@@ -378,8 +446,9 @@ export function resampleMotionRecordings(
 }
 
 export function motionCurveBounds(points: { t: number; y: number }[]) {
-  const yMin = Math.min(0, ...points.map((p) => p.y));
-  const yMax = Math.max(1.12, ...points.map((p) => p.y));
+  const ys = points.map((p) => p.y);
+  const yMin = Math.min(0, ...ys);
+  const yMax = Math.max(1, ...ys);
   return { yMin, yMax, yRange: yMax - yMin || 1 };
 }
 
@@ -419,6 +488,29 @@ export function motionCurveToSvg(
     yMin,
     yMax,
   };
+}
+
+/** Closed SVG path: curve as top edge, baseline as bottom (fill under the curve). */
+export function motionCurveAreaPath(
+  points: { t: number; y: number }[],
+  width: number,
+  height: number,
+  padding = 8
+) {
+  const { path, baselineY, toSvg } = motionCurveToSvg(
+    points,
+    width,
+    height,
+    padding
+  );
+  const first = points[0];
+  const last = points.at(-1);
+  if (!(first && last)) {
+    return path;
+  }
+  const start = toSvg(first.t, first.y);
+  const end = toSvg(last.t, last.y);
+  return `${path} L ${end.x.toFixed(2)} ${baselineY.toFixed(2)} L ${start.x.toFixed(2)} ${baselineY.toFixed(2)} Z`;
 }
 
 /** Progress `t` (0–1) → point on sampled curve. */
@@ -462,38 +554,31 @@ export function easeEditorGeometry(
     y: padding + innerH - by * innerH,
   });
 
-  const p0 = toSvg(0, 0);
-  const p1 = easeHandleSvgPosition(
-    bezier[0],
-    bezier[1],
-    width,
-    height,
-    padding
-  );
-  const p2 = easeHandleSvgPosition(
-    bezier[2],
-    bezier[3],
-    width,
-    height,
-    padding
-  );
-  const p3 = toSvg(1, 1);
+  const p1 = toSvg(bezier[0], bezier[1]);
+  const p2 = toSvg(bezier[2], bezier[3]);
 
   const samples: { t: number; y: number }[] = [];
   for (let i = 0; i <= 80; i++) {
     const t = i / 80;
     samples.push({ t, y: cubicBezierEase(t, bezier) });
   }
-  const { path } = motionCurveToSvg(samples, width, height, padding);
+  const { path, toSvg: curveToSvg } = motionCurveToSvg(
+    samples,
+    width,
+    height,
+    padding
+  );
 
-  const handlePathStart = `M ${p0.x} ${p0.y} L ${p1.x} ${p1.y}`;
-  const handlePathEnd = `M ${p2.x} ${p2.y} L ${p3.x} ${p3.y}`;
+  const curveStart = curveToSvg(0, 0);
+  const curveEnd = curveToSvg(1, cubicBezierEase(1, bezier));
+  const handlePathStart = `M ${curveStart.x} ${curveStart.y} L ${p1.x} ${p1.y}`;
+  const handlePathEnd = `M ${p2.x} ${p2.y} L ${curveEnd.x} ${curveEnd.y}`;
 
   return {
-    p0,
+    p0: curveStart,
     p1,
     p2,
-    p3,
+    p3: curveEnd,
     path,
     handlePathStart,
     handlePathEnd,

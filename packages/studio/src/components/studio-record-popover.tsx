@@ -119,10 +119,10 @@ export function StudioRecordPopover({
               return (
                 <button
                   className={cn(
-                    "rounded-md border px-2 py-2 text-left text-xs transition-colors",
+                    "rounded-md border border-transparent px-2 py-2 text-left text-xs transition-colors",
                     selected
-                      ? "border-primary/40 bg-primary/10 text-foreground"
-                      : "border-border bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                      ? "bg-primary/10 text-foreground"
+                      : "bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-foreground"
                   )}
                   key={opt.value}
                   onClick={() => setAspect(opt.value)}
@@ -145,10 +145,10 @@ export function StudioRecordPopover({
               return (
                 <button
                   className={cn(
-                    "rounded-md border px-2 py-2 text-left text-xs transition-colors",
+                    "rounded-md border border-transparent px-2 py-2 text-left text-xs transition-colors",
                     selected
-                      ? "border-primary/40 bg-primary/10 text-foreground"
-                      : "border-border bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                      ? "bg-primary/10 text-foreground"
+                      : "bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-foreground"
                   )}
                   key={opt.value}
                   onClick={() => setInteractionMs(opt.value)}

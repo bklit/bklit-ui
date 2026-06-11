@@ -2,10 +2,7 @@
 
 import { cn } from "@bklitui/ui/lib/utils";
 import { useMemo, useState } from "react";
-import {
-  studioFieldLabelClass,
-  studioInputSurfaceClass,
-} from "@/components/controls/control-field-helpers";
+import { studioFieldLabelClass } from "@/components/controls/control-field-helpers";
 import {
   PatternPicker,
   PatternSwatch,
@@ -23,6 +20,7 @@ import {
 } from "@/lib/chart-theme-color";
 import { COLOR_PRESETS, type ColorPresetId } from "@/lib/color-presets";
 import type { PatternPresetId } from "@/lib/pattern-presets";
+import { studioScrubSurfaceClass } from "@/lib/studio-chrome-classes";
 import {
   pickerStatePreviewCss,
   studioColorToOklchField,
@@ -55,7 +53,7 @@ function FillSwatch({
 
   return (
     <span
-      className="block size-full rounded-[3px] ring-1 ring-border ring-inset"
+      className="block size-full rounded-[3px]"
       style={{ background: previewColor }}
     />
   );
@@ -126,8 +124,8 @@ export function FillPicker({
             <button
               aria-expanded={colorOpen}
               className={cn(
-                "flex h-9 w-full min-w-0 items-center gap-2 rounded-lg px-2 text-left outline-none transition-opacity hover:opacity-90 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
-                studioInputSurfaceClass,
+                "flex h-10 w-full min-w-0 items-center gap-2 px-3 text-left outline-none transition-opacity hover:opacity-90 focus-visible:ring-3 focus-visible:ring-ring/50",
+                studioScrubSurfaceClass,
                 disabled && "pointer-events-none opacity-50"
               )}
               type="button"
@@ -145,7 +143,7 @@ export function FillPicker({
           <span className="min-w-0 flex-1 truncate font-mono text-foreground text-xs lowercase">
             {triggerLabel}
           </span>
-          <span className="shrink-0 border-border border-l pl-2 font-mono text-muted-foreground text-xs tabular-nums">
+          <span className="shrink-0 font-mono text-muted-foreground text-xs tabular-nums">
             {opacity}%
           </span>
         </PopoverTrigger>
@@ -200,8 +198,8 @@ export function ThemePresetList({
               aria-label={item.label}
               aria-pressed={selected}
               className={cn(
-                "flex size-3.5 shrink-0 items-center justify-center rounded-full ring-2 ring-transparent ring-offset-1 ring-offset-background transition-[box-shadow]",
-                selected ? "ring-white" : "hover:ring-accent"
+                "flex size-3.5 shrink-0 items-center justify-center rounded-full transition-colors",
+                selected ? "bg-accent/40" : "hover:bg-muted/50"
               )}
               key={item.id}
               onClick={() => onPresetChange(item.id)}

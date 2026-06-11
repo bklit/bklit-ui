@@ -30,7 +30,7 @@ function ComponentListMarker({
     return (
       <span
         aria-hidden
-        className="size-2 shrink-0 rounded-full ring-1 ring-border"
+        className="size-2 shrink-0 rounded-full"
         style={{ backgroundColor: color }}
       />
     );
@@ -87,7 +87,7 @@ export function StudioComponentsPanel({
                 className={cn(
                   "group flex w-full min-w-0 items-center gap-1 rounded-md pr-1 transition-colors",
                   selected
-                    ? "bg-accent/10 text-foreground ring-1 ring-accent/25"
+                    ? "bg-accent/15 text-foreground"
                     : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
                   !configurable && "opacity-45"
                 )}

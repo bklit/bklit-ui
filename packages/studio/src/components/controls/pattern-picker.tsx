@@ -92,8 +92,8 @@ export function PatternPicker({
       {PATTERN_FILL_PRESETS.map((preset) => (
         <button
           className={cn(
-            "size-6 shrink-0 overflow-hidden rounded-[4px] bg-muted/20 ring-1 ring-border transition-[box-shadow,ring-color]",
-            value === preset.id && "ring-2 ring-foreground"
+            "size-6 shrink-0 overflow-hidden rounded-[4px] bg-muted/20 transition-colors",
+            value === preset.id && "bg-muted/50"
           )}
           key={preset.id}
           onClick={() => onChange(preset.id)}
