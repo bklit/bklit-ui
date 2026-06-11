@@ -2,6 +2,7 @@
 
 import { ControlField } from "@/components/controls/control-field";
 import { isGroupLabeledControlType } from "@/components/controls/control-field-helpers";
+import { LineGroupHeaderCurve } from "@/components/controls/curve-picker";
 import { MotionControl } from "@/components/controls/motion-control";
 import { MotionResetButton } from "@/components/controls/motion-reset-button";
 import { StudioControlGroup } from "@/components/studio-control-group";
@@ -70,14 +71,33 @@ export function StudioControlGroups({
           return null;
         }
 
+        const curveControl = visibleControls.find(
+          (control): control is Extract<typeof control, { type: "curve" }> =>
+            control.type === "curve"
+        );
+        const fieldControls = curveControl
+          ? visibleControls.filter((control) => control !== curveControl)
+          : visibleControls;
+        const showLineCurveHeader =
+          group.title === "Line" && curveControl !== undefined;
+
         return (
           <StudioControlGroup
             collapsible={group.collapsible}
             defaultOpen={group.defaultOpen ?? true}
             key={group.title}
             title={group.title}
+            titleTrailing={
+              showLineCurveHeader ? (
+                <LineGroupHeaderCurve
+                  control={curveControl}
+                  onChange={onChange}
+                  state={state}
+                />
+              ) : null
+            }
           >
-            {visibleControls.map((control) => (
+            {fieldControls.map((control) => (
               <ControlField
                 control={control}
                 hideGroupLabel={isGroupLabeledControlType(control.type)}

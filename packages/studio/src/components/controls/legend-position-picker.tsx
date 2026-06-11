@@ -8,7 +8,6 @@ import {
   useRef,
   useState,
 } from "react";
-import { studioFieldLabelClass } from "@/components/controls/control-field-helpers";
 import {
   StudioToggleGroup,
   StudioToggleGroupItem,
@@ -20,7 +19,6 @@ import {
 } from "@/lib/legend-position";
 import { studioLegendRingPathClass } from "@/lib/studio-chrome-classes";
 import type { StudioUrlState } from "@/lib/studio-parsers";
-import { Label } from "@/ui/label";
 
 const POSITIONS: {
   id: LegendPositionId;
@@ -39,37 +37,11 @@ function LegendToggleRing() {
     // biome-ignore lint/a11y/noSvgWithoutTitle: decorative ring, toggle has aria-label
     <svg
       aria-hidden
-      className="pointer-events-none size-5 shrink-0"
+      className="pointer-events-none size-5 shrink-0 text-current"
       viewBox="0 0 20 20"
     >
-      <circle
-        className={studioLegendRingPathClass}
-        cx="10"
-        cy="10"
-        pathLength={1}
-        r="7"
-      />
+      <circle className={studioLegendRingPathClass} cx="10" cy="10" r="7" />
     </svg>
-  );
-}
-
-function LegendPositionToggle({
-  id,
-  label,
-}: {
-  id: LegendPositionId;
-  label: string;
-}) {
-  return (
-    <StudioToggleGroupItem
-      aria-label={label}
-      className="active:not-data-pressed:scale-[0.97] motion-reduce:active:scale-100"
-      data-position={id}
-      title={label}
-      value={id}
-    >
-      <LegendToggleRing />
-    </StudioToggleGroupItem>
   );
 }
 
@@ -84,9 +56,10 @@ function useActiveRingCenter(
     if (!picker) {
       return;
     }
-    const cell = picker.querySelector<HTMLElement>(
-      `[data-position="${active}"]`
+    const input = picker.querySelector<HTMLInputElement>(
+      `input[type="radio"][value="${active}"]`
     );
+    const cell = input?.closest("label");
     if (!cell) {
       return;
     }
@@ -132,39 +105,43 @@ export function LegendPositionPicker({
   const center = useActiveRingCenter(pickerRef, active);
 
   return (
-    <div className="space-y-2">
-      <Label className={studioFieldLabelClass}>Placement</Label>
-      <div className="relative w-full" ref={pickerRef}>
-        {center ? (
-          <motion.span
-            animate={{ x: center.x, y: center.y }}
-            aria-hidden
-            className="pointer-events-none absolute top-0 left-0 z-[2] size-1 rounded-full bg-foreground"
-            initial={false}
-            style={{
-              translate: "-50% -50%",
-              willChange: "transform",
-            }}
-            transition={
-              reducedMotion
-                ? { duration: 0 }
-                : { type: "spring", duration: 0.28, bounce: 0.1 }
-            }
-          />
-        ) : null}
-        <StudioToggleGroup
-          layout="legend"
-          onValueChange={(next) => {
-            const parsed = parseLegendPositionId(next as LegendPositionId);
-            onChange(parsed.placement, parsed.align);
+    <div className="relative w-full" ref={pickerRef}>
+      {center ? (
+        <motion.span
+          animate={{ x: center.x, y: center.y }}
+          aria-hidden
+          className="pointer-events-none absolute top-0 left-0 z-20 size-1 rounded-full bg-foreground"
+          initial={false}
+          style={{
+            translate: "-50% -50%",
+            willChange: "transform",
           }}
-          value={active}
-        >
-          {POSITIONS.map((pos) => (
-            <LegendPositionToggle id={pos.id} key={pos.id} label={pos.label} />
-          ))}
-        </StudioToggleGroup>
-      </div>
+          transition={
+            reducedMotion
+              ? { duration: 0 }
+              : { type: "spring", duration: 0.28, bounce: 0.1 }
+          }
+        />
+      ) : null}
+      <StudioToggleGroup
+        layout="legend"
+        onValueChange={(next) => {
+          const parsed = parseLegendPositionId(next as LegendPositionId);
+          onChange(parsed.placement, parsed.align);
+        }}
+        value={active}
+      >
+        {POSITIONS.map((pos) => (
+          <StudioToggleGroupItem
+            aria-label={pos.label}
+            key={pos.id}
+            title={pos.label}
+            value={pos.id}
+          >
+            <LegendToggleRing />
+          </StudioToggleGroupItem>
+        ))}
+      </StudioToggleGroup>
     </div>
   );
 }

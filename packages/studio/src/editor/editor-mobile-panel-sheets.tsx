@@ -143,6 +143,7 @@ export function EditorMobilePanelSheets({
     selectedComponent,
   } = useStudioComponentSelection();
   const isCartesianLoading = isCartesianLoadingMode(state);
+  const showScramble = config.scrambleData !== false;
   const dataSectionDefaultOpen = !isCartesianLoading;
   const animationSectionDefaultOpen = showMotionControls || !isCartesianLoading;
 
@@ -166,20 +167,20 @@ export function EditorMobilePanelSheets({
               ) : null}
               <StudioComponentsPanel
                 components={components}
-                controlsDisabled={controlsDisabled}
                 onChange={onChange}
-                onScramble={onScramble}
                 onSelect={setSelectedComponentId}
-                scrambleDisabled={isCartesianLoading}
                 selectedId={selectedComponentId}
                 state={state}
               />
               <EditorDataSection
+                controlsDisabled={controlsDisabled}
                 defaultOpen={dataSectionDefaultOpen}
                 groups={dataControlGroups}
                 onChange={onChange}
                 onCommit={onCommit}
                 onPreview={onPreview}
+                onScramble={showScramble ? onScramble : undefined}
+                scrambleDisabled={isCartesianLoading}
                 state={state}
               />
               <EditorAnimationSection

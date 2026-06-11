@@ -12,10 +12,6 @@ import {
   useContext,
 } from "react";
 import {
-  studioJoinedToggleGroupClass,
-  studioJoinedToggleGroupItemClass,
-} from "@/lib/studio-chrome-classes";
-import {
   SlidingToggleControl,
   type SlidingToggleOption,
 } from "@/ui/segmented-control";
@@ -110,15 +106,10 @@ export const STUDIO_TOGGLE_LAYOUTS: Record<StudioToggleLayout, LayoutConfig> = {
     variant: "outline",
   },
   legend: {
-    groupClassName: cn(
-      studioJoinedToggleGroupClass,
-      "!grid relative z-1 grid-cols-3 grid-rows-2"
-    ),
-    itemClassName: cn(studioJoinedToggleGroupItemClass, "h-11 min-h-11 w-full"),
+    groupClassName: "",
     size: "icon",
     spacing: 0,
     variant: "default",
-    joined: true,
   },
 };
 
@@ -143,20 +134,31 @@ export function StudioToggleGroup<T extends string>({
 }) {
   const config = STUDIO_TOGGLE_LAYOUTS[layout];
 
-  if (layout === "segmented" || layout === "icons" || layout === "cards-2") {
+  if (
+    layout === "segmented" ||
+    layout === "icons" ||
+    layout === "cards-2" ||
+    layout === "legend"
+  ) {
     const options = collectToggleOptions(children);
-    let variant: "text" | "icon" | "card" = "card";
+    let variant: "text" | "icon" | "card" | "legend" = "card";
+    let columns: number | undefined;
     if (layout === "segmented") {
       variant = "text";
     } else if (layout === "icons") {
       variant = "icon";
+    } else if (layout === "legend") {
+      variant = "legend";
+      columns = 3;
+    } else if (layout === "cards-2") {
+      columns = 2;
     }
 
     return (
       <StudioToggleLayoutContext.Provider value={layout}>
         <SlidingToggleControl
           className={className}
-          columns={layout === "cards-2" ? 2 : undefined}
+          columns={columns}
           onValueChange={onValueChange}
           options={options as SlidingToggleOption<T>[]}
           value={value}

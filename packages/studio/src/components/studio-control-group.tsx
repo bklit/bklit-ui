@@ -35,7 +35,8 @@ export function StudioControlGroup({
   return (
     <section
       className={cn(
-        "studio-control-group flex flex-col border-border border-b pb-3",
+        "studio-control-group flex flex-col border-border border-b",
+        (!collapsible || open) && "pb-3",
         className
       )}
       data-studio-control-group={title}

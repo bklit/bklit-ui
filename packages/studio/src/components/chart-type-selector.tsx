@@ -31,7 +31,7 @@ export function ChartTypeSelector({
         render={
           <Button
             aria-expanded={open}
-            className="h-8 w-full justify-start text-left text-xs"
+            className="h-10 w-full justify-start text-left text-xs"
             type="button"
             variant="outline"
           />

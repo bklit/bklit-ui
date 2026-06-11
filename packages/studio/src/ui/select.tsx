@@ -3,6 +3,7 @@
 import { Select as SelectPrimitive } from "@base-ui/react/select";
 import { Icon } from "@bklitui/icons";
 import type * as React from "react";
+import { studioSingleLineControlClass } from "@/lib/studio-chrome-classes";
 import { cn } from "@/lib/utils";
 
 const Select = SelectPrimitive.Root;
@@ -38,7 +39,8 @@ function SelectTrigger({
   return (
     <SelectPrimitive.Trigger
       className={cn(
-        "flex w-fit select-none items-center justify-between gap-1.5 whitespace-nowrap rounded-lg border border-transparent bg-transparent py-2 pr-2 pl-2.5 text-sm outline-none transition-colors focus-visible:border-transparent focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-transparent aria-invalid:ring-3 aria-invalid:ring-destructive/20 data-[size=default]:h-8 data-[size=sm]:h-7 data-[size=sm]:rounded-[min(var(--radius-md),10px)] data-placeholder:text-muted-foreground *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-1.5 dark:bg-input/30 dark:aria-invalid:border-transparent dark:aria-invalid:ring-destructive/40 dark:hover:bg-input/50 [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+        studioSingleLineControlClass,
+        "flex w-fit select-none items-center justify-between gap-1.5 whitespace-nowrap px-2.5 text-sm outline-none transition-colors hover:bg-muted/40 data-[size=sm]:h-8 data-[size=sm]:rounded-[min(var(--radius-md),10px)] data-placeholder:text-muted-foreground *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-1.5 [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
         className
       )}
       data-size={size}

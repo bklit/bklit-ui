@@ -7,6 +7,7 @@
   "exports": {
     "./charts": "./src/charts/index.ts",
     "./lib/utils": "./src/lib/utils.ts",
+    "./components/shimmering-text": "./src/components/shimmering-text.tsx",
     "./button": "./src/button.tsx",
     "./card": "./src/card.tsx",
     "./code": "./src/code.tsx",

@@ -12,7 +12,7 @@ import {
   getLineYAxisNumTicks,
 } from "@/lib/line-y-axis-settings";
 import type { StudioUrlState } from "@/lib/studio-parsers";
-import { Switch } from "@/ui/switch";
+import { YesNoSwitch } from "@/ui/yes-no-switch";
 import { StudioControlRow } from "./control-field-helpers";
 import { SliderInputGroup } from "./slider-input-group";
 
@@ -79,15 +79,15 @@ export function LineYAxisFormatLargeControl({
 
   return (
     <StudioControlRow alignControl="end" label={label}>
-      <Switch
-        checked={checked}
-        id={`line-y-axis-format-large-${axis}`}
-        onCheckedChange={(formatLargeNumbers) =>
+      <YesNoSwitch
+        aria-label={label}
+        onValueChange={(formatLargeNumbers) =>
           onChange(
             "lineYAxisFormatLarge",
             buildLineYAxisFormatLargeUpdate(state, axis, formatLargeNumbers)
           )
         }
+        value={checked}
       />
     </StudioControlRow>
   );

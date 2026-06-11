@@ -22,10 +22,8 @@ export function CurvePreviewIcon({
   return (
     <svg
       aria-hidden={true}
-      className={cn("shrink-0 text-foreground", className)}
-      height={16}
+      className={cn("size-[18px] shrink-0 text-foreground", className)}
       viewBox="0 0 32 16"
-      width={32}
     >
       <path
         d={CURVE_PATHS[curveId]}

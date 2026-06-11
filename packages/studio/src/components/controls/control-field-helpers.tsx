@@ -4,6 +4,7 @@ import { cn } from "@bklitui/ui/lib/utils";
 import type { ReactNode } from "react";
 import {
   studioControlRadiusClass,
+  studioInputBackgroundClass,
   studioLabelClass,
 } from "@/lib/studio-chrome-classes";
 import type { StudioControl } from "@/lib/types";
@@ -31,7 +32,7 @@ export const studioControlInputClass = "text-xs";
  */
 export const studioInputSurfaceClass = cn(
   studioControlRadiusClass,
-  "bg-background"
+  studioInputBackgroundClass
 );
 
 const GROUP_LABELED_TYPES = new Set<StudioControl["type"]>([
@@ -45,7 +46,6 @@ const GROUP_LABELED_TYPES = new Set<StudioControl["type"]>([
   "graticuleToggle",
   "strokeStyle",
   "crosshairFade",
-  "legendPosition",
 ]);
 
 export function StudioControlRow({

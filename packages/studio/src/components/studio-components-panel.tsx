@@ -3,7 +3,6 @@
 import { Icon } from "@bklitui/icons";
 import { cn } from "@bklitui/ui/lib/utils";
 import { StudioControlGroup } from "@/components/studio-control-group";
-import { StudioScrambleDataButton } from "@/components/studio-scramble-data-button";
 import { resolveCssColor } from "@/lib/chart-theme-color";
 import { resolveStudioComponentTreeIcon } from "@/lib/studio-component-tree-icon";
 import {
@@ -50,9 +49,6 @@ export function StudioComponentsPanel({
   onSelect,
   state,
   onChange,
-  controlsDisabled = false,
-  scrambleDisabled = false,
-  onScramble,
 }: {
   components: StudioComponentDefinition[];
   selectedId: string;
@@ -62,9 +58,6 @@ export function StudioComponentsPanel({
     key: K,
     value: StudioUrlState[K]
   ) => void;
-  controlsDisabled?: boolean;
-  scrambleDisabled?: boolean;
-  onScramble?: () => void;
 }) {
   const ordered = flattenStudioComponents(components);
 
@@ -138,14 +131,6 @@ export function StudioComponentsPanel({
           );
         })}
       </ul>
-      {onScramble ? (
-        <div className="pt-2">
-          <StudioScrambleDataButton
-            disabled={controlsDisabled || scrambleDisabled}
-            onScramble={onScramble}
-          />
-        </div>
-      ) : null}
     </StudioControlGroup>
   );
 }

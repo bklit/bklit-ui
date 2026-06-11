@@ -27,7 +27,7 @@ function PieStartAngleIcon({ angleDeg }: { angleDeg: number }) {
       />
       <motion.line
         animate={{ x2: x, y2: y }}
-        className="stroke-accent"
+        className="stroke-current"
         initial={false}
         strokeLinecap="round"
         strokeWidth={2}
@@ -74,7 +74,7 @@ function PieEndAngleIcon({
         animate={{
           d: `M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${largeArc} ${sweep} ${x2} ${y2} Z`,
         }}
-        className="fill-accent/25 stroke-accent"
+        className="fill-current/25 stroke-current"
         initial={false}
         strokeWidth={1.5}
         transition={{ type: "spring", stiffness: 320, damping: 28 }}

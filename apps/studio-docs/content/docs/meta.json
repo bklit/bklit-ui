@@ -2,14 +2,21 @@
   "title": "Studio UI",
   "pages": [
     "index",
+    "---Editor shell---",
     "control-surfaces",
-    "toggle-groups",
-    "fields",
+    "---Inputs---",
     "custom-components",
-    "motion",
+    "fields",
+    "toggle-groups",
+    "---Pickers & patterns---",
     "pickers",
     "patterns",
+    "---Motion---",
+    "motion",
+    "---Reference---",
     "primitives",
+    "icons",
+    "shimmer-text",
     "feedback"
   ]
 }

@@ -36,7 +36,20 @@ const SLIDING_THUMB_TRANSLATES_2COL = [
   "group-has-[[data-segment-index='7']:checked]/sliding:translate-x-full group-has-[[data-segment-index='7']:checked]/sliding:translate-y-[300%]",
 ] as const;
 
-type SlidingToggleVariant = "text" | "icon" | "card";
+/** 3-column grids — legend placement */
+const SLIDING_THUMB_TRANSLATES_3COL = [
+  "group-has-[[data-segment-index='0']:checked]/sliding:translate-x-0 group-has-[[data-segment-index='0']:checked]/sliding:translate-y-0",
+  "group-has-[[data-segment-index='1']:checked]/sliding:translate-x-full group-has-[[data-segment-index='1']:checked]/sliding:translate-y-0",
+  "group-has-[[data-segment-index='2']:checked]/sliding:translate-x-[200%] group-has-[[data-segment-index='2']:checked]/sliding:translate-y-0",
+  "group-has-[[data-segment-index='3']:checked]/sliding:translate-x-0 group-has-[[data-segment-index='3']:checked]/sliding:translate-y-full",
+  "group-has-[[data-segment-index='4']:checked]/sliding:translate-x-full group-has-[[data-segment-index='4']:checked]/sliding:translate-y-full",
+  "group-has-[[data-segment-index='5']:checked]/sliding:translate-x-[200%] group-has-[[data-segment-index='5']:checked]/sliding:translate-y-full",
+  "group-has-[[data-segment-index='6']:checked]/sliding:translate-x-0 group-has-[[data-segment-index='6']:checked]/sliding:translate-y-[200%]",
+  "group-has-[[data-segment-index='7']:checked]/sliding:translate-x-full group-has-[[data-segment-index='7']:checked]/sliding:translate-y-[200%]",
+  "group-has-[[data-segment-index='8']:checked]/sliding:translate-x-[200%] group-has-[[data-segment-index='8']:checked]/sliding:translate-y-[200%]",
+] as const;
+
+type SlidingToggleVariant = "text" | "icon" | "card" | "legend";
 
 const GHOST_FLEX_ROW_SURFACE =
   "relative flex w-full min-w-0 flex-nowrap items-stretch";
@@ -77,7 +90,7 @@ const SLIDING_VARIANTS: Record<
   }
 > = {
   text: {
-    surfaceClass: cn(GHOST_FLEX_ROW_SURFACE, TRACK_SURFACE_CLASS, "h-8"),
+    surfaceClass: cn(GHOST_FLEX_ROW_SURFACE, TRACK_SURFACE_CLASS, "h-10"),
     labelClass: cn(GHOST_LABEL_CLASS, "px-2 font-medium text-xs"),
     thumbClass: TRACK_THUMB_CLASS,
     defaultColumns: (count) => count,
@@ -100,6 +113,14 @@ const SLIDING_VARIANTS: Record<
     defaultColumns: () => 2,
     trackInset: 0,
   },
+  legend: {
+    surfaceClass: "relative grid w-full min-w-0",
+    labelClass:
+      "group/legend-item relative z-10 flex h-11 w-full min-w-0 cursor-pointer select-none items-center justify-center rounded-md border-0 bg-transparent text-muted-foreground transition-colors duration-150 ease-out has-[:checked]:text-foreground motion-reduce:transition-none",
+    thumbClass: GHOST_GRID_THUMB_CLASS,
+    defaultColumns: () => 3,
+    trackInset: 0,
+  },
 };
 
 interface SlidingToggleOption<T extends string> {
@@ -111,9 +132,13 @@ interface SlidingToggleOption<T extends string> {
 
 function getThumbTranslateClasses(columnCount: number, segmentCount: number) {
   const rowCount = Math.ceil(segmentCount / columnCount);
-  const table =
-    rowCount === 1 ? SLIDING_THUMB_TRANSLATES_X : SLIDING_THUMB_TRANSLATES_2COL;
-  return table.slice(0, segmentCount);
+  if (rowCount === 1) {
+    return SLIDING_THUMB_TRANSLATES_X.slice(0, segmentCount);
+  }
+  if (columnCount === 3) {
+    return SLIDING_THUMB_TRANSLATES_3COL.slice(0, segmentCount);
+  }
+  return SLIDING_THUMB_TRANSLATES_2COL.slice(0, segmentCount);
 }
 
 function SlidingToggleControl<T extends string>({
@@ -164,7 +189,7 @@ function SlidingToggleControl<T extends string>({
           : {
               gridTemplateColumns: `repeat(${columnCount}, minmax(0, 1fr))`,
               ...(isGrid
-                ? { gridTemplateRows: `repeat(${rowCount}, minmax(0, 1fr))` }
+                ? { gridTemplateRows: `repeat(${rowCount}, auto)` }
                 : { gridTemplateRows: "1fr" }),
             }
       }

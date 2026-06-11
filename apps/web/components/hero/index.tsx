@@ -1,10 +1,10 @@
 "use client";
 
 import { Icon } from "@bklitui/icons";
+import { ShimmeringText } from "@bklitui/ui/components/shimmering-text";
 import Link from "next/link";
 import type { ComponentProps, ReactNode } from "react";
 import { ParticleBadge } from "@/components/particle-badge";
-import { ShimmeringText } from "@/components/shimmering-text";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 

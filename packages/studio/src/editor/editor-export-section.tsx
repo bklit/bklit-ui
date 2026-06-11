@@ -56,7 +56,7 @@ export function EditorExportSection({
     <StudioControlGroup
       className="shrink-0 border-border/60 border-t px-3 pb-3"
       collapsible
-      defaultOpen
+      defaultOpen={false}
       title="Export"
     >
       {isRecording ? (

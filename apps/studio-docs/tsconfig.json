@@ -4,8 +4,7 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./*", "../../packages/studio/src/*"],
-      "@/lib/utils": ["../../packages/studio/src/lib/utils.ts"],
-      "@/components/shimmering-text": ["../web/components/shimmering-text.tsx"]
+      "@/lib/utils": ["../../packages/studio/src/lib/utils.ts"]
     },
     "plugins": [{ "name": "next" }],
     "declaration": false,

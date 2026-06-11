@@ -11,6 +11,7 @@ export {
   PatternsDemo,
   PickersDemo,
   PrimitivesDemo,
+  ShimmerTextDemo,
   SurfacesDemo,
   TabsDemo,
   ToggleGroupDemo,

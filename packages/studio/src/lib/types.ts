@@ -28,8 +28,8 @@ interface NumberControlBase {
   step?: number;
   format?: Intl.NumberFormatOptions;
   unit?: string;
-  /** `number` = typed input; `slider` = drag (default) */
-  input?: "slider" | "number";
+  /** `number` = typed input; `slider` = drag (default); `studio` = integrated track slider. `%` unit always uses studio slider. */
+  input?: "slider" | "number" | "studio";
   /** Live SVG preview while dragging (ring chart controls). */
   preview?: NumberControlPreview;
   /** Disable when the referenced URL state value is truthy. */

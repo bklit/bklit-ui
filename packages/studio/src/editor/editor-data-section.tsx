@@ -3,6 +3,7 @@
 import { ControlField } from "@/components/controls/control-field";
 import { isGroupLabeledControlType } from "@/components/controls/control-field-helpers";
 import { StudioControlGroup } from "@/components/studio-control-group";
+import { StudioScrambleDataButton } from "@/components/studio-scramble-data-button";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import type { StudioControlGroup as StudioControlGroupConfig } from "@/lib/types";
 
@@ -13,6 +14,9 @@ export function EditorDataSection({
   onChange,
   onPreview,
   onCommit,
+  onScramble,
+  scrambleDisabled = false,
+  controlsDisabled = false,
 }: {
   groups: StudioControlGroupConfig[];
   defaultOpen?: boolean;
@@ -29,6 +33,9 @@ export function EditorDataSection({
     key: K,
     value: StudioUrlState[K]
   ) => void;
+  onScramble?: () => void;
+  scrambleDisabled?: boolean;
+  controlsDisabled?: boolean;
 }) {
   if (groups.length === 0) {
     return null;
@@ -42,6 +49,14 @@ export function EditorDataSection({
           defaultOpen={defaultOpen}
           key={group.title}
           title={group.title}
+          titleTrailing={
+            group.title === "Data" && onScramble ? (
+              <StudioScrambleDataButton
+                disabled={controlsDisabled || scrambleDisabled}
+                onScramble={onScramble}
+              />
+            ) : null
+          }
         >
           {group.controls.map((control) => (
             <ControlField

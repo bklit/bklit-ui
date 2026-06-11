@@ -1196,7 +1196,7 @@ function makeAreaExamples(): ChartExample[] {
 />
 // Uses curveNatural for the loading pulse path`,
       footer:
-        "Uses @ncdai/shimmering-text for the label — installed with @bklit/area-chart",
+        "Uses @bklit/shimmering-text for the label — installed with @bklit/area-chart",
       render: () => <AreaChartLoadingExample />,
     },
     {
@@ -2415,7 +2415,7 @@ import {
 />
 // Uses curveNatural for the loading pulse path`,
       footer:
-        "Uses @ncdai/shimmering-text for the label — installed with @bklit/line-chart",
+        "Uses @bklit/shimmering-text for the label — installed with @bklit/line-chart",
       render: () => <LineChartLoadingExample />,
     },
     {

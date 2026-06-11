@@ -237,7 +237,7 @@ Drive loading and ready from your data layer with a single `LineChart` — one `
 
 **Ready → loading:** ready line conceals to the right → grid y-domain tween → pulse loop and shimmer resume.
 
-Pair `Grid` `stroke` / `loadingStroke` with shimmer props. Pair `Line` `loadingStroke` props. Use `loadingLabel` on `LineChart` for centered shimmer text via [`@ncdai/shimmering-text`](https://chanhdai.com/components/shimmering-text).
+Pair `Grid` `stroke` / `loadingStroke` with shimmer props. Pair `Line` `loadingStroke` props. Use `loadingLabel` on `LineChart` for centered shimmer text via `@bklit/shimmering-text`.
 
 <div className="not-prose mb-3 flex items-center justify-between gap-4">
   <h3 className="m-0 font-semibold text-foreground text-base tracking-tight">
@@ -293,7 +293,7 @@ Open [Studio in loading mode](/studio?chart=line-chart&lineChartState=loading) a
 
 Data and animation panels stay collapsed in loading mode; scramble data is disabled. See the [line chart gallery](/charts/line-chart) (**Loading** example).
 
-Add `@ncdai` to your [registry config](/docs/installation#registry-namespace) (`https://chanhdai.com/r/{name}.json`) — installing `@bklit/line-chart` pulls in `@ncdai/shimmering-text` automatically.
+Installing `@bklit/line-chart` pulls in `@bklit/shimmering-text` automatically.
 
 ## Dashed tail
 

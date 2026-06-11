@@ -8,6 +8,7 @@ import {
   PatternsDemo,
   PickersDemo,
   PrimitivesDemo,
+  ShimmerTextDemo,
   SurfacesDemo,
   TabsDemo,
   ToggleGroupDemo,
@@ -19,7 +20,9 @@ import defaultMdxComponents from "fumadocs-ui/mdx";
 import { notFound } from "next/navigation";
 import type { ComponentType } from "react";
 import { ComponentShowcase } from "@/components/component-showcase";
+import { IconsPageContent } from "@/components/icons-page-content";
 import { PageFooter } from "@/components/page-footer";
+import { TableOfContents } from "@/components/toc";
 import { source } from "@/lib/source";
 
 interface PageData {
@@ -72,12 +75,15 @@ export default async function Page(props: {
               MotionControlDemo,
               PatternsDemo,
               PickersDemo,
+              ShimmerTextDemo,
               FeedbackDemo,
+              IconsPageContent,
             }}
           />
         </div>
         <PageFooter next={neighbours.next} previous={neighbours.previous} />
       </article>
+      <TableOfContents items={data.toc} />
     </div>
   );
 }

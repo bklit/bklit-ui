@@ -26,14 +26,14 @@ export function OrientationPicker({
           title="Vertical"
           value="vertical"
         >
-          <Icon className="size-5" name="IconSortArrowUpDown" />
+          <Icon className="size-5" name="IconDotGrid1x3Vertical" />
         </StudioToggleGroupItem>
         <StudioToggleGroupItem
           aria-label="Horizontal"
           title="Horizontal"
           value="horizontal"
         >
-          <Icon className="size-5" name="IconArrowRightLeft" />
+          <Icon className="size-5" name="IconDotGrid1x3Horizontal" />
         </StudioToggleGroupItem>
       </StudioToggleGroup>
     </div>

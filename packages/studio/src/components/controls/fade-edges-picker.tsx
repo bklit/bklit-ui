@@ -16,7 +16,7 @@ function FadeIcon({ stops }: FadeIconProps) {
   const fadeBoth = stops[0] === 0 && stops[1] === 0;
 
   return (
-    <svg aria-hidden className="size-5" viewBox="0 0 20 20">
+    <svg aria-hidden className="size-[18px]" viewBox="0 0 20 20">
       <title>Fade preview</title>
       <defs>
         <linearGradient

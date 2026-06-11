@@ -11,7 +11,7 @@ import {
   useState,
 } from "react";
 import { studioControlInputClass } from "@/components/controls/control-field-helpers";
-import { useStudioShellState } from "@/components/use-studio-state";
+import { useStudioNumberScrubbing } from "@/components/use-studio-state";
 import { useRafPreview } from "@/hooks/use-raf-preview";
 import { studioScrubSurfaceClass } from "@/lib/studio-chrome-classes";
 import {
@@ -78,7 +78,7 @@ export function ScrubNumberField({
   const scrubAreaRef = useRef<HTMLDivElement>(null);
   const scrubHoverRef = useRef(false);
   const wheelIdleRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const { setNumberScrubbing } = useStudioShellState();
+  const setNumberScrubbing = useStudioNumberScrubbing();
   const scrubbingRef = useRef(false);
   const {
     schedule: schedulePreview,

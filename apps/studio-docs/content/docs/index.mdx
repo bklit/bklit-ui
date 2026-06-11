@@ -30,22 +30,32 @@ packages/studio/
 packages/icons/          # @bklitui/icons — Central Icon System wrapper
 ```
 
-**Custom** (hand-maintained): [Yes/No switch](/docs/custom-components), [Studio slider](/docs/custom-components#studio-slider), scrub `number-field`, OKLCH color picker, motion bezier editor + ease presets, fill/pattern/legend pickers.
-
-**Icons:** all Studio UI icons come from [`@bklitui/icons`](https://www.npmjs.com/package/@central-icons-react/all) (Central Icon System). Motion presets use `IconAnimationEaseOut`, `IconAnimationEase`, `IconAnimationEaseIn`, and `IconAnimationElastic`; the bezier editor footer uses `IconBezierCurves`. See [Motion](/docs/motion).
-
-**Shadcn-managed** (22): `button`, `dialog`, `dropdown-menu`, `input`, `popover`, `select`, `slider`, `toggle`, `toggle-group`, `tooltip`, and more — run `pnpm dlx shadcn@latest info --json` from `packages/studio`.
-
 ## Sections
 
-- [Control surfaces](/docs/control-surfaces) — sidebar `Button` chrome
+### Editor shell
+
+- [Sidebar controls](/docs/control-surfaces) — chart type picker at the top of the left panel
+
+### Inputs
+
+- [Custom components](/docs/custom-components) — Yes/No switch, Studio slider, scrub number field
+- [Fields](/docs/fields) — property rows, opacity, fill picker
 - [Toggle groups](/docs/toggle-groups) — `StudioToggleGroup` layouts (segmented, icons, cards)
-- [Fields](/docs/fields) — property rows, scrub numbers, fill picker
-- [Custom components](/docs/custom-components) — Yes/No switch, scrub number field
-- [Motion](/docs/motion) — bezier editor, ease presets, duration controls
-- [Pickers](/docs/pickers) — legend placement, icon toggles
+
+### Pickers & patterns
+
+- [Pickers](/docs/pickers) — legend placement, orientation, curve, fade edges
 - [Patterns](/docs/patterns) — series pattern swatches
+
+### Motion
+
+- [Motion](/docs/motion) — bezier editor, ease presets, duration controls
+
+### Reference
+
 - [Primitives](/docs/primitives) — vendored shadcn components
+- [Icons](/docs/icons) — full Central Icon System catalog
+- [Shimmer text](/docs/shimmer-text) — loading label animation
 - [Feedback](/docs/feedback) — alerts, spinners, tooltips
 
 ## Theming

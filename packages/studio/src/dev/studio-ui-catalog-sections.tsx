@@ -1,6 +1,8 @@
 "use client";
 
+import { ShimmeringText } from "@bklitui/ui/components/shimmering-text";
 import { type ReactNode, useCallback, useState } from "react";
+import { ChartTypeSelector } from "@/components/chart-type-selector";
 import { StudioControlRow } from "@/components/controls/control-field-helpers";
 import { FillPicker } from "@/components/controls/fill-picker";
 import {
@@ -28,6 +30,7 @@ import {
   studioSectionLabelClass,
 } from "@/lib/studio-chrome-classes";
 import { defaultStudioState, type StudioUrlState } from "@/lib/studio-parsers";
+import type { ChartSlug } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "@/ui/alert";
 import { Button } from "@/ui/button";
@@ -115,35 +118,19 @@ export function CatalogSection({
 }
 
 export function SurfacesDemo() {
+  const [chart, setChart] = useState<ChartSlug>("area-chart");
+
   return (
-    <DemoControlGroups>
-      <StudioControlGroup collapsible defaultOpen title="Examples">
-        <div className="flex flex-col gap-2">
-          <Button
-            className="h-8 w-full justify-start text-xs"
-            type="button"
-            variant="outline"
-          >
-            Chart type
-          </Button>
-          <StudioToggleGroup
-            layout="segmented"
-            onValueChange={() => undefined}
-            value="ease"
-          >
-            <StudioToggleGroupItem value="ease">Ease</StudioToggleGroupItem>
-            <StudioToggleGroupItem value="spring">Spring</StudioToggleGroupItem>
-          </StudioToggleGroup>
-        </div>
-      </StudioControlGroup>
-    </DemoControlGroups>
+    <div className="studio-control-groups w-full min-w-0 pb-4">
+      <ChartTypeSelector onChange={setChart} value={chart} />
+    </div>
   );
 }
 
 export function SurfacesSection() {
   return (
     <CatalogSection
-      description="Default shadcn Button and ToggleGroup in the Studio sidebar."
+      description="Chart type picker at the top of the Studio sidebar — outline trigger opens a 2-column icon grid."
       id="surfaces"
       title="Sidebar controls"
     >
@@ -218,22 +205,14 @@ export function PrimitivesDemo() {
       <StudioControlGroup collapsible defaultOpen title="Primitives">
         <div className="flex flex-col gap-4">
           <div className="flex flex-wrap gap-2">
-            <Button size="sm">Default</Button>
-            <Button size="sm" variant="outline">
-              Outline
-            </Button>
-            <Button size="sm" variant="secondary">
-              Secondary
-            </Button>
-            <Button size="sm" variant="ghost">
-              Ghost
-            </Button>
-            <Button size="sm" variant="destructive">
-              Destructive
-            </Button>
+            <Button>Default</Button>
+            <Button variant="outline">Outline</Button>
+            <Button variant="secondary">Secondary</Button>
+            <Button variant="ghost">Ghost</Button>
+            <Button variant="destructive">Destructive</Button>
           </div>
           <Input placeholder="Input" />
-          <Textarea placeholder="Textarea" rows={2} />
+          <Textarea placeholder="Textarea" rows={3} />
           <Select defaultValue="a">
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Select" />
@@ -545,12 +524,38 @@ export function PickersDemo() {
 export function PickersSection() {
   return (
     <CatalogSection
-      description="Placement and icon pickers built on ToggleGroup layouts."
+      description="Legend position and icon pickers built on ToggleGroup layouts."
       id="pickers"
       title="Pickers"
     >
       <PickersDemo />
     </CatalogSection>
+  );
+}
+
+export function ShimmerTextDemo() {
+  return (
+    <DemoControlGroups>
+      <StudioControlGroup collapsible defaultOpen title="Shimmer text">
+        <div className="flex flex-col gap-4 py-1">
+          <div className="flex flex-col gap-1">
+            <p className="m-0 text-muted-foreground text-xs">Loading label</p>
+            <ShimmeringText className="text-sm" text="Loading" />
+          </div>
+          <div className="flex flex-col gap-1">
+            <p className="m-0 text-muted-foreground text-xs">Version pill</p>
+            <ShimmeringText className="text-xs" text="Version 2" />
+          </div>
+          <div className="flex flex-col gap-1">
+            <p className="m-0 text-muted-foreground text-xs">Custom colors</p>
+            <ShimmeringText
+              className="text-sm [--color:var(--chart-4)] [--shimmering-color:var(--foreground)]"
+              text="Custom shimmer"
+            />
+          </div>
+        </div>
+      </StudioControlGroup>
+    </DemoControlGroups>
   );
 }
 

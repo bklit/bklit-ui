@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/ui/select";
-import { Switch } from "@/ui/switch";
+import { YesNoSwitch } from "@/ui/yes-no-switch";
 import { studioControlInputClass } from "./control-field-helpers";
 import { CrosshairFadePicker } from "./crosshair-fade-picker";
 import { CurvePicker } from "./curve-picker";
@@ -42,18 +42,18 @@ export function ControlFieldInputs({
   switch (control.type) {
     case "boolean":
       return (
-        <Switch
-          checked={Boolean(value)}
-          id={String(control.key)}
-          onCheckedChange={(checked) =>
+        <YesNoSwitch
+          aria-label={control.label}
+          onValueChange={(checked) =>
             onChange(control.key, checked as StudioUrlState[typeof control.key])
           }
+          value={Boolean(value)}
         />
       );
     case "text":
       return (
         <Input
-          className={cn("h-8 w-full", studioControlInputClass)}
+          className={cn("w-full", studioControlInputClass)}
           id={String(control.key)}
           onChange={(e) =>
             onChange(
@@ -72,10 +72,7 @@ export function ControlFieldInputs({
           }
           value={String(value)}
         >
-          <SelectTrigger
-            className="h-8 w-full text-xs"
-            id={String(control.key)}
-          >
+          <SelectTrigger className="w-full text-xs" id={String(control.key)}>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>

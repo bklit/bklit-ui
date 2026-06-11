@@ -1,0 +1,32 @@
+---
+title: Icons
+description: Central Icon System names available through @bklitui/icons
+---
+
+Studio imports icons from [`@bklitui/icons`](https://www.npmjs.com/package/@central-icons-react/all) — a thin wrapper around the Central Icon System. Use the `Icon` component with a typed `name` prop:
+
+```tsx
+import { Icon } from "@bklitui/icons";
+
+<Icon className="size-4" name="IconBezierCurves" />
+```
+
+`components.json` in `packages/studio` sets `"iconLibrary": "central"`. Install requires `CENTRAL_LICENSE_KEY` in the environment (see repo `.env.example`).
+
+<IconsPageContent />
+
+## Studio usage
+
+Common icons in the editor shell:
+
+| Icon | Usage |
+|------|-------|
+| `IconBezierCurves` | Motion bezier editor footer |
+| `IconAnimationEase` / `IconAnimationEaseOut` / `IconAnimationEaseIn` / `IconAnimationElastic` | Motion ease presets |
+| `IconDotGrid1x3Vertical` / `IconDotGrid1x3Horizontal` | Orientation pickers |
+| `IconDotGrid3x3` | Heatmap chart type |
+| `IconShuffle` | Scramble data |
+| `IconArrowRotateClockwise` | Reset / replay |
+| `IconChevronDownSmall` | Collapsible groups |
+
+See [Motion](/docs/motion) and [Pickers](/docs/pickers) for live examples.

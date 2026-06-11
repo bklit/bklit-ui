@@ -1,7 +1,7 @@
 "use client";
 
 import { Icon } from "@bklitui/icons";
-import { ShimmeringText } from "@/components/shimmering-text";
+import { ShimmeringText } from "@bklitui/ui/components/shimmering-text";
 import { Button } from "@/ui/button";
 import { ParticleBadge } from "./particle-badge";
 

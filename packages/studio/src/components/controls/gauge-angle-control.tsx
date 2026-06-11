@@ -23,7 +23,7 @@ function GaugeArcIcon({ angleDeg }: { angleDeg: number }) {
       />
       <motion.line
         animate={{ x2: x, y2: y }}
-        className="stroke-accent"
+        className="stroke-current"
         initial={false}
         strokeLinecap="round"
         strokeWidth={2}

@@ -5,20 +5,20 @@ import { cn } from "@bklitui/ui/lib/utils";
 import type { ChartSlug } from "@/lib/types";
 
 export const CHART_TYPE_ICONS: Record<ChartSlug, IconName> = {
-  "area-chart": "IconChart1",
-  "bar-chart": "IconBarsThree",
-  "line-chart": "IconLineChart1",
+  "area-chart": "IconTrending5",
+  "bar-chart": "IconChart5",
+  "line-chart": "IconTrending5",
   "profit-loss-line": "IconTradingViewLine",
   "scatter-chart": "IconPointChart",
   "composed-chart": "IconComboChartAxis",
   "pie-chart": "IconPieChart1",
-  "ring-chart": "IconDonut",
+  "ring-chart": "IconLoadingCircle",
   "gauge-chart": "IconGauge",
   "heatmap-chart": "IconDotGrid3x3",
-  "radar-chart": "IconRadar",
-  "funnel-chart": "IconFormPyramide",
+  "radar-chart": "IconFormPentagon",
+  "funnel-chart": "IconDeepDive",
   "candlestick-chart": "IconTradingViewCandles",
-  "live-line-chart": "IconLiveActivity",
+  "live-line-chart": "IconTrending4",
   "choropleth-chart": "IconGlobe",
   "sankey-chart": "IconSankeyChart",
 };

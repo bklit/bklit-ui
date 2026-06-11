@@ -38,7 +38,7 @@ function CrosshairFadeIcon({ mode }: { mode: CrosshairFadeOption }) {
   const gradientId = `crosshair-fade-icon-${mode}`;
 
   return (
-    <svg aria-hidden className="size-6" viewBox="0 0 20 20">
+    <svg aria-hidden className="size-[18px]" viewBox="0 0 20 20">
       <title>Crosshair fade preview</title>
       {stops ? (
         <>
