@@ -1,0 +1,24 @@
+---
+title: Fields
+description: Property rows — scrub numbers, opacity swatch, fill picker
+---
+
+Control fields follow a consistent row pattern: **label (w-28) + control**. Helpers live in `control-field-helpers.tsx`.
+
+<ComponentShowcase>
+  <StudioUiPreview>
+    <FieldsDemo />
+  </StudioUiPreview>
+</ComponentShowcase>
+
+## Components
+
+| Component | Path | Role |
+|-----------|------|------|
+| `StudioControlRow` | `control-field-helpers.tsx` | Label + stretch/end alignment |
+| `ScrubNumberField` | `scrub-number-field.tsx` | Drag-to-scrub number input |
+| `SliderInputGroup` | `slider-input-group.tsx` | Label + scrub (used by opacity, duration) |
+| `OpacityControl` | `opacity-control.tsx` | Slider with live swatch icon |
+| `FillPicker` | `fill-picker.tsx` | Solid/pattern fill + OKLCH popover |
+
+Scrub fields call `setNumberScrubbing` on the shell state so the chart does not replay while dragging.

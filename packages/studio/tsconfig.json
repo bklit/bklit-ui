@@ -7,7 +7,6 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "@/lib/utils": ["../ui/src/lib/utils.ts"],
       "@/components/shimmering-text": [
         "../../apps/web/components/shimmering-text.tsx"
       ]

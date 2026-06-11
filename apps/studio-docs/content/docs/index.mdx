@@ -1,0 +1,47 @@
+---
+title: Studio UI
+description: Editor chrome and property controls in @bklitui/studio — separate from chart components in @bklitui/ui
+---
+
+Studio UI is the design system for the **chart editor** — sidebars, property rows, motion controls, and pickers. Chart rendering primitives live in `@bklitui/ui` (see the main site docs); **this app** documents editor-only UI in `packages/studio`.
+
+Local-only — not deployed.
+
+## Quick links
+
+| Resource | URL |
+|----------|-----|
+| This docs app | http://localhost:3003/docs |
+| Full editor | http://localhost:3000/studio |
+| Add shadcn components | `cd packages/studio && pnpm ui:add <name>` |
+
+## Architecture
+
+```
+packages/studio/
+├── src/ui/              # shadcn primitives (components.json → pnpm ui:add)
+├── src/components/controls/  # chart property widgets
+├── src/styles/
+│   ├── studio-theme.css      # scoped .studio-shell shadcn vars
+│   └── studio-chrome.css     # control surfaces, scrollbars, grids
+└── components.json      # shadcn CLI config (ui alias → @/ui)
+```
+
+**Custom** (hand-maintained): `studio-control-surface`, OKLCH color picker, `number-field`, motion bezier editor, fill/pattern/legend pickers, scrub inputs.
+
+**Shadcn-managed** (22): `button`, `dialog`, `dropdown-menu`, `input`, `popover`, `select`, `slider`, `toggle`, `toggle-group`, `tooltip`, and more — run `pnpm dlx shadcn@latest info --json` from `packages/studio`.
+
+## Sections
+
+- [Control surfaces](/docs/control-surfaces) — sidebar triggers and segmented tabs
+- [Tabs](/docs/tabs) — `StudioTabs` layouts (segmented, icons, cards)
+- [Fields](/docs/fields) — property rows, scrub numbers, fill picker
+- [Motion](/docs/motion) — bezier editor, ease presets, duration controls
+- [Pickers](/docs/pickers) — legend placement, icon toggles
+- [Patterns](/docs/patterns) — series pattern swatches
+- [Primitives](/docs/primitives) — vendored shadcn components
+- [Feedback](/docs/feedback) — alerts, spinners, tooltips
+
+## Theming
+
+Studio uses a **scoped palette** on `.studio-shell` (`studio-theme.css`) so the editor can be themed independently of the docs site. Override `--studio-control-surface-*` tokens to restyle every sidebar control at once.

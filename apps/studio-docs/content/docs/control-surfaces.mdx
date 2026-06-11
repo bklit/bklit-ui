@@ -1,0 +1,25 @@
+---
+title: Control Surfaces
+description: Sidebar triggers and segmented tab chrome via StudioControlSurface
+---
+
+`StudioControlSurface` applies the `.studio-control-surface` class — gradient triggers, inset bevel, and pressed states used across the editor sidebars.
+
+**Source:** `packages/studio/src/ui/studio-control-surface.tsx`  
+**Tokens:** `--studio-control-surface-*` in `studio-theme.css`
+
+<ComponentShowcase>
+  <StudioUiPreview>
+    <SurfacesDemo />
+  </StudioUiPreview>
+</ComponentShowcase>
+
+## Usage
+
+```tsx
+import { StudioControlSurface } from "@/ui/studio-control-surface";
+
+<StudioControlSurface type="button">Chart type</StudioControlSurface>
+```
+
+Segmented groups use `.studio-control-surface-group` on a wrapper — see [Tabs](/docs/tabs).

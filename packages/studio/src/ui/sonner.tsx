@@ -8,12 +8,12 @@ import {
   MultiplicationSignCircleIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { useTheme } from "next-themes";
 import type * as React from "react";
 import { Toaster as Sonner, type ToasterProps } from "sonner";
+import { useStudioTheme } from "@/providers/studio-theme-provider";
 
 const Toaster = ({ ...props }: ToasterProps) => {
-  const { theme = "system" } = useTheme();
+  const { resolvedTheme } = useStudioTheme();
 
   return (
     <Sonner
@@ -63,7 +63,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
           "--normal-text": "var(--popover-foreground)",
         } as React.CSSProperties
       }
-      theme={theme as ToasterProps["theme"]}
+      theme={resolvedTheme}
       toastOptions={{
         classNames: {
           toast: "cn-toast",

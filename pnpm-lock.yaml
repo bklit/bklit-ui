@@ -30,6 +30,100 @@ importers:
         specifier: 7.0.12
         version: 7.0.12(typescript@5.9.2)
 
+  apps/studio-docs:
+    dependencies:
+      '@base-ui/react':
+        specifier: ^1.1.0
+        version: 1.1.0(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@bklitui/studio':
+        specifier: workspace:*
+        version: link:../../packages/studio
+      '@hugeicons/core-free-icons':
+        specifier: ^4.1.4
+        version: 4.1.4
+      '@hugeicons/react':
+        specifier: ^1.1.6
+        version: 1.1.6(react@19.2.0)
+      class-variance-authority:
+        specifier: ^0.7.1
+        version: 0.7.1
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
+      fumadocs-core:
+        specifier: ^15.2.9
+        version: 15.8.5(@types/react@19.2.2)(lucide-react@0.562.0(react@19.2.0))(next@15.5.9(@babel/core@7.29.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      fumadocs-mdx:
+        specifier: ^11.6.5
+        version: 11.10.1(fumadocs-core@15.8.5(@types/react@19.2.2)(lucide-react@0.562.0(react@19.2.0))(next@15.5.9(@babel/core@7.29.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(next@15.5.9(@babel/core@7.29.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)(vite@6.4.2(@types/node@22.15.3)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.22.1))
+      fumadocs-ui:
+        specifier: ^15.2.9
+        version: 15.8.5(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(lucide-react@0.562.0(react@19.2.0))(next@15.5.9(@babel/core@7.29.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(tailwindcss@4.1.18)
+      geist:
+        specifier: ^1.7.2
+        version: 1.7.2(next@15.5.9(@babel/core@7.29.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))
+      lucide-react:
+        specifier: ^0.562.0
+        version: 0.562.0(react@19.2.0)
+      motion:
+        specifier: ^12.27.0
+        version: 12.27.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      next:
+        specifier: ^15.3.3
+        version: 15.5.9(@babel/core@7.29.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      next-themes:
+        specifier: ^0.4.6
+        version: 0.4.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      nuqs:
+        specifier: ^2.8.9
+        version: 2.8.9(next@15.5.9(@babel/core@7.29.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)
+      react:
+        specifier: ^19.2.0
+        version: 19.2.0
+      react-dom:
+        specifier: ^19.2.0
+        version: 19.2.0(react@19.2.0)
+      shadcn:
+        specifier: ^4.8.0
+        version: 4.8.0(@types/node@22.15.3)(typescript@5.9.2)
+      shiki:
+        specifier: ^3.21.0
+        version: 3.21.0
+      tailwind-merge:
+        specifier: ^2.6.0
+        version: 2.6.0
+      tw-animate-css:
+        specifier: ^1.4.0
+        version: 1.4.0
+    devDependencies:
+      '@bklitui/eslint-config':
+        specifier: workspace:*
+        version: link:../../packages/eslint-config
+      '@bklitui/typescript-config':
+        specifier: workspace:*
+        version: link:../../packages/typescript-config
+      '@tailwindcss/postcss':
+        specifier: ^4.1.8
+        version: 4.1.18
+      '@types/node':
+        specifier: ^22.15.3
+        version: 22.15.3
+      '@types/react':
+        specifier: 19.2.2
+        version: 19.2.2
+      '@types/react-dom':
+        specifier: 19.2.2
+        version: 19.2.2(@types/react@19.2.2)
+      eslint:
+        specifier: ^9.39.1
+        version: 9.39.1(jiti@2.6.1)
+      tailwindcss:
+        specifier: ^4.1.8
+        version: 4.1.18
+      typescript:
+        specifier: 5.9.2
+        version: 5.9.2
+
   apps/web:
     dependencies:
       '@base-ui/react':
@@ -127,7 +221,7 @@ importers:
         version: 0.4.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       nuqs:
         specifier: ^2.8.9
-        version: 2.8.9(next@15.5.9(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)
+        version: 2.8.9(next@15.5.9(@babel/core@7.29.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)
       puppeteer-core:
         specifier: ^25.1.0
         version: 25.1.0
@@ -291,12 +385,9 @@ importers:
       motion:
         specifier: ^12.27.0
         version: 12.27.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
-      next-themes:
-        specifier: ^0.4.6
-        version: 0.4.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       nuqs:
         specifier: ^2.8.9
-        version: 2.8.9(next@15.5.9(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)
+        version: 2.8.9(next@15.5.9(@babel/core@7.29.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)
       react:
         specifier: ^19.2.0
         version: 19.2.0
@@ -322,6 +413,9 @@ importers:
       '@bklitui/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
+      '@tailwindcss/postcss':
+        specifier: ^4.1.8
+        version: 4.1.18
       '@types/d3-shape':
         specifier: ^3.1.6
         version: 3.1.8
@@ -355,12 +449,18 @@ importers:
       jsdom:
         specifier: ^29.1.1
         version: 29.1.1(@noble/hashes@1.8.0)
+      shadcn:
+        specifier: ^4.8.0
+        version: 4.8.0(@types/node@22.15.3)(typescript@5.9.2)
       tailwindcss:
         specifier: ^4.1.8
         version: 4.1.18
       tsx:
         specifier: ^4.19.4
         version: 4.22.1
+      tw-animate-css:
+        specifier: ^1.4.0
+        version: 1.4.0
       typescript:
         specifier: 5.9.2
         version: 5.9.2
@@ -10172,7 +10272,7 @@ snapshots:
     dependencies:
       esm-env: esm-env-runtime@0.1.1
 
-  nuqs@2.8.9(next@15.5.9(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0):
+  nuqs@2.8.9(next@15.5.9(@babel/core@7.29.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0):
     dependencies:
       '@standard-schema/spec': 1.0.0
       react: 19.2.0
