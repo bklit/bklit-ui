@@ -1,0 +1,14 @@
+{
+  "title": "Studio UI",
+  "pages": [
+    "index",
+    "control-surfaces",
+    "tabs",
+    "fields",
+    "motion",
+    "pickers",
+    "patterns",
+    "primitives",
+    "feedback"
+  ]
+}

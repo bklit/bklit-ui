@@ -1,0 +1,36 @@
+---
+title: Motion
+description: Bezier curve editor, ease presets, and motion panel controls
+---
+
+Motion UI lives in the left sidebar animation section. The **bezier editor** is the most complex custom control — draggable handles, play preview, and ease/spring morph.
+
+**Source:** `packages/studio/src/components/controls/motion-curve-editor.tsx`
+
+## Bezier editor
+
+<ComponentShowcase>
+  <StudioUiPreview>
+    <MotionBezierDemo />
+  </StudioUiPreview>
+</ComponentShowcase>
+
+Drag the handles to edit `motionBezier`. Press play to preview the easing curve. Toggle Ease/Spring in the full panel below to see the curve morph.
+
+## Ease presets
+
+<ComponentShowcase>
+  <StudioUiPreview>
+    <MotionEasePresetsDemo />
+  </StudioUiPreview>
+</ComponentShowcase>
+
+## Full motion panel
+
+`MotionControl` composes the editor, duration scrubber, stagger scale, bounce (spring), and ease preset grid.
+
+<ComponentShowcase>
+  <StudioUiPreview>
+    <MotionControlDemo />
+  </StudioUiPreview>
+</ComponentShowcase>

@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import type { StudioAnalytics } from "@/providers/studio-analytics-context";
 import { StudioAnalyticsProvider } from "@/providers/studio-analytics-context";
+import { StudioThemeProvider } from "@/providers/studio-theme-provider";
 import { Toaster } from "@/ui/sonner";
 import { StudioEditorLayout } from "./studio-editor-layout";
 import { StudioOnboardingDialog } from "./studio-onboarding-dialog";
@@ -19,11 +20,11 @@ export function StudioShell({
   return (
     <StudioAnalyticsProvider value={analytics ?? {}}>
       <StudioStateProvider>
-        <div className="relative flex h-full min-h-0 flex-1 flex-col overflow-hidden">
+        <StudioThemeProvider>
           <StudioOnboardingDialog />
           <StudioEditorLayout renderCodeSheet={renderCodeSheet} />
           <Toaster position="top-center" />
-        </div>
+        </StudioThemeProvider>
       </StudioStateProvider>
     </StudioAnalyticsProvider>
   );

@@ -95,8 +95,11 @@ const StudioDisplayContext = createContext<StudioDisplayContextValue | null>(
 
 export function StudioStateProvider({
   children,
+  embedded = false,
 }: {
   children: React.ReactNode;
+  /** Docs previews — stretch to the showcase min-height instead of editor flex shell. */
+  embedded?: boolean;
 }) {
   const [params, setParamsState] = useState<StudioUrlState>(defaultStudioState);
   const [compressed, setCompressed] = useQueryState(
@@ -432,7 +435,15 @@ export function StudioStateProvider({
   return (
     <StudioShellContext.Provider value={shellValue}>
       <StudioDisplayContext.Provider value={displayValue}>
-        <div className="flex h-full min-h-0 flex-1 flex-col">{children}</div>
+        <div
+          className={
+            embedded
+              ? "min-h-[inherit] w-full"
+              : "flex h-full min-h-0 flex-1 flex-col"
+          }
+        >
+          {children}
+        </div>
       </StudioDisplayContext.Provider>
     </StudioShellContext.Provider>
   );
