@@ -28,6 +28,17 @@ import {
   type FunnelStage,
   Gauge,
   Grid,
+  HEATMAP_DEFAULT_LEVEL_STYLES,
+  HeatmapCells,
+  HeatmapChart,
+  HeatmapChartLoading,
+  HeatmapInteractionBoundary,
+  HeatmapInteractionProvider,
+  HeatmapLegend,
+  type HeatmapLevelStyles,
+  HeatmapTooltip,
+  HeatmapXAxis,
+  HeatmapYAxis,
   Legend,
   LegendItemComponent,
   LegendLabel,
@@ -150,6 +161,7 @@ import {
   composedStackedData,
   composedTriSeriesData,
 } from "@/lib/composed-demo-data";
+import { getHeatmapDemoData } from "@/lib/heatmap-demo-data";
 import { cn } from "@/lib/utils";
 import {
   weeklyVisitorsDashFromIndex,
@@ -873,7 +885,91 @@ const CandlestickExampleChart = createChartExamplePreview(CandlestickChart);
 const LiveLineExampleChart = createChartExamplePreview(LiveLineChart);
 const ChoroplethExampleChart = createChartExamplePreview(ChoroplethChart);
 const SankeyExampleChart = createChartExamplePreview(SankeyChart);
+const HeatmapExampleChart = createChartExamplePreview(HeatmapChart);
+const HeatmapChartLoadingExample =
+  createChartExamplePreview(HeatmapChartLoading);
 const ScatterExampleChart = createChartExamplePreview(ScatterChart);
+
+const HEATMAP_GALLERY_GAP = 3;
+const HEATMAP_CIRCULAR_CORNER_RADIUS = 999;
+const HEATMAP_GALLERY_MARGIN = {
+  top: 28,
+  right: 12,
+  bottom: 0,
+  left: 44,
+} as const;
+
+const heatmapContributionData = getHeatmapDemoData();
+
+const heatmapPatternLevelStyles = [
+  HEATMAP_DEFAULT_LEVEL_STYLES[0],
+  HEATMAP_DEFAULT_LEVEL_STYLES[1],
+  {
+    ...HEATMAP_DEFAULT_LEVEL_STYLES[2],
+    fillMode: "pattern" as const,
+    pattern: "diagonal" as const,
+    patternColor: "#39d353",
+  },
+  HEATMAP_DEFAULT_LEVEL_STYLES[3],
+  HEATMAP_DEFAULT_LEVEL_STYLES[4],
+] as const satisfies HeatmapLevelStyles;
+
+function HeatmapExampleShell({ children }: { children: ReactNode }) {
+  return (
+    <HeatmapInteractionProvider>
+      <HeatmapInteractionBoundary>{children}</HeatmapInteractionBoundary>
+    </HeatmapInteractionProvider>
+  );
+}
+
+function HeatmapGalleryExample({
+  levelStyles = HEATMAP_DEFAULT_LEVEL_STYLES,
+  gap = HEATMAP_GALLERY_GAP,
+  cornerRadius = 2,
+}: {
+  levelStyles?: HeatmapLevelStyles;
+  gap?: number;
+  cornerRadius?: number;
+}) {
+  return (
+    <HeatmapExampleShell>
+      <div className="flex w-full max-w-full flex-col items-stretch gap-2">
+        <HeatmapExampleChart
+          className="w-full min-w-0"
+          data={heatmapContributionData}
+          gap={gap}
+          layout="fluid"
+          levelStyles={levelStyles}
+          margin={HEATMAP_GALLERY_MARGIN}
+        >
+          <HeatmapCells cornerRadius={cornerRadius} />
+          <HeatmapXAxis />
+          <HeatmapYAxis />
+          <HeatmapTooltip />
+        </HeatmapExampleChart>
+        <HeatmapLegend
+          align="center"
+          cornerRadius={cornerRadius}
+          gap={gap}
+          levelStyles={levelStyles}
+        />
+      </div>
+    </HeatmapExampleShell>
+  );
+}
+
+function HeatmapLoadingGalleryExample() {
+  return (
+    <HeatmapChartLoadingExample
+      className="w-full min-w-0"
+      cornerRadius={2}
+      data={heatmapContributionData}
+      gap={HEATMAP_GALLERY_GAP}
+      label="Loading contributions"
+      margin={HEATMAP_GALLERY_MARGIN}
+    />
+  );
+}
 
 function ProfitLossLineExample({
   legendHoveredIndex,
@@ -4124,6 +4220,49 @@ function makeSankeyExamples(): ChartExample[] {
   ];
 }
 
+function makeHeatmapExamples(): ChartExample[] {
+  return [
+    {
+      title: "Heatmap Chart",
+      description: "GitHub-style contribution grid with axes and tooltip",
+      code: `<HeatmapChart data={data} gap={3} layout="fluid">
+  <HeatmapCells />
+  <HeatmapXAxis />
+  <HeatmapYAxis />
+  <HeatmapTooltip />
+</HeatmapChart>
+<HeatmapLegend align="center" gap={3} />`,
+      render: () => <HeatmapGalleryExample />,
+    },
+    {
+      title: "Heatmap Chart - Pattern Levels",
+      description: "Per-level pattern fills shared between chart and legend",
+      code: `<HeatmapChart data={data} gap={3} layout="fluid" levelStyles={levelStyles}>
+  <HeatmapCells />
+  <HeatmapXAxis />
+  <HeatmapYAxis />
+  <HeatmapTooltip />
+</HeatmapChart>
+<HeatmapLegend align="center" gap={3} levelStyles={levelStyles} />`,
+      render: () => (
+        <HeatmapGalleryExample levelStyles={heatmapPatternLevelStyles} />
+      ),
+    },
+    {
+      title: "Heatmap Chart - Loading",
+      description: "Skeleton grid with cell shimmer while data loads",
+      code: `import { HeatmapChartLoading } from "@bklitui/ui/charts";
+
+<HeatmapChartLoading
+  data={data}
+  gap={3}
+  label="Loading contributions"
+/>`,
+      render: () => <HeatmapLoadingGalleryExample />,
+    },
+  ];
+}
+
 function makeChoroplethExamples(): ChartExample[] {
   return [
     {
@@ -4875,6 +5014,23 @@ function makeSankeyHero(): ChartExample {
   };
 }
 
+function makeHeatmapHero(): ChartExample {
+  return {
+    title: "Heatmap Chart - Contributions",
+    description: "Activity grid with circular cells and synced legend hover",
+    code: `<HeatmapChart data={data} gap={3} layout="fluid">
+  <HeatmapCells cornerRadius={999} />
+  <HeatmapXAxis />
+  <HeatmapYAxis />
+  <HeatmapTooltip />
+</HeatmapChart>
+<HeatmapLegend align="center" cornerRadius={999} gap={3} />`,
+    render: () => (
+      <HeatmapGalleryExample cornerRadius={HEATMAP_CIRCULAR_CORNER_RADIUS} />
+    ),
+  };
+}
+
 function ChoroplethHeroInner() {
   const { worldData, isLoading } = useWorldDataStandalone();
   if (isLoading || !worldData) {
@@ -5415,6 +5571,7 @@ const chartTypes = [
   { label: "Composed Chart", slug: "composed-chart" },
   { label: "Funnel Chart", slug: "funnel-chart" },
   { label: "Gauge", slug: "gauge-chart" },
+  { label: "Heatmap Chart", slug: "heatmap-chart" },
   { label: "Line Chart", slug: "line-chart" },
   { label: "Live Line Chart", slug: "live-line-chart" },
   { label: "Pie Chart", slug: "pie-chart" },
@@ -5494,6 +5651,12 @@ const chartExamplesRegistry: Record<string, RegistryEntry> = {
     factory: makeGaugeExamples,
     hero: makeGaugeHero,
     previewLayout: "compact",
+  },
+  "heatmap-chart": {
+    factory: makeHeatmapExamples,
+    columns: 2,
+    hero: makeHeatmapHero,
+    previewLayout: "heatmap",
   },
   "line-chart": { factory: makeLineExamples, hero: makeLineHero },
   "profit-loss-line": { factory: makeProfitLossLineExamples },

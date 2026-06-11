@@ -61,7 +61,7 @@ export const HeatmapLegend = memo(function HeatmapLegend({
       color: colorScale(level),
       fillMode: "solid" as const,
       pattern: "none" as const,
-    })) as HeatmapLevelStyles);
+    })) as unknown as HeatmapLevelStyles);
 
   const {
     hoveredLegendLevel,
@@ -123,7 +123,7 @@ export const HeatmapLegend = memo(function HeatmapLegend({
             <motion.span
               animate={{ opacity: isFaded ? fadedOpacity : 1 }}
               aria-hidden="true"
-              className="inline-block shrink-0"
+              className="block shrink-0 leading-none"
               initial={{ opacity: 1 }}
               key={level}
               onPointerEnter={() => handleLegendEnter(level)}

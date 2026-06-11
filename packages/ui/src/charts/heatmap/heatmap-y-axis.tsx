@@ -47,8 +47,8 @@ export const HeatmapYAxis = memo(function HeatmapYAxis({
         key={tick.label}
         style={{
           top: tick.y,
-          left: 0,
-          width: margin.left - 8,
+          left: 4,
+          width: Math.max(margin.left - 12, 0),
           display: "flex",
           alignItems: "center",
           justifyContent: "flex-end",

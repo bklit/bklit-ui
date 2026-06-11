@@ -20,6 +20,12 @@ export const HeatmapLegendSwatch = memo(function HeatmapLegendSwatch({
   cellSize: number;
   cornerRadius: number;
 }) {
+  const shellStyle = {
+    width: cellSize,
+    height: cellSize,
+    borderRadius: cornerRadius,
+  };
+
   if (isHeatmapLevelPattern(style) && style.pattern) {
     const patternId = heatmapLevelPatternId(level);
     const patternNode = renderPatternPreset(
@@ -30,36 +36,38 @@ export const HeatmapLegendSwatch = memo(function HeatmapLegendSwatch({
     const opacity = style.patternOpacity ?? 1;
 
     return (
-      <svg
+      <span
         aria-hidden="true"
-        className="inline-block shrink-0 overflow-hidden"
-        height={cellSize}
-        style={{ borderRadius: cornerRadius, opacity }}
-        viewBox={`0 0 ${cellSize} ${cellSize}`}
-        width={cellSize}
+        className="block shrink-0 overflow-hidden"
+        style={{ ...shellStyle, opacity }}
       >
-        {patternNode ? <defs>{patternNode}</defs> : null}
-        <rect
-          fill={patternNode ? `url(#${patternId})` : style.color}
-          height={cellSize}
-          rx={cornerRadius}
-          ry={cornerRadius}
-          width={cellSize}
-        />
-      </svg>
+        <svg
+          aria-hidden="true"
+          className="block size-full"
+          viewBox={`0 0 ${cellSize} ${cellSize}`}
+        >
+          {patternNode ? <defs>{patternNode}</defs> : null}
+          <rect
+            fill={patternNode ? `url(#${patternId})` : style.color}
+            height={cellSize}
+            rx={cornerRadius}
+            ry={cornerRadius}
+            width={cellSize}
+          />
+        </svg>
+      </span>
     );
   }
 
   return (
     <span
       aria-hidden="true"
-      className="inline-block shrink-0"
+      className="block shrink-0"
       style={{
-        width: cellSize,
-        height: cellSize,
-        borderRadius: cornerRadius,
+        ...shellStyle,
         backgroundColor: style.color,
         border: level === 0 ? `1px solid ${style.color}` : undefined,
+        boxSizing: "border-box",
       }}
     />
   );

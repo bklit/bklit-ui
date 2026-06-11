@@ -107,7 +107,7 @@ export interface HeatmapChartProps {
   children: ReactNode;
 }
 
-const DEFAULT_MARGIN: Margin = { top: 28, right: 16, bottom: 16, left: 36 };
+const DEFAULT_MARGIN: Margin = { top: 28, right: 16, bottom: 0, left: 40 };
 
 function computeHeatmapDimensions({
   width,
@@ -411,10 +411,20 @@ function HeatmapChartSurface({
         <g transform={`translate(${margin.left},${margin.top})`}>{children}</g>
       </svg>
       {showLoadingLabel && loadingLabel?.trim() ? (
-        <ChartLoadingLabel
-          exiting={chartPhase !== "loading"}
-          text={loadingLabel}
-        />
+        <div
+          className="pointer-events-none absolute"
+          style={{
+            top: margin.top,
+            left: margin.left,
+            width: Math.max(width - margin.left - margin.right, 0),
+            height: Math.max(height - margin.top - margin.bottom, 0),
+          }}
+        >
+          <ChartLoadingLabel
+            exiting={chartPhase !== "loading"}
+            text={loadingLabel}
+          />
+        </div>
       ) : null}
     </div>
   );
