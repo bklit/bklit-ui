@@ -6,10 +6,10 @@ const { GET: baseGET, POST: basePOST } = createRouteHandler();
 
 const canonicalOrigin = new URL(SITE_URL).origin;
 
-/** Production hosts that should proxy with the OpenPanel-registered origin. */
+/** Legacy/alternate hosts that should proxy with the canonical origin. */
 const productionOrigins = new Set([
   canonicalOrigin,
-  "https://bklit.com",
+  "https://ui.bklit.com",
   "https://www.bklit.com",
 ]);
 

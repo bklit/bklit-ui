@@ -48,7 +48,7 @@ describe("chart-links", () => {
     const encoded = href.split("url=")[1];
     assert.equal(
       decodeURIComponent(encoded ?? ""),
-      "https://ui.bklit.com/r/area-chart-example.json"
+      "https://bklit.com/r/area-chart-example.json"
     );
   });
 
@@ -74,14 +74,14 @@ describe("chart-links", () => {
 
   it("studioShareStudioUrl builds an absolute studio link", () => {
     const state = defaultStudioState({ chart: "pie-chart" });
-    const url = studioShareStudioUrl(state, "https://ui.bklit.com");
-    assert.ok(url.startsWith("https://ui.bklit.com/studio?s=v1."));
+    const url = studioShareStudioUrl(state, "https://bklit.com");
+    assert.ok(url.startsWith("https://bklit.com/studio?s=v1."));
   });
 
   it("studioEmbedIframeMarkup includes the embed src", () => {
     const state = defaultStudioState({ chart: "line-chart" });
     const markup = studioEmbedIframeMarkup(state, {
-      origin: "https://ui.bklit.com",
+      origin: "https://bklit.com",
       height: 520,
     });
     assert.match(markup, IFRAME_TAG_RE);

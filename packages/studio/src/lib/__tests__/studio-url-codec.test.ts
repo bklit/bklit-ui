@@ -57,7 +57,7 @@ describe("studio-url-codec", () => {
     });
     const encoded = encodeStudioUrlState(state);
     const url = new URL(
-      `https://ui.bklit.com/studio?s=${encodeURIComponent(encoded)}&chart=area-chart`
+      `https://bklit.com/studio?s=${encodeURIComponent(encoded)}&chart=area-chart`
     );
     assert.deepEqual(loadStudioStateFromRequest(url), state);
   });
@@ -90,7 +90,7 @@ describe("studio-url-codec", () => {
 
   it("loadStudioStateFromRequest reads legacy flat params", () => {
     const url = new URL(
-      "https://ui.bklit.com/studio?chart=bar-chart&barOrientation=horizontal"
+      "https://bklit.com/studio?chart=bar-chart&barOrientation=horizontal"
     );
     const state = loadStudioStateFromRequest(url);
     assert.equal(state.chart, "bar-chart");

@@ -35,7 +35,7 @@ describe("studio OG state", () => {
       const state = ogStateForChart(slug);
       const serialized = studioSerializedParam(state);
       const url = new URL(
-        `https://ui.bklit.com/studio/og-preview?s=${encodeURIComponent(serialized)}`
+        `https://bklit.com/studio/og-preview?s=${encodeURIComponent(serialized)}`
       );
       const loaded = normalizeStudioStateForOg(loadStudioStateFromRequest(url));
       assert.equal(loaded.chart, slug);
