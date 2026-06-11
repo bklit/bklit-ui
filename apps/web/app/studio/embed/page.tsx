@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { studioEmbedPageMetadata } from "@/lib/studio-embed-page-metadata";
 import { StudioEmbedPageClient } from "./studio-embed-page-client";
 
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata({
   searchParams,
 }: {

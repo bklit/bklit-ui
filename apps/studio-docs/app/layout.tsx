@@ -3,7 +3,7 @@ import { RootProvider } from "fumadocs-ui/provider";
 import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
 import type { Metadata } from "next";
-import type { ReactNode } from "react";
+import { type ReactNode, Suspense } from "react";
 import { StudioNuqsAdapter } from "@/components/studio-nuqs-adapter";
 import { cn } from "@/lib/utils";
 
@@ -42,7 +42,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             enableSystem: true,
           }}
         >
-          <StudioNuqsAdapter>{children}</StudioNuqsAdapter>
+          <Suspense fallback={null}>
+            <StudioNuqsAdapter>{children}</StudioNuqsAdapter>
+          </Suspense>
         </RootProvider>
       </body>
     </html>
