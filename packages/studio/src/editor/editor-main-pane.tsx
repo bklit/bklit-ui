@@ -13,6 +13,7 @@ import { EditorMenuBar } from "@/editor/editor-menu-bar";
 import { EditorMobilePanelTriggers } from "@/editor/editor-mobile-panel-sheets";
 import { FpsCounter } from "@/editor/fps-counter";
 import { useEditorCamera } from "@/editor/use-editor-canvas-view";
+import { studioPreviewCanvasClass } from "@/lib/studio-chrome-classes";
 import { STUDIO_EMBED_MENU_BAR_CLEARANCE } from "@/lib/studio-embed";
 import { cn } from "@/lib/utils";
 
@@ -170,7 +171,12 @@ export function EditorMainPane({
   if (mobileViewport) {
     return (
       <div className={cn("flex h-full min-h-0 flex-col", className)}>
-        <div className="studio-preview-canvas relative flex min-h-0 flex-1 flex-col items-center justify-center overflow-hidden p-3">
+        <div
+          className={cn(
+            studioPreviewCanvasClass,
+            "relative flex min-h-0 flex-1 flex-col items-center justify-center overflow-hidden p-3"
+          )}
+        >
           {children({
             size: { width: size.width, height: size.height },
             boundsRef: canvasRef,

@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  ArrowRight01Icon,
-  File01Icon,
-  Folder01Icon,
-} from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
+import { Icon } from "@bklitui/icons";
 import { useMemo, useState } from "react";
 import { CODE_PANEL_HEADER_CLASS } from "@/components/blocks/block-code-panel-header";
 import { buildFileTree } from "@/lib/blocks/build-file-tree";
@@ -40,19 +35,14 @@ function TreeFolder({
         style={{ paddingLeft }}
         type="button"
       >
-        <HugeiconsIcon
+        <Icon
           className={cn(
             "size-3 shrink-0 transition-transform",
             open && "rotate-90"
           )}
-          icon={ArrowRight01Icon}
-          strokeWidth={2}
+          name="IconArrowRight"
         />
-        <HugeiconsIcon
-          className="size-3.5 shrink-0"
-          icon={Folder01Icon}
-          strokeWidth={1.75}
-        />
+        <Icon className="size-3.5 shrink-0" name="IconFolder1" />
         <span className="truncate">{node.name}</span>
       </button>
 
@@ -111,11 +101,7 @@ function TreeNode({
         style={{ paddingLeft }}
         type="button"
       >
-        <HugeiconsIcon
-          className="size-3.5 shrink-0"
-          icon={File01Icon}
-          strokeWidth={1.75}
-        />
+        <Icon className="size-3.5 shrink-0" name="IconFileText" />
         <span className="truncate">{node.name}</span>
       </button>
     </li>

@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import { Icon } from "@bklitui/icons";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
@@ -27,7 +27,7 @@ export function PageFooter({ previous, next }: PageFooterProps) {
           className="group flex items-center gap-2 text-muted-foreground transition-colors hover:text-foreground"
           href={previous.url}
         >
-          <ChevronLeftIcon className="size-4" />
+          <Icon className="size-4" name="IconChevronLeft" />
           <div className="flex flex-col">
             <span className="text-xs">Previous</span>
             <span className="font-medium text-foreground text-sm group-hover:underline">
@@ -49,7 +49,7 @@ export function PageFooter({ previous, next }: PageFooterProps) {
               {next.name}
             </span>
           </div>
-          <ChevronRightIcon className="size-4" />
+          <Icon className="size-4" name="IconChevronRight" />
         </Link>
       ) : (
         <div />

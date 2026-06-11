@@ -1,7 +1,6 @@
 "use client";
 
-import { Share03Icon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
+import { Icon } from "@bklitui/icons";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { ParticleBadge } from "@/components/onboarding/particle-badge";
@@ -85,7 +84,7 @@ export function StudioSharePopover({
             }
           >
             <ParticleBadge>
-              <HugeiconsIcon icon={Share03Icon} strokeWidth={1.75} />
+              <Icon className="size-4" name="IconShareOs" />
             </ParticleBadge>
           </PopoverTrigger>
         </TooltipTrigger>

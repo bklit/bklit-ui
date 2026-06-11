@@ -2,18 +2,24 @@
 
 import { cn } from "@bklitui/ui/lib/utils";
 import type { ReactNode } from "react";
+import {
+  studioControlRadiusClass,
+  studioInputBackgroundClass,
+  studioLabelClass,
+} from "@/lib/studio-chrome-classes";
 import type { StudioControl } from "@/lib/types";
 import { Label } from "@/ui/label";
 
-export const studioControlLabelClass =
-  "studio-label w-28 shrink-0 font-medium text-xs leading-tight";
-
-export const studioSectionLabelClass =
-  "studio-section-label font-medium text-[11px] uppercase tracking-wider";
+export const studioControlLabelClass = cn(
+  studioLabelClass,
+  "w-28 shrink-0 font-medium text-xs leading-tight"
+);
 
 /** Stacked label above a control (Fill, Presets, etc.) — same size as row labels. */
-export const studioFieldLabelClass =
-  "studio-label font-medium text-xs leading-tight";
+export const studioFieldLabelClass = cn(
+  studioLabelClass,
+  "font-medium text-xs leading-tight"
+);
 
 export const studioControlRowClass = "flex min-w-0 items-center gap-2.5";
 
@@ -21,11 +27,13 @@ export const studioControlRowClass = "flex min-w-0 items-center gap-2.5";
 export const studioControlInputClass = "text-xs";
 
 /**
- * Bordered field row (scrub inputs, fill color row) — tune via `--studio-input-background`.
- * Accent triggers / segmented tabs use `.studio-control-surface` in `styles/studio.css`.
+ * Borderless field row (scrub inputs, fill color row, text inputs).
+ * Sidebar triggers use `Button variant="outline"`; option sets use shadcn `ToggleGroup`.
  */
-export const studioInputSurfaceClass =
-  "border border-input bg-[var(--studio-input-background)] shadow-xs";
+export const studioInputSurfaceClass = cn(
+  studioControlRadiusClass,
+  studioInputBackgroundClass
+);
 
 const GROUP_LABELED_TYPES = new Set<StudioControl["type"]>([
   "pattern",
@@ -38,7 +46,6 @@ const GROUP_LABELED_TYPES = new Set<StudioControl["type"]>([
   "graticuleToggle",
   "strokeStyle",
   "crosshairFade",
-  "legendPosition",
 ]);
 
 export function StudioControlRow({

@@ -459,6 +459,17 @@ export function useStudioShellState() {
   return context;
 }
 
+/** Optional — docs previews omit `StudioStateProvider`. */
+function noopSetNumberScrubbing(_scrubbing: boolean) {
+  // Intentionally empty: chart preview is not mounted in docs demos.
+}
+
+export function useStudioNumberScrubbing() {
+  return (
+    useContext(StudioShellContext)?.setNumberScrubbing ?? noopSetNumberScrubbing
+  );
+}
+
 export function useStudioDisplayState() {
   const context = useContext(StudioDisplayContext);
   if (!context) {

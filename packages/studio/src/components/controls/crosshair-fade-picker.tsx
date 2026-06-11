@@ -1,7 +1,7 @@
 "use client";
 
 import { IconToggleGroup } from "@/components/controls/icon-toggle-group";
-import { StudioTab } from "@/components/controls/studio-toggle-group";
+import { StudioToggleGroupItem } from "@/components/controls/studio-toggle-group";
 
 export type CrosshairFadeOption = "both" | "none" | "top" | "bottom";
 
@@ -38,7 +38,7 @@ function CrosshairFadeIcon({ mode }: { mode: CrosshairFadeOption }) {
   const gradientId = `crosshair-fade-icon-${mode}`;
 
   return (
-    <svg aria-hidden className="size-6" viewBox="0 0 20 20">
+    <svg aria-hidden className="size-[18px]" viewBox="0 0 20 20">
       <title>Crosshair fade preview</title>
       {stops ? (
         <>
@@ -104,14 +104,14 @@ export function CrosshairFadePicker({
   return (
     <IconToggleGroup onValueChange={onChange} value={value}>
       {OPTIONS.map((opt) => (
-        <StudioTab
+        <StudioToggleGroupItem
           aria-label={opt.label}
           key={opt.value}
           title={opt.label}
           value={opt.value}
         >
           <CrosshairFadeIcon mode={opt.value} />
-        </StudioTab>
+        </StudioToggleGroupItem>
       ))}
     </IconToggleGroup>
   );

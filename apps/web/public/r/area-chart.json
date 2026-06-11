@@ -17,7 +17,7 @@
     "@bklit/grid",
     "@bklit/x-axis",
     "@bklit/chart-tooltip",
-    "@ncdai/shimmering-text",
+    "@bklit/shimmering-text",
     "@bklit/utils"
   ],
   "files": [
@@ -71,7 +71,7 @@
     },
     {
       "path": "src/charts/chart-loading-label.tsx",
-      "content": "\"use client\";\n\nimport { motion } from \"motion/react\";\nimport { ShimmeringText } from \"@/components/shimmering-text\";\nimport { cn } from \"@/lib/utils\";\nimport {\n  LINE_LOADING_PULSE_EASE,\n  LOADING_LABEL_EXIT_S,\n  LOADING_LABEL_EXIT_Y_PX,\n} from \"./line-loading-timing\";\n\nexport interface ChartLoadingLabelProps {\n  /** Label shown centered over the chart. */\n  text?: string;\n  className?: string;\n  /** Animate down, fade, and blur during loading → ready handoff. */\n  exiting?: boolean;\n}\n\nexport function ChartLoadingLabel({\n  text = \"Loading\",\n  className,\n  exiting = false,\n}: ChartLoadingLabelProps) {\n  if (!text.trim()) {\n    return null;\n  }\n\n  return (\n    <motion.div\n      animate={{\n        y: exiting ? LOADING_LABEL_EXIT_Y_PX : 0,\n        opacity: exiting ? 0 : 1,\n        filter: exiting ? \"blur(2px)\" : \"blur(0px)\",\n      }}\n      aria-live=\"polite\"\n      className={cn(\n        \"pointer-events-none absolute inset-0 flex items-center justify-center\",\n        className\n      )}\n      initial={false}\n      role=\"status\"\n      transition={{\n        duration: LOADING_LABEL_EXIT_S,\n        ease: [...LINE_LOADING_PULSE_EASE],\n      }}\n    >\n      <ShimmeringText\n        className=\"font-medium text-sm tracking-wide [--color:var(--muted-foreground)] [--shimmering-color:var(--foreground)]\"\n        text={text}\n      />\n    </motion.div>\n  );\n}\n\nexport default ChartLoadingLabel;\n",
+      "content": "\"use client\";\n\nimport { motion } from \"motion/react\";\nimport { cn } from \"@/lib/utils\";\nimport { ShimmeringText } from \"../components/shimmering-text\";\nimport {\n  LINE_LOADING_PULSE_EASE,\n  LOADING_LABEL_EXIT_S,\n  LOADING_LABEL_EXIT_Y_PX,\n} from \"./line-loading-timing\";\n\nexport interface ChartLoadingLabelProps {\n  /** Label shown centered over the chart. */\n  text?: string;\n  className?: string;\n  /** Animate down, fade, and blur during loading → ready handoff. */\n  exiting?: boolean;\n}\n\nexport function ChartLoadingLabel({\n  text = \"Loading\",\n  className,\n  exiting = false,\n}: ChartLoadingLabelProps) {\n  if (!text.trim()) {\n    return null;\n  }\n\n  return (\n    <motion.div\n      animate={{\n        y: exiting ? LOADING_LABEL_EXIT_Y_PX : 0,\n        opacity: exiting ? 0 : 1,\n        filter: exiting ? \"blur(2px)\" : \"blur(0px)\",\n      }}\n      aria-live=\"polite\"\n      className={cn(\n        \"pointer-events-none absolute inset-0 flex items-center justify-center\",\n        className\n      )}\n      initial={false}\n      role=\"status\"\n      transition={{\n        duration: LOADING_LABEL_EXIT_S,\n        ease: [...LINE_LOADING_PULSE_EASE],\n      }}\n    >\n      <ShimmeringText\n        className=\"font-medium text-sm tracking-wide [--color:var(--muted-foreground)] [--shimmering-color:var(--foreground)]\"\n        text={text}\n      />\n    </motion.div>\n  );\n}\n\nexport default ChartLoadingLabel;\n",
       "type": "registry:component",
       "target": "components/charts/chart-loading-label.tsx"
     },

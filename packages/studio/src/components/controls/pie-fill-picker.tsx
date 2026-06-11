@@ -2,8 +2,8 @@
 
 import { PatternLines } from "@bklitui/ui/charts";
 import {
-  StudioTab,
-  StudioTabs,
+  StudioToggleGroup,
+  StudioToggleGroupItem,
 } from "@/components/controls/studio-toggle-group";
 
 export type PieFillMode = "solid" | "lines";
@@ -49,15 +49,15 @@ export function PieFillPicker({
     ];
 
   return (
-    <StudioTabs layout="swatch" onValueChange={onChange} value={value}>
+    <StudioToggleGroup layout="swatch" onValueChange={onChange} value={value}>
       {options.map((opt) => (
-        <StudioTab key={opt.id} value={opt.id}>
-          <span className="size-5 shrink-0 overflow-hidden rounded ring-1 ring-border">
+        <StudioToggleGroupItem key={opt.id} value={opt.id}>
+          <span className="size-5 shrink-0 overflow-hidden rounded">
             {opt.swatch}
           </span>
           {opt.label}
-        </StudioTab>
+        </StudioToggleGroupItem>
       ))}
-    </StudioTabs>
+    </StudioToggleGroup>
   );
 }

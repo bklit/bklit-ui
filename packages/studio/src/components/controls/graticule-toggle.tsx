@@ -1,7 +1,6 @@
 "use client";
 
-import { GridIcon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
+import { Icon } from "@bklitui/icons";
 import { Toggle } from "@/ui/toggle";
 
 export function GraticuleToggle({
@@ -18,9 +17,9 @@ export function GraticuleToggle({
       onPressedChange={onChange}
       pressed={value}
       size="icon"
-      variant="studio"
+      variant="outline"
     >
-      <HugeiconsIcon className="size-5" icon={GridIcon} strokeWidth={1.75} />
+      <Icon className="size-5" name="IconCanvasGrid" />
     </Toggle>
   );
 }

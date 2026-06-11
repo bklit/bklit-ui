@@ -37,7 +37,7 @@ import {
 import type { PatternPresetId } from "@/lib/pattern-presets";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import { parsePipeField } from "@/lib/studio-series-design";
-import { Switch } from "@/ui/switch";
+import { YesNoSwitch } from "@/ui/yes-no-switch";
 
 function isCirclePattern(preset: PatternPresetId): boolean {
   return preset === "circles" || preset === "dots";
@@ -135,10 +135,9 @@ export function HeatmapLevelPaneControl({
       />
 
       <StudioControlRow alignControl="end" label="Pattern">
-        <Switch
-          checked={patternEnabled}
-          id={`heatmap-level-${level}-pattern`}
-          onCheckedChange={(checked) => {
+        <YesNoSwitch
+          aria-label="Pattern"
+          onValueChange={(checked) => {
             commit(
               "heatmapLevelFillModes",
               setStudioHeatmapLevelUsesPattern(state, level, checked)
@@ -153,11 +152,12 @@ export function HeatmapLevelPaneControl({
               );
             }
           }}
+          value={patternEnabled}
         />
       </StudioControlRow>
 
       {patternEnabled ? (
-        <div className="space-y-3 border-border border-t pt-3">
+        <div className="space-y-3 border-transparent border-t pt-3">
           <div className="space-y-2">
             <p className={studioFieldLabelClass}>Style</p>
             <PatternPicker
@@ -218,10 +218,9 @@ export function HeatmapLevelPaneControl({
                 value={patternRadius}
               />
               <StudioControlRow alignControl="end" label="Fill">
-                <Switch
-                  checked={patternDotsFill}
-                  id={`heatmap-level-${level}-dots-fill`}
-                  onCheckedChange={(checked) =>
+                <YesNoSwitch
+                  aria-label="Fill"
+                  onValueChange={(checked) =>
                     commit(
                       "heatmapLevelPatternDotsFills",
                       setStudioHeatmapLevelPatternDotsFill(
@@ -231,6 +230,7 @@ export function HeatmapLevelPaneControl({
                       )
                     )
                   }
+                  value={patternDotsFill}
                 />
               </StudioControlRow>
             </>
@@ -302,10 +302,9 @@ export function HeatmapLevelPaneControl({
                 value={patternRadius}
               />
               <StudioControlRow alignControl="end" label="Complement">
-                <Switch
-                  checked={patternComplement}
-                  id={`heatmap-level-${level}-complement`}
-                  onCheckedChange={(checked) =>
+                <YesNoSwitch
+                  aria-label="Complement"
+                  onValueChange={(checked) =>
                     commit(
                       "heatmapLevelPatternComplements",
                       setStudioHeatmapLevelPatternComplement(
@@ -315,6 +314,7 @@ export function HeatmapLevelPaneControl({
                       )
                     )
                   }
+                  value={patternComplement}
                 />
               </StudioControlRow>
               <HeatmapPipeColorField

@@ -1,11 +1,10 @@
 "use client";
 
-import { ArrowRightIcon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
+import { Icon } from "@bklitui/icons";
+import { ShimmeringText } from "@bklitui/ui/components/shimmering-text";
 import Link from "next/link";
 import type { ComponentProps, ReactNode } from "react";
 import { ParticleBadge } from "@/components/particle-badge";
-import { ShimmeringText } from "@/components/shimmering-text";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -36,7 +35,7 @@ export function HeroStudioPill() {
         </span>
         <span className="flex h-6 items-center gap-1 px-2.5 text-xs leading-none">
           <ShimmeringText className="leading-none" text="Version 2" />
-          <HugeiconsIcon className="size-3.5" icon={ArrowRightIcon} />
+          <Icon className="size-3.5" name="IconArrowRight" />
         </span>
       </Button>
     </ParticleBadge>

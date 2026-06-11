@@ -1,6 +1,6 @@
 "use client";
 
-import { PanelLeftOpen } from "lucide-react";
+import { Icon } from "@bklitui/icons";
 import type { ReactNode } from "react";
 import { StudioComponentsPanel } from "@/components/studio-components-panel";
 import { StudioPropertiesPanel } from "@/components/studio-properties-panel";
@@ -42,8 +42,9 @@ function MobilePanelTrigger({
       type="button"
       variant="outline"
     >
-      <PanelLeftOpen
-        className={side === "right" ? "scale-x-[-1]" : undefined}
+      <Icon
+        className={cn("size-4", side === "right" && "scale-x-[-1]")}
+        name="IconSidebarLeftArrow"
       />
     </Button>
   );
@@ -142,6 +143,7 @@ export function EditorMobilePanelSheets({
     selectedComponent,
   } = useStudioComponentSelection();
   const isCartesianLoading = isCartesianLoadingMode(state);
+  const showScramble = config.scrambleData !== false;
   const dataSectionDefaultOpen = !isCartesianLoading;
   const animationSectionDefaultOpen = showMotionControls || !isCartesianLoading;
 
@@ -165,20 +167,20 @@ export function EditorMobilePanelSheets({
               ) : null}
               <StudioComponentsPanel
                 components={components}
-                controlsDisabled={controlsDisabled}
                 onChange={onChange}
-                onScramble={onScramble}
                 onSelect={setSelectedComponentId}
-                scrambleDisabled={isCartesianLoading}
                 selectedId={selectedComponentId}
                 state={state}
               />
               <EditorDataSection
+                controlsDisabled={controlsDisabled}
                 defaultOpen={dataSectionDefaultOpen}
                 groups={dataControlGroups}
                 onChange={onChange}
                 onCommit={onCommit}
                 onPreview={onPreview}
+                onScramble={showScramble ? onScramble : undefined}
+                scrambleDisabled={isCartesianLoading}
                 state={state}
               />
               <EditorAnimationSection

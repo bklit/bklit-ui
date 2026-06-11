@@ -1,7 +1,6 @@
 "use client";
 
-import { PlayIcon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
+import { Icon } from "@bklitui/icons";
 import { motion, useReducedMotion } from "motion/react";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -159,11 +158,9 @@ export function HomeStudioSection() {
                 />
               </div>
               <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                <HugeiconsIcon
+                <Icon
                   className="size-[62px] text-foreground/70 transition-colors duration-300 group-hover:text-white"
-                  icon={PlayIcon}
-                  size={62}
-                  strokeWidth={1.25}
+                  name="IconPlay"
                 />
               </span>
             </button>

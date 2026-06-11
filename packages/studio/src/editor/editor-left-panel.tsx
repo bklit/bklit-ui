@@ -66,21 +66,21 @@ export const EditorLeftPanel = memo(function EditorLeftPanel({
 
           <StudioComponentsPanel
             components={components}
-            controlsDisabled={controlsDisabled}
             onChange={onChange}
-            onScramble={showScramble ? onScramble : undefined}
             onSelect={setSelectedComponentId}
-            scrambleDisabled={isCartesianLoading}
             selectedId={selectedComponentId}
             state={state}
           />
 
           <EditorDataSection
+            controlsDisabled={controlsDisabled}
             defaultOpen={dataSectionDefaultOpen}
             groups={dataControlGroups}
             onChange={onChange}
             onCommit={onCommit}
             onPreview={onPreview}
+            onScramble={showScramble ? onScramble : undefined}
+            scrambleDisabled={isCartesianLoading}
             state={state}
           />
 

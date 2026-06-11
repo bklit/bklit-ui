@@ -2,6 +2,7 @@
 "use client";
 
 export {
+  CustomComponentsDemo,
   FeedbackDemo,
   FieldsDemo,
   MotionBezierDemo,
@@ -10,6 +11,8 @@ export {
   PatternsDemo,
   PickersDemo,
   PrimitivesDemo,
+  ShimmerTextDemo,
   SurfacesDemo,
   TabsDemo,
+  ToggleGroupDemo,
 } from "./studio-ui-catalog-sections";

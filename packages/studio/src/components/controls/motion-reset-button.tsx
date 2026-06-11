@@ -1,7 +1,7 @@
 "use client";
 
+import { Icon } from "@bklitui/icons";
 import { cn } from "@bklitui/ui/lib/utils";
-import { RotateCcw } from "lucide-react";
 import {
   DEFAULT_STUDIO_MOTION,
   resetStudioMotionKeys,
@@ -38,7 +38,7 @@ export function MotionResetButton({
       }}
       type="button"
     >
-      <RotateCcw className="size-3" />
+      <Icon className="size-3" name="IconArrowRotateClockwise" />
       Reset
     </button>
   );

@@ -3,6 +3,7 @@
 export {
   StudioStateProvider,
   useStudioDisplayState,
+  useStudioNumberScrubbing,
   useStudioShellState,
   useStudioState,
 } from "./studio-state-provider";

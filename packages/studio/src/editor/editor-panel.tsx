@@ -1,5 +1,6 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import type { ReactNode } from "react";
+import { studioSidebarScrollClass } from "@/lib/studio-chrome-classes";
 import { cn } from "@/lib/utils";
 
 const editorPanelVariants = cva(
@@ -62,7 +63,8 @@ export function EditorPanelContent({
   return (
     <div
       className={cn(
-        "studio-sidebar-scroll min-h-0 flex-1 overflow-auto p-3",
+        studioSidebarScrollClass,
+        "min-h-0 flex-1 overflow-auto p-3",
         className
       )}
     >

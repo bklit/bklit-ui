@@ -1,12 +1,11 @@
 ---
-title: Control Surfaces
-description: Sidebar triggers and segmented tab chrome via StudioControlSurface
+title: Sidebar controls
+description: Chart type picker and sidebar chrome at the top of the Studio left panel
 ---
 
-`StudioControlSurface` applies the `.studio-control-surface` class — gradient triggers, inset bevel, and pressed states used across the editor sidebars.
+The sidebar opens with **`ChartTypeSelector`** — an outline trigger that opens a 2-column grid of chart icons and labels. It sits above the scrollable property groups, matching [`StudioSidebar`](packages/studio/src/components/studio-sidebar.tsx).
 
-**Source:** `packages/studio/src/ui/studio-control-surface.tsx`  
-**Tokens:** `--studio-control-surface-*` in `studio-theme.css`
+**Source:** `packages/studio/src/components/chart-type-selector.tsx`
 
 <ComponentShowcase>
   <StudioUiPreview>
@@ -17,9 +16,13 @@ description: Sidebar triggers and segmented tab chrome via StudioControlSurface
 ## Usage
 
 ```tsx
-import { StudioControlSurface } from "@/ui/studio-control-surface";
+import { ChartTypeSelector } from "@/components/chart-type-selector";
 
-<StudioControlSurface type="button">Chart type</StudioControlSurface>
+const [chart, setChart] = useState<ChartSlug>("area-chart");
+
+<ChartTypeSelector onChange={setChart} value={chart} />
 ```
 
-Segmented groups use `.studio-control-surface-group` on a wrapper — see [Tabs](/docs/tabs).
+The trigger uses `Button variant="outline"` with the active chart icon and label. The popover lists every entry from `studioChartList` in `packages/studio/src/lib/registry.tsx`.
+
+Other sidebar option sets use `StudioToggleGroup` — see [Toggle groups](/docs/toggle-groups).

@@ -3,7 +3,7 @@ title: Primitives
 description: Shadcn components vendored in packages/studio/src/ui
 ---
 
-Studio maintains its own copy of shadcn components (base-vega / `@base-ui/react`) so the editor package is portable. Add or update via the CLI:
+Studio maintains its own copy of shadcn components (base-nova / `@base-ui/react`) so the editor package is portable. Add or update via the CLI:
 
 ```bash
 cd packages/studio
@@ -28,4 +28,8 @@ pnpm dlx shadcn@latest info --json
 
 Current set includes `alert`, `avatar`, `button`, `dialog`, `dropdown-menu`, `input`, `input-group`, `popover`, `select`, `sheet`, `slider`, `switch`, `toggle`, `toggle-group`, `tooltip`, and more.
 
-Custom primitives **not** from shadcn: `studio-control-surface`, `number-field`, OKLCH `color-picker/`.
+## Icons
+
+Import icons from `@bklitui/icons` — see the full [Icons](/docs/icons) catalog.
+
+Custom primitives **not** from shadcn: `number-field`, OKLCH `color-picker/`.

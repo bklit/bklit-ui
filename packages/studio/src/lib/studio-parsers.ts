@@ -10,6 +10,11 @@ import type { ColorPresetId } from "./color-presets";
 import { COLOR_PRESET_IDS } from "./color-presets";
 import type { CurveId } from "./curves";
 import { CURVE_IDS } from "./curves";
+import {
+  LEGACY_MOTION_EASE_IDS,
+  MOTION_EASE_IDS,
+  type MotionEaseUrlValue,
+} from "./motion-config";
 import type { PatternPresetId } from "./pattern-presets";
 import { PATTERN_PRESET_IDS } from "./pattern-presets";
 import type { ChartSlug } from "./types";
@@ -54,12 +59,9 @@ export const studioSearchParams = {
   motionDuration: parseAsFloat.withDefault(1.1),
   motionBounce: parseAsFloat.withDefault(0.6),
   motionEase: parseAsStringLiteral([
-    "easeOut",
-    "easeInOut",
-    "snappy",
-    "smooth",
-    "custom",
-  ]).withDefault("snappy"),
+    ...MOTION_EASE_IDS,
+    ...LEGACY_MOTION_EASE_IDS,
+  ]).withDefault("ease"),
   motionBezier: parseAsString.withDefault("0.85, 0, 0.15, 1"),
   motionStaggerScale: parseAsFloat.withDefault(1),
   showLine: parseAsBoolean.withDefault(true),
@@ -356,7 +358,7 @@ export interface StudioUrlState {
   motionType: "spring" | "ease";
   motionDuration: number;
   motionBounce: number;
-  motionEase: "easeOut" | "easeInOut" | "snappy" | "smooth" | "custom";
+  motionEase: MotionEaseUrlValue;
   motionBezier: string;
   motionStaggerScale: number;
   showLine: boolean;
@@ -606,7 +608,7 @@ export function defaultStudioState(
     motionType: "ease",
     motionDuration: 1.1,
     motionBounce: 0.6,
-    motionEase: "snappy",
+    motionEase: "ease",
     motionBezier: "0.85, 0, 0.15, 1",
     motionStaggerScale: 1,
     showLine: true,

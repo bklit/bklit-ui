@@ -21,25 +21,41 @@ Local-only — not deployed.
 packages/studio/
 ├── src/ui/              # shadcn primitives (components.json → pnpm ui:add)
 ├── src/components/controls/  # chart property widgets
+├── src/lib/studio-chrome-classes.ts  # shared Tailwind for sidebar chrome
 ├── src/styles/
-│   ├── studio-theme.css      # scoped .studio-shell shadcn vars
-│   └── studio-chrome.css     # control surfaces, scrollbars, grids
+│   ├── studio-theme.css      # scoped .studio-shell chart + shadcn vars
+│   └── studio-chrome.css     # WebKit scrollbar rules
 └── components.json      # shadcn CLI config (ui alias → @/ui)
+
+packages/icons/          # @bklitui/icons — Central Icon System wrapper
 ```
-
-**Custom** (hand-maintained): `studio-control-surface`, OKLCH color picker, `number-field`, motion bezier editor, fill/pattern/legend pickers, scrub inputs.
-
-**Shadcn-managed** (22): `button`, `dialog`, `dropdown-menu`, `input`, `popover`, `select`, `slider`, `toggle`, `toggle-group`, `tooltip`, and more — run `pnpm dlx shadcn@latest info --json` from `packages/studio`.
 
 ## Sections
 
-- [Control surfaces](/docs/control-surfaces) — sidebar triggers and segmented tabs
-- [Tabs](/docs/tabs) — `StudioTabs` layouts (segmented, icons, cards)
-- [Fields](/docs/fields) — property rows, scrub numbers, fill picker
-- [Motion](/docs/motion) — bezier editor, ease presets, duration controls
-- [Pickers](/docs/pickers) — legend placement, icon toggles
+### Editor shell
+
+- [Sidebar controls](/docs/control-surfaces) — chart type picker at the top of the left panel
+
+### Inputs
+
+- [Custom components](/docs/custom-components) — Yes/No switch, Studio slider, scrub number field
+- [Fields](/docs/fields) — property rows, opacity, fill picker
+- [Toggle groups](/docs/toggle-groups) — `StudioToggleGroup` layouts (segmented, icons, cards)
+
+### Pickers & patterns
+
+- [Pickers](/docs/pickers) — legend placement, orientation, curve, fade edges
 - [Patterns](/docs/patterns) — series pattern swatches
+
+### Motion
+
+- [Motion](/docs/motion) — bezier editor, ease presets, duration controls
+
+### Reference
+
 - [Primitives](/docs/primitives) — vendored shadcn components
+- [Icons](/docs/icons) — full Central Icon System catalog
+- [Shimmer text](/docs/shimmer-text) — loading label animation
 - [Feedback](/docs/feedback) — alerts, spinners, tooltips
 
 ## Theming

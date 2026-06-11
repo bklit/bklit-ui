@@ -1,7 +1,7 @@
 "use client";
 
+import { Icon } from "@bklitui/icons";
 import { cn } from "@bklitui/ui/lib/utils";
-import { PauseIcon, PlayIcon } from "@heroicons/react/24/outline";
 import { motion } from "motion/react";
 import { useMemo } from "react";
 import {
@@ -197,9 +197,9 @@ export function StudioRecordingTimeline({
                 variant="outline"
               >
                 {isPaused ? (
-                  <PlayIcon aria-hidden className="size-3.5" />
+                  <Icon aria-hidden className="size-3.5" name="IconPlay" />
                 ) : (
-                  <PauseIcon aria-hidden className="size-3.5" />
+                  <Icon aria-hidden className="size-3.5" name="IconPause" />
                 )}
               </Button>
             ) : null}

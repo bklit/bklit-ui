@@ -1,7 +1,6 @@
 "use client";
 
-import { Refresh01Icon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
+import { Icon } from "@bklitui/icons";
 import { useCallback, useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/ui/button";
@@ -100,10 +99,10 @@ export function EditorReplayButton({
             transform: busy ? "scale(0.85)" : "scale(1)",
           }}
         >
-          <HugeiconsIcon
-            icon={Refresh01Icon}
-            size={iconSize}
-            strokeWidth={1.75}
+          <Icon
+            className="size-4"
+            name="IconArrowRotateClockwise"
+            style={{ width: iconSize, height: iconSize }}
           />
         </span>
         <span

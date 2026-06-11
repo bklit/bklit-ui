@@ -5,6 +5,7 @@ import { MotionResetButton } from "@/components/controls/motion-reset-button";
 import { StudioControlGroup } from "@/components/studio-control-group";
 import { StudioScrollArea } from "@/components/studio-scroll-area";
 import { EditorPanelEmptyState } from "@/editor/editor-panel-empty-state";
+import { studioMotionSectionClass } from "@/lib/studio-chrome-classes";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 
 export function EditorLeftPanelContent({
@@ -43,7 +44,7 @@ export function EditorLeftPanelContent({
     <StudioScrollArea className="min-h-0 min-w-0 flex-1">
       <div className="p-3 pb-4">
         <StudioControlGroup
-          className="studio-motion-section"
+          className={studioMotionSectionClass}
           title="Animation"
           titleTrailing={
             <MotionResetButton onCommit={onCommit} state={state} />

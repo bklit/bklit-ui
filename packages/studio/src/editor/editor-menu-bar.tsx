@@ -1,7 +1,6 @@
 "use client";
 
-import { ArrowsPointingInIcon } from "@heroicons/react/24/outline";
-import { Maximize2, Minus, Plus } from "lucide-react";
+import { Icon } from "@bklitui/icons";
 import { StudioOpenInStudioButton } from "@/components/studio-open-in-studio-button";
 import { StudioSharePopover } from "@/components/studio-share-popover";
 import {
@@ -113,7 +112,7 @@ export function EditorMenuBar({
                 type="button"
                 variant="ghost"
               >
-                <Minus />
+                <Icon className="size-4" name="IconMinusSmall" />
               </Button>
             </EditorMenuBarTooltipItem>
 
@@ -134,7 +133,7 @@ export function EditorMenuBar({
                 type="button"
                 variant="ghost"
               >
-                <Plus />
+                <Icon className="size-4" name="IconPlusSmall" />
               </Button>
             </EditorMenuBarTooltipItem>
 
@@ -148,7 +147,7 @@ export function EditorMenuBar({
                   type="button"
                   variant="ghost"
                 >
-                  <Maximize2 />
+                  <Icon className="size-4" name="IconArrowsZoom" />
                 </Button>
               </EditorMenuBarTooltipItem>
             ) : null}
@@ -163,7 +162,7 @@ export function EditorMenuBar({
                   type="button"
                   variant="ghost"
                 >
-                  <ArrowsPointingInIcon aria-hidden className="size-4" />
+                  <Icon aria-hidden className="size-4" name="IconFocusSquare" />
                 </Button>
               </EditorMenuBarTooltipItem>
             ) : null}

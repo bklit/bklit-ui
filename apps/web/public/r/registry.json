@@ -21,6 +21,25 @@
       ]
     },
     {
+      "name": "shimmering-text",
+      "type": "registry:component",
+      "title": "Shimmering Text",
+      "description": "Per-character shimmer animation for loading labels and badges",
+      "registryDependencies": [
+        "@bklit/utils"
+      ],
+      "dependencies": [
+        "motion"
+      ],
+      "files": [
+        {
+          "path": "src/components/shimmering-text.tsx",
+          "type": "registry:component",
+          "target": "components/shimmering-text.tsx"
+        }
+      ]
+    },
+    {
       "name": "chart-utils",
       "type": "registry:lib",
       "title": "Chart Utilities",
@@ -549,7 +568,7 @@
         "@bklit/grid",
         "@bklit/x-axis",
         "@bklit/chart-tooltip",
-        "@ncdai/shimmering-text",
+        "@bklit/shimmering-text",
         "@bklit/utils"
       ],
       "dependencies": [
@@ -725,7 +744,7 @@
         "@bklit/grid",
         "@bklit/x-axis",
         "@bklit/chart-tooltip",
-        "@ncdai/shimmering-text",
+        "@bklit/shimmering-text",
         "@bklit/utils"
       ],
       "dependencies": [
@@ -1196,10 +1215,10 @@
         "@bklit/utils",
         "@bklit/chart-utils",
         "@bklit/chart-tooltip",
-        "@bklit/background"
+        "@bklit/background",
+        "@bklit/shimmering-text"
       ],
       "dependencies": [
-        "@ncdai/shimmering-text",
         "@visx/group@4.0.1-alpha.0",
         "@visx/heatmap@4.0.1-alpha.0",
         "@visx/pattern@4.0.1-alpha.0",
@@ -1857,7 +1876,7 @@
         "@visx/curve@4.0.1-alpha.0",
         "@visx/gradient@4.0.1-alpha.0",
         "@number-flow/react",
-        "lucide-react"
+        "@central-icons-react/all"
       ],
       "files": [
         {
@@ -1904,7 +1923,7 @@
         "@visx/curve@4.0.1-alpha.0",
         "@visx/gradient@4.0.1-alpha.0",
         "@number-flow/react",
-        "lucide-react"
+        "@central-icons-react/all"
       ],
       "files": [
         {
@@ -1933,7 +1952,7 @@
       "dependencies": [
         "@visx/curve@4.0.1-alpha.0",
         "@number-flow/react",
-        "lucide-react"
+        "@central-icons-react/all"
       ],
       "files": [
         {
@@ -1979,7 +1998,7 @@
       "dependencies": [
         "@visx/curve@4.0.1-alpha.0",
         "@number-flow/react",
-        "lucide-react"
+        "@central-icons-react/all"
       ],
       "files": [
         {
@@ -2009,7 +2028,7 @@
         "@number-flow/react",
         "@types/geojson",
         "@types/topojson-specification",
-        "lucide-react",
+        "@central-icons-react/all",
         "topojson-client"
       ],
       "files": [
@@ -2062,7 +2081,7 @@
         "@number-flow/react",
         "@types/geojson",
         "@types/topojson-specification",
-        "lucide-react",
+        "@central-icons-react/all",
         "topojson-client"
       ],
       "files": [

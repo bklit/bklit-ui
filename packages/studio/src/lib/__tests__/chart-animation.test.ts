@@ -19,7 +19,7 @@ describe("chart-animation", () => {
   it("builds css reveal props from motion state", () => {
     const state = defaultStudioState({
       motionDuration: 1,
-      motionEase: "snappy",
+      motionEase: "ease",
     });
     const props = getStudioCssRevealProps(state);
     assert.equal(props.animationDuration, 1000);
@@ -28,9 +28,9 @@ describe("chart-animation", () => {
 
   it("formats easing css from bezier", () => {
     const easing = studioAnimationEasingCss(
-      defaultStudioState({ motionEase: "easeOut" })
+      defaultStudioState({ motionEase: "ease" })
     );
-    assert.equal(easing, "cubic-bezier(0.25, 0.1, 0.25, 1)");
+    assert.equal(easing, "cubic-bezier(0.85, 0, 0.15, 1)");
   });
 
   it("scales enter stagger from motion duration and user scale", () => {

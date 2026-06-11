@@ -43,6 +43,7 @@ export function studioFitAspectSize(
 }
 
 import { cn } from "@bklitui/ui/lib/utils";
+import { studioCartesianFillClass } from "@/lib/studio-chrome-classes";
 
 /** Wraps ParentSize cartesian charts so they fill the frame instead of using aspect-ratio. */
 export function StudioCartesianFill({
@@ -55,7 +56,8 @@ export function StudioCartesianFill({
   return (
     <div
       className={cn(
-        "studio-cartesian-fill size-full min-h-0 min-w-0",
+        studioCartesianFillClass,
+        "size-full min-h-0 min-w-0",
         className
       )}
     >

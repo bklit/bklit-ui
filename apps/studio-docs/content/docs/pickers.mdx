@@ -1,9 +1,9 @@
 ---
 title: Pickers
-description: Legend placement grid and icon toggle pickers
+description: Legend position, orientation, curve, and icon toggle pickers
 ---
 
-Placement pickers use `StudioTabs` with the `legend` layout and animated ring indicators.
+The legend picker uses `StudioToggleGroup` with the `legend` layout — a 3×2 sliding card grid with animated ring indicators and a spring-animated position dot.
 
 **Source:** `packages/studio/src/components/controls/legend-position-picker.tsx`
 
@@ -13,4 +13,4 @@ Placement pickers use `StudioTabs` with the `legend` layout and animated ring in
   </StudioUiPreview>
 </ComponentShowcase>
 
-Other pickers in `packages/studio/src/components/controls/` include `curve-picker`, `fade-edges-picker`, `stroke-style-picker`, `pie-hover-effect-picker`, and `orientation-picker` — all built on the same tab/surface patterns documented in [Tabs](/docs/tabs).
+Other pickers in `packages/studio/src/components/controls/` include `curve-picker`, `fade-edges-picker`, `crosshair-fade-picker`, `stroke-style-picker`, `pie-hover-effect-picker`, and `orientation-picker` — all built on the same toggle patterns documented in [Toggle groups](/docs/toggle-groups).

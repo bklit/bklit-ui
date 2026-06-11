@@ -201,6 +201,7 @@ export const seriesDashTailControlGroup = controlGroup("Dash tail", [
     min: 0,
     max: 48,
     step: 1,
+    input: "studio",
   },
   { type: "text", key: "seriesDashArray", label: "Dash array" },
 ]);
@@ -451,7 +452,7 @@ export const standardBrushControlGroups: StudioControlGroup[] = [
 export const standardLegendControlGroups: StudioControlGroup[] = [
   controlGroup("Legend", [
     { type: "boolean", key: "showLegend", label: "Show" },
-    { type: "legendPosition", key: "legendPlacement", label: "Placement" },
+    { type: "legendPosition", key: "legendPlacement", label: "" },
     { type: "orientation", key: "legendLayout", label: "Orientation" },
     {
       type: "number",
@@ -1081,7 +1082,7 @@ export const heatmapCellsControlGroups: StudioControlGroup[] = [
 export const heatmapLegendControlGroups: StudioControlGroup[] = [
   controlGroup("Legend", [
     { type: "boolean", key: "showLegend", label: "Show" },
-    { type: "legendPosition", key: "legendPlacement", label: "Placement" },
+    { type: "legendPosition", key: "legendPlacement", label: "" },
     {
       type: "number",
       key: "legendFontSize",

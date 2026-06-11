@@ -1,8 +1,8 @@
 "use client";
 
+import { Icon } from "@bklitui/icons";
 import { shadcnAddItem } from "@bklitui/studio";
 import { DynamicCodeBlock } from "fumadocs-ui/components/dynamic-codeblock";
-import { Terminal } from "lucide-react";
 import { useEffect, useState } from "react";
 import { CopyButton } from "@/components/copy-button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -63,7 +63,7 @@ export function PackageManagerTabs({ name }: PackageManagerTabsProps) {
       <Tabs onValueChange={handleValueChange} value={pm}>
         <div className="flex items-center gap-2 border-border border-b bg-muted/40 px-3 py-1.5">
           <div className="flex size-4 items-center justify-center rounded-[1px] bg-foreground/80">
-            <Terminal className="size-3 text-background" />
+            <Icon className="size-3 text-background" name="IconConsole" />
           </div>
           <TabsList
             className="h-auto gap-0 rounded-none bg-transparent p-0"

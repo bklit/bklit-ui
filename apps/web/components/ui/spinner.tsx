@@ -1,5 +1,4 @@
-import { Loading03Icon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
+import { Icon } from "@bklitui/icons";
 import type { CSSProperties } from "react";
 import { cn } from "@/lib/utils";
 
@@ -11,12 +10,12 @@ function Spinner({
   style?: CSSProperties;
 }) {
   return (
-    <HugeiconsIcon
+    <Icon
+      aria-hidden={false}
       aria-label="Loading"
       className={cn("size-4 animate-spin", className)}
-      icon={Loading03Icon}
+      name="IconLoadingCircle"
       role="status"
-      strokeWidth={2}
       style={style}
     />
   );

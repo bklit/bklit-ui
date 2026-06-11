@@ -46,6 +46,39 @@
       }
     },
     {
+      // Studio shadcn/ui primitives (base-nova) — same lint posture as apps/web
+      "includes": ["packages/studio/src/ui/**"],
+      "linter": {
+        "rules": {
+          "a11y": {
+            "noLabelWithoutControl": "off",
+            "noNoninteractiveElementInteractions": "off",
+            "useKeyWithClickEvents": "off",
+            "useSemanticElements": "off"
+          },
+          "performance": {
+            "noNamespaceImport": "off"
+          },
+          "style": {
+            "noNestedTernary": "off"
+          },
+          "suspicious": {
+            "noArrayIndexKey": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/icons/src/index.ts"],
+      "linter": {
+        "rules": {
+          "performance": {
+            "noBarrelFile": "off"
+          }
+        }
+      }
+    },
+    {
       // Chart components have inherent complexity due to handling multiple configurations
       // (stacked/grouped, horizontal/vertical, multi-series, tooltips, animations)
       "includes": [

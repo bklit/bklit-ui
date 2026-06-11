@@ -1,15 +1,9 @@
 "use client";
 
-import {
-  AlignLeftIcon,
-  AlignRightIcon,
-  SquareIcon,
-} from "@hugeicons/core-free-icons";
+import { ShimmeringText } from "@bklitui/ui/components/shimmering-text";
 import { type ReactNode, useCallback, useState } from "react";
-import {
-  StudioControlRow,
-  studioSectionLabelClass,
-} from "@/components/controls/control-field-helpers";
+import { ChartTypeSelector } from "@/components/chart-type-selector";
+import { StudioControlRow } from "@/components/controls/control-field-helpers";
 import { FillPicker } from "@/components/controls/fill-picker";
 import {
   IconToggleButton,
@@ -23,15 +17,21 @@ import { OpacityControl } from "@/components/controls/opacity-control";
 import { PatternPicker } from "@/components/controls/pattern-picker";
 import { ScrubNumberField } from "@/components/controls/scrub-number-field";
 import {
-  StudioTab,
-  StudioTabs,
+  StudioToggleGroup,
+  StudioToggleGroupItem,
 } from "@/components/controls/studio-toggle-group";
 import { CurvePreviewIcon } from "@/components/curve-preview-icons";
 import { StudioControlGroup } from "@/components/studio-control-group";
 import type { CurveId } from "@/lib/curves";
-import { MOTION_EASE_PRESETS } from "@/lib/motion-config";
+import { motionEasePresetUpdates } from "@/lib/motion-config";
 import type { PatternPresetId } from "@/lib/pattern-presets";
+import {
+  studioMotionSectionClass,
+  studioSectionLabelClass,
+} from "@/lib/studio-chrome-classes";
 import { defaultStudioState, type StudioUrlState } from "@/lib/studio-parsers";
+import type { ChartSlug } from "@/lib/types";
+import { cn } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "@/ui/alert";
 import { Button } from "@/ui/button";
 import { Input } from "@/ui/input";
@@ -44,7 +44,7 @@ import {
   SelectValue,
 } from "@/ui/select";
 import { Spinner } from "@/ui/spinner";
-import { StudioControlSurface } from "@/ui/studio-control-surface";
+import { StudioSlider } from "@/ui/studio-slider";
 import { Switch } from "@/ui/switch";
 import { Textarea } from "@/ui/textarea";
 import {
@@ -53,6 +53,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/ui/tooltip";
+import { YesNoSwitch } from "@/ui/yes-no-switch";
 
 const SIDEBAR_WIDTH = "w-[280px]";
 
@@ -117,97 +118,86 @@ export function CatalogSection({
 }
 
 export function SurfacesDemo() {
+  const [chart, setChart] = useState<ChartSlug>("area-chart");
+
   return (
-    <DemoControlGroups>
-      <StudioControlGroup collapsible defaultOpen title="Examples">
-        <div className="flex flex-col gap-2">
-          <StudioControlSurface type="button">Chart type</StudioControlSurface>
-          <StudioControlSurface aria-pressed="true" type="button">
-            Pressed
-          </StudioControlSurface>
-          <div className="studio-control-surface-group flex">
-            <StudioControlSurface className="flex-1" type="button">
-              Ease
-            </StudioControlSurface>
-            <StudioControlSurface
-              aria-pressed="true"
-              className="flex-1"
-              type="button"
-            >
-              Spring
-            </StudioControlSurface>
-          </div>
-        </div>
-      </StudioControlGroup>
-    </DemoControlGroups>
+    <div className="studio-control-groups w-full min-w-0 pb-4">
+      <ChartTypeSelector onChange={setChart} value={chart} />
+    </div>
   );
 }
 
 export function SurfacesSection() {
   return (
     <CatalogSection
-      description="Sidebar triggers and segmented controls. Tokens: --studio-control-surface-* in studio-theme.css."
+      description="Chart type picker at the top of the Studio sidebar — outline trigger opens a 2-column icon grid."
       id="surfaces"
-      title="Control surfaces"
+      title="Sidebar controls"
     >
       <SurfacesDemo />
     </CatalogSection>
   );
 }
 
-export function TabsDemo() {
+export function ToggleGroupDemo() {
   const [segmented, setSegmented] = useState("solid");
-  const [icons, setIcons] = useState("left");
+  const [icons, setIcons] = useState("moon");
   const [curve, setCurve] = useState<CurveId>("natural");
 
   return (
     <DemoControlGroups>
       <StudioControlGroup collapsible defaultOpen title="Segmented">
-        <StudioTabs
+        <StudioToggleGroup
           layout="segmented"
           onValueChange={setSegmented}
           value={segmented}
         >
-          <StudioTab value="solid">Solid</StudioTab>
-          <StudioTab value="pattern">Pattern</StudioTab>
-        </StudioTabs>
+          <StudioToggleGroupItem value="solid">Solid</StudioToggleGroupItem>
+          <StudioToggleGroupItem value="pattern">Pattern</StudioToggleGroupItem>
+        </StudioToggleGroup>
       </StudioControlGroup>
       <StudioControlGroup collapsible defaultOpen title="Icons">
         <IconToggleGroup onValueChange={setIcons} value={icons}>
-          <IconToggleButton icon={AlignLeftIcon} label="Left" value="left" />
-          <IconToggleButton icon={AlignRightIcon} label="Right" value="right" />
-          <IconToggleButton icon={SquareIcon} label="Square" value="square" />
+          <IconToggleButton icon="IconMoon" label="Moon" value="moon" />
+          <IconToggleButton icon="IconGauge" label="Gauge" value="gauge" />
+          <IconToggleButton icon="IconRadar" label="Radar" value="radar" />
         </IconToggleGroup>
       </StudioControlGroup>
       <StudioControlGroup collapsible defaultOpen title="Cards (2 col)">
-        <StudioTabs
+        <StudioToggleGroup
           layout="cards-2"
           onValueChange={(v) => setCurve(v as CurveId)}
           value={curve}
         >
           {(["natural", "linear", "step", "basis"] as const).map((id) => (
-            <StudioTab key={id} value={id}>
+            <StudioToggleGroupItem key={id} value={id}>
               <CurvePreviewIcon className="mx-auto" curveId={id} />
               <span className="mt-1 text-[10px] capitalize">{id}</span>
-            </StudioTab>
+            </StudioToggleGroupItem>
           ))}
-        </StudioTabs>
+        </StudioToggleGroup>
       </StudioControlGroup>
     </DemoControlGroups>
   );
 }
 
-export function TabsSection() {
+export function ToggleGroupSection() {
   return (
     <CatalogSection
-      description="StudioTabs layouts used across property controls."
-      id="tabs"
-      title="Studio tabs"
+      description="shadcn ToggleGroup layouts used across property controls."
+      id="toggle-groups"
+      title="Toggle groups"
     >
-      <TabsDemo />
+      <ToggleGroupDemo />
     </CatalogSection>
   );
 }
+
+/** @deprecated Use `ToggleGroupDemo`. */
+export const TabsDemo = ToggleGroupDemo;
+
+/** @deprecated Use `ToggleGroupSection`. */
+export const TabsSection = ToggleGroupSection;
 
 export function PrimitivesDemo() {
   return (
@@ -215,22 +205,14 @@ export function PrimitivesDemo() {
       <StudioControlGroup collapsible defaultOpen title="Primitives">
         <div className="flex flex-col gap-4">
           <div className="flex flex-wrap gap-2">
-            <Button size="sm">Default</Button>
-            <Button size="sm" variant="outline">
-              Outline
-            </Button>
-            <Button size="sm" variant="secondary">
-              Secondary
-            </Button>
-            <Button size="sm" variant="ghost">
-              Ghost
-            </Button>
-            <Button size="sm" variant="destructive">
-              Destructive
-            </Button>
+            <Button>Default</Button>
+            <Button variant="outline">Outline</Button>
+            <Button variant="secondary">Secondary</Button>
+            <Button variant="ghost">Ghost</Button>
+            <Button variant="destructive">Destructive</Button>
           </div>
           <Input placeholder="Input" />
-          <Textarea placeholder="Textarea" rows={2} />
+          <Textarea placeholder="Textarea" rows={3} />
           <Select defaultValue="a">
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Select" />
@@ -323,18 +305,103 @@ export function FieldsSection() {
   );
 }
 
+export function CustomComponentsDemo() {
+  const [visible, setVisible] = useState(true);
+  const [animated, setAnimated] = useState(false);
+  const [duration, setDuration] = useState(1.1);
+  const [opacity, setOpacity] = useState(1);
+  const [blur, setBlur] = useState(49);
+  const [saturation, setSaturation] = useState(8);
+
+  return (
+    <DemoControlGroups>
+      <StudioControlGroup collapsible defaultOpen title="Yes / No">
+        <div className="flex flex-col gap-1.5">
+          <div className="flex min-w-0 items-center gap-2.5">
+            <Label className="w-28 shrink-0 font-medium text-xs">Visible</Label>
+            <YesNoSwitch
+              className="min-w-0 flex-1"
+              onValueChange={setVisible}
+              value={visible}
+            />
+          </div>
+          <div className="flex min-w-0 items-center gap-2.5">
+            <Label className="w-28 shrink-0 font-medium text-xs">
+              Animated
+            </Label>
+            <YesNoSwitch
+              className="min-w-0 flex-1"
+              onValueChange={setAnimated}
+              value={animated}
+            />
+          </div>
+        </div>
+      </StudioControlGroup>
+      <StudioControlGroup collapsible defaultOpen title="Scrub number">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <Label className="w-28 shrink-0 font-medium text-xs">Duration</Label>
+          <ScrubNumberField
+            max={5}
+            min={0}
+            onCommit={setDuration}
+            onPreview={setDuration}
+            step={0.1}
+            unit="s"
+            value={duration}
+          />
+        </div>
+      </StudioControlGroup>
+      <StudioControlGroup collapsible defaultOpen title="Sliders">
+        <div className="flex flex-col gap-1.5">
+          <StudioSlider
+            format={(v) => v.toFixed(2)}
+            label="Opacity"
+            max={1}
+            min={0}
+            onCommit={setOpacity}
+            onPreview={setOpacity}
+            step={0.01}
+            value={opacity}
+          />
+          <StudioSlider
+            label="Blur"
+            max={100}
+            min={0}
+            onCommit={setBlur}
+            onPreview={setBlur}
+            step={1}
+            unit="px"
+            value={blur}
+          />
+          <StudioSlider
+            format={(v) => v.toFixed(1)}
+            label="Saturation"
+            max={10}
+            min={0}
+            onCommit={setSaturation}
+            onPreview={setSaturation}
+            step={0.1}
+            value={saturation}
+          />
+        </div>
+      </StudioControlGroup>
+    </DemoControlGroups>
+  );
+}
+
 export function MotionBezierDemo() {
   const { state, onPreview, onCommit } = useCatalogUrlState();
 
   return (
     <DemoControlGroups>
       <StudioControlGroup
-        className="studio-motion-section"
+        className={studioMotionSectionClass}
         collapsible
         defaultOpen
         title="Curve"
       >
         <MotionCurveEditor
+          layout="inline"
           onCommit={onCommit}
           onPreview={onPreview}
           state={motionSlice(state)}
@@ -352,9 +419,9 @@ export function MotionEasePresetsDemo() {
       <StudioControlGroup collapsible defaultOpen title="Presets">
         <MotionEasePresetGrid
           onSelect={(id) => {
-            onChange("motionEase", id);
-            const b = MOTION_EASE_PRESETS[id].bezier;
-            onChange("motionBezier", `${b[0]}, ${b[1]}, ${b[2]}, ${b[3]}`);
+            const preset = motionEasePresetUpdates(id);
+            onChange("motionEase", preset.motionEase);
+            onChange("motionBezier", preset.motionBezier);
           }}
           value={state.motionEase}
         />
@@ -369,7 +436,7 @@ export function MotionControlDemo() {
   return (
     <DemoControlGroups>
       <StudioControlGroup
-        className="studio-motion-section"
+        className={studioMotionSectionClass}
         collapsible
         defaultOpen
         title="Motion"
@@ -393,7 +460,7 @@ export function MotionSection() {
       id="motion"
       title="Motion"
     >
-      <div className="studio-motion-section flex flex-col gap-8">
+      <div className={cn(studioMotionSectionClass, "flex flex-col gap-8")}>
         <div className="space-y-2">
           <p className={studioSectionLabelClass}>Bezier editor</p>
           <MotionBezierDemo />
@@ -457,12 +524,38 @@ export function PickersDemo() {
 export function PickersSection() {
   return (
     <CatalogSection
-      description="Placement and icon pickers built on Studio tabs."
+      description="Legend position and icon pickers built on ToggleGroup layouts."
       id="pickers"
       title="Pickers"
     >
       <PickersDemo />
     </CatalogSection>
+  );
+}
+
+export function ShimmerTextDemo() {
+  return (
+    <DemoControlGroups>
+      <StudioControlGroup collapsible defaultOpen title="Shimmer text">
+        <div className="flex flex-col gap-4 py-1">
+          <div className="flex flex-col gap-1">
+            <p className="m-0 text-muted-foreground text-xs">Loading label</p>
+            <ShimmeringText className="text-sm" text="Loading" />
+          </div>
+          <div className="flex flex-col gap-1">
+            <p className="m-0 text-muted-foreground text-xs">Version pill</p>
+            <ShimmeringText className="text-xs" text="Version 2" />
+          </div>
+          <div className="flex flex-col gap-1">
+            <p className="m-0 text-muted-foreground text-xs">Custom colors</p>
+            <ShimmeringText
+              className="text-sm [--color:var(--chart-4)] [--shimmering-color:var(--foreground)]"
+              text="Custom shimmer"
+            />
+          </div>
+        </div>
+      </StudioControlGroup>
+    </DemoControlGroups>
   );
 }
 
@@ -510,7 +603,7 @@ export function FeedbackSection() {
 
 export const CATALOG_SECTIONS = [
   { id: "surfaces", label: "Surfaces" },
-  { id: "tabs", label: "Tabs" },
+  { id: "toggle-groups", label: "Toggle groups" },
   { id: "primitives", label: "Primitives" },
   { id: "fields", label: "Fields" },
   { id: "motion", label: "Motion" },

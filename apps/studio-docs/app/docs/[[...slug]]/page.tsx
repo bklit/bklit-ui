@@ -1,4 +1,5 @@
 import {
+  CustomComponentsDemo,
   FeedbackDemo,
   FieldsDemo,
   MotionBezierDemo,
@@ -7,8 +8,10 @@ import {
   PatternsDemo,
   PickersDemo,
   PrimitivesDemo,
+  ShimmerTextDemo,
   SurfacesDemo,
   TabsDemo,
+  ToggleGroupDemo,
 } from "@bklitui/studio/dev/ui-demos";
 import { StudioUiPreview } from "@bklitui/studio/dev/ui-preview";
 import { findNeighbour } from "fumadocs-core/server";
@@ -17,7 +20,9 @@ import defaultMdxComponents from "fumadocs-ui/mdx";
 import { notFound } from "next/navigation";
 import type { ComponentType } from "react";
 import { ComponentShowcase } from "@/components/component-showcase";
+import { IconsPageContent } from "@/components/icons-page-content";
 import { PageFooter } from "@/components/page-footer";
+import { TableOfContents } from "@/components/toc";
 import { source } from "@/lib/source";
 
 interface PageData {
@@ -61,19 +66,24 @@ export default async function Page(props: {
               StudioUiPreview,
               SurfacesDemo,
               TabsDemo,
+              ToggleGroupDemo,
               PrimitivesDemo,
               FieldsDemo,
+              CustomComponentsDemo,
               MotionBezierDemo,
               MotionEasePresetsDemo,
               MotionControlDemo,
               PatternsDemo,
               PickersDemo,
+              ShimmerTextDemo,
               FeedbackDemo,
+              IconsPageContent,
             }}
           />
         </div>
         <PageFooter next={neighbours.next} previous={neighbours.previous} />
       </article>
+      <TableOfContents items={data.toc} />
     </div>
   );
 }

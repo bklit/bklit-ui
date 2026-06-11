@@ -1,17 +1,16 @@
-import { cn } from "@bklitui/ui/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import type * as React from "react";
 
+import { cn } from "@/lib/utils";
+
 const alertVariants = cva(
-  "group/alert relative grid w-full gap-0.5 rounded-lg border px-4 py-3 text-left text-sm has-data-[slot=alert-action]:relative has-[>svg]:grid-cols-[auto_1fr] has-[>svg]:gap-x-2.5 has-data-[slot=alert-action]:pr-18 *:[svg:not([class*='size-'])]:size-4 *:[svg]:row-span-2 *:[svg]:translate-y-0.5 *:[svg]:text-current",
+  "group/alert relative grid w-full gap-0.5 rounded-lg border px-2.5 py-2 text-left text-sm has-data-[slot=alert-action]:relative has-[>svg]:grid-cols-[auto_1fr] has-[>svg]:gap-x-2 has-data-[slot=alert-action]:pr-18 *:[svg:not([class*='size-'])]:size-4 *:[svg]:row-span-2 *:[svg]:translate-y-0.5 *:[svg]:text-current",
   {
     variants: {
       variant: {
         default: "bg-card text-card-foreground",
         destructive:
           "bg-card text-destructive *:data-[slot=alert-description]:text-destructive/90 *:[svg]:text-current",
-        indigo:
-          "border-blue-500/25 bg-blue-500/10 text-blue-950 *:data-[slot=alert-description]:text-blue-900/85 dark:border-blue-500/50 dark:bg-blue-600/20 dark:text-blue-50 dark:*:data-[slot=alert-description]:text-blue-100/80 *:[svg]:text-blue-600 dark:*:[svg]:text-blue-400",
       },
     },
     defaultVariants: {
@@ -67,7 +66,7 @@ function AlertDescription({
 function AlertAction({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
-      className={cn("absolute top-2.5 right-3", className)}
+      className={cn("absolute top-2 right-2", className)}
       data-slot="alert-action"
       {...props}
     />

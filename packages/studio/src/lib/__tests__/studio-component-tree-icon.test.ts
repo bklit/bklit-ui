@@ -1,15 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import {
-  AlignBottomIcon,
-  AlignLeftIcon,
-  ChartAreaIcon,
-  CursorPointer02Icon,
-  GridIcon,
-  LayerIcon,
-  LeftToRightListDashIcon,
-  TextIcon,
-} from "@hugeicons/core-free-icons";
+import { CHART_TYPE_ICONS } from "../../components/chart-type-icons";
 import { resolveStudioComponentTreeIcon } from "../studio-component-tree-icon";
 import type { StudioComponentDefinition } from "../types";
 
@@ -30,7 +21,7 @@ describe("resolveStudioComponentTreeIcon", () => {
         component({ id: "area.chart", label: "AreaChart" }),
         "area-chart"
       ),
-      ChartAreaIcon
+      CHART_TYPE_ICONS["area-chart"]
     );
   });
 
@@ -44,7 +35,7 @@ describe("resolveStudioComponentTreeIcon", () => {
         }),
         "area-chart"
       ),
-      GridIcon
+      "IconCanvasGrid"
     );
     assert.equal(
       resolveStudioComponentTreeIcon(
@@ -55,7 +46,7 @@ describe("resolveStudioComponentTreeIcon", () => {
         }),
         "area-chart"
       ),
-      AlignBottomIcon
+      "IconLayoutAlignBottom"
     );
     assert.equal(
       resolveStudioComponentTreeIcon(
@@ -66,7 +57,7 @@ describe("resolveStudioComponentTreeIcon", () => {
         }),
         "live-line-chart"
       ),
-      AlignLeftIcon
+      "IconLayoutAlignLeft"
     );
     assert.equal(
       resolveStudioComponentTreeIcon(
@@ -77,7 +68,7 @@ describe("resolveStudioComponentTreeIcon", () => {
         }),
         "area-chart"
       ),
-      CursorPointer02Icon
+      "IconCursorClick"
     );
     assert.equal(
       resolveStudioComponentTreeIcon(
@@ -88,7 +79,7 @@ describe("resolveStudioComponentTreeIcon", () => {
         }),
         "area-chart"
       ),
-      LeftToRightListDashIcon
+      "IconListBullets"
     );
     assert.equal(
       resolveStudioComponentTreeIcon(
@@ -99,7 +90,7 @@ describe("resolveStudioComponentTreeIcon", () => {
         }),
         "choropleth-chart"
       ),
-      GridIcon
+      "IconCanvasGrid"
     );
     assert.equal(
       resolveStudioComponentTreeIcon(
@@ -110,7 +101,7 @@ describe("resolveStudioComponentTreeIcon", () => {
         }),
         "pie-chart"
       ),
-      TextIcon
+      "IconNoteText"
     );
     assert.equal(
       resolveStudioComponentTreeIcon(
@@ -121,7 +112,7 @@ describe("resolveStudioComponentTreeIcon", () => {
         }),
         "gauge-chart"
       ),
-      TextIcon
+      "IconNoteText"
     );
   });
 
@@ -136,7 +127,7 @@ describe("resolveStudioComponentTreeIcon", () => {
         }),
         "area-chart"
       ),
-      LayerIcon
+      "IconLayersTwo"
     );
   });
 });

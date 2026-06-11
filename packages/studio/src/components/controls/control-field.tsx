@@ -11,12 +11,14 @@ import {
 import type { StudioControl } from "@/lib/types";
 import { Input } from "@/ui/input";
 import { Label } from "@/ui/label";
-import { Switch } from "@/ui/switch";
+import { StudioSlider } from "@/ui/studio-slider";
+import { YesNoSwitch } from "@/ui/yes-no-switch";
 import {
   RingGapPreviewIcon,
   RingScalePreviewIcon,
   RingWidthPreviewIcon,
 } from "../ring-preview-icons";
+import { ChartStateToggle } from "./chart-state-toggle";
 import { ColorControlField } from "./color-control-field";
 import {
   ControlFieldLabel,
@@ -62,6 +64,12 @@ function clamp(n: number, min: number, max: number) {
   return Math.min(max, Math.max(min, n));
 }
 
+const CHART_STATE_KEYS = new Set<keyof StudioUrlState>([
+  "areaChartState",
+  "lineChartState",
+  "heatmapChartState",
+]);
+
 function NumberInputOnly({
   control,
   value,
@@ -87,10 +95,7 @@ function NumberInputOnly({
         {control.label}
       </Label>
       <Input
-        className={cn(
-          "h-8 min-w-0 flex-1 tabular-nums",
-          studioControlInputClass
-        )}
+        className={cn("min-w-0 flex-1 tabular-nums", studioControlInputClass)}
         id={String(control.key)}
         max={control.max}
         min={control.min}
@@ -245,12 +250,27 @@ export function ControlField({
     const disabled = control.disabledWhen
       ? Boolean(state[control.disabledWhen])
       : false;
-    if (control.input === "number") {
+    if (control.input === "number" && control.unit !== "%") {
       return (
         <NumberInputOnly
           control={control}
           onCommit={(n) => commitValue(key, n as StudioUrlState[typeof key])}
           onPreview={(n) => previewValue(key, n as StudioUrlState[typeof key])}
+          value={value as number}
+        />
+      );
+    }
+    if (control.unit === "%" || control.input === "studio") {
+      return (
+        <StudioSlider
+          disabled={disabled}
+          label={control.label}
+          max={control.max}
+          min={control.min}
+          onCommit={(n) => commitValue(key, n as StudioUrlState[typeof key])}
+          onPreview={(n) => previewValue(key, n as StudioUrlState[typeof key])}
+          step={control.step ?? 1}
+          unit={control.unit}
           value={value as number}
         />
       );
@@ -467,10 +487,9 @@ export function ControlField({
         htmlFor={String(key)}
         label={control.label}
       >
-        <Switch
-          checked={Boolean(value)}
-          id={String(key)}
-          onCheckedChange={(checked) => {
+        <YesNoSwitch
+          aria-label={control.label}
+          onValueChange={(checked) => {
             commitValue(key, checked as StudioUrlState[typeof key]);
             if (
               key === "brushSelectionPatternEnabled" &&
@@ -480,6 +499,7 @@ export function ControlField({
               commitValue("brushSelectionPattern", "diagonal");
             }
           }}
+          value={Boolean(value)}
         />
       </StudioControlRow>
     );
@@ -517,6 +537,20 @@ export function ControlField({
             )
           }
           value={value}
+        />
+      </div>
+    );
+  }
+
+  if (control.type === "select" && CHART_STATE_KEYS.has(control.key)) {
+    return (
+      <div className="space-y-2">
+        {hideGroupLabel ? null : <ControlFieldLabel control={control} />}
+        <ChartStateToggle
+          onChange={(next) =>
+            commitValue(control.key, next as StudioUrlState[typeof control.key])
+          }
+          value={value as "ready" | "loading"}
         />
       </div>
     );

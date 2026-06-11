@@ -8,7 +8,7 @@
     "@visx/curve@4.0.1-alpha.0",
     "@visx/gradient@4.0.1-alpha.0",
     "@number-flow/react",
-    "lucide-react"
+    "@central-icons-react/all"
   ],
   "registryDependencies": [
     "@bklit/stat-card-area-01"

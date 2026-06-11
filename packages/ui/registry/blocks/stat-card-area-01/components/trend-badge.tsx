@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowDown, ArrowUp } from "lucide-react";
+import { CentralIcon } from "@central-icons-react/all";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
@@ -12,7 +12,6 @@ export function TrendBadge({
   className?: string;
 }) {
   const positive = value >= 0;
-  const Icon = positive ? ArrowUp : ArrowDown;
 
   return (
     <Badge
@@ -23,7 +22,15 @@ export function TrendBadge({
       )}
       variant={positive ? "outline" : "destructive"}
     >
-      <Icon className="size-3" data-icon="inline-start" />
+      <CentralIcon
+        className="size-3"
+        data-icon="inline-start"
+        fill="outlined"
+        join="round"
+        name={positive ? "IconArrowUp" : "IconArrowDown"}
+        radius="0"
+        stroke="1.5"
+      />
       {positive ? "+" : ""}
       {value.toFixed(1)}%
     </Badge>

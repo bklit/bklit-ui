@@ -1,10 +1,8 @@
 "use client";
 
+import { Icon } from "@bklitui/icons";
 import { cn } from "@bklitui/ui/lib/utils";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { StudioControlGroup } from "@/components/studio-control-group";
-import { StudioScrambleDataButton } from "@/components/studio-scramble-data-button";
 import { resolveCssColor } from "@/lib/chart-theme-color";
 import { resolveStudioComponentTreeIcon } from "@/lib/studio-component-tree-icon";
 import {
@@ -31,17 +29,16 @@ function ComponentListMarker({
     return (
       <span
         aria-hidden
-        className="size-2 shrink-0 rounded-full ring-1 ring-border"
+        className="size-2 shrink-0 rounded-full"
         style={{ backgroundColor: color }}
       />
     );
   }
 
   return (
-    <HugeiconsIcon
+    <Icon
       className="size-3.5 shrink-0 opacity-70"
-      icon={resolveStudioComponentTreeIcon(component, chartSlug)}
-      strokeWidth={1.75}
+      name={resolveStudioComponentTreeIcon(component, chartSlug)}
     />
   );
 }
@@ -52,9 +49,6 @@ export function StudioComponentsPanel({
   onSelect,
   state,
   onChange,
-  controlsDisabled = false,
-  scrambleDisabled = false,
-  onScramble,
 }: {
   components: StudioComponentDefinition[];
   selectedId: string;
@@ -64,9 +58,6 @@ export function StudioComponentsPanel({
     key: K,
     value: StudioUrlState[K]
   ) => void;
-  controlsDisabled?: boolean;
-  scrambleDisabled?: boolean;
-  onScramble?: () => void;
 }) {
   const ordered = flattenStudioComponents(components);
 
@@ -89,7 +80,7 @@ export function StudioComponentsPanel({
                 className={cn(
                   "group flex w-full min-w-0 items-center gap-1 rounded-md pr-1 transition-colors",
                   selected
-                    ? "bg-accent/10 text-foreground ring-1 ring-accent/25"
+                    ? "bg-accent/15 text-foreground"
                     : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
                   !configurable && "opacity-45"
                 )}
@@ -130,12 +121,9 @@ export function StudioComponentsPanel({
                   type="button"
                 >
                   {visible ? (
-                    <EyeIcon className="size-3.5" strokeWidth={1.75} />
+                    <Icon className="size-3.5" name="IconEyeOpen" />
                   ) : (
-                    <EyeOffIcon
-                      className="size-3.5 opacity-60"
-                      strokeWidth={1.75}
-                    />
+                    <Icon className="size-3.5 opacity-60" name="IconEyeSlash" />
                   )}
                 </button>
               </div>
@@ -143,14 +131,6 @@ export function StudioComponentsPanel({
           );
         })}
       </ul>
-      {onScramble ? (
-        <div className="pt-2">
-          <StudioScrambleDataButton
-            disabled={controlsDisabled || scrambleDisabled}
-            onScramble={onScramble}
-          />
-        </div>
-      ) : null}
     </StudioControlGroup>
   );
 }
