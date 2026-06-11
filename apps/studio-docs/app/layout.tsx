@@ -42,9 +42,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             enableSystem: true,
           }}
         >
-          <Suspense fallback={null}>
-            <StudioNuqsAdapter>{children}</StudioNuqsAdapter>
-          </Suspense>
+          <StudioNuqsAdapter>
+            <Suspense fallback={null}>{children}</Suspense>
+          </StudioNuqsAdapter>
         </RootProvider>
       </body>
     </html>
