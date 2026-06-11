@@ -1,7 +1,6 @@
 "use client";
 
 import { cn } from "@bklitui/ui/lib/utils";
-import { useId } from "react";
 
 export function BklitLogo({
   className,
@@ -14,7 +13,7 @@ export function BklitLogo({
   theme?: "light" | "dark";
   variant?: "default" | "blended";
 }) {
-  const id = useId();
+  const id = `bklit-${theme}-${variant}`;
 
   const rgbColor = theme === "dark" ? "255, 255, 255" : "0, 0, 0";
   const blendMode = variant === "blended" ? "color-burn" : "normal";

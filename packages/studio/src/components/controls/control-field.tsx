@@ -28,6 +28,7 @@ import {
 } from "./control-field-helpers";
 import { ControlFieldInputs } from "./control-field-inputs";
 import { GaugeAngleControl } from "./gauge-angle-control";
+import { HeatmapLevelPaneControl } from "./heatmap-level-pane-control";
 import { InnerRadiusControl } from "./inner-radius-control";
 import { LegendPositionPicker } from "./legend-position-picker";
 import { LineSeriesYAxisControl } from "./line-series-y-axis-control";
@@ -300,6 +301,18 @@ export function ControlField({
           onPreview={onPreview}
         />
       </div>
+    );
+  }
+
+  if (control.type === "heatmapLevel") {
+    return (
+      <HeatmapLevelPaneControl
+        level={control.level}
+        onChange={onChange}
+        onCommit={onCommit}
+        onPreview={onPreview}
+        state={state}
+      />
     );
   }
 

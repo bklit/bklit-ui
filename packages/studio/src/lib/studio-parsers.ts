@@ -138,6 +138,34 @@ export const studioSearchParams = {
   candleShowDots: parseAsBoolean.withDefault(false),
   sankeyNodePadding: parseAsInteger.withDefault(12),
   sankeyNodeWidth: parseAsInteger.withDefault(16),
+  heatmapBinSize: parseAsInteger.withDefault(0),
+  heatmapGap: parseAsInteger.withDefault(2),
+  heatmapCornerRadius: parseAsInteger.withDefault(2),
+  heatmapLegendCellSize: parseAsInteger.withDefault(11),
+  heatmapChartState: parseAsStringLiteral(["ready", "loading"]).withDefault(
+    "ready"
+  ),
+  heatmapLoadingLabel: parseAsString.withDefault("Loading"),
+  heatmapLoadingOpacity: parseAsFloat.withDefault(1),
+  heatmapLoadingCellMaxOpacity: parseAsFloat.withDefault(0.85),
+  heatmapLoadingCellRandomness: parseAsFloat.withDefault(1),
+  heatmapLevel0Color: parseAsString.withDefault("var(--color-muted)"),
+  heatmapLevel1Color: parseAsString.withDefault("#0e4429"),
+  heatmapLevel2Color: parseAsString.withDefault("#006d32"),
+  heatmapLevel3Color: parseAsString.withDefault("#26a641"),
+  heatmapLevel4Color: parseAsString.withDefault("#39d353"),
+  heatmapLevelFillModes: parseAsString.withDefault(""),
+  heatmapLevelPatterns: parseAsString.withDefault(""),
+  heatmapLevelPatternColors: parseAsString.withDefault(""),
+  heatmapLevelPatternScales: parseAsString.withDefault(""),
+  heatmapLevelPatternStrokeWidths: parseAsString.withDefault(""),
+  heatmapLevelPatternRadii: parseAsString.withDefault(""),
+  heatmapLevelPatternComplements: parseAsString.withDefault(""),
+  heatmapLevelPatternFills: parseAsString.withDefault(""),
+  heatmapLevelPatternTileBackgrounds: parseAsString.withDefault(""),
+  heatmapLevelPatternOpacities: parseAsString.withDefault(""),
+  heatmapLevelPatternDotsFills: parseAsString.withDefault(""),
+  heatmapCellsFadedOpacity: parseAsFloat.withDefault(0.3),
   linkOpacity: parseAsFloat.withDefault(0.4),
   scatterRadius: parseAsFloat.withDefault(6),
   scatterRingGap: parseAsFloat.withDefault(2),
@@ -387,6 +415,32 @@ export interface StudioUrlState {
   candleShowDots: boolean;
   sankeyNodePadding: number;
   sankeyNodeWidth: number;
+  heatmapBinSize: number;
+  heatmapGap: number;
+  heatmapCornerRadius: number;
+  heatmapLegendCellSize: number;
+  heatmapChartState: "ready" | "loading";
+  heatmapLoadingLabel: string;
+  heatmapLoadingOpacity: number;
+  heatmapLoadingCellMaxOpacity: number;
+  heatmapLoadingCellRandomness: number;
+  heatmapLevel0Color: string;
+  heatmapLevel1Color: string;
+  heatmapLevel2Color: string;
+  heatmapLevel3Color: string;
+  heatmapLevel4Color: string;
+  heatmapLevelFillModes: string;
+  heatmapLevelPatterns: string;
+  heatmapLevelPatternColors: string;
+  heatmapLevelPatternScales: string;
+  heatmapLevelPatternStrokeWidths: string;
+  heatmapLevelPatternRadii: string;
+  heatmapLevelPatternComplements: string;
+  heatmapLevelPatternFills: string;
+  heatmapLevelPatternTileBackgrounds: string;
+  heatmapLevelPatternOpacities: string;
+  heatmapLevelPatternDotsFills: string;
+  heatmapCellsFadedOpacity: number;
   linkOpacity: number;
   scatterRadius: number;
   scatterRingGap: number;
@@ -611,6 +665,32 @@ export function defaultStudioState(
     candleShowDots: false,
     sankeyNodePadding: 12,
     sankeyNodeWidth: 16,
+    heatmapBinSize: 0,
+    heatmapGap: 2,
+    heatmapCornerRadius: 2,
+    heatmapLegendCellSize: 11,
+    heatmapChartState: "ready",
+    heatmapLoadingLabel: "Loading",
+    heatmapLoadingOpacity: 1,
+    heatmapLoadingCellMaxOpacity: 0.85,
+    heatmapLoadingCellRandomness: 1,
+    heatmapLevel0Color: "var(--color-muted)",
+    heatmapLevel1Color: "#0e4429",
+    heatmapLevel2Color: "#006d32",
+    heatmapLevel3Color: "#26a641",
+    heatmapLevel4Color: "#39d353",
+    heatmapLevelFillModes: "",
+    heatmapLevelPatterns: "",
+    heatmapLevelPatternColors: "",
+    heatmapLevelPatternScales: "",
+    heatmapLevelPatternStrokeWidths: "",
+    heatmapLevelPatternRadii: "",
+    heatmapLevelPatternComplements: "",
+    heatmapLevelPatternFills: "",
+    heatmapLevelPatternTileBackgrounds: "",
+    heatmapLevelPatternOpacities: "",
+    heatmapLevelPatternDotsFills: "",
+    heatmapCellsFadedOpacity: 0.3,
     linkOpacity: 0.4,
     scatterRadius: 6,
     scatterRingGap: 2,

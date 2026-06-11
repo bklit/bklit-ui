@@ -6,6 +6,7 @@ import {
   designGroup,
   lineGroup,
 } from "./sidebar-control-templates";
+import type { StudioUrlState } from "./studio-parsers";
 import type { StudioControlGroup } from "./types";
 
 const chartAccentColorOptions = [
@@ -1013,6 +1014,91 @@ export const sankeyChartControlGroups: StudioControlGroup[] = [
       max: 1,
       step: 0.05,
       color: "var(--chart-1)",
+    },
+  ]),
+];
+
+const heatmapLevelPane = (
+  level: 0 | 1 | 2 | 3 | 4,
+  title: string,
+  colorKey: keyof StudioUrlState
+): StudioControlGroup =>
+  controlGroup(
+    title,
+    [{ type: "heatmapLevel", level, label: title, key: colorKey }],
+    { collapsible: true, defaultOpen: level === 0 }
+  );
+
+export const heatmapChartControlGroups: StudioControlGroup[] = [
+  controlGroup("Settings", [
+    {
+      type: "select",
+      key: "heatmapChartState",
+      label: "State",
+      options: [
+        { value: "ready", label: "Ready" },
+        { value: "loading", label: "Loading" },
+      ],
+    },
+  ]),
+  controlGroup("Layout", [
+    {
+      type: "number",
+      key: "heatmapGap",
+      label: "Gap",
+      min: 0,
+      max: 8,
+    },
+    {
+      type: "number",
+      key: "heatmapCornerRadius",
+      label: "Radius",
+      min: 0,
+      max: 8,
+    },
+  ]),
+  heatmapLevelPane(0, "Empty", "heatmapLevel0Color"),
+  heatmapLevelPane(1, "Level 1", "heatmapLevel1Color"),
+  heatmapLevelPane(2, "Level 2", "heatmapLevel2Color"),
+  heatmapLevelPane(3, "Level 3", "heatmapLevel3Color"),
+  heatmapLevelPane(4, "Level 4", "heatmapLevel4Color"),
+];
+
+export const heatmapCellsControlGroups: StudioControlGroup[] = [
+  controlGroup("Cells", [
+    {
+      type: "opacity",
+      key: "heatmapCellsFadedOpacity",
+      label: "Hover fade",
+      min: 0.1,
+      max: 1,
+      step: 0.05,
+      color: "var(--chart-1)",
+    },
+  ]),
+];
+
+export const heatmapLegendControlGroups: StudioControlGroup[] = [
+  controlGroup("Legend", [
+    { type: "boolean", key: "showLegend", label: "Show" },
+    { type: "legendPosition", key: "legendPlacement", label: "Placement" },
+    {
+      type: "number",
+      key: "legendFontSize",
+      label: "Font size",
+      min: 10,
+      max: 18,
+      step: 1,
+      unit: "px",
+    },
+    {
+      type: "number",
+      key: "heatmapLegendCellSize",
+      label: "Swatch size",
+      min: 8,
+      max: 16,
+      step: 1,
+      unit: "px",
     },
   ]),
 ];

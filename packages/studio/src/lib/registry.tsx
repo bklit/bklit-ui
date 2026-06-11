@@ -21,6 +21,7 @@ import { CandlestickStudioPreview } from "@/components/charts/candlestick-studio
 import { ChoroplethStudioPreview } from "@/components/charts/choropleth-studio";
 import { FunnelStudioPreview } from "@/components/charts/funnel-studio-preview";
 import { GaugeStudioPreview } from "@/components/charts/gauge-studio-preview";
+import { HeatmapStudioPreview } from "@/components/charts/heatmap-studio-preview";
 import { LineChartStudioStandardPreview } from "@/components/charts/line-chart-studio-standard-preview";
 import { LineProfitLossStudioChart } from "@/components/charts/line-profit-loss-studio";
 import { LiveLineStudioPreview } from "@/components/charts/live-line-studio";
@@ -52,6 +53,7 @@ import {
   composedCodegen,
   funnelCodegen,
   gaugeCodegen,
+  heatmapCodegen,
   lineChartDataSnippet,
   liveLineCodegen,
   radarCodegen,
@@ -82,6 +84,7 @@ import {
   funnelChartControlGroups,
   gaugeControlGroups,
   getLineChartControlGroups,
+  heatmapChartControlGroups,
   lineChartControlGroups,
   liveLineChartControlGroups,
   pieChartControlGroups,
@@ -105,6 +108,7 @@ import {
   resolveComposedComponents,
   resolveFunnelComponents,
   resolveGaugeComponents,
+  resolveHeatmapComponents,
   resolveLineComponents,
   resolveLiveLineComponents,
   resolvePieComponents,
@@ -661,6 +665,18 @@ const sankeyConfig: StudioChartConfig = {
   generateCode: (state) => sankeyCodegen(state),
 };
 
+const heatmapConfig: StudioChartConfig = {
+  slug: "heatmap-chart",
+  label: chartLabels["heatmap-chart"],
+  motionPanel: true,
+  motionStagger: true,
+  controls: [],
+  controlGroups: heatmapChartControlGroups,
+  resolveComponents: resolveHeatmapComponents,
+  render: (state, ctx) => <HeatmapStudioPreview ctx={ctx} state={state} />,
+  generateCode: (state) => heatmapCodegen(state),
+};
+
 export const studioRegistry: Record<ChartSlug, StudioChartConfig> = {
   "gauge-chart": gaugeConfig,
   "area-chart": areaConfig,
@@ -676,6 +692,7 @@ export const studioRegistry: Record<ChartSlug, StudioChartConfig> = {
   "funnel-chart": funnelConfig,
   "live-line-chart": liveLineConfig,
   "choropleth-chart": choroplethConfig,
+  "heatmap-chart": heatmapConfig,
   "sankey-chart": sankeyConfig,
 };
 

@@ -79,6 +79,12 @@ export type StudioControl = StudioControlVisibility &
         /** Disable when the referenced URL state value is falsy. */
         enabledWhen?: keyof StudioUrlState;
       }
+    | {
+        type: "heatmapLevel";
+        level: 0 | 1 | 2 | 3 | 4;
+        label: string;
+        key: keyof StudioUrlState;
+      }
     | { type: "pieFill"; key: keyof StudioUrlState; label: string }
     | { type: "orientation"; key: keyof StudioUrlState; label: string }
     | { type: "lineCap"; key: "barLineCap"; label: string }
@@ -142,6 +148,8 @@ export type StudioControl = StudioControlVisibility &
 export interface StudioControlGroup {
   title: string;
   controls: StudioControl[];
+  collapsible?: boolean;
+  defaultOpen?: boolean;
 }
 
 export type StudioComponentKind =
@@ -218,6 +226,7 @@ export const chartLabels = {
   "composed-chart": "Composed Chart",
   "funnel-chart": "Funnel Chart",
   "gauge-chart": "Gauge",
+  "heatmap-chart": "Heatmap",
   "line-chart": "Line Chart",
   "profit-loss-line": "Profit/Loss Line",
   "live-line-chart": "Live Line Chart",

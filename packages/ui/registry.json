@@ -1186,6 +1186,111 @@
       ]
     },
     {
+      "name": "heatmap-chart",
+      "type": "registry:component",
+      "title": "Heatmap Chart",
+      "description": "A GitHub-style contribution heatmap with animated cells and configurable level colors",
+      "registryDependencies": [
+        "@bklit/chart-context",
+        "@bklit/chart-animation",
+        "@bklit/utils",
+        "@bklit/chart-utils",
+        "@bklit/chart-tooltip",
+        "@bklit/background"
+      ],
+      "dependencies": [
+        "@ncdai/shimmering-text",
+        "@visx/group@4.0.1-alpha.0",
+        "@visx/heatmap@4.0.1-alpha.0",
+        "@visx/pattern@4.0.1-alpha.0",
+        "@visx/responsive@4.0.1-alpha.0",
+        "@visx/scale@4.0.1-alpha.0",
+        "motion"
+      ],
+      "files": [
+        {
+          "path": "src/charts/heatmap/heatmap-chart.tsx",
+          "type": "registry:component",
+          "target": "components/charts/heatmap/heatmap-chart.tsx"
+        },
+        {
+          "path": "src/charts/heatmap/heatmap-context.tsx",
+          "type": "registry:component",
+          "target": "components/charts/heatmap/heatmap-context.tsx"
+        },
+        {
+          "path": "src/charts/heatmap/heatmap-cells.tsx",
+          "type": "registry:component",
+          "target": "components/charts/heatmap/heatmap-cells.tsx"
+        },
+        {
+          "path": "src/charts/heatmap/heatmap-x-axis.tsx",
+          "type": "registry:component",
+          "target": "components/charts/heatmap/heatmap-x-axis.tsx"
+        },
+        {
+          "path": "src/charts/heatmap/heatmap-y-axis.tsx",
+          "type": "registry:component",
+          "target": "components/charts/heatmap/heatmap-y-axis.tsx"
+        },
+        {
+          "path": "src/charts/heatmap/heatmap-legend.tsx",
+          "type": "registry:component",
+          "target": "components/charts/heatmap/heatmap-legend.tsx"
+        },
+        {
+          "path": "src/charts/heatmap/heatmap-legend-swatch.tsx",
+          "type": "registry:component",
+          "target": "components/charts/heatmap/heatmap-legend-swatch.tsx"
+        },
+        {
+          "path": "src/charts/heatmap/heatmap-tooltip.tsx",
+          "type": "registry:component",
+          "target": "components/charts/heatmap/heatmap-tooltip.tsx"
+        },
+        {
+          "path": "src/charts/heatmap/heatmap-colors.ts",
+          "type": "registry:component",
+          "target": "components/charts/heatmap/heatmap-colors.ts"
+        },
+        {
+          "path": "src/charts/heatmap/heatmap-utils.ts",
+          "type": "registry:component",
+          "target": "components/charts/heatmap/heatmap-utils.ts"
+        },
+        {
+          "path": "src/charts/heatmap/heatmap-animation.ts",
+          "type": "registry:component",
+          "target": "components/charts/heatmap/heatmap-animation.ts"
+        },
+        {
+          "path": "src/charts/heatmap/heatmap-pattern-defs.tsx",
+          "type": "registry:component",
+          "target": "components/charts/heatmap/heatmap-pattern-defs.tsx"
+        },
+        {
+          "path": "src/charts/heatmap/heatmap-chart-loading.tsx",
+          "type": "registry:component",
+          "target": "components/charts/heatmap/heatmap-chart-loading.tsx"
+        },
+        {
+          "path": "src/charts/heatmap/generate-heatmap-skeleton-data.ts",
+          "type": "registry:component",
+          "target": "components/charts/heatmap/generate-heatmap-skeleton-data.ts"
+        },
+        {
+          "path": "src/charts/heatmap/index.ts",
+          "type": "registry:component",
+          "target": "components/charts/heatmap/index.ts"
+        },
+        {
+          "path": "src/charts/chart-loading-label.tsx",
+          "type": "registry:component",
+          "target": "components/charts/chart-loading-label.tsx"
+        }
+      ]
+    },
+    {
       "name": "choropleth-chart",
       "type": "registry:component",
       "title": "Choropleth Map",
@@ -1474,6 +1579,32 @@
         },
         {
           "path": "registry/examples/gauge-chart-index.ts",
+          "type": "registry:lib",
+          "target": "components/charts/index.ts"
+        }
+      ]
+    },
+    {
+      "name": "heatmap-chart-example",
+      "type": "registry:example",
+      "title": "Heatmap Chart Example",
+      "description": "Composable heatmap-chart demo for Open in v0",
+      "registryDependencies": [
+        "@bklit/heatmap-chart"
+      ],
+      "dependencies": [
+        "@visx/heatmap@4.0.1-alpha.0",
+        "@visx/shape@4.0.1-alpha.0",
+        "motion"
+      ],
+      "files": [
+        {
+          "path": "registry/examples/heatmap-chart.tsx",
+          "type": "registry:page",
+          "target": "app/page.tsx"
+        },
+        {
+          "path": "registry/examples/heatmap-chart-index.ts",
           "type": "registry:lib",
           "target": "components/charts/index.ts"
         }

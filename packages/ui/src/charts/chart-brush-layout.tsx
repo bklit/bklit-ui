@@ -27,6 +27,8 @@ export interface ChartBrushLayoutProps {
   enabled: boolean;
   /** Fixed height of the brush strip in pixels. */
   height: number;
+  /** When true, the main chart area hugs content instead of growing to fill space. */
+  fitMainContent?: boolean;
   className?: string;
   children: (layout: ChartBrushLayoutState) => ReactNode;
   /** Mini chart + brush handles rendered below the main chart when `enabled`. */
@@ -45,6 +47,7 @@ export const ChartBrushLayout = memo(function ChartBrushLayout({
   xDataKey = "date",
   enabled,
   height,
+  fitMainContent = false,
   className,
   children,
   brushStrip,
@@ -93,9 +96,20 @@ export const ChartBrushLayout = memo(function ChartBrushLayout({
 
   return (
     <div
-      className={cn("flex size-full min-h-0 min-w-0 flex-col gap-3", className)}
+      className={cn(
+        "flex size-full min-h-0 min-w-0 flex-col",
+        fitMainContent ? "justify-start gap-1" : "gap-3",
+        className
+      )}
     >
-      <div className="min-h-0 min-w-0 flex-1">{children(layoutState)}</div>
+      <div
+        className={cn(
+          "min-h-0 min-w-0",
+          fitMainContent ? "shrink-0" : "flex-1"
+        )}
+      >
+        {children(layoutState)}
+      </div>
       {enabled && brushStrip ? (
         <div className="min-h-0 shrink-0" style={{ height }}>
           {brushStrip(layoutState)}

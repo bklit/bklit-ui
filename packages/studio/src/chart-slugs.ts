@@ -6,6 +6,7 @@ export const validChartSlugs = [
   "composed-chart",
   "funnel-chart",
   "gauge-chart",
+  "heatmap-chart",
   "line-chart",
   "profit-loss-line",
   "live-line-chart",

@@ -1,0 +1,29 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "heatmap-chart-example",
+  "type": "registry:example",
+  "title": "Heatmap Chart Example",
+  "description": "Composable heatmap-chart demo for Open in v0",
+  "dependencies": [
+    "@visx/heatmap@4.0.1-alpha.0",
+    "@visx/shape@4.0.1-alpha.0",
+    "motion"
+  ],
+  "registryDependencies": [
+    "@bklit/heatmap-chart"
+  ],
+  "files": [
+    {
+      "path": "registry/examples/heatmap-chart.tsx",
+      "content": "\"use client\"\n\n// In your app (monorepo/npm): import { HeatmapCells, HeatmapChart, HeatmapInteractionBoundary, HeatmapInteractionProvider, HeatmapLegend, HeatmapTooltip, HeatmapXAxis, HeatmapYAxis } from \"@bklitui/ui/charts\"\nimport { HeatmapCells, HeatmapChart, HeatmapInteractionBoundary, HeatmapInteractionProvider, HeatmapLegend, HeatmapTooltip, HeatmapXAxis, HeatmapYAxis } from \"@/components/charts\"\n\nconst data = [\n  {\n    bin: 0,\n    bins: [\n      { bin: 0, count: 2, date: new Date(2024, 0, 1) },\n      { bin: 1, count: 0, date: new Date(2024, 0, 2) },\n      { bin: 2, count: 3, date: new Date(2024, 0, 3) },\n      { bin: 3, count: 1, date: new Date(2024, 0, 4) },\n      { bin: 4, count: 4, date: new Date(2024, 0, 5) },\n      { bin: 5, count: 0, date: new Date(2024, 0, 6) },\n      { bin: 6, count: 1, date: new Date(2024, 0, 7) },\n    ],\n  },\n  {\n    bin: 1,\n    bins: [\n      { bin: 0, count: 1, date: new Date(2024, 0, 8) },\n      { bin: 1, count: 2, date: new Date(2024, 0, 9) },\n      { bin: 2, count: 0, date: new Date(2024, 0, 10) },\n      { bin: 3, count: 3, date: new Date(2024, 0, 11) },\n      { bin: 4, count: 2, date: new Date(2024, 0, 12) },\n      { bin: 5, count: 1, date: new Date(2024, 0, 13) },\n      { bin: 6, count: 0, date: new Date(2024, 0, 14) },\n    ],\n  },\n];\n\nexport default function Component() {\n  return (\n    <main className=\"flex min-h-svh w-full items-center justify-center p-6 md:p-10\">\n      <div className=\"w-full max-w-3xl\">\n        <HeatmapInteractionProvider>\n  <HeatmapInteractionBoundary>\n    <div className=\"flex w-full flex-col items-stretch gap-3\">\n      <HeatmapChart className=\"w-full\" data={data} layout=\"fluid\">\n        <HeatmapCells />\n        <HeatmapXAxis />\n        <HeatmapYAxis />\n        <HeatmapTooltip />\n      </HeatmapChart>\n      <HeatmapLegend />\n    </div>\n  </HeatmapInteractionBoundary>\n</HeatmapInteractionProvider>\n      </div>\n    </main>\n  )\n}\n",
+      "type": "registry:page",
+      "target": "app/page.tsx"
+    },
+    {
+      "path": "registry/examples/heatmap-chart-index.ts",
+      "content": "// biome-ignore-all lint/performance/noBarrelFile: v0 registry example barrel for shadcn install\nexport {\n  HeatmapCells,\n  HeatmapChart,\n  HeatmapInteractionBoundary,\n  HeatmapInteractionProvider,\n  HeatmapLegend,\n  HeatmapTooltip,\n  HeatmapXAxis,\n  HeatmapYAxis,\n} from \"./heatmap\";\n",
+      "type": "registry:lib",
+      "target": "components/charts/index.ts"
+    }
+  ]
+}

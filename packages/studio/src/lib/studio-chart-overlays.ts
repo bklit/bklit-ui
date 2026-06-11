@@ -1,6 +1,7 @@
 import type { ChartLegendProps, ChartTooltipProps } from "@bklitui/ui/charts";
 import { cn } from "@bklitui/ui/lib/utils";
 import type { CSSProperties } from "react";
+import { isStudioComponentVisible } from "@/lib/studio-component-visibility";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 
 export function studioTooltipPanelStyle(
@@ -106,4 +107,24 @@ export function chartLegendPropsFromState(
 
 export function studioLegendWrapperStyle(state: StudioUrlState): CSSProperties {
   return { fontSize: state.legendFontSize };
+}
+
+export function studioHeatmapLoadingLabel(
+  state: StudioUrlState
+): string | undefined {
+  return isStudioComponentVisible(state, "heatmap.loading-label")
+    ? state.heatmapLoadingLabel
+    : undefined;
+}
+
+export function studioHeatmapLoadingOpacity(state: StudioUrlState): number {
+  return isStudioComponentVisible(state, "heatmap.loading-cells")
+    ? state.heatmapLoadingOpacity
+    : 1;
+}
+
+export function studioHeatmapLoadingCellsVisible(
+  state: StudioUrlState
+): boolean {
+  return isStudioComponentVisible(state, "heatmap.loading-cells");
 }

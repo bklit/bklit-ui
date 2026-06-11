@@ -1,7 +1,11 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-export type ChartExamplePreviewLayout = "cartesian" | "compact" | "wide";
+export type ChartExamplePreviewLayout =
+  | "cartesian"
+  | "compact"
+  | "wide"
+  | "heatmap";
 
 /** Preview area padding — compact charts can bleed slightly on mobile. */
 export function getChartExampleContentPaddingClassName(
@@ -9,6 +13,10 @@ export function getChartExampleContentPaddingClassName(
 ) {
   if (layout === "compact") {
     return "px-2 py-0 sm:px-4";
+  }
+
+  if (layout === "heatmap") {
+    return "px-3 py-4 sm:px-6 sm:py-5";
   }
 
   return "py-3 sm:py-4";
@@ -33,6 +41,11 @@ export function getChartExamplePreviewFrameClassName(
       return role === "hero"
         ? "w-full min-h-[240px] aspect-video sm:min-h-[320px] sm:aspect-auto"
         : "w-full min-h-[200px] aspect-video sm:min-h-[240px] sm:aspect-auto";
+    case "heatmap":
+      return cn(
+        "flex min-h-0 w-full items-center justify-center",
+        role === "hero" ? "py-2 sm:py-3" : "py-1 sm:py-2"
+      );
     default:
       if (role === "hero") {
         return cn(

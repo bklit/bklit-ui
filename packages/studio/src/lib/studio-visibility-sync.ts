@@ -35,6 +35,8 @@ function legendComponentIdForChart(chart: ChartSlug): string | null {
       return "choropleth.legend";
     case "sankey-chart":
       return "sankey.legend";
+    case "heatmap-chart":
+      return "heatmap.legend";
     default:
       return null;
   }

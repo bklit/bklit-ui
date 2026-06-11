@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useState } from "react";
 import { createPortal } from "react-dom";
+import type { ChartBrushOverlayHost } from "./chart-brush-track-overlay";
 import { useChartStable } from "./chart-context";
 import {
   type PatternPresetId,
@@ -26,14 +27,15 @@ export interface ChartBrushSelectionOverlayProps {
 }
 
 /** Pattern fill between brush handles (`z-[1]`, above blur panes). */
-export function ChartBrushSelectionOverlay({
+export function ChartBrushSelectionOverlayContent({
+  containerRef,
+  margin,
   innerWidth,
   innerHeight,
   selectionX0,
   selectionX1,
   pattern,
-}: ChartBrushSelectionOverlayProps) {
-  const { containerRef, margin } = useChartStable();
+}: ChartBrushSelectionOverlayProps & ChartBrushOverlayHost) {
   const [mounted, setMounted] = useState(false);
   const patternId = useId().replace(/:/g, "");
 
@@ -89,5 +91,19 @@ export function ChartBrushSelectionOverlay({
       />
     </svg>,
     container
+  );
+}
+
+export function ChartBrushSelectionOverlay(
+  props: ChartBrushSelectionOverlayProps
+) {
+  const { containerRef, margin } = useChartStable();
+
+  return (
+    <ChartBrushSelectionOverlayContent
+      {...props}
+      containerRef={containerRef}
+      margin={margin}
+    />
   );
 }
