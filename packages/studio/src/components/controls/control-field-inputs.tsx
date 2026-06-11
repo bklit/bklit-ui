@@ -16,7 +16,7 @@ import {
 import { YesNoSwitch } from "@/ui/yes-no-switch";
 import { studioControlInputClass } from "./control-field-helpers";
 import { CrosshairFadePicker } from "./crosshair-fade-picker";
-import { CurvePicker } from "./curve-picker";
+import { CurvePickerField } from "./curve-picker";
 import { type FadeEdgesOption, FadeEdgesPicker } from "./fade-edges-picker";
 import { FunnelEdgesPicker } from "./funnel-edges-picker";
 import { GraticuleToggle } from "./graticule-toggle";
@@ -86,7 +86,8 @@ export function ControlFieldInputs({
       );
     case "curve":
       return (
-        <CurvePicker
+        <CurvePickerField
+          label={control.label}
           onChange={(v) => onChange(control.key, v as StudioUrlState["curve"])}
           value={value as CurveId}
         />

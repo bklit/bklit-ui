@@ -1,5 +1,6 @@
 "use client";
 
+import { studioFieldLabelClass } from "@/components/controls/control-field-helpers";
 import { IconToggleGroup } from "@/components/controls/icon-toggle-group";
 import { StudioToggleGroupItem } from "@/components/controls/studio-toggle-group";
 import type { CurveId } from "@/lib/curves";
@@ -35,7 +36,29 @@ export function CurvePicker({
   );
 }
 
-export function LineGroupHeaderCurve({
+export function CurvePickerField({
+  label = "Curve",
+  value,
+  onChange,
+}: {
+  label?: string;
+  value: CurveId;
+  onChange: (v: CurveId) => void;
+}) {
+  const selectedName =
+    CURVE_OPTIONS.find((opt) => opt.value === value)?.label ?? value;
+
+  return (
+    <div className="flex flex-col gap-2">
+      <span className={studioFieldLabelClass}>
+        {label}: {selectedName}
+      </span>
+      <CurvePicker onChange={onChange} value={value} />
+    </div>
+  );
+}
+
+export function LineCurveField({
   control,
   state,
   onChange,
@@ -54,7 +77,8 @@ export function LineGroupHeaderCurve({
       : getSeriesScopedControlValue(state, "curve", seriesIndex);
 
   return (
-    <CurvePicker
+    <CurvePickerField
+      label={control.label}
       onChange={(next) => {
         if (seriesIndex !== undefined) {
           const updates = buildSeriesScopedControlUpdate(
