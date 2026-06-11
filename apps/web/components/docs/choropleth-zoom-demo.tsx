@@ -1,12 +1,12 @@
 "use client";
 
+import { Icon } from "@bklitui/icons";
 import {
   ChoroplethChart,
   ChoroplethFeatureComponent,
   ChoroplethTooltip,
   useChoroplethZoom,
 } from "@bklitui/ui/charts";
-import { ZoomIn, ZoomOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useWorldDataStandalone } from "./use-world-data";
 
@@ -25,7 +25,7 @@ function ZoomControls() {
         size="icon"
         variant="secondary"
       >
-        <ZoomIn className="size-5" />
+        <Icon className="size-5" name="IconZoomIn" />
       </Button>
       <Button
         className="size-10 rounded-lg shadow-md"
@@ -33,7 +33,7 @@ function ZoomControls() {
         size="icon"
         variant="secondary"
       >
-        <ZoomOut className="size-5" />
+        <Icon className="size-5" name="IconZoomOut" />
       </Button>
     </div>
   );

@@ -1,8 +1,8 @@
 "use client";
 
 import type { NumberField as NumberFieldPrimitive } from "@base-ui/react/number-field";
+import { Icon } from "@bklitui/icons";
 import { cn } from "@bklitui/ui/lib/utils";
-import { ArrowLeftRight, ArrowUpDown } from "lucide-react";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import {
   studioControlInputClass,
@@ -150,10 +150,10 @@ export function ScrubNumberField({
           pixelSensitivity={5}
         >
           {scrubIcon ?? (
-            <ArrowUpDown aria-hidden className="size-3.5" strokeWidth={1.75} />
+            <Icon aria-hidden className="size-3.5" name="IconSortArrowUpDown" />
           )}
           <NumberFieldScrubAreaCursor className="pointer-events-none rounded-sm bg-foreground px-1 py-0.5 text-background shadow-md">
-            <ArrowLeftRight aria-hidden className="size-3" strokeWidth={2} />
+            <Icon aria-hidden className="size-3" name="IconArrowLeftRight" />
           </NumberFieldScrubAreaCursor>
         </NumberFieldScrubArea>
         <NumberFieldInput

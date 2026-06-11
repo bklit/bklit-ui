@@ -1,7 +1,6 @@
 "use client";
 
-import { Search01Icon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
+import { Icon } from "@bklitui/icons";
 import { useSearchContext } from "fumadocs-ui/contexts/search";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -37,12 +36,7 @@ export function DocsSearchTrigger({ className }: { className?: string }) {
       onClick={() => setOpenSearch(true)}
       type="button"
     >
-      <HugeiconsIcon
-        className="text-muted-foreground"
-        icon={Search01Icon}
-        size={14}
-        strokeWidth={1.75}
-      />
+      <Icon className="size-3.5 text-muted-foreground" name="IconQuickSearch" />
       <SearchShortcut />
     </button>
   );

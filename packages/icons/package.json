@@ -1,0 +1,24 @@
+{
+  "name": "@bklitui/icons",
+  "version": "0.0.0",
+  "license": "UNLICENSED",
+  "private": true,
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@central-icons-react/all": "^1.1.260"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0"
+  },
+  "devDependencies": {
+    "@bklitui/typescript-config": "workspace:*",
+    "@types/react": "19.2.2",
+    "typescript": "5.9.2"
+  }
+}

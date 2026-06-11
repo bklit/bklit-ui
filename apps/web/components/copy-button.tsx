@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckIcon, CopyIcon } from "lucide-react";
+import { Icon } from "@bklitui/icons";
 import { useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
 
@@ -31,16 +31,18 @@ export function CopyButton({
       variant="ghost"
     >
       <span className="relative block size-3">
-        <CopyIcon
+        <Icon
           className="absolute inset-0 size-3 transition-all duration-300 ease-out"
+          name="IconClipboard2"
           style={{
             opacity: copied ? 0 : 1,
             filter: copied ? "blur(4px)" : "blur(0px)",
             transform: copied ? "scale(0.8)" : "scale(1)",
           }}
         />
-        <CheckIcon
+        <Icon
           className="absolute inset-0 size-3 transition-all duration-300 ease-out"
+          name="IconCheckmark1"
           style={{
             opacity: copied ? 1 : 0,
             filter: copied ? "blur(0px)" : "blur(4px)",

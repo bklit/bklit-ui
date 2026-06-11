@@ -1,8 +1,7 @@
 "use client";
 
+import { Icon } from "@bklitui/icons";
 import { cn } from "@bklitui/ui/lib/utils";
-import { UnfoldMoreIcon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
 import { useState } from "react";
 import {
   COLOR_PRESETS,
@@ -60,10 +59,9 @@ export function PresetSelect({
         <span className="max-w-[7.5rem] truncate">
           {active?.label ?? "Theme"}
         </span>
-        <HugeiconsIcon
+        <Icon
           className="size-3.5 shrink-0 text-muted-foreground"
-          icon={UnfoldMoreIcon}
-          strokeWidth={2}
+          name="IconChevronGrabberVertical"
         />
       </PopoverTrigger>
       <PopoverContent

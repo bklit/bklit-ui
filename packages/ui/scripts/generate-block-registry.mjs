@@ -21,7 +21,7 @@ const registryPath = join(uiRoot, "registry.json");
 
 const TREND_BADGE_REGISTRY = `"use client";
 
-import { ArrowDown, ArrowUp } from "lucide-react";
+import { CentralIcon } from "@central-icons-react/all";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
@@ -33,7 +33,6 @@ export function TrendBadge({
   className?: string;
 }) {
   const positive = value >= 0;
-  const Icon = positive ? ArrowUp : ArrowDown;
 
   return (
     <Badge
@@ -44,7 +43,15 @@ export function TrendBadge({
       )}
       variant={positive ? "outline" : "destructive"}
     >
-      <Icon className="size-3" data-icon="inline-start" />
+      <CentralIcon
+        className="size-3"
+        data-icon="inline-start"
+        fill="outlined"
+        join="round"
+        name={positive ? "IconArrowUp" : "IconArrowDown"}
+        radius="0"
+        stroke="1.5"
+      />
       {positive ? "+" : ""}
       {value.toFixed(1)}%
     </Badge>
@@ -83,7 +90,7 @@ const BLOCKS = {
       "@visx/curve@4.0.1-alpha.0",
       "@visx/gradient@4.0.1-alpha.0",
       "@number-flow/react",
-      "lucide-react",
+      "@central-icons-react/all",
     ],
     files: [
       "components/stat-card-area.tsx",
@@ -107,7 +114,7 @@ const BLOCKS = {
     dependencies: [
       "@visx/curve@4.0.1-alpha.0",
       "@number-flow/react",
-      "lucide-react",
+      "@central-icons-react/all",
     ],
     files: [
       "components/stat-card-line.tsx",
@@ -132,7 +139,7 @@ const BLOCKS = {
       "@number-flow/react",
       "@types/geojson",
       "@types/topojson-specification",
-      "lucide-react",
+      "@central-icons-react/all",
       "topojson-client",
     ],
     files: [

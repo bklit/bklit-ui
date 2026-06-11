@@ -1,10 +1,10 @@
 "use client";
 
+import { Icon } from "@bklitui/icons";
 import { cn } from "@bklitui/ui/lib/utils";
-import { ChevronDownIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
-import { studioSectionLabelClass } from "@/components/controls/control-field-helpers";
+import { studioSectionLabelClass } from "@/lib/studio-chrome-classes";
 
 /**
  * Sidebar section wrapper for a group of studio controls.
@@ -48,11 +48,12 @@ export function StudioControlGroup({
             onClick={() => setOpen((value) => !value)}
             type="button"
           >
-            <ChevronDownIcon
+            <Icon
               className={cn(
                 "size-3.5 shrink-0 text-muted-foreground transition-transform",
                 !open && "-rotate-90"
               )}
+              name="IconChevronDownSmall"
             />
             <h3 className={studioSectionLabelClass}>{title}</h3>
           </button>

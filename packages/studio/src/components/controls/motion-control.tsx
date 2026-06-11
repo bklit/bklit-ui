@@ -3,8 +3,8 @@
 import { MotionEasePresetGrid } from "@/components/controls/motion-ease-preset-grid";
 import { SliderInputGroup } from "@/components/controls/slider-input-group";
 import {
-  StudioTab,
-  StudioTabs,
+  StudioToggleGroup,
+  StudioToggleGroupItem,
 } from "@/components/controls/studio-toggle-group";
 import { motionDurationToAnimationMs } from "@/lib/chart-animation";
 import { MOTION_EASE_PRESETS, type MotionType } from "@/lib/motion-config";
@@ -25,13 +25,17 @@ function MotionTypeToggle({
   onChange: (v: MotionType) => void;
 }) {
   return (
-    <StudioTabs layout="segmented" onValueChange={onChange} value={value}>
+    <StudioToggleGroup
+      layout="segmented"
+      onValueChange={onChange}
+      value={value}
+    >
       {(["ease", "spring"] as const).map((type) => (
-        <StudioTab key={type} value={type}>
+        <StudioToggleGroupItem key={type} value={type}>
           {MOTION_TYPE_LABELS[type]}
-        </StudioTab>
+        </StudioToggleGroupItem>
       ))}
-    </StudioTabs>
+    </StudioToggleGroup>
   );
 }
 

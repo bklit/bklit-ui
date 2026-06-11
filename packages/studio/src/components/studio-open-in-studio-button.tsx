@@ -26,7 +26,7 @@ export function StudioOpenInStudioButton({ href }: { href: string }) {
         </a>
       }
       size="sm"
-      variant="white"
+      variant="default"
     />
   );
 }

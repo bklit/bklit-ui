@@ -1,7 +1,7 @@
 "use client";
 
+import { Icon } from "@bklitui/icons";
 import { cn } from "@bklitui/ui/lib/utils";
-import { VideoCameraIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
 import { useStudioToolbarTooltipSide } from "@/components/studio-toolbar-tooltips";
 import {
@@ -90,7 +90,7 @@ export function StudioRecordPopover({
               />
             }
           >
-            <VideoCameraIcon aria-hidden className={iconClassName} />
+            <Icon aria-hidden className={iconClassName} name="IconVideo" />
           </PopoverTrigger>
         </TooltipTrigger>
         <TooltipContent side={tooltipSide}>
@@ -195,7 +195,7 @@ export function StudioRecordPopover({
           }}
           type="button"
         >
-          <VideoCameraIcon aria-hidden className="mr-2 size-4" />
+          <Icon aria-hidden className="mr-2 size-4" name="IconVideo" />
           Start recording
         </Button>
       </PopoverContent>

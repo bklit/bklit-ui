@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckIcon, ChevronDownIcon, CopyIcon } from "lucide-react";
+import { Icon } from "@bklitui/icons";
 import { useState } from "react";
 import { getAnalyticsUrl, trackEvent } from "@/lib/analytics/track-client";
 import { Button } from "../ui/button";
@@ -62,16 +62,18 @@ export function CopyPageButton({ content, url, title }: CopyPageButtonProps) {
         variant="outline"
       >
         <span className="relative size-3.5">
-          <CopyIcon
+          <Icon
             className="absolute inset-0 size-3.5 transition-all duration-300 ease-out"
+            name="IconClipboard2"
             style={{
               opacity: copied ? 0 : 1,
               filter: copied ? "blur(4px)" : "blur(0px)",
               transform: copied ? "scale(0.8)" : "scale(1)",
             }}
           />
-          <CheckIcon
+          <Icon
             className="absolute inset-0 size-3.5 transition-all duration-300 ease-out"
+            name="IconCheckmark1"
             style={{
               opacity: copied ? 1 : 0,
               filter: copied ? "blur(0px)" : "blur(4px)",
@@ -91,7 +93,7 @@ export function CopyPageButton({ content, url, title }: CopyPageButtonProps) {
             />
           }
         >
-          <ChevronDownIcon />
+          <Icon className="size-4" name="IconChevronDownSmall" />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="!w-auto min-w-max">
           <DropdownMenuItem

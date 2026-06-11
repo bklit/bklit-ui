@@ -1,6 +1,6 @@
 "use client";
 
-import { MoonIcon, SunIcon } from "lucide-react";
+import { Icon } from "@bklitui/icons";
 import { useTheme } from "next-themes";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "./ui/button";
@@ -72,7 +72,11 @@ export function ModeToggle() {
       title={`Switch to ${isDark ? "light" : "dark"} mode (D)`}
       variant="ghost"
     >
-      {isDark ? <SunIcon /> : <MoonIcon />}
+      {isDark ? (
+        <Icon className="size-5" name="IconSun" />
+      ) : (
+        <Icon className="size-5" name="IconMoon" />
+      )}
     </Button>
   );
 }

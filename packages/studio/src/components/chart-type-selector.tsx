@@ -1,14 +1,13 @@
 "use client";
 
+import { Icon } from "@bklitui/icons";
 import { cn } from "@bklitui/ui/lib/utils";
-import { UnfoldMoreIcon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
 import { useState } from "react";
 import { ChartTypeIcon } from "@/components/chart-type-icons";
 import { studioChartList } from "@/lib/registry";
 import type { ChartSlug } from "@/lib/types";
+import { Button } from "@/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/ui/popover";
-import { StudioControlSurface } from "@/ui/studio-control-surface";
 import {
   studioSidebarPopoverCollisionAvoidance,
   studioSidebarPopoverSideOffset,
@@ -30,10 +29,11 @@ export function ChartTypeSelector({
         aria-expanded={open}
         id="studio-chart"
         render={
-          <StudioControlSurface
-            align="start"
+          <Button
             aria-expanded={open}
+            className="h-8 w-full justify-start text-left text-xs"
             type="button"
+            variant="outline"
           />
         }
       >
@@ -41,10 +41,9 @@ export function ChartTypeSelector({
         <span className="min-w-0 flex-1 truncate font-medium">
           {active?.label ?? "Chart"}
         </span>
-        <HugeiconsIcon
+        <Icon
           className="size-3.5 shrink-0 text-muted-foreground"
-          icon={UnfoldMoreIcon}
-          strokeWidth={2}
+          name="IconChevronGrabberVertical"
         />
       </PopoverTrigger>
       <PopoverContent
@@ -62,9 +61,9 @@ export function ChartTypeSelector({
           {studioChartList.map((item) => {
             const selected = item.slug === value;
             return (
-              <button
+              <Button
                 className={cn(
-                  "flex items-center gap-2 rounded-lg px-2 py-2 text-left transition-colors",
+                  "h-auto w-full justify-start gap-2 rounded-lg px-2 py-2 text-left font-normal",
                   selected
                     ? "bg-accent/50 text-foreground ring-1 ring-accent/25"
                     : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
@@ -75,12 +74,13 @@ export function ChartTypeSelector({
                   setOpen(false);
                 }}
                 type="button"
+                variant="ghost"
               >
                 <ChartTypeIcon slug={item.slug} />
                 <span className="min-w-0 flex-1 truncate text-[11px] leading-tight">
                   {item.label}
                 </span>
-              </button>
+              </Button>
             );
           })}
         </div>

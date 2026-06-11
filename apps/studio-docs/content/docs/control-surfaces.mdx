@@ -1,12 +1,9 @@
 ---
-title: Control Surfaces
-description: Sidebar triggers and segmented tab chrome via StudioControlSurface
+title: Sidebar controls
+description: Default shadcn Button and ToggleGroup in the Studio sidebar
 ---
 
-`StudioControlSurface` applies the `.studio-control-surface` class — gradient triggers, inset bevel, and pressed states used across the editor sidebars.
-
-**Source:** `packages/studio/src/ui/studio-control-surface.tsx`  
-**Tokens:** `--studio-control-surface-*` in `studio-theme.css`
+Sidebar triggers use shadcn `Button variant="outline"`. Option sets use `StudioToggleGroup` (a layout wrapper over shadcn `ToggleGroup`) — see [Toggle groups](/docs/toggle-groups).
 
 <ComponentShowcase>
   <StudioUiPreview>
@@ -17,9 +14,9 @@ description: Sidebar triggers and segmented tab chrome via StudioControlSurface
 ## Usage
 
 ```tsx
-import { StudioControlSurface } from "@/ui/studio-control-surface";
+import { Button } from "@/ui/button";
 
-<StudioControlSurface type="button">Chart type</StudioControlSurface>
+<Button className="h-8 w-full justify-start text-xs" variant="outline" type="button">
+  Chart type
+</Button>
 ```
-
-Segmented groups use `.studio-control-surface-group` on a wrapper — see [Tabs](/docs/tabs).

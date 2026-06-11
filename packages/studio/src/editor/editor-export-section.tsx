@@ -1,13 +1,11 @@
 "use client";
 
+import { Icon } from "@bklitui/icons";
 import { cn } from "@bklitui/ui/lib/utils";
-import { VideoCameraIcon } from "@heroicons/react/24/outline";
-import { Download01Icon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
 import { useState } from "react";
 import {
-  StudioTab,
-  StudioTabs,
+  StudioToggleGroup,
+  StudioToggleGroupItem,
 } from "@/components/controls/studio-toggle-group";
 import { StudioControlGroup } from "@/components/studio-control-group";
 import {
@@ -78,14 +76,16 @@ export function EditorExportSection({
         </div>
       ) : (
         <div className="flex flex-col gap-3">
-          <StudioTabs
+          <StudioToggleGroup
             layout="segmented"
             onValueChange={(value) => setMode(value as ExportMode)}
             value={mode}
           >
-            <StudioTab value="svg">SVG</StudioTab>
-            <StudioTab value="recording">Recording</StudioTab>
-          </StudioTabs>
+            <StudioToggleGroupItem value="svg">SVG</StudioToggleGroupItem>
+            <StudioToggleGroupItem value="recording">
+              Recording
+            </StudioToggleGroupItem>
+          </StudioToggleGroup>
 
           {mode === "recording" ? (
             <>
@@ -97,19 +97,19 @@ export function EditorExportSection({
                   {STUDIO_RECORDING_ASPECT_OPTIONS.map((opt) => {
                     const selected = aspect === opt.value;
                     return (
-                      <button
+                      <Button
                         className={cn(
-                          "rounded-md border px-2 py-2 text-left text-xs transition-colors",
-                          selected
-                            ? "border-primary/40 bg-primary/10 text-foreground"
-                            : "border-border bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                          "h-auto w-full justify-start px-2 py-2 text-left font-normal text-xs",
+                          selected &&
+                            "border-primary/40 bg-primary/10 text-foreground"
                         )}
                         key={opt.value}
                         onClick={() => setAspect(opt.value)}
                         type="button"
+                        variant="outline"
                       >
                         {opt.label}
-                      </button>
+                      </Button>
                     );
                   })}
                 </div>
@@ -123,19 +123,19 @@ export function EditorExportSection({
                   {STUDIO_RECORDING_INTERACTION_OPTIONS.map((opt) => {
                     const selected = interactionMs === opt.value;
                     return (
-                      <button
+                      <Button
                         className={cn(
-                          "rounded-md border px-2 py-2 text-left text-xs transition-colors",
-                          selected
-                            ? "border-primary/40 bg-primary/10 text-foreground"
-                            : "border-border bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                          "h-auto w-full justify-start px-2 py-2 text-left font-normal text-xs",
+                          selected &&
+                            "border-primary/40 bg-primary/10 text-foreground"
                         )}
                         key={opt.value}
                         onClick={() => setInteractionMs(opt.value)}
                         type="button"
+                        variant="outline"
                       >
                         {opt.label}
-                      </button>
+                      </Button>
                     );
                   })}
                 </div>
@@ -187,17 +187,12 @@ export function EditorExportSection({
           >
             {mode === "svg" ? (
               <>
-                <HugeiconsIcon
-                  className="mr-2"
-                  icon={Download01Icon}
-                  size={16}
-                  strokeWidth={1.5}
-                />
+                <Icon className="mr-2 size-4" name="IconFileDownload" />
                 Export SVG
               </>
             ) : (
               <>
-                <VideoCameraIcon aria-hidden className="mr-2 size-4" />
+                <Icon aria-hidden className="mr-2 size-4" name="IconVideo" />
                 Start recording
               </>
             )}

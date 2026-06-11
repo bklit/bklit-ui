@@ -1,7 +1,6 @@
 "use client";
 
-import { ArrowRightIcon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
+import { Icon } from "@bklitui/icons";
 import { ShimmeringText } from "@/components/shimmering-text";
 import { Button } from "@/ui/button";
 import { ParticleBadge } from "./particle-badge";
@@ -34,7 +33,7 @@ export function StudioVersionPill({
         >
           <ShimmeringText className="leading-none" text="Version 2" />
           {showChevron ? (
-            <HugeiconsIcon className="size-3.5" icon={ArrowRightIcon} />
+            <Icon className="size-3.5" name="IconArrowRight" />
           ) : null}
         </span>
       </Button>

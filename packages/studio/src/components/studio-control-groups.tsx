@@ -6,6 +6,7 @@ import { MotionControl } from "@/components/controls/motion-control";
 import { MotionResetButton } from "@/components/controls/motion-reset-button";
 import { StudioControlGroup } from "@/components/studio-control-group";
 import { isStudioControlVisible } from "@/lib/pattern-control-visibility";
+import { studioMotionSectionClass } from "@/lib/studio-chrome-classes";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import type {
   StudioChartConfig,
@@ -44,7 +45,7 @@ export function StudioControlGroups({
     <div className="studio-control-groups w-full min-w-0 space-y-0 pb-4">
       {motionPanel ? (
         <StudioControlGroup
-          className="studio-motion-section"
+          className={studioMotionSectionClass}
           title="Motion"
           titleTrailing={
             <MotionResetButton onCommit={onCommit} state={state} />

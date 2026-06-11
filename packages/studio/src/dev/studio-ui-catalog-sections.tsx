@@ -1,15 +1,7 @@
 "use client";
 
-import {
-  AlignLeftIcon,
-  AlignRightIcon,
-  SquareIcon,
-} from "@hugeicons/core-free-icons";
 import { type ReactNode, useCallback, useState } from "react";
-import {
-  StudioControlRow,
-  studioSectionLabelClass,
-} from "@/components/controls/control-field-helpers";
+import { StudioControlRow } from "@/components/controls/control-field-helpers";
 import { FillPicker } from "@/components/controls/fill-picker";
 import {
   IconToggleButton,
@@ -23,15 +15,20 @@ import { OpacityControl } from "@/components/controls/opacity-control";
 import { PatternPicker } from "@/components/controls/pattern-picker";
 import { ScrubNumberField } from "@/components/controls/scrub-number-field";
 import {
-  StudioTab,
-  StudioTabs,
+  StudioToggleGroup,
+  StudioToggleGroupItem,
 } from "@/components/controls/studio-toggle-group";
 import { CurvePreviewIcon } from "@/components/curve-preview-icons";
 import { StudioControlGroup } from "@/components/studio-control-group";
 import type { CurveId } from "@/lib/curves";
 import { MOTION_EASE_PRESETS } from "@/lib/motion-config";
 import type { PatternPresetId } from "@/lib/pattern-presets";
+import {
+  studioMotionSectionClass,
+  studioSectionLabelClass,
+} from "@/lib/studio-chrome-classes";
 import { defaultStudioState, type StudioUrlState } from "@/lib/studio-parsers";
+import { cn } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "@/ui/alert";
 import { Button } from "@/ui/button";
 import { Input } from "@/ui/input";
@@ -44,7 +41,6 @@ import {
   SelectValue,
 } from "@/ui/select";
 import { Spinner } from "@/ui/spinner";
-import { StudioControlSurface } from "@/ui/studio-control-surface";
 import { Switch } from "@/ui/switch";
 import { Textarea } from "@/ui/textarea";
 import {
@@ -121,22 +117,21 @@ export function SurfacesDemo() {
     <DemoControlGroups>
       <StudioControlGroup collapsible defaultOpen title="Examples">
         <div className="flex flex-col gap-2">
-          <StudioControlSurface type="button">Chart type</StudioControlSurface>
-          <StudioControlSurface aria-pressed="true" type="button">
-            Pressed
-          </StudioControlSurface>
-          <div className="studio-control-surface-group flex">
-            <StudioControlSurface className="flex-1" type="button">
-              Ease
-            </StudioControlSurface>
-            <StudioControlSurface
-              aria-pressed="true"
-              className="flex-1"
-              type="button"
-            >
-              Spring
-            </StudioControlSurface>
-          </div>
+          <Button
+            className="h-8 w-full justify-start text-xs"
+            type="button"
+            variant="outline"
+          >
+            Chart type
+          </Button>
+          <StudioToggleGroup
+            layout="segmented"
+            onValueChange={() => undefined}
+            value="ease"
+          >
+            <StudioToggleGroupItem value="ease">Ease</StudioToggleGroupItem>
+            <StudioToggleGroupItem value="spring">Spring</StudioToggleGroupItem>
+          </StudioToggleGroup>
         </div>
       </StudioControlGroup>
     </DemoControlGroups>
@@ -146,16 +141,16 @@ export function SurfacesDemo() {
 export function SurfacesSection() {
   return (
     <CatalogSection
-      description="Sidebar triggers and segmented controls. Tokens: --studio-control-surface-* in studio-theme.css."
+      description="Default shadcn Button and ToggleGroup in the Studio sidebar."
       id="surfaces"
-      title="Control surfaces"
+      title="Sidebar controls"
     >
       <SurfacesDemo />
     </CatalogSection>
   );
 }
 
-export function TabsDemo() {
+export function ToggleGroupDemo() {
   const [segmented, setSegmented] = useState("solid");
   const [icons, setIcons] = useState("left");
   const [curve, setCurve] = useState<CurveId>("natural");
@@ -163,51 +158,69 @@ export function TabsDemo() {
   return (
     <DemoControlGroups>
       <StudioControlGroup collapsible defaultOpen title="Segmented">
-        <StudioTabs
+        <StudioToggleGroup
           layout="segmented"
           onValueChange={setSegmented}
           value={segmented}
         >
-          <StudioTab value="solid">Solid</StudioTab>
-          <StudioTab value="pattern">Pattern</StudioTab>
-        </StudioTabs>
+          <StudioToggleGroupItem value="solid">Solid</StudioToggleGroupItem>
+          <StudioToggleGroupItem value="pattern">Pattern</StudioToggleGroupItem>
+        </StudioToggleGroup>
       </StudioControlGroup>
       <StudioControlGroup collapsible defaultOpen title="Icons">
         <IconToggleGroup onValueChange={setIcons} value={icons}>
-          <IconToggleButton icon={AlignLeftIcon} label="Left" value="left" />
-          <IconToggleButton icon={AlignRightIcon} label="Right" value="right" />
-          <IconToggleButton icon={SquareIcon} label="Square" value="square" />
+          <IconToggleButton
+            icon="IconLayoutAlignLeft"
+            label="Left"
+            value="left"
+          />
+          <IconToggleButton
+            icon="IconLayoutAlignRight"
+            label="Right"
+            value="right"
+          />
+          <IconToggleButton
+            icon="IconFormSquare"
+            label="Square"
+            value="square"
+          />
         </IconToggleGroup>
       </StudioControlGroup>
       <StudioControlGroup collapsible defaultOpen title="Cards (2 col)">
-        <StudioTabs
+        <StudioToggleGroup
           layout="cards-2"
           onValueChange={(v) => setCurve(v as CurveId)}
           value={curve}
         >
           {(["natural", "linear", "step", "basis"] as const).map((id) => (
-            <StudioTab key={id} value={id}>
+            <StudioToggleGroupItem key={id} value={id}>
               <CurvePreviewIcon className="mx-auto" curveId={id} />
               <span className="mt-1 text-[10px] capitalize">{id}</span>
-            </StudioTab>
+            </StudioToggleGroupItem>
           ))}
-        </StudioTabs>
+        </StudioToggleGroup>
       </StudioControlGroup>
     </DemoControlGroups>
   );
 }
 
-export function TabsSection() {
+export function ToggleGroupSection() {
   return (
     <CatalogSection
-      description="StudioTabs layouts used across property controls."
-      id="tabs"
-      title="Studio tabs"
+      description="shadcn ToggleGroup layouts used across property controls."
+      id="toggle-groups"
+      title="Toggle groups"
     >
-      <TabsDemo />
+      <ToggleGroupDemo />
     </CatalogSection>
   );
 }
+
+/** @deprecated Use `ToggleGroupDemo`. */
+export const TabsDemo = ToggleGroupDemo;
+
+/** @deprecated Use `ToggleGroupSection`. */
+export const TabsSection = ToggleGroupSection;
 
 export function PrimitivesDemo() {
   return (
@@ -329,7 +342,7 @@ export function MotionBezierDemo() {
   return (
     <DemoControlGroups>
       <StudioControlGroup
-        className="studio-motion-section"
+        className={studioMotionSectionClass}
         collapsible
         defaultOpen
         title="Curve"
@@ -369,7 +382,7 @@ export function MotionControlDemo() {
   return (
     <DemoControlGroups>
       <StudioControlGroup
-        className="studio-motion-section"
+        className={studioMotionSectionClass}
         collapsible
         defaultOpen
         title="Motion"
@@ -393,7 +406,7 @@ export function MotionSection() {
       id="motion"
       title="Motion"
     >
-      <div className="studio-motion-section flex flex-col gap-8">
+      <div className={cn(studioMotionSectionClass, "flex flex-col gap-8")}>
         <div className="space-y-2">
           <p className={studioSectionLabelClass}>Bezier editor</p>
           <MotionBezierDemo />
@@ -457,7 +470,7 @@ export function PickersDemo() {
 export function PickersSection() {
   return (
     <CatalogSection
-      description="Placement and icon pickers built on Studio tabs."
+      description="Placement and icon pickers built on ToggleGroup layouts."
       id="pickers"
       title="Pickers"
     >
@@ -510,7 +523,7 @@ export function FeedbackSection() {
 
 export const CATALOG_SECTIONS = [
   { id: "surfaces", label: "Surfaces" },
-  { id: "tabs", label: "Tabs" },
+  { id: "toggle-groups", label: "Toggle groups" },
   { id: "primitives", label: "Primitives" },
   { id: "fields", label: "Fields" },
   { id: "motion", label: "Motion" },

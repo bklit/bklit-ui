@@ -1,8 +1,8 @@
 "use client";
 
 import {
-  StudioTab,
-  StudioTabs,
+  StudioToggleGroup,
+  StudioToggleGroupItem,
 } from "@/components/controls/studio-toggle-group";
 
 export function StrokeStylePicker({
@@ -13,13 +13,13 @@ export function StrokeStylePicker({
   onChange: (value: "solid" | "dashed") => void;
 }) {
   return (
-    <StudioTabs onValueChange={onChange} value={value}>
-      <StudioTab aria-label="Solid" value="solid">
+    <StudioToggleGroup onValueChange={onChange} value={value}>
+      <StudioToggleGroupItem aria-label="Solid" value="solid">
         Solid
-      </StudioTab>
-      <StudioTab aria-label="Dashed" value="dashed">
+      </StudioToggleGroupItem>
+      <StudioToggleGroupItem aria-label="Dashed" value="dashed">
         Dashed
-      </StudioTab>
-    </StudioTabs>
+      </StudioToggleGroupItem>
+    </StudioToggleGroup>
   );
 }

@@ -10,14 +10,15 @@ import {
 } from "react";
 import { studioFieldLabelClass } from "@/components/controls/control-field-helpers";
 import {
-  StudioTab,
-  StudioTabs,
+  StudioToggleGroup,
+  StudioToggleGroupItem,
 } from "@/components/controls/studio-toggle-group";
 import {
   type LegendPositionId,
   legendPositionId,
   parseLegendPositionId,
 } from "@/lib/legend-position";
+import { studioLegendRingPathClass } from "@/lib/studio-chrome-classes";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import { Label } from "@/ui/label";
 
@@ -38,11 +39,11 @@ function LegendToggleRing() {
     // biome-ignore lint/a11y/noSvgWithoutTitle: decorative ring, toggle has aria-label
     <svg
       aria-hidden
-      className="legend-position-picker__ring pointer-events-none size-5 shrink-0"
+      className="pointer-events-none size-5 shrink-0"
       viewBox="0 0 20 20"
     >
       <circle
-        className="legend-position-picker__ring-path"
+        className={studioLegendRingPathClass}
         cx="10"
         cy="10"
         pathLength={1}
@@ -60,15 +61,15 @@ function LegendPositionToggle({
   label: string;
 }) {
   return (
-    <StudioTab
+    <StudioToggleGroupItem
       aria-label={label}
-      className={`legend-position-picker__toggle--${id}`}
+      className="active:not-data-pressed:scale-[0.97] motion-reduce:active:scale-100"
       data-position={id}
       title={label}
       value={id}
     >
       <LegendToggleRing />
-    </StudioTab>
+    </StudioToggleGroupItem>
   );
 }
 
@@ -89,7 +90,7 @@ function useActiveRingCenter(
     if (!cell) {
       return;
     }
-    const ring = cell.querySelector(".legend-position-picker__ring");
+    const ring = cell.querySelector("svg");
     const target = ring ?? cell;
     const pickerRect = picker.getBoundingClientRect();
     const targetRect = target.getBoundingClientRect();
@@ -133,12 +134,12 @@ export function LegendPositionPicker({
   return (
     <div className="space-y-2">
       <Label className={studioFieldLabelClass}>Placement</Label>
-      <div className="legend-position-picker" ref={pickerRef}>
+      <div className="relative w-full" ref={pickerRef}>
         {center ? (
           <motion.span
             animate={{ x: center.x, y: center.y }}
             aria-hidden
-            className="legend-position-picker__dot pointer-events-none absolute top-0 left-0 z-[2] size-1 rounded-full bg-foreground"
+            className="pointer-events-none absolute top-0 left-0 z-[2] size-1 rounded-full bg-foreground"
             initial={false}
             style={{
               translate: "-50% -50%",
@@ -151,7 +152,7 @@ export function LegendPositionPicker({
             }
           />
         ) : null}
-        <StudioTabs
+        <StudioToggleGroup
           layout="legend"
           onValueChange={(next) => {
             const parsed = parseLegendPositionId(next as LegendPositionId);
@@ -162,7 +163,7 @@ export function LegendPositionPicker({
           {POSITIONS.map((pos) => (
             <LegendPositionToggle id={pos.id} key={pos.id} label={pos.label} />
           ))}
-        </StudioTabs>
+        </StudioToggleGroup>
       </div>
     </div>
   );

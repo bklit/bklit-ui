@@ -1,13 +1,4 @@
-import {
-  AlignBottomIcon,
-  AlignLeftIcon,
-  CursorPointer02Icon,
-  GridIcon,
-  LayerIcon,
-  LeftToRightListDashIcon,
-  TextIcon,
-} from "@hugeicons/core-free-icons";
-import type { IconSvgElement } from "@hugeicons/react";
+import type { IconName } from "@bklitui/icons";
 import { getChartTypeIcon } from "@/components/chart-type-icons";
 import type { ChartSlug, StudioComponentDefinition } from "@/lib/types";
 
@@ -53,31 +44,31 @@ function isCenterText(component: StudioComponentDefinition): boolean {
   );
 }
 
-/** Hugeicons marker for a row in the studio components panel (excluding color dots). */
+/** Central icon for a row in the studio components panel (excluding color dots). */
 export function resolveStudioComponentTreeIcon(
   component: StudioComponentDefinition,
   chartSlug: ChartSlug
-): IconSvgElement {
+): IconName {
   if (isChartRoot(component)) {
     return getChartTypeIcon(chartSlug);
   }
   if (isLegend(component)) {
-    return LeftToRightListDashIcon;
+    return "IconListBullets";
   }
   if (isGrid(component) || isGraticule(component)) {
-    return GridIcon;
+    return "IconCanvasGrid";
   }
   if (isYAxis(component)) {
-    return AlignLeftIcon;
+    return "IconLayoutAlignLeft";
   }
   if (isXAxis(component)) {
-    return AlignBottomIcon;
+    return "IconLayoutAlignBottom";
   }
   if (isTooltip(component)) {
-    return CursorPointer02Icon;
+    return "IconCursorClick";
   }
   if (isCenterText(component)) {
-    return TextIcon;
+    return "IconNoteText";
   }
-  return LayerIcon;
+  return "IconLayersTwo";
 }

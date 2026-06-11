@@ -1,46 +1,29 @@
 "use client";
 
+import { Icon, type IconName } from "@bklitui/icons";
 import { cn } from "@bklitui/ui/lib/utils";
-import {
-  Activity01Icon,
-  BarChartIcon,
-  ChartAreaIcon,
-  ChartBarLineIcon,
-  ChartCandlestickIcon,
-  ChartLineData01Icon,
-  ChartRadarIcon,
-  ChartRingIcon,
-  ChartScatterIcon,
-  DashboardSpeed01Icon,
-  Flowchart02Icon,
-  GlobeIcon,
-  GridIcon,
-  PieChartIcon,
-  PyramidStructure01Icon,
-} from "@hugeicons/core-free-icons";
-import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
 import type { ChartSlug } from "@/lib/types";
 
-export const CHART_TYPE_ICONS: Record<ChartSlug, IconSvgElement> = {
-  "area-chart": ChartAreaIcon,
-  "bar-chart": BarChartIcon,
-  "line-chart": ChartLineData01Icon,
-  "profit-loss-line": ChartBarLineIcon,
-  "scatter-chart": ChartScatterIcon,
-  "composed-chart": ChartBarLineIcon,
-  "pie-chart": PieChartIcon,
-  "ring-chart": ChartRingIcon,
-  "gauge-chart": DashboardSpeed01Icon,
-  "heatmap-chart": GridIcon,
-  "radar-chart": ChartRadarIcon,
-  "funnel-chart": PyramidStructure01Icon,
-  "candlestick-chart": ChartCandlestickIcon,
-  "live-line-chart": Activity01Icon,
-  "choropleth-chart": GlobeIcon,
-  "sankey-chart": Flowchart02Icon,
+export const CHART_TYPE_ICONS: Record<ChartSlug, IconName> = {
+  "area-chart": "IconChart1",
+  "bar-chart": "IconBarsThree",
+  "line-chart": "IconLineChart1",
+  "profit-loss-line": "IconTradingViewLine",
+  "scatter-chart": "IconPointChart",
+  "composed-chart": "IconComboChartAxis",
+  "pie-chart": "IconPieChart1",
+  "ring-chart": "IconDonut",
+  "gauge-chart": "IconGauge",
+  "heatmap-chart": "IconDotGrid3x3",
+  "radar-chart": "IconRadar",
+  "funnel-chart": "IconFormPyramide",
+  "candlestick-chart": "IconTradingViewCandles",
+  "live-line-chart": "IconLiveActivity",
+  "choropleth-chart": "IconGlobe",
+  "sankey-chart": "IconSankeyChart",
 };
 
-export function getChartTypeIcon(slug: ChartSlug): IconSvgElement {
+export function getChartTypeIcon(slug: ChartSlug): IconName {
   return CHART_TYPE_ICONS[slug];
 }
 
@@ -62,10 +45,9 @@ export function ChartTypeIcon({
         className
       )}
     >
-      <HugeiconsIcon
+      <Icon
         className={variant === "plain" ? "size-4" : "size-[18px]"}
-        icon={CHART_TYPE_ICONS[slug]}
-        strokeWidth={1.75}
+        name={CHART_TYPE_ICONS[slug]}
       />
     </span>
   );

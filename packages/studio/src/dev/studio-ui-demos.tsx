@@ -12,4 +12,5 @@ export {
   PrimitivesDemo,
   SurfacesDemo,
   TabsDemo,
+  ToggleGroupDemo,
 } from "./studio-ui-catalog-sections";

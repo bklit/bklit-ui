@@ -1,7 +1,6 @@
 "use client";
 
-import { ArrowDown01Icon, ArrowUp01Icon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
+import { Icon } from "@bklitui/icons";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
@@ -23,10 +22,10 @@ export function TrendBadge({
       )}
       variant={positive ? "outline" : "destructive"}
     >
-      <HugeiconsIcon
+      <Icon
+        className="size-3"
         data-icon="inline-start"
-        icon={positive ? ArrowUp01Icon : ArrowDown01Icon}
-        strokeWidth={2}
+        name={positive ? "IconArrowUp" : "IconArrowDown"}
       />
       {positive ? "+" : ""}
       {value.toFixed(1)}%

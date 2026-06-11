@@ -3,7 +3,7 @@
   "pages": [
     "index",
     "control-surfaces",
-    "tabs",
+    "toggle-groups",
     "fields",
     "motion",
     "pickers",

@@ -1,7 +1,6 @@
 "use client";
 
-import { InformationCircleIcon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
+import { Icon } from "@bklitui/icons";
 import { type ReactNode, useMemo, useState } from "react";
 import { generateStudioCode } from "@/lib/codegen";
 import type { StudioUrlState } from "@/lib/studio-parsers";
@@ -67,7 +66,7 @@ export function StudioCodeSheetTrigger({
             )}
             size={triggerSize}
             type="button"
-            variant="white"
+            variant="default"
           />
         }
       >
@@ -92,8 +91,8 @@ export function StudioCodeSheetTrigger({
         </SheetHeader>
         {open ? (
           <div className="space-y-6 px-6 pb-6">
-            <Alert variant="indigo">
-              <HugeiconsIcon icon={InformationCircleIcon} strokeWidth={2} />
+            <Alert>
+              <Icon className="size-4" name="IconCircleInfo" />
               <AlertTitle>Motion settings not in snippet yet</AlertTitle>
               <AlertDescription>
                 Enter animations from the Motion panel are not included in this

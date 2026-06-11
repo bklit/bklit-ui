@@ -1,12 +1,7 @@
 "use client";
 
+import { Icon } from "@bklitui/icons";
 import { cn } from "@bklitui/ui/lib/utils";
-import {
-  EaseCurveControlPointsIcon,
-  PlayIcon,
-  StopIcon,
-} from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
 import { animate, motion, type Transition } from "motion/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { studioInputSurfaceClass } from "@/components/controls/control-field-helpers";
@@ -24,6 +19,7 @@ import {
   studioMotionToTransition,
   targetMotionCurvePoints,
 } from "@/lib/motion-config";
+import { studioMotionCurveCardClass } from "@/lib/studio-chrome-classes";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import { Input } from "@/ui/input";
 
@@ -315,7 +311,10 @@ export function MotionCurveEditor({
   return (
     <div className="flex flex-col">
       <div
-        className="studio-motion-curve-card relative w-full max-w-full overflow-hidden rounded-t-lg border border-border border-b-0 px-1"
+        className={cn(
+          studioMotionCurveCardClass,
+          "relative w-full max-w-full overflow-hidden rounded-t-lg border border-border border-b-0 px-1"
+        )}
         ref={containerRef}
       >
         <svg
@@ -423,11 +422,7 @@ export function MotionCurveEditor({
           aria-hidden
           className="flex w-9 shrink-0 items-center justify-center border-border border-r text-muted-foreground"
         >
-          <HugeiconsIcon
-            icon={EaseCurveControlPointsIcon}
-            size={16}
-            strokeWidth={1.75}
-          />
+          <Icon className="size-4" name="IconBezierEdit" />
         </div>
         <Input
           className={cn(
@@ -461,11 +456,7 @@ export function MotionCurveEditor({
           onClick={isPlaying ? stopPlay : runPlay}
           type="button"
         >
-          <HugeiconsIcon
-            icon={isPlaying ? StopIcon : PlayIcon}
-            size={16}
-            strokeWidth={1.75}
-          />
+          <Icon className="size-4" name={isPlaying ? "IconStop" : "IconPlay"} />
         </button>
       </div>
     </div>

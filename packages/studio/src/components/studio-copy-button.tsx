@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckIcon, CopyIcon } from "lucide-react";
+import { Icon } from "@bklitui/icons";
 import { useCallback, useState } from "react";
 import { cn } from "@/lib/utils";
 import { InputGroupButton } from "@/ui/input-group";
@@ -35,18 +35,20 @@ export function StudioCopyButton({
       type="button"
     >
       <span className="relative block size-3.5">
-        <CopyIcon
+        <Icon
           className="absolute inset-0 size-3.5 transition-all duration-300 ease-out"
+          name="IconClipboard2"
           style={{
             filter: copied ? "blur(4px)" : "blur(0px)",
             opacity: copied ? 0 : 1,
             transform: copied ? "scale(0.8)" : "scale(1)",
           }}
         />
-        <CheckIcon
+        <Icon
           className={cn(
             "absolute inset-0 size-3.5 transition-all duration-300 ease-out"
           )}
+          name="IconCheckmark1"
           style={{
             filter: copied ? "blur(0px)" : "blur(4px)",
             opacity: copied ? 1 : 0,

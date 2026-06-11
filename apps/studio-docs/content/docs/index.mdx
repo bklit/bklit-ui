@@ -27,14 +27,14 @@ packages/studio/
 └── components.json      # shadcn CLI config (ui alias → @/ui)
 ```
 
-**Custom** (hand-maintained): `studio-control-surface`, OKLCH color picker, `number-field`, motion bezier editor, fill/pattern/legend pickers, scrub inputs.
+**Custom** (hand-maintained): sidebar chrome tokens, OKLCH color picker, `number-field`, motion bezier editor, fill/pattern/legend pickers, scrub inputs.
 
 **Shadcn-managed** (22): `button`, `dialog`, `dropdown-menu`, `input`, `popover`, `select`, `slider`, `toggle`, `toggle-group`, `tooltip`, and more — run `pnpm dlx shadcn@latest info --json` from `packages/studio`.
 
 ## Sections
 
-- [Control surfaces](/docs/control-surfaces) — sidebar triggers and segmented tabs
-- [Tabs](/docs/tabs) — `StudioTabs` layouts (segmented, icons, cards)
+- [Control surfaces](/docs/control-surfaces) — sidebar `Button` chrome
+- [Toggle groups](/docs/toggle-groups) — `StudioToggleGroup` layouts (segmented, icons, cards)
 - [Fields](/docs/fields) — property rows, scrub numbers, fill picker
 - [Motion](/docs/motion) — bezier editor, ease presets, duration controls
 - [Pickers](/docs/pickers) — legend placement, icon toggles

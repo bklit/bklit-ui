@@ -1,10 +1,10 @@
 "use client";
 
-import { ArrowRightLeft, ArrowUpDown } from "lucide-react";
+import { Icon } from "@bklitui/icons";
 import { studioFieldLabelClass } from "@/components/controls/control-field-helpers";
 import {
-  StudioTab,
-  StudioTabs,
+  StudioToggleGroup,
+  StudioToggleGroupItem,
 } from "@/components/controls/studio-toggle-group";
 import { Label } from "@/ui/label";
 
@@ -20,18 +20,22 @@ export function OrientationPicker({
   return (
     <div className="space-y-2">
       <Label className={studioFieldLabelClass}>{label}</Label>
-      <StudioTabs layout="icons" onValueChange={onChange} value={value}>
-        <StudioTab aria-label="Vertical" title="Vertical" value="vertical">
-          <ArrowUpDown className="size-5" strokeWidth={1.75} />
-        </StudioTab>
-        <StudioTab
+      <StudioToggleGroup layout="icons" onValueChange={onChange} value={value}>
+        <StudioToggleGroupItem
+          aria-label="Vertical"
+          title="Vertical"
+          value="vertical"
+        >
+          <Icon className="size-5" name="IconSortArrowUpDown" />
+        </StudioToggleGroupItem>
+        <StudioToggleGroupItem
           aria-label="Horizontal"
           title="Horizontal"
           value="horizontal"
         >
-          <ArrowRightLeft className="size-5" strokeWidth={1.75} />
-        </StudioTab>
-      </StudioTabs>
+          <Icon className="size-5" name="IconArrowRightLeft" />
+        </StudioToggleGroupItem>
+      </StudioToggleGroup>
     </div>
   );
 }

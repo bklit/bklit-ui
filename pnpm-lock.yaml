@@ -35,15 +35,12 @@ importers:
       '@base-ui/react':
         specifier: ^1.1.0
         version: 1.1.0(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@bklitui/icons':
+        specifier: workspace:*
+        version: link:../../packages/icons
       '@bklitui/studio':
         specifier: workspace:*
         version: link:../../packages/studio
-      '@hugeicons/core-free-icons':
-        specifier: ^4.1.4
-        version: 4.1.4
-      '@hugeicons/react':
-        specifier: ^1.1.6
-        version: 1.1.6(react@19.2.0)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -62,9 +59,6 @@ importers:
       geist:
         specifier: ^1.7.2
         version: 1.7.2(next@15.5.9(@babel/core@7.29.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))
-      lucide-react:
-        specifier: ^0.562.0
-        version: 0.562.0(react@19.2.0)
       motion:
         specifier: ^12.27.0
         version: 12.27.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -129,21 +123,15 @@ importers:
       '@base-ui/react':
         specifier: ^1.1.0
         version: 1.1.0(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@bklitui/icons':
+        specifier: workspace:*
+        version: link:../../packages/icons
       '@bklitui/studio':
         specifier: workspace:*
         version: link:../../packages/studio
       '@bklitui/ui':
         specifier: workspace:*
         version: link:../../packages/ui
-      '@heroicons/react':
-        specifier: ^2.2.0
-        version: 2.2.0(react@19.2.0)
-      '@hugeicons/core-free-icons':
-        specifier: ^4.1.4
-        version: 4.1.4
-      '@hugeicons/react':
-        specifier: ^1.1.6
-        version: 1.1.6(react@19.2.0)
       '@number-flow/react':
         specifier: ^0.5.4
         version: 0.5.11(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -201,9 +189,6 @@ importers:
       geist:
         specifier: ^1.7.2
         version: 1.7.2(next@15.5.9(@babel/core@7.29.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))
-      lucide-react:
-        specifier: ^0.562.0
-        version: 0.562.0(react@19.2.0)
       mediabunny:
         specifier: 1.45.0
         version: 1.45.0
@@ -335,26 +320,39 @@ importers:
         specifier: ^8.50.0
         version: 8.50.0(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.2)
 
+  packages/icons:
+    dependencies:
+      '@central-icons-react/all':
+        specifier: ^1.1.260
+        version: 1.1.260(react@19.2.0)
+      react:
+        specifier: ^18.0.0 || ^19.0.0
+        version: 19.2.0
+    devDependencies:
+      '@bklitui/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      '@types/react':
+        specifier: 19.2.2
+        version: 19.2.2
+      typescript:
+        specifier: 5.9.2
+        version: 5.9.2
+
   packages/studio:
     dependencies:
       '@base-ui/react':
         specifier: ^1.1.0
         version: 1.1.0(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@bklitui/icons':
+        specifier: workspace:*
+        version: link:../icons
       '@bklitui/ui':
         specifier: workspace:*
         version: link:../ui
       '@grida/ruler':
         specifier: ^0.0.1
         version: 0.0.1(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
-      '@heroicons/react':
-        specifier: ^2.2.0
-        version: 2.2.0(react@19.2.0)
-      '@hugeicons/core-free-icons':
-        specifier: ^4.1.4
-        version: 4.1.4
-      '@hugeicons/react':
-        specifier: ^1.1.6
-        version: 1.1.6(react@19.2.0)
       '@number-flow/react':
         specifier: ^0.5.4
         version: 0.5.11(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -370,9 +368,6 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
-      lucide-react:
-        specifier: ^0.562.0
-        version: 0.562.0(react@19.2.0)
       lz-string:
         specifier: ^1.5.0
         version: 1.5.0
@@ -385,6 +380,9 @@ importers:
       motion:
         specifier: ^12.27.0
         version: 12.27.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      next-themes:
+        specifier: ^0.4.6
+        version: 0.4.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       nuqs:
         specifier: ^2.8.9
         version: 2.8.9(next@15.5.9(@babel/core@7.29.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)
@@ -472,6 +470,9 @@ importers:
       '@base-ui/react':
         specifier: ^1.0.0-alpha.8
         version: 1.1.0(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@bklitui/icons':
+        specifier: workspace:*
+        version: link:../icons
       '@number-flow/react':
         specifier: ^0.5.4
         version: 0.5.11(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -841,6 +842,11 @@ packages:
   '@bramus/specificity@2.4.2':
     resolution: {integrity: sha512-ctxtJ/eA+t+6q2++vj5j7FYX3nRu311q1wfYH3xjlLOsczhlhxAg2FWNUXhpGvAw3BWo1xBcvOV6/YLc2r5FJw==}
     hasBin: true
+
+  '@central-icons-react/all@1.1.260':
+    resolution: {integrity: sha512-K3w5RI8suWzb5dKwSneCEvrJFWB5rB5yySfDiPbTojMx8zmYsBG1+XLuU+a4Z3IIaTIluIMorlBZyavpIbSFwA==}
+    peerDependencies:
+      react: '>=14.0.0 <= 19'
 
   '@clack/core@0.5.0':
     resolution: {integrity: sha512-p3y0FIOwaYRUPRcMO7+dlmLh8PSRcrjuTndsiA0WAFbWES0mLZlrjVoBRZ9DzkPFJZG6KGkJmoEAY0ZcVWTkow==}
@@ -1285,24 +1291,11 @@ packages:
       react-dom:
         optional: true
 
-  '@heroicons/react@2.2.0':
-    resolution: {integrity: sha512-LMcepvRaS9LYHJGsF0zzmgKCUim/X3N/DQKc4jepAXJ7l8QxJ1PmxJzqplF2Z3FE4PqBAIGyJAQ/w4B5dsqbtQ==}
-    peerDependencies:
-      react: '>= 16 || ^19.0.0-rc'
-
   '@hono/node-server@1.19.9':
     resolution: {integrity: sha512-vHL6w3ecZsky+8P5MD+eFfaGTyCeOHUIFYMGpQGbrBTSmNNoxv0if69rEZ5giu36weC5saFuznL411gRX7bJDw==}
     engines: {node: '>=18.14.1'}
     peerDependencies:
       hono: ^4
-
-  '@hugeicons/core-free-icons@4.1.4':
-    resolution: {integrity: sha512-vkMvlnW7Atqh7juhZCadYDvqABWcEeVAkavAK6HJBFbYkLCme5CN51Oc91D5j5ruDja+HQPjMfWkTxxulcwvAQ==}
-
-  '@hugeicons/react@1.1.6':
-    resolution: {integrity: sha512-c2LhXJMAW5wN1pC/smBXG0YPqUON6ceR/ZdXHCjEI9KvB+hjtqYjmzIxok5hAQOeXGz0WtORgCQMzqewFKAZwg==}
-    peerDependencies:
-      react: '>=16.0.0'
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -6150,6 +6143,10 @@ snapshots:
     dependencies:
       css-tree: 3.2.1
 
+  '@central-icons-react/all@1.1.260(react@19.2.0)':
+    dependencies:
+      react: 19.2.0
+
   '@clack/core@0.5.0':
     dependencies:
       picocolors: 1.1.1
@@ -6439,19 +6436,9 @@ snapshots:
       react: 19.2.0
       react-dom: 19.2.0(react@19.2.0)
 
-  '@heroicons/react@2.2.0(react@19.2.0)':
-    dependencies:
-      react: 19.2.0
-
   '@hono/node-server@1.19.9(hono@4.11.7)':
     dependencies:
       hono: 4.11.7
-
-  '@hugeicons/core-free-icons@4.1.4': {}
-
-  '@hugeicons/react@1.1.6(react@19.2.0)':
-    dependencies:
-      react: 19.2.0
 
   '@humanfs/core@0.19.1': {}
 
@@ -9666,6 +9653,7 @@ snapshots:
   lucide-react@0.562.0(react@19.2.0):
     dependencies:
       react: 19.2.0
+    optional: true
 
   lz-string@1.5.0: {}
 

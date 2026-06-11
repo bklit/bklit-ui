@@ -1857,7 +1857,7 @@
         "@visx/curve@4.0.1-alpha.0",
         "@visx/gradient@4.0.1-alpha.0",
         "@number-flow/react",
-        "lucide-react"
+        "@central-icons-react/all"
       ],
       "files": [
         {
@@ -1904,7 +1904,7 @@
         "@visx/curve@4.0.1-alpha.0",
         "@visx/gradient@4.0.1-alpha.0",
         "@number-flow/react",
-        "lucide-react"
+        "@central-icons-react/all"
       ],
       "files": [
         {
@@ -1933,7 +1933,7 @@
       "dependencies": [
         "@visx/curve@4.0.1-alpha.0",
         "@number-flow/react",
-        "lucide-react"
+        "@central-icons-react/all"
       ],
       "files": [
         {
@@ -1979,7 +1979,7 @@
       "dependencies": [
         "@visx/curve@4.0.1-alpha.0",
         "@number-flow/react",
-        "lucide-react"
+        "@central-icons-react/all"
       ],
       "files": [
         {
@@ -2009,7 +2009,7 @@
         "@number-flow/react",
         "@types/geojson",
         "@types/topojson-specification",
-        "lucide-react",
+        "@central-icons-react/all",
         "topojson-client"
       ],
       "files": [
@@ -2062,7 +2062,7 @@
         "@number-flow/react",
         "@types/geojson",
         "@types/topojson-specification",
-        "lucide-react",
+        "@central-icons-react/all",
         "topojson-client"
       ],
       "files": [

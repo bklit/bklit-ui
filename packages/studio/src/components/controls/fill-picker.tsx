@@ -13,8 +13,8 @@ import {
 import { PresetSwatch } from "@/components/controls/preset-select";
 import { StudioColorPicker } from "@/components/controls/studio-color-picker";
 import {
-  StudioTab,
-  StudioTabs,
+  StudioToggleGroup,
+  StudioToggleGroupItem,
 } from "@/components/controls/studio-toggle-group";
 import {
   parseColorMix,
@@ -108,14 +108,14 @@ export function FillPicker({
       {label ? <p className={studioFieldLabelClass}>{label}</p> : null}
 
       {supportsPattern ? (
-        <StudioTabs
+        <StudioToggleGroup
           layout="segmented"
           onValueChange={onFillModeChange}
           value={fillMode}
         >
-          <StudioTab value="solid">Solid</StudioTab>
-          <StudioTab value="pattern">Pattern</StudioTab>
-        </StudioTabs>
+          <StudioToggleGroupItem value="solid">Solid</StudioToggleGroupItem>
+          <StudioToggleGroupItem value="pattern">Pattern</StudioToggleGroupItem>
+        </StudioToggleGroup>
       ) : null}
 
       <Popover onOpenChange={setColorOpen} open={colorOpen}>

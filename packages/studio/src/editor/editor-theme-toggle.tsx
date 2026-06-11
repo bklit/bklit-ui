@@ -1,6 +1,6 @@
 "use client";
 
-import { MoonIcon, SunIcon } from "lucide-react";
+import { Icon } from "@bklitui/icons";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useStudioTheme } from "@/providers/studio-theme-provider";
@@ -63,7 +63,11 @@ export function EditorThemeToggle({ className }: { className?: string }) {
       type="button"
       variant="ghost"
     >
-      {isDark ? <SunIcon /> : <MoonIcon />}
+      {isDark ? (
+        <Icon className="size-4" name="IconSun" />
+      ) : (
+        <Icon className="size-4" name="IconMoon" />
+      )}
     </Button>
   );
 }

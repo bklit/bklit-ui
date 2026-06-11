@@ -1,15 +1,15 @@
 ---
-title: Tabs
-description: StudioTabs segmented controls — segmented, icons, cards, legend grid
+title: Toggle groups
+description: StudioToggleGroup — shadcn ToggleGroup with sidebar chrome and layout presets
 ---
 
-`StudioTabs` / `StudioTab` wrap shadcn `ToggleGroup` with `variant="studio"` and layout presets from `STUDIO_TABS_LAYOUTS`.
+`StudioToggleGroup` / `StudioToggleGroupItem` wrap shadcn `ToggleGroup` with `variant="sidebar"` and layout presets from `STUDIO_TOGGLE_LAYOUTS`. Use these for single-select option sets (2–7 choices), not `Tabs` — there is no tab panel.
 
 **Source:** `packages/studio/src/components/controls/studio-toggle-group.tsx`
 
 <ComponentShowcase>
   <StudioUiPreview>
-    <TabsDemo />
+    <ToggleGroupDemo />
   </StudioUiPreview>
 </ComponentShowcase>
 
@@ -17,7 +17,7 @@ description: StudioTabs segmented controls — segmented, icons, cards, legend g
 
 | Layout | Use case |
 |--------|----------|
-| `segmented` | Text pills (Fill mode, Ease/Spring) |
+| `segmented` | Text segments (fill mode, ease/spring, export mode) |
 | `icons` | Icon row (orientation, line cap, fade edges) |
 | `cards-2` | 2-column preview cards (ease presets, curves) |
 | `cards-3` | 3-column preview cards |

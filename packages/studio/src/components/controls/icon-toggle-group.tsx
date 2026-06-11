@@ -1,11 +1,10 @@
 "use client";
 
-import type { IconSvgElement } from "@hugeicons/react";
-import { HugeiconsIcon } from "@hugeicons/react";
+import { Icon, type IconName } from "@bklitui/icons";
 import type { ReactNode } from "react";
 import {
-  StudioTab,
-  StudioTabs,
+  StudioToggleGroup,
+  StudioToggleGroupItem,
 } from "@/components/controls/studio-toggle-group";
 
 export function IconToggleGroup<T extends string>({
@@ -18,9 +17,13 @@ export function IconToggleGroup<T extends string>({
   children: ReactNode;
 }) {
   return (
-    <StudioTabs layout="icons" onValueChange={onValueChange} value={value}>
+    <StudioToggleGroup
+      layout="icons"
+      onValueChange={onValueChange}
+      value={value}
+    >
       {children}
-    </StudioTabs>
+    </StudioToggleGroup>
   );
 }
 
@@ -32,15 +35,12 @@ export function IconToggleButton({
 }: {
   value: string;
   label: string;
-  icon?: IconSvgElement;
+  icon?: IconName;
   children?: ReactNode;
 }) {
   return (
-    <StudioTab aria-label={label} title={label} value={value}>
-      {children ??
-        (icon ? (
-          <HugeiconsIcon className="size-5" icon={icon} strokeWidth={1.75} />
-        ) : null)}
-    </StudioTab>
+    <StudioToggleGroupItem aria-label={label} title={label} value={value}>
+      {children ?? (icon ? <Icon className="size-5" name={icon} /> : null)}
+    </StudioToggleGroupItem>
   );
 }

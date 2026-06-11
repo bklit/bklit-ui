@@ -9,6 +9,7 @@ import {
   PrimitivesDemo,
   SurfacesDemo,
   TabsDemo,
+  ToggleGroupDemo,
 } from "@bklitui/studio/dev/ui-demos";
 import { StudioUiPreview } from "@bklitui/studio/dev/ui-preview";
 import { findNeighbour } from "fumadocs-core/server";
@@ -61,6 +62,7 @@ export default async function Page(props: {
               StudioUiPreview,
               SurfacesDemo,
               TabsDemo,
+              ToggleGroupDemo,
               PrimitivesDemo,
               FieldsDemo,
               MotionBezierDemo,

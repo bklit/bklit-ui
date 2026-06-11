@@ -1,6 +1,6 @@
 "use client";
 
-import { RotateCcw } from "lucide-react";
+import { Icon } from "@bklitui/icons";
 import {
   VIEWPORT_PRESETS,
   type ViewportPreset,
@@ -49,7 +49,11 @@ export function PlaygroundToolbar({
           {width} × {height}
         </span>
         <Button onClick={onReplay} size="sm" type="button" variant="outline">
-          <RotateCcw className="size-3.5" data-icon="inline-start" />
+          <Icon
+            className="size-3.5"
+            data-icon="inline-start"
+            name="IconArrowRotateClockwise"
+          />
           Replay
         </Button>
       </div>

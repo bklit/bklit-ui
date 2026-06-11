@@ -48,6 +48,7 @@
     "react-dom": "^18.0.0 || ^19.0.0"
   },
   "dependencies": {
+    "@bklitui/icons": "workspace:*",
     "@base-ui/react": "^1.0.0-alpha.8",
     "@number-flow/react": "^0.5.4",
     "@visx/brush": "3.12.0",

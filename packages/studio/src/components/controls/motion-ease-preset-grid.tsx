@@ -2,8 +2,8 @@
 
 import { studioFieldLabelClass } from "@/components/controls/control-field-helpers";
 import {
-  StudioTab,
-  StudioTabs,
+  StudioToggleGroup,
+  StudioToggleGroupItem,
 } from "@/components/controls/studio-toggle-group";
 import { MotionEasePreviewIcon } from "@/components/motion-ease-preview-icons";
 import {
@@ -24,20 +24,20 @@ export function MotionEasePresetGrid({
   return (
     <div className="flex flex-col gap-2">
       <span className={studioFieldLabelClass}>{label}</span>
-      <StudioTabs
+      <StudioToggleGroup
         layout="cards-2"
         onValueChange={(id) => onSelect(id as Exclude<MotionEaseId, "custom">)}
         value={value}
       >
         {MOTION_EASE_IDS.filter((id) => id !== "custom").map((id) => (
-          <StudioTab key={id} value={id}>
+          <StudioToggleGroupItem key={id} value={id}>
             <MotionEasePreviewIcon className="text-current" easeId={id} />
             <span className="text-center leading-tight">
               {MOTION_EASE_PRESETS[id].label}
             </span>
-          </StudioTab>
+          </StudioToggleGroupItem>
         ))}
-      </StudioTabs>
+      </StudioToggleGroup>
     </div>
   );
 }

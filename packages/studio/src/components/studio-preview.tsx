@@ -1,8 +1,7 @@
 "use client";
 
+import { Icon } from "@bklitui/icons";
 import { cn } from "@bklitui/ui/lib/utils";
-import { Refresh01Icon, ShuffleIcon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
 import { useReducedMotion } from "motion/react";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { PresetSelect } from "@/components/controls/preset-select";
@@ -23,6 +22,11 @@ import { useStudioRecording } from "@/components/use-studio-recording";
 import { useStudioState } from "@/components/use-studio-state";
 import { StudioPatternDefs, studioPatternFill } from "@/lib/patterns";
 import type { StudioRenderContext } from "@/lib/render-context";
+import {
+  studioPreviewCanvasClass,
+  studioRecordingCaptureClass,
+  studioSidebarScrollClass,
+} from "@/lib/studio-chrome-classes";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import {
   getRecordingCaptureDimensions,
@@ -283,11 +287,7 @@ export function StudioPreview({
                 type="button"
                 variant="outline"
               >
-                <HugeiconsIcon
-                  icon={Refresh01Icon}
-                  size={20}
-                  strokeWidth={1.5}
-                />
+                <Icon className="size-5" name="IconArrowRotateClockwise" />
               </Button>
             </TooltipTrigger>
             <TooltipContent>Replay animation</TooltipContent>
@@ -303,7 +303,7 @@ export function StudioPreview({
                 type="button"
                 variant="outline"
               >
-                <HugeiconsIcon icon={ShuffleIcon} size={20} strokeWidth={1.5} />
+                <Icon className="size-5" name="IconShuffle" />
               </Button>
             </TooltipTrigger>
             <TooltipContent>Scramble data</TooltipContent>
@@ -353,7 +353,9 @@ export function StudioPreview({
 
         <div
           className={cn(
-            "studio-preview-canvas studio-sidebar-scroll relative flex min-h-0 flex-1 flex-col overflow-auto p-6 pt-16",
+            studioPreviewCanvasClass,
+            studioSidebarScrollClass,
+            "relative flex min-h-0 flex-1 flex-col overflow-auto p-6 pt-16",
             showCaptureLayout ? "gap-4" : "items-center justify-center gap-5"
           )}
           ref={canvasRef}
@@ -389,7 +391,7 @@ export function StudioPreview({
               <div
                 className={cn(
                   showCaptureLayout
-                    ? "studio-recording-capture relative shrink-0"
+                    ? cn(studioRecordingCaptureClass, "relative shrink-0")
                     : "inline-flex"
                 )}
                 ref={recordCaptureRef}

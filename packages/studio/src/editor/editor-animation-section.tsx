@@ -4,6 +4,7 @@ import { MotionControl } from "@/components/controls/motion-control";
 import { MotionResetButton } from "@/components/controls/motion-reset-button";
 import { StudioControlGroup } from "@/components/studio-control-group";
 import { EditorPanelEmptyState } from "@/editor/editor-panel-empty-state";
+import { studioMotionSectionClass } from "@/lib/studio-chrome-classes";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 
 export function EditorAnimationSection({
@@ -48,7 +49,7 @@ export function EditorAnimationSection({
 
   return (
     <StudioControlGroup
-      className="studio-motion-section"
+      className={studioMotionSectionClass}
       collapsible
       defaultOpen={defaultOpen}
       title="Animation"

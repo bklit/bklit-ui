@@ -1,6 +1,7 @@
 "use client";
 
-import { StudioControlSurface } from "@/ui/studio-control-surface";
+import { cn } from "@/lib/utils";
+import { Button } from "@/ui/button";
 
 export function StudioScrambleDataButton({
   className,
@@ -12,13 +13,14 @@ export function StudioScrambleDataButton({
   onScramble: () => void;
 }) {
   return (
-    <StudioControlSurface
-      className={className}
+    <Button
+      className={cn("h-8 w-full text-xs", className)}
       disabled={disabled}
       onClick={onScramble}
       type="button"
+      variant="outline"
     >
       Scramble data
-    </StudioControlSurface>
+    </Button>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { IconToggleGroup } from "@/components/controls/icon-toggle-group";
-import { StudioTab } from "@/components/controls/studio-toggle-group";
+import { StudioToggleGroupItem } from "@/components/controls/studio-toggle-group";
 
 export type FadeEdgesOption = "both" | "none" | "left" | "right";
 
@@ -83,14 +83,14 @@ export function FadeEdgesPicker({
   return (
     <IconToggleGroup onValueChange={onChange} value={value}>
       {OPTIONS.map((opt) => (
-        <StudioTab
+        <StudioToggleGroupItem
           aria-label={opt.label}
           key={opt.value}
           title={opt.label}
           value={opt.value}
         >
           <FadeIcon stops={opt.stops} />
-        </StudioTab>
+        </StudioToggleGroupItem>
       ))}
     </IconToggleGroup>
   );

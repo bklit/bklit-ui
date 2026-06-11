@@ -2,6 +2,7 @@
 
 import { type ReactNode, Suspense } from "react";
 import { StudioStateProvider } from "@/components/studio-state-provider";
+import { studioPreviewCanvasClass } from "@/lib/studio-chrome-classes";
 import { cn } from "@/lib/utils";
 import { StudioNuqsAdapter } from "@/providers/studio-nuqs-adapter";
 import { StudioThemeProvider } from "@/providers/studio-theme-provider";
@@ -22,12 +23,22 @@ export function StudioUiPreview({
     <StudioNuqsAdapter>
       <Suspense
         fallback={
-          <div className="studio-preview-canvas not-prose grid min-h-[inherit] w-full place-items-center p-6" />
+          <div
+            className={cn(
+              studioPreviewCanvasClass,
+              "not-prose grid min-h-[inherit] w-full place-items-center p-6"
+            )}
+          />
         }
       >
         <StudioStateProvider embedded>
           <StudioThemeProvider embedded>
-            <div className="studio-preview-canvas not-prose grid min-h-[inherit] w-full place-items-center p-6">
+            <div
+              className={cn(
+                studioPreviewCanvasClass,
+                "not-prose grid min-h-[inherit] w-full place-items-center p-6"
+              )}
+            >
               <div
                 className={cn(
                   "overflow-hidden rounded-xl border border-border bg-card text-card-foreground shadow-sm",

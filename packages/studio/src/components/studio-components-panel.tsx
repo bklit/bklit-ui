@@ -1,8 +1,7 @@
 "use client";
 
+import { Icon } from "@bklitui/icons";
 import { cn } from "@bklitui/ui/lib/utils";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { StudioControlGroup } from "@/components/studio-control-group";
 import { StudioScrambleDataButton } from "@/components/studio-scramble-data-button";
 import { resolveCssColor } from "@/lib/chart-theme-color";
@@ -38,10 +37,9 @@ function ComponentListMarker({
   }
 
   return (
-    <HugeiconsIcon
+    <Icon
       className="size-3.5 shrink-0 opacity-70"
-      icon={resolveStudioComponentTreeIcon(component, chartSlug)}
-      strokeWidth={1.75}
+      name={resolveStudioComponentTreeIcon(component, chartSlug)}
     />
   );
 }
@@ -130,12 +128,9 @@ export function StudioComponentsPanel({
                   type="button"
                 >
                   {visible ? (
-                    <EyeIcon className="size-3.5" strokeWidth={1.75} />
+                    <Icon className="size-3.5" name="IconEyeOpen" />
                   ) : (
-                    <EyeOffIcon
-                      className="size-3.5 opacity-60"
-                      strokeWidth={1.75}
-                    />
+                    <Icon className="size-3.5 opacity-60" name="IconEyeSlash" />
                   )}
                 </button>
               </div>

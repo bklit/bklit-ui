@@ -1,8 +1,8 @@
 "use client";
 
 import {
-  StudioTab,
-  StudioTabs,
+  StudioToggleGroup,
+  StudioToggleGroupItem,
 } from "@/components/controls/studio-toggle-group";
 import { CURVE_OPTIONS, type CurveId } from "@/lib/curves";
 import { CurvePreviewIcon } from "../curve-preview-icons";
@@ -15,9 +15,9 @@ export function CurvePicker({
   onChange: (v: CurveId) => void;
 }) {
   return (
-    <StudioTabs layout="cards-3" onValueChange={onChange} value={value}>
+    <StudioToggleGroup layout="cards-3" onValueChange={onChange} value={value}>
       {CURVE_OPTIONS.map((opt) => (
-        <StudioTab
+        <StudioToggleGroupItem
           aria-label={opt.label}
           key={opt.value}
           title={opt.label}
@@ -25,8 +25,8 @@ export function CurvePicker({
         >
           <CurvePreviewIcon className="text-current" curveId={opt.value} />
           <span className="text-center leading-tight">{opt.label}</span>
-        </StudioTab>
+        </StudioToggleGroupItem>
       ))}
-    </StudioTabs>
+    </StudioToggleGroup>
   );
 }
