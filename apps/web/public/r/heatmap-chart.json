@@ -5,6 +5,7 @@
   "title": "Heatmap Chart",
   "description": "A GitHub-style contribution heatmap with animated cells and configurable level colors",
   "dependencies": [
+    "@ncdai/shimmering-text",
     "@visx/group@4.0.1-alpha.0",
     "@visx/heatmap@4.0.1-alpha.0",
     "@visx/pattern@4.0.1-alpha.0",
