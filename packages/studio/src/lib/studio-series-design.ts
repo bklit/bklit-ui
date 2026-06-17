@@ -49,10 +49,11 @@ export function getDesignSeriesLabel(index: number): string {
 }
 
 export function parsePipeField(raw: string | null | undefined): string[] {
-  if (raw == null || !raw.trim()) {
+  const text = raw == null ? "" : String(raw);
+  if (!text.trim()) {
     return [];
   }
-  return raw.split(SERIES_FIELD_SEP).map((part) => {
+  return text.split(SERIES_FIELD_SEP).map((part) => {
     if (!part) {
       return "";
     }
