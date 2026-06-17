@@ -6,13 +6,43 @@ import { defaultStudioState, studioSearchParams } from "../studio-parsers";
 import {
   decodeStudioUrlState,
   encodeStudioUrlState,
-  STUDIO_STATE_KEY_ORDER,
 } from "../studio-url-codec";
+import { STUDIO_STATE_KEY_ORDER } from "../studio-url-key-orders";
 import { loadStudioStateFromRequest } from "../studio-url-loader";
 
+/**
+ * Real-world `v1` share blob committed at the 206-key layout (commit 1d8a2f7,
+ * trio gallery example). Decoding it under the current 238-key layout used to
+ * map a curve string onto a numeric field and crash chart rendering with
+ * `e.trim is not a function`.
+ */
+const LEGACY_TRIO_BLOB =
+  "v1.NrAMBoCIBsEsDsCmBaAxgCwIYCcAukBdcYAJigHsBraDAClADoAOJkgAkYEYBmTt3kgwCcoAOwBKQsW4VqdRixIBSEqC68VoAcLHiAPlRrpanTaE0lOAVgaWr+w-OZWzDMUM0AWJsKGSiwFbgnGKcAQBs4OHeASRCUKiYuAC2AK7Q0ABK5MlSwJycZJAkeiUkeQUykABG5LjoerX1jXXoFZyRkKB63aDtolDcelbD7UxQ3WXt8V0MI1MBhRBdPT0VJFWJKelZOXpbaRnZyftJh7u5iySe4NxXQaJWi54zACZ1AM4VVpzBtk-EawyRiPRZWIKQRzGRjhcEcNhMITMUThNgAeg4DE8Em+A0hcmhDG4TG4mIK7BIok8DA6VnRmNATH8gPCZGsi3CMm44UWonGuGwqUQiyYQQFQpFnXeuC+IrxUPozHCqMY3DVbDiglAJHCzPyLHAjAB+REhv+iyEVQVjBedMYGzpiORqIxoD1nCENyNFrFguFgKEnVw5AADhUhONIOhyNhYAAvcjwXCYaB5VRkABmKY+-tIWjNJFioAhcCQDAAnpgAB6wD4MaCIDO4PSlxAV6u1hixgDm6GbrYY3djr0IBCAA";
+
 describe("studio-url-codec", () => {
-  it("key order matches studioSearchParams", () => {
-    assert.deepEqual(STUDIO_STATE_KEY_ORDER, Object.keys(studioSearchParams));
+  it("every studio param is present in the frozen key order", () => {
+    // Drift guard: STUDIO_STATE_KEY_ORDER is an explicit, append-only index map.
+    // New params must be appended to it (never inserted mid-object), or every
+    // previously shared URL silently corrupts.
+    assert.deepEqual(
+      [...STUDIO_STATE_KEY_ORDER].sort(),
+      Object.keys(studioSearchParams).sort()
+    );
+  });
+
+  it("decodes a legacy 206-key blob to type-correct state (no .trim crash)", () => {
+    const decoded = decodeStudioUrlState(LEGACY_TRIO_BLOB);
+    const defaults = defaultStudioState();
+
+    assert.equal(decoded.chart, "line-chart");
+
+    for (const key of Object.keys(defaults) as (keyof typeof defaults)[]) {
+      assert.equal(
+        typeof decoded[key],
+        typeof defaults[key],
+        `field ${key} should keep its primitive type`
+      );
+    }
   });
 
   it("round-trips defaults-only state", () => {
