@@ -1,0 +1,72 @@
+---
+title: Progress Bar
+description: Notch-based horizontal progress bar with Gauge-style theme fills, optional patterns and gradients, and responsive sizing
+---
+
+import { ProgressBarDemo } from "@/components/docs/progress-bar-demo";
+
+<ComponentPreview registryName="progress-bar">
+  <ProgressBarDemo />
+</ComponentPreview>
+
+## Installation
+
+<InstallationTabs
+  name="progress-bar"
+  dependencies={[
+    "@visx/responsive",
+    "@visx/pattern",
+    "motion",
+  ]}
+/>
+
+## Usage
+
+`ProgressBar` draws **notches** along a horizontal track using the same fill, gradient, and animation model as **`Gauge`**.
+
+- **Fill:** `value` is the bar fill **0–100**.
+- **Responsive:** omit `width` and `height` to fill the parent width; the root uses **`minWidth`** (default **200**) and a default bar height of **24px**. Pass explicit `width` / `height` for fixed layouts.
+- **Patterns / gradients in `<defs>`:** pass **`PatternLines`**, **`LinearGradient`**, etc. as **`children`** (same idea as **`Gauge`**), then set **`activeFill`** / **`inactiveFill`** to `url(#id)`.
+- **Bar gradients:** set **`useGradient`**. Optional **`activeGradient`** and **`inactiveGradient`** are **`[hexFrom, hexTo]`** tuples (interpolated along the notch index).
+- **Fill opacity:** `activeFillOpacity` and `inactiveFillOpacity` map to SVG `fill-opacity` (0–1). Defaults are **1** for active notches and **0.8** for the track; docs examples use **`inactiveFillOpacity={0.4}`** for a lighter track.
+- **Corner radius:** `notchCornerRadius` is the fillet in **pixels** at each notch corner (**0** = sharp).
+
+```tsx
+import { ProgressBar } from "@bklitui/ui/charts";
+
+export default function UsageMeter() {
+  return (
+    <ProgressBar
+      value={66}
+      spacing={0}
+      totalNotches={72}
+      notchCornerRadius={3}
+      notchLengthPercent={38}
+      inactiveFillOpacity={0.4}
+      useGradient
+    />
+  );
+}
+```
+
+## Props
+
+### ProgressBar
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `value` | `number` | required | Bar fill **0–100** |
+| `totalNotches` | `number` | `40` | Notch count |
+| `spacing` | `number` | `25` | **%** of the bar used as gaps between notches |
+| `notchLengthPercent` | `number` | `100` | Vertical notch depth as **%** of default (5–100); lower = shorter notches |
+| `notchCornerRadius` | `number` | `0` | Corner fillet in **px** (0 = sharp) |
+| `uniformWidth` | `boolean` | `false` | Rectangular notches vs tapered |
+| `useGradient` | `boolean` | `false` | Per-notch color ramp along the bar |
+| `activeGradient` | `[string, string]` | lime → emerald | Hex stops for active notches when `useGradient` |
+| `inactiveGradient` | `[string, string]` | same as active | Hex stops for inactive notches when `useGradient` |
+| `activeFill` / `inactiveFill` | `string` | `chart-1` / `chart-background` | Solid, CSS color, or `url(#patternId)` |
+| `activeFillOpacity` / `inactiveFillOpacity` | `number` | `1` / `0.8` | SVG `fill-opacity` (0–1) for active / track notches |
+| `width` / `height` | `number` | - | Fixed size; omit for responsive |
+| `minWidth` | `number` | `200` | Min width (px) when responsive |
+| `className` | `string` | - | Root wrapper |
+| `children` | `ReactNode` | - | Defs (`Pattern*`, `*Gradient`, …) |

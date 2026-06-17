@@ -1,0 +1,27 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "progress-bar-example",
+  "type": "registry:example",
+  "title": "Progress Bar Example",
+  "description": "Composable progress-bar demo for Open in v0",
+  "dependencies": [
+    "motion"
+  ],
+  "registryDependencies": [
+    "@bklit/progress-bar"
+  ],
+  "files": [
+    {
+      "path": "registry/examples/progress-bar.tsx",
+      "content": "\"use client\"\n\n// In your app (monorepo/npm): import { ProgressBar } from \"@bklitui/ui/charts\"\nimport { ProgressBar } from \"@/components/charts\"\n\n\n\nexport default function Component() {\n  return (\n    <main className=\"flex min-h-svh w-full items-center justify-center p-6 md:p-10\">\n      <div className=\"w-full max-w-3xl\">\n        <ProgressBar\n  value={72}\n  totalNotches={72}\n  spacing={0}\n  notchCornerRadius={3}\n  notchLengthPercent={38}\n  inactiveFillOpacity={0.4}\n  useGradient\n/>\n      </div>\n    </main>\n  )\n}\n",
+      "type": "registry:page",
+      "target": "app/page.tsx"
+    },
+    {
+      "path": "registry/examples/progress-bar-index.ts",
+      "content": "// biome-ignore-all lint/performance/noBarrelFile: v0 registry example barrel for shadcn install\nexport { ProgressBar } from \"./progress-bar\";\n",
+      "type": "registry:lib",
+      "target": "components/charts/index.ts"
+    }
+  ]
+}

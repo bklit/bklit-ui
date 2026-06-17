@@ -348,6 +348,7 @@ export {
   type ProfitLossSegment,
   splitProfitLossSegments,
 } from "./profit-loss-segments";
+export { ProgressBar, type ProgressBarProps } from "./progress-bar";
 // Radar chart components
 export { RadarArea, type RadarAreaProps } from "./radar-area";
 export { RadarAxis, type RadarAxisProps } from "./radar-axis";

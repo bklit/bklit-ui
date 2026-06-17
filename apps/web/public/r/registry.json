@@ -1205,6 +1205,27 @@
       ]
     },
     {
+      "name": "progress-bar",
+      "type": "registry:component",
+      "title": "Progress Bar",
+      "description": "Notch-based horizontal progress bar with Gauge-style fills, patterns, and optional gradients",
+      "registryDependencies": [
+        "@bklit/utils"
+      ],
+      "dependencies": [
+        "@visx/responsive@4.0.1-alpha.0",
+        "@visx/pattern@4.0.1-alpha.0",
+        "motion"
+      ],
+      "files": [
+        {
+          "path": "src/charts/progress-bar.tsx",
+          "type": "registry:component",
+          "target": "components/charts/progress-bar.tsx"
+        }
+      ]
+    },
+    {
       "name": "heatmap-chart",
       "type": "registry:component",
       "title": "Heatmap Chart",
@@ -1598,6 +1619,30 @@
         },
         {
           "path": "registry/examples/gauge-chart-index.ts",
+          "type": "registry:lib",
+          "target": "components/charts/index.ts"
+        }
+      ]
+    },
+    {
+      "name": "progress-bar-example",
+      "type": "registry:example",
+      "title": "Progress Bar Example",
+      "description": "Composable progress-bar demo for Open in v0",
+      "registryDependencies": [
+        "@bklit/progress-bar"
+      ],
+      "dependencies": [
+        "motion"
+      ],
+      "files": [
+        {
+          "path": "registry/examples/progress-bar.tsx",
+          "type": "registry:page",
+          "target": "app/page.tsx"
+        },
+        {
+          "path": "registry/examples/progress-bar-index.ts",
           "type": "registry:lib",
           "target": "components/charts/index.ts"
         }

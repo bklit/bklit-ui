@@ -41,6 +41,7 @@ const components = [
   { text: "Composed Chart", url: "/docs/components/composed-chart" },
   { text: "Funnel Chart", url: "/docs/components/funnel-chart" },
   { text: "Gauge", url: "/docs/components/gauge-chart" },
+  { text: "Progress Bar", url: "/docs/components/progress-bar" },
   { text: "Heatmap Chart", url: "/docs/components/heatmap-chart" },
   { text: "Line Chart", url: "/docs/components/line-chart" },
   { text: "Profit/Loss Line", url: "/docs/components/profit-loss-line" },

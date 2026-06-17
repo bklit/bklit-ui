@@ -36,6 +36,7 @@ export { ChartTooltip } from "./tooltip";`,
 export { PieSlice } from "./pie-slice";
 export { PieCenter } from "./pie-center";`,
   "gauge-chart": `export { Gauge } from "./gauge";`,
+  "progress-bar": `export { ProgressBar } from "./progress-bar";`,
   "heatmap-chart": `export {
   HeatmapCells,
   HeatmapChart,
@@ -219,6 +220,21 @@ const EXAMPLES = {
   totalNotches={40}
   defaultLabel="Score"
   formatOptions={{ style: "percent" }}
+/>`,
+  },
+  "progress-bar": {
+    registryDependencies: ["@bklit/progress-bar"],
+    dependencies: ["motion"],
+    importFrom: "ProgressBar",
+    data: "",
+    body: `<ProgressBar
+  value={72}
+  totalNotches={72}
+  spacing={0}
+  notchCornerRadius={3}
+  notchLengthPercent={38}
+  inactiveFillOpacity={0.4}
+  useGradient
 />`,
   },
   "heatmap-chart": {

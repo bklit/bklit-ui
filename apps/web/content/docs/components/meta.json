@@ -8,6 +8,7 @@
     "composed-chart",
     "funnel-chart",
     "gauge-chart",
+    "progress-bar",
     "heatmap-chart",
     "line-chart",
     "profit-loss-line",
