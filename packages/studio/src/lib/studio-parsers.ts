@@ -317,6 +317,7 @@ export const studioSearchParams = {
   tooltipBackgroundOpacity: parseAsFloat.withDefault(0.8),
   tooltipBlur: parseAsInteger.withDefault(12),
   hiddenComponents: parseAsString.withDefault(""),
+  progressBarHeight: parseAsInteger.withDefault(24),
 };
 
 export interface StudioUrlState {
@@ -558,6 +559,7 @@ export interface StudioUrlState {
   tooltipBackgroundOpacity: number;
   tooltipBlur: number;
   hiddenComponents: string;
+  progressBarHeight: number;
 }
 
 /** Full default state for chart switches (nuqs used `null` to clear keys; in-memory state needs real defaults). */
@@ -810,6 +812,7 @@ export function defaultStudioState(
     tooltipBackgroundOpacity: 0.8,
     tooltipBlur: 12,
     hiddenComponents: "",
+    progressBarHeight: 24,
     ...overrides,
   };
 }

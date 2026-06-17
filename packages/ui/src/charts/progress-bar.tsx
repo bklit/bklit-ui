@@ -155,6 +155,11 @@ export interface ProgressBarProps {
   enterTransition?: Transition;
   /** Scales notch stagger delays relative to default timing (1 = reference). */
   enterStaggerScale?: number;
+  /**
+   * Studio-only: render static notch paths with no enter animation so geometry
+   * props (spacing, count, etc.) update live while scrubbing controls.
+   */
+  geometryScrubbing?: boolean;
 }
 
 interface ProgressBarInnerProps
@@ -182,6 +187,7 @@ function ProgressBarInner({
   notchLengthPercent = 100,
   enterTransition,
   enterStaggerScale = 1,
+  geometryScrubbing = false,
 }: ProgressBarInnerProps) {
   const prefersReducedMotion = useReducedMotion();
   const themeActiveGradientId = `progress-bar-theme-active-${useId().replace(/:/g, "")}`;
@@ -357,7 +363,9 @@ function ProgressBarInner({
       return inactiveFill as string;
     }
     if (useThemePaletteGradient) {
-      return bgFillSolid;
+      // Use series color so track opacity is visible on the studio canvas (not
+      // chart-background, which matches the frame and hides inactiveFillOpacity).
+      return activeFillSolid;
     }
     if (useGradient) {
       return interpolateHex(inactiveGrad0, inactiveGrad1, notchIndex / denom);
@@ -404,43 +412,77 @@ function ProgressBarInner({
             {defsChildren}
           </defs>
         ) : null}
-        {notches.map((notch) => (
-          <motion.path
-            animate={{ opacity: 1, scale: 1 }}
-            d={createNotchPath(notch.points, notchCornerRadius, notchDepth)}
-            fill={resolveBgFill(notch.index)}
-            fillOpacity={resolvedInactiveFillOpacity}
-            initial={{ opacity: 0, scale: 0 }}
-            key={`bg-${notch.index}`}
-            style={{
-              transformOrigin: `${notch.xCenter}px ${centerY}px`,
-            }}
-            transition={{
-              ...notchTransition,
-              delay: notch.index * 0.015 * stagger,
-            }}
-          />
-        ))}
-
-        {notches
-          .filter((n) => n.isActive)
-          .map((notch) => (
+        {notches.map((notch) => {
+          const pathD = createNotchPath(
+            notch.points,
+            notchCornerRadius,
+            notchDepth
+          );
+          if (geometryScrubbing) {
+            return (
+              <path
+                d={pathD}
+                fill={resolveBgFill(notch.index)}
+                fillOpacity={resolvedInactiveFillOpacity}
+                key={`bg-${notch.index}`}
+              />
+            );
+          }
+          return (
             <motion.path
               animate={{ opacity: 1, scale: 1 }}
-              d={createNotchPath(notch.points, notchCornerRadius, notchDepth)}
-              fill={resolveActiveFill(notch)}
-              fillOpacity={resolvedActiveFillOpacity}
+              d={pathD}
+              fill={resolveBgFill(notch.index)}
+              fillOpacity={resolvedInactiveFillOpacity}
               initial={{ opacity: 0, scale: 0 }}
-              key={`active-${notch.index}`}
+              key={`bg-${notch.index}`}
               style={{
                 transformOrigin: `${notch.xCenter}px ${centerY}px`,
               }}
               transition={{
                 ...notchTransition,
-                delay: (0.3 + notch.index * 0.02) * stagger,
+                delay: notch.index * 0.015 * stagger,
               }}
             />
-          ))}
+          );
+        })}
+
+        {notches
+          .filter((n) => n.isActive)
+          .map((notch) => {
+            const pathD = createNotchPath(
+              notch.points,
+              notchCornerRadius,
+              notchDepth
+            );
+            if (geometryScrubbing) {
+              return (
+                <path
+                  d={pathD}
+                  fill={resolveActiveFill(notch)}
+                  fillOpacity={resolvedActiveFillOpacity}
+                  key={`active-${notch.index}`}
+                />
+              );
+            }
+            return (
+              <motion.path
+                animate={{ opacity: 1, scale: 1 }}
+                d={pathD}
+                fill={resolveActiveFill(notch)}
+                fillOpacity={resolvedActiveFillOpacity}
+                initial={{ opacity: 0, scale: 0 }}
+                key={`active-${notch.index}`}
+                style={{
+                  transformOrigin: `${notch.xCenter}px ${centerY}px`,
+                }}
+                transition={{
+                  ...notchTransition,
+                  delay: (0.3 + notch.index * 0.02) * stagger,
+                }}
+              />
+            );
+          })}
       </svg>
     </div>
   );

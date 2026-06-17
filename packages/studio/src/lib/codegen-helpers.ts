@@ -312,6 +312,34 @@ ${curveImports}
 </${chartType}>`;
 }
 
+export function progressBarCodegen(state: StudioUrlState) {
+  const patternChild =
+    state.pattern === "none"
+      ? ""
+      : `\n  ${patternCodegenBlock(state.pattern)}\n`;
+  const activeFill =
+    state.pattern === "none"
+      ? ""
+      : '\n  activeFill="url(#studio-pattern-fill)"';
+
+  return {
+    code: `import { ProgressBar${state.pattern === "none" ? "" : ", PatternLines"} } from "@bklitui/ui/charts";
+
+<ProgressBar
+  value={${state.value}}
+  totalNotches={${state.totalNotches}}
+  spacing={${state.spacing}}
+  notchCornerRadius={${state.notchCornerRadius}}
+  notchLengthPercent={${state.notchLengthPercent}}
+  height={${state.progressBarHeight}}
+  useGradient={${state.useGradient}}
+  uniformWidth={${state.uniformWidth}}
+  inactiveFillOpacity={${state.inactiveFillOpacity}}${activeFill}
+  ${motionEnterPropsCodegen(motionSliceFromState(state), state.motionStaggerScale)}
+>${patternChild}</ProgressBar>`,
+  };
+}
+
 export function gaugeCodegen(state: StudioUrlState) {
   const patternChild =
     state.pattern === "none"

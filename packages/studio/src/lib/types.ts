@@ -231,6 +231,7 @@ export const chartLabels = {
   "profit-loss-line": "Profit/Loss Line",
   "live-line-chart": "Live Line Chart",
   "pie-chart": "Pie Chart",
+  "progress-bar": "Progress Bar",
   "radar-chart": "Radar Chart",
   "ring-chart": "Ring Chart",
   "scatter-chart": "Scatter Chart",

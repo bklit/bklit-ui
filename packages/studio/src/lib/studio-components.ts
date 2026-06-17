@@ -43,6 +43,7 @@ import {
   liveLineChartControlGroups,
   pieCenterControlGroup,
   pieChartControlGroups,
+  progressBarControlGroups,
   radarChartControlGroups,
   ringCenterControlGroup,
   ringChartControlGroups,
@@ -293,6 +294,37 @@ export function resolveGaugeComponents(): StudioComponentDefinition[] {
       controlGroups: center ? [center] : [],
     },
     legendNode("gauge"),
+  ];
+}
+
+export function resolveProgressBarComponents(): StudioComponentDefinition[] {
+  const [design, notches] = progressBarControlGroups;
+
+  return [
+    {
+      id: "progressBar.chart",
+      label: "Progress Bar",
+      kind: "chart",
+      treeIcon: "layers",
+      controlGroups: [],
+      design: rootPaletteDesign(true),
+    },
+    {
+      id: "progressBar.fill",
+      label: "Bar fill",
+      parentId: "progressBar.chart",
+      kind: "chart",
+      treeIcon: "layers",
+      controlGroups: design ? [design] : [],
+      design: { seriesIndex: 0, supportsPattern: true, showPalette: false },
+    },
+    {
+      id: "progressBar.notches",
+      label: "Notches",
+      parentId: "progressBar.chart",
+      kind: "geometry",
+      controlGroups: notches ? [notches] : [],
+    },
   ];
 }
 

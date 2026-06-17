@@ -102,6 +102,66 @@ export const gaugeControlGroups: StudioControlGroup[] = [
   ]),
 ];
 
+export const progressBarControlGroups: StudioControlGroup[] = [
+  designGroup([
+    {
+      type: "number",
+      key: "value",
+      label: "Fill",
+      min: 0,
+      max: 100,
+      unit: "%",
+    },
+    {
+      type: "opacity",
+      key: "inactiveFillOpacity",
+      label: "Track opacity",
+      min: 0,
+      max: 1,
+      step: 0.05,
+      color: "var(--chart-1)",
+      secondaryColor: "var(--muted)",
+    },
+    { type: "boolean", key: "useGradient", label: "Gradient fills" },
+    { type: "boolean", key: "uniformWidth", label: "Uniform width" },
+  ]),
+  controlGroup("Notches", [
+    { type: "number", key: "totalNotches", label: "Count", min: 8, max: 120 },
+    {
+      type: "number",
+      key: "spacing",
+      label: "Spacing",
+      min: 0,
+      max: 75,
+      unit: "%",
+      input: "studio",
+    },
+    {
+      type: "number",
+      key: "progressBarHeight",
+      label: "Bar height",
+      min: 12,
+      max: 80,
+      unit: "px",
+    },
+    {
+      type: "number",
+      key: "notchCornerRadius",
+      label: "Corner",
+      min: 0,
+      max: 12,
+    },
+    {
+      type: "number",
+      key: "notchLengthPercent",
+      label: "Notch depth",
+      min: 5,
+      max: 100,
+      unit: "%",
+    },
+  ]),
+];
+
 export const gridControlGroups: StudioControlGroup[] = [
   controlGroup("Lines", [
     { type: "boolean", key: "gridHorizontal", label: "Horizontal" },

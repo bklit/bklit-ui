@@ -14,6 +14,7 @@ export const CHART_TYPE_ICONS: Record<ChartSlug, IconName> = {
   "pie-chart": "IconPieChart1",
   "ring-chart": "IconLoadingCircle",
   "gauge-chart": "IconGauge",
+  "progress-bar": "IconProgress75",
   "heatmap-chart": "IconDotGrid3x3",
   "radar-chart": "IconFormPentagon",
   "funnel-chart": "IconDeepDive",

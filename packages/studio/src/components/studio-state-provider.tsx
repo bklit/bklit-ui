@@ -20,6 +20,7 @@ import {
   lineChartProfitLossDefaults,
   lineChartStandardDefaults,
 } from "@/lib/line-chart-mode";
+import { progressBarChartDefaults } from "@/lib/progress-bar-chart-defaults";
 import { getStudioConfig } from "@/lib/registry";
 import { chartDefaultHiddenYAxes } from "@/lib/studio-component-visibility";
 import {
@@ -283,6 +284,7 @@ export function StudioStateProvider({
         ...(slug === "profit-loss-line" ? lineChartProfitLossDefaults : {}),
         ...(slug === "line-chart" ? lineChartStandardDefaults : {}),
         ...(slug === "heatmap-chart" ? heatmapChartDefaults : {}),
+        ...(slug === "progress-bar" ? progressBarChartDefaults : {}),
         ...(slug === "area-chart" || slug === "composed-chart"
           ? { dataSeries: 2 }
           : {}),

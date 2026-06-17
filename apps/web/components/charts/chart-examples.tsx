@@ -65,6 +65,7 @@ import {
   ProfitLossLegend,
   ProfitLossLegendHoverProvider,
   ProfitLossLine,
+  ProgressBar,
   profitLossColor,
   RadarArea,
   RadarAxis,
@@ -4122,6 +4123,126 @@ function makeGaugeExamples(): ChartExample[] {
   ];
 }
 
+function makeProgressBarHero(): ChartExample {
+  return {
+    title: "Progress Bar",
+    description:
+      "Horizontal notch track with theme gradients, optional patterns in defs, and responsive parent sizing.",
+    code: `<ProgressBar
+  value={72}
+  totalNotches={72}
+  spacing={0}
+  notchCornerRadius={3}
+  notchLengthPercent={38}
+  inactiveFillOpacity={0.4}
+  useGradient
+/>`,
+    render: () => (
+      <div className="flex w-full items-center px-4 py-6">
+        <ProgressBar
+          inactiveFillOpacity={0.4}
+          notchCornerRadius={3}
+          notchLengthPercent={38}
+          spacing={0}
+          totalNotches={72}
+          useGradient
+          value={72}
+        />
+      </div>
+    ),
+  };
+}
+
+function makeProgressBarExamples(): ChartExample[] {
+  return [
+    {
+      title: "Progress Bar — dual gradients",
+      description:
+        "Active and inactive notches each interpolate along their own hex ramp when useGradient is enabled.",
+      code: `<ProgressBar
+  value={72}
+  totalNotches={72}
+  spacing={0}
+  notchCornerRadius={3}
+  notchLengthPercent={38}
+  inactiveFillOpacity={0.4}
+  activeGradient={["#a855f7", "#06b6d4"]}
+  inactiveGradient={["#334155", "#38bdf8"]}
+  useGradient
+/>`,
+      render: () => (
+        <div className="flex w-full items-center px-4 py-6">
+          <ProgressBar
+            activeGradient={["#a855f7", "#06b6d4"]}
+            inactiveFillOpacity={0.4}
+            inactiveGradient={["#334155", "#38bdf8"]}
+            notchCornerRadius={3}
+            notchLengthPercent={38}
+            spacing={0}
+            totalNotches={72}
+            useGradient
+            value={72}
+          />
+        </div>
+      ),
+    },
+    {
+      title: "Progress Bar — uniform width",
+      description:
+        "Rectangular notches with wider spacing — reads more like discrete segments than tapered ticks.",
+      code: `<ProgressBar
+  value={58}
+  totalNotches={24}
+  spacing={18}
+  notchCornerRadius={4}
+  uniformWidth
+  inactiveFillOpacity={0.35}
+  useGradient
+/>`,
+      render: () => (
+        <div className="flex w-full items-center px-4 py-6">
+          <ProgressBar
+            inactiveFillOpacity={0.35}
+            notchCornerRadius={4}
+            spacing={18}
+            totalNotches={24}
+            uniformWidth
+            useGradient
+            value={58}
+          />
+        </div>
+      ),
+    },
+    {
+      title: "Progress Bar — full-depth notches",
+      description:
+        "Tighter corner radius and 100% notch length for a bolder, blockier meter.",
+      code: `<ProgressBar
+  value={84}
+  totalNotches={48}
+  spacing={0}
+  notchCornerRadius={0}
+  notchLengthPercent={100}
+  inactiveFillOpacity={0.4}
+  useGradient
+/>`,
+      render: () => (
+        <div className="flex w-full items-center px-4 py-6">
+          <ProgressBar
+            inactiveFillOpacity={0.4}
+            notchCornerRadius={0}
+            notchLengthPercent={100}
+            spacing={0}
+            totalNotches={48}
+            useGradient
+            value={84}
+          />
+        </div>
+      ),
+    },
+  ];
+}
+
 function makeSankeyExamples(): ChartExample[] {
   return [
     {
@@ -5575,6 +5696,7 @@ const chartTypes = [
   { label: "Line Chart", slug: "line-chart" },
   { label: "Live Line Chart", slug: "live-line-chart" },
   { label: "Pie Chart", slug: "pie-chart" },
+  { label: "Progress Bar", slug: "progress-bar" },
   { label: "Radar Chart", slug: "radar-chart" },
   { label: "Ring Chart", slug: "ring-chart" },
   { label: "Scatter Chart", slug: "scatter-chart" },
@@ -5666,6 +5788,11 @@ const chartExamplesRegistry: Record<string, RegistryEntry> = {
     hero: makeLiveLineHero,
   },
   "pie-chart": { factory: makePieExamples, previewLayout: "compact" },
+  "progress-bar": {
+    factory: makeProgressBarExamples,
+    hero: makeProgressBarHero,
+    previewLayout: "compact",
+  },
   "radar-chart": { factory: makeRadarExamples, previewLayout: "compact" },
   "ring-chart": { factory: makeRingExamples, previewLayout: "compact" },
   "scatter-chart": { factory: makeScatterExamples, hero: makeScatterHero },
