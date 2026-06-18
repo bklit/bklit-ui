@@ -10,7 +10,7 @@ import {
 } from "react";
 import { cn } from "@/lib/utils";
 import type { ChartBrushSelection } from "./chart-brush";
-import { resolveDataXExtent } from "./filter-data-by-x-domain";
+import { resolveBrushTrackXExtent } from "./filter-data-by-x-domain";
 
 export interface ChartBrushLayoutState {
   xDomain: [Date, Date] | undefined;
@@ -23,6 +23,8 @@ export interface ChartBrushLayoutProps {
   /** Full dataset backing the brush strip and main chart. */
   data: Record<string, unknown>[];
   xDataKey?: string;
+  /** Extends the brush track max beyond the last data row (e.g. projection horizon). */
+  xExtentMax?: Date;
   /** When false, children render without brush zoom state. */
   enabled: boolean;
   /** Fixed height of the brush strip in pixels. */
@@ -45,6 +47,7 @@ function createXAccessor(xDataKey: string) {
 export const ChartBrushLayout = memo(function ChartBrushLayout({
   data,
   xDataKey = "date",
+  xExtentMax,
   enabled,
   height,
   fitMainContent = false,
@@ -54,8 +57,8 @@ export const ChartBrushLayout = memo(function ChartBrushLayout({
 }: ChartBrushLayoutProps) {
   const xAccessor = useMemo(() => createXAccessor(xDataKey), [xDataKey]);
   const fullExtent = useMemo(
-    () => resolveDataXExtent(data, xAccessor),
-    [data, xAccessor]
+    () => resolveBrushTrackXExtent(data, xAccessor, xExtentMax),
+    [data, xAccessor, xExtentMax]
   );
   const [brushSelection, setBrushSelection] =
     useState<ChartBrushSelection | null>(null);

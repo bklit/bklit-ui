@@ -337,7 +337,9 @@ const barConfig: StudioChartConfig = {
       <StudioChartShell
         legendComponentId="bar.legend"
         legendItems={
-          isLoading ? [] : studioCartesianLegendItems(state, seriesCount)
+          isLoading
+            ? []
+            : studioCartesianLegendItems(state, seriesCount, undefined, "bar")
         }
         state={ctx.chromeState}
       >
@@ -435,7 +437,12 @@ const composedConfig: StudioChartConfig = {
     return (
       <StudioChartShell
         legendComponentId="composed.legend"
-        legendItems={studioCartesianLegendItems(state, seriesCount)}
+        legendItems={studioCartesianLegendItems(
+          state,
+          seriesCount,
+          undefined,
+          "composed"
+        )}
         state={ctx.chromeState}
       >
         <StudioCartesianFill>

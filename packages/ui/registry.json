@@ -358,6 +358,47 @@
           "path": "src/charts/reference-area-geometry.ts",
           "type": "registry:component",
           "target": "components/charts/reference-area-geometry.ts"
+        },
+        {
+          "path": "src/charts/reference-area-registration-context.tsx",
+          "type": "registry:component",
+          "target": "components/charts/reference-area-registration-context.tsx"
+        }
+      ]
+    },
+    {
+      "name": "projection-line",
+      "type": "registry:component",
+      "title": "Projection Line",
+      "description": "Forecast segment extending a line series past the last data point",
+      "registryDependencies": [
+        "@bklit/chart-context",
+        "@bklit/line-chart"
+      ],
+      "dependencies": [
+        "@visx/shape@4.0.1-alpha.0",
+        "motion"
+      ],
+      "files": [
+        {
+          "path": "src/charts/projection-line.tsx",
+          "type": "registry:component",
+          "target": "components/charts/projection-line.tsx"
+        },
+        {
+          "path": "src/charts/projection-line-end-marker.tsx",
+          "type": "registry:component",
+          "target": "components/charts/projection-line-end-marker.tsx"
+        },
+        {
+          "path": "src/charts/projection-utils.ts",
+          "type": "registry:component",
+          "target": "components/charts/projection-utils.ts"
+        },
+        {
+          "path": "src/charts/line-series-terminal-marker.tsx",
+          "type": "registry:component",
+          "target": "components/charts/line-series-terminal-marker.tsx"
         }
       ]
     },
@@ -624,6 +665,11 @@
           "target": "components/charts/time-series-chart-shell.tsx"
         },
         {
+          "path": "src/charts/reference-area-registration-context.tsx",
+          "type": "registry:component",
+          "target": "components/charts/reference-area-registration-context.tsx"
+        },
+        {
           "path": "src/charts/projection-config.ts",
           "type": "registry:component",
           "target": "components/charts/projection-config.ts"
@@ -723,6 +769,11 @@
           "path": "src/charts/time-series-chart-shell.tsx",
           "type": "registry:component",
           "target": "components/charts/time-series-chart-shell.tsx"
+        },
+        {
+          "path": "src/charts/reference-area-registration-context.tsx",
+          "type": "registry:component",
+          "target": "components/charts/reference-area-registration-context.tsx"
         },
         {
           "path": "src/charts/projection-config.ts",
@@ -837,6 +888,11 @@
           "path": "src/charts/time-series-chart-shell.tsx",
           "type": "registry:component",
           "target": "components/charts/time-series-chart-shell.tsx"
+        },
+        {
+          "path": "src/charts/reference-area-registration-context.tsx",
+          "type": "registry:component",
+          "target": "components/charts/reference-area-registration-context.tsx"
         },
         {
           "path": "src/charts/projection-config.ts",
@@ -999,6 +1055,11 @@
           "path": "src/charts/time-series-chart-shell.tsx",
           "type": "registry:component",
           "target": "components/charts/time-series-chart-shell.tsx"
+        },
+        {
+          "path": "src/charts/reference-area-registration-context.tsx",
+          "type": "registry:component",
+          "target": "components/charts/reference-area-registration-context.tsx"
         },
         {
           "path": "src/charts/projection-config.ts",

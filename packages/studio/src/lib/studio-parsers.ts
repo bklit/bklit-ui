@@ -197,7 +197,7 @@ export const studioSearchParams = {
   seriesMarkerRadii: parseAsString.withDefault(""),
   seriesMarkerRingGaps: parseAsString.withDefault(""),
   seriesMarkerRingWidths: parseAsString.withDefault(""),
-  seriesTerminalMarkerShow: parseAsBoolean.withDefault(true),
+  seriesTerminalMarkerShow: parseAsBoolean.withDefault(false),
   seriesTerminalMarkerFill: parseAsString.withDefault("transparent"),
   seriesTerminalMarkerRingColor: parseAsString.withDefault(""),
   seriesTerminalMarkerRingGap: parseAsFloat.withDefault(2),
@@ -382,6 +382,12 @@ export const studioSearchParams = {
     "bezier",
   ] as const).withDefault("linear"),
   projectionStroke: parseAsString.withDefault("var(--chart-3)"),
+  projectionStrokeStyle: parseAsStringLiteral([
+    "solid",
+    "gradient",
+  ] as const).withDefault("solid"),
+  projectionStrokeGradientStart: parseAsString.withDefault(""),
+  projectionStrokeGradientEnd: parseAsString.withDefault("var(--chart-5)"),
   projectionDashArray: parseAsString.withDefault("6,4"),
   projectionStrokeWidth: parseAsFloat.withDefault(2),
   projectionShowEndpoints: parseAsBoolean.withDefault(true),
@@ -392,6 +398,9 @@ export const studioSearchParams = {
   projectionEndValues: parseAsString.withDefault(""),
   projectionCurves: parseAsString.withDefault(""),
   projectionStrokes: parseAsString.withDefault(""),
+  projectionStrokeStyles: parseAsString.withDefault(""),
+  projectionStrokeGradientStarts: parseAsString.withDefault(""),
+  projectionStrokeGradientEnds: parseAsString.withDefault(""),
   projectionDashArrays: parseAsString.withDefault(""),
   projectionStrokeWidths: parseAsString.withDefault(""),
   projectionShowEndpointsFlags: parseAsString.withDefault(""),
@@ -681,6 +690,9 @@ export interface StudioUrlState {
   projectionEndValue: number;
   projectionCurve: ProjectionCurveKind;
   projectionStroke: string;
+  projectionStrokeStyle: "solid" | "gradient";
+  projectionStrokeGradientStart: string;
+  projectionStrokeGradientEnd: string;
   projectionDashArray: string;
   projectionStrokeWidth: number;
   projectionShowEndpoints: boolean;
@@ -691,6 +703,9 @@ export interface StudioUrlState {
   projectionEndValues: string;
   projectionCurves: string;
   projectionStrokes: string;
+  projectionStrokeStyles: string;
+  projectionStrokeGradientStarts: string;
+  projectionStrokeGradientEnds: string;
   projectionDashArrays: string;
   projectionStrokeWidths: string;
   projectionShowEndpointsFlags: string;
@@ -854,7 +869,7 @@ export function defaultStudioState(
     seriesMarkerRadii: "",
     seriesMarkerRingGaps: "",
     seriesMarkerRingWidths: "",
-    seriesTerminalMarkerShow: true,
+    seriesTerminalMarkerShow: false,
     seriesTerminalMarkerFill: "transparent",
     seriesTerminalMarkerRingColor: "",
     seriesTerminalMarkerRingGap: 2,
@@ -989,6 +1004,9 @@ export function defaultStudioState(
     projectionEndValue: 280,
     projectionCurve: "linear",
     projectionStroke: "var(--chart-3)",
+    projectionStrokeStyle: "solid",
+    projectionStrokeGradientStart: "",
+    projectionStrokeGradientEnd: "var(--chart-5)",
     projectionDashArray: "6,4",
     projectionStrokeWidth: 2,
     projectionShowEndpoints: true,
@@ -999,6 +1017,9 @@ export function defaultStudioState(
     projectionEndValues: "",
     projectionCurves: "",
     projectionStrokes: "",
+    projectionStrokeStyles: "",
+    projectionStrokeGradientStarts: "",
+    projectionStrokeGradientEnds: "",
     projectionDashArrays: "",
     projectionStrokeWidths: "",
     projectionShowEndpointsFlags: "",

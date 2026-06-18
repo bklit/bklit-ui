@@ -375,6 +375,7 @@ export {
 export {
   ProjectionLine,
   type ProjectionLineProps,
+  type ProjectionStrokeStyle,
 } from "./projection-line";
 export {
   ProjectionLineEndMarker,

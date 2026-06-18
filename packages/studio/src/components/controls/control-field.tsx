@@ -45,6 +45,7 @@ import {
 } from "./line-y-axis-settings-controls";
 import { OpacityControl } from "./opacity-control";
 import { PieEndAngleControl, PieStartAngleControl } from "./pie-angle-control";
+import { ProjectionStrokeControl } from "./projection-stroke-control";
 import { ReferenceAreaFillControl } from "./reference-area-fill-control";
 import { ReferenceAreaYAxisControl } from "./reference-area-y-axis-control";
 import { SliderInputGroup } from "./slider-input-group";
@@ -523,6 +524,18 @@ export function ControlField({
         onChange={onChange}
         onCommit={onCommit}
         onPreview={onPreview}
+        state={state}
+      />
+    );
+  }
+
+  if (control.type === "projectionStroke") {
+    return (
+      <ProjectionStrokeControl
+        onChange={onChange}
+        onCommit={onCommit}
+        onPreview={onPreview}
+        projectionIndex={projectionIndex}
         state={state}
       />
     );

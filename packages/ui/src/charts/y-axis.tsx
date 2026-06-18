@@ -46,9 +46,9 @@ function formatLabel(
 }
 
 function resolveTickLabelColor(
-  value: number,
+  tickY: number,
   axisId: string,
-  yScaleDomain: [number, number],
+  yScale: ReturnType<typeof useYScale>,
   referenceAreas: ReturnType<typeof useChartStable>["referenceAreas"]
 ): string | undefined {
   for (const area of referenceAreas) {
@@ -61,9 +61,13 @@ function resolveTickLabelColor(
     const [low, high] = resolveReferenceDataRange(
       area.y1,
       area.y2,
-      yScaleDomain
+      yScale.domain() as [number, number]
     );
-    if (value >= low && value <= high) {
+    const topPixel = yScale(high) ?? 0;
+    const bottomPixel = yScale(low) ?? 0;
+    const bandTop = Math.min(topPixel, bottomPixel);
+    const bandBottom = Math.max(topPixel, bottomPixel);
+    if (tickY >= bandTop && tickY <= bandBottom) {
       return area.axisLabelColor;
     }
   }
@@ -98,21 +102,23 @@ const YAxisInner = memo(function YAxisInner({
   const yScale = useYScale(yAxisId);
   const isLeft = orientation === "left";
   const axisId = normalizeYAxisId(yAxisId);
-  const yScaleDomain = yScale.domain() as [number, number];
 
   const ticks = useMemo(() => {
     const tickValues = yScale.ticks(resolveYAxisTickCount(numTicks));
-    return tickValues.map((value) => ({
-      value,
-      y: (yScale(value) ?? 0) + margin.top,
-      label: formatLabel(value, formatLargeNumbers, formatValue),
-      labelColor: resolveTickLabelColor(
+    return tickValues.map((value) => {
+      const y = (yScale(value) ?? 0) + margin.top;
+      return {
         value,
-        axisId,
-        yScaleDomain,
-        referenceAreas
-      ),
-    }));
+        y,
+        label: formatLabel(value, formatLargeNumbers, formatValue),
+        labelColor: resolveTickLabelColor(
+          y - margin.top,
+          axisId,
+          yScale,
+          referenceAreas
+        ),
+      };
+    });
   }, [
     yScale,
     margin.top,
@@ -120,7 +126,6 @@ const YAxisInner = memo(function YAxisInner({
     formatLargeNumbers,
     formatValue,
     axisId,
-    yScaleDomain,
     referenceAreas,
   ]);
 

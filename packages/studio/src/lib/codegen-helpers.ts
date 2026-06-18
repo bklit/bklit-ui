@@ -37,8 +37,12 @@ import {
   getProjectionCount,
   getProjectionCurve,
   getProjectionDashArray,
+  getProjectionEndMarkerStroke,
   getProjectionShowEndpoints,
   getProjectionStroke,
+  getProjectionStrokeGradientEnd,
+  getProjectionStrokeGradientStart,
+  getProjectionStrokeStyle,
   getProjectionStrokeWidth,
 } from "./studio-projection-props";
 import {
@@ -184,6 +188,7 @@ function projectionCodegenBlock(state: StudioUrlState): string {
       continue;
     }
     const curveKind = getProjectionCurve(state, index);
+    const strokeStyle = getProjectionStrokeStyle(state, index);
     const props = [
       `data={projectionData${index}}`,
       `curveKind="${curveKind}"`,
@@ -192,10 +197,19 @@ function projectionCodegenBlock(state: StudioUrlState): string {
       `strokeWidth={${getProjectionStrokeWidth(state, index)}}`,
       `strokeDasharray="${getProjectionDashArray(state, index)}"`,
     ];
+    if (strokeStyle === "gradient") {
+      props.push(`strokeStyle="gradient"`);
+      props.push(
+        `gradientStart="${getProjectionStrokeGradientStart(state, index)}"`
+      );
+      props.push(
+        `gradientEnd="${getProjectionStrokeGradientEnd(state, index)}"`
+      );
+    }
     blocks.push(`\n  <ProjectionLine ${props.join(" ")} />`);
     if (getProjectionShowEndpoints(state, index)) {
       blocks.push(
-        `\n  <ProjectionLineEndMarker data={projectionData${index}} stroke="${getProjectionStroke(state, index)}" />`
+        `\n  <ProjectionLineEndMarker data={projectionData${index}} stroke="${getProjectionEndMarkerStroke(state, index)}" />`
       );
     }
   }

@@ -21,6 +21,9 @@ const PROJECTION_PIPE_KEYS = [
   "projectionEndValues",
   "projectionCurves",
   "projectionStrokes",
+  "projectionStrokeStyles",
+  "projectionStrokeGradientStarts",
+  "projectionStrokeGradientEnds",
   "projectionDashArrays",
   "projectionStrokeWidths",
   "projectionShowEndpointsFlags",
@@ -70,9 +73,23 @@ export function buildAddProjectionLineUpdate(
     return String(seriesIndex);
   });
 
+  const dashFallback = state.projectionDashArray.trim() || "6,4";
+  const existingDashParts = parsePipeField(
+    String(state.projectionDashArrays ?? "")
+  );
+  const dashArrays = Array.from({ length: newCount }, (_, index) => {
+    if (index < count) {
+      const slot = existingDashParts[index]?.trim();
+      return slot || dashFallback;
+    }
+    return dashFallback;
+  });
+
   return {
     projectionCount: newCount,
     projectionSeriesIndices: serializePipeField(seriesIndices),
+    projectionDashArrays: serializePipeField(dashArrays),
+    showBrush: false,
   };
 }
 

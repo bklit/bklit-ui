@@ -104,6 +104,11 @@ export type StudioControl = StudioControlVisibility &
         key: "projectionCurve";
         label: string;
       } & ProjectionScopedControl)
+    | ({
+        type: "projectionStroke";
+        key: "projectionStroke";
+        label: string;
+      } & ProjectionScopedControl)
     | { type: "funnelEdges"; key: "funnelEdges"; label: string }
     | ({
         type: "fadeEdges";

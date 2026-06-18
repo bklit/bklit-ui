@@ -61,6 +61,7 @@ import { controlGroup } from "./sidebar-control-templates";
 import { firstConfigurableStudioComponentId } from "./studio-component-visibility";
 import {
   getProjectionCount,
+  getProjectionSeriesIndex,
   getProjectionStroke,
   PER_PROJECTION_CONTROL_KEYS,
   PROJECTION_PRESET_LABELS,
@@ -353,12 +354,6 @@ export function getStudioDataControlGroups(
   const dataGroupConfig = groups.find((group) => group.title === "Data");
   if (dataGroupConfig) {
     result.push(dataGroupConfig);
-  }
-  const referenceRangeGroup = groups.find(
-    (group) => group.title === "Reference range"
-  );
-  if (referenceRangeGroup) {
-    result.push(referenceRangeGroup);
   }
   return result;
 }
@@ -937,6 +932,69 @@ function resolveProfitLossLineComponents(): StudioComponentDefinition[] {
   ];
 }
 
+function appendLineSeriesComponents(
+  components: StudioComponentDefinition[],
+  state: StudioUrlState,
+  chartId: string,
+  seriesCount: number,
+  projectionCount: number,
+  lineControls: StudioControlGroup | undefined,
+  markers: StudioControlGroup | undefined,
+  terminalMarker: StudioControlGroup | undefined,
+  dashTail: StudioControlGroup | undefined
+) {
+  for (let index = 0; index < seriesCount; index += 1) {
+    const seriesId = `line.series.${index}`;
+    components.push({
+      id: seriesId,
+      label: `Line · ${STUDIO_SERIES_KEYS[index] ?? `Series ${index + 1}`}`,
+      parentId: chartId,
+      kind: "line",
+      listMarker: "color-dot",
+      swatchColor: getEffectiveSeriesColor(state, index),
+      controlGroups: [
+        seriesYAxisControlGroup(index),
+        ...seriesScopedControlGroups(
+          [
+            ...(lineControls ? [lineControls] : []),
+            ...(markers ? [markers] : []),
+            ...(terminalMarker ? [terminalMarker] : []),
+            ...(dashTail ? [dashTail] : []),
+          ],
+          index
+        ),
+      ],
+      design: {
+        seriesIndex: index,
+        supportsPattern: false,
+        showPalette: index === 0,
+      },
+    });
+
+    for (
+      let projectionIndex = 0;
+      projectionIndex < projectionCount;
+      projectionIndex += 1
+    ) {
+      if (getProjectionSeriesIndex(state, projectionIndex) !== index) {
+        continue;
+      }
+      components.push({
+        id: `line.projection.${projectionIndex}`,
+        label: `Projection · ${PROJECTION_PRESET_LABELS[projectionIndex] ?? `Projection ${projectionIndex + 1}`}`,
+        parentId: seriesId,
+        kind: "line",
+        listMarker: "color-dot",
+        swatchColor: getProjectionStroke(state, projectionIndex),
+        controlGroups: projectionScopedControlGroups(
+          [projectionControlGroup],
+          projectionIndex
+        ),
+      });
+    }
+  }
+}
+
 export function resolveLineComponents(
   state: StudioUrlState
 ): StudioComponentDefinition[] {
@@ -988,57 +1046,29 @@ export function resolveLineComponents(
     referenceAreaNode("line"),
   ];
 
-  for (let index = 0; index < projectionCount; index += 1) {
-    components.push({
-      id: `line.projection.${index}`,
-      label: `Projection · ${PROJECTION_PRESET_LABELS[index] ?? `Projection ${index + 1}`}`,
-      parentId: chartId,
-      kind: "line",
-      listMarker: "color-dot",
-      swatchColor: getProjectionStroke(state, index),
-      controlGroups: projectionScopedControlGroups(
-        [projectionControlGroup],
-        index
-      ),
-    });
-  }
-
-  for (let index = 0; index < seriesCount; index += 1) {
-    components.push({
-      id: `line.series.${index}`,
-      label: `Line · ${STUDIO_SERIES_KEYS[index] ?? `Series ${index + 1}`}`,
-      parentId: chartId,
-      kind: "line",
-      listMarker: "color-dot",
-      swatchColor: getEffectiveSeriesColor(state, index),
-      controlGroups: [
-        seriesYAxisControlGroup(index),
-        ...seriesScopedControlGroups(
-          [
-            ...(lineControls ? [lineControls] : []),
-            ...(markers ? [markers] : []),
-            ...(terminalMarker ? [terminalMarker] : []),
-            ...(dashTail ? [dashTail] : []),
-          ],
-          index
-        ),
-      ],
-      design: {
-        seriesIndex: index,
-        supportsPattern: false,
-        showPalette: index === 0,
-      },
-    });
-  }
+  appendLineSeriesComponents(
+    components,
+    state,
+    chartId,
+    seriesCount,
+    projectionCount,
+    lineControls,
+    markers,
+    terminalMarker,
+    dashTail
+  );
 
   components.push(
     chartYAxisNode("line", "left", "YAxis · left"),
     chartYAxisNode("line", "right", "YAxis · right"),
     passiveNode("line", "xaxis", "XAxis"),
     chartTooltipNode("line"),
-    legendNode("line"),
-    brushNode("line", standardBrushStripControlGroups)
+    legendNode("line")
   );
+
+  if (projectionCount === 0) {
+    components.push(brushNode("line", standardBrushStripControlGroups));
+  }
 
   return components;
 }

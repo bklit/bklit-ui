@@ -25,6 +25,9 @@ export const PROJECTION_PRESET_LABELS = [
 ] as const;
 
 const PROJECTION_MODE_VALUES = ["auto", "target", "manual"] as const;
+const PROJECTION_STROKE_STYLE_VALUES = ["solid", "gradient"] as const;
+export type ProjectionStrokeStyle =
+  (typeof PROJECTION_STROKE_STYLE_VALUES)[number];
 const PROJECTION_AUTO_METHOD_VALUES = [
   "linearRegression",
   "lastSegment",
@@ -38,6 +41,9 @@ export const PER_PROJECTION_CONTROL_KEYS = new Set<keyof StudioUrlState>([
   "projectionEndValue",
   "projectionCurve",
   "projectionStroke",
+  "projectionStrokeStyle",
+  "projectionStrokeGradientStart",
+  "projectionStrokeGradientEnd",
   "projectionDashArray",
   "projectionStrokeWidth",
   "projectionShowEndpoints",
@@ -80,6 +86,16 @@ function parsePipePathDensities(
   return parsePipeField(raw).map((part) =>
     (PROJECTION_PATH_DENSITY_VALUES as readonly string[]).includes(part)
       ? (part as ProjectionPathDensity)
+      : undefined
+  );
+}
+
+function parsePipeStrokeStyles(
+  raw: string
+): (ProjectionStrokeStyle | undefined)[] {
+  return parsePipeField(raw).map((part) =>
+    (PROJECTION_STROKE_STYLE_VALUES as readonly string[]).includes(part)
+      ? (part as ProjectionStrokeStyle)
       : undefined
   );
 }
@@ -134,6 +150,11 @@ export function getProjectionCount(state: StudioUrlState): number {
   return clampProjectionCount(state.projectionCount);
 }
 
+/** Brush and projections are mutually exclusive on the standard line chart. */
+export function isLineChartBrushAvailable(state: StudioUrlState): boolean {
+  return getProjectionCount(state) === 0;
+}
+
 export function getProjectionSeriesIndex(
   state: StudioUrlState,
   projectionIndex: number
@@ -146,18 +167,27 @@ export function getProjectionSeriesIndex(
   return Math.min(Math.max(0, Math.floor(raw)), maxSeries - 1);
 }
 
-/** Series that anchors the first visible projection (shared terminal marker). */
-export function getProjectionAnchorSeriesIndex(
+/** Series indices that anchor at least one visible projection. */
+export function getSeriesIndicesWithVisibleProjections(
   state: StudioUrlState
-): number | null {
+): number[] {
   const count = getProjectionCount(state);
+  const indices = new Set<number>();
   for (let index = 0; index < count; index += 1) {
     if (!isStudioComponentVisible(state, `line.projection.${index}`)) {
       continue;
     }
-    return getProjectionSeriesIndex(state, index);
+    indices.add(getProjectionSeriesIndex(state, index));
   }
-  return null;
+  return Array.from(indices).sort((left, right) => left - right);
+}
+
+/** @deprecated Use {@link getSeriesIndicesWithVisibleProjections}. */
+export function getProjectionAnchorSeriesIndex(
+  state: StudioUrlState
+): number | null {
+  const indices = getSeriesIndicesWithVisibleProjections(state);
+  return indices[0] ?? null;
 }
 
 const PROJECTION_MODE_PRESETS: ProjectionMode[] = ["target", "auto", "target"];
@@ -291,13 +321,59 @@ export function getProjectionStroke(
   );
 }
 
+export function getProjectionStrokeStyle(
+  state: StudioUrlState,
+  projectionIndex: number
+): ProjectionStrokeStyle {
+  return getPipeSlot(
+    projectionIndex,
+    parsePipeStrokeStyles(state.projectionStrokeStyles),
+    state.projectionStrokeStyle
+  );
+}
+
+export function getProjectionStrokeGradientStart(
+  state: StudioUrlState,
+  projectionIndex: number
+): string {
+  const fallback = getProjectionStroke(state, projectionIndex);
+  return getPipeSlot(
+    projectionIndex,
+    parsePipeStrings(state.projectionStrokeGradientStarts),
+    state.projectionStrokeGradientStart || fallback
+  );
+}
+
+export function getProjectionStrokeGradientEnd(
+  state: StudioUrlState,
+  projectionIndex: number
+): string {
+  const fallback = "var(--chart-5)";
+  return getPipeSlot(
+    projectionIndex,
+    parsePipeStrings(state.projectionStrokeGradientEnds),
+    state.projectionStrokeGradientEnd || fallback
+  );
+}
+
+export function getProjectionEndMarkerStroke(
+  state: StudioUrlState,
+  projectionIndex: number
+): string {
+  if (getProjectionStrokeStyle(state, projectionIndex) === "gradient") {
+    return getProjectionStrokeGradientEnd(state, projectionIndex);
+  }
+  return getProjectionStroke(state, projectionIndex);
+}
+
 export function getProjectionDashArray(
   state: StudioUrlState,
   projectionIndex: number
 ): string {
+  const fallback = state.projectionDashArray.trim() || "6,4";
   const parsed = parsePipeStrings(state.projectionDashArrays);
-  const slot = parsed[projectionIndex];
-  return slot?.trim() ? slot : state.projectionDashArray;
+  const slot = parsed[projectionIndex]?.trim();
+  return slot ? slot : fallback;
 }
 
 export function getProjectionStrokeWidth(
@@ -374,6 +450,12 @@ function pipeFieldKeyForControl(
       return "projectionCurves";
     case "projectionStroke":
       return "projectionStrokes";
+    case "projectionStrokeStyle":
+      return "projectionStrokeStyles";
+    case "projectionStrokeGradientStart":
+      return "projectionStrokeGradientStarts";
+    case "projectionStrokeGradientEnd":
+      return "projectionStrokeGradientEnds";
     case "projectionDashArray":
       return "projectionDashArrays";
     case "projectionStrokeWidth":
@@ -417,6 +499,12 @@ export function getProjectionScopedControlValue(
       return getProjectionCurve(state, projectionIndex);
     case "projectionStroke":
       return getProjectionStroke(state, projectionIndex);
+    case "projectionStrokeStyle":
+      return getProjectionStrokeStyle(state, projectionIndex);
+    case "projectionStrokeGradientStart":
+      return getProjectionStrokeGradientStart(state, projectionIndex);
+    case "projectionStrokeGradientEnd":
+      return getProjectionStrokeGradientEnd(state, projectionIndex);
     case "projectionDashArray":
       return getProjectionDashArray(state, projectionIndex);
     case "projectionStrokeWidth":
@@ -454,4 +542,29 @@ export function buildProjectionScopedControlUpdate(
   });
 
   return { [pipeKey]: serializePipeField(next) };
+}
+
+/** Latest projection horizon date for brush track extent (visible projections only). */
+export function studioBrushXExtentMax(
+  state: StudioUrlState,
+  sourceData: Record<string, unknown>[],
+  projectionCount: number
+): Date | undefined {
+  let maxTime = Number.NEGATIVE_INFINITY;
+
+  for (let index = 0; index < projectionCount; index++) {
+    const componentId = `line.projection.${index}`;
+    if (!isStudioComponentVisible(state, componentId)) {
+      continue;
+    }
+    const path = buildStudioProjectionPath(state, index, sourceData);
+    for (const point of path) {
+      const time = point.date.getTime();
+      if (time > maxTime) {
+        maxTime = time;
+      }
+    }
+  }
+
+  return maxTime === Number.NEGATIVE_INFINITY ? undefined : new Date(maxTime);
 }

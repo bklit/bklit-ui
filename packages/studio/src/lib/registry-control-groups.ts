@@ -272,7 +272,8 @@ export const lineSeriesTerminalMarkerControlGroup = controlGroup(
       max: 8,
       step: 1,
     },
-  ]
+  ],
+  { collapsible: true, defaultOpen: false }
 );
 
 export const seriesDashTailControlGroup = controlGroup("Dash tail", [
@@ -424,7 +425,7 @@ export const projectionControlGroup = controlGroup("Projection", [
     key: "projectionCurve",
     label: "Curve",
   },
-  { type: "color", key: "projectionStroke", label: "Stroke" },
+  { type: "projectionStroke", key: "projectionStroke", label: "Stroke" },
   {
     type: "text",
     key: "projectionDashArray",
@@ -820,11 +821,7 @@ export function getLineChartControlGroups(state: {
     ];
   }
 
-  return [
-    lineChartSettingsGroup("standard"),
-    referenceAreaBoundsControlGroup,
-    ...lineChartControlGroups,
-  ];
+  return [lineChartSettingsGroup("standard"), ...lineChartControlGroups];
 }
 
 export const profitLossLineChartControlGroups = getLineChartControlGroups({

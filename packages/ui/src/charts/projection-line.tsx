@@ -2,7 +2,7 @@
 
 import { curveLinear } from "@visx/curve";
 import { LinePath } from "@visx/shape";
-import { useCallback, useMemo } from "react";
+import { useCallback, useId, useMemo } from "react";
 import { useChartStable, useYScale } from "./chart-context";
 import {
   buildHorizontalTangentBezierPath,
@@ -13,13 +13,21 @@ import {
 // biome-ignore lint/suspicious/noExplicitAny: d3 curve factory type
 type CurveFactory = any;
 
+export type ProjectionStrokeStyle = "solid" | "gradient";
+
 export interface ProjectionLineProps {
   /** Projection path points — anchor (last data row) + horizon end. */
   data: ProjectionPoint[];
   /** Y-scale group id. Default: `"left"`. */
   yAxisId?: string | number;
-  /** Stroke color. Default: var(--chart-3) */
+  /** Solid stroke color. Default: var(--chart-3) */
   stroke?: string;
+  /** Solid or path-aligned gradient stroke. Default: solid */
+  strokeStyle?: ProjectionStrokeStyle;
+  /** Gradient start color when `strokeStyle` is gradient. Default: `stroke` */
+  gradientStart?: string;
+  /** Gradient end color when `strokeStyle` is gradient. Default: var(--chart-5) */
+  gradientEnd?: string;
   /** Stroke width. Default: 2 */
   strokeWidth?: number;
   /** Straight segment or horizontal-tangent S-curve. Default: linear */
@@ -95,6 +103,9 @@ export function ProjectionLine({
   data,
   yAxisId,
   stroke = "var(--chart-3)",
+  strokeStyle = "solid",
+  gradientStart,
+  gradientEnd = "var(--chart-5)",
   strokeWidth = 2,
   curveKind = "linear",
   curve,
@@ -107,7 +118,9 @@ export function ProjectionLine({
 }: ProjectionLineProps) {
   const { xScale, chartPhase, innerWidth } = useChartStable();
   const yScale = useYScale(yAxisId);
+  const gradientId = useId().replace(/:/g, "");
   const showMarker = showEndMarker ?? showEndpoints ?? true;
+  const resolvedGradientStart = gradientStart ?? stroke;
 
   const getX = useCallback(
     (point: ProjectionPoint) => xScale(point.date) ?? 0,
@@ -175,8 +188,10 @@ export function ProjectionLine({
     return null;
   }
 
+  const resolvedStroke =
+    strokeStyle === "gradient" && geometry ? `url(#${gradientId})` : stroke;
   const strokeProps = {
-    stroke: showStroke ? stroke : "transparent",
+    stroke: showStroke ? resolvedStroke : "transparent",
     strokeDasharray,
     strokeLinecap: "round" as const,
     strokeOpacity,
@@ -185,6 +200,21 @@ export function ProjectionLine({
 
   return (
     <g className={className ?? "chart-projection-line"}>
+      {strokeStyle === "gradient" && geometry ? (
+        <defs>
+          <linearGradient
+            gradientUnits="userSpaceOnUse"
+            id={gradientId}
+            x1={geometry.startX}
+            x2={geometry.visibleEndX}
+            y1={geometry.startY}
+            y2={geometry.endY}
+          >
+            <stop offset="0%" stopColor={resolvedGradientStart} />
+            <stop offset="100%" stopColor={gradientEnd} />
+          </linearGradient>
+        </defs>
+      ) : null}
       {renderProjectionStroke({
         bezierPath,
         curve,

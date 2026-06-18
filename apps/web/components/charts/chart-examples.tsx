@@ -91,7 +91,6 @@ import {
   SegmentLineFrom,
   SegmentLineTo,
   SeriesBar,
-  StaticChartPreviewProvider,
   useChart,
   XAxis,
   YAxis,
@@ -131,6 +130,7 @@ import {
   PROFIT_LOSS_DATA_KEY,
   profitLossLineDocsData,
 } from "@/components/docs/profit-loss-line-docs-data";
+import { ProjectionLineDemo } from "@/components/docs/projection-line-demo";
 import { useWorldDataStandalone } from "@/components/docs/use-world-data";
 import { HorizontalScrollArea } from "@/components/horizontal-scroll-area";
 import {
@@ -2352,6 +2352,42 @@ function makeComposedHero(): ChartExample {
 function makeLineExamples(): ChartExample[] {
   return [
     {
+      title: "Line Chart - Projection",
+      description:
+        "Auto forecast from the last segment with a terminal marker and dashed bezier horizon",
+      code: `import {
+  buildProjectionPath,
+  LineSeriesTerminalMarker,
+  ProjectionLine,
+} from "@bklitui/ui/charts";
+
+const projectionPath = buildProjectionPath({
+  sourceData: chartData,
+  seriesKey: "desktop",
+  mode: "auto",
+  autoMethod: "lastSegment",
+  pathDensity: "endpoints",
+  horizonPoints: 8,
+});
+
+<LineChart data={chartData}>
+  <Grid horizontal />
+  <Line dataKey="desktop" strokeWidth={2} />
+  <LineSeriesTerminalMarker dataKey="desktop" />
+  <ProjectionLine
+    data={projectionPath}
+    strokeDasharray="6,4"
+    curveKind="bezier"
+    showEndMarker
+  />
+  <XAxis />
+  <ChartTooltip />
+</LineChart>`,
+      footer:
+        "See the [Projection Line utility](/docs/utility/projection-line). Projections and brush zoom are not supported together.",
+      render: () => <ProjectionLineDemo />,
+    },
+    {
       title: "Line Chart - Linear",
       description: "Straight lines between data points",
       code: `import { curveLinear } from "@visx/curve";
@@ -2414,44 +2450,6 @@ function makeLineExamples(): ChartExample[] {
           <ChartTooltip />
         </LineExampleChart>
       ),
-    },
-    {
-      title: "Line Chart - Trio with Brush",
-      description:
-        "Three Catmull–Rom series on a dot background with a top legend and brush zoom — matches the Studio trio preset.",
-      code: `import { curveCatmullRom } from "@visx/curve";
-import {
-  Background,
-  ChartBrush,
-  ChartBrushLayout,
-  ChartLegend,
-  ChartTooltip,
-  Line,
-  LineChart,
-  XAxis,
-} from "@bklitui/ui/charts";
-
-<ChartBrushLayout data={chartData} enabled height={72} brushStrip={...}>
-  {(brushLayout) => (
-    <LineChart data={chartData} xDomain={brushLayout.xDomain} tweenYDomainOnXDomainChange>
-      <Background pattern="dots" opacity={0.85} />
-      <Line dataKey="desktop" curve={curveCatmullRom} stroke="oklch(0.882 0.131 312.907)" fadeEdges strokeWidth={2} />
-      <Line dataKey="mobile" curve={curveCatmullRom} stroke="oklch(1 0 215.215)" fadeEdges strokeWidth={2} />
-      <Line dataKey="tablet" curve={curveCatmullRom} stroke="oklch(0.85 0.079 48.99)" fadeEdges strokeWidth={2} />
-      <XAxis />
-      <ChartTooltip />
-    </LineChart>
-  )}
-</ChartBrushLayout>`,
-      data: `const chartData = Array.from({ length: 30 }, (_, i) => ({
-  date: new Date(2025, 0, 1 + i),
-  desktop: Math.round(180 + Math.sin(i / 4.2) * 70 + ((i * 9) % 31)),
-  mobile: Math.round(120 + Math.cos(i / 3.8) * 55 + ((i * 5) % 23)),
-  tablet: Math.round(150 + Math.sin(i / 5.1 + 1) * 48 + ((i * 7) % 19)),
-}));`,
-      footer:
-        "Open the same preset in Studio from the Background docs or paste the share URL from /charts/line-chart.",
-      render: () => <LineChartStudioTrioDemo />,
     },
     {
       title: "Line Chart - Multiple Lines",
@@ -4891,12 +4889,6 @@ const HERO_CURVE_OPTIONS = [
   },
 ] as const;
 
-const lineHeroData = Array.from({ length: 30 }, (_, i) => ({
-  date: new Date(2024, 0, i + 1),
-  desktop: Math.floor(150 + Math.sin(i / 4) * 80 + ((i * 7) % 31)),
-  mobile: Math.floor(80 + Math.cos(i / 3) * 50 + ((i * 5) % 23)),
-}));
-
 const areaHeroData = Array.from({ length: 30 }, (_, i) => ({
   date: new Date(2024, 0, i + 1),
   revenue: Math.floor(8000 + Math.sin(i / 5) * 4000 + ((i * 11) % 2000)),
@@ -4935,37 +4927,6 @@ function ChartHeroCurveToolbar({
           ))}
         </SelectContent>
       </Select>
-    </div>
-  );
-}
-
-function LineHeroWithCurveSelect() {
-  const [curveId, setCurveId] = useState("natural");
-  const curve = useMemo(() => {
-    const hit = HERO_CURVE_OPTIONS.find((o) => o.value === curveId);
-    return hit?.curve ?? curveNatural;
-  }, [curveId]);
-
-  return (
-    <div className="space-y-3">
-      <ChartHeroCurveToolbar onValueChange={setCurveId} value={curveId} />
-      <LineExampleChart aspectRatio="4 / 1" data={lineHeroData}>
-        <Grid horizontal />
-        <Line
-          curve={curve}
-          dataKey="desktop"
-          stroke="var(--chart-1)"
-          strokeWidth={2}
-        />
-        <Line
-          curve={curve}
-          dataKey="mobile"
-          stroke="var(--chart-3)"
-          strokeWidth={2}
-        />
-        <XAxis />
-        <ChartTooltip />
-      </LineExampleChart>
     </div>
   );
 }
@@ -5206,26 +5167,42 @@ function makeProfitLossLineExamples(): ChartExample[] {
 
 function makeLineHero(): ChartExample {
   return {
-    title: "Line Chart - Interactive",
+    title: "Line Chart - Trio with Brush",
     description:
-      "Desktop vs mobile visitors over 30 days. Use the curve menu to compare @visx/curve factories on both lines.",
-    code: `import { curveNatural } from "@visx/curve";
+      "Three Catmull–Rom series on a dot background with a top legend and brush zoom — matches the Studio trio preset.",
+    code: `import { curveCatmullRom } from "@visx/curve";
+import {
+  Background,
+  ChartBrush,
+  ChartBrushLayout,
+  ChartLegend,
+  ChartTooltip,
+  Line,
+  LineChart,
+  XAxis,
+} from "@bklitui/ui/charts";
 
-<LineChart data={chartData} margin={{ top: 8, right: 8, bottom: 40, left: 8 }}>
-  <Grid horizontal />
-  <Line curve={curveNatural} dataKey="desktop" stroke="var(--chart-1)" strokeWidth={2} />
-  <Line curve={curveNatural} dataKey="mobile" stroke="var(--chart-3)" strokeWidth={2} />
-  <XAxis />
-  <ChartTooltip />
-</LineChart>`,
+<ChartBrushLayout data={chartData} enabled height={72} brushStrip={...}>
+  {(brushLayout) => (
+    <LineChart data={chartData} xDomain={brushLayout.xDomain} tweenYDomainOnXDomainChange>
+      <Background pattern="dots" opacity={0.85} />
+      <Line dataKey="desktop" curve={curveCatmullRom} fadeEdges strokeWidth={2} />
+      <Line dataKey="mobile" curve={curveCatmullRom} fadeEdges strokeWidth={2} />
+      <Line dataKey="tablet" curve={curveCatmullRom} fadeEdges strokeWidth={2} />
+      <XAxis />
+      <ChartTooltip />
+    </LineChart>
+  )}
+</ChartBrushLayout>`,
     data: `const chartData = Array.from({ length: 30 }, (_, i) => ({
-  date: new Date(2024, 0, i + 1),
-  desktop: Math.floor(150 + Math.sin(i / 4) * 80 + ((i * 7) % 31)),
-  mobile: Math.floor(80 + Math.cos(i / 3) * 50 + ((i * 5) % 23)),
+  date: new Date(2025, 0, 1 + i),
+  desktop: Math.round(180 + Math.sin(i / 4.2) * 70 + ((i * 9) % 31)),
+  mobile: Math.round(120 + Math.cos(i / 3.8) * 55 + ((i * 5) % 23)),
+  tablet: Math.round(150 + Math.sin(i / 5.1 + 1) * 48 + ((i * 7) % 19)),
 }));`,
     footer:
-      "Hero uses a Radix Select to swap curves live; see https://visx.airbnb.tech/docs/curve for the full list.",
-    render: () => <LineHeroWithCurveSelect />,
+      "Open the same preset in Studio from the Background docs or paste the share URL from /charts/line-chart.",
+    render: () => <LineChartStudioTrioDemo height={540} />,
   };
 }
 
@@ -6026,46 +6003,44 @@ export function ChartExamplesGrid({ chartSlug }: { chartSlug: string }) {
       : "grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3";
 
   return (
-    <StaticChartPreviewProvider>
-      <div className="space-y-6">
-        <ChartNav />
+    <div className="space-y-6">
+      <ChartNav />
 
-        {entry.notice && (
-          <div className="rounded-lg border border-border/50 bg-muted/30 px-4 py-3 text-muted-foreground text-sm">
-            {entry.notice}
-          </div>
-        )}
-
-        {hero && (
-          <ChartExampleCard
-            code={hero.code}
-            data={hero.data}
-            description={hero.description}
-            footer={hero.footer}
-            previewLayout={entry.previewLayout}
-            previewRole="hero"
-            title={hero.title}
-          >
-            {hero.render()}
-          </ChartExampleCard>
-        )}
-
-        <div className={gridCols}>
-          {examples.map((example) => (
-            <ChartExampleCard
-              code={example.code}
-              data={example.data}
-              description={example.description}
-              footer={example.footer}
-              key={example.title}
-              previewLayout={entry.previewLayout}
-              title={example.title}
-            >
-              {example.render()}
-            </ChartExampleCard>
-          ))}
+      {entry.notice && (
+        <div className="rounded-lg border border-border/50 bg-muted/30 px-3 py-3 text-muted-foreground text-sm">
+          {entry.notice}
         </div>
+      )}
+
+      {hero && (
+        <ChartExampleCard
+          code={hero.code}
+          data={hero.data}
+          description={hero.description}
+          footer={hero.footer}
+          previewLayout={entry.previewLayout}
+          previewRole="hero"
+          title={hero.title}
+        >
+          {hero.render()}
+        </ChartExampleCard>
+      )}
+
+      <div className={gridCols}>
+        {examples.map((example) => (
+          <ChartExampleCard
+            code={example.code}
+            data={example.data}
+            description={example.description}
+            footer={example.footer}
+            key={example.title}
+            previewLayout={entry.previewLayout}
+            title={example.title}
+          >
+            {example.render()}
+          </ChartExampleCard>
+        ))}
       </div>
-    </StaticChartPreviewProvider>
+    </div>
   );
 }
