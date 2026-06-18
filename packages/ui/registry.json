@@ -624,6 +624,16 @@
           "target": "components/charts/time-series-chart-shell.tsx"
         },
         {
+          "path": "src/charts/projection-config.ts",
+          "type": "registry:component",
+          "target": "components/charts/projection-config.ts"
+        },
+        {
+          "path": "src/charts/projection-utils.ts",
+          "type": "registry:component",
+          "target": "components/charts/projection-utils.ts"
+        },
+        {
           "path": "src/charts/chart-child-passthrough.ts",
           "type": "registry:component",
           "target": "components/charts/chart-child-passthrough.ts"
@@ -713,6 +723,16 @@
           "path": "src/charts/time-series-chart-shell.tsx",
           "type": "registry:component",
           "target": "components/charts/time-series-chart-shell.tsx"
+        },
+        {
+          "path": "src/charts/projection-config.ts",
+          "type": "registry:component",
+          "target": "components/charts/projection-config.ts"
+        },
+        {
+          "path": "src/charts/projection-utils.ts",
+          "type": "registry:component",
+          "target": "components/charts/projection-utils.ts"
         },
         {
           "path": "src/charts/chart-child-passthrough.ts",
@@ -817,6 +837,31 @@
           "path": "src/charts/time-series-chart-shell.tsx",
           "type": "registry:component",
           "target": "components/charts/time-series-chart-shell.tsx"
+        },
+        {
+          "path": "src/charts/projection-config.ts",
+          "type": "registry:component",
+          "target": "components/charts/projection-config.ts"
+        },
+        {
+          "path": "src/charts/projection-utils.ts",
+          "type": "registry:component",
+          "target": "components/charts/projection-utils.ts"
+        },
+        {
+          "path": "src/charts/projection-line.tsx",
+          "type": "registry:component",
+          "target": "components/charts/projection-line.tsx"
+        },
+        {
+          "path": "src/charts/projection-line-end-marker.tsx",
+          "type": "registry:component",
+          "target": "components/charts/projection-line-end-marker.tsx"
+        },
+        {
+          "path": "src/charts/line-series-terminal-marker.tsx",
+          "type": "registry:component",
+          "target": "components/charts/line-series-terminal-marker.tsx"
         },
         {
           "path": "src/charts/chart-child-passthrough.ts",
@@ -954,6 +999,16 @@
           "path": "src/charts/time-series-chart-shell.tsx",
           "type": "registry:component",
           "target": "components/charts/time-series-chart-shell.tsx"
+        },
+        {
+          "path": "src/charts/projection-config.ts",
+          "type": "registry:component",
+          "target": "components/charts/projection-config.ts"
+        },
+        {
+          "path": "src/charts/projection-utils.ts",
+          "type": "registry:component",
+          "target": "components/charts/projection-utils.ts"
         },
         {
           "path": "src/charts/chart-child-passthrough.ts",
