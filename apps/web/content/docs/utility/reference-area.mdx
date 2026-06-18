@@ -3,7 +3,7 @@ title: Reference Area
 description: Shaded Y band for target ranges and thresholds on cartesian charts — solid or pattern fill, dashed edges, and Y-axis tick coloring
 ---
 
-import { studioChartHref } from "@bklitui/studio";
+import { studioLineReferenceProjectionHref } from "@bklitui/studio";
 import { LineChart, Line, Grid, ReferenceArea, ChartTooltip, XAxis } from "@bklitui/ui/charts";
 import {
   ReferenceAreaBandDemo,
@@ -13,7 +13,7 @@ import {
 import { OpenInStudioButton } from "@/components/docs/open-in-studio-button";
 
 <ComponentPreview registryName="reference-area">
-  <ReferenceAreaBandDemo />
+  <ReferenceAreaPatternDemo />
 </ComponentPreview>
 
 ## Installation
@@ -79,7 +79,7 @@ Pattern presets match [`Background`](/docs/utility/background) (`diagonal`, `dot
     Edit in Studio
   </h3>
   <OpenInStudioButton
-    href={studioChartHref("line-chart")}
+    href={studioLineReferenceProjectionHref()}
     slug="line-chart"
   />
 </div>
@@ -105,12 +105,14 @@ Open [Studio with the line chart](/studio?chart=line-chart) and select **Referen
 <ComponentShowcase code={`<LineChart data={data}>
   <Grid horizontal />
   <ReferenceArea
-    y1={160}
-    y2={220}
+    y1={250}
+    y2={300}
     pattern="diagonal"
-    patternColor="var(--chart-foreground-muted)"
-    axisLabelColor="var(--chart-1)"
-    fillOpacity={0.85}
+    patternColor="oklch(0.76 0.144 180.392 / 0.17)"
+    patternScale={0.75}
+    patternStrokeWidth={1.5}
+    stroke="oklch(0.841 0.142 159.667 / 0.49)"
+    axisLabelColor="oklch(0.795 0.152 164.722)"
   />
   <Line dataKey="value" />
   <XAxis />

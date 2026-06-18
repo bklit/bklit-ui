@@ -127,6 +127,10 @@ import {
 import { LineChartStudioTrioDemo } from "@/components/charts/line-chart-studio-trio-demo";
 import { CopyButton } from "@/components/copy-button";
 import {
+  buildLineChartDemoData,
+  REFERENCE_AREA_DEMO,
+} from "@/components/docs/line-chart-demo-data";
+import {
   PROFIT_LOSS_DATA_KEY,
   profitLossLineDocsData,
 } from "@/components/docs/profit-loss-line-docs-data";
@@ -2354,30 +2358,47 @@ function makeLineExamples(): ChartExample[] {
     {
       title: "Line Chart - Projection",
       description:
-        "Auto forecast from the last segment with a terminal marker and dashed bezier horizon",
+        "Target and auto forecasts with gradient dashed beziers and a terminal marker",
       code: `import {
   buildProjectionPath,
   LineSeriesTerminalMarker,
   ProjectionLine,
 } from "@bklitui/ui/charts";
 
-const projectionPath = buildProjectionPath({
+const targetProjectionPath = buildProjectionPath({
   sourceData: chartData,
-  seriesKey: "desktop",
+  seriesKey: "value",
+  mode: "target",
+  pathDensity: "endpoints",
+  horizonPoints: 6,
+  endValue: 301,
+});
+
+const autoProjectionPath = buildProjectionPath({
+  sourceData: chartData,
+  seriesKey: "value",
   mode: "auto",
   autoMethod: "lastSegment",
   pathDensity: "endpoints",
-  horizonPoints: 8,
+  horizonPoints: 6,
 });
 
 <LineChart data={chartData}>
   <Grid horizontal />
-  <Line dataKey="desktop" strokeWidth={2} />
-  <LineSeriesTerminalMarker dataKey="desktop" />
+  <Line dataKey="value" strokeWidth={2} />
+  <LineSeriesTerminalMarker dataKey="value" />
   <ProjectionLine
-    data={projectionPath}
-    strokeDasharray="6,4"
+    data={targetProjectionPath}
+    strokeDasharray="1,4"
     curveKind="bezier"
+    strokeStyle="gradient"
+    showEndMarker
+  />
+  <ProjectionLine
+    data={autoProjectionPath}
+    strokeDasharray="1,4"
+    curveKind="bezier"
+    strokeStyle="gradient"
     showEndMarker
   />
   <XAxis />
@@ -2693,16 +2714,18 @@ const projectionPath = buildProjectionPath({
     }),
     ...makeCartesianReferenceAreaExamples({
       titlePrefix: "Line Chart",
+      y1: REFERENCE_AREA_DEMO.y1,
+      y2: REFERENCE_AREA_DEMO.y2,
       chartOpen:
         "<LineChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={chartData}>",
       chartClose: "</LineChart>",
-      seriesSnippet: `<Line dataKey="desktop" strokeWidth={2} />
+      seriesSnippet: `<Line dataKey="value" strokeWidth={2} />
   <XAxis />
   <ChartTooltip />`,
       render: (referenceArea) => (
-        <LineExampleChart data={lineData}>
+        <LineExampleChart data={buildLineChartDemoData()}>
           {referenceArea}
-          <Line dataKey="desktop" strokeWidth={2} />
+          <Line dataKey="value" strokeWidth={2} />
           <XAxis />
           <ChartTooltip />
         </LineExampleChart>

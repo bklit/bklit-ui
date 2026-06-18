@@ -10,22 +10,26 @@ import {
   ProjectionLine,
   XAxis,
 } from "@bklitui/ui/charts";
+import { buildLineChartDemoData } from "@/components/docs/line-chart-demo-data";
 
-const chartData = Array.from({ length: 14 }, (_, index) => {
-  const date = new Date(2025, 0, 1 + index);
-  return {
-    date,
-    value: Math.round(140 + index * 8 + Math.sin(index / 2) * 18),
-  };
+const chartData = buildLineChartDemoData();
+
+const targetProjectionPath = buildProjectionPath({
+  sourceData: chartData,
+  seriesKey: "value",
+  mode: "target",
+  pathDensity: "endpoints",
+  horizonPoints: 6,
+  endValue: 301,
 });
 
-const projectionPath = buildProjectionPath({
+const autoProjectionPath = buildProjectionPath({
   sourceData: chartData,
   seriesKey: "value",
   mode: "auto",
   autoMethod: "lastSegment",
   pathDensity: "endpoints",
-  horizonPoints: 8,
+  horizonPoints: 6,
 });
 
 export function ProjectionLineDemo() {
@@ -36,15 +40,29 @@ export function ProjectionLineDemo() {
         <Line dataKey="value" stroke="var(--chart-1)" strokeWidth={2} />
         <LineSeriesTerminalMarker
           dataKey="value"
-          ringGap={2}
+          ringGap={6}
           stroke="var(--chart-1)"
         />
         <ProjectionLine
           curveKind="bezier"
-          data={projectionPath}
+          data={targetProjectionPath}
+          gradientEnd="oklch(0.59 0.17 166.38)"
+          gradientStart="oklch(0.979 0.037 110.273)"
           showEndMarker
           stroke="var(--chart-3)"
-          strokeDasharray="6,4"
+          strokeDasharray="1,4"
+          strokeStyle="gradient"
+          strokeWidth={2}
+        />
+        <ProjectionLine
+          curveKind="bezier"
+          data={autoProjectionPath}
+          gradientEnd="oklch(0.849 0.232 16.498)"
+          gradientStart="oklch(0.926 0.128 16.866 / 0.73)"
+          showEndMarker
+          stroke="oklch(0.926 0.128 32.86 / 0.73)"
+          strokeDasharray="1,4"
+          strokeStyle="gradient"
           strokeWidth={2}
         />
         <XAxis />
@@ -62,14 +80,14 @@ export function ProjectionLineGradientDemo() {
         <Line dataKey="value" stroke="var(--chart-1)" strokeWidth={2} />
         <LineSeriesTerminalMarker dataKey="value" stroke="var(--chart-1)" />
         <ProjectionLine
-          curveKind="linear"
-          data={projectionPath}
-          gradientEnd="var(--chart-5)"
-          gradientStart="var(--chart-3)"
+          curveKind="bezier"
+          data={autoProjectionPath}
+          gradientEnd="oklch(0.849 0.232 16.498)"
+          gradientStart="oklch(0.926 0.128 16.866 / 0.73)"
           showEndMarker={false}
-          stroke="var(--chart-3)"
+          stroke="oklch(0.926 0.128 32.86 / 0.73)"
           strokeStyle="gradient"
-          strokeWidth={2.5}
+          strokeWidth={2}
         />
         <XAxis />
         <ChartTooltip />
