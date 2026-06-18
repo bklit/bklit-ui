@@ -3,8 +3,9 @@
 export const LINE_DEMO_POINT_COUNT = 10;
 
 export const REFERENCE_AREA_DEMO = {
-  y1: 250,
-  y2: 300,
+  /** Upper band on shared trending demo data (~141–200); Studio projection preset uses 250–300 with projections. */
+  y1: 160,
+  y2: 200,
   pattern: "diagonal" as const,
   patternColor: "oklch(0.76 0.144 180.392 / 0.17)",
   patternScale: 0.75,
