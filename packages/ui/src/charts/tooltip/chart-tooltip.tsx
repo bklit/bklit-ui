@@ -3,7 +3,11 @@
 import { motion, useSpring } from "motion/react";
 import { memo, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
-import { type SpringConfig, useChartConfig } from "../chart-config-context";
+import {
+  resolveTooltipBoxMotion,
+  type SpringConfig,
+  useChartConfig,
+} from "../chart-config-context";
 import {
   chartCssVars,
   type LineConfig,
@@ -11,6 +15,7 @@ import {
   useChartStable,
 } from "../chart-context";
 import { weekdayDateFmt } from "../chart-formatters";
+import type { IndicatorFadeEdges } from "../indicator-fade";
 import { DateTicker } from "./date-ticker";
 import { TooltipBox } from "./tooltip-box";
 import { TooltipContent, type TooltipRow } from "./tooltip-content";
@@ -49,6 +54,22 @@ export interface ChartTooltipProps {
   className?: string;
   /** Per-chart override for the crosshair / dot / date-pill spring. */
   springConfig?: SpringConfig;
+  /**
+   * When `true`, the floating panel uses the crosshair spring and stays in sync.
+   * Default `false` — panel follow uses `damping` (`20`).
+   */
+  matchCrosshair?: boolean;
+  /**
+   * Spring damping for the floating tooltip panel when `matchCrosshair` is `false`.
+   * `0` disables spring motion (instant). Default: `20`.
+   */
+  damping?: number;
+  /** SVG stroke dash pattern for the crosshair. Omit for solid. */
+  indicatorDasharray?: string;
+  /** Vertical crosshair fade: `both`, `top`, `bottom`, or `none` (solid). Default: `both`. */
+  indicatorFadeEdges?: IndicatorFadeEdges;
+  /** Crosshair fade zone size (% of height). Default: `10`. */
+  indicatorFadeLength?: number;
   /** Per-chart override for the floating-panel spring. */
   boxSpringConfig?: SpringConfig;
   /** Inline styles for the tooltip panel (background, blur, etc.). */
@@ -71,6 +92,11 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
   className = "",
   container,
   springConfig,
+  matchCrosshair = false,
+  damping,
+  indicatorDasharray,
+  indicatorFadeEdges,
+  indicatorFadeLength,
   boxSpringConfig,
   panelStyle,
 }: ChartTooltipInnerProps) {
@@ -88,9 +114,32 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
     orientation,
     barXAccessor,
   } = useChart();
+  const { tooltipSpring } = useChartConfig();
 
   const isHorizontal = orientation === "horizontal";
   const discreteInteraction = dateLabels.length > 60;
+  const boxMotion = useMemo(() => {
+    if (boxSpringConfig) {
+      return {
+        animate: !discreteInteraction,
+        springConfig: boxSpringConfig,
+      };
+    }
+    if (matchCrosshair) {
+      return {
+        animate: !discreteInteraction,
+        springConfig: springConfig ?? tooltipSpring,
+      };
+    }
+    return resolveTooltipBoxMotion(damping);
+  }, [
+    boxSpringConfig,
+    damping,
+    discreteInteraction,
+    matchCrosshair,
+    springConfig,
+    tooltipSpring,
+  ]);
 
   const visible = tooltipData !== null;
   const x = tooltipData?.x ?? 0;
@@ -179,9 +228,13 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
               colorEdge={indicatorColor}
               colorMid={indicatorColor}
               columnWidth={columnWidth}
-              fadeEdges
+              fadeEdges={
+                indicatorDasharray ? "none" : (indicatorFadeEdges ?? "both")
+              }
+              fadeLength={indicatorFadeLength}
               height={innerHeight}
               springConfig={springConfig}
+              strokeDasharray={indicatorDasharray}
               visible={visible}
               width="line"
               x={x}
@@ -216,12 +269,13 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
 
       {/* Tooltip Box */}
       <TooltipBox
+        animate={boxMotion.animate}
         className={className}
         containerHeight={height}
         containerRef={containerRef}
         containerWidth={width}
         panelStyle={panelStyle}
-        springConfig={boxSpringConfig}
+        springConfig={boxMotion.springConfig}
         top={isHorizontal ? undefined : margin.top}
         visible={visible}
         x={xWithMargin}

@@ -1,10 +1,16 @@
 "use client";
 
+import { studioFieldLabelClass } from "@/components/controls/control-field-helpers";
+import { IconToggleGroup } from "@/components/controls/icon-toggle-group";
+import { StudioToggleGroupItem } from "@/components/controls/studio-toggle-group";
+import type { CurveId } from "@/lib/curves";
+import { CURVE_OPTIONS } from "@/lib/curves";
+import type { StudioUrlState } from "@/lib/studio-parsers";
 import {
-  StudioTab,
-  StudioTabs,
-} from "@/components/controls/studio-toggle-group";
-import { CURVE_OPTIONS, type CurveId } from "@/lib/curves";
+  buildSeriesScopedControlUpdate,
+  getSeriesScopedControlValue,
+} from "@/lib/studio-series-line-props";
+import type { StudioControl } from "@/lib/types";
 import { CurvePreviewIcon } from "../curve-preview-icons";
 
 export function CurvePicker({
@@ -15,18 +21,83 @@ export function CurvePicker({
   onChange: (v: CurveId) => void;
 }) {
   return (
-    <StudioTabs layout="cards-3" onValueChange={onChange} value={value}>
+    <IconToggleGroup onValueChange={onChange} value={value}>
       {CURVE_OPTIONS.map((opt) => (
-        <StudioTab
+        <StudioToggleGroupItem
           aria-label={opt.label}
           key={opt.value}
           title={opt.label}
           value={opt.value}
         >
           <CurvePreviewIcon className="text-current" curveId={opt.value} />
-          <span className="text-center leading-tight">{opt.label}</span>
-        </StudioTab>
+        </StudioToggleGroupItem>
       ))}
-    </StudioTabs>
+    </IconToggleGroup>
+  );
+}
+
+export function CurvePickerField({
+  label = "Curve",
+  value,
+  onChange,
+}: {
+  label?: string;
+  value: CurveId;
+  onChange: (v: CurveId) => void;
+}) {
+  const selectedName =
+    CURVE_OPTIONS.find((opt) => opt.value === value)?.label ?? value;
+
+  return (
+    <div className="flex flex-col gap-2">
+      <span className={studioFieldLabelClass}>
+        {label}: {selectedName}
+      </span>
+      <CurvePicker onChange={onChange} value={value} />
+    </div>
+  );
+}
+
+export function LineCurveField({
+  control,
+  state,
+  onChange,
+}: {
+  control: Extract<StudioControl, { type: "curve" }>;
+  state: StudioUrlState;
+  onChange: <K extends keyof StudioUrlState>(
+    key: K,
+    value: StudioUrlState[K]
+  ) => void;
+}) {
+  const seriesIndex = control.seriesIndex;
+  const value =
+    seriesIndex === undefined
+      ? state.curve
+      : getSeriesScopedControlValue(state, "curve", seriesIndex);
+
+  return (
+    <CurvePickerField
+      label={control.label}
+      onChange={(next) => {
+        if (seriesIndex !== undefined) {
+          const updates = buildSeriesScopedControlUpdate(
+            state,
+            "curve",
+            seriesIndex,
+            next
+          );
+          for (const [key, updateValue] of Object.entries(updates)) {
+            onChange(
+              key as keyof StudioUrlState,
+              updateValue as StudioUrlState[keyof StudioUrlState]
+            );
+          }
+          return;
+        }
+        onChange("curve", next);
+      }}
+      value={value as CurveId}
+    />
   );
 }

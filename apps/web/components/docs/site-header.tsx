@@ -41,6 +41,7 @@ const components = [
   { text: "Composed Chart", url: "/docs/components/composed-chart" },
   { text: "Funnel Chart", url: "/docs/components/funnel-chart" },
   { text: "Gauge", url: "/docs/components/gauge-chart" },
+  { text: "Heatmap Chart", url: "/docs/components/heatmap-chart" },
   { text: "Line Chart", url: "/docs/components/line-chart" },
   { text: "Profit/Loss Line", url: "/docs/components/profit-loss-line" },
   { text: "Live Line Chart", url: "/docs/components/live-line-chart" },
@@ -55,6 +56,7 @@ const utilities = [
   { text: "Legend", url: "/docs/utility/legend" },
   { text: "Grid", url: "/docs/utility/grid" },
   { text: "Background", url: "/docs/utility/background" },
+  { text: "Reference Area", url: "/docs/utility/reference-area" },
   { text: "Tooltip", url: "/docs/utility/tooltip" },
   { text: "Brush", url: "/docs/utility/brush" },
   {

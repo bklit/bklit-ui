@@ -11,12 +11,14 @@ import {
 import type { StudioControl } from "@/lib/types";
 import { Input } from "@/ui/input";
 import { Label } from "@/ui/label";
-import { Switch } from "@/ui/switch";
+import { StudioSlider } from "@/ui/studio-slider";
+import { YesNoSwitch } from "@/ui/yes-no-switch";
 import {
   RingGapPreviewIcon,
   RingScalePreviewIcon,
   RingWidthPreviewIcon,
 } from "../ring-preview-icons";
+import { ChartStateToggle } from "./chart-state-toggle";
 import { ColorControlField } from "./color-control-field";
 import {
   ControlFieldLabel,
@@ -28,6 +30,7 @@ import {
 } from "./control-field-helpers";
 import { ControlFieldInputs } from "./control-field-inputs";
 import { GaugeAngleControl } from "./gauge-angle-control";
+import { HeatmapLevelPaneControl } from "./heatmap-level-pane-control";
 import { InnerRadiusControl } from "./inner-radius-control";
 import { LegendPositionPicker } from "./legend-position-picker";
 import { LineSeriesYAxisControl } from "./line-series-y-axis-control";
@@ -37,6 +40,8 @@ import {
 } from "./line-y-axis-settings-controls";
 import { OpacityControl } from "./opacity-control";
 import { PieEndAngleControl, PieStartAngleControl } from "./pie-angle-control";
+import { ReferenceAreaFillControl } from "./reference-area-fill-control";
+import { ReferenceAreaYAxisControl } from "./reference-area-y-axis-control";
 import { SliderInputGroup } from "./slider-input-group";
 
 function numberControlPreviewIcon(
@@ -60,6 +65,13 @@ function numberControlPreviewIcon(
 function clamp(n: number, min: number, max: number) {
   return Math.min(max, Math.max(min, n));
 }
+
+const CHART_STATE_KEYS = new Set<keyof StudioUrlState>([
+  "areaChartState",
+  "barChartState",
+  "lineChartState",
+  "heatmapChartState",
+]);
 
 function NumberInputOnly({
   control,
@@ -86,10 +98,7 @@ function NumberInputOnly({
         {control.label}
       </Label>
       <Input
-        className={cn(
-          "h-8 min-w-0 flex-1 tabular-nums",
-          studioControlInputClass
-        )}
+        className={cn("min-w-0 flex-1 tabular-nums", studioControlInputClass)}
         id={String(control.key)}
         max={control.max}
         min={control.min}
@@ -244,12 +253,27 @@ export function ControlField({
     const disabled = control.disabledWhen
       ? Boolean(state[control.disabledWhen])
       : false;
-    if (control.input === "number") {
+    if (control.input === "number" && control.unit !== "%") {
       return (
         <NumberInputOnly
           control={control}
           onCommit={(n) => commitValue(key, n as StudioUrlState[typeof key])}
           onPreview={(n) => previewValue(key, n as StudioUrlState[typeof key])}
+          value={value as number}
+        />
+      );
+    }
+    if (control.unit === "%" || control.input === "studio") {
+      return (
+        <StudioSlider
+          disabled={disabled}
+          label={control.label}
+          max={control.max}
+          min={control.min}
+          onCommit={(n) => commitValue(key, n as StudioUrlState[typeof key])}
+          onPreview={(n) => previewValue(key, n as StudioUrlState[typeof key])}
+          step={control.step ?? 1}
+          unit={control.unit}
           value={value as number}
         />
       );
@@ -300,6 +324,18 @@ export function ControlField({
           onPreview={onPreview}
         />
       </div>
+    );
+  }
+
+  if (control.type === "heatmapLevel") {
+    return (
+      <HeatmapLevelPaneControl
+        level={control.level}
+        onChange={onChange}
+        onCommit={onCommit}
+        onPreview={onPreview}
+        state={state}
+      />
     );
   }
 
@@ -411,6 +447,28 @@ export function ControlField({
     );
   }
 
+  if (control.type === "referenceAreaFill") {
+    return (
+      <ReferenceAreaFillControl
+        onChange={onChange}
+        onCommit={onCommit}
+        onPreview={onPreview}
+        state={state}
+      />
+    );
+  }
+
+  if (control.type === "referenceAreaYAxis") {
+    return (
+      <ReferenceAreaYAxisControl
+        label={control.label}
+        onChange={onChange}
+        onCommit={onCommit}
+        state={state}
+      />
+    );
+  }
+
   if (control.type === "lineSeriesYAxis") {
     return (
       <LineSeriesYAxisControl
@@ -454,10 +512,9 @@ export function ControlField({
         htmlFor={String(key)}
         label={control.label}
       >
-        <Switch
-          checked={Boolean(value)}
-          id={String(key)}
-          onCheckedChange={(checked) => {
+        <YesNoSwitch
+          aria-label={control.label}
+          onValueChange={(checked) => {
             commitValue(key, checked as StudioUrlState[typeof key]);
             if (
               key === "brushSelectionPatternEnabled" &&
@@ -467,6 +524,7 @@ export function ControlField({
               commitValue("brushSelectionPattern", "diagonal");
             }
           }}
+          value={Boolean(value)}
         />
       </StudioControlRow>
     );
@@ -491,6 +549,21 @@ export function ControlField({
     );
   }
 
+  if (control.type === "curve") {
+    return (
+      <ControlFieldInputs
+        control={control}
+        onChange={(nextKey, nextValue) =>
+          commitValue(
+            nextKey,
+            nextValue as StudioUrlState[keyof StudioUrlState]
+          )
+        }
+        value={value}
+      />
+    );
+  }
+
   if (isGroupLabeledControlType(control.type)) {
     return (
       <div className="space-y-2">
@@ -504,6 +577,20 @@ export function ControlField({
             )
           }
           value={value}
+        />
+      </div>
+    );
+  }
+
+  if (control.type === "select" && CHART_STATE_KEYS.has(control.key)) {
+    return (
+      <div className="space-y-2">
+        {hideGroupLabel ? null : <ControlFieldLabel control={control} />}
+        <ChartStateToggle
+          onChange={(next) =>
+            commitValue(control.key, next as StudioUrlState[typeof control.key])
+          }
+          value={value as "ready" | "loading"}
         />
       </div>
     );

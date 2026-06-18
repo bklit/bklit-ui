@@ -6,6 +6,7 @@ import {
   designGroup,
   lineGroup,
 } from "./sidebar-control-templates";
+import type { StudioUrlState } from "./studio-parsers";
 import type { StudioControlGroup } from "./types";
 
 const chartAccentColorOptions = [
@@ -163,6 +164,71 @@ export const gridControlGroups: StudioControlGroup[] = [
   ]),
 ];
 
+const referenceAreaBoundsControls: StudioControlGroup["controls"] = [
+  {
+    type: "number",
+    key: "referenceAreaY1",
+    label: "Y1",
+    min: 0,
+    max: 500,
+    step: 1,
+  },
+  {
+    type: "number",
+    key: "referenceAreaY2",
+    label: "Y2",
+    min: 0,
+    max: 500,
+    step: 1,
+  },
+];
+
+export const referenceAreaBoundsControlGroup = controlGroup(
+  "Reference range",
+  referenceAreaBoundsControls
+);
+
+export const referenceAreaControlGroups: StudioControlGroup[] = [
+  controlGroup("Bounds", referenceAreaBoundsControls),
+  controlGroup("Fill", [
+    { type: "referenceAreaFill", key: "referenceAreaFill", label: "Fill" },
+  ]),
+  controlGroup("Stroke", [
+    { type: "color", key: "referenceAreaStroke", label: "Color" },
+    {
+      type: "strokeStyle",
+      key: "referenceAreaStrokeStyle",
+      label: "Style",
+    },
+    {
+      type: "text",
+      key: "referenceAreaStrokeDasharray",
+      label: "Dash array",
+      visibleWhen: { key: "referenceAreaStrokeStyle", equals: "dashed" },
+    },
+  ]),
+  controlGroup("Markers", [
+    {
+      type: "boolean",
+      key: "referenceAreaShowMarkers",
+      label: "Show bracket markers",
+    },
+    { type: "color", key: "referenceAreaMarkerColor", label: "Marker color" },
+  ]),
+  controlGroup("Axis", [
+    {
+      type: "referenceAreaYAxis",
+      key: "referenceAreaYAxis",
+      label: "Y axis",
+    },
+    {
+      type: "color",
+      key: "referenceAreaAxisLabelColor",
+      label: "Label color",
+    },
+  ]),
+];
+
 export const seriesMarkersControlGroup = controlGroup("Markers", [
   { type: "boolean", key: "seriesShowMarkers", label: "Show" },
   {
@@ -200,6 +266,7 @@ export const seriesDashTailControlGroup = controlGroup("Dash tail", [
     min: 0,
     max: 48,
     step: 1,
+    input: "studio",
   },
   { type: "text", key: "seriesDashArray", label: "Dash array" },
 ]);
@@ -255,6 +322,7 @@ export const areaChartControlGroups: StudioControlGroup[] = [
     },
   ]),
   dataGroup(),
+  referenceAreaBoundsControlGroup,
   designGroup([
     {
       type: "opacity",
@@ -322,17 +390,52 @@ export const tooltipAppearanceControlGroup = controlGroup("Appearance", [
 export const standardCrosshairControlGroup = controlGroup("Crosshair", [
   { type: "boolean", key: "showCrosshair", label: "Show" },
   { type: "boolean", key: "showTooltipDots", label: "Dots" },
+  { type: "color", key: "crosshairColor", label: "Color" },
+  { type: "strokeStyle", key: "crosshairStyle", label: "Style" },
   {
-    type: "select",
-    key: "crosshairColor",
-    label: "Color",
-    options: [...chartAccentColorOptions],
+    type: "text",
+    key: "crosshairDashArray",
+    label: "Dash array",
+    visibleWhen: { key: "crosshairStyle", equals: "dashed" },
+  },
+  {
+    type: "crosshairFade",
+    key: "crosshairFadeEdges",
+    label: "Fade",
+    visibleWhen: { key: "crosshairStyle", not: "dashed" },
+  },
+  {
+    type: "number",
+    key: "crosshairFadeLength",
+    label: "Fade size",
+    min: 2,
+    max: 40,
+    step: 1,
+    unit: "%",
+    visibleWhen: [
+      { key: "crosshairFadeEdges", not: "none" },
+      { key: "crosshairStyle", not: "dashed" },
+    ],
   },
 ]);
 
 export const standardChartTooltipControlGroups: StudioControlGroup[] = [
   controlGroup("Tooltip", [
     { type: "boolean", key: "showTooltipDatePill", label: "Date pill" },
+    {
+      type: "boolean",
+      key: "tooltipMatchCrosshair",
+      label: "Match crosshair",
+    },
+    {
+      type: "number",
+      key: "tooltipDamping",
+      label: "Panel damping",
+      min: 0,
+      max: 100,
+      step: 1,
+      visibleWhen: { key: "tooltipMatchCrosshair", truthy: false },
+    },
   ]),
   tooltipAppearanceControlGroup,
   standardCrosshairControlGroup,
@@ -415,7 +518,7 @@ export const standardBrushControlGroups: StudioControlGroup[] = [
 export const standardLegendControlGroups: StudioControlGroup[] = [
   controlGroup("Legend", [
     { type: "boolean", key: "showLegend", label: "Show" },
-    { type: "legendPosition", key: "legendPlacement", label: "Placement" },
+    { type: "legendPosition", key: "legendPlacement", label: "" },
     { type: "orientation", key: "legendLayout", label: "Orientation" },
     {
       type: "number",
@@ -526,10 +629,36 @@ const profitLossLineSettingsGroups: StudioControlGroup[] = [
       label: "Color follows value",
     },
     {
-      type: "select",
+      type: "color",
       key: "crosshairColor",
       label: "Fixed color",
-      options: [...chartAccentColorOptions],
+      visibleWhen: { key: "crosshairFollowsValue", truthy: false },
+    },
+    { type: "strokeStyle", key: "crosshairStyle", label: "Style" },
+    {
+      type: "text",
+      key: "crosshairDashArray",
+      label: "Dash array",
+      visibleWhen: { key: "crosshairStyle", equals: "dashed" },
+    },
+    {
+      type: "crosshairFade",
+      key: "crosshairFadeEdges",
+      label: "Fade",
+      visibleWhen: { key: "crosshairStyle", not: "dashed" },
+    },
+    {
+      type: "number",
+      key: "crosshairFadeLength",
+      label: "Fade size",
+      min: 2,
+      max: 40,
+      step: 1,
+      unit: "%",
+      visibleWhen: [
+        { key: "crosshairFadeEdges", not: "none" },
+        { key: "crosshairStyle", not: "dashed" },
+      ],
     },
   ]),
   ...standardLegendControlGroups,
@@ -542,11 +671,16 @@ export function getLineChartControlGroups(state: {
     return [
       lineChartSettingsGroup("profitLoss"),
       profitLossDataGroup,
+      referenceAreaBoundsControlGroup,
       ...profitLossLineSettingsGroups,
     ];
   }
 
-  return [lineChartSettingsGroup("standard"), ...lineChartControlGroups];
+  return [
+    lineChartSettingsGroup("standard"),
+    referenceAreaBoundsControlGroup,
+    ...lineChartControlGroups,
+  ];
 }
 
 export const profitLossLineChartControlGroups = getLineChartControlGroups({
@@ -554,7 +688,19 @@ export const profitLossLineChartControlGroups = getLineChartControlGroups({
 });
 
 export const barChartControlGroups: StudioControlGroup[] = [
+  controlGroup("Settings", [
+    {
+      type: "select",
+      key: "barChartState",
+      label: "State",
+      options: [
+        { value: "ready", label: "Ready" },
+        { value: "loading", label: "Loading" },
+      ],
+    },
+  ]),
   dataGroup(),
+  referenceAreaBoundsControlGroup,
   controlGroup("Series", [
     {
       type: "select",
@@ -607,6 +753,7 @@ export const barChartControlGroups: StudioControlGroup[] = [
 
 export const composedChartControlGroups: StudioControlGroup[] = [
   dataGroup(),
+  referenceAreaBoundsControlGroup,
   designGroup([
     {
       type: "opacity",
@@ -771,6 +918,7 @@ export const radarChartControlGroups: StudioControlGroup[] = [
 ];
 
 export const candlestickChartControlGroups: StudioControlGroup[] = [
+  referenceAreaBoundsControlGroup,
   designGroup([
     {
       type: "opacity",
@@ -817,6 +965,7 @@ export const funnelChartControlGroups: StudioControlGroup[] = [
 ];
 
 export const scatterChartControlGroups: StudioControlGroup[] = [
+  referenceAreaBoundsControlGroup,
   controlGroup("Points", [
     {
       type: "number",
@@ -864,6 +1013,7 @@ export const scatterChartControlGroups: StudioControlGroup[] = [
 ];
 
 export const liveLineChartControlGroups: StudioControlGroup[] = [
+  referenceAreaBoundsControlGroup,
   controlGroup("Stream", [
     {
       type: "number",
@@ -952,6 +1102,91 @@ export const sankeyChartControlGroups: StudioControlGroup[] = [
       max: 1,
       step: 0.05,
       color: "var(--chart-1)",
+    },
+  ]),
+];
+
+const heatmapLevelPane = (
+  level: 0 | 1 | 2 | 3 | 4,
+  title: string,
+  colorKey: keyof StudioUrlState
+): StudioControlGroup =>
+  controlGroup(
+    title,
+    [{ type: "heatmapLevel", level, label: title, key: colorKey }],
+    { collapsible: true, defaultOpen: level === 0 }
+  );
+
+export const heatmapChartControlGroups: StudioControlGroup[] = [
+  controlGroup("Settings", [
+    {
+      type: "select",
+      key: "heatmapChartState",
+      label: "State",
+      options: [
+        { value: "ready", label: "Ready" },
+        { value: "loading", label: "Loading" },
+      ],
+    },
+  ]),
+  controlGroup("Layout", [
+    {
+      type: "number",
+      key: "heatmapGap",
+      label: "Gap",
+      min: 0,
+      max: 8,
+    },
+    {
+      type: "number",
+      key: "heatmapCornerRadius",
+      label: "Radius",
+      min: 0,
+      max: 8,
+    },
+  ]),
+  heatmapLevelPane(0, "Empty", "heatmapLevel0Color"),
+  heatmapLevelPane(1, "Level 1", "heatmapLevel1Color"),
+  heatmapLevelPane(2, "Level 2", "heatmapLevel2Color"),
+  heatmapLevelPane(3, "Level 3", "heatmapLevel3Color"),
+  heatmapLevelPane(4, "Level 4", "heatmapLevel4Color"),
+];
+
+export const heatmapCellsControlGroups: StudioControlGroup[] = [
+  controlGroup("Cells", [
+    {
+      type: "opacity",
+      key: "heatmapCellsFadedOpacity",
+      label: "Hover fade",
+      min: 0.1,
+      max: 1,
+      step: 0.05,
+      color: "var(--chart-1)",
+    },
+  ]),
+];
+
+export const heatmapLegendControlGroups: StudioControlGroup[] = [
+  controlGroup("Legend", [
+    { type: "boolean", key: "showLegend", label: "Show" },
+    { type: "legendPosition", key: "legendPlacement", label: "" },
+    {
+      type: "number",
+      key: "legendFontSize",
+      label: "Font size",
+      min: 10,
+      max: 18,
+      step: 1,
+      unit: "px",
+    },
+    {
+      type: "number",
+      key: "heatmapLegendCellSize",
+      label: "Swatch size",
+      min: 8,
+      max: 16,
+      step: 1,
+      unit: "px",
     },
   ]),
 ];

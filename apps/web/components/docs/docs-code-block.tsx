@@ -1,8 +1,9 @@
 "use client";
 
-import { DynamicCodeBlock } from "fumadocs-ui/components/dynamic-codeblock";
+import { useMemo } from "react";
 import { CopyButton } from "@/components/copy-button";
-import { codeThemes } from "@/lib/code-theme";
+import { DocsHighlightedCodeBlock } from "@/components/docs/docs-highlighted-code-block";
+import { formatDocsCode } from "@/lib/format-showcase-code";
 import { cn } from "@/lib/utils";
 
 /**
@@ -19,21 +20,26 @@ export function DocsCodeBlock({
   className?: string;
   showCopy?: boolean;
 }) {
+  const formattedCode = useMemo(() => formatDocsCode(code), [code]);
+
   return (
     <div
       className={cn(
-        "relative overflow-hidden [&_figure]:my-0! [&_pre]:my-0!",
+        "showcase-code-block relative overflow-hidden [&_figure]:my-0! [&_pre]:my-0!",
         className
       )}
     >
-      <DynamicCodeBlock
+      <DocsHighlightedCodeBlock
+        allowCopy={false}
         code={code}
-        codeblock={{ allowCopy: false, className: "my-0" }}
         lang={lang}
-        options={{ themes: codeThemes }}
+        showLineNumbers
       />
       {showCopy ? (
-        <CopyButton className="absolute top-2 right-2 z-10" text={code} />
+        <CopyButton
+          className="absolute top-2 right-2 z-10"
+          text={formattedCode}
+        />
       ) : null}
     </div>
   );

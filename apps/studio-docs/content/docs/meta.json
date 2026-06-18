@@ -1,0 +1,22 @@
+{
+  "title": "Studio UI",
+  "pages": [
+    "index",
+    "---Editor shell---",
+    "control-surfaces",
+    "---Inputs---",
+    "custom-components",
+    "fields",
+    "toggle-groups",
+    "---Pickers & patterns---",
+    "pickers",
+    "patterns",
+    "---Motion---",
+    "motion",
+    "---Reference---",
+    "primitives",
+    "icons",
+    "shimmer-text",
+    "feedback"
+  ]
+}

@@ -8,6 +8,7 @@ import {
 } from "@/lib/demo-data";
 import {
   isAreaChartLoadingMode,
+  isBarChartLoadingMode,
   isProfitLossLineMode,
 } from "@/lib/line-chart-mode";
 import type { LineYAxisId } from "@/lib/line-series-y-axis";
@@ -37,10 +38,14 @@ import {
   gaugeControlGroups,
   getLineChartControlGroups,
   gridControlGroups,
+  heatmapCellsControlGroups,
+  heatmapChartControlGroups,
+  heatmapLegendControlGroups,
   liveLineChartControlGroups,
   pieCenterControlGroup,
   pieChartControlGroups,
   radarChartControlGroups,
+  referenceAreaControlGroups,
   ringCenterControlGroup,
   ringChartControlGroups,
   sankeyChartControlGroups,
@@ -165,6 +170,16 @@ function backgroundNode(chartPrefix: string): StudioComponentDefinition {
     parentId: `${chartPrefix}.chart`,
     kind: "chart",
     controlGroups: backgroundControlGroups,
+  };
+}
+
+function referenceAreaNode(chartPrefix: string): StudioComponentDefinition {
+  return {
+    id: `${chartPrefix}.reference-area`,
+    label: "Reference area",
+    parentId: `${chartPrefix}.chart`,
+    kind: "chart",
+    controlGroups: referenceAreaControlGroups,
   };
 }
 
@@ -308,8 +323,75 @@ export function getStudioDataControlGroups(
   state: StudioUrlState
 ): StudioControlGroup[] {
   const groups = getStudioControlGroups(config, state);
+  const result: StudioControlGroup[] = [];
   const dataGroupConfig = groups.find((group) => group.title === "Data");
-  return dataGroupConfig ? [dataGroupConfig] : [];
+  if (dataGroupConfig) {
+    result.push(dataGroupConfig);
+  }
+  const referenceRangeGroup = groups.find(
+    (group) => group.title === "Reference range"
+  );
+  if (referenceRangeGroup) {
+    result.push(referenceRangeGroup);
+  }
+  return result;
+}
+
+function loadingGridControlGroups(state: StudioUrlState): StudioControlGroup[] {
+  return [
+    ...gridControlGroups,
+    controlGroup("Loading", [
+      {
+        type: "color",
+        key: "lineLoadingGridStroke",
+        label: "Grid",
+      },
+      {
+        type: "boolean",
+        key: "lineLoadingGridShimmer",
+        label: "Shimmer",
+      },
+      ...(state.lineLoadingGridShimmer
+        ? [
+            {
+              type: "color" as const,
+              key: "lineLoadingGridShimmerStroke" as const,
+              label: "Shimmer",
+            },
+            {
+              type: "number" as const,
+              key: "lineLoadingGridShimmerLength" as const,
+              label: "Length",
+              min: 40,
+              max: 280,
+              step: 10,
+              unit: "px",
+            },
+          ]
+        : []),
+    ]),
+    ...(state.lineLoadingGridShimmer
+      ? [
+          controlGroup("Animation", [
+            {
+              type: "boolean" as const,
+              key: "lineLoadingGridShimmerSync" as const,
+              label: "Sync with line",
+            },
+            {
+              type: "number" as const,
+              key: "lineLoadingGridShimmerSpeed" as const,
+              label: "Speed",
+              min: 0.5,
+              max: 3,
+              step: 0.1,
+              unit: "×",
+              disabledWhen: "lineLoadingGridShimmerSync" as const,
+            },
+          ]),
+        ]
+      : []),
+  ];
 }
 
 function resolveCartesianLoadingStudioComponents(options: {
@@ -350,60 +432,7 @@ function resolveCartesianLoadingStudioComponents(options: {
       label: "Grid",
       parentId: chartId,
       kind: "chart",
-      controlGroups: [
-        ...gridControlGroups,
-        controlGroup("Loading", [
-          {
-            type: "color",
-            key: "lineLoadingGridStroke",
-            label: "Grid",
-          },
-          {
-            type: "boolean",
-            key: "lineLoadingGridShimmer",
-            label: "Shimmer",
-          },
-          ...(state.lineLoadingGridShimmer
-            ? [
-                {
-                  type: "color" as const,
-                  key: "lineLoadingGridShimmerStroke" as const,
-                  label: "Shimmer",
-                },
-                {
-                  type: "number" as const,
-                  key: "lineLoadingGridShimmerLength" as const,
-                  label: "Length",
-                  min: 40,
-                  max: 280,
-                  step: 10,
-                  unit: "px",
-                },
-              ]
-            : []),
-        ]),
-        ...(state.lineLoadingGridShimmer
-          ? [
-              controlGroup("Animation", [
-                {
-                  type: "boolean" as const,
-                  key: "lineLoadingGridShimmerSync" as const,
-                  label: "Sync with line",
-                },
-                {
-                  type: "number" as const,
-                  key: "lineLoadingGridShimmerSpeed" as const,
-                  label: "Speed",
-                  min: 0.5,
-                  max: 3,
-                  step: 0.1,
-                  unit: "×",
-                  disabledWhen: "lineLoadingGridShimmerSync" as const,
-                },
-              ]),
-            ]
-          : []),
-      ],
+      controlGroups: loadingGridControlGroups(state),
     },
     {
       id: labelId,
@@ -490,6 +519,7 @@ export function resolveAreaComponents(
     },
     gridNode("area"),
     backgroundNode("area"),
+    referenceAreaNode("area"),
   ];
 
   for (let index = 0; index < seriesCount; index += 1) {
@@ -533,9 +563,34 @@ export function resolveAreaComponents(
 export function resolveBarComponents(
   state: StudioUrlState
 ): StudioComponentDefinition[] {
-  const seriesCount = clampStudioSeriesCount(state.dataSeries);
-  const [seriesLayout, design] = barChartControlGroups;
+  const settings = barChartControlGroups.find(
+    (group) => group.title === "Settings"
+  );
+  const referenceAreaBounds = barChartControlGroups.find(
+    (group) => group.title === "Reference range"
+  );
   const chartId = "bar.chart";
+
+  if (isBarChartLoadingMode(state)) {
+    return [
+      {
+        id: chartId,
+        label: "BarChart",
+        kind: "chart",
+        treeIcon: "layers",
+        controlGroups: settings ? [settings] : [],
+      },
+      {
+        id: "bar.grid",
+        label: "Grid",
+        parentId: chartId,
+        kind: "chart",
+        controlGroups: loadingGridControlGroups(state),
+      },
+    ];
+  }
+
+  const seriesCount = clampStudioSeriesCount(state.dataSeries);
 
   const components: StudioComponentDefinition[] = [
     {
@@ -543,19 +598,20 @@ export function resolveBarComponents(
       label: "BarChart",
       kind: "chart",
       treeIcon: "layers",
-      controlGroups: seriesLayout ? [seriesLayout] : [],
+      controlGroups: settings ? [settings] : [],
       design: rootPaletteDesign(true),
     },
     gridNode("bar"),
     backgroundNode("bar"),
+    referenceAreaNode("bar"),
   ];
 
   const horizontal = state.barOrientation === "horizontal";
 
   for (let index = 0; index < seriesCount; index += 1) {
     const controlGroups: StudioControlGroup[] = [];
-    if (index === 0 && design) {
-      controlGroups.push(design);
+    if (index === 0 && referenceAreaBounds) {
+      controlGroups.push(referenceAreaBounds);
     }
     if (!horizontal) {
       controlGroups.push(seriesYAxisControlGroup(index));
@@ -616,6 +672,7 @@ export function resolveComposedComponents(
     },
     passiveNode("composed", "grid", "Grid"),
     backgroundNode("composed"),
+    referenceAreaNode("composed"),
   ];
 
   for (let index = 0; index < seriesCount; index += 1) {
@@ -768,6 +825,7 @@ export function resolveLiveLineComponents(): StudioComponentDefinition[] {
     },
     gridNode("live-line"),
     backgroundNode("live-line"),
+    referenceAreaNode("live-line"),
     {
       id: "live-line.line",
       label: "LiveLine",
@@ -821,6 +879,7 @@ function resolveProfitLossLineComponents(): StudioComponentDefinition[] {
     },
     gridNode("line", zeroLine ? [zeroLine] : []),
     backgroundNode("line"),
+    referenceAreaNode("line"),
     {
       id: "line.profit-loss",
       label: "ProfitLossLine",
@@ -891,6 +950,7 @@ export function resolveLineComponents(
     },
     gridNode("line"),
     backgroundNode("line"),
+    referenceAreaNode("line"),
   ];
 
   for (let index = 0; index < seriesCount; index += 1) {
@@ -1026,6 +1086,7 @@ export function resolveScatterComponents(
     },
     gridNode("scatter"),
     backgroundNode("scatter"),
+    referenceAreaNode("scatter"),
     {
       id: "scatter.desktop",
       label: "Scatter · desktop",
@@ -1083,6 +1144,7 @@ export function resolveCandlestickComponents(
     },
     gridNode("candlestick"),
     backgroundNode("candlestick"),
+    referenceAreaNode("candlestick"),
     {
       id: "candlestick.candles",
       label: "Candlestick",
@@ -1091,6 +1153,8 @@ export function resolveCandlestickComponents(
       controlGroups: candles ? [candles] : [],
     },
     chartTooltipNode("candlestick"),
+    chartYAxisNode("candlestick", "left", "YAxis · left"),
+    chartYAxisNode("candlestick", "right", "YAxis · right"),
     passiveNode("candlestick", "xaxis", "XAxis"),
     legendNode("candlestick"),
   ];
@@ -1175,6 +1239,111 @@ export function resolveSankeyComponents(): StudioComponentDefinition[] {
       controlGroups: [tooltipAppearanceControlGroup],
     },
     legendNode("sankey"),
+  ];
+}
+
+export function resolveHeatmapComponents(
+  state: StudioUrlState
+): StudioComponentDefinition[] {
+  const chartId = "heatmap.chart";
+  const chartControlGroups = heatmapChartControlGroups;
+
+  if (state.heatmapChartState === "loading") {
+    return [
+      {
+        id: chartId,
+        label: "HeatmapChart",
+        kind: "chart",
+        treeIcon: "layers",
+        controlGroups: chartControlGroups,
+      },
+      {
+        id: "heatmap.loading-label",
+        label: "Label",
+        parentId: chartId,
+        kind: "chart",
+        controlGroups: [
+          controlGroup("Label", [
+            {
+              type: "text",
+              key: "heatmapLoadingLabel",
+              label: "Text",
+            },
+          ]),
+        ],
+      },
+      {
+        id: "heatmap.loading-cells",
+        label: "Cells",
+        parentId: chartId,
+        kind: "chart",
+        controlGroups: [
+          controlGroup("Loading", [
+            {
+              type: "opacity",
+              key: "heatmapLoadingOpacity",
+              label: "Chart opacity",
+              min: 0.1,
+              max: 1,
+              step: 0.05,
+              color: "var(--foreground)",
+            },
+          ]),
+          controlGroup("Animation", [
+            {
+              type: "opacity",
+              key: "heatmapLoadingCellMaxOpacity",
+              label: "Cell max",
+              min: 0.05,
+              max: 1,
+              step: 0.05,
+              color: "var(--chart-1)",
+            },
+            {
+              type: "number",
+              key: "heatmapLoadingCellRandomness",
+              label: "Randomness",
+              min: 0,
+              max: 1,
+              step: 0.05,
+            },
+          ]),
+        ],
+      },
+    ];
+  }
+
+  return [
+    {
+      id: chartId,
+      label: "HeatmapChart",
+      kind: "chart",
+      treeIcon: "layers",
+      controlGroups: chartControlGroups,
+    },
+    {
+      id: "heatmap.cells",
+      label: "HeatmapCells",
+      parentId: chartId,
+      kind: "chart",
+      controlGroups: heatmapCellsControlGroups,
+    },
+    passiveNode("heatmap", "xaxis", "HeatmapXAxis"),
+    passiveNode("heatmap", "yaxis", "HeatmapYAxis"),
+    {
+      id: "heatmap.tooltip",
+      label: "HeatmapTooltip",
+      parentId: chartId,
+      kind: "chart",
+      controlGroups: [tooltipAppearanceControlGroup],
+    },
+    {
+      id: "heatmap.legend",
+      label: "HeatmapLegend",
+      parentId: chartId,
+      kind: "chart",
+      controlGroups: heatmapLegendControlGroups,
+    },
   ];
 }
 

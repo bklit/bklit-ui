@@ -1,24 +1,29 @@
 "use client";
 
-import { StudioControlSurface } from "@/ui/studio-control-surface";
+import { Icon } from "@bklitui/icons";
+import { cn } from "@/lib/utils";
 
 export function StudioScrambleDataButton({
-  className,
   disabled,
   onScramble,
 }: {
-  className?: string;
   disabled?: boolean;
   onScramble: () => void;
 }) {
   return (
-    <StudioControlSurface
-      className={className}
+    <button
+      aria-label="Scramble data"
+      className={cn(
+        "inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 font-medium text-[10px] text-muted-foreground uppercase tracking-wide transition-colors",
+        "hover:bg-muted/60 hover:text-foreground",
+        "disabled:pointer-events-none disabled:opacity-40"
+      )}
       disabled={disabled}
       onClick={onScramble}
       type="button"
     >
-      Scramble data
-    </StudioControlSurface>
+      <Icon className="size-3" name="IconShuffle" />
+      Scramble
+    </button>
   );
 }

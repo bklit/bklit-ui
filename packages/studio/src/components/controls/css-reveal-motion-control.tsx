@@ -1,10 +1,10 @@
 "use client";
 
 import { MotionEasePresetGrid } from "@/components/controls/motion-ease-preset-grid";
-import { SliderInputGroup } from "@/components/controls/slider-input-group";
 import { motionDurationToAnimationMs } from "@/lib/chart-animation";
-import { MOTION_EASE_PRESETS } from "@/lib/motion-config";
+import { motionEasePresetUpdates } from "@/lib/motion-config";
 import type { StudioUrlState } from "@/lib/studio-parsers";
+import { StudioSlider } from "@/ui/studio-slider";
 
 export function CssRevealMotionControl({
   state,
@@ -35,7 +35,7 @@ export function CssRevealMotionControl({
 
   return (
     <div className="space-y-3">
-      <SliderInputGroup
+      <StudioSlider
         label="Duration"
         max={2}
         min={0.2}
@@ -49,12 +49,10 @@ export function CssRevealMotionControl({
       <MotionEasePresetGrid
         label="Easing"
         onSelect={(id) => {
+          const preset = motionEasePresetUpdates(id);
           onChange("motionType", "ease");
-          onChange("motionEase", id);
-          const b = MOTION_EASE_PRESETS[id].bezier;
-          const bezier = `${b[0]}, ${b[1]}, ${b[2]}, ${b[3]}`;
-          onChange("motionBezier", bezier);
-          onCommit("motionBezier", bezier);
+          onCommit("motionEase", preset.motionEase);
+          onCommit("motionBezier", preset.motionBezier);
         }}
         value={state.motionEase}
       />

@@ -1,6 +1,6 @@
 "use client";
 
-import { SliderInputGroup } from "./slider-input-group";
+import { StudioSlider } from "@/ui/studio-slider";
 
 export function OpacitySwatch({
   color,
@@ -12,7 +12,7 @@ export function OpacitySwatch({
   secondaryColor?: string;
 }) {
   return (
-    <span className="relative block size-6 overflow-hidden rounded-full ring-1 ring-border">
+    <span className="relative block size-6 overflow-hidden rounded-full">
       {secondaryColor ? (
         <span
           className="absolute inset-0"
@@ -33,8 +33,6 @@ export function OpacityControl({
   min,
   max,
   step = 0.05,
-  color,
-  secondaryColor,
   onPreview,
   onCommit,
 }: {
@@ -43,26 +41,23 @@ export function OpacityControl({
   min: number;
   max: number;
   step?: number;
-  color: string;
+  color?: string;
   secondaryColor?: string;
   onPreview: (n: number) => void;
   onCommit: (n: number) => void;
 }) {
+  const usePercentFormat = max <= 1 && min >= 0;
+
   return (
-    <SliderInputGroup
-      format={{ maximumFractionDigits: 2, minimumFractionDigits: 0 }}
+    <StudioSlider
+      format={
+        usePercentFormat ? (next) => `${Math.round(next * 100)}%` : undefined
+      }
       label={label}
       max={max}
       min={min}
       onCommit={onCommit}
       onPreview={onPreview}
-      renderIcon={(local) => (
-        <OpacitySwatch
-          color={color}
-          opacity={local}
-          secondaryColor={secondaryColor}
-        />
-      )}
       step={step}
       value={value}
     />

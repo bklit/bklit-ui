@@ -2,26 +2,17 @@
   "$schema": "https://turborepo.dev/schema.json",
   "ui": "tui",
   "globalEnv": [
-    "BKLIT_API_KEY",
-    "BKLIT_PROJECT_ID",
+    "CENTRAL_LICENSE_KEY",
     "OPENPANEL_CLIENT_ID",
     "OPENPANEL_CLIENT_SECRET",
     "CLIENT_ID",
-    "CLIENT_SECRET",
-    "TAURI_ENV_PLATFORM",
-    "TAURI_ENV_DEBUG"
+    "CLIENT_SECRET"
   ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [
-        ".next/**",
-        "!.next/cache/**",
-        ".source/**",
-        "dist/**",
-        "src-tauri/target/release/bundle/**"
-      ]
+      "outputs": [".next/**", "!.next/cache/**", ".source/**", "dist/**"]
     },
     "lint": {
       "dependsOn": ["^lint"]

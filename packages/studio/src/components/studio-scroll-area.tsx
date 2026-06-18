@@ -2,6 +2,7 @@
 
 import { cn } from "@bklitui/ui/lib/utils";
 import type { ReactNode } from "react";
+import { studioSidebarScrollClass } from "@/lib/studio-chrome-classes";
 
 export function StudioScrollArea({
   children,
@@ -11,7 +12,7 @@ export function StudioScrollArea({
   className?: string;
 }) {
   return (
-    <div className={cn("studio-sidebar-scroll overflow-y-auto", className)}>
+    <div className={cn(studioSidebarScrollClass, "overflow-y-auto", className)}>
       {children}
     </div>
   );

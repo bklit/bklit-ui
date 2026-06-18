@@ -1,15 +1,19 @@
 "use client";
 
 import type { NumberField as NumberFieldPrimitive } from "@base-ui/react/number-field";
+import { Icon } from "@bklitui/icons";
 import { cn } from "@bklitui/ui/lib/utils";
-import { ArrowLeftRight, ArrowUpDown } from "lucide-react";
-import { type ReactNode, useEffect, useRef, useState } from "react";
 import {
-  studioControlInputClass,
-  studioInputSurfaceClass,
-} from "@/components/controls/control-field-helpers";
-import { useStudioShellState } from "@/components/use-studio-state";
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import { studioControlInputClass } from "@/components/controls/control-field-helpers";
+import { useStudioNumberScrubbing } from "@/components/use-studio-state";
 import { useRafPreview } from "@/hooks/use-raf-preview";
+import { studioScrubSurfaceClass } from "@/lib/studio-chrome-classes";
 import {
   NumberFieldGroup,
   NumberFieldInput,
@@ -20,6 +24,15 @@ import {
 
 function clamp(n: number, min: number, max: number) {
   return Math.min(max, Math.max(min, n));
+}
+
+function snapToStep(value: number, step: number, min: number) {
+  if (step <= 0) {
+    return value;
+  }
+  const precision = Math.max(0, -Math.floor(Math.log10(step)));
+  const snapped = min + Math.round((value - min) / step) * step;
+  return Number(snapped.toFixed(precision));
 }
 
 const RAF_PREVIEW_REASONS =
@@ -61,7 +74,11 @@ export function ScrubNumberField({
 }) {
   const safe = Number.isFinite(value) ? clamp(value, min, max) : min;
   const [localValue, setLocalValue] = useState(safe);
-  const { setNumberScrubbing } = useStudioShellState();
+  const latestValueRef = useRef(safe);
+  const scrubAreaRef = useRef<HTMLDivElement>(null);
+  const scrubHoverRef = useRef(false);
+  const wheelIdleRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const setNumberScrubbing = useStudioNumberScrubbing();
   const scrubbingRef = useRef(false);
   const {
     schedule: schedulePreview,
@@ -71,7 +88,92 @@ export function ScrubNumberField({
 
   useEffect(() => {
     setLocalValue(safe);
+    latestValueRef.current = safe;
   }, [safe]);
+
+  const endScrubbing = useCallback(() => {
+    if (!scrubbingRef.current) {
+      return;
+    }
+    scrubbingRef.current = false;
+    setNumberScrubbing(false);
+  }, [setNumberScrubbing]);
+
+  const beginScrubbing = useCallback(() => {
+    if (scrubbingRef.current) {
+      return;
+    }
+    scrubbingRef.current = true;
+    setNumberScrubbing(true);
+  }, [setNumberScrubbing]);
+
+  useEffect(() => {
+    const el = scrubAreaRef.current;
+    if (!el || disabled) {
+      return;
+    }
+
+    const onWheel = (event: WheelEvent) => {
+      if (!scrubHoverRef.current) {
+        return;
+      }
+
+      const delta =
+        Math.abs(event.deltaX) > Math.abs(event.deltaY)
+          ? event.deltaX
+          : event.deltaY;
+      if (delta === 0) {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      const range = max - min;
+      const rect = el.getBoundingClientRect();
+      const valueDelta = (-delta / rect.width) * range;
+
+      beginScrubbing();
+      const next = snapToStep(
+        clamp(latestValueRef.current + valueDelta, min, max),
+        step,
+        min
+      );
+      latestValueRef.current = next;
+      setLocalValue(next);
+      onLiveValueChange?.(next);
+      schedulePreview(next);
+
+      if (wheelIdleRef.current) {
+        clearTimeout(wheelIdleRef.current);
+      }
+      wheelIdleRef.current = setTimeout(() => {
+        wheelIdleRef.current = null;
+        endScrubbing();
+        flushPreview();
+        onCommit(latestValueRef.current);
+      }, 120);
+    };
+
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => {
+      el.removeEventListener("wheel", onWheel);
+      if (wheelIdleRef.current) {
+        clearTimeout(wheelIdleRef.current);
+      }
+    };
+  }, [
+    beginScrubbing,
+    disabled,
+    endScrubbing,
+    flushPreview,
+    max,
+    min,
+    onCommit,
+    onLiveValueChange,
+    schedulePreview,
+    step,
+  ]);
 
   useEffect(
     () => () => {
@@ -83,24 +185,9 @@ export function ScrubNumberField({
     [setNumberScrubbing]
   );
 
-  const endScrubbing = () => {
-    if (!scrubbingRef.current) {
-      return;
-    }
-    scrubbingRef.current = false;
-    setNumberScrubbing(false);
-  };
-
-  const beginScrubbing = () => {
-    if (scrubbingRef.current) {
-      return;
-    }
-    scrubbingRef.current = true;
-    setNumberScrubbing(true);
-  };
-
   const applyLocalValue = (next: number) => {
     const clamped = clamp(next, min, max);
+    latestValueRef.current = clamped;
     setLocalValue(clamped);
     onLiveValueChange?.(clamped);
     return clamped;
@@ -140,20 +227,27 @@ export function ScrubNumberField({
     >
       <NumberFieldGroup
         className={cn(
-          "flex h-8 w-full min-w-0 items-center overflow-hidden rounded-sm focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50",
-          studioInputSurfaceClass
+          "flex h-10 w-full min-w-0 items-center overflow-hidden focus-within:ring-3 focus-within:ring-ring/50",
+          studioScrubSurfaceClass
         )}
       >
         <NumberFieldScrubArea
-          className="flex shrink-0 cursor-ew-resize select-none items-center self-stretch px-1.5 text-muted-foreground hover:text-foreground data-[scrubbing]:text-foreground"
+          className="flex shrink-0 cursor-ew-resize select-none items-center self-stretch px-2 text-muted-foreground hover:text-foreground data-[scrubbing]:text-foreground"
           direction="horizontal"
+          onPointerEnter={() => {
+            scrubHoverRef.current = true;
+          }}
+          onPointerLeave={() => {
+            scrubHoverRef.current = false;
+          }}
           pixelSensitivity={5}
+          ref={scrubAreaRef}
         >
           {scrubIcon ?? (
-            <ArrowUpDown aria-hidden className="size-3.5" strokeWidth={1.75} />
+            <Icon aria-hidden className="size-4" name="IconArrowTopBottom" />
           )}
-          <NumberFieldScrubAreaCursor className="pointer-events-none rounded-sm bg-foreground px-1 py-0.5 text-background shadow-md">
-            <ArrowLeftRight aria-hidden className="size-3" strokeWidth={2} />
+          <NumberFieldScrubAreaCursor className="pointer-events-none rounded-[var(--radius-sm)] bg-foreground px-1 py-0.5 text-background shadow-md">
+            <Icon aria-hidden className="size-3" name="IconArrowLeftRight" />
           </NumberFieldScrubAreaCursor>
         </NumberFieldScrubArea>
         <NumberFieldInput
@@ -164,7 +258,7 @@ export function ScrubNumberField({
           )}
         />
         {unit ? (
-          <span className="shrink-0 border-border border-l px-2 font-mono text-muted-foreground text-xs tabular-nums">
+          <span className="shrink-0 px-2 font-mono text-muted-foreground text-xs tabular-nums">
             {unit}
           </span>
         ) : null}

@@ -1,7 +1,7 @@
 "use client";
 
 import { IconToggleGroup } from "@/components/controls/icon-toggle-group";
-import { StudioTab } from "@/components/controls/studio-toggle-group";
+import { StudioToggleGroupItem } from "@/components/controls/studio-toggle-group";
 
 function FunnelStraightIcon() {
   return (
@@ -32,16 +32,20 @@ export function FunnelEdgesPicker({
 }) {
   return (
     <IconToggleGroup onValueChange={onChange} value={value}>
-      <StudioTab aria-label="Curved edges" title="Curved edges" value="curved">
+      <StudioToggleGroupItem
+        aria-label="Curved edges"
+        title="Curved edges"
+        value="curved"
+      >
         <FunnelCurvedIcon />
-      </StudioTab>
-      <StudioTab
+      </StudioToggleGroupItem>
+      <StudioToggleGroupItem
         aria-label="Straight edges"
         title="Straight edges"
         value="straight"
       >
         <FunnelStraightIcon />
-      </StudioTab>
+      </StudioToggleGroupItem>
     </IconToggleGroup>
   );
 }

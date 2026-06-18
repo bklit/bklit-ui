@@ -4,7 +4,7 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
-    "dev:studio-desktop": "pnpm --filter @bklitui/studio-desktop tauri dev",
+    "dev:studio-docs": "pnpm --filter studio-docs dev",
     "lint": "ultracite check",
     "lint:fix": "ultracite fix",
     "format": "ultracite fix",
@@ -27,6 +27,9 @@
     "node": ">=18"
   },
   "pnpm": {
+    "neverBuiltDependencies": [
+      "@central-icons-react/all"
+    ],
     "overrides": {
       "esm-env": "npm:esm-env-runtime@^0.1.1"
     }

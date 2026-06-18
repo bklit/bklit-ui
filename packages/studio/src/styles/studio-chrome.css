@@ -1,0 +1,26 @@
+@layer base {
+  /* WebKit scrollbar chrome — pseudo-elements can't be expressed as component utilities. */
+  .studio-shell * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--studio-scrollbar-thumb) transparent;
+  }
+
+  .studio-shell *::-webkit-scrollbar {
+    width: var(--studio-scrollbar-width);
+    height: var(--studio-scrollbar-width);
+  }
+
+  .studio-shell *::-webkit-scrollbar-track,
+  .studio-shell *::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  .studio-shell *::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: var(--studio-scrollbar-thumb);
+  }
+
+  .studio-shell *::-webkit-scrollbar-thumb:hover {
+    background: var(--studio-scrollbar-thumb-hover);
+  }
+}

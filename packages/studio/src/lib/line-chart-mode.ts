@@ -1,3 +1,4 @@
+import { getCandlestickReferenceAreaDefaults } from "./demo-data";
 import { chartDefaultHiddenYAxes } from "./studio-component-visibility";
 import type { StudioUrlState } from "./studio-parsers";
 
@@ -15,8 +16,16 @@ export function isAreaChartLoadingMode(state: StudioUrlState) {
   return state.chart === "area-chart" && state.areaChartState === "loading";
 }
 
+export function isBarChartLoadingMode(state: StudioUrlState) {
+  return state.chart === "bar-chart" && state.barChartState === "loading";
+}
+
 export function isCartesianLoadingMode(state: StudioUrlState) {
-  return isLineChartLoadingMode(state) || isAreaChartLoadingMode(state);
+  return (
+    isLineChartLoadingMode(state) ||
+    isAreaChartLoadingMode(state) ||
+    isBarChartLoadingMode(state)
+  );
 }
 
 export const lineChartProfitLossDefaults: Partial<StudioUrlState> = {
@@ -37,6 +46,12 @@ export const lineChartProfitLossDefaults: Partial<StudioUrlState> = {
   showCrosshair: true,
   crosshairFollowsValue: true,
   crosshairColor: "var(--chart-crosshair)",
+  crosshairStyle: "solid",
+  crosshairDashArray: "4,4",
+  crosshairFadeEdges: "both",
+  crosshairFadeLength: 10,
+  tooltipMatchCrosshair: false,
+  tooltipDamping: 20,
   showLegend: true,
   legendPlacement: "bottom",
   legendAlign: "center",
@@ -49,4 +64,9 @@ export const lineChartStandardDefaults: Partial<StudioUrlState> = {
   fadeEdges: "both",
   showHighlight: true,
   hiddenComponents: chartDefaultHiddenYAxes("line"),
+};
+
+export const candlestickChartDefaults: Partial<StudioUrlState> = {
+  hiddenComponents: chartDefaultHiddenYAxes("candlestick"),
+  ...getCandlestickReferenceAreaDefaults(),
 };

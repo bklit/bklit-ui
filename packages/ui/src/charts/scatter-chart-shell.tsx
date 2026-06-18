@@ -15,6 +15,11 @@ import {
 } from "react";
 import { DEFAULT_ANIMATION_EASING } from "./animation";
 import {
+  isClipExcludedComponent,
+  isPostOverlayComponent,
+  isUnderlayComponent,
+} from "./chart-child-passthrough";
+import {
   type ChartContextValue,
   ChartProvider,
   type LineConfig,
@@ -23,7 +28,7 @@ import {
 import { isGradientDefComponent, isPatternDefComponent } from "./chart-defs";
 import { shortDateFmt } from "./chart-formatters";
 import { type ChartPhase, DEFAULT_CHART_LIFECYCLE } from "./chart-phase";
-import { isPostOverlayComponent } from "./time-series-chart-shell";
+import { extractReferenceAreaConfigs } from "./reference-area-config";
 import { useScatterChartInteraction } from "./use-scatter-chart-interaction";
 import { buildYScalesForLines, getPrimaryYScale } from "./y-axis-scales";
 
@@ -178,6 +183,8 @@ export function ScatterChartInner({
   }
 
   const defsChildren: ReactElement[] = [];
+  const clipExcludedChildren: ReactElement[] = [];
+  const underlayChildren: ReactElement[] = [];
   const preOverlayChildren: ReactElement[] = [];
   const postOverlayChildren: ReactElement[] = [];
 
@@ -192,10 +199,19 @@ export function ScatterChartInner({
       preOverlayChildren.push(child);
     } else if (isPostOverlayComponent(child)) {
       postOverlayChildren.push(child);
+    } else if (isClipExcludedComponent(child)) {
+      clipExcludedChildren.push(child);
+    } else if (isUnderlayComponent(child)) {
+      underlayChildren.push(child);
     } else {
       preOverlayChildren.push(child);
     }
   });
+
+  const referenceAreas = useMemo(
+    () => extractReferenceAreaConfigs(children),
+    [children]
+  );
 
   const contextValue: ChartContextValue = {
     ...DEFAULT_CHART_LIFECYCLE,
@@ -214,6 +230,7 @@ export function ScatterChartInner({
     setTooltipData,
     containerRef,
     lines,
+    referenceAreas,
     isLoaded,
     animationDuration,
     animationEasing,
@@ -250,6 +267,8 @@ export function ScatterChartInner({
             y={0}
           />
 
+          {clipExcludedChildren}
+          {underlayChildren}
           {preOverlayChildren}
           {postOverlayChildren}
         </g>

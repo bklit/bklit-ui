@@ -28,8 +28,8 @@ interface NumberControlBase {
   step?: number;
   format?: Intl.NumberFormatOptions;
   unit?: string;
-  /** `number` = typed input; `slider` = drag (default) */
-  input?: "slider" | "number";
+  /** `number` = typed input; `slider` = drag (default); `studio` = integrated track slider. `%` unit always uses studio slider. */
+  input?: "slider" | "number" | "studio";
   /** Live SVG preview while dragging (ring chart controls). */
   preview?: NumberControlPreview;
   /** Disable when the referenced URL state value is truthy. */
@@ -79,6 +79,12 @@ export type StudioControl = StudioControlVisibility &
         /** Disable when the referenced URL state value is falsy. */
         enabledWhen?: keyof StudioUrlState;
       }
+    | {
+        type: "heatmapLevel";
+        level: 0 | 1 | 2 | 3 | 4;
+        label: string;
+        key: keyof StudioUrlState;
+      }
     | { type: "pieFill"; key: keyof StudioUrlState; label: string }
     | { type: "orientation"; key: keyof StudioUrlState; label: string }
     | { type: "lineCap"; key: "barLineCap"; label: string }
@@ -90,6 +96,16 @@ export type StudioControl = StudioControlVisibility &
         label: string;
       } & SeriesScopedControl)
     | { type: "graticuleToggle"; key: "showGraticule"; label: string }
+    | {
+        type: "strokeStyle";
+        key: keyof StudioUrlState;
+        label: string;
+      }
+    | {
+        type: "crosshairFade";
+        key: keyof StudioUrlState;
+        label: string;
+      }
     | { type: "legendPosition"; key: "legendPlacement"; label: string }
     | ({
         type: "innerRadius";
@@ -116,6 +132,16 @@ export type StudioControl = StudioControlVisibility &
         seriesIndex: number;
       }
     | {
+        type: "referenceAreaFill";
+        key: "referenceAreaFill";
+        label: string;
+      }
+    | {
+        type: "referenceAreaYAxis";
+        key: "referenceAreaYAxis";
+        label: string;
+      }
+    | {
         type: "lineYAxisNumTicks";
         key: "lineYAxisNumTicks";
         label: string;
@@ -132,6 +158,8 @@ export type StudioControl = StudioControlVisibility &
 export interface StudioControlGroup {
   title: string;
   controls: StudioControl[];
+  collapsible?: boolean;
+  defaultOpen?: boolean;
 }
 
 export type StudioComponentKind =
@@ -208,6 +236,7 @@ export const chartLabels = {
   "composed-chart": "Composed Chart",
   "funnel-chart": "Funnel Chart",
   "gauge-chart": "Gauge",
+  "heatmap-chart": "Heatmap",
   "line-chart": "Line Chart",
   "profit-loss-line": "Profit/Loss Line",
   "live-line-chart": "Live Line Chart",

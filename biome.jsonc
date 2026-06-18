@@ -12,6 +12,13 @@
       "assist": { "enabled": false }
     },
     {
+      // Static marketing/chart SVG exports — not hand-edited React components
+      "includes": ["apps/web/public/**/*.svg"],
+      "formatter": { "enabled": false },
+      "linter": { "enabled": false },
+      "assist": { "enabled": false }
+    },
+    {
       // Generated shadcn registry sources (registry:build); not hand-edited
       "includes": ["packages/ui/registry/**"],
       "formatter": { "enabled": false },
@@ -41,6 +48,39 @@
         "rules": {
           "performance": {
             "noNamespaceImport": "off"
+          }
+        }
+      }
+    },
+    {
+      // Studio shadcn/ui primitives (base-nova) — same lint posture as apps/web
+      "includes": ["packages/studio/src/ui/**"],
+      "linter": {
+        "rules": {
+          "a11y": {
+            "noLabelWithoutControl": "off",
+            "noNoninteractiveElementInteractions": "off",
+            "useKeyWithClickEvents": "off",
+            "useSemanticElements": "off"
+          },
+          "performance": {
+            "noNamespaceImport": "off"
+          },
+          "style": {
+            "noNestedTernary": "off"
+          },
+          "suspicious": {
+            "noArrayIndexKey": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/icons/src/index.ts"],
+      "linter": {
+        "rules": {
+          "performance": {
+            "noBarrelFile": "off"
           }
         }
       }

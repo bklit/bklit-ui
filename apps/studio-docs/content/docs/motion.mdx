@@ -1,0 +1,85 @@
+---
+title: Motion
+description: Bezier curve editor, Central Icon ease presets, and motion panel controls
+---
+
+Motion UI lives in the left sidebar animation section. The **bezier editor** is the most complex custom control — draggable handles, play preview, and ease/spring morph.
+
+**Sources:**
+
+- `packages/studio/src/components/controls/motion-curve-editor.tsx`
+- `packages/studio/src/components/controls/motion-ease-preset-grid.tsx`
+- `packages/studio/src/lib/motion-config.ts` — preset IDs, icons, and cubic-bezier values
+
+Icons use [`@bklitui/icons`](/docs/primitives) (Central Icon System).
+
+## Bezier editor
+
+<ComponentShowcase>
+  <StudioUiPreview>
+    <MotionBezierDemo />
+  </StudioUiPreview>
+</ComponentShowcase>
+
+Drag the handles to edit `motionBezier`. Press play to preview the easing curve. The footer shows `IconBezierCurves` beside the cubic-bezier string.
+
+Selecting a preset updates **both** `motionEase` and `motionBezier` so the curve, numeric field, and preset card stay in sync. Dragging a handle or editing the string sets `motionEase` to `custom`.
+
+Toggle **Ease / Spring** in the full panel below to morph the preview between cubic-bezier and spring physics.
+
+## Ease presets
+
+Four presets ship as a `cards-2` toggle grid. Each card shows a **Central animation icon** and label; the icon shape matches the cubic-bezier curve applied to the chart.
+
+<ComponentShowcase>
+  <StudioUiPreview>
+    <MotionEasePresetsDemo />
+  </StudioUiPreview>
+</ComponentShowcase>
+
+| ID | Label | Icon | Cubic bezier |
+|----|-------|------|----------------|
+| `ease` | Ease | `IconAnimationEase` | `0.85, 0, 0.15, 1` |
+| `easeOut` | Ease out | `IconAnimationEaseOut` | `0, 0, 0.58, 1` |
+| `easeIn` | Ease in | `IconAnimationEaseIn` | `0.42, 0, 1, 1` |
+| `elastic` | Elastic | `IconAnimationElastic` | `0.5, 1.35, 0.5, 1` |
+
+Default: `ease` (`0.85, 0, 0.15, 1`) at **1.1s** — the original chart reveal timing used across line, bar, area, and related enter animations.
+
+### URL state
+
+| Key | Values |
+|-----|--------|
+| `motionEase` | `ease` · `easeOut` · `easeIn` · `elastic` · `custom` |
+| `motionBezier` | Comma-separated `x1, y1, x2, y2` (also accepts `cubic-bezier(...)` when parsing) |
+
+Legacy shared links still parse: `snappy` → `ease`, `smooth` / `easeInOut` → `ease` (with their preset curves when re-selected).
+
+### Usage
+
+```tsx
+import { Icon } from "@bklitui/icons";
+import { MotionEasePresetGrid } from "@/components/controls/motion-ease-preset-grid";
+import { motionEasePresetUpdates } from "@/lib/motion-config";
+
+<MotionEasePresetGrid
+  value={state.motionEase}
+  onSelect={(id) => {
+    const preset = motionEasePresetUpdates(id);
+    onCommit("motionEase", preset.motionEase);
+    onCommit("motionBezier", preset.motionBezier);
+  }}
+/>
+```
+
+Preset metadata (`label`, `icon`, `bezier`) lives in `MOTION_EASE_PRESETS` inside `motion-config.ts` — update icons and curves there, then mirror any copy changes here.
+
+## Full motion panel
+
+`MotionControl` composes the editor, duration scrubber, stagger scale, bounce (spring), and ease preset grid.
+
+<ComponentShowcase>
+  <StudioUiPreview>
+    <MotionControlDemo />
+  </StudioUiPreview>
+</ComponentShowcase>

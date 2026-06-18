@@ -5,7 +5,9 @@ import { createPortal } from "react-dom";
 import { useChartStable, useYScale } from "./chart-context";
 import { DEFAULT_Y_DOMAIN_TWEEN_MS } from "./chart-phase";
 import { LINE_LOADING_PULSE_EASE } from "./line-loading-timing";
+import { resolveReferenceDataRange } from "./reference-area-geometry";
 import type { YAxisOrientation } from "./y-axis-scales";
+import { normalizeYAxisId } from "./y-axis-scales";
 import {
   resolveYAxisTickCount,
   Y_AXIS_DEFAULT_TICK_COUNT,
@@ -43,6 +45,31 @@ function formatLabel(
   return String(value);
 }
 
+function resolveTickLabelColor(
+  value: number,
+  axisId: string,
+  yScaleDomain: [number, number],
+  referenceAreas: ReturnType<typeof useChartStable>["referenceAreas"]
+): string | undefined {
+  for (const area of referenceAreas) {
+    if (!area.axisLabelColor) {
+      continue;
+    }
+    if (normalizeYAxisId(area.yAxisId) !== axisId) {
+      continue;
+    }
+    const [low, high] = resolveReferenceDataRange(
+      area.y1,
+      area.y2,
+      yScaleDomain
+    );
+    if (value >= low && value <= high) {
+      return area.axisLabelColor;
+    }
+  }
+  return undefined;
+}
+
 export function YAxis(props: YAxisProps) {
   const { containerRef } = useChartStable();
   const [mounted, setMounted] = useState(false);
@@ -67,9 +94,11 @@ const YAxisInner = memo(function YAxisInner({
   formatValue,
   container,
 }: YAxisProps & { container: HTMLDivElement }) {
-  const { margin } = useChartStable();
+  const { margin, referenceAreas } = useChartStable();
   const yScale = useYScale(yAxisId);
   const isLeft = orientation === "left";
+  const axisId = normalizeYAxisId(yAxisId);
+  const yScaleDomain = yScale.domain() as [number, number];
 
   const ticks = useMemo(() => {
     const tickValues = yScale.ticks(resolveYAxisTickCount(numTicks));
@@ -77,8 +106,23 @@ const YAxisInner = memo(function YAxisInner({
       value,
       y: (yScale(value) ?? 0) + margin.top,
       label: formatLabel(value, formatLargeNumbers, formatValue),
+      labelColor: resolveTickLabelColor(
+        value,
+        axisId,
+        yScaleDomain,
+        referenceAreas
+      ),
     }));
-  }, [yScale, margin.top, numTicks, formatLargeNumbers, formatValue]);
+  }, [
+    yScale,
+    margin.top,
+    numTicks,
+    formatLargeNumbers,
+    formatValue,
+    axisId,
+    yScaleDomain,
+    referenceAreas,
+  ]);
 
   return createPortal(
     <div className="pointer-events-none absolute inset-0">
@@ -103,7 +147,12 @@ const YAxisInner = memo(function YAxisInner({
                 : { left: 0, justifyContent: "flex-start", paddingLeft: 8 }),
             }}
           >
-            <span className="text-chart-label text-xs">{tick.label}</span>
+            <span
+              className="text-chart-label text-xs"
+              style={tick.labelColor ? { color: tick.labelColor } : undefined}
+            >
+              {tick.label}
+            </span>
           </div>
         ))}
       </div>

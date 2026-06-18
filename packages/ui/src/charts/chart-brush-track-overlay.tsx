@@ -1,7 +1,9 @@
 "use client";
 
+import type { RefObject } from "react";
 import { type CSSProperties, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import type { Margin } from "./chart-context";
 import { useChartStable } from "./chart-context";
 
 /** Fade dimming panes at the outer track ends — matches series edge fade (15%). */
@@ -47,15 +49,21 @@ export interface ChartBrushTrackOverlayProps
   selectionX1: number;
 }
 
-export function ChartBrushTrackOverlay({
+export interface ChartBrushOverlayHost {
+  containerRef: RefObject<HTMLDivElement | null>;
+  margin: Margin;
+}
+
+export function ChartBrushTrackOverlayContent({
+  containerRef,
+  margin,
   innerWidth,
   innerHeight,
   selectionX0,
   selectionX1,
   blurPx = 1.5,
   fadeOuterEdges = true,
-}: ChartBrushTrackOverlayProps) {
-  const { containerRef, margin } = useChartStable();
+}: ChartBrushTrackOverlayProps & ChartBrushOverlayHost) {
   const [mounted, setMounted] = useState(false);
   const overlayStyle: Required<ChartBrushTrackOverlayStyle> = {
     blurPx: Math.min(5, Math.max(0, blurPx)),
@@ -117,5 +125,17 @@ export function ChartBrushTrackOverlay({
       ) : null}
     </div>,
     container
+  );
+}
+
+export function ChartBrushTrackOverlay(props: ChartBrushTrackOverlayProps) {
+  const { containerRef, margin } = useChartStable();
+
+  return (
+    <ChartBrushTrackOverlayContent
+      {...props}
+      containerRef={containerRef}
+      margin={margin}
+    />
   );
 }

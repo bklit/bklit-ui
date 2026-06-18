@@ -13,9 +13,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/ui/select";
-import { Switch } from "@/ui/switch";
+import { YesNoSwitch } from "@/ui/yes-no-switch";
 import { studioControlInputClass } from "./control-field-helpers";
-import { CurvePicker } from "./curve-picker";
+import { CrosshairFadePicker } from "./crosshair-fade-picker";
+import { CurvePickerField } from "./curve-picker";
 import { type FadeEdgesOption, FadeEdgesPicker } from "./fade-edges-picker";
 import { FunnelEdgesPicker } from "./funnel-edges-picker";
 import { GraticuleToggle } from "./graticule-toggle";
@@ -24,6 +25,7 @@ import { OrientationPicker } from "./orientation-picker";
 import { PatternPicker } from "./pattern-picker";
 import { PieFillPicker } from "./pie-fill-picker";
 import { PieHoverEffectPicker } from "./pie-hover-effect-picker";
+import { StrokeStylePicker } from "./stroke-style-picker";
 
 export function ControlFieldInputs({
   control,
@@ -40,18 +42,18 @@ export function ControlFieldInputs({
   switch (control.type) {
     case "boolean":
       return (
-        <Switch
-          checked={Boolean(value)}
-          id={String(control.key)}
-          onCheckedChange={(checked) =>
+        <YesNoSwitch
+          aria-label={control.label}
+          onValueChange={(checked) =>
             onChange(control.key, checked as StudioUrlState[typeof control.key])
           }
+          value={Boolean(value)}
         />
       );
     case "text":
       return (
         <Input
-          className={cn("h-8 w-full", studioControlInputClass)}
+          className={cn("w-full", studioControlInputClass)}
           id={String(control.key)}
           onChange={(e) =>
             onChange(
@@ -70,10 +72,7 @@ export function ControlFieldInputs({
           }
           value={String(value)}
         >
-          <SelectTrigger
-            className="h-8 w-full text-xs"
-            id={String(control.key)}
-          >
+          <SelectTrigger className="w-full text-xs" id={String(control.key)}>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -87,7 +86,8 @@ export function ControlFieldInputs({
       );
     case "curve":
       return (
-        <CurvePicker
+        <CurvePickerField
+          label={control.label}
           onChange={(v) => onChange(control.key, v as StudioUrlState["curve"])}
           value={value as CurveId}
         />
@@ -152,6 +152,24 @@ export function ControlFieldInputs({
         <GraticuleToggle
           onChange={(v) => onChange("showGraticule", v)}
           value={Boolean(value)}
+        />
+      );
+    case "strokeStyle":
+      return (
+        <StrokeStylePicker
+          onChange={(v) =>
+            onChange(control.key, v as StudioUrlState[typeof control.key])
+          }
+          value={value as "solid" | "dashed"}
+        />
+      );
+    case "crosshairFade":
+      return (
+        <CrosshairFadePicker
+          onChange={(v) =>
+            onChange(control.key, v as StudioUrlState[typeof control.key])
+          }
+          value={value as "both" | "none" | "top" | "bottom"}
         />
       );
     default:

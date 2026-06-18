@@ -10,6 +10,11 @@ import type { ColorPresetId } from "./color-presets";
 import { COLOR_PRESET_IDS } from "./color-presets";
 import type { CurveId } from "./curves";
 import { CURVE_IDS } from "./curves";
+import {
+  LEGACY_MOTION_EASE_IDS,
+  MOTION_EASE_IDS,
+  type MotionEaseUrlValue,
+} from "./motion-config";
 import type { PatternPresetId } from "./pattern-presets";
 import { PATTERN_PRESET_IDS } from "./pattern-presets";
 import type { ChartSlug } from "./types";
@@ -54,12 +59,9 @@ export const studioSearchParams = {
   motionDuration: parseAsFloat.withDefault(1.1),
   motionBounce: parseAsFloat.withDefault(0.6),
   motionEase: parseAsStringLiteral([
-    "easeOut",
-    "easeInOut",
-    "snappy",
-    "smooth",
-    "custom",
-  ]).withDefault("snappy"),
+    ...MOTION_EASE_IDS,
+    ...LEGACY_MOTION_EASE_IDS,
+  ]).withDefault("ease"),
   motionBezier: parseAsString.withDefault("0.85, 0, 0.15, 1"),
   motionStaggerScale: parseAsFloat.withDefault(1),
   showLine: parseAsBoolean.withDefault(true),
@@ -138,6 +140,34 @@ export const studioSearchParams = {
   candleShowDots: parseAsBoolean.withDefault(false),
   sankeyNodePadding: parseAsInteger.withDefault(12),
   sankeyNodeWidth: parseAsInteger.withDefault(16),
+  heatmapBinSize: parseAsInteger.withDefault(0),
+  heatmapGap: parseAsInteger.withDefault(2),
+  heatmapCornerRadius: parseAsInteger.withDefault(2),
+  heatmapLegendCellSize: parseAsInteger.withDefault(11),
+  heatmapChartState: parseAsStringLiteral(["ready", "loading"]).withDefault(
+    "ready"
+  ),
+  heatmapLoadingLabel: parseAsString.withDefault("Loading"),
+  heatmapLoadingOpacity: parseAsFloat.withDefault(1),
+  heatmapLoadingCellMaxOpacity: parseAsFloat.withDefault(0.85),
+  heatmapLoadingCellRandomness: parseAsFloat.withDefault(1),
+  heatmapLevel0Color: parseAsString.withDefault("var(--color-muted)"),
+  heatmapLevel1Color: parseAsString.withDefault("#0e4429"),
+  heatmapLevel2Color: parseAsString.withDefault("#006d32"),
+  heatmapLevel3Color: parseAsString.withDefault("#26a641"),
+  heatmapLevel4Color: parseAsString.withDefault("#39d353"),
+  heatmapLevelFillModes: parseAsString.withDefault(""),
+  heatmapLevelPatterns: parseAsString.withDefault(""),
+  heatmapLevelPatternColors: parseAsString.withDefault(""),
+  heatmapLevelPatternScales: parseAsString.withDefault(""),
+  heatmapLevelPatternStrokeWidths: parseAsString.withDefault(""),
+  heatmapLevelPatternRadii: parseAsString.withDefault(""),
+  heatmapLevelPatternComplements: parseAsString.withDefault(""),
+  heatmapLevelPatternFills: parseAsString.withDefault(""),
+  heatmapLevelPatternTileBackgrounds: parseAsString.withDefault(""),
+  heatmapLevelPatternOpacities: parseAsString.withDefault(""),
+  heatmapLevelPatternDotsFills: parseAsString.withDefault(""),
+  heatmapCellsFadedOpacity: parseAsFloat.withDefault(0.3),
   linkOpacity: parseAsFloat.withDefault(0.4),
   scatterRadius: parseAsFloat.withDefault(6),
   scatterRingGap: parseAsFloat.withDefault(2),
@@ -182,6 +212,9 @@ export const studioSearchParams = {
   areaChartState: parseAsStringLiteral(["ready", "loading"]).withDefault(
     "ready"
   ),
+  barChartState: parseAsStringLiteral(["ready", "loading"]).withDefault(
+    "ready"
+  ),
   lineLoadingStroke: parseAsString.withDefault("var(--foreground)"),
   lineLoadingStrokeOpacity: parseAsFloat.withDefault(0.5),
   lineLoadingGridStroke: parseAsString.withDefault(
@@ -222,6 +255,40 @@ export const studioSearchParams = {
   backgroundFadeVertical: parseAsBoolean.withDefault(true),
   backgroundFadeHorizontalLength: parseAsFloat.withDefault(10),
   backgroundFadeVerticalLength: parseAsFloat.withDefault(10),
+  referenceAreaY1: parseAsFloat.withDefault(160),
+  referenceAreaY2: parseAsFloat.withDefault(220),
+  referenceAreaFill: parseAsString.withDefault(
+    "color-mix(in oklch, var(--chart-foreground-muted) 15%, transparent)"
+  ),
+  referenceAreaFillOpacity: parseAsFloat.withDefault(1),
+  referenceAreaPattern:
+    parseAsStringLiteral(PATTERN_PRESET_IDS).withDefault("none"),
+  referenceAreaPatternColor: parseAsString.withDefault(
+    "var(--chart-foreground-muted)"
+  ),
+  referenceAreaPatternScale: parseAsFloat.withDefault(1),
+  referenceAreaPatternStrokeWidth: parseAsFloat.withDefault(1),
+  referenceAreaPatternRadius: parseAsFloat.withDefault(2),
+  referenceAreaPatternComplement: parseAsBoolean.withDefault(false),
+  referenceAreaPatternFill: parseAsString.withDefault(""),
+  referenceAreaPatternDotsFill: parseAsBoolean.withDefault(true),
+  referenceAreaPatternTileBackground: parseAsString.withDefault(""),
+  referenceAreaStroke: parseAsString.withDefault(
+    "var(--chart-foreground-muted)"
+  ),
+  referenceAreaStrokeStyle: parseAsStringLiteral([
+    "solid",
+    "dashed",
+  ]).withDefault("dashed"),
+  referenceAreaStrokeDasharray: parseAsString.withDefault("4,4"),
+  referenceAreaFadeEdges: parseAsBoolean.withDefault(true),
+  referenceAreaFadeEdgesLength: parseAsFloat.withDefault(10),
+  referenceAreaAxisLabelColor: parseAsString.withDefault("var(--chart-1)"),
+  referenceAreaShowMarkers: parseAsBoolean.withDefault(true),
+  referenceAreaMarkerColor: parseAsString.withDefault("var(--chart-1)"),
+  referenceAreaYAxis: parseAsStringLiteral(["left", "right"]).withDefault(
+    "left"
+  ),
   lineLoadingLabel: parseAsString.withDefault("Loading"),
   /** Pipe-encoded Y axis id per line series (`left` / `right`). */
   lineSeriesYAxes: parseAsString.withDefault("left|left"),
@@ -239,6 +306,19 @@ export const studioSearchParams = {
   showCrosshair: parseAsBoolean.withDefault(true),
   crosshairFollowsValue: parseAsBoolean.withDefault(true),
   crosshairColor: parseAsString.withDefault("var(--chart-crosshair)"),
+  crosshairStyle: parseAsStringLiteral(["solid", "dashed"]).withDefault(
+    "solid"
+  ),
+  crosshairDashArray: parseAsString.withDefault("4,4"),
+  crosshairFadeEdges: parseAsStringLiteral([
+    "both",
+    "none",
+    "top",
+    "bottom",
+  ]).withDefault("both"),
+  crosshairFadeLength: parseAsFloat.withDefault(10),
+  tooltipMatchCrosshair: parseAsBoolean.withDefault(false),
+  tooltipDamping: parseAsInteger.withDefault(20),
   showBrush: parseAsBoolean.withDefault(false),
   brushHeight: parseAsInteger.withDefault(76),
   brushFadeEdges: parseAsBoolean.withDefault(true),
@@ -315,7 +395,7 @@ export interface StudioUrlState {
   motionType: "spring" | "ease";
   motionDuration: number;
   motionBounce: number;
-  motionEase: "easeOut" | "easeInOut" | "snappy" | "smooth" | "custom";
+  motionEase: MotionEaseUrlValue;
   motionBezier: string;
   motionStaggerScale: number;
   showLine: boolean;
@@ -374,6 +454,32 @@ export interface StudioUrlState {
   candleShowDots: boolean;
   sankeyNodePadding: number;
   sankeyNodeWidth: number;
+  heatmapBinSize: number;
+  heatmapGap: number;
+  heatmapCornerRadius: number;
+  heatmapLegendCellSize: number;
+  heatmapChartState: "ready" | "loading";
+  heatmapLoadingLabel: string;
+  heatmapLoadingOpacity: number;
+  heatmapLoadingCellMaxOpacity: number;
+  heatmapLoadingCellRandomness: number;
+  heatmapLevel0Color: string;
+  heatmapLevel1Color: string;
+  heatmapLevel2Color: string;
+  heatmapLevel3Color: string;
+  heatmapLevel4Color: string;
+  heatmapLevelFillModes: string;
+  heatmapLevelPatterns: string;
+  heatmapLevelPatternColors: string;
+  heatmapLevelPatternScales: string;
+  heatmapLevelPatternStrokeWidths: string;
+  heatmapLevelPatternRadii: string;
+  heatmapLevelPatternComplements: string;
+  heatmapLevelPatternFills: string;
+  heatmapLevelPatternTileBackgrounds: string;
+  heatmapLevelPatternOpacities: string;
+  heatmapLevelPatternDotsFills: string;
+  heatmapCellsFadedOpacity: number;
   linkOpacity: number;
   scatterRadius: number;
   scatterRingGap: number;
@@ -406,6 +512,7 @@ export interface StudioUrlState {
   lineChartMode: "standard" | "profitLoss";
   lineChartState: "ready" | "loading";
   areaChartState: "ready" | "loading";
+  barChartState: "ready" | "loading";
   lineLoadingStroke: string;
   lineLoadingStrokeOpacity: number;
   lineLoadingGridStroke: string;
@@ -441,6 +548,28 @@ export interface StudioUrlState {
   backgroundFadeVertical: boolean;
   backgroundFadeHorizontalLength: number;
   backgroundFadeVerticalLength: number;
+  referenceAreaY1: number;
+  referenceAreaY2: number;
+  referenceAreaFill: string;
+  referenceAreaFillOpacity: number;
+  referenceAreaPattern: PatternPresetId;
+  referenceAreaPatternColor: string;
+  referenceAreaPatternScale: number;
+  referenceAreaPatternStrokeWidth: number;
+  referenceAreaPatternRadius: number;
+  referenceAreaPatternComplement: boolean;
+  referenceAreaPatternFill: string;
+  referenceAreaPatternDotsFill: boolean;
+  referenceAreaPatternTileBackground: string;
+  referenceAreaStroke: string;
+  referenceAreaStrokeStyle: "solid" | "dashed";
+  referenceAreaStrokeDasharray: string;
+  referenceAreaFadeEdges: boolean;
+  referenceAreaFadeEdgesLength: number;
+  referenceAreaAxisLabelColor: string;
+  referenceAreaShowMarkers: boolean;
+  referenceAreaMarkerColor: string;
+  referenceAreaYAxis: "left" | "right";
   lineLoadingLabel: string;
   lineSeriesYAxes: string;
   lineYAxisNumTicks: string;
@@ -455,6 +584,12 @@ export interface StudioUrlState {
   showCrosshair: boolean;
   crosshairFollowsValue: boolean;
   crosshairColor: string;
+  crosshairStyle: "solid" | "dashed";
+  crosshairDashArray: string;
+  crosshairFadeEdges: "both" | "none" | "top" | "bottom";
+  crosshairFadeLength: number;
+  tooltipMatchCrosshair: boolean;
+  tooltipDamping: number;
   showBrush: boolean;
   brushHeight: number;
   brushFadeEdges: boolean;
@@ -533,7 +668,7 @@ export function defaultStudioState(
     motionType: "ease",
     motionDuration: 1.1,
     motionBounce: 0.6,
-    motionEase: "snappy",
+    motionEase: "ease",
     motionBezier: "0.85, 0, 0.15, 1",
     motionStaggerScale: 1,
     showLine: true,
@@ -592,6 +727,32 @@ export function defaultStudioState(
     candleShowDots: false,
     sankeyNodePadding: 12,
     sankeyNodeWidth: 16,
+    heatmapBinSize: 0,
+    heatmapGap: 2,
+    heatmapCornerRadius: 2,
+    heatmapLegendCellSize: 11,
+    heatmapChartState: "ready",
+    heatmapLoadingLabel: "Loading",
+    heatmapLoadingOpacity: 1,
+    heatmapLoadingCellMaxOpacity: 0.85,
+    heatmapLoadingCellRandomness: 1,
+    heatmapLevel0Color: "var(--color-muted)",
+    heatmapLevel1Color: "#0e4429",
+    heatmapLevel2Color: "#006d32",
+    heatmapLevel3Color: "#26a641",
+    heatmapLevel4Color: "#39d353",
+    heatmapLevelFillModes: "",
+    heatmapLevelPatterns: "",
+    heatmapLevelPatternColors: "",
+    heatmapLevelPatternScales: "",
+    heatmapLevelPatternStrokeWidths: "",
+    heatmapLevelPatternRadii: "",
+    heatmapLevelPatternComplements: "",
+    heatmapLevelPatternFills: "",
+    heatmapLevelPatternTileBackgrounds: "",
+    heatmapLevelPatternOpacities: "",
+    heatmapLevelPatternDotsFills: "",
+    heatmapCellsFadedOpacity: 0.3,
     linkOpacity: 0.4,
     scatterRadius: 6,
     scatterRingGap: 2,
@@ -624,6 +785,7 @@ export function defaultStudioState(
     lineChartMode: "standard",
     lineChartState: "ready",
     areaChartState: "ready",
+    barChartState: "ready",
     lineLoadingStroke: "var(--foreground)",
     lineLoadingStrokeOpacity: 0.5,
     lineLoadingGridStroke:
@@ -661,6 +823,29 @@ export function defaultStudioState(
     backgroundFadeVertical: true,
     backgroundFadeHorizontalLength: 10,
     backgroundFadeVerticalLength: 10,
+    referenceAreaY1: 160,
+    referenceAreaY2: 220,
+    referenceAreaFill:
+      "color-mix(in oklch, var(--chart-foreground-muted) 15%, transparent)",
+    referenceAreaFillOpacity: 1,
+    referenceAreaPattern: "none",
+    referenceAreaPatternColor: "var(--chart-foreground-muted)",
+    referenceAreaPatternScale: 1,
+    referenceAreaPatternStrokeWidth: 1,
+    referenceAreaPatternRadius: 2,
+    referenceAreaPatternComplement: false,
+    referenceAreaPatternFill: "",
+    referenceAreaPatternDotsFill: true,
+    referenceAreaPatternTileBackground: "",
+    referenceAreaStroke: "var(--chart-foreground-muted)",
+    referenceAreaStrokeStyle: "dashed",
+    referenceAreaStrokeDasharray: "4,4",
+    referenceAreaFadeEdges: true,
+    referenceAreaFadeEdgesLength: 10,
+    referenceAreaAxisLabelColor: "var(--chart-1)",
+    referenceAreaShowMarkers: true,
+    referenceAreaMarkerColor: "var(--chart-1)",
+    referenceAreaYAxis: "left",
     lineLoadingLabel: "Loading",
     lineSeriesYAxes: "left|left",
     lineYAxisNumTicks: "5|5",
@@ -675,6 +860,12 @@ export function defaultStudioState(
     showCrosshair: true,
     crosshairFollowsValue: true,
     crosshairColor: "var(--chart-crosshair)",
+    crosshairStyle: "solid",
+    crosshairDashArray: "4,4",
+    crosshairFadeEdges: "both",
+    crosshairFadeLength: 10,
+    tooltipMatchCrosshair: false,
+    tooltipDamping: 20,
     showBrush: false,
     brushHeight: 76,
     brushFadeEdges: true,

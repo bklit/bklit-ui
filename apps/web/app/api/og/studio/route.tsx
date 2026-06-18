@@ -42,7 +42,7 @@ function chartSubtitle(state: ReturnType<typeof loadStudioStateFromRequest>) {
   if (state.preset !== "default") {
     return `${state.preset} preset`;
   }
-  return "ui.bklit.com";
+  return "bklit.com";
 }
 
 export function GET(request: Request) {

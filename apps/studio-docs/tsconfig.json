@@ -1,0 +1,21 @@
+{
+  "extends": "@bklitui/typescript-config/nextjs.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*", "../../packages/studio/src/*"],
+      "@/lib/utils": ["../../packages/studio/src/lib/utils.ts"]
+    },
+    "plugins": [{ "name": "next" }],
+    "declaration": false,
+    "declarationMap": false
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    ".source/**/*.ts"
+  ],
+  "exclude": ["node_modules"]
+}

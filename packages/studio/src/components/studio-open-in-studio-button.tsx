@@ -1,12 +1,12 @@
 "use client";
 
-import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { BklitLogo } from "@/components/bklit-logo";
+import { useStudioTheme } from "@/providers/studio-theme-provider";
 import { Button } from "@/ui/button";
 
 export function StudioOpenInStudioButton({ href }: { href: string }) {
-  const { resolvedTheme } = useTheme();
+  const { resolvedTheme } = useStudioTheme();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -26,7 +26,7 @@ export function StudioOpenInStudioButton({ href }: { href: string }) {
         </a>
       }
       size="sm"
-      variant="white"
+      variant="default"
     />
   );
 }

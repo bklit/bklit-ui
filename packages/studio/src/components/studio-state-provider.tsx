@@ -15,7 +15,9 @@ import {
   STUDIO_CHART_FRAME_HEIGHT,
   STUDIO_CHART_FRAME_WIDTH,
 } from "@/components/studio-chart-frame";
+import { heatmapChartDefaults } from "@/lib/heatmap-chart-defaults";
 import {
+  candlestickChartDefaults,
   lineChartProfitLossDefaults,
   lineChartStandardDefaults,
 } from "@/lib/line-chart-mode";
@@ -41,6 +43,7 @@ const STUDIO_Y_AXIS_CHART_PREFIX: Partial<Record<ChartSlug, string>> = {
   "scatter-chart": "scatter",
   "composed-chart": "composed",
   "bar-chart": "bar",
+  "candlestick-chart": "candlestick",
 };
 
 function finiteFrameDimension(value: number, fallback: number) {
@@ -94,8 +97,11 @@ const StudioDisplayContext = createContext<StudioDisplayContextValue | null>(
 
 export function StudioStateProvider({
   children,
+  embedded = false,
 }: {
   children: React.ReactNode;
+  /** Docs previews — stretch to the showcase min-height instead of editor flex shell. */
+  embedded?: boolean;
 }) {
   const [params, setParamsState] = useState<StudioUrlState>(defaultStudioState);
   const [compressed, setCompressed] = useQueryState(
@@ -278,6 +284,8 @@ export function StudioStateProvider({
         ...(slug === "live-line-chart" ? { curve: "monotoneX" } : {}),
         ...(slug === "profit-loss-line" ? lineChartProfitLossDefaults : {}),
         ...(slug === "line-chart" ? lineChartStandardDefaults : {}),
+        ...(slug === "candlestick-chart" ? candlestickChartDefaults : {}),
+        ...(slug === "heatmap-chart" ? heatmapChartDefaults : {}),
         ...(slug === "area-chart" || slug === "composed-chart"
           ? { dataSeries: 2 }
           : {}),
@@ -430,7 +438,15 @@ export function StudioStateProvider({
   return (
     <StudioShellContext.Provider value={shellValue}>
       <StudioDisplayContext.Provider value={displayValue}>
-        <div className="flex h-full min-h-0 flex-1 flex-col">{children}</div>
+        <div
+          className={
+            embedded
+              ? "min-h-[inherit] w-full"
+              : "flex h-full min-h-0 flex-1 flex-col"
+          }
+        >
+          {children}
+        </div>
       </StudioDisplayContext.Provider>
     </StudioShellContext.Provider>
   );
@@ -444,6 +460,17 @@ export function useStudioShellState() {
     );
   }
   return context;
+}
+
+/** Optional — docs previews omit `StudioStateProvider`. */
+function noopSetNumberScrubbing(_scrubbing: boolean) {
+  // Intentionally empty: chart preview is not mounted in docs demos.
+}
+
+export function useStudioNumberScrubbing() {
+  return (
+    useContext(StudioShellContext)?.setNumberScrubbing ?? noopSetNumberScrubbing
+  );
 }
 
 export function useStudioDisplayState() {

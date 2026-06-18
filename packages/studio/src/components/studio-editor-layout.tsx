@@ -25,6 +25,7 @@ import { useReplayKeyboardShortcut } from "@/editor/editor-replay-button";
 import { EditorShell } from "@/editor/editor-shell";
 import { StudioComponentSelectionProvider } from "@/editor/studio-component-selection";
 import { StudioPatternDefs, studioPatternFill } from "@/lib/patterns";
+import { studioRecordingCaptureClass } from "@/lib/studio-chrome-classes";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import { studioPatternChromeState } from "@/lib/studio-pattern-chrome";
 import {
@@ -141,7 +142,7 @@ const StudioEditorCanvas = memo(function StudioEditorCanvas({
           <div
             className={cn(
               showCaptureLayout
-                ? "studio-recording-capture relative shrink-0"
+                ? cn(studioRecordingCaptureClass, "relative shrink-0")
                 : "overflow-visible"
             )}
             ref={recordCaptureRef}

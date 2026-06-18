@@ -1,0 +1,192 @@
+---
+title: Heatmap Chart
+description: A GitHub-style contribution heatmap with animated cells, configurable level colors and patterns, and an interactive legend
+---
+
+import {
+  HeatmapCells,
+  HeatmapChart,
+  HeatmapInteractionBoundary,
+  HeatmapInteractionProvider,
+  HeatmapLegend,
+  HeatmapTooltip,
+  HeatmapXAxis,
+  HeatmapYAxis,
+  HEATMAP_DEFAULT_LEVEL_STYLES,
+} from "@bklitui/ui/charts";
+import { getHeatmapDemoData } from "@/lib/heatmap-demo-data";
+
+export const contributionData = getHeatmapDemoData();
+
+<ComponentPreview registryName="heatmap-chart">
+  <HeatmapInteractionProvider>
+    <HeatmapInteractionBoundary>
+      <div className="flex w-full flex-col items-stretch gap-3">
+        <HeatmapChart className="w-full" data={contributionData} layout="fluid">
+          <HeatmapCells />
+          <HeatmapXAxis />
+          <HeatmapYAxis />
+          <HeatmapTooltip />
+        </HeatmapChart>
+        <HeatmapLegend levelStyles={HEATMAP_DEFAULT_LEVEL_STYLES} />
+      </div>
+    </HeatmapInteractionBoundary>
+  </HeatmapInteractionProvider>
+</ComponentPreview>
+
+## Installation
+
+<InstallationTabs name="heatmap-chart" dependencies={["@visx/heatmap", "@visx/group", "@visx/responsive", "@visx/scale", "motion"]} />
+
+When using `loadingLabel` or `HeatmapChartLoading`, centered shimmer text uses `@bklit/shimmering-text` — installed automatically with `@bklit/heatmap-chart`.
+
+## Usage
+
+The Heatmap Chart uses a composable API. Wrap the chart and legend in `HeatmapInteractionProvider` so hover dimming and tooltips stay in sync:
+
+```tsx
+import {
+  HeatmapCells,
+  HeatmapChart,
+  HeatmapInteractionBoundary,
+  HeatmapInteractionProvider,
+  HeatmapLegend,
+  HeatmapTooltip,
+  HeatmapXAxis,
+  HeatmapYAxis,
+} from "@bklitui/ui/charts";
+
+const data = [
+  {
+    bin: 0,
+    bins: [
+      { bin: 0, count: 2, date: new Date(2024, 0, 1) },
+      { bin: 1, count: 0, date: new Date(2024, 0, 2) },
+      // …one week column with 7 day bins
+    ],
+  },
+  // …one column per week
+];
+
+export default function ContributionHeatmap() {
+  return (
+    <HeatmapInteractionProvider>
+      <HeatmapInteractionBoundary>
+        <HeatmapChart data={data} layout="fluid">
+          <HeatmapCells />
+          <HeatmapXAxis />
+          <HeatmapYAxis />
+          <HeatmapTooltip />
+        </HeatmapChart>
+        <HeatmapLegend />
+      </HeatmapInteractionBoundary>
+    </HeatmapInteractionProvider>
+  );
+}
+```
+
+## Components
+
+### HeatmapChart
+
+The root component that sizes the grid, builds color scales, and provides context to children.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `data` | `HeatmapColumn[]` | required | One column per week (or category) with row bins inside |
+| `xDomain` | `[Date, Date]` | - | Visible time range — filters week columns |
+| `sizingColumnCount` | `number` | - | Column count for stable cell sizing when scrubbing |
+| `layout` | `"fluid" \| "fill"` | `"fluid"` | `fluid` hugs content height; `fill` expands cells to parent |
+| `margin` | `Partial<Margin>` | `{ top: 28, right: 16, bottom: 0, left: 40 }` | Chart margins |
+| `binSize` | `number` | `0` | Fixed cell size in px; `0` sizes cells to fit |
+| `gap` | `number` | `2` | Gap between cells in pixels |
+| `colorScale` | `(count) => string` | - | Override the default color scale |
+| `levelColors` | `HeatmapLevelColors` | GitHub greens | Five colors for empty + four activity levels |
+| `levelStyles` | `HeatmapLevelStyles` | - | Per-level color and optional pattern; takes precedence over `levelColors` |
+| `aspectRatio` | `string` | - | CSS aspect ratio for the outer container |
+| `status` | `ChartStatus` | `"ready"` | Fetch / display status |
+| `loadingLabel` | `string` | - | Centered label while loading |
+| `animationDuration` | `number` | `1600` | Enter animation duration in ms |
+| `animate` | `boolean` | `true` | Play enter fade-in / loading shimmer |
+| `className` | `string` | `""` | Additional CSS class |
+
+### HeatmapCells
+
+Renders the grid of cells with enter animation and hover dimming.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `cornerRadius` | `number` | `2` | Corner radius for each cell |
+| `colorScale` | `(count) => string` | - | Override chart color scale |
+| `fadedOpacity` | `number` | `0.3` | Opacity for non-hovered cells while hovering |
+| `interactive` | `boolean` | `true` | Pointer hover and dimming |
+
+### HeatmapXAxis / HeatmapYAxis
+
+Month labels along the top and weekday labels along the left.
+
+### HeatmapLegend
+
+Less → More scale swatches that share `levelStyles` with the chart.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `lessLabel` | `string` | `"Less"` | Label before swatches |
+| `moreLabel` | `string` | `"More"` | Label after swatches |
+| `cellSize` | `number` | `11` | Swatch size in pixels |
+| `gap` | `number` | `2` | Gap between swatches |
+| `cornerRadius` | `number` | `2` | Swatch corner radius |
+| `align` | `"start" \| "center" \| "end"` | `"end"` | Horizontal alignment |
+| `levelStyles` | `HeatmapLevelStyles` | - | Shared level colors and patterns |
+| `fadedOpacity` | `number` | `0.3` | Opacity for non-highlighted swatches while interacting |
+| `interactive` | `boolean` | auto | Sync dimming with chart hover |
+
+### HeatmapTooltip
+
+Shows the contribution count and date for the hovered cell.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `formatLabel` | `(count, date) => string` | default formatter | Custom label for the hovered cell |
+| `panelStyle` | `CSSProperties` | - | Inline styles for the tooltip panel |
+| `className` | `string` | `""` | Additional CSS class |
+
+## Level styles and patterns
+
+Pass `levelStyles` (five entries: empty + levels 1–4) to control both cell fills and legend swatches. Each level can be solid or use a pattern preset:
+
+```tsx
+const levelStyles = [
+  { color: "var(--color-muted)", fillMode: "solid" },
+  { color: "#0e4429", fillMode: "solid" },
+  { color: "#006d32", fillMode: "pattern", pattern: "diagonal", patternColor: "#39d353" },
+  { color: "#26a641", fillMode: "solid" },
+  { color: "#39d353", fillMode: "solid" },
+] as const;
+
+<HeatmapChart data={data} levelStyles={levelStyles}>
+  <HeatmapCells />
+</HeatmapChart>
+<HeatmapLegend levelStyles={levelStyles} />
+```
+
+## Data format
+
+```typescript
+interface HeatmapBin {
+  bin: number;       // row index (0–6 for days of week)
+  count: number;     // activity level 0–4
+  date: Date;
+}
+
+interface HeatmapColumn {
+  bin: number;       // column index (week number)
+  bins: HeatmapBin[];
+}
+```
+
+Counts map to five visual levels (0 = empty, 1–4 = increasing activity). Use `getHeatmapContributionLevel(count)` from `@bklitui/ui/charts` to derive the level from a raw count.
+
+## Gallery
+
+See the [charts gallery](/charts/heatmap-chart) for pattern fills and layout variants.

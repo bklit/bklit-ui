@@ -148,6 +148,11 @@ Renders the tooltip with crosshair, dots, and content box.
 | `showCrosshair` | `boolean` | `true` | Show vertical crosshair |
 | `showDots` | `boolean` | `true` | Show dots on lines |
 | `indicatorColor` | `string \| (point) => string` | — | Crosshair and dot color; use a function for value-based colors |
+| `indicatorDasharray` | `string` | — | Dash pattern for the crosshair (e.g. `"4,4"`) |
+| `indicatorFadeEdges` | `"both" \| "top" \| "bottom" \| "none"` | `"both"` | Vertical crosshair fade |
+| `indicatorFadeLength` | `number` | `10` | Fade size (% of height) |
+| `matchCrosshair` | `boolean` | `false` | Panel uses crosshair spring when `true` |
+| `damping` | `number` | `20` | Panel follow when `matchCrosshair={false}`; `0` = instant |
 | `content` | `(props) => ReactNode` | - | Custom content renderer |
 | `rows` | `(point) => TooltipRow[]` | - | Custom row generator |
 
@@ -232,7 +237,7 @@ Drive loading and ready from your data layer with a single `LineChart` — one `
 
 **Ready → loading:** ready line conceals to the right → grid y-domain tween → pulse loop and shimmer resume.
 
-Pair `Grid` `stroke` / `loadingStroke` with shimmer props. Pair `Line` `loadingStroke` props. Use `loadingLabel` on `LineChart` for centered shimmer text via [`@ncdai/shimmering-text`](https://chanhdai.com/components/shimmering-text).
+Pair `Grid` `stroke` / `loadingStroke` with shimmer props. Pair `Line` `loadingStroke` props. Use `loadingLabel` on `LineChart` for centered shimmer text via `@bklit/shimmering-text`.
 
 <div className="not-prose mb-3 flex items-center justify-between gap-4">
   <h3 className="m-0 font-semibold text-foreground text-base tracking-tight">
@@ -290,7 +295,7 @@ Open [Studio in loading mode](/studio?chart=line-chart&lineChartState=loading) a
 
 Data and animation panels stay collapsed in loading mode; scramble data is disabled. See the [line chart gallery](/charts/line-chart) (**Loading** example).
 
-Add `@ncdai` to your [registry config](/docs/installation#registry-namespace) (`https://chanhdai.com/r/{name}.json`) — installing `@bklit/line-chart` pulls in `@ncdai/shimmering-text` automatically.
+Installing `@bklit/line-chart` pulls in `@bklit/shimmering-text` automatically.
 
 ### Loading style: pulse or sweep
 

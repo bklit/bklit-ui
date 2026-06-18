@@ -1,5 +1,6 @@
 "use client";
 
+import { Icon } from "@bklitui/icons";
 import { studioChartDocsHref, studioChartHref } from "@bklitui/studio";
 import {
   Area,
@@ -35,8 +36,6 @@ import {
   SankeyNode,
   XAxis,
 } from "@bklitui/ui/charts";
-import { Refresh01Icon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
 import { curveStep } from "@visx/curve";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import Link from "next/link";
@@ -109,7 +108,7 @@ function ShowcaseReplayAction({
             type="button"
             variant="outline"
           >
-            <HugeiconsIcon icon={Refresh01Icon} size={10} strokeWidth={1.5} />
+            <Icon className="size-2.5" name="IconArrowRotateClockwise" />
           </Button>
         </motion.div>
       )}

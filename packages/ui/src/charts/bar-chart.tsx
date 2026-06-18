@@ -5,8 +5,6 @@ import { ParentSize } from "@visx/responsive";
 import { scaleBand, scaleLinear } from "@visx/scale";
 import type { Transition } from "motion/react";
 import {
-  Children,
-  isValidElement,
   memo,
   type ReactElement,
   type ReactNode,
@@ -20,6 +18,15 @@ import { cn } from "@/lib/utils";
 import { DEFAULT_ANIMATION_EASING } from "./animation";
 import type { BarProps } from "./bar";
 import {
+  forEachChartChild,
+  isChartClipPassthrough,
+  isClipExcludedComponent,
+  isPostOverlayComponent,
+  isUnderlayComponent,
+  renderKeyedChartLayers,
+  resolveChartChildElement,
+} from "./chart-child-passthrough";
+import {
   ChartProvider,
   type LineConfig,
   type Margin,
@@ -31,8 +38,10 @@ import {
   type ChartPhase,
   type ChartStatus,
   DEFAULT_CHART_LIFECYCLE,
+  resolveRestingChartPhase,
 } from "./chart-phase";
 import { BarLoadingSkeleton } from "./loading-sweep";
+import { extractReferenceAreaConfigs } from "./reference-area-config";
 import { useScheduledTooltip } from "./use-scheduled-tooltip";
 import {
   buildYScalesForLines,
@@ -91,11 +100,7 @@ const DEFAULT_MARGIN: Margin = { top: 40, right: 40, bottom: 40, left: 40 };
 function extractBarConfigs(children: ReactNode): LineConfig[] {
   const configs: LineConfig[] = [];
 
-  Children.forEach(children, (child) => {
-    if (!isValidElement(child)) {
-      return;
-    }
-
+  forEachChartChild(children, (child) => {
     const childType = child.type as {
       displayName?: string;
       name?: string;
@@ -132,26 +137,6 @@ function extractBarConfigs(children: ReactNode): LineConfig[] {
   });
 
   return configs;
-}
-
-// Check if a component should render after the mouse overlay
-function isPostOverlayComponent(child: ReactElement): boolean {
-  const childType = child.type as {
-    displayName?: string;
-    name?: string;
-    __isChartMarkers?: boolean;
-  };
-
-  if (childType.__isChartMarkers) {
-    return true;
-  }
-
-  const componentName =
-    typeof child.type === "function"
-      ? childType.displayName || childType.name || ""
-      : "";
-
-  return componentName === "ChartMarkers" || componentName === "MarkerGroup";
 }
 
 interface ChartInnerProps {
@@ -541,27 +526,40 @@ const ChartCore = memo(function ChartCore({
 
   // Separate children into defs, pre-overlay, and post-overlay
   const defsChildren: ReactElement[] = [];
+  const clipExcludedChildren: ReactElement[] = [];
+  const underlayChildren: ReactElement[] = [];
   const preOverlayChildren: ReactElement[] = [];
   const postOverlayChildren: ReactElement[] = [];
 
-  Children.forEach(children, (child) => {
-    if (!isValidElement(child)) {
-      return;
-    }
+  forEachChartChild(children, (child) => {
+    const resolvedChild = resolveChartChildElement(child);
 
     if (isGradientDefComponent(child)) {
       defsChildren.push(child);
     } else if (isPatternDefComponent(child)) {
       preOverlayChildren.push(child);
-    } else if (isPostOverlayComponent(child)) {
-      postOverlayChildren.push(child);
+    } else if (isPostOverlayComponent(resolvedChild)) {
+      postOverlayChildren.push(resolvedChild);
+    } else if (isClipExcludedComponent(resolvedChild)) {
+      clipExcludedChildren.push(
+        isChartClipPassthrough(child.type) ? resolvedChild : child
+      );
+    } else if (isUnderlayComponent(resolvedChild)) {
+      underlayChildren.push(resolvedChild);
     } else {
       preOverlayChildren.push(child);
     }
   });
 
+  const referenceAreas = useMemo(
+    () => extractReferenceAreaConfigs(children),
+    [children]
+  );
+
   const contextValue = {
     ...DEFAULT_CHART_LIFECYCLE,
+    chartPhase: resolveRestingChartPhase(status),
+    chartStatus: status,
     data,
     renderData: data,
     xScale: fakeTimeScale as unknown as ReturnType<
@@ -579,6 +577,7 @@ const ChartCore = memo(function ChartCore({
     setTooltipData,
     containerRef,
     lines,
+    referenceAreas,
     isLoaded,
     animationDuration,
     animationEasing,
@@ -625,7 +624,8 @@ const ChartCore = memo(function ChartCore({
             y={0}
           />
 
-          {/* Loading skeleton replaces the bars while status="loading" */}
+          {renderKeyedChartLayers(clipExcludedChildren)}
+          {renderKeyedChartLayers(underlayChildren)}
           {status === "loading" ? (
             <BarLoadingSkeleton
               barCount={data.length || FALLBACK_LOADING_BARS}
@@ -633,11 +633,11 @@ const ChartCore = memo(function ChartCore({
               innerWidth={innerWidth}
             />
           ) : (
-            preOverlayChildren
+            renderKeyedChartLayers(preOverlayChildren)
           )}
 
           {/* Markers rendered last so they're on top for interaction */}
-          {postOverlayChildren}
+          {renderKeyedChartLayers(postOverlayChildren)}
         </g>
       </svg>
     </ChartProvider>

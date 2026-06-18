@@ -4,6 +4,7 @@ import { backgroundCodegenBlock } from "./codegen-helpers";
 import { curveImportName } from "./curves";
 import { STUDIO_PROFIT_LOSS_DATA_KEY } from "./demo-data";
 import { cssRevealAnimationCodegen } from "./motion-codegen";
+import { chartTooltipCodegenProps } from "./studio-chart-overlays";
 import { isStudioComponentVisible } from "./studio-component-visibility";
 import type { StudioUrlState } from "./studio-parsers";
 
@@ -94,7 +95,7 @@ export function ProfitLossChart({ data }: { data: Record<string, unknown>[] }) {
           }}
           showCrosshair={${state.showCrosshair}}
           showDatePill={${state.showTooltipDatePill}}
-          showDots={${state.showTooltipDots}}
+          showDots={${state.showTooltipDots}}${chartTooltipCodegenProps(state)}
         />
       </LineChart>
       {${state.showLegend} ? (

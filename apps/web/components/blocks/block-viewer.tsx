@@ -1,8 +1,6 @@
 "use client";
 
-import { Refresh01Icon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { Monitor, Smartphone, Terminal } from "lucide-react";
+import { Icon } from "@bklitui/icons";
 import dynamic from "next/dynamic";
 import { useMemo, useState } from "react";
 import { CODE_PANEL_HEADER_CLASS } from "@/components/blocks/block-code-panel-header";
@@ -128,14 +126,14 @@ export function BlockViewer({
                   label="Desktop"
                   onClick={() => setViewport("desktop")}
                 >
-                  <Monitor />
+                  <Icon className="size-4" name="IconImac" />
                 </DeviceToggle>
                 <DeviceToggle
                   active={viewport === "mobile"}
                   label="Mobile"
                   onClick={() => setViewport("mobile")}
                 >
-                  <Smartphone />
+                  <Icon className="size-4" name="IconPhone" />
                 </DeviceToggle>
               </div>
             ) : null}
@@ -150,18 +148,14 @@ export function BlockViewer({
                   type="button"
                   variant="ghost"
                 >
-                  <HugeiconsIcon
-                    icon={Refresh01Icon}
-                    size={16}
-                    strokeWidth={1.75}
-                  />
+                  <Icon className="size-4" name="IconArrowRotateClockwise" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>Restart animation</TooltipContent>
             </Tooltip>
 
             <div className="hidden h-9 min-w-0 max-w-[300px] items-center gap-2 rounded-md border border-border/60 bg-muted/20 px-2.5 font-mono text-[11px] text-muted-foreground lg:flex">
-              <Terminal className="size-3.5 shrink-0" />
+              <Icon className="size-3.5 shrink-0" name="IconConsole" />
               <span className="min-w-0 flex-1 truncate">{installCommand}</span>
               <CopyButton
                 aria-label="Copy install command"

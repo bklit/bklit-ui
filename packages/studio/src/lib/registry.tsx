@@ -21,6 +21,7 @@ import { CandlestickStudioPreview } from "@/components/charts/candlestick-studio
 import { ChoroplethStudioPreview } from "@/components/charts/choropleth-studio";
 import { FunnelStudioPreview } from "@/components/charts/funnel-studio-preview";
 import { GaugeStudioPreview } from "@/components/charts/gauge-studio-preview";
+import { HeatmapStudioPreview } from "@/components/charts/heatmap-studio-preview";
 import { LineChartStudioStandardPreview } from "@/components/charts/line-chart-studio-standard-preview";
 import { LineProfitLossStudioChart } from "@/components/charts/line-profit-loss-studio";
 import { LiveLineStudioPreview } from "@/components/charts/live-line-studio";
@@ -37,6 +38,7 @@ import {
   StudioChartYAxisLayers,
   timeSeriesChartMargin,
 } from "@/components/charts/studio-chart-y-axis";
+import { StudioReferenceAreaLayer } from "@/components/charts/studio-reference-area-layer";
 import { fadeEdgesPropValue } from "@/components/controls/fade-edges-picker";
 import {
   getStudioCssRevealPropsForPreview,
@@ -52,6 +54,7 @@ import {
   composedCodegen,
   funnelCodegen,
   gaugeCodegen,
+  heatmapCodegen,
   lineChartDataSnippet,
   liveLineCodegen,
   radarCodegen,
@@ -82,6 +85,7 @@ import {
   funnelChartControlGroups,
   gaugeControlGroups,
   getLineChartControlGroups,
+  heatmapChartControlGroups,
   lineChartControlGroups,
   liveLineChartControlGroups,
   pieChartControlGroups,
@@ -105,6 +109,7 @@ import {
   resolveComposedComponents,
   resolveFunnelComponents,
   resolveGaugeComponents,
+  resolveHeatmapComponents,
   resolveLineComponents,
   resolveLiveLineComponents,
   resolvePieComponents,
@@ -227,6 +232,10 @@ const scatterConfig: StudioChartConfig = {
             "scatter.grid"
           )}
           {studioCartesianGridLayer(state, "scatter.grid")}
+          <StudioReferenceAreaLayer
+            componentId="scatter.reference-area"
+            state={state}
+          />
           {isStudioComponentVisible(state, "scatter.desktop") ? (
             <Scatter
               dataKey="desktop"
@@ -275,6 +284,7 @@ const barConfig: StudioChartConfig = {
   controlGroups: barChartControlGroups,
   resolveComponents: resolveBarComponents,
   render: (state, ctx) => {
+    const isLoading = state.barChartState === "loading";
     const horizontal = state.barOrientation === "horizontal";
     const seriesCount = clampStudioSeriesCount(state.dataSeries);
     // barSeriesMode "single" is treated as grouped when dataSeries > 1.
@@ -308,7 +318,9 @@ const barConfig: StudioChartConfig = {
     return (
       <StudioChartShell
         legendComponentId="bar.legend"
-        legendItems={studioCartesianLegendItems(state, seriesCount)}
+        legendItems={
+          isLoading ? [] : studioCartesianLegendItems(state, seriesCount)
+        }
         state={ctx.chromeState}
       >
         <StudioCartesianFill>
@@ -328,6 +340,7 @@ const barConfig: StudioChartConfig = {
             orientation={state.barOrientation}
             stacked={stacked}
             stackGap={stacked ? 3 : 0}
+            status={state.barChartState}
             xDataKey={xKey}
           >
             {studioCartesianBackgroundLayer(
@@ -336,34 +349,45 @@ const barConfig: StudioChartConfig = {
               "bar.grid"
             )}
             {studioCartesianGridLayer(state, "bar.grid")}
-            {ctx.patternDefs}
-            {seriesKeys.map((key, idx) => (
-              <Bar
-                dataKey={key}
-                fadedOpacity={state.barFadedOpacity}
-                fill={seriesFillAt(idx)}
-                groupGap={state.groupGap}
-                key={key}
-                lineCap={lineCap}
-                stackGap={stacked ? 3 : 0}
-                yAxisId={
-                  horizontal ? undefined : getLineSeriesYAxisId(state, idx)
-                }
-              />
-            ))}
-            {horizontal ? (
+            <StudioReferenceAreaLayer
+              componentId="bar.reference-area"
+              state={state}
+            />
+            {isLoading ? null : ctx.patternDefs}
+            {isLoading
+              ? null
+              : seriesKeys.map((key, idx) => (
+                  <Bar
+                    dataKey={key}
+                    fadedOpacity={state.barFadedOpacity}
+                    fill={seriesFillAt(idx)}
+                    groupGap={state.groupGap}
+                    key={key}
+                    lineCap={lineCap}
+                    stackGap={stacked ? 3 : 0}
+                    yAxisId={
+                      horizontal ? undefined : getLineSeriesYAxisId(state, idx)
+                    }
+                  />
+                ))}
+            {!isLoading && horizontal ? (
               <StudioVisibleLayer componentId="bar.baryaxis" state={state}>
                 <BarYAxis />
               </StudioVisibleLayer>
-            ) : (
+            ) : null}
+            {isLoading || horizontal ? null : (
               <StudioChartYAxisLayers chartPrefix="bar" state={state} />
             )}
-            <StudioVisibleLayer componentId="bar.xaxis" state={state}>
-              <BarXAxis />
-            </StudioVisibleLayer>
-            <StudioVisibleLayer componentId="bar.tooltip" state={state}>
-              <ChartTooltip showCrosshair={false} />
-            </StudioVisibleLayer>
+            {isLoading ? null : (
+              <StudioVisibleLayer componentId="bar.xaxis" state={state}>
+                <BarXAxis />
+              </StudioVisibleLayer>
+            )}
+            {isLoading ? null : (
+              <StudioVisibleLayer componentId="bar.tooltip" state={state}>
+                <ChartTooltip showCrosshair={false} />
+              </StudioVisibleLayer>
+            )}
           </BarChart>
         </StudioCartesianFill>
       </StudioChartShell>
@@ -413,6 +437,10 @@ const composedConfig: StudioChartConfig = {
             <StudioVisibleLayer componentId="composed.grid" state={state}>
               <Grid horizontal />
             </StudioVisibleLayer>
+            <StudioReferenceAreaLayer
+              componentId="composed.reference-area"
+              state={state}
+            />
             {ctx.patternDefs}
             {barKey ? (
               <SeriesBar
@@ -661,6 +689,18 @@ const sankeyConfig: StudioChartConfig = {
   generateCode: (state) => sankeyCodegen(state),
 };
 
+const heatmapConfig: StudioChartConfig = {
+  slug: "heatmap-chart",
+  label: chartLabels["heatmap-chart"],
+  motionPanel: true,
+  motionStagger: true,
+  controls: [],
+  controlGroups: heatmapChartControlGroups,
+  resolveComponents: resolveHeatmapComponents,
+  render: (state, ctx) => <HeatmapStudioPreview ctx={ctx} state={state} />,
+  generateCode: (state) => heatmapCodegen(state),
+};
+
 export const studioRegistry: Record<ChartSlug, StudioChartConfig> = {
   "gauge-chart": gaugeConfig,
   "area-chart": areaConfig,
@@ -676,6 +716,7 @@ export const studioRegistry: Record<ChartSlug, StudioChartConfig> = {
   "funnel-chart": funnelConfig,
   "live-line-chart": liveLineConfig,
   "choropleth-chart": choroplethConfig,
+  "heatmap-chart": heatmapConfig,
   "sankey-chart": sankeyConfig,
 };
 

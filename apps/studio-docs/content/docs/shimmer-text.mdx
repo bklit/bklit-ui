@@ -1,0 +1,51 @@
+---
+title: Shimmer text
+description: Per-character shimmer animation for loading labels and badges
+---
+
+`ShimmeringText` animates each character through a muted → highlight → muted color sweep. Studio uses it for chart loading labels (via `@bklitui/ui`) and the onboarding **Version 2** pill.
+
+**Source:** `packages/ui/src/components/shimmering-text.tsx`
+
+<ComponentShowcase>
+  <StudioUiPreview>
+    <ShimmerTextDemo />
+  </StudioUiPreview>
+</ComponentShowcase>
+
+## Usage
+
+```tsx
+import { ShimmeringText } from "@bklitui/ui/components/shimmering-text";
+
+<ShimmeringText text="Loading" />
+```
+
+## API
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `text` | `string` | — | Text to shimmer |
+| `duration` | `number` | `1` | Seconds per shimmer cycle |
+| `isStopped` | `boolean` | `false` | Pause animation |
+| `className` | `string` | — | Extra classes on the root span |
+
+## Custom colors
+
+Override CSS variables on the root:
+
+- `--color` — resting character color
+- `--shimmering-color` — peak highlight during the sweep
+
+```tsx
+<ShimmeringText
+  className="[--color:var(--chart-4)] [--shimmering-color:var(--foreground)]"
+  text="Custom shimmer"
+/>
+```
+
+Respects `prefers-reduced-motion` — animation stops when the user has reduced motion enabled.
+
+## In charts
+
+Cartesian and heatmap loading states use the same component through `@bklitui/ui` (`ChartLoadingLabel`). See the main site docs for chart loading examples.

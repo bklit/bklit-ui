@@ -1,34 +1,48 @@
 "use client";
 
+import { Icon } from "@bklitui/icons";
 import { cn } from "@bklitui/ui/lib/utils";
-import {
-  EaseCurveControlPointsIcon,
-  PlayIcon,
-  StopIcon,
-} from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
 import { animate, motion, type Transition } from "motion/react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { studioInputSurfaceClass } from "@/components/controls/control-field-helpers";
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   bezierFromSvgPoint,
   clampEaseBezierControl,
+  DEFAULT_MOTION_BEZIER,
   easeEditorGeometry,
   formatMotionBezier,
   getMotionBezier,
   lerpCurvePoints,
   type MotionStateSlice,
+  motionCurveAreaPath,
   motionCurveToSvg,
   parseMotionBezier,
   pointOnMotionCurve,
   studioMotionToTransition,
   targetMotionCurvePoints,
 } from "@/lib/motion-config";
+import {
+  studioInputBackgroundClass,
+  studioScrubSurfaceClass,
+} from "@/lib/studio-chrome-classes";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import { Input } from "@/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/ui/popover";
+import {
+  studioSidebarPopoverCollisionAvoidance,
+  studioSidebarPopoverSideOffset,
+} from "@/ui/studio-sidebar-popover";
 
 const PREVIEW_H = 180;
-const PAD = 10;
+const PAD = 24;
+/** Top stop of the area fill gradient (0.4 × 0.8). */
+const FILL_GRADIENT_TOP_OPACITY = 0.32;
 const HANDLE_R = 6;
 const NOTCH_R = 5.5;
 const MORPH_TRANSITION = {
@@ -40,6 +54,37 @@ const MORPH_TRANSITION = {
 const INSTANT_TRANSITION = { duration: 0 } as const;
 
 type DragTarget = "p1" | "p2" | null;
+
+export type MotionCurveEditorLayout = "inline" | "popover";
+
+function MotionCurveTriggerPreview({ state }: { state: MotionStateSlice }) {
+  const size = 16;
+  const pad = 2;
+  const points = useMemo(() => targetMotionCurvePoints(state), [state]);
+  const { path } = useMemo(
+    () => motionCurveToSvg(points, size, size, pad),
+    [points]
+  );
+
+  return (
+    <span className="flex size-4 shrink-0 items-center justify-center overflow-hidden">
+      <svg
+        aria-hidden
+        className="block size-4 text-foreground"
+        viewBox={`0 0 ${size} ${size}`}
+      >
+        <title>Easing curve</title>
+        <path
+          className="fill-none stroke-current"
+          d={path}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={1.25}
+        />
+      </svg>
+    </span>
+  );
+}
 
 function useCurveContainerWidth() {
   const ref = useRef<HTMLDivElement>(null);
@@ -62,7 +107,7 @@ function useCurveContainerWidth() {
   return { ref, width };
 }
 
-export function MotionCurveEditor({
+function MotionCurveEditorContent({
   state,
   onPreview,
   onCommit,
@@ -188,6 +233,11 @@ export function MotionCurveEditor({
     [displayPoints, width]
   );
 
+  const areaPath = useMemo(
+    () => motionCurveAreaPath(displayPoints, width, PREVIEW_H, PAD),
+    [displayPoints, width]
+  );
+
   const easeGeom = useMemo(
     () =>
       isEase ? easeEditorGeometry(activeBezier, width, PREVIEW_H, PAD) : null,
@@ -198,6 +248,8 @@ export function MotionCurveEditor({
     () => pointOnMotionCurve(displayPoints, playT, width, PREVIEW_H, PAD),
     [displayPoints, playT, width]
   );
+
+  const fillGradientId = useId().replaceAll(":", "");
 
   useEffect(() => () => stopPlay(), [stopPlay]);
 
@@ -291,6 +343,7 @@ export function MotionCurveEditor({
         previewRafRef.current = null;
       }
       flushPreview();
+      skipMorphRef.current = true;
       setDragging(null);
       onDragActiveChange?.(false);
       const next = dragBezierRef.current
@@ -313,9 +366,14 @@ export function MotionCurveEditor({
   }, [applyHandleDrag, dragging, flushPreview, onCommit, onDragActiveChange]);
 
   return (
-    <div className="flex flex-col">
+    <div
+      className={cn(
+        "flex flex-col overflow-hidden rounded-lg",
+        studioInputBackgroundClass
+      )}
+    >
       <div
-        className="studio-motion-curve-card relative w-full max-w-full overflow-hidden rounded-t-lg border border-border border-b-0 px-1"
+        className="relative w-full max-w-full overflow-hidden"
         ref={containerRef}
       >
         <svg
@@ -326,21 +384,55 @@ export function MotionCurveEditor({
           role="img"
           viewBox={`0 0 ${width} ${PREVIEW_H}`}
         >
+          <defs>
+            <linearGradient
+              gradientUnits="userSpaceOnUse"
+              id={fillGradientId}
+              x1="0"
+              x2="0"
+              y1={PAD}
+              y2={PREVIEW_H - PAD}
+            >
+              <stop
+                offset="0%"
+                stopColor="var(--foreground)"
+                stopOpacity={FILL_GRADIENT_TOP_OPACITY}
+              />
+              <stop
+                offset="100%"
+                stopColor="var(--foreground)"
+                stopOpacity={0}
+              />
+            </linearGradient>
+          </defs>
+
+          <path d={areaPath} fill={`url(#${fillGradientId})`} stroke="none" />
+
           {isEase && easeGeom ? (
             <>
               <path
-                className="stroke-muted-foreground/40"
+                className="stroke-muted-foreground/50"
                 d={easeGeom.handlePathStart}
                 fill="none"
-                strokeDasharray="3 3"
                 strokeWidth={1}
               />
               <path
-                className="stroke-muted-foreground/40"
+                className="stroke-muted-foreground/50"
                 d={easeGeom.handlePathEnd}
                 fill="none"
-                strokeDasharray="3 3"
                 strokeWidth={1}
+              />
+              <circle
+                className="fill-muted-foreground/50"
+                cx={easeGeom.p0.x}
+                cy={easeGeom.p0.y}
+                r={3}
+              />
+              <circle
+                className="fill-muted-foreground/50"
+                cx={easeGeom.p3.x}
+                cy={easeGeom.p3.y}
+                r={3}
               />
               {(["p1", "p2"] as const).map((id) => {
                 const pt = id === "p1" ? easeGeom.p1 : easeGeom.p2;
@@ -413,61 +505,151 @@ export function MotionCurveEditor({
         </svg>
       </div>
 
-      <div
-        className={cn(
-          "flex h-9 items-stretch overflow-hidden rounded-b-lg border-border border-t",
-          studioInputSurfaceClass
-        )}
-      >
+      <div className="flex h-10 items-stretch overflow-hidden">
         <div
           aria-hidden
-          className="flex w-9 shrink-0 items-center justify-center border-border border-r text-muted-foreground"
+          className={cn(
+            "flex w-9 shrink-0 items-center justify-center text-muted-foreground",
+            studioInputBackgroundClass
+          )}
         >
-          <HugeiconsIcon
-            icon={EaseCurveControlPointsIcon}
-            size={16}
-            strokeWidth={1.75}
-          />
+          <Icon className="size-4" name="IconBezierCurves" />
         </div>
         <Input
           className={cn(
-            "h-9 min-w-0 flex-1 rounded-none border-0 bg-transparent px-2.5 font-mono text-xs shadow-none focus-visible:ring-0",
+            "h-10 min-w-0 flex-1 rounded-none border-0 px-2.5 font-mono text-xs shadow-none focus-visible:ring-0",
+            "!bg-[var(--studio-input-background,var(--background))] dark:!bg-[var(--studio-input-background,var(--background))]",
+            "selection:bg-primary/25 selection:text-foreground",
             !isEase && "cursor-default text-muted-foreground"
           )}
           id="motion-bezier-input"
           onChange={
             isEase
               ? (e) => {
-                  const parsed = parseMotionBezier(e.target.value);
+                  onPreview("motionEase", "custom");
                   onPreview("motionBezier", e.target.value);
+                  const parsed = parseMotionBezier(e.target.value);
                   if (parsed) {
                     const clamped = clampEaseBezierControl(parsed);
+                    skipMorphRef.current = true;
                     setDragBezier(null);
-                    onPreview("motionEase", "custom");
+                    setDisplayPoints(
+                      targetMotionCurvePoints(
+                        { ...state, motionType: "ease" },
+                        clamped
+                      )
+                    );
                     onCommit("motionBezier", formatMotionBezier(clamped));
                     onCommit("motionEase", "custom");
                   }
                 }
               : undefined
           }
-          placeholder="0.85, 0, 0.15, 1"
+          placeholder={formatMotionBezier(DEFAULT_MOTION_BEZIER)}
           readOnly={!isEase}
           spellCheck={false}
-          value={state.motionBezier}
+          value={
+            state.motionEase === "custom"
+              ? state.motionBezier
+              : formatMotionBezier(committedBezier)
+          }
         />
         <button
           aria-label={isPlaying ? "Stop motion preview" : "Play motion preview"}
-          className="flex w-9 shrink-0 items-center justify-center border-border border-l text-muted-foreground transition-colors hover:bg-muted/40 hover:text-foreground"
+          className={cn(
+            "flex w-9 shrink-0 items-center justify-center text-muted-foreground transition-colors hover:bg-muted/40 hover:text-foreground",
+            studioInputBackgroundClass
+          )}
           onClick={isPlaying ? stopPlay : runPlay}
           type="button"
         >
-          <HugeiconsIcon
-            icon={isPlaying ? StopIcon : PlayIcon}
-            size={16}
-            strokeWidth={1.75}
-          />
+          <Icon className="size-4" name={isPlaying ? "IconStop" : "IconPlay"} />
         </button>
       </div>
     </div>
+  );
+}
+
+function motionCurveTriggerLabel(state: MotionStateSlice): string {
+  const committedBezier = clampEaseBezierControl(getMotionBezier(state));
+  return state.motionEase === "custom"
+    ? state.motionBezier
+    : formatMotionBezier(committedBezier);
+}
+
+export function MotionCurveEditor({
+  layout = "popover",
+  disabled = false,
+  state,
+  onPreview,
+  onCommit,
+  onDragActiveChange,
+}: {
+  layout?: MotionCurveEditorLayout;
+  disabled?: boolean;
+  state: MotionStateSlice;
+  onPreview: <K extends keyof StudioUrlState>(
+    key: K,
+    value: StudioUrlState[K]
+  ) => void;
+  onCommit: <K extends keyof StudioUrlState>(
+    key: K,
+    value: StudioUrlState[K]
+  ) => void;
+  onDragActiveChange?: (dragging: boolean) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const triggerLabel = useMemo(() => motionCurveTriggerLabel(state), [state]);
+
+  if (layout === "inline") {
+    return (
+      <MotionCurveEditorContent
+        onCommit={onCommit}
+        onDragActiveChange={onDragActiveChange}
+        onPreview={onPreview}
+        state={state}
+      />
+    );
+  }
+
+  return (
+    <Popover onOpenChange={setOpen} open={open}>
+      <PopoverTrigger
+        aria-expanded={open}
+        disabled={disabled}
+        render={
+          <button
+            aria-expanded={open}
+            className={cn(
+              "flex h-10 w-full min-w-0 items-center gap-2 px-3 text-left outline-none transition-opacity hover:opacity-90 focus-visible:ring-3 focus-visible:ring-ring/50",
+              studioScrubSurfaceClass,
+              disabled && "pointer-events-none opacity-50"
+            )}
+            type="button"
+          />
+        }
+      >
+        <MotionCurveTriggerPreview state={state} />
+        <span className="min-w-0 flex-1 truncate font-mono text-foreground text-xs">
+          {triggerLabel}
+        </span>
+      </PopoverTrigger>
+
+      <PopoverContent
+        align="start"
+        className="w-[min(calc(100vw-2rem),18rem)] gap-0 p-3"
+        collisionAvoidance={studioSidebarPopoverCollisionAvoidance}
+        positionMethod="fixed"
+        side="right"
+        sideOffset={studioSidebarPopoverSideOffset}
+      >
+        <MotionCurveEditorContent
+          onCommit={onCommit}
+          onDragActiveChange={onDragActiveChange}
+          onPreview={onPreview}
+          state={state}
+        />
+      </PopoverContent>
+    </Popover>
   );
 }

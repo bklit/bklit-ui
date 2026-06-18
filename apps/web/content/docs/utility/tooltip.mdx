@@ -4,7 +4,7 @@ description: An interactive tooltip component for charts with crosshair, dots, d
 ---
 
 import { LineChart, Line, Grid, ChartTooltip, XAxis } from "@bklitui/ui/charts";
-import { TooltipDefaultDemo, TooltipCrosshairOnlyDemo, TooltipMinimalDemo, TooltipCustomRowsDemo, TooltipBarChartDemo, TooltipCustomContentDemo } from "@/components/docs/tooltip-demo";
+import { TooltipDefaultDemo, TooltipCrosshairOnlyDemo, TooltipMinimalDemo, TooltipCustomRowsDemo, TooltipBarChartDemo, TooltipCustomContentDemo, TooltipSolidCrosshairDemo, TooltipCrosshairFadeTopDemo, TooltipDashedCrosshairDemo, TooltipMatchCrosshairDemo, TooltipPanelDampingDemo } from "@/components/docs/tooltip-demo";
 
 <ComponentPreview registryName="chart-tooltip">
   <TooltipDefaultDemo />
@@ -36,6 +36,14 @@ import { LineChart, Line, Grid, ChartTooltip } from "@bklitui/ui/charts";
 | `showCrosshair` | `boolean` | `true` | Show vertical crosshair line |
 | `showDots` | `boolean` | `true` | Show dots on data points |
 | `indicatorColor` | `string \| (point) => string` | — | Crosshair and dot color; pass a function for dynamic colors |
+| `indicatorDasharray` | `string` | — | SVG dash pattern for the crosshair (e.g. `"4,4"`). Omit for solid |
+| `indicatorFadeEdges` | `"both" \| "top" \| "bottom" \| "none"` | `"both"` | Vertical crosshair fade; `none` = solid line |
+| `indicatorFadeLength` | `number` | `10` | Fade zone size (% of crosshair height) when fading |
+| `matchCrosshair` | `boolean` | `false` | When `true`, the panel uses the crosshair spring and moves in sync |
+| `damping` | `number` | `20` | Panel follow damping (default). `0` = instant. Ignored when `matchCrosshair` is `true` |
+| `springConfig` | `{ stiffness: number; damping: number }` | chart config | Full spring override for crosshair, dots, and date pill |
+| `boxSpringConfig` | `{ stiffness: number; damping: number }` | chart config | Full spring override for the floating tooltip panel |
+| `panelStyle` | `CSSProperties` | — | Inline styles for tooltip background and blur |
 | `content` | `(props) => ReactNode` | - | Custom content renderer |
 | `rows` | `(point) => TooltipRow[]` | - | Custom row generator |
 | `children` | `ReactNode` | - | Additional content (e.g., markers) |
@@ -76,6 +84,90 @@ Full-featured tooltip with crosshair, dots, and date pill.
   <ChartTooltip />
 </LineChart>`}>
   <TooltipDefaultDemo />
+</ComponentShowcase>
+
+### Solid crosshair
+
+Remove vertical fade with `indicatorFadeEdges="none"` for a flat crosshair line.
+
+<ComponentShowcase code={`<LineChart data={data}>
+  <Grid horizontal />
+  <Line dataKey="users" stroke="var(--chart-line-primary)" />
+  <XAxis />
+  <ChartTooltip
+    showDots={false}
+    showDatePill={false}
+    indicatorFadeEdges="none"
+    indicatorColor="var(--chart-2)"
+  />
+</LineChart>`}>
+  <TooltipSolidCrosshairDemo />
+</ComponentShowcase>
+
+### Crosshair fade
+
+Fade the crosshair from the top, bottom, both ends, or not at all. Use `indicatorFadeLength` to control how far the fade extends (percentage of chart height).
+
+<ComponentShowcase code={`<LineChart data={data}>
+  <Grid horizontal />
+  <Line dataKey="users" stroke="var(--chart-line-primary)" />
+  <XAxis />
+  <ChartTooltip
+    showDots={false}
+    showDatePill={false}
+    indicatorFadeEdges="top"
+    indicatorFadeLength={22}
+    indicatorColor="var(--chart-2)"
+  />
+</LineChart>`}>
+  <TooltipCrosshairFadeTopDemo />
+</ComponentShowcase>
+
+### Dashed crosshair
+
+Pass an SVG dash pattern to `indicatorDasharray`.
+
+<ComponentShowcase code={`<LineChart data={data}>
+  <Grid horizontal />
+  <Line dataKey="users" stroke="var(--chart-line-primary)" />
+  <XAxis />
+  <ChartTooltip
+    showDots={false}
+    showDatePill={false}
+    indicatorDasharray="6,4"
+    indicatorColor="var(--chart-2)"
+  />
+</LineChart>`}>
+  <TooltipDashedCrosshairDemo />
+</ComponentShowcase>
+
+### Match crosshair
+
+By default the tooltip panel eases independently with `damping={20}`. Set `matchCrosshair` to lock the panel to the crosshair spring.
+
+<ComponentShowcase code={`<LineChart data={data}>
+  <Grid horizontal />
+  <Line dataKey="users" stroke="var(--chart-line-primary)" />
+  <XAxis />
+  <ChartTooltip matchCrosshair />
+</LineChart>`}>
+  <TooltipMatchCrosshairDemo />
+</ComponentShowcase>
+
+### Panel damping
+
+The default panel uses `damping={20}` without any props. Increase `damping` for heavier lag, or set `damping={0}` for instant follow.
+
+<ComponentShowcase code={`<LineChart data={data}>
+  <Grid horizontal />
+  <Line dataKey="users" stroke="var(--chart-line-primary)" />
+  <XAxis />
+  <ChartTooltip
+    damping={55}
+    indicatorColor="var(--chart-2)"
+  />
+</LineChart>`}>
+  <TooltipPanelDampingDemo />
 </ComponentShowcase>
 
 ### Crosshair Only
@@ -196,12 +288,22 @@ Use the `content` prop for complete control over the tooltip layout.
 
 The tooltip features smooth animations:
 
-- **Crosshair** - Spring physics for snappy following
-- **Tooltip Box** - Scale/fade animation with flip detection
+- **Tooltip panel** - By default the panel eases with `damping={20}`. Set `matchCrosshair` to share the crosshair spring, or tune lag with `damping` (`0`–`100`) or `boxSpringConfig`.
+- **Crosshair** - Spring physics for snappy following (`springConfig`)
+- **Crosshair style** - Solid by default; pass `indicatorDasharray="4,4"` (or any SVG dash pattern) for a dashed line.
+- **Tooltip Box** - Scale/fade animation with flip detection (`boxSpringConfig`)
 - **Date Pill** - Slot machine-style number animation
 - **Dots** - Fade in/out with the tooltip
 
 All animations use motion/react for fluid, natural movement.
+
+```tsx
+<ChartTooltip
+  indicatorDasharray="6,4"
+  damping={60}
+  indicatorColor="var(--chart-2)"
+/>
+```
 
 ## Theming
 

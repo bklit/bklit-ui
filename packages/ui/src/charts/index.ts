@@ -90,6 +90,7 @@ export {
   type ChartConfigProviderProps,
   type ChartConfigValue,
   DEFAULT_CHART_CONFIG,
+  resolveTooltipBoxMotion,
   type SpringConfig,
   useChartConfig,
 } from "./chart-config-context";
@@ -182,6 +183,57 @@ export {
   generateChartSkeletonData,
 } from "./generate-chart-skeleton-data";
 export { Grid, type GridProps } from "./grid";
+// Heatmap chart components
+export {
+  buildHeatmapColorScale,
+  buildHeatmapColorScaleFromStyles,
+  buildHeatmapFillScale,
+  defaultHeatmapColorScale,
+  defaultHeatmapFillScale,
+  filterHeatmapColumns,
+  formatHeatmapContributionLabel,
+  getHeatmapTimeExtent,
+  HEATMAP_DEFAULT_LEVEL_COLORS,
+  HEATMAP_DEFAULT_LEVEL_STYLES,
+  HEATMAP_LEGEND_LEVELS,
+  type HeatmapBin,
+  HeatmapCells,
+  type HeatmapCellsProps,
+  HeatmapChart,
+  HeatmapChartLoading,
+  type HeatmapChartLoadingProps,
+  type HeatmapChartProps,
+  type HeatmapColumn,
+  type HeatmapContextValue,
+  HeatmapInteractionBoundary,
+  HeatmapInteractionProvider,
+  type HeatmapLayout,
+  HeatmapLegend,
+  type HeatmapLegendProps,
+  type HeatmapLevelColors,
+  type HeatmapLevelFillMode,
+  type HeatmapLevelStyle,
+  type HeatmapLevelStyles,
+  HeatmapProvider,
+  HeatmapTooltip,
+  type HeatmapTooltipProps,
+  HeatmapXAxis,
+  type HeatmapXAxisProps,
+  HeatmapYAxis,
+  type HeatmapYAxisProps,
+  heatmapCssVars,
+  heatmapLevelPatternId,
+  isHeatmapLevelPattern,
+  levelColorsFromStyles,
+  levelStylesFromColors,
+  resolveHeatmapLevelStyles,
+  useHeatmap,
+} from "./heatmap";
+export {
+  type IndicatorFadeEdges,
+  indicatorFadeGradientStops,
+  resolveVerticalFadeSides,
+} from "./indicator-fade";
 // Composable legend components
 export {
   Legend,
@@ -327,6 +379,16 @@ export {
 } from "./radar-context";
 export { RadarGrid, type RadarGridProps } from "./radar-grid";
 export { RadarLabels, type RadarLabelsProps } from "./radar-labels";
+export {
+  ReferenceArea,
+  type ReferenceAreaProps,
+  type ReferenceAreaStrokeStyle,
+} from "./reference-area";
+export {
+  computeReferenceAreaRect,
+  type ReferenceAreaIfOverflow,
+  type ReferenceAreaRect,
+} from "./reference-area-geometry";
 // Ring chart components
 export { Ring, type RingLineCap, type RingProps } from "./ring";
 export { RingCenter, type RingCenterProps } from "./ring-center";

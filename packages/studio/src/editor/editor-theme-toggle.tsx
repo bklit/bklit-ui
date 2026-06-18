@@ -1,9 +1,9 @@
 "use client";
 
-import { MoonIcon, SunIcon } from "lucide-react";
-import { useTheme } from "next-themes";
-import { useCallback, useEffect, useState } from "react";
+import { Icon } from "@bklitui/icons";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import { useStudioTheme } from "@/providers/studio-theme-provider";
 import { Button } from "@/ui/button";
 
 function isTypingTarget(target: EventTarget | null): boolean {
@@ -20,16 +20,12 @@ function isTypingTarget(target: EventTarget | null): boolean {
 }
 
 export function EditorThemeToggle({ className }: { className?: string }) {
-  const { setTheme, resolvedTheme } = useTheme();
+  const { resolvedTheme, toggleTheme } = useStudioTheme();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
-
-  const toggleTheme = useCallback(() => {
-    setTheme(resolvedTheme === "dark" ? "light" : "dark");
-  }, [resolvedTheme, setTheme]);
 
   useEffect(() => {
     if (!mounted) {
@@ -67,7 +63,11 @@ export function EditorThemeToggle({ className }: { className?: string }) {
       type="button"
       variant="ghost"
     >
-      {isDark ? <SunIcon /> : <MoonIcon />}
+      {isDark ? (
+        <Icon className="size-4" name="IconSun" />
+      ) : (
+        <Icon className="size-4" name="IconMoon" />
+      )}
     </Button>
   );
 }

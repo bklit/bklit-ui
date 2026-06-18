@@ -29,6 +29,17 @@ import {
   type FunnelStage,
   Gauge,
   Grid,
+  HEATMAP_DEFAULT_LEVEL_STYLES,
+  HeatmapCells,
+  HeatmapChart,
+  HeatmapChartLoading,
+  HeatmapInteractionBoundary,
+  HeatmapInteractionProvider,
+  HeatmapLegend,
+  type HeatmapLevelStyles,
+  HeatmapTooltip,
+  HeatmapXAxis,
+  HeatmapYAxis,
   Legend,
   LegendItemComponent,
   LegendLabel,
@@ -64,6 +75,7 @@ import {
   RadarLabels,
   type RadarMetric,
   RadialGradient,
+  ReferenceArea,
   Ring,
   RingCenter,
   RingChart,
@@ -151,6 +163,7 @@ import {
   composedStackedData,
   composedTriSeriesData,
 } from "@/lib/composed-demo-data";
+import { getHeatmapDemoData } from "@/lib/heatmap-demo-data";
 import { cn } from "@/lib/utils";
 import {
   weeklyVisitorsDashFromIndex,
@@ -864,6 +877,65 @@ ${chartClose}`,
   ];
 }
 
+function makeCartesianReferenceAreaExamples(options: {
+  titlePrefix: string;
+  chartOpen: string;
+  chartClose: string;
+  seriesSnippet: string;
+  y1?: number;
+  y2?: number;
+  render: (referenceArea: ReactNode) => ReactNode;
+}): ChartExample[] {
+  const { titlePrefix, chartOpen, chartClose, seriesSnippet, render } = options;
+  const y1 = options.y1 ?? 160;
+  const y2 = options.y2 ?? 220;
+
+  return [
+    {
+      title: `${titlePrefix} - Reference Band`,
+      description:
+        "Horizontal Y band behind the series with dashed edges and bracket markers",
+      code: `${chartOpen}
+  <ReferenceArea y1={${y1}} y2={${y2}} strokeStyle="dashed" showMarkers />
+  ${seriesSnippet}
+${chartClose}`,
+      footer:
+        "See /docs/utility/reference-area — tune bounds, fill, and markers in Studio",
+      render: () =>
+        render(
+          <ReferenceArea showMarkers strokeStyle="dashed" y1={y1} y2={y2} />
+        ),
+    },
+    {
+      title: `${titlePrefix} - Pattern Reference Band`,
+      description:
+        "Pattern fill inside the band with colored Y-axis tick labels",
+      code: `${chartOpen}
+  <ReferenceArea
+    y1={${y1}}
+    y2={${y2}}
+    pattern="diagonal"
+    patternColor="var(--chart-foreground-muted)"
+    axisLabelColor="var(--chart-1)"
+    fillOpacity={0.85}
+  />
+  ${seriesSnippet}
+${chartClose}`,
+      render: () =>
+        render(
+          <ReferenceArea
+            axisLabelColor="var(--chart-1)"
+            fillOpacity={0.85}
+            pattern="diagonal"
+            patternColor="var(--chart-foreground-muted)"
+            y1={y1}
+            y2={y2}
+          />
+        ),
+    },
+  ];
+}
+
 const AreaExampleChart = createChartExamplePreview(AreaChart);
 const AreaChartLoadingExample = createChartExamplePreview(AreaChartLoading);
 const BarExampleChart = createChartExamplePreview(BarChart);
@@ -875,7 +947,91 @@ const CandlestickExampleChart = createChartExamplePreview(CandlestickChart);
 const LiveLineExampleChart = createChartExamplePreview(LiveLineChart);
 const ChoroplethExampleChart = createChartExamplePreview(ChoroplethChart);
 const SankeyExampleChart = createChartExamplePreview(SankeyChart);
+const HeatmapExampleChart = createChartExamplePreview(HeatmapChart);
+const HeatmapChartLoadingExample =
+  createChartExamplePreview(HeatmapChartLoading);
 const ScatterExampleChart = createChartExamplePreview(ScatterChart);
+
+const HEATMAP_GALLERY_GAP = 3;
+const HEATMAP_CIRCULAR_CORNER_RADIUS = 999;
+const HEATMAP_GALLERY_MARGIN = {
+  top: 28,
+  right: 12,
+  bottom: 0,
+  left: 44,
+} as const;
+
+const heatmapContributionData = getHeatmapDemoData();
+
+const heatmapPatternLevelStyles = [
+  HEATMAP_DEFAULT_LEVEL_STYLES[0],
+  HEATMAP_DEFAULT_LEVEL_STYLES[1],
+  {
+    ...HEATMAP_DEFAULT_LEVEL_STYLES[2],
+    fillMode: "pattern" as const,
+    pattern: "diagonal" as const,
+    patternColor: "#39d353",
+  },
+  HEATMAP_DEFAULT_LEVEL_STYLES[3],
+  HEATMAP_DEFAULT_LEVEL_STYLES[4],
+] as const satisfies HeatmapLevelStyles;
+
+function HeatmapExampleShell({ children }: { children: ReactNode }) {
+  return (
+    <HeatmapInteractionProvider>
+      <HeatmapInteractionBoundary>{children}</HeatmapInteractionBoundary>
+    </HeatmapInteractionProvider>
+  );
+}
+
+function HeatmapGalleryExample({
+  levelStyles = HEATMAP_DEFAULT_LEVEL_STYLES,
+  gap = HEATMAP_GALLERY_GAP,
+  cornerRadius = 2,
+}: {
+  levelStyles?: HeatmapLevelStyles;
+  gap?: number;
+  cornerRadius?: number;
+}) {
+  return (
+    <HeatmapExampleShell>
+      <div className="flex w-full max-w-full flex-col items-stretch gap-2">
+        <HeatmapExampleChart
+          className="w-full min-w-0"
+          data={heatmapContributionData}
+          gap={gap}
+          layout="fluid"
+          levelStyles={levelStyles}
+          margin={HEATMAP_GALLERY_MARGIN}
+        >
+          <HeatmapCells cornerRadius={cornerRadius} />
+          <HeatmapXAxis />
+          <HeatmapYAxis />
+          <HeatmapTooltip />
+        </HeatmapExampleChart>
+        <HeatmapLegend
+          align="center"
+          cornerRadius={cornerRadius}
+          gap={gap}
+          levelStyles={levelStyles}
+        />
+      </div>
+    </HeatmapExampleShell>
+  );
+}
+
+function HeatmapLoadingGalleryExample() {
+  return (
+    <HeatmapChartLoadingExample
+      className="w-full min-w-0"
+      cornerRadius={2}
+      data={heatmapContributionData}
+      gap={HEATMAP_GALLERY_GAP}
+      label="Loading contributions"
+      margin={HEATMAP_GALLERY_MARGIN}
+    />
+  );
+}
 
 function ProfitLossLineExample({
   legendHoveredIndex,
@@ -1102,7 +1258,7 @@ function makeAreaExamples(): ChartExample[] {
 />
 // Uses curveNatural for the loading pulse path`,
       footer:
-        "Uses @ncdai/shimmering-text for the label — installed with @bklit/area-chart",
+        "Uses @bklit/shimmering-text for the label — installed with @bklit/area-chart",
       render: () => <AreaChartLoadingExample />,
     },
     {
@@ -1314,6 +1470,23 @@ function makeAreaExamples(): ChartExample[] {
       render: (background) => (
         <AreaExampleChart data={areaData}>
           {background}
+          <Area dataKey="desktop" fillOpacity={0.3} strokeWidth={2} />
+          <XAxis />
+          <ChartTooltip />
+        </AreaExampleChart>
+      ),
+    }),
+    ...makeCartesianReferenceAreaExamples({
+      titlePrefix: "Area Chart",
+      chartOpen:
+        "<AreaChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={chartData}>",
+      chartClose: "</AreaChart>",
+      seriesSnippet: `<Area dataKey="desktop" fillOpacity={0.3} strokeWidth={2} />
+  <XAxis />
+  <ChartTooltip />`,
+      render: (referenceArea) => (
+        <AreaExampleChart data={areaData}>
+          {referenceArea}
           <Area dataKey="desktop" fillOpacity={0.3} strokeWidth={2} />
           <XAxis />
           <ChartTooltip />
@@ -1758,6 +1931,25 @@ function makeBarExamples(): ChartExample[] {
         </BarExampleChart>
       ),
     }),
+    ...makeCartesianReferenceAreaExamples({
+      titlePrefix: "Bar Chart",
+      chartOpen:
+        '<BarChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={chartData} xDataKey="month">',
+      chartClose: "</BarChart>",
+      seriesSnippet: `<Bar dataKey="desktop" lineCap="round" />
+  <BarXAxis />
+  <ChartTooltip showCrosshair={false} />`,
+      y1: 4200,
+      y2: 5000,
+      render: (referenceArea) => (
+        <BarExampleChart data={barStackedData} xDataKey="month">
+          {referenceArea}
+          <Bar dataKey="desktop" lineCap="round" />
+          <BarXAxis />
+          <ChartTooltip showCrosshair={false} />
+        </BarExampleChart>
+      ),
+    }),
   ];
 }
 
@@ -2112,6 +2304,27 @@ function makeComposedExamples(): ChartExample[] {
         </ComposedExampleChart>
       ),
     }),
+    ...makeCartesianReferenceAreaExamples({
+      titlePrefix: "Composed Chart",
+      chartOpen:
+        '<ComposedChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={data} xDataKey="date">',
+      chartClose: "</ComposedChart>",
+      seriesSnippet: `<SeriesBar dataKey="units" fill="var(--chart-3)" radius={4} />
+  <Line dataKey="revenue" stroke="var(--chart-1)" />
+  <ChartTooltip showCrosshair={false} />
+  <XAxis numTicks={8} />`,
+      y1: 95,
+      y2: 110,
+      render: (referenceArea) => (
+        <ComposedExampleChart data={dataCast} xDataKey="date">
+          {referenceArea}
+          <SeriesBar dataKey="units" fill="var(--chart-3)" radius={4} />
+          <Line dataKey="revenue" stroke="var(--chart-1)" />
+          <ChartTooltip showCrosshair={false} />
+          <XAxis numTicks={8} />
+        </ComposedExampleChart>
+      ),
+    }),
   ];
 }
 
@@ -2340,7 +2553,7 @@ import {
 />
 // Uses curveNatural for the loading pulse path`,
       footer:
-        "Uses @ncdai/shimmering-text for the label — installed with @bklit/line-chart",
+        "Uses @bklit/shimmering-text for the label — installed with @bklit/line-chart",
       render: () => <LineChartLoadingExample />,
     },
     {
@@ -2474,6 +2687,23 @@ import {
       render: (background) => (
         <LineExampleChart data={lineData}>
           {background}
+          <Line dataKey="desktop" strokeWidth={2} />
+          <XAxis />
+          <ChartTooltip />
+        </LineExampleChart>
+      ),
+    }),
+    ...makeCartesianReferenceAreaExamples({
+      titlePrefix: "Line Chart",
+      chartOpen:
+        "<LineChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={chartData}>",
+      chartClose: "</LineChart>",
+      seriesSnippet: `<Line dataKey="desktop" strokeWidth={2} />
+  <XAxis />
+  <ChartTooltip />`,
+      render: (referenceArea) => (
+        <LineExampleChart data={lineData}>
+          {referenceArea}
           <Line dataKey="desktop" strokeWidth={2} />
           <XAxis />
           <ChartTooltip />
@@ -2687,6 +2917,36 @@ function makeLiveLineExamples(): ChartExample[] {
 </LiveLineChart>`,
       render: () => <LiveLineBackgroundDotsDemo />,
     },
+    {
+      title: "Live Line - Reference Band",
+      description: "Target price band with dashed edges and bracket markers",
+      code: `<LiveLineChart margin={{ top: 8, right: 8, bottom: 40, left: 28 }} data={data} value={value} window={30}>
+  <ReferenceArea y1={138} y2={148} strokeStyle="dashed" showMarkers />
+  <LiveLine dataKey="value" stroke="var(--chart-1)" formatValue={formatUsd} />
+  <LiveXAxis />
+  <LiveYAxis position="left" formatValue={formatUsd} />
+</LiveLineChart>`,
+      footer: "See /docs/utility/reference-area",
+      render: () => <LiveLineReferenceBandDemo />,
+    },
+    {
+      title: "Live Line - Pattern Reference Band",
+      description: "Pattern fill inside the band with colored Y-axis ticks",
+      code: `<LiveLineChart margin={{ top: 8, right: 8, bottom: 40, left: 28 }} data={data} value={value} window={30}>
+  <ReferenceArea
+    y1={138}
+    y2={148}
+    pattern="diagonal"
+    patternColor="var(--chart-foreground-muted)"
+    axisLabelColor="var(--chart-1)"
+    fillOpacity={0.85}
+  />
+  <LiveLine dataKey="value" stroke="var(--chart-1)" formatValue={formatUsd} />
+  <LiveXAxis />
+  <LiveYAxis position="left" formatValue={formatUsd} />
+</LiveLineChart>`,
+      render: () => <LiveLinePatternReferenceBandDemo />,
+    },
   ];
 }
 
@@ -2725,6 +2985,59 @@ function LiveLineBackgroundDotsDemo() {
       window={30}
     >
       <Background opacity={0.85} pattern="dots" />
+      <LiveLine
+        dataKey="value"
+        formatValue={formatUsd}
+        stroke="var(--chart-1)"
+      />
+      <LiveXAxis />
+      <LiveYAxis formatValue={formatUsd} position="left" />
+    </LiveLineExampleChart>
+  );
+}
+
+function LiveLineReferenceBandDemo() {
+  const { data, value } = useLiveData(142.5, 600);
+  const formatUsd = useCallback((v: number) => `$${v.toFixed(2)}`, []);
+  return (
+    <LiveLineExampleChart
+      data={data}
+      margin={{ left: 28 }}
+      style={{ height: 240 }}
+      value={value}
+      window={30}
+    >
+      <ReferenceArea showMarkers strokeStyle="dashed" y1={138} y2={148} />
+      <LiveLine
+        dataKey="value"
+        formatValue={formatUsd}
+        stroke="var(--chart-1)"
+      />
+      <LiveXAxis />
+      <LiveYAxis formatValue={formatUsd} position="left" />
+    </LiveLineExampleChart>
+  );
+}
+
+function LiveLinePatternReferenceBandDemo() {
+  const { data, value } = useLiveData(142.5, 600);
+  const formatUsd = useCallback((v: number) => `$${v.toFixed(2)}`, []);
+  return (
+    <LiveLineExampleChart
+      data={data}
+      margin={{ left: 28 }}
+      style={{ height: 240 }}
+      value={value}
+      window={30}
+    >
+      <ReferenceArea
+        axisLabelColor="var(--chart-1)"
+        fillOpacity={0.85}
+        pattern="diagonal"
+        patternColor="var(--chart-foreground-muted)"
+        y1={138}
+        y2={148}
+      />
       <LiveLine
         dataKey="value"
         formatValue={formatUsd}
@@ -4154,6 +4467,49 @@ function makeSankeyExamples(): ChartExample[] {
   ];
 }
 
+function makeHeatmapExamples(): ChartExample[] {
+  return [
+    {
+      title: "Heatmap Chart",
+      description: "GitHub-style contribution grid with axes and tooltip",
+      code: `<HeatmapChart data={data} gap={3} layout="fluid">
+  <HeatmapCells />
+  <HeatmapXAxis />
+  <HeatmapYAxis />
+  <HeatmapTooltip />
+</HeatmapChart>
+<HeatmapLegend align="center" gap={3} />`,
+      render: () => <HeatmapGalleryExample />,
+    },
+    {
+      title: "Heatmap Chart - Pattern Levels",
+      description: "Per-level pattern fills shared between chart and legend",
+      code: `<HeatmapChart data={data} gap={3} layout="fluid" levelStyles={levelStyles}>
+  <HeatmapCells />
+  <HeatmapXAxis />
+  <HeatmapYAxis />
+  <HeatmapTooltip />
+</HeatmapChart>
+<HeatmapLegend align="center" gap={3} levelStyles={levelStyles} />`,
+      render: () => (
+        <HeatmapGalleryExample levelStyles={heatmapPatternLevelStyles} />
+      ),
+    },
+    {
+      title: "Heatmap Chart - Loading",
+      description: "Skeleton grid with cell shimmer while data loads",
+      code: `import { HeatmapChartLoading } from "@bklitui/ui/charts";
+
+<HeatmapChartLoading
+  data={data}
+  gap={3}
+  label="Loading contributions"
+/>`,
+      render: () => <HeatmapLoadingGalleryExample />,
+    },
+  ];
+}
+
 function makeChoroplethExamples(): ChartExample[] {
   return [
     {
@@ -4426,6 +4782,28 @@ function makeCandlestickExamples(): ChartExample[] {
           style={{ height: 320 }}
         >
           {background}
+          <Candlestick fadedOpacity={0.25} />
+          <ChartTooltip content={CandlestickTooltipContent} />
+          <XAxis />
+        </CandlestickExampleChart>
+      ),
+    }),
+    ...makeCartesianReferenceAreaExamples({
+      titlePrefix: "Candlestick",
+      chartOpen:
+        "<CandlestickChart data={ohlcData} margin={{ top: 8, right: 8, bottom: 40, left: 8 }} style={{ height: 320 }}>",
+      chartClose: "</CandlestickChart>",
+      seriesSnippet: `<Candlestick fadedOpacity={0.25} />
+  <ChartTooltip content={CandlestickTooltipContent} />
+  <XAxis />`,
+      y1: 98,
+      y2: 108,
+      render: (referenceArea) => (
+        <CandlestickExampleChart
+          data={candlestickOhlcData}
+          style={{ height: 320 }}
+        >
+          {referenceArea}
           <Candlestick fadedOpacity={0.25} />
           <ChartTooltip content={CandlestickTooltipContent} />
           <XAxis />
@@ -4787,6 +5165,42 @@ function makeProfitLossLineExamples(): ChartExample[] {
         </LineExampleChart>
       ),
     }),
+    ...makeCartesianReferenceAreaExamples({
+      titlePrefix: "Profit/Loss Line",
+      chartOpen: "<LineChart data={data}>",
+      chartClose: "</LineChart>",
+      seriesSnippet: `<Line dataKey="pnl" stroke="transparent" strokeWidth={0} showHighlight={false} />
+  <ProfitLossLine dataKey="pnl" />
+  <XAxis />
+  <ChartTooltip />`,
+      y1: -200,
+      y2: 200,
+      render: (referenceArea) => (
+        <LineExampleChart data={profitLossLineDocsData}>
+          {referenceArea}
+          <Line
+            dataKey="pnl"
+            showHighlight={false}
+            stroke="transparent"
+            strokeWidth={0}
+          />
+          <ProfitLossLine dataKey="pnl" />
+          <XAxis />
+          <ChartTooltip
+            indicatorColor={(point) =>
+              profitLossColor((point.pnl as number) ?? 0)
+            }
+            rows={(point) => [
+              {
+                label: resolveProfitLossTooltipLabel(""),
+                value: (point.pnl as number) ?? 0,
+                color: profitLossColor((point.pnl as number) ?? 0),
+              },
+            ]}
+          />
+        </LineExampleChart>
+      ),
+    }),
   ];
 }
 
@@ -4902,6 +5316,23 @@ function makeSankeyHero(): ChartExample {
   <SankeyTooltip />
 </SankeyChart>`,
     render: () => <SankeyHeroInner />,
+  };
+}
+
+function makeHeatmapHero(): ChartExample {
+  return {
+    title: "Heatmap Chart - Contributions",
+    description: "Activity grid with circular cells and synced legend hover",
+    code: `<HeatmapChart data={data} gap={3} layout="fluid">
+  <HeatmapCells cornerRadius={999} />
+  <HeatmapXAxis />
+  <HeatmapYAxis />
+  <HeatmapTooltip />
+</HeatmapChart>
+<HeatmapLegend align="center" cornerRadius={999} gap={3} />`,
+    render: () => (
+      <HeatmapGalleryExample cornerRadius={HEATMAP_CIRCULAR_CORNER_RADIUS} />
+    ),
   };
 }
 
@@ -5405,6 +5836,25 @@ function makeScatterExamples(): ChartExample[] {
         </ScatterExampleChart>
       ),
     }),
+    ...makeCartesianReferenceAreaExamples({
+      titlePrefix: "Scatter Chart",
+      chartOpen:
+        "<ScatterChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={chartData}>",
+      chartClose: "</ScatterChart>",
+      seriesSnippet: `<Scatter dataKey="desktop" />
+  <XAxis />
+  <ChartTooltip />`,
+      y1: 120,
+      y2: 180,
+      render: (referenceArea) => (
+        <ScatterExampleChart data={scatterMultiSeriesData}>
+          {referenceArea}
+          <Scatter dataKey="desktop" />
+          <XAxis />
+          <ChartTooltip />
+        </ScatterExampleChart>
+      ),
+    }),
   ];
 }
 
@@ -5445,6 +5895,7 @@ const chartTypes = [
   { label: "Composed Chart", slug: "composed-chart" },
   { label: "Funnel Chart", slug: "funnel-chart" },
   { label: "Gauge", slug: "gauge-chart" },
+  { label: "Heatmap Chart", slug: "heatmap-chart" },
   { label: "Line Chart", slug: "line-chart" },
   { label: "Live Line Chart", slug: "live-line-chart" },
   { label: "Pie Chart", slug: "pie-chart" },
@@ -5524,6 +5975,12 @@ const chartExamplesRegistry: Record<string, RegistryEntry> = {
     factory: makeGaugeExamples,
     hero: makeGaugeHero,
     previewLayout: "compact",
+  },
+  "heatmap-chart": {
+    factory: makeHeatmapExamples,
+    columns: 2,
+    hero: makeHeatmapHero,
+    previewLayout: "heatmap",
   },
   "line-chart": { factory: makeLineExamples, hero: makeLineHero },
   "profit-loss-line": { factory: makeProfitLossLineExamples },

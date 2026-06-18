@@ -1,0 +1,16 @@
+---
+title: Patterns
+description: Pattern swatch grid for series fill mode
+---
+
+`PatternPicker` renders a row of pattern swatches used inside `FillPicker` when fill mode is **Pattern**.
+
+**Source:** `packages/studio/src/components/controls/pattern-picker.tsx`
+
+<ComponentShowcase>
+  <StudioUiPreview>
+    <PatternsDemo />
+  </StudioUiPreview>
+</ComponentShowcase>
+
+Patterns are rendered via `@bklitui/ui/charts` `PatternLines` presets. IDs match `PatternPresetId` in `pattern-presets.ts`.

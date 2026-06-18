@@ -1,3 +1,4 @@
+import type { HeatmapLevelStyle } from "@bklitui/ui/charts";
 import { fadeEdgesCodegen } from "@/components/controls/fade-edges-picker";
 import { motionSliceFromState } from "./chart-animation";
 import { curveImportName } from "./curves";
@@ -16,9 +17,15 @@ import {
   sankeySimple,
   scatterStudioData,
 } from "./demo-data";
+import { studioHeatmapLevelStyles } from "./heatmap-studio-colors";
+import {
+  getLineYAxisFormatLargeNumbers,
+  getLineYAxisNumTicks,
+} from "./line-y-axis-settings";
 import {
   cssRevealAnimationCodegen,
   motionEnterPropsCodegen,
+  motionTransitionCodegen,
 } from "./motion-codegen";
 import { patternCodegenBlock } from "./patterns";
 import { seriesStrokePropsCodegen } from "./series-stroke-props";
@@ -219,6 +226,49 @@ export function backgroundCodegenBlock(
   return `\n  <Background${backgroundPropsCodegen(state)} />`;
 }
 
+function referenceAreaPropsCodegen(state: StudioUrlState): string {
+  const parts: string[] = [
+    `y1={${state.referenceAreaY1}}`,
+    `y2={${state.referenceAreaY2}}`,
+    `fill="${state.referenceAreaFill}"`,
+    `fillOpacity={${state.referenceAreaFillOpacity}}`,
+    `pattern="${state.referenceAreaPattern}"`,
+    `patternColor="${state.referenceAreaPatternColor}"`,
+    `stroke="${state.referenceAreaStroke}"`,
+    `strokeStyle="${state.referenceAreaStrokeStyle}"`,
+    ...(state.referenceAreaStrokeStyle === "dashed"
+      ? [`strokeDasharray="${state.referenceAreaStrokeDasharray}"`]
+      : []),
+    `fadeEdges={${state.referenceAreaFadeEdges}}`,
+    `fadeEdgesLength={${state.referenceAreaFadeEdgesLength}}`,
+    `axisLabelColor="${state.referenceAreaAxisLabelColor}"`,
+    `showMarkers={${state.referenceAreaShowMarkers}}`,
+    `markerColor="${state.referenceAreaMarkerColor}"`,
+    `yAxisId="${state.referenceAreaYAxis}"`,
+  ];
+  return parts.join(" ");
+}
+
+export function referenceAreaCodegenBlock(
+  state: StudioUrlState,
+  chartPrefix: string
+): string {
+  if (!isStudioComponentVisible(state, `${chartPrefix}.reference-area`)) {
+    return "";
+  }
+  return `\n  <ReferenceArea ${referenceAreaPropsCodegen(state)} />`;
+}
+
+function referenceAreaCodegenImport(
+  state: StudioUrlState,
+  chartPrefix: string,
+  imports: string[]
+): void {
+  if (isStudioComponentVisible(state, `${chartPrefix}.reference-area`)) {
+    imports.push("ReferenceArea");
+  }
+}
+
 export function cartesianCodegen(
   chartType: "AreaChart" | "LineChart",
   state: StudioUrlState
@@ -273,11 +323,13 @@ export function cartesianCodegen(
   const usesBackground = backgroundBlock.length > 0;
   const gridVisible = isStudioComponentVisible(state, `${chartPrefix}.grid`);
   const gridBlock = gridVisible ? `\n  <Grid${gridPropsCodegen(state)} />` : "";
+  const referenceAreaBlock = referenceAreaCodegenBlock(state, chartPrefix);
 
   const chartImports = [chartType, "XAxis", "ChartTooltip"];
   if (gridVisible) {
     chartImports.push("Grid");
   }
+  referenceAreaCodegenImport(state, chartPrefix, chartImports);
   if (usesBackground) {
     chartImports.push("Background");
   }
@@ -303,7 +355,7 @@ export function cartesianCodegen(
   return `import { ${chartImports.join(", ")} } from "@bklitui/ui/charts";
 ${curveImports}
 
-<${chartType} data={chartData}${anim}>${backgroundBlock}${gridBlock}${child}
+<${chartType} data={chartData}${anim}>${backgroundBlock}${gridBlock}${referenceAreaBlock}${child}
   <XAxis />
   <ChartTooltip />
 </${chartType}>`;
@@ -348,14 +400,11 @@ export function barCodegen(state: StudioUrlState) {
   const seriesCount = clampStudioSeriesCount(state.dataSeries);
   // "single" mode is treated as grouped when dataSeries > 1.
   const stacked = seriesCount > 1 && state.barSeriesMode === "stacked";
-  const primaryFill =
-    state.pattern === "none" ? "var(--chart-1)" : "url(#studio-pattern-fill)";
 
   let dataSnippet: string;
   let xKey: string;
   let keys: string[];
   if (horizontal) {
-    // Horizontal bar keeps the categorical browser dataset.
     dataSnippet = `const chartData = ${JSON.stringify(barHorizontalData, null, 2)};`;
     xKey = "browser";
     keys = ["users"];
@@ -364,6 +413,76 @@ export function barCodegen(state: StudioUrlState) {
     dataSnippet = studioCartesianDataSnippet(state, "month", keys);
     xKey = "month";
   }
+
+  if (state.barChartState === "loading") {
+    return barLoadingCodegen(state, { horizontal, xKey });
+  }
+
+  return barReadyCodegen(state, {
+    dataSnippet,
+    horizontal,
+    keys,
+    stacked,
+    xKey,
+  });
+}
+
+function barLoadingCodegen(
+  state: StudioUrlState,
+  options: { horizontal: boolean; xKey: string }
+) {
+  const { horizontal, xKey } = options;
+  const chartProps = [
+    "data={chartData}",
+    `xDataKey="${xKey}"`,
+    'status="loading"',
+    cssRevealAnimationCodegen(
+      state.animationDuration,
+      motionSliceFromState(state)
+    ),
+    `barGap={${state.barGap}}`,
+    state.barWidth > 0 ? `barWidth={${state.barWidth}}` : "",
+    horizontal ? 'orientation="horizontal"' : "",
+    horizontal ? "margin={{ left: 80 }}" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  const backgroundBlock = backgroundCodegenBlock(state, "bar");
+  const gridVisible = isStudioComponentVisible(state, "bar.grid");
+  const gridBlock = gridVisible ? `\n  <Grid${gridPropsCodegen(state)} />` : "";
+  const referenceAreaBlock = referenceAreaCodegenBlock(state, "bar");
+  const gridImport = gridVisible ? ", Grid" : "";
+  const backgroundImport = backgroundBlock ? ", Background" : "";
+  const referenceAreaImport = isStudioComponentVisible(
+    state,
+    "bar.reference-area"
+  )
+    ? ", ReferenceArea"
+    : "";
+
+  return {
+    code: `import { BarChart${gridImport}${backgroundImport}${referenceAreaImport} } from "@bklitui/ui/charts";
+
+<BarChart ${chartProps}>${backgroundBlock}${gridBlock}${referenceAreaBlock}
+</BarChart>`,
+    data: "const chartData: Record<string, unknown>[] = [];",
+  };
+}
+
+function barReadyCodegen(
+  state: StudioUrlState,
+  options: {
+    dataSnippet: string;
+    horizontal: boolean;
+    keys: string[];
+    stacked: boolean;
+    xKey: string;
+  }
+) {
+  const { dataSnippet, horizontal, keys, stacked, xKey } = options;
+  const primaryFill =
+    state.pattern === "none" ? "var(--chart-1)" : "url(#studio-pattern-fill)";
 
   const chartProps = [
     "data={chartData}",
@@ -395,13 +514,20 @@ export function barCodegen(state: StudioUrlState) {
   const backgroundBlock = backgroundCodegenBlock(state, "bar");
   const gridVisible = isStudioComponentVisible(state, "bar.grid");
   const gridBlock = gridVisible ? `\n  <Grid${gridPropsCodegen(state)} />` : "";
+  const referenceAreaBlock = referenceAreaCodegenBlock(state, "bar");
   const gridImport = gridVisible ? ", Grid" : "";
   const backgroundImport = backgroundBlock ? ", Background" : "";
+  const referenceAreaImport = isStudioComponentVisible(
+    state,
+    "bar.reference-area"
+  )
+    ? ", ReferenceArea"
+    : "";
 
   return {
-    code: `import { BarChart, Bar, BarXAxis, ChartTooltip${gridImport}${backgroundImport}${state.pattern === "none" ? "" : ", PatternLines"} } from "@bklitui/ui/charts";
+    code: `import { BarChart, Bar, BarXAxis, ChartTooltip${gridImport}${backgroundImport}${referenceAreaImport}${state.pattern === "none" ? "" : ", PatternLines"} } from "@bklitui/ui/charts";
 
-<BarChart ${chartProps}>${backgroundBlock}${gridBlock}${patternBlock}${bars}
+<BarChart ${chartProps}>${backgroundBlock}${gridBlock}${referenceAreaBlock}${patternBlock}${bars}
   <BarXAxis />
   <ChartTooltip showCrosshair={false} />
 </BarChart>`,
@@ -432,8 +558,15 @@ export function composedCodegen(state: StudioUrlState) {
   const backgroundBlock = backgroundCodegenBlock(state, "composed");
   const gridVisible = isStudioComponentVisible(state, "composed.grid");
   const gridBlock = gridVisible ? "\n  <Grid horizontal />" : "";
+  const referenceAreaBlock = referenceAreaCodegenBlock(state, "composed");
   const gridImport = gridVisible ? ", Grid" : "";
   const backgroundImport = backgroundBlock ? ", Background" : "";
+  const referenceAreaImport = isStudioComponentVisible(
+    state,
+    "composed.reference-area"
+  )
+    ? ", ReferenceArea"
+    : "";
 
   const curveImports = visxCurveImportLines(
     state,
@@ -441,11 +574,11 @@ export function composedCodegen(state: StudioUrlState) {
   );
 
   return {
-    code: `import { ComposedChart, SeriesBar, Area, Line, XAxis, ChartTooltip${gridImport}${backgroundImport}${state.pattern === "none" ? "" : ", PatternLines"} } from "@bklitui/ui/charts";
+    code: `import { ComposedChart, SeriesBar, Area, Line, XAxis, ChartTooltip${gridImport}${backgroundImport}${referenceAreaImport}${state.pattern === "none" ? "" : ", PatternLines"} } from "@bklitui/ui/charts";
 ${curveImports}
 
 <ComposedChart data={chartData}
-  ${cssRevealAnimationCodegen(state.animationDuration, motionSliceFromState(state))}>${backgroundBlock}${gridBlock}${barPattern}${barLine}${overlays}
+  ${cssRevealAnimationCodegen(state.animationDuration, motionSliceFromState(state))}>${backgroundBlock}${gridBlock}${referenceAreaBlock}${barPattern}${barLine}${overlays}
   <XAxis />
   <ChartTooltip />
 </ComposedChart>`,
@@ -506,17 +639,29 @@ export function candlestickCodegen(state: StudioUrlState) {
   const backgroundBlock = backgroundCodegenBlock(state, "candlestick");
   const gridVisible = isStudioComponentVisible(state, "candlestick.grid");
   const gridBlock = gridVisible ? `\n  <Grid${gridPropsCodegen(state)} />` : "";
+  const referenceAreaBlock = referenceAreaCodegenBlock(state, "candlestick");
   const gridImport = gridVisible ? ", Grid" : "";
   const backgroundImport = backgroundBlock ? ", Background" : "";
+  const referenceAreaImport = isStudioComponentVisible(
+    state,
+    "candlestick.reference-area"
+  )
+    ? ", ReferenceArea"
+    : "";
+  const yAxisLeftVisible = isStudioComponentVisible(
+    state,
+    "candlestick.yaxis.left"
+  );
+  const yAxisImport = yAxisLeftVisible ? ", YAxis" : "";
 
   return {
-    code: `import { CandlestickChart, Candlestick, ChartTooltip, XAxis, LinearGradient${gridImport}${backgroundImport}${state.pattern === "none" ? "" : ", PatternLines"} } from "@bklitui/ui/charts";
+    code: `import { CandlestickChart, Candlestick, ChartTooltip, XAxis, LinearGradient${gridImport}${backgroundImport}${referenceAreaImport}${yAxisImport}${state.pattern === "none" ? "" : ", PatternLines"} } from "@bklitui/ui/charts";
 
 <CandlestickChart data={ohlcData}
-  ${cssRevealAnimationCodegen(state.animationDuration, motionSliceFromState(state))} candleGap={${state.candleGap}} margin={{ top: 16, right: 16, bottom: 40, left: 16 }}>
-  ${gradientBlock}${patternBlock}${backgroundBlock}${gridBlock}
+  ${cssRevealAnimationCodegen(state.animationDuration, motionSliceFromState(state))} candleGap={${state.candleGap}} margin={{ top: 16, right: 16, bottom: 40, left: 56 }}>
+  ${gradientBlock}${patternBlock}${backgroundBlock}${gridBlock}${referenceAreaBlock}
   <Candlestick fadedOpacity={${state.candleFadedOpacity}} ${positiveFill} ${negativeFill}${patternProps} />
-  <ChartTooltip showDots={${state.candleShowDots}} />
+  <ChartTooltip showDots={${state.candleShowDots}} />${yAxisLeftVisible ? `\n  <YAxis numTicks={${getLineYAxisNumTicks(state, "left")}} formatLargeNumbers={${getLineYAxisFormatLargeNumbers(state, "left")}} />` : ""}
   <XAxis />
 </CandlestickChart>`,
     data: `const ohlcData = ${JSON.stringify(candlestickOhlcData, null, 2)};`,
@@ -541,16 +686,121 @@ export function funnelCodegen(state: StudioUrlState) {
   };
 }
 
+function serializeHeatmapLevelStyle(style: HeatmapLevelStyle): string {
+  const entries = [
+    `color: ${JSON.stringify(style.color)}`,
+    `fillMode: ${JSON.stringify(style.fillMode ?? "solid")}`,
+    `pattern: ${JSON.stringify(style.pattern ?? "none")}`,
+  ];
+
+  const optionalEntries: Array<string | null> = [
+    style.patternColor
+      ? `patternColor: ${JSON.stringify(style.patternColor)}`
+      : null,
+    style.patternScale != null && style.patternScale !== 1
+      ? `patternScale: ${style.patternScale}`
+      : null,
+    style.patternStrokeWidth != null && style.patternStrokeWidth !== 1
+      ? `patternStrokeWidth: ${style.patternStrokeWidth}`
+      : null,
+    style.patternRadius != null && style.patternRadius !== 2
+      ? `patternRadius: ${style.patternRadius}`
+      : null,
+    style.patternComplement ? "patternComplement: true" : null,
+    style.patternFill
+      ? `patternFill: ${JSON.stringify(style.patternFill)}`
+      : null,
+    style.patternTileBackground
+      ? `patternTileBackground: ${JSON.stringify(style.patternTileBackground)}`
+      : null,
+    style.patternOpacity != null && style.patternOpacity !== 1
+      ? `patternOpacity: ${style.patternOpacity}`
+      : null,
+    style.patternDotsFill === false ? "patternDotsFill: false" : null,
+  ];
+
+  for (const entry of optionalEntries) {
+    if (entry) {
+      entries.push(entry);
+    }
+  }
+
+  return `{ ${entries.join(", ")} }`;
+}
+
+export function heatmapCodegen(state: StudioUrlState) {
+  const motion = motionSliceFromState(state);
+  const anim = cssRevealAnimationCodegen(state.animationDuration, motion);
+  const enterStagger = `enterStaggerScale={${state.motionStaggerScale.toFixed(2)}}`;
+  const enterTransition = `enterTransition={${motionTransitionCodegen(motion)}}`;
+  const loadingProps =
+    state.heatmapChartState === "loading"
+      ? `
+  status="loading"
+  loadingLabel="${state.heatmapLoadingLabel}"
+  loadingOpacity={${state.heatmapLoadingOpacity}}
+  loadingCellMaxOpacity={${state.heatmapLoadingCellMaxOpacity}}
+  loadingCellRandomness={${state.heatmapLoadingCellRandomness}}`
+      : "";
+  const cellProps = `cornerRadius={${state.heatmapCornerRadius}} fadedOpacity={${state.heatmapCellsFadedOpacity}}`;
+  const levelStyles = studioHeatmapLevelStyles(state);
+  const levelStylesLiteral = `[${levelStyles.map(serializeHeatmapLevelStyle).join(", ")}] as const`;
+  const levelStylesConst = `const heatmapLevelStyles = ${levelStylesLiteral};`;
+  const chartProps = `gap={${state.heatmapGap}}
+  levelStyles={heatmapLevelStyles}
+  ${anim}
+  ${enterTransition}
+  ${enterStagger}${loadingProps}`;
+  const legendProps = `cornerRadius={${state.heatmapCornerRadius}} gap={${state.heatmapGap}} levelStyles={heatmapLevelStyles}`;
+
+  return {
+    code: `import {
+  HeatmapCells,
+  HeatmapChart,
+  HeatmapInteractionBoundary,
+  HeatmapInteractionProvider,
+  HeatmapLegend,
+  HeatmapTooltip,
+  HeatmapXAxis,
+  HeatmapYAxis,
+} from "@bklitui/ui/charts";
+
+${levelStylesConst}
+
+<HeatmapInteractionProvider>
+  <HeatmapInteractionBoundary>
+    <HeatmapChart data={contributionData} ${chartProps}>
+      <HeatmapCells ${cellProps} />
+      <HeatmapXAxis />
+      <HeatmapYAxis />
+      <HeatmapTooltip />
+    </HeatmapChart>
+    <HeatmapLegend ${legendProps} />
+  </HeatmapInteractionBoundary>
+</HeatmapInteractionProvider>`,
+    data: `import type { HeatmapColumn } from "@bklitui/ui/charts";
+
+const contributionData: HeatmapColumn[] = [/* week columns */];`,
+  };
+}
+
 export function liveLineCodegen(state: StudioUrlState) {
   const curveName = curveImportName(state.curve);
   const backgroundBlock = backgroundCodegenBlock(state, "live-line");
   const gridVisible = isStudioComponentVisible(state, "live-line.grid");
   const gridBlock = gridVisible ? `\n  <Grid${gridPropsCodegen(state)} />` : "";
+  const referenceAreaBlock = referenceAreaCodegenBlock(state, "live-line");
   const gridImport = gridVisible ? ", Grid" : "";
   const backgroundImport = backgroundBlock ? ", Background" : "";
+  const referenceAreaImport = isStudioComponentVisible(
+    state,
+    "live-line.reference-area"
+  )
+    ? ", ReferenceArea"
+    : "";
 
   return {
-    code: `import { LiveLineChart, LiveLine, LiveXAxis, LiveYAxis${gridImport}${backgroundImport} } from "@bklitui/ui/charts";
+    code: `import { LiveLineChart, LiveLine, LiveXAxis, LiveYAxis${gridImport}${backgroundImport}${referenceAreaImport} } from "@bklitui/ui/charts";
 import { ${curveName} } from "@visx/curve";
 
 <LiveLineChart
@@ -560,7 +810,7 @@ import { ${curveName} } from "@visx/curve";
   lerpSpeed={${state.liveLerpSpeed}}
   exaggerate={${state.liveExaggerate}}
   paused={${state.livePaused}}
->${backgroundBlock}${gridBlock}
+>${backgroundBlock}${gridBlock}${referenceAreaBlock}
   <LiveLine
     dataKey="value"
     curve={${curveName}}
@@ -597,13 +847,20 @@ export function scatterCodegen(state: StudioUrlState) {
   const backgroundBlock = backgroundCodegenBlock(state, "scatter");
   const gridVisible = isStudioComponentVisible(state, "scatter.grid");
   const gridBlock = gridVisible ? `\n  <Grid${gridPropsCodegen(state)} />` : "";
+  const referenceAreaBlock = referenceAreaCodegenBlock(state, "scatter");
   const gridImport = gridVisible ? ", Grid" : "";
   const backgroundImport = backgroundBlock ? ", Background" : "";
+  const referenceAreaImport = isStudioComponentVisible(
+    state,
+    "scatter.reference-area"
+  )
+    ? ", ReferenceArea"
+    : "";
 
   return {
-    code: `import { ScatterChart, Scatter, XAxis, ChartTooltip${gridImport}${backgroundImport} } from "@bklitui/ui/charts";
+    code: `import { ScatterChart, Scatter, XAxis, ChartTooltip${gridImport}${backgroundImport}${referenceAreaImport} } from "@bklitui/ui/charts";
 
-<ScatterChart data={chartData}${anim}>${backgroundBlock}${gridBlock}
+<ScatterChart data={chartData}${anim}>${backgroundBlock}${gridBlock}${referenceAreaBlock}
   <Scatter dataKey="desktop" radius={${state.scatterRadius}} ringGap={${state.scatterRingGap}} strokeWidth={${state.scatterRingWidth}} fadeOnHover={${state.scatterFadeOnHover}} inactiveOpacity={${state.scatterInactiveOpacity}} showActiveHighlight={${state.scatterShowActiveHighlight}} />${secondSeries}
   <XAxis />
   <ChartTooltip />

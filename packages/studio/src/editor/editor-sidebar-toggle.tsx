@@ -1,12 +1,8 @@
 "use client";
 
-import { Columns3, PanelTopBottomDashed } from "lucide-react";
+import { Icon } from "@bklitui/icons";
 import { cn } from "@/lib/utils";
 import { Button } from "@/ui/button";
-
-/** Lucide `columns-3` — three-column layout with side panes visible. */
-const Layout3ColumnIcon = Columns3;
-const PanelTopBottomDashedIcon = PanelTopBottomDashed;
 
 export function EditorSidebarToggle({
   className,
@@ -28,9 +24,12 @@ export function EditorSidebarToggle({
       variant="ghost"
     >
       {open ? (
-        <Layout3ColumnIcon />
+        <Icon className="size-4" name="IconColumns3" />
       ) : (
-        <PanelTopBottomDashedIcon className="rotate-90" />
+        <Icon
+          className="size-4 rotate-90"
+          name="IconChevronGrabberHorizontal"
+        />
       )}
     </Button>
   );

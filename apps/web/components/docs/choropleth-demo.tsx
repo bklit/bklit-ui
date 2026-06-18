@@ -1,5 +1,6 @@
 "use client";
 
+import { Icon } from "@bklitui/icons";
 import type { ChoroplethFeature } from "@bklitui/ui/charts";
 import {
   ChoroplethChart,
@@ -7,7 +8,6 @@ import {
   ChoroplethTooltip,
   useChoroplethZoom,
 } from "@bklitui/ui/charts";
-import { Minus, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useWorldDataStandalone } from "./use-world-data";
 
@@ -26,7 +26,7 @@ function PreviewZoomControls() {
         size="icon"
         variant="secondary"
       >
-        <Plus className="size-5" />
+        <Icon className="size-5" name="IconPlusSmall" />
       </Button>
       <Button
         className="size-10 rounded-lg shadow-md"
@@ -34,7 +34,7 @@ function PreviewZoomControls() {
         size="icon"
         variant="secondary"
       >
-        <Minus className="size-5" />
+        <Icon className="size-5" name="IconMinusSmall" />
       </Button>
     </div>
   );
@@ -159,7 +159,7 @@ function AnalyticsZoomControls() {
         size="icon"
         variant="secondary"
       >
-        <Plus className="size-5" />
+        <Icon className="size-5" name="IconPlusSmall" />
       </Button>
       <Button
         className="size-10 rounded-lg shadow-md"
@@ -167,7 +167,7 @@ function AnalyticsZoomControls() {
         size="icon"
         variant="secondary"
       >
-        <Minus className="size-5" />
+        <Icon className="size-5" name="IconMinusSmall" />
       </Button>
     </div>
   );

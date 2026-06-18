@@ -1,5 +1,6 @@
 import type {
   FunnelStage,
+  HeatmapColumn,
   OHLCDataPoint,
   PieData,
   RadarData,
@@ -157,6 +158,53 @@ export const candlestickOhlcData: OHLCDataPoint[] = (() => {
   }
   return points;
 })();
+
+/** Reference band bounds that fit the default OHLC demo (~90–115). */
+export function getCandlestickReferenceAreaDefaults(): {
+  referenceAreaY1: number;
+  referenceAreaY2: number;
+} {
+  return referenceAreaBoundsForOhlc(candlestickOhlcData);
+}
+
+export function referenceAreaBoundsForOhlc(data: OHLCDataPoint[]): {
+  referenceAreaY1: number;
+  referenceAreaY2: number;
+} {
+  let min = Number.POSITIVE_INFINITY;
+  let max = Number.NEGATIVE_INFINITY;
+  for (const point of data) {
+    min = Math.min(min, point.low);
+    max = Math.max(max, point.high);
+  }
+  const span = max - min;
+  return {
+    referenceAreaY1: Math.round(min + span * 0.25),
+    referenceAreaY2: Math.round(min + span * 0.75),
+  };
+}
+
+/** When URL bounds are outside OHLC range, use data-fitted defaults for preview. */
+export function resolveCandlestickReferenceAreaBounds(
+  state: { referenceAreaY1: number; referenceAreaY2: number },
+  data: OHLCDataPoint[]
+): { referenceAreaY1: number; referenceAreaY2: number } {
+  let min = Number.POSITIVE_INFINITY;
+  let max = Number.NEGATIVE_INFINITY;
+  for (const point of data) {
+    min = Math.min(min, point.low);
+    max = Math.max(max, point.high);
+  }
+  const low = Math.min(state.referenceAreaY1, state.referenceAreaY2);
+  const high = Math.max(state.referenceAreaY1, state.referenceAreaY2);
+  if (high < min || low > max) {
+    return referenceAreaBoundsForOhlc(data);
+  }
+  return {
+    referenceAreaY1: state.referenceAreaY1,
+    referenceAreaY2: state.referenceAreaY2,
+  };
+}
 
 export const visitorsByCountry: Record<string, number> = {
   "United States": 18,
@@ -341,6 +389,87 @@ export function getScatterData(seed = 0) {
     desktop: studioSeriesValue(index, 0, seed),
     mobile: studioSeriesValue(index, 1, seed),
   }));
+}
+
+const HEATMAP_WEEKS = 53;
+const HEATMAP_DAYS = 7;
+
+export const HEATMAP_WEEKS_ONE_YEAR = HEATMAP_WEEKS;
+export const HEATMAP_WEEKS_TWO_YEARS = HEATMAP_WEEKS * 2;
+
+function heatmapContributionCount(
+  seed: number,
+  week: number,
+  day: number,
+  dayOfWeek: number
+): number {
+  const random = seededRandom(seed + week * 1009 + day * 9176);
+  const weekRandom = seededRandom(seed + week * 524_287);
+
+  const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+  const weekBusy = weekRandom();
+  let burst = 0.85 + weekBusy * 0.3;
+  if (weekBusy > 0.78) {
+    burst = 1.75;
+  } else if (weekBusy < 0.22) {
+    burst = 0.28;
+  }
+
+  const activityChance = Math.min(
+    0.9,
+    (isWeekend ? 0.18 : 0.48) * burst + random() * 0.12
+  );
+  if (random() > activityChance) {
+    return 0;
+  }
+
+  const level = random();
+  if (level < 0.52) {
+    return 1;
+  }
+  if (level < 0.76) {
+    return 2;
+  }
+  if (level < 0.91) {
+    return 3;
+  }
+  return 4;
+}
+
+export function getHeatmapData(
+  seed = 0,
+  weeks: number = HEATMAP_WEEKS_ONE_YEAR
+): HeatmapColumn[] {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const startDate = new Date(today);
+  startDate.setDate(startDate.getDate() - (weeks - 1) * 7);
+  startDate.setDate(startDate.getDate() - startDate.getDay());
+
+  const columns: HeatmapColumn[] = [];
+  const cursor = new Date(startDate);
+
+  for (let week = 0; week < weeks; week++) {
+    const bins = Array.from({ length: HEATMAP_DAYS }, (_, day) => {
+      const date = new Date(cursor);
+      const dayOfWeek = date.getDay();
+      cursor.setDate(cursor.getDate() + 1);
+
+      const isFuture = date > today;
+      return {
+        bin: day,
+        count: isFuture
+          ? 0
+          : heatmapContributionCount(seed, week, day, dayOfWeek),
+        date,
+      };
+    });
+
+    columns.push({ bin: week, bins });
+  }
+
+  return columns;
 }
 
 export function getBarHorizontalData(seed = 0) {

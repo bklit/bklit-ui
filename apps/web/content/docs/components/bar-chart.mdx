@@ -11,6 +11,8 @@ import {
   ChartTooltip,
 } from "@bklitui/ui/charts";
 import { BarChartLoadingDemo } from "@/components/docs/bar-chart-loading-demo";
+import { Icon } from "@bklitui/icons";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export const chartData = [
   { month: "Jan", revenue: 12000, profit: 4500 },
@@ -286,6 +288,15 @@ To keep **zero or very short** bars visible as a tiny bar instead of vanishing, 
 Negative values are supported (bars grow downward from the baseline) as long as the chart's value scale includes negatives. See the [charts gallery](/charts/bar-chart) for a live 3D depth example.
 
 ## Loading state
+
+<Alert className="not-prose mb-6">
+  <Icon className="size-4" name="IconCircleInfo" />
+  <AlertTitle>Loading state is experimental</AlertTitle>
+  <AlertDescription>
+    Bar chart loading is still in development. APIs, Studio controls, and docs
+    may change before release — use with caution in production.
+  </AlertDescription>
+</Alert>
 
 `BarChart` accepts a `status` prop. While `status="loading"`, it replaces the bars with a shimmer skeleton: placeholder bars with a soft diagonal shimmer sweeping across them on a loop. On `status="ready"` it switches to the real bars. No chart data is required during loading. Bar heights come from a deterministic seed (SSR-safe, no `Math.random()`), and it respects `prefers-reduced-motion` by rendering a calm, static skeleton.
 

@@ -21,6 +21,25 @@
       ]
     },
     {
+      "name": "shimmering-text",
+      "type": "registry:component",
+      "title": "Shimmering Text",
+      "description": "Per-character shimmer animation for loading labels and badges",
+      "registryDependencies": [
+        "@bklit/utils"
+      ],
+      "dependencies": [
+        "motion"
+      ],
+      "files": [
+        {
+          "path": "src/components/shimmering-text.tsx",
+          "type": "registry:component",
+          "target": "components/shimmering-text.tsx"
+        }
+      ]
+    },
+    {
       "name": "chart-utils",
       "type": "registry:lib",
       "title": "Chart Utilities",
@@ -107,6 +126,11 @@
           "path": "src/charts/chart-context.tsx",
           "type": "registry:component",
           "target": "components/charts/chart-context.tsx"
+        },
+        {
+          "path": "src/charts/reference-area-config.ts",
+          "type": "registry:lib",
+          "target": "components/charts/reference-area-config.ts"
         },
         {
           "path": "src/charts/use-chart-interaction.ts",
@@ -313,6 +337,31 @@
       ]
     },
     {
+      "name": "reference-area",
+      "type": "registry:component",
+      "title": "Reference Area",
+      "description": "Shaded data-coordinate band for target ranges and thresholds on time-series charts",
+      "registryDependencies": [
+        "@bklit/chart-context",
+        "@bklit/background"
+      ],
+      "dependencies": [
+        "motion"
+      ],
+      "files": [
+        {
+          "path": "src/charts/reference-area.tsx",
+          "type": "registry:component",
+          "target": "components/charts/reference-area.tsx"
+        },
+        {
+          "path": "src/charts/reference-area-geometry.ts",
+          "type": "registry:component",
+          "target": "components/charts/reference-area-geometry.ts"
+        }
+      ]
+    },
+    {
       "name": "background",
       "type": "registry:component",
       "title": "Chart Background",
@@ -373,6 +422,11 @@
           "path": "src/charts/y-axis.tsx",
           "type": "registry:component",
           "target": "components/charts/y-axis.tsx"
+        },
+        {
+          "path": "src/charts/reference-area-geometry.ts",
+          "type": "registry:lib",
+          "target": "components/charts/reference-area-geometry.ts"
         }
       ]
     },
@@ -394,6 +448,11 @@
           "path": "src/charts/chart-config-context.tsx",
           "type": "registry:component",
           "target": "components/charts/chart-config-context.tsx"
+        },
+        {
+          "path": "src/charts/indicator-fade.ts",
+          "type": "registry:lib",
+          "target": "components/charts/indicator-fade.ts"
         },
         {
           "path": "src/charts/tooltip/chart-tooltip.tsx",
@@ -544,7 +603,7 @@
         "@bklit/grid",
         "@bklit/x-axis",
         "@bklit/chart-tooltip",
-        "@ncdai/shimmering-text",
+        "@bklit/shimmering-text",
         "@bklit/utils"
       ],
       "dependencies": [
@@ -687,6 +746,11 @@
           "target": "components/charts/bar-chart.tsx"
         },
         {
+          "path": "src/charts/chart-child-passthrough.ts",
+          "type": "registry:lib",
+          "target": "components/charts/chart-child-passthrough.ts"
+        },
+        {
           "path": "src/charts/chart-legend-hover.tsx",
           "type": "registry:component",
           "target": "components/charts/chart-legend-hover.tsx"
@@ -735,7 +799,7 @@
         "@bklit/grid",
         "@bklit/x-axis",
         "@bklit/chart-tooltip",
-        "@ncdai/shimmering-text",
+        "@bklit/shimmering-text",
         "@bklit/utils"
       ],
       "dependencies": [
@@ -944,6 +1008,11 @@
           "target": "components/charts/live-line-chart.tsx"
         },
         {
+          "path": "src/charts/chart-child-passthrough.ts",
+          "type": "registry:lib",
+          "target": "components/charts/chart-child-passthrough.ts"
+        },
+        {
           "path": "src/charts/live-line.tsx",
           "type": "registry:component",
           "target": "components/charts/live-line.tsx"
@@ -985,6 +1054,11 @@
           "path": "src/charts/candlestick-chart.tsx",
           "type": "registry:component",
           "target": "components/charts/candlestick-chart.tsx"
+        },
+        {
+          "path": "src/charts/chart-child-passthrough.ts",
+          "type": "registry:lib",
+          "target": "components/charts/chart-child-passthrough.ts"
         },
         {
           "path": "src/charts/chart-legend-hover.tsx",
@@ -1197,6 +1271,111 @@
           "path": "src/charts/chart-center-typography.ts",
           "type": "registry:component",
           "target": "components/charts/chart-center-typography.ts"
+        }
+      ]
+    },
+    {
+      "name": "heatmap-chart",
+      "type": "registry:component",
+      "title": "Heatmap Chart",
+      "description": "A GitHub-style contribution heatmap with animated cells and configurable level colors",
+      "registryDependencies": [
+        "@bklit/chart-context",
+        "@bklit/chart-animation",
+        "@bklit/utils",
+        "@bklit/chart-utils",
+        "@bklit/chart-tooltip",
+        "@bklit/background",
+        "@bklit/shimmering-text"
+      ],
+      "dependencies": [
+        "@visx/group@4.0.1-alpha.0",
+        "@visx/heatmap@4.0.1-alpha.0",
+        "@visx/pattern@4.0.1-alpha.0",
+        "@visx/responsive@4.0.1-alpha.0",
+        "@visx/scale@4.0.1-alpha.0",
+        "motion"
+      ],
+      "files": [
+        {
+          "path": "src/charts/heatmap/heatmap-chart.tsx",
+          "type": "registry:component",
+          "target": "components/charts/heatmap/heatmap-chart.tsx"
+        },
+        {
+          "path": "src/charts/heatmap/heatmap-context.tsx",
+          "type": "registry:component",
+          "target": "components/charts/heatmap/heatmap-context.tsx"
+        },
+        {
+          "path": "src/charts/heatmap/heatmap-cells.tsx",
+          "type": "registry:component",
+          "target": "components/charts/heatmap/heatmap-cells.tsx"
+        },
+        {
+          "path": "src/charts/heatmap/heatmap-x-axis.tsx",
+          "type": "registry:component",
+          "target": "components/charts/heatmap/heatmap-x-axis.tsx"
+        },
+        {
+          "path": "src/charts/heatmap/heatmap-y-axis.tsx",
+          "type": "registry:component",
+          "target": "components/charts/heatmap/heatmap-y-axis.tsx"
+        },
+        {
+          "path": "src/charts/heatmap/heatmap-legend.tsx",
+          "type": "registry:component",
+          "target": "components/charts/heatmap/heatmap-legend.tsx"
+        },
+        {
+          "path": "src/charts/heatmap/heatmap-legend-swatch.tsx",
+          "type": "registry:component",
+          "target": "components/charts/heatmap/heatmap-legend-swatch.tsx"
+        },
+        {
+          "path": "src/charts/heatmap/heatmap-tooltip.tsx",
+          "type": "registry:component",
+          "target": "components/charts/heatmap/heatmap-tooltip.tsx"
+        },
+        {
+          "path": "src/charts/heatmap/heatmap-colors.ts",
+          "type": "registry:component",
+          "target": "components/charts/heatmap/heatmap-colors.ts"
+        },
+        {
+          "path": "src/charts/heatmap/heatmap-utils.ts",
+          "type": "registry:component",
+          "target": "components/charts/heatmap/heatmap-utils.ts"
+        },
+        {
+          "path": "src/charts/heatmap/heatmap-animation.ts",
+          "type": "registry:component",
+          "target": "components/charts/heatmap/heatmap-animation.ts"
+        },
+        {
+          "path": "src/charts/heatmap/heatmap-pattern-defs.tsx",
+          "type": "registry:component",
+          "target": "components/charts/heatmap/heatmap-pattern-defs.tsx"
+        },
+        {
+          "path": "src/charts/heatmap/heatmap-chart-loading.tsx",
+          "type": "registry:component",
+          "target": "components/charts/heatmap/heatmap-chart-loading.tsx"
+        },
+        {
+          "path": "src/charts/heatmap/generate-heatmap-skeleton-data.ts",
+          "type": "registry:component",
+          "target": "components/charts/heatmap/generate-heatmap-skeleton-data.ts"
+        },
+        {
+          "path": "src/charts/heatmap/index.ts",
+          "type": "registry:component",
+          "target": "components/charts/heatmap/index.ts"
+        },
+        {
+          "path": "src/charts/chart-loading-label.tsx",
+          "type": "registry:component",
+          "target": "components/charts/chart-loading-label.tsx"
         }
       ]
     },
@@ -1495,6 +1674,32 @@
       ]
     },
     {
+      "name": "heatmap-chart-example",
+      "type": "registry:example",
+      "title": "Heatmap Chart Example",
+      "description": "Composable heatmap-chart demo for Open in v0",
+      "registryDependencies": [
+        "@bklit/heatmap-chart"
+      ],
+      "dependencies": [
+        "@visx/heatmap@4.0.1-alpha.0",
+        "@visx/shape@4.0.1-alpha.0",
+        "motion"
+      ],
+      "files": [
+        {
+          "path": "registry/examples/heatmap-chart.tsx",
+          "type": "registry:page",
+          "target": "app/page.tsx"
+        },
+        {
+          "path": "registry/examples/heatmap-chart-index.ts",
+          "type": "registry:lib",
+          "target": "components/charts/index.ts"
+        }
+      ]
+    },
+    {
       "name": "ring-chart-example",
       "type": "registry:example",
       "title": "Ring Chart Example",
@@ -1741,7 +1946,7 @@
         "@visx/curve@4.0.1-alpha.0",
         "@visx/gradient@4.0.1-alpha.0",
         "@number-flow/react",
-        "lucide-react"
+        "@central-icons-react/all"
       ],
       "files": [
         {
@@ -1788,7 +1993,7 @@
         "@visx/curve@4.0.1-alpha.0",
         "@visx/gradient@4.0.1-alpha.0",
         "@number-flow/react",
-        "lucide-react"
+        "@central-icons-react/all"
       ],
       "files": [
         {
@@ -1817,7 +2022,7 @@
       "dependencies": [
         "@visx/curve@4.0.1-alpha.0",
         "@number-flow/react",
-        "lucide-react"
+        "@central-icons-react/all"
       ],
       "files": [
         {
@@ -1863,7 +2068,7 @@
       "dependencies": [
         "@visx/curve@4.0.1-alpha.0",
         "@number-flow/react",
-        "lucide-react"
+        "@central-icons-react/all"
       ],
       "files": [
         {
@@ -1893,7 +2098,7 @@
         "@number-flow/react",
         "@types/geojson",
         "@types/topojson-specification",
-        "lucide-react",
+        "@central-icons-react/all",
         "topojson-client"
       ],
       "files": [
@@ -1946,7 +2151,7 @@
         "@number-flow/react",
         "@types/geojson",
         "@types/topojson-specification",
-        "lucide-react",
+        "@central-icons-react/all",
         "topojson-client"
       ],
       "files": [

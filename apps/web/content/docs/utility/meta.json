@@ -4,6 +4,7 @@
     "legend",
     "grid",
     "background",
+    "reference-area",
     "tooltip",
     "brush",
     "axis",

@@ -7,7 +7,7 @@ import {
 } from "./studio-url-codec";
 import type { ChartSlug } from "./types";
 
-export const REGISTRY_ORIGIN = "https://ui.bklit.com";
+export const REGISTRY_ORIGIN = "https://bklit.com";
 
 export const STUDIO_EMBED_PATH = "/studio/embed";
 

@@ -1,0 +1,63 @@
+---
+title: Studio UI
+description: Editor chrome and property controls in @bklitui/studio — separate from chart components in @bklitui/ui
+---
+
+Studio UI is the design system for the **chart editor** — sidebars, property rows, motion controls, and pickers. Chart rendering primitives live in `@bklitui/ui` (see the main site docs); **this app** documents editor-only UI in `packages/studio`.
+
+Local-only — not deployed.
+
+## Quick links
+
+| Resource | URL |
+|----------|-----|
+| This docs app | http://localhost:3003/docs |
+| Full editor | http://localhost:3000/studio |
+| Add shadcn components | `cd packages/studio && pnpm ui:add <name>` |
+
+## Architecture
+
+```
+packages/studio/
+├── src/ui/              # shadcn primitives (components.json → pnpm ui:add)
+├── src/components/controls/  # chart property widgets
+├── src/lib/studio-chrome-classes.ts  # shared Tailwind for sidebar chrome
+├── src/styles/
+│   ├── studio-theme.css      # scoped .studio-shell chart + shadcn vars
+│   └── studio-chrome.css     # WebKit scrollbar rules
+└── components.json      # shadcn CLI config (ui alias → @/ui)
+
+packages/icons/          # @bklitui/icons — Central Icon System wrapper
+```
+
+## Sections
+
+### Editor shell
+
+- [Sidebar controls](/docs/control-surfaces) — chart type picker at the top of the left panel
+
+### Inputs
+
+- [Custom components](/docs/custom-components) — Yes/No switch, Studio slider, scrub number field
+- [Fields](/docs/fields) — property rows, opacity, fill picker
+- [Toggle groups](/docs/toggle-groups) — `StudioToggleGroup` layouts (segmented, icons, cards)
+
+### Pickers & patterns
+
+- [Pickers](/docs/pickers) — legend placement, orientation, curve, fade edges
+- [Patterns](/docs/patterns) — series pattern swatches
+
+### Motion
+
+- [Motion](/docs/motion) — bezier editor, ease presets, duration controls
+
+### Reference
+
+- [Primitives](/docs/primitives) — vendored shadcn components
+- [Icons](/docs/icons) — full Central Icon System catalog
+- [Shimmer text](/docs/shimmer-text) — loading label animation
+- [Feedback](/docs/feedback) — alerts, spinners, tooltips
+
+## Theming
+
+Studio uses a **scoped palette** on `.studio-shell` (`studio-theme.css`) so the editor can be themed independently of the docs site. Override `--studio-control-surface-*` tokens to restyle every sidebar control at once.

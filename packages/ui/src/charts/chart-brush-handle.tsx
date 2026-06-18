@@ -3,6 +3,7 @@
 import type { BrushHandleRenderProps } from "@visx/brush/lib/BrushHandle";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import type { ChartBrushOverlayHost } from "./chart-brush-track-overlay";
 import { useChartStable } from "./chart-context";
 
 /** Matches shadcn `ResizableHandle` withHandle pill (`h-6 w-1 rounded-lg`). */
@@ -49,13 +50,14 @@ export interface ChartBrushHandleOverlayProps {
 }
 
 /** Renders brush resize pills above the outside blur portal (`z-[2]`). */
-export function ChartBrushHandleOverlay({
+export function ChartBrushHandleOverlayContent({
+  containerRef,
+  margin,
   innerWidth,
   innerHeight,
   selectionX0,
   selectionX1,
-}: ChartBrushHandleOverlayProps) {
-  const { containerRef, margin } = useChartStable();
+}: ChartBrushHandleOverlayProps & ChartBrushOverlayHost) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -98,5 +100,17 @@ export function ChartBrushHandleOverlay({
       ))}
     </div>,
     container
+  );
+}
+
+export function ChartBrushHandleOverlay(props: ChartBrushHandleOverlayProps) {
+  const { containerRef, margin } = useChartStable();
+
+  return (
+    <ChartBrushHandleOverlayContent
+      {...props}
+      containerRef={containerRef}
+      margin={margin}
+    />
   );
 }

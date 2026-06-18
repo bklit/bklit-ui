@@ -5,8 +5,7 @@ import type { ReactNode } from "react";
 const studioPanelVariants = cva("flex min-h-0 flex-col overflow-hidden", {
   variants: {
     variant: {
-      default:
-        "rounded-lg bg-card text-card-foreground ring-1 ring-foreground/10",
+      default: "rounded-lg bg-card text-card-foreground ring-0",
       ghost:
         "overflow-x-visible bg-transparent text-foreground shadow-none ring-0",
     },

@@ -7,7 +7,7 @@
   "dependencies": [
     "@visx/curve@4.0.1-alpha.0",
     "@number-flow/react",
-    "lucide-react"
+    "@central-icons-react/all"
   ],
   "registryDependencies": [
     "@bklit/line-chart",
@@ -36,7 +36,7 @@
     },
     {
       "path": "registry/blocks/stat-card-line-01/components/trend-badge.tsx",
-      "content": "\"use client\";\n\nimport { ArrowDown, ArrowUp } from \"lucide-react\";\nimport { Badge } from \"@/components/ui/badge\";\nimport { cn } from \"@/lib/utils\";\n\nexport function TrendBadge({\n  value,\n  className,\n}: {\n  value: number;\n  className?: string;\n}) {\n  const positive = value >= 0;\n  const Icon = positive ? ArrowUp : ArrowDown;\n\n  return (\n    <Badge\n      className={cn(\n        positive &&\n          \"border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400\",\n        className\n      )}\n      variant={positive ? \"outline\" : \"destructive\"}\n    >\n      <Icon className=\"size-3\" data-icon=\"inline-start\" />\n      {positive ? \"+\" : \"\"}\n      {value.toFixed(1)}%\n    </Badge>\n  );\n}\n",
+      "content": "\"use client\";\n\nimport { CentralIcon } from \"@central-icons-react/all\";\nimport { Badge } from \"@/components/ui/badge\";\nimport { cn } from \"@/lib/utils\";\n\nexport function TrendBadge({\n  value,\n  className,\n}: {\n  value: number;\n  className?: string;\n}) {\n  const positive = value >= 0;\n\n  return (\n    <Badge\n      className={cn(\n        positive &&\n          \"border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400\",\n        className\n      )}\n      variant={positive ? \"outline\" : \"destructive\"}\n    >\n      <CentralIcon\n        className=\"size-3\"\n        data-icon=\"inline-start\"\n        fill=\"outlined\"\n        join=\"round\"\n        name={positive ? \"IconArrowUp\" : \"IconArrowDown\"}\n        radius=\"0\"\n        stroke=\"1.5\"\n      />\n      {positive ? \"+\" : \"\"}\n      {value.toFixed(1)}%\n    </Badge>\n  );\n}\n",
       "type": "registry:component",
       "target": "components/trend-badge.tsx"
     },

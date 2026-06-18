@@ -53,7 +53,7 @@ export function LineSeriesYAxisControl({
         }
         value={value}
       >
-        <SelectTrigger className="h-8 w-full text-xs">
+        <SelectTrigger className="w-full text-xs">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>

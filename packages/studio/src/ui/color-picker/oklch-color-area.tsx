@@ -99,7 +99,7 @@ export function OklchColorArea({
   return (
     <fieldset
       className={cn(
-        "relative m-0 aspect-[4/3] w-full min-w-0 shrink-0 overflow-hidden rounded-md border-0 p-0 ring-1 ring-border",
+        "relative m-0 aspect-[4/3] w-full min-w-0 shrink-0 overflow-hidden rounded-md border-0 p-0",
         disabled && "pointer-events-none opacity-50"
       )}
       disabled={disabled}

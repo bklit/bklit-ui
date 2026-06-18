@@ -1,0 +1,28 @@
+---
+title: Sidebar controls
+description: Chart type picker and sidebar chrome at the top of the Studio left panel
+---
+
+The sidebar opens with **`ChartTypeSelector`** — an outline trigger that opens a 2-column grid of chart icons and labels. It sits above the scrollable property groups, matching [`StudioSidebar`](packages/studio/src/components/studio-sidebar.tsx).
+
+**Source:** `packages/studio/src/components/chart-type-selector.tsx`
+
+<ComponentShowcase>
+  <StudioUiPreview>
+    <SurfacesDemo />
+  </StudioUiPreview>
+</ComponentShowcase>
+
+## Usage
+
+```tsx
+import { ChartTypeSelector } from "@/components/chart-type-selector";
+
+const [chart, setChart] = useState<ChartSlug>("area-chart");
+
+<ChartTypeSelector onChange={setChart} value={chart} />
+```
+
+The trigger uses `Button variant="outline"` with the active chart icon and label. The popover lists every entry from `studioChartList` in `packages/studio/src/lib/registry.tsx`.
+
+Other sidebar option sets use `StudioToggleGroup` — see [Toggle groups](/docs/toggle-groups).

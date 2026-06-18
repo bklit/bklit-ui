@@ -19,7 +19,7 @@ export function StudioPageClient() {
   return (
     <div className="flex h-dvh flex-col overflow-hidden">
       <SiteHeader
-        discordUrl="https://discord.com/invite/9yyK8FwPcU"
+        discordUrl="https://discord.gg/75s4frfE8X"
         githubUrl="https://github.com/bklit/bklit-ui"
         links={[...siteNavLinks]}
       />

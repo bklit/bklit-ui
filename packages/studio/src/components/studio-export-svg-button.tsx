@@ -1,7 +1,6 @@
 "use client";
 
-import { Download01Icon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
+import { Icon } from "@bklitui/icons";
 import { useStudioToolbarTooltipSide } from "@/components/studio-toolbar-tooltips";
 import { Button } from "@/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/ui/tooltip";
@@ -35,10 +34,10 @@ export function StudioExportSvgButton({
           type="button"
           variant={variant}
         >
-          <HugeiconsIcon
-            icon={Download01Icon}
-            size={iconSize}
-            strokeWidth={1.5}
+          <Icon
+            className="size-5"
+            name="IconFileDownload"
+            style={{ width: iconSize, height: iconSize }}
           />
         </Button>
       </TooltipTrigger>
