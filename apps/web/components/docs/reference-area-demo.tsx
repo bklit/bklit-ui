@@ -8,23 +8,25 @@ import {
   ReferenceArea,
   XAxis,
 } from "@bklitui/ui/charts";
+import {
+  buildLineChartDemoData,
+  REFERENCE_AREA_DEMO,
+} from "@/components/docs/line-chart-demo-data";
 
-const chartData = [
-  { date: new Date(2024, 0, 1), value: 186 },
-  { date: new Date(2024, 1, 1), value: 305 },
-  { date: new Date(2024, 2, 1), value: 237 },
-  { date: new Date(2024, 3, 1), value: 73 },
-  { date: new Date(2024, 4, 1), value: 209 },
-  { date: new Date(2024, 5, 1), value: 214 },
-];
+const chartData = buildLineChartDemoData();
 
 export function ReferenceAreaBandDemo() {
   return (
     <div className="w-full">
       <LineChart data={chartData}>
         <Grid horizontal />
-        <ReferenceArea showMarkers strokeStyle="dashed" y1={160} y2={220} />
-        <Line dataKey="value" />
+        <ReferenceArea
+          showMarkers
+          strokeStyle="dashed"
+          y1={REFERENCE_AREA_DEMO.y1}
+          y2={REFERENCE_AREA_DEMO.y2}
+        />
+        <Line dataKey="value" strokeWidth={2} />
         <XAxis />
         <ChartTooltip />
       </LineChart>
@@ -38,14 +40,17 @@ export function ReferenceAreaPatternDemo() {
       <LineChart data={chartData}>
         <Grid horizontal />
         <ReferenceArea
-          axisLabelColor="var(--chart-1)"
-          fillOpacity={0.85}
-          pattern="diagonal"
-          patternColor="var(--chart-foreground-muted)"
-          y1={160}
-          y2={220}
+          axisLabelColor={REFERENCE_AREA_DEMO.axisLabelColor}
+          pattern={REFERENCE_AREA_DEMO.pattern}
+          patternColor={REFERENCE_AREA_DEMO.patternColor}
+          patternScale={REFERENCE_AREA_DEMO.patternScale}
+          patternStrokeWidth={REFERENCE_AREA_DEMO.patternStrokeWidth}
+          showMarkers={REFERENCE_AREA_DEMO.showMarkers}
+          stroke={REFERENCE_AREA_DEMO.stroke}
+          y1={REFERENCE_AREA_DEMO.y1}
+          y2={REFERENCE_AREA_DEMO.y2}
         />
-        <Line dataKey="value" />
+        <Line dataKey="value" strokeWidth={2} />
         <XAxis />
         <ChartTooltip />
       </LineChart>
@@ -63,10 +68,10 @@ export function ReferenceAreaMarkersDemo() {
           showMarkers
           stroke="var(--chart-1)"
           strokeStyle="dashed"
-          y1={160}
-          y2={220}
+          y1={REFERENCE_AREA_DEMO.y1}
+          y2={REFERENCE_AREA_DEMO.y2}
         />
-        <Line dataKey="value" />
+        <Line dataKey="value" strokeWidth={2} />
         <XAxis />
         <ChartTooltip />
       </LineChart>

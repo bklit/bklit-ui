@@ -27,6 +27,7 @@ import { getStudioCssRevealPropsForPreview } from "@/lib/chart-animation";
 import { resolveCurve } from "@/lib/curves";
 import {
   clampStudioSeriesCount,
+  generateStudioCartesianData,
   generateStudioTrendingData,
   STUDIO_SERIES_KEYS,
 } from "@/lib/demo-data";
@@ -280,17 +281,30 @@ export function LineChartStudioStandardPreview({
 }) {
   const isLoading = state.lineChartState === "loading";
   const seriesCount = clampStudioSeriesCount(state.dataSeries);
+  const projectionCount = getProjectionCount(state);
   const data = useMemo(
     () =>
-      generateStudioTrendingData({
-        direction: state.lineDataTrend,
-        seriesCount,
-        pointCount: state.dataPoints,
-        xAxis: "date",
-      }),
-    [seriesCount, state.dataPoints, state.lineDataTrend]
+      projectionCount > 0
+        ? generateStudioTrendingData({
+            direction: state.lineDataTrend,
+            seriesCount,
+            pointCount: state.dataPoints,
+            xAxis: "date",
+          })
+        : generateStudioCartesianData({
+            seriesCount,
+            pointCount: state.dataPoints,
+            xAxis: "date",
+            seed: ctx.dataSeed,
+          }),
+    [
+      ctx.dataSeed,
+      projectionCount,
+      seriesCount,
+      state.dataPoints,
+      state.lineDataTrend,
+    ]
   );
-  const projectionCount = getProjectionCount(state);
   const brushXExtentMax = useMemo(
     () => studioBrushXExtentMax(state, data, projectionCount),
     [state, data, projectionCount]

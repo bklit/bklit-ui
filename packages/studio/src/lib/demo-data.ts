@@ -616,10 +616,19 @@ function trendingSeriesValue(
   const sign = direction === "up" ? 1 : -1;
   const base = 120 + seriesIndex * 18;
   const trend = sign * (5.5 + seriesIndex * 1.25) * index;
-  const noise =
-    Math.sin((index + seriesIndex * 5) / 2.2) * 5 +
-    Math.cos((index + seriesIndex * 3) / 1.4) * 2.5;
-  return Math.max(10, Math.floor(base + trend + noise));
+  const i = index + seriesIndex * 9;
+
+  // Layered waves at multiple scales — trend stays readable, line feels organic.
+  const swell = Math.sin(i / 4.4 + seriesIndex * 1.2) * (24 + seriesIndex * 3);
+  const ripple =
+    Math.cos(i / 1.65 + seriesIndex * 0.85) * (16 + seriesIndex * 2);
+  const jitter = Math.sin(i / 0.68 + seriesIndex * 2.4) * (10 + seriesIndex);
+  const wobble = Math.cos(i / 2.95 + seriesIndex * 1.6) * 7;
+
+  return Math.max(
+    10,
+    Math.floor(base + trend + swell + ripple + jitter + wobble)
+  );
 }
 
 /** Deterministic up/down trending cartesian rows for projection exploration. */

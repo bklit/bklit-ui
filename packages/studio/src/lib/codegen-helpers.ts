@@ -129,7 +129,7 @@ export function studioTrendingDataSnippet(
   const seriesLines = keys
     .map(
       (key, s) =>
-        `  ${key}: Math.max(10, Math.floor(${120 + s * 18} + ${sign} * (${5.5 + s * 1.25}) * i + Math.sin((i + ${s * 5}) / 2.2) * 5 + Math.cos((i + ${s * 3}) / 1.4) * 2.5)),`
+        `  ${key}: Math.max(10, Math.floor(${120 + s * 18} + ${sign} * (${5.5 + s * 1.25}) * i + Math.sin((i + ${s * 9}) / 4.4 + ${s * 1.2}) * ${24 + s * 3} + Math.cos((i + ${s * 9}) / 1.65 + ${s * 0.85}) * ${16 + s * 2} + Math.sin((i + ${s * 9}) / 0.68 + ${s * 2.4}) * ${10 + s} + Math.cos((i + ${s * 9}) / 2.95 + ${s * 1.6}) * 7)),`
     )
     .join("\n");
   return `const chartData = Array.from({ length: ${points} }, (_, i) => ({
@@ -1081,10 +1081,11 @@ export function scatterChartDataSnippet() {
 }
 
 export function lineChartDataSnippet(state: StudioUrlState) {
-  return (
-    studioTrendingDataSnippet(state, "date") +
-    projectionCodegenDataSnippets(state)
-  );
+  const dataSnippet =
+    getProjectionCount(state) > 0
+      ? studioTrendingDataSnippet(state, "date")
+      : studioCartesianDataSnippet(state, "date");
+  return dataSnippet + projectionCodegenDataSnippets(state);
 }
 
 export function areaChartDataSnippet(state: StudioUrlState) {

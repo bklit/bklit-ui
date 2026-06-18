@@ -3,7 +3,7 @@ title: Projection Line
 description: Forecast segment extending a line series past the last data point — dashed stroke, gradient, and horizon marker
 ---
 
-import { studioChartHref } from "@bklitui/studio";
+import { studioLineReferenceProjectionHref } from "@bklitui/studio";
 import {
   buildProjectionPath,
   ChartTooltip,
@@ -49,21 +49,23 @@ import {
 const projectionPath = buildProjectionPath({
   sourceData: chartData,
   seriesKey: "value",
-  mode: "auto",
-  autoMethod: "lastSegment",
+  mode: "target",
   pathDensity: "endpoints",
-  horizonPoints: 8,
+  horizonPoints: 6,
+  endValue: 301,
 });
 
 <LineChart data={chartData}>
   <Grid horizontal />
   <Line dataKey="value" strokeWidth={2} />
-  <LineSeriesTerminalMarker dataKey="value" stroke="var(--chart-1)" />
+  <LineSeriesTerminalMarker dataKey="value" />
   <ProjectionLine
     data={projectionPath}
-    stroke="var(--chart-3)"
-    strokeDasharray="6,4"
+    strokeDasharray="1,4"
     curveKind="bezier"
+    strokeStyle="gradient"
+    gradientStart="oklch(0.979 0.037 110.273)"
+    gradientEnd="oklch(0.59 0.17 166.38)"
     showEndMarker
   />
   <XAxis />
@@ -126,7 +128,7 @@ The chart extends its x-domain to fit the projection horizon. Projections are in
     Edit in Studio
   </h3>
   <OpenInStudioButton
-    href={studioChartHref("line-chart", { projectionCount: 1 })}
+    href={studioLineReferenceProjectionHref()}
     slug="line-chart"
   />
 </div>
@@ -155,13 +157,14 @@ Open [Studio with a projection](/studio?chart=line-chart) and use **Settings →
 
 ### Gradient stroke
 
-<ComponentShowcase code={`<ProjectionLine
-  data={projectionPath}
-  strokeStyle="gradient"
-  gradientStart="var(--chart-3)"
-  gradientEnd="var(--chart-5)"
-  curveKind="linear"
-/>`}>
+<ComponentShowcase code={`  <ProjectionLine
+    data={projectionPath}
+    strokeStyle="gradient"
+    gradientStart="oklch(0.926 0.128 16.866 / 0.73)"
+    gradientEnd="oklch(0.849 0.232 16.498)"
+    curveKind="bezier"
+    strokeDasharray="1,4"
+  />`}>
   <ProjectionLineGradientDemo />
 </ComponentShowcase>
 
