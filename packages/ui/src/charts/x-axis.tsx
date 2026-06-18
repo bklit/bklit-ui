@@ -11,13 +11,13 @@ import { LINE_LOADING_PULSE_EASE } from "./line-loading-timing";
 const X_AXIS_POSITION_TWEEN_MS = DEFAULT_Y_DOMAIN_TWEEN_MS;
 
 export interface XAxisProps {
-  /** Number of ticks to show (including first and last). Default: 5. Used when `tickMode` is `"domain"`. */
+  /** Number of ticks to show (including first and last). Default: 5. */
   numTicks?: number;
   /** Width of the date ticker box for fade calculation. Default: 50 */
   tickerHalfWidth?: number;
   /**
-   * `"domain"` — evenly spaced ticks across the time domain (default).
-   * `"data"` — one label per data row at its x value (better with sparse or monthly bars).
+   * `"data"` — tick labels snap to data rows so crosshair and tooltip stay aligned (default).
+   * `"domain"` — evenly spaced ticks across the time domain (may not align with hover).
    */
   tickMode?: "domain" | "data";
 }
@@ -494,28 +494,28 @@ export function XAxis(props: XAxisProps) {
 const XAxisInner = memo(function XAxisInner({
   numTicks = 5,
   tickerHalfWidth = 50,
-  tickMode = "domain",
+  tickMode = "data",
   container,
 }: XAxisProps & { container: HTMLDivElement }) {
   const { xScale, margin, tooltipData, data, xAccessor, dateLabels, xDomain } =
     useChart();
 
   const labelsToShow = useMemo(() => {
-    // Brush (any extent): snap ticks to data rows with even index spacing.
-    if (tickMode === "data" || xDomain != null) {
-      return buildDataAlignedTicks({
-        data,
-        dateLabels,
+    // Domain spacing is opt-in; data-aligned ticks keep crosshair/tooltip aligned.
+    if (tickMode === "domain" && xDomain == null) {
+      return buildDomainTicks({
         marginLeft: margin.left,
-        targetTickCount: numTicks,
-        xAccessor,
+        numTicks,
         xScale,
       });
     }
 
-    return buildDomainTicks({
+    return buildDataAlignedTicks({
+      data,
+      dateLabels,
       marginLeft: margin.left,
-      numTicks,
+      targetTickCount: numTicks,
+      xAccessor,
       xScale,
     });
   }, [

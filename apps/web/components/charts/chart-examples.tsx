@@ -1974,7 +1974,7 @@ function makeComposedExamples(): ChartExample[] {
   <XAxis numTicks={8} />
 </ComposedChart>`,
       footer:
-        'Dense time series: use default XAxis ticks (numTicks) so labels stay readable. Use tickMode="data" when you only have a few rows (e.g. one bar per month).',
+        "Dense time series: use numTicks on XAxis so labels stay readable. Ticks snap to data rows by default so crosshair and tooltip align.",
       render: () => (
         <ComposedExampleChart
           aspectRatio="3 / 2"

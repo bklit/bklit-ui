@@ -34,10 +34,11 @@ import { LineChart, Line, XAxis, ChartTooltip } from "@bklitui/ui/charts";
 |------|------|---------|-------------|
 | `numTicks` | `number` | `5` | Number of ticks to show (including first and last) |
 | `tickerHalfWidth` | `number` | `50` | Width of the date ticker box for fade calculation when tooltip is visible |
+| `tickMode` | `"data" \| "domain"` | `"data"` | `"data"` snaps labels to data rows (aligned with crosshair); `"domain"` uses even calendar spacing |
 
 ## Behavior
 
-- **Evenly spaced dates**: XAxis generates evenly spaced date labels from the chart's time domain, always including the first and last dates.
+- **Data-aligned labels**: By default, XAxis picks evenly spaced data rows for tick labels so crosshair and tooltip line up with the axis. Use `tickMode="domain"` for calendar-even spacing when alignment is not needed.
 - **Crosshair fade**: When the tooltip is visible, labels near the crosshair fade to reduce visual clutter and improve readability.
 - **Client-side only**: Renders via portal after mount to avoid SSR issues.
 
