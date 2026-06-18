@@ -10,15 +10,25 @@ import {
   ringData,
   STUDIO_SERIES_KEYS,
 } from "@/lib/demo-data";
+import { isStudioComponentVisible } from "@/lib/studio-component-visibility";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import { getEffectiveSeriesColor } from "@/lib/studio-series-design";
 
 export function studioCartesianLegendItems(
   state: StudioUrlState,
   seriesCount: number,
-  values?: number[]
+  values?: number[],
+  chartPrefix?: string
 ): LegendItem[] {
-  const items = Array.from({ length: seriesCount }, (_, index) => ({
+  const visibleIndices = Array.from(
+    { length: seriesCount },
+    (_, index) => index
+  ).filter(
+    (index) =>
+      chartPrefix == null ||
+      isStudioComponentVisible(state, `${chartPrefix}.series.${index}`)
+  );
+  const items = visibleIndices.map((index) => ({
     label: STUDIO_SERIES_KEYS[index] ?? `Series ${index + 1}`,
     value: values?.[index] ?? 100 - index * 12,
     color: getEffectiveSeriesColor(state, index),
@@ -108,7 +118,9 @@ export function studioStaticRingLegendItems(
 export function studioAreaLegendItems(state: StudioUrlState): LegendItem[] {
   return studioCartesianLegendItems(
     state,
-    clampStudioSeriesCount(state.dataSeries)
+    clampStudioSeriesCount(state.dataSeries),
+    undefined,
+    "area"
   );
 }
 

@@ -1,13 +1,15 @@
 "use client";
 
 import { motion } from "motion/react";
-import { useId, useMemo } from "react";
+import { useId, useLayoutEffect, useMemo } from "react";
 import { chartCssVars, useChartStable, useYScale } from "./chart-context";
 import { type PatternPresetId, renderPatternPreset } from "./pattern-preset";
 import {
   computeReferenceAreaRect,
   type ReferenceAreaIfOverflow,
 } from "./reference-area-geometry";
+import { useReferenceAreaRegistration } from "./reference-area-registration-context";
+import { normalizeYAxisId } from "./y-axis-scales";
 import { isReferenceAreaVisiblePhase } from "./y-domain-utils";
 
 const DEFAULT_FILL =
@@ -101,6 +103,7 @@ export function ReferenceArea({
   strokeDasharray = "4,4",
   fadeEdges = true,
   fadeEdgesLength = 10,
+  axisLabelColor,
   showMarkers = false,
   markerColor = "var(--chart-1)",
   markerSize = 6,
@@ -111,6 +114,21 @@ export function ReferenceArea({
     useChartStable();
   const yScale = useYScale(yAxisId);
   const uniqueId = useId().replace(/:/g, "");
+  const registration = useReferenceAreaRegistration();
+
+  useLayoutEffect(() => {
+    if (!registration) {
+      return;
+    }
+    registration.registerReferenceArea(uniqueId, {
+      yAxisId: normalizeYAxisId(yAxisId),
+      y1,
+      y2,
+      axisLabelColor,
+    });
+    return () => registration.unregisterReferenceArea(uniqueId);
+  }, [registration, uniqueId, yAxisId, y1, y2, axisLabelColor]);
+
   const patternId = `chart-reference-area-pattern-${uniqueId}`;
   const hMaskId = `chart-reference-area-fade-${uniqueId}`;
   const hGradientId = `${hMaskId}-gradient`;

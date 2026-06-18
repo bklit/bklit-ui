@@ -7,6 +7,7 @@ import { studioChartHref } from "@bklitui/studio";
 import { LineChart, Line, Grid, XAxis, ChartTooltip, ChartBrush, ChartBrushLayout, ChartMarkers } from "@bklitui/ui/charts";
 import { LineChartBrushDemo } from "@/components/docs/line-chart-brush-demo";
 import { LineChartYDomainDemo } from "@/components/docs/line-chart-y-domain-demo";
+import { ProjectionLineDemo } from "@/components/docs/projection-line-demo";
 import { MarkerContentDemo } from "@/components/docs/marker-content-demo";
 import { OpenInStudioButton } from "@/components/docs/open-in-studio-button";
 import {
@@ -176,6 +177,57 @@ Highlight the break-even baseline with `Grid highlightRowValues={[0]}`:
 ```
 
 See the [Profit/Loss Line](/docs/components/profit-loss-line) docs and the [line chart gallery](/charts/line-chart) (**Profit/Loss** example).
+
+## Projection
+
+Extend a series past the last data point with [`ProjectionLine`](/docs/utility/projection-line). Build the path with `buildProjectionPath` (auto slope, target value, or manual points). Optionally add [`LineSeriesTerminalMarker`](/docs/utility/projection-line#terminal-marker) at the anchor.
+
+Projections extend the x-domain to the horizon and are not supported together with [brush zoom](/docs/utility/brush).
+
+<div className="not-prose mb-3 flex items-center justify-between gap-4">
+  <h3 className="m-0 font-semibold text-foreground text-base tracking-tight">
+    Preview
+  </h3>
+  <OpenInStudioButton
+    href={studioChartHref("line-chart", { projectionCount: 1 })}
+    slug="line-chart"
+  />
+</div>
+
+<ComponentShowcase
+  code={`import {
+  buildProjectionPath,
+  LineSeriesTerminalMarker,
+  ProjectionLine,
+} from "@bklitui/ui/charts";
+
+const projectionPath = buildProjectionPath({
+  sourceData: chartData,
+  seriesKey: "users",
+  mode: "auto",
+  autoMethod: "lastSegment",
+  pathDensity: "endpoints",
+  horizonPoints: 8,
+});
+
+<LineChart data={chartData}>
+  <Grid horizontal />
+  <Line dataKey="users" strokeWidth={2} />
+  <LineSeriesTerminalMarker dataKey="users" />
+  <ProjectionLine
+    data={projectionPath}
+    strokeDasharray="6,4"
+    curveKind="bezier"
+    showEndMarker
+  />
+  <XAxis />
+  <ChartTooltip />
+</LineChart>`}
+>
+  <ProjectionLineDemo />
+</ComponentShowcase>
+
+Open [Studio with a projection](/studio?chart=line-chart) via **Settings → Projections** or the series context menu. See the [Projection Line utility](/docs/utility/projection-line) for props and `buildProjectionPath` options.
 
 ## Brush zoom
 

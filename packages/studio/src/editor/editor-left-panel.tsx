@@ -17,6 +17,7 @@ export const EditorLeftPanel = memo(function EditorLeftPanel({
   onChange,
   onPreview,
   onCommit,
+  onBatchChange,
   onMotionCurveDragActiveChange,
   showMotionControls = false,
   chartSelector,
@@ -29,6 +30,7 @@ export const EditorLeftPanel = memo(function EditorLeftPanel({
     key: K,
     value: StudioUrlState[K]
   ) => void;
+  onBatchChange: (updates: Partial<StudioUrlState>) => void;
   onPreview: <K extends keyof StudioUrlState>(
     key: K,
     value: StudioUrlState[K]
@@ -66,6 +68,7 @@ export const EditorLeftPanel = memo(function EditorLeftPanel({
 
           <StudioComponentsPanel
             components={components}
+            onBatchChange={onBatchChange}
             onChange={onChange}
             onSelect={setSelectedComponentId}
             selectedId={selectedComponentId}

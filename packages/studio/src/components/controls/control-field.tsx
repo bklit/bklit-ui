@@ -4,6 +4,11 @@ import { cn } from "@bklitui/ui/lib/utils";
 import { useEffect, useState } from "react";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import {
+  buildProjectionScopedControlUpdate,
+  getProjectionScopedControlValue,
+  isPerProjectionControlKey,
+} from "@/lib/studio-projection-props";
+import {
   buildSeriesScopedControlUpdate,
   getSeriesScopedControlValue,
   isPerSeriesLineControlKey,
@@ -40,6 +45,7 @@ import {
 } from "./line-y-axis-settings-controls";
 import { OpacityControl } from "./opacity-control";
 import { PieEndAngleControl, PieStartAngleControl } from "./pie-angle-control";
+import { ProjectionStrokeControl } from "./projection-stroke-control";
 import { ReferenceAreaFillControl } from "./reference-area-fill-control";
 import { ReferenceAreaYAxisControl } from "./reference-area-y-axis-control";
 import { SliderInputGroup } from "./slider-input-group";
@@ -186,11 +192,35 @@ export function ControlField({
     "seriesIndex" in control && control.seriesIndex !== undefined
       ? control.seriesIndex
       : undefined;
+  const projectionIndex =
+    "projectionIndex" in control && control.projectionIndex !== undefined
+      ? control.projectionIndex
+      : undefined;
 
   const commitValue = (
     key: keyof StudioUrlState,
     nextValue: StudioUrlState[keyof StudioUrlState]
   ) => {
+    if (
+      projectionIndex !== undefined &&
+      isPerProjectionControlKey(key) &&
+      key === control.key
+    ) {
+      const updates = buildProjectionScopedControlUpdate(
+        state,
+        key,
+        projectionIndex,
+        nextValue
+      );
+      const commit = onCommit ?? onChange;
+      for (const [updateKey, updateValue] of Object.entries(updates)) {
+        commit(
+          updateKey as keyof StudioUrlState,
+          updateValue as StudioUrlState[keyof StudioUrlState]
+        );
+      }
+      return;
+    }
     if (
       seriesIndex !== undefined &&
       isPerSeriesLineControlKey(key) &&
@@ -219,6 +249,26 @@ export function ControlField({
     nextValue: StudioUrlState[keyof StudioUrlState]
   ) => {
     if (
+      projectionIndex !== undefined &&
+      isPerProjectionControlKey(key) &&
+      key === control.key
+    ) {
+      const updates = buildProjectionScopedControlUpdate(
+        state,
+        key,
+        projectionIndex,
+        nextValue
+      );
+      const preview = onPreview ?? onChange;
+      for (const [updateKey, updateValue] of Object.entries(updates)) {
+        preview(
+          updateKey as keyof StudioUrlState,
+          updateValue as StudioUrlState[keyof StudioUrlState]
+        );
+      }
+      return;
+    }
+    if (
       seriesIndex !== undefined &&
       isPerSeriesLineControlKey(key) &&
       key === control.key
@@ -241,12 +291,27 @@ export function ControlField({
     (onPreview ?? onChange)(key, nextValue);
   };
 
-  const value =
-    seriesIndex !== undefined &&
-    "key" in control &&
-    isPerSeriesLineControlKey(control.key)
-      ? getSeriesScopedControlValue(state, control.key, seriesIndex)
-      : state[control.key];
+  const value = (() => {
+    if (
+      projectionIndex !== undefined &&
+      "key" in control &&
+      isPerProjectionControlKey(control.key)
+    ) {
+      return getProjectionScopedControlValue(
+        state,
+        control.key,
+        projectionIndex
+      );
+    }
+    if (
+      seriesIndex !== undefined &&
+      "key" in control &&
+      isPerSeriesLineControlKey(control.key)
+    ) {
+      return getSeriesScopedControlValue(state, control.key, seriesIndex);
+    }
+    return state[control.key];
+  })();
 
   if (control.type === "number") {
     const key = control.key;
@@ -320,6 +385,12 @@ export function ControlField({
           keyName={key}
           label={control.label}
           onChange={onChange}
+          onColorChange={(nextColor) =>
+            commitValue(key, nextColor as StudioUrlState[typeof key])
+          }
+          onColorPreview={(nextColor) =>
+            previewValue(key, nextColor as StudioUrlState[typeof key])
+          }
           onCommit={onCommit}
           onPreview={onPreview}
         />
@@ -453,6 +524,18 @@ export function ControlField({
         onChange={onChange}
         onCommit={onCommit}
         onPreview={onPreview}
+        state={state}
+      />
+    );
+  }
+
+  if (control.type === "projectionStroke") {
+    return (
+      <ProjectionStrokeControl
+        onChange={onChange}
+        onCommit={onCommit}
+        onPreview={onPreview}
+        projectionIndex={projectionIndex}
         state={state}
       />
     );

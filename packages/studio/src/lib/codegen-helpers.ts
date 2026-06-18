@@ -8,6 +8,7 @@ import {
   clampStudioPointCount,
   clampStudioSeriesCount,
   funnelData,
+  generateStudioTrendingData,
   liveLineSampleData,
   radarDataDual,
   radarMetrics5,
@@ -31,6 +32,19 @@ import { patternCodegenBlock } from "./patterns";
 import { seriesStrokePropsCodegen } from "./series-stroke-props";
 import { isStudioComponentVisible } from "./studio-component-visibility";
 import type { StudioUrlState } from "./studio-parsers";
+import {
+  buildStudioProjectionPath,
+  getProjectionCount,
+  getProjectionCurve,
+  getProjectionDashArray,
+  getProjectionEndMarkerStroke,
+  getProjectionShowEndpoints,
+  getProjectionStroke,
+  getProjectionStrokeGradientEnd,
+  getProjectionStrokeGradientStart,
+  getProjectionStrokeStyle,
+  getProjectionStrokeWidth,
+} from "./studio-projection-props";
 import {
   getSeriesCurve,
   getSeriesFadeEdges,
@@ -97,6 +111,110 @@ export function studioCartesianDataSnippet(
 ${xLine}
 ${seriesLines}
 }));`;
+}
+
+/** Trending cartesian data snippet for line chart projection exploration. */
+export function studioTrendingDataSnippet(
+  state: StudioUrlState,
+  xAxis: StudioCartesianXAxis,
+  keysOverride?: readonly string[]
+): string {
+  const keys = keysOverride ?? seriesKeysForState(state);
+  const points = clampStudioPointCount(state.dataPoints);
+  const sign = state.lineDataTrend === "up" ? 1 : -1;
+  const xLine =
+    xAxis === "date"
+      ? "  date: new Date(2024, 0, i + 1),"
+      : '  month: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][i % 12],';
+  const seriesLines = keys
+    .map(
+      (key, s) =>
+        `  ${key}: Math.max(10, Math.floor(${120 + s * 18} + ${sign} * (${5.5 + s * 1.25}) * i + Math.sin((i + ${s * 5}) / 2.2) * 5 + Math.cos((i + ${s * 3}) / 1.4) * 2.5)),`
+    )
+    .join("\n");
+  return `const chartData = Array.from({ length: ${points} }, (_, i) => ({
+${xLine}
+${seriesLines}
+}));`;
+}
+
+function formatProjectionPathSnippet(
+  path: { date: Date; value: number }[],
+  varName: string
+): string {
+  const rows = path
+    .map(
+      (point) =>
+        `  { date: new Date(${point.date.getFullYear()}, ${point.date.getMonth()}, ${point.date.getDate()}), value: ${point.value} }`
+    )
+    .join(",\n");
+  return `const ${varName} = [\n${rows},\n];`;
+}
+
+export function projectionCodegenDataSnippets(state: StudioUrlState): string {
+  const count = getProjectionCount(state);
+  if (count === 0) {
+    return "";
+  }
+
+  const sourceData = generateStudioTrendingData({
+    direction: state.lineDataTrend,
+    seriesCount: clampStudioSeriesCount(state.dataSeries),
+    pointCount: state.dataPoints,
+    xAxis: "date",
+  });
+
+  const snippets: string[] = [];
+  for (let index = 0; index < count; index += 1) {
+    if (!isStudioComponentVisible(state, `line.projection.${index}`)) {
+      continue;
+    }
+    const path = buildStudioProjectionPath(state, index, sourceData);
+    snippets.push(formatProjectionPathSnippet(path, `projectionData${index}`));
+  }
+
+  return snippets.length > 0 ? `\n\n${snippets.join("\n\n")}` : "";
+}
+
+function projectionCodegenBlock(state: StudioUrlState): string {
+  const count = getProjectionCount(state);
+  if (count === 0) {
+    return "";
+  }
+
+  const blocks: string[] = [];
+  for (let index = 0; index < count; index += 1) {
+    if (!isStudioComponentVisible(state, `line.projection.${index}`)) {
+      continue;
+    }
+    const curveKind = getProjectionCurve(state, index);
+    const strokeStyle = getProjectionStrokeStyle(state, index);
+    const props = [
+      `data={projectionData${index}}`,
+      `curveKind="${curveKind}"`,
+      "showEndMarker={false}",
+      `stroke="${getProjectionStroke(state, index)}"`,
+      `strokeWidth={${getProjectionStrokeWidth(state, index)}}`,
+      `strokeDasharray="${getProjectionDashArray(state, index)}"`,
+    ];
+    if (strokeStyle === "gradient") {
+      props.push(`strokeStyle="gradient"`);
+      props.push(
+        `gradientStart="${getProjectionStrokeGradientStart(state, index)}"`
+      );
+      props.push(
+        `gradientEnd="${getProjectionStrokeGradientEnd(state, index)}"`
+      );
+    }
+    blocks.push(`\n  <ProjectionLine ${props.join(" ")} />`);
+    if (getProjectionShowEndpoints(state, index)) {
+      blocks.push(
+        `\n  <ProjectionLineEndMarker data={projectionData${index}} stroke="${getProjectionEndMarkerStroke(state, index)}" />`
+      );
+    }
+  }
+
+  return blocks.join("");
 }
 
 export function gridPropsCodegen(state: StudioUrlState): string {
@@ -418,6 +536,9 @@ export function cartesianCodegen(
   }
   if (chartType === "LineChart") {
     chartImports.push("Line");
+    if (getProjectionCount(state) > 0) {
+      chartImports.push("ProjectionLine", "ProjectionLineEndMarker");
+    }
   } else if (state.pattern === "none") {
     chartImports.push("Area");
   } else {
@@ -435,10 +556,13 @@ export function cartesianCodegen(
     keys.map((_, index) => index)
   );
 
+  const projectionBlock =
+    chartType === "LineChart" ? projectionCodegenBlock(state) : "";
+
   return `import { ${chartImports.join(", ")} } from "@bklitui/ui/charts";
 ${curveImports}
 
-<${chartType} data={chartData}${anim}>${backgroundBlock}${gridBlock}${referenceAreaBlock}${child}
+<${chartType} data={chartData}${anim}>${backgroundBlock}${gridBlock}${referenceAreaBlock}${child}${projectionBlock}
   <XAxis />
   <ChartTooltip />
 </${chartType}>`;
@@ -957,7 +1081,10 @@ export function scatterChartDataSnippet() {
 }
 
 export function lineChartDataSnippet(state: StudioUrlState) {
-  return studioCartesianDataSnippet(state, "date");
+  return (
+    studioTrendingDataSnippet(state, "date") +
+    projectionCodegenDataSnippets(state)
+  );
 }
 
 export function areaChartDataSnippet(state: StudioUrlState) {

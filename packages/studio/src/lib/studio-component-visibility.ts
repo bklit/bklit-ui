@@ -28,6 +28,23 @@ export function chartDefaultHiddenYAxes(chartPrefix: string): string {
   ]);
 }
 
+/** Default hidden layers for a cartesian chart (axes, reference area, legend, brush). */
+export function chartDefaultHiddenComponents(
+  chartPrefix: string,
+  options: { showLegend?: boolean; showBrush?: boolean } = {}
+): string {
+  const hidden = new Set(
+    parseHiddenStudioComponents(chartDefaultHiddenYAxes(chartPrefix))
+  );
+  if (options.showLegend === false) {
+    hidden.add(`${chartPrefix}.legend`);
+  }
+  if (options.showBrush === false) {
+    hidden.add(`${chartPrefix}.brush`);
+  }
+  return serializeHiddenStudioComponents(hidden);
+}
+
 /** @deprecated Use {@link chartDefaultHiddenYAxes} with `"line"`. */
 export const LINE_CHART_DEFAULT_HIDDEN_Y_AXES = chartDefaultHiddenYAxes("line");
 

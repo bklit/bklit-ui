@@ -178,6 +178,11 @@ export function ScatterChartInner({
     canInteract,
   });
 
+  const referenceAreas = useMemo(
+    () => extractReferenceAreaConfigs(children),
+    [children]
+  );
+
   if (width < 10 || height < 10) {
     return null;
   }
@@ -207,11 +212,6 @@ export function ScatterChartInner({
       preOverlayChildren.push(child);
     }
   });
-
-  const referenceAreas = useMemo(
-    () => extractReferenceAreaConfigs(children),
-    [children]
-  );
 
   const contextValue: ChartContextValue = {
     ...DEFAULT_CHART_LIFECYCLE,

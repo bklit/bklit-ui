@@ -117,6 +117,7 @@ export const EditorShell = memo(function EditorShell({
           chartSelector={chartSelector}
           config={config}
           controlsDisabled={controlsDisabled}
+          onBatchChange={chartState.setStudioParams}
           onChange={chartState.setParam}
           onCommit={chartState.commitParam}
           onMotionCurveDragActiveChange={chartState.setMotionCurveDragging}

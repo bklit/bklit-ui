@@ -1,3 +1,4 @@
+import type { ProjectionCurveKind } from "@bklitui/ui/charts";
 import {
   parseAsBoolean,
   parseAsFloat,
@@ -196,6 +197,14 @@ export const studioSearchParams = {
   seriesMarkerRadii: parseAsString.withDefault(""),
   seriesMarkerRingGaps: parseAsString.withDefault(""),
   seriesMarkerRingWidths: parseAsString.withDefault(""),
+  seriesTerminalMarkerShow: parseAsBoolean.withDefault(false),
+  seriesTerminalMarkerFill: parseAsString.withDefault("transparent"),
+  seriesTerminalMarkerRingColor: parseAsString.withDefault(""),
+  seriesTerminalMarkerRingGap: parseAsFloat.withDefault(2),
+  seriesTerminalMarkerShowFlags: parseAsString.withDefault(""),
+  seriesTerminalMarkerFills: parseAsString.withDefault(""),
+  seriesTerminalMarkerRingColors: parseAsString.withDefault(""),
+  seriesTerminalMarkerRingGaps: parseAsString.withDefault(""),
   seriesDashTailFlags: parseAsString.withDefault(""),
   seriesDashFromIndices: parseAsString.withDefault(""),
   seriesDashArrays: parseAsString.withDefault(""),
@@ -355,6 +364,51 @@ export const studioSearchParams = {
   tooltipBackgroundOpacity: parseAsFloat.withDefault(0.8),
   tooltipBlur: parseAsInteger.withDefault(12),
   hiddenComponents: parseAsString.withDefault(""),
+  lineDataTrend: parseAsStringLiteral(["up", "down"]).withDefault("up"),
+  projectionCount: parseAsInteger.withDefault(0),
+  projectionMode: parseAsStringLiteral([
+    "auto",
+    "target",
+    "manual",
+  ]).withDefault("auto"),
+  projectionAutoMethod: parseAsStringLiteral([
+    "linearRegression",
+    "lastSegment",
+  ]).withDefault("linearRegression"),
+  projectionHorizonPoints: parseAsInteger.withDefault(6),
+  projectionEndValue: parseAsFloat.withDefault(280),
+  projectionCurve: parseAsStringLiteral([
+    "linear",
+    "bezier",
+  ] as const).withDefault("linear"),
+  projectionStroke: parseAsString.withDefault("var(--chart-3)"),
+  projectionStrokeStyle: parseAsStringLiteral([
+    "solid",
+    "gradient",
+  ] as const).withDefault("solid"),
+  projectionStrokeGradientStart: parseAsString.withDefault(""),
+  projectionStrokeGradientEnd: parseAsString.withDefault("var(--chart-5)"),
+  projectionDashArray: parseAsString.withDefault("6,4"),
+  projectionStrokeWidth: parseAsFloat.withDefault(2),
+  projectionShowEndpoints: parseAsBoolean.withDefault(true),
+  projectionSeriesIndices: parseAsString.withDefault(""),
+  projectionModes: parseAsString.withDefault(""),
+  projectionAutoMethods: parseAsString.withDefault(""),
+  projectionHorizons: parseAsString.withDefault(""),
+  projectionEndValues: parseAsString.withDefault(""),
+  projectionCurves: parseAsString.withDefault(""),
+  projectionStrokes: parseAsString.withDefault(""),
+  projectionStrokeStyles: parseAsString.withDefault(""),
+  projectionStrokeGradientStarts: parseAsString.withDefault(""),
+  projectionStrokeGradientEnds: parseAsString.withDefault(""),
+  projectionDashArrays: parseAsString.withDefault(""),
+  projectionStrokeWidths: parseAsString.withDefault(""),
+  projectionShowEndpointsFlags: parseAsString.withDefault(""),
+  projectionPathDensity: parseAsStringLiteral([
+    "stepped",
+    "endpoints",
+  ]).withDefault("stepped"),
+  projectionPathDensities: parseAsString.withDefault(""),
 };
 
 export interface StudioUrlState {
@@ -504,6 +558,14 @@ export interface StudioUrlState {
   seriesMarkerRadii: string;
   seriesMarkerRingGaps: string;
   seriesMarkerRingWidths: string;
+  seriesTerminalMarkerShow: boolean;
+  seriesTerminalMarkerFill: string;
+  seriesTerminalMarkerRingColor: string;
+  seriesTerminalMarkerRingGap: number;
+  seriesTerminalMarkerShowFlags: string;
+  seriesTerminalMarkerFills: string;
+  seriesTerminalMarkerRingColors: string;
+  seriesTerminalMarkerRingGaps: string;
   seriesDashTailFlags: string;
   seriesDashFromIndices: string;
   seriesDashArrays: string;
@@ -620,6 +682,35 @@ export interface StudioUrlState {
   tooltipBackgroundOpacity: number;
   tooltipBlur: number;
   hiddenComponents: string;
+  lineDataTrend: "up" | "down";
+  projectionCount: number;
+  projectionMode: "auto" | "target" | "manual";
+  projectionAutoMethod: "linearRegression" | "lastSegment";
+  projectionHorizonPoints: number;
+  projectionEndValue: number;
+  projectionCurve: ProjectionCurveKind;
+  projectionStroke: string;
+  projectionStrokeStyle: "solid" | "gradient";
+  projectionStrokeGradientStart: string;
+  projectionStrokeGradientEnd: string;
+  projectionDashArray: string;
+  projectionStrokeWidth: number;
+  projectionShowEndpoints: boolean;
+  projectionSeriesIndices: string;
+  projectionModes: string;
+  projectionAutoMethods: string;
+  projectionHorizons: string;
+  projectionEndValues: string;
+  projectionCurves: string;
+  projectionStrokes: string;
+  projectionStrokeStyles: string;
+  projectionStrokeGradientStarts: string;
+  projectionStrokeGradientEnds: string;
+  projectionDashArrays: string;
+  projectionStrokeWidths: string;
+  projectionShowEndpointsFlags: string;
+  projectionPathDensity: "stepped" | "endpoints";
+  projectionPathDensities: string;
 }
 
 /** Full default state for chart switches (nuqs used `null` to clear keys; in-memory state needs real defaults). */
@@ -778,6 +869,14 @@ export function defaultStudioState(
     seriesMarkerRadii: "",
     seriesMarkerRingGaps: "",
     seriesMarkerRingWidths: "",
+    seriesTerminalMarkerShow: false,
+    seriesTerminalMarkerFill: "transparent",
+    seriesTerminalMarkerRingColor: "",
+    seriesTerminalMarkerRingGap: 2,
+    seriesTerminalMarkerShowFlags: "",
+    seriesTerminalMarkerFills: "",
+    seriesTerminalMarkerRingColors: "",
+    seriesTerminalMarkerRingGaps: "",
     seriesDashTailFlags: "",
     seriesDashFromIndices: "",
     seriesDashArrays: "",
@@ -897,6 +996,35 @@ export function defaultStudioState(
     tooltipBackgroundOpacity: 0.8,
     tooltipBlur: 12,
     hiddenComponents: "",
+    lineDataTrend: "up",
+    projectionCount: 0,
+    projectionMode: "auto",
+    projectionAutoMethod: "linearRegression",
+    projectionHorizonPoints: 6,
+    projectionEndValue: 280,
+    projectionCurve: "linear",
+    projectionStroke: "var(--chart-3)",
+    projectionStrokeStyle: "solid",
+    projectionStrokeGradientStart: "",
+    projectionStrokeGradientEnd: "var(--chart-5)",
+    projectionDashArray: "6,4",
+    projectionStrokeWidth: 2,
+    projectionShowEndpoints: true,
+    projectionSeriesIndices: "",
+    projectionModes: "",
+    projectionAutoMethods: "",
+    projectionHorizons: "",
+    projectionEndValues: "",
+    projectionCurves: "",
+    projectionStrokes: "",
+    projectionStrokeStyles: "",
+    projectionStrokeGradientStarts: "",
+    projectionStrokeGradientEnds: "",
+    projectionDashArrays: "",
+    projectionStrokeWidths: "",
+    projectionShowEndpointsFlags: "",
+    projectionPathDensity: "stepped",
+    projectionPathDensities: "",
     ...overrides,
   };
 }

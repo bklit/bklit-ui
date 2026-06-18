@@ -167,6 +167,7 @@ export function EditorMobilePanelSheets({
               ) : null}
               <StudioComponentsPanel
                 components={components}
+                onBatchChange={onBatchChange}
                 onChange={onChange}
                 onSelect={setSelectedComponentId}
                 selectedId={selectedComponentId}

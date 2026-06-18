@@ -269,6 +269,10 @@ export {
   resolveLineLoadingPulseMode,
 } from "./line-loading-pulse";
 export {
+  LineSeriesTerminalMarker,
+  type LineSeriesTerminalMarkerProps,
+} from "./line-series-terminal-marker";
+export {
   detectMomentum,
   LiveLine,
   type LiveLineProps,
@@ -362,6 +366,34 @@ export {
   type ProfitLossSegment,
   splitProfitLossSegments,
 } from "./profit-loss-segments";
+export {
+  extractProjectionLineConfigs,
+  mergeProjectionXDomainMax,
+  mergeProjectionYDomain,
+  type ProjectionLineConfig,
+} from "./projection-config";
+export {
+  ProjectionLine,
+  type ProjectionLineProps,
+  type ProjectionStrokeStyle,
+} from "./projection-line";
+export {
+  ProjectionLineEndMarker,
+  type ProjectionLineEndMarkerProps,
+} from "./projection-line-end-marker";
+export {
+  type BuildProjectionPathOptions,
+  buildHorizontalTangentBezierPath,
+  buildProjectionPath,
+  computeProjectionAnchorTangentSlope,
+  type ProjectionAutoMethod,
+  type ProjectionCurveKind,
+  type ProjectionMode,
+  type ProjectionPathDensity,
+  type ProjectionPoint,
+  projectionDateExtents,
+  projectionValueExtents,
+} from "./projection-utils";
 // Radar chart components
 export { RadarArea, type RadarAreaProps } from "./radar-area";
 export { RadarAxis, type RadarAxisProps } from "./radar-axis";

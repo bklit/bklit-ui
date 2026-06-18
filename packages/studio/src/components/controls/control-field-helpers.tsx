@@ -42,6 +42,8 @@ const GROUP_LABELED_TYPES = new Set<StudioControl["type"]>([
   "orientation",
   "lineCap",
   "pieHoverEffect",
+  "projectionCurve",
+  "projectionStroke",
   "funnelEdges",
   "graticuleToggle",
   "strokeStyle",

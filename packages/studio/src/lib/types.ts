@@ -41,37 +41,47 @@ interface SeriesScopedControl {
   seriesIndex?: number;
 }
 
+interface ProjectionScopedControl {
+  /** When set, read/write a pipe-encoded per-projection override for this control. */
+  projectionIndex?: number;
+}
+
 export type StudioControl = StudioControlVisibility &
   (
     | ({
         type: "boolean";
         key: keyof StudioUrlState;
         label: string;
-      } & SeriesScopedControl)
-    | {
+      } & SeriesScopedControl &
+        ProjectionScopedControl)
+    | ({
         type: "color";
         key: keyof StudioUrlState;
         label: string;
         /** Disable when the referenced URL state value is falsy. */
         enabledWhen?: keyof StudioUrlState;
-      }
-    | ({ type: "number" } & NumberControlBase & SeriesScopedControl)
+      } & ProjectionScopedControl)
+    | ({ type: "number" } & NumberControlBase &
+        SeriesScopedControl &
+        ProjectionScopedControl)
     | ({
         type: "text";
         key: keyof StudioUrlState;
         label: string;
-      } & SeriesScopedControl)
-    | {
+      } & SeriesScopedControl &
+        ProjectionScopedControl)
+    | ({
         type: "select";
         key: keyof StudioUrlState;
         label: string;
         options: { value: string; label: string }[];
-      }
+      } & ProjectionScopedControl)
     | ({
         type: "curve";
         key: keyof StudioUrlState;
         label: string;
-      } & SeriesScopedControl)
+      } & SeriesScopedControl &
+        ProjectionScopedControl)
     | {
         type: "pattern";
         key: keyof StudioUrlState;
@@ -89,6 +99,16 @@ export type StudioControl = StudioControlVisibility &
     | { type: "orientation"; key: keyof StudioUrlState; label: string }
     | { type: "lineCap"; key: "barLineCap"; label: string }
     | { type: "pieHoverEffect"; key: "pieHoverEffect"; label: string }
+    | ({
+        type: "projectionCurve";
+        key: "projectionCurve";
+        label: string;
+      } & ProjectionScopedControl)
+    | ({
+        type: "projectionStroke";
+        key: "projectionStroke";
+        label: string;
+      } & ProjectionScopedControl)
     | { type: "funnelEdges"; key: "funnelEdges"; label: string }
     | ({
         type: "fadeEdges";

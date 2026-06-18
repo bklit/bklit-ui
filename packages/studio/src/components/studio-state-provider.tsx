@@ -22,7 +22,7 @@ import {
   lineChartStandardDefaults,
 } from "@/lib/line-chart-mode";
 import { getStudioConfig } from "@/lib/registry";
-import { chartDefaultHiddenYAxes } from "@/lib/studio-component-visibility";
+import { chartDefaultHiddenComponents } from "@/lib/studio-component-visibility";
 import {
   defaultStudioState,
   defaultsForChart,
@@ -34,7 +34,10 @@ import {
   STUDIO_URL_PARAM,
 } from "@/lib/studio-url-codec";
 import { loadStudioStateFromRequest } from "@/lib/studio-url-loader";
-import { expandStudioParamUpdate } from "@/lib/studio-visibility-sync";
+import {
+  expandStudioParamUpdate,
+  reconcileOverlayVisibility,
+} from "@/lib/studio-visibility-sync";
 import type { ChartSlug, StudioChartConfig } from "@/lib/types";
 
 const STUDIO_Y_AXIS_CHART_PREFIX: Partial<Record<ChartSlug, string>> = {
@@ -132,7 +135,7 @@ export function StudioStateProvider({
           ...expandStudioParamUpdate(next, { [key]: value }),
         };
       }
-      return next;
+      return { ...next, ...reconcileOverlayVisibility(next) };
     });
   }, []);
 
@@ -193,9 +196,18 @@ export function StudioStateProvider({
       return;
     }
     setParams({
-      hiddenComponents: chartDefaultHiddenYAxes(yAxisChartPrefix),
+      hiddenComponents: chartDefaultHiddenComponents(yAxisChartPrefix, {
+        showLegend: params.showLegend,
+        showBrush: params.showBrush,
+      }),
     });
-  }, [params.hiddenComponents, setParams, yAxisChartPrefix]);
+  }, [
+    params.hiddenComponents,
+    params.showBrush,
+    params.showLegend,
+    setParams,
+    yAxisChartPrefix,
+  ]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: reset slider previews when chart changes via URL
   useEffect(() => {
@@ -214,7 +226,7 @@ export function StudioStateProvider({
     const loaded = normalizeLoadedState(
       loadStudioStateFromRequest(new URL(window.location.href))
     );
-    setParamsState(loaded);
+    setParamsState({ ...loaded, ...reconcileOverlayVisibility(loaded) });
 
     const initialSerialized = new URL(window.location.href).searchParams.get(
       STUDIO_URL_PARAM
@@ -233,7 +245,8 @@ export function StudioStateProvider({
     }
 
     suppressUrlCompress.current = true;
-    setParamsState(normalizeLoadedState(decodeStudioUrlState(compressed)));
+    const decoded = normalizeLoadedState(decodeStudioUrlState(compressed));
+    setParamsState({ ...decoded, ...reconcileOverlayVisibility(decoded) });
     lastWrittenCompressed.current = compressed;
   }, [compressed]);
 
@@ -293,7 +306,12 @@ export function StudioStateProvider({
         ...(() => {
           const prefix = STUDIO_Y_AXIS_CHART_PREFIX[slug];
           return prefix && slug !== "line-chart"
-            ? { hiddenComponents: chartDefaultHiddenYAxes(prefix) }
+            ? {
+                hiddenComponents: chartDefaultHiddenComponents(prefix, {
+                  showLegend: false,
+                  showBrush: false,
+                }),
+              }
             : {};
         })(),
       });

@@ -13,6 +13,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useState,
 } from "react";
 import {
   DEFAULT_ANIMATION_EASING,
@@ -44,7 +45,16 @@ import {
   generateChartSkeletonData,
   generateChartSkeletonFromTarget,
 } from "./generate-chart-skeleton-data";
-import { extractReferenceAreaConfigs } from "./reference-area-config";
+import {
+  extractProjectionLineConfigs,
+  mergeProjectionXDomainMax,
+  mergeProjectionYDomain,
+} from "./projection-config";
+import {
+  extractReferenceAreaConfigs,
+  type ReferenceAreaConfig,
+} from "./reference-area-config";
+import { ReferenceAreaRegistrationContext } from "./reference-area-registration-context";
 import {
   computeSeriesBarRevealClipPadding,
   computeSeriesBarWidth,
@@ -266,19 +276,29 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
     return filterDataByXDomain(plotData, xDomain, xAccessor);
   }, [plotData, xDomain, xAccessor]);
 
+  const projectionConfigs = useMemo(
+    () => extractProjectionLineConfigs(children),
+    [children]
+  );
+
   const xScale = useMemo(() => {
     const minTime = xDomain
       ? xDomain[0].getTime()
       : (extent(plotData, (d) => xAccessor(d).getTime())[0] ?? 0);
-    const maxTime = xDomain
+    let maxTime = xDomain
       ? xDomain[1].getTime()
       : (extent(plotData, (d) => xAccessor(d).getTime())[1] ?? minTime);
+    // Brush defines the viewport — projection horizon is included via brush
+    // track extent, not by extending past the selection on the main chart.
+    if (!xDomain) {
+      maxTime = mergeProjectionXDomainMax(maxTime, projectionConfigs);
+    }
 
     return scaleTime({
       range: [0, innerWidth],
       domain: [minTime, maxTime],
     });
-  }, [innerWidth, plotData, xAccessor, xDomain]);
+  }, [innerWidth, plotData, projectionConfigs, xAccessor, xDomain]);
 
   // When brushing, keep the full series for path rendering so edge fades stay
   // anchored to the viewport while the line pans through them. Y-domain and
@@ -314,15 +334,41 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
     [lines, resolveYDomain, skeletonData]
   );
 
-  const yDomainTargetByAxis = useMemo(
-    () =>
-      computeYDomainsByAxis({
-        lines,
-        resolveDomain: (dataKeys) =>
-          resolveYDomain(xDomain ? visiblePlotData : data, dataKeys),
-      }),
-    [data, lines, resolveYDomain, visiblePlotData, xDomain]
-  );
+  const yDomainTargetByAxis = useMemo(() => {
+    const base = computeYDomainsByAxis({
+      lines,
+      resolveDomain: (dataKeys) =>
+        resolveYDomain(xDomain ? visiblePlotData : data, dataKeys),
+    });
+    if (projectionConfigs.length === 0) {
+      return base;
+    }
+    const merged: Record<string, [number, number]> = { ...base };
+    for (const axisId of Object.keys(base)) {
+      merged[axisId] = mergeProjectionYDomain(
+        base[axisId] ?? [0, 100],
+        projectionConfigs,
+        axisId
+      );
+    }
+    for (const config of projectionConfigs) {
+      if (!merged[config.yAxisId]) {
+        merged[config.yAxisId] = mergeProjectionYDomain(
+          [0, 100],
+          projectionConfigs,
+          config.yAxisId
+        );
+      }
+    }
+    return merged;
+  }, [
+    data,
+    lines,
+    projectionConfigs,
+    resolveYDomain,
+    visiblePlotData,
+    xDomain,
+  ]);
 
   const animatedYDomainsByAxis = useAnimatedYDomains({
     chartPhase,
@@ -406,10 +452,58 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
     }
   });
 
-  const referenceAreas = useMemo(
-    () => extractReferenceAreaConfigs(children),
-    [children]
+  const [registeredReferenceAreas, setRegisteredReferenceAreas] = useState(
+    () => new Map<string, ReferenceAreaConfig>()
   );
+
+  const registerReferenceArea = useCallback(
+    (id: string, config: ReferenceAreaConfig) => {
+      setRegisteredReferenceAreas((prev) => {
+        const existing = prev.get(id);
+        if (
+          existing &&
+          existing.yAxisId === config.yAxisId &&
+          existing.y1 === config.y1 &&
+          existing.y2 === config.y2 &&
+          existing.axisLabelColor === config.axisLabelColor
+        ) {
+          return prev;
+        }
+        const next = new Map(prev);
+        next.set(id, config);
+        return next;
+      });
+    },
+    []
+  );
+
+  const unregisterReferenceArea = useCallback((id: string) => {
+    setRegisteredReferenceAreas((prev) => {
+      if (!prev.has(id)) {
+        return prev;
+      }
+      const next = new Map(prev);
+      next.delete(id);
+      return next;
+    });
+  }, []);
+
+  const referenceAreaRegistration = useMemo(
+    () => ({ registerReferenceArea, unregisterReferenceArea }),
+    [registerReferenceArea, unregisterReferenceArea]
+  );
+
+  const referenceAreas = useMemo(() => {
+    const extracted = extractReferenceAreaConfigs(children);
+    const registered = [...registeredReferenceAreas.values()];
+    if (registered.length === 0) {
+      return extracted;
+    }
+    if (extracted.length === 0) {
+      return registered;
+    }
+    return [...extracted, ...registered];
+  }, [children, registeredReferenceAreas]);
 
   const contextValue = useMemo(
     () => ({
@@ -548,52 +642,56 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
   ]);
 
   return (
-    <ChartProvider value={contextValue}>
-      <svg aria-hidden="true" height={height} width={width}>
-        <defs>
-          {defsChildren}
-          {useClipReveal ? (
-            <ChartRevealClip
-              animating={isRevealAnimating || isRevealConcealing}
-              clipPathId={clipPathId}
-              enterTransition={effectiveEnterTransition}
-              height={innerHeight + 20}
-              mode={isRevealConcealing ? "conceal" : "reveal"}
-              onComplete={
-                isRevealConcealing ? notifyRevealConcealComplete : undefined
-              }
-              padding={revealClipPadding}
-              revealEpoch={isRevealConcealing ? concealEpoch : revealEpoch}
-              targetWidth={innerWidth}
+    <ReferenceAreaRegistrationContext.Provider
+      value={referenceAreaRegistration}
+    >
+      <ChartProvider value={contextValue}>
+        <svg aria-hidden="true" height={height} width={width}>
+          <defs>
+            {defsChildren}
+            {useClipReveal ? (
+              <ChartRevealClip
+                animating={isRevealAnimating || isRevealConcealing}
+                clipPathId={clipPathId}
+                enterTransition={effectiveEnterTransition}
+                height={innerHeight + 20}
+                mode={isRevealConcealing ? "conceal" : "reveal"}
+                onComplete={
+                  isRevealConcealing ? notifyRevealConcealComplete : undefined
+                }
+                padding={revealClipPadding}
+                revealEpoch={isRevealConcealing ? concealEpoch : revealEpoch}
+                targetWidth={innerWidth}
+              />
+            ) : null}
+          </defs>
+
+          <rect fill="transparent" height={height} width={width} x={0} y={0} />
+
+          <g
+            {...interactionHandlers}
+            style={interactionStyle}
+            transform={`translate(${margin.left},${margin.top})`}
+          >
+            <rect
+              fill="transparent"
+              height={innerHeight}
+              width={innerWidth}
+              x={0}
+              y={0}
             />
-          ) : null}
-        </defs>
 
-        <rect fill="transparent" height={height} width={width} x={0} y={0} />
-
-        <g
-          {...interactionHandlers}
-          style={interactionStyle}
-          transform={`translate(${margin.left},${margin.top})`}
-        >
-          <rect
-            fill="transparent"
-            height={innerHeight}
-            width={innerWidth}
-            x={0}
-            y={0}
-          />
-
-          {clipExcludedChildren}
-          {underlayChildren}
-          {useClipReveal ? (
-            <g clipPath={`url(#${clipPathId})`}>{preOverlayChildren}</g>
-          ) : (
-            preOverlayChildren
-          )}
-          {postOverlayChildren}
-        </g>
-      </svg>
-    </ChartProvider>
+            {clipExcludedChildren}
+            {underlayChildren}
+            {useClipReveal ? (
+              <g clipPath={`url(#${clipPathId})`}>{preOverlayChildren}</g>
+            ) : (
+              preOverlayChildren
+            )}
+            {postOverlayChildren}
+          </g>
+        </svg>
+      </ChartProvider>
+    </ReferenceAreaRegistrationContext.Provider>
   );
 });

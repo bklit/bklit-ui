@@ -44,6 +44,7 @@ import {
   liveLineChartControlGroups,
   pieCenterControlGroup,
   pieChartControlGroups,
+  projectionControlGroup,
   radarChartControlGroups,
   referenceAreaControlGroups,
   ringCenterControlGroup,
@@ -58,6 +59,13 @@ import {
 } from "./registry-control-groups";
 import { controlGroup } from "./sidebar-control-templates";
 import { firstConfigurableStudioComponentId } from "./studio-component-visibility";
+import {
+  getProjectionCount,
+  getProjectionSeriesIndex,
+  getProjectionStroke,
+  PER_PROJECTION_CONTROL_KEYS,
+  PROJECTION_PRESET_LABELS,
+} from "./studio-projection-props";
 
 const DESIGN_SERIES_LABEL_PREFIX = /^Series \d+ · /;
 
@@ -71,6 +79,10 @@ const PER_SERIES_LINE_CONTROL_KEYS = new Set([
   "seriesMarkerRadius",
   "seriesMarkerRingGap",
   "seriesMarkerRingWidth",
+  "seriesTerminalMarkerShow",
+  "seriesTerminalMarkerFill",
+  "seriesTerminalMarkerRingColor",
+  "seriesTerminalMarkerRingGap",
   "seriesDashTail",
   "seriesDashFromIndex",
   "seriesDashArray",
@@ -88,6 +100,21 @@ function seriesScopedControlGroups(
         PER_SERIES_LINE_CONTROL_KEYS.has(String(control.key))
       ) {
         return { ...control, seriesIndex };
+      }
+      return control;
+    }),
+  }));
+}
+
+function projectionScopedControlGroups(
+  groups: StudioControlGroup[],
+  projectionIndex: number
+): StudioControlGroup[] {
+  return groups.map((group) => ({
+    ...group,
+    controls: group.controls.map((control) => {
+      if ("key" in control && PER_PROJECTION_CONTROL_KEYS.has(control.key)) {
+        return { ...control, projectionIndex };
       }
       return control;
     }),
@@ -327,12 +354,6 @@ export function getStudioDataControlGroups(
   const dataGroupConfig = groups.find((group) => group.title === "Data");
   if (dataGroupConfig) {
     result.push(dataGroupConfig);
-  }
-  const referenceRangeGroup = groups.find(
-    (group) => group.title === "Reference range"
-  );
-  if (referenceRangeGroup) {
-    result.push(referenceRangeGroup);
   }
   return result;
 }
@@ -911,6 +932,69 @@ function resolveProfitLossLineComponents(): StudioComponentDefinition[] {
   ];
 }
 
+function appendLineSeriesComponents(
+  components: StudioComponentDefinition[],
+  state: StudioUrlState,
+  chartId: string,
+  seriesCount: number,
+  projectionCount: number,
+  lineControls: StudioControlGroup | undefined,
+  markers: StudioControlGroup | undefined,
+  terminalMarker: StudioControlGroup | undefined,
+  dashTail: StudioControlGroup | undefined
+) {
+  for (let index = 0; index < seriesCount; index += 1) {
+    const seriesId = `line.series.${index}`;
+    components.push({
+      id: seriesId,
+      label: `Line · ${STUDIO_SERIES_KEYS[index] ?? `Series ${index + 1}`}`,
+      parentId: chartId,
+      kind: "line",
+      listMarker: "color-dot",
+      swatchColor: getEffectiveSeriesColor(state, index),
+      controlGroups: [
+        seriesYAxisControlGroup(index),
+        ...seriesScopedControlGroups(
+          [
+            ...(lineControls ? [lineControls] : []),
+            ...(markers ? [markers] : []),
+            ...(terminalMarker ? [terminalMarker] : []),
+            ...(dashTail ? [dashTail] : []),
+          ],
+          index
+        ),
+      ],
+      design: {
+        seriesIndex: index,
+        supportsPattern: false,
+        showPalette: index === 0,
+      },
+    });
+
+    for (
+      let projectionIndex = 0;
+      projectionIndex < projectionCount;
+      projectionIndex += 1
+    ) {
+      if (getProjectionSeriesIndex(state, projectionIndex) !== index) {
+        continue;
+      }
+      components.push({
+        id: `line.projection.${projectionIndex}`,
+        label: `Projection · ${PROJECTION_PRESET_LABELS[projectionIndex] ?? `Projection ${projectionIndex + 1}`}`,
+        parentId: seriesId,
+        kind: "line",
+        listMarker: "color-dot",
+        swatchColor: getProjectionStroke(state, projectionIndex),
+        controlGroups: projectionScopedControlGroups(
+          [projectionControlGroup],
+          projectionIndex
+        ),
+      });
+    }
+  }
+}
+
 export function resolveLineComponents(
   state: StudioUrlState
 ): StudioComponentDefinition[] {
@@ -939,8 +1023,13 @@ export function resolveLineComponents(
   }
 
   const seriesCount = clampStudioSeriesCount(state.dataSeries);
+  const projectionCount = getProjectionCount(state);
   const lineControls = groups.find((group) => group.title === "Line");
   const markers = groups.find((group) => group.title === "Markers");
+  const terminalMarker =
+    projectionCount > 0
+      ? groups.find((group) => group.title === "Terminal marker")
+      : undefined;
   const dashTail = groups.find((group) => group.title === "Dash tail");
 
   const components: StudioComponentDefinition[] = [
@@ -957,41 +1046,29 @@ export function resolveLineComponents(
     referenceAreaNode("line"),
   ];
 
-  for (let index = 0; index < seriesCount; index += 1) {
-    components.push({
-      id: `line.series.${index}`,
-      label: `Line · ${STUDIO_SERIES_KEYS[index] ?? `Series ${index + 1}`}`,
-      parentId: chartId,
-      kind: "line",
-      listMarker: "color-dot",
-      swatchColor: getEffectiveSeriesColor(state, index),
-      controlGroups: [
-        seriesYAxisControlGroup(index),
-        ...seriesScopedControlGroups(
-          [
-            ...(lineControls ? [lineControls] : []),
-            ...(markers ? [markers] : []),
-            ...(dashTail ? [dashTail] : []),
-          ],
-          index
-        ),
-      ],
-      design: {
-        seriesIndex: index,
-        supportsPattern: false,
-        showPalette: index === 0,
-      },
-    });
-  }
+  appendLineSeriesComponents(
+    components,
+    state,
+    chartId,
+    seriesCount,
+    projectionCount,
+    lineControls,
+    markers,
+    terminalMarker,
+    dashTail
+  );
 
   components.push(
     chartYAxisNode("line", "left", "YAxis · left"),
     chartYAxisNode("line", "right", "YAxis · right"),
     passiveNode("line", "xaxis", "XAxis"),
     chartTooltipNode("line"),
-    legendNode("line"),
-    brushNode("line", standardBrushStripControlGroups)
+    legendNode("line")
   );
+
+  if (projectionCount === 0) {
+    components.push(brushNode("line", standardBrushStripControlGroups));
+  }
 
   return components;
 }

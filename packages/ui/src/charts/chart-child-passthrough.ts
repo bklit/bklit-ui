@@ -70,9 +70,10 @@ export function isPostOverlayComponent(child: ReactElement): boolean {
     displayName?: string;
     name?: string;
     __isChartMarkers?: boolean;
+    __isPostOverlay?: boolean;
   };
 
-  if (childType.__isChartMarkers) {
+  if (childType.__isChartMarkers || childType.__isPostOverlay) {
     return true;
   }
 
