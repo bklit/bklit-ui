@@ -171,6 +171,7 @@ const lineConfig: StudioChartConfig = {
   label: chartLabels["line-chart"],
   supportsCurves: true,
   motionPanel: true,
+  scrambleData: false,
   controls: [],
   controlGroups: lineChartControlGroups,
   resolveControlGroups: (state) =>

@@ -1,5 +1,6 @@
 "use client";
 
+import type { ProjectionCurveKind } from "@bklitui/ui/charts";
 import { cn } from "@bklitui/ui/lib/utils";
 import type { CurveId } from "@/lib/curves";
 import type { PatternPresetId } from "@/lib/patterns";
@@ -25,6 +26,7 @@ import { OrientationPicker } from "./orientation-picker";
 import { PatternPicker } from "./pattern-picker";
 import { PieFillPicker } from "./pie-fill-picker";
 import { PieHoverEffectPicker } from "./pie-hover-effect-picker";
+import { ProjectionCurvePickerField } from "./projection-curve-picker";
 import { StrokeStylePicker } from "./stroke-style-picker";
 
 export function ControlFieldInputs({
@@ -131,6 +133,16 @@ export function ControlFieldInputs({
         <PieHoverEffectPicker
           onChange={(v) => onChange("pieHoverEffect", v)}
           value={value as "translate" | "grow" | "none"}
+        />
+      );
+    case "projectionCurve":
+      return (
+        <ProjectionCurvePickerField
+          label={control.label}
+          onChange={(v) =>
+            onChange(control.key, v as StudioUrlState[typeof control.key])
+          }
+          value={value as ProjectionCurveKind}
         />
       );
     case "funnelEdges":

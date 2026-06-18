@@ -6,6 +6,9 @@ import {
   ChartTooltip,
   Line,
   LineChart,
+  LineSeriesTerminalMarker,
+  ProjectionLine,
+  ProjectionLineEndMarker,
   XAxis,
 } from "@bklitui/ui/charts";
 import { useMemo } from "react";
@@ -24,7 +27,7 @@ import { getStudioCssRevealPropsForPreview } from "@/lib/chart-animation";
 import { resolveCurve } from "@/lib/curves";
 import {
   clampStudioSeriesCount,
-  generateStudioCartesianData,
+  generateStudioTrendingData,
   STUDIO_SERIES_COLORS,
   STUDIO_SERIES_KEYS,
 } from "@/lib/demo-data";
@@ -44,10 +47,25 @@ import { isStudioComponentVisible } from "@/lib/studio-component-visibility";
 import { studioCartesianLegendItems } from "@/lib/studio-legend-items";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import {
+  buildStudioProjectionPath,
+  getProjectionAnchorSeriesIndex,
+  getProjectionCount,
+  getProjectionCurve,
+  getProjectionDashArray,
+  getProjectionSeriesIndex,
+  getProjectionShowEndpoints,
+  getProjectionStroke,
+  getProjectionStrokeWidth,
+} from "@/lib/studio-projection-props";
+import {
   getSeriesCurve,
   getSeriesFadeEdges,
   getSeriesShowHighlight,
   getSeriesStrokeWidth,
+  getSeriesTerminalMarkerFill,
+  getSeriesTerminalMarkerRingColor,
+  getSeriesTerminalMarkerRingGap,
+  getSeriesTerminalMarkerShow,
 } from "@/lib/studio-series-line-props";
 
 function renderBrushStripLines(
@@ -120,6 +138,95 @@ function renderMainLines(
   });
 }
 
+function renderProjectionAnchorMarker(
+  state: StudioUrlState,
+  projectionCount: number
+) {
+  if (projectionCount === 0) {
+    return null;
+  }
+  const seriesIndex = getProjectionAnchorSeriesIndex(state);
+  if (seriesIndex == null) {
+    return null;
+  }
+  const seriesKey = STUDIO_SERIES_KEYS[seriesIndex];
+  if (!seriesKey) {
+    return null;
+  }
+  if (!isStudioComponentVisible(state, `line.series.${seriesIndex}`)) {
+    return null;
+  }
+  if (!getSeriesTerminalMarkerShow(state, seriesIndex)) {
+    return null;
+  }
+
+  return (
+    <LineSeriesTerminalMarker
+      dataKey={seriesKey}
+      fill={getSeriesTerminalMarkerFill(state, seriesIndex)}
+      key="line-projection-anchor"
+      ringGap={getSeriesTerminalMarkerRingGap(state, seriesIndex)}
+      stroke={getSeriesTerminalMarkerRingColor(state, seriesIndex)}
+      yAxisId={getLineSeriesYAxisId(state, seriesIndex)}
+    />
+  );
+}
+
+function renderProjectionLayers(
+  state: StudioUrlState,
+  sourceData: Record<string, unknown>[],
+  projectionCount: number
+) {
+  return Array.from({ length: projectionCount }, (_, index) => {
+    const componentId = `line.projection.${index}`;
+    if (!isStudioComponentVisible(state, componentId)) {
+      return null;
+    }
+
+    const path = buildStudioProjectionPath(state, index, sourceData);
+    if (path.length < 2) {
+      return null;
+    }
+
+    const showEndMarker = getProjectionShowEndpoints(state, index);
+    const stroke = getProjectionStroke(state, index);
+    const seriesIndex = getProjectionSeriesIndex(state, index);
+
+    return [
+      <StudioVisibleLayer
+        componentId={componentId}
+        key={componentId}
+        state={state}
+      >
+        <ProjectionLine
+          curveKind={getProjectionCurve(state, index)}
+          data={path}
+          showEndMarker={false}
+          stroke={stroke}
+          strokeDasharray={getProjectionDashArray(state, index)}
+          strokeWidth={getProjectionStrokeWidth(state, index)}
+          yAxisId={getLineSeriesYAxisId(state, seriesIndex)}
+        />
+      </StudioVisibleLayer>,
+      showEndMarker ? (
+        <StudioVisibleLayer
+          componentId={componentId}
+          key={`${componentId}-end`}
+          state={state}
+        >
+          <ProjectionLineEndMarker
+            data={path}
+            stroke={stroke}
+            yAxisId={getLineSeriesYAxisId(state, seriesIndex)}
+          />
+        </StudioVisibleLayer>
+      ) : null,
+    ];
+  })
+    .flat()
+    .filter(Boolean);
+}
+
 export function LineChartStudioStandardPreview({
   state,
   ctx,
@@ -131,14 +238,15 @@ export function LineChartStudioStandardPreview({
   const seriesCount = clampStudioSeriesCount(state.dataSeries);
   const data = useMemo(
     () =>
-      generateStudioCartesianData({
+      generateStudioTrendingData({
+        direction: state.lineDataTrend,
         seriesCount,
         pointCount: state.dataPoints,
         xAxis: "date",
-        seed: ctx.dataSeed,
       }),
-    [ctx.dataSeed, seriesCount, state.dataPoints]
+    [seriesCount, state.dataPoints, state.lineDataTrend]
   );
+  const projectionCount = getProjectionCount(state);
   const margin = timeSeriesChartMargin(state);
   const brushVisible =
     state.showBrush &&
@@ -218,6 +326,12 @@ export function LineChartStudioStandardPreview({
                 dataLength: data.length,
                 seriesCount,
               })}
+              {isLoading
+                ? null
+                : renderProjectionLayers(state, data, projectionCount)}
+              {isLoading
+                ? null
+                : renderProjectionAnchorMarker(state, projectionCount)}
               {isLoading ? null : (
                 <>
                   <StudioChartYAxisLayers chartPrefix="line" state={state} />

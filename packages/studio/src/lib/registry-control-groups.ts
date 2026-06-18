@@ -257,6 +257,24 @@ export const seriesMarkersControlGroup = controlGroup("Markers", [
   },
 ]);
 
+/** Projection anchor at the last data point (line chart, per series). */
+export const lineSeriesTerminalMarkerControlGroup = controlGroup(
+  "Terminal marker",
+  [
+    { type: "boolean", key: "seriesTerminalMarkerShow", label: "Show" },
+    { type: "color", key: "seriesTerminalMarkerFill", label: "Dot" },
+    { type: "color", key: "seriesTerminalMarkerRingColor", label: "Ring" },
+    {
+      type: "number",
+      key: "seriesTerminalMarkerRingGap",
+      label: "Ring offset",
+      min: 0,
+      max: 8,
+      step: 1,
+    },
+  ]
+);
+
 export const seriesDashTailControlGroup = controlGroup("Dash tail", [
   { type: "boolean", key: "seriesDashTail", label: "Dash" },
   {
@@ -361,8 +379,104 @@ export const areaChartControlGroups: StudioControlGroup[] = [
   ...areaSeriesLineControlGroups,
 ];
 
+export const projectionControlGroup = controlGroup("Projection", [
+  {
+    type: "select",
+    key: "projectionMode",
+    label: "Mode",
+    options: [
+      { value: "auto", label: "Auto (trend)" },
+      { value: "target", label: "Target value" },
+      { value: "manual", label: "Manual points" },
+    ],
+  },
+  {
+    type: "select",
+    key: "projectionAutoMethod",
+    label: "Auto method",
+    options: [
+      { value: "linearRegression", label: "Linear trend" },
+      { value: "lastSegment", label: "Last segment" },
+    ],
+    visibleWhen: { key: "projectionMode", equals: "auto" },
+  },
+  {
+    type: "number",
+    key: "projectionHorizonPoints",
+    label: "Horizon",
+    min: 1,
+    max: 48,
+    step: 1,
+    input: "studio",
+  },
+  {
+    type: "number",
+    key: "projectionEndValue",
+    label: "End value",
+    min: 0,
+    max: 10_000,
+    step: 1,
+    input: "number",
+    visibleWhen: { key: "projectionMode", equals: "target" },
+  },
+  {
+    type: "projectionCurve",
+    key: "projectionCurve",
+    label: "Curve",
+  },
+  { type: "color", key: "projectionStroke", label: "Stroke" },
+  {
+    type: "text",
+    key: "projectionDashArray",
+    label: "Dash array",
+  },
+  {
+    type: "number",
+    key: "projectionStrokeWidth",
+    label: "Width",
+    min: 1,
+    max: 5,
+    step: 0.5,
+  },
+  {
+    type: "boolean",
+    key: "projectionShowEndpoints",
+    label: "End point",
+  },
+]);
+
+export function lineChartDataGroup(): StudioControlGroup {
+  return controlGroup("Data", [
+    {
+      type: "select",
+      key: "lineDataTrend",
+      label: "Trend",
+      options: [
+        { value: "up", label: "Trend up" },
+        { value: "down", label: "Trend down" },
+      ],
+    },
+    {
+      type: "number",
+      key: "dataSeries",
+      label: "Series",
+      min: 1,
+      max: 10,
+      step: 1,
+    },
+    {
+      type: "number",
+      key: "dataPoints",
+      label: "Points",
+      min: 3,
+      max: 365,
+      step: 1,
+    },
+  ]);
+}
+
 export const lineChartControlGroups: StudioControlGroup[] = [
-  dataGroup(),
+  lineChartDataGroup(),
   lineGroup([
     curveControl(),
     {
@@ -377,6 +491,7 @@ export const lineChartControlGroups: StudioControlGroup[] = [
     { type: "boolean", key: "showHighlight", label: "Highlight on hover" },
   ]),
   seriesMarkersControlGroup,
+  lineSeriesTerminalMarkerControlGroup,
   seriesDashTailControlGroup,
 ];
 
@@ -574,6 +689,15 @@ function lineChartSettingsGroup(
           { value: "ready", label: "Ready" },
           { value: "loading", label: "Loading" },
         ],
+      },
+      {
+        type: "number",
+        key: "projectionCount",
+        label: "Projections",
+        min: 0,
+        max: 5,
+        step: 1,
+        input: "studio",
       },
       {
         ...loadingStyleControl,

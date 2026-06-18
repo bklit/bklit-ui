@@ -8,6 +8,8 @@ export function ColorControlField({
   color,
   keyName,
   onChange,
+  onColorChange,
+  onColorPreview,
   onPreview,
   onCommit,
 }: {
@@ -18,6 +20,8 @@ export function ColorControlField({
     key: K,
     value: StudioUrlState[K]
   ) => void;
+  onColorChange?: (value: string) => void;
+  onColorPreview?: (value: string) => void;
   onPreview?: <K extends keyof StudioUrlState>(
     key: K,
     value: StudioUrlState[K]
@@ -27,20 +31,25 @@ export function ColorControlField({
     value: StudioUrlState[K]
   ) => void;
 }) {
-  const commit = onCommit ?? onChange;
-  const preview = onPreview ?? onChange;
+  const commit =
+    onColorChange ??
+    ((value: string) =>
+      (onCommit ?? onChange)(keyName, value as StudioUrlState[typeof keyName]));
+  const preview =
+    onColorPreview ??
+    ((value: string) =>
+      (onPreview ?? onChange)(
+        keyName,
+        value as StudioUrlState[typeof keyName]
+      ));
 
   return (
     <FillPicker
       color={color}
       fillMode="solid"
       label={label}
-      onColorChange={(value) =>
-        commit(keyName, value as StudioUrlState[typeof keyName])
-      }
-      onColorPreview={(value) =>
-        preview(keyName, value as StudioUrlState[typeof keyName])
-      }
+      onColorChange={commit}
+      onColorPreview={preview}
       onFillModeChange={() => undefined}
       onPatternChange={() => undefined}
       pattern="none"

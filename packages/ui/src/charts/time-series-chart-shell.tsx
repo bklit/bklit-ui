@@ -44,6 +44,11 @@ import {
   generateChartSkeletonData,
   generateChartSkeletonFromTarget,
 } from "./generate-chart-skeleton-data";
+import {
+  extractProjectionLineConfigs,
+  mergeProjectionXDomainMax,
+  mergeProjectionYDomain,
+} from "./projection-config";
 import { extractReferenceAreaConfigs } from "./reference-area-config";
 import {
   computeSeriesBarRevealClipPadding,
@@ -266,19 +271,25 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
     return filterDataByXDomain(plotData, xDomain, xAccessor);
   }, [plotData, xDomain, xAccessor]);
 
+  const projectionConfigs = useMemo(
+    () => extractProjectionLineConfigs(children),
+    [children]
+  );
+
   const xScale = useMemo(() => {
     const minTime = xDomain
       ? xDomain[0].getTime()
       : (extent(plotData, (d) => xAccessor(d).getTime())[0] ?? 0);
-    const maxTime = xDomain
+    let maxTime = xDomain
       ? xDomain[1].getTime()
       : (extent(plotData, (d) => xAccessor(d).getTime())[1] ?? minTime);
+    maxTime = mergeProjectionXDomainMax(maxTime, projectionConfigs);
 
     return scaleTime({
       range: [0, innerWidth],
       domain: [minTime, maxTime],
     });
-  }, [innerWidth, plotData, xAccessor, xDomain]);
+  }, [innerWidth, plotData, projectionConfigs, xAccessor, xDomain]);
 
   // When brushing, keep the full series for path rendering so edge fades stay
   // anchored to the viewport while the line pans through them. Y-domain and
@@ -314,15 +325,41 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
     [lines, resolveYDomain, skeletonData]
   );
 
-  const yDomainTargetByAxis = useMemo(
-    () =>
-      computeYDomainsByAxis({
-        lines,
-        resolveDomain: (dataKeys) =>
-          resolveYDomain(xDomain ? visiblePlotData : data, dataKeys),
-      }),
-    [data, lines, resolveYDomain, visiblePlotData, xDomain]
-  );
+  const yDomainTargetByAxis = useMemo(() => {
+    const base = computeYDomainsByAxis({
+      lines,
+      resolveDomain: (dataKeys) =>
+        resolveYDomain(xDomain ? visiblePlotData : data, dataKeys),
+    });
+    if (projectionConfigs.length === 0) {
+      return base;
+    }
+    const merged: Record<string, [number, number]> = { ...base };
+    for (const axisId of Object.keys(base)) {
+      merged[axisId] = mergeProjectionYDomain(
+        base[axisId] ?? [0, 100],
+        projectionConfigs,
+        axisId
+      );
+    }
+    for (const config of projectionConfigs) {
+      if (!merged[config.yAxisId]) {
+        merged[config.yAxisId] = mergeProjectionYDomain(
+          [0, 100],
+          projectionConfigs,
+          config.yAxisId
+        );
+      }
+    }
+    return merged;
+  }, [
+    data,
+    lines,
+    projectionConfigs,
+    resolveYDomain,
+    visiblePlotData,
+    xDomain,
+  ]);
 
   const animatedYDomainsByAxis = useAnimatedYDomains({
     chartPhase,

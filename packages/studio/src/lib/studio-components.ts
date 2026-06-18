@@ -44,6 +44,7 @@ import {
   liveLineChartControlGroups,
   pieCenterControlGroup,
   pieChartControlGroups,
+  projectionControlGroup,
   radarChartControlGroups,
   referenceAreaControlGroups,
   ringCenterControlGroup,
@@ -58,6 +59,12 @@ import {
 } from "./registry-control-groups";
 import { controlGroup } from "./sidebar-control-templates";
 import { firstConfigurableStudioComponentId } from "./studio-component-visibility";
+import {
+  getProjectionCount,
+  getProjectionStroke,
+  PER_PROJECTION_CONTROL_KEYS,
+  PROJECTION_PRESET_LABELS,
+} from "./studio-projection-props";
 
 const DESIGN_SERIES_LABEL_PREFIX = /^Series \d+ · /;
 
@@ -71,6 +78,10 @@ const PER_SERIES_LINE_CONTROL_KEYS = new Set([
   "seriesMarkerRadius",
   "seriesMarkerRingGap",
   "seriesMarkerRingWidth",
+  "seriesTerminalMarkerShow",
+  "seriesTerminalMarkerFill",
+  "seriesTerminalMarkerRingColor",
+  "seriesTerminalMarkerRingGap",
   "seriesDashTail",
   "seriesDashFromIndex",
   "seriesDashArray",
@@ -88,6 +99,21 @@ function seriesScopedControlGroups(
         PER_SERIES_LINE_CONTROL_KEYS.has(String(control.key))
       ) {
         return { ...control, seriesIndex };
+      }
+      return control;
+    }),
+  }));
+}
+
+function projectionScopedControlGroups(
+  groups: StudioControlGroup[],
+  projectionIndex: number
+): StudioControlGroup[] {
+  return groups.map((group) => ({
+    ...group,
+    controls: group.controls.map((control) => {
+      if ("key" in control && PER_PROJECTION_CONTROL_KEYS.has(control.key)) {
+        return { ...control, projectionIndex };
       }
       return control;
     }),
@@ -939,8 +965,13 @@ export function resolveLineComponents(
   }
 
   const seriesCount = clampStudioSeriesCount(state.dataSeries);
+  const projectionCount = getProjectionCount(state);
   const lineControls = groups.find((group) => group.title === "Line");
   const markers = groups.find((group) => group.title === "Markers");
+  const terminalMarker =
+    projectionCount > 0
+      ? groups.find((group) => group.title === "Terminal marker")
+      : undefined;
   const dashTail = groups.find((group) => group.title === "Dash tail");
 
   const components: StudioComponentDefinition[] = [
@@ -957,6 +988,21 @@ export function resolveLineComponents(
     referenceAreaNode("line"),
   ];
 
+  for (let index = 0; index < projectionCount; index += 1) {
+    components.push({
+      id: `line.projection.${index}`,
+      label: `Projection · ${PROJECTION_PRESET_LABELS[index] ?? `Projection ${index + 1}`}`,
+      parentId: chartId,
+      kind: "line",
+      listMarker: "color-dot",
+      swatchColor: getProjectionStroke(state, index),
+      controlGroups: projectionScopedControlGroups(
+        [projectionControlGroup],
+        index
+      ),
+    });
+  }
+
   for (let index = 0; index < seriesCount; index += 1) {
     components.push({
       id: `line.series.${index}`,
@@ -971,6 +1017,7 @@ export function resolveLineComponents(
           [
             ...(lineControls ? [lineControls] : []),
             ...(markers ? [markers] : []),
+            ...(terminalMarker ? [terminalMarker] : []),
             ...(dashTail ? [dashTail] : []),
           ],
           index

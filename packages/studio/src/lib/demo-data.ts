@@ -605,3 +605,56 @@ export function generateStudioCartesianData({
     return row;
   });
 }
+
+export type StudioDataTrend = "up" | "down";
+
+function trendingSeriesValue(
+  index: number,
+  seriesIndex: number,
+  direction: StudioDataTrend
+): number {
+  const sign = direction === "up" ? 1 : -1;
+  const base = 120 + seriesIndex * 18;
+  const trend = sign * (5.5 + seriesIndex * 1.25) * index;
+  const noise =
+    Math.sin((index + seriesIndex * 5) / 2.2) * 5 +
+    Math.cos((index + seriesIndex * 3) / 1.4) * 2.5;
+  return Math.max(10, Math.floor(base + trend + noise));
+}
+
+/** Deterministic up/down trending cartesian rows for projection exploration. */
+export function generateStudioTrendingData({
+  direction,
+  seriesCount,
+  pointCount,
+  xAxis,
+}: {
+  direction: StudioDataTrend;
+  seriesCount: number;
+  pointCount: number;
+  xAxis: StudioCartesianXAxis;
+}): StudioCartesianDatum[] {
+  const series = clampStudioSeriesCount(seriesCount);
+  const points = clampStudioPointCount(pointCount);
+  const baseYear = 2024;
+  return Array.from({ length: points }, (_, i) => {
+    const row: StudioCartesianDatum = {};
+    if (xAxis === "date") {
+      row.date = new Date(baseYear, 0, i + 1);
+    } else {
+      const monthIdx = i % MONTH_LABELS.length;
+      const yearOffset = Math.floor(i / MONTH_LABELS.length);
+      row.month =
+        yearOffset > 0
+          ? `${MONTH_LABELS[monthIdx]} ${(baseYear + yearOffset) % 100}`
+          : MONTH_LABELS[monthIdx];
+    }
+    for (let s = 0; s < series; s++) {
+      const key = STUDIO_SERIES_KEYS[s];
+      if (key) {
+        row[key] = trendingSeriesValue(i, s, direction);
+      }
+    }
+    return row;
+  });
+}

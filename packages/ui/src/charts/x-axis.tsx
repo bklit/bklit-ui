@@ -475,6 +475,22 @@ function buildDomainTicks({
   return ticks;
 }
 
+function domainExtendsPastData(
+  data: Record<string, unknown>[],
+  xAccessor: (d: Record<string, unknown>) => Date,
+  xScale: { domain: () => Date[] }
+): boolean {
+  if (data.length === 0) {
+    return false;
+  }
+  const domainEnd = xScale.domain()[1];
+  const lastPoint = data.at(-1);
+  if (!(domainEnd && lastPoint)) {
+    return false;
+  }
+  return domainEnd.getTime() > xAccessor(lastPoint).getTime();
+}
+
 export function XAxis(props: XAxisProps) {
   const { containerRef } = useChartStable();
   const [mounted, setMounted] = useState(false);
@@ -501,8 +517,14 @@ const XAxisInner = memo(function XAxisInner({
     useChart();
 
   const labelsToShow = useMemo(() => {
-    // Domain spacing is opt-in; data-aligned ticks keep crosshair/tooltip aligned.
-    if (tickMode === "domain" && xDomain == null) {
+    const useDomainTicks =
+      tickMode === "domain" ||
+      (tickMode === "data" &&
+        xDomain == null &&
+        domainExtendsPastData(data, xAccessor, xScale));
+
+    // Domain spacing covers the full time range (e.g. projection lines extend x).
+    if (useDomainTicks && xDomain == null) {
       return buildDomainTicks({
         marginLeft: margin.left,
         numTicks,
