@@ -172,11 +172,12 @@ export function Grid({
   // Vertical fade mask (for grid columns - fades top/bottom)
   const vMaskId = `grid-cols-fade-${uniqueId}`;
   const vGradientId = `${vMaskId}-gradient`;
+  const horizontalFadeMask = fadeHorizontal ? `url(#${hMaskId})` : undefined;
 
   return (
     <g className="chart-grid">
       {/* Gradient mask for horizontal grid lines - fades at left/right */}
-      {horizontal && (fadeHorizontal || shimmer) && (
+      {horizontal && fadeHorizontal && (
         <defs>
           <linearGradient id={hGradientId} x1="0%" x2="100%" y1="0%" y2="0%">
             <stop offset="0%" style={{ stopColor: "white", stopOpacity: 0 }} />
@@ -244,7 +245,7 @@ export function Grid({
       )}
 
       {horizontal && (
-        <g mask={fadeHorizontal || shimmer ? `url(#${hMaskId})` : undefined}>
+        <g mask={horizontalFadeMask}>
           <GridRows
             numTicks={rowTickValuesResolved ? undefined : numTicksRows}
             scale={yScale}
