@@ -128,6 +128,11 @@
           "target": "components/charts/chart-context.tsx"
         },
         {
+          "path": "src/charts/reference-area-config.ts",
+          "type": "registry:lib",
+          "target": "components/charts/reference-area-config.ts"
+        },
+        {
           "path": "src/charts/use-chart-interaction.ts",
           "type": "registry:component",
           "target": "components/charts/use-chart-interaction.ts"
@@ -332,6 +337,31 @@
       ]
     },
     {
+      "name": "reference-area",
+      "type": "registry:component",
+      "title": "Reference Area",
+      "description": "Shaded data-coordinate band for target ranges and thresholds on time-series charts",
+      "registryDependencies": [
+        "@bklit/chart-context",
+        "@bklit/background"
+      ],
+      "dependencies": [
+        "motion"
+      ],
+      "files": [
+        {
+          "path": "src/charts/reference-area.tsx",
+          "type": "registry:component",
+          "target": "components/charts/reference-area.tsx"
+        },
+        {
+          "path": "src/charts/reference-area-geometry.ts",
+          "type": "registry:component",
+          "target": "components/charts/reference-area-geometry.ts"
+        }
+      ]
+    },
+    {
       "name": "background",
       "type": "registry:component",
       "title": "Chart Background",
@@ -392,6 +422,11 @@
           "path": "src/charts/y-axis.tsx",
           "type": "registry:component",
           "target": "components/charts/y-axis.tsx"
+        },
+        {
+          "path": "src/charts/reference-area-geometry.ts",
+          "type": "registry:lib",
+          "target": "components/charts/reference-area-geometry.ts"
         }
       ]
     },
@@ -706,6 +741,11 @@
           "target": "components/charts/bar-chart.tsx"
         },
         {
+          "path": "src/charts/chart-child-passthrough.ts",
+          "type": "registry:lib",
+          "target": "components/charts/chart-child-passthrough.ts"
+        },
+        {
           "path": "src/charts/chart-legend-hover.tsx",
           "type": "registry:component",
           "target": "components/charts/chart-legend-hover.tsx"
@@ -948,6 +988,11 @@
           "target": "components/charts/live-line-chart.tsx"
         },
         {
+          "path": "src/charts/chart-child-passthrough.ts",
+          "type": "registry:lib",
+          "target": "components/charts/chart-child-passthrough.ts"
+        },
+        {
           "path": "src/charts/live-line.tsx",
           "type": "registry:component",
           "target": "components/charts/live-line.tsx"
@@ -989,6 +1034,11 @@
           "path": "src/charts/candlestick-chart.tsx",
           "type": "registry:component",
           "target": "components/charts/candlestick-chart.tsx"
+        },
+        {
+          "path": "src/charts/chart-child-passthrough.ts",
+          "type": "registry:lib",
+          "target": "components/charts/chart-child-passthrough.ts"
         },
         {
           "path": "src/charts/chart-legend-hover.tsx",

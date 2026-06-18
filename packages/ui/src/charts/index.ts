@@ -365,6 +365,16 @@ export {
 } from "./radar-context";
 export { RadarGrid, type RadarGridProps } from "./radar-grid";
 export { RadarLabels, type RadarLabelsProps } from "./radar-labels";
+export {
+  ReferenceArea,
+  type ReferenceAreaProps,
+  type ReferenceAreaStrokeStyle,
+} from "./reference-area";
+export {
+  computeReferenceAreaRect,
+  type ReferenceAreaIfOverflow,
+  type ReferenceAreaRect,
+} from "./reference-area-geometry";
 // Ring chart components
 export { Ring, type RingLineCap, type RingProps } from "./ring";
 export { RingCenter, type RingCenterProps } from "./ring-center";

@@ -1,0 +1,143 @@
+---
+title: Reference Area
+description: Shaded Y band for target ranges and thresholds on cartesian charts — solid or pattern fill, dashed edges, and Y-axis tick coloring
+---
+
+import { studioChartHref } from "@bklitui/studio";
+import { LineChart, Line, Grid, ReferenceArea, ChartTooltip, XAxis } from "@bklitui/ui/charts";
+import {
+  ReferenceAreaBandDemo,
+  ReferenceAreaMarkersDemo,
+  ReferenceAreaPatternDemo,
+} from "@/components/docs/reference-area-demo";
+import { OpenInStudioButton } from "@/components/docs/open-in-studio-button";
+
+<ComponentPreview registryName="reference-area">
+  <ReferenceAreaBandDemo />
+</ComponentPreview>
+
+## Installation
+
+<InstallationTabs name="reference-area" dependencies={["motion"]} />
+
+## Usage
+
+`ReferenceArea` draws a horizontal band between two Y data values. Place it as a child of any cartesian chart (`LineChart`, `AreaChart`, `BarChart`, `ScatterChart`, `CandlestickChart`, `ComposedChart`, `LiveLineChart`). It renders in the underlay layer — above grid and background, behind series.
+
+```tsx
+import { LineChart, Line, Grid, ReferenceArea, ChartTooltip, XAxis } from "@bklitui/ui/charts";
+
+<LineChart data={data}>
+  <Grid horizontal />
+  <ReferenceArea y1={160} y2={220} strokeStyle="dashed" showMarkers />
+  <Line dataKey="value" />
+  <XAxis />
+  <ChartTooltip />
+</LineChart>
+```
+
+Omit `y1` or `y2` to extend the band to the top or bottom of the plot. Use `axisLabelColor` to tint Y-axis tick labels whose values fall inside the band.
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `y1` | `number` | — | Lower Y data bound (extends to plot top when omitted) |
+| `y2` | `number` | — | Upper Y data bound (extends to plot bottom when omitted) |
+| `x1` | `Date \| number` | — | Starting X data coordinate (extends to plot left when omitted) |
+| `x2` | `Date \| number` | — | Ending X data coordinate (extends to plot right when omitted) |
+| `yAxisId` | `string \| number` | `"left"` | Y-scale group id |
+| `fill` | `string` | muted mix on `--chart-foreground-muted` | Solid fill when `pattern` is `"none"` |
+| `fillOpacity` | `number` | `1` | Fill opacity |
+| `pattern` | Pattern preset id | `"none"` | Pattern fill inside the band |
+| `patternColor` | `string` | — | Pattern stroke or tile color |
+| `patternScale` | `number` | — | Pattern tile scale |
+| `patternStrokeWidth` | `number` | — | Line stroke width for line-based patterns |
+| `patternRadius` | `number` | — | Dot or circle radius for `dots` / `circles` |
+| `patternComplement` | `boolean` | — | Alternate tile fill for circle patterns |
+| `patternFill` | `string` | — | Solid fill inside circles |
+| `patternDotFill` | `boolean` | — | Dot grid only — hollow dots when `false` |
+| `patternTileBackground` | `string` | — | Background color inside each pattern tile |
+| `stroke` | `string` | — | Edge line color |
+| `strokeWidth` | `number` | `1` | Edge line width |
+| `strokeStyle` | `"solid" \| "dashed"` | `"solid"` | Edge line style |
+| `strokeDasharray` | `string` | `"4,4"` | Dash array when `strokeStyle` is `"dashed"` |
+| `fadeEdges` | `boolean` | `true` | Fade fill and edges at left/right |
+| `fadeEdgesLength` | `number` | `10` | Horizontal fade zone as % of plot width per edge (0–45) |
+| `axisLabelColor` | `string` | — | Y-axis tick label color for values inside the band |
+| `showMarkers` | `boolean` | `false` | Inward bracket markers at the horizontal center |
+| `markerColor` | `string` | — | Bracket marker color |
+| `markerSize` | `number` | — | Bracket marker size |
+| `ifOverflow` | `"hidden" \| "visible"` | `"hidden"` | Clip band to the plot when bounds exceed the domain |
+
+Pattern presets match [`Background`](/docs/utility/background) (`diagonal`, `dots`, `cross`, …).
+
+## Studio
+
+<div className="not-prose mb-3 flex items-center justify-between gap-4">
+  <h3 className="m-0 font-semibold text-foreground text-base tracking-tight">
+    Edit in Studio
+  </h3>
+  <OpenInStudioButton
+    href={studioChartHref("line-chart")}
+    slug="line-chart"
+  />
+</div>
+
+Open [Studio with the line chart](/studio?chart=line-chart) and select **Reference Area** in the layers panel to tune bounds, fill, pattern, edges, and markers. The same layer is available on area, bar, candlestick, composed, live line, line, and scatter charts.
+
+## Examples
+
+### Dashed band with markers
+
+<ComponentShowcase code={`<LineChart data={data}>
+  <Grid horizontal />
+  <ReferenceArea y1={160} y2={220} strokeStyle="dashed" showMarkers />
+  <Line dataKey="value" />
+  <XAxis />
+  <ChartTooltip />
+</LineChart>`}>
+  <ReferenceAreaBandDemo />
+</ComponentShowcase>
+
+### Pattern fill with axis labels
+
+<ComponentShowcase code={`<LineChart data={data}>
+  <Grid horizontal />
+  <ReferenceArea
+    y1={160}
+    y2={220}
+    pattern="diagonal"
+    patternColor="var(--chart-foreground-muted)"
+    axisLabelColor="var(--chart-1)"
+    fillOpacity={0.85}
+  />
+  <Line dataKey="value" />
+  <XAxis />
+  <ChartTooltip />
+</LineChart>`}>
+  <ReferenceAreaPatternDemo />
+</ComponentShowcase>
+
+### Colored markers
+
+<ComponentShowcase code={`<LineChart data={data}>
+  <Grid horizontal />
+  <ReferenceArea
+    y1={160}
+    y2={220}
+    stroke="var(--chart-1)"
+    strokeStyle="dashed"
+    showMarkers
+    markerColor="var(--chart-1)"
+  />
+  <Line dataKey="value" />
+  <XAxis />
+  <ChartTooltip />
+</LineChart>`}>
+  <ReferenceAreaMarkersDemo />
+</ComponentShowcase>
+
+## Gallery
+
+See **Reference Band** examples on each cartesian chart gallery: [line](/charts/line-chart), [area](/charts/area-chart), [bar](/charts/bar-chart), [composed](/charts/composed-chart), [scatter](/charts/scatter-chart), [candlestick](/charts/candlestick-chart), [live line](/charts/live-line-chart), and [profit/loss line](/charts/profit-loss-line).

@@ -132,6 +132,16 @@ export type StudioControl = StudioControlVisibility &
         seriesIndex: number;
       }
     | {
+        type: "referenceAreaFill";
+        key: "referenceAreaFill";
+        label: string;
+      }
+    | {
+        type: "referenceAreaYAxis";
+        key: "referenceAreaYAxis";
+        label: string;
+      }
+    | {
         type: "lineYAxisNumTicks";
         key: "lineYAxisNumTicks";
         label: string;

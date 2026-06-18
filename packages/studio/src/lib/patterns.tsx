@@ -43,7 +43,7 @@ function patternNodeForPreset(
   if (!node) {
     return null;
   }
-  return <>{node}</>;
+  return <Fragment key={id}>{node}</Fragment>;
 }
 
 export function StudioPatternDefs({
@@ -65,11 +65,8 @@ export function StudioPatternDefs({
       return [];
     }
     const strokeVar = `var(${`--chart-${(index % 5) + 1}`})`;
-    const node = patternNodeForPreset(
-      entry,
-      studioPatternIdForSeries(index),
-      strokeVar
-    );
+    const id = studioPatternIdForSeries(index);
+    const node = patternNodeForPreset(entry, id, strokeVar);
     return node ? [node] : [];
   });
 

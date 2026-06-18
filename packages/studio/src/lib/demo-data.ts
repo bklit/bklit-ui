@@ -159,6 +159,53 @@ export const candlestickOhlcData: OHLCDataPoint[] = (() => {
   return points;
 })();
 
+/** Reference band bounds that fit the default OHLC demo (~90–115). */
+export function getCandlestickReferenceAreaDefaults(): {
+  referenceAreaY1: number;
+  referenceAreaY2: number;
+} {
+  return referenceAreaBoundsForOhlc(candlestickOhlcData);
+}
+
+export function referenceAreaBoundsForOhlc(data: OHLCDataPoint[]): {
+  referenceAreaY1: number;
+  referenceAreaY2: number;
+} {
+  let min = Number.POSITIVE_INFINITY;
+  let max = Number.NEGATIVE_INFINITY;
+  for (const point of data) {
+    min = Math.min(min, point.low);
+    max = Math.max(max, point.high);
+  }
+  const span = max - min;
+  return {
+    referenceAreaY1: Math.round(min + span * 0.25),
+    referenceAreaY2: Math.round(min + span * 0.75),
+  };
+}
+
+/** When URL bounds are outside OHLC range, use data-fitted defaults for preview. */
+export function resolveCandlestickReferenceAreaBounds(
+  state: { referenceAreaY1: number; referenceAreaY2: number },
+  data: OHLCDataPoint[]
+): { referenceAreaY1: number; referenceAreaY2: number } {
+  let min = Number.POSITIVE_INFINITY;
+  let max = Number.NEGATIVE_INFINITY;
+  for (const point of data) {
+    min = Math.min(min, point.low);
+    max = Math.max(max, point.high);
+  }
+  const low = Math.min(state.referenceAreaY1, state.referenceAreaY2);
+  const high = Math.max(state.referenceAreaY1, state.referenceAreaY2);
+  if (high < min || low > max) {
+    return referenceAreaBoundsForOhlc(data);
+  }
+  return {
+    referenceAreaY1: state.referenceAreaY1,
+    referenceAreaY2: state.referenceAreaY2,
+  };
+}
+
 export const visitorsByCountry: Record<string, number> = {
   "United States": 18,
   "United Kingdom": 12,

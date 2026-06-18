@@ -18,7 +18,12 @@ import {
   DEFAULT_ANIMATION_EASING,
   DEFAULT_CHART_ENTER_TRANSITION,
 } from "./animation";
-import { resolveChartChildElement } from "./chart-child-passthrough";
+import {
+  isClipExcludedComponent,
+  isPostOverlayComponent,
+  isUnderlayComponent,
+  resolveChartChildElement,
+} from "./chart-child-passthrough";
 import { ChartProvider, type LineConfig, type Margin } from "./chart-context";
 import { isGradientDefComponent, isPatternDefComponent } from "./chart-defs";
 import { shortDateFmt } from "./chart-formatters";
@@ -39,6 +44,7 @@ import {
   generateChartSkeletonData,
   generateChartSkeletonFromTarget,
 } from "./generate-chart-skeleton-data";
+import { extractReferenceAreaConfigs } from "./reference-area-config";
 import {
   computeSeriesBarRevealClipPadding,
   computeSeriesBarWidth,
@@ -101,51 +107,6 @@ function resolveTimeSeriesYDomain(
 
   const padding = (maxValue - minValue) * 0.05 || 1;
   return [minValue - padding, maxValue + padding];
-}
-
-/** Markers render after the interaction overlay so they stay clickable. */
-export function isPostOverlayComponent(child: ReactElement): boolean {
-  const childType = child.type as {
-    displayName?: string;
-    name?: string;
-    __isChartMarkers?: boolean;
-  };
-
-  if (childType.__isChartMarkers) {
-    return true;
-  }
-
-  const componentName =
-    typeof child.type === "function"
-      ? childType.displayName || childType.name || ""
-      : "";
-
-  return (
-    componentName === "ChartMarkers" ||
-    componentName === "MarkerGroup" ||
-    componentName === "ChartBrush"
-  );
-}
-
-const CLIP_EXCLUDED_COMPONENT_NAMES = new Set([
-  "Background",
-  "Grid",
-  "XAxis",
-  "YAxis",
-  "BarXAxis",
-  "BarYAxis",
-  "LiveXAxis",
-  "LiveYAxis",
-]);
-
-/** Grid and axes stay visible during series clip reveal (e.g. loading → ready). */
-export function isClipExcludedComponent(child: ReactElement): boolean {
-  const childType = child.type as { displayName?: string; name?: string };
-  const componentName =
-    typeof child.type === "function"
-      ? childType.displayName || childType.name || ""
-      : "";
-  return CLIP_EXCLUDED_COMPONENT_NAMES.has(componentName);
 }
 
 function ensureChildKey(child: ReactElement, index: number): ReactElement {
@@ -418,6 +379,7 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
 
   const defsChildren: ReactElement[] = [];
   const clipExcludedChildren: ReactElement[] = [];
+  const underlayChildren: ReactElement[] = [];
   const preOverlayChildren: ReactElement[] = [];
   const postOverlayChildren: ReactElement[] = [];
 
@@ -437,10 +399,17 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
       postOverlayChildren.push(resolvedChild);
     } else if (isClipExcludedComponent(resolvedChild)) {
       clipExcludedChildren.push(resolvedChild);
+    } else if (isUnderlayComponent(resolvedChild)) {
+      underlayChildren.push(resolvedChild);
     } else {
       preOverlayChildren.push(resolvedChild);
     }
   });
+
+  const referenceAreas = useMemo(
+    () => extractReferenceAreaConfigs(children),
+    [children]
+  );
 
   const contextValue = useMemo(
     () => ({
@@ -459,6 +428,7 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
       setTooltipData,
       containerRef,
       lines,
+      referenceAreas,
       chartPhase,
       chartStatus,
       loadingLabel,
@@ -501,6 +471,7 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
       setTooltipData,
       containerRef,
       lines,
+      referenceAreas,
       chartPhase,
       chartStatus,
       loadingLabel,
@@ -614,6 +585,7 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
           />
 
           {clipExcludedChildren}
+          {underlayChildren}
           {useClipReveal ? (
             <g clipPath={`url(#${clipPathId})`}>{preOverlayChildren}</g>
           ) : (

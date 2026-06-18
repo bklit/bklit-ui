@@ -17,6 +17,7 @@ import {
 } from "@/components/studio-chart-frame";
 import { heatmapChartDefaults } from "@/lib/heatmap-chart-defaults";
 import {
+  candlestickChartDefaults,
   lineChartProfitLossDefaults,
   lineChartStandardDefaults,
 } from "@/lib/line-chart-mode";
@@ -42,6 +43,7 @@ const STUDIO_Y_AXIS_CHART_PREFIX: Partial<Record<ChartSlug, string>> = {
   "scatter-chart": "scatter",
   "composed-chart": "composed",
   "bar-chart": "bar",
+  "candlestick-chart": "candlestick",
 };
 
 function finiteFrameDimension(value: number, fallback: number) {
@@ -282,6 +284,7 @@ export function StudioStateProvider({
         ...(slug === "live-line-chart" ? { curve: "monotoneX" } : {}),
         ...(slug === "profit-loss-line" ? lineChartProfitLossDefaults : {}),
         ...(slug === "line-chart" ? lineChartStandardDefaults : {}),
+        ...(slug === "candlestick-chart" ? candlestickChartDefaults : {}),
         ...(slug === "heatmap-chart" ? heatmapChartDefaults : {}),
         ...(slug === "area-chart" || slug === "composed-chart"
           ? { dataSeries: 2 }

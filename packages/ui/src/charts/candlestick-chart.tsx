@@ -17,6 +17,11 @@ import {
   useState,
 } from "react";
 import { cn } from "@/lib/utils";
+import {
+  isClipExcludedComponent,
+  isPostOverlayComponent,
+  isUnderlayComponent,
+} from "./chart-child-passthrough";
 import { ChartProvider, type LineConfig, type Margin } from "./chart-context";
 import { shortDateFmt } from "./chart-formatters";
 import { DEFAULT_CHART_LIFECYCLE } from "./chart-phase";
@@ -24,6 +29,7 @@ import {
   decimateOhlcData,
   maxRenderPointsForWidth,
 } from "./decimate-time-series";
+import { extractReferenceAreaConfigs } from "./reference-area-config";
 import { useChartInteraction } from "./use-chart-interaction";
 import { wrapSingleYScale } from "./y-axis-scales";
 
@@ -237,46 +243,93 @@ const ChartCore = memo(function ChartCore({
   };
 
   const defsChildren: ReactElement[] = [];
-  const restChildren: ReactElement[] = [];
+  const clipExcludedChildren: ReactElement[] = [];
+  const underlayChildren: ReactElement[] = [];
+  const preOverlayChildren: ReactElement[] = [];
+  const postOverlayChildren: ReactElement[] = [];
   Children.forEach(children, (child) => {
     if (!isValidElement(child)) {
       return;
     }
     if (isDefsComponent(child)) {
       defsChildren.push(child);
+    } else if (isPostOverlayComponent(child)) {
+      postOverlayChildren.push(child);
+    } else if (isClipExcludedComponent(child)) {
+      clipExcludedChildren.push(child);
+    } else if (isUnderlayComponent(child)) {
+      underlayChildren.push(child);
     } else {
-      restChildren.push(child);
+      preOverlayChildren.push(child);
     }
   });
 
-  const contextValue = {
-    ...DEFAULT_CHART_LIFECYCLE,
-    data,
-    renderData,
-    xScale,
-    yScale,
-    yScales: wrapSingleYScale(yScale),
-    width,
-    height,
-    innerWidth,
-    innerHeight,
-    margin,
-    columnWidth,
-    tooltipData,
-    setTooltipData,
-    containerRef,
-    lines,
-    isLoaded,
-    animationDuration,
-    enterTransition,
-    revealEpoch,
-    xAccessor,
-    dateLabels,
-    selection: selection ?? null,
-    clearSelection,
-    bandWidth,
-    hoveredCandleIndex,
-  };
+  const referenceAreas = useMemo(
+    () => extractReferenceAreaConfigs(children),
+    [children]
+  );
+
+  const yScales = useMemo(() => wrapSingleYScale(yScale), [yScale]);
+
+  const contextValue = useMemo(
+    () => ({
+      ...DEFAULT_CHART_LIFECYCLE,
+      data,
+      renderData,
+      xScale,
+      yScale,
+      yScales,
+      width,
+      height,
+      innerWidth,
+      innerHeight,
+      margin,
+      columnWidth,
+      tooltipData,
+      setTooltipData,
+      containerRef,
+      lines,
+      referenceAreas,
+      isLoaded,
+      animationDuration,
+      enterTransition,
+      revealEpoch,
+      xAccessor,
+      dateLabels,
+      selection: selection ?? null,
+      clearSelection,
+      bandWidth,
+      hoveredCandleIndex,
+    }),
+    [
+      data,
+      renderData,
+      xScale,
+      yScale,
+      yScales,
+      width,
+      height,
+      innerWidth,
+      innerHeight,
+      margin,
+      columnWidth,
+      tooltipData,
+      setTooltipData,
+      containerRef,
+      lines,
+      referenceAreas,
+      isLoaded,
+      animationDuration,
+      enterTransition,
+      revealEpoch,
+      xAccessor,
+      dateLabels,
+      selection,
+      clearSelection,
+      bandWidth,
+      hoveredCandleIndex,
+    ]
+  );
 
   return (
     <ChartProvider value={contextValue}>
@@ -306,7 +359,10 @@ const ChartCore = memo(function ChartCore({
             x={0}
             y={0}
           />
-          {restChildren}
+          {clipExcludedChildren}
+          {underlayChildren}
+          {preOverlayChildren}
+          {postOverlayChildren}
         </g>
       </svg>
     </ChartProvider>

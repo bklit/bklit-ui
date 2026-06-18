@@ -74,6 +74,7 @@ import {
   RadarLabels,
   type RadarMetric,
   RadialGradient,
+  ReferenceArea,
   Ring,
   RingCenter,
   RingChart,
@@ -875,6 +876,65 @@ ${chartClose}`,
   ];
 }
 
+function makeCartesianReferenceAreaExamples(options: {
+  titlePrefix: string;
+  chartOpen: string;
+  chartClose: string;
+  seriesSnippet: string;
+  y1?: number;
+  y2?: number;
+  render: (referenceArea: ReactNode) => ReactNode;
+}): ChartExample[] {
+  const { titlePrefix, chartOpen, chartClose, seriesSnippet, render } = options;
+  const y1 = options.y1 ?? 160;
+  const y2 = options.y2 ?? 220;
+
+  return [
+    {
+      title: `${titlePrefix} - Reference Band`,
+      description:
+        "Horizontal Y band behind the series with dashed edges and bracket markers",
+      code: `${chartOpen}
+  <ReferenceArea y1={${y1}} y2={${y2}} strokeStyle="dashed" showMarkers />
+  ${seriesSnippet}
+${chartClose}`,
+      footer:
+        "See /docs/utility/reference-area — tune bounds, fill, and markers in Studio",
+      render: () =>
+        render(
+          <ReferenceArea showMarkers strokeStyle="dashed" y1={y1} y2={y2} />
+        ),
+    },
+    {
+      title: `${titlePrefix} - Pattern Reference Band`,
+      description:
+        "Pattern fill inside the band with colored Y-axis tick labels",
+      code: `${chartOpen}
+  <ReferenceArea
+    y1={${y1}}
+    y2={${y2}}
+    pattern="diagonal"
+    patternColor="var(--chart-foreground-muted)"
+    axisLabelColor="var(--chart-1)"
+    fillOpacity={0.85}
+  />
+  ${seriesSnippet}
+${chartClose}`,
+      render: () =>
+        render(
+          <ReferenceArea
+            axisLabelColor="var(--chart-1)"
+            fillOpacity={0.85}
+            pattern="diagonal"
+            patternColor="var(--chart-foreground-muted)"
+            y1={y1}
+            y2={y2}
+          />
+        ),
+    },
+  ];
+}
+
 const AreaExampleChart = createChartExamplePreview(AreaChart);
 const AreaChartLoadingExample = createChartExamplePreview(AreaChartLoading);
 const BarExampleChart = createChartExamplePreview(BarChart);
@@ -1405,6 +1465,23 @@ function makeAreaExamples(): ChartExample[] {
         </AreaExampleChart>
       ),
     }),
+    ...makeCartesianReferenceAreaExamples({
+      titlePrefix: "Area Chart",
+      chartOpen:
+        "<AreaChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={chartData}>",
+      chartClose: "</AreaChart>",
+      seriesSnippet: `<Area dataKey="desktop" fillOpacity={0.3} strokeWidth={2} />
+  <XAxis />
+  <ChartTooltip />`,
+      render: (referenceArea) => (
+        <AreaExampleChart data={areaData}>
+          {referenceArea}
+          <Area dataKey="desktop" fillOpacity={0.3} strokeWidth={2} />
+          <XAxis />
+          <ChartTooltip />
+        </AreaExampleChart>
+      ),
+    }),
   ];
 }
 
@@ -1833,6 +1910,25 @@ function makeBarExamples(): ChartExample[] {
         </BarExampleChart>
       ),
     }),
+    ...makeCartesianReferenceAreaExamples({
+      titlePrefix: "Bar Chart",
+      chartOpen:
+        '<BarChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={chartData} xDataKey="month">',
+      chartClose: "</BarChart>",
+      seriesSnippet: `<Bar dataKey="desktop" lineCap="round" />
+  <BarXAxis />
+  <ChartTooltip showCrosshair={false} />`,
+      y1: 4200,
+      y2: 5000,
+      render: (referenceArea) => (
+        <BarExampleChart data={barStackedData} xDataKey="month">
+          {referenceArea}
+          <Bar dataKey="desktop" lineCap="round" />
+          <BarXAxis />
+          <ChartTooltip showCrosshair={false} />
+        </BarExampleChart>
+      ),
+    }),
   ];
 }
 
@@ -2180,6 +2276,27 @@ function makeComposedExamples(): ChartExample[] {
       render: (background) => (
         <ComposedExampleChart data={dataCast} xDataKey="date">
           {background}
+          <SeriesBar dataKey="units" fill="var(--chart-3)" radius={4} />
+          <Line dataKey="revenue" stroke="var(--chart-1)" />
+          <ChartTooltip showCrosshair={false} />
+          <XAxis numTicks={8} />
+        </ComposedExampleChart>
+      ),
+    }),
+    ...makeCartesianReferenceAreaExamples({
+      titlePrefix: "Composed Chart",
+      chartOpen:
+        '<ComposedChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={data} xDataKey="date">',
+      chartClose: "</ComposedChart>",
+      seriesSnippet: `<SeriesBar dataKey="units" fill="var(--chart-3)" radius={4} />
+  <Line dataKey="revenue" stroke="var(--chart-1)" />
+  <ChartTooltip showCrosshair={false} />
+  <XAxis numTicks={8} />`,
+      y1: 95,
+      y2: 110,
+      render: (referenceArea) => (
+        <ComposedExampleChart data={dataCast} xDataKey="date">
+          {referenceArea}
           <SeriesBar dataKey="units" fill="var(--chart-3)" radius={4} />
           <Line dataKey="revenue" stroke="var(--chart-1)" />
           <ChartTooltip showCrosshair={false} />
@@ -2546,6 +2663,23 @@ import {
         </LineExampleChart>
       ),
     }),
+    ...makeCartesianReferenceAreaExamples({
+      titlePrefix: "Line Chart",
+      chartOpen:
+        "<LineChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={chartData}>",
+      chartClose: "</LineChart>",
+      seriesSnippet: `<Line dataKey="desktop" strokeWidth={2} />
+  <XAxis />
+  <ChartTooltip />`,
+      render: (referenceArea) => (
+        <LineExampleChart data={lineData}>
+          {referenceArea}
+          <Line dataKey="desktop" strokeWidth={2} />
+          <XAxis />
+          <ChartTooltip />
+        </LineExampleChart>
+      ),
+    }),
   ];
 }
 
@@ -2753,6 +2887,36 @@ function makeLiveLineExamples(): ChartExample[] {
 </LiveLineChart>`,
       render: () => <LiveLineBackgroundDotsDemo />,
     },
+    {
+      title: "Live Line - Reference Band",
+      description: "Target price band with dashed edges and bracket markers",
+      code: `<LiveLineChart margin={{ top: 8, right: 8, bottom: 40, left: 28 }} data={data} value={value} window={30}>
+  <ReferenceArea y1={138} y2={148} strokeStyle="dashed" showMarkers />
+  <LiveLine dataKey="value" stroke="var(--chart-1)" formatValue={formatUsd} />
+  <LiveXAxis />
+  <LiveYAxis position="left" formatValue={formatUsd} />
+</LiveLineChart>`,
+      footer: "See /docs/utility/reference-area",
+      render: () => <LiveLineReferenceBandDemo />,
+    },
+    {
+      title: "Live Line - Pattern Reference Band",
+      description: "Pattern fill inside the band with colored Y-axis ticks",
+      code: `<LiveLineChart margin={{ top: 8, right: 8, bottom: 40, left: 28 }} data={data} value={value} window={30}>
+  <ReferenceArea
+    y1={138}
+    y2={148}
+    pattern="diagonal"
+    patternColor="var(--chart-foreground-muted)"
+    axisLabelColor="var(--chart-1)"
+    fillOpacity={0.85}
+  />
+  <LiveLine dataKey="value" stroke="var(--chart-1)" formatValue={formatUsd} />
+  <LiveXAxis />
+  <LiveYAxis position="left" formatValue={formatUsd} />
+</LiveLineChart>`,
+      render: () => <LiveLinePatternReferenceBandDemo />,
+    },
   ];
 }
 
@@ -2791,6 +2955,59 @@ function LiveLineBackgroundDotsDemo() {
       window={30}
     >
       <Background opacity={0.85} pattern="dots" />
+      <LiveLine
+        dataKey="value"
+        formatValue={formatUsd}
+        stroke="var(--chart-1)"
+      />
+      <LiveXAxis />
+      <LiveYAxis formatValue={formatUsd} position="left" />
+    </LiveLineExampleChart>
+  );
+}
+
+function LiveLineReferenceBandDemo() {
+  const { data, value } = useLiveData(142.5, 600);
+  const formatUsd = useCallback((v: number) => `$${v.toFixed(2)}`, []);
+  return (
+    <LiveLineExampleChart
+      data={data}
+      margin={{ left: 28 }}
+      style={{ height: 240 }}
+      value={value}
+      window={30}
+    >
+      <ReferenceArea showMarkers strokeStyle="dashed" y1={138} y2={148} />
+      <LiveLine
+        dataKey="value"
+        formatValue={formatUsd}
+        stroke="var(--chart-1)"
+      />
+      <LiveXAxis />
+      <LiveYAxis formatValue={formatUsd} position="left" />
+    </LiveLineExampleChart>
+  );
+}
+
+function LiveLinePatternReferenceBandDemo() {
+  const { data, value } = useLiveData(142.5, 600);
+  const formatUsd = useCallback((v: number) => `$${v.toFixed(2)}`, []);
+  return (
+    <LiveLineExampleChart
+      data={data}
+      margin={{ left: 28 }}
+      style={{ height: 240 }}
+      value={value}
+      window={30}
+    >
+      <ReferenceArea
+        axisLabelColor="var(--chart-1)"
+        fillOpacity={0.85}
+        pattern="diagonal"
+        patternColor="var(--chart-foreground-muted)"
+        y1={138}
+        y2={148}
+      />
       <LiveLine
         dataKey="value"
         formatValue={formatUsd}
@@ -4541,6 +4758,28 @@ function makeCandlestickExamples(): ChartExample[] {
         </CandlestickExampleChart>
       ),
     }),
+    ...makeCartesianReferenceAreaExamples({
+      titlePrefix: "Candlestick",
+      chartOpen:
+        "<CandlestickChart data={ohlcData} margin={{ top: 8, right: 8, bottom: 40, left: 8 }} style={{ height: 320 }}>",
+      chartClose: "</CandlestickChart>",
+      seriesSnippet: `<Candlestick fadedOpacity={0.25} />
+  <ChartTooltip content={CandlestickTooltipContent} />
+  <XAxis />`,
+      y1: 98,
+      y2: 108,
+      render: (referenceArea) => (
+        <CandlestickExampleChart
+          data={candlestickOhlcData}
+          style={{ height: 320 }}
+        >
+          {referenceArea}
+          <Candlestick fadedOpacity={0.25} />
+          <ChartTooltip content={CandlestickTooltipContent} />
+          <XAxis />
+        </CandlestickExampleChart>
+      ),
+    }),
   ];
 }
 
@@ -4873,6 +5112,42 @@ function makeProfitLossLineExamples(): ChartExample[] {
       render: (background) => (
         <LineExampleChart data={profitLossLineDocsData}>
           {background}
+          <Line
+            dataKey="pnl"
+            showHighlight={false}
+            stroke="transparent"
+            strokeWidth={0}
+          />
+          <ProfitLossLine dataKey="pnl" />
+          <XAxis />
+          <ChartTooltip
+            indicatorColor={(point) =>
+              profitLossColor((point.pnl as number) ?? 0)
+            }
+            rows={(point) => [
+              {
+                label: resolveProfitLossTooltipLabel(""),
+                value: (point.pnl as number) ?? 0,
+                color: profitLossColor((point.pnl as number) ?? 0),
+              },
+            ]}
+          />
+        </LineExampleChart>
+      ),
+    }),
+    ...makeCartesianReferenceAreaExamples({
+      titlePrefix: "Profit/Loss Line",
+      chartOpen: "<LineChart data={data}>",
+      chartClose: "</LineChart>",
+      seriesSnippet: `<Line dataKey="pnl" stroke="transparent" strokeWidth={0} showHighlight={false} />
+  <ProfitLossLine dataKey="pnl" />
+  <XAxis />
+  <ChartTooltip />`,
+      y1: -200,
+      y2: 200,
+      render: (referenceArea) => (
+        <LineExampleChart data={profitLossLineDocsData}>
+          {referenceArea}
           <Line
             dataKey="pnl"
             showHighlight={false}
@@ -5525,6 +5800,25 @@ function makeScatterExamples(): ChartExample[] {
       render: (background) => (
         <ScatterExampleChart data={scatterMultiSeriesData}>
           {background}
+          <Scatter dataKey="desktop" />
+          <XAxis />
+          <ChartTooltip />
+        </ScatterExampleChart>
+      ),
+    }),
+    ...makeCartesianReferenceAreaExamples({
+      titlePrefix: "Scatter Chart",
+      chartOpen:
+        "<ScatterChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={chartData}>",
+      chartClose: "</ScatterChart>",
+      seriesSnippet: `<Scatter dataKey="desktop" />
+  <XAxis />
+  <ChartTooltip />`,
+      y1: 120,
+      y2: 180,
+      render: (referenceArea) => (
+        <ScatterExampleChart data={scatterMultiSeriesData}>
+          {referenceArea}
           <Scatter dataKey="desktop" />
           <XAxis />
           <ChartTooltip />

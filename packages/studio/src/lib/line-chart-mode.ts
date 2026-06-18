@@ -1,3 +1,4 @@
+import { getCandlestickReferenceAreaDefaults } from "./demo-data";
 import { chartDefaultHiddenYAxes } from "./studio-component-visibility";
 import type { StudioUrlState } from "./studio-parsers";
 
@@ -55,4 +56,9 @@ export const lineChartStandardDefaults: Partial<StudioUrlState> = {
   fadeEdges: "both",
   showHighlight: true,
   hiddenComponents: chartDefaultHiddenYAxes("line"),
+};
+
+export const candlestickChartDefaults: Partial<StudioUrlState> = {
+  hiddenComponents: chartDefaultHiddenYAxes("candlestick"),
+  ...getCandlestickReferenceAreaDefaults(),
 };

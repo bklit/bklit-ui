@@ -8,6 +8,7 @@ import {
   LiveYAxis,
 } from "@bklitui/ui/charts";
 import { useEffect, useRef, useState } from "react";
+import { StudioReferenceAreaLayer } from "@/components/charts/studio-reference-area-layer";
 import type { StudioFrameSize } from "@/components/studio-chart-viewport";
 import type { CurveId } from "@/lib/curves";
 import { resolveCurve } from "@/lib/curves";
@@ -130,6 +131,10 @@ export function LiveLineStudioPreview({
         "live-line.grid"
       )}
       {studioCartesianGridLayer(state, "live-line.grid")}
+      <StudioReferenceAreaLayer
+        componentId="live-line.reference-area"
+        state={state}
+      />
       <LiveLine
         badge={badge}
         curve={resolveCurve(curve)}

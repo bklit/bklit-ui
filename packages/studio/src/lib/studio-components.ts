@@ -44,6 +44,7 @@ import {
   pieCenterControlGroup,
   pieChartControlGroups,
   radarChartControlGroups,
+  referenceAreaControlGroups,
   ringCenterControlGroup,
   ringChartControlGroups,
   sankeyChartControlGroups,
@@ -168,6 +169,16 @@ function backgroundNode(chartPrefix: string): StudioComponentDefinition {
     parentId: `${chartPrefix}.chart`,
     kind: "chart",
     controlGroups: backgroundControlGroups,
+  };
+}
+
+function referenceAreaNode(chartPrefix: string): StudioComponentDefinition {
+  return {
+    id: `${chartPrefix}.reference-area`,
+    label: "Reference area",
+    parentId: `${chartPrefix}.chart`,
+    kind: "chart",
+    controlGroups: referenceAreaControlGroups,
   };
 }
 
@@ -311,8 +322,18 @@ export function getStudioDataControlGroups(
   state: StudioUrlState
 ): StudioControlGroup[] {
   const groups = getStudioControlGroups(config, state);
+  const result: StudioControlGroup[] = [];
   const dataGroupConfig = groups.find((group) => group.title === "Data");
-  return dataGroupConfig ? [dataGroupConfig] : [];
+  if (dataGroupConfig) {
+    result.push(dataGroupConfig);
+  }
+  const referenceRangeGroup = groups.find(
+    (group) => group.title === "Reference range"
+  );
+  if (referenceRangeGroup) {
+    result.push(referenceRangeGroup);
+  }
+  return result;
 }
 
 function resolveCartesianLoadingStudioComponents(options: {
@@ -493,6 +514,7 @@ export function resolveAreaComponents(
     },
     gridNode("area"),
     backgroundNode("area"),
+    referenceAreaNode("area"),
   ];
 
   for (let index = 0; index < seriesCount; index += 1) {
@@ -551,6 +573,7 @@ export function resolveBarComponents(
     },
     gridNode("bar"),
     backgroundNode("bar"),
+    referenceAreaNode("bar"),
   ];
 
   const horizontal = state.barOrientation === "horizontal";
@@ -619,6 +642,7 @@ export function resolveComposedComponents(
     },
     passiveNode("composed", "grid", "Grid"),
     backgroundNode("composed"),
+    referenceAreaNode("composed"),
   ];
 
   for (let index = 0; index < seriesCount; index += 1) {
@@ -771,6 +795,7 @@ export function resolveLiveLineComponents(): StudioComponentDefinition[] {
     },
     gridNode("live-line"),
     backgroundNode("live-line"),
+    referenceAreaNode("live-line"),
     {
       id: "live-line.line",
       label: "LiveLine",
@@ -824,6 +849,7 @@ function resolveProfitLossLineComponents(): StudioComponentDefinition[] {
     },
     gridNode("line", zeroLine ? [zeroLine] : []),
     backgroundNode("line"),
+    referenceAreaNode("line"),
     {
       id: "line.profit-loss",
       label: "ProfitLossLine",
@@ -894,6 +920,7 @@ export function resolveLineComponents(
     },
     gridNode("line"),
     backgroundNode("line"),
+    referenceAreaNode("line"),
   ];
 
   for (let index = 0; index < seriesCount; index += 1) {
@@ -1029,6 +1056,7 @@ export function resolveScatterComponents(
     },
     gridNode("scatter"),
     backgroundNode("scatter"),
+    referenceAreaNode("scatter"),
     {
       id: "scatter.desktop",
       label: "Scatter · desktop",
@@ -1086,6 +1114,7 @@ export function resolveCandlestickComponents(
     },
     gridNode("candlestick"),
     backgroundNode("candlestick"),
+    referenceAreaNode("candlestick"),
     {
       id: "candlestick.candles",
       label: "Candlestick",
@@ -1094,6 +1123,8 @@ export function resolveCandlestickComponents(
       controlGroups: candles ? [candles] : [],
     },
     chartTooltipNode("candlestick"),
+    chartYAxisNode("candlestick", "left", "YAxis · left"),
+    chartYAxisNode("candlestick", "right", "YAxis · right"),
     passiveNode("candlestick", "xaxis", "XAxis"),
     legendNode("candlestick"),
   ];

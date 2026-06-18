@@ -56,6 +56,7 @@ const utilities = [
   { text: "Legend", url: "/docs/utility/legend" },
   { text: "Grid", url: "/docs/utility/grid" },
   { text: "Background", url: "/docs/utility/background" },
+  { text: "Reference Area", url: "/docs/utility/reference-area" },
   { text: "Tooltip", url: "/docs/utility/tooltip" },
   { text: "Brush", url: "/docs/utility/brush" },
   {

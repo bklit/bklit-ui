@@ -18,6 +18,7 @@ import {
   StudioChartYAxisLayers,
   timeSeriesChartMargin,
 } from "@/components/charts/studio-chart-y-axis";
+import { StudioReferenceAreaLayer } from "@/components/charts/studio-reference-area-layer";
 import { fadeEdgesPropValue } from "@/components/controls/fade-edges-picker";
 import { getStudioCssRevealPropsForPreview } from "@/lib/chart-animation";
 import { resolveCurve } from "@/lib/curves";
@@ -206,6 +207,10 @@ export function LineChartStudioStandardPreview({
                 "line.grid"
               )}
               {studioCartesianGridLayer(state, "line.grid")}
+              <StudioReferenceAreaLayer
+                componentId="line.reference-area"
+                state={state}
+              />
               {renderMainLines(state, {
                 dataLength: data.length,
                 seriesCount,

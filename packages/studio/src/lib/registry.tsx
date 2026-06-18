@@ -38,6 +38,7 @@ import {
   StudioChartYAxisLayers,
   timeSeriesChartMargin,
 } from "@/components/charts/studio-chart-y-axis";
+import { StudioReferenceAreaLayer } from "@/components/charts/studio-reference-area-layer";
 import { fadeEdgesPropValue } from "@/components/controls/fade-edges-picker";
 import {
   getStudioCssRevealPropsForPreview,
@@ -231,6 +232,10 @@ const scatterConfig: StudioChartConfig = {
             "scatter.grid"
           )}
           {studioCartesianGridLayer(state, "scatter.grid")}
+          <StudioReferenceAreaLayer
+            componentId="scatter.reference-area"
+            state={state}
+          />
           {isStudioComponentVisible(state, "scatter.desktop") ? (
             <Scatter
               dataKey="desktop"
@@ -340,6 +345,10 @@ const barConfig: StudioChartConfig = {
               "bar.grid"
             )}
             {studioCartesianGridLayer(state, "bar.grid")}
+            <StudioReferenceAreaLayer
+              componentId="bar.reference-area"
+              state={state}
+            />
             {ctx.patternDefs}
             {seriesKeys.map((key, idx) => (
               <Bar
@@ -417,6 +426,10 @@ const composedConfig: StudioChartConfig = {
             <StudioVisibleLayer componentId="composed.grid" state={state}>
               <Grid horizontal />
             </StudioVisibleLayer>
+            <StudioReferenceAreaLayer
+              componentId="composed.reference-area"
+              state={state}
+            />
             {ctx.patternDefs}
             {barKey ? (
               <SeriesBar

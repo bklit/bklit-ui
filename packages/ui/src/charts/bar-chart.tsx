@@ -20,6 +20,10 @@ import { cn } from "@/lib/utils";
 import { DEFAULT_ANIMATION_EASING } from "./animation";
 import type { BarProps } from "./bar";
 import {
+  isClipExcludedComponent,
+  isUnderlayComponent,
+} from "./chart-child-passthrough";
+import {
   ChartProvider,
   type LineConfig,
   type Margin,
@@ -28,6 +32,7 @@ import {
 import { isGradientDefComponent, isPatternDefComponent } from "./chart-defs";
 import { shortDateFmt } from "./chart-formatters";
 import { type ChartPhase, DEFAULT_CHART_LIFECYCLE } from "./chart-phase";
+import { extractReferenceAreaConfigs } from "./reference-area-config";
 import { useScheduledTooltip } from "./use-scheduled-tooltip";
 import {
   buildYScalesForLines,
@@ -522,6 +527,8 @@ const ChartCore = memo(function ChartCore({
 
   // Separate children into defs, pre-overlay, and post-overlay
   const defsChildren: ReactElement[] = [];
+  const clipExcludedChildren: ReactElement[] = [];
+  const underlayChildren: ReactElement[] = [];
   const preOverlayChildren: ReactElement[] = [];
   const postOverlayChildren: ReactElement[] = [];
 
@@ -536,10 +543,19 @@ const ChartCore = memo(function ChartCore({
       preOverlayChildren.push(child);
     } else if (isPostOverlayComponent(child)) {
       postOverlayChildren.push(child);
+    } else if (isClipExcludedComponent(child)) {
+      clipExcludedChildren.push(child);
+    } else if (isUnderlayComponent(child)) {
+      underlayChildren.push(child);
     } else {
       preOverlayChildren.push(child);
     }
   });
+
+  const referenceAreas = useMemo(
+    () => extractReferenceAreaConfigs(children),
+    [children]
+  );
 
   const contextValue = {
     ...DEFAULT_CHART_LIFECYCLE,
@@ -560,6 +576,7 @@ const ChartCore = memo(function ChartCore({
     setTooltipData,
     containerRef,
     lines,
+    referenceAreas,
     isLoaded,
     animationDuration,
     animationEasing,
@@ -607,6 +624,8 @@ const ChartCore = memo(function ChartCore({
           />
 
           {/* SVG children rendered before markers */}
+          {clipExcludedChildren}
+          {underlayChildren}
           {preOverlayChildren}
 
           {/* Markers rendered last so they're on top for interaction */}

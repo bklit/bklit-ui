@@ -252,6 +252,40 @@ export const studioSearchParams = {
   backgroundFadeVertical: parseAsBoolean.withDefault(true),
   backgroundFadeHorizontalLength: parseAsFloat.withDefault(10),
   backgroundFadeVerticalLength: parseAsFloat.withDefault(10),
+  referenceAreaY1: parseAsFloat.withDefault(160),
+  referenceAreaY2: parseAsFloat.withDefault(220),
+  referenceAreaFill: parseAsString.withDefault(
+    "color-mix(in oklch, var(--chart-foreground-muted) 15%, transparent)"
+  ),
+  referenceAreaFillOpacity: parseAsFloat.withDefault(1),
+  referenceAreaPattern:
+    parseAsStringLiteral(PATTERN_PRESET_IDS).withDefault("none"),
+  referenceAreaPatternColor: parseAsString.withDefault(
+    "var(--chart-foreground-muted)"
+  ),
+  referenceAreaPatternScale: parseAsFloat.withDefault(1),
+  referenceAreaPatternStrokeWidth: parseAsFloat.withDefault(1),
+  referenceAreaPatternRadius: parseAsFloat.withDefault(2),
+  referenceAreaPatternComplement: parseAsBoolean.withDefault(false),
+  referenceAreaPatternFill: parseAsString.withDefault(""),
+  referenceAreaPatternDotsFill: parseAsBoolean.withDefault(true),
+  referenceAreaPatternTileBackground: parseAsString.withDefault(""),
+  referenceAreaStroke: parseAsString.withDefault(
+    "var(--chart-foreground-muted)"
+  ),
+  referenceAreaStrokeStyle: parseAsStringLiteral([
+    "solid",
+    "dashed",
+  ]).withDefault("dashed"),
+  referenceAreaStrokeDasharray: parseAsString.withDefault("4,4"),
+  referenceAreaFadeEdges: parseAsBoolean.withDefault(true),
+  referenceAreaFadeEdgesLength: parseAsFloat.withDefault(10),
+  referenceAreaAxisLabelColor: parseAsString.withDefault("var(--chart-1)"),
+  referenceAreaShowMarkers: parseAsBoolean.withDefault(true),
+  referenceAreaMarkerColor: parseAsString.withDefault("var(--chart-1)"),
+  referenceAreaYAxis: parseAsStringLiteral(["left", "right"]).withDefault(
+    "left"
+  ),
   lineLoadingLabel: parseAsString.withDefault("Loading"),
   /** Pipe-encoded Y axis id per line series (`left` / `right`). */
   lineSeriesYAxes: parseAsString.withDefault("left|left"),
@@ -510,6 +544,28 @@ export interface StudioUrlState {
   backgroundFadeVertical: boolean;
   backgroundFadeHorizontalLength: number;
   backgroundFadeVerticalLength: number;
+  referenceAreaY1: number;
+  referenceAreaY2: number;
+  referenceAreaFill: string;
+  referenceAreaFillOpacity: number;
+  referenceAreaPattern: PatternPresetId;
+  referenceAreaPatternColor: string;
+  referenceAreaPatternScale: number;
+  referenceAreaPatternStrokeWidth: number;
+  referenceAreaPatternRadius: number;
+  referenceAreaPatternComplement: boolean;
+  referenceAreaPatternFill: string;
+  referenceAreaPatternDotsFill: boolean;
+  referenceAreaPatternTileBackground: string;
+  referenceAreaStroke: string;
+  referenceAreaStrokeStyle: "solid" | "dashed";
+  referenceAreaStrokeDasharray: string;
+  referenceAreaFadeEdges: boolean;
+  referenceAreaFadeEdgesLength: number;
+  referenceAreaAxisLabelColor: string;
+  referenceAreaShowMarkers: boolean;
+  referenceAreaMarkerColor: string;
+  referenceAreaYAxis: "left" | "right";
   lineLoadingLabel: string;
   lineSeriesYAxes: string;
   lineYAxisNumTicks: string;
@@ -762,6 +818,29 @@ export function defaultStudioState(
     backgroundFadeVertical: true,
     backgroundFadeHorizontalLength: 10,
     backgroundFadeVerticalLength: 10,
+    referenceAreaY1: 160,
+    referenceAreaY2: 220,
+    referenceAreaFill:
+      "color-mix(in oklch, var(--chart-foreground-muted) 15%, transparent)",
+    referenceAreaFillOpacity: 1,
+    referenceAreaPattern: "none",
+    referenceAreaPatternColor: "var(--chart-foreground-muted)",
+    referenceAreaPatternScale: 1,
+    referenceAreaPatternStrokeWidth: 1,
+    referenceAreaPatternRadius: 2,
+    referenceAreaPatternComplement: false,
+    referenceAreaPatternFill: "",
+    referenceAreaPatternDotsFill: true,
+    referenceAreaPatternTileBackground: "",
+    referenceAreaStroke: "var(--chart-foreground-muted)",
+    referenceAreaStrokeStyle: "dashed",
+    referenceAreaStrokeDasharray: "4,4",
+    referenceAreaFadeEdges: true,
+    referenceAreaFadeEdgesLength: 10,
+    referenceAreaAxisLabelColor: "var(--chart-1)",
+    referenceAreaShowMarkers: true,
+    referenceAreaMarkerColor: "var(--chart-1)",
+    referenceAreaYAxis: "left",
     lineLoadingLabel: "Loading",
     lineSeriesYAxes: "left|left",
     lineYAxisNumTicks: "5|5",

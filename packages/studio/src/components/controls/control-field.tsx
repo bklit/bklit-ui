@@ -40,6 +40,8 @@ import {
 } from "./line-y-axis-settings-controls";
 import { OpacityControl } from "./opacity-control";
 import { PieEndAngleControl, PieStartAngleControl } from "./pie-angle-control";
+import { ReferenceAreaFillControl } from "./reference-area-fill-control";
+import { ReferenceAreaYAxisControl } from "./reference-area-y-axis-control";
 import { SliderInputGroup } from "./slider-input-group";
 
 function numberControlPreviewIcon(
@@ -441,6 +443,28 @@ export function ControlField({
           value={value}
         />
       </StudioControlRow>
+    );
+  }
+
+  if (control.type === "referenceAreaFill") {
+    return (
+      <ReferenceAreaFillControl
+        onChange={onChange}
+        onCommit={onCommit}
+        onPreview={onPreview}
+        state={state}
+      />
+    );
+  }
+
+  if (control.type === "referenceAreaYAxis") {
+    return (
+      <ReferenceAreaYAxisControl
+        label={control.label}
+        onChange={onChange}
+        onCommit={onCommit}
+        state={state}
+      />
     );
   }
 
