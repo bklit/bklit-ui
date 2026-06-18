@@ -19,11 +19,12 @@ export function serializeHiddenStudioComponents(ids: Iterable<string>): string {
   return [...ids].filter(Boolean).join(HIDDEN_SEP);
 }
 
-/** Both Y axes hidden until toggled in the components tree. */
+/** Y axes and reference area hidden until toggled in the components tree. */
 export function chartDefaultHiddenYAxes(chartPrefix: string): string {
   return serializeHiddenStudioComponents([
     `${chartPrefix}.yaxis.left`,
     `${chartPrefix}.yaxis.right`,
+    `${chartPrefix}.reference-area`,
   ]);
 }
 
