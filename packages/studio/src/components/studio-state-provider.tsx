@@ -44,6 +44,7 @@ const STUDIO_Y_AXIS_CHART_PREFIX: Partial<Record<ChartSlug, string>> = {
   "composed-chart": "composed",
   "bar-chart": "bar",
   "candlestick-chart": "candlestick",
+  "live-line-chart": "live-line",
 };
 
 function finiteFrameDimension(value: number, fallback: number) {
