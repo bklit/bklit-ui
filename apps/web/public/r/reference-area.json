@@ -26,7 +26,7 @@
     },
     {
       "path": "src/charts/reference-area-registration-context.tsx",
-      "content": "\"use client\";\n\nimport { createContext, useContext } from \"react\";\nimport type { ReferenceAreaConfig } from \"./reference-area-config\";\n\nexport type ReferenceAreaRegistrationContextValue = {\n  registerReferenceArea: (id: string, config: ReferenceAreaConfig) => void;\n  unregisterReferenceArea: (id: string) => void;\n};\n\nexport const ReferenceAreaRegistrationContext =\n  createContext<ReferenceAreaRegistrationContextValue | null>(null);\n\nexport function useReferenceAreaRegistration(): ReferenceAreaRegistrationContextValue | null {\n  return useContext(ReferenceAreaRegistrationContext);\n}\n",
+      "content": "\"use client\";\n\nimport { createContext, useContext } from \"react\";\nimport type { ReferenceAreaConfig } from \"./reference-area-config\";\n\nexport interface ReferenceAreaRegistrationContextValue {\n  registerReferenceArea: (id: string, config: ReferenceAreaConfig) => void;\n  unregisterReferenceArea: (id: string) => void;\n}\n\nexport const ReferenceAreaRegistrationContext =\n  createContext<ReferenceAreaRegistrationContextValue | null>(null);\n\nexport function useReferenceAreaRegistration(): ReferenceAreaRegistrationContextValue | null {\n  return useContext(ReferenceAreaRegistrationContext);\n}\n",
       "type": "registry:component",
       "target": "components/charts/reference-area-registration-context.tsx"
     }
