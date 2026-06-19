@@ -69,10 +69,21 @@
   --radius-4xl: calc(var(--radius) + 16px);
   --font-heading: var(--font-geist-sans);
   --color-fd-input: var(--input);
+
+  --shadow-color: var(--shadow);
+
+  --shadow-2xs: 0 1px var(--shadow);
+  --shadow-xs: 0 1px 2px 0 var(--shadow);
+  --shadow-sm: 0 1px 3px 0 var(--shadow), 0 1px 2px -1px var(--shadow);
+  --shadow-md: 0 4px 6px -1px var(--shadow), 0 2px 4px -2px var(--shadow);
+  --shadow-lg: 0 10px 15px -3px var(--shadow), 0 4px 6px -4px var(--shadow);
+  --shadow-xl: 0 20px 25px -5px var(--shadow), 0 8px 10px -6px var(--shadow);
+  --shadow-2xl: 0 25px 50px -12px var(--shadow);
 }
 
 :root {
-  /* Shadcn variables */
+  --background: oklch(0.98 0.0066 286.28);
+  --foreground: oklch(0.148 0.004 228.8);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.148 0.004 228.8);
   --popover: oklch(1 0 0);
@@ -95,6 +106,7 @@
   --chart-4: oklch(0.52 0.105 223.128);
   --chart-5: oklch(0.45 0.085 224.283);
   --radius: 0.625rem;
+  --shadow: oklch(0.95 0.0094 292.79);
   --sidebar: oklch(0.987 0.002 197.1);
   --sidebar-foreground: oklch(0.148 0.004 228.8);
   --sidebar-primary: oklch(0.218 0.008 223.9);
@@ -140,8 +152,6 @@
   --legend-muted: oklch(0.967 0.001 286.375);
   --legend-muted-foreground: oklch(0.552 0.016 285.938);
   --legend-track: oklch(0.92 0.004 286.32);
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.148 0.004 228.8);
 }
 
 .dark {
@@ -169,6 +179,7 @@
   --chart-3: oklch(0.609 0.126 221.723);
   --chart-4: oklch(0.52 0.105 223.128);
   --chart-5: oklch(0.45 0.085 224.283);
+  --shadow: oklch(0 0 none);
   --sidebar: oklch(0.218 0.008 223.9);
   --sidebar-foreground: oklch(0.987 0.002 197.1);
   --sidebar-primary: oklch(0.488 0.243 264.376);

@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 
 /** Chart demos and docs previews — use on `Card` + `CardContent`. */
 export const previewCardClassName =
-  "gap-0 overflow-visible rounded-xl border border-border py-0 shadow-sm ring-0";
+  "gap-0 overflow-visible rounded-xl border border-border shadow-lg py-0 ring-0";
 
 /** Centered chart area inside a preview card (docs + homepage). */
 export const previewCardContentClassName =
@@ -21,7 +21,7 @@ function Card({
   return (
     <div
       className={cn(
-        "group/card flex flex-col gap-4 overflow-hidden rounded-xl bg-card py-4 text-card-foreground text-sm shadow-xs ring-1 ring-foreground/10 has-[>img:first-child]:pt-0 data-[size=sm]:gap-3 data-[size=sm]:py-3 *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl",
+        "group/card flex flex-col gap-4 overflow-hidden rounded-xl bg-card py-4 text-card-foreground text-sm ring-1 ring-foreground/10 has-[>img:first-child]:pt-0 data-[size=sm]:gap-3 data-[size=sm]:py-3 *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl",
         className
       )}
       data-size={size}
