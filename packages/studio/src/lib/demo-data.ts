@@ -396,6 +396,10 @@ const HEATMAP_DAYS = 7;
 
 export const HEATMAP_WEEKS_ONE_YEAR = HEATMAP_WEEKS;
 export const HEATMAP_WEEKS_TWO_YEARS = HEATMAP_WEEKS * 2;
+/** ~4 months of weekly columns — used for compact catalog previews. */
+export const HEATMAP_WEEKS_FOUR_MONTHS = Math.round(
+  (HEATMAP_WEEKS_ONE_YEAR / 12) * 4
+);
 
 function heatmapContributionCount(
   seed: number,

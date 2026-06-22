@@ -232,7 +232,7 @@ export function ScrubNumberField({
         )}
       >
         <NumberFieldScrubArea
-          className="flex shrink-0 cursor-ew-resize select-none items-center self-stretch px-2 text-muted-foreground hover:text-foreground data-[scrubbing]:text-foreground"
+          className="flex shrink-0 cursor-ew-resize select-none items-center self-stretch px-2 text-muted-foreground hover:text-foreground data-scrubbing:text-foreground"
           direction="horizontal"
           onPointerEnter={() => {
             scrubHoverRef.current = true;

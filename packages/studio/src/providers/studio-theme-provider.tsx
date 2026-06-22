@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 const STORAGE_KEY = "studio-theme";
 const SITE_THEME_STORAGE_KEY = "theme";
 
-type StudioTheme = "light" | "dark";
+export type StudioTheme = "light" | "dark";
 
 interface StudioThemeContextValue {
   resolvedTheme: StudioTheme;

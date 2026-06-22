@@ -18,7 +18,7 @@ import {
   studioEnterStaggerScale,
   studioPreviewChartKey,
 } from "@/lib/chart-animation";
-import { getHeatmapData } from "@/lib/demo-data";
+import { getHeatmapData, HEATMAP_WEEKS_ONE_YEAR } from "@/lib/demo-data";
 import { studioHeatmapLevelStyles } from "@/lib/heatmap-studio-colors";
 import type { StudioRenderContext } from "@/lib/render-context";
 import { StudioChartContentViewport } from "@/lib/studio-chart-content-frame";
@@ -101,7 +101,11 @@ export function HeatmapStudioPreview({
   ctx: StudioRenderContext;
 }) {
   const levelStyles = useMemo(() => studioHeatmapLevelStyles(state), [state]);
-  const data = useMemo(() => getHeatmapData(ctx.dataSeed), [ctx.dataSeed]);
+  const data = useMemo(() => {
+    const weeks =
+      state.heatmapBinSize > 0 ? state.heatmapBinSize : HEATMAP_WEEKS_ONE_YEAR;
+    return getHeatmapData(ctx.dataSeed, weeks);
+  }, [ctx.dataSeed, state.heatmapBinSize]);
   const chrome = ctx.chromeState;
   const legendVisible =
     chrome.showLegend && isStudioComponentVisible(state, "heatmap.legend");

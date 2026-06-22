@@ -2,7 +2,7 @@
 "use client";
 
 import { PatternLines, renderPatternPreset } from "@bklitui/ui/charts";
-import { Fragment } from "react";
+import { cloneElement, Fragment, isValidElement } from "react";
 
 export {
   PATTERN_PRESET_IDS,
@@ -40,10 +40,10 @@ function patternNodeForPreset(
     scale: preset === "cross" ? 1.33 : 1,
     strokeWidth: preset === "circles" ? 1 : undefined,
   });
-  if (!node) {
+  if (!(node && isValidElement(node))) {
     return null;
   }
-  return <Fragment key={id}>{node}</Fragment>;
+  return cloneElement(node, { key: id });
 }
 
 export function StudioPatternDefs({

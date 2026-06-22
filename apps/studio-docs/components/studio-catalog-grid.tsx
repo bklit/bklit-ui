@@ -23,7 +23,14 @@ import {
   ToggleGroupDemo,
 } from "@bklitui/studio/dev/ui-demos";
 import type { ComponentType, ReactNode } from "react";
+import { CatalogChartPreviewGrid } from "@/components/catalog/catalog-chart-preview-grid";
+import { CatalogThemePanel } from "@/components/catalog/catalog-theme-panel";
+import {
+  CatalogThemeProvider,
+  useCatalogTheme,
+} from "@/components/catalog/catalog-theme-provider";
 import { CatalogSourceMenu } from "@/components/catalog-source-menu";
+import { HighlightedCodeBlock } from "@/components/highlighted-code-block";
 import { CATALOG_TILE_SOURCES } from "@/lib/catalog-tile-sources";
 import type { RepoRelativePath } from "@/lib/open-in-cursor";
 import { StudioThemeProvider } from "@/providers/studio-theme-provider";
@@ -217,24 +224,63 @@ function CatalogTileCard({
 export function StudioCatalogGrid() {
   return (
     <StudioThemeProvider embedded>
-      <div className="min-h-[calc(100dvh-3.5rem)] w-full bg-background px-6 py-8">
-        <div className="mb-8">
-          <h1 className="font-semibold text-2xl tracking-tight">
-            Component catalog
-          </h1>
-          <p className="mt-2 max-w-2xl text-muted-foreground text-sm leading-relaxed">
-            Every Studio UI surface in one grid. Edit{" "}
-            <code className="rounded bg-muted px-1 py-0.5 font-mono text-[11px]">
-              packages/studio/src/styles/bklit-tokens.css
-            </code>{" "}
-            and toggle light/dark with{" "}
-            <kbd className="rounded border bg-muted px-1 py-0.5 font-mono text-[10px]">
-              D
-            </kbd>
-            . Use the file menu on each card to open sources in Cursor.
-          </p>
+      <CatalogThemeProvider>
+        <div className="flex min-h-[calc(100dvh-3.5rem)] w-full border-t">
+          <CatalogThemePanel
+            renderHighlightedCode={(code) => (
+              <HighlightedCodeBlock code={code} lang="css" />
+            )}
+          />
+          <CatalogMainContent />
         </div>
+      </CatalogThemeProvider>
+    </StudioThemeProvider>
+  );
+}
 
+function CatalogMainContent() {
+  const { tokenGroup } = useCatalogTheme();
+  const isChartMode = tokenGroup === "chart";
+
+  return (
+    <div className="min-w-0 flex-1 bg-background px-6 py-8">
+      <div className="mb-8">
+        <h1 className="font-semibold text-2xl tracking-tight">
+          {isChartMode ? "Chart catalog" : "Component catalog"}
+        </h1>
+        <p className="mt-2 max-w-2xl text-muted-foreground text-sm leading-relaxed">
+          {isChartMode ? (
+            <>
+              Live previews for every chart type. Tweak chart semantic tokens in
+              the left panel, or edit{" "}
+              <code className="rounded bg-muted px-1 py-0.5 font-mono text-[11px]">
+                packages/studio/src/styles/bklit-tokens.css
+              </code>{" "}
+              directly.
+            </>
+          ) : (
+            <>
+              Every Studio UI surface in one grid. Tweak shadcn theme tokens in
+              the left panel for live preview, or edit{" "}
+              <code className="rounded bg-muted px-1 py-0.5 font-mono text-[11px]">
+                packages/studio/src/styles/bklit-tokens.css
+              </code>{" "}
+              directly.
+            </>
+          )}{" "}
+          Toggle light/dark with{" "}
+          <kbd className="rounded border bg-muted px-1 py-0.5 font-mono text-[10px]">
+            D
+          </kbd>
+          {isChartMode
+            ? "."
+            : ". Use the file menu on each card to open sources in Cursor."}
+        </p>
+      </div>
+
+      {isChartMode ? (
+        <CatalogChartPreviewGrid />
+      ) : (
         <div className="w-full columns-[360px] gap-5">
           {CATALOG_TILES.map(({ id, title, description, Demo, sources }) => (
             <CatalogTileCard
@@ -247,7 +293,7 @@ export function StudioCatalogGrid() {
             </CatalogTileCard>
           ))}
         </div>
-      </div>
-    </StudioThemeProvider>
+      )}
+    </div>
   );
 }

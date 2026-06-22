@@ -30,6 +30,8 @@ export interface SankeyNodeProps {
   fadedOpacity?: number;
   /** Show node labels. Default: true */
   showLabels?: boolean;
+  /** Show value labels under node names. Default: true */
+  showValueLabels?: boolean;
   /** Custom node color function */
   getNodeColor?: (
     node: SankeyNodeType<SankeyNodeDatum, SankeyLinkDatum>,
@@ -55,6 +57,7 @@ interface AnimatedNodeProps {
   value: number;
   isLeftSide: boolean;
   showLabels: boolean;
+  showValueLabels: boolean;
 }
 
 function AnimatedNode({
@@ -75,6 +78,7 @@ function AnimatedNode({
   value,
   isLeftSide,
   showLabels,
+  showValueLabels,
 }: AnimatedNodeProps) {
   const { enterTransition, revealEpoch } = useSankey();
 
@@ -128,18 +132,20 @@ function AnimatedNode({
           >
             {name}
           </motion.text>
-          <motion.text
-            animate={{ opacity: valueOpacity, x: valueLabelX }}
-            className="fill-foreground text-[11px]"
-            dy="0.35em"
-            initial={{ opacity: 0, x: isLeftSide ? x + 8 : x + width - 8 }}
-            key={`value-${index}-${revealEpoch}`}
-            textAnchor={isLeftSide ? "end" : "start"}
-            transition={valueEnter}
-            y={y + height / 2 + 16}
-          >
-            {intFmt(value)} sessions
-          </motion.text>
+          {showValueLabels && (
+            <motion.text
+              animate={{ opacity: valueOpacity, x: valueLabelX }}
+              className="fill-foreground text-[11px]"
+              dy="0.35em"
+              initial={{ opacity: 0, x: isLeftSide ? x + 8 : x + width - 8 }}
+              key={`value-${index}-${revealEpoch}`}
+              textAnchor={isLeftSide ? "end" : "start"}
+              transition={valueEnter}
+              y={y + height / 2 + 16}
+            >
+              {intFmt(value)} sessions
+            </motion.text>
+          )}
         </>
       )}
     </motion.g>
@@ -151,6 +157,7 @@ export function SankeyNode({
   lineCap = 4,
   fadedOpacity = 0.4,
   showLabels = true,
+  showValueLabels = true,
   getNodeColor: getNodeColorProp,
 }: SankeyNodeProps) {
   const {
@@ -282,6 +289,7 @@ export function SankeyNode({
             onMouseLeave={handleMouseLeave}
             rx={lineCap}
             showLabels={showLabels}
+            showValueLabels={showValueLabels}
             totalNodes={nodes.length}
             value={displayValue}
             width={nodeWidth}

@@ -3,7 +3,6 @@
 import { Icon } from "@bklitui/icons";
 import { cn } from "@bklitui/ui/lib/utils";
 import { StudioControlGroup } from "@/components/studio-control-group";
-import { resolveCssColor } from "@/lib/chart-theme-color";
 import {
   buildAddProjectionLineUpdate,
   buildHideComponentUpdate,
@@ -40,12 +39,13 @@ function ComponentListMarker({
   chartSlug: StudioUrlState["chart"];
 }) {
   if (component.listMarker === "color-dot") {
-    const color = resolveCssColor(component.swatchColor ?? "var(--chart-1)");
     return (
       <span
         aria-hidden
         className="size-2 shrink-0 rounded-full"
-        style={{ backgroundColor: color }}
+        style={{
+          backgroundColor: component.swatchColor ?? "var(--chart-1)",
+        }}
       />
     );
   }
