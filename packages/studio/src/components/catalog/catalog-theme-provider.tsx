@@ -82,7 +82,7 @@ interface CatalogThemeContextValue {
   setShadcnToken: (name: BklitShadcnThemeTokenName, value: string) => void;
   setChartToken: (name: BklitChartThemeTokenName, value: string) => void;
   resetTokens: () => void;
-  cssProperties: CSSProperties;
+  cssProperties: CSSProperties | undefined;
   cssBlock: string;
 }
 
