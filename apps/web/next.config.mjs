@@ -13,6 +13,7 @@ const nextConfig = {
   experimental: {
     // Keeps dev/prod from pulling the entire charts package per MDX page.
     optimizePackageImports: ["@bklitui/ui", "@bklitui/ui/charts"],
+    viewTransition: true,
   },
   async headers() {
     return [

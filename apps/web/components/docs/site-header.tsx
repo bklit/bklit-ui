@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "fumadocs-core/link";
+import { motion, useReducedMotion } from "motion/react";
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import { ModeToggle } from "@/components/mode-toggle";
 import { getAnalyticsUrl, trackEvent } from "@/lib/analytics/track-client";
-import { cn } from "@/lib/utils";
 import { GithubStarCount } from "../github-star-count";
 import { BklitLogo } from "../icons/bklit";
 import { DiscordIcon } from "../icons/discord";
@@ -103,6 +103,12 @@ function MenuIcon({ open }: { open: boolean }) {
 
 const STAGGER_DURATION = 650; // Total duration for all staggered items (ms)
 
+const HEADER_EASE = [0.23, 1, 0.32, 1] as const;
+const BORDER_EASE = [0.645, 0.045, 0.355, 1] as const;
+const HEADER_SHELL_DURATION = 0.38;
+const HEADER_BORDER_DELAY = 0.1;
+const HEADER_BORDER_DURATION = 0.32;
+
 interface MobileMenuProps {
   links: NavLink[];
   githubUrl?: string;
@@ -160,7 +166,7 @@ function MobileMenu({
 
       {/* Sheet */}
       <div
-        className={`fixed inset-x-0 top-18 bottom-0 z-50 flex flex-col overflow-hidden border-border border-b bg-background/95 backdrop-blur-xl transition-all duration-300 ease-out md:hidden ${
+        className={`fixed inset-x-0 top-(--site-header-height) bottom-0 z-50 flex flex-col overflow-hidden border-border border-b bg-background/95 backdrop-blur-xl transition-all duration-300 ease-out md:hidden ${
           isOpen
             ? "translate-y-0 opacity-100"
             : "pointer-events-none -translate-y-4 opacity-0"
@@ -345,6 +351,69 @@ function MobileMenu({
   );
 }
 
+function HeaderShell({
+  isScrolled,
+  reducedMotion,
+  children,
+}: {
+  isScrolled: boolean;
+  reducedMotion: boolean | null;
+  children: ReactNode;
+}) {
+  const shellTransition = reducedMotion
+    ? { duration: 0 }
+    : { duration: HEADER_SHELL_DURATION, ease: HEADER_EASE };
+
+  const borderTransition = reducedMotion
+    ? { duration: 0 }
+    : {
+        duration: HEADER_BORDER_DURATION,
+        ease: BORDER_EASE,
+        delay: isScrolled ? HEADER_BORDER_DELAY : 0,
+      };
+
+  return (
+    <motion.div
+      animate={{
+        paddingLeft: isScrolled ? 40 : 0,
+        paddingRight: isScrolled ? 40 : 0,
+      }}
+      className="container mx-auto"
+      transition={shellTransition}
+    >
+      <motion.div
+        animate={{
+          marginTop: isScrolled ? 16 : 0,
+          paddingTop: 16,
+          paddingBottom: 16,
+          paddingLeft: isScrolled ? 16 : 0,
+          paddingRight: isScrolled ? 16 : 0,
+          borderWidth: isScrolled ? 1 : 0,
+          borderColor: isScrolled ? "var(--border)" : "transparent",
+          backgroundColor: isScrolled
+            ? "color-mix(in oklab, var(--background) 80%, transparent)"
+            : "transparent",
+          backdropFilter: isScrolled ? "blur(4px)" : "blur(0px)",
+        }}
+        style={{ borderStyle: "solid" }}
+        transition={{
+          ...shellTransition,
+          borderColor: borderTransition,
+          borderWidth: reducedMotion
+            ? { duration: 0 }
+            : {
+                duration: HEADER_SHELL_DURATION * 0.7,
+                ease: HEADER_EASE,
+                delay: isScrolled ? HEADER_BORDER_DELAY * 0.6 : 0,
+              },
+        }}
+      >
+        {children}
+      </motion.div>
+    </motion.div>
+  );
+}
+
 export function SiteHeader({
   links = [],
   githubUrl,
@@ -353,6 +422,8 @@ export function SiteHeader({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const headerRef = useRef<HTMLElement>(null);
+  const reducedMotion = useReducedMotion();
   const { resolvedTheme } = useTheme();
 
   // Calculate stagger delay based on total items to complete in STAGGER_DURATION
@@ -387,27 +458,37 @@ export function SiteHeader({
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  useEffect(() => {
+    const header = headerRef.current;
+    if (!header) {
+      return;
+    }
+
+    const syncHeaderHeight = () => {
+      document.documentElement.style.setProperty(
+        "--site-header-height",
+        `${header.getBoundingClientRect().height}px`
+      );
+    };
+
+    syncHeaderHeight();
+    const observer = new ResizeObserver(syncHeaderHeight);
+    observer.observe(header);
+
+    return () => observer.disconnect();
+  }, []);
+
   // Only use resolved theme after mount to avoid hydration mismatch
   const logoTheme = mounted && resolvedTheme === "dark" ? "dark" : "light";
-
-  let headerBackgroundClass =
-    "bg-transparent hover:bg-background/85 hover:backdrop-blur-md";
-  if (mobileMenuOpen) {
-    headerBackgroundClass = "bg-background/95 backdrop-blur-xl";
-  } else if (isScrolled) {
-    headerBackgroundClass =
-      "bg-background/60 backdrop-blur-md hover:bg-background/90";
-  }
 
   return (
     <>
       <header
-        className={cn(
-          "fixed top-0 right-0 left-0 z-50 flex h-18 items-center px-2.5 transition-[background-color,backdrop-filter] duration-300 ease-out sm:px-0",
-          headerBackgroundClass
-        )}
+        className="fixed top-0 right-0 left-0 z-50 flex items-center px-2.5"
+        ref={headerRef}
+        style={{ viewTransitionName: "site-header" }}
       >
-        <div className="container mx-auto">
+        <HeaderShell isScrolled={isScrolled} reducedMotion={reducedMotion}>
           <div className="mx-auto flex h-full items-center justify-between gap-6">
             <div className="flex items-center gap-2">
               <Link
@@ -485,7 +566,7 @@ export function SiteHeader({
               </Button>
             </div>
           </div>
-        </div>
+        </HeaderShell>
       </header>
 
       <MobileMenu

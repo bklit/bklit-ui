@@ -31,8 +31,8 @@ export function Sidebar({ tree, links = [] }: SidebarProps) {
   const pathname = usePathname();
 
   return (
-    <aside className="fixed top-14 left-0 hidden h-[calc(100vh-3.5rem)] w-80 overflow-hidden bg-background lg:block">
-      <DocsScrollArea className="h-full py-4 pt-9" showEdgeGradient>
+    <aside className="fixed top-(--site-header-height) left-0 hidden h-[calc(100vh-var(--site-header-height))] w-80 overflow-hidden bg-background lg:block">
+      <DocsScrollArea className="h-full py-4 pt-16" showEdgeGradient>
         <nav className="p-10 pl-16">
           {/* Top-level navigation links */}
           {links.length > 0 && (

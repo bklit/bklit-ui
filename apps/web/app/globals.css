@@ -103,6 +103,7 @@
 
 :root {
   /* Site-only tokens (shared palette is in packages/studio bklit-tokens.css) */
+  --site-header-height: 3.5rem;
 
   /* Text selection */
   --text-highlight-background: var(--color-indigo-500);
@@ -140,6 +141,62 @@
   ::-moz-selection {
     background-color: var(--text-highlight-background);
     color: var(--text-highlight-foreground);
+  }
+}
+
+:root {
+  --vt-fade-exit: 150ms;
+  --vt-fade-enter: 200ms;
+}
+
+::view-transition-group(site-header),
+::view-transition-group(page-canvas-rulers) {
+  animation: none;
+  z-index: 100;
+}
+
+::view-transition-old(site-header),
+::view-transition-old(page-canvas-rulers) {
+  display: none;
+}
+
+::view-transition-new(site-header),
+::view-transition-new(page-canvas-rulers) {
+  animation: none;
+}
+
+::view-transition-old(.page-fade) {
+  animation: var(--vt-fade-exit) ease-out both page-fade-out;
+}
+
+::view-transition-new(.page-fade) {
+  animation: var(--vt-fade-enter) ease-in var(--vt-fade-exit) both page-fade-in;
+}
+
+@keyframes page-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes page-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
   }
 }
 

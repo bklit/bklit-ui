@@ -1,7 +1,6 @@
 import type * as PageTree from "fumadocs-core/page-tree";
 import type { ReactNode } from "react";
 import { Sidebar } from "./sidebar";
-import { SiteHeader } from "./site-header";
 
 interface NavLink {
   text: string;
@@ -14,23 +13,14 @@ interface DocsLayoutProps {
   tree: PageTree.Root;
   nav?: {
     links?: NavLink[];
-    githubUrl?: string;
-    discordUrl?: string;
   };
 }
 
 export function DocsLayout({ children, tree, nav }: DocsLayoutProps) {
   return (
-    <div className="min-h-screen">
-      <SiteHeader
-        discordUrl={nav?.discordUrl}
-        githubUrl={nav?.githubUrl}
-        links={nav?.links}
-      />
-      <div className="w-full pt-14">
-        <Sidebar links={nav?.links} tree={tree} />
-        <main className="w-full lg:pl-80 xl:pr-[300px]">{children}</main>
-      </div>
+    <div className="min-h-full w-full">
+      <Sidebar links={nav?.links} tree={tree} />
+      <main className="w-full lg:pl-80 xl:pr-[300px]">{children}</main>
     </div>
   );
 }
