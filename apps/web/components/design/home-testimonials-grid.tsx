@@ -15,6 +15,14 @@ import { DesignTestimonialPanel } from "./testimonial-panel";
 
 const columnsPerRow = 3;
 
+function chunkItems<T>(items: T[], size: number): T[][] {
+  const rows: T[][] = [];
+  for (let index = 0; index < items.length; index += size) {
+    rows.push(items.slice(index, index + size));
+  }
+  return rows;
+}
+
 function Avatar({
   src,
   alt,
@@ -111,28 +119,34 @@ export function HomeTestimonialsGrid({
   const [expanded, setExpanded] = useState(false);
   const hasMore = items.length > collapsedCount;
   const visibleItems = expanded ? items : items.slice(0, collapsedCount);
-  const desktopRows = Math.ceil(visibleItems.length / columnsPerRow);
+  const itemRows = chunkItems(visibleItems, columnsPerRow);
 
   return (
     <section aria-label="Testimonials" className="w-full">
-      <div className="relative w-full overflow-visible border-border border-t border-l">
-        <div className="grid grid-cols-1 overflow-visible md:grid-cols-3">
-          {visibleItems.map((testimonial) => (
-            <DesignTestimonialPanel className="min-w-0" key={testimonial.id}>
-              <TestimonialPanelContent testimonial={testimonial} />
-            </DesignTestimonialPanel>
-          ))}
-        </div>
-        <GridCornerDots
-          className="z-3 md:hidden"
-          columns={1}
-          rows={visibleItems.length}
-        />
-        <GridCornerDots
-          className="z-3 hidden md:block"
-          columns={columnsPerRow}
-          rows={desktopRows}
-        />
+      <div className="relative flex w-full flex-col overflow-visible border-border border-t border-l">
+        {itemRows.map((rowItems) => (
+          <div
+            className="relative w-full overflow-visible"
+            key={rowItems.map((item) => item.id).join("-")}
+          >
+            <div className="grid grid-cols-1 overflow-visible md:grid-cols-3">
+              {rowItems.map((testimonial) => (
+                <DesignTestimonialPanel
+                  className="min-w-0"
+                  key={testimonial.id}
+                  showMobileCornerDots
+                >
+                  <TestimonialPanelContent testimonial={testimonial} />
+                </DesignTestimonialPanel>
+              ))}
+            </div>
+            <GridCornerDots
+              className="z-3 hidden md:block"
+              columns={rowItems.length}
+              rows={1}
+            />
+          </div>
+        ))}
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0 -z-10"
