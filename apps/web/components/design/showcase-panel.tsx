@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import type { ChartSlug } from "@/components/charts/chart-slugs";
 import { Button } from "@/components/ui/button";
+import { useInViewOnce } from "@/lib/use-in-view-once";
 import { cn } from "@/lib/utils";
 import { GridCornerDots } from "./line-grid";
 
@@ -144,6 +145,9 @@ export function DesignShowcasePanel({
   className?: string;
 }) {
   const reducedMotion = useReducedMotion();
+  const { ref: chartViewportRef, inView: chartInView } = useInViewOnce({
+    rootMargin: "120px",
+  });
   const [hoverFine, setHoverFine] = useState(false);
   const [focused, setFocused] = useState(false);
   const [coarsePointer, setCoarsePointer] = useState(false);
@@ -214,8 +218,9 @@ export function DesignShowcasePanel({
         <div
           className="flex size-full max-h-full min-w-0 items-center justify-center"
           key={replayKey}
+          ref={chartViewportRef}
         >
-          {children}
+          {chartInView ? children : null}
         </div>
       </div>
     </div>

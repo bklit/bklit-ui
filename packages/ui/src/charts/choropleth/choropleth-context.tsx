@@ -244,22 +244,19 @@ export function useChoropleth(): ChoroplethContextValue {
   return { ...useChoroplethStable(), ...useChoroplethInteraction() };
 }
 
+import { CHART_SCALE_VARS, chartScaleCssVars } from "../chart-scale";
+
 // CSS variables for choropleth theming
 export const choroplethCssVars = {
-  feature1: "var(--chart-1)",
-  feature2: "var(--chart-2)",
-  feature3: "var(--chart-3)",
-  feature4: "var(--chart-4)",
-  feature5: "var(--chart-5)",
+  scale01: chartScaleCssVars.scale01,
+  scale02: chartScaleCssVars.scale02,
+  scale03: chartScaleCssVars.scale03,
+  scale04: chartScaleCssVars.scale04,
+  scale05: chartScaleCssVars.scale05,
+  patternColor: chartScaleCssVars.patternColor,
   stroke: "var(--chart-grid)",
   background: "var(--background)",
 };
 
 // Default colors array for cycling through features
-export const defaultChoroplethColors = [
-  "var(--chart-1)",
-  "var(--chart-2)",
-  "var(--chart-3)",
-  "var(--chart-4)",
-  "var(--chart-5)",
-];
+export const defaultChoroplethColors = [...CHART_SCALE_VARS];

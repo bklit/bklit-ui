@@ -87,6 +87,18 @@
   --shadow-lg: 0 10px 15px -3px var(--shadow), 0 4px 6px -4px var(--shadow);
   --shadow-xl: 0 20px 25px -5px var(--shadow), 0 8px 10px -6px var(--shadow);
   --shadow-2xl: 0 25px 50px -12px var(--shadow);
+
+  --animate-caret-blink: caret-blink 1.06s step-end infinite;
+
+  @keyframes caret-blink {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
+  }
 }
 
 :root {
@@ -95,28 +107,6 @@
   /* Text selection */
   --text-highlight-background: var(--color-indigo-500);
   --text-highlight-foreground: var(--color-indigo-800);
-
-  /* Homepage heatmap */
-  --heatmap-0: var(--color-indigo-50);
-  --heatmap-1: var(--color-indigo-200);
-  --heatmap-2: var(--color-indigo-300);
-  --heatmap-3: var(--color-indigo-400);
-  --heatmap-4: var(--color-indigo-500);
-  --heatmap-5: var(--color-indigo-600);
-  --heatmap-pattern-color: var(--color-indigo-100);
-}
-
-.dark {
-  /* Site-only dark tokens (shared palette is in packages/studio bklit-tokens.css) */
-
-  /* Homepage heatmap */
-  --heatmap-0: var(--color-indigo-900);
-  --heatmap-1: var(--color-indigo-700);
-  --heatmap-2: var(--color-indigo-600);
-  --heatmap-3: var(--color-indigo-500);
-  --heatmap-4: var(--color-indigo-400);
-  --heatmap-5: var(--color-indigo-300);
-  --heatmap-pattern-color: var(--background);
 }
 
 @layer base {

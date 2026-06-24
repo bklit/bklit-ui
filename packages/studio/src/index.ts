@@ -23,6 +23,7 @@ export {
 export { StudioCodeSheetTrigger } from "./components/studio-code-sheet-trigger";
 export { StudioControlGroup } from "./components/studio-control-group";
 export { StudioControlGroups } from "./components/studio-control-groups";
+export { StudioDisplayShell } from "./components/studio-display-shell";
 export { StudioEmbedShell } from "./components/studio-embed-shell";
 export { StudioOgPreview } from "./components/studio-og-preview";
 export {
@@ -34,6 +35,7 @@ export {
 export { StudioSharePopover } from "./components/studio-share-popover";
 export { StudioShell } from "./components/studio-shell";
 export {
+  StudioMemoryStateProvider,
   StudioStateProvider,
   useStudioDisplayState,
   useStudioShellState,

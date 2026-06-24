@@ -1,6 +1,6 @@
 ---
 title: Heatmap Chart
-description: A GitHub-style contribution heatmap with animated cells, configurable level colors and patterns, and an interactive legend
+description: A contribution heatmap with animated cells, configurable level colors and patterns, and an interactive legend
 ---
 
 import {
@@ -101,7 +101,7 @@ The root component that sizes the grid, builds color scales, and provides contex
 | `binSize` | `number` | `0` | Fixed cell size in px; `0` sizes cells to fit |
 | `gap` | `number` | `2` | Gap between cells in pixels |
 | `colorScale` | `(count) => string` | - | Override the default color scale |
-| `levelColors` | `HeatmapLevelColors` | GitHub greens | Five colors for empty + four activity levels |
+| `levelColors` | `HeatmapLevelColors` | `--chart-scale-01` … `--chart-scale-05` | Five colors for empty + four activity levels |
 | `levelStyles` | `HeatmapLevelStyles` | - | Per-level color and optional pattern; takes precedence over `levelColors` |
 | `aspectRatio` | `string` | - | CSS aspect ratio for the outer container |
 | `status` | `ChartStatus` | `"ready"` | Fetch / display status |
@@ -158,11 +158,11 @@ Pass `levelStyles` (five entries: empty + levels 1–4) to control both cell fil
 
 ```tsx
 const levelStyles = [
-  { color: "var(--color-muted)", fillMode: "solid" },
-  { color: "#0e4429", fillMode: "solid" },
-  { color: "#006d32", fillMode: "pattern", pattern: "diagonal", patternColor: "#39d353" },
-  { color: "#26a641", fillMode: "solid" },
-  { color: "#39d353", fillMode: "solid" },
+  { color: "var(--chart-scale-01)", fillMode: "solid" },
+  { color: "var(--chart-scale-02)", fillMode: "solid" },
+  { color: "var(--chart-scale-03)", fillMode: "pattern", pattern: "diagonal", patternColor: "var(--chart-scale-pattern-color)" },
+  { color: "var(--chart-scale-04)", fillMode: "solid" },
+  { color: "var(--chart-scale-05)", fillMode: "solid" },
 ] as const;
 
 <HeatmapChart data={data} levelStyles={levelStyles}>
@@ -187,6 +187,8 @@ interface HeatmapColumn {
 ```
 
 Counts map to five visual levels (0 = empty, 1–4 = increasing activity). Use `getHeatmapContributionLevel(count)` from `@bklitui/ui/charts` to derive the level from a raw count.
+
+Default level colors use **`--chart-scale-01`** … **`--chart-scale-05`**. See [Theming](/docs/theming).
 
 ## Gallery
 

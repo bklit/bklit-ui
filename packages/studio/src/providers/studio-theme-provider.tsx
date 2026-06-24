@@ -113,7 +113,7 @@ export function StudioThemeProvider({
         className={cn(
           "studio-shell relative bg-background text-foreground",
           embedded
-            ? "min-h-[inherit] w-full min-w-0"
+            ? "flex h-full min-h-0 w-full min-w-0 flex-col overflow-hidden"
             : "flex h-full min-h-0 flex-1 flex-col overflow-hidden",
           resolvedTheme === "dark" && "dark"
         )}

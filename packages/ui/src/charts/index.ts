@@ -143,6 +143,11 @@ export {
   type ChartRevealClipProps,
 } from "./chart-reveal-clip";
 export {
+  CHART_SCALE_VARS,
+  type ChartScaleVars,
+  chartScaleCssVars,
+} from "./chart-scale";
+export {
   ChartStatFlow,
   type ChartStatFlowFormat,
   type ChartStatFlowProps,

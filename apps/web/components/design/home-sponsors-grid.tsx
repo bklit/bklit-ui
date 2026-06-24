@@ -1,11 +1,8 @@
 "use client";
 
-import { Icon } from "@bklitui/icons";
 import { DEFAULT_CHART_ENTER_TRANSITION } from "@bklitui/ui/charts";
 import { motion, useReducedMotion } from "motion/react";
-import Link from "next/link";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { getAnalyticsUrl, trackEvent } from "@/lib/analytics/track-client";
 import {
   premiumLogoClassName,
@@ -74,28 +71,6 @@ function trackSponsorClick(location: "button" | "card", sponsorUrl: string) {
     url: getAnalyticsUrl(),
     sponsor_url: sponsorUrl,
   });
-}
-
-export function BecomeSponsorButton({ className }: { className?: string }) {
-  return (
-    <Button
-      className={className}
-      nativeButton={false}
-      render={
-        <Link
-          href={sponsorLink}
-          onClick={() => trackSponsorClick("button", sponsorLink)}
-          rel="noopener noreferrer"
-          target="_blank"
-        >
-          Become a sponsor
-          <Icon aria-hidden data-icon="inline-end" name="IconHeart" />
-        </Link>
-      }
-      size="lg"
-      variant="sponsor"
-    />
-  );
 }
 
 function SponsorPlaceholder({
@@ -335,7 +310,7 @@ export function HomeSponsorsGrid() {
   ).length;
 
   return (
-    <div className="flex w-full flex-col overflow-visible border-border border-t border-l">
+    <div className="relative flex w-full flex-col overflow-visible border-border border-t border-l">
       <SponsorRow
         logoClassName={premiumLogoClassName}
         minHeight={160}
@@ -349,6 +324,24 @@ export function HomeSponsorsGrid() {
         slots={silverSponsorSlots}
         variant="silver"
       />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-10"
+        data-grid-rulers
+      >
+        <div className="absolute -top-8 left-0 block h-10 w-px bg-muted-foreground/40" />
+        <div className="absolute top-0 -left-8 block h-px w-10 bg-muted-foreground/40" />
+        <div className="absolute -top-8 right-0 block h-10 w-px bg-muted-foreground/40" />
+        <div className="absolute top-0 -right-8 block h-px w-10 bg-muted-foreground/40" />
+
+        <div className="absolute -bottom-8 left-0 block h-10 w-px bg-muted-foreground/40" />
+        <div className="absolute bottom-0 -left-8 block h-px w-10 bg-muted-foreground/40" />
+        <div className="absolute right-0 -bottom-8 block h-10 w-px bg-muted-foreground/40" />
+        <div className="absolute -right-8 bottom-0 block h-px w-10 bg-muted-foreground/40" />
+
+        <div className="absolute -top-8 -right-8 block h-6 w-6 bg-[repeating-linear-gradient(45deg,color-mix(in_oklch,var(--muted-foreground)_40%,transparent)_0,color-mix(in_oklch,var(--muted-foreground)_40%,transparent)_1px,transparent_0,transparent_50%)] bg-size-[5px_5px] bg-fixed opacity-80" />
+        <div className="absolute -bottom-8 -left-8 block h-6 w-6 bg-[repeating-linear-gradient(45deg,color-mix(in_oklch,var(--muted-foreground)_40%,transparent)_0,color-mix(in_oklch,var(--muted-foreground)_40%,transparent)_1px,transparent_0,transparent_50%)] bg-size-[5px_5px] bg-fixed opacity-80" />
+      </div>
     </div>
   );
 }

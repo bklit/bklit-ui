@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode, RefObject } from "react";
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useStudioFrame } from "@/components/studio-scenes-provider";
 import { EditorCanvas } from "@/editor/editor-canvas";
 import { EditorFrameLabel } from "@/editor/editor-frame-label";
@@ -16,6 +16,122 @@ import { useEditorCamera } from "@/editor/use-editor-canvas-view";
 import { studioPreviewCanvasClass } from "@/lib/studio-chrome-classes";
 import { STUDIO_EMBED_MENU_BAR_CLEARANCE } from "@/lib/studio-embed";
 import { cn } from "@/lib/utils";
+
+const STATIC_PREVIEW_MENU_CLEARANCE = 56;
+const STATIC_PREVIEW_FRAME_INSET = 12;
+const STATIC_PREVIEW_FRAME_SCALE = 0.68;
+const STATIC_PREVIEW_ZOOM = 0.9;
+const STATIC_PREVIEW_FRAME_LABEL_HEIGHT = 26;
+
+function resolveDefaultZoom(
+  embedMode: boolean,
+  staticPreview: boolean
+): number {
+  if (embedMode) {
+    return 0.9;
+  }
+  if (staticPreview) {
+    return STATIC_PREVIEW_ZOOM;
+  }
+  return 1;
+}
+
+function resolveViewInsets(
+  embedMode: boolean,
+  staticPreview: boolean
+): { bottom: number; top?: number; left?: number; right?: number } | undefined {
+  if (embedMode) {
+    return { bottom: STUDIO_EMBED_MENU_BAR_CLEARANCE };
+  }
+  if (staticPreview) {
+    return {
+      bottom: STATIC_PREVIEW_MENU_CLEARANCE,
+      top: STATIC_PREVIEW_FRAME_INSET,
+      left: STATIC_PREVIEW_FRAME_INSET,
+      right: STATIC_PREVIEW_FRAME_INSET,
+    };
+  }
+  return undefined;
+}
+
+function useStaticPreviewFrameSync({
+  canvasEnabled,
+  staticPreview,
+  canvasRef,
+  updateFrame,
+  contentBounds,
+  applyDefaultCamera,
+}: {
+  canvasEnabled: boolean;
+  staticPreview: boolean;
+  canvasRef: RefObject<HTMLDivElement | null>;
+  updateFrame: (frame: {
+    x?: number;
+    y?: number;
+    width?: number;
+    height?: number;
+  }) => void;
+  contentBounds: { width: number; height: number };
+  applyDefaultCamera: () => void;
+}) {
+  useEffect(() => {
+    if (!(staticPreview && canvasEnabled)) {
+      return;
+    }
+
+    const viewport = canvasRef.current;
+    if (!viewport) {
+      return;
+    }
+
+    const syncFrameToViewport = () => {
+      const { width, height } = viewport.getBoundingClientRect();
+      if (width <= 0 || height <= 0) {
+        return;
+      }
+
+      const availableWidth = width - STATIC_PREVIEW_FRAME_INSET * 2;
+      const availableHeight =
+        height - STATIC_PREVIEW_MENU_CLEARANCE - STATIC_PREVIEW_FRAME_INSET;
+
+      const frameWidth = Math.round(
+        Math.max(320, availableWidth * STATIC_PREVIEW_FRAME_SCALE)
+      );
+      const frameHeight = Math.round(
+        Math.max(240, availableHeight * STATIC_PREVIEW_FRAME_SCALE)
+      );
+
+      updateFrame({ x: 0, y: 0, width: frameWidth, height: frameHeight });
+    };
+
+    syncFrameToViewport();
+
+    const observer = new ResizeObserver(syncFrameToViewport);
+    observer.observe(viewport);
+
+    return () => observer.disconnect();
+  }, [canvasEnabled, canvasRef, staticPreview, updateFrame]);
+
+  // Re-center after frame resize — camera must run after contentBounds updates.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: frame dimensions drive centering
+  useEffect(() => {
+    if (!(staticPreview && canvasEnabled)) {
+      return;
+    }
+
+    const frameId = window.requestAnimationFrame(() => {
+      applyDefaultCamera();
+    });
+
+    return () => window.cancelAnimationFrame(frameId);
+  }, [
+    applyDefaultCamera,
+    canvasEnabled,
+    contentBounds.height,
+    contentBounds.width,
+    staticPreview,
+  ]);
+}
 
 export function EditorMainPane({
   className,
@@ -32,6 +148,7 @@ export function EditorMainPane({
   controlsDisabled = false,
   showDimensions = true,
   embedMode = false,
+  staticPreview = false,
   openInStudioHref,
   children,
 }: {
@@ -50,6 +167,8 @@ export function EditorMainPane({
   showDimensions?: boolean;
   /** Minimal chrome for iframe embeds: no rulers, footer toolbar, no theme/fit. */
   embedMode?: boolean;
+  /** Static homepage/docs preview — isolated camera, fit content. */
+  staticPreview?: boolean;
   openInStudioHref?: string;
   children: (ctx: {
     size: { width: number; height: number };
@@ -65,20 +184,38 @@ export function EditorMainPane({
   const canvasEnabled = !mobileViewport;
   const { frame, contentBounds, updateFrame } = useStudioFrame();
 
-  const getContentBounds = useCallback(() => contentBounds, [contentBounds]);
+  const getContentBounds = useCallback(() => {
+    if (!staticPreview) {
+      return contentBounds;
+    }
+
+    return {
+      x: contentBounds.x,
+      y: contentBounds.y - STATIC_PREVIEW_FRAME_LABEL_HEIGHT,
+      width: contentBounds.width,
+      height: contentBounds.height + STATIC_PREVIEW_FRAME_LABEL_HEIGHT,
+    };
+  }, [contentBounds, staticPreview]);
 
   const camera = useEditorCamera({
-    defaultZoom: embedMode ? 0.9 : 1,
+    defaultZoom: resolveDefaultZoom(embedMode, staticPreview),
     enabled: canvasEnabled,
     getContentBounds,
-    persist: !mobileViewport,
-    viewInsets: embedMode
-      ? { bottom: STUDIO_EMBED_MENU_BAR_CLEARANCE }
-      : undefined,
+    persist: !(mobileViewport || staticPreview),
+    viewInsets: resolveViewInsets(embedMode, staticPreview),
     viewportRef: canvasRef,
   });
 
   canvasScaleRef.current = camera.camera.zoom;
+
+  useStaticPreviewFrameSync({
+    canvasEnabled,
+    staticPreview,
+    canvasRef,
+    updateFrame,
+    contentBounds,
+    applyDefaultCamera: camera.applyDefaultCamera,
+  });
 
   const handleResize = useCallback(
     (width: number, height: number) => {
@@ -161,7 +298,10 @@ export function EditorMainPane({
 
           <EditorMenuBar
             {...menuBarProps}
-            className="pointer-events-auto absolute bottom-6 left-1/2 z-20 -translate-x-1/2"
+            className={cn(
+              "absolute bottom-6 left-1/2 z-20 -translate-x-1/2",
+              staticPreview ? "pointer-events-none" : "pointer-events-auto"
+            )}
           />
         </div>
       </div>
@@ -192,7 +332,10 @@ export function EditorMainPane({
           ) : null}
           <EditorMenuBar
             canvasScale={1}
-            className="pointer-events-auto absolute bottom-3 left-1/2 z-20 -translate-x-1/2"
+            className={cn(
+              "absolute bottom-3 left-1/2 z-20 -translate-x-1/2",
+              staticPreview ? "pointer-events-none" : "pointer-events-auto"
+            )}
             height={size.height}
             onFitView={() => undefined}
             onResetZoom={() => undefined}
@@ -279,8 +422,9 @@ export function EditorMainPane({
             <EditorMenuBar
               {...menuBarProps}
               className={cn(
-                "pointer-events-auto absolute left-1/2 z-20 -translate-x-1/2",
-                mobileViewport ? "bottom-3" : "bottom-6"
+                "absolute left-1/2 z-20 -translate-x-1/2",
+                mobileViewport ? "bottom-3" : "bottom-6",
+                staticPreview ? "pointer-events-none" : "pointer-events-auto"
               )}
             />
           </div>

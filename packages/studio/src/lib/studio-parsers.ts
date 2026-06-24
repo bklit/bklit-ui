@@ -1,4 +1,5 @@
 import type { ProjectionCurveKind } from "@bklitui/ui/charts";
+import { HEATMAP_DEFAULT_LEVEL_COLORS } from "@bklitui/ui/charts";
 import {
   parseAsBoolean,
   parseAsFloat,
@@ -152,11 +153,21 @@ export const studioSearchParams = {
   heatmapLoadingOpacity: parseAsFloat.withDefault(1),
   heatmapLoadingCellMaxOpacity: parseAsFloat.withDefault(0.85),
   heatmapLoadingCellRandomness: parseAsFloat.withDefault(1),
-  heatmapLevel0Color: parseAsString.withDefault("var(--color-muted)"),
-  heatmapLevel1Color: parseAsString.withDefault("#0e4429"),
-  heatmapLevel2Color: parseAsString.withDefault("#006d32"),
-  heatmapLevel3Color: parseAsString.withDefault("#26a641"),
-  heatmapLevel4Color: parseAsString.withDefault("#39d353"),
+  heatmapLevel0Color: parseAsString.withDefault(
+    HEATMAP_DEFAULT_LEVEL_COLORS[0]
+  ),
+  heatmapLevel1Color: parseAsString.withDefault(
+    HEATMAP_DEFAULT_LEVEL_COLORS[1]
+  ),
+  heatmapLevel2Color: parseAsString.withDefault(
+    HEATMAP_DEFAULT_LEVEL_COLORS[2]
+  ),
+  heatmapLevel3Color: parseAsString.withDefault(
+    HEATMAP_DEFAULT_LEVEL_COLORS[3]
+  ),
+  heatmapLevel4Color: parseAsString.withDefault(
+    HEATMAP_DEFAULT_LEVEL_COLORS[4]
+  ),
   heatmapLevelFillModes: parseAsString.withDefault(""),
   heatmapLevelPatterns: parseAsString.withDefault(""),
   heatmapLevelPatternColors: parseAsString.withDefault(""),
@@ -833,11 +844,11 @@ export function defaultStudioState(
     heatmapLoadingOpacity: 1,
     heatmapLoadingCellMaxOpacity: 0.85,
     heatmapLoadingCellRandomness: 1,
-    heatmapLevel0Color: "var(--color-muted)",
-    heatmapLevel1Color: "#0e4429",
-    heatmapLevel2Color: "#006d32",
-    heatmapLevel3Color: "#26a641",
-    heatmapLevel4Color: "#39d353",
+    heatmapLevel0Color: HEATMAP_DEFAULT_LEVEL_COLORS[0],
+    heatmapLevel1Color: HEATMAP_DEFAULT_LEVEL_COLORS[1],
+    heatmapLevel2Color: HEATMAP_DEFAULT_LEVEL_COLORS[2],
+    heatmapLevel3Color: HEATMAP_DEFAULT_LEVEL_COLORS[3],
+    heatmapLevel4Color: HEATMAP_DEFAULT_LEVEL_COLORS[4],
     heatmapLevelFillModes: "",
     heatmapLevelPatterns: "",
     heatmapLevelPatternColors: "",

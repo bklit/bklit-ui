@@ -71,29 +71,29 @@ const actionStagger = 0.04;
 
 const heatmapLevelStyles = [
   {
-    color: "var(--heatmap-0)",
+    color: "var(--chart-scale-01)",
     fillMode: "pattern",
     pattern: "diagonal",
-    patternColor: "var(--heatmap-pattern-color)",
+    patternColor: "var(--chart-scale-pattern-color)",
     patternScale: 0.5,
   },
   {
-    color: "var(--heatmap-1)",
+    color: "var(--chart-scale-02)",
     fillMode: "solid",
     pattern: "none",
   },
   {
-    color: "var(--heatmap-2)",
+    color: "var(--chart-scale-03)",
     fillMode: "solid",
     pattern: "none",
   },
   {
-    color: "var(--heatmap-3)",
+    color: "var(--chart-scale-04)",
     fillMode: "solid",
     pattern: "none",
   },
   {
-    color: "var(--heatmap-4)",
+    color: "var(--chart-scale-05)",
     fillMode: "solid",
     pattern: "none",
   },
@@ -103,11 +103,11 @@ const HOME_CHOROPLETH_ZERO_PATTERN_ID = "home-choropleth-heatmap-0";
 
 const homeChoroplethZeroPattern = (
   <PatternLines
-    background="var(--heatmap-0)"
+    background="var(--chart-scale-01)"
     height={3}
     id={HOME_CHOROPLETH_ZERO_PATTERN_ID}
     orientation={["diagonal"]}
-    stroke="var(--heatmap-pattern-color)"
+    stroke="var(--chart-scale-pattern-color)"
     strokeWidth={0.5}
     width={3}
   />
@@ -614,7 +614,6 @@ function ShowcaseGaugeChart({ compact }: { compact: boolean }) {
         maximumFractionDigits: 0,
       }}
       height={gaugeSize}
-      inactiveFill="var(--chart-ring-background)"
       inactiveFillOpacity={1}
       notchCornerRadius={4}
       notchLengthPercent={62}

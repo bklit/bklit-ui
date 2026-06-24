@@ -68,6 +68,42 @@ These are used for coloring different data series in multi-line charts:
 | `--chart-4` | Fourth series color |
 | `--chart-5` | Fifth series color |
 
+### Sequential Scale
+
+For heatmaps, choropleths, and other binned or intensity-based charts, use the sequential scale tokens (`01` = lowest, `05` = highest):
+
+| CSS Property | Description |
+|-------------|-------------|
+| `--chart-scale-01` | Empty / lowest intensity |
+| `--chart-scale-02` | Level 1 |
+| `--chart-scale-03` | Level 2 |
+| `--chart-scale-04` | Level 3 |
+| `--chart-scale-05` | Highest intensity |
+| `--chart-scale-pattern-color` | Pattern stroke for zero / empty cells |
+
+Import typed references from `@bklitui/ui/charts`:
+
+```tsx
+import { chartScaleCssVars, CHART_SCALE_VARS } from "@bklitui/ui/charts";
+
+<ChoroplethFeatureComponent fill={chartScaleCssVars.scale03} />
+```
+
+### Track & radial charts
+
+Ring tracks, gauge inactive notches, and radar grid lines share the shadcn **`--border`** token:
+
+| CSS Property | Used by |
+|-------------|---------|
+| `--border` | Ring track background, gauge track notches, `RadarGrid` / `RadarAxis` strokes |
+
+```tsx
+import { ringCssVars, radarCssVars } from "@bklitui/ui/charts";
+
+// ringCssVars.ringBackground → var(--border)
+// radarCssVars.border → var(--border)
+```
+
 ## Customizing Variables
 
 Override CSS variables in your stylesheet to customize chart appearance:
@@ -85,6 +121,17 @@ Override CSS variables in your stylesheet to customize chart appearance:
   --chart-1: oklch(0.32 0 none);
   --chart-2: oklch(0.41 0 none);
   --chart-3: oklch(0.54 0 none);
+
+  /* Sequential scale (heatmap / choropleth) */
+  --chart-scale-01: oklch(0.98 0.003 106);
+  --chart-scale-02: oklch(0.92 0.008 106);
+  --chart-scale-03: oklch(0.82 0.015 106);
+  --chart-scale-04: oklch(0.68 0.02 106);
+  --chart-scale-05: oklch(0.55 0.025 106);
+  --chart-scale-pattern-color: oklch(0.96 0.005 106);
+
+  /* Ring / gauge / radar tracks */
+  --border: oklch(0.92 0.004 286.32);
 }
 
 .dark {

@@ -18,7 +18,7 @@ export function DesignTestimonialPanel({
         aria-hidden
         className="absolute inset-0 z-0 bg-white dark:bg-black"
       />
-      <div className="relative z-2 flex min-h-[180px] min-w-0 flex-col p-5 sm:min-h-[220px] sm:p-8">
+      <div className="relative z-2 flex min-w-0 flex-col p-5 sm:p-8">
         {children}
       </div>
     </div>

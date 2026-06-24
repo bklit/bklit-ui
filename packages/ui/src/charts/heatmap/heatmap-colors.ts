@@ -1,14 +1,9 @@
+import { CHART_SCALE_VARS } from "../chart-scale";
 import type { PatternPresetId } from "../pattern-preset";
 import { getHeatmapContributionLevel } from "./heatmap-utils";
 
-/** Default Less → More scale (GitHub-style greens). */
-export const HEATMAP_DEFAULT_LEVEL_COLORS = [
-  "var(--color-muted)",
-  "#0e4429",
-  "#006d32",
-  "#26a641",
-  "#39d353",
-] as const;
+/** Default Less → More scale using {@link CHART_SCALE_VARS}. */
+export const HEATMAP_DEFAULT_LEVEL_COLORS = CHART_SCALE_VARS;
 
 export type HeatmapLevelColors = readonly [
   string,

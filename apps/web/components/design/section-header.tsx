@@ -14,7 +14,7 @@ export function DesignSectionHeader({
   return (
     <div
       className={cn(
-        "flex flex-col items-start gap-2 pt-4 pb-8 sm:pb-12",
+        "mb-2 flex flex-col items-start gap-2 pt-4 pb-8 sm:pb-12",
         className
       )}
     >
@@ -24,8 +24,9 @@ export function DesignSectionHeader({
       >
         {title}
       </h2>
-      <p className="font-mono text-base text-muted-foreground sm:text-lg md:text-xl lg:text-2xl">
+      <p className="font-mono text-base text-muted-foreground uppercase tracking-widest sm:text-lg md:text-lg">
         {subtitle}
+        <span className="animate-caret-blink">_</span>
       </p>
     </div>
   );

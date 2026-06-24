@@ -121,7 +121,9 @@ export function EditorCollapsiblePane({
           </span>
         </div>
       ) : (
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col">{children}</div>
+        <div className="flex h-full min-h-0 min-w-0 flex-1 flex-col">
+          {children}
+        </div>
       )}
 
       <button

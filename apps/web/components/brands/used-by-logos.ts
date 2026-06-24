@@ -1,7 +1,20 @@
 import type { ComponentType } from "react";
+import { Anthropic } from "./anthropic";
+import { Atlassian } from "./atlassian";
+import { Binance } from "./binance";
+import { Cal } from "./cal";
+import { Daytona } from "./daytona";
+import { Framer } from "./framer";
+import { Motion } from "./motion";
+import { OnePassword } from "./onepassword";
 import { OpenPanel } from "./openpanel";
 import { Prisma } from "./prisma";
+import { Shopify } from "./shopify";
+import { Stripe } from "./stripe";
+import { Supabase } from "./supabase";
+import { Tela } from "./tela";
 import { Vercel } from "./vercel";
+import { Wealthsimple } from "./wealthsimple";
 
 interface BrandLogoProps {
   className?: string;
@@ -27,6 +40,12 @@ function trustedByHref(origin: string, brand: string) {
 /** Add new entries here as brand SVGs land in `components/brands/`. */
 export const usedByLogos: UsedByLogo[] = [
   {
+    id: "motion",
+    name: "Motion",
+    href: trustedByHref("https://motion.dev", "motion"),
+    Logo: Motion,
+  },
+  {
     id: "vercel",
     name: "Vercel",
     href: trustedByHref("https://vercel.com", "vercel"),
@@ -44,7 +63,79 @@ export const usedByLogos: UsedByLogo[] = [
     href: trustedByHref("https://openpanel.dev", "openpanel"),
     Logo: OpenPanel,
   },
+  {
+    id: "cal",
+    name: "Cal.com",
+    href: trustedByHref("https://cal.com", "cal"),
+    Logo: Cal,
+  },
+  {
+    id: "supabase",
+    name: "Supabase",
+    href: trustedByHref("https://supabase.com", "supabase"),
+    Logo: Supabase,
+  },
+  {
+    id: "framer",
+    name: "Framer",
+    href: trustedByHref("https://framer.com", "framer"),
+    Logo: Framer,
+  },
+  {
+    id: "atlassian",
+    name: "Atlassian",
+    href: trustedByHref("https://www.atlassian.com", "atlassian"),
+    Logo: Atlassian,
+  },
+  {
+    id: "daytona",
+    name: "Daytona",
+    href: trustedByHref("https://daytona.io", "daytona"),
+    Logo: Daytona,
+  },
+  {
+    id: "wealthsimple",
+    name: "Wealthsimple",
+    href: trustedByHref("https://www.wealthsimple.com", "wealthsimple"),
+    Logo: Wealthsimple,
+  },
+  {
+    id: "tela",
+    name: "Tela",
+    href: trustedByHref("https://tela.com", "tela"),
+    Logo: Tela,
+  },
+  {
+    id: "stripe",
+    name: "Stripe",
+    href: trustedByHref("https://stripe.com", "stripe"),
+    Logo: Stripe,
+  },
+  {
+    id: "binance",
+    name: "Binance",
+    href: trustedByHref("https://www.binance.com", "binance"),
+    Logo: Binance,
+  },
+  {
+    id: "onepassword",
+    name: "1Password",
+    href: trustedByHref("https://1password.com", "onepassword"),
+    Logo: OnePassword,
+  },
+  {
+    id: "anthropic",
+    name: "Anthropic",
+    href: trustedByHref("https://www.anthropic.com", "anthropic"),
+    Logo: Anthropic,
+  },
+  {
+    id: "shopify",
+    name: "Shopify",
+    href: trustedByHref("https://www.shopify.com", "shopify"),
+    Logo: Shopify,
+  },
 ];
 
 export const usedByLogoClassName =
-  "h-auto w-[72px] max-w-full text-muted-foreground transition-colors duration-[180ms] ease-[cubic-bezier(0.33,1,0.68,1)] sm:w-[96px] md:w-[110px] lg:w-[126px] group-hover:text-foreground";
+  "h-auto max-h-full w-full max-w-full text-muted-foreground transition-colors duration-[180ms] ease-[cubic-bezier(0.33,1,0.68,1)] group-hover:text-foreground";

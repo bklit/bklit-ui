@@ -31,7 +31,7 @@ export default function WorldMap() {
   return (
     <ChoroplethChart data={geojson} aspectRatio="16 / 9">
       <ChoroplethGraticule />
-      <ChoroplethFeatureComponent fill="var(--chart-1)" />
+      <ChoroplethFeatureComponent fill="var(--chart-scale-03)" />
       <ChoroplethTooltip />
     </ChoroplethChart>
   );
@@ -124,6 +124,12 @@ const geojson = topojson.feature(topology, topology.objects.countries);
 ```
 
 See the [charts gallery](/charts/choropleth-chart) for analytics color scales, zoom controls, and pattern fills.
+
+## Theming
+
+For categorical maps, `defaultChoroplethColors` cycles through **`--chart-scale-01`** … **`--chart-scale-05`**. Pass `getFeatureColor` for custom bins (see gallery analytics demo). Empty / no-data regions typically use `var(--muted)`.
+
+See [Theming](/docs/theming) for the full sequential scale reference.
 
 ## Dependencies
 

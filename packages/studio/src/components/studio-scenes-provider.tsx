@@ -44,22 +44,25 @@ export function StudioFrameProvider({
   frameWidth,
   frameHeight,
   onPrimaryFrameChange,
+  persistSession = true,
   children,
 }: {
   frameWidth: number;
   frameHeight: number;
   onPrimaryFrameChange: (width: number, height: number) => void;
+  /** When false, keep the default artboard at the origin (marketing/static previews). */
+  persistSession?: boolean;
   children: React.ReactNode;
 }) {
   const [document, setDocument] = useState<StudioScenesDocument>(() =>
     createDefaultScene(frameWidth, frameHeight)
   );
   const framePropsRef = useRef({ frameWidth, frameHeight });
-  const hasHydratedFromSessionRef = useRef(false);
+  const hasHydratedFromSessionRef = useRef(!persistSession);
 
   // Hydrate persisted frame position after mount — sessionStorage is unavailable on SSR.
   useEffect(() => {
-    if (hasHydratedFromSessionRef.current) {
+    if (!persistSession || hasHydratedFromSessionRef.current) {
       return;
     }
     hasHydratedFromSessionRef.current = true;
@@ -70,7 +73,7 @@ export function StudioFrameProvider({
         height: frameHeight,
       })
     );
-  }, [frameWidth, frameHeight]);
+  }, [frameHeight, frameWidth, persistSession]);
 
   const frame = useMemo(() => {
     const board = getFrame(document);
@@ -110,10 +113,12 @@ export function StudioFrameProvider({
         width: frameWidth,
         height: frameHeight,
       });
-      persistStudioScenesDocument(next);
+      if (persistSession) {
+        persistStudioScenesDocument(next);
+      }
       return next;
     });
-  }, [frameHeight, frameWidth]);
+  }, [frameHeight, frameWidth, persistSession]);
 
   const updateFrame = useCallback(
     (patch: Partial<Pick<StudioArtboard, "x" | "y" | "width" | "height">>) => {
@@ -121,7 +126,9 @@ export function StudioFrameProvider({
 
       setDocument((previous) => {
         const next = patchPrimaryFrame(previous, patch);
-        persistStudioScenesDocument(next);
+        if (persistSession) {
+          persistStudioScenesDocument(next);
+        }
 
         if (patch.width !== undefined || patch.height !== undefined) {
           const board = getFrame(next);
@@ -137,7 +144,7 @@ export function StudioFrameProvider({
         onPrimaryFrameChange(syncedSize.width, syncedSize.height);
       }
     },
-    [onPrimaryFrameChange]
+    [onPrimaryFrameChange, persistSession]
   );
 
   const contentBounds = useMemo(() => getArtboardsBounds([frame]), [frame]);

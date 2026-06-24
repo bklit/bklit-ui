@@ -1,11 +1,12 @@
 "use client";
 
-import { Area, AreaChart, Background } from "@bklitui/ui/charts";
+import { Area, AreaChart, Background, ChartTooltip } from "@bklitui/ui/charts";
 import { curveNatural } from "@visx/curve";
 import {
   homeAreaChartMargin,
   useHomeChartCompact,
 } from "@/lib/home-chart-margin";
+import { homeTooltipPanelStyle } from "@/lib/home-tooltip-style";
 import { cn } from "@/lib/utils";
 
 const lineData = Array.from({ length: 30 }, (_, i) => ({
@@ -52,6 +53,7 @@ export function HomeAreaChart({
         fillOpacity={0.1}
         strokeWidth={1.5}
       />
+      <ChartTooltip panelStyle={homeTooltipPanelStyle} />
     </AreaChart>
   );
 }

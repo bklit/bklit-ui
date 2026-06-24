@@ -7,6 +7,7 @@ import { GeistSans } from "geist/font/sans";
 import type { Metadata } from "next";
 import { Source_Serif_4 } from "next/font/google";
 import type { ReactNode } from "react";
+import { SiteLeftDotGrid } from "@/components/design/site-left-dot-grid";
 import { DocsSearchDialog } from "@/components/docs/docs-search-dialog";
 import { getOpenPanelClientId } from "@/lib/openpanel-env";
 import { SITE_URL } from "@/lib/site-url";
@@ -55,7 +56,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       lang="en"
       suppressHydrationWarning
     >
-      <body className="flex min-h-screen flex-col">
+      <body className="relative flex min-h-screen flex-col">
+        <SiteLeftDotGrid />
         {openPanelClientId ? (
           <OpenPanelComponent
             apiUrl="/api/op"

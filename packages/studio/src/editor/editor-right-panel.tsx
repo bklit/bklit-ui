@@ -61,8 +61,8 @@ export const EditorRightPanel = memo(function EditorRightPanel({
   const { selectedComponent } = useStudioComponentSelection();
 
   return (
-    <EditorCollapsiblePane label="Properties" side="right">
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+    <EditorCollapsiblePane className="h-full" label="Properties" side="right">
+      <div className="flex h-full min-h-0 w-full flex-col">
         <EditorPropertiesSidebarHeader actions={headerActions} />
         <StudioPropertiesPanel
           component={selectedComponent}

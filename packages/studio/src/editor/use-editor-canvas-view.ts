@@ -654,6 +654,7 @@ export function useEditorCamera({
     /** @deprecated Use fitToContent */
     fitToView: fitToContent,
     centerOnContent,
+    applyDefaultCamera,
     resetTo100,
     zoomBy,
     panBy,

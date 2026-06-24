@@ -3,10 +3,9 @@
 import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
 import { DecorativeRuler } from "@/components/design/decorative-ruler";
-import { DotGridBackground } from "@/components/design/dot-grid-background";
 import { cn } from "@/lib/utils";
 
-const canvasFadeClass =
+export const canvasFadeClass =
   "[mask-image:linear-gradient(to_bottom,transparent_0%,black_8%,black_82%,transparent_100%)]";
 
 export function PageCanvasShell({ children }: { children: ReactNode }) {
@@ -30,24 +29,15 @@ export function PageCanvasShell({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <div className="grid w-full grid-cols-1 md:grid-cols-[32px_minmax(0,1fr)_32px]">
+    <div className="relative w-full" ref={contentRef}>
       <DecorativeRuler
-        className={cn(canvasFadeClass, "hidden md:block")}
+        className={cn(
+          "absolute top-0 left-0 z-10 hidden h-full md:block",
+          canvasFadeClass
+        )}
         length={height}
-        side="left"
       />
-      <div
-        className="relative min-w-0 md:col-start-2 md:row-start-1"
-        ref={contentRef}
-      >
-        <DotGridBackground className={canvasFadeClass} />
-        <div className="relative z-1">{children}</div>
-      </div>
-      <DecorativeRuler
-        className={cn(canvasFadeClass, "hidden md:block")}
-        length={height}
-        side="right"
-      />
+      <div className="relative z-1 px-4 sm:px-0">{children}</div>
     </div>
   );
 }

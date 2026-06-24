@@ -63,7 +63,7 @@ export function ChoroplethDemo() {
 
   return (
     <ChoroplethChart aspectRatio="16 / 9" data={worldData} zoomEnabled>
-      <ChoroplethFeatureComponent fill="var(--chart-3)" />
+      <ChoroplethFeatureComponent fill="var(--chart-scale-03)" />
       <ChoroplethTooltip />
       <PreviewZoomControls />
     </ChoroplethChart>
@@ -113,20 +113,19 @@ function getVisitorColor(feature: ChoroplethFeature): string {
     return "var(--muted)"; // No data = muted gray
   }
 
-  // Map to chart colors based on ranges (brighter = more visitors)
   if (visitors >= 17) {
-    return "var(--chart-1)"; // 17+
+    return "var(--chart-scale-05)";
   }
   if (visitors >= 13) {
-    return "var(--chart-2)"; // 13-16
+    return "var(--chart-scale-04)";
   }
   if (visitors >= 9) {
-    return "var(--chart-3)"; // 9-12
+    return "var(--chart-scale-03)";
   }
   if (visitors >= 5) {
-    return "var(--chart-4)"; // 5-8
+    return "var(--chart-scale-02)";
   }
-  return "var(--chart-5)"; // 1-4
+  return "var(--chart-scale-01)";
 }
 
 function getVisitorValue(feature: ChoroplethFeature): number | undefined {
@@ -137,11 +136,11 @@ function getVisitorValue(feature: ChoroplethFeature): number | undefined {
 // Legend items matching the color scale
 const legendItems = [
   { color: "var(--muted)", label: "No data" },
-  { color: "var(--chart-5)", label: "1-4" },
-  { color: "var(--chart-4)", label: "5-8" },
-  { color: "var(--chart-3)", label: "9-12" },
-  { color: "var(--chart-2)", label: "13-16" },
-  { color: "var(--chart-1)", label: "17+" },
+  { color: "var(--chart-scale-01)", label: "1-4" },
+  { color: "var(--chart-scale-02)", label: "5-8" },
+  { color: "var(--chart-scale-03)", label: "9-12" },
+  { color: "var(--chart-scale-04)", label: "13-16" },
+  { color: "var(--chart-scale-05)", label: "17+" },
 ];
 
 function AnalyticsZoomControls() {

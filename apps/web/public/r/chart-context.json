@@ -110,8 +110,13 @@
       "--chart-marker-background": "oklch(0.97 0.005 260)",
       "--chart-marker-border": "oklch(0.85 0.01 260)",
       "--chart-marker-foreground": "oklch(0.3 0.01 260)",
-      "--chart-ring-background": "oklch(0.9 0.005 260 / 0.25)",
-      "--chart-label": "oklch(0.45 0.01 260)"
+      "--chart-label": "oklch(0.45 0.01 260)",
+      "--chart-scale-01": "oklch(0.98 0.003 106)",
+      "--chart-scale-02": "oklch(0.92 0.008 106)",
+      "--chart-scale-03": "oklch(0.82 0.015 106)",
+      "--chart-scale-04": "oklch(0.68 0.02 106)",
+      "--chart-scale-05": "oklch(0.55 0.025 106)",
+      "--chart-scale-pattern-color": "oklch(0.96 0.005 106)"
     },
     "dark": {
       "--chart-1": "oklch(1 0 none)",
@@ -128,8 +133,13 @@
       "--chart-marker-background": "oklch(0.25 0.01 260)",
       "--chart-marker-border": "oklch(0.4 0.01 260)",
       "--chart-marker-foreground": "oklch(0.9 0 0)",
-      "--chart-ring-background": "oklch(0.35 0.01 260 / 0.25)",
-      "--chart-label": "oklch(0.75 0.01 260)"
+      "--chart-label": "oklch(0.75 0.01 260)",
+      "--chart-scale-01": "oklch(0.28 0.03 270)",
+      "--chart-scale-02": "oklch(0.38 0.04 270)",
+      "--chart-scale-03": "oklch(0.48 0.05 270)",
+      "--chart-scale-04": "oklch(0.58 0.06 270)",
+      "--chart-scale-05": "oklch(0.68 0.07 270)",
+      "--chart-scale-pattern-color": "oklch(0.145 0 0)"
     }
   }
 }

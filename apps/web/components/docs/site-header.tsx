@@ -389,7 +389,7 @@ export function SiteHeader({
         )}
       >
         <div className="container mx-auto">
-          <div className="mx-auto flex h-full items-center justify-between gap-6 px-6">
+          <div className="mx-auto flex h-full items-center justify-between gap-6">
             <div className="flex items-center gap-2">
               <Link
                 className="font-semibold text-foreground text-lg no-underline transition-opacity hover:opacity-80"

@@ -48,6 +48,8 @@ export const EditorShell = memo(function EditorShell({
   propertiesHeaderActions,
   showFpsCounter = false,
   controlsDisabled = false,
+  fillHeight = false,
+  staticPreview = false,
   onScramble,
   onReplay = () => undefined,
   isRecording = false,
@@ -66,6 +68,10 @@ export const EditorShell = memo(function EditorShell({
   propertiesHeaderActions?: ReactNode;
   showFpsCounter?: boolean;
   controlsDisabled?: boolean;
+  /** Fill a fixed-height parent instead of using `h-dvh`. */
+  fillHeight?: boolean;
+  /** Static marketing preview — isolated camera and fit-to-content. */
+  staticPreview?: boolean;
   onScramble: () => void;
   onReplay?: () => void;
   isRecording?: boolean;
@@ -104,11 +110,18 @@ export const EditorShell = memo(function EditorShell({
 
   useEditorFixedViewport(mobileShell);
 
+  let heightClass = "h-dvh";
+  if (mobileShell) {
+    heightClass = "fixed inset-0 h-dvh w-full";
+  } else if (fillHeight) {
+    heightClass = "h-full min-h-0 w-full overflow-hidden";
+  }
+
   return (
     <div
       className={cn(
         "flex overflow-hidden bg-background",
-        mobileShell ? "fixed inset-0 h-dvh w-full" : "h-dvh",
+        heightClass,
         className
       )}
     >
@@ -141,6 +154,7 @@ export const EditorShell = memo(function EditorShell({
         showSidebarToggle={!mobileShell}
         sidebarsOpen={sidebarsOpen}
         size={size}
+        staticPreview={staticPreview}
       >
         {children}
       </EditorMainPane>

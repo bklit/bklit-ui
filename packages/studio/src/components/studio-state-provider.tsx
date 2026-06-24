@@ -471,6 +471,91 @@ export function StudioStateProvider({
   );
 }
 
+function buildMemoryStudioState(
+  initialState?: Partial<StudioUrlState>
+): StudioUrlState {
+  const loaded = normalizeLoadedState(
+    defaultStudioState({
+      chart: "area-chart",
+      dataSeries: 2,
+      ...initialState,
+    })
+  );
+  const prefix = STUDIO_Y_AXIS_CHART_PREFIX[loaded.chart as ChartSlug];
+
+  if (prefix && loaded.hiddenComponents === "") {
+    return {
+      ...loaded,
+      hiddenComponents: chartDefaultHiddenComponents(prefix, {
+        showLegend: loaded.showLegend,
+        showBrush: loaded.showBrush,
+      }),
+    };
+  }
+
+  return loaded;
+}
+
+/** In-memory studio state for static homepage/docs previews (no URL sync). */
+export function StudioMemoryStateProvider({
+  children,
+  embedded = false,
+  initialState,
+}: {
+  children: React.ReactNode;
+  embedded?: boolean;
+  initialState?: Partial<StudioUrlState>;
+}) {
+  const state = useMemo(
+    () => buildMemoryStudioState(initialState),
+    [initialState]
+  );
+  const config = useMemo(() => getStudioConfig(state.chart), [state.chart]);
+  const getDisplayState = useCallback(() => state, [state]);
+
+  const shellValue = useMemo((): StudioShellContextValue => {
+    const noop = () => undefined;
+
+    return {
+      state,
+      config,
+      setChart: noop,
+      setParam: noop,
+      setStudioParams: noop,
+      setPreviewParam: noop,
+      setPreviewParams: noop,
+      commitParam: noop,
+      setFrameSize: noop,
+      getDisplayState,
+      motionCurveDragging: false,
+      setMotionCurveDragging: noop,
+      numberScrubbing: false,
+      setNumberScrubbing: noop,
+    };
+  }, [config, getDisplayState, state]);
+
+  const displayValue = useMemo(
+    (): StudioDisplayContextValue => ({ displayState: state }),
+    [state]
+  );
+
+  return (
+    <StudioShellContext.Provider value={shellValue}>
+      <StudioDisplayContext.Provider value={displayValue}>
+        <div
+          className={
+            embedded
+              ? "flex h-full min-h-0 w-full min-w-0 flex-col overflow-hidden"
+              : "flex h-full min-h-0 flex-1 flex-col"
+          }
+        >
+          {children}
+        </div>
+      </StudioDisplayContext.Provider>
+    </StudioShellContext.Provider>
+  );
+}
+
 export function useStudioShellState() {
   const context = useContext(StudioShellContext);
   if (!context) {

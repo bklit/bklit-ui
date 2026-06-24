@@ -5,7 +5,6 @@ import { useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { VercelOss } from "@/components/brands/vercel-oss";
 import { HeroPlayPill, HeroStudioPill } from "@/components/hero";
-import { HomeAreaChart } from "@/components/home-area-chart";
 import { HomeStudioVideo } from "@/components/home-studio-video";
 import { Button } from "@/components/ui/button";
 import { getAnalyticsUrl, trackEvent } from "@/lib/analytics/track-client";
@@ -59,46 +58,41 @@ export function DesignHeroCanvas() {
   return (
     <>
       <div
-        className="absolute inset-0 grid min-h-0 min-w-0 grid-cols-1 grid-rows-1"
+        className="pointer-events-none absolute inset-0 flex min-h-0 min-w-0 flex-col justify-center px-4 text-left sm:px-8 md:px-16 lg:px-24"
         data-grid-fill
       >
-        <div className="pointer-events-none col-start-1 row-start-1 flex h-full min-h-0 min-w-0 items-center p-4 sm:p-10 md:block md:p-16 lg:p-20">
-          <HomeAreaChart className="w-full shrink-0 opacity-85" />
-        </div>
+        <div className="flex min-h-0 flex-col gap-4 sm:gap-6">
+          <div className="pointer-events-auto hidden shrink-0 items-center justify-start gap-2 sm:flex">
+            <HeroStudioPill />
+            <HeroPlayPill onClick={handlePlay} />
+          </div>
 
-        <div className="relative z-1 col-start-1 row-start-1 flex h-full min-h-0 min-w-0 flex-col justify-center px-4 text-left sm:justify-start sm:px-8 sm:py-20 md:px-16 md:py-28 lg:px-24 lg:py-36">
-          <div className="flex min-h-0 flex-col gap-4 sm:flex-1 sm:gap-6">
-            <div className="flex shrink-0 items-center justify-start gap-2">
-              <HeroStudioPill />
-              <HeroPlayPill onClick={handlePlay} />
+          <div className="flex flex-col items-start gap-4">
+            <div className="flex max-w-full flex-col items-start">
+              <h1 className="font-bold text-3xl tracking-tight sm:text-5xl md:text-7xl lg:text-9xl">
+                Bklit UI
+              </h1>
+              <p className="font-mono text-muted-foreground text-xs uppercase tracking-widest sm:text-lg md:text-lg">
+                Design engineered data visualization components
+                <span className="animate-caret-blink">_</span>
+              </p>
             </div>
+            <div className="pointer-events-auto flex items-start justify-center">
+              <Button size="lg" variant="default">
+                Get started
+              </Button>
+            </div>
+          </div>
 
-            <div className="flex flex-col items-start gap-4 sm:flex-1 sm:justify-center">
-              <div className="flex max-w-full flex-col items-start justify-center">
-                <h1 className="font-bold text-4xl tracking-tight sm:text-5xl md:text-7xl lg:text-9xl">
-                  Bklit UI
-                </h1>
-                <p className="font-mono text-sm leading-snug sm:text-lg md:text-2xl lg:text-3xl">
-                  Design engineered data visualization components
-                </p>
-              </div>
-              <div className="flex items-start justify-center">
-                <Button size="lg" variant="default">
-                  Get started
-                </Button>
-              </div>
-            </div>
-
-            <div className="flex shrink-0 justify-start">
-              <a
-                className="inline-flex text-foreground"
-                href="https://vercel.com/oss"
-                rel="noopener noreferrer"
-                target="_blank"
-              >
-                <VercelOss className="h-auto w-[180px] max-w-full sm:w-[220px] md:w-[280px]" />
-              </a>
-            </div>
+          <div className="pointer-events-auto flex shrink-0 justify-start">
+            <a
+              className="inline-flex text-foreground"
+              href="https://vercel.com/oss"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              <VercelOss className="h-auto w-[180px] max-w-full sm:w-[220px] md:w-[280px]" />
+            </a>
           </div>
         </div>
       </div>
