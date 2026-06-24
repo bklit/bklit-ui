@@ -120,6 +120,19 @@ function MobileMenu({
   onClose,
   staggerDelay,
 }: MobileMenuProps) {
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isOpen]);
+
   const getBlurStyle = (index: number) => ({
     filter: isOpen ? "blur(0px)" : "blur(2px)",
     transitionDelay: isOpen ? `${index * staggerDelay}ms` : "0ms",
@@ -147,16 +160,15 @@ function MobileMenu({
 
       {/* Sheet */}
       <div
-        className={`fixed top-14 right-0 left-0 z-50 max-h-[calc(100vh-3.5rem)] overflow-y-auto overscroll-contain border-border border-b bg-background/95 backdrop-blur-xl transition-all duration-300 ease-out md:hidden ${
+        className={`fixed inset-x-0 top-18 bottom-0 z-50 flex flex-col overflow-hidden border-border border-b bg-background/95 backdrop-blur-xl transition-all duration-300 ease-out md:hidden ${
           isOpen
             ? "translate-y-0 opacity-100"
             : "pointer-events-none -translate-y-4 opacity-0"
         }`}
-        style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-y" }}
       >
-        <nav className="flex flex-col px-6 py-4 pb-8">
+        <nav className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain px-4 py-3 pb-[max(1.5rem,env(safe-area-inset-bottom))] [-webkit-overflow-scrolling:touch]">
           {/* Main links */}
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-0.5">
             {links.map((link, index) => (
               <Link
                 className="transition-[filter] duration-300 ease-out"
@@ -166,7 +178,7 @@ function MobileMenu({
                 style={getBlurStyle(index)}
               >
                 <Button
-                  className="w-full justify-start"
+                  className="h-10 w-full justify-start px-3"
                   size="default"
                   variant="ghost"
                 >
@@ -177,14 +189,14 @@ function MobileMenu({
           </div>
 
           {/* Components section */}
-          <div className="mt-4 border-border border-t pt-4">
+          <div className="mt-3 border-border border-t pt-3">
             <span
-              className="mb-2 block px-3 font-medium text-muted-foreground text-xs uppercase tracking-wider transition-[filter] duration-300 ease-out"
+              className="mb-1 block px-3 font-medium text-muted-foreground text-xs uppercase tracking-wider transition-[filter] duration-300 ease-out"
               style={getBlurStyle(links.length)}
             >
               Components
             </span>
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-0.5">
               {components.map((component, index) => (
                 <Link
                   className="transition-[filter] duration-300 ease-out"
@@ -194,7 +206,7 @@ function MobileMenu({
                   style={getBlurStyle(componentsStartIndex + index)}
                 >
                   <Button
-                    className="w-full justify-start"
+                    className="h-10 w-full justify-start px-3"
                     size="default"
                     variant="ghost"
                   >
@@ -206,14 +218,14 @@ function MobileMenu({
           </div>
 
           {/* Utility section */}
-          <div className="mt-4 border-border border-t pt-4">
+          <div className="mt-3 border-border border-t pt-3">
             <span
-              className="mb-2 block px-3 font-medium text-muted-foreground text-xs uppercase tracking-wider transition-[filter] duration-300 ease-out"
+              className="mb-1 block px-3 font-medium text-muted-foreground text-xs uppercase tracking-wider transition-[filter] duration-300 ease-out"
               style={getBlurStyle(utilitiesStartIndex - 1)}
             >
               Utility
             </span>
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-0.5">
               {utilities.flatMap((utility, i) => {
                 if ("children" in utility && utility.children) {
                   return [
@@ -242,7 +254,7 @@ function MobileMenu({
                         )}
                       >
                         <Button
-                          className="w-full justify-start"
+                          className="h-10 w-full justify-start px-3"
                           size="default"
                           variant="ghost"
                         >
@@ -266,7 +278,7 @@ function MobileMenu({
                     style={getBlurStyle(utilitiesStartIndex + 1 + flatIndex)}
                   >
                     <Button
-                      className="w-full justify-start"
+                      className="h-10 w-full justify-start px-3"
                       size="default"
                       variant="ghost"
                     >
@@ -280,7 +292,7 @@ function MobileMenu({
 
           {/* External links */}
           {(githubUrl || discordUrl) && (
-            <div className="mt-4 flex flex-col gap-1 border-border border-t pt-4">
+            <div className="mt-3 flex flex-col gap-0.5 border-border border-t pt-3">
               {githubUrl && (
                 <Link
                   aria-label="GitHub"
@@ -378,14 +390,21 @@ export function SiteHeader({
   // Only use resolved theme after mount to avoid hydration mismatch
   const logoTheme = mounted && resolvedTheme === "dark" ? "dark" : "light";
 
+  let headerBackgroundClass =
+    "bg-transparent hover:bg-background/85 hover:backdrop-blur-md";
+  if (mobileMenuOpen) {
+    headerBackgroundClass = "bg-background/95 backdrop-blur-xl";
+  } else if (isScrolled) {
+    headerBackgroundClass =
+      "bg-background/60 backdrop-blur-md hover:bg-background/90";
+  }
+
   return (
     <>
       <header
         className={cn(
-          "fixed top-0 right-0 left-0 z-50 flex h-18 items-center transition-[background-color,backdrop-filter] duration-300 ease-out",
-          isScrolled || mobileMenuOpen
-            ? "bg-background/60 backdrop-blur-md hover:bg-background/90"
-            : "bg-transparent hover:bg-background/85 hover:backdrop-blur-md"
+          "fixed top-0 right-0 left-0 z-50 flex h-18 items-center px-2.5 transition-[background-color,backdrop-filter] duration-300 ease-out sm:px-0",
+          headerBackgroundClass
         )}
       >
         <div className="container mx-auto">
