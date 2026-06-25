@@ -16,11 +16,11 @@ import {
 } from "@/lib/apply-chart-theme-vars";
 import { setChartThemeCookie } from "@/lib/chart-theme-cookie";
 import {
-  type ChartColorTheme,
   chartThemes,
   DEFAULT_CHART_THEME_ID,
   getChartTheme,
 } from "@/lib/chart-themes";
+import type { ChartColorTheme } from "@/lib/chart-themes/types";
 
 interface ChartThemeContextValue {
   themeId: string;
