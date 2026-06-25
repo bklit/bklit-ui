@@ -202,8 +202,6 @@ export interface StudioComponentDesign {
   /** Which series index this fill/pattern applies to (default 0). */
   seriesIndex?: number;
   supportsPattern?: boolean;
-  /** Show global palette presets (default: seriesIndex 0 or unset). */
-  showPalette?: boolean;
   /** When set, FillPicker reads/writes this URL key instead of series colors. */
   accentKey?: keyof StudioUrlState;
   /** FillPicker label when `accentKey` is used. Default: "Fill". */

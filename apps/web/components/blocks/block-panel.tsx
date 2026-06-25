@@ -15,10 +15,7 @@ export function BlockPanel({
         className
       )}
     >
-      <div
-        aria-hidden
-        className="absolute inset-0 z-0 bg-white dark:bg-black"
-      />
+      <div aria-hidden className="absolute inset-0 z-0 bg-card" />
       <div className="relative z-2 flex size-full min-h-[inherit] flex-col">
         {children}
       </div>

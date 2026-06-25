@@ -9,6 +9,10 @@ function getSiteTransitionKey(pathname: string) {
     return "/docs";
   }
 
+  if (pathname === "/charts" || pathname.startsWith("/charts/")) {
+    return "/charts";
+  }
+
   return pathname;
 }
 

@@ -124,7 +124,7 @@ function projectionScopedControlGroups(
 function rootPaletteDesign(
   supportsPattern = false
 ): StudioComponentDefinition["design"] {
-  return { seriesIndex: 0, showPalette: true, supportsPattern };
+  return { seriesIndex: 0, supportsPattern };
 }
 
 function legendNode(chartPrefix: string): StudioComponentDefinition {
@@ -282,7 +282,6 @@ function groupsToComponents(
           ? {
               seriesIndex: 0,
               supportsPattern: options?.supportsPatterns,
-              showPalette: true,
             }
           : undefined,
       };
@@ -308,7 +307,7 @@ export function resolveGaugeComponents(): StudioComponentDefinition[] {
       kind: "chart",
       treeIcon: "layers",
       controlGroups: design ? [design] : [],
-      design: { seriesIndex: 0, supportsPattern: true, showPalette: false },
+      design: { seriesIndex: 0, supportsPattern: true },
     },
     {
       id: "gauge.notches",
@@ -495,7 +494,7 @@ function resolveCartesianLoadingStudioComponents(options: {
       design: {
         accentKey: "lineLoadingStroke",
         colorLabel: "Line",
-        showPalette: false,
+
         supportsPattern: false,
       },
     },
@@ -568,7 +567,6 @@ export function resolveAreaComponents(
       design: {
         seriesIndex: index,
         supportsPattern: true,
-        showPalette: index === 0,
       },
     });
   }
@@ -656,7 +654,6 @@ export function resolveBarComponents(
       design: {
         seriesIndex: index,
         supportsPattern: true,
-        showPalette: index === 0,
       },
     });
   }
@@ -743,7 +740,6 @@ export function resolveComposedComponents(
       design: {
         seriesIndex: index,
         supportsPattern: true,
-        showPalette: index === 0,
       },
     });
   }
@@ -772,7 +768,7 @@ export function resolveFunnelComponents(
       kind: "chart",
       treeIcon: "funnel",
       controlGroups: [...(layout ? [layout] : []), ...(labels ? [labels] : [])],
-      design: { seriesIndex: 0, supportsPattern: true, showPalette: true },
+      design: { seriesIndex: 0, supportsPattern: true },
     },
     ...funnelData.map((stage, index) => ({
       id: `funnel.stage.${index}`,
@@ -785,7 +781,6 @@ export function resolveFunnelComponents(
       design: {
         seriesIndex: index,
         supportsPattern: true,
-        showPalette: false,
       },
     })),
     legendNode("funnel"),
@@ -804,7 +799,7 @@ export function resolvePieComponents(
       kind: "chart",
       treeIcon: "pie-chart",
       controlGroups: chartProps ? [chartProps] : [],
-      design: { seriesIndex: 0, supportsPattern: false, showPalette: true },
+      design: { seriesIndex: 0, supportsPattern: false },
     },
     ...pieData.map((slice, index) => ({
       id: `pie.slice.${index}`,
@@ -817,7 +812,6 @@ export function resolvePieComponents(
       design: {
         seriesIndex: index,
         supportsPattern: true,
-        showPalette: false,
       },
     })),
     ...(state.innerRadius > 0
@@ -967,7 +961,6 @@ function appendLineSeriesComponents(
       design: {
         seriesIndex: index,
         supportsPattern: false,
-        showPalette: index === 0,
       },
     });
 
@@ -1099,7 +1092,6 @@ export function resolveRingComponents(
       design: {
         seriesIndex: index,
         supportsPattern: false,
-        showPalette: false,
       },
     })),
     {
@@ -1143,7 +1135,6 @@ export function resolveRadarComponents(
       design: {
         seriesIndex: index,
         supportsPattern: false,
-        showPalette: false,
       },
     })),
     legendNode("radar"),
@@ -1180,7 +1171,7 @@ export function resolveScatterComponents(
         ...(points ? [points] : []),
         ...(interaction ? [interaction] : []),
       ],
-      design: { seriesIndex: 0, supportsPattern: false, showPalette: true },
+      design: { seriesIndex: 0, supportsPattern: false },
     },
   ];
 
@@ -1193,7 +1184,7 @@ export function resolveScatterComponents(
       listMarker: "color-dot",
       swatchColor: getEffectiveSeriesColor(state, 1),
       controlGroups: [seriesYAxisControlGroup(1)],
-      design: { seriesIndex: 1, supportsPattern: false, showPalette: false },
+      design: { seriesIndex: 1, supportsPattern: false },
     });
   }
 
@@ -1221,7 +1212,7 @@ export function resolveCandlestickComponents(
       kind: "chart",
       treeIcon: "layers",
       controlGroups: design ? [design] : [],
-      design: { seriesIndex: 0, supportsPattern: true, showPalette: true },
+      design: { seriesIndex: 0, supportsPattern: true },
     },
     gridNode("candlestick"),
     backgroundNode("candlestick"),
@@ -1254,7 +1245,7 @@ export function resolveChoroplethComponents(
       kind: "chart",
       treeIcon: "layers",
       controlGroups: design ? [design] : [],
-      design: { seriesIndex: 0, supportsPattern: true, showPalette: true },
+      design: { seriesIndex: 0, supportsPattern: true },
     },
     ...(state.showGraticule
       ? [

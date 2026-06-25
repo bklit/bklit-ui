@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useTheme } from "next-themes";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { ChartThemeSelector } from "@/components/chart-theme/chart-theme-selector";
 import { ModeToggle } from "@/components/mode-toggle";
 import { getAnalyticsUrl, trackEvent } from "@/lib/analytics/track-client";
 import { cn } from "@/lib/utils";
@@ -507,6 +508,7 @@ export function SiteHeader({
                   </Button>
                 </Link>
               )}
+              <ChartThemeSelector />
               <ModeToggle />
 
               {/* Mobile menu button */}

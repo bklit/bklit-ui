@@ -7,8 +7,11 @@ import { GeistSans } from "geist/font/sans";
 import type { Metadata } from "next";
 import { Source_Serif_4 } from "next/font/google";
 import type { ReactNode } from "react";
+import { ChartThemeProvider } from "@/components/chart-theme/chart-theme-provider";
+import { ChartThemeScript } from "@/components/chart-theme/chart-theme-script";
 import { SiteLeftDotGrid } from "@/components/design/site-left-dot-grid";
 import { DocsSearchDialog } from "@/components/docs/docs-search-dialog";
+import { getChartThemeIdFromCookie } from "@/lib/chart-theme-cookie.server";
 import { getOpenPanelClientId } from "@/lib/openpanel-env";
 import { SITE_URL } from "@/lib/site-url";
 import { cn } from "@/lib/utils";
@@ -42,8 +45,13 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default async function RootLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
   const openPanelClientId = getOpenPanelClientId();
+  const chartThemeId = await getChartThemeIdFromCookie();
 
   return (
     <html
@@ -57,6 +65,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       suppressHydrationWarning
     >
       <body className="relative flex min-h-screen flex-col">
+        <ChartThemeScript />
         <SiteLeftDotGrid />
         {openPanelClientId ? (
           <OpenPanelComponent
@@ -83,7 +92,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               enableSystem: true,
             }}
           >
-            {children}
+            <ChartThemeProvider initialThemeId={chartThemeId}>
+              {children}
+            </ChartThemeProvider>
           </RootProvider>
         </GithubStatsProvider>
       </body>
