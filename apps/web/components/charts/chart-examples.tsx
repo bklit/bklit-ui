@@ -106,6 +106,7 @@ import {
 import { DynamicCodeBlock } from "fumadocs-ui/components/dynamic-codeblock";
 import { motion, useSpring } from "motion/react";
 import {
+  type ComponentProps,
   type ReactNode,
   useCallback,
   useEffect,
