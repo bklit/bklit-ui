@@ -7,16 +7,11 @@ import { useChart } from "./chart-context";
 import { useChartLegendHover } from "./chart-legend-hover";
 import { transitionWithDelay } from "./motion-utils";
 
-import {
-  PROFIT_LOSS_NEGATIVE_COLOR,
-  PROFIT_LOSS_POSITIVE_COLOR,
-} from "./profit-loss-line";
-
 const DEFAULT_POSITIVE = "url(#candlestick-positive)";
 const DEFAULT_NEGATIVE = "url(#candlestick-negative)";
 
-const SOLID_POSITIVE = PROFIT_LOSS_POSITIVE_COLOR;
-const SOLID_NEGATIVE = PROFIT_LOSS_NEGATIVE_COLOR;
+const SOLID_POSITIVE = "var(--color-emerald-500)";
+const SOLID_NEGATIVE = "var(--color-red-500)";
 const WICK_WIDTH = 1.5;
 
 export interface CandlestickProps {
