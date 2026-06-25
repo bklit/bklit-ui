@@ -10,14 +10,18 @@ export const metadata: Metadata = {
 
 export default function ShowcasePage() {
   return (
-    <>
-      <section className="flex flex-col items-center px-4 py-18 text-center">
-        <ShowcaseHero />
+    <main className="flex flex-1 flex-col space-y-24">
+      <section className="relative w-full">
+        <div className="container mx-auto w-full overflow-visible">
+          <ShowcaseHero />
+        </div>
       </section>
 
-      <div className="mx-auto w-full max-w-7xl scroll-mt-14 px-6 py-8">
-        <ShowcaseGrid />
-      </div>
-    </>
+      <section className="relative w-full pt-8 pb-16 md:pt-12 md:pb-24">
+        <div className="container mx-auto w-full overflow-visible">
+          <ShowcaseGrid />
+        </div>
+      </section>
+    </main>
   );
 }

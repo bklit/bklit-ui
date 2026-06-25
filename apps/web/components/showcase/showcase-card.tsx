@@ -59,7 +59,13 @@ function ViewProjectAction({
   );
 }
 
-export function ShowcaseCard({ project }: { project: ShowcaseProject }) {
+export function ShowcaseCard({
+  project,
+  embedded = false,
+}: {
+  project: ShowcaseProject;
+  embedded?: boolean;
+}) {
   const reducedMotion = useReducedMotion();
   const [hoverFine, setHoverFine] = useState(false);
   const [focused, setFocused] = useState(false);
@@ -82,7 +88,10 @@ export function ShowcaseCard({ project }: { project: ShowcaseProject }) {
   return (
     <Link
       aria-label={`View ${project.title}`}
-      className="group block rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+      className={cn(
+        "group block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+        embedded ? "size-full min-h-[inherit]" : "rounded-xl"
+      )}
       external
       href={project.url}
       onBlurCapture={(e) => {
@@ -94,8 +103,20 @@ export function ShowcaseCard({ project }: { project: ShowcaseProject }) {
       onPointerEnter={() => setHoverFine(true)}
       onPointerLeave={() => setHoverFine(false)}
     >
-      <div className="relative overflow-hidden rounded-xl border border-border bg-card">
-        <div className="relative aspect-[4/3] w-full overflow-hidden [perspective:1400px]">
+      <div
+        className={cn(
+          "relative overflow-hidden bg-card",
+          embedded
+            ? "size-full min-h-[inherit]"
+            : "rounded-xl border border-border"
+        )}
+      >
+        <div
+          className={cn(
+            "overflow-hidden [perspective:1400px]",
+            embedded ? "absolute inset-0" : "relative aspect-4/3 w-full"
+          )}
+        >
           {/* biome-ignore lint/performance/noImgElement: external showcase thumbnail */}
           <img
             alt={project.imageAlt}
