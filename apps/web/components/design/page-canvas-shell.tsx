@@ -19,7 +19,8 @@ export function PageCanvasShell({ children }: { children: ReactNode }) {
     }
 
     let frameId: number | undefined;
-    let lastHeight = element.offsetHeight;
+    // Start below zero so the first measurement always syncs state (useState(0)).
+    let lastHeight = -1;
 
     const update = () => {
       frameId = undefined;
