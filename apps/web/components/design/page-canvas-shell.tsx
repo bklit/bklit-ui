@@ -8,21 +8,6 @@ import { cn } from "@/lib/utils";
 export const canvasFadeClass =
   "[mask-image:linear-gradient(to_bottom,transparent_0%,black_8%,black_82%,transparent_100%)]";
 
-function CanvasTopRulers() {
-  return (
-    <div
-      aria-hidden
-      className="pointer-events-none absolute inset-x-0 top-16 hidden h-0 md:block"
-      data-grid-rulers
-    >
-      <div className="absolute -top-8 left-0 block h-10 w-px bg-muted-foreground/40" />
-      <div className="absolute top-0 -left-8 block h-px w-10 bg-muted-foreground/40" />
-      <div className="absolute -top-8 right-0 block h-10 w-px bg-muted-foreground/40" />
-      <div className="absolute top-0 -right-8 block h-px w-10 bg-muted-foreground/40" />
-    </div>
-  );
-}
-
 export function PageCanvasShell({ children }: { children: ReactNode }) {
   const contentRef = useRef<HTMLDivElement>(null);
   const [height, setHeight] = useState(0);
@@ -33,14 +18,34 @@ export function PageCanvasShell({ children }: { children: ReactNode }) {
       return;
     }
 
+    let frameId: number | undefined;
+    let lastHeight = element.offsetHeight;
+
     const update = () => {
-      setHeight(element.offsetHeight);
+      frameId = undefined;
+      const nextHeight = element.offsetHeight;
+      if (nextHeight !== lastHeight) {
+        lastHeight = nextHeight;
+        setHeight(nextHeight);
+      }
+    };
+
+    const scheduleUpdate = () => {
+      if (frameId !== undefined) {
+        return;
+      }
+      frameId = window.requestAnimationFrame(update);
     };
 
     update();
-    const observer = new ResizeObserver(update);
+    const observer = new ResizeObserver(scheduleUpdate);
     observer.observe(element);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      if (frameId !== undefined) {
+        window.cancelAnimationFrame(frameId);
+      }
+    };
   }, []);
 
   return (
@@ -54,7 +59,6 @@ export function PageCanvasShell({ children }: { children: ReactNode }) {
           className={cn("absolute top-0 left-0 h-full", canvasFadeClass)}
           length={height}
         />
-        <CanvasTopRulers />
       </div>
       <div className="relative z-1 px-4 sm:px-0">{children}</div>
     </div>

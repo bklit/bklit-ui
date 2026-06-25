@@ -16,7 +16,12 @@ export type ShimmeringTextProps = Omit<
    */
   duration?: number;
   /**
-   * Whether the shimmer animation is paused.
+   * Pause the shimmer (e.g. when the hero leaves the viewport).
+   * @defaultValue false
+   */
+  paused?: boolean;
+  /**
+   * Legacy alias for `paused`.
    * @defaultValue false
    */
   isStopped?: boolean;
@@ -26,11 +31,12 @@ export function ShimmeringText({
   text,
   duration = 1,
   isStopped = false,
+  paused = false,
   className,
   ...props
 }: ShimmeringTextProps) {
   const reducedMotion = useReducedMotion();
-  const stopped = isStopped || reducedMotion === true;
+  const stopped = isStopped || paused || reducedMotion === true;
 
   const createCharVariants = useCallback(
     (charIndex: number): Variants => ({

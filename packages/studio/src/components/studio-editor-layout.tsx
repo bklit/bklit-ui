@@ -40,6 +40,7 @@ import {
 import { exportStudioChartSvg } from "@/lib/svg-export/export-studio-chart-svg";
 import type { StudioChartConfig } from "@/lib/types";
 import { useStudioAnalytics } from "@/providers/studio-analytics-context";
+import { useStudioChartPhaseReporter } from "@/providers/studio-chart-phase-reporter-context";
 
 const StudioEditorCanvas = memo(function StudioEditorCanvas({
   animationKey,
@@ -102,6 +103,8 @@ const StudioEditorCanvas = memo(function StudioEditorCanvas({
   mobileViewport: boolean;
   canvasScaleRef: RefObject<number>;
 }) {
+  const reportOgPhaseFromContext = useStudioChartPhaseReporter();
+
   return (
     <div
       className={cn(
@@ -196,6 +199,7 @@ const StudioEditorCanvas = memo(function StudioEditorCanvas({
                           numberScrubbing={numberScrubbing}
                           patternDefs={patternDefs}
                           patternFillAt={patternFillAt}
+                          reportOgPhase={reportOgPhaseFromContext}
                         />
                       )}
                     </StudioChartViewport>

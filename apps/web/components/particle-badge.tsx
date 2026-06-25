@@ -1,5 +1,6 @@
 "use client";
 
+import { useReducedMotion } from "motion/react";
 import {
   type ComponentProps,
   type ReactNode,
@@ -88,6 +89,8 @@ export type ParticleBadgeProps = ComponentProps<"div"> & {
   bleed?: number;
   /** Keep ambient particle emission; do not boost on hover. */
   disableHover?: boolean;
+  /** Pause WebGL loop and emission (e.g. when hero leaves viewport). */
+  paused?: boolean;
 };
 
 function compileShader(
@@ -116,8 +119,10 @@ export function ParticleBadge({
   className,
   bleed = 64,
   disableHover = false,
+  paused = false,
   ...props
 }: ParticleBadgeProps) {
+  const reducedMotion = useReducedMotion();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const targetRef = useRef<HTMLDivElement>(null);
@@ -132,6 +137,7 @@ export function ParticleBadge({
   const programRef = useRef<WebGLProgram | null>(null);
   const glStateRef = useRef<GlState | null>(null);
   const isHoveringRef = useRef(false);
+  const isActiveRef = useRef(false);
 
   const refreshPalettes = useCallback(() => {
     const probe = colorProbeRef.current;
@@ -328,6 +334,10 @@ export function ParticleBadge({
   );
 
   const render = useCallback(() => {
+    if (!isActiveRef.current) {
+      return;
+    }
+
     const gl = glRef.current;
     const program = programRef.current;
     const canvas = canvasRef.current;
@@ -407,6 +417,28 @@ export function ParticleBadge({
     animationFrameRef.current = requestAnimationFrame(render);
   }, []);
 
+  const stopLoop = useCallback(() => {
+    isActiveRef.current = false;
+    if (animationFrameRef.current !== undefined) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = undefined;
+    }
+    if (emitIntervalRef.current !== undefined) {
+      clearInterval(emitIntervalRef.current);
+      emitIntervalRef.current = undefined;
+    }
+    particlesRef.current = [];
+  }, []);
+
+  const startLoop = useCallback(() => {
+    if (isActiveRef.current) {
+      return;
+    }
+
+    isActiveRef.current = true;
+    animationFrameRef.current = requestAnimationFrame(render);
+  }, [render]);
+
   useEffect(() => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
@@ -433,15 +465,43 @@ export function ParticleBadge({
 
     const resizeObserver = new ResizeObserver(resizeCanvas);
     resizeObserver.observe(container);
-    animationFrameRef.current = requestAnimationFrame(render);
 
     return () => {
       resizeObserver.disconnect();
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
+      stopLoop();
     };
-  }, [initWebGL, render]);
+  }, [initWebGL, stopLoop]);
+
+  useEffect(() => {
+    if (reducedMotion || paused) {
+      stopLoop();
+      return;
+    }
+
+    startLoop();
+
+    let tick = 0;
+    emitIntervalRef.current = setInterval(() => {
+      if (!isActiveRef.current) {
+        return;
+      }
+
+      const aggressive = !disableHover && isHoveringRef.current;
+      tick++;
+
+      if (aggressive) {
+        if (tick % 2 === 0) {
+          emitFromEdges(true);
+        }
+      } else if (tick % 2 === 0) {
+        emitFromEdges(false);
+      }
+    }, 30);
+
+    return () => {
+      stopLoop();
+    };
+  }, [disableHover, emitFromEdges, paused, reducedMotion, startLoop, stopLoop]);
 
   useEffect(() => {
     refreshPalettes();
@@ -474,29 +534,6 @@ export function ParticleBadge({
 
     isHoveringRef.current = false;
   }, [disableHover]);
-
-  useEffect(() => {
-    let tick = 0;
-
-    emitIntervalRef.current = setInterval(() => {
-      const aggressive = !disableHover && isHoveringRef.current;
-      tick++;
-
-      if (aggressive) {
-        if (tick % 2 === 0) {
-          emitFromEdges(true);
-        }
-      } else if (tick % 2 === 0) {
-        emitFromEdges(false);
-      }
-    }, 30);
-
-    return () => {
-      if (emitIntervalRef.current) {
-        clearInterval(emitIntervalRef.current);
-      }
-    };
-  }, [disableHover, emitFromEdges]);
 
   return (
     <div

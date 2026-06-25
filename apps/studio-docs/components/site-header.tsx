@@ -19,7 +19,7 @@ export function SiteHeader() {
   const logoTheme = mounted && resolvedTheme === "dark" ? "dark" : "light";
 
   return (
-    <header className="fixed top-0 right-0 left-0 z-50 h-14 bg-background/80 backdrop-blur-xl">
+    <header className="fixed top-0 right-0 left-0 z-50 h-14 bg-background/80 backdrop-blur-sm">
       <div className="mx-auto flex h-full items-center justify-between gap-6 px-6">
         <div className="flex min-w-0 items-center gap-3">
           <Link

@@ -3,6 +3,7 @@
 import { Icon } from "@bklitui/icons";
 import { ShimmeringText } from "@bklitui/ui/components/shimmering-text";
 import type { ComponentProps, ReactNode } from "react";
+import { useHeroMotionPaused } from "@/components/design/home-hero-section";
 import { GradientBorderPill } from "@/components/hero/gradient-border-pill";
 import { StaticBorderPill } from "@/components/hero/static-border-pill";
 import { ParticleBadge } from "@/components/particle-badge";
@@ -23,14 +24,24 @@ export function HeroBadgeRow({ children }: { children: ReactNode }) {
 }
 
 export function HeroStudioPill() {
+  const paused = useHeroMotionPaused();
+
   return (
-    <ParticleBadge>
-      <GradientBorderPill aria-label="Studio Version 2" href="/studio">
-        <span className="flex h-6 items-center rounded-full bg-muted/75 px-2.5 text-xs leading-none backdrop-blur-sm">
+    <ParticleBadge paused={paused}>
+      <GradientBorderPill
+        aria-label="Studio Version 2"
+        href="/studio"
+        paused={paused}
+      >
+        <span className="flex h-6 items-center rounded-full bg-muted px-2.5 text-xs leading-none">
           Studio
         </span>
         <span className="flex h-6 items-center gap-1 px-2.5 text-xs leading-none">
-          <ShimmeringText className="leading-none" text="Version 2" />
+          <ShimmeringText
+            className="leading-none"
+            paused={paused}
+            text="Version 2"
+          />
           <Icon className="size-3.5" name="IconArrowRight" />
         </span>
       </GradientBorderPill>

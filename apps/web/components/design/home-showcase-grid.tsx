@@ -94,6 +94,7 @@ export function HomeShowcaseGrid() {
                   panelClassName
                 )}
                 key={id}
+                mountKey={`showcase-${id}`}
               >
                 <HomeShowcaseChart id={id} />
               </DesignShowcasePanel>

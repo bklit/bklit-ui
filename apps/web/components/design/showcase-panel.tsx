@@ -6,8 +6,9 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import type { ChartSlug } from "@/components/charts/chart-slugs";
+import { ChartMountPlaceholder } from "@/components/design/chart-mount-placeholder";
 import { Button } from "@/components/ui/button";
-import { useInViewOnce } from "@/lib/use-in-view-once";
+import { useDeferredInViewOnce } from "@/lib/use-deferred-in-view-once";
 import { cn } from "@/lib/utils";
 import { GridCornerDots } from "./line-grid";
 
@@ -139,15 +140,20 @@ export function DesignShowcasePanel({
   chart,
   children,
   className,
+  mountKey,
 }: {
   chart: ChartSlug;
   children?: React.ReactNode;
   className?: string;
+  /** Serial homepage mount slot (pass `showcase-${id}` from the grid). */
+  mountKey: string;
 }) {
   const reducedMotion = useReducedMotion();
-  const { ref: chartViewportRef, inView: chartInView } = useInViewOnce({
-    rootMargin: "120px",
-  });
+  const { ref: chartViewportRef, mounted: chartMounted } =
+    useDeferredInViewOnce({
+      mountKey,
+      rootMargin: "120px",
+    });
   const [hoverFine, setHoverFine] = useState(false);
   const [focused, setFocused] = useState(false);
   const [coarsePointer, setCoarsePointer] = useState(false);
@@ -220,7 +226,7 @@ export function DesignShowcasePanel({
           key={replayKey}
           ref={chartViewportRef}
         >
-          {chartInView ? children : null}
+          {chartMounted ? children : <ChartMountPlaceholder />}
         </div>
       </div>
     </div>

@@ -3,6 +3,7 @@
 import { PatternLines } from "@bklitui/ui/charts";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { usePauseWhenOffscreen } from "@/lib/use-pause-when-offscreen";
 import { cn } from "@/lib/utils";
 
 const easeOutQuint = [0.23, 1, 0.32, 1] as const;
@@ -127,6 +128,7 @@ export function GridCellPulse({
   maxRandomActive?: number;
 }) {
   const reducedMotion = useReducedMotion();
+  const { ref: visibilityRef, paused: offscreen } = usePauseWhenOffscreen();
   const [hoveredCell, setHoveredCell] = useState<GridCell | null>(null);
   const [randomCells, setRandomCells] = useState<GridCell[]>([]);
   const spawnTimerRef = useRef<number | undefined>(undefined);
@@ -188,15 +190,21 @@ export function GridCellPulse({
   }, [randomCells]);
 
   useEffect(() => {
-    if (reducedMotion || randomCells.length >= effectiveMin) {
+    if (reducedMotion || offscreen || randomCells.length >= effectiveMin) {
       return;
     }
 
     fillToMinimum();
-  }, [effectiveMin, fillToMinimum, randomCells.length, reducedMotion]);
+  }, [
+    effectiveMin,
+    fillToMinimum,
+    offscreen,
+    randomCells.length,
+    reducedMotion,
+  ]);
 
   useEffect(() => {
-    if (reducedMotion || columns < 1 || rows < 1) {
+    if (reducedMotion || offscreen || columns < 1 || rows < 1) {
       return;
     }
 
@@ -231,6 +239,7 @@ export function GridCellPulse({
     columns,
     effectiveMin,
     fillToMinimum,
+    offscreen,
     reducedMotion,
     rows,
     spawnRandomCell,
@@ -270,6 +279,7 @@ export function GridCellPulse({
       data-grid-pulse
       onMouseLeave={handleMouseLeave}
       onMouseMove={handleMouseMove}
+      ref={visibilityRef}
       style={{
         gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
         gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,

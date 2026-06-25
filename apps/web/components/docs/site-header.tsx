@@ -1,7 +1,14 @@
 "use client";
 
-import Link from "fumadocs-core/link";
-import { motion, useReducedMotion } from "motion/react";
+import {
+  type MotionValue,
+  motion,
+  useMotionValue,
+  useReducedMotion,
+  useSpring,
+  useTransform,
+} from "motion/react";
+import Link from "next/link";
 import { useTheme } from "next-themes";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import { ModeToggle } from "@/components/mode-toggle";
@@ -103,11 +110,30 @@ function MenuIcon({ open }: { open: boolean }) {
 
 const STAGGER_DURATION = 650; // Total duration for all staggered items (ms)
 
-const HEADER_EASE = [0.23, 1, 0.32, 1] as const;
-const BORDER_EASE = [0.645, 0.045, 0.355, 1] as const;
-const HEADER_SHELL_DURATION = 0.38;
-const HEADER_BORDER_DELAY = 0.1;
-const HEADER_BORDER_DURATION = 0.32;
+/** Scroll distance over which the header eases into its compact state. */
+const HEADER_SCROLL_RANGE = 56;
+const HEADER_Y = 16;
+const HEADER_INSET_X = 56;
+const HEADER_SPRING = { stiffness: 360, damping: 42, mass: 0.72 };
+
+function useHeaderScrollStyle(
+  scrollY: MotionValue<number>,
+  reducedMotion: boolean | null
+) {
+  const progress = useTransform(scrollY, [0, HEADER_SCROLL_RANGE], [0, 1], {
+    clamp: true,
+  });
+  const smooth = useSpring(
+    progress,
+    reducedMotion ? { stiffness: 10_000, damping: 120, mass: 1 } : HEADER_SPRING
+  );
+
+  return {
+    y: useTransform(smooth, (value) => value * HEADER_Y),
+    marginX: useTransform(smooth, [0, 1], [0, HEADER_INSET_X]),
+    surfaceOpacity: useTransform(smooth, [0, 0.25, 1], [0, 0, 1]),
+  };
+}
 
 interface MobileMenuProps {
   links: NavLink[];
@@ -139,8 +165,9 @@ function MobileMenu({
     };
   }, [isOpen]);
 
-  const getBlurStyle = (index: number) => ({
-    filter: isOpen ? "blur(0px)" : "blur(2px)",
+  const getStaggerStyle = (index: number) => ({
+    opacity: isOpen ? 1 : 0,
+    transform: isOpen ? "translateY(0)" : "translateY(4px)",
     transitionDelay: isOpen ? `${index * staggerDelay}ms` : "0ms",
   });
 
@@ -166,7 +193,7 @@ function MobileMenu({
 
       {/* Sheet */}
       <div
-        className={`fixed inset-x-0 top-(--site-header-height) bottom-0 z-50 flex flex-col overflow-hidden border-border border-b bg-background/95 backdrop-blur-xl transition-all duration-300 ease-out md:hidden ${
+        className={`fixed inset-x-0 top-(--site-header-height) bottom-0 z-50 flex flex-col overflow-hidden border-border border-b bg-background/95 backdrop-blur-sm transition-[transform,opacity] duration-300 ease-out md:hidden ${
           isOpen
             ? "translate-y-0 opacity-100"
             : "pointer-events-none -translate-y-4 opacity-0"
@@ -177,11 +204,11 @@ function MobileMenu({
           <div className="flex flex-col gap-0.5">
             {links.map((link, index) => (
               <Link
-                className="transition-[filter] duration-300 ease-out"
+                className="transition-[opacity,transform] duration-300 ease-out"
                 href={link.url}
                 key={link.url}
                 onClick={onClose}
-                style={getBlurStyle(index)}
+                style={getStaggerStyle(index)}
               >
                 <Button
                   className="h-10 w-full justify-start px-3"
@@ -197,19 +224,19 @@ function MobileMenu({
           {/* Components section */}
           <div className="mt-3 border-border border-t pt-3">
             <span
-              className="mb-1 block px-3 font-medium text-muted-foreground text-xs uppercase tracking-wider transition-[filter] duration-300 ease-out"
-              style={getBlurStyle(links.length)}
+              className="mb-1 block px-3 font-medium text-muted-foreground text-xs uppercase tracking-wider transition-[opacity,transform] duration-300 ease-out"
+              style={getStaggerStyle(links.length)}
             >
               Components
             </span>
             <div className="flex flex-col gap-0.5">
               {components.map((component, index) => (
                 <Link
-                  className="transition-[filter] duration-300 ease-out"
+                  className="transition-[opacity,transform] duration-300 ease-out"
                   href={component.url}
                   key={component.url}
                   onClick={onClose}
-                  style={getBlurStyle(componentsStartIndex + index)}
+                  style={getStaggerStyle(componentsStartIndex + index)}
                 >
                   <Button
                     className="h-10 w-full justify-start px-3"
@@ -226,8 +253,8 @@ function MobileMenu({
           {/* Utility section */}
           <div className="mt-3 border-border border-t pt-3">
             <span
-              className="mb-1 block px-3 font-medium text-muted-foreground text-xs uppercase tracking-wider transition-[filter] duration-300 ease-out"
-              style={getBlurStyle(utilitiesStartIndex - 1)}
+              className="mb-1 block px-3 font-medium text-muted-foreground text-xs uppercase tracking-wider transition-[opacity,transform] duration-300 ease-out"
+              style={getStaggerStyle(utilitiesStartIndex - 1)}
             >
               Utility
             </span>
@@ -238,17 +265,17 @@ function MobileMenu({
                     <span
                       className="mt-2 mb-1 block px-3 font-medium text-muted-foreground text-xs uppercase tracking-wider first:mt-0"
                       key={`axis-${utility.text}`}
-                      style={getBlurStyle(utilitiesStartIndex + 1 + i)}
+                      style={getStaggerStyle(utilitiesStartIndex + 1 + i)}
                     >
                       {utility.text}
                     </span>,
                     ...utility.children.map((child, j) => (
                       <Link
-                        className="pl-4 transition-[filter] duration-300 ease-out"
+                        className="pl-4 transition-[opacity,transform] duration-300 ease-out"
                         href={child.url}
                         key={child.url}
                         onClick={onClose}
-                        style={getBlurStyle(
+                        style={getStaggerStyle(
                           utilitiesStartIndex +
                             2 +
                             utilities
@@ -277,11 +304,11 @@ function MobileMenu({
                   ).length;
                 return (
                   <Link
-                    className="transition-[filter] duration-300 ease-out"
+                    className="transition-[opacity,transform] duration-300 ease-out"
                     href={utility.url}
                     key={utility.url}
                     onClick={onClose}
-                    style={getBlurStyle(utilitiesStartIndex + 1 + flatIndex)}
+                    style={getStaggerStyle(utilitiesStartIndex + 1 + flatIndex)}
                   >
                     <Button
                       className="h-10 w-full justify-start px-3"
@@ -302,11 +329,11 @@ function MobileMenu({
               {githubUrl && (
                 <Link
                   aria-label="GitHub"
-                  className="transition-[filter] duration-300 ease-out"
+                  className="transition-[opacity,transform] duration-300 ease-out"
                   external
                   href={githubUrl}
                   onClick={onClose}
-                  style={getBlurStyle(externalLinksStartIndex)}
+                  style={getStaggerStyle(externalLinksStartIndex)}
                 >
                   <Button
                     className="w-full justify-start gap-2 font-light font-mono text-muted-foreground text-xs"
@@ -322,14 +349,14 @@ function MobileMenu({
               {discordUrl && (
                 <Link
                   aria-label="Discord"
-                  className="transition-[filter] duration-300 ease-out"
+                  className="transition-[opacity,transform] duration-300 ease-out"
                   external
                   href={discordUrl}
                   onClick={() => {
                     trackDiscordClick("mobile_menu");
                     onClose();
                   }}
-                  style={getBlurStyle(
+                  style={getStaggerStyle(
                     externalLinksStartIndex + (githubUrl ? 1 : 0)
                   )}
                 >
@@ -352,65 +379,34 @@ function MobileMenu({
 }
 
 function HeaderShell({
-  isScrolled,
+  scrollY,
   reducedMotion,
   children,
 }: {
-  isScrolled: boolean;
+  scrollY: MotionValue<number>;
   reducedMotion: boolean | null;
   children: ReactNode;
 }) {
-  const shellTransition = reducedMotion
-    ? { duration: 0 }
-    : { duration: HEADER_SHELL_DURATION, ease: HEADER_EASE };
-
-  const borderTransition = reducedMotion
-    ? { duration: 0 }
-    : {
-        duration: HEADER_BORDER_DURATION,
-        ease: BORDER_EASE,
-        delay: isScrolled ? HEADER_BORDER_DELAY : 0,
-      };
+  const { y, marginX, surfaceOpacity } = useHeaderScrollStyle(
+    scrollY,
+    reducedMotion
+  );
 
   return (
-    <motion.div
-      animate={{
-        paddingLeft: isScrolled ? 40 : 0,
-        paddingRight: isScrolled ? 40 : 0,
-      }}
-      className="container mx-auto"
-      transition={shellTransition}
-    >
+    <div className="container relative mx-auto py-4">
       <motion.div
-        animate={{
-          marginTop: isScrolled ? 16 : 0,
-          paddingTop: 16,
-          paddingBottom: 16,
-          paddingLeft: isScrolled ? 16 : 0,
-          paddingRight: isScrolled ? 16 : 0,
-          borderWidth: isScrolled ? 1 : 0,
-          borderColor: isScrolled ? "var(--border)" : "transparent",
-          backgroundColor: isScrolled
-            ? "color-mix(in oklab, var(--background) 80%, transparent)"
-            : "transparent",
-          backdropFilter: isScrolled ? "blur(4px)" : "blur(0px)",
+        aria-hidden
+        className="pointer-events-none absolute inset-0 border border-border bg-background/80"
+        style={{
+          marginLeft: marginX,
+          marginRight: marginX,
+          opacity: surfaceOpacity,
+          y,
+          willChange: "transform",
         }}
-        style={{ borderStyle: "solid" }}
-        transition={{
-          ...shellTransition,
-          borderColor: borderTransition,
-          borderWidth: reducedMotion
-            ? { duration: 0 }
-            : {
-                duration: HEADER_SHELL_DURATION * 0.7,
-                ease: HEADER_EASE,
-                delay: isScrolled ? HEADER_BORDER_DELAY * 0.6 : 0,
-              },
-        }}
-      >
-        {children}
-      </motion.div>
-    </motion.div>
+      />
+      {children}
+    </div>
   );
 }
 
@@ -421,7 +417,7 @@ export function SiteHeader({
 }: SiteHeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
+  const scrollY = useMotionValue(0);
   const headerRef = useRef<HTMLElement>(null);
   const reducedMotion = useReducedMotion();
   const { resolvedTheme } = useTheme();
@@ -448,15 +444,30 @@ export function SiteHeader({
   }, []);
 
   useEffect(() => {
-    const onScroll = () => {
-      setIsScrolled(window.scrollY > 8);
+    let frameId: number | undefined;
+
+    const syncScroll = () => {
+      frameId = undefined;
+      scrollY.set(window.scrollY);
     };
 
-    onScroll();
+    const onScroll = () => {
+      if (frameId !== undefined) {
+        return;
+      }
+      frameId = window.requestAnimationFrame(syncScroll);
+    };
+
+    syncScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
 
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (frameId !== undefined) {
+        window.cancelAnimationFrame(frameId);
+      }
+    };
+  }, [scrollY]);
 
   useEffect(() => {
     const header = headerRef.current;
@@ -484,12 +495,12 @@ export function SiteHeader({
   return (
     <>
       <header
-        className="fixed top-0 right-0 left-0 z-50 flex items-center px-2.5"
+        className="flex items-center px-2.5"
         ref={headerRef}
         style={{ viewTransitionName: "site-header" }}
       >
-        <HeaderShell isScrolled={isScrolled} reducedMotion={reducedMotion}>
-          <div className="mx-auto flex h-full items-center justify-between gap-6">
+        <HeaderShell reducedMotion={reducedMotion} scrollY={scrollY}>
+          <div className="relative mx-auto flex h-full items-center justify-between gap-6">
             <div className="flex items-center gap-2">
               <Link
                 className="font-semibold text-foreground text-lg no-underline transition-opacity hover:opacity-80"

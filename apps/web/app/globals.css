@@ -89,6 +89,8 @@
   --shadow-2xl: 0 25px 50px -12px var(--shadow);
 
   --animate-caret-blink: caret-blink 1.06s step-end infinite;
+  --animate-studio-pill-border-spin: studio-pill-border-spin 3.75s linear
+    infinite;
 
   @keyframes caret-blink {
     0%,
@@ -97,6 +99,12 @@
     }
     50% {
       opacity: 0;
+    }
+  }
+
+  @keyframes studio-pill-border-spin {
+    to {
+      transform: rotate(360deg);
     }
   }
 }
@@ -209,6 +217,17 @@
 }
 
 @layer components {
+  .studio-pill-border-gradient {
+    background: conic-gradient(
+      from 0deg,
+      transparent 0deg 228deg,
+      color-mix(in oklch, var(--chart-1) 55%, transparent) 248deg,
+      var(--chart-2) 278deg,
+      color-mix(in oklch, var(--chart-2) 55%, transparent) 308deg,
+      transparent 328deg 360deg
+    );
+  }
+
   .docs-scroll-area {
     --studio-scrollbar-width: 4px;
     scrollbar-gutter: stable;

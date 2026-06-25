@@ -1,13 +1,14 @@
 "use client";
 
-import { motion, useAnimationControls, useReducedMotion } from "motion/react";
-import { useEffect, useRef, useState } from "react";
-import { getUsedByLogoPaddingStyle } from "@/components/brands/used-by-logo-insets";
+import { useReducedMotion } from "motion/react";
+import { useEffect, useState } from "react";
 import {
   type UsedByLogo,
   usedByLogoClassName,
   usedByLogos,
 } from "@/components/brands/used-by-logos";
+import { GlitchSwapLogo } from "@/components/design/glitch-swap-logo";
+import { usePauseWhenOffscreen } from "@/lib/use-pause-when-offscreen";
 
 const MOBILE_VISIBLE_SLOT_COUNT = 6;
 const DESKTOP_VISIBLE_SLOT_COUNT = 8;
@@ -21,9 +22,6 @@ const SLOT_KEYS = [
   "used-by-slot-6",
   "used-by-slot-7",
 ] as const;
-const FLIP_DURATION = 0.38;
-const FLIP_OUT_EASE = [0.4, 0, 1, 1] as const;
-const FLIP_IN_EASE = [0, 0, 0.2, 1] as const;
 const FLIP_MIN_DELAY_MS = 2500;
 const FLIP_MAX_DELAY_MS = 6500;
 
@@ -53,81 +51,33 @@ function pickNextSlots(current: UsedByLogo[], visibleSlotCount: number) {
   return next;
 }
 
-function UsedByFlipLogo({ logo }: { logo: UsedByLogo }) {
-  const reducedMotion = useReducedMotion();
-  const controls = useAnimationControls();
-  const [displayed, setDisplayed] = useState(logo);
-  const displayedIdRef = useRef(logo.id);
-
-  useEffect(() => {
-    if (logo.id === displayedIdRef.current) {
-      return;
-    }
-
-    displayedIdRef.current = logo.id;
-
-    if (reducedMotion) {
-      setDisplayed(logo);
-      return;
-    }
-
-    let cancelled = false;
-
-    const runFlip = async () => {
-      await controls.start({
-        rotateX: 90,
-        transition: { duration: FLIP_DURATION, ease: FLIP_OUT_EASE },
-      });
-
-      if (cancelled) {
-        return;
-      }
-
-      setDisplayed(logo);
-      controls.set({ rotateX: -90 });
-
-      await controls.start({
-        rotateX: 0,
-        transition: { duration: FLIP_DURATION, ease: FLIP_IN_EASE },
-      });
-    };
-
-    runFlip().catch(() => undefined);
-
-    return () => {
-      cancelled = true;
-      controls.stop();
-    };
-  }, [controls, logo, reducedMotion]);
-
-  const { href, name, Logo, id } = displayed;
+function UsedByGlitchLogo({
+  logo,
+  paused,
+  reducedMotion,
+}: {
+  logo: UsedByLogo;
+  paused: boolean;
+  reducedMotion: boolean;
+}) {
+  const [linkLogo, setLinkLogo] = useState(logo);
 
   return (
     <li className="w-full">
       <a
         className="group block w-full"
-        href={href}
+        href={linkLogo.href}
         rel="noopener noreferrer"
         target="_blank"
       >
-        <div className="aspect-5/2 w-full">
-          <div className="perspective-[1000px] h-full w-full">
-            <motion.span
-              animate={controls}
-              className="backface-hidden flex h-full w-full origin-center"
-              initial={{ rotateX: 0 }}
-              style={{ transformStyle: "preserve-3d", willChange: "transform" }}
-            >
-              <div
-                aria-label={name}
-                className="flex h-full w-full items-center justify-center"
-                role="img"
-                style={getUsedByLogoPaddingStyle(id)}
-              >
-                <Logo className={usedByLogoClassName} />
-              </div>
-            </motion.span>
-          </div>
+        <div className="relative aspect-5/2 w-full">
+          <GlitchSwapLogo
+            className={usedByLogoClassName}
+            logo={logo}
+            onDisplayChange={setLinkLogo}
+            paused={paused}
+            reducedMotion={reducedMotion}
+          />
         </div>
       </a>
     </li>
@@ -136,6 +86,8 @@ function UsedByFlipLogo({ logo }: { logo: UsedByLogo }) {
 
 export function UsedByLogoGrid() {
   const reducedMotion = useReducedMotion();
+  const { ref: visibilityRef, paused: offscreen } =
+    usePauseWhenOffscreen<HTMLUListElement>();
   const [visibleSlotCount, setVisibleSlotCount] = useState(
     MOBILE_VISIBLE_SLOT_COUNT
   );
@@ -156,7 +108,7 @@ export function UsedByLogoGrid() {
   }, []);
 
   useEffect(() => {
-    if (reducedMotion) {
+    if (reducedMotion || offscreen) {
       return;
     }
 
@@ -185,17 +137,27 @@ export function UsedByLogoGrid() {
         clearTimeout(timeoutId);
       }
     };
-  }, [reducedMotion, visibleSlotCount]);
+  }, [offscreen, reducedMotion, visibleSlotCount]);
 
   return (
-    <ul className="grid grid-cols-3 gap-4 md:grid-cols-6 lg:grid-cols-8">
+    <ul
+      className="grid grid-cols-3 gap-4 md:grid-cols-6 lg:grid-cols-8"
+      ref={visibilityRef}
+    >
       {SLOT_KEYS.slice(0, visibleSlotCount).map((slotKey, index) => {
         const logo = slots[index];
         if (!logo) {
           return null;
         }
 
-        return <UsedByFlipLogo key={slotKey} logo={logo} />;
+        return (
+          <UsedByGlitchLogo
+            key={slotKey}
+            logo={logo}
+            paused={offscreen}
+            reducedMotion={Boolean(reducedMotion)}
+          />
+        );
       })}
     </ul>
   );
