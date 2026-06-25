@@ -1,5 +1,8 @@
 import type { CSSProperties, ReactNode } from "react";
-import { GridCellPulse } from "@/components/design/grid-cell-pulse";
+import {
+  GridCellPulse,
+  type GridCellPulseCell,
+} from "@/components/design/grid-cell-pulse";
 import { cn } from "@/lib/utils";
 
 const gridDotSize = "10px";
