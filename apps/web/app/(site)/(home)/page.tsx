@@ -1,113 +1,45 @@
-"use client";
-
-import { DesignHero } from "@/components/design/hero";
-
-// import { AnimatePresence, motion } from "motion/react";
-// import { useState } from "react";
-// import { HomeComponents } from "@/components/home-components";
-// import { HomeHero } from "@/components/home-hero";
-// import { HomeSponsorsSection } from "@/components/home-sponsors-section";
-// import { HomeStudioSection } from "@/components/home-studio-section";
-// import { TestimonialGrid } from "@/components/testimonial-grid";
-
-// const staggerDelay = 0.12;
-
-// const fadeInOnly = {
-//   initial: { opacity: 0 },
-//   animate: { opacity: 1 },
-// };
+import { DesignHeroCanvas } from "@/components/design/design-hero-canvas";
+import { HomeFooter } from "@/components/design/home-footer";
+import { HomeHeroSection } from "@/components/design/home-hero-section";
+import { HomeShowcaseSection } from "@/components/design/home-showcase-section";
+import { HomeSponsorsSection } from "@/components/design/home-sponsors-section";
+import { HomeTestimonialsSection } from "@/components/design/home-testimonials-section";
+import { LineGrid } from "@/components/design/line-grid";
+import { UsedBySection } from "@/components/design/used-by-section";
 
 export default function HomePage() {
-  // const [showContent, setShowContent] = useState(false);
-
   return (
-    <main className="flex flex-1 flex-col space-y-24">
-      {/* <HomeHero onContentReady={() => setShowContent(true)} /> */}
-
+    <main className="flex flex-1 flex-col">
       <div className="flex w-full flex-col gap-0">
-        <DesignHero />
-      </div>
-
-      {/* <div>
-        <div className="container mx-auto max-w-7xl border border-border">
-          <div className="flex flex-col items-start justify-center gap-4 p-24">
-            <div className="flex flex-col items-start justify-center">
-              <h1 className="font-bold text-4xl">Bklit UI</h1>
-              <p className="font-light text-3xl text-muted-foreground">
-                Design engineered data visualization components
-              </p>
-            </div>
-            <div className="flex items-start justify-center gap-1">
-              <Button
-                onClick={() => {
-                  console.log("clicked");
-                }}
-                size="lg"
-                variant="default"
-              >
-                Get started
-              </Button>
-              <Button
-                onClick={() => {
-                  console.log("clicked");
-                }}
-                size="lg"
-                variant="outline"
-              >
-                Get started
-              </Button>
-            </div>
+        <HomeHeroSection>
+          <div className="container mx-auto w-full overflow-visible pt-8 md:pt-16">
+            <LineGrid
+              className="aspect-3/2 [--grid-cell-height:calc(100%/2)] [--grid-cell-width:calc(100%/3)] md:aspect-4/2 lg:aspect-6/3 md:[--grid-cell-height:calc(100%/2)] md:[--grid-cell-width:calc(100%/4)] lg:[--grid-cell-height:calc(100%/3)] lg:[--grid-cell-width:calc(100%/6)]"
+              columns={3}
+              columnsLg={6}
+              columnsMd={4}
+              pulse
+              pulseMaxActive={2}
+              pulseMaxActiveLg={6}
+              pulseMaxActiveMd={4}
+              pulseMinActive={1}
+              pulseMinActiveLg={3}
+              pulseMinActiveMd={2}
+              rows={2}
+              rowsLg={3}
+              rowsMd={2}
+              variant="solid"
+            >
+              <DesignHeroCanvas />
+            </LineGrid>
           </div>
-        </div>
-      </div> */}
-
-      {/* <AnimatePresence>
-        {showContent && (
-          <>
-            <motion.div
-              animate="animate"
-              className="container mx-auto"
-              initial="initial"
-              transition={{ delay: staggerDelay * 2, duration: 0.6 }}
-              variants={fadeInOnly}
-            >
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-12">
-                <HomeComponents />
-              </div>
-            </motion.div>
-
-            <motion.div
-              animate="animate"
-              className="container mx-auto w-full"
-              initial="initial"
-              transition={{ delay: staggerDelay * 3, duration: 0.6 }}
-              variants={fadeInOnly}
-            >
-              <HomeStudioSection />
-            </motion.div>
-
-            <motion.div
-              animate="animate"
-              className="container mx-auto w-full max-w-6xl"
-              initial="initial"
-              transition={{ delay: staggerDelay * 4, duration: 0.6 }}
-              variants={fadeInOnly}
-            >
-              <HomeSponsorsSection />
-            </motion.div>
-
-            <motion.div
-              animate="animate"
-              className="container mx-auto w-full max-w-6xl"
-              initial="initial"
-              transition={{ delay: staggerDelay * 5, duration: 0.6 }}
-              variants={fadeInOnly}
-            >
-              <TestimonialGrid />
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence> */}
+        </HomeHeroSection>
+        <UsedBySection />
+        <HomeShowcaseSection />
+        <HomeTestimonialsSection />
+        <HomeSponsorsSection />
+        <HomeFooter />
+      </div>
     </main>
   );
 }

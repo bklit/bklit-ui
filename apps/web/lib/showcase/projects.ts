@@ -26,4 +26,11 @@ export const showcaseProjects: ShowcaseProject[] = [
       "https://github.com/user-attachments/assets/3081b652-52c0-45fe-8dad-4a1b06ca08e5",
     imageAlt: "Intellipickz sports analytics platform",
   },
+  {
+    title: "Cyberwiz",
+    url: "https://www.cyberwiz.ai/",
+    image:
+      "https://github.com/user-attachments/assets/d704e860-f7b5-428d-b950-9991d95b9dc3",
+    imageAlt: "Cyberwiz GRC platform website",
+  },
 ];
