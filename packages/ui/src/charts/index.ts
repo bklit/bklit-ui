@@ -451,6 +451,7 @@ export {
   type SankeyChartProps,
   type SankeyContextValue,
   type SankeyData,
+  type SankeyLabelOrientation,
   SankeyLink,
   type SankeyLinkDatum,
   type SankeyLinkProps,

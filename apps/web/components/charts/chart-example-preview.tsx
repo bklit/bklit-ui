@@ -28,7 +28,7 @@ const cartesianChartMobileAspectClassName =
 
 export function getChartExamplePreviewFrameClassName(
   layout: ChartExamplePreviewLayout = "cartesian",
-  role: "hero" | "example" = "example"
+  previewRole: "hero" | "example" = "example"
 ) {
   switch (layout) {
     case "compact":
@@ -38,16 +38,16 @@ export function getChartExamplePreviewFrameClassName(
         "[&_.relative.aspect-square]:max-w-[min(100%,300px)] sm:[&_.relative.aspect-square]:max-w-[260px]"
       );
     case "wide":
-      return role === "hero"
+      return previewRole === "hero"
         ? "w-full min-h-[240px] aspect-video sm:min-h-[320px] sm:aspect-auto"
         : "w-full min-h-[200px] aspect-video sm:min-h-[240px] sm:aspect-auto";
     case "heatmap":
       return cn(
         "flex min-h-0 w-full items-center justify-center",
-        role === "hero" ? "py-2 sm:py-3" : "py-1 sm:py-2"
+        previewRole === "hero" ? "py-2 sm:py-3" : "py-1 sm:py-2"
       );
     default:
-      if (role === "hero") {
+      if (previewRole === "hero") {
         return cn(
           "min-h-[220px] w-full sm:min-h-[260px] lg:min-h-[300px]",
           cartesianChartMobileAspectClassName
@@ -80,19 +80,19 @@ export const chartExamplePreviewOverflowClassName =
 
 export function ChartExamplePreviewFrame({
   layout = "cartesian",
-  role = "example",
+  previewRole = "example",
   children,
   className,
 }: {
   layout?: ChartExamplePreviewLayout;
-  role?: "hero" | "example";
+  previewRole?: "hero" | "example";
   children: ReactNode;
   className?: string;
 }) {
   return (
     <div
       className={cn(
-        getChartExamplePreviewFrameClassName(layout, role),
+        getChartExamplePreviewFrameClassName(layout, previewRole),
         chartExamplePreviewOverflowClassName,
         className
       )}

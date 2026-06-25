@@ -1,8 +1,8 @@
 "use client";
 
 import type { SankeyNode as SankeyNodeType } from "d3-sankey";
-import { motion } from "motion/react";
-import { useCallback, useMemo } from "react";
+import { motion, type Transition } from "motion/react";
+import { type ReactNode, useCallback, useMemo } from "react";
 import { intFmt } from "../chart-formatters";
 import { transitionWithDelay } from "../motion-utils";
 import {
@@ -13,6 +13,8 @@ import {
 
 // Helper to get node index from link source/target
 type NodeOrIndex = SankeyNodeType<SankeyNodeDatum, SankeyLinkDatum> | number;
+
+export type SankeyLabelOrientation = "horizontal" | "vertical";
 
 function getNodeIndex(nodeOrIndex: NodeOrIndex): number | undefined {
   if (typeof nodeOrIndex === "number") {
@@ -32,11 +34,118 @@ export interface SankeyNodeProps {
   showLabels?: boolean;
   /** Show value labels under node names. Default: true */
   showValueLabels?: boolean;
+  /**
+   * Label reading direction for outside node labels.
+   * - "horizontal": labels sit left/right of nodes (default).
+   * - "vertical": labels rotate 90° and read along the node edge.
+   */
+  labelOrientation?: SankeyLabelOrientation;
   /** Custom node color function */
   getNodeColor?: (
     node: SankeyNodeType<SankeyNodeDatum, SankeyLinkDatum>,
     index: number
   ) => string;
+}
+
+type TextAnchor = "start" | "middle" | "end";
+
+interface NodeLabelLayout {
+  x: number;
+  y: number;
+  textAnchor: TextAnchor;
+  dy: string;
+  textLocalX: number;
+  rotate: number;
+  initialX: number;
+  initialY: number;
+}
+
+const LABEL_OFFSET = 12;
+const VALUE_LABEL_GAP = 16;
+
+function getNodeLabelLayouts({
+  labelOrientation,
+  isLeftSide,
+  x,
+  y,
+  width,
+  height,
+  showValueLabels,
+}: {
+  labelOrientation: SankeyLabelOrientation;
+  isLeftSide: boolean;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  showValueLabels: boolean;
+}): { name: NodeLabelLayout; value: NodeLabelLayout | null } {
+  const centerY = y + height / 2;
+  const initialX = isLeftSide ? x + 8 : x + width - 8;
+
+  if (labelOrientation === "horizontal") {
+    const labelX = isLeftSide ? x - LABEL_OFFSET : x + width + LABEL_OFFSET;
+    const textAnchor: TextAnchor = isLeftSide ? "end" : "start";
+
+    return {
+      name: {
+        x: labelX,
+        y: centerY,
+        textAnchor,
+        dy: "0.35em",
+        textLocalX: 0,
+        rotate: 0,
+        initialX,
+        initialY: centerY,
+      },
+      value: showValueLabels
+        ? {
+            x: labelX,
+            y: centerY + VALUE_LABEL_GAP,
+            textAnchor,
+            dy: "0.35em",
+            textLocalX: 0,
+            rotate: 0,
+            initialX,
+            initialY: centerY + VALUE_LABEL_GAP,
+          }
+        : null,
+    };
+  }
+
+  const labelX = isLeftSide ? x - LABEL_OFFSET : x + width + LABEL_OFFSET;
+  const rotate = isLeftSide ? -90 : 90;
+  const halfGap = VALUE_LABEL_GAP / 2;
+  let nameLocalX = 0;
+  if (showValueLabels) {
+    nameLocalX = isLeftSide ? halfGap : -halfGap;
+  }
+  const valueLocalX = isLeftSide ? -halfGap : halfGap;
+
+  return {
+    name: {
+      x: labelX,
+      y: centerY,
+      textAnchor: "middle",
+      dy: "0.35em",
+      textLocalX: nameLocalX,
+      rotate,
+      initialX,
+      initialY: centerY,
+    },
+    value: showValueLabels
+      ? {
+          x: labelX,
+          y: centerY,
+          textAnchor: "middle",
+          dy: "0.35em",
+          textLocalX: valueLocalX,
+          rotate,
+          initialX,
+          initialY: centerY,
+        }
+      : null,
+  };
 }
 
 interface AnimatedNodeProps {
@@ -58,6 +167,48 @@ interface AnimatedNodeProps {
   isLeftSide: boolean;
   showLabels: boolean;
   showValueLabels: boolean;
+  labelOrientation: SankeyLabelOrientation;
+}
+
+function NodeLabel({
+  layout,
+  opacity,
+  transition,
+  className,
+  children,
+}: {
+  layout: NodeLabelLayout;
+  opacity: number;
+  transition: Transition;
+  className: string;
+  children: ReactNode;
+}) {
+  return (
+    <motion.g
+      animate={{
+        opacity,
+        x: layout.x,
+        y: layout.y,
+        rotate: layout.rotate,
+      }}
+      initial={{
+        opacity: 0,
+        x: layout.initialX,
+        y: layout.initialY,
+        rotate: layout.rotate,
+      }}
+      transition={transition}
+    >
+      <text
+        className={className}
+        dy={layout.dy}
+        textAnchor={layout.textAnchor}
+        x={layout.textLocalX}
+      >
+        {children}
+      </text>
+    </motion.g>
+  );
 }
 
 function AnimatedNode({
@@ -79,6 +230,7 @@ function AnimatedNode({
   isLeftSide,
   showLabels,
   showValueLabels,
+  labelOrientation,
 }: AnimatedNodeProps) {
   const { enterTransition, revealEpoch } = useSankey();
 
@@ -92,11 +244,18 @@ function AnimatedNode({
   const nodeEnter = transitionWithDelay(enterTransition, staggerDelaySec);
   const nameEnter = transitionWithDelay(enterTransition, nameLabelDelaySec);
   const valueEnter = transitionWithDelay(enterTransition, valueLabelDelaySec);
-  const nameLabelX = isLeftSide ? x - 12 : x + width + 12;
-  const valueLabelX = isLeftSide ? x - 12 : x + width + 12;
   const nodeOpacity = isFaded ? fadedOpacity : 1;
   const nameOpacity = isFaded ? fadedOpacity : 1;
   const valueOpacity = isFaded ? fadedOpacity * 0.8 : 0.6;
+  const labelLayouts = getNodeLabelLayouts({
+    labelOrientation,
+    isLeftSide,
+    x,
+    y,
+    width,
+    height,
+    showValueLabels,
+  });
 
   return (
     <motion.g
@@ -118,36 +277,30 @@ function AnimatedNode({
         x={x}
         y={y}
       />
-      {showLabels && (
+      {showLabels ? (
         <>
-          <motion.text
-            animate={{ opacity: nameOpacity, x: nameLabelX }}
+          <NodeLabel
             className="fill-foreground font-medium text-[13px]"
-            dy="0.35em"
-            initial={{ opacity: 0, x: isLeftSide ? x + 8 : x + width - 8 }}
             key={`name-${index}-${revealEpoch}`}
-            textAnchor={isLeftSide ? "end" : "start"}
+            layout={labelLayouts.name}
+            opacity={nameOpacity}
             transition={nameEnter}
-            y={y + height / 2}
           >
             {name}
-          </motion.text>
-          {showValueLabels && (
-            <motion.text
-              animate={{ opacity: valueOpacity, x: valueLabelX }}
+          </NodeLabel>
+          {labelLayouts.value ? (
+            <NodeLabel
               className="fill-foreground text-[11px]"
-              dy="0.35em"
-              initial={{ opacity: 0, x: isLeftSide ? x + 8 : x + width - 8 }}
               key={`value-${index}-${revealEpoch}`}
-              textAnchor={isLeftSide ? "end" : "start"}
+              layout={labelLayouts.value}
+              opacity={valueOpacity}
               transition={valueEnter}
-              y={y + height / 2 + 16}
             >
               {intFmt(value)} sessions
-            </motion.text>
-          )}
+            </NodeLabel>
+          ) : null}
         </>
-      )}
+      ) : null}
     </motion.g>
   );
 }
@@ -158,6 +311,7 @@ export function SankeyNode({
   fadedOpacity = 0.4,
   showLabels = true,
   showValueLabels = true,
+  labelOrientation = "horizontal",
   getNodeColor: getNodeColorProp,
 }: SankeyNodeProps) {
   const {
@@ -284,6 +438,7 @@ export function SankeyNode({
             isFaded={isFaded}
             isLeftSide={isLeftSide}
             key={`node-${node.name}`}
+            labelOrientation={labelOrientation}
             name={node.name}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}

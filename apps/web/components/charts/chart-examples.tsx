@@ -105,8 +105,6 @@ import {
 } from "@visx/curve";
 import { DynamicCodeBlock } from "fumadocs-ui/components/dynamic-codeblock";
 import { motion, useSpring } from "motion/react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import {
   type ReactNode,
   useCallback,
@@ -124,6 +122,7 @@ import {
   chartExampleRadialShellClassName,
   getChartExampleContentPaddingClassName,
 } from "@/components/charts/chart-example-preview";
+import { FeaturedChartHero } from "@/components/charts/featured-chart-hero";
 import { LineChartStudioTrioDemo } from "@/components/charts/line-chart-studio-trio-demo";
 import { CopyButton } from "@/components/copy-button";
 import {
@@ -136,7 +135,6 @@ import {
 } from "@/components/docs/profit-loss-line-docs-data";
 import { ProjectionLineDemo } from "@/components/docs/projection-line-demo";
 import { useWorldDataStandalone } from "@/components/docs/use-world-data";
-import { HorizontalScrollArea } from "@/components/horizontal-scroll-area";
 import {
   Card,
   CardContent,
@@ -690,7 +688,10 @@ function ChartExampleCard({
         </div>
       </CardHeader>
       <CardContent className={cn(contentPaddingClassName, "overflow-visible")}>
-        <ChartExamplePreviewFrame layout={previewLayout} role={previewRole}>
+        <ChartExamplePreviewFrame
+          layout={previewLayout}
+          previewRole={previewRole}
+        >
           {children}
         </ChartExamplePreviewFrame>
       </CardContent>
@@ -951,6 +952,30 @@ const CandlestickExampleChart = createChartExamplePreview(CandlestickChart);
 const LiveLineExampleChart = createChartExamplePreview(LiveLineChart);
 const ChoroplethExampleChart = createChartExamplePreview(ChoroplethChart);
 const SankeyExampleChart = createChartExamplePreview(SankeyChart);
+
+const SANKEY_LABELED_EXAMPLE_MARGIN = {
+  top: 20,
+  right: 56,
+  bottom: 40,
+  left: 56,
+} as const;
+
+const sankeyLabeledExampleMarginSnippet =
+  "margin={{ top: 20, right: 56, bottom: 40, left: 56 }}";
+
+function SankeyLabeledExampleChart({
+  margin,
+  ...props
+}: ComponentProps<typeof SankeyExampleChart>) {
+  return (
+    <div className="px-2 py-1 sm:px-4">
+      <SankeyExampleChart
+        {...props}
+        margin={{ ...SANKEY_LABELED_EXAMPLE_MARGIN, ...margin }}
+      />
+    </div>
+  );
+}
 const HeatmapExampleChart = createChartExamplePreview(HeatmapChart);
 const HeatmapChartLoadingExample =
   createChartExamplePreview(HeatmapChartLoading);
@@ -4395,22 +4420,22 @@ function makeSankeyExamples(): ChartExample[] {
     {
       title: "Sankey Chart",
       description: "User flow with labels and tooltip",
-      code: `<SankeyChart data={data} margin={{ top: 8, right: 8, bottom: 40, left: 8 }} nodePadding={24} nodeWidth={16}>
+      code: `<SankeyChart data={data} ${sankeyLabeledExampleMarginSnippet} nodePadding={24} nodeWidth={16}>
   <SankeyLink />
-  <SankeyNode lineCap={4} />
+  <SankeyNode lineCap={4} labelOrientation="vertical" />
   <SankeyTooltip />
 </SankeyChart>`,
       render: () => (
-        <SankeyExampleChart
+        <SankeyLabeledExampleChart
           aspectRatio="4 / 3"
           data={sankeyAnalytics}
           nodePadding={24}
           nodeWidth={16}
         >
           <SankeyLink />
-          <SankeyNode lineCap={4} />
+          <SankeyNode labelOrientation="vertical" lineCap={4} />
           <SankeyTooltip />
-        </SankeyExampleChart>
+        </SankeyLabeledExampleChart>
       ),
     },
     {
@@ -4442,34 +4467,34 @@ function makeSankeyExamples(): ChartExample[] {
     {
       title: "Sankey Chart - Simple",
       description: "Minimal flow with fewer nodes",
-      code: `<SankeyChart data={simpleData} margin={{ top: 8, right: 8, bottom: 40, left: 8 }} nodePadding={20} nodeWidth={12}>
+      code: `<SankeyChart data={simpleData} ${sankeyLabeledExampleMarginSnippet} nodePadding={20} nodeWidth={12}>
   <SankeyLink strokeOpacity={0.5} />
-  <SankeyNode lineCap={3} />
+  <SankeyNode lineCap={3} labelOrientation="vertical" />
   <SankeyTooltip />
 </SankeyChart>`,
       render: () => (
-        <SankeyExampleChart
+        <SankeyLabeledExampleChart
           aspectRatio="4 / 3"
           data={sankeySimple}
           nodePadding={20}
           nodeWidth={12}
         >
           <SankeyLink strokeOpacity={0.5} />
-          <SankeyNode lineCap={3} />
+          <SankeyNode labelOrientation="vertical" lineCap={3} />
           <SankeyTooltip />
-        </SankeyExampleChart>
+        </SankeyLabeledExampleChart>
       ),
     },
     {
       title: "Sankey Chart - Solid Links",
       description: "Single-color links instead of gradients",
-      code: `<SankeyChart data={data} margin={{ top: 8, right: 8, bottom: 40, left: 8 }} nodePadding={24} nodeWidth={16}>
+      code: `<SankeyChart data={data} ${sankeyLabeledExampleMarginSnippet} nodePadding={24} nodeWidth={16}>
   <SankeyLink stroke="var(--chart-3)" strokeOpacity={0.3} useGradient={false} />
-  <SankeyNode lineCap={4} />
+  <SankeyNode lineCap={4} labelOrientation="vertical" />
   <SankeyTooltip />
 </SankeyChart>`,
       render: () => (
-        <SankeyExampleChart
+        <SankeyLabeledExampleChart
           aspectRatio="4 / 3"
           data={sankeyAnalytics}
           nodePadding={24}
@@ -4480,9 +4505,9 @@ function makeSankeyExamples(): ChartExample[] {
             strokeOpacity={0.3}
             useGradient={false}
           />
-          <SankeyNode lineCap={4} />
+          <SankeyNode labelOrientation="vertical" lineCap={4} />
           <SankeyTooltip />
-        </SankeyExampleChart>
+        </SankeyLabeledExampleChart>
       ),
     },
   ];
@@ -5293,16 +5318,16 @@ function makeBarHero(): ChartExample {
 
 function SankeyHeroInner() {
   return (
-    <SankeyExampleChart
+    <SankeyLabeledExampleChart
       aspectRatio="5 / 2"
       data={sankeyAnalytics}
       nodePadding={24}
       nodeWidth={16}
     >
       <SankeyLink />
-      <SankeyNode lineCap={4} />
+      <SankeyNode labelOrientation="vertical" lineCap={4} />
       <SankeyTooltip />
-    </SankeyExampleChart>
+    </SankeyLabeledExampleChart>
   );
 }
 
@@ -5310,9 +5335,9 @@ function makeSankeyHero(): ChartExample {
   return {
     title: "Sankey Chart - Interactive",
     description: "User flow from source to outcome",
-    code: `<SankeyChart data={analyticsData} margin={{ top: 8, right: 8, bottom: 40, left: 8 }} nodePadding={24} nodeWidth={16}>
+    code: `<SankeyChart data={analyticsData} ${sankeyLabeledExampleMarginSnippet} nodePadding={24} nodeWidth={16}>
   <SankeyLink />
-  <SankeyNode lineCap={4} />
+  <SankeyNode lineCap={4} labelOrientation="vertical" />
   <SankeyTooltip />
 </SankeyChart>`,
     render: () => <SankeyHeroInner />,
@@ -5884,58 +5909,6 @@ function makeScatterHero(): ChartExample {
 }
 
 // ---------------------------------------------------------------------------
-// Chart type navigation
-// ---------------------------------------------------------------------------
-
-const chartTypes = [
-  { label: "Area Chart", slug: "area-chart" },
-  { label: "Bar Chart", slug: "bar-chart" },
-  { label: "Candlestick Chart", slug: "candlestick-chart" },
-  { label: "Choropleth Chart", slug: "choropleth-chart" },
-  { label: "Composed Chart", slug: "composed-chart" },
-  { label: "Funnel Chart", slug: "funnel-chart" },
-  { label: "Gauge", slug: "gauge-chart" },
-  { label: "Heatmap Chart", slug: "heatmap-chart" },
-  { label: "Line Chart", slug: "line-chart" },
-  { label: "Live Line Chart", slug: "live-line-chart" },
-  { label: "Pie Chart", slug: "pie-chart" },
-  { label: "Radar Chart", slug: "radar-chart" },
-  { label: "Ring Chart", slug: "ring-chart" },
-  { label: "Scatter Chart", slug: "scatter-chart" },
-  { label: "Sankey Chart", slug: "sankey-chart" },
-];
-
-function ChartNav() {
-  const pathname = usePathname();
-
-  return (
-    <HorizontalScrollArea className="pb-6">
-      <nav className="flex gap-1">
-        {chartTypes.map((chart) => {
-          const href = `/charts/${chart.slug}`;
-          const isActive = pathname === href;
-
-          return (
-            <Link
-              className={cn(
-                "shrink-0 rounded-md px-3 py-1.5 font-medium text-sm transition-colors",
-                isActive
-                  ? "bg-foreground text-background"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
-              )}
-              href={href}
-              key={chart.slug}
-            >
-              {chart.label}
-            </Link>
-          );
-        })}
-      </nav>
-    </HorizontalScrollArea>
-  );
-}
-
-// ---------------------------------------------------------------------------
 // Registry
 // ---------------------------------------------------------------------------
 
@@ -6007,6 +5980,8 @@ const chartExamplesRegistry: Record<string, RegistryEntry> = {
 // Public component
 // ---------------------------------------------------------------------------
 
+const chartsPageContentClassName = "container mx-auto w-full overflow-visible";
+
 export function ChartExamplesGrid({ chartSlug }: { chartSlug: string }) {
   const entry = chartExamplesRegistry[chartSlug];
 
@@ -6026,44 +6001,49 @@ export function ChartExamplesGrid({ chartSlug }: { chartSlug: string }) {
       : "grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3";
 
   return (
-    <div className="space-y-6">
-      <ChartNav />
+    <>
+      {hero ? (
+        <section className="relative w-full">
+          <div className={chartsPageContentClassName}>
+            <FeaturedChartHero
+              code={hero.code}
+              data={hero.data}
+              description={hero.description}
+              footer={hero.footer}
+              previewLayout={entry.previewLayout}
+              title={hero.title}
+            >
+              {hero.render()}
+            </FeaturedChartHero>
+          </div>
+        </section>
+      ) : null}
 
-      {entry.notice && (
-        <div className="rounded-lg border border-border/50 bg-muted/30 px-3 py-3 text-muted-foreground text-sm">
-          {entry.notice}
+      <section className="relative w-full">
+        <div className={chartsPageContentClassName}>
+          {entry.notice ? (
+            <div className="mb-6 rounded-lg border border-border/50 bg-muted/30 px-3 py-3 text-muted-foreground text-sm">
+              {entry.notice}
+            </div>
+          ) : null}
+
+          <div className={gridCols}>
+            {examples.map((example) => (
+              <ChartExampleCard
+                code={example.code}
+                data={example.data}
+                description={example.description}
+                footer={example.footer}
+                key={example.title}
+                previewLayout={entry.previewLayout}
+                title={example.title}
+              >
+                {example.render()}
+              </ChartExampleCard>
+            ))}
+          </div>
         </div>
-      )}
-
-      {hero && (
-        <ChartExampleCard
-          code={hero.code}
-          data={hero.data}
-          description={hero.description}
-          footer={hero.footer}
-          previewLayout={entry.previewLayout}
-          previewRole="hero"
-          title={hero.title}
-        >
-          {hero.render()}
-        </ChartExampleCard>
-      )}
-
-      <div className={gridCols}>
-        {examples.map((example) => (
-          <ChartExampleCard
-            code={example.code}
-            data={example.data}
-            description={example.description}
-            footer={example.footer}
-            key={example.title}
-            previewLayout={entry.previewLayout}
-            title={example.title}
-          >
-            {example.render()}
-          </ChartExampleCard>
-        ))}
-      </div>
-    </div>
+      </section>
+    </>
   );
 }

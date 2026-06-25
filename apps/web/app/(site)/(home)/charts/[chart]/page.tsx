@@ -17,9 +17,5 @@ export default async function ChartPage({ params }: ChartPageProps) {
     notFound();
   }
 
-  return (
-    <div className="mx-auto w-full max-w-7xl px-6 py-8">
-      <ChartExamplesGrid chartSlug={chart} />
-    </div>
-  );
+  return <ChartExamplesGrid chartSlug={chart} />;
 }
