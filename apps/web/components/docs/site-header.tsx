@@ -1,18 +1,11 @@
 "use client";
 
-import {
-  type MotionValue,
-  motion,
-  useMotionValue,
-  useReducedMotion,
-  useSpring,
-  useTransform,
-} from "motion/react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
-import { type ReactNode, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { ModeToggle } from "@/components/mode-toggle";
 import { getAnalyticsUrl, trackEvent } from "@/lib/analytics/track-client";
+import { cn } from "@/lib/utils";
 import { GithubStarCount } from "../github-star-count";
 import { BklitLogo } from "../icons/bklit";
 import { DiscordIcon } from "../icons/discord";
@@ -110,29 +103,28 @@ function MenuIcon({ open }: { open: boolean }) {
 
 const STAGGER_DURATION = 650; // Total duration for all staggered items (ms)
 
-/** Scroll distance over which the header eases into its compact state. */
-const HEADER_SCROLL_RANGE = 56;
-const HEADER_Y = 16;
-const HEADER_INSET_X = 56;
-const HEADER_SPRING = { stiffness: 360, damping: 42, mass: 0.72 };
+const HEADER_SCROLL_THRESHOLD = 8;
 
-function useHeaderScrollStyle(
-  scrollY: MotionValue<number>,
-  reducedMotion: boolean | null
-) {
-  const progress = useTransform(scrollY, [0, HEADER_SCROLL_RANGE], [0, 1], {
-    clamp: true,
-  });
-  const smooth = useSpring(
-    progress,
-    reducedMotion ? { stiffness: 10_000, damping: 120, mass: 1 } : HEADER_SPRING
+function getScrollTop() {
+  return (
+    window.scrollY ||
+    document.documentElement.scrollTop ||
+    document.body.scrollTop ||
+    0
   );
+}
 
-  return {
-    y: useTransform(smooth, (value) => value * HEADER_Y),
-    marginX: useTransform(smooth, [0, 1], [0, HEADER_INSET_X]),
-    surfaceOpacity: useTransform(smooth, [0, 0.25, 1], [0, 0, 1]),
-  };
+function subscribeToScroll(onStoreChange: () => void) {
+  window.addEventListener("scroll", onStoreChange, { passive: true });
+  return () => window.removeEventListener("scroll", onStoreChange);
+}
+
+function getIsScrolled() {
+  return getScrollTop() > HEADER_SCROLL_THRESHOLD;
+}
+
+function useIsScrolled() {
+  return useSyncExternalStore(subscribeToScroll, getIsScrolled, () => false);
 }
 
 interface MobileMenuProps {
@@ -380,38 +372,6 @@ function MobileMenu({
   );
 }
 
-function HeaderShell({
-  scrollY,
-  reducedMotion,
-  children,
-}: {
-  scrollY: MotionValue<number>;
-  reducedMotion: boolean | null;
-  children: ReactNode;
-}) {
-  const { y, marginX, surfaceOpacity } = useHeaderScrollStyle(
-    scrollY,
-    reducedMotion
-  );
-
-  return (
-    <div className="container relative mx-auto py-4">
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 border border-border bg-background/80"
-        style={{
-          marginLeft: marginX,
-          marginRight: marginX,
-          opacity: surfaceOpacity,
-          y,
-          willChange: "transform",
-        }}
-      />
-      {children}
-    </div>
-  );
-}
-
 export function SiteHeader({
   links = [],
   githubUrl,
@@ -419,9 +379,8 @@ export function SiteHeader({
 }: SiteHeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const scrollY = useMotionValue(0);
+  const isScrolled = useIsScrolled();
   const headerRef = useRef<HTMLElement>(null);
-  const reducedMotion = useReducedMotion();
   const { resolvedTheme } = useTheme();
 
   // Calculate stagger delay based on total items to complete in STAGGER_DURATION
@@ -444,32 +403,6 @@ export function SiteHeader({
   useEffect(() => {
     setMounted(true);
   }, []);
-
-  useEffect(() => {
-    let frameId: number | undefined;
-
-    const syncScroll = () => {
-      frameId = undefined;
-      scrollY.set(window.scrollY);
-    };
-
-    const onScroll = () => {
-      if (frameId !== undefined) {
-        return;
-      }
-      frameId = window.requestAnimationFrame(syncScroll);
-    };
-
-    syncScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      if (frameId !== undefined) {
-        window.cancelAnimationFrame(frameId);
-      }
-    };
-  }, [scrollY]);
 
   useEffect(() => {
     const header = headerRef.current;
@@ -497,12 +430,20 @@ export function SiteHeader({
   return (
     <>
       <header
-        className="fixed top-0 right-0 left-0 isolate z-50 flex items-center px-2.5"
+        className="fixed top-0 right-0 left-0 z-50 px-2.5"
+        data-scrolled={isScrolled ? "" : undefined}
         ref={headerRef}
-        style={{ viewTransitionName: "site-header" }}
       >
-        <HeaderShell reducedMotion={reducedMotion} scrollY={scrollY}>
-          <div className="relative mx-auto flex h-full items-center justify-between gap-6">
+        <div className="container mx-auto">
+          <div
+            className={cn(
+              "flex items-center justify-between gap-6 py-4 transition-[transform,margin,border-color,background-color,box-shadow,backdrop-filter] duration-300 ease-out motion-reduce:transition-none",
+              isScrolled
+                ? "translate-y-4 border border-border bg-background/80 px-4 shadow-sm backdrop-blur-sm md:mx-14"
+                : "translate-y-0 border border-transparent bg-transparent"
+            )}
+            style={{ viewTransitionName: "site-header" }}
+          >
             <div className="flex items-center gap-2">
               <Link
                 className="font-semibold text-foreground text-lg no-underline transition-opacity hover:opacity-80"
@@ -581,7 +522,7 @@ export function SiteHeader({
               </Button>
             </div>
           </div>
-        </HeaderShell>
+        </div>
       </header>
 
       <MobileMenu
