@@ -330,10 +330,11 @@ function MobileMenu({
                 <Link
                   aria-label="GitHub"
                   className="transition-[opacity,transform] duration-300 ease-out"
-                  external
                   href={githubUrl}
                   onClick={onClose}
+                  rel="noopener noreferrer"
                   style={getStaggerStyle(externalLinksStartIndex)}
+                  target="_blank"
                 >
                   <Button
                     className="w-full justify-start gap-2 font-light font-mono text-muted-foreground text-xs"
@@ -350,15 +351,16 @@ function MobileMenu({
                 <Link
                   aria-label="Discord"
                   className="transition-[opacity,transform] duration-300 ease-out"
-                  external
                   href={discordUrl}
                   onClick={() => {
                     trackDiscordClick("mobile_menu");
                     onClose();
                   }}
+                  rel="noopener noreferrer"
                   style={getStaggerStyle(
                     externalLinksStartIndex + (githubUrl ? 1 : 0)
                   )}
+                  target="_blank"
                 >
                   <Button
                     className="w-full justify-start gap-2 text-muted-foreground"
@@ -495,7 +497,7 @@ export function SiteHeader({
   return (
     <>
       <header
-        className="flex items-center px-2.5"
+        className="fixed top-0 right-0 left-0 isolate z-50 flex items-center px-2.5"
         ref={headerRef}
         style={{ viewTransitionName: "site-header" }}
       >
@@ -535,8 +537,9 @@ export function SiteHeader({
                   <Link
                     aria-label="GitHub"
                     className="hidden md:block"
-                    external
                     href={githubUrl}
+                    rel="noopener noreferrer"
+                    target="_blank"
                   >
                     <Button
                       className="gap-2 font-light font-mono text-muted-foreground text-xs"
@@ -553,9 +556,10 @@ export function SiteHeader({
                 <Link
                   aria-label="Discord"
                   className="hidden md:block"
-                  external
                   href={discordUrl}
                   onClick={() => trackDiscordClick("header")}
+                  rel="noopener noreferrer"
+                  target="_blank"
                 >
                   <Button size="default" variant="ghost">
                     <DiscordIcon />
