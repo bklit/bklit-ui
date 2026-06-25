@@ -84,7 +84,8 @@ export function BlockViewer({
   preview,
   previewHeight = DEFAULT_PREVIEW_HEIGHT,
   mobilePreviewWidth = DEFAULT_MOBILE_WIDTH,
-}: BlockDefinition) {
+  embedded = false,
+}: BlockDefinition & { embedded?: boolean }) {
   const [view, setView] = useState<BlockView>("preview");
   const [viewport, setViewport] = useState<BlockViewport>("desktop");
   const [previewKey, setPreviewKey] = useState(0);
@@ -99,7 +100,14 @@ export function BlockViewer({
 
   return (
     <TooltipProvider>
-      <div className="overflow-hidden rounded-xl border border-border bg-card/70">
+      <div
+        className={cn(
+          "overflow-hidden",
+          embedded
+            ? "bg-transparent"
+            : "rounded-xl border border-border bg-card/70"
+        )}
+      >
         <div className="flex flex-col gap-3 px-4 py-3 lg:flex-row lg:items-center lg:gap-4">
           <div className="flex min-w-0 flex-1 items-center gap-3">
             <Tabs

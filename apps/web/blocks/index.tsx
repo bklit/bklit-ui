@@ -17,9 +17,10 @@ export function getFeaturedBlockElements() {
   );
 
   return [
-    <StatCardAreaBlock files={areaFiles} key="stat-card-area-01" />,
-    <StatCardLineBlock files={lineFiles} key="stat-card-line-01" />,
+    <StatCardAreaBlock embedded files={areaFiles} key="stat-card-area-01" />,
+    <StatCardLineBlock embedded files={lineFiles} key="stat-card-line-01" />,
     <StatCardChoroplethBlock
+      embedded
       files={choroplethFiles}
       key="stat-card-choropleth-01"
     />,
