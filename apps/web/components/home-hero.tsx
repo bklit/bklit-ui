@@ -70,7 +70,7 @@ export function HomeHero({ onContentReady }: HomeHeroProps) {
               <HeroActions>
                 <Button
                   nativeButton={false}
-                  render={<Link href="/docs/components" />}
+                  render={<Link href="/docs/installation" />}
                   size="lg"
                   variant="outline"
                 >
