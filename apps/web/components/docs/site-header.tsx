@@ -186,7 +186,7 @@ function MobileMenu({
 
       {/* Sheet */}
       <div
-        className={`fixed inset-x-0 top-(--site-header-height) bottom-0 z-50 flex flex-col overflow-hidden border-border border-b bg-background/95 backdrop-blur-sm transition-[transform,opacity] duration-300 ease-out md:hidden ${
+        className={`fixed inset-x-0 top-(--site-header-height) bottom-0 z-50 flex flex-col overflow-hidden border-border border-b bg-background transition-[transform,opacity] duration-300 ease-out md:hidden ${
           isOpen
             ? "translate-y-0 opacity-100"
             : "pointer-events-none -translate-y-4 opacity-0"
@@ -431,17 +431,27 @@ export function SiteHeader({
   return (
     <>
       <header
-        className="fixed top-0 right-0 left-0 z-50 px-2.5"
+        className={cn(
+          "fixed top-0 right-0 left-0 z-50 px-2.5",
+          mobileMenuOpen && "max-md:bg-background max-md:px-0"
+        )}
         data-scrolled={isScrolled ? "" : undefined}
         ref={headerRef}
       >
-        <div className="container mx-auto">
+        <div
+          className={cn(
+            "container mx-auto",
+            mobileMenuOpen && "max-md:max-w-none"
+          )}
+        >
           <div
             className={cn(
               "flex items-center justify-between gap-6 py-4 transition-[transform,margin,border-color,background-color,box-shadow,backdrop-filter] duration-300 ease-out motion-reduce:transition-none",
               isScrolled
                 ? "translate-y-4 border border-border bg-background/80 px-4 shadow-sm backdrop-blur-sm md:mx-14"
-                : "translate-y-0 border border-transparent bg-transparent"
+                : "translate-y-0 border border-transparent bg-transparent",
+              mobileMenuOpen &&
+                "max-md:mx-0 max-md:translate-y-0 max-md:border-transparent max-md:bg-background max-md:px-4 max-md:shadow-none max-md:backdrop-blur-none"
             )}
             style={{ viewTransitionName: "site-header" }}
           >
