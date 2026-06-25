@@ -15,6 +15,8 @@ interface GridCell {
   row: number;
 }
 
+export type GridCellPulseCell = GridCell;
+
 function cellId({ col, row }: GridCell) {
   return `${col}-${row}`;
 }
@@ -118,6 +120,7 @@ export function GridCellPulse({
   className,
   minRandomActive = 1,
   maxRandomActive = 3,
+  staticCells = [],
 }: {
   columns: number;
   rows: number;
@@ -126,6 +129,8 @@ export function GridCellPulse({
   minRandomActive?: number;
   /** Maximum number of randomly pulsing cells at once. */
   maxRandomActive?: number;
+  /** Cells that always show the diagonal pattern (no random pulse). */
+  staticCells?: GridCell[];
 }) {
   const reducedMotion = useReducedMotion();
   const { ref: visibilityRef, paused: offscreen } = usePauseWhenOffscreen();
@@ -133,6 +138,7 @@ export function GridCellPulse({
   const [randomCells, setRandomCells] = useState<GridCell[]>([]);
   const spawnTimerRef = useRef<number | undefined>(undefined);
   const randomCellsRef = useRef<GridCell[]>([]);
+  const randomPulseEnabled = maxRandomActive > 0;
 
   const effectiveMin = Math.min(minRandomActive, maxRandomActive);
 
@@ -190,7 +196,12 @@ export function GridCellPulse({
   }, [randomCells]);
 
   useEffect(() => {
-    if (reducedMotion || offscreen || randomCells.length >= effectiveMin) {
+    if (
+      !randomPulseEnabled ||
+      reducedMotion ||
+      offscreen ||
+      randomCells.length >= effectiveMin
+    ) {
       return;
     }
 
@@ -200,11 +211,18 @@ export function GridCellPulse({
     fillToMinimum,
     offscreen,
     randomCells.length,
+    randomPulseEnabled,
     reducedMotion,
   ]);
 
   useEffect(() => {
-    if (reducedMotion || offscreen || columns < 1 || rows < 1) {
+    if (
+      !randomPulseEnabled ||
+      reducedMotion ||
+      offscreen ||
+      columns < 1 ||
+      rows < 1
+    ) {
       return;
     }
 
@@ -240,6 +258,7 @@ export function GridCellPulse({
     effectiveMin,
     fillToMinimum,
     offscreen,
+    randomPulseEnabled,
     reducedMotion,
     rows,
     spawnRandomCell,
@@ -271,6 +290,7 @@ export function GridCellPulse({
     : { duration: 1, ease: easeOutQuint };
 
   const randomCellIds = new Set(randomCells.map((cell) => cellId(cell)));
+  const staticCellIds = new Set(staticCells.map((cell) => cellId(cell)));
 
   return (
     <div
@@ -291,11 +311,17 @@ export function GridCellPulse({
         const id = cellId({ col, row });
         const isHovered = hoveredCell?.col === col && hoveredCell?.row === row;
         const isRandom = randomCellIds.has(id);
+        const isStatic = staticCellIds.has(id);
         const isActive = isHovered || isRandom;
         const preset = presetForCell(col, row);
 
         return (
           <div className="relative min-h-0 min-w-0" key={id}>
+            {isStatic ? (
+              <div className="pointer-events-none absolute inset-0">
+                <GridCellPulsePattern preset={preset} />
+              </div>
+            ) : null}
             <AnimatePresence mode="wait">
               {isActive ? (
                 <motion.div

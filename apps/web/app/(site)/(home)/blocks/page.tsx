@@ -3,17 +3,21 @@ import { BlocksHero } from "@/components/blocks/blocks-hero";
 
 export default function BlocksPage() {
   return (
-    <>
-      <section className="flex flex-col items-center px-4 py-18 text-center">
-        <BlocksHero />
+    <main className="flex flex-1 flex-col space-y-24">
+      <section className="relative w-full">
+        <div className="container mx-auto w-full overflow-visible">
+          <BlocksHero />
+        </div>
       </section>
 
-      <div
-        className="mx-auto w-full max-w-7xl scroll-mt-14 px-6 py-8"
+      <section
+        className="relative w-full pt-8 pb-16 md:pt-12 md:pb-24"
         id="blocks"
       >
-        <BlockExamplesGrid />
-      </div>
-    </>
+        <div className="container mx-auto w-full overflow-visible">
+          <BlockExamplesGrid />
+        </div>
+      </section>
+    </main>
   );
 }

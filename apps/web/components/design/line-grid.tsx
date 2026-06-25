@@ -1,5 +1,8 @@
 import type { CSSProperties, ReactNode } from "react";
-import { GridCellPulse } from "@/components/design/grid-cell-pulse";
+import {
+  GridCellPulse,
+  type GridCellPulseCell,
+} from "@/components/design/grid-cell-pulse";
 import { cn } from "@/lib/utils";
 
 const gridDotSize = "10px";
@@ -173,6 +176,7 @@ function ResponsiveGridCellPulse({
   pulseMinActive,
   pulseMinActiveLg,
   pulseMinActiveMd,
+  pulseStaticCells,
   tabletColumns,
   tabletRows,
 }: {
@@ -188,6 +192,7 @@ function ResponsiveGridCellPulse({
   pulseMinActive?: number;
   pulseMinActiveLg?: number;
   pulseMinActiveMd?: number;
+  pulseStaticCells?: GridCellPulseCell[];
   tabletColumns: number;
   tabletRows: number;
 }) {
@@ -217,6 +222,7 @@ function ResponsiveGridCellPulse({
           maxRandomActive={mobileMax}
           minRandomActive={mobileMin}
           rows={mobileRows}
+          staticCells={pulseStaticCells}
         />
         <GridCellPulse
           className="hidden md:grid lg:hidden"
@@ -224,6 +230,7 @@ function ResponsiveGridCellPulse({
           maxRandomActive={tabletMax}
           minRandomActive={tabletMin}
           rows={tabletRows}
+          staticCells={pulseStaticCells}
         />
         <GridCellPulse
           className="hidden lg:grid"
@@ -231,6 +238,7 @@ function ResponsiveGridCellPulse({
           maxRandomActive={desktopMax}
           minRandomActive={desktopMin}
           rows={desktopRows}
+          staticCells={pulseStaticCells}
         />
       </>
     );
@@ -245,6 +253,7 @@ function ResponsiveGridCellPulse({
           maxRandomActive={mobileMax}
           minRandomActive={mobileMin}
           rows={mobileRows}
+          staticCells={pulseStaticCells}
         />
         <GridCellPulse
           className="hidden md:grid"
@@ -252,6 +261,7 @@ function ResponsiveGridCellPulse({
           maxRandomActive={tabletMax}
           minRandomActive={tabletMin}
           rows={desktopRows}
+          staticCells={pulseStaticCells}
         />
       </>
     );
@@ -263,6 +273,7 @@ function ResponsiveGridCellPulse({
       maxRandomActive={mobileMax}
       minRandomActive={mobileMin}
       rows={desktopRows}
+      staticCells={pulseStaticCells}
     />
   );
 }
@@ -392,6 +403,7 @@ export function LineGrid({
   pulseMaxActive,
   pulseMaxActiveMd,
   pulseMaxActiveLg,
+  pulseStaticCells,
   className,
   children,
 }: {
@@ -420,6 +432,8 @@ export function LineGrid({
   pulseMaxActiveMd?: number;
   /** Max randomly pulsing cells from the `lg` breakpoint up. */
   pulseMaxActiveLg?: number;
+  /** Cells that always show the diagonal pattern (no random pulse). */
+  pulseStaticCells?: GridCellPulseCell[];
   className?: string;
   children?: ReactNode;
 }) {
@@ -472,6 +486,7 @@ export function LineGrid({
             pulseMinActive={pulseMinActive}
             pulseMinActiveLg={pulseMinActiveLg}
             pulseMinActiveMd={pulseMinActiveMd}
+            pulseStaticCells={pulseStaticCells}
             tabletColumns={tabletColumns}
             tabletRows={tabletRows}
           />
