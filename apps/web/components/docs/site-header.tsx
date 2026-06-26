@@ -433,7 +433,7 @@ export function SiteHeader({
       <header
         className={cn(
           "fixed top-0 right-0 left-0 z-50 px-2.5",
-          mobileMenuOpen && "max-md:bg-background max-md:px-0"
+          mobileMenuOpen && "max-md:bg-background"
         )}
         data-scrolled={isScrolled ? "" : undefined}
         ref={headerRef}
@@ -451,7 +451,7 @@ export function SiteHeader({
                 ? "translate-y-4 border border-border bg-background/80 px-4 shadow-sm backdrop-blur-sm md:mx-14"
                 : "translate-y-0 border border-transparent bg-transparent",
               mobileMenuOpen &&
-                "max-md:mx-0 max-md:translate-y-0 max-md:border-transparent max-md:bg-background max-md:px-4 max-md:shadow-none max-md:backdrop-blur-none"
+                "max-md:mx-0 max-md:translate-y-0 max-md:border-transparent max-md:bg-background max-md:shadow-none max-md:backdrop-blur-none"
             )}
             style={{ viewTransitionName: "site-header" }}
           >
