@@ -33,7 +33,7 @@ export function ChartTypeSelector({
             aria-expanded={open}
             className="h-10 w-full justify-start text-left text-xs"
             type="button"
-            variant="outline"
+            variant="secondary"
           />
         }
       >

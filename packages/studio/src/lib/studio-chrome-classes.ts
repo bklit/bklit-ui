@@ -13,8 +13,7 @@ export const studioControlRadiusInnerClass = "rounded-md";
 export const studioControlRadiusCompactClass = "rounded-sm";
 
 /** Scrub fields, sliders, and motion curve chrome. */
-export const studioInputBackgroundClass =
-  "bg-[var(--studio-input-background,var(--background))]";
+export const studioInputBackgroundClass = "bg-input";
 
 /** Borderless scrub / slider track — matches `StudioSlider` chrome. */
 export const studioScrubSurfaceClass = `${studioControlRadiusClass} ${studioInputBackgroundClass}`;
@@ -62,10 +61,10 @@ export const studioSectionLabelClass =
   "text-[var(--studio-section-label)] font-medium text-[11px] uppercase tracking-wider";
 
 export const studioPreviewCanvasClass =
-  "rounded-lg bg-background bg-[radial-gradient(circle,color-mix(in_oklch,var(--foreground)_12%,transparent)_1px,transparent_0)] [background-size:20px_20px]";
+  "rounded-lg bg-background bg-[radial-gradient(circle,color-mix(in_oklch,var(--foreground)_12%,transparent)_1px,transparent_0)] [background-size:var(--studio-canvas-grid-gap)_var(--studio-canvas-grid-gap)]";
 
 export const studioRecordingCaptureClass =
-  "bg-card bg-[radial-gradient(circle,color-mix(in_oklch,var(--foreground)_14%,transparent)_1px,transparent_1px)] [background-size:20px_20px]";
+  "bg-card bg-[radial-gradient(circle,color-mix(in_oklch,var(--foreground)_14%,transparent)_1px,transparent_1px)] [background-size:var(--studio-canvas-grid-gap)_var(--studio-canvas-grid-gap)]";
 
 export const studioMotionSectionClass = "max-w-full min-w-0";
 

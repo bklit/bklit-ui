@@ -1,26 +1,14 @@
 "use client";
 
 import Link from "fumadocs-core/link";
-import {
-  HeroActions,
-  HeroDescription,
-  HeroShell,
-  HeroTitle,
-} from "@/components/hero";
+import { GridPageHero } from "@/components/design/grid-page-hero";
 import { Button } from "@/components/ui/button";
 import { showcaseSubmitUrl } from "@/lib/showcase/constants";
 
 export function ShowcaseHero() {
   return (
-    <HeroShell>
-      <HeroTitle>Showcase</HeroTitle>
-
-      <HeroDescription>
-        Real dashboards and data experiences built with Bklit UI — curated from
-        the community.
-      </HeroDescription>
-
-      <HeroActions>
+    <GridPageHero
+      action={
         <Button
           nativeButton={false}
           render={<Link external href={showcaseSubmitUrl} />}
@@ -29,7 +17,9 @@ export function ShowcaseHero() {
         >
           Submit yours
         </Button>
-      </HeroActions>
-    </HeroShell>
+      }
+      subtitle="Real dashboards and data experiences built with Bklit UI"
+      title="Showcase"
+    />
   );
 }

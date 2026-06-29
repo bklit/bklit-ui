@@ -3,6 +3,7 @@
 import { curveNatural } from "@visx/curve";
 import { useMemo } from "react";
 import type { Margin } from "./chart-context";
+import type { LoadingStyle } from "./chart-phase";
 import {
   DEFAULT_SKELETON_DATA_KEY,
   DEFAULT_SKELETON_POINT_COUNT,
@@ -39,6 +40,9 @@ export interface LineChartLoadingProps {
   gridShimmerSpeed?: number;
   /** Match shimmer loop to the loading line pulse (cycle + inter-loop pause). */
   gridShimmerSync?: boolean;
+  /** Loading animation: `"pulse"` (default traveling pulse) or `"sweep"` (a
+   * diagonal shimmer across the skeleton line). Default: `"pulse"`. */
+  loadingStyle?: LoadingStyle;
   /** Centered shimmer label text. Default: "Loading" */
   label?: string;
   /** Aspect ratio as "width / height". Default: "2 / 1" */
@@ -57,6 +61,7 @@ export function LineChartLoading({
   gridShimmerLength,
   gridShimmerSpeed,
   gridShimmerSync = false,
+  loadingStyle = "pulse",
   label = "Loading",
   aspectRatio = "2 / 1",
   className = "",
@@ -82,7 +87,7 @@ export function LineChartLoading({
     >
       <Grid
         horizontal
-        shimmer={gridShimmer}
+        shimmer={loadingStyle === "sweep" ? false : gridShimmer}
         shimmerLength={gridShimmerLength}
         shimmerSpeed={gridShimmerSpeed}
         shimmerStroke={gridShimmerStroke}
@@ -95,6 +100,7 @@ export function LineChartLoading({
         fadeEdges={false}
         loadingStroke={stroke}
         loadingStrokeOpacity={strokeOpacity}
+        loadingStyle={loadingStyle}
         showHighlight={false}
         stroke="transparent"
         strokeWidth={2.5}

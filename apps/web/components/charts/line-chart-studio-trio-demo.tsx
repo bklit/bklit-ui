@@ -41,7 +41,7 @@ const trioData = Array.from({ length: 30 }, (_, index) => {
 const brushStripMargin = { top: 4, right: 8, bottom: 4, left: 8 };
 const chartMargin = { top: 8, right: 8, bottom: 40, left: 8 };
 
-export function LineChartStudioTrioDemo() {
+export function LineChartStudioTrioDemo({ height = 360 }: { height?: number }) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   const legendItems = useMemo(() => {
@@ -61,7 +61,7 @@ export function LineChartStudioTrioDemo() {
       hoveredIndex={hoveredIndex}
       onHoverChange={setHoveredIndex}
     >
-      <div className="flex w-full flex-col gap-2" style={{ height: 360 }}>
+      <div className="flex w-full flex-col gap-2" style={{ height }}>
         <div className="flex justify-end px-2">
           <ChartLegend
             className="w-full flex-row flex-wrap gap-x-4 gap-y-2"

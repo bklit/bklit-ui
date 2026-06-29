@@ -121,6 +121,12 @@ interface RadarData {
 
 See the [charts gallery](/charts/radar-chart) for minimal styles, legend sync, and layout variations.
 
+## Theming
+
+`RadarGrid` and `RadarAxis` stroke defaults use `radarCssVars.border` → **`var(--border)`** — the same token as ring tracks and gauge inactive notches. Override `--border` in your theme or pass a custom `stroke` prop.
+
+Series fill colors default to `--chart-1` through `--chart-5` via `defaultRadarColors`.
+
 ## Hooks
 
 ### useRadar

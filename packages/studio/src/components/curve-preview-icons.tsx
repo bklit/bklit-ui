@@ -22,7 +22,7 @@ export function CurvePreviewIcon({
   return (
     <svg
       aria-hidden={true}
-      className={cn("size-[18px] shrink-0 text-foreground", className)}
+      className={cn("size-[18px] shrink-0 text-current", className)}
       viewBox="0 0 32 16"
     >
       <path

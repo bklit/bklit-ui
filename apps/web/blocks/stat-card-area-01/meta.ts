@@ -10,4 +10,5 @@ export const statCardArea01Meta = {
 
 export interface BlockDisplayProps {
   files: BlockFile[];
+  embedded?: boolean;
 }

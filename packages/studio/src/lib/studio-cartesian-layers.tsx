@@ -83,7 +83,9 @@ export function studioCartesianGridLayer(
     <Grid
       {...gridPropsFromState(state)}
       loadingStroke={state.lineLoadingGridStroke}
-      shimmer={state.lineLoadingGridShimmer}
+      shimmer={
+        state.loadingStyle === "sweep" ? false : state.lineLoadingGridShimmer
+      }
       shimmerLength={state.lineLoadingGridShimmerLength}
       shimmerSpeed={
         state.lineLoadingGridShimmerSync ? 1 : state.lineLoadingGridShimmerSpeed

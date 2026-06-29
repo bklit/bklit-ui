@@ -1,30 +1,12 @@
 "use client";
 
-import {
-  HeroActions,
-  HeroBadgeRow,
-  HeroDescription,
-  HeroShell,
-  HeroStudioPill,
-  HeroTitle,
-} from "@/components/hero";
+import { GridPageHero } from "@/components/design/grid-page-hero";
 import { Button } from "@/components/ui/button";
 
 export function BlocksHero() {
   return (
-    <HeroShell>
-      <HeroBadgeRow>
-        <HeroStudioPill />
-      </HeroBadgeRow>
-
-      <HeroTitle>Ready to go Blocks</HeroTitle>
-
-      <HeroDescription>
-        Beautiful open-source chart blocks for dashboards and analytics. Copy
-        and paste into your apps. Works with any React framework.
-      </HeroDescription>
-
-      <HeroActions>
+    <GridPageHero
+      action={
         <Button
           onClick={() => {
             document
@@ -34,9 +16,11 @@ export function BlocksHero() {
           size="lg"
           variant="white"
         >
-          Browse Blocks
+          Browse blocks
         </Button>
-      </HeroActions>
-    </HeroShell>
+      }
+      subtitle="Ready-to-go chart blocks for dashboards and analytics"
+      title="Blocks"
+    />
   );
 }

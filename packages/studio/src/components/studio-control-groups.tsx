@@ -11,8 +11,19 @@ import { studioMotionSectionClass } from "@/lib/studio-chrome-classes";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import type {
   StudioChartConfig,
+  StudioControl,
   StudioControlGroup as StudioControlGroupConfig,
 } from "@/lib/types";
+
+function controlFieldKey(control: StudioControl): string {
+  if ("projectionIndex" in control && control.projectionIndex !== undefined) {
+    return `${control.key}:p${control.projectionIndex}`;
+  }
+  if ("seriesIndex" in control && control.seriesIndex !== undefined) {
+    return `${control.key}:s${control.seriesIndex}`;
+  }
+  return control.key;
+}
 
 export function StudioControlGroups({
   groups,
@@ -99,7 +110,7 @@ export function StudioControlGroups({
               <ControlField
                 control={control}
                 hideGroupLabel={isGroupLabeledControlType(control.type)}
-                key={control.key}
+                key={controlFieldKey(control)}
                 onChange={onChange}
                 onCommit={onCommit}
                 onPreview={onPreview}

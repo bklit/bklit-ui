@@ -40,6 +40,7 @@ import {
 import { exportStudioChartSvg } from "@/lib/svg-export/export-studio-chart-svg";
 import type { StudioChartConfig } from "@/lib/types";
 import { useStudioAnalytics } from "@/providers/studio-analytics-context";
+import { useStudioChartPhaseReporter } from "@/providers/studio-chart-phase-reporter-context";
 
 const StudioEditorCanvas = memo(function StudioEditorCanvas({
   animationKey,
@@ -102,6 +103,8 @@ const StudioEditorCanvas = memo(function StudioEditorCanvas({
   mobileViewport: boolean;
   canvasScaleRef: RefObject<number>;
 }) {
+  const reportOgPhaseFromContext = useStudioChartPhaseReporter();
+
   return (
     <div
       className={cn(
@@ -196,6 +199,7 @@ const StudioEditorCanvas = memo(function StudioEditorCanvas({
                           numberScrubbing={numberScrubbing}
                           patternDefs={patternDefs}
                           patternFillAt={patternFillAt}
+                          reportOgPhase={reportOgPhaseFromContext}
                         />
                       )}
                     </StudioChartViewport>
@@ -314,8 +318,11 @@ export const StudioEditorChartRegion = memo(function StudioEditorChartRegion({
 
 export function StudioEditorLayout({
   renderCodeSheet,
+  readOnly = false,
 }: {
   renderCodeSheet?: (state: StudioUrlState) => React.ReactNode;
+  /** Static marketing/docs preview — disables controls and canvas shortcuts. */
+  readOnly?: boolean;
 }) {
   const {
     state,
@@ -352,7 +359,7 @@ export function StudioEditorLayout({
     onReplay: replay,
   });
 
-  useReplayKeyboardShortcut(replay, !recording.controlsDisabled);
+  useReplayKeyboardShortcut(replay, !(readOnly || recording.controlsDisabled));
 
   const handleExportSvg = useCallback(async () => {
     const root = chartAreaRef.current?.querySelector<HTMLElement>(
@@ -419,67 +426,72 @@ export function StudioEditorLayout({
         </div>
       ) : null}
 
-      <StudioScenesProvider
-        frameHeight={state.frameH}
-        frameWidth={state.frameW}
-        onPrimaryFrameChange={setFrameSize}
-      >
-        <StudioComponentSelectionProvider config={config} state={state}>
-          <EditorShell
-            chartSelector={
-              <ChartTypeSelector onChange={setChart} value={state.chart} />
-            }
-            chartState={chartState}
-            className="h-full min-h-0"
-            config={config}
-            controlsDisabled={recording.controlsDisabled}
-            frameTitle={config.label}
-            isRecording={recording.isRecording}
-            onExportSvg={handleExportSvg}
-            onReplay={replay}
-            onScramble={scrambleData}
-            onStartRecording={recording.handleStartRecording}
-            onStopRecording={recording.stopRecording}
-            propertiesHeaderActions={
-              <StudioEditorSidebarActions
-                renderCodeSheet={renderCodeSheet}
-                state={state}
-              />
-            }
-            recordingBlocked={recording.recordingBlocked}
-            showMotionControls={Boolean(config.motionPanel)}
-            size={{ width: state.frameW, height: state.frameH }}
-          >
-            {({
-              size,
-              boundsRef,
-              onResize,
-              mobileViewport,
-              canvasScaleRef,
-            }: {
-              size: { width: number; height: number };
-              boundsRef: RefObject<HTMLDivElement | null>;
-              onResize: (width: number, height: number) => void;
-              mobileViewport: boolean;
-              canvasScaleRef: RefObject<number>;
-            }) => (
-              <StudioEditorChartRegion
-                animationKey={animationKey}
-                boundsRef={boundsRef}
-                canvasScaleRef={canvasScaleRef}
-                chartAreaRef={chartAreaRef}
-                config={config}
-                dataSeed={dataSeed}
-                frameRef={frameRef}
-                mobileViewport={mobileViewport}
-                onResize={onResize}
-                recording={recording}
-                size={size}
-              />
-            )}
-          </EditorShell>
-        </StudioComponentSelectionProvider>
-      </StudioScenesProvider>
+      <div className="flex h-full min-h-0 w-full flex-col overflow-hidden">
+        <StudioScenesProvider
+          frameHeight={state.frameH}
+          frameWidth={state.frameW}
+          onPrimaryFrameChange={setFrameSize}
+          persistSession={!readOnly}
+        >
+          <StudioComponentSelectionProvider config={config} state={state}>
+            <EditorShell
+              chartSelector={
+                <ChartTypeSelector onChange={setChart} value={state.chart} />
+              }
+              chartState={chartState}
+              className="h-full min-h-0 w-full overflow-hidden"
+              config={config}
+              controlsDisabled={readOnly || recording.controlsDisabled}
+              fillHeight={readOnly}
+              frameTitle={config.label}
+              isRecording={recording.isRecording}
+              onExportSvg={handleExportSvg}
+              onReplay={replay}
+              onScramble={scrambleData}
+              onStartRecording={recording.handleStartRecording}
+              onStopRecording={recording.stopRecording}
+              propertiesHeaderActions={
+                <StudioEditorSidebarActions
+                  renderCodeSheet={renderCodeSheet}
+                  state={state}
+                />
+              }
+              recordingBlocked={recording.recordingBlocked}
+              showMotionControls={Boolean(config.motionPanel)}
+              size={{ width: state.frameW, height: state.frameH }}
+              staticPreview={readOnly}
+            >
+              {({
+                size,
+                boundsRef,
+                onResize,
+                mobileViewport,
+                canvasScaleRef,
+              }: {
+                size: { width: number; height: number };
+                boundsRef: RefObject<HTMLDivElement | null>;
+                onResize: (width: number, height: number) => void;
+                mobileViewport: boolean;
+                canvasScaleRef: RefObject<number>;
+              }) => (
+                <StudioEditorChartRegion
+                  animationKey={animationKey}
+                  boundsRef={boundsRef}
+                  canvasScaleRef={canvasScaleRef}
+                  chartAreaRef={chartAreaRef}
+                  config={config}
+                  dataSeed={dataSeed}
+                  frameRef={frameRef}
+                  mobileViewport={mobileViewport}
+                  onResize={onResize}
+                  recording={recording}
+                  size={size}
+                />
+              )}
+            </EditorShell>
+          </StudioComponentSelectionProvider>
+        </StudioScenesProvider>
+      </div>
     </>
   );
 }

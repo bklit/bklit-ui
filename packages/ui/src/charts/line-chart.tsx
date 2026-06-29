@@ -70,6 +70,7 @@ const DEFAULT_MARGIN: Margin = { top: 40, right: 40, bottom: 40, left: 40 };
 /** Series renderers that carry a dataKey but must not drive the shared y-domain. */
 const LINE_DOMAIN_EXCLUDED_NAMES = new Set([
   "ProfitLossLine",
+  "LineSeriesTerminalMarker",
   "Area",
   "SeriesBar",
   "Scatter",

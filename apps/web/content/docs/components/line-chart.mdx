@@ -7,6 +7,7 @@ import { studioChartHref } from "@bklitui/studio";
 import { LineChart, Line, Grid, XAxis, ChartTooltip, ChartBrush, ChartBrushLayout, ChartMarkers } from "@bklitui/ui/charts";
 import { LineChartBrushDemo } from "@/components/docs/line-chart-brush-demo";
 import { LineChartYDomainDemo } from "@/components/docs/line-chart-y-domain-demo";
+import { ProjectionLineDemo } from "@/components/docs/projection-line-demo";
 import { MarkerContentDemo } from "@/components/docs/marker-content-demo";
 import { OpenInStudioButton } from "@/components/docs/open-in-studio-button";
 import {
@@ -136,7 +137,7 @@ Renders x-axis labels that fade when the crosshair passes.
 |------|------|---------|-------------|
 | `numTicks` | `number` | `6` | Number of tick labels |
 | `tickerHalfWidth` | `number` | `50` | Fade radius for labels |
-| `tickMode` | `"domain" \| "data"` | `"domain"` | `"domain"` for evenly spaced ticks; `"data"` for one label per row |
+| `tickMode` | `"data" \| "domain"` | `"data"` | `"data"` snaps labels to data rows (crosshair-aligned); `"domain"` for calendar-even spacing |
 
 ### ChartTooltip
 
@@ -176,6 +177,57 @@ Highlight the break-even baseline with `Grid highlightRowValues={[0]}`:
 ```
 
 See the [Profit/Loss Line](/docs/components/profit-loss-line) docs and the [line chart gallery](/charts/line-chart) (**Profit/Loss** example).
+
+## Projection
+
+Extend a series past the last data point with [`ProjectionLine`](/docs/utility/projection-line). Build the path with `buildProjectionPath` (auto slope, target value, or manual points). Optionally add [`LineSeriesTerminalMarker`](/docs/utility/projection-line#terminal-marker) at the anchor.
+
+Projections extend the x-domain to the horizon and are not supported together with [brush zoom](/docs/utility/brush).
+
+<div className="not-prose mb-3 flex items-center justify-between gap-4">
+  <h3 className="m-0 font-semibold text-foreground text-base tracking-tight">
+    Preview
+  </h3>
+  <OpenInStudioButton
+    href={studioChartHref("line-chart", { projectionCount: 1 })}
+    slug="line-chart"
+  />
+</div>
+
+<ComponentShowcase
+  code={`import {
+  buildProjectionPath,
+  LineSeriesTerminalMarker,
+  ProjectionLine,
+} from "@bklitui/ui/charts";
+
+const projectionPath = buildProjectionPath({
+  sourceData: chartData,
+  seriesKey: "users",
+  mode: "auto",
+  autoMethod: "lastSegment",
+  pathDensity: "endpoints",
+  horizonPoints: 8,
+});
+
+<LineChart data={chartData}>
+  <Grid horizontal />
+  <Line dataKey="users" strokeWidth={2} />
+  <LineSeriesTerminalMarker dataKey="users" />
+  <ProjectionLine
+    data={projectionPath}
+    strokeDasharray="6,4"
+    curveKind="bezier"
+    showEndMarker
+  />
+  <XAxis />
+  <ChartTooltip />
+</LineChart>`}
+>
+  <ProjectionLineDemo />
+</ComponentShowcase>
+
+Open [Studio with a projection](/studio?chart=line-chart) via **Settings → Projections** or the series context menu. See the [Projection Line utility](/docs/utility/projection-line) for props and `buildProjectionPath` options.
 
 ## Brush zoom
 
@@ -251,6 +303,7 @@ Pair `Grid` `stroke` / `loadingStroke` with shimmer props. Pair `Line` `loadingS
 
 <ComponentShowcase
   code={`const [status, setStatus] = useState<"loading" | "ready">("loading");
+const [loadingStyle, setLoadingStyle] = useState<"pulse" | "sweep">("pulse");
 
 <LineChart
   data={data}
@@ -270,6 +323,7 @@ Pair `Grid` `stroke` / `loadingStroke` with shimmer props. Pair `Line` `loadingS
     fadeEdges
     loadingStroke="var(--foreground)"
     loadingStrokeOpacity={0.5}
+    loadingStyle={loadingStyle}
     stroke="var(--chart-line-primary)"
   />
 </LineChart>`}
@@ -279,14 +333,15 @@ Pair `Grid` `stroke` / `loadingStroke` with shimmer props. Pair `Line` `loadingS
   <LineChartYDomainDemo />
 </ComponentShowcase>
 
-Toggle **Loading** / **Ready** in the preview to replay the transition. When target data spans a different y-range than the skeleton, `yDomainTween` morphs the scale before the line reveals.
+Toggle **Loading** / **Ready** in the preview to replay the transition, and **Pulse** / **Sweep** to switch the loading animation style. When target data spans a different y-range than the skeleton, `yDomainTween` morphs the scale before the line reveals.
 
 ### Studio
 
-Open [Studio in loading mode](/studio?chart=line-chart&lineChartState=loading) and set **State** to **Loading**. The components tree exposes **Grid**, **Label**, and **Line**:
+Open [Studio in loading mode](/studio?chart=line-chart&lineChartState=loading) and set **State** to **Loading**. In **Settings**, choose **Loading style** — **Pulse** (traveling segment) or **Sweep** (diagonal shimmer). The components tree exposes **Grid**, **Label**, and **Line**:
 
 | Layer | Controls |
 |-------|----------|
+| **Settings** | **Loading style** — Pulse or Sweep (Sweep turns off grid shimmer) |
 | **Grid** | Grid and shimmer color pickers, shimmer toggle, band length, **Animation** (sync with line, speed when unsynced) |
 | **Label** | Shimmer label text |
 | **Line** | Pulse stroke color and opacity |
@@ -294,6 +349,22 @@ Open [Studio in loading mode](/studio?chart=line-chart&lineChartState=loading) a
 Data and animation panels stay collapsed in loading mode; scramble data is disabled. See the [line chart gallery](/charts/line-chart) (**Loading** example).
 
 Installing `@bklit/line-chart` pulls in `@bklit/shimmering-text` automatically.
+
+### Loading style: pulse or sweep
+
+The loading state has two animation styles, set with `loadingStyle` on the `Line`: the default `"pulse"` (a segment travels along the skeleton stroke) or `"sweep"` (a soft diagonal shimmer sweeps across the whole line). Set it on the `Line` inside a `status="loading"` chart, or on the `LineChartLoading` wrapper:
+
+```tsx
+<LineChart data={data} status="loading">
+  <Grid horizontal shimmer />
+  <Line dataKey="revenue" loadingStyle="sweep" />
+</LineChart>
+
+// or, with the turnkey wrapper:
+<LineChartLoading loadingStyle="sweep" />;
+```
+
+The sweep masks over the real skeleton line, so it follows whatever `curve` the `Line` uses (`curveStepAfter`, `curveNatural`, …) and respects `prefers-reduced-motion`. To keep the loading→ready handoff smooth, the sweep is used only during steady loading; the pulse still drives the exit transition. See the **Loading (Sweep)** example on the [line chart gallery](/charts/line-chart).
 
 ## Dashed tail
 

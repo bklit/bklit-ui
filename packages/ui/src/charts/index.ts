@@ -14,6 +14,11 @@ export {
   LinearGradient,
   RadialGradient,
 } from "@visx/gradient";
+export {
+  DEFAULT_ANIMATION_DURATION_MS,
+  DEFAULT_ANIMATION_EASING,
+  DEFAULT_CHART_ENTER_TRANSITION,
+} from "./animation";
 // Area chart components
 export { Area, type AreaProps } from "./area";
 export { AreaChart, type AreaChartProps } from "./area-chart";
@@ -31,6 +36,11 @@ export {
   type BarProps,
 } from "./bar";
 export { BarChart, type BarChartProps, type BarOrientation } from "./bar-chart";
+// Bar chart loading skeleton (a `status="loading"` shortcut)
+export {
+  BarChartLoading,
+  type BarChartLoadingProps,
+} from "./bar-chart-loading";
 // Bar 3D depth + glass surfaces (composable layers for BarChart)
 export {
   BarDepthBack,
@@ -125,12 +135,18 @@ export {
   DEFAULT_CHART_STATUS,
   DEFAULT_Y_DOMAIN_TWEEN_MS,
   isChartInteractionPhase,
+  type LoadingStyle,
   resolveRestingChartPhase,
 } from "./chart-phase";
 export {
   ChartRevealClip,
   type ChartRevealClipProps,
 } from "./chart-reveal-clip";
+export {
+  CHART_SCALE_VARS,
+  type ChartScaleVars,
+  chartScaleCssVars,
+} from "./chart-scale";
 export {
   ChartStatFlow,
   type ChartStatFlowFormat,
@@ -263,6 +279,10 @@ export {
   resolveLineLoadingPulseMode,
 } from "./line-loading-pulse";
 export {
+  LineSeriesTerminalMarker,
+  type LineSeriesTerminalMarkerProps,
+} from "./line-series-terminal-marker";
+export {
   detectMomentum,
   LiveLine,
   type LiveLineProps,
@@ -277,6 +297,14 @@ export {
 } from "./live-line-chart";
 export { LiveXAxis, type LiveXAxisProps } from "./live-x-axis";
 export { LiveYAxis, type LiveYAxisProps } from "./live-y-axis";
+// Sweep loading visuals: `loadingStyle="sweep"` on Line/Area + bar skeleton
+export {
+  BarLoadingSkeleton,
+  type BarLoadingSkeletonProps,
+  getSkeletonHeights,
+  LineLoadingSweep,
+  type LineLoadingSweepProps,
+} from "./loading-sweep";
 // Marker components
 export {
   type ChartMarker,
@@ -349,6 +377,34 @@ export {
   splitProfitLossSegments,
 } from "./profit-loss-segments";
 export { ProgressBar, type ProgressBarProps } from "./progress-bar";
+export {
+  extractProjectionLineConfigs,
+  mergeProjectionXDomainMax,
+  mergeProjectionYDomain,
+  type ProjectionLineConfig,
+} from "./projection-config";
+export {
+  ProjectionLine,
+  type ProjectionLineProps,
+  type ProjectionStrokeStyle,
+} from "./projection-line";
+export {
+  ProjectionLineEndMarker,
+  type ProjectionLineEndMarkerProps,
+} from "./projection-line-end-marker";
+export {
+  type BuildProjectionPathOptions,
+  buildHorizontalTangentBezierPath,
+  buildProjectionPath,
+  computeProjectionAnchorTangentSlope,
+  type ProjectionAutoMethod,
+  type ProjectionCurveKind,
+  type ProjectionMode,
+  type ProjectionPathDensity,
+  type ProjectionPoint,
+  projectionDateExtents,
+  projectionValueExtents,
+} from "./projection-utils";
 // Radar chart components
 export { RadarArea, type RadarAreaProps } from "./radar-area";
 export { RadarAxis, type RadarAxisProps } from "./radar-axis";
@@ -366,6 +422,16 @@ export {
 } from "./radar-context";
 export { RadarGrid, type RadarGridProps } from "./radar-grid";
 export { RadarLabels, type RadarLabelsProps } from "./radar-labels";
+export {
+  ReferenceArea,
+  type ReferenceAreaProps,
+  type ReferenceAreaStrokeStyle,
+} from "./reference-area";
+export {
+  computeReferenceAreaRect,
+  type ReferenceAreaIfOverflow,
+  type ReferenceAreaRect,
+} from "./reference-area-geometry";
 // Ring chart components
 export { Ring, type RingLineCap, type RingProps } from "./ring";
 export { RingCenter, type RingCenterProps } from "./ring-center";
@@ -386,6 +452,7 @@ export {
   type SankeyChartProps,
   type SankeyContextValue,
   type SankeyData,
+  type SankeyLabelOrientation,
   SankeyLink,
   type SankeyLinkDatum,
   type SankeyLinkProps,

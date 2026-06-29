@@ -224,6 +224,71 @@ export const gridControlGroups: StudioControlGroup[] = [
   ]),
 ];
 
+const referenceAreaBoundsControls: StudioControlGroup["controls"] = [
+  {
+    type: "number",
+    key: "referenceAreaY1",
+    label: "Y1",
+    min: 0,
+    max: 500,
+    step: 1,
+  },
+  {
+    type: "number",
+    key: "referenceAreaY2",
+    label: "Y2",
+    min: 0,
+    max: 500,
+    step: 1,
+  },
+];
+
+export const referenceAreaBoundsControlGroup = controlGroup(
+  "Reference range",
+  referenceAreaBoundsControls
+);
+
+export const referenceAreaControlGroups: StudioControlGroup[] = [
+  controlGroup("Bounds", referenceAreaBoundsControls),
+  controlGroup("Fill", [
+    { type: "referenceAreaFill", key: "referenceAreaFill", label: "Fill" },
+  ]),
+  controlGroup("Stroke", [
+    { type: "color", key: "referenceAreaStroke", label: "Color" },
+    {
+      type: "strokeStyle",
+      key: "referenceAreaStrokeStyle",
+      label: "Style",
+    },
+    {
+      type: "text",
+      key: "referenceAreaStrokeDasharray",
+      label: "Dash array",
+      visibleWhen: { key: "referenceAreaStrokeStyle", equals: "dashed" },
+    },
+  ]),
+  controlGroup("Markers", [
+    {
+      type: "boolean",
+      key: "referenceAreaShowMarkers",
+      label: "Show bracket markers",
+    },
+    { type: "color", key: "referenceAreaMarkerColor", label: "Marker color" },
+  ]),
+  controlGroup("Axis", [
+    {
+      type: "referenceAreaYAxis",
+      key: "referenceAreaYAxis",
+      label: "Y axis",
+    },
+    {
+      type: "color",
+      key: "referenceAreaAxisLabelColor",
+      label: "Label color",
+    },
+  ]),
+];
+
 export const seriesMarkersControlGroup = controlGroup("Markers", [
   { type: "boolean", key: "seriesShowMarkers", label: "Show" },
   {
@@ -251,6 +316,25 @@ export const seriesMarkersControlGroup = controlGroup("Markers", [
     step: 0.5,
   },
 ]);
+
+/** Projection anchor at the last data point (line chart, per series). */
+export const lineSeriesTerminalMarkerControlGroup = controlGroup(
+  "Terminal marker",
+  [
+    { type: "boolean", key: "seriesTerminalMarkerShow", label: "Show" },
+    { type: "color", key: "seriesTerminalMarkerFill", label: "Dot" },
+    { type: "color", key: "seriesTerminalMarkerRingColor", label: "Ring" },
+    {
+      type: "number",
+      key: "seriesTerminalMarkerRingGap",
+      label: "Ring offset",
+      min: 0,
+      max: 8,
+      step: 1,
+    },
+  ],
+  { collapsible: true, defaultOpen: false }
+);
 
 export const seriesDashTailControlGroup = controlGroup("Dash tail", [
   { type: "boolean", key: "seriesDashTail", label: "Dash" },
@@ -304,6 +388,16 @@ export const composedOverlayLineControlGroups: StudioControlGroup[] = [
   seriesDashTailControlGroup,
 ];
 
+const loadingStyleControl = {
+  type: "select" as const,
+  key: "loadingStyle" as const,
+  label: "Loading style",
+  options: [
+    { value: "pulse", label: "Pulse" },
+    { value: "sweep", label: "Sweep" },
+  ],
+};
+
 export const areaChartControlGroups: StudioControlGroup[] = [
   controlGroup("Settings", [
     {
@@ -315,8 +409,13 @@ export const areaChartControlGroups: StudioControlGroup[] = [
         { value: "loading", label: "Loading" },
       ],
     },
+    {
+      ...loadingStyleControl,
+      visibleWhen: { key: "areaChartState", equals: "loading" },
+    },
   ]),
   dataGroup(),
+  referenceAreaBoundsControlGroup,
   designGroup([
     {
       type: "opacity",
@@ -341,8 +440,104 @@ export const areaChartControlGroups: StudioControlGroup[] = [
   ...areaSeriesLineControlGroups,
 ];
 
+export const projectionControlGroup = controlGroup("Projection", [
+  {
+    type: "select",
+    key: "projectionMode",
+    label: "Mode",
+    options: [
+      { value: "auto", label: "Auto (trend)" },
+      { value: "target", label: "Target value" },
+      { value: "manual", label: "Manual points" },
+    ],
+  },
+  {
+    type: "select",
+    key: "projectionAutoMethod",
+    label: "Auto method",
+    options: [
+      { value: "linearRegression", label: "Linear trend" },
+      { value: "lastSegment", label: "Last segment" },
+    ],
+    visibleWhen: { key: "projectionMode", equals: "auto" },
+  },
+  {
+    type: "number",
+    key: "projectionHorizonPoints",
+    label: "Horizon",
+    min: 1,
+    max: 48,
+    step: 1,
+    input: "studio",
+  },
+  {
+    type: "number",
+    key: "projectionEndValue",
+    label: "End value",
+    min: 0,
+    max: 10_000,
+    step: 1,
+    input: "number",
+    visibleWhen: { key: "projectionMode", equals: "target" },
+  },
+  {
+    type: "projectionCurve",
+    key: "projectionCurve",
+    label: "Curve",
+  },
+  { type: "projectionStroke", key: "projectionStroke", label: "Stroke" },
+  {
+    type: "text",
+    key: "projectionDashArray",
+    label: "Dash array",
+  },
+  {
+    type: "number",
+    key: "projectionStrokeWidth",
+    label: "Width",
+    min: 1,
+    max: 5,
+    step: 0.5,
+  },
+  {
+    type: "boolean",
+    key: "projectionShowEndpoints",
+    label: "End point",
+  },
+]);
+
+export function lineChartDataGroup(): StudioControlGroup {
+  return controlGroup("Data", [
+    {
+      type: "select",
+      key: "lineDataTrend",
+      label: "Trend",
+      options: [
+        { value: "up", label: "Trend up" },
+        { value: "down", label: "Trend down" },
+      ],
+    },
+    {
+      type: "number",
+      key: "dataSeries",
+      label: "Series",
+      min: 1,
+      max: 10,
+      step: 1,
+    },
+    {
+      type: "number",
+      key: "dataPoints",
+      label: "Points",
+      min: 3,
+      max: 365,
+      step: 1,
+    },
+  ]);
+}
+
 export const lineChartControlGroups: StudioControlGroup[] = [
-  dataGroup(),
+  lineChartDataGroup(),
   lineGroup([
     curveControl(),
     {
@@ -357,14 +552,20 @@ export const lineChartControlGroups: StudioControlGroup[] = [
     { type: "boolean", key: "showHighlight", label: "Highlight on hover" },
   ]),
   seriesMarkersControlGroup,
+  lineSeriesTerminalMarkerControlGroup,
   seriesDashTailControlGroup,
 ];
 
 export const tooltipAppearanceControlGroup = controlGroup("Appearance", [
   {
+    type: "color",
+    key: "tooltipBackgroundColor",
+    label: "Background color",
+  },
+  {
     type: "opacity",
     key: "tooltipBackgroundOpacity",
-    label: "Background",
+    label: "Background opacity",
     min: 0.2,
     max: 1,
     step: 0.05,
@@ -545,15 +746,30 @@ function lineChartSettingsGroup(
   ];
 
   if (mode === "standard") {
-    controls.push({
-      type: "select",
-      key: "lineChartState",
-      label: "State",
-      options: [
-        { value: "ready", label: "Ready" },
-        { value: "loading", label: "Loading" },
-      ],
-    });
+    controls.push(
+      {
+        type: "select",
+        key: "lineChartState",
+        label: "State",
+        options: [
+          { value: "ready", label: "Ready" },
+          { value: "loading", label: "Loading" },
+        ],
+      },
+      {
+        type: "number",
+        key: "projectionCount",
+        label: "Projections",
+        min: 0,
+        max: 5,
+        step: 1,
+        input: "studio",
+      },
+      {
+        ...loadingStyleControl,
+        visibleWhen: { key: "lineChartState", equals: "loading" },
+      }
+    );
   }
 
   return controlGroup("Settings", controls);
@@ -665,6 +881,7 @@ export function getLineChartControlGroups(state: {
     return [
       lineChartSettingsGroup("profitLoss"),
       profitLossDataGroup,
+      referenceAreaBoundsControlGroup,
       ...profitLossLineSettingsGroups,
     ];
   }
@@ -677,7 +894,19 @@ export const profitLossLineChartControlGroups = getLineChartControlGroups({
 });
 
 export const barChartControlGroups: StudioControlGroup[] = [
+  controlGroup("Settings", [
+    {
+      type: "select",
+      key: "barChartState",
+      label: "State",
+      options: [
+        { value: "ready", label: "Ready" },
+        { value: "loading", label: "Loading" },
+      ],
+    },
+  ]),
   dataGroup(),
+  referenceAreaBoundsControlGroup,
   controlGroup("Series", [
     {
       type: "select",
@@ -730,6 +959,7 @@ export const barChartControlGroups: StudioControlGroup[] = [
 
 export const composedChartControlGroups: StudioControlGroup[] = [
   dataGroup(),
+  referenceAreaBoundsControlGroup,
   designGroup([
     {
       type: "opacity",
@@ -894,6 +1124,7 @@ export const radarChartControlGroups: StudioControlGroup[] = [
 ];
 
 export const candlestickChartControlGroups: StudioControlGroup[] = [
+  referenceAreaBoundsControlGroup,
   designGroup([
     {
       type: "opacity",
@@ -940,6 +1171,7 @@ export const funnelChartControlGroups: StudioControlGroup[] = [
 ];
 
 export const scatterChartControlGroups: StudioControlGroup[] = [
+  referenceAreaBoundsControlGroup,
   controlGroup("Points", [
     {
       type: "number",
@@ -987,6 +1219,7 @@ export const scatterChartControlGroups: StudioControlGroup[] = [
 ];
 
 export const liveLineChartControlGroups: StudioControlGroup[] = [
+  referenceAreaBoundsControlGroup,
   controlGroup("Stream", [
     {
       type: "number",

@@ -19,6 +19,7 @@ import {
   StudioChartYAxisLayers,
   timeSeriesChartMargin,
 } from "@/components/charts/studio-chart-y-axis";
+import { StudioReferenceAreaLayer } from "@/components/charts/studio-reference-area-layer";
 import { fadeEdgesPropValue } from "@/components/controls/fade-edges-picker";
 import { getStudioCssRevealPropsForPreview } from "@/lib/chart-animation";
 import { resolveCurve } from "@/lib/curves";
@@ -159,7 +160,10 @@ function renderMainAreas(
           yAxisId={getLineSeriesYAxisId(state, idx)}
           {...seriesStrokePropsFromState(state, options.dataLength, idx)}
           {...(isPrimary
-            ? studioLoadingStrokeProps(state, "area.loading-line")
+            ? {
+                ...studioLoadingStrokeProps(state, "area.loading-line"),
+                loadingStyle: state.loadingStyle,
+              }
             : {})}
         />
       );
@@ -270,6 +274,10 @@ export function AreaStudioPreview({
                 "area.grid"
               )}
               {studioCartesianGridLayer(state, "area.grid")}
+              <StudioReferenceAreaLayer
+                componentId="area.reference-area"
+                state={state}
+              />
               {ctx.patternDefs}
               {renderMainAreas(state, ctx, {
                 dataLength: data.length,

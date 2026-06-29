@@ -5,6 +5,8 @@ import {
   type ReactElement,
   type ReactNode,
   useContext,
+  useEffect,
+  useState,
 } from "react";
 import {
   Tooltip,
@@ -18,8 +20,14 @@ type StudioToolbarTooltipSide = "top" | "bottom";
 const StudioToolbarTooltipSideContext =
   createContext<StudioToolbarTooltipSide>("top");
 
+const StudioToolbarMountedContext = createContext(false);
+
 export function useStudioToolbarTooltipSide() {
   return useContext(StudioToolbarTooltipSideContext);
+}
+
+export function useStudioToolbarMounted() {
+  return useContext(StudioToolbarMountedContext);
 }
 
 /** Shared tooltip timing for studio toolbars — matches Base UI grouped hover behavior. */
@@ -36,12 +44,24 @@ export function StudioToolbarTooltips({
   children: ReactNode;
   side?: StudioToolbarTooltipSide;
 }) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   return (
-    <StudioToolbarTooltipSideContext.Provider value={side}>
-      <TooltipProvider {...STUDIO_TOOLBAR_TOOLTIP_PROVIDER_PROPS}>
-        {children}
-      </TooltipProvider>
-    </StudioToolbarTooltipSideContext.Provider>
+    <StudioToolbarMountedContext.Provider value={mounted}>
+      <StudioToolbarTooltipSideContext.Provider value={side}>
+        {mounted ? (
+          <TooltipProvider {...STUDIO_TOOLBAR_TOOLTIP_PROVIDER_PROPS}>
+            {children}
+          </TooltipProvider>
+        ) : (
+          children
+        )}
+      </StudioToolbarTooltipSideContext.Provider>
+    </StudioToolbarMountedContext.Provider>
   );
 }
 
@@ -52,7 +72,12 @@ export function EditorMenuBarTooltipItem({
   label: ReactNode;
   children: ReactElement;
 }) {
+  const mounted = useStudioToolbarMounted();
   const side = useStudioToolbarTooltipSide();
+
+  if (!mounted) {
+    return children;
+  }
 
   return (
     <Tooltip>

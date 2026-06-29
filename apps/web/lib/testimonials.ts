@@ -77,30 +77,31 @@ export const testimonials: Testimonial[] = [
     content: "Looks f**king awesome! Well done!",
   },
   {
-    id: "2056750667104977104",
-    url: "https://x.com/shuxer/status/2056750667104977104",
+    id: "2057019798022729845",
+    url: "https://x.com/orcdev/status/2057019798022729845",
     author: {
-      name: "Shuh",
-      handle: "@shuxer",
+      name: "OrcDev",
+      handle: "@orcdev",
       avatar: twitterAvatarUrl(
-        "https://pbs.twimg.com/profile_images/2034859847162761216/B6O3rtEH_200x200.jpg"
+        "https://pbs.twimg.com/profile_images/1756766826736893952/6Gvg6jha_200x200.jpg"
       ),
       verified: true,
     },
-    content: "Those charts are really juicy!",
+    content:
+      "man this is awesome, I think this is the only chart builder I've seen so far — awesome work man, have to put it on some video",
   },
   {
-    id: "2025661733159751781",
-    url: "https://x.com/chriszeuch/status/2025661733159751781",
+    id: "2032217721484537956",
+    url: "https://x.com/shadcn/status/2032217721484537956",
     author: {
-      name: "Chris 🧱",
-      handle: "@chriszeuch",
+      name: "shadcn",
+      handle: "@shadcn",
       avatar: twitterAvatarUrl(
-        "https://pbs.twimg.com/profile_images/1941976533221904385/Jg6GEYpD_400x400.jpg"
+        "https://pbs.twimg.com/profile_images/1593304942210478080/TUYae5z7_200x200.jpg"
       ),
       verified: true,
     },
-    content: "Oooh this is nice",
+    content: "Amazing Matt.",
   },
   {
     id: "2056711618768130336",
@@ -128,17 +129,17 @@ export const testimonials: Testimonial[] = [
   },
   // Remaining
   {
-    id: "2032217721484537956",
-    url: "https://x.com/shadcn/status/2032217721484537956",
+    id: "2025661733159751781",
+    url: "https://x.com/chriszeuch/status/2025661733159751781",
     author: {
-      name: "shadcn",
-      handle: "@shadcn",
+      name: "Chris 🧱",
+      handle: "@chriszeuch",
       avatar: twitterAvatarUrl(
-        "https://pbs.twimg.com/profile_images/1593304942210478080/TUYae5z7_200x200.jpg"
+        "https://pbs.twimg.com/profile_images/1941976533221904385/Jg6GEYpD_400x400.jpg"
       ),
       verified: true,
     },
-    content: "Amazing Matt.",
+    content: "Oooh this is nice",
   },
   {
     id: "2025682783222247907",
@@ -153,18 +154,17 @@ export const testimonials: Testimonial[] = [
     content: "should i just pay you to implement all your charts in op?",
   },
   {
-    id: "2057019798022729845",
-    url: "https://x.com/orcdev/status/2057019798022729845",
+    id: "2056750667104977104",
+    url: "https://x.com/shuxer/status/2056750667104977104",
     author: {
-      name: "OrcDev",
-      handle: "@orcdev",
+      name: "Shuh",
+      handle: "@shuxer",
       avatar: twitterAvatarUrl(
-        "https://pbs.twimg.com/profile_images/1756766826736893952/6Gvg6jha_200x200.jpg"
+        "https://pbs.twimg.com/profile_images/2034859847162761216/B6O3rtEH_200x200.jpg"
       ),
       verified: true,
     },
-    content:
-      "man this is awesome, I think this is the only chart builder I've seen so far — awesome work man, have to put it on some video",
+    content: "Those charts are really juicy!",
   },
   {
     id: "2056740153473876192",

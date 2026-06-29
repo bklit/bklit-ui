@@ -49,6 +49,41 @@ export function isValidOklchColor(value: string) {
   return isValidOklchBody(lch) || OKLCH_COMPONENTS_RE.test(lch);
 }
 
+/** Whether a theme token row should use the OKLCH picker (not plain text). */
+export function isThemeColorToken(name: string, value: string): boolean {
+  return name !== "radius" && oklchBodyFromColor(value) !== null;
+}
+
+/** Normalize CSS / computed theme token values to oklch() for pickers and copy output. */
+export function normalizeThemeTokenColor(value: string): string {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return trimmed;
+  }
+
+  if (isValidOklchColor(trimmed)) {
+    return trimmed;
+  }
+
+  const mix = parseColorMix(trimmed);
+  if (mix) {
+    const base = normalizeThemeTokenColor(mix.base);
+    if (isValidOklchColor(base)) {
+      return applyOpacityToColor(base, mix.opacity);
+    }
+  }
+
+  const body = oklchBodyFromColor(trimmed);
+  if (!body) {
+    return trimmed;
+  }
+
+  const opacity = parseOpacityFromColor(trimmed);
+  return opacity < 100
+    ? applyOpacityToColor(`oklch(${body})`, opacity)
+    : `oklch(${body})`;
+}
+
 export function parseColorMix(color: string): {
   base: string;
   opacity: number;

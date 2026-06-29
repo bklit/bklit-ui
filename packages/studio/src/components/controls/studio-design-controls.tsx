@@ -1,7 +1,6 @@
 "use client";
 
-import { FillPicker, ThemePresetList } from "@/components/controls/fill-picker";
-import type { ColorPresetId } from "@/lib/color-presets";
+import { FillPicker } from "@/components/controls/fill-picker";
 import type { PatternPresetId } from "@/lib/pattern-presets";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import {
@@ -32,20 +31,11 @@ export function StudioDesignControls({
 }) {
   const seriesIndex = design.seriesIndex ?? 0;
   const accentKey = design.accentKey;
-  const showPalette = !accentKey && (design.showPalette ?? seriesIndex === 0);
   const patternEnabled =
     !accentKey && (design.supportsPattern ?? supportsPatterns);
   const pickerColor = accentKey
     ? String(state[accentKey] ?? "")
     : getEffectiveSeriesColor(state, seriesIndex);
-
-  const handlePresetChange = (id: ColorPresetId) => {
-    onBatchChange({
-      chartAccent: "",
-      seriesColors: "",
-      preset: id,
-    });
-  };
 
   const colorUpdates = (color: string): Partial<StudioUrlState> => {
     const updates: Partial<StudioUrlState> = {
@@ -109,28 +99,17 @@ export function StudioDesignControls({
   };
 
   return (
-    <div className="space-y-3">
-      {showPalette ? (
-        <ThemePresetList
-          chartAccent={state.chartAccent}
-          onPresetChange={handlePresetChange}
-          preset={state.preset}
-          seriesColors={state.seriesColors}
-        />
-      ) : null}
-
-      <FillPicker
-        color={pickerColor}
-        disabled={disabled}
-        fillMode={accentKey ? "solid" : getSeriesFillMode(state, seriesIndex)}
-        label={design.colorLabel ?? "Fill"}
-        onColorChange={handleColorCommit}
-        onColorPreview={handleColorPreview}
-        onFillModeChange={handleFillModeChange}
-        onPatternChange={handlePatternChange}
-        pattern={accentKey ? "none" : getSeriesPattern(state, seriesIndex)}
-        supportsPattern={patternEnabled}
-      />
-    </div>
+    <FillPicker
+      color={pickerColor}
+      disabled={disabled}
+      fillMode={accentKey ? "solid" : getSeriesFillMode(state, seriesIndex)}
+      label={design.colorLabel ?? "Fill"}
+      onColorChange={handleColorCommit}
+      onColorPreview={handleColorPreview}
+      onFillModeChange={handleFillModeChange}
+      onPatternChange={handlePatternChange}
+      pattern={accentKey ? "none" : getSeriesPattern(state, seriesIndex)}
+      supportsPattern={patternEnabled}
+    />
   );
 }

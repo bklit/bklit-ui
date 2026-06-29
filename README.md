@@ -1,7 +1,11 @@
 ![hero](https://github.com/bklit/bklit-ui/blob/main/apps/web/app/opengraph-image.png?raw=true)
 
+
+<br />
 <p align="center">
-	<h1 align="center"><b><a href="https://ui.bklit.com">Bklit UI</a></b></h1>
+<img alt="vercel-oss 2" src="https://github.com/user-attachments/assets/e6cd5d4c-7707-4271-96cb-10122d193048" />
+</p>
+</br>
 <p align="center">
     A collection of Open Source charts and utility components that you can customize and extend.
     <br />
@@ -14,9 +18,15 @@
   </p>
 </p>
 
+
 ## Premium Sponsors
 
 Bklit UI is supported by our premium sponsors.
+
+<br />
+<a href="https://openpanel.dev">
+<img alt="OpenPanel" src="https://github.com/user-attachments/assets/279ef3ca-ed28-4a75-bac7-3fb90db4954d" />
+</a>
 
 **[OpenPanel](https://openpanel.dev)** — OpenPanel is an open source analytics platform that combines web analytics and product analytics in one privacy-first tool. Track pageviews, events, funnels, retention, and user journeys — all without cookies.
 

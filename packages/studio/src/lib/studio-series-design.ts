@@ -1,6 +1,5 @@
 import type { CSSProperties } from "react";
 import type { ChartSlug } from "@/chart-slugs";
-import { resolveCssColor } from "@/lib/chart-theme-color";
 import { type ColorPresetId, presetStyle } from "@/lib/color-presets";
 import { clampStudioSeriesCount, STUDIO_SERIES_KEYS } from "@/lib/demo-data";
 import type { PatternPresetId } from "@/lib/pattern-presets";
@@ -148,7 +147,7 @@ export function defaultSeriesColor(
   if (presetVars[varName]) {
     return presetVars[varName];
   }
-  return resolveCssColor(`var(${varName})`);
+  return `var(${varName})`;
 }
 
 export function resolveChartThemeStyle(state: StudioUrlState): CSSProperties {

@@ -34,7 +34,7 @@ import { ComposedChartDocsPreview } from "@/components/docs/composed-chart-docs-
 - **`Line`** / **`Area`** — pass a **`curve`** from `@visx/curve` (e.g. **`curveCatmullRom.alpha(0.42)`**) to soften paths when you have many daily points (preview + hero use the same curve for `revenue` and `runRate`).
 - **`Line`** / **`Area`** — use **`showMarkers`** for scatter-style ring markers at each point; pass **`markers={{ radius, ringGap, strokeWidth }}`** to tune styling.
 - **`Line`** / **`Area`** — use **`dashFromIndex`** and **`dashArray`** for a dashed tail on incomplete periods (the dashed segment follows the same curve and edge fade).
-- **`XAxis`** — for **many rows** (e.g. daily), use **`numTicks={8}`** (default domain ticks). Use **`tickMode="data"`** when you only have a few points (e.g. one column per month) so labels sit on the data.
+- **`XAxis`** — default ticks snap to data rows so the crosshair aligns. Tune **`numTicks`** for dense series (e.g. daily). Use **`tickMode="domain"`** only when you want calendar-even spacing instead of data alignment.
 - **`ChartTooltip`** — for bar-heavy layouts, **`showCrosshair={false}`** often looks cleaner because the hover band is already vertical columns.
 - **`YAxis`** / **`yAxisId`** — `Line` and `Area` support independent left/right scales (see [Y Axis](/docs/utility/axis/y-axis)). `SeriesBar` uses the primary scale.
 - **Hover dimming** — `SeriesBar` fades non-hovered columns using `tooltipData.index`, like grouped bars in `BarChart`. Tune with **`fadedOpacity`** on each `SeriesBar`.

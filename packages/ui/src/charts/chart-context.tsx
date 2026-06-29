@@ -23,6 +23,7 @@ import {
   useMemo,
 } from "react";
 import type { ChartPhase, ChartStatus } from "./chart-phase";
+import type { ReferenceAreaConfig } from "./reference-area-config";
 import type { ChartSelection } from "./use-chart-interaction";
 import { DEFAULT_Y_AXIS_ID } from "./y-axis-scales";
 import type { YDomain } from "./y-domain-utils";
@@ -47,6 +48,7 @@ export const chartCssVars = {
   segmentBackground: "var(--chart-segment-background)",
   segmentLine: "var(--chart-segment-line)",
   brushBorder: "var(--chart-brush-border)",
+  tooltipBackground: "var(--chart-tooltip-background)",
 };
 
 /** Default scatter series colors from the chart palette (`--chart-1` … `--chart-5`). */
@@ -143,6 +145,9 @@ export interface ChartContextValue extends ChartHoverContextValue {
 
   // Line configurations (extracted from children)
   lines: LineConfig[];
+
+  /** {@link ReferenceArea} bands — drives y-axis label colors in range. */
+  referenceAreas: ReferenceAreaConfig[];
 
   // Loading / lifecycle (LineChart status transitions)
   chartPhase: ChartPhase;
@@ -251,6 +256,7 @@ export function ChartProvider({
       columnWidth: value.columnWidth,
       containerRef: value.containerRef,
       lines: value.lines,
+      referenceAreas: value.referenceAreas,
       chartPhase: value.chartPhase,
       chartStatus: value.chartStatus,
       loadingLabel: value.loadingLabel,
@@ -295,6 +301,7 @@ export function ChartProvider({
       value.columnWidth,
       value.containerRef,
       value.lines,
+      value.referenceAreas,
       value.chartPhase,
       value.chartStatus,
       value.loadingLabel,

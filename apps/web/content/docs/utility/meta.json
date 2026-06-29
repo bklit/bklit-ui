@@ -4,6 +4,8 @@
     "legend",
     "grid",
     "background",
+    "reference-area",
+    "projection-line",
     "tooltip",
     "brush",
     "axis",

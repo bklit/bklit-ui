@@ -121,7 +121,9 @@ export function EditorCollapsiblePane({
           </span>
         </div>
       ) : (
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col">{children}</div>
+        <div className="flex h-full min-h-0 min-w-0 flex-1 flex-col">
+          {children}
+        </div>
       )}
 
       <button
@@ -130,9 +132,7 @@ export function EditorCollapsiblePane({
           collapsed ? `Expand ${label} panel` : `Collapse ${label} panel`
         }
         className={cn(
-          "absolute top-0 z-30 h-full w-2 touch-none select-none border-0 bg-transparent p-0",
-          "before:absolute before:inset-y-8 before:left-1/2 before:w-px before:-translate-x-1/2 before:bg-border before:transition-colors before:content-['']",
-          "hover:before:bg-accent",
+          "absolute top-0 z-30 h-full w-2 touch-none select-none border-0 bg-transparent p-0 hover:bg-foreground/[0.04]",
           side === "left"
             ? "right-0 translate-x-1/2 cursor-col-resize"
             : "left-0 -translate-x-1/2 cursor-col-resize"

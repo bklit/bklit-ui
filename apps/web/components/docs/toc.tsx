@@ -48,7 +48,7 @@ export function TableOfContents({ items }: TableOfContentsProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   return (
-    <aside className="fixed top-14 right-0 hidden h-[calc(100vh-3.5rem)] w-[300px] overflow-hidden px-10 py-6 xl:block">
+    <aside className="fixed top-(--site-header-height) right-0 hidden h-[calc(100vh-var(--site-header-height))] w-[300px] overflow-hidden px-10 py-6 xl:block">
       <div className="flex h-full flex-col">
         {items.length > 0 && (
           <>

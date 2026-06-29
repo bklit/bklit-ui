@@ -6,6 +6,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
 import { type SpringConfig, useChartConfig } from "../chart-config-context";
+import { chartCssVars } from "../chart-context";
 
 export interface TooltipBoxProps {
   /** X position in pixels (relative to container) */
@@ -38,6 +39,11 @@ export interface TooltipBoxProps {
   animate?: boolean;
   /** Inline styles for the inner tooltip panel. */
   panelStyle?: React.CSSProperties;
+  /**
+   * Tooltip panel background color (CSS variable or color value).
+   * Default: `var(--chart-tooltip-background)`.
+   */
+  backgroundColor?: string;
 }
 
 // Inner-only-on-visible so `useSpring` initializes at the cursor's actual x/y
@@ -73,6 +79,7 @@ function TooltipBoxInner({
   springConfig,
   animate = true,
   panelStyle,
+  backgroundColor = chartCssVars.tooltipBackground,
   container,
 }: Omit<TooltipBoxProps, "visible" | "containerRef"> & {
   container: HTMLElement;
@@ -177,10 +184,22 @@ function TooltipBoxInner({
     >
       <motion.div
         animate={{ scale: 1, opacity: 1, x: 0 }}
-        className="min-w-[140px] overflow-hidden rounded-lg bg-chart-tooltip-background text-chart-tooltip-foreground shadow-lg backdrop-blur-md"
+        className={cn(
+          "min-w-[140px] overflow-hidden rounded-lg text-chart-tooltip-foreground shadow-lg",
+          panelStyle?.backgroundColor === undefined &&
+            backgroundColor === chartCssVars.tooltipBackground &&
+            "bg-chart-tooltip-background",
+          panelStyle?.backdropFilter === undefined && "backdrop-blur-md"
+        )}
         initial={{ scale: 0.85, opacity: 0, x: isFlipped ? 20 : -20 }}
         key={flipKey}
-        style={{ transformOrigin, ...panelStyle }}
+        style={{
+          transformOrigin,
+          ...(panelStyle?.backgroundColor === undefined && {
+            backgroundColor,
+          }),
+          ...panelStyle,
+        }}
         transition={{ type: "spring", stiffness: 300, damping: 25 }}
       >
         {children}

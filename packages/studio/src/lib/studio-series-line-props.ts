@@ -1,7 +1,11 @@
 import { CURVE_IDS, type CurveId } from "@/lib/curves";
 import { clampStudioSeriesCount } from "@/lib/demo-data";
 import type { StudioUrlState } from "@/lib/studio-parsers";
-import { parsePipeField, serializePipeField } from "@/lib/studio-series-design";
+import {
+  getEffectiveSeriesColor,
+  parsePipeField,
+  serializePipeField,
+} from "@/lib/studio-series-design";
 
 const FADE_EDGES_VALUES = ["both", "none", "left", "right"] as const;
 type FadeEdges = (typeof FADE_EDGES_VALUES)[number];
@@ -39,6 +43,10 @@ function parsePipeFadeEdges(raw: string): (FadeEdges | undefined)[] {
       ? (part as FadeEdges)
       : undefined
   );
+}
+
+function parsePipeStrings(raw: string): (string | undefined)[] {
+  return parsePipeField(raw).map((part) => (part ? part : undefined));
 }
 
 function getPipeSlot<T>(
@@ -117,6 +125,54 @@ function readDashFromIndex(raw: string, index: number, state: StudioUrlState) {
 function readDashArray(raw: string, index: number, state: StudioUrlState) {
   const parsed = parsePipeField(raw);
   return parsed[index]?.trim() ? parsed[index] : state.seriesDashArray;
+}
+
+function readTerminalMarkerShow(
+  raw: string,
+  index: number,
+  state: StudioUrlState
+) {
+  return getPipeSlot(
+    index,
+    parsePipeBooleans(raw),
+    state.seriesTerminalMarkerShow
+  );
+}
+
+function readTerminalMarkerFill(
+  raw: string,
+  index: number,
+  state: StudioUrlState
+) {
+  return getPipeSlot(
+    index,
+    parsePipeStrings(raw),
+    state.seriesTerminalMarkerFill
+  );
+}
+
+function readTerminalMarkerRingColor(
+  raw: string,
+  index: number,
+  state: StudioUrlState
+) {
+  return getPipeSlot(
+    index,
+    parsePipeStrings(raw),
+    state.seriesTerminalMarkerRingColor
+  );
+}
+
+function readTerminalMarkerRingGap(
+  raw: string,
+  index: number,
+  state: StudioUrlState
+) {
+  return getPipeSlot(
+    index,
+    parsePipeNumbers(raw),
+    state.seriesTerminalMarkerRingGap
+  );
 }
 
 export function getSeriesCurve(
@@ -203,6 +259,51 @@ export function getSeriesDashArray(
   return readDashArray(state.seriesDashArrays, seriesIndex, state);
 }
 
+export function getSeriesTerminalMarkerShow(
+  state: StudioUrlState,
+  seriesIndex: number
+): boolean {
+  return readTerminalMarkerShow(
+    state.seriesTerminalMarkerShowFlags,
+    seriesIndex,
+    state
+  );
+}
+
+export function getSeriesTerminalMarkerFill(
+  state: StudioUrlState,
+  seriesIndex: number
+): string {
+  return readTerminalMarkerFill(
+    state.seriesTerminalMarkerFills,
+    seriesIndex,
+    state
+  );
+}
+
+export function getSeriesTerminalMarkerRingColor(
+  state: StudioUrlState,
+  seriesIndex: number
+): string {
+  const color = readTerminalMarkerRingColor(
+    state.seriesTerminalMarkerRingColors,
+    seriesIndex,
+    state
+  );
+  return color || getEffectiveSeriesColor(state, seriesIndex);
+}
+
+export function getSeriesTerminalMarkerRingGap(
+  state: StudioUrlState,
+  seriesIndex: number
+): number {
+  return readTerminalMarkerRingGap(
+    state.seriesTerminalMarkerRingGaps,
+    seriesIndex,
+    state
+  );
+}
+
 const PER_SERIES_CONTROL_KEYS = new Set<keyof StudioUrlState>([
   "curve",
   "strokeWidth",
@@ -213,6 +314,10 @@ const PER_SERIES_CONTROL_KEYS = new Set<keyof StudioUrlState>([
   "seriesMarkerRadius",
   "seriesMarkerRingGap",
   "seriesMarkerRingWidth",
+  "seriesTerminalMarkerShow",
+  "seriesTerminalMarkerFill",
+  "seriesTerminalMarkerRingColor",
+  "seriesTerminalMarkerRingGap",
   "seriesDashTail",
   "seriesDashFromIndex",
   "seriesDashArray",
@@ -248,6 +353,14 @@ export function getSeriesScopedControlValue(
       return getSeriesMarkerRingGap(state, seriesIndex);
     case "seriesMarkerRingWidth":
       return getSeriesMarkerRingWidth(state, seriesIndex);
+    case "seriesTerminalMarkerShow":
+      return getSeriesTerminalMarkerShow(state, seriesIndex);
+    case "seriesTerminalMarkerFill":
+      return getSeriesTerminalMarkerFill(state, seriesIndex);
+    case "seriesTerminalMarkerRingColor":
+      return getSeriesTerminalMarkerRingColor(state, seriesIndex);
+    case "seriesTerminalMarkerRingGap":
+      return getSeriesTerminalMarkerRingGap(state, seriesIndex);
     case "seriesDashTail":
       return getSeriesDashTail(state, seriesIndex);
     case "seriesDashFromIndex":
@@ -362,6 +475,50 @@ export function buildSeriesScopedControlUpdate(
           seriesIndex,
           value as number,
           (raw, index) => readMarkerRingWidth(raw, index, state),
+          String
+        ),
+      };
+    case "seriesTerminalMarkerShow":
+      return {
+        seriesTerminalMarkerShowFlags: buildPipeUpdate(
+          state,
+          state.seriesTerminalMarkerShowFlags,
+          seriesIndex,
+          value as boolean,
+          (raw, index) => readTerminalMarkerShow(raw, index, state),
+          (next) => (next ? "1" : "0")
+        ),
+      };
+    case "seriesTerminalMarkerFill":
+      return {
+        seriesTerminalMarkerFills: buildPipeUpdate(
+          state,
+          state.seriesTerminalMarkerFills,
+          seriesIndex,
+          value as string,
+          (raw, index) => readTerminalMarkerFill(raw, index, state),
+          String
+        ),
+      };
+    case "seriesTerminalMarkerRingColor":
+      return {
+        seriesTerminalMarkerRingColors: buildPipeUpdate(
+          state,
+          state.seriesTerminalMarkerRingColors,
+          seriesIndex,
+          value as string,
+          (raw, index) => readTerminalMarkerRingColor(raw, index, state),
+          String
+        ),
+      };
+    case "seriesTerminalMarkerRingGap":
+      return {
+        seriesTerminalMarkerRingGaps: buildPipeUpdate(
+          state,
+          state.seriesTerminalMarkerRingGaps,
+          seriesIndex,
+          value as number,
+          (raw, index) => readTerminalMarkerRingGap(raw, index, state),
           String
         ),
       };

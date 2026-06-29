@@ -4,6 +4,10 @@ import {
   serializeHiddenStudioComponents,
 } from "@/lib/studio-component-visibility";
 import type { StudioUrlState } from "@/lib/studio-parsers";
+import {
+  getProjectionCount,
+  isLineChartBrushAvailable,
+} from "@/lib/studio-projection-props";
 
 function legendComponentIdForChart(chart: ChartSlug): string | null {
   switch (chart) {
@@ -89,6 +93,146 @@ function syncFlagFromHiddenChange(
   }
 }
 
+function syncLegendHidden(
+  hidden: Set<string>,
+  legendId: string,
+  showLegend: boolean
+): boolean {
+  const shouldHide = !showLegend;
+  if (shouldHide && !hidden.has(legendId)) {
+    hidden.add(legendId);
+    return true;
+  }
+  if (!shouldHide && hidden.has(legendId)) {
+    hidden.delete(legendId);
+    return true;
+  }
+  return false;
+}
+
+function syncBrushHidden(
+  hidden: Set<string>,
+  brushId: string,
+  state: StudioUrlState
+): boolean {
+  const projectionsBlockBrush =
+    state.chart === "line-chart" && !isLineChartBrushAvailable(state);
+  const shouldHide = !state.showBrush || projectionsBlockBrush;
+  if (shouldHide && !hidden.has(brushId)) {
+    hidden.add(brushId);
+    return true;
+  }
+  if (!shouldHide && hidden.has(brushId)) {
+    hidden.delete(brushId);
+    return true;
+  }
+  return false;
+}
+
+function disableBrushForProjections(
+  merged: Partial<StudioUrlState>,
+  prev: StudioUrlState
+): Partial<StudioUrlState> {
+  if (
+    prev.chart !== "line-chart" ||
+    getProjectionCount({ ...prev, ...merged }) === 0
+  ) {
+    return merged;
+  }
+
+  const brushId = brushComponentIdForChart(prev.chart);
+  if (!brushId) {
+    return { ...merged, showBrush: false };
+  }
+
+  const hidden = parseHiddenStudioComponents(
+    (merged.hiddenComponents as string | undefined) ?? prev.hiddenComponents
+  );
+  setComponentHidden(hidden, brushId, true);
+  return {
+    ...merged,
+    showBrush: false,
+    hiddenComponents: serializeHiddenStudioComponents(hidden),
+  };
+}
+
+/** Align legend/brush eye toggles with Show switches (both directions). */
+export function reconcileOverlayVisibility(
+  state: StudioUrlState
+): Partial<StudioUrlState> {
+  const legendId = legendComponentIdForChart(state.chart);
+  const brushId = brushComponentIdForChart(state.chart);
+  if (!(legendId || brushId)) {
+    return {};
+  }
+
+  const hidden = parseHiddenStudioComponents(state.hiddenComponents);
+  let changed = false;
+
+  if (legendId) {
+    changed = syncLegendHidden(hidden, legendId, state.showLegend) || changed;
+  }
+
+  if (brushId) {
+    changed = syncBrushHidden(hidden, brushId, state) || changed;
+  }
+
+  const updates: Partial<StudioUrlState> = {};
+  if (
+    state.chart === "line-chart" &&
+    getProjectionCount(state) > 0 &&
+    state.showBrush
+  ) {
+    updates.showBrush = false;
+  }
+
+  if (!changed && Object.keys(updates).length === 0) {
+    return {};
+  }
+
+  return {
+    ...updates,
+    hiddenComponents: serializeHiddenStudioComponents(hidden),
+  };
+}
+
+function applyShowLegendUpdate(
+  prev: StudioUrlState,
+  merged: Partial<StudioUrlState>,
+  showLegend: boolean
+) {
+  const legendId = legendComponentIdForChart(prev.chart);
+  if (!legendId) {
+    return;
+  }
+  const hidden = parseHiddenStudioComponents(prev.hiddenComponents);
+  setComponentHidden(hidden, legendId, !showLegend);
+  merged.hiddenComponents = serializeHiddenStudioComponents(hidden);
+}
+
+function applyShowBrushUpdate(
+  prev: StudioUrlState,
+  merged: Partial<StudioUrlState>,
+  showBrush: boolean
+) {
+  const brushId = brushComponentIdForChart(prev.chart);
+  if (!brushId) {
+    return;
+  }
+  const enableBrush =
+    showBrush &&
+    (prev.chart !== "line-chart" ||
+      isLineChartBrushAvailable({ ...prev, ...merged }));
+  if (!enableBrush) {
+    merged.showBrush = false;
+  }
+  const hidden = parseHiddenStudioComponents(
+    (merged.hiddenComponents as string | undefined) ?? prev.hiddenComponents
+  );
+  setComponentHidden(hidden, brushId, !enableBrush);
+  merged.hiddenComponents = serializeHiddenStudioComponents(hidden);
+}
+
 /** Keep legend/brush eye toggles and Show switches on the same visibility state. */
 export function expandStudioParamUpdate(
   prev: StudioUrlState,
@@ -97,22 +241,17 @@ export function expandStudioParamUpdate(
   const merged = { ...update };
 
   if ("showLegend" in update && update.showLegend !== undefined) {
-    const legendId = legendComponentIdForChart(prev.chart);
-    if (legendId) {
-      const hidden = parseHiddenStudioComponents(prev.hiddenComponents);
-      setComponentHidden(hidden, legendId, !update.showLegend);
-      merged.hiddenComponents = serializeHiddenStudioComponents(hidden);
-    }
+    applyShowLegendUpdate(prev, merged, update.showLegend);
   }
 
   if ("showBrush" in update && update.showBrush !== undefined) {
-    const brushId = brushComponentIdForChart(prev.chart);
-    if (brushId) {
-      const hidden = parseHiddenStudioComponents(
-        (merged.hiddenComponents as string | undefined) ?? prev.hiddenComponents
-      );
-      setComponentHidden(hidden, brushId, !update.showBrush);
-      merged.hiddenComponents = serializeHiddenStudioComponents(hidden);
+    applyShowBrushUpdate(prev, merged, update.showBrush);
+  }
+
+  if ("projectionCount" in update && update.projectionCount !== undefined) {
+    const nextCount = getProjectionCount({ ...prev, ...merged });
+    if (prev.chart === "line-chart" && nextCount > 0) {
+      Object.assign(merged, disableBrushForProjections(merged, prev));
     }
   }
 
@@ -120,6 +259,14 @@ export function expandStudioParamUpdate(
     const prevHidden = parseHiddenStudioComponents(prev.hiddenComponents);
     const nextHidden = parseHiddenStudioComponents(update.hiddenComponents);
     syncFlagFromHiddenChange(merged, prevHidden, nextHidden);
+  }
+
+  if (
+    prev.chart === "line-chart" &&
+    getProjectionCount({ ...prev, ...merged }) > 0 &&
+    merged.showBrush === true
+  ) {
+    Object.assign(merged, disableBrushForProjections(merged, prev));
   }
 
   return merged;

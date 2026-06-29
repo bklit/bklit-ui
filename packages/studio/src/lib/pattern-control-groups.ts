@@ -193,6 +193,37 @@ export const BRUSH_PATTERN_KEYS: PatternControlKeys = {
   opacity: "brushSelectionPatternOpacity",
 };
 
+export const REFERENCE_AREA_PATTERN_KEYS: PatternControlKeys = {
+  pattern: "referenceAreaPattern",
+  stroke: "referenceAreaPatternColor",
+  scale: "referenceAreaPatternScale",
+  strokeWidth: "referenceAreaPatternStrokeWidth",
+  radius: "referenceAreaPatternRadius",
+  complement: "referenceAreaPatternComplement",
+  fill: "referenceAreaPatternFill",
+  tileBackground: "referenceAreaPatternTileBackground",
+  opacity: "referenceAreaFillOpacity",
+};
+
+/** Pattern detail fields for reference area fill (excludes pattern style picker). */
+export function referenceAreaPatternDetailControls(): StudioControl[] {
+  return [
+    {
+      type: "boolean",
+      key: "referenceAreaPatternDotsFill",
+      label: "Fill dots",
+      visibleWhen: { key: "referenceAreaPattern", equals: "dots" },
+    },
+    ...patternDetailControls(
+      "referenceAreaPattern",
+      REFERENCE_AREA_PATTERN_KEYS,
+      {
+        opacityColor: "var(--chart-foreground-muted)",
+      }
+    ),
+  ];
+}
+
 export const backgroundControlGroups: StudioControlGroup[] = [
   controlGroup("Pattern", [
     { type: "pattern", key: "backgroundPattern", label: "Style" },

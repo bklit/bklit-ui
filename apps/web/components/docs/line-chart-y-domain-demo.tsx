@@ -18,10 +18,11 @@ const readyData = Array.from({ length: 12 }, (_, index) => {
 /** Local preview for loading ↔ ready orchestration (stack 4). */
 export function LineChartYDomainDemo() {
   const [status, setStatus] = useState<"loading" | "ready">("loading");
+  const [loadingStyle, setLoadingStyle] = useState<"pulse" | "sweep">("pulse");
 
   return (
     <div className="w-full space-y-3">
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         <Button
           onClick={() => setStatus("loading")}
           size="sm"
@@ -37,6 +38,22 @@ export function LineChartYDomainDemo() {
           Ready
         </Button>
       </div>
+      <div className="flex flex-wrap gap-2">
+        <Button
+          onClick={() => setLoadingStyle("pulse")}
+          size="sm"
+          variant={loadingStyle === "pulse" ? "default" : "outline"}
+        >
+          Pulse
+        </Button>
+        <Button
+          onClick={() => setLoadingStyle("sweep")}
+          size="sm"
+          variant={loadingStyle === "sweep" ? "default" : "outline"}
+        >
+          Sweep
+        </Button>
+      </div>
       <div className="w-full">
         <LineChart
           animationDuration={1100}
@@ -48,7 +65,7 @@ export function LineChartYDomainDemo() {
           <Grid
             horizontal
             loadingStroke="color-mix(in oklch, var(--chart-grid) 50%, transparent)"
-            shimmer
+            shimmer={loadingStyle === "pulse"}
             shimmerSync
             stroke="var(--chart-grid)"
           />
@@ -57,6 +74,7 @@ export function LineChartYDomainDemo() {
             fadeEdges
             loadingStroke="var(--foreground)"
             loadingStrokeOpacity={0.5}
+            loadingStyle={loadingStyle}
             showHighlight
             stroke="var(--chart-line-primary)"
           />

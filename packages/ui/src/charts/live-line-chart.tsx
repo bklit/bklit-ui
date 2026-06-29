@@ -8,6 +8,7 @@ import {
   Children,
   isValidElement,
   memo,
+  type ReactElement,
   type ReactNode,
   startTransition,
   useCallback,
@@ -18,6 +19,10 @@ import {
 } from "react";
 import { cn } from "@/lib/utils";
 import {
+  isClipExcludedComponent,
+  isUnderlayComponent,
+} from "./chart-child-passthrough";
+import {
   ChartProvider,
   type LineConfig,
   type Margin,
@@ -26,6 +31,7 @@ import {
 import { hmsTimeFmt } from "./chart-formatters";
 import { DEFAULT_CHART_LIFECYCLE } from "./chart-phase";
 import type { LiveLineProps } from "./live-line";
+import { extractReferenceAreaConfigs } from "./reference-area-config";
 import { wrapSingleYScale } from "./y-axis-scales";
 
 // ---------------------------------------------------------------------------
@@ -531,6 +537,27 @@ const LiveLineChartCore = memo(function LiveLineChartCore({
     return innerWidth / (contextData.length - 1);
   }, [innerWidth, contextData.length]);
 
+  const clipExcludedChildren: ReactElement[] = [];
+  const underlayChildren: ReactElement[] = [];
+  const seriesChildren: ReactElement[] = [];
+  Children.forEach(children, (child) => {
+    if (!isValidElement(child)) {
+      return;
+    }
+    if (isClipExcludedComponent(child)) {
+      clipExcludedChildren.push(child);
+    } else if (isUnderlayComponent(child)) {
+      underlayChildren.push(child);
+    } else {
+      seriesChildren.push(child);
+    }
+  });
+
+  const referenceAreas = useMemo(
+    () => extractReferenceAreaConfigs(children),
+    [children]
+  );
+
   const contextValue = useMemo(
     () => ({
       ...DEFAULT_CHART_LIFECYCLE,
@@ -549,6 +576,7 @@ const LiveLineChartCore = memo(function LiveLineChartCore({
       setTooltipData,
       containerRef,
       lines,
+      referenceAreas,
       isLoaded: true,
       animationDuration: 0,
       xAccessor,
@@ -567,6 +595,7 @@ const LiveLineChartCore = memo(function LiveLineChartCore({
       tooltipData,
       containerRef,
       lines,
+      referenceAreas,
       xAccessor,
       dateLabels,
     ]
@@ -594,7 +623,9 @@ const LiveLineChartCore = memo(function LiveLineChartCore({
             x={0}
             y={0}
           />
-          {children}
+          {clipExcludedChildren}
+          {underlayChildren}
+          {seriesChildren}
         </g>
       </svg>
     </ChartProvider>

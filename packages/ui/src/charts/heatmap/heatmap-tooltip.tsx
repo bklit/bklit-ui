@@ -13,12 +13,18 @@ export interface HeatmapTooltipProps {
   className?: string;
   /** Inline styles for the tooltip panel (background, blur, etc.). */
   panelStyle?: React.CSSProperties;
+  /**
+   * Tooltip panel background color (CSS variable or color value).
+   * Default: `var(--chart-tooltip-background)`.
+   */
+  backgroundColor?: string;
 }
 
 export const HeatmapTooltip = memo(function HeatmapTooltip({
   formatLabel = formatHeatmapContributionLabel,
   className = "",
   panelStyle,
+  backgroundColor,
 }: HeatmapTooltipProps) {
   const { containerRef, width, height } = useHeatmap();
   const { tooltipData } = useHeatmapInteraction();
@@ -30,6 +36,7 @@ export const HeatmapTooltip = memo(function HeatmapTooltip({
   return (
     <TooltipBox
       animate={false}
+      backgroundColor={backgroundColor}
       className={className}
       containerHeight={height}
       containerRef={containerRef}

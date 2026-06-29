@@ -53,7 +53,7 @@ function SliderRuler({ ticks = 51 }: { ticks?: number }) {
   return (
     <div
       aria-hidden
-      className="pointer-events-none absolute inset-0 flex items-center justify-between px-3 [-webkit-mask-image:linear-gradient(to_right,transparent,black_12%,black_88%,transparent)] [mask-image:linear-gradient(to_right,transparent,black_12%,black_88%,transparent)]"
+      className="mask-[linear-gradient(to_right,transparent,black_30%,black_70%,transparent)] pointer-events-none absolute inset-0 flex touch-none items-center justify-between px-3"
       data-slot="studio-slider-ruler"
     >
       {Array.from({ length: ticks }, (_, index) => {
@@ -268,7 +268,7 @@ function StudioSlider({
       aria-valuenow={displayValue}
       className={cn(
         studioControlRadiusClass,
-        "relative h-10 w-full min-w-0 cursor-ew-resize touch-none select-none overflow-hidden bg-background outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
+        "relative h-10 w-full min-w-0 cursor-ew-resize touch-none select-none overflow-hidden bg-input/50 outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
         disabled && "pointer-events-none opacity-50",
         className
       )}
@@ -288,15 +288,11 @@ function StudioSlider({
       role="slider"
       tabIndex={disabled ? -1 : 0}
     >
-      <SliderRuler />
-
       <div
         aria-hidden
         className={cn(
-          "absolute inset-y-0 left-0 bg-muted/80",
-          percent >= 99.5
-            ? studioControlRadiusClass
-            : "rounded-l-[var(--radius-lg)]",
+          "absolute inset-y-0 left-0 bg-accent/80",
+          percent >= 99.5 ? studioControlRadiusClass : "rounded-l-lg",
           !isScrubbing && SLIDER_PROGRESS_SPRING
         )}
         data-slot="studio-slider-progress"
@@ -312,6 +308,8 @@ function StudioSlider({
           {unit}
         </span>
       </div>
+
+      <SliderRuler />
     </div>
   );
 }

@@ -2,7 +2,7 @@
 "use client";
 
 import { PatternLines, renderPatternPreset } from "@bklitui/ui/charts";
-import { Fragment } from "react";
+import { Fragment, isValidElement } from "react";
 
 export {
   PATTERN_PRESET_IDS,
@@ -40,10 +40,10 @@ function patternNodeForPreset(
     scale: preset === "cross" ? 1.33 : 1,
     strokeWidth: preset === "circles" ? 1 : undefined,
   });
-  if (!node) {
+  if (!(node && isValidElement(node))) {
     return null;
   }
-  return <>{node}</>;
+  return node;
 }
 
 export function StudioPatternDefs({
@@ -60,20 +60,20 @@ export function StudioPatternDefs({
     entries = [preset];
   }
 
-  const nodes = entries.flatMap((entry, index) => {
+  const nodes = entries.map((entry, index) => {
     if (entry === "none") {
-      return [];
+      return null;
     }
     const strokeVar = `var(${`--chart-${(index % 5) + 1}`})`;
-    const node = patternNodeForPreset(
-      entry,
-      studioPatternIdForSeries(index),
-      strokeVar
-    );
-    return node ? [node] : [];
+    const id = studioPatternIdForSeries(index);
+    const node = patternNodeForPreset(entry, id, strokeVar);
+    if (!node) {
+      return null;
+    }
+    return <Fragment key={id}>{node}</Fragment>;
   });
 
-  if (nodes.length === 0) {
+  if (nodes.every((node) => node == null)) {
     return null;
   }
 

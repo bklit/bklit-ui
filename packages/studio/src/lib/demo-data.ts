@@ -159,6 +159,53 @@ export const candlestickOhlcData: OHLCDataPoint[] = (() => {
   return points;
 })();
 
+/** Reference band bounds that fit the default OHLC demo (~90–115). */
+export function getCandlestickReferenceAreaDefaults(): {
+  referenceAreaY1: number;
+  referenceAreaY2: number;
+} {
+  return referenceAreaBoundsForOhlc(candlestickOhlcData);
+}
+
+export function referenceAreaBoundsForOhlc(data: OHLCDataPoint[]): {
+  referenceAreaY1: number;
+  referenceAreaY2: number;
+} {
+  let min = Number.POSITIVE_INFINITY;
+  let max = Number.NEGATIVE_INFINITY;
+  for (const point of data) {
+    min = Math.min(min, point.low);
+    max = Math.max(max, point.high);
+  }
+  const span = max - min;
+  return {
+    referenceAreaY1: Math.round(min + span * 0.25),
+    referenceAreaY2: Math.round(min + span * 0.75),
+  };
+}
+
+/** When URL bounds are outside OHLC range, use data-fitted defaults for preview. */
+export function resolveCandlestickReferenceAreaBounds(
+  state: { referenceAreaY1: number; referenceAreaY2: number },
+  data: OHLCDataPoint[]
+): { referenceAreaY1: number; referenceAreaY2: number } {
+  let min = Number.POSITIVE_INFINITY;
+  let max = Number.NEGATIVE_INFINITY;
+  for (const point of data) {
+    min = Math.min(min, point.low);
+    max = Math.max(max, point.high);
+  }
+  const low = Math.min(state.referenceAreaY1, state.referenceAreaY2);
+  const high = Math.max(state.referenceAreaY1, state.referenceAreaY2);
+  if (high < min || low > max) {
+    return referenceAreaBoundsForOhlc(data);
+  }
+  return {
+    referenceAreaY1: state.referenceAreaY1,
+    referenceAreaY2: state.referenceAreaY2,
+  };
+}
+
 export const visitorsByCountry: Record<string, number> = {
   "United States": 18,
   "United Kingdom": 12,
@@ -349,6 +396,10 @@ const HEATMAP_DAYS = 7;
 
 export const HEATMAP_WEEKS_ONE_YEAR = HEATMAP_WEEKS;
 export const HEATMAP_WEEKS_TWO_YEARS = HEATMAP_WEEKS * 2;
+/** ~4 months of weekly columns — used for compact catalog previews. */
+export const HEATMAP_WEEKS_FOUR_MONTHS = Math.round(
+  (HEATMAP_WEEKS_ONE_YEAR / 12) * 4
+);
 
 function heatmapContributionCount(
   seed: number,
@@ -553,6 +604,68 @@ export function generateStudioCartesianData({
       const key = STUDIO_SERIES_KEYS[s];
       if (key) {
         row[key] = studioSeriesValue(i, s, seed);
+      }
+    }
+    return row;
+  });
+}
+
+export type StudioDataTrend = "up" | "down";
+
+function trendingSeriesValue(
+  index: number,
+  seriesIndex: number,
+  direction: StudioDataTrend
+): number {
+  const sign = direction === "up" ? 1 : -1;
+  const base = 120 + seriesIndex * 18;
+  const trend = sign * (5.5 + seriesIndex * 1.25) * index;
+  const i = index + seriesIndex * 9;
+
+  // Layered waves at multiple scales — trend stays readable, line feels organic.
+  const swell = Math.sin(i / 4.4 + seriesIndex * 1.2) * (24 + seriesIndex * 3);
+  const ripple =
+    Math.cos(i / 1.65 + seriesIndex * 0.85) * (16 + seriesIndex * 2);
+  const jitter = Math.sin(i / 0.68 + seriesIndex * 2.4) * (10 + seriesIndex);
+  const wobble = Math.cos(i / 2.95 + seriesIndex * 1.6) * 7;
+
+  return Math.max(
+    10,
+    Math.floor(base + trend + swell + ripple + jitter + wobble)
+  );
+}
+
+/** Deterministic up/down trending cartesian rows for projection exploration. */
+export function generateStudioTrendingData({
+  direction,
+  seriesCount,
+  pointCount,
+  xAxis,
+}: {
+  direction: StudioDataTrend;
+  seriesCount: number;
+  pointCount: number;
+  xAxis: StudioCartesianXAxis;
+}): StudioCartesianDatum[] {
+  const series = clampStudioSeriesCount(seriesCount);
+  const points = clampStudioPointCount(pointCount);
+  const baseYear = 2024;
+  return Array.from({ length: points }, (_, i) => {
+    const row: StudioCartesianDatum = {};
+    if (xAxis === "date") {
+      row.date = new Date(baseYear, 0, i + 1);
+    } else {
+      const monthIdx = i % MONTH_LABELS.length;
+      const yearOffset = Math.floor(i / MONTH_LABELS.length);
+      row.month =
+        yearOffset > 0
+          ? `${MONTH_LABELS[monthIdx]} ${(baseYear + yearOffset) % 100}`
+          : MONTH_LABELS[monthIdx];
+    }
+    for (let s = 0; s < series; s++) {
+      const key = STUDIO_SERIES_KEYS[s];
+      if (key) {
+        row[key] = trendingSeriesValue(i, s, direction);
       }
     }
     return row;

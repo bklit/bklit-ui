@@ -366,7 +366,7 @@ function GaugeInner({
     return `M ${p1a.x} ${p1a.y} Q ${x1} ${y1} ${p1b.x} ${p1b.y} L ${p2a.x} ${p2a.y} Q ${x2} ${y2} ${p2b.x} ${p2b.y} L ${p3a.x} ${p3a.y} Q ${x3} ${y3} ${p3b.x} ${p3b.y} L ${p4a.x} ${p4a.y} Q ${x4} ${y4} ${p4b.x} ${p4b.y} Z`;
   };
 
-  const bgFillSolid = "var(--chart-background)";
+  const bgFillSolid = "var(--border)";
   const activeFillSolid = "var(--chart-1)";
 
   const denom = totalNotches > 1 ? totalNotches - 1 : 1;

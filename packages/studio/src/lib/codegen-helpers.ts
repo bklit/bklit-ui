@@ -8,6 +8,7 @@ import {
   clampStudioPointCount,
   clampStudioSeriesCount,
   funnelData,
+  generateStudioTrendingData,
   liveLineSampleData,
   radarDataDual,
   radarMetrics5,
@@ -19,6 +20,10 @@ import {
 } from "./demo-data";
 import { studioHeatmapLevelStyles } from "./heatmap-studio-colors";
 import {
+  getLineYAxisFormatLargeNumbers,
+  getLineYAxisNumTicks,
+} from "./line-y-axis-settings";
+import {
   cssRevealAnimationCodegen,
   motionEnterPropsCodegen,
   motionTransitionCodegen,
@@ -27,6 +32,19 @@ import { patternCodegenBlock } from "./patterns";
 import { seriesStrokePropsCodegen } from "./series-stroke-props";
 import { isStudioComponentVisible } from "./studio-component-visibility";
 import type { StudioUrlState } from "./studio-parsers";
+import {
+  buildStudioProjectionPath,
+  getProjectionCount,
+  getProjectionCurve,
+  getProjectionDashArray,
+  getProjectionEndMarkerStroke,
+  getProjectionShowEndpoints,
+  getProjectionStroke,
+  getProjectionStrokeGradientEnd,
+  getProjectionStrokeGradientStart,
+  getProjectionStrokeStyle,
+  getProjectionStrokeWidth,
+} from "./studio-projection-props";
 import {
   getSeriesCurve,
   getSeriesFadeEdges,
@@ -93,6 +111,110 @@ export function studioCartesianDataSnippet(
 ${xLine}
 ${seriesLines}
 }));`;
+}
+
+/** Trending cartesian data snippet for line chart projection exploration. */
+export function studioTrendingDataSnippet(
+  state: StudioUrlState,
+  xAxis: StudioCartesianXAxis,
+  keysOverride?: readonly string[]
+): string {
+  const keys = keysOverride ?? seriesKeysForState(state);
+  const points = clampStudioPointCount(state.dataPoints);
+  const sign = state.lineDataTrend === "up" ? 1 : -1;
+  const xLine =
+    xAxis === "date"
+      ? "  date: new Date(2024, 0, i + 1),"
+      : '  month: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][i % 12],';
+  const seriesLines = keys
+    .map(
+      (key, s) =>
+        `  ${key}: Math.max(10, Math.floor(${120 + s * 18} + ${sign} * (${5.5 + s * 1.25}) * i + Math.sin((i + ${s * 9}) / 4.4 + ${s * 1.2}) * ${24 + s * 3} + Math.cos((i + ${s * 9}) / 1.65 + ${s * 0.85}) * ${16 + s * 2} + Math.sin((i + ${s * 9}) / 0.68 + ${s * 2.4}) * ${10 + s} + Math.cos((i + ${s * 9}) / 2.95 + ${s * 1.6}) * 7)),`
+    )
+    .join("\n");
+  return `const chartData = Array.from({ length: ${points} }, (_, i) => ({
+${xLine}
+${seriesLines}
+}));`;
+}
+
+function formatProjectionPathSnippet(
+  path: { date: Date; value: number }[],
+  varName: string
+): string {
+  const rows = path
+    .map(
+      (point) =>
+        `  { date: new Date(${point.date.getFullYear()}, ${point.date.getMonth()}, ${point.date.getDate()}), value: ${point.value} }`
+    )
+    .join(",\n");
+  return `const ${varName} = [\n${rows},\n];`;
+}
+
+export function projectionCodegenDataSnippets(state: StudioUrlState): string {
+  const count = getProjectionCount(state);
+  if (count === 0) {
+    return "";
+  }
+
+  const sourceData = generateStudioTrendingData({
+    direction: state.lineDataTrend,
+    seriesCount: clampStudioSeriesCount(state.dataSeries),
+    pointCount: state.dataPoints,
+    xAxis: "date",
+  });
+
+  const snippets: string[] = [];
+  for (let index = 0; index < count; index += 1) {
+    if (!isStudioComponentVisible(state, `line.projection.${index}`)) {
+      continue;
+    }
+    const path = buildStudioProjectionPath(state, index, sourceData);
+    snippets.push(formatProjectionPathSnippet(path, `projectionData${index}`));
+  }
+
+  return snippets.length > 0 ? `\n\n${snippets.join("\n\n")}` : "";
+}
+
+function projectionCodegenBlock(state: StudioUrlState): string {
+  const count = getProjectionCount(state);
+  if (count === 0) {
+    return "";
+  }
+
+  const blocks: string[] = [];
+  for (let index = 0; index < count; index += 1) {
+    if (!isStudioComponentVisible(state, `line.projection.${index}`)) {
+      continue;
+    }
+    const curveKind = getProjectionCurve(state, index);
+    const strokeStyle = getProjectionStrokeStyle(state, index);
+    const props = [
+      `data={projectionData${index}}`,
+      `curveKind="${curveKind}"`,
+      "showEndMarker={false}",
+      `stroke="${getProjectionStroke(state, index)}"`,
+      `strokeWidth={${getProjectionStrokeWidth(state, index)}}`,
+      `strokeDasharray="${getProjectionDashArray(state, index)}"`,
+    ];
+    if (strokeStyle === "gradient") {
+      props.push(`strokeStyle="gradient"`);
+      props.push(
+        `gradientStart="${getProjectionStrokeGradientStart(state, index)}"`
+      );
+      props.push(
+        `gradientEnd="${getProjectionStrokeGradientEnd(state, index)}"`
+      );
+    }
+    blocks.push(`\n  <ProjectionLine ${props.join(" ")} />`);
+    if (getProjectionShowEndpoints(state, index)) {
+      blocks.push(
+        `\n  <ProjectionLineEndMarker data={projectionData${index}} stroke="${getProjectionEndMarkerStroke(state, index)}" />`
+      );
+    }
+  }
+
+  return blocks.join("");
 }
 
 export function gridPropsCodegen(state: StudioUrlState): string {
@@ -222,6 +344,132 @@ export function backgroundCodegenBlock(
   return `\n  <Background${backgroundPropsCodegen(state)} />`;
 }
 
+function referenceAreaPropsCodegen(state: StudioUrlState): string {
+  const parts: string[] = [
+    `y1={${state.referenceAreaY1}}`,
+    `y2={${state.referenceAreaY2}}`,
+    `fill="${state.referenceAreaFill}"`,
+    `fillOpacity={${state.referenceAreaFillOpacity}}`,
+    `pattern="${state.referenceAreaPattern}"`,
+    `patternColor="${state.referenceAreaPatternColor}"`,
+    `stroke="${state.referenceAreaStroke}"`,
+    `strokeStyle="${state.referenceAreaStrokeStyle}"`,
+    ...(state.referenceAreaStrokeStyle === "dashed"
+      ? [`strokeDasharray="${state.referenceAreaStrokeDasharray}"`]
+      : []),
+    `fadeEdges={${state.referenceAreaFadeEdges}}`,
+    `fadeEdgesLength={${state.referenceAreaFadeEdgesLength}}`,
+    `axisLabelColor="${state.referenceAreaAxisLabelColor}"`,
+    `showMarkers={${state.referenceAreaShowMarkers}}`,
+    `markerColor="${state.referenceAreaMarkerColor}"`,
+    `yAxisId="${state.referenceAreaYAxis}"`,
+  ];
+  return parts.join(" ");
+}
+
+export function referenceAreaCodegenBlock(
+  state: StudioUrlState,
+  chartPrefix: string
+): string {
+  if (!isStudioComponentVisible(state, `${chartPrefix}.reference-area`)) {
+    return "";
+  }
+  return `\n  <ReferenceArea ${referenceAreaPropsCodegen(state)} />`;
+}
+
+function referenceAreaCodegenImport(
+  state: StudioUrlState,
+  chartPrefix: string,
+  imports: string[]
+): void {
+  if (isStudioComponentVisible(state, `${chartPrefix}.reference-area`)) {
+    imports.push("ReferenceArea");
+  }
+}
+
+function loadingGridPropsCodegen(state: StudioUrlState): string {
+  const props = [`loadingStroke="${state.lineLoadingGridStroke}"`];
+  const useShimmer =
+    state.loadingStyle !== "sweep" && state.lineLoadingGridShimmer;
+
+  if (useShimmer) {
+    props.push("shimmer");
+    if (state.lineLoadingGridShimmerSync) {
+      props.push("shimmerSync");
+    }
+    if (
+      state.lineLoadingGridShimmerStroke !==
+      "color-mix(in oklch, var(--foreground) 68%, transparent)"
+    ) {
+      props.push(`shimmerStroke="${state.lineLoadingGridShimmerStroke}"`);
+    }
+    if (state.lineLoadingGridShimmerLength !== 140) {
+      props.push(`shimmerLength={${state.lineLoadingGridShimmerLength}}`);
+    }
+    if (
+      !state.lineLoadingGridShimmerSync &&
+      state.lineLoadingGridShimmerSpeed !== 1
+    ) {
+      props.push(`shimmerSpeed={${state.lineLoadingGridShimmerSpeed}}`);
+    }
+  }
+
+  return `${gridPropsCodegen(state)} ${props.join(" ")}`;
+}
+
+export function cartesianLoadingCodegen(
+  chartType: "AreaChart" | "LineChart",
+  state: StudioUrlState
+) {
+  const chartPrefix = chartType === "LineChart" ? "line" : "area";
+  const primaryKey = seriesKeysForState(state)[0] ?? "revenue";
+  const anim = `\n  ${cssRevealAnimationCodegen(state.animationDuration, motionSliceFromState(state))}`;
+  const loadingLabel =
+    state.lineLoadingLabel.length > 0
+      ? `\n  loadingLabel="${state.lineLoadingLabel.replace(/"/g, '\\"')}"`
+      : "";
+  const loadingStyleAttr =
+    state.loadingStyle === "sweep" ? ' loadingStyle="sweep"' : "";
+  const loadingStrokeAttr = `loadingStroke="${state.lineLoadingStroke}" loadingStrokeOpacity={${state.lineLoadingStrokeOpacity}}`;
+
+  const backgroundBlock = backgroundCodegenBlock(state, chartPrefix);
+  const usesBackground = backgroundBlock.length > 0;
+  const gridVisible = isStudioComponentVisible(state, `${chartPrefix}.grid`);
+  const gridBlock = gridVisible
+    ? `\n  <Grid${loadingGridPropsCodegen(state)} />`
+    : "";
+  const referenceAreaBlock = referenceAreaCodegenBlock(state, chartPrefix);
+
+  const chartImports = [chartType, "Grid"];
+  referenceAreaCodegenImport(state, chartPrefix, chartImports);
+  if (usesBackground) {
+    chartImports.push("Background");
+  }
+
+  let child = "";
+  if (chartType === "LineChart") {
+    chartImports.push("Line");
+    const curveName = curveImportName(getSeriesCurve(state, 0));
+    child = `\n  <Line dataKey="${primaryKey}" curve={${curveName}} strokeWidth={${getSeriesStrokeWidth(state, 0)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, 0))} ${loadingStrokeAttr}${loadingStyleAttr} />`;
+  } else {
+    chartImports.push("Area");
+    const curveName = curveImportName(getSeriesCurve(state, 0));
+    child = `\n  <Area dataKey="${primaryKey}" curve={${curveName}} fillOpacity={${state.fillOpacity}} strokeWidth={${getSeriesStrokeWidth(state, 0)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, 0))} gradientToOpacity={${state.gradientToOpacity}} showLine={${getSeriesShowLine(state, 0)}} ${loadingStrokeAttr}${loadingStyleAttr} />`;
+  }
+
+  const curveImports = visxCurveImportLines(state, [0]);
+
+  return {
+    code: `import { ${chartImports.join(", ")} } from "@bklitui/ui/charts";
+${curveImports}
+
+<${chartType} data={chartData}${anim}
+  status="loading"${loadingLabel}
+  yDomainTween>${backgroundBlock}${gridBlock}${referenceAreaBlock}${child}
+</${chartType}>`,
+  };
+}
+
 export function cartesianCodegen(
   chartType: "AreaChart" | "LineChart",
   state: StudioUrlState
@@ -276,16 +524,21 @@ export function cartesianCodegen(
   const usesBackground = backgroundBlock.length > 0;
   const gridVisible = isStudioComponentVisible(state, `${chartPrefix}.grid`);
   const gridBlock = gridVisible ? `\n  <Grid${gridPropsCodegen(state)} />` : "";
+  const referenceAreaBlock = referenceAreaCodegenBlock(state, chartPrefix);
 
   const chartImports = [chartType, "XAxis", "ChartTooltip"];
   if (gridVisible) {
     chartImports.push("Grid");
   }
+  referenceAreaCodegenImport(state, chartPrefix, chartImports);
   if (usesBackground) {
     chartImports.push("Background");
   }
   if (chartType === "LineChart") {
     chartImports.push("Line");
+    if (getProjectionCount(state) > 0) {
+      chartImports.push("ProjectionLine", "ProjectionLineEndMarker");
+    }
   } else if (state.pattern === "none") {
     chartImports.push("Area");
   } else {
@@ -303,10 +556,13 @@ export function cartesianCodegen(
     keys.map((_, index) => index)
   );
 
+  const projectionBlock =
+    chartType === "LineChart" ? projectionCodegenBlock(state) : "";
+
   return `import { ${chartImports.join(", ")} } from "@bklitui/ui/charts";
 ${curveImports}
 
-<${chartType} data={chartData}${anim}>${backgroundBlock}${gridBlock}${child}
+<${chartType} data={chartData}${anim}>${backgroundBlock}${gridBlock}${referenceAreaBlock}${child}${projectionBlock}
   <XAxis />
   <ChartTooltip />
 </${chartType}>`;
@@ -379,14 +635,11 @@ export function barCodegen(state: StudioUrlState) {
   const seriesCount = clampStudioSeriesCount(state.dataSeries);
   // "single" mode is treated as grouped when dataSeries > 1.
   const stacked = seriesCount > 1 && state.barSeriesMode === "stacked";
-  const primaryFill =
-    state.pattern === "none" ? "var(--chart-1)" : "url(#studio-pattern-fill)";
 
   let dataSnippet: string;
   let xKey: string;
   let keys: string[];
   if (horizontal) {
-    // Horizontal bar keeps the categorical browser dataset.
     dataSnippet = `const chartData = ${JSON.stringify(barHorizontalData, null, 2)};`;
     xKey = "browser";
     keys = ["users"];
@@ -395,6 +648,76 @@ export function barCodegen(state: StudioUrlState) {
     dataSnippet = studioCartesianDataSnippet(state, "month", keys);
     xKey = "month";
   }
+
+  if (state.barChartState === "loading") {
+    return barLoadingCodegen(state, { horizontal, xKey });
+  }
+
+  return barReadyCodegen(state, {
+    dataSnippet,
+    horizontal,
+    keys,
+    stacked,
+    xKey,
+  });
+}
+
+function barLoadingCodegen(
+  state: StudioUrlState,
+  options: { horizontal: boolean; xKey: string }
+) {
+  const { horizontal, xKey } = options;
+  const chartProps = [
+    "data={chartData}",
+    `xDataKey="${xKey}"`,
+    'status="loading"',
+    cssRevealAnimationCodegen(
+      state.animationDuration,
+      motionSliceFromState(state)
+    ),
+    `barGap={${state.barGap}}`,
+    state.barWidth > 0 ? `barWidth={${state.barWidth}}` : "",
+    horizontal ? 'orientation="horizontal"' : "",
+    horizontal ? "margin={{ left: 80 }}" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  const backgroundBlock = backgroundCodegenBlock(state, "bar");
+  const gridVisible = isStudioComponentVisible(state, "bar.grid");
+  const gridBlock = gridVisible ? `\n  <Grid${gridPropsCodegen(state)} />` : "";
+  const referenceAreaBlock = referenceAreaCodegenBlock(state, "bar");
+  const gridImport = gridVisible ? ", Grid" : "";
+  const backgroundImport = backgroundBlock ? ", Background" : "";
+  const referenceAreaImport = isStudioComponentVisible(
+    state,
+    "bar.reference-area"
+  )
+    ? ", ReferenceArea"
+    : "";
+
+  return {
+    code: `import { BarChart${gridImport}${backgroundImport}${referenceAreaImport} } from "@bklitui/ui/charts";
+
+<BarChart ${chartProps}>${backgroundBlock}${gridBlock}${referenceAreaBlock}
+</BarChart>`,
+    data: "const chartData: Record<string, unknown>[] = [];",
+  };
+}
+
+function barReadyCodegen(
+  state: StudioUrlState,
+  options: {
+    dataSnippet: string;
+    horizontal: boolean;
+    keys: string[];
+    stacked: boolean;
+    xKey: string;
+  }
+) {
+  const { dataSnippet, horizontal, keys, stacked, xKey } = options;
+  const primaryFill =
+    state.pattern === "none" ? "var(--chart-1)" : "url(#studio-pattern-fill)";
 
   const chartProps = [
     "data={chartData}",
@@ -426,13 +749,20 @@ export function barCodegen(state: StudioUrlState) {
   const backgroundBlock = backgroundCodegenBlock(state, "bar");
   const gridVisible = isStudioComponentVisible(state, "bar.grid");
   const gridBlock = gridVisible ? `\n  <Grid${gridPropsCodegen(state)} />` : "";
+  const referenceAreaBlock = referenceAreaCodegenBlock(state, "bar");
   const gridImport = gridVisible ? ", Grid" : "";
   const backgroundImport = backgroundBlock ? ", Background" : "";
+  const referenceAreaImport = isStudioComponentVisible(
+    state,
+    "bar.reference-area"
+  )
+    ? ", ReferenceArea"
+    : "";
 
   return {
-    code: `import { BarChart, Bar, BarXAxis, ChartTooltip${gridImport}${backgroundImport}${state.pattern === "none" ? "" : ", PatternLines"} } from "@bklitui/ui/charts";
+    code: `import { BarChart, Bar, BarXAxis, ChartTooltip${gridImport}${backgroundImport}${referenceAreaImport}${state.pattern === "none" ? "" : ", PatternLines"} } from "@bklitui/ui/charts";
 
-<BarChart ${chartProps}>${backgroundBlock}${gridBlock}${patternBlock}${bars}
+<BarChart ${chartProps}>${backgroundBlock}${gridBlock}${referenceAreaBlock}${patternBlock}${bars}
   <BarXAxis />
   <ChartTooltip showCrosshair={false} />
 </BarChart>`,
@@ -463,8 +793,15 @@ export function composedCodegen(state: StudioUrlState) {
   const backgroundBlock = backgroundCodegenBlock(state, "composed");
   const gridVisible = isStudioComponentVisible(state, "composed.grid");
   const gridBlock = gridVisible ? "\n  <Grid horizontal />" : "";
+  const referenceAreaBlock = referenceAreaCodegenBlock(state, "composed");
   const gridImport = gridVisible ? ", Grid" : "";
   const backgroundImport = backgroundBlock ? ", Background" : "";
+  const referenceAreaImport = isStudioComponentVisible(
+    state,
+    "composed.reference-area"
+  )
+    ? ", ReferenceArea"
+    : "";
 
   const curveImports = visxCurveImportLines(
     state,
@@ -472,11 +809,11 @@ export function composedCodegen(state: StudioUrlState) {
   );
 
   return {
-    code: `import { ComposedChart, SeriesBar, Area, Line, XAxis, ChartTooltip${gridImport}${backgroundImport}${state.pattern === "none" ? "" : ", PatternLines"} } from "@bklitui/ui/charts";
+    code: `import { ComposedChart, SeriesBar, Area, Line, XAxis, ChartTooltip${gridImport}${backgroundImport}${referenceAreaImport}${state.pattern === "none" ? "" : ", PatternLines"} } from "@bklitui/ui/charts";
 ${curveImports}
 
 <ComposedChart data={chartData}
-  ${cssRevealAnimationCodegen(state.animationDuration, motionSliceFromState(state))}>${backgroundBlock}${gridBlock}${barPattern}${barLine}${overlays}
+  ${cssRevealAnimationCodegen(state.animationDuration, motionSliceFromState(state))}>${backgroundBlock}${gridBlock}${referenceAreaBlock}${barPattern}${barLine}${overlays}
   <XAxis />
   <ChartTooltip />
 </ComposedChart>`,
@@ -537,17 +874,29 @@ export function candlestickCodegen(state: StudioUrlState) {
   const backgroundBlock = backgroundCodegenBlock(state, "candlestick");
   const gridVisible = isStudioComponentVisible(state, "candlestick.grid");
   const gridBlock = gridVisible ? `\n  <Grid${gridPropsCodegen(state)} />` : "";
+  const referenceAreaBlock = referenceAreaCodegenBlock(state, "candlestick");
   const gridImport = gridVisible ? ", Grid" : "";
   const backgroundImport = backgroundBlock ? ", Background" : "";
+  const referenceAreaImport = isStudioComponentVisible(
+    state,
+    "candlestick.reference-area"
+  )
+    ? ", ReferenceArea"
+    : "";
+  const yAxisLeftVisible = isStudioComponentVisible(
+    state,
+    "candlestick.yaxis.left"
+  );
+  const yAxisImport = yAxisLeftVisible ? ", YAxis" : "";
 
   return {
-    code: `import { CandlestickChart, Candlestick, ChartTooltip, XAxis, LinearGradient${gridImport}${backgroundImport}${state.pattern === "none" ? "" : ", PatternLines"} } from "@bklitui/ui/charts";
+    code: `import { CandlestickChart, Candlestick, ChartTooltip, XAxis, LinearGradient${gridImport}${backgroundImport}${referenceAreaImport}${yAxisImport}${state.pattern === "none" ? "" : ", PatternLines"} } from "@bklitui/ui/charts";
 
 <CandlestickChart data={ohlcData}
-  ${cssRevealAnimationCodegen(state.animationDuration, motionSliceFromState(state))} candleGap={${state.candleGap}} margin={{ top: 16, right: 16, bottom: 40, left: 16 }}>
-  ${gradientBlock}${patternBlock}${backgroundBlock}${gridBlock}
+  ${cssRevealAnimationCodegen(state.animationDuration, motionSliceFromState(state))} candleGap={${state.candleGap}} margin={{ top: 16, right: 16, bottom: 40, left: 56 }}>
+  ${gradientBlock}${patternBlock}${backgroundBlock}${gridBlock}${referenceAreaBlock}
   <Candlestick fadedOpacity={${state.candleFadedOpacity}} ${positiveFill} ${negativeFill}${patternProps} />
-  <ChartTooltip showDots={${state.candleShowDots}} />
+  <ChartTooltip showDots={${state.candleShowDots}} />${yAxisLeftVisible ? `\n  <YAxis numTicks={${getLineYAxisNumTicks(state, "left")}} formatLargeNumbers={${getLineYAxisFormatLargeNumbers(state, "left")}} />` : ""}
   <XAxis />
 </CandlestickChart>`,
     data: `const ohlcData = ${JSON.stringify(candlestickOhlcData, null, 2)};`,
@@ -675,11 +1024,18 @@ export function liveLineCodegen(state: StudioUrlState) {
   const backgroundBlock = backgroundCodegenBlock(state, "live-line");
   const gridVisible = isStudioComponentVisible(state, "live-line.grid");
   const gridBlock = gridVisible ? `\n  <Grid${gridPropsCodegen(state)} />` : "";
+  const referenceAreaBlock = referenceAreaCodegenBlock(state, "live-line");
   const gridImport = gridVisible ? ", Grid" : "";
   const backgroundImport = backgroundBlock ? ", Background" : "";
+  const referenceAreaImport = isStudioComponentVisible(
+    state,
+    "live-line.reference-area"
+  )
+    ? ", ReferenceArea"
+    : "";
 
   return {
-    code: `import { LiveLineChart, LiveLine, LiveXAxis, LiveYAxis${gridImport}${backgroundImport} } from "@bklitui/ui/charts";
+    code: `import { LiveLineChart, LiveLine, LiveXAxis, LiveYAxis${gridImport}${backgroundImport}${referenceAreaImport} } from "@bklitui/ui/charts";
 import { ${curveName} } from "@visx/curve";
 
 <LiveLineChart
@@ -689,7 +1045,7 @@ import { ${curveName} } from "@visx/curve";
   lerpSpeed={${state.liveLerpSpeed}}
   exaggerate={${state.liveExaggerate}}
   paused={${state.livePaused}}
->${backgroundBlock}${gridBlock}
+>${backgroundBlock}${gridBlock}${referenceAreaBlock}
   <LiveLine
     dataKey="value"
     curve={${curveName}}
@@ -726,13 +1082,20 @@ export function scatterCodegen(state: StudioUrlState) {
   const backgroundBlock = backgroundCodegenBlock(state, "scatter");
   const gridVisible = isStudioComponentVisible(state, "scatter.grid");
   const gridBlock = gridVisible ? `\n  <Grid${gridPropsCodegen(state)} />` : "";
+  const referenceAreaBlock = referenceAreaCodegenBlock(state, "scatter");
   const gridImport = gridVisible ? ", Grid" : "";
   const backgroundImport = backgroundBlock ? ", Background" : "";
+  const referenceAreaImport = isStudioComponentVisible(
+    state,
+    "scatter.reference-area"
+  )
+    ? ", ReferenceArea"
+    : "";
 
   return {
-    code: `import { ScatterChart, Scatter, XAxis, ChartTooltip${gridImport}${backgroundImport} } from "@bklitui/ui/charts";
+    code: `import { ScatterChart, Scatter, XAxis, ChartTooltip${gridImport}${backgroundImport}${referenceAreaImport} } from "@bklitui/ui/charts";
 
-<ScatterChart data={chartData}${anim}>${backgroundBlock}${gridBlock}
+<ScatterChart data={chartData}${anim}>${backgroundBlock}${gridBlock}${referenceAreaBlock}
   <Scatter dataKey="desktop" radius={${state.scatterRadius}} ringGap={${state.scatterRingGap}} strokeWidth={${state.scatterRingWidth}} fadeOnHover={${state.scatterFadeOnHover}} inactiveOpacity={${state.scatterInactiveOpacity}} showActiveHighlight={${state.scatterShowActiveHighlight}} />${secondSeries}
   <XAxis />
   <ChartTooltip />
@@ -746,7 +1109,11 @@ export function scatterChartDataSnippet() {
 }
 
 export function lineChartDataSnippet(state: StudioUrlState) {
-  return studioCartesianDataSnippet(state, "date");
+  const dataSnippet =
+    getProjectionCount(state) > 0
+      ? studioTrendingDataSnippet(state, "date")
+      : studioCartesianDataSnippet(state, "date");
+  return dataSnippet + projectionCodegenDataSnippets(state);
 }
 
 export function areaChartDataSnippet(state: StudioUrlState) {

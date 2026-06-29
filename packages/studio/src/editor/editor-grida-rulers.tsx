@@ -72,6 +72,6 @@ export function EditorGridaRuler({
 
 export function EditorGridaRulerCorner() {
   return (
-    <div className="h-8 w-8 shrink-0 border-border/60 border-r border-b bg-muted/30" />
+    <div className="h-8 w-8 shrink-0 border-border/60 border-b bg-muted/30" />
   );
 }

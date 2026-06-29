@@ -10,7 +10,7 @@ type CurveFactory = any;
 import { useCallback, useId, useMemo, useRef, useState } from "react";
 import { AreaGradientDefs } from "./area-gradient-defs";
 import { chartCssVars, useChartStable, useYScale } from "./chart-context";
-import type { ChartPhase } from "./chart-phase";
+import type { ChartPhase, LoadingStyle } from "./chart-phase";
 import { type FadeEdges, resolveFadeSides } from "./fade-edges";
 import {
   type LineLoadingPulseMode,
@@ -18,6 +18,7 @@ import {
   resolveLineLoadingPulseMode,
 } from "./line-loading-pulse";
 import { LINE_LOADING_LOOP_PAUSE_MS } from "./line-loading-timing";
+import { LineLoadingSweep } from "./loading-sweep";
 import {
   resolveDashTailBounds,
   usePathStrokeMetrics,
@@ -86,6 +87,12 @@ export interface AreaProps {
   loading?: boolean;
   /** Override pulse animation mode (loop / exit / enter). */
   loadingPulseMode?: LineLoadingPulseMode;
+  /**
+   * Loading animation while the chart is in loading status: the default
+   * traveling `"pulse"`, or a diagonal `"sweep"` shimmer across the skeleton
+   * area. Default: `"pulse"`.
+   */
+  loadingStyle?: LoadingStyle;
 }
 
 function useAreaLoadingPulseState(
@@ -148,6 +155,7 @@ export function Area({
   loadingStroke = chartCssVars.foreground,
   loadingStrokeOpacity = 0.5,
   loadingPulseMode,
+  loadingStyle = "pulse",
 }: AreaProps) {
   // Stable slice only: hover state lives inside `<SeriesHoverDim>` and
   // `<SeriesHighlightLayer>` so this component (and its expensive
@@ -281,6 +289,12 @@ export function Area({
     </>
   );
 
+  // Sweep style owns all loading modes (loop + the exit/enter transitions),
+  // drawing its own silhouette; the pulse covers the default style.
+  const sweepLoading =
+    showLoadingPulse && innerWidth > 0 && loadingStyle === "sweep";
+  const pulseLoading = showLoadingPulse && innerWidth > 0 && !sweepLoading;
+
   return (
     <>
       <AreaGradientDefs
@@ -330,7 +344,19 @@ export function Area({
         />
       ) : null}
 
-      {showLoadingPulse && pathD && innerWidth > 0 ? (
+      {sweepLoading ? (
+        <LineLoadingSweep
+          curve={curve}
+          key="loading-sweep"
+          mode={pulseMode ?? "loop"}
+          onTransitionComplete={handleLoadingPulseComplete}
+          stroke={loadingStroke}
+          strokeOpacity={loadingStrokeOpacity}
+          strokeWidth={strokeWidth}
+          withArea
+        />
+      ) : null}
+      {pulseLoading && pathD ? (
         <LineLoadingPulseStroke
           key="loading-pulse"
           loopEpoch={pulseEpoch}

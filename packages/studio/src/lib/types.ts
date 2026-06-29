@@ -41,37 +41,47 @@ interface SeriesScopedControl {
   seriesIndex?: number;
 }
 
+interface ProjectionScopedControl {
+  /** When set, read/write a pipe-encoded per-projection override for this control. */
+  projectionIndex?: number;
+}
+
 export type StudioControl = StudioControlVisibility &
   (
     | ({
         type: "boolean";
         key: keyof StudioUrlState;
         label: string;
-      } & SeriesScopedControl)
-    | {
+      } & SeriesScopedControl &
+        ProjectionScopedControl)
+    | ({
         type: "color";
         key: keyof StudioUrlState;
         label: string;
         /** Disable when the referenced URL state value is falsy. */
         enabledWhen?: keyof StudioUrlState;
-      }
-    | ({ type: "number" } & NumberControlBase & SeriesScopedControl)
+      } & ProjectionScopedControl)
+    | ({ type: "number" } & NumberControlBase &
+        SeriesScopedControl &
+        ProjectionScopedControl)
     | ({
         type: "text";
         key: keyof StudioUrlState;
         label: string;
-      } & SeriesScopedControl)
-    | {
+      } & SeriesScopedControl &
+        ProjectionScopedControl)
+    | ({
         type: "select";
         key: keyof StudioUrlState;
         label: string;
         options: { value: string; label: string }[];
-      }
+      } & ProjectionScopedControl)
     | ({
         type: "curve";
         key: keyof StudioUrlState;
         label: string;
-      } & SeriesScopedControl)
+      } & SeriesScopedControl &
+        ProjectionScopedControl)
     | {
         type: "pattern";
         key: keyof StudioUrlState;
@@ -89,6 +99,16 @@ export type StudioControl = StudioControlVisibility &
     | { type: "orientation"; key: keyof StudioUrlState; label: string }
     | { type: "lineCap"; key: "barLineCap"; label: string }
     | { type: "pieHoverEffect"; key: "pieHoverEffect"; label: string }
+    | ({
+        type: "projectionCurve";
+        key: "projectionCurve";
+        label: string;
+      } & ProjectionScopedControl)
+    | ({
+        type: "projectionStroke";
+        key: "projectionStroke";
+        label: string;
+      } & ProjectionScopedControl)
     | { type: "funnelEdges"; key: "funnelEdges"; label: string }
     | ({
         type: "fadeEdges";
@@ -132,6 +152,16 @@ export type StudioControl = StudioControlVisibility &
         seriesIndex: number;
       }
     | {
+        type: "referenceAreaFill";
+        key: "referenceAreaFill";
+        label: string;
+      }
+    | {
+        type: "referenceAreaYAxis";
+        key: "referenceAreaYAxis";
+        label: string;
+      }
+    | {
         type: "lineYAxisNumTicks";
         key: "lineYAxisNumTicks";
         label: string;
@@ -172,8 +202,6 @@ export interface StudioComponentDesign {
   /** Which series index this fill/pattern applies to (default 0). */
   seriesIndex?: number;
   supportsPattern?: boolean;
-  /** Show global palette presets (default: seriesIndex 0 or unset). */
-  showPalette?: boolean;
   /** When set, FillPicker reads/writes this URL key instead of series colors. */
   accentKey?: keyof StudioUrlState;
   /** FillPicker label when `accentKey` is used. Default: "Fill". */

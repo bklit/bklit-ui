@@ -63,7 +63,7 @@ export const analyticsData = {
   <div className="w-full">
     <SankeyChart data={analyticsData} aspectRatio="16 / 9" nodeWidth={16} nodePadding={24}>
       <SankeyLink />
-      <SankeyNode lineCap={4} />
+      <SankeyNode lineCap={4} labelOrientation="vertical" />
       <SankeyTooltip />
     </SankeyChart>
   </div>
@@ -96,7 +96,7 @@ export default function FlowDiagram() {
   return (
     <SankeyChart data={data}>
       <SankeyLink />
-      <SankeyNode lineCap={4} />
+      <SankeyNode lineCap={4} labelOrientation="vertical" />
       <SankeyTooltip />
     </SankeyChart>
   );
@@ -128,7 +128,9 @@ Renders the nodes (bars) in the diagram with animated initialization and interna
 | `fill` | `string` | - | Fill color for all nodes |
 | `lineCap` | `number` | `4` | Corner radius for nodes |
 | `fadedOpacity` | `number` | `0.4` | Opacity when another element is hovered |
-| `showLabels` | `boolean` | `true` | Show node name and value labels |
+| `showLabels` | `boolean` | `true` | Show node name labels |
+| `showValueLabels` | `boolean` | `true` | Show session count under node names |
+| `labelOrientation` | `"horizontal" \| "vertical"` | `"horizontal"` | Reading direction for outside labels. Vertical rotates labels 90° along the node edge. |
 | `getNodeColor` | `(node, index) => string` | - | Custom color function |
 
 ### SankeyLink
@@ -174,6 +176,18 @@ interface SankeyData {
     value: number;   // Flow value
   }>;
 }
+```
+
+## Label orientation
+
+Outside node labels default to horizontal text on the left or right of each column. Pass `labelOrientation="vertical"` on `SankeyNode` to rotate labels 90° along the node edge — the node name and session count stay on separate lines, stacked along the reading direction. Use wider side margins so rotated labels are not clipped.
+
+```tsx
+<SankeyChart data={data} margin={{ top: 40, right: 80, bottom: 40, left: 80 }}>
+  <SankeyLink />
+  <SankeyNode labelOrientation="vertical" />
+  <SankeyTooltip />
+</SankeyChart>
 ```
 
 ## Animation

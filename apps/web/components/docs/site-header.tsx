@@ -1,10 +1,12 @@
 "use client";
 
-import Link from "fumadocs-core/link";
+import Link from "next/link";
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { ChartThemeSelector } from "@/components/chart-theme/chart-theme-selector";
 import { ModeToggle } from "@/components/mode-toggle";
 import { getAnalyticsUrl, trackEvent } from "@/lib/analytics/track-client";
+import { cn } from "@/lib/utils";
 import { GithubStarCount } from "../github-star-count";
 import { BklitLogo } from "../icons/bklit";
 import { DiscordIcon } from "../icons/discord";
@@ -57,6 +59,8 @@ const utilities = [
   { text: "Legend", url: "/docs/utility/legend" },
   { text: "Grid", url: "/docs/utility/grid" },
   { text: "Background", url: "/docs/utility/background" },
+  { text: "Reference Area", url: "/docs/utility/reference-area" },
+  { text: "Projection Line", url: "/docs/utility/projection-line" },
   { text: "Tooltip", url: "/docs/utility/tooltip" },
   { text: "Brush", url: "/docs/utility/brush" },
   {
@@ -101,6 +105,30 @@ function MenuIcon({ open }: { open: boolean }) {
 
 const STAGGER_DURATION = 650; // Total duration for all staggered items (ms)
 
+const HEADER_SCROLL_THRESHOLD = 8;
+
+function getScrollTop() {
+  return (
+    window.scrollY ||
+    document.documentElement.scrollTop ||
+    document.body.scrollTop ||
+    0
+  );
+}
+
+function subscribeToScroll(onStoreChange: () => void) {
+  window.addEventListener("scroll", onStoreChange, { passive: true });
+  return () => window.removeEventListener("scroll", onStoreChange);
+}
+
+function getIsScrolled() {
+  return getScrollTop() > HEADER_SCROLL_THRESHOLD;
+}
+
+function useIsScrolled() {
+  return useSyncExternalStore(subscribeToScroll, getIsScrolled, () => false);
+}
+
 interface MobileMenuProps {
   links: NavLink[];
   githubUrl?: string;
@@ -118,8 +146,22 @@ function MobileMenu({
   onClose,
   staggerDelay,
 }: MobileMenuProps) {
-  const getBlurStyle = (index: number) => ({
-    filter: isOpen ? "blur(0px)" : "blur(2px)",
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isOpen]);
+
+  const getStaggerStyle = (index: number) => ({
+    opacity: isOpen ? 1 : 0,
+    transform: isOpen ? "translateY(0)" : "translateY(4px)",
     transitionDelay: isOpen ? `${index * staggerDelay}ms` : "0ms",
   });
 
@@ -145,26 +187,25 @@ function MobileMenu({
 
       {/* Sheet */}
       <div
-        className={`fixed top-14 right-0 left-0 z-50 max-h-[calc(100vh-3.5rem)] overflow-y-auto overscroll-contain border-border border-b bg-background/95 backdrop-blur-xl transition-all duration-300 ease-out md:hidden ${
+        className={`fixed inset-x-0 top-(--site-header-height) bottom-0 z-50 flex flex-col overflow-hidden border-border border-b bg-background transition-[transform,opacity] duration-300 ease-out md:hidden ${
           isOpen
             ? "translate-y-0 opacity-100"
             : "pointer-events-none -translate-y-4 opacity-0"
         }`}
-        style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-y" }}
       >
-        <nav className="flex flex-col px-6 py-4 pb-8">
+        <nav className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain px-4 py-3 pb-[max(1.5rem,env(safe-area-inset-bottom))] [-webkit-overflow-scrolling:touch]">
           {/* Main links */}
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-0.5">
             {links.map((link, index) => (
               <Link
-                className="transition-[filter] duration-300 ease-out"
+                className="transition-[opacity,transform] duration-300 ease-out"
                 href={link.url}
                 key={link.url}
                 onClick={onClose}
-                style={getBlurStyle(index)}
+                style={getStaggerStyle(index)}
               >
                 <Button
-                  className="w-full justify-start"
+                  className="h-10 w-full justify-start px-3"
                   size="default"
                   variant="ghost"
                 >
@@ -175,24 +216,24 @@ function MobileMenu({
           </div>
 
           {/* Components section */}
-          <div className="mt-4 border-border border-t pt-4">
+          <div className="mt-3 border-border border-t pt-3">
             <span
-              className="mb-2 block px-3 font-medium text-muted-foreground text-xs uppercase tracking-wider transition-[filter] duration-300 ease-out"
-              style={getBlurStyle(links.length)}
+              className="mb-1 block px-3 font-medium text-muted-foreground text-xs uppercase tracking-wider transition-[opacity,transform] duration-300 ease-out"
+              style={getStaggerStyle(links.length)}
             >
               Components
             </span>
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-0.5">
               {components.map((component, index) => (
                 <Link
-                  className="transition-[filter] duration-300 ease-out"
+                  className="transition-[opacity,transform] duration-300 ease-out"
                   href={component.url}
                   key={component.url}
                   onClick={onClose}
-                  style={getBlurStyle(componentsStartIndex + index)}
+                  style={getStaggerStyle(componentsStartIndex + index)}
                 >
                   <Button
-                    className="w-full justify-start"
+                    className="h-10 w-full justify-start px-3"
                     size="default"
                     variant="ghost"
                   >
@@ -204,31 +245,31 @@ function MobileMenu({
           </div>
 
           {/* Utility section */}
-          <div className="mt-4 border-border border-t pt-4">
+          <div className="mt-3 border-border border-t pt-3">
             <span
-              className="mb-2 block px-3 font-medium text-muted-foreground text-xs uppercase tracking-wider transition-[filter] duration-300 ease-out"
-              style={getBlurStyle(utilitiesStartIndex - 1)}
+              className="mb-1 block px-3 font-medium text-muted-foreground text-xs uppercase tracking-wider transition-[opacity,transform] duration-300 ease-out"
+              style={getStaggerStyle(utilitiesStartIndex - 1)}
             >
               Utility
             </span>
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-0.5">
               {utilities.flatMap((utility, i) => {
                 if ("children" in utility && utility.children) {
                   return [
                     <span
                       className="mt-2 mb-1 block px-3 font-medium text-muted-foreground text-xs uppercase tracking-wider first:mt-0"
                       key={`axis-${utility.text}`}
-                      style={getBlurStyle(utilitiesStartIndex + 1 + i)}
+                      style={getStaggerStyle(utilitiesStartIndex + 1 + i)}
                     >
                       {utility.text}
                     </span>,
                     ...utility.children.map((child, j) => (
                       <Link
-                        className="pl-4 transition-[filter] duration-300 ease-out"
+                        className="pl-4 transition-[opacity,transform] duration-300 ease-out"
                         href={child.url}
                         key={child.url}
                         onClick={onClose}
-                        style={getBlurStyle(
+                        style={getStaggerStyle(
                           utilitiesStartIndex +
                             2 +
                             utilities
@@ -240,7 +281,7 @@ function MobileMenu({
                         )}
                       >
                         <Button
-                          className="w-full justify-start"
+                          className="h-10 w-full justify-start px-3"
                           size="default"
                           variant="ghost"
                         >
@@ -257,14 +298,14 @@ function MobileMenu({
                   ).length;
                 return (
                   <Link
-                    className="transition-[filter] duration-300 ease-out"
+                    className="transition-[opacity,transform] duration-300 ease-out"
                     href={utility.url}
                     key={utility.url}
                     onClick={onClose}
-                    style={getBlurStyle(utilitiesStartIndex + 1 + flatIndex)}
+                    style={getStaggerStyle(utilitiesStartIndex + 1 + flatIndex)}
                   >
                     <Button
-                      className="w-full justify-start"
+                      className="h-10 w-full justify-start px-3"
                       size="default"
                       variant="ghost"
                     >
@@ -278,15 +319,16 @@ function MobileMenu({
 
           {/* External links */}
           {(githubUrl || discordUrl) && (
-            <div className="mt-4 flex flex-col gap-1 border-border border-t pt-4">
+            <div className="mt-3 flex flex-col gap-0.5 border-border border-t pt-3">
               {githubUrl && (
                 <Link
                   aria-label="GitHub"
-                  className="transition-[filter] duration-300 ease-out"
-                  external
+                  className="transition-[opacity,transform] duration-300 ease-out"
                   href={githubUrl}
                   onClick={onClose}
-                  style={getBlurStyle(externalLinksStartIndex)}
+                  rel="noopener noreferrer"
+                  style={getStaggerStyle(externalLinksStartIndex)}
+                  target="_blank"
                 >
                   <Button
                     className="w-full justify-start gap-2 font-light font-mono text-muted-foreground text-xs"
@@ -302,16 +344,17 @@ function MobileMenu({
               {discordUrl && (
                 <Link
                   aria-label="Discord"
-                  className="transition-[filter] duration-300 ease-out"
-                  external
+                  className="transition-[opacity,transform] duration-300 ease-out"
                   href={discordUrl}
                   onClick={() => {
                     trackDiscordClick("mobile_menu");
                     onClose();
                   }}
-                  style={getBlurStyle(
+                  rel="noopener noreferrer"
+                  style={getStaggerStyle(
                     externalLinksStartIndex + (githubUrl ? 1 : 0)
                   )}
+                  target="_blank"
                 >
                   <Button
                     className="w-full justify-start gap-2 text-muted-foreground"
@@ -338,6 +381,8 @@ export function SiteHeader({
 }: SiteHeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const isScrolled = useIsScrolled();
+  const headerRef = useRef<HTMLElement>(null);
   const { resolvedTheme } = useTheme();
 
   // Calculate stagger delay based on total items to complete in STAGGER_DURATION
@@ -361,87 +406,134 @@ export function SiteHeader({
     setMounted(true);
   }, []);
 
+  useEffect(() => {
+    const header = headerRef.current;
+    if (!header) {
+      return;
+    }
+
+    const syncHeaderHeight = () => {
+      document.documentElement.style.setProperty(
+        "--site-header-height",
+        `${header.getBoundingClientRect().height}px`
+      );
+    };
+
+    syncHeaderHeight();
+    const observer = new ResizeObserver(syncHeaderHeight);
+    observer.observe(header);
+
+    return () => observer.disconnect();
+  }, []);
+
   // Only use resolved theme after mount to avoid hydration mismatch
   const logoTheme = mounted && resolvedTheme === "dark" ? "dark" : "light";
 
   return (
     <>
-      <header className="fixed top-0 right-0 left-0 z-50 h-14 bg-background/80 backdrop-blur-xl">
-        <div className="mx-auto flex h-full items-center justify-between gap-6 px-6">
-          <div className="flex items-center gap-2">
-            <Link
-              className="font-semibold text-foreground text-lg no-underline transition-opacity hover:opacity-80"
-              href="/"
-            >
-              <BklitLogo size={24} theme={logoTheme} />
-            </Link>
-
-            {/* Desktop nav */}
-            <nav className="hidden items-center gap-1 md:flex">
-              {links.map((link) => (
-                <Link href={link.url} key={link.url}>
-                  <Button variant="ghost">
-                    <NavLinkLabel text={link.text} url={link.url} />
-                  </Button>
-                </Link>
-              ))}
-            </nav>
-          </div>
-
-          <div className="flex items-center gap-1">
-            <DocsSearchTrigger
-              className="hidden w-30 justify-between md:inline-flex"
-              hideIfDisabled
-            />
-            {githubUrl && (
-              <>
-                <Separator
-                  className="mx-1 hidden h-5 self-center data-vertical:self-center md:block"
-                  orientation="vertical"
-                />
-                <Link
-                  aria-label="GitHub"
-                  className="hidden md:block"
-                  external
-                  href={githubUrl}
-                >
-                  <Button
-                    className="gap-2 font-light font-mono text-muted-foreground text-xs"
-                    size="default"
-                    variant="ghost"
-                  >
-                    <GitHubIcon />
-                    <GithubStarCount />
-                  </Button>
-                </Link>
-              </>
+      <header
+        className={cn(
+          "fixed top-0 right-0 left-0 z-50 px-2.5",
+          mobileMenuOpen && "max-md:bg-background"
+        )}
+        data-scrolled={isScrolled ? "" : undefined}
+        ref={headerRef}
+      >
+        <div
+          className={cn(
+            "container mx-auto",
+            mobileMenuOpen && "max-md:max-w-none"
+          )}
+        >
+          <div
+            className={cn(
+              "flex items-center justify-between gap-6 py-4 transition-[transform,margin,border-color,background-color,box-shadow,backdrop-filter] duration-300 ease-out motion-reduce:transition-none",
+              isScrolled
+                ? "translate-y-4 border border-border bg-background/80 px-4 shadow-sm backdrop-blur-sm md:mx-14"
+                : "translate-y-0 border border-transparent bg-transparent",
+              mobileMenuOpen &&
+                "max-md:mx-0 max-md:translate-y-0 max-md:border-transparent max-md:bg-background max-md:shadow-none max-md:backdrop-blur-none"
             )}
-            {discordUrl && (
+            style={{ viewTransitionName: "site-header" }}
+          >
+            <div className="flex items-center gap-2">
               <Link
-                aria-label="Discord"
-                className="hidden md:block"
-                external
-                href={discordUrl}
-                onClick={() => trackDiscordClick("header")}
+                className="font-semibold text-foreground text-lg no-underline transition-opacity hover:opacity-80"
+                href="/"
               >
-                <Button size="default" variant="ghost">
-                  <DiscordIcon />
-                </Button>
+                <BklitLogo size={24} theme={logoTheme} />
               </Link>
-            )}
-            <ModeToggle />
 
-            {/* Mobile menu button */}
-            <Button
-              aria-expanded={mobileMenuOpen}
-              aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
-              className="md:hidden"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              size="default"
-              variant="ghost"
-            >
-              <MenuIcon open={mobileMenuOpen} />
-            </Button>
+              {/* Desktop nav */}
+              <nav className="hidden items-center gap-1 md:flex">
+                {links.map((link) => (
+                  <Link href={link.url} key={link.url}>
+                    <Button variant="ghost">
+                      <NavLinkLabel text={link.text} url={link.url} />
+                    </Button>
+                  </Link>
+                ))}
+              </nav>
+            </div>
+
+            <div className="flex items-center gap-1">
+              <DocsSearchTrigger
+                className="hidden w-30 justify-between md:inline-flex"
+                hideIfDisabled
+              />
+              {githubUrl && (
+                <>
+                  <Separator
+                    className="mx-1 hidden h-5 self-center data-vertical:self-center md:block"
+                    orientation="vertical"
+                  />
+                  <Link
+                    aria-label="GitHub"
+                    className="hidden md:block"
+                    href={githubUrl}
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <Button
+                      className="gap-2 font-light font-mono text-muted-foreground text-xs"
+                      size="default"
+                      variant="ghost"
+                    >
+                      <GitHubIcon />
+                      <GithubStarCount />
+                    </Button>
+                  </Link>
+                </>
+              )}
+              {discordUrl && (
+                <Link
+                  aria-label="Discord"
+                  className="hidden md:block"
+                  href={discordUrl}
+                  onClick={() => trackDiscordClick("header")}
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  <Button size="default" variant="ghost">
+                    <DiscordIcon />
+                  </Button>
+                </Link>
+              )}
+              <ChartThemeSelector />
+              <ModeToggle />
+
+              {/* Mobile menu button */}
+              <Button
+                aria-expanded={mobileMenuOpen}
+                aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+                className="md:hidden"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                size="default"
+                variant="ghost"
+              >
+                <MenuIcon open={mobileMenuOpen} />
+              </Button>
+            </div>
           </div>
         </div>
       </header>

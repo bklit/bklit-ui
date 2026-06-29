@@ -12,7 +12,120 @@ import { EditorSidebarToggle } from "@/editor/editor-sidebar-toggle";
 import { EditorThemeToggle } from "@/editor/editor-theme-toggle";
 import { cn } from "@/lib/utils";
 import { Button } from "@/ui/button";
-import { Separator } from "@/ui/separator";
+
+function MenuBarDivider() {
+  return (
+    <div
+      aria-hidden
+      className="mx-0.5 h-5 w-px shrink-0 bg-border"
+      role="presentation"
+    />
+  );
+}
+
+function EditorMenuBarZoomControls({
+  canvasScale,
+  controlsDisabled,
+  onCenterOnContent,
+  onFitView,
+  onReplay,
+  onResetZoom,
+  onZoomIn,
+  onZoomOut,
+  showFitView,
+  showShare,
+}: {
+  canvasScale: number;
+  controlsDisabled: boolean;
+  onCenterOnContent?: () => void;
+  onFitView?: () => void;
+  onReplay?: () => void;
+  onResetZoom?: () => void;
+  onZoomIn?: () => void;
+  onZoomOut?: () => void;
+  showFitView: boolean;
+  showShare: boolean;
+}) {
+  return (
+    <>
+      <EditorMenuBarTooltipItem label="Zoom out">
+        <Button
+          aria-label="Zoom out"
+          className="size-8"
+          onClick={onZoomOut}
+          size="icon-sm"
+          type="button"
+          variant="ghost"
+        >
+          <Icon className="size-4" name="IconMinusSmall" />
+        </Button>
+      </EditorMenuBarTooltipItem>
+
+      <button
+        className="min-w-12 shrink-0 px-1 font-mono text-[11px] text-muted-foreground tabular-nums hover:text-foreground"
+        onClick={onResetZoom}
+        type="button"
+      >
+        {Math.round(canvasScale * 100)}%
+      </button>
+
+      <EditorMenuBarTooltipItem label="Zoom in">
+        <Button
+          aria-label="Zoom in"
+          className="size-8"
+          onClick={onZoomIn}
+          size="icon-sm"
+          type="button"
+          variant="ghost"
+        >
+          <Icon className="size-4" name="IconPlusSmall" />
+        </Button>
+      </EditorMenuBarTooltipItem>
+
+      {showFitView ? (
+        <EditorMenuBarTooltipItem label="Zoom to fit (double-click canvas)">
+          <Button
+            aria-label="Zoom to fit"
+            className="size-8"
+            onClick={onFitView}
+            size="icon-sm"
+            type="button"
+            variant="ghost"
+          >
+            <Icon className="size-4" name="IconArrowsZoom" />
+          </Button>
+        </EditorMenuBarTooltipItem>
+      ) : null}
+
+      {onCenterOnContent ? (
+        <EditorMenuBarTooltipItem label="Center chart on canvas">
+          <Button
+            aria-label="Center chart on canvas"
+            className="size-8"
+            onClick={onCenterOnContent}
+            size="icon-sm"
+            type="button"
+            variant="ghost"
+          >
+            <Icon aria-hidden className="size-4" name="IconFocusSquare" />
+          </Button>
+        </EditorMenuBarTooltipItem>
+      ) : null}
+
+      {onReplay ? (
+        <EditorMenuBarTooltipItem label="Replay animation (R)">
+          <EditorReplayButton
+            disabled={controlsDisabled}
+            onReplay={onReplay}
+            size="icon-sm"
+          />
+        </EditorMenuBarTooltipItem>
+      ) : null}
+
+      {showShare ? <StudioSharePopover /> : null}
+    </>
+  );
+}
 
 export function EditorMenuBar({
   className,
@@ -33,6 +146,7 @@ export function EditorMenuBar({
   showDimensions = true,
   showThemeToggle = true,
   showFitView = true,
+  showShare = true,
   openInStudioHref,
 }: {
   className?: string;
@@ -53,6 +167,7 @@ export function EditorMenuBar({
   showDimensions?: boolean;
   showThemeToggle?: boolean;
   showFitView?: boolean;
+  showShare?: boolean;
   openInStudioHref?: string;
 }) {
   const hasLeadingControls =
@@ -62,7 +177,7 @@ export function EditorMenuBar({
     <StudioToolbarTooltips>
       <div
         className={cn(
-          "flex shrink-0 items-center gap-1 rounded-full border border-border/80 bg-background/95 p-1 shadow-lg backdrop-blur-sm",
+          "flex shrink-0 items-center justify-center gap-1 rounded-full border-2 border-border/80 bg-background/95 p-2 shadow-lg backdrop-blur-sm",
           className
         )}
       >
@@ -70,7 +185,7 @@ export function EditorMenuBar({
           <>
             <StudioOpenInStudioButton href={openInStudioHref} />
             {showSidebarToggle || showThemeToggle || showZoomControls ? (
-              <Separator className="mx-0.5 h-5" orientation="vertical" />
+              <MenuBarDivider />
             ) : null}
           </>
         ) : null}
@@ -84,7 +199,7 @@ export function EditorMenuBar({
               />
             </EditorMenuBarTooltipItem>
 
-            <Separator className="mx-0.5 h-5" orientation="vertical" />
+            {showThemeToggle ? <MenuBarDivider /> : null}
           </>
         ) : null}
 
@@ -96,94 +211,25 @@ export function EditorMenuBar({
 
         {showZoomControls ? (
           <>
-            {hasLeadingControls ? (
-              <Separator
-                className="mx-0.5 h-5 shrink-0"
-                orientation="vertical"
-              />
-            ) : null}
-
-            <EditorMenuBarTooltipItem label="Zoom out">
-              <Button
-                aria-label="Zoom out"
-                className="size-8"
-                onClick={onZoomOut}
-                size="icon-sm"
-                type="button"
-                variant="ghost"
-              >
-                <Icon className="size-4" name="IconMinusSmall" />
-              </Button>
-            </EditorMenuBarTooltipItem>
-
-            <button
-              className="min-w-12 shrink-0 px-1 font-mono text-[11px] text-muted-foreground tabular-nums hover:text-foreground"
-              onClick={onResetZoom}
-              type="button"
-            >
-              {Math.round(canvasScale * 100)}%
-            </button>
-
-            <EditorMenuBarTooltipItem label="Zoom in">
-              <Button
-                aria-label="Zoom in"
-                className="size-8"
-                onClick={onZoomIn}
-                size="icon-sm"
-                type="button"
-                variant="ghost"
-              >
-                <Icon className="size-4" name="IconPlusSmall" />
-              </Button>
-            </EditorMenuBarTooltipItem>
-
-            {showFitView ? (
-              <EditorMenuBarTooltipItem label="Zoom to fit (double-click canvas)">
-                <Button
-                  aria-label="Zoom to fit"
-                  className="size-8"
-                  onClick={onFitView}
-                  size="icon-sm"
-                  type="button"
-                  variant="ghost"
-                >
-                  <Icon className="size-4" name="IconArrowsZoom" />
-                </Button>
-              </EditorMenuBarTooltipItem>
-            ) : null}
-
-            {onCenterOnContent ? (
-              <EditorMenuBarTooltipItem label="Center chart on canvas">
-                <Button
-                  aria-label="Center chart on canvas"
-                  className="size-8"
-                  onClick={onCenterOnContent}
-                  size="icon-sm"
-                  type="button"
-                  variant="ghost"
-                >
-                  <Icon aria-hidden className="size-4" name="IconFocusSquare" />
-                </Button>
-              </EditorMenuBarTooltipItem>
-            ) : null}
-
-            {onReplay ? (
-              <EditorMenuBarTooltipItem label="Replay animation (R)">
-                <EditorReplayButton
-                  disabled={controlsDisabled}
-                  onReplay={onReplay}
-                  size="icon-sm"
-                />
-              </EditorMenuBarTooltipItem>
-            ) : null}
-
-            <StudioSharePopover />
+            {hasLeadingControls ? <MenuBarDivider /> : null}
+            <EditorMenuBarZoomControls
+              canvasScale={canvasScale}
+              controlsDisabled={controlsDisabled}
+              onCenterOnContent={onCenterOnContent}
+              onFitView={onFitView}
+              onReplay={onReplay}
+              onResetZoom={onResetZoom}
+              onZoomIn={onZoomIn}
+              onZoomOut={onZoomOut}
+              showFitView={showFitView}
+              showShare={showShare}
+            />
           </>
         ) : null}
 
         {showDimensions ? (
           <>
-            <Separator className="mx-0.5 h-5 shrink-0" orientation="vertical" />
+            <MenuBarDivider />
 
             <span className="shrink-0 whitespace-nowrap px-2 font-mono text-[11px] text-muted-foreground tabular-nums">
               {width} × {height}

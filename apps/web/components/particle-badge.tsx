@@ -1,12 +1,12 @@
 "use client";
 
+import { useReducedMotion } from "motion/react";
 import {
   type ComponentProps,
   type ReactNode,
   useCallback,
   useEffect,
   useRef,
-  useState,
 } from "react";
 import { cn } from "@/lib/utils";
 
@@ -21,12 +21,76 @@ interface Particle {
   color: { r: number; g: number; b: number };
 }
 
+interface Rgb {
+  r: number;
+  g: number;
+  b: number;
+}
+
+const CHART_INDIGO_FALLBACK: Rgb = { r: 129, g: 140, b: 248 };
+const RGB_COLOR_PATTERN = /rgba?\((\d+),\s*(\d+),\s*(\d+)/;
+
+function parseRgbString(color: string): Rgb | null {
+  const match = color.match(RGB_COLOR_PATTERN);
+  if (!match) {
+    return null;
+  }
+
+  return {
+    r: Number(match[1]),
+    g: Number(match[2]),
+    b: Number(match[3]),
+  };
+}
+
+function mixRgb(from: Rgb, to: Rgb, amount: number): Rgb {
+  return {
+    r: Math.round(from.r + (to.r - from.r) * amount),
+    g: Math.round(from.g + (to.g - from.g) * amount),
+    b: Math.round(from.b + (to.b - from.b) * amount),
+  };
+}
+
+function buildParticlePalettes(primary: Rgb): { normal: Rgb[]; bright: Rgb[] } {
+  const white: Rgb = { r: 255, g: 255, b: 255 };
+  const black: Rgb = { r: 0, g: 0, b: 0 };
+
+  return {
+    normal: [
+      mixRgb(primary, black, 0.12),
+      primary,
+      mixRgb(primary, white, 0.08),
+    ],
+    bright: [
+      mixRgb(primary, white, 0.55),
+      mixRgb(primary, white, 0.4),
+      mixRgb(primary, white, 0.25),
+    ],
+  };
+}
+
+function readChartPrimaryRgbFromProbe(probe: HTMLElement): Rgb {
+  return parseRgbString(getComputedStyle(probe).color) ?? CHART_INDIGO_FALLBACK;
+}
+
+interface GlState {
+  positionBuffer: WebGLBuffer;
+  sizeBuffer: WebGLBuffer;
+  colorBuffer: WebGLBuffer;
+  resolutionLocation: WebGLUniformLocation | null;
+  positionLocation: number;
+  sizeLocation: number;
+  colorLocation: number;
+}
+
 export type ParticleBadgeProps = ComponentProps<"div"> & {
   children: ReactNode;
   /** Extra canvas bleed around the badge for particles. */
   bleed?: number;
   /** Keep ambient particle emission; do not boost on hover. */
   disableHover?: boolean;
+  /** Pause WebGL loop and emission (e.g. when hero leaves viewport). */
+  paused?: boolean;
 };
 
 function compileShader(
@@ -55,35 +119,39 @@ export function ParticleBadge({
   className,
   bleed = 64,
   disableHover = false,
+  paused = false,
   ...props
 }: ParticleBadgeProps) {
+  const reducedMotion = useReducedMotion();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const targetRef = useRef<HTMLDivElement>(null);
+  const colorProbeRef = useRef<HTMLSpanElement>(null);
   const particlesRef = useRef<Particle[]>([]);
+  const palettesRef = useRef(buildParticlePalettes(CHART_INDIGO_FALLBACK));
   const animationFrameRef = useRef<number | undefined>(undefined);
   const emitIntervalRef = useRef<ReturnType<typeof setInterval> | undefined>(
     undefined
   );
   const glRef = useRef<WebGLRenderingContext | null>(null);
   const programRef = useRef<WebGLProgram | null>(null);
-  const [isHovering, setIsHovering] = useState(false);
-  const emitAggressively = !disableHover && isHovering;
+  const glStateRef = useRef<GlState | null>(null);
+  const isHoveringRef = useRef(false);
+  const isActiveRef = useRef(false);
 
-  const getColors = useCallback((bright = false) => {
-    if (bright) {
-      return [
-        { r: 150, g: 240, b: 255 },
-        { r: 180, g: 250, b: 255 },
-        { r: 200, g: 255, b: 255 },
-      ];
+  const refreshPalettes = useCallback(() => {
+    const probe = colorProbeRef.current;
+    if (!probe) {
+      return;
     }
 
-    return [
-      { r: 119, g: 222, b: 232 },
-      { r: 100, g: 200, b: 220 },
-      { r: 80, g: 180, b: 200 },
-    ];
+    palettesRef.current = buildParticlePalettes(
+      readChartPrimaryRgbFromProbe(probe)
+    );
+  }, []);
+
+  const getColors = useCallback((bright = false) => {
+    return bright ? palettesRef.current.bright : palettesRef.current.normal;
   }, []);
 
   const initWebGL = useCallback(() => {
@@ -167,6 +235,23 @@ export function ParticleBadge({
     glRef.current = gl;
     programRef.current = program;
 
+    const positionBuffer = gl.createBuffer();
+    const sizeBuffer = gl.createBuffer();
+    const colorBuffer = gl.createBuffer();
+    if (!(positionBuffer && sizeBuffer && colorBuffer)) {
+      return false;
+    }
+
+    glStateRef.current = {
+      positionBuffer,
+      sizeBuffer,
+      colorBuffer,
+      resolutionLocation: gl.getUniformLocation(program, "u_resolution"),
+      positionLocation: gl.getAttribLocation(program, "a_position"),
+      sizeLocation: gl.getAttribLocation(program, "a_size"),
+      colorLocation: gl.getAttribLocation(program, "a_color"),
+    };
+
     return true;
   }, []);
 
@@ -174,24 +259,24 @@ export function ParticleBadge({
     (x: number, y: number, bright = false): Particle => {
       const colors = getColors(bright);
       const color = colors[Math.floor(Math.random() * colors.length)] ?? {
-        r: 119,
-        g: 222,
-        b: 232,
+        ...CHART_INDIGO_FALLBACK,
       };
       const angle = Math.random() * Math.PI * 2;
-      const speed = bright ? 0.8 + Math.random() * 2 : 0.2 + Math.random() * 1;
+      const speed = bright
+        ? 0.45 + Math.random() * 1.1
+        : 0.2 + Math.random() * 1;
       const maxLife = bright
-        ? 50 + Math.random() * 50
+        ? 55 + Math.random() * 45
         : 70 + Math.random() * 80;
 
       return {
         x,
         y,
         vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed - (bright ? 1 : 0.2),
+        vy: Math.sin(angle) * speed - (bright ? 0.45 : 0.2),
         life: maxLife,
         maxLife,
-        size: bright ? 2 + Math.random() * 5 : 1 + Math.random() * 3,
+        size: bright ? 1.5 + Math.random() * 3.5 : 1 + Math.random() * 3,
         color,
       };
     },
@@ -212,7 +297,7 @@ export function ParticleBadge({
       const offsetY = targetRect.top - containerRect.top;
       const targetWidth = targetRect.width;
       const targetHeight = targetRect.height;
-      const particleCount = aggressive ? 4 : 2;
+      const particleCount = aggressive ? 3 : 2;
 
       for (let index = 0; index < particleCount; index++) {
         const edge = Math.floor(Math.random() * 4);
@@ -249,14 +334,22 @@ export function ParticleBadge({
   );
 
   const render = useCallback(() => {
+    if (!isActiveRef.current) {
+      return;
+    }
+
     const gl = glRef.current;
     const program = programRef.current;
     const canvas = canvasRef.current;
+    const glState = glStateRef.current;
 
-    if (!(gl && program && canvas)) {
+    if (!(gl && program && canvas && glState)) {
       animationFrameRef.current = requestAnimationFrame(render);
       return;
     }
+
+    // biome-ignore lint/correctness/useHookAtTopLevel: WebGL API, not a React hook
+    gl.useProgram(program);
 
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT);
@@ -290,43 +383,61 @@ export function ParticleBadge({
         );
       }
 
-      const resolutionLocation = gl.getUniformLocation(program, "u_resolution");
-      gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
+      gl.uniform2f(glState.resolutionLocation, canvas.width, canvas.height);
 
-      const positionBuffer = gl.createBuffer();
-      gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+      gl.bindBuffer(gl.ARRAY_BUFFER, glState.positionBuffer);
       gl.bufferData(
         gl.ARRAY_BUFFER,
         new Float32Array(positions),
-        gl.STATIC_DRAW
+        gl.DYNAMIC_DRAW
       );
-      const positionLocation = gl.getAttribLocation(program, "a_position");
-      gl.enableVertexAttribArray(positionLocation);
-      gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+      gl.enableVertexAttribArray(glState.positionLocation);
+      gl.vertexAttribPointer(
+        glState.positionLocation,
+        2,
+        gl.FLOAT,
+        false,
+        0,
+        0
+      );
 
-      const sizeBuffer = gl.createBuffer();
-      gl.bindBuffer(gl.ARRAY_BUFFER, sizeBuffer);
-      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(sizes), gl.STATIC_DRAW);
-      const sizeLocation = gl.getAttribLocation(program, "a_size");
-      gl.enableVertexAttribArray(sizeLocation);
-      gl.vertexAttribPointer(sizeLocation, 1, gl.FLOAT, false, 0, 0);
+      gl.bindBuffer(gl.ARRAY_BUFFER, glState.sizeBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(sizes), gl.DYNAMIC_DRAW);
+      gl.enableVertexAttribArray(glState.sizeLocation);
+      gl.vertexAttribPointer(glState.sizeLocation, 1, gl.FLOAT, false, 0, 0);
 
-      const colorBuffer = gl.createBuffer();
-      gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
-      const colorLocation = gl.getAttribLocation(program, "a_color");
-      gl.enableVertexAttribArray(colorLocation);
-      gl.vertexAttribPointer(colorLocation, 4, gl.FLOAT, false, 0, 0);
+      gl.bindBuffer(gl.ARRAY_BUFFER, glState.colorBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.DYNAMIC_DRAW);
+      gl.enableVertexAttribArray(glState.colorLocation);
+      gl.vertexAttribPointer(glState.colorLocation, 4, gl.FLOAT, false, 0, 0);
 
       gl.drawArrays(gl.POINTS, 0, particlesRef.current.length);
-
-      gl.deleteBuffer(positionBuffer);
-      gl.deleteBuffer(sizeBuffer);
-      gl.deleteBuffer(colorBuffer);
     }
 
     animationFrameRef.current = requestAnimationFrame(render);
   }, []);
+
+  const stopLoop = useCallback(() => {
+    isActiveRef.current = false;
+    if (animationFrameRef.current !== undefined) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = undefined;
+    }
+    if (emitIntervalRef.current !== undefined) {
+      clearInterval(emitIntervalRef.current);
+      emitIntervalRef.current = undefined;
+    }
+    particlesRef.current = [];
+  }, []);
+
+  const startLoop = useCallback(() => {
+    if (isActiveRef.current) {
+      return;
+    }
+
+    isActiveRef.current = true;
+    animationFrameRef.current = requestAnimationFrame(render);
+  }, [render]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -354,61 +465,92 @@ export function ParticleBadge({
 
     const resizeObserver = new ResizeObserver(resizeCanvas);
     resizeObserver.observe(container);
-    animationFrameRef.current = requestAnimationFrame(render);
 
     return () => {
       resizeObserver.disconnect();
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
+      stopLoop();
     };
-  }, [initWebGL, render]);
+  }, [initWebGL, stopLoop]);
 
   useEffect(() => {
-    emitIntervalRef.current = setInterval(
-      () => {
-        emitFromEdges(emitAggressively);
-      },
-      emitAggressively ? 30 : 60
-    );
+    if (reducedMotion || paused) {
+      stopLoop();
+      return;
+    }
+
+    startLoop();
+
+    let tick = 0;
+    emitIntervalRef.current = setInterval(() => {
+      if (!isActiveRef.current) {
+        return;
+      }
+
+      const aggressive = !disableHover && isHoveringRef.current;
+      tick++;
+
+      if (aggressive) {
+        if (tick % 2 === 0) {
+          emitFromEdges(true);
+        }
+      } else if (tick % 2 === 0) {
+        emitFromEdges(false);
+      }
+    }, 30);
 
     return () => {
-      if (emitIntervalRef.current) {
-        clearInterval(emitIntervalRef.current);
-      }
+      stopLoop();
     };
-  }, [emitAggressively, emitFromEdges]);
+  }, [disableHover, emitFromEdges, paused, reducedMotion, startLoop, stopLoop]);
 
   useEffect(() => {
+    refreshPalettes();
+
+    const observer = new MutationObserver(refreshPalettes);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    return () => observer.disconnect();
+  }, [refreshPalettes]);
+
+  const handlePointerEnter = useCallback(() => {
     if (disableHover) {
       return;
     }
 
-    const target = targetRef.current;
-    if (!target) {
+    isHoveringRef.current = true;
+
+    for (let index = 0; index < 1; index++) {
+      emitFromEdges(true);
+    }
+  }, [disableHover, emitFromEdges]);
+
+  const handlePointerLeave = useCallback(() => {
+    if (disableHover) {
       return;
     }
 
-    const onEnter = () => setIsHovering(true);
-    const onLeave = () => setIsHovering(false);
-
-    target.addEventListener("mouseenter", onEnter);
-    target.addEventListener("mouseleave", onLeave);
-
-    return () => {
-      target.removeEventListener("mouseenter", onEnter);
-      target.removeEventListener("mouseleave", onLeave);
-    };
+    isHoveringRef.current = false;
   }, [disableHover]);
 
   return (
     <div
+      {...props}
       className={cn(
         "relative isolate inline-flex items-center justify-center",
         className
       )}
-      {...props}
+      onPointerEnter={disableHover ? undefined : handlePointerEnter}
+      onPointerLeave={disableHover ? undefined : handlePointerLeave}
     >
+      <span
+        aria-hidden
+        className="sr-only"
+        ref={colorProbeRef}
+        style={{ color: "var(--chart-line-primary)" }}
+      />
       <div
         aria-hidden
         className="pointer-events-none absolute top-1/2 left-1/2 z-0 -translate-x-1/2 -translate-y-1/2 overflow-hidden"

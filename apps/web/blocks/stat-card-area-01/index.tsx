@@ -5,11 +5,12 @@ import type { BlockDisplayProps } from "./meta";
 import { statCardArea01Meta } from "./meta";
 import { StatCardAreaPreview } from "./preview";
 
-export function StatCardAreaBlock(props: BlockDisplayProps) {
+export function StatCardAreaBlock({ embedded, ...props }: BlockDisplayProps) {
   return (
     <BlockViewer
       {...statCardArea01Meta}
       {...props}
+      embedded={embedded}
       preview={<StatCardAreaPreview />}
     />
   );

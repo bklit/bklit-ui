@@ -10,16 +10,16 @@ import { transitionWithDelay } from "./motion-utils";
 const DEFAULT_POSITIVE = "url(#candlestick-positive)";
 const DEFAULT_NEGATIVE = "url(#candlestick-negative)";
 
-const SOLID_POSITIVE = "var(--chart-1)";
-const SOLID_NEGATIVE = "var(--chart-5)";
+const SOLID_POSITIVE = "var(--color-emerald-500)";
+const SOLID_NEGATIVE = "var(--color-red-500)";
 const WICK_WIDTH = 1.5;
 
 export interface CandlestickProps {
   /** Whether to animate the candlesticks. Default: true */
   animate?: boolean;
-  /** Fill for positive (close >= open) candles. Color or url(#gradient). Default: --chart-1 */
+  /** Fill for positive (close >= open) candles. Color or url(#gradient). Default: emerald */
   positiveFill?: string;
-  /** Fill for negative candles. Color or url(#gradient). Default: --chart-5 */
+  /** Fill for negative candles. Color or url(#gradient). Default: red */
   negativeFill?: string;
   /** Optional pattern URL for body only (e.g. url(#pattern)). When set, body is drawn solid first, then pattern overlaid and masked to the body rect. */
   bodyPatternPositive?: string;

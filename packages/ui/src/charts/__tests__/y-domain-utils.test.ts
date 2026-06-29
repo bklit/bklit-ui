@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
   domainsEqual,
+  isReferenceAreaVisiblePhase,
   mergeYDomainRecords,
   niceYDomain,
   shouldTweenYDomain,
@@ -44,5 +45,21 @@ describe("domainsEqual", () => {
 
   it("returns false when any endpoint differs", () => {
     assert.equal(domainsEqual({ left: [0, 100] }, { left: [0, 110] }), false);
+  });
+});
+
+describe("isReferenceAreaVisiblePhase", () => {
+  it("shows reference areas during ready reveal phases", () => {
+    assert.equal(isReferenceAreaVisiblePhase("ready"), true);
+    assert.equal(isReferenceAreaVisiblePhase("revealing"), true);
+    assert.equal(isReferenceAreaVisiblePhase("gridTweenReady"), true);
+  });
+
+  it("hides reference areas during loading and exit phases", () => {
+    assert.equal(isReferenceAreaVisiblePhase("loading"), false);
+    assert.equal(isReferenceAreaVisiblePhase("exiting"), false);
+    assert.equal(isReferenceAreaVisiblePhase("exitingReady"), false);
+    assert.equal(isReferenceAreaVisiblePhase("gridTweenLoading"), false);
+    assert.equal(isReferenceAreaVisiblePhase("revealingLoading"), false);
   });
 });

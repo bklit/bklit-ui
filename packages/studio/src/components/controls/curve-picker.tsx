@@ -7,6 +7,10 @@ import type { CurveId } from "@/lib/curves";
 import { CURVE_OPTIONS } from "@/lib/curves";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import {
+  buildProjectionScopedControlUpdate,
+  getProjectionScopedControlValue,
+} from "@/lib/studio-projection-props";
+import {
   buildSeriesScopedControlUpdate,
   getSeriesScopedControlValue,
 } from "@/lib/studio-series-line-props";
@@ -71,15 +75,41 @@ export function LineCurveField({
   ) => void;
 }) {
   const seriesIndex = control.seriesIndex;
-  const value =
-    seriesIndex === undefined
-      ? state.curve
-      : getSeriesScopedControlValue(state, "curve", seriesIndex);
+  const projectionIndex = control.projectionIndex;
+  let value:
+    | StudioUrlState["curve"]
+    | ReturnType<typeof getProjectionScopedControlValue>;
+  if (projectionIndex !== undefined) {
+    value = getProjectionScopedControlValue(
+      state,
+      control.key,
+      projectionIndex
+    );
+  } else if (seriesIndex === undefined) {
+    value = state.curve;
+  } else {
+    value = getSeriesScopedControlValue(state, "curve", seriesIndex);
+  }
 
   return (
     <CurvePickerField
       label={control.label}
       onChange={(next) => {
+        if (projectionIndex !== undefined) {
+          const updates = buildProjectionScopedControlUpdate(
+            state,
+            control.key,
+            projectionIndex,
+            next
+          );
+          for (const [key, updateValue] of Object.entries(updates)) {
+            onChange(
+              key as keyof StudioUrlState,
+              updateValue as StudioUrlState[keyof StudioUrlState]
+            );
+          }
+          return;
+        }
         if (seriesIndex !== undefined) {
           const updates = buildSeriesScopedControlUpdate(
             state,

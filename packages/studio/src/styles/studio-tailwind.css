@@ -6,7 +6,15 @@
 
 @source "../**/*.{ts,tsx}";
 
-@custom-variant dark (&:is(.dark *));
+/* Studio owns dark mode inside `.studio-shell`; site `html.dark` must not leak in. */
+@custom-variant dark {
+  &:is(.studio-shell.dark, .studio-shell.dark *) {
+    @slot;
+  }
+  &:is(.dark *):not(:is(.studio-shell, .studio-shell *)) {
+    @slot;
+  }
+}
 
 @theme inline {
   --color-background: var(--background);

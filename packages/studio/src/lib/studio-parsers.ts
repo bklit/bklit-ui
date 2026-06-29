@@ -1,3 +1,5 @@
+import type { ProjectionCurveKind } from "@bklitui/ui/charts";
+import { HEATMAP_DEFAULT_LEVEL_COLORS } from "@bklitui/ui/charts";
 import {
   parseAsBoolean,
   parseAsFloat,
@@ -151,11 +153,21 @@ export const studioSearchParams = {
   heatmapLoadingOpacity: parseAsFloat.withDefault(1),
   heatmapLoadingCellMaxOpacity: parseAsFloat.withDefault(0.85),
   heatmapLoadingCellRandomness: parseAsFloat.withDefault(1),
-  heatmapLevel0Color: parseAsString.withDefault("var(--color-muted)"),
-  heatmapLevel1Color: parseAsString.withDefault("#0e4429"),
-  heatmapLevel2Color: parseAsString.withDefault("#006d32"),
-  heatmapLevel3Color: parseAsString.withDefault("#26a641"),
-  heatmapLevel4Color: parseAsString.withDefault("#39d353"),
+  heatmapLevel0Color: parseAsString.withDefault(
+    HEATMAP_DEFAULT_LEVEL_COLORS[0]
+  ),
+  heatmapLevel1Color: parseAsString.withDefault(
+    HEATMAP_DEFAULT_LEVEL_COLORS[1]
+  ),
+  heatmapLevel2Color: parseAsString.withDefault(
+    HEATMAP_DEFAULT_LEVEL_COLORS[2]
+  ),
+  heatmapLevel3Color: parseAsString.withDefault(
+    HEATMAP_DEFAULT_LEVEL_COLORS[3]
+  ),
+  heatmapLevel4Color: parseAsString.withDefault(
+    HEATMAP_DEFAULT_LEVEL_COLORS[4]
+  ),
   heatmapLevelFillModes: parseAsString.withDefault(""),
   heatmapLevelPatterns: parseAsString.withDefault(""),
   heatmapLevelPatternColors: parseAsString.withDefault(""),
@@ -196,6 +208,14 @@ export const studioSearchParams = {
   seriesMarkerRadii: parseAsString.withDefault(""),
   seriesMarkerRingGaps: parseAsString.withDefault(""),
   seriesMarkerRingWidths: parseAsString.withDefault(""),
+  seriesTerminalMarkerShow: parseAsBoolean.withDefault(false),
+  seriesTerminalMarkerFill: parseAsString.withDefault("transparent"),
+  seriesTerminalMarkerRingColor: parseAsString.withDefault(""),
+  seriesTerminalMarkerRingGap: parseAsFloat.withDefault(2),
+  seriesTerminalMarkerShowFlags: parseAsString.withDefault(""),
+  seriesTerminalMarkerFills: parseAsString.withDefault(""),
+  seriesTerminalMarkerRingColors: parseAsString.withDefault(""),
+  seriesTerminalMarkerRingGaps: parseAsString.withDefault(""),
   seriesDashTailFlags: parseAsString.withDefault(""),
   seriesDashFromIndices: parseAsString.withDefault(""),
   seriesDashArrays: parseAsString.withDefault(""),
@@ -212,6 +232,10 @@ export const studioSearchParams = {
   areaChartState: parseAsStringLiteral(["ready", "loading"]).withDefault(
     "ready"
   ),
+  barChartState: parseAsStringLiteral(["ready", "loading"]).withDefault(
+    "ready"
+  ),
+  loadingStyle: parseAsStringLiteral(["pulse", "sweep"]).withDefault("pulse"),
   lineLoadingStroke: parseAsString.withDefault("var(--foreground)"),
   lineLoadingStrokeOpacity: parseAsFloat.withDefault(0.5),
   lineLoadingGridStroke: parseAsString.withDefault(
@@ -252,6 +276,40 @@ export const studioSearchParams = {
   backgroundFadeVertical: parseAsBoolean.withDefault(true),
   backgroundFadeHorizontalLength: parseAsFloat.withDefault(10),
   backgroundFadeVerticalLength: parseAsFloat.withDefault(10),
+  referenceAreaY1: parseAsFloat.withDefault(160),
+  referenceAreaY2: parseAsFloat.withDefault(220),
+  referenceAreaFill: parseAsString.withDefault(
+    "color-mix(in oklch, var(--chart-foreground-muted) 15%, transparent)"
+  ),
+  referenceAreaFillOpacity: parseAsFloat.withDefault(1),
+  referenceAreaPattern:
+    parseAsStringLiteral(PATTERN_PRESET_IDS).withDefault("none"),
+  referenceAreaPatternColor: parseAsString.withDefault(
+    "var(--chart-foreground-muted)"
+  ),
+  referenceAreaPatternScale: parseAsFloat.withDefault(1),
+  referenceAreaPatternStrokeWidth: parseAsFloat.withDefault(1),
+  referenceAreaPatternRadius: parseAsFloat.withDefault(2),
+  referenceAreaPatternComplement: parseAsBoolean.withDefault(false),
+  referenceAreaPatternFill: parseAsString.withDefault(""),
+  referenceAreaPatternDotsFill: parseAsBoolean.withDefault(true),
+  referenceAreaPatternTileBackground: parseAsString.withDefault(""),
+  referenceAreaStroke: parseAsString.withDefault(
+    "var(--chart-foreground-muted)"
+  ),
+  referenceAreaStrokeStyle: parseAsStringLiteral([
+    "solid",
+    "dashed",
+  ]).withDefault("dashed"),
+  referenceAreaStrokeDasharray: parseAsString.withDefault("4,4"),
+  referenceAreaFadeEdges: parseAsBoolean.withDefault(true),
+  referenceAreaFadeEdgesLength: parseAsFloat.withDefault(10),
+  referenceAreaAxisLabelColor: parseAsString.withDefault("var(--chart-1)"),
+  referenceAreaShowMarkers: parseAsBoolean.withDefault(true),
+  referenceAreaMarkerColor: parseAsString.withDefault("var(--chart-1)"),
+  referenceAreaYAxis: parseAsStringLiteral(["left", "right"]).withDefault(
+    "left"
+  ),
   lineLoadingLabel: parseAsString.withDefault("Loading"),
   /** Pipe-encoded Y axis id per line series (`left` / `right`). */
   lineSeriesYAxes: parseAsString.withDefault("left|left"),
@@ -314,9 +372,57 @@ export const studioSearchParams = {
   legendShowProgress: parseAsBoolean.withDefault(false),
   legendShowMarker: parseAsBoolean.withDefault(true),
   legendShowValue: parseAsBoolean.withDefault(true),
+  tooltipBackgroundColor: parseAsString.withDefault(
+    "var(--chart-tooltip-background)"
+  ),
   tooltipBackgroundOpacity: parseAsFloat.withDefault(0.8),
   tooltipBlur: parseAsInteger.withDefault(12),
   hiddenComponents: parseAsString.withDefault(""),
+  lineDataTrend: parseAsStringLiteral(["up", "down"]).withDefault("up"),
+  projectionCount: parseAsInteger.withDefault(0),
+  projectionMode: parseAsStringLiteral([
+    "auto",
+    "target",
+    "manual",
+  ]).withDefault("auto"),
+  projectionAutoMethod: parseAsStringLiteral([
+    "linearRegression",
+    "lastSegment",
+  ]).withDefault("linearRegression"),
+  projectionHorizonPoints: parseAsInteger.withDefault(6),
+  projectionEndValue: parseAsFloat.withDefault(280),
+  projectionCurve: parseAsStringLiteral([
+    "linear",
+    "bezier",
+  ] as const).withDefault("linear"),
+  projectionStroke: parseAsString.withDefault("var(--chart-3)"),
+  projectionStrokeStyle: parseAsStringLiteral([
+    "solid",
+    "gradient",
+  ] as const).withDefault("solid"),
+  projectionStrokeGradientStart: parseAsString.withDefault(""),
+  projectionStrokeGradientEnd: parseAsString.withDefault("var(--chart-5)"),
+  projectionDashArray: parseAsString.withDefault("6,4"),
+  projectionStrokeWidth: parseAsFloat.withDefault(2),
+  projectionShowEndpoints: parseAsBoolean.withDefault(true),
+  projectionSeriesIndices: parseAsString.withDefault(""),
+  projectionModes: parseAsString.withDefault(""),
+  projectionAutoMethods: parseAsString.withDefault(""),
+  projectionHorizons: parseAsString.withDefault(""),
+  projectionEndValues: parseAsString.withDefault(""),
+  projectionCurves: parseAsString.withDefault(""),
+  projectionStrokes: parseAsString.withDefault(""),
+  projectionStrokeStyles: parseAsString.withDefault(""),
+  projectionStrokeGradientStarts: parseAsString.withDefault(""),
+  projectionStrokeGradientEnds: parseAsString.withDefault(""),
+  projectionDashArrays: parseAsString.withDefault(""),
+  projectionStrokeWidths: parseAsString.withDefault(""),
+  projectionShowEndpointsFlags: parseAsString.withDefault(""),
+  projectionPathDensity: parseAsStringLiteral([
+    "stepped",
+    "endpoints",
+  ]).withDefault("stepped"),
+  projectionPathDensities: parseAsString.withDefault(""),
   progressBarHeight: parseAsInteger.withDefault(24),
 };
 
@@ -467,6 +573,14 @@ export interface StudioUrlState {
   seriesMarkerRadii: string;
   seriesMarkerRingGaps: string;
   seriesMarkerRingWidths: string;
+  seriesTerminalMarkerShow: boolean;
+  seriesTerminalMarkerFill: string;
+  seriesTerminalMarkerRingColor: string;
+  seriesTerminalMarkerRingGap: number;
+  seriesTerminalMarkerShowFlags: string;
+  seriesTerminalMarkerFills: string;
+  seriesTerminalMarkerRingColors: string;
+  seriesTerminalMarkerRingGaps: string;
   seriesDashTailFlags: string;
   seriesDashFromIndices: string;
   seriesDashArrays: string;
@@ -476,6 +590,8 @@ export interface StudioUrlState {
   lineChartMode: "standard" | "profitLoss";
   lineChartState: "ready" | "loading";
   areaChartState: "ready" | "loading";
+  barChartState: "ready" | "loading";
+  loadingStyle: "pulse" | "sweep";
   lineLoadingStroke: string;
   lineLoadingStrokeOpacity: number;
   lineLoadingGridStroke: string;
@@ -511,6 +627,28 @@ export interface StudioUrlState {
   backgroundFadeVertical: boolean;
   backgroundFadeHorizontalLength: number;
   backgroundFadeVerticalLength: number;
+  referenceAreaY1: number;
+  referenceAreaY2: number;
+  referenceAreaFill: string;
+  referenceAreaFillOpacity: number;
+  referenceAreaPattern: PatternPresetId;
+  referenceAreaPatternColor: string;
+  referenceAreaPatternScale: number;
+  referenceAreaPatternStrokeWidth: number;
+  referenceAreaPatternRadius: number;
+  referenceAreaPatternComplement: boolean;
+  referenceAreaPatternFill: string;
+  referenceAreaPatternDotsFill: boolean;
+  referenceAreaPatternTileBackground: string;
+  referenceAreaStroke: string;
+  referenceAreaStrokeStyle: "solid" | "dashed";
+  referenceAreaStrokeDasharray: string;
+  referenceAreaFadeEdges: boolean;
+  referenceAreaFadeEdgesLength: number;
+  referenceAreaAxisLabelColor: string;
+  referenceAreaShowMarkers: boolean;
+  referenceAreaMarkerColor: string;
+  referenceAreaYAxis: "left" | "right";
   lineLoadingLabel: string;
   lineSeriesYAxes: string;
   lineYAxisNumTicks: string;
@@ -556,9 +694,39 @@ export interface StudioUrlState {
   legendShowProgress: boolean;
   legendShowMarker: boolean;
   legendShowValue: boolean;
+  tooltipBackgroundColor: string;
   tooltipBackgroundOpacity: number;
   tooltipBlur: number;
   hiddenComponents: string;
+  lineDataTrend: "up" | "down";
+  projectionCount: number;
+  projectionMode: "auto" | "target" | "manual";
+  projectionAutoMethod: "linearRegression" | "lastSegment";
+  projectionHorizonPoints: number;
+  projectionEndValue: number;
+  projectionCurve: ProjectionCurveKind;
+  projectionStroke: string;
+  projectionStrokeStyle: "solid" | "gradient";
+  projectionStrokeGradientStart: string;
+  projectionStrokeGradientEnd: string;
+  projectionDashArray: string;
+  projectionStrokeWidth: number;
+  projectionShowEndpoints: boolean;
+  projectionSeriesIndices: string;
+  projectionModes: string;
+  projectionAutoMethods: string;
+  projectionHorizons: string;
+  projectionEndValues: string;
+  projectionCurves: string;
+  projectionStrokes: string;
+  projectionStrokeStyles: string;
+  projectionStrokeGradientStarts: string;
+  projectionStrokeGradientEnds: string;
+  projectionDashArrays: string;
+  projectionStrokeWidths: string;
+  projectionShowEndpointsFlags: string;
+  projectionPathDensity: "stepped" | "endpoints";
+  projectionPathDensities: string;
   progressBarHeight: number;
 }
 
@@ -678,11 +846,11 @@ export function defaultStudioState(
     heatmapLoadingOpacity: 1,
     heatmapLoadingCellMaxOpacity: 0.85,
     heatmapLoadingCellRandomness: 1,
-    heatmapLevel0Color: "var(--color-muted)",
-    heatmapLevel1Color: "#0e4429",
-    heatmapLevel2Color: "#006d32",
-    heatmapLevel3Color: "#26a641",
-    heatmapLevel4Color: "#39d353",
+    heatmapLevel0Color: HEATMAP_DEFAULT_LEVEL_COLORS[0],
+    heatmapLevel1Color: HEATMAP_DEFAULT_LEVEL_COLORS[1],
+    heatmapLevel2Color: HEATMAP_DEFAULT_LEVEL_COLORS[2],
+    heatmapLevel3Color: HEATMAP_DEFAULT_LEVEL_COLORS[3],
+    heatmapLevel4Color: HEATMAP_DEFAULT_LEVEL_COLORS[4],
     heatmapLevelFillModes: "",
     heatmapLevelPatterns: "",
     heatmapLevelPatternColors: "",
@@ -718,6 +886,14 @@ export function defaultStudioState(
     seriesMarkerRadii: "",
     seriesMarkerRingGaps: "",
     seriesMarkerRingWidths: "",
+    seriesTerminalMarkerShow: false,
+    seriesTerminalMarkerFill: "transparent",
+    seriesTerminalMarkerRingColor: "",
+    seriesTerminalMarkerRingGap: 2,
+    seriesTerminalMarkerShowFlags: "",
+    seriesTerminalMarkerFills: "",
+    seriesTerminalMarkerRingColors: "",
+    seriesTerminalMarkerRingGaps: "",
     seriesDashTailFlags: "",
     seriesDashFromIndices: "",
     seriesDashArrays: "",
@@ -727,6 +903,8 @@ export function defaultStudioState(
     lineChartMode: "standard",
     lineChartState: "ready",
     areaChartState: "ready",
+    barChartState: "ready",
+    loadingStyle: "pulse",
     lineLoadingStroke: "var(--foreground)",
     lineLoadingStrokeOpacity: 0.5,
     lineLoadingGridStroke:
@@ -764,6 +942,29 @@ export function defaultStudioState(
     backgroundFadeVertical: true,
     backgroundFadeHorizontalLength: 10,
     backgroundFadeVerticalLength: 10,
+    referenceAreaY1: 160,
+    referenceAreaY2: 220,
+    referenceAreaFill:
+      "color-mix(in oklch, var(--chart-foreground-muted) 15%, transparent)",
+    referenceAreaFillOpacity: 1,
+    referenceAreaPattern: "none",
+    referenceAreaPatternColor: "var(--chart-foreground-muted)",
+    referenceAreaPatternScale: 1,
+    referenceAreaPatternStrokeWidth: 1,
+    referenceAreaPatternRadius: 2,
+    referenceAreaPatternComplement: false,
+    referenceAreaPatternFill: "",
+    referenceAreaPatternDotsFill: true,
+    referenceAreaPatternTileBackground: "",
+    referenceAreaStroke: "var(--chart-foreground-muted)",
+    referenceAreaStrokeStyle: "dashed",
+    referenceAreaStrokeDasharray: "4,4",
+    referenceAreaFadeEdges: true,
+    referenceAreaFadeEdgesLength: 10,
+    referenceAreaAxisLabelColor: "var(--chart-1)",
+    referenceAreaShowMarkers: true,
+    referenceAreaMarkerColor: "var(--chart-1)",
+    referenceAreaYAxis: "left",
     lineLoadingLabel: "Loading",
     lineSeriesYAxes: "left|left",
     lineYAxisNumTicks: "5|5",
@@ -809,9 +1010,39 @@ export function defaultStudioState(
     legendShowProgress: false,
     legendShowMarker: true,
     legendShowValue: true,
+    tooltipBackgroundColor: "var(--chart-tooltip-background)",
     tooltipBackgroundOpacity: 0.8,
     tooltipBlur: 12,
     hiddenComponents: "",
+    lineDataTrend: "up",
+    projectionCount: 0,
+    projectionMode: "auto",
+    projectionAutoMethod: "linearRegression",
+    projectionHorizonPoints: 6,
+    projectionEndValue: 280,
+    projectionCurve: "linear",
+    projectionStroke: "var(--chart-3)",
+    projectionStrokeStyle: "solid",
+    projectionStrokeGradientStart: "",
+    projectionStrokeGradientEnd: "var(--chart-5)",
+    projectionDashArray: "6,4",
+    projectionStrokeWidth: 2,
+    projectionShowEndpoints: true,
+    projectionSeriesIndices: "",
+    projectionModes: "",
+    projectionAutoMethods: "",
+    projectionHorizons: "",
+    projectionEndValues: "",
+    projectionCurves: "",
+    projectionStrokes: "",
+    projectionStrokeStyles: "",
+    projectionStrokeGradientStarts: "",
+    projectionStrokeGradientEnds: "",
+    projectionDashArrays: "",
+    projectionStrokeWidths: "",
+    projectionShowEndpointsFlags: "",
+    projectionPathDensity: "stepped",
+    projectionPathDensities: "",
     progressBarHeight: 24,
     ...overrides,
   };

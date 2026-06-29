@@ -71,7 +71,7 @@ export default function RevenueGauge() {
 | `useGradient` | `boolean` | `false` | Per-notch color ramp along the arc |
 | `activeGradient` | `[string, string]` | lime → emerald | Hex stops for active notches when `useGradient` |
 | `inactiveGradient` | `[string, string]` | same as active | Hex stops for inactive notches when `useGradient` |
-| `activeFill` / `inactiveFill` | `string` | `chart-1` / `chart-background` | Solid, CSS color, or `url(#patternId)` |
+| `activeFill` / `inactiveFill` | `string` | `chart-1` / `border` | Solid, CSS color, or `url(#patternId)` |
 | `activeFillOpacity` / `inactiveFillOpacity` | `number` | `1` / `0.8` | SVG `fill-opacity` (0–1) for active / track notches |
 | `defaultLabel` | `string` | `"Total"` | Center label |
 | `formatOptions` | `ChartStatFlowFormat` | standard | NumberFlow format |
@@ -80,6 +80,10 @@ export default function RevenueGauge() {
 | `minWidth` | `number` | `300` | Min width (px) when responsive |
 | `className` | `string` | - | Root wrapper |
 | `children` | `ReactNode` | - | Defs (`Pattern*`, `*Gradient`, …) |
+
+## Theming
+
+Inactive (track) notches default to **`var(--border)`** — shared with ring tracks and radar grid lines. Active notches default to **`var(--chart-1)`**. Override with `inactiveFill` / `activeFill`, or tune **`--border`** / **`--chart-1`** in your theme. See [Theming](/docs/theming).
 
 ## Live examples
 

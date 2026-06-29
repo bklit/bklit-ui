@@ -9,12 +9,18 @@ import { radarCssVars, useRadarStable } from "./radar-context";
 export interface RadarGridProps {
   /** Show level value labels. Default: true */
   showLabels?: boolean;
+  /** Grid line stroke color. Default: var(--border) */
+  stroke?: string;
+  /** Grid line stroke opacity. Default: 0.6 */
+  strokeOpacity?: number;
   /** Additional class name */
   className?: string;
 }
 
 export function RadarGrid({
   showLabels = true,
+  stroke = radarCssVars.border,
+  strokeOpacity = 0.6,
   className = "",
 }: RadarGridProps) {
   const {
@@ -75,9 +81,9 @@ export function RadarGrid({
               data={angles}
               fill="none"
               radius={targetRadius}
-              stroke={radarCssVars.border}
+              stroke={stroke}
               strokeLinecap="round"
-              strokeOpacity={0.6}
+              strokeOpacity={strokeOpacity}
               strokeWidth={1}
             />
           </motion.g>

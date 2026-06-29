@@ -11,13 +11,13 @@ import { LINE_LOADING_PULSE_EASE } from "./line-loading-timing";
 const X_AXIS_POSITION_TWEEN_MS = DEFAULT_Y_DOMAIN_TWEEN_MS;
 
 export interface XAxisProps {
-  /** Number of ticks to show (including first and last). Default: 5. Used when `tickMode` is `"domain"`. */
+  /** Number of ticks to show (including first and last). Default: 5. */
   numTicks?: number;
   /** Width of the date ticker box for fade calculation. Default: 50 */
   tickerHalfWidth?: number;
   /**
-   * `"domain"` — evenly spaced ticks across the time domain (default).
-   * `"data"` — one label per data row at its x value (better with sparse or monthly bars).
+   * `"data"` — tick labels snap to data rows so crosshair and tooltip stay aligned (default).
+   * `"domain"` — evenly spaced ticks across the time domain (may not align with hover).
    */
   tickMode?: "domain" | "data";
 }
@@ -475,6 +475,87 @@ function buildDomainTicks({
   return ticks;
 }
 
+function domainExtendsPastData(
+  data: Record<string, unknown>[],
+  xAccessor: (d: Record<string, unknown>) => Date,
+  xScale: { domain: () => Date[] }
+): boolean {
+  if (data.length === 0) {
+    return false;
+  }
+  const domainEnd = xScale.domain()[1];
+  const lastPoint = data.at(-1);
+  if (!(domainEnd && lastPoint)) {
+    return false;
+  }
+  return domainEnd.getTime() > xAccessor(lastPoint).getTime();
+}
+
+/** Domain ticks for the projection tail when brush keeps data-aligned labels. */
+function appendProjectionTailTicks(
+  ticks: AxisTick[],
+  data: Record<string, unknown>[],
+  xAccessor: (d: Record<string, unknown>) => Date,
+  xScale: {
+    domain: () => Date[];
+    (date: Date): number | undefined;
+  },
+  marginLeft: number,
+  maxExtraTicks: number
+): AxisTick[] {
+  if (data.length === 0 || maxExtraTicks <= 0) {
+    return ticks;
+  }
+
+  const lastPoint = data.at(-1);
+  const domainEnd = xScale.domain()[1];
+  if (!(lastPoint && domainEnd)) {
+    return ticks;
+  }
+
+  const lastDate = xAccessor(lastPoint);
+  const startTime = lastDate.getTime();
+  const endTime = domainEnd.getTime();
+  if (endTime <= startTime) {
+    return ticks;
+  }
+
+  const seenLabels = new Set(ticks.map((tick) => tick.label));
+  const extras: AxisTick[] = [];
+  const extraCount = Math.min(maxExtraTicks, 3);
+
+  for (let i = 1; i <= extraCount; i++) {
+    const date = new Date(
+      startTime + (i / (extraCount + 1)) * (endTime - startTime)
+    );
+    const label = shortDateFmt.format(date);
+    if (seenLabels.has(label)) {
+      continue;
+    }
+    seenLabels.add(label);
+    extras.push({
+      date,
+      label,
+      x: (xScale(date) ?? 0) + marginLeft,
+    });
+  }
+
+  const endLabel = shortDateFmt.format(domainEnd);
+  if (!seenLabels.has(endLabel)) {
+    extras.push({
+      date: domainEnd,
+      label: endLabel,
+      x: (xScale(domainEnd) ?? 0) + marginLeft,
+    });
+  }
+
+  if (extras.length === 0) {
+    return ticks;
+  }
+
+  return [...ticks, ...extras].sort((a, b) => a.x - b.x);
+}
+
 export function XAxis(props: XAxisProps) {
   const { containerRef } = useChartStable();
   const [mounted, setMounted] = useState(false);
@@ -494,30 +575,55 @@ export function XAxis(props: XAxisProps) {
 const XAxisInner = memo(function XAxisInner({
   numTicks = 5,
   tickerHalfWidth = 50,
-  tickMode = "domain",
+  tickMode = "data",
   container,
 }: XAxisProps & { container: HTMLDivElement }) {
   const { xScale, margin, tooltipData, data, xAccessor, dateLabels, xDomain } =
     useChart();
 
   const labelsToShow = useMemo(() => {
-    // Brush (any extent): snap ticks to data rows with even index spacing.
-    if (tickMode === "data" || xDomain != null) {
-      return buildDataAlignedTicks({
-        data,
-        dateLabels,
+    const projectionExtendsScale =
+      tickMode === "data" && domainExtendsPastData(data, xAccessor, xScale);
+
+    if (tickMode === "domain") {
+      return buildDomainTicks({
         marginLeft: margin.left,
-        targetTickCount: numTicks,
-        xAccessor,
+        numTicks,
         xScale,
       });
     }
 
-    return buildDomainTicks({
+    // No brush: evenly spaced ticks across the full domain (data + projection).
+    if (projectionExtendsScale && xDomain == null) {
+      return buildDomainTicks({
+        marginLeft: margin.left,
+        numTicks,
+        xScale,
+      });
+    }
+
+    const dataTicks = buildDataAlignedTicks({
+      data,
+      dateLabels,
       marginLeft: margin.left,
-      numTicks,
+      targetTickCount: numTicks,
+      xAccessor,
       xScale,
     });
+
+    // Brush: keep data-aligned ticks, add labels only in the projection tail.
+    if (projectionExtendsScale && xDomain != null) {
+      return appendProjectionTailTicks(
+        dataTicks,
+        data,
+        xAccessor,
+        xScale,
+        margin.left,
+        Math.max(1, numTicks - dataTicks.length + 1)
+      );
+    }
+
+    return dataTicks;
   }, [
     tickMode,
     xDomain,

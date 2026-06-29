@@ -70,7 +70,7 @@ function MotionCurveTriggerPreview({ state }: { state: MotionStateSlice }) {
     <span className="flex size-4 shrink-0 items-center justify-center overflow-hidden">
       <svg
         aria-hidden
-        className="block size-4 text-foreground"
+        className="block size-4 text-muted-foreground"
         viewBox={`0 0 ${size} ${size}`}
       >
         <title>Easing curve</title>
@@ -395,14 +395,10 @@ function MotionCurveEditorContent({
             >
               <stop
                 offset="0%"
-                stopColor="var(--foreground)"
+                stopColor="var(--primary)"
                 stopOpacity={FILL_GRADIENT_TOP_OPACITY}
               />
-              <stop
-                offset="100%"
-                stopColor="var(--foreground)"
-                stopOpacity={0}
-              />
+              <stop offset="100%" stopColor="var(--primary)" stopOpacity={0} />
             </linearGradient>
           </defs>
 
@@ -471,7 +467,7 @@ function MotionCurveEditorContent({
 
           {dragging ? (
             <path
-              className="fill-none stroke-foreground"
+              className="fill-none stroke-primary"
               d={path}
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -480,7 +476,7 @@ function MotionCurveEditorContent({
           ) : (
             <motion.path
               animate={{ d: path }}
-              className="fill-none stroke-foreground"
+              className="fill-none stroke-primary/50"
               d={path}
               initial={false}
               strokeLinecap="round"
@@ -508,17 +504,14 @@ function MotionCurveEditorContent({
       <div className="flex h-10 items-stretch overflow-hidden">
         <div
           aria-hidden
-          className={cn(
-            "flex w-9 shrink-0 items-center justify-center text-muted-foreground",
-            studioInputBackgroundClass
-          )}
+          className="flex w-9 shrink-0 items-center justify-center text-muted-foreground"
         >
           <Icon className="size-4" name="IconBezierCurves" />
         </div>
         <Input
           className={cn(
             "h-10 min-w-0 flex-1 rounded-none border-0 px-2.5 font-mono text-xs shadow-none focus-visible:ring-0",
-            "!bg-[var(--studio-input-background,var(--background))] dark:!bg-[var(--studio-input-background,var(--background))]",
+            "bg-transparent",
             "selection:bg-primary/25 selection:text-foreground",
             !isEase && "cursor-default text-muted-foreground"
           )}
@@ -556,10 +549,7 @@ function MotionCurveEditorContent({
         />
         <button
           aria-label={isPlaying ? "Stop motion preview" : "Play motion preview"}
-          className={cn(
-            "flex w-9 shrink-0 items-center justify-center text-muted-foreground transition-colors hover:bg-muted/40 hover:text-foreground",
-            studioInputBackgroundClass
-          )}
+          className="flex w-9 shrink-0 items-center justify-center bg-transparent text-muted-foreground transition-colors hover:text-foreground"
           onClick={isPlaying ? stopPlay : runPlay}
           type="button"
         >

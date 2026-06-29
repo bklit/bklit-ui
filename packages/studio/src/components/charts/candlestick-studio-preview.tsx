@@ -11,10 +11,18 @@ import { memo, useMemo } from "react";
 import { StudioCartesianFill } from "@/components/charts/studio-chart-layout";
 import { StudioChartShell } from "@/components/charts/studio-chart-shell";
 import {
+  StudioChartYAxisLayers,
+  timeSeriesChartMargin,
+} from "@/components/charts/studio-chart-y-axis";
+import { StudioReferenceAreaLayer } from "@/components/charts/studio-reference-area-layer";
+import {
   getStudioCssRevealPropsForPreview,
   studioPreviewChartKey,
 } from "@/lib/chart-animation";
-import { getCandlestickData } from "@/lib/demo-data";
+import {
+  getCandlestickData,
+  resolveCandlestickReferenceAreaBounds,
+} from "@/lib/demo-data";
 import type { StudioRenderContext } from "@/lib/render-context";
 import {
   studioCartesianBackgroundLayer,
@@ -37,26 +45,43 @@ const CandlestickChartBody = memo(function CandlestickChartBody({
   positiveFill: string;
   negativeFill: string;
 }) {
+  const data = useMemo(() => getCandlestickData(ctx.dataSeed), [ctx.dataSeed]);
+  const referenceAreaState = useMemo(() => {
+    const bounds = resolveCandlestickReferenceAreaBounds(state, data);
+    if (
+      bounds.referenceAreaY1 === state.referenceAreaY1 &&
+      bounds.referenceAreaY2 === state.referenceAreaY2
+    ) {
+      return state;
+    }
+    return { ...state, ...bounds };
+  }, [state, data, state.referenceAreaY1, state.referenceAreaY2]);
+
   return (
     <StudioCartesianFill>
       <CandlestickChart
         {...getStudioCssRevealPropsForPreview(state, ctx)}
         candleGap={state.candleGap}
         className="size-full"
-        data={getCandlestickData(ctx.dataSeed)}
+        data={data}
         key={studioPreviewChartKey(ctx)}
-        margin={{ top: 16, right: 16, bottom: 40, left: 16 }}
+        margin={timeSeriesChartMargin(state, {
+          top: 16,
+          bottom: 40,
+        })}
       >
         {state.candleUseGradient ? (
           <>
             <LinearGradient
               from="var(--chart-1)"
               id="studio-candle-up"
+              key="studio-candle-up"
               to="var(--chart-3)"
             />
             <LinearGradient
               from="var(--chart-4)"
               id="studio-candle-down"
+              key="studio-candle-down"
               to="var(--chart-5)"
             />
           </>
@@ -68,6 +93,10 @@ const CandlestickChartBody = memo(function CandlestickChartBody({
           "candlestick.grid"
         )}
         {studioCartesianGridLayer(state, "candlestick.grid")}
+        <StudioReferenceAreaLayer
+          componentId="candlestick.reference-area"
+          state={referenceAreaState}
+        />
         <Candlestick
           bodyPatternNegative={patternUp}
           bodyPatternPositive={patternUp}
@@ -76,6 +105,7 @@ const CandlestickChartBody = memo(function CandlestickChartBody({
           positiveFill={positiveFill}
         />
         <ChartTooltip showDots={state.candleShowDots} />
+        <StudioChartYAxisLayers chartPrefix="candlestick" state={state} />
         <XAxis />
       </CandlestickChart>
     </StudioCartesianFill>

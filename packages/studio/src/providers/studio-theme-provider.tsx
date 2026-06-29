@@ -11,8 +11,9 @@ import {
 import { cn } from "@/lib/utils";
 
 const STORAGE_KEY = "studio-theme";
+const SITE_THEME_STORAGE_KEY = "theme";
 
-type StudioTheme = "light" | "dark";
+export type StudioTheme = "light" | "dark";
 
 interface StudioThemeContextValue {
   resolvedTheme: StudioTheme;
@@ -22,84 +23,99 @@ interface StudioThemeContextValue {
 
 const StudioThemeContext = createContext<StudioThemeContextValue | null>(null);
 
-function readStoredTheme(): StudioTheme | null {
-  const stored = localStorage.getItem(STORAGE_KEY);
-  if (stored === "light" || stored === "dark") {
-    return stored;
+/** Resolved site theme from next-themes (`class` on `documentElement`). */
+function readSiteTheme(): StudioTheme {
+  return document.documentElement.classList.contains("dark") ? "dark" : "light";
+}
+
+function readThemeFromUrl(): StudioTheme | null {
+  const value = new URLSearchParams(window.location.search).get("theme");
+  if (value === "dark" || value === "light") {
+    return value;
   }
   return null;
 }
 
-function readSystemTheme(): StudioTheme {
-  return document.documentElement.classList.contains("dark") ? "dark" : "light";
+function readThemeFromStorage(): StudioTheme | null {
+  try {
+    const stored = localStorage.getItem(SITE_THEME_STORAGE_KEY);
+    if (stored === "dark" || stored === "light") {
+      return stored;
+    }
+    if (stored === "system") {
+      return window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
+    }
+  } catch {
+    // localStorage may be unavailable in embedded contexts.
+  }
+  return null;
 }
 
 export function StudioThemeProvider({
   children,
   embedded = false,
+  onThemeChange,
 }: {
   children: ReactNode;
   /** Docs/catalog previews — drop full-height editor shell layout. */
   embedded?: boolean;
+  /** Keep site theme in sync when the user toggles inside Studio. */
+  onThemeChange?: (theme: StudioTheme) => void;
 }) {
   const [resolvedTheme, setResolvedTheme] = useState<StudioTheme>("light");
-  const [mounted, setMounted] = useState(false);
 
   const syncFromDocument = useCallback(() => {
-    setResolvedTheme(readSystemTheme());
+    setResolvedTheme(readSiteTheme());
   }, []);
 
   useEffect(() => {
-    if (embedded) {
-      syncFromDocument();
-      setMounted(true);
-
-      const observer = new MutationObserver(syncFromDocument);
-      observer.observe(document.documentElement, {
-        attributes: true,
-        attributeFilter: ["class"],
-      });
-
-      return () => observer.disconnect();
+    // Drop legacy persisted studio theme — site theme is the source of truth.
+    if (!embedded) {
+      localStorage.removeItem(STORAGE_KEY);
     }
 
-    setResolvedTheme(readStoredTheme() ?? readSystemTheme());
-    setMounted(true);
+    setResolvedTheme(
+      readThemeFromUrl() ?? readThemeFromStorage() ?? readSiteTheme()
+    );
+
+    const observer = new MutationObserver(syncFromDocument);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    return () => observer.disconnect();
   }, [embedded, syncFromDocument]);
 
   const setTheme = useCallback(
     (theme: StudioTheme) => {
       setResolvedTheme(theme);
-      if (!embedded) {
-        localStorage.setItem(STORAGE_KEY, theme);
-      }
+      onThemeChange?.(theme);
     },
-    [embedded]
+    [onThemeChange]
   );
 
   const toggleTheme = useCallback(() => {
     setResolvedTheme((current) => {
       const next = current === "dark" ? "light" : "dark";
-      if (!embedded) {
-        localStorage.setItem(STORAGE_KEY, next);
-      }
+      onThemeChange?.(next);
       return next;
     });
-  }, [embedded]);
-
-  const theme = mounted ? resolvedTheme : "light";
+  }, [onThemeChange]);
 
   return (
     <StudioThemeContext.Provider
-      value={{ resolvedTheme: theme, setTheme, toggleTheme }}
+      value={{ resolvedTheme, setTheme, toggleTheme }}
     >
       <div
         className={cn(
-          "studio-shell relative",
+          "studio-shell relative bg-background text-foreground",
           embedded
-            ? "min-h-[inherit] w-full min-w-0"
+            ? "flex h-full min-h-0 w-full min-w-0 flex-col overflow-hidden"
             : "flex h-full min-h-0 flex-1 flex-col overflow-hidden",
-          theme === "dark" && "dark"
+          resolvedTheme === "dark" && "dark"
         )}
       >
         {children}

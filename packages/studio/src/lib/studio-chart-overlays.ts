@@ -9,11 +9,13 @@ export function studioTooltipPanelStyle(
 ): CSSProperties | undefined {
   const opacity = state.tooltipBackgroundOpacity;
   const blur = state.tooltipBlur;
-  if (opacity === 0.8 && blur === 12) {
+  const color = state.tooltipBackgroundColor;
+  const defaultColor = "var(--chart-tooltip-background)";
+  if (opacity === 0.8 && blur === 12 && color === defaultColor) {
     return undefined;
   }
   return {
-    backgroundColor: `color-mix(in oklch, var(--chart-tooltip-background) ${Math.round(opacity * 100)}%, transparent)`,
+    backgroundColor: `color-mix(in oklch, ${color} ${Math.round(opacity * 100)}%, transparent)`,
     backdropFilter: blur > 0 ? `blur(${blur}px)` : undefined,
     WebkitBackdropFilter: blur > 0 ? `blur(${blur}px)` : undefined,
   };

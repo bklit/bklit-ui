@@ -6,6 +6,7 @@
   "sideEffects": [
     "./src/styles/studio.css",
     "./src/styles/studio-tailwind.css",
+    "./src/styles/bklit-tokens.css",
     "./src/styles/studio-theme.css",
     "./src/styles/studio-chrome.css"
   ],
@@ -15,6 +16,7 @@
     "./dev/ui-preview": "./src/dev/studio-ui-preview.tsx",
     "./styles/studio.css": "./src/styles/studio.css",
     "./styles/studio-tailwind.css": "./src/styles/studio-tailwind.css",
+    "./styles/bklit-tokens.css": "./src/styles/bklit-tokens.css",
     "./styles/studio-theme.css": "./src/styles/studio-theme.css",
     "./styles/studio-chrome.css": "./src/styles/studio-chrome.css"
   },

@@ -43,6 +43,7 @@ import { LineChart, Line, Grid, ChartTooltip } from "@bklitui/ui/charts";
 | `damping` | `number` | `20` | Panel follow damping (default). `0` = instant. Ignored when `matchCrosshair` is `true` |
 | `springConfig` | `{ stiffness: number; damping: number }` | chart config | Full spring override for crosshair, dots, and date pill |
 | `boxSpringConfig` | `{ stiffness: number; damping: number }` | chart config | Full spring override for the floating tooltip panel |
+| `backgroundColor` | `string` | `var(--chart-tooltip-background)` | Panel background (CSS variable or color value) |
 | `panelStyle` | `CSSProperties` | — | Inline styles for tooltip background and blur |
 | `content` | `(props) => ReactNode` | - | Custom content renderer |
 | `rows` | `(point) => TooltipRow[]` | - | Custom row generator |

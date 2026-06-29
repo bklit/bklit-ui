@@ -1,4 +1,5 @@
-import { chartDefaultHiddenYAxes } from "./studio-component-visibility";
+import { getCandlestickReferenceAreaDefaults } from "./demo-data";
+import { chartDefaultHiddenComponents } from "./studio-component-visibility";
 import type { StudioUrlState } from "./studio-parsers";
 
 export function isProfitLossLineMode(state: StudioUrlState) {
@@ -15,13 +16,24 @@ export function isAreaChartLoadingMode(state: StudioUrlState) {
   return state.chart === "area-chart" && state.areaChartState === "loading";
 }
 
+export function isBarChartLoadingMode(state: StudioUrlState) {
+  return state.chart === "bar-chart" && state.barChartState === "loading";
+}
+
 export function isCartesianLoadingMode(state: StudioUrlState) {
-  return isLineChartLoadingMode(state) || isAreaChartLoadingMode(state);
+  return (
+    isLineChartLoadingMode(state) ||
+    isAreaChartLoadingMode(state) ||
+    isBarChartLoadingMode(state)
+  );
 }
 
 export const lineChartProfitLossDefaults: Partial<StudioUrlState> = {
   lineChartMode: "profitLoss",
-  hiddenComponents: chartDefaultHiddenYAxes("line"),
+  hiddenComponents: chartDefaultHiddenComponents("line", {
+    showLegend: true,
+    showBrush: false,
+  }),
   dataSeries: 1,
   dataPoints: 24,
   curve: "linear",
@@ -54,5 +66,13 @@ export const lineChartStandardDefaults: Partial<StudioUrlState> = {
   curve: "natural",
   fadeEdges: "both",
   showHighlight: true,
-  hiddenComponents: chartDefaultHiddenYAxes("line"),
+  hiddenComponents: chartDefaultHiddenComponents("line", {
+    showLegend: false,
+    showBrush: false,
+  }),
+};
+
+export const candlestickChartDefaults: Partial<StudioUrlState> = {
+  hiddenComponents: chartDefaultHiddenComponents("candlestick"),
+  ...getCandlestickReferenceAreaDefaults(),
 };

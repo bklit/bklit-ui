@@ -54,26 +54,29 @@ type SlidingToggleVariant = "text" | "icon" | "card" | "legend";
 const GHOST_FLEX_ROW_SURFACE =
   "relative flex w-full min-w-0 flex-nowrap items-stretch";
 
-const TRACK_SURFACE_CLASS = cn(studioControlRadiusClass, "bg-background p-0.5");
+const TRACK_SURFACE_CLASS = cn(
+  studioControlRadiusClass,
+  "bg-input/40 p-0.5 dark:bg-background"
+);
 
 const TRACK_THUMB_CLASS = cn(
   studioControlRadiusInnerClass,
-  "pointer-events-none absolute top-0.5 bottom-0.5 left-0.5 z-0 bg-muted/80"
+  "pointer-events-none absolute top-0.5 bottom-0.5 left-0.5 z-0 bg-accent"
 );
 
 const GHOST_THUMB_CLASS = cn(
   studioControlRadiusInnerClass,
-  "pointer-events-none absolute top-0 bottom-0 left-0 z-0 bg-muted"
+  "pointer-events-none absolute top-0 bottom-0 left-0 z-0 bg-accent"
 );
 
 const GHOST_GRID_THUMB_CLASS = cn(
   studioControlRadiusInnerClass,
-  "pointer-events-none absolute top-0 left-0 z-0 bg-muted"
+  "pointer-events-none absolute top-0 left-0 z-0 bg-accent"
 );
 
 const GHOST_LABEL_CLASS = cn(
   studioControlRadiusInnerClass,
-  "relative z-10 flex h-full min-h-0 min-w-0 flex-1 basis-0 cursor-pointer select-none items-center justify-center border-0 bg-transparent text-muted-foreground transition-colors duration-150 ease-out has-[:checked]:text-foreground motion-reduce:transition-none"
+  "relative z-10 flex h-full min-h-0 min-w-0 flex-1 basis-0 cursor-pointer select-none items-center justify-center border-0 bg-transparent text-muted-foreground transition-colors duration-150 ease-out has-[:checked]:text-accent-foreground motion-reduce:transition-none [&_svg]:text-current"
 );
 
 const SLIDING_VARIANTS: Record<
@@ -108,7 +111,7 @@ const SLIDING_VARIANTS: Record<
   card: {
     surfaceClass: "relative grid w-full min-w-0",
     labelClass:
-      "relative z-10 flex min-h-[4.25rem] w-full min-w-0 cursor-pointer select-none flex-col items-center justify-center gap-1 rounded-md border-0 bg-transparent px-1.5 py-2 font-normal text-[10px] text-muted-foreground leading-tight transition-colors duration-150 ease-out has-[:checked]:text-foreground motion-reduce:transition-none",
+      "relative z-10 flex min-h-[4.25rem] w-full min-w-0 cursor-pointer select-none flex-col items-center justify-center gap-1 rounded-md border-0 bg-transparent px-1.5 py-2 font-normal text-[10px] text-muted-foreground leading-tight transition-colors duration-150 ease-out has-[:checked]:text-accent-foreground [&_svg]:text-current motion-reduce:transition-none",
     thumbClass: GHOST_GRID_THUMB_CLASS,
     defaultColumns: () => 2,
     trackInset: 0,
@@ -116,7 +119,7 @@ const SLIDING_VARIANTS: Record<
   legend: {
     surfaceClass: "relative grid w-full min-w-0",
     labelClass:
-      "group/legend-item relative z-10 flex h-11 w-full min-w-0 cursor-pointer select-none items-center justify-center rounded-md border-0 bg-transparent text-muted-foreground transition-colors duration-150 ease-out has-[:checked]:text-foreground motion-reduce:transition-none",
+      "group/legend-item relative z-10 flex h-11 w-full min-w-0 cursor-pointer select-none items-center justify-center rounded-md border-0 bg-transparent text-muted-foreground transition-colors duration-150 ease-out has-[:checked]:text-accent-foreground [&_svg]:text-current motion-reduce:transition-none",
     thumbClass: GHOST_GRID_THUMB_CLASS,
     defaultColumns: () => 3,
     trackInset: 0,

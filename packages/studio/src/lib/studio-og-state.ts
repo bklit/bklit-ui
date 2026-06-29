@@ -8,6 +8,7 @@ export function normalizeStudioStateForOg(
     ...state,
     lineChartState: "ready",
     areaChartState: "ready",
+    barChartState: "ready",
     animationDuration: 0,
     motionDuration: 0,
     livePaused: true,

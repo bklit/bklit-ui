@@ -1,0 +1,148 @@
+/*
+ * Shared shadcn + chart tokens for the site (:root) and Studio (.studio-shell).
+ * Edit palette values here — one source of truth for web, studio-docs, and Studio UI.
+ */
+:root,
+.studio-shell {
+  --background: oklch(0.969998 0.0000246537 112.908);
+  --foreground: oklch(0.147999 0.0039982 228.752);
+  --card: oklch(0.999998 0.0000253939 112.713);
+  --card-foreground: oklch(0.147999 0.0039982 228.752);
+  --popover: oklch(0.999998 0.0000253939 112.713);
+  --popover-foreground: oklch(0.147999 0.0039982 228.752);
+  --primary: oklch(0.363999 0.00000926656 113.102);
+  --primary-foreground: oklch(0.944 0 272.286);
+  --secondary: oklch(0.978998 0.00297504 286.319);
+  --secondary-foreground: oklch(0.209999 0.00599428 285.877);
+  --muted: oklch(0.937998 0.0000237458 112.896);
+  --muted-foreground: oklch(0.564 0 78.958);
+  --accent: oklch(0.941 0 87.651);
+  --accent-foreground: oklch(0.245998 0.0409927 266.597);
+  --destructive: oklch(0.616007 0.199981 17.27);
+  --border: oklch(0.919998 0.0000232344 112.552);
+  --input: oklch(0.958998 0.0000244577 113.254);
+  --ring: oklch(0 0 0);
+  --chart-1: var(--color-stone-700);
+  --chart-2: var(--color-stone-500);
+  --chart-3: var(--color-stone-400);
+  --chart-4: var(--color-stone-300);
+  --chart-5: var(--color-stone-100);
+  --radius: 0;
+  --sidebar: oklch(0.986998 0.00200245 196.389);
+  --sidebar-foreground: oklch(0.147999 0.0039982 228.752);
+  --sidebar-primary: oklch(0.19 0.00000481538 112.756);
+  --sidebar-primary-foreground: oklch(0.803998 0.0000204702 113.056);
+  --sidebar-accent: oklch(0.962998 0.00200258 196.402);
+  --sidebar-accent-foreground: oklch(0.217999 0.00799762 223.864);
+  --sidebar-border: oklch(0.924998 0.00499493 214.039);
+  --sidebar-ring: oklch(0 0 0);
+
+  /* Chart component semantic colors */
+  --chart-background: oklch(0.915 0 0);
+  --chart-foreground: oklch(0.474 0 285);
+  --chart-foreground-muted: oklch(0.862 0 260);
+  --chart-line-primary: var(--chart-1);
+  --chart-line-secondary: var(--chart-2);
+  --chart-crosshair: oklch(0.677 0 72.411);
+  --chart-grid: oklch(0.917 0 0);
+  --chart-brush-border: var(--chart-grid);
+  --chart-tooltip-background: var(--popover);
+  --chart-tooltip-foreground: var(--popover-foreground);
+  --chart-tooltip-muted: var(--muted-foreground);
+  --chart-indicator-color: oklch(0.21 0.006 285);
+  --chart-indicator-secondary-color: oklch(0.913 0 0);
+  --chart-marker-background: oklch(0.833 0 260);
+  --chart-marker-border: oklch(0.85 0.01 260);
+  --chart-marker-foreground: oklch(0.3 0.01 260);
+  --chart-marker-badge-background: oklch(0 0 0);
+  --chart-marker-badge-foreground: oklch(0.84 0 0);
+  --chart-segment-background: oklch(0.756 0 0 / 0.06);
+  --chart-segment-line: oklch(0.5 0 0 / 0.25);
+  --chart-label: oklch(0.45 0.01 260);
+  --legend: oklch(1 0 0);
+  --legend-foreground: oklch(0.141 0.005 285.823);
+  --legend-muted: oklch(0.967 0.001 286.375);
+  --legend-muted-foreground: oklch(0.552 0.016 285.938);
+  --legend-track: oklch(0.92 0.004 286.32);
+
+  /* Sequential scale for heatmaps, choropleths, and binned data (01 = lowest) */
+  --chart-scale-01: var(--color-stone-50);
+  --chart-scale-02: var(--color-stone-200);
+  --chart-scale-03: var(--color-stone-300);
+  --chart-scale-04: var(--color-stone-400);
+  --chart-scale-05: var(--color-stone-500);
+  --chart-scale-pattern-color: var(--color-stone-100);
+
+  /* Studio editor canvas dot grid */
+  --studio-canvas-grid-gap: 32px;
+}
+
+.dark,
+.studio-shell.dark {
+  --background: oklch(0.14 0.0047 263.79);
+  --foreground: oklch(0.987 0.002 197.1);
+  --card: oklch(0.17 0.0065 271.01);
+  --card-foreground: oklch(0.987 0.002 197.1);
+  --popover: oklch(0.21 0.0058 285.9);
+  --popover-foreground: oklch(0.987 0.002 197.1);
+  --primary: oklch(0.925 0.005 214.3);
+  --primary-foreground: oklch(0.218 0.008 223.9);
+  --secondary: oklch(0.26 0.0134 272.84);
+  --secondary-foreground: oklch(0.987 0.002 197.1);
+  --muted: oklch(0.3 0.0182 276.35);
+  --muted-foreground: oklch(0.62 0.0218 270.07);
+  --accent: oklch(0.29 0.0167 275.43);
+  --accent-foreground: oklch(0.987 0.002 197.1);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(0.56 0.0195 267.65 / 0.2);
+  --input: oklch(0.47 0.0258 265.55 / 0.2);
+  --ring: oklch(0.56 0.021 213.5);
+  --chart-1: var(--color-zinc-800);
+  --chart-2: var(--color-zinc-600);
+  --chart-3: var(--color-zinc-500);
+  --chart-4: var(--color-zinc-400);
+  --chart-5: var(--color-zinc-300);
+  --shadow: oklch(0 0 none);
+  --sidebar: oklch(0.218 0.008 223.9);
+  --sidebar-foreground: oklch(0.987 0.002 197.1);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.987 0.002 197.1);
+  --sidebar-accent: oklch(0.275 0.011 216.9);
+  --sidebar-accent-foreground: oklch(0.987 0.002 197.1);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.56 0.021 213.5);
+
+  /* Chart component dark variables */
+  --chart-background: oklch(0.145 0 0);
+  --chart-foreground: oklch(0.45 0 0);
+  --chart-foreground-muted: oklch(0.65 0.01 260);
+  --chart-crosshair: oklch(0.72 0.0158 281.84);
+  --chart-grid: oklch(0.6 0.0124 243.77 / 0.25);
+  --chart-brush-border: var(--chart-grid);
+  --chart-indicator-color: oklch(1 0 0);
+  --chart-indicator-secondary-color: oklch(0.145 0 0);
+  --chart-marker-background: oklch(0.25 0.01 260);
+  --chart-marker-border: oklch(0.4 0.01 260);
+  --chart-marker-foreground: oklch(0.9 0 0);
+  --chart-marker-badge-background: oklch(1 0 0);
+  --chart-marker-badge-foreground: oklch(0.15 0 0);
+  --chart-segment-background: oklch(0.41 0.0127 248.14 / 0.25);
+  --chart-segment-line: oklch(1 0 0 / 0.25);
+  --chart-tooltip-background: var(--popover);
+  --chart-tooltip-foreground: var(--popover-foreground);
+  --chart-tooltip-muted: var(--muted-foreground);
+  --chart-label: oklch(0.75 0.01 260);
+  --legend: oklch(0.21 0.006 285.885);
+  --legend-foreground: oklch(0.985 0 0);
+  --legend-muted: oklch(0.274 0.006 286.033);
+  --legend-muted-foreground: oklch(0.705 0.015 286.067);
+  --legend-track: oklch(0.274 0.006 286.033);
+
+  /* Sequential scale (dark) */
+  --chart-scale-01: var(--color-zinc-900);
+  --chart-scale-02: var(--color-zinc-700);
+  --chart-scale-03: var(--color-zinc-500);
+  --chart-scale-04: var(--color-zinc-300);
+  --chart-scale-05: var(--color-zinc-200);
+  --chart-scale-pattern-color: var(--background);
+}

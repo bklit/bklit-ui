@@ -5,7 +5,10 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { ParticleBadge } from "@/components/onboarding/particle-badge";
 import { StudioShareCopyField } from "@/components/studio-share-copy-field";
-import { useStudioToolbarTooltipSide } from "@/components/studio-toolbar-tooltips";
+import {
+  useStudioToolbarMounted,
+  useStudioToolbarTooltipSide,
+} from "@/components/studio-toolbar-tooltips";
 import { useStudioShellState } from "@/components/use-studio-state";
 import {
   studioEmbedIframeMarkup,
@@ -27,6 +30,7 @@ export function StudioSharePopover({
 }) {
   const { state } = useStudioShellState();
   const [open, setOpen] = useState(false);
+  const toolbarMounted = useStudioToolbarMounted();
   const tooltipSide = useStudioToolbarTooltipSide();
 
   const [pageOrigin, setPageOrigin] = useState<string | null>(null);
@@ -60,6 +64,24 @@ export function StudioSharePopover({
   const notifyCopied = useCallback((message: string) => {
     toast.success(message);
   }, []);
+
+  const shareButton = (
+    <Button
+      aria-label="Share chart"
+      className={cn("size-8", className)}
+      size="icon-sm"
+      type="button"
+      variant="ghost"
+    >
+      <ParticleBadge>
+        <Icon className="size-4" name="IconShareOs" />
+      </ParticleBadge>
+    </Button>
+  );
+
+  if (!toolbarMounted) {
+    return shareButton;
+  }
 
   return (
     <Popover

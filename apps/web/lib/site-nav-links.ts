@@ -3,7 +3,6 @@ export const siteNavLinks = [
   { text: "Components", url: "/docs/components" },
   { text: "Blocks", url: "/blocks" },
   { text: "Showcase", url: "/showcase" },
-  { text: "Charts", url: "/charts" },
+  { text: "Charts", url: "/charts/area-chart" },
   { text: "Studio", url: "/studio" },
-  { text: "Skills", url: "/docs/skills" },
 ] as const;

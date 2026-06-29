@@ -151,6 +151,23 @@ If you use **Grid** inside `LiveLineChart`, you can pass **`rowTickValues`** (fr
 
 Use [`Background`](/docs/utility/background) instead of `Grid` for a pattern fill behind the live line. See **Pattern Background** examples on the [live line chart gallery](/charts/live-line-chart).
 
+## Loading state
+
+`LiveLineChart` has no loading status of its own. A live chart's loading state is just a line, so render a [`LineChartLoading`](/docs/components/line-chart) while the stream connects, then swap in `LiveLineChart` once data starts arriving:
+
+```tsx
+import { LineChartLoading, LiveLineChart } from "@bklitui/ui/charts";
+
+function LiveRevenue({ connected, points }) {
+  if (!connected) {
+    return <LineChartLoading loadingStyle="sweep" />;
+  }
+  return <LiveLineChart data={points} /* … */ />;
+}
+```
+
+`loadingStyle="sweep"` gives the diagonal shimmer; omit it for the default traveling pulse. See the [Line Chart loading docs](/docs/components/line-chart#loading-state) for the full set of loading props.
+
 ## Theming
 
 Uses the same chart CSS variables as the Line Chart (`--chart-line-primary`, `--chart-grid`, `--chart-tooltip-*`, etc.). The live dot and badge use the line color or `momentumColors` when provided.

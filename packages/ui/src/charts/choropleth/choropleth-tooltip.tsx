@@ -29,6 +29,13 @@ export interface ChoroplethTooltipProps {
   valueLabel?: string;
   /** Custom class name */
   className?: string;
+  /** Inline styles for the tooltip panel (background, blur, etc.). */
+  panelStyle?: React.CSSProperties;
+  /**
+   * Tooltip panel background color (CSS variable or color value).
+   * Default: `var(--chart-tooltip-background)`.
+   */
+  backgroundColor?: string;
 }
 
 export function ChoroplethTooltip({
@@ -38,6 +45,8 @@ export function ChoroplethTooltip({
   getFeatureValue,
   valueLabel = "Value",
   className = "",
+  panelStyle,
+  backgroundColor,
 }: ChoroplethTooltipProps) {
   const { containerRef, width, height, features } = useChoroplethStable();
   const { tooltipData } = useChoroplethInteraction();
@@ -72,10 +81,12 @@ export function ChoroplethTooltip({
   if (content) {
     return (
       <TooltipBox
+        backgroundColor={backgroundColor}
         className={className}
         containerHeight={height}
         containerRef={containerRef}
         containerWidth={width}
+        panelStyle={panelStyle}
         visible
         x={x}
         y={y}
@@ -100,10 +111,12 @@ export function ChoroplethTooltip({
 
   return (
     <TooltipBox
+      backgroundColor={backgroundColor}
       className={className}
       containerHeight={height}
       containerRef={containerRef}
       containerWidth={width}
+      panelStyle={panelStyle}
       visible
       x={x}
       y={y}

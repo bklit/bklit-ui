@@ -47,6 +47,13 @@ export function isYDomainTweenPhase(phase: ChartPhase): boolean {
   return phase === "gridTweenLoading" || phase === "gridTweenReady";
 }
 
+/** Phases where {@link ReferenceArea} bands are shown (fade in/out on transitions). */
+export function isReferenceAreaVisiblePhase(phase: ChartPhase): boolean {
+  return (
+    phase === "ready" || phase === "revealing" || phase === "gridTweenReady"
+  );
+}
+
 export function resolveAnimatedYDestinationDomains(
   chartPhase: ChartPhase,
   skeletonByAxis: Record<string, YDomain>,

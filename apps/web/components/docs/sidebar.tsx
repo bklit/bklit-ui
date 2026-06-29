@@ -10,8 +10,8 @@ import { cn } from "@/lib/utils";
 
 const linkStyles = {
   base: "flex w-fit items-center gap-2 rounded-md px-3 py-1.5 font-medium text-xs no-underline",
-  active: "bg-accent text-card-foreground",
-  inactive: "text-accent-foreground  ",
+  active: "bg-muted text-card-foreground",
+  inactive: "text-foreground dark:text-accent-foreground",
   heading:
     "ring-sidebar-ring flex h-8 shrink-0 items-center rounded-md px-2 text-xs outline-hidden transition-[margin,opacity] duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0 group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0 text-muted-foreground font-medium",
 };
@@ -31,9 +31,9 @@ export function Sidebar({ tree, links = [] }: SidebarProps) {
   const pathname = usePathname();
 
   return (
-    <aside className="fixed top-14 left-0 hidden h-[calc(100vh-3.5rem)] w-80 overflow-hidden bg-background lg:block">
-      <DocsScrollArea className="h-full py-4 pt-9" showEdgeGradient>
-        <nav className="p-10">
+    <aside className="fixed top-(--site-header-height) left-0 hidden h-[calc(100vh-var(--site-header-height))] w-80 overflow-hidden bg-background lg:block">
+      <DocsScrollArea className="h-full py-4 pt-16" showEdgeGradient>
+        <nav className="p-10 pl-16">
           {/* Top-level navigation links */}
           {links.length > 0 && (
             <ul className="m-0 mb-4 list-none space-y-0.5 p-0">

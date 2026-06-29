@@ -4,11 +4,19 @@ import { motion } from "motion/react";
 import { radarCssVars, useRadarStable } from "./radar-context";
 
 export interface RadarAxisProps {
+  /** Axis line stroke color. Default: var(--border) */
+  stroke?: string;
+  /** Axis line stroke opacity. Default: 0.6 */
+  strokeOpacity?: number;
   /** Additional class name */
   className?: string;
 }
 
-export function RadarAxis({ className = "" }: RadarAxisProps) {
+export function RadarAxis({
+  stroke = radarCssVars.border,
+  strokeOpacity = 0.6,
+  className = "",
+}: RadarAxisProps) {
   const { metrics, radius, getAngle, animate } = useRadarStable();
 
   // Animation delay base
@@ -26,8 +34,8 @@ export function RadarAxis({ className = "" }: RadarAxisProps) {
             animate={{ x2: targetX, y2: targetY }}
             initial={animate ? { x2: 0, y2: 0 } : { x2: targetX, y2: targetY }}
             key={`axis-${metric.key}`}
-            stroke={radarCssVars.border}
-            strokeOpacity={0.6}
+            stroke={stroke}
+            strokeOpacity={strokeOpacity}
             strokeWidth={1}
             transition={{
               type: "spring",

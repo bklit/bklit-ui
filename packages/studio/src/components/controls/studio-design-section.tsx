@@ -1,8 +1,7 @@
 "use client";
 
-import { FillPicker, ThemePresetList } from "@/components/controls/fill-picker";
+import { FillPicker } from "@/components/controls/fill-picker";
 import { StudioControlGroup } from "@/components/studio-control-group";
-import type { ColorPresetId } from "@/lib/color-presets";
 import type { PatternPresetId } from "@/lib/pattern-presets";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import {
@@ -32,12 +31,6 @@ export function StudioDesignSection({
   supportsPatterns?: boolean;
 }) {
   const seriesCount = getDesignSeriesCount(state.chart, state);
-
-  const handlePresetChange = (id: ColorPresetId) => {
-    onChange("chartAccent", "");
-    onChange("seriesColors", "");
-    onChange("preset", id);
-  };
 
   const handleColorChange = (seriesIndex: number, color: string) => {
     onChange(
@@ -82,14 +75,7 @@ export function StudioDesignSection({
 
   return (
     <StudioControlGroup collapsible defaultOpen title="Design">
-      <ThemePresetList
-        chartAccent={state.chartAccent}
-        onPresetChange={handlePresetChange}
-        preset={state.preset}
-        seriesColors={state.seriesColors}
-      />
-
-      <div className="space-y-3 pt-1">
+      <div className="space-y-3">
         {Array.from({ length: seriesCount }, (_, seriesIndex) => (
           <FillPicker
             color={getEffectiveSeriesColor(state, seriesIndex)}

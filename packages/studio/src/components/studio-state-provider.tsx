@@ -17,12 +17,13 @@ import {
 } from "@/components/studio-chart-frame";
 import { heatmapChartDefaults } from "@/lib/heatmap-chart-defaults";
 import {
+  candlestickChartDefaults,
   lineChartProfitLossDefaults,
   lineChartStandardDefaults,
 } from "@/lib/line-chart-mode";
 import { progressBarChartDefaults } from "@/lib/progress-bar-chart-defaults";
 import { getStudioConfig } from "@/lib/registry";
-import { chartDefaultHiddenYAxes } from "@/lib/studio-component-visibility";
+import { chartDefaultHiddenComponents } from "@/lib/studio-component-visibility";
 import {
   defaultStudioState,
   defaultsForChart,
@@ -34,7 +35,10 @@ import {
   STUDIO_URL_PARAM,
 } from "@/lib/studio-url-codec";
 import { loadStudioStateFromRequest } from "@/lib/studio-url-loader";
-import { expandStudioParamUpdate } from "@/lib/studio-visibility-sync";
+import {
+  expandStudioParamUpdate,
+  reconcileOverlayVisibility,
+} from "@/lib/studio-visibility-sync";
 import type { ChartSlug, StudioChartConfig } from "@/lib/types";
 
 const STUDIO_Y_AXIS_CHART_PREFIX: Partial<Record<ChartSlug, string>> = {
@@ -43,6 +47,8 @@ const STUDIO_Y_AXIS_CHART_PREFIX: Partial<Record<ChartSlug, string>> = {
   "scatter-chart": "scatter",
   "composed-chart": "composed",
   "bar-chart": "bar",
+  "candlestick-chart": "candlestick",
+  "live-line-chart": "live-line",
 };
 
 function finiteFrameDimension(value: number, fallback: number) {
@@ -130,7 +136,7 @@ export function StudioStateProvider({
           ...expandStudioParamUpdate(next, { [key]: value }),
         };
       }
-      return next;
+      return { ...next, ...reconcileOverlayVisibility(next) };
     });
   }, []);
 
@@ -191,9 +197,18 @@ export function StudioStateProvider({
       return;
     }
     setParams({
-      hiddenComponents: chartDefaultHiddenYAxes(yAxisChartPrefix),
+      hiddenComponents: chartDefaultHiddenComponents(yAxisChartPrefix, {
+        showLegend: params.showLegend,
+        showBrush: params.showBrush,
+      }),
     });
-  }, [params.hiddenComponents, setParams, yAxisChartPrefix]);
+  }, [
+    params.hiddenComponents,
+    params.showBrush,
+    params.showLegend,
+    setParams,
+    yAxisChartPrefix,
+  ]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: reset slider previews when chart changes via URL
   useEffect(() => {
@@ -212,7 +227,7 @@ export function StudioStateProvider({
     const loaded = normalizeLoadedState(
       loadStudioStateFromRequest(new URL(window.location.href))
     );
-    setParamsState(loaded);
+    setParamsState({ ...loaded, ...reconcileOverlayVisibility(loaded) });
 
     const initialSerialized = new URL(window.location.href).searchParams.get(
       STUDIO_URL_PARAM
@@ -231,7 +246,8 @@ export function StudioStateProvider({
     }
 
     suppressUrlCompress.current = true;
-    setParamsState(normalizeLoadedState(decodeStudioUrlState(compressed)));
+    const decoded = normalizeLoadedState(decodeStudioUrlState(compressed));
+    setParamsState({ ...decoded, ...reconcileOverlayVisibility(decoded) });
     lastWrittenCompressed.current = compressed;
   }, [compressed]);
 
@@ -283,6 +299,7 @@ export function StudioStateProvider({
         ...(slug === "live-line-chart" ? { curve: "monotoneX" } : {}),
         ...(slug === "profit-loss-line" ? lineChartProfitLossDefaults : {}),
         ...(slug === "line-chart" ? lineChartStandardDefaults : {}),
+        ...(slug === "candlestick-chart" ? candlestickChartDefaults : {}),
         ...(slug === "heatmap-chart" ? heatmapChartDefaults : {}),
         ...(slug === "progress-bar" ? progressBarChartDefaults : {}),
         ...(slug === "area-chart" || slug === "composed-chart"
@@ -291,7 +308,12 @@ export function StudioStateProvider({
         ...(() => {
           const prefix = STUDIO_Y_AXIS_CHART_PREFIX[slug];
           return prefix && slug !== "line-chart"
-            ? { hiddenComponents: chartDefaultHiddenYAxes(prefix) }
+            ? {
+                hiddenComponents: chartDefaultHiddenComponents(prefix, {
+                  showLegend: false,
+                  showBrush: false,
+                }),
+              }
             : {};
         })(),
       });
@@ -441,6 +463,91 @@ export function StudioStateProvider({
           className={
             embedded
               ? "min-h-[inherit] w-full"
+              : "flex h-full min-h-0 flex-1 flex-col"
+          }
+        >
+          {children}
+        </div>
+      </StudioDisplayContext.Provider>
+    </StudioShellContext.Provider>
+  );
+}
+
+function buildMemoryStudioState(
+  initialState?: Partial<StudioUrlState>
+): StudioUrlState {
+  const loaded = normalizeLoadedState(
+    defaultStudioState({
+      chart: "area-chart",
+      dataSeries: 2,
+      ...initialState,
+    })
+  );
+  const prefix = STUDIO_Y_AXIS_CHART_PREFIX[loaded.chart as ChartSlug];
+
+  if (prefix && loaded.hiddenComponents === "") {
+    return {
+      ...loaded,
+      hiddenComponents: chartDefaultHiddenComponents(prefix, {
+        showLegend: loaded.showLegend,
+        showBrush: loaded.showBrush,
+      }),
+    };
+  }
+
+  return loaded;
+}
+
+/** In-memory studio state for static homepage/docs previews (no URL sync). */
+export function StudioMemoryStateProvider({
+  children,
+  embedded = false,
+  initialState,
+}: {
+  children: React.ReactNode;
+  embedded?: boolean;
+  initialState?: Partial<StudioUrlState>;
+}) {
+  const state = useMemo(
+    () => buildMemoryStudioState(initialState),
+    [initialState]
+  );
+  const config = useMemo(() => getStudioConfig(state.chart), [state.chart]);
+  const getDisplayState = useCallback(() => state, [state]);
+
+  const shellValue = useMemo((): StudioShellContextValue => {
+    const noop = () => undefined;
+
+    return {
+      state,
+      config,
+      setChart: noop,
+      setParam: noop,
+      setStudioParams: noop,
+      setPreviewParam: noop,
+      setPreviewParams: noop,
+      commitParam: noop,
+      setFrameSize: noop,
+      getDisplayState,
+      motionCurveDragging: false,
+      setMotionCurveDragging: noop,
+      numberScrubbing: false,
+      setNumberScrubbing: noop,
+    };
+  }, [config, getDisplayState, state]);
+
+  const displayValue = useMemo(
+    (): StudioDisplayContextValue => ({ displayState: state }),
+    [state]
+  );
+
+  return (
+    <StudioShellContext.Provider value={shellValue}>
+      <StudioDisplayContext.Provider value={displayValue}>
+        <div
+          className={
+            embedded
+              ? "flex h-full min-h-0 w-full min-w-0 flex-col overflow-hidden"
               : "flex h-full min-h-0 flex-1 flex-col"
           }
         >

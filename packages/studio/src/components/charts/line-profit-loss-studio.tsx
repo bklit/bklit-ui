@@ -22,6 +22,7 @@ import {
   StudioChartYAxisLayers,
   timeSeriesChartMargin,
 } from "@/components/charts/studio-chart-y-axis";
+import { StudioReferenceAreaLayer } from "@/components/charts/studio-reference-area-layer";
 import { fadeEdgesPropValue } from "@/components/controls/fade-edges-picker";
 import { useStudioMotionRemountKey } from "@/components/use-studio-motion-remount";
 import { getStudioCssRevealPropsForPreview } from "@/lib/chart-animation";
@@ -146,6 +147,10 @@ export function LineProfitLossStudioChart({
               highlightRowValues={state.showZeroLine ? [0] : undefined}
             />
           </StudioVisibleLayer>
+          <StudioReferenceAreaLayer
+            componentId="line.reference-area"
+            state={state}
+          />
           <Line
             curve={curve}
             dataKey={STUDIO_PROFIT_LOSS_DATA_KEY}

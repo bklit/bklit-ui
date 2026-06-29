@@ -14,15 +14,17 @@ import { StudioStateProvider } from "./studio-state-provider";
 export function StudioShell({
   analytics,
   renderCodeSheet,
+  onThemeChange,
 }: {
   analytics?: StudioAnalytics;
   renderCodeSheet?: (state: StudioUrlState) => ReactNode;
+  onThemeChange?: (theme: "light" | "dark") => void;
 }) {
   return (
     <StudioNuqsAdapter>
       <StudioAnalyticsProvider value={analytics ?? {}}>
         <StudioStateProvider>
-          <StudioThemeProvider>
+          <StudioThemeProvider onThemeChange={onThemeChange}>
             <StudioOnboardingDialog />
             <StudioEditorLayout renderCodeSheet={renderCodeSheet} />
             <Toaster position="top-center" />

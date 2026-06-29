@@ -318,12 +318,11 @@ export function useChartInteraction({
     }
     const tooltip = resolveTooltipFromX(lastHoveredXRef.current);
     if (tooltip) {
-      // Bypass index-only dedupe so x re-snaps when xScale changes after brush zoom.
-      setTooltipData(tooltip);
+      scheduleTooltip(tooltip, `${tooltip.index}:${Math.round(tooltip.x)}`);
       return;
     }
     clearTooltip();
-  }, [canInteract, clearTooltip, resolveTooltipFromX, setTooltipData]);
+  }, [canInteract, clearTooltip, resolveTooltipFromX, scheduleTooltip]);
 
   const interactionHandlers = canInteract
     ? {

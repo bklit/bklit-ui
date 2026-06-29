@@ -14,5 +14,9 @@ export {
   useSankey,
 } from "./sankey-context";
 export { SankeyLink, type SankeyLinkProps } from "./sankey-link";
-export { SankeyNode, type SankeyNodeProps } from "./sankey-node";
+export {
+  type SankeyLabelOrientation,
+  SankeyNode,
+  type SankeyNodeProps,
+} from "./sankey-node";
 export { SankeyTooltip, type SankeyTooltipProps } from "./sankey-tooltip";

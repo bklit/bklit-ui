@@ -19,12 +19,30 @@ export function serializeHiddenStudioComponents(ids: Iterable<string>): string {
   return [...ids].filter(Boolean).join(HIDDEN_SEP);
 }
 
-/** Both Y axes hidden until toggled in the components tree. */
+/** Y axes and reference area hidden until toggled in the components tree. */
 export function chartDefaultHiddenYAxes(chartPrefix: string): string {
   return serializeHiddenStudioComponents([
     `${chartPrefix}.yaxis.left`,
     `${chartPrefix}.yaxis.right`,
+    `${chartPrefix}.reference-area`,
   ]);
+}
+
+/** Default hidden layers for a cartesian chart (axes, reference area, legend, brush). */
+export function chartDefaultHiddenComponents(
+  chartPrefix: string,
+  options: { showLegend?: boolean; showBrush?: boolean } = {}
+): string {
+  const hidden = new Set(
+    parseHiddenStudioComponents(chartDefaultHiddenYAxes(chartPrefix))
+  );
+  if (options.showLegend === false) {
+    hidden.add(`${chartPrefix}.legend`);
+  }
+  if (options.showBrush === false) {
+    hidden.add(`${chartPrefix}.brush`);
+  }
+  return serializeHiddenStudioComponents(hidden);
 }
 
 /** @deprecated Use {@link chartDefaultHiddenYAxes} with `"line"`. */

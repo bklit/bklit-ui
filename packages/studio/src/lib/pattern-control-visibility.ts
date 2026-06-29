@@ -1,5 +1,20 @@
 import type { StudioUrlState } from "@/lib/studio-parsers";
+import {
+  getProjectionScopedControlValue,
+  isPerProjectionControlKey,
+} from "@/lib/studio-projection-props";
 import type { StudioControl, StudioControlVisibilityRule } from "@/lib/types";
+
+function resolveVisibilityStateValue(
+  state: StudioUrlState,
+  key: keyof StudioUrlState,
+  projectionIndex?: number
+): unknown {
+  if (projectionIndex !== undefined && isPerProjectionControlKey(key)) {
+    return getProjectionScopedControlValue(state, key, projectionIndex);
+  }
+  return state[key];
+}
 
 function matchesValue(
   value: unknown,
@@ -16,9 +31,10 @@ function matchesValue(
 
 function matchesRule(
   state: StudioUrlState,
-  rule: StudioControlVisibilityRule
+  rule: StudioControlVisibilityRule,
+  projectionIndex?: number
 ): boolean {
-  const value = state[rule.key];
+  const value = resolveVisibilityStateValue(state, rule.key, projectionIndex);
   if (rule.truthy === true && !value) {
     return false;
   }
@@ -44,5 +60,7 @@ export function isStudioControlVisible(
   }
 
   const rules = Array.isArray(rule) ? rule : [rule];
-  return rules.every((entry) => matchesRule(state, entry));
+  const projectionIndex =
+    "projectionIndex" in control ? control.projectionIndex : undefined;
+  return rules.every((entry) => matchesRule(state, entry, projectionIndex));
 }

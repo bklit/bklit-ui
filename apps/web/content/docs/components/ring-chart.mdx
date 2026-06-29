@@ -105,11 +105,11 @@ See the [charts gallery](/charts/ring-chart) for custom colors, legend sync, and
 
 ## Theming
 
-The Ring Chart uses CSS variables for theming. The ring background uses `--chart-ring-background`, and ring colors default to `--chart-1` through `--chart-5`:
+The Ring Chart uses CSS variables for theming. The ring track uses `--border` (same as radar grid lines), and ring colors default to `--chart-1` through `--chart-5`:
 
 ```css
 :root {
-  --chart-ring-background: oklch(0.9 0.005 260 / 0.25);
+  --border: oklch(0.92 0.004 286.32);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
@@ -118,7 +118,7 @@ The Ring Chart uses CSS variables for theming. The ring background uses `--chart
 }
 
 .dark {
-  --chart-ring-background: oklch(0.35 0.01 260 / 0.25);
+  --border: oklch(0.56 0.0195 267.65 / 0.2);
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);

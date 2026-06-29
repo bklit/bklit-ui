@@ -9,6 +9,7 @@ type CurveFactory = any;
 
 import { useCallback, useId, useMemo, useRef, useState } from "react";
 import { chartCssVars, useChartStable, useYScale } from "./chart-context";
+import type { LoadingStyle } from "./chart-phase";
 import {
   type FadeEdges,
   fadeGradientStops,
@@ -21,6 +22,7 @@ import {
   resolveLineLoadingPulseMode,
 } from "./line-loading-pulse";
 import { LINE_LOADING_LOOP_PAUSE_MS } from "./line-loading-timing";
+import { LineLoadingSweep } from "./loading-sweep";
 import {
   resolveDashTailBounds,
   usePathStrokeMetrics,
@@ -77,6 +79,12 @@ export interface LineProps {
   loadingPulseMode?: LineLoadingPulseMode;
   /** Called when a loop-mode pulse cycle completes. */
   onLoadingPulseCycleComplete?: () => void;
+  /**
+   * Loading animation while the chart is in loading status: the default
+   * traveling `"pulse"`, or a diagonal `"sweep"` shimmer across the skeleton
+   * line. Default: `"pulse"`.
+   */
+  loadingStyle?: LoadingStyle;
 }
 
 export function Line({
@@ -97,6 +105,7 @@ export function Line({
   loadingStrokeOpacity = 0.5,
   loadingPulseMode,
   onLoadingPulseCycleComplete,
+  loadingStyle = "pulse",
 }: LineProps) {
   // Stable slice only: hover state lives inside `<SeriesHoverDim>` and
   // `<SeriesHighlightLayer>` so this component (and its expensive
@@ -174,6 +183,13 @@ export function Line({
     visibleStroke = lineStroke;
   }
 
+  // Loading overlay: sweep only during steady "loop" (the infinite sweep has
+  // no cycle-complete callback, so the pulse must drive the exit/enter
+  // handoffs or the phase machine stalls).
+  const sweepLoading =
+    showLoadingPulse && innerWidth > 0 && loadingStyle === "sweep";
+  const pulseLoading = showLoadingPulse && innerWidth > 0 && !sweepLoading;
+
   return (
     <>
       {fadeStops ? (
@@ -242,7 +258,18 @@ export function Line({
         strokeWidth={strokeWidth}
       />
 
-      {showLoadingPulse && pathD && innerWidth > 0 ? (
+      {sweepLoading ? (
+        <LineLoadingSweep
+          curve={curve}
+          key="loading-sweep"
+          mode={pulseMode ?? "loop"}
+          onTransitionComplete={handleLoadingPulseComplete}
+          stroke={loadingStroke}
+          strokeOpacity={loadingStrokeOpacity}
+          strokeWidth={strokeWidth}
+        />
+      ) : null}
+      {pulseLoading && pathD ? (
         <LineLoadingPulseStroke
           key="loading-pulse"
           loopEpoch={pulseEpoch}

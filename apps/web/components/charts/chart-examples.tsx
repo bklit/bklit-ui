@@ -7,6 +7,7 @@ import {
   Background,
   Bar,
   BarChart,
+  BarChartLoading,
   BarDepthBack,
   BarDepthFront,
   BarDepthProvider,
@@ -75,6 +76,7 @@ import {
   RadarLabels,
   type RadarMetric,
   RadialGradient,
+  ReferenceArea,
   Ring,
   RingCenter,
   RingChart,
@@ -90,7 +92,6 @@ import {
   SegmentLineFrom,
   SegmentLineTo,
   SeriesBar,
-  StaticChartPreviewProvider,
   useChart,
   XAxis,
   YAxis,
@@ -105,9 +106,8 @@ import {
 } from "@visx/curve";
 import { DynamicCodeBlock } from "fumadocs-ui/components/dynamic-codeblock";
 import { motion, useSpring } from "motion/react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import {
+  type ComponentProps,
   type ReactNode,
   useCallback,
   useEffect,
@@ -124,14 +124,19 @@ import {
   chartExampleRadialShellClassName,
   getChartExampleContentPaddingClassName,
 } from "@/components/charts/chart-example-preview";
+import { FeaturedChartHero } from "@/components/charts/featured-chart-hero";
 import { LineChartStudioTrioDemo } from "@/components/charts/line-chart-studio-trio-demo";
 import { CopyButton } from "@/components/copy-button";
+import {
+  buildLineChartDemoData,
+  REFERENCE_AREA_DEMO,
+} from "@/components/docs/line-chart-demo-data";
 import {
   PROFIT_LOSS_DATA_KEY,
   profitLossLineDocsData,
 } from "@/components/docs/profit-loss-line-docs-data";
+import { ProjectionLineDemo } from "@/components/docs/projection-line-demo";
 import { useWorldDataStandalone } from "@/components/docs/use-world-data";
-import { HorizontalScrollArea } from "@/components/horizontal-scroll-area";
 import {
   Card,
   CardContent,
@@ -685,7 +690,10 @@ function ChartExampleCard({
         </div>
       </CardHeader>
       <CardContent className={cn(contentPaddingClassName, "overflow-visible")}>
-        <ChartExamplePreviewFrame layout={previewLayout} role={previewRole}>
+        <ChartExamplePreviewFrame
+          layout={previewLayout}
+          previewRole={previewRole}
+        >
           {children}
         </ChartExamplePreviewFrame>
       </CardContent>
@@ -876,9 +884,69 @@ ${chartClose}`,
   ];
 }
 
+function makeCartesianReferenceAreaExamples(options: {
+  titlePrefix: string;
+  chartOpen: string;
+  chartClose: string;
+  seriesSnippet: string;
+  y1?: number;
+  y2?: number;
+  render: (referenceArea: ReactNode) => ReactNode;
+}): ChartExample[] {
+  const { titlePrefix, chartOpen, chartClose, seriesSnippet, render } = options;
+  const y1 = options.y1 ?? 160;
+  const y2 = options.y2 ?? 220;
+
+  return [
+    {
+      title: `${titlePrefix} - Reference Band`,
+      description:
+        "Horizontal Y band behind the series with dashed edges and bracket markers",
+      code: `${chartOpen}
+  <ReferenceArea y1={${y1}} y2={${y2}} strokeStyle="dashed" showMarkers />
+  ${seriesSnippet}
+${chartClose}`,
+      footer:
+        "See /docs/utility/reference-area — tune bounds, fill, and markers in Studio",
+      render: () =>
+        render(
+          <ReferenceArea showMarkers strokeStyle="dashed" y1={y1} y2={y2} />
+        ),
+    },
+    {
+      title: `${titlePrefix} - Pattern Reference Band`,
+      description:
+        "Pattern fill inside the band with colored Y-axis tick labels",
+      code: `${chartOpen}
+  <ReferenceArea
+    y1={${y1}}
+    y2={${y2}}
+    pattern="diagonal"
+    patternColor="var(--chart-foreground-muted)"
+    axisLabelColor="var(--chart-1)"
+    fillOpacity={0.85}
+  />
+  ${seriesSnippet}
+${chartClose}`,
+      render: () =>
+        render(
+          <ReferenceArea
+            axisLabelColor="var(--chart-1)"
+            fillOpacity={0.85}
+            pattern="diagonal"
+            patternColor="var(--chart-foreground-muted)"
+            y1={y1}
+            y2={y2}
+          />
+        ),
+    },
+  ];
+}
+
 const AreaExampleChart = createChartExamplePreview(AreaChart);
 const AreaChartLoadingExample = createChartExamplePreview(AreaChartLoading);
 const BarExampleChart = createChartExamplePreview(BarChart);
+const BarChartLoadingExample = createChartExamplePreview(BarChartLoading);
 const LineExampleChart = createChartExamplePreview(LineChart);
 const LineChartLoadingExample = createChartExamplePreview(LineChartLoading);
 const ComposedExampleChart = createChartExamplePreview(ComposedChart);
@@ -886,6 +954,30 @@ const CandlestickExampleChart = createChartExamplePreview(CandlestickChart);
 const LiveLineExampleChart = createChartExamplePreview(LiveLineChart);
 const ChoroplethExampleChart = createChartExamplePreview(ChoroplethChart);
 const SankeyExampleChart = createChartExamplePreview(SankeyChart);
+
+const SANKEY_LABELED_EXAMPLE_MARGIN = {
+  top: 20,
+  right: 56,
+  bottom: 40,
+  left: 56,
+} as const;
+
+const sankeyLabeledExampleMarginSnippet =
+  "margin={{ top: 20, right: 56, bottom: 40, left: 56 }}";
+
+function SankeyLabeledExampleChart({
+  margin,
+  ...props
+}: ComponentProps<typeof SankeyExampleChart>) {
+  return (
+    <div className="px-2 py-1 sm:px-4">
+      <SankeyExampleChart
+        {...props}
+        margin={{ ...SANKEY_LABELED_EXAMPLE_MARGIN, ...margin }}
+      />
+    </div>
+  );
+}
 const HeatmapExampleChart = createChartExamplePreview(HeatmapChart);
 const HeatmapChartLoadingExample =
   createChartExamplePreview(HeatmapChartLoading);
@@ -1201,6 +1293,15 @@ function makeAreaExamples(): ChartExample[] {
       render: () => <AreaChartLoadingExample />,
     },
     {
+      title: "Area Chart - Loading (Sweep)",
+      description:
+        "Diagonal shimmer sweeping across the skeleton area while data loads",
+      code: `<AreaChartLoading loadingStyle="sweep" />`,
+      footer:
+        'Set loadingStyle="sweep" on Area or AreaChartLoading; defaults to the traveling pulse.',
+      render: () => <AreaChartLoadingExample loadingStyle="sweep" />,
+    },
+    {
       title: "Area Chart - Segment Selection",
       description: "Click and drag to select a range",
       code: `<AreaChart data={chartData}>
@@ -1406,6 +1507,23 @@ function makeAreaExamples(): ChartExample[] {
         </AreaExampleChart>
       ),
     }),
+    ...makeCartesianReferenceAreaExamples({
+      titlePrefix: "Area Chart",
+      chartOpen:
+        "<AreaChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={chartData}>",
+      chartClose: "</AreaChart>",
+      seriesSnippet: `<Area dataKey="desktop" fillOpacity={0.3} strokeWidth={2} />
+  <XAxis />
+  <ChartTooltip />`,
+      render: (referenceArea) => (
+        <AreaExampleChart data={areaData}>
+          {referenceArea}
+          <Area dataKey="desktop" fillOpacity={0.3} strokeWidth={2} />
+          <XAxis />
+          <ChartTooltip />
+        </AreaExampleChart>
+      ),
+    }),
   ];
 }
 
@@ -1428,6 +1546,16 @@ function makeBarExamples(): ChartExample[] {
           <ChartTooltip />
         </BarExampleChart>
       ),
+    },
+    {
+      title: "Bar Chart - Loading",
+      description:
+        "Diagonal shimmer sweeping across placeholder bars while data loads",
+      code: `// Shortcut for <BarChart status="loading" />
+<BarChartLoading />`,
+      footer:
+        'Set status="loading" on BarChart, or use the BarChartLoading shortcut.',
+      render: () => <BarChartLoadingExample />,
     },
     {
       title: "Bar Chart - 3D Depth",
@@ -1834,6 +1962,25 @@ function makeBarExamples(): ChartExample[] {
         </BarExampleChart>
       ),
     }),
+    ...makeCartesianReferenceAreaExamples({
+      titlePrefix: "Bar Chart",
+      chartOpen:
+        '<BarChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={chartData} xDataKey="month">',
+      chartClose: "</BarChart>",
+      seriesSnippet: `<Bar dataKey="desktop" lineCap="round" />
+  <BarXAxis />
+  <ChartTooltip showCrosshair={false} />`,
+      y1: 4200,
+      y2: 5000,
+      render: (referenceArea) => (
+        <BarExampleChart data={barStackedData} xDataKey="month">
+          {referenceArea}
+          <Bar dataKey="desktop" lineCap="round" />
+          <BarXAxis />
+          <ChartTooltip showCrosshair={false} />
+        </BarExampleChart>
+      ),
+    }),
   ];
 }
 
@@ -1858,7 +2005,7 @@ function makeComposedExamples(): ChartExample[] {
   <XAxis numTicks={8} />
 </ComposedChart>`,
       footer:
-        'Dense time series: use default XAxis ticks (numTicks) so labels stay readable. Use tickMode="data" when you only have a few rows (e.g. one bar per month).',
+        "Dense time series: use numTicks on XAxis so labels stay readable. Ticks snap to data rows by default so crosshair and tooltip align.",
       render: () => (
         <ComposedExampleChart
           aspectRatio="3 / 2"
@@ -2188,6 +2335,27 @@ function makeComposedExamples(): ChartExample[] {
         </ComposedExampleChart>
       ),
     }),
+    ...makeCartesianReferenceAreaExamples({
+      titlePrefix: "Composed Chart",
+      chartOpen:
+        '<ComposedChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={data} xDataKey="date">',
+      chartClose: "</ComposedChart>",
+      seriesSnippet: `<SeriesBar dataKey="units" fill="var(--chart-3)" radius={4} />
+  <Line dataKey="revenue" stroke="var(--chart-1)" />
+  <ChartTooltip showCrosshair={false} />
+  <XAxis numTicks={8} />`,
+      y1: 95,
+      y2: 110,
+      render: (referenceArea) => (
+        <ComposedExampleChart data={dataCast} xDataKey="date">
+          {referenceArea}
+          <SeriesBar dataKey="units" fill="var(--chart-3)" radius={4} />
+          <Line dataKey="revenue" stroke="var(--chart-1)" />
+          <ChartTooltip showCrosshair={false} />
+          <XAxis numTicks={8} />
+        </ComposedExampleChart>
+      ),
+    }),
   ];
 }
 
@@ -2214,6 +2382,59 @@ function makeComposedHero(): ChartExample {
 
 function makeLineExamples(): ChartExample[] {
   return [
+    {
+      title: "Line Chart - Projection",
+      description:
+        "Target and auto forecasts with gradient dashed beziers and a terminal marker",
+      code: `import {
+  buildProjectionPath,
+  LineSeriesTerminalMarker,
+  ProjectionLine,
+} from "@bklitui/ui/charts";
+
+const targetProjectionPath = buildProjectionPath({
+  sourceData: chartData,
+  seriesKey: "value",
+  mode: "target",
+  pathDensity: "endpoints",
+  horizonPoints: 6,
+  endValue: 301,
+});
+
+const autoProjectionPath = buildProjectionPath({
+  sourceData: chartData,
+  seriesKey: "value",
+  mode: "auto",
+  autoMethod: "lastSegment",
+  pathDensity: "endpoints",
+  horizonPoints: 6,
+});
+
+<LineChart data={chartData}>
+  <Grid horizontal />
+  <Line dataKey="value" strokeWidth={2} />
+  <LineSeriesTerminalMarker dataKey="value" />
+  <ProjectionLine
+    data={targetProjectionPath}
+    strokeDasharray="1,4"
+    curveKind="bezier"
+    strokeStyle="gradient"
+    showEndMarker
+  />
+  <ProjectionLine
+    data={autoProjectionPath}
+    strokeDasharray="1,4"
+    curveKind="bezier"
+    strokeStyle="gradient"
+    showEndMarker
+  />
+  <XAxis />
+  <ChartTooltip />
+</LineChart>`,
+      footer:
+        "See the [Projection Line utility](/docs/utility/projection-line). Projections and brush zoom are not supported together.",
+      render: () => <ProjectionLineDemo />,
+    },
     {
       title: "Line Chart - Linear",
       description: "Straight lines between data points",
@@ -2277,44 +2498,6 @@ function makeLineExamples(): ChartExample[] {
           <ChartTooltip />
         </LineExampleChart>
       ),
-    },
-    {
-      title: "Line Chart - Trio with Brush",
-      description:
-        "Three Catmull–Rom series on a dot background with a top legend and brush zoom — matches the Studio trio preset.",
-      code: `import { curveCatmullRom } from "@visx/curve";
-import {
-  Background,
-  ChartBrush,
-  ChartBrushLayout,
-  ChartLegend,
-  ChartTooltip,
-  Line,
-  LineChart,
-  XAxis,
-} from "@bklitui/ui/charts";
-
-<ChartBrushLayout data={chartData} enabled height={72} brushStrip={...}>
-  {(brushLayout) => (
-    <LineChart data={chartData} xDomain={brushLayout.xDomain} tweenYDomainOnXDomainChange>
-      <Background pattern="dots" opacity={0.85} />
-      <Line dataKey="desktop" curve={curveCatmullRom} stroke="oklch(0.882 0.131 312.907)" fadeEdges strokeWidth={2} />
-      <Line dataKey="mobile" curve={curveCatmullRom} stroke="oklch(1 0 215.215)" fadeEdges strokeWidth={2} />
-      <Line dataKey="tablet" curve={curveCatmullRom} stroke="oklch(0.85 0.079 48.99)" fadeEdges strokeWidth={2} />
-      <XAxis />
-      <ChartTooltip />
-    </LineChart>
-  )}
-</ChartBrushLayout>`,
-      data: `const chartData = Array.from({ length: 30 }, (_, i) => ({
-  date: new Date(2025, 0, 1 + i),
-  desktop: Math.round(180 + Math.sin(i / 4.2) * 70 + ((i * 9) % 31)),
-  mobile: Math.round(120 + Math.cos(i / 3.8) * 55 + ((i * 5) % 23)),
-  tablet: Math.round(150 + Math.sin(i / 5.1 + 1) * 48 + ((i * 7) % 19)),
-}));`,
-      footer:
-        "Open the same preset in Studio from the Background docs or paste the share URL from /charts/line-chart.",
-      render: () => <LineChartStudioTrioDemo />,
     },
     {
       title: "Line Chart - Multiple Lines",
@@ -2418,6 +2601,15 @@ import {
       footer:
         "Uses @bklit/shimmering-text for the label — installed with @bklit/line-chart",
       render: () => <LineChartLoadingExample />,
+    },
+    {
+      title: "Line Chart - Loading (Sweep)",
+      description:
+        "Diagonal shimmer sweeping across the skeleton line while data loads",
+      code: `<LineChartLoading loadingStyle="sweep" />`,
+      footer:
+        'Set loadingStyle="sweep" on Line or LineChartLoading; defaults to the traveling pulse.',
+      render: () => <LineChartLoadingExample loadingStyle="sweep" />,
     },
     {
       title: "Line Chart - Dashed Tail",
@@ -2542,6 +2734,25 @@ import {
         <LineExampleChart data={lineData}>
           {background}
           <Line dataKey="desktop" strokeWidth={2} />
+          <XAxis />
+          <ChartTooltip />
+        </LineExampleChart>
+      ),
+    }),
+    ...makeCartesianReferenceAreaExamples({
+      titlePrefix: "Line Chart",
+      y1: REFERENCE_AREA_DEMO.y1,
+      y2: REFERENCE_AREA_DEMO.y2,
+      chartOpen:
+        "<LineChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={chartData}>",
+      chartClose: "</LineChart>",
+      seriesSnippet: `<Line dataKey="value" strokeWidth={2} />
+  <XAxis />
+  <ChartTooltip />`,
+      render: (referenceArea) => (
+        <LineExampleChart data={buildLineChartDemoData()}>
+          {referenceArea}
+          <Line dataKey="value" strokeWidth={2} />
           <XAxis />
           <ChartTooltip />
         </LineExampleChart>
@@ -2754,6 +2965,36 @@ function makeLiveLineExamples(): ChartExample[] {
 </LiveLineChart>`,
       render: () => <LiveLineBackgroundDotsDemo />,
     },
+    {
+      title: "Live Line - Reference Band",
+      description: "Target price band with dashed edges and bracket markers",
+      code: `<LiveLineChart margin={{ top: 8, right: 8, bottom: 40, left: 28 }} data={data} value={value} window={30}>
+  <ReferenceArea y1={138} y2={148} strokeStyle="dashed" showMarkers />
+  <LiveLine dataKey="value" stroke="var(--chart-1)" formatValue={formatUsd} />
+  <LiveXAxis />
+  <LiveYAxis position="left" formatValue={formatUsd} />
+</LiveLineChart>`,
+      footer: "See /docs/utility/reference-area",
+      render: () => <LiveLineReferenceBandDemo />,
+    },
+    {
+      title: "Live Line - Pattern Reference Band",
+      description: "Pattern fill inside the band with colored Y-axis ticks",
+      code: `<LiveLineChart margin={{ top: 8, right: 8, bottom: 40, left: 28 }} data={data} value={value} window={30}>
+  <ReferenceArea
+    y1={138}
+    y2={148}
+    pattern="diagonal"
+    patternColor="var(--chart-foreground-muted)"
+    axisLabelColor="var(--chart-1)"
+    fillOpacity={0.85}
+  />
+  <LiveLine dataKey="value" stroke="var(--chart-1)" formatValue={formatUsd} />
+  <LiveXAxis />
+  <LiveYAxis position="left" formatValue={formatUsd} />
+</LiveLineChart>`,
+      render: () => <LiveLinePatternReferenceBandDemo />,
+    },
   ];
 }
 
@@ -2792,6 +3033,59 @@ function LiveLineBackgroundDotsDemo() {
       window={30}
     >
       <Background opacity={0.85} pattern="dots" />
+      <LiveLine
+        dataKey="value"
+        formatValue={formatUsd}
+        stroke="var(--chart-1)"
+      />
+      <LiveXAxis />
+      <LiveYAxis formatValue={formatUsd} position="left" />
+    </LiveLineExampleChart>
+  );
+}
+
+function LiveLineReferenceBandDemo() {
+  const { data, value } = useLiveData(142.5, 600);
+  const formatUsd = useCallback((v: number) => `$${v.toFixed(2)}`, []);
+  return (
+    <LiveLineExampleChart
+      data={data}
+      margin={{ left: 28 }}
+      style={{ height: 240 }}
+      value={value}
+      window={30}
+    >
+      <ReferenceArea showMarkers strokeStyle="dashed" y1={138} y2={148} />
+      <LiveLine
+        dataKey="value"
+        formatValue={formatUsd}
+        stroke="var(--chart-1)"
+      />
+      <LiveXAxis />
+      <LiveYAxis formatValue={formatUsd} position="left" />
+    </LiveLineExampleChart>
+  );
+}
+
+function LiveLinePatternReferenceBandDemo() {
+  const { data, value } = useLiveData(142.5, 600);
+  const formatUsd = useCallback((v: number) => `$${v.toFixed(2)}`, []);
+  return (
+    <LiveLineExampleChart
+      data={data}
+      margin={{ left: 28 }}
+      style={{ height: 240 }}
+      value={value}
+      window={30}
+    >
+      <ReferenceArea
+        axisLabelColor="var(--chart-1)"
+        fillOpacity={0.85}
+        pattern="diagonal"
+        patternColor="var(--chart-foreground-muted)"
+        y1={138}
+        y2={148}
+      />
       <LiveLine
         dataKey="value"
         formatValue={formatUsd}
@@ -4248,22 +4542,22 @@ function makeSankeyExamples(): ChartExample[] {
     {
       title: "Sankey Chart",
       description: "User flow with labels and tooltip",
-      code: `<SankeyChart data={data} margin={{ top: 8, right: 8, bottom: 40, left: 8 }} nodePadding={24} nodeWidth={16}>
+      code: `<SankeyChart data={data} ${sankeyLabeledExampleMarginSnippet} nodePadding={24} nodeWidth={16}>
   <SankeyLink />
-  <SankeyNode lineCap={4} />
+  <SankeyNode lineCap={4} labelOrientation="vertical" />
   <SankeyTooltip />
 </SankeyChart>`,
       render: () => (
-        <SankeyExampleChart
+        <SankeyLabeledExampleChart
           aspectRatio="4 / 3"
           data={sankeyAnalytics}
           nodePadding={24}
           nodeWidth={16}
         >
           <SankeyLink />
-          <SankeyNode lineCap={4} />
+          <SankeyNode labelOrientation="vertical" lineCap={4} />
           <SankeyTooltip />
-        </SankeyExampleChart>
+        </SankeyLabeledExampleChart>
       ),
     },
     {
@@ -4295,34 +4589,34 @@ function makeSankeyExamples(): ChartExample[] {
     {
       title: "Sankey Chart - Simple",
       description: "Minimal flow with fewer nodes",
-      code: `<SankeyChart data={simpleData} margin={{ top: 8, right: 8, bottom: 40, left: 8 }} nodePadding={20} nodeWidth={12}>
+      code: `<SankeyChart data={simpleData} ${sankeyLabeledExampleMarginSnippet} nodePadding={20} nodeWidth={12}>
   <SankeyLink strokeOpacity={0.5} />
-  <SankeyNode lineCap={3} />
+  <SankeyNode lineCap={3} labelOrientation="vertical" />
   <SankeyTooltip />
 </SankeyChart>`,
       render: () => (
-        <SankeyExampleChart
+        <SankeyLabeledExampleChart
           aspectRatio="4 / 3"
           data={sankeySimple}
           nodePadding={20}
           nodeWidth={12}
         >
           <SankeyLink strokeOpacity={0.5} />
-          <SankeyNode lineCap={3} />
+          <SankeyNode labelOrientation="vertical" lineCap={3} />
           <SankeyTooltip />
-        </SankeyExampleChart>
+        </SankeyLabeledExampleChart>
       ),
     },
     {
       title: "Sankey Chart - Solid Links",
       description: "Single-color links instead of gradients",
-      code: `<SankeyChart data={data} margin={{ top: 8, right: 8, bottom: 40, left: 8 }} nodePadding={24} nodeWidth={16}>
+      code: `<SankeyChart data={data} ${sankeyLabeledExampleMarginSnippet} nodePadding={24} nodeWidth={16}>
   <SankeyLink stroke="var(--chart-3)" strokeOpacity={0.3} useGradient={false} />
-  <SankeyNode lineCap={4} />
+  <SankeyNode lineCap={4} labelOrientation="vertical" />
   <SankeyTooltip />
 </SankeyChart>`,
       render: () => (
-        <SankeyExampleChart
+        <SankeyLabeledExampleChart
           aspectRatio="4 / 3"
           data={sankeyAnalytics}
           nodePadding={24}
@@ -4333,9 +4627,9 @@ function makeSankeyExamples(): ChartExample[] {
             strokeOpacity={0.3}
             useGradient={false}
           />
-          <SankeyNode lineCap={4} />
+          <SankeyNode labelOrientation="vertical" lineCap={4} />
           <SankeyTooltip />
-        </SankeyExampleChart>
+        </SankeyLabeledExampleChart>
       ),
     },
   ];
@@ -4662,6 +4956,28 @@ function makeCandlestickExamples(): ChartExample[] {
         </CandlestickExampleChart>
       ),
     }),
+    ...makeCartesianReferenceAreaExamples({
+      titlePrefix: "Candlestick",
+      chartOpen:
+        "<CandlestickChart data={ohlcData} margin={{ top: 8, right: 8, bottom: 40, left: 8 }} style={{ height: 320 }}>",
+      chartClose: "</CandlestickChart>",
+      seriesSnippet: `<Candlestick fadedOpacity={0.25} />
+  <ChartTooltip content={CandlestickTooltipContent} />
+  <XAxis />`,
+      y1: 98,
+      y2: 108,
+      render: (referenceArea) => (
+        <CandlestickExampleChart
+          data={candlestickOhlcData}
+          style={{ height: 320 }}
+        >
+          {referenceArea}
+          <Candlestick fadedOpacity={0.25} />
+          <ChartTooltip content={CandlestickTooltipContent} />
+          <XAxis />
+        </CandlestickExampleChart>
+      ),
+    }),
   ];
 }
 
@@ -4743,12 +5059,6 @@ const HERO_CURVE_OPTIONS = [
   },
 ] as const;
 
-const lineHeroData = Array.from({ length: 30 }, (_, i) => ({
-  date: new Date(2024, 0, i + 1),
-  desktop: Math.floor(150 + Math.sin(i / 4) * 80 + ((i * 7) % 31)),
-  mobile: Math.floor(80 + Math.cos(i / 3) * 50 + ((i * 5) % 23)),
-}));
-
 const areaHeroData = Array.from({ length: 30 }, (_, i) => ({
   date: new Date(2024, 0, i + 1),
   revenue: Math.floor(8000 + Math.sin(i / 5) * 4000 + ((i * 11) % 2000)),
@@ -4787,37 +5097,6 @@ function ChartHeroCurveToolbar({
           ))}
         </SelectContent>
       </Select>
-    </div>
-  );
-}
-
-function LineHeroWithCurveSelect() {
-  const [curveId, setCurveId] = useState("natural");
-  const curve = useMemo(() => {
-    const hit = HERO_CURVE_OPTIONS.find((o) => o.value === curveId);
-    return hit?.curve ?? curveNatural;
-  }, [curveId]);
-
-  return (
-    <div className="space-y-3">
-      <ChartHeroCurveToolbar onValueChange={setCurveId} value={curveId} />
-      <LineExampleChart aspectRatio="4 / 1" data={lineHeroData}>
-        <Grid horizontal />
-        <Line
-          curve={curve}
-          dataKey="desktop"
-          stroke="var(--chart-1)"
-          strokeWidth={2}
-        />
-        <Line
-          curve={curve}
-          dataKey="mobile"
-          stroke="var(--chart-3)"
-          strokeWidth={2}
-        />
-        <XAxis />
-        <ChartTooltip />
-      </LineExampleChart>
     </div>
   );
 }
@@ -5017,31 +5296,83 @@ function makeProfitLossLineExamples(): ChartExample[] {
         </LineExampleChart>
       ),
     }),
+    ...makeCartesianReferenceAreaExamples({
+      titlePrefix: "Profit/Loss Line",
+      chartOpen: "<LineChart data={data}>",
+      chartClose: "</LineChart>",
+      seriesSnippet: `<Line dataKey="pnl" stroke="transparent" strokeWidth={0} showHighlight={false} />
+  <ProfitLossLine dataKey="pnl" />
+  <XAxis />
+  <ChartTooltip />`,
+      y1: -200,
+      y2: 200,
+      render: (referenceArea) => (
+        <LineExampleChart data={profitLossLineDocsData}>
+          {referenceArea}
+          <Line
+            dataKey="pnl"
+            showHighlight={false}
+            stroke="transparent"
+            strokeWidth={0}
+          />
+          <ProfitLossLine dataKey="pnl" />
+          <XAxis />
+          <ChartTooltip
+            indicatorColor={(point) =>
+              profitLossColor((point.pnl as number) ?? 0)
+            }
+            rows={(point) => [
+              {
+                label: resolveProfitLossTooltipLabel(""),
+                value: (point.pnl as number) ?? 0,
+                color: profitLossColor((point.pnl as number) ?? 0),
+              },
+            ]}
+          />
+        </LineExampleChart>
+      ),
+    }),
   ];
 }
 
 function makeLineHero(): ChartExample {
   return {
-    title: "Line Chart - Interactive",
+    title: "Line Chart - Trio with Brush",
     description:
-      "Desktop vs mobile visitors over 30 days. Use the curve menu to compare @visx/curve factories on both lines.",
-    code: `import { curveNatural } from "@visx/curve";
+      "Three Catmull–Rom series on a dot background with a top legend and brush zoom — matches the Studio trio preset.",
+    code: `import { curveCatmullRom } from "@visx/curve";
+import {
+  Background,
+  ChartBrush,
+  ChartBrushLayout,
+  ChartLegend,
+  ChartTooltip,
+  Line,
+  LineChart,
+  XAxis,
+} from "@bklitui/ui/charts";
 
-<LineChart data={chartData} margin={{ top: 8, right: 8, bottom: 40, left: 8 }}>
-  <Grid horizontal />
-  <Line curve={curveNatural} dataKey="desktop" stroke="var(--chart-1)" strokeWidth={2} />
-  <Line curve={curveNatural} dataKey="mobile" stroke="var(--chart-3)" strokeWidth={2} />
-  <XAxis />
-  <ChartTooltip />
-</LineChart>`,
+<ChartBrushLayout data={chartData} enabled height={72} brushStrip={...}>
+  {(brushLayout) => (
+    <LineChart data={chartData} xDomain={brushLayout.xDomain} tweenYDomainOnXDomainChange>
+      <Background pattern="dots" opacity={0.85} />
+      <Line dataKey="desktop" curve={curveCatmullRom} fadeEdges strokeWidth={2} />
+      <Line dataKey="mobile" curve={curveCatmullRom} fadeEdges strokeWidth={2} />
+      <Line dataKey="tablet" curve={curveCatmullRom} fadeEdges strokeWidth={2} />
+      <XAxis />
+      <ChartTooltip />
+    </LineChart>
+  )}
+</ChartBrushLayout>`,
     data: `const chartData = Array.from({ length: 30 }, (_, i) => ({
-  date: new Date(2024, 0, i + 1),
-  desktop: Math.floor(150 + Math.sin(i / 4) * 80 + ((i * 7) % 31)),
-  mobile: Math.floor(80 + Math.cos(i / 3) * 50 + ((i * 5) % 23)),
+  date: new Date(2025, 0, 1 + i),
+  desktop: Math.round(180 + Math.sin(i / 4.2) * 70 + ((i * 9) % 31)),
+  mobile: Math.round(120 + Math.cos(i / 3.8) * 55 + ((i * 5) % 23)),
+  tablet: Math.round(150 + Math.sin(i / 5.1 + 1) * 48 + ((i * 7) % 19)),
 }));`,
     footer:
-      "Hero uses a Radix Select to swap curves live; see https://visx.airbnb.tech/docs/curve for the full list.",
-    render: () => <LineHeroWithCurveSelect />,
+      "Open the same preset in Studio from the Background docs or paste the share URL from /charts/line-chart.",
+    render: () => <LineChartStudioTrioDemo height={540} />,
   };
 }
 
@@ -5109,16 +5440,16 @@ function makeBarHero(): ChartExample {
 
 function SankeyHeroInner() {
   return (
-    <SankeyExampleChart
+    <SankeyLabeledExampleChart
       aspectRatio="5 / 2"
       data={sankeyAnalytics}
       nodePadding={24}
       nodeWidth={16}
     >
       <SankeyLink />
-      <SankeyNode lineCap={4} />
+      <SankeyNode labelOrientation="vertical" lineCap={4} />
       <SankeyTooltip />
-    </SankeyExampleChart>
+    </SankeyLabeledExampleChart>
   );
 }
 
@@ -5126,9 +5457,9 @@ function makeSankeyHero(): ChartExample {
   return {
     title: "Sankey Chart - Interactive",
     description: "User flow from source to outcome",
-    code: `<SankeyChart data={analyticsData} margin={{ top: 8, right: 8, bottom: 40, left: 8 }} nodePadding={24} nodeWidth={16}>
+    code: `<SankeyChart data={analyticsData} ${sankeyLabeledExampleMarginSnippet} nodePadding={24} nodeWidth={16}>
   <SankeyLink />
-  <SankeyNode lineCap={4} />
+  <SankeyNode lineCap={4} labelOrientation="vertical" />
   <SankeyTooltip />
 </SankeyChart>`,
     render: () => <SankeyHeroInner />,
@@ -5652,6 +5983,25 @@ function makeScatterExamples(): ChartExample[] {
         </ScatterExampleChart>
       ),
     }),
+    ...makeCartesianReferenceAreaExamples({
+      titlePrefix: "Scatter Chart",
+      chartOpen:
+        "<ScatterChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={chartData}>",
+      chartClose: "</ScatterChart>",
+      seriesSnippet: `<Scatter dataKey="desktop" />
+  <XAxis />
+  <ChartTooltip />`,
+      y1: 120,
+      y2: 180,
+      render: (referenceArea) => (
+        <ScatterExampleChart data={scatterMultiSeriesData}>
+          {referenceArea}
+          <Scatter dataKey="desktop" />
+          <XAxis />
+          <ChartTooltip />
+        </ScatterExampleChart>
+      ),
+    }),
   ];
 }
 
@@ -5678,59 +6028,6 @@ function makeScatterHero(): ChartExample {
       </ScatterExampleChart>
     ),
   };
-}
-
-// ---------------------------------------------------------------------------
-// Chart type navigation
-// ---------------------------------------------------------------------------
-
-const chartTypes = [
-  { label: "Area Chart", slug: "area-chart" },
-  { label: "Bar Chart", slug: "bar-chart" },
-  { label: "Candlestick Chart", slug: "candlestick-chart" },
-  { label: "Choropleth Chart", slug: "choropleth-chart" },
-  { label: "Composed Chart", slug: "composed-chart" },
-  { label: "Funnel Chart", slug: "funnel-chart" },
-  { label: "Gauge", slug: "gauge-chart" },
-  { label: "Heatmap Chart", slug: "heatmap-chart" },
-  { label: "Line Chart", slug: "line-chart" },
-  { label: "Live Line Chart", slug: "live-line-chart" },
-  { label: "Pie Chart", slug: "pie-chart" },
-  { label: "Progress Bar", slug: "progress-bar" },
-  { label: "Radar Chart", slug: "radar-chart" },
-  { label: "Ring Chart", slug: "ring-chart" },
-  { label: "Scatter Chart", slug: "scatter-chart" },
-  { label: "Sankey Chart", slug: "sankey-chart" },
-];
-
-function ChartNav() {
-  const pathname = usePathname();
-
-  return (
-    <HorizontalScrollArea className="pb-6">
-      <nav className="flex gap-1">
-        {chartTypes.map((chart) => {
-          const href = `/charts/${chart.slug}`;
-          const isActive = pathname === href;
-
-          return (
-            <Link
-              className={cn(
-                "shrink-0 rounded-md px-3 py-1.5 font-medium text-sm transition-colors",
-                isActive
-                  ? "bg-foreground text-background"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
-              )}
-              href={href}
-              key={chart.slug}
-            >
-              {chart.label}
-            </Link>
-          );
-        })}
-      </nav>
-    </HorizontalScrollArea>
-  );
 }
 
 // ---------------------------------------------------------------------------
@@ -5810,6 +6107,8 @@ const chartExamplesRegistry: Record<string, RegistryEntry> = {
 // Public component
 // ---------------------------------------------------------------------------
 
+const chartsPageContentClassName = "container mx-auto w-full overflow-visible";
+
 export function ChartExamplesGrid({ chartSlug }: { chartSlug: string }) {
   const entry = chartExamplesRegistry[chartSlug];
 
@@ -5829,46 +6128,49 @@ export function ChartExamplesGrid({ chartSlug }: { chartSlug: string }) {
       : "grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3";
 
   return (
-    <StaticChartPreviewProvider>
-      <div className="space-y-6">
-        <ChartNav />
-
-        {entry.notice && (
-          <div className="rounded-lg border border-border/50 bg-muted/30 px-4 py-3 text-muted-foreground text-sm">
-            {entry.notice}
-          </div>
-        )}
-
-        {hero && (
-          <ChartExampleCard
-            code={hero.code}
-            data={hero.data}
-            description={hero.description}
-            footer={hero.footer}
-            previewLayout={entry.previewLayout}
-            previewRole="hero"
-            title={hero.title}
-          >
-            {hero.render()}
-          </ChartExampleCard>
-        )}
-
-        <div className={gridCols}>
-          {examples.map((example) => (
-            <ChartExampleCard
-              code={example.code}
-              data={example.data}
-              description={example.description}
-              footer={example.footer}
-              key={example.title}
+    <>
+      {hero ? (
+        <section className="relative w-full">
+          <div className={chartsPageContentClassName}>
+            <FeaturedChartHero
+              code={hero.code}
+              data={hero.data}
+              description={hero.description}
+              footer={hero.footer}
               previewLayout={entry.previewLayout}
-              title={example.title}
+              title={hero.title}
             >
-              {example.render()}
-            </ChartExampleCard>
-          ))}
+              {hero.render()}
+            </FeaturedChartHero>
+          </div>
+        </section>
+      ) : null}
+
+      <section className="relative w-full">
+        <div className={chartsPageContentClassName}>
+          {entry.notice ? (
+            <div className="mb-6 rounded-lg border border-border/50 bg-muted/30 px-3 py-3 text-muted-foreground text-sm">
+              {entry.notice}
+            </div>
+          ) : null}
+
+          <div className={gridCols}>
+            {examples.map((example) => (
+              <ChartExampleCard
+                code={example.code}
+                data={example.data}
+                description={example.description}
+                footer={example.footer}
+                key={example.title}
+                previewLayout={entry.previewLayout}
+                title={example.title}
+              >
+                {example.render()}
+              </ChartExampleCard>
+            ))}
+          </div>
         </div>
-      </div>
-    </StaticChartPreviewProvider>
+      </section>
+    </>
   );
 }

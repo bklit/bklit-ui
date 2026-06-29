@@ -10,6 +10,9 @@ import {
   Grid,
   ChartTooltip,
 } from "@bklitui/ui/charts";
+import { BarChartLoadingDemo } from "@/components/docs/bar-chart-loading-demo";
+import { Icon } from "@bklitui/icons";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export const chartData = [
   { month: "Jan", revenue: 12000, profit: 4500 },
@@ -283,6 +286,69 @@ To keep **zero or very short** bars visible as a tiny bar instead of vanishing, 
 ```
 
 Negative values are supported (bars grow downward from the baseline) as long as the chart's value scale includes negatives. See the [charts gallery](/charts/bar-chart) for a live 3D depth example.
+
+## Loading state
+
+<Alert className="not-prose mb-6">
+  <Icon className="size-4" name="IconCircleInfo" />
+  <AlertTitle>Loading state is experimental</AlertTitle>
+  <AlertDescription>
+    Bar chart loading is still in development. APIs, Studio controls, and docs
+    may change before release — use with caution in production.
+  </AlertDescription>
+</Alert>
+
+`BarChart` accepts a `status` prop. While `status="loading"`, it replaces the bars with a shimmer skeleton: placeholder bars with a soft diagonal shimmer sweeping across them on a loop. On `status="ready"` it switches to the real bars. No chart data is required during loading. Bar heights come from a deterministic seed (SSR-safe, no `Math.random()`), and it respects `prefers-reduced-motion` by rendering a calm, static skeleton.
+
+<div className="not-prose mb-3 flex items-center justify-between gap-4">
+  <h3 className="m-0 font-semibold text-foreground text-base tracking-tight">
+    Preview
+  </h3>
+</div>
+
+<ComponentShowcase
+  code={`const [status, setStatus] = useState<"loading" | "ready">("loading");
+
+<BarChart data={data} status={status} xDataKey="month">
+  <Grid horizontal />
+  <Bar dataKey="revenue" />
+  <BarXAxis />
+</BarChart>`}
+  liveChartPreview
+  previewMinHeight={320}
+>
+  <BarChartLoadingDemo />
+</ComponentShowcase>
+
+Toggle **Loading** / **Ready** in the preview to swap the shimmer skeleton for the real bars.
+
+```tsx
+import { BarChart, Bar, BarXAxis } from "@bklitui/ui/charts";
+
+function RevenueChart({ data, isLoading }) {
+  return (
+    <BarChart data={data} xDataKey="month" status={isLoading ? "loading" : "ready"}>
+      <Bar dataKey="revenue" />
+      <BarXAxis />
+    </BarChart>
+  );
+}
+```
+
+For the common "render a placeholder until data arrives" case, `BarChartLoading` is a turnkey shortcut for `<BarChart status="loading" />`:
+
+```tsx
+import { BarChartLoading } from "@bklitui/ui/charts";
+
+<BarChartLoading />;
+```
+
+| Prop          | Type                          | Default  | Description                                                  |
+| ------------- | ----------------------------- | -------- | ------------------------------------------------------------ |
+| `status`      | `"loading" \| "ready"`        | `"ready"` | On `BarChart`. `"loading"` shows the shimmer skeleton        |
+| `margin`      | `Partial<Margin>`             | -        | On `BarChartLoading`. Chart margins                          |
+| `aspectRatio` | `string`                      | `"2 / 1"` | On `BarChartLoading`. Container aspect ratio                |
+| `className`   | `string`                      | -        | On `BarChartLoading`. Additional container class            |
 
 ## Animation
 

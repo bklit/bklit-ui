@@ -1,6 +1,7 @@
 "use client";
 
 import { Icon } from "@bklitui/icons";
+import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "./ui/button";
@@ -20,6 +21,7 @@ function isTypingTarget(target: EventTarget | null): boolean {
 
 export function ModeToggle() {
   const { setTheme, resolvedTheme } = useTheme();
+  const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -32,6 +34,11 @@ export function ModeToggle() {
 
   useEffect(() => {
     if (!mounted) {
+      return;
+    }
+
+    // Studio toolbar owns the D shortcut on /studio.
+    if (pathname?.startsWith("/studio")) {
       return;
     }
 
@@ -51,7 +58,7 @@ export function ModeToggle() {
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [mounted, toggleTheme]);
+  }, [mounted, pathname, toggleTheme]);
 
   if (!mounted) {
     return (

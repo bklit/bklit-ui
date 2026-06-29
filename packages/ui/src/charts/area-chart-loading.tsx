@@ -5,6 +5,7 @@ import { useMemo } from "react";
 import { Area } from "./area";
 import { AreaChart } from "./area-chart";
 import type { Margin } from "./chart-context";
+import type { LoadingStyle } from "./chart-phase";
 import {
   DEFAULT_SKELETON_DATA_KEY,
   DEFAULT_SKELETON_POINT_COUNT,
@@ -39,6 +40,9 @@ export interface AreaChartLoadingProps {
   gridShimmerSpeed?: number;
   /** Match shimmer loop to the loading line pulse (cycle + inter-loop pause). */
   gridShimmerSync?: boolean;
+  /** Loading animation: `"pulse"` (default traveling pulse) or `"sweep"` (a
+   * diagonal shimmer across the skeleton area). Default: `"pulse"`. */
+  loadingStyle?: LoadingStyle;
   /** Centered shimmer label text. Default: "Loading" */
   label?: string;
   /** Aspect ratio as "width / height". Default: "2 / 1" */
@@ -57,6 +61,7 @@ export function AreaChartLoading({
   gridShimmerLength,
   gridShimmerSpeed,
   gridShimmerSync = false,
+  loadingStyle = "pulse",
   label = "Loading",
   aspectRatio = "2 / 1",
   className = "",
@@ -82,7 +87,7 @@ export function AreaChartLoading({
     >
       <Grid
         horizontal
-        shimmer={gridShimmer}
+        shimmer={loadingStyle === "sweep" ? false : gridShimmer}
         shimmerLength={gridShimmerLength}
         shimmerSpeed={gridShimmerSpeed}
         shimmerStroke={gridShimmerStroke}
@@ -98,6 +103,7 @@ export function AreaChartLoading({
         loading
         loadingStroke={stroke}
         loadingStrokeOpacity={strokeOpacity}
+        loadingStyle={loadingStyle}
         showHighlight={false}
         showLine
         stroke="transparent"
