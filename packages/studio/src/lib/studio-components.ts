@@ -354,7 +354,7 @@ export function resolveProgressBarComponents(): StudioComponentDefinition[] {
       kind: "chart",
       treeIcon: "layers",
       controlGroups: design ? [design] : [],
-      design: { seriesIndex: 0, supportsPattern: true, showPalette: false },
+      design: { seriesIndex: 0, supportsPattern: true },
     },
     {
       id: "progressBar.notches",
