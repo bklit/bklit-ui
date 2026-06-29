@@ -187,7 +187,11 @@ export {
   type FunnelStage,
 } from "./funnel-chart";
 // Gauge chart
-export { Gauge, type GaugeProps } from "./gauge";
+export { Gauge, type GaugeOrientation, type GaugeProps } from "./gauge";
+export type {
+  GaugeLabelAlign,
+  GaugeLabelPlacement,
+} from "./gauge-label-layout";
 export {
   type GenerateChartSkeletonDataOptions,
   generateChartSkeletonData,
@@ -376,7 +380,6 @@ export {
   type ProfitLossSegment,
   splitProfitLossSegments,
 } from "./profit-loss-segments";
-export { ProgressBar, type ProgressBarProps } from "./progress-bar";
 export {
   extractProjectionLineConfigs,
   mergeProjectionXDomainMax,

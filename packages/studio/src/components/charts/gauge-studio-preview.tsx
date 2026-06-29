@@ -24,37 +24,61 @@ export function GaugeStudioPreview({
   state: StudioUrlState;
   ctx: StudioRenderContext;
 }) {
-  const { width, height } = studioFitAspectSize(ctx.frame, 21 / 16);
+  const isLinear = state.gaugeLinear;
   const motionEnter = getStudioMotionEnterProps(state, {
     linear: ctx.isRecording,
   });
+  const trackFill = state.progressBarTrackFill.trim();
+  const centerValue = state.gaugeShowLabel ? state.centerValue : undefined;
+
+  const sharedProps = {
+    activeFill: ctx.patternFillAt(0),
+    activeFillOpacity: state.activeFillOpacity,
+    centerValue,
+    defaultLabel: state.gaugeLabel,
+    enterStaggerScale: motionEnter.enterStaggerScale,
+    enterTransition: motionEnter.enterTransition,
+    formatOptions: gaugeFormat,
+    geometryScrubbing: isLinear ? ctx.numberScrubbing : undefined,
+    inactiveFill: trackFill.length > 0 ? trackFill : undefined,
+    inactiveFillOpacity: state.inactiveFillOpacity,
+    key: studioPreviewChartKey(ctx),
+    labelAlign: state.gaugeLabelAlign,
+    labelPlacement: state.gaugeLabelPlacement,
+    linearHeight: state.progressBarHeight,
+    notchCornerRadius: state.notchCornerRadius,
+    notchLengthPercent: state.notchLengthPercent,
+    notchWidthPercent: state.notchWidthPercent,
+    prefix: state.gaugeCenterPrefix || undefined,
+    spacing: state.spacing,
+    suffix: state.gaugeCenterSuffix || undefined,
+    totalNotches: state.totalNotches,
+    uniformWidth: state.uniformWidth,
+    useGradient: state.useGradient,
+    value: scrambleGaugeValue(state.value, ctx.dataSeed),
+    children: ctx.patternDefs,
+  } as const;
+
+  if (isLinear) {
+    return (
+      <div className="flex size-full min-w-0 items-center justify-center px-8">
+        <div className="w-full min-w-0">
+          <Gauge orientation="linear" {...sharedProps} />
+        </div>
+      </div>
+    );
+  }
+
+  const { width, height } = studioFitAspectSize(ctx.frame, 21 / 16);
 
   return (
     <Gauge
-      activeFill={ctx.patternFillAt(0)}
-      activeFillOpacity={state.activeFillOpacity}
-      centerValue={state.centerValue}
-      defaultLabel={state.gaugeLabel}
       endAngle={state.endAngle}
-      enterStaggerScale={motionEnter.enterStaggerScale}
-      enterTransition={motionEnter.enterTransition}
-      formatOptions={gaugeFormat}
       height={height}
-      inactiveFillOpacity={state.inactiveFillOpacity}
-      key={studioPreviewChartKey(ctx)}
-      notchCornerRadius={state.notchCornerRadius}
-      notchLengthPercent={state.notchLengthPercent}
-      prefix={state.gaugeCenterPrefix || undefined}
-      spacing={state.spacing}
+      orientation="arc"
       startAngle={state.startAngle}
-      suffix={state.gaugeCenterSuffix || undefined}
-      totalNotches={state.totalNotches}
-      uniformWidth={state.uniformWidth}
-      useGradient={state.useGradient}
-      value={scrambleGaugeValue(state.value, ctx.dataSeed)}
       width={width}
-    >
-      {ctx.patternDefs}
-    </Gauge>
+      {...sharedProps}
+    />
   );
 }

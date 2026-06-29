@@ -311,6 +311,12 @@ export const STUDIO_STATE_KEY_ORDER = [
   "projectionPathDensity",
   "projectionPathDensities",
   "progressBarHeight",
+  "progressBarTrackFill",
+  "notchWidthPercent",
+  "gaugeLinear",
+  "gaugeShowLabel",
+  "gaugeLabelPlacement",
+  "gaugeLabelAlign",
 ] as const satisfies readonly (keyof StudioUrlState)[];
 
 /** Frozen historical layout (cc7bc08 — first compressed-URL release). Decode-only. */

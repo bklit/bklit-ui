@@ -26,7 +26,6 @@ import { LineChartStudioStandardPreview } from "@/components/charts/line-chart-s
 import { LineProfitLossStudioChart } from "@/components/charts/line-profit-loss-studio";
 import { LiveLineStudioPreview } from "@/components/charts/live-line-studio";
 import { PieStudioPreview } from "@/components/charts/pie-studio-preview";
-import { ProgressBarStudioPreview } from "@/components/charts/progress-bar-studio-preview";
 import { RadarStudioPreview } from "@/components/charts/radar-studio-preview";
 import { RingStudioPreview } from "@/components/charts/ring-studio-preview";
 import { SankeyStudioPreview } from "@/components/charts/sankey-studio-preview";
@@ -59,7 +58,6 @@ import {
   heatmapCodegen,
   lineChartDataSnippet,
   liveLineCodegen,
-  progressBarCodegen,
   radarCodegen,
   ringCodegen,
   sankeyCodegen,
@@ -92,7 +90,6 @@ import {
   lineChartControlGroups,
   liveLineChartControlGroups,
   pieChartControlGroups,
-  progressBarControlGroups,
   radarChartControlGroups,
   ringChartControlGroups,
   sankeyChartControlGroups,
@@ -117,7 +114,6 @@ import {
   resolveLineComponents,
   resolveLiveLineComponents,
   resolvePieComponents,
-  resolveProgressBarComponents,
   resolveRadarComponents,
   resolveRingComponents,
   resolveSankeyComponents,
@@ -141,22 +137,9 @@ const gaugeConfig: StudioChartConfig = {
   motionStagger: true,
   controls: [],
   controlGroups: gaugeControlGroups,
-  resolveComponents: () => resolveGaugeComponents(),
+  resolveComponents: resolveGaugeComponents,
   render: (state, ctx) => <GaugeStudioPreview ctx={ctx} state={state} />,
   generateCode: (state) => gaugeCodegen(state),
-};
-
-const progressBarConfig: StudioChartConfig = {
-  slug: "progress-bar",
-  label: chartLabels["progress-bar"],
-  supportsPatterns: true,
-  motionPanel: true,
-  motionStagger: true,
-  controls: [],
-  controlGroups: progressBarControlGroups,
-  resolveComponents: () => resolveProgressBarComponents(),
-  render: (state, ctx) => <ProgressBarStudioPreview ctx={ctx} state={state} />,
-  generateCode: (state) => progressBarCodegen(state),
 };
 
 const areaConfig: StudioChartConfig = {
@@ -745,7 +728,6 @@ const heatmapConfig: StudioChartConfig = {
 
 export const studioRegistry: Record<ChartSlug, StudioChartConfig> = {
   "gauge-chart": gaugeConfig,
-  "progress-bar": progressBarConfig,
   "area-chart": areaConfig,
   "line-chart": lineConfig,
   "profit-loss-line": lineConfig,

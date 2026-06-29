@@ -129,8 +129,10 @@ function LegendPositionControlField({
   state,
   onChange,
   onCommit,
+  placementKey,
 }: {
   state: StudioUrlState;
+  placementKey: "legendPlacement" | "gaugeLabelPlacement";
   onChange: <K extends keyof StudioUrlState>(
     key: K,
     value: StudioUrlState[K]
@@ -140,15 +142,17 @@ function LegendPositionControlField({
     value: StudioUrlState[K]
   ) => void;
 }) {
+  const alignKey =
+    placementKey === "gaugeLabelPlacement" ? "gaugeLabelAlign" : "legendAlign";
   const commit = onCommit ?? onChange;
   return (
     <LegendPositionPicker
-      align={state.legendAlign}
+      align={state[alignKey]}
       onChange={(placement, align) => {
-        commit("legendPlacement", placement);
-        commit("legendAlign", align);
+        commit(placementKey, placement);
+        commit(alignKey, align);
       }}
-      placement={state.legendPlacement}
+      placement={state[placementKey]}
     />
   );
 }
@@ -180,11 +184,15 @@ export function ControlField({
 }) {
   if (control.type === "legendPosition") {
     return (
-      <LegendPositionControlField
-        onChange={onChange}
-        onCommit={onCommit}
-        state={state}
-      />
+      <div className="space-y-2">
+        {control.label ? <ControlFieldLabel control={control} /> : null}
+        <LegendPositionControlField
+          onChange={onChange}
+          onCommit={onCommit}
+          placementKey={control.key}
+          state={state}
+        />
+      </div>
     );
   }
 

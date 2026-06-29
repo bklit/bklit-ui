@@ -269,5 +269,9 @@ export function expandStudioParamUpdate(
     Object.assign(merged, disableBrushForProjections(merged, prev));
   }
 
+  if (update.gaugeLinear === true && !("uniformWidth" in update)) {
+    merged.uniformWidth = true;
+  }
+
   return merged;
 }

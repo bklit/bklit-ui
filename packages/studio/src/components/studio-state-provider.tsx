@@ -21,7 +21,6 @@ import {
   lineChartProfitLossDefaults,
   lineChartStandardDefaults,
 } from "@/lib/line-chart-mode";
-import { progressBarChartDefaults } from "@/lib/progress-bar-chart-defaults";
 import { getStudioConfig } from "@/lib/registry";
 import { chartDefaultHiddenComponents } from "@/lib/studio-component-visibility";
 import {
@@ -301,7 +300,6 @@ export function StudioStateProvider({
         ...(slug === "line-chart" ? lineChartStandardDefaults : {}),
         ...(slug === "candlestick-chart" ? candlestickChartDefaults : {}),
         ...(slug === "heatmap-chart" ? heatmapChartDefaults : {}),
-        ...(slug === "progress-bar" ? progressBarChartDefaults : {}),
         ...(slug === "area-chart" || slug === "composed-chart"
           ? { dataSeries: 2 }
           : {}),

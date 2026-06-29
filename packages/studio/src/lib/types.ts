@@ -126,7 +126,11 @@ export type StudioControl = StudioControlVisibility &
         key: keyof StudioUrlState;
         label: string;
       }
-    | { type: "legendPosition"; key: "legendPlacement"; label: string }
+    | {
+        type: "legendPosition";
+        key: "legendPlacement" | "gaugeLabelPlacement";
+        label: string;
+      }
     | ({
         type: "innerRadius";
         key: keyof StudioUrlState;
@@ -259,7 +263,6 @@ export const chartLabels = {
   "profit-loss-line": "Profit/Loss Line",
   "live-line-chart": "Live Line Chart",
   "pie-chart": "Pie Chart",
-  "progress-bar": "Progress Bar",
   "radar-chart": "Radar Chart",
   "ring-chart": "Ring Chart",
   "scatter-chart": "Scatter Chart",

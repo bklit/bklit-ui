@@ -1356,7 +1356,7 @@
       "name": "gauge-chart",
       "type": "registry:component",
       "title": "Gauge",
-      "description": "Notch-based radial gauge with PieCenter-style center, patterns, and optional arc gradients",
+      "description": "Notch-based radial or linear gauge with optional center label, patterns, and optional gradients",
       "registryDependencies": [
         "@bklit/utils"
       ],
@@ -1394,30 +1394,19 @@
           "target": "components/charts/gauge.tsx"
         },
         {
+          "path": "src/charts/notch-gauge-shared.ts",
+          "type": "registry:component",
+          "target": "components/charts/notch-gauge-shared.ts"
+        },
+        {
+          "path": "src/charts/gauge-label-layout.tsx",
+          "type": "registry:component",
+          "target": "components/charts/gauge-label-layout.tsx"
+        },
+        {
           "path": "src/charts/chart-center-typography.ts",
           "type": "registry:component",
           "target": "components/charts/chart-center-typography.ts"
-        }
-      ]
-    },
-    {
-      "name": "progress-bar",
-      "type": "registry:component",
-      "title": "Progress Bar",
-      "description": "Notch-based horizontal progress bar with Gauge-style fills, patterns, and optional gradients",
-      "registryDependencies": [
-        "@bklit/utils"
-      ],
-      "dependencies": [
-        "@visx/responsive@4.0.1-alpha.0",
-        "@visx/pattern@4.0.1-alpha.0",
-        "motion"
-      ],
-      "files": [
-        {
-          "path": "src/charts/progress-bar.tsx",
-          "type": "registry:component",
-          "target": "components/charts/progress-bar.tsx"
         }
       ]
     },
@@ -1825,30 +1814,6 @@
         },
         {
           "path": "registry/examples/gauge-chart-index.ts",
-          "type": "registry:lib",
-          "target": "components/charts/index.ts"
-        }
-      ]
-    },
-    {
-      "name": "progress-bar-example",
-      "type": "registry:example",
-      "title": "Progress Bar Example",
-      "description": "Composable progress-bar demo for Open in v0",
-      "registryDependencies": [
-        "@bklit/progress-bar"
-      ],
-      "dependencies": [
-        "motion"
-      ],
-      "files": [
-        {
-          "path": "registry/examples/progress-bar.tsx",
-          "type": "registry:page",
-          "target": "app/page.tsx"
-        },
-        {
-          "path": "registry/examples/progress-bar-index.ts",
           "type": "registry:lib",
           "target": "components/charts/index.ts"
         }

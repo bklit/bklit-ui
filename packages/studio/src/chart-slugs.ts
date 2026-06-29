@@ -11,7 +11,6 @@ export const validChartSlugs = [
   "profit-loss-line",
   "live-line-chart",
   "pie-chart",
-  "progress-bar",
   "radar-chart",
   "ring-chart",
   "scatter-chart",

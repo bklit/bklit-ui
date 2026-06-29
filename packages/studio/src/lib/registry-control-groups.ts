@@ -20,6 +20,13 @@ const chartAccentColorOptions = [
 ] as const;
 
 export const gaugeControlGroups: StudioControlGroup[] = [
+  controlGroup("Settings", [
+    {
+      type: "boolean",
+      key: "gaugeLinear",
+      label: "Linear",
+    },
+  ]),
   designGroup([
     {
       type: "number",
@@ -28,16 +35,6 @@ export const gaugeControlGroups: StudioControlGroup[] = [
       min: 0,
       max: 100,
       unit: "%",
-    },
-    {
-      type: "opacity",
-      key: "inactiveFillOpacity",
-      label: "Track",
-      min: 0,
-      max: 1,
-      step: 0.05,
-      color: "var(--chart-1)",
-      secondaryColor: "var(--muted)",
     },
     {
       type: "opacity",
@@ -51,7 +48,20 @@ export const gaugeControlGroups: StudioControlGroup[] = [
     { type: "boolean", key: "useGradient", label: "Gradient fills" },
     { type: "boolean", key: "uniformWidth", label: "Uniform width" },
   ]),
+  controlGroup("Track", [
+    {
+      type: "opacity",
+      key: "inactiveFillOpacity",
+      label: "Opacity",
+      min: 0,
+      max: 1,
+      step: 0.05,
+      color: "var(--chart-1)",
+      secondaryColor: "var(--muted)",
+    },
+  ]),
   controlGroup("Center", [
+    { type: "boolean", key: "gaugeShowLabel", label: "Show label" },
     {
       type: "number",
       key: "centerValue",
@@ -60,70 +70,35 @@ export const gaugeControlGroups: StudioControlGroup[] = [
       max: 999_999,
       step: 1000,
       input: "number",
-    },
-    { type: "text", key: "gaugeLabel", label: "Label" },
-    { type: "text", key: "gaugeCenterPrefix", label: "Prefix" },
-    { type: "text", key: "gaugeCenterSuffix", label: "Suffix" },
-  ]),
-  controlGroup("Notches", [
-    { type: "number", key: "totalNotches", label: "Count", min: 8, max: 80 },
-    { type: "number", key: "spacing", label: "Spacing", min: 0, max: 50 },
-    {
-      type: "number",
-      key: "notchCornerRadius",
-      label: "Corner",
-      min: 0,
-      max: 12,
+      visibleWhen: { key: "gaugeShowLabel", truthy: true },
     },
     {
-      type: "number",
-      key: "notchLengthPercent",
-      label: "Length",
-      min: 5,
-      max: 100,
-      unit: "%",
-    },
-  ]),
-  controlGroup("Arc", [
-    {
-      type: "angle",
-      key: "startAngle",
-      label: "Start",
-      min: 0,
-      max: 360,
+      type: "text",
+      key: "gaugeLabel",
+      label: "Label",
+      visibleWhen: { key: "gaugeShowLabel", truthy: true },
     },
     {
-      type: "angle",
-      key: "endAngle",
-      label: "End",
-      min: 180,
-      max: 450,
-    },
-  ]),
-];
-
-export const progressBarControlGroups: StudioControlGroup[] = [
-  designGroup([
-    {
-      type: "number",
-      key: "value",
-      label: "Fill",
-      min: 0,
-      max: 100,
-      unit: "%",
+      type: "text",
+      key: "gaugeCenterPrefix",
+      label: "Prefix",
+      visibleWhen: { key: "gaugeShowLabel", truthy: true },
     },
     {
-      type: "opacity",
-      key: "inactiveFillOpacity",
-      label: "Track opacity",
-      min: 0,
-      max: 1,
-      step: 0.05,
-      color: "var(--chart-1)",
-      secondaryColor: "var(--muted)",
+      type: "text",
+      key: "gaugeCenterSuffix",
+      label: "Suffix",
+      visibleWhen: { key: "gaugeShowLabel", truthy: true },
     },
-    { type: "boolean", key: "useGradient", label: "Gradient fills" },
-    { type: "boolean", key: "uniformWidth", label: "Uniform width" },
+    {
+      type: "legendPosition",
+      key: "gaugeLabelPlacement",
+      label: "Position",
+      visibleWhen: [
+        { key: "gaugeShowLabel", truthy: true },
+        { key: "gaugeLinear", truthy: true },
+      ],
+    },
   ]),
   controlGroup("Notches", [
     { type: "number", key: "totalNotches", label: "Count", min: 8, max: 120 },
@@ -143,6 +118,16 @@ export const progressBarControlGroups: StudioControlGroup[] = [
       min: 12,
       max: 80,
       unit: "px",
+      visibleWhen: { key: "gaugeLinear", truthy: true },
+    },
+    {
+      type: "number",
+      key: "notchWidthPercent",
+      label: "Notch width",
+      min: 10,
+      max: 100,
+      unit: "%",
+      visibleWhen: { key: "gaugeLinear", truthy: true },
     },
     {
       type: "number",
@@ -154,10 +139,28 @@ export const progressBarControlGroups: StudioControlGroup[] = [
     {
       type: "number",
       key: "notchLengthPercent",
-      label: "Notch depth",
+      label: "Depth",
       min: 5,
       max: 100,
       unit: "%",
+    },
+  ]),
+  controlGroup("Arc", [
+    {
+      type: "angle",
+      key: "startAngle",
+      label: "Start",
+      min: 0,
+      max: 360,
+      visibleWhen: { key: "gaugeLinear", truthy: false },
+    },
+    {
+      type: "angle",
+      key: "endAngle",
+      label: "End",
+      min: 180,
+      max: 450,
+      visibleWhen: { key: "gaugeLinear", truthy: false },
     },
   ]),
 ];

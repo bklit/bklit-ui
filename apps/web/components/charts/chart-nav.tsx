@@ -18,7 +18,6 @@ const chartTypes = [
   { label: "Line Chart", slug: "line-chart" },
   { label: "Live Line Chart", slug: "live-line-chart" },
   { label: "Pie Chart", slug: "pie-chart" },
-  { label: "Progress Bar", slug: "progress-bar" },
   { label: "Radar Chart", slug: "radar-chart" },
   { label: "Ring Chart", slug: "ring-chart" },
   { label: "Scatter Chart", slug: "scatter-chart" },

@@ -568,32 +568,14 @@ ${curveImports}
 </${chartType}>`;
 }
 
-export function progressBarCodegen(state: StudioUrlState) {
-  const patternChild =
-    state.pattern === "none"
-      ? ""
-      : `\n  ${patternCodegenBlock(state.pattern)}\n`;
-  const activeFill =
-    state.pattern === "none"
-      ? ""
-      : '\n  activeFill="url(#studio-pattern-fill)"';
-
-  return {
-    code: `import { ProgressBar${state.pattern === "none" ? "" : ", PatternLines"} } from "@bklitui/ui/charts";
-
-<ProgressBar
-  value={${state.value}}
-  totalNotches={${state.totalNotches}}
-  spacing={${state.spacing}}
-  notchCornerRadius={${state.notchCornerRadius}}
-  notchLengthPercent={${state.notchLengthPercent}}
-  height={${state.progressBarHeight}}
-  useGradient={${state.useGradient}}
-  uniformWidth={${state.uniformWidth}}
-  inactiveFillOpacity={${state.inactiveFillOpacity}}${activeFill}
-  ${motionEnterPropsCodegen(motionSliceFromState(state), state.motionStaggerScale)}
->${patternChild}</ProgressBar>`,
-  };
+function gaugeUniformWidthCodegenBlock(
+  state: StudioUrlState,
+  isLinear: boolean
+): string {
+  if (isLinear) {
+    return state.uniformWidth === false ? "\n  uniformWidth={false}" : "";
+  }
+  return state.uniformWidth ? "\n  uniformWidth={true}" : "";
 }
 
 export function gaugeCodegen(state: StudioUrlState) {
@@ -605,24 +587,35 @@ export function gaugeCodegen(state: StudioUrlState) {
     state.pattern === "none"
       ? ""
       : '\n  activeFill="url(#studio-pattern-fill)"';
+  const isLinear = state.gaugeLinear;
+  const trackFill =
+    state.progressBarTrackFill.trim().length > 0
+      ? `\n  inactiveFill="${state.progressBarTrackFill.trim()}"`
+      : "";
+  const centerBlock = state.gaugeShowLabel
+    ? `\n  centerValue={${state.centerValue}}\n  defaultLabel="${state.gaugeLabel}"${state.gaugeCenterPrefix ? `\n  prefix="${state.gaugeCenterPrefix}"` : ""}${state.gaugeCenterSuffix ? `\n  suffix="${state.gaugeCenterSuffix}"` : ""}`
+    : "";
+  const labelLayoutBlock =
+    isLinear && state.gaugeShowLabel
+      ? `\n  labelPlacement="${state.gaugeLabelPlacement}"\n  labelAlign="${state.gaugeLabelAlign}"`
+      : "";
+  const linearBlock = isLinear
+    ? `\n  orientation="linear"\n  linearHeight={${state.progressBarHeight}}\n  notchWidthPercent={${state.notchWidthPercent}}${trackFill}`
+    : `\n  startAngle={${state.startAngle}}\n  endAngle={${state.endAngle}}`;
+  const uniformWidthBlock = gaugeUniformWidthCodegenBlock(state, isLinear);
 
   return {
     code: `import { Gauge${state.pattern === "none" ? "" : ", PatternLines"} } from "@bklitui/ui/charts";
 
 <Gauge
-  value={${state.value}}
-  centerValue={${state.centerValue}}
+  value={${state.value}}${centerBlock}${linearBlock}${labelLayoutBlock}
   totalNotches={${state.totalNotches}}
   spacing={${state.spacing}}
   notchCornerRadius={${state.notchCornerRadius}}
   notchLengthPercent={${state.notchLengthPercent}}
-  startAngle={${state.startAngle}}
-  endAngle={${state.endAngle}}
-  useGradient={${state.useGradient}}
-  uniformWidth={${state.uniformWidth}}
+  useGradient={${state.useGradient}}${uniformWidthBlock}
   inactiveFillOpacity={${state.inactiveFillOpacity}}
   activeFillOpacity={${state.activeFillOpacity}}
-  defaultLabel="${state.gaugeLabel}"${state.gaugeCenterPrefix ? `\n  prefix="${state.gaugeCenterPrefix}"` : ""}${state.gaugeCenterSuffix ? `\n  suffix="${state.gaugeCenterSuffix}"` : ""}
   formatOptions={{ style: "currency", currency: "USD", maximumFractionDigits: 0 }}${activeFill}
   ${motionEnterPropsCodegen(motionSliceFromState(state), state.motionStaggerScale)}
 >${patternChild}</Gauge>`,

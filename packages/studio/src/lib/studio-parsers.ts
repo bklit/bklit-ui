@@ -424,6 +424,16 @@ export const studioSearchParams = {
   ]).withDefault("stepped"),
   projectionPathDensities: parseAsString.withDefault(""),
   progressBarHeight: parseAsInteger.withDefault(24),
+  progressBarTrackFill: parseAsString.withDefault("var(--chart-1)"),
+  notchWidthPercent: parseAsInteger.withDefault(80),
+  gaugeLinear: parseAsBoolean.withDefault(false),
+  gaugeShowLabel: parseAsBoolean.withDefault(true),
+  gaugeLabelPlacement: parseAsStringLiteral(["top", "bottom"]).withDefault(
+    "top"
+  ),
+  gaugeLabelAlign: parseAsStringLiteral(["start", "center", "end"]).withDefault(
+    "start"
+  ),
 };
 
 export interface StudioUrlState {
@@ -728,6 +738,12 @@ export interface StudioUrlState {
   projectionPathDensity: "stepped" | "endpoints";
   projectionPathDensities: string;
   progressBarHeight: number;
+  progressBarTrackFill: string;
+  notchWidthPercent: number;
+  gaugeLinear: boolean;
+  gaugeShowLabel: boolean;
+  gaugeLabelPlacement: "top" | "bottom";
+  gaugeLabelAlign: "start" | "center" | "end";
 }
 
 /** Full default state for chart switches (nuqs used `null` to clear keys; in-memory state needs real defaults). */
@@ -1044,6 +1060,12 @@ export function defaultStudioState(
     projectionPathDensity: "stepped",
     projectionPathDensities: "",
     progressBarHeight: 24,
+    progressBarTrackFill: "var(--chart-1)",
+    notchWidthPercent: 80,
+    gaugeLinear: false,
+    gaugeShowLabel: true,
+    gaugeLabelPlacement: "top",
+    gaugeLabelAlign: "start",
     ...overrides,
   };
 }

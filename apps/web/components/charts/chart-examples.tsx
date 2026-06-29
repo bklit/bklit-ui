@@ -66,7 +66,6 @@ import {
   ProfitLossLegend,
   ProfitLossLegendHoverProvider,
   ProfitLossLine,
-  ProgressBar,
   profitLossColor,
   RadarArea,
   RadarAxis,
@@ -4414,15 +4413,12 @@ function makeGaugeExamples(): ChartExample[] {
         </div>
       ),
     },
-  ];
-}
-
-function makeProgressBarHero(): ChartExample {
-  return {
-    title: "Progress Bar",
-    description:
-      "Horizontal notch track with theme gradients, optional patterns in defs, and responsive parent sizing.",
-    code: `<ProgressBar
+    {
+      title: "Gauge — linear notch track",
+      description:
+        'Horizontal notch bar via orientation="linear" — same fill model as the arc gauge, responsive parent width.',
+      code: `<Gauge
+  orientation="linear"
   value={72}
   totalNotches={72}
   spacing={0}
@@ -4431,29 +4427,64 @@ function makeProgressBarHero(): ChartExample {
   inactiveFillOpacity={0.4}
   useGradient
 />`,
-    render: () => (
-      <div className="flex w-full items-center px-4 py-6">
-        <ProgressBar
-          inactiveFillOpacity={0.4}
-          notchCornerRadius={3}
-          notchLengthPercent={38}
-          spacing={0}
-          totalNotches={72}
-          useGradient
-          value={72}
-        />
-      </div>
-    ),
-  };
-}
-
-function makeProgressBarExamples(): ChartExample[] {
-  return [
+      render: () => (
+        <div className="flex w-full items-center px-4 py-6">
+          <Gauge
+            inactiveFillOpacity={0.4}
+            notchCornerRadius={3}
+            notchLengthPercent={38}
+            orientation="linear"
+            spacing={0}
+            totalNotches={72}
+            useGradient
+            value={72}
+          />
+        </div>
+      ),
+    },
     {
-      title: "Progress Bar — dual gradients",
+      title: "Gauge — linear with label below",
+      description:
+        "Optional centerValue and labelPlacement for linear gauges — same placement model as chart legend.",
+      code: `<Gauge
+  orientation="linear"
+  value={72}
+  centerValue={428_000}
+  defaultLabel="ARR run rate"
+  labelPlacement="bottom"
+  labelAlign="center"
+  formatOptions={{ style: "currency", currency: "USD", maximumFractionDigits: 0 }}
+  totalNotches={72}
+  spacing={0}
+  notchCornerRadius={3}
+  inactiveFillOpacity={0.4}
+  useGradient
+/>`,
+      render: () => (
+        <div className="flex w-full items-center px-4 py-6">
+          <Gauge
+            centerValue={428_000}
+            defaultLabel="ARR run rate"
+            formatOptions={gaugeGalleryUsdFormat}
+            inactiveFillOpacity={0.4}
+            labelAlign="center"
+            labelPlacement="bottom"
+            notchCornerRadius={3}
+            orientation="linear"
+            spacing={0}
+            totalNotches={72}
+            useGradient
+            value={72}
+          />
+        </div>
+      ),
+    },
+    {
+      title: "Gauge — linear dual gradients",
       description:
         "Active and inactive notches each interpolate along their own hex ramp when useGradient is enabled.",
-      code: `<ProgressBar
+      code: `<Gauge
+  orientation="linear"
   value={72}
   totalNotches={72}
   spacing={0}
@@ -4466,70 +4497,17 @@ function makeProgressBarExamples(): ChartExample[] {
 />`,
       render: () => (
         <div className="flex w-full items-center px-4 py-6">
-          <ProgressBar
+          <Gauge
             activeGradient={["#a855f7", "#06b6d4"]}
             inactiveFillOpacity={0.4}
             inactiveGradient={["#334155", "#38bdf8"]}
             notchCornerRadius={3}
             notchLengthPercent={38}
+            orientation="linear"
             spacing={0}
             totalNotches={72}
             useGradient
             value={72}
-          />
-        </div>
-      ),
-    },
-    {
-      title: "Progress Bar — uniform width",
-      description:
-        "Rectangular notches with wider spacing — reads more like discrete segments than tapered ticks.",
-      code: `<ProgressBar
-  value={58}
-  totalNotches={24}
-  spacing={18}
-  notchCornerRadius={4}
-  uniformWidth
-  inactiveFillOpacity={0.35}
-  useGradient
-/>`,
-      render: () => (
-        <div className="flex w-full items-center px-4 py-6">
-          <ProgressBar
-            inactiveFillOpacity={0.35}
-            notchCornerRadius={4}
-            spacing={18}
-            totalNotches={24}
-            uniformWidth
-            useGradient
-            value={58}
-          />
-        </div>
-      ),
-    },
-    {
-      title: "Progress Bar — full-depth notches",
-      description:
-        "Tighter corner radius and 100% notch length for a bolder, blockier meter.",
-      code: `<ProgressBar
-  value={84}
-  totalNotches={48}
-  spacing={0}
-  notchCornerRadius={0}
-  notchLengthPercent={100}
-  inactiveFillOpacity={0.4}
-  useGradient
-/>`,
-      render: () => (
-        <div className="flex w-full items-center px-4 py-6">
-          <ProgressBar
-            inactiveFillOpacity={0.4}
-            notchCornerRadius={0}
-            notchLengthPercent={100}
-            spacing={0}
-            totalNotches={48}
-            useGradient
-            value={84}
           />
         </div>
       ),
@@ -6085,11 +6063,6 @@ const chartExamplesRegistry: Record<string, RegistryEntry> = {
     hero: makeLiveLineHero,
   },
   "pie-chart": { factory: makePieExamples, previewLayout: "compact" },
-  "progress-bar": {
-    factory: makeProgressBarExamples,
-    hero: makeProgressBarHero,
-    previewLayout: "compact",
-  },
   "radar-chart": { factory: makeRadarExamples, previewLayout: "compact" },
   "ring-chart": { factory: makeRingExamples, previewLayout: "compact" },
   "scatter-chart": { factory: makeScatterExamples, hero: makeScatterHero },
