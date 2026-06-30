@@ -12,17 +12,26 @@ export function studioRadialSize(
   frame: StudioFrameSize,
   scalePercent: number,
   padding = 32,
-  minDiameter = 320
+  minDiameter = 320,
+  fitRatio = 0.92
 ) {
   const fit = studioFitDiameter(
     {
       width: Math.max(0, frame.width - padding),
       height: Math.max(0, frame.height - padding),
     },
-    0.92
+    fitRatio
   );
   const scale = Math.max(0.5, Math.min(1, scalePercent / 100));
   return Math.round(Math.min(fit, Math.max(minDiameter, fit * scale)));
+}
+
+/** Sunburst uses tighter padding and a higher fit ratio (multi-ring layout). */
+export function studioSunburstSize(
+  frame: StudioFrameSize,
+  scalePercent: number
+) {
+  return studioRadialSize(frame, scalePercent, 8, 360, 0.98);
 }
 
 /** Largest width/height that fits in the frame while preserving aspect (width ÷ height). */

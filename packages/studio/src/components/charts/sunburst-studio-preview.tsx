@@ -2,10 +2,8 @@
 
 import {
   buildArcs,
-  SunburstBreadcrumb,
   SunburstCenter,
   SunburstChart,
-  SunburstHint,
   SunburstLabels,
   SunburstSegment,
   sunburstCssVars,
@@ -14,10 +12,9 @@ import {
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import {
   StudioRadialCenter,
-  studioRadialSize,
+  studioSunburstSize,
 } from "@/components/charts/studio-chart-layout";
 import { StudioChartShell } from "@/components/charts/studio-chart-shell";
-import { SunburstDrillBreadcrumb } from "@/components/charts/sunburst-drill-breadcrumb";
 import {
   getStudioMotionEnterProps,
   studioPreviewChartKey,
@@ -47,8 +44,6 @@ interface SunburstChartGeometry {
   labelColor: string;
   labelOutlineColor: string;
   labelOutlineWidth: number;
-  showBreadcrumb: boolean;
-  showHint: boolean;
   showCenter: boolean;
 }
 
@@ -198,11 +193,6 @@ const SunburstChartBody = memo(
           onHoverChange={handleArcHoverChange}
           size={chartSize}
         >
-          {geometry.showBreadcrumb ? (
-            <SunburstBreadcrumb>
-              <SunburstDrillBreadcrumb />
-            </SunburstBreadcrumb>
-          ) : null}
           {patternArcs.length > 0
             ? studioSunburstPatternDefs(arcs, seriesPatterns)
             : null}
@@ -216,7 +206,6 @@ const SunburstChartBody = memo(
               strokeWidth={geometry.labelOutlineWidth}
             />
           ) : null}
-          {geometry.showHint ? <SunburstHint /> : null}
         </SunburstChart>
       </StudioRadialCenter>
     );
@@ -265,11 +254,6 @@ export const SunburstStudioPreview = memo(function SunburstStudioPreview({
       labelColor: state.sunburstLabelColor,
       labelOutlineColor: state.sunburstLabelOutlineColor,
       labelOutlineWidth: state.sunburstLabelOutlineWidth,
-      showBreadcrumb: isStudioComponentVisible(
-        ctx.chromeState,
-        "sunburst.breadcrumb"
-      ),
-      showHint: isStudioComponentVisible(ctx.chromeState, "sunburst.hint"),
       showCenter: true,
     }),
     [
@@ -284,7 +268,7 @@ export const SunburstStudioPreview = memo(function SunburstStudioPreview({
     ]
   );
 
-  const chartSize = studioRadialSize(contentFrame, geometry.pieSize);
+  const chartSize = studioSunburstSize(contentFrame, geometry.pieSize);
 
   const motionEnter = useMemo(
     () =>

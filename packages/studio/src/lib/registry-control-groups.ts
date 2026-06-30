@@ -1179,7 +1179,7 @@ export const sunburstChartControlGroups: StudioControlGroup[] = [
       type: "number",
       key: "pieSize",
       label: "Scale",
-      min: 50,
+      min: 75,
       max: 100,
       unit: "%",
     },

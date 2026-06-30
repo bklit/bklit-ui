@@ -901,25 +901,11 @@ export function resolveSunburstComponents(
       },
     })),
     {
-      id: "sunburst.breadcrumb",
-      label: "Breadcrumb",
-      parentId: chartId,
-      kind: "text" as StudioComponentKind,
-      controlGroups: [],
-    },
-    {
       id: "sunburst.labels",
       label: "Labels",
       parentId: chartId,
       kind: "text" as StudioComponentKind,
       controlGroups: labelProps ? [labelProps] : [],
-    },
-    {
-      id: "sunburst.hint",
-      label: "Hint",
-      parentId: chartId,
-      kind: "text" as StudioComponentKind,
-      controlGroups: [],
     },
     legendNode("sunburst"),
   ];
@@ -1556,9 +1542,32 @@ export function studioComponentDepth(
   return 1 + studioComponentDepth(components, component.parentId);
 }
 
+export function studioComponentHasChildren(
+  components: StudioComponentDefinition[],
+  id: string
+): boolean {
+  return components.some((item) => item.parentId === id);
+}
+
+/** Parent ids from immediate parent up to the root (nearest first). */
+export function studioComponentAncestorIds(
+  components: StudioComponentDefinition[],
+  id: string
+): string[] {
+  const ancestors: string[] = [];
+  let current = findStudioComponent(components, id);
+  while (current?.parentId) {
+    ancestors.push(current.parentId);
+    current = findStudioComponent(components, current.parentId);
+  }
+  return ancestors;
+}
+
 export function flattenStudioComponents(
-  components: StudioComponentDefinition[]
+  components: StudioComponentDefinition[],
+  options?: { collapsedIds?: ReadonlySet<string> }
 ): StudioComponentDefinition[] {
+  const collapsedIds = options?.collapsedIds;
   const roots = components.filter(
     (component) =>
       !(
@@ -1571,6 +1580,9 @@ export function flattenStudioComponents(
   function walk(list: StudioComponentDefinition[]) {
     for (const component of list) {
       result.push(component);
+      if (collapsedIds?.has(component.id)) {
+        continue;
+      }
       walk(components.filter((item) => item.parentId === component.id));
     }
   }

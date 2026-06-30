@@ -21,6 +21,7 @@ import {
   getSeriesPattern,
   resolveChartThemeStyle,
 } from "@/lib/studio-series-design";
+import { sunburstChartDefaults } from "@/lib/sunburst-chart-defaults";
 import type { ChartSlug } from "@/lib/types";
 import { chartLabels } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -95,6 +96,7 @@ function catalogStateForChart(slug: ChartSlug): StudioUrlState {
     ...(slug === "line-chart" ? lineChartStandardDefaults : {}),
     ...(slug === "candlestick-chart" ? candlestickChartDefaults : {}),
     ...(slug === "heatmap-chart" ? heatmapChartDefaults : {}),
+    ...(slug === "sunburst-chart" ? sunburstChartDefaults : {}),
     ...(slug === "area-chart" || slug === "composed-chart"
       ? { dataSeries: 2 }
       : {}),

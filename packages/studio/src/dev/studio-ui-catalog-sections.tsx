@@ -325,6 +325,7 @@ export function ComponentsPanelDemo() {
     <DemoControlGroups>
       <StudioComponentsPanel
         components={components}
+        key={state.chart}
         onBatchChange={onBatchChange}
         onChange={onChange}
         onSelect={setSelectedId}
@@ -338,7 +339,7 @@ export function ComponentsPanelDemo() {
 export function ComponentsPanelSection() {
   return (
     <CatalogSection
-      description="Nested layer tree with icons, selection, visibility toggles, and context menu actions."
+      description="Nested layer tree with expand/collapse, icons, selection, visibility toggles, and context menu actions."
       id="components-tree"
       title="Components tree"
     >
