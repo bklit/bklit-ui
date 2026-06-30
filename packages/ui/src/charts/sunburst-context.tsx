@@ -8,7 +8,7 @@ import {
   useContext,
   useMemo,
 } from "react";
-import type { ArcDatum, Focus } from "./sunburst";
+import type { ArcDatum, Focus, SunburstEnterTiming } from "./sunburst";
 import type { SunburstNode } from "./sunburst-data";
 
 export const sunburstCssVars = {
@@ -64,7 +64,6 @@ export interface SunburstStableContextValue {
   focusId: string;
   zoomTo: (nextId: string) => void;
 
-  t: number;
   zoomT: number;
   enterTiming: SunburstEnterTiming;
   skipEnterAnimation: boolean;
