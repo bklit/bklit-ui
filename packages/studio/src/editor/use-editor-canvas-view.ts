@@ -7,6 +7,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { STUDIO_EXPORT_ROOT_ATTR } from "@/components/studio-chart-frame";
 import {
   clampCameraZoom,
   compute100PercentCamera,
@@ -60,6 +61,13 @@ function isChartFrameResizeTarget(target: EventTarget | null) {
     label === "Resize height" ||
     label === "Resize width and height"
   );
+}
+
+function isChartFrameTarget(target: EventTarget | null) {
+  if (!(target instanceof Element)) {
+    return false;
+  }
+  return Boolean(target.closest(`[${STUDIO_EXPORT_ROOT_ATTR}]`));
 }
 
 export function useEditorCamera({
@@ -533,7 +541,11 @@ export function useEditorCamera({
 
   const onDoubleClick = useCallback(
     (event: React.MouseEvent<HTMLDivElement>) => {
-      if (!enabled || isEditableTarget(event.target)) {
+      if (
+        !enabled ||
+        isEditableTarget(event.target) ||
+        isChartFrameTarget(event.target)
+      ) {
         return;
       }
       fitToContent();

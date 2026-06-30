@@ -5,6 +5,7 @@ export {
   StudioCartesianFill,
   studioFitAspectSize,
   studioRadialSize,
+  studioSunburstSize,
 } from "./components/charts/studio-chart-layout";
 export {
   StudioChartShell,

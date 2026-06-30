@@ -1653,6 +1653,66 @@
       ]
     },
     {
+      "name": "sunburst-chart",
+      "type": "registry:component",
+      "title": "Sunburst Chart",
+      "description": "A composable hierarchical sunburst chart with drill-down zoom and animated segments",
+      "registryDependencies": [
+        "@bklit/chart-animation",
+        "@bklit/utils"
+      ],
+      "dependencies": [
+        "motion"
+      ],
+      "files": [
+        {
+          "path": "src/charts/sunburst-chart.tsx",
+          "type": "registry:component",
+          "target": "components/charts/sunburst-chart.tsx"
+        },
+        {
+          "path": "src/charts/sunburst-context.tsx",
+          "type": "registry:component",
+          "target": "components/charts/sunburst-context.tsx"
+        },
+        {
+          "path": "src/charts/sunburst-segment.tsx",
+          "type": "registry:component",
+          "target": "components/charts/sunburst-segment.tsx"
+        },
+        {
+          "path": "src/charts/sunburst-center.tsx",
+          "type": "registry:component",
+          "target": "components/charts/sunburst-center.tsx"
+        },
+        {
+          "path": "src/charts/sunburst-breadcrumb.tsx",
+          "type": "registry:component",
+          "target": "components/charts/sunburst-breadcrumb.tsx"
+        },
+        {
+          "path": "src/charts/sunburst-hint.tsx",
+          "type": "registry:component",
+          "target": "components/charts/sunburst-hint.tsx"
+        },
+        {
+          "path": "src/charts/sunburst-labels.tsx",
+          "type": "registry:component",
+          "target": "components/charts/sunburst-labels.tsx"
+        },
+        {
+          "path": "src/charts/sunburst.ts",
+          "type": "registry:component",
+          "target": "components/charts/sunburst.ts"
+        },
+        {
+          "path": "src/charts/sunburst-data.ts",
+          "type": "registry:component",
+          "target": "components/charts/sunburst-data.ts"
+        }
+      ]
+    },
+    {
       "name": "area-chart-example",
       "type": "registry:example",
       "title": "Area Chart Example",
@@ -1970,6 +2030,30 @@
         },
         {
           "path": "registry/examples/sankey-chart-index.ts",
+          "type": "registry:lib",
+          "target": "components/charts/index.ts"
+        }
+      ]
+    },
+    {
+      "name": "sunburst-chart-example",
+      "type": "registry:example",
+      "title": "Sunburst Chart Example",
+      "description": "Composable sunburst-chart demo for Open in v0",
+      "registryDependencies": [
+        "@bklit/sunburst-chart"
+      ],
+      "dependencies": [
+        "motion"
+      ],
+      "files": [
+        {
+          "path": "registry/examples/sunburst-chart.tsx",
+          "type": "registry:page",
+          "target": "app/page.tsx"
+        },
+        {
+          "path": "registry/examples/sunburst-chart-index.ts",
           "type": "registry:lib",
           "target": "components/charts/index.ts"
         }

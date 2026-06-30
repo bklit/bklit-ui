@@ -16,6 +16,7 @@
     "radar-chart",
     "ring-chart",
     "scatter-chart",
-    "sankey-chart"
+    "sankey-chart",
+    "sunburst-chart"
   ]
 }

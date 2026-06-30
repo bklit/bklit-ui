@@ -38,6 +38,7 @@ import {
   expandStudioParamUpdate,
   reconcileOverlayVisibility,
 } from "@/lib/studio-visibility-sync";
+import { sunburstChartDefaults } from "@/lib/sunburst-chart-defaults";
 import type { ChartSlug, StudioChartConfig } from "@/lib/types";
 
 const STUDIO_Y_AXIS_CHART_PREFIX: Partial<Record<ChartSlug, string>> = {
@@ -300,6 +301,7 @@ export function StudioStateProvider({
         ...(slug === "line-chart" ? lineChartStandardDefaults : {}),
         ...(slug === "candlestick-chart" ? candlestickChartDefaults : {}),
         ...(slug === "heatmap-chart" ? heatmapChartDefaults : {}),
+        ...(slug === "sunburst-chart" ? sunburstChartDefaults : {}),
         ...(slug === "area-chart" || slug === "composed-chart"
           ? { dataSeries: 2 }
           : {}),

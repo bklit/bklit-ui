@@ -1,3 +1,4 @@
+import { buildArcs } from "@bklitui/ui/charts";
 import {
   clampStudioSeriesCount,
   funnelData,
@@ -5,6 +6,7 @@ import {
   pieData,
   ringData,
   STUDIO_SERIES_KEYS,
+  sunburstData,
 } from "@/lib/demo-data";
 import {
   isAreaChartLoadingMode,
@@ -55,6 +57,8 @@ import {
   standardBrushStripControlGroups,
   standardChartTooltipControlGroups,
   standardLegendControlGroups,
+  sunburstChartControlGroups,
+  sunburstLabelsControlGroups,
   tooltipAppearanceControlGroup,
 } from "./registry-control-groups";
 import { controlGroup } from "./sidebar-control-templates";
@@ -851,6 +855,62 @@ export function resolvePieComponents(
   ];
 }
 
+export function resolveSunburstComponents(
+  state: StudioUrlState
+): StudioComponentDefinition[] {
+  const [chartProps] = sunburstChartControlGroups;
+  const [labelProps] = sunburstLabelsControlGroups;
+  const chartId = "sunburst.chart";
+  const { arcs, rootId } = buildArcs(sunburstData);
+
+  const arcIndexByNodeId = new Map<string, number>();
+  for (const arc of arcs) {
+    arcIndexByNodeId.set(arc.id, arc.arcIndex);
+  }
+
+  const segmentParentId = (arc: (typeof arcs)[number]) => {
+    if (!arc.parentId || arc.parentId === rootId) {
+      return chartId;
+    }
+    const parentArcIndex = arcIndexByNodeId.get(arc.parentId);
+    return parentArcIndex == null
+      ? chartId
+      : `sunburst.segment.${parentArcIndex}`;
+  };
+
+  return [
+    {
+      id: chartId,
+      label: "Sunburst",
+      kind: "chart",
+      treeIcon: "pie-chart",
+      controlGroups: chartProps ? [chartProps] : [],
+      design: { seriesIndex: 0, supportsPattern: false },
+    },
+    ...arcs.map((arc) => ({
+      id: `sunburst.segment.${arc.arcIndex}`,
+      label: arc.name,
+      parentId: segmentParentId(arc),
+      kind: "series" as StudioComponentKind,
+      listMarker: "color-dot" as const,
+      swatchColor: getEffectiveSeriesColor(state, arc.categoryIndex),
+      controlGroups: [] as StudioControlGroup[],
+      design: {
+        seriesIndex: arc.arcIndex,
+        supportsPattern: true,
+      },
+    })),
+    {
+      id: "sunburst.labels",
+      label: "Labels",
+      parentId: chartId,
+      kind: "text" as StudioComponentKind,
+      controlGroups: labelProps ? [labelProps] : [],
+    },
+    legendNode("sunburst"),
+  ];
+}
+
 export function resolveLiveLineComponents(): StudioComponentDefinition[] {
   const [stream, line] = liveLineChartControlGroups;
   const chartId = "live-line.chart";
@@ -1482,9 +1542,32 @@ export function studioComponentDepth(
   return 1 + studioComponentDepth(components, component.parentId);
 }
 
+export function studioComponentHasChildren(
+  components: StudioComponentDefinition[],
+  id: string
+): boolean {
+  return components.some((item) => item.parentId === id);
+}
+
+/** Parent ids from immediate parent up to the root (nearest first). */
+export function studioComponentAncestorIds(
+  components: StudioComponentDefinition[],
+  id: string
+): string[] {
+  const ancestors: string[] = [];
+  let current = findStudioComponent(components, id);
+  while (current?.parentId) {
+    ancestors.push(current.parentId);
+    current = findStudioComponent(components, current.parentId);
+  }
+  return ancestors;
+}
+
 export function flattenStudioComponents(
-  components: StudioComponentDefinition[]
+  components: StudioComponentDefinition[],
+  options?: { collapsedIds?: ReadonlySet<string> }
 ): StudioComponentDefinition[] {
+  const collapsedIds = options?.collapsedIds;
   const roots = components.filter(
     (component) =>
       !(
@@ -1497,6 +1580,9 @@ export function flattenStudioComponents(
   function walk(list: StudioComponentDefinition[]) {
     for (const component of list) {
       result.push(component);
+      if (collapsedIds?.has(component.id)) {
+        continue;
+      }
       walk(components.filter((item) => item.parentId === component.id));
     }
   }

@@ -68,6 +68,7 @@ export const EditorLeftPanel = memo(function EditorLeftPanel({
 
           <StudioComponentsPanel
             components={components}
+            key={state.chart}
             onBatchChange={onBatchChange}
             onChange={onChange}
             onSelect={setSelectedComponentId}

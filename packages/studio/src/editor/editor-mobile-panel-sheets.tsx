@@ -167,6 +167,7 @@ export function EditorMobilePanelSheets({
               ) : null}
               <StudioComponentsPanel
                 components={components}
+                key={state.chart}
                 onBatchChange={onBatchChange}
                 onChange={onChange}
                 onSelect={setSelectedComponentId}

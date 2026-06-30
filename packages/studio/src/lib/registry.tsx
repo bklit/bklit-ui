@@ -39,6 +39,7 @@ import {
   timeSeriesChartMargin,
 } from "@/components/charts/studio-chart-y-axis";
 import { StudioReferenceAreaLayer } from "@/components/charts/studio-reference-area-layer";
+import { SunburstStudioPreview } from "@/components/charts/sunburst-studio-preview";
 import { fadeEdgesPropValue } from "@/components/controls/fade-edges-picker";
 import {
   getStudioCssRevealPropsForPreview,
@@ -62,6 +63,7 @@ import {
   ringCodegen,
   sankeyCodegen,
   scatterCodegen,
+  sunburstCodegen,
 } from "./codegen-helpers";
 import { resolveCurve } from "./curves";
 import {
@@ -94,6 +96,7 @@ import {
   ringChartControlGroups,
   sankeyChartControlGroups,
   scatterChartControlGroups,
+  sunburstChartControlGroups,
 } from "./registry-control-groups";
 import { seriesStrokePropsFromState } from "./series-stroke-props";
 import {
@@ -118,6 +121,7 @@ import {
   resolveRingComponents,
   resolveSankeyComponents,
   resolveScatterComponents,
+  resolveSunburstComponents,
 } from "./studio-components";
 import { studioCartesianLegendItems } from "./studio-legend-items";
 import { getEffectiveSeriesColor } from "./studio-series-design";
@@ -624,6 +628,19 @@ const funnelConfig: StudioChartConfig = {
   generateCode: (state) => funnelCodegen(state),
 };
 
+const sunburstConfig: StudioChartConfig = {
+  slug: "sunburst-chart",
+  label: chartLabels["sunburst-chart"],
+  supportsPatterns: true,
+  motionPanel: true,
+  motionStagger: true,
+  controls: [],
+  controlGroups: sunburstChartControlGroups,
+  resolveComponents: resolveSunburstComponents,
+  render: (state, ctx) => <SunburstStudioPreview ctx={ctx} state={state} />,
+  generateCode: (state) => sunburstCodegen(state),
+};
+
 const liveLineConfig: StudioChartConfig = {
   slug: "live-line-chart",
   label: chartLabels["live-line-chart"],
@@ -739,6 +756,7 @@ export const studioRegistry: Record<ChartSlug, StudioChartConfig> = {
   "radar-chart": radarConfig,
   "candlestick-chart": candlestickConfig,
   "funnel-chart": funnelConfig,
+  "sunburst-chart": sunburstConfig,
   "live-line-chart": liveLineConfig,
   "choropleth-chart": choroplethConfig,
   "heatmap-chart": heatmapConfig,

@@ -52,6 +52,7 @@ const components = [
   { text: "Ring Chart", url: "/docs/components/ring-chart" },
   { text: "Scatter Chart", url: "/docs/components/scatter-chart" },
   { text: "Sankey Chart", url: "/docs/components/sankey-chart" },
+  { text: "Sunburst Chart", url: "/docs/components/sunburst-chart" },
 ];
 
 const utilities = [

@@ -317,6 +317,11 @@ export const STUDIO_STATE_KEY_ORDER = [
   "gaugeShowLabel",
   "gaugeLabelPlacement",
   "gaugeLabelAlign",
+  "sunburstShowLabels",
+  "sunburstLabelFontSize",
+  "sunburstLabelColor",
+  "sunburstLabelOutlineColor",
+  "sunburstLabelOutlineWidth",
 ] as const satisfies readonly (keyof StudioUrlState)[];
 
 /** Frozen historical layout (cc7bc08 — first compressed-URL release). Decode-only. */

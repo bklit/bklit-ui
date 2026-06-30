@@ -1173,6 +1173,54 @@ export const funnelChartControlGroups: StudioControlGroup[] = [
   ]),
 ];
 
+export const sunburstChartControlGroups: StudioControlGroup[] = [
+  controlGroup("Chart", [
+    {
+      type: "number",
+      key: "pieSize",
+      label: "Scale",
+      min: 75,
+      max: 100,
+      unit: "%",
+    },
+    {
+      type: "number",
+      key: "pieHoverOffset",
+      label: "Hover pop",
+      min: 0,
+      max: 24,
+    },
+    { type: "boolean", key: "sunburstShowLabels", label: "Show labels" },
+  ]),
+];
+
+export const sunburstLabelsControlGroups: StudioControlGroup[] = [
+  controlGroup("Labels", [
+    {
+      type: "number",
+      key: "sunburstLabelFontSize",
+      label: "Font size",
+      min: 8,
+      max: 24,
+      step: 1,
+    },
+    { type: "color", key: "sunburstLabelColor", label: "Text color" },
+    {
+      type: "color",
+      key: "sunburstLabelOutlineColor",
+      label: "Outline color",
+    },
+    {
+      type: "number",
+      key: "sunburstLabelOutlineWidth",
+      label: "Outline width",
+      min: 0,
+      max: 8,
+      step: 0.5,
+    },
+  ]),
+];
+
 export const scatterChartControlGroups: StudioControlGroup[] = [
   referenceAreaBoundsControlGroup,
   controlGroup("Points", [

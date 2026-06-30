@@ -33,9 +33,13 @@ export function getChartExamplePreviewFrameClassName(
   switch (layout) {
     case "compact":
       return cn(
-        "flex min-h-[240px] w-full items-center justify-center sm:min-h-[280px]",
+        previewRole === "hero"
+          ? "flex min-h-[320px] w-full items-center justify-center sm:min-h-[380px]"
+          : "flex min-h-[240px] w-full items-center justify-center sm:min-h-[280px]",
         "[&_.relative.aspect-square]:mx-auto [&_.relative.aspect-square]:w-full",
-        "[&_.relative.aspect-square]:max-w-[min(100%,300px)] sm:[&_.relative.aspect-square]:max-w-[260px]"
+        previewRole === "hero"
+          ? "[&_.relative.aspect-square]:max-w-[min(100%,480px)] sm:[&_.relative.aspect-square]:max-w-[440px]"
+          : "[&_.relative.aspect-square]:max-w-[min(100%,300px)] sm:[&_.relative.aspect-square]:max-w-[260px]"
       );
     case "wide":
       return previewRole === "hero"
@@ -71,6 +75,10 @@ export const chartExampleGaugeClassName =
 /** Wrap fixed-size radial demos when omitting the `size` prop. */
 export const chartExampleRadialShellClassName =
   "mx-auto aspect-square w-full max-w-[min(100%,300px)] sm:max-w-[260px]";
+
+/** Larger shell for sunburst hero previews. */
+export const chartExampleSunburstHeroShellClassName =
+  "mx-auto aspect-square w-full max-w-[min(100%,480px)] sm:max-w-[440px]";
 
 export const chartExampleCardClassName = "overflow-visible gap-0";
 

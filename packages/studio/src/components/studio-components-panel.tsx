@@ -2,6 +2,7 @@
 
 import { Icon } from "@bklitui/icons";
 import { cn } from "@bklitui/ui/lib/utils";
+import { useEffect, useMemo, useState } from "react";
 import { StudioControlGroup } from "@/components/studio-control-group";
 import {
   buildAddProjectionLineUpdate,
@@ -19,7 +20,9 @@ import {
 } from "@/lib/studio-component-visibility";
 import {
   flattenStudioComponents,
+  studioComponentAncestorIds,
   studioComponentDepth,
+  studioComponentHasChildren,
 } from "@/lib/studio-components";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import type { StudioComponentDefinition } from "@/lib/types";
@@ -153,6 +156,35 @@ function ComponentContextMenuContent({
   );
 }
 
+function ComponentTreeExpandToggle({
+  expanded,
+  onToggle,
+}: {
+  expanded: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <button
+      aria-expanded={expanded}
+      aria-label={expanded ? "Collapse nested items" : "Expand nested items"}
+      className="flex size-4 shrink-0 items-center justify-center rounded-sm text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+      onClick={(event) => {
+        event.stopPropagation();
+        onToggle();
+      }}
+      type="button"
+    >
+      <Icon
+        className={cn(
+          "size-3.5 transition-transform",
+          !expanded && "-rotate-90"
+        )}
+        name="IconChevronDownSmall"
+      />
+    </button>
+  );
+}
+
 export function StudioComponentsPanel({
   components,
   selectedId,
@@ -171,11 +203,47 @@ export function StudioComponentsPanel({
   ) => void;
   onBatchChange: (updates: Partial<StudioUrlState>) => void;
 }) {
-  const ordered = flattenStudioComponents(components);
+  const [collapsedIds, setCollapsedIds] = useState<Set<string>>(
+    () => new Set()
+  );
+
+  useEffect(() => {
+    const ancestors = studioComponentAncestorIds(components, selectedId);
+    if (ancestors.length === 0) {
+      return;
+    }
+    setCollapsedIds((current) => {
+      let changed = false;
+      const next = new Set(current);
+      for (const id of ancestors) {
+        if (next.delete(id)) {
+          changed = true;
+        }
+      }
+      return changed ? next : current;
+    });
+  }, [components, selectedId]);
+
+  const ordered = useMemo(
+    () => flattenStudioComponents(components, { collapsedIds }),
+    [collapsedIds, components]
+  );
 
   if (ordered.length === 0) {
     return null;
   }
+
+  const toggleCollapsed = (id: string) => {
+    setCollapsedIds((current) => {
+      const next = new Set(current);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
 
   return (
     <StudioControlGroup collapsible defaultOpen title="Components">
@@ -185,13 +253,18 @@ export function StudioComponentsPanel({
           const selected = component.id === selectedId;
           const configurable = isStudioComponentConfigurable(component);
           const visible = isStudioComponentVisible(state, component.id);
+          const hasChildren = studioComponentHasChildren(
+            components,
+            component.id
+          );
+          const expanded = !collapsedIds.has(component.id);
 
           return (
             <li key={component.id}>
               <ContextMenu>
                 <ContextMenuTrigger
                   className={cn(
-                    "group flex w-full min-w-0 items-center gap-1 rounded-md pr-1 transition-colors",
+                    "group flex w-full min-w-0 items-center gap-0.5 rounded-md pr-1 transition-colors",
                     selected
                       ? "bg-accent text-foreground"
                       : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
@@ -199,6 +272,14 @@ export function StudioComponentsPanel({
                   )}
                   style={{ paddingLeft: `${8 + depth * 12}px` }}
                 >
+                  {hasChildren ? (
+                    <ComponentTreeExpandToggle
+                      expanded={expanded}
+                      onToggle={() => toggleCollapsed(component.id)}
+                    />
+                  ) : (
+                    <span aria-hidden className="size-4 shrink-0" />
+                  )}
                   <button
                     className={cn(
                       "flex min-w-0 flex-1 items-center gap-2 py-1.5 text-left text-xs",

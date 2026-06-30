@@ -497,6 +497,55 @@ export {
   StaticChartPreviewProvider,
   useStaticChartPreview,
 } from "./static-chart-preview-context";
+export {
+  type ArcDatum,
+  type ArcGeometry,
+  arcPath,
+  buildArcs,
+  buildRevealDelays,
+  buildRevealSchedule,
+  buildSunburstEnterTiming,
+  centroidAngle,
+  clockwiseFraction,
+  defaultSunburstGrowPadding,
+  type Focus,
+  geomCentroidAngle,
+  geomCentroidRadius,
+  geometryFor,
+  lerpGeometry,
+  localProgress,
+  ringOptions,
+  type SunburstEnterTiming,
+  type SunburstRevealSchedule,
+  type SunburstSegmentEnterDelays,
+  segmentRevealFromRingSweep,
+  sumValues,
+  transitionGeometry,
+} from "./sunburst";
+// Sunburst chart components
+export {
+  SunburstBreadcrumb,
+  type SunburstBreadcrumbItem,
+  type SunburstBreadcrumbProps,
+  useSunburstBreadcrumbItems,
+} from "./sunburst-breadcrumb";
+export { SunburstCenter, type SunburstCenterProps } from "./sunburst-center";
+export { SunburstChart, type SunburstChartProps } from "./sunburst-chart";
+export {
+  defaultSunburstColors,
+  opacityForRelativeDepth,
+  sunburstCssVars,
+  useSunburstHover,
+  useSunburstStable,
+} from "./sunburst-context";
+export type { SunburstNode } from "./sunburst-data";
+export {
+  SunburstHint,
+  type SunburstHintContext,
+  type SunburstHintProps,
+} from "./sunburst-hint";
+export { SunburstLabels, type SunburstLabelsProps } from "./sunburst-labels";
+export { SunburstSegment, type SunburstSegmentProps } from "./sunburst-segment";
 // Tooltip components
 export {
   ChartTooltip,

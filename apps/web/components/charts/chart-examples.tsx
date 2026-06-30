@@ -13,6 +13,7 @@ import {
   BarDepthProvider,
   BarXAxis,
   BarYAxis,
+  buildArcs,
   Candlestick,
   CandlestickChart,
   type ChartMarker,
@@ -91,6 +92,14 @@ import {
   SegmentLineFrom,
   SegmentLineTo,
   SeriesBar,
+  SunburstBreadcrumb,
+  SunburstCenter,
+  SunburstChart,
+  SunburstHint,
+  SunburstLabels,
+  type SunburstNode,
+  SunburstSegment,
+  sumValues,
   useChart,
   XAxis,
   YAxis,
@@ -121,6 +130,7 @@ import {
   chartExampleGaugeClassName,
   chartExampleGaugeShellClassName,
   chartExampleRadialShellClassName,
+  chartExampleSunburstHeroShellClassName,
   getChartExampleContentPaddingClassName,
 } from "@/components/charts/chart-example-preview";
 import { FeaturedChartHero } from "@/components/charts/featured-chart-hero";
@@ -135,6 +145,8 @@ import {
   profitLossLineDocsData,
 } from "@/components/docs/profit-loss-line-docs-data";
 import { ProjectionLineDemo } from "@/components/docs/projection-line-demo";
+import { sunburstDemoData } from "@/components/docs/sunburst-chart-demo-data";
+import { SunburstDrillBreadcrumb } from "@/components/docs/sunburst-drill-breadcrumb";
 import { useWorldDataStandalone } from "@/components/docs/use-world-data";
 import {
   Card,
@@ -6009,6 +6021,276 @@ function makeScatterHero(): ChartExample {
 }
 
 // ---------------------------------------------------------------------------
+// Sunburst chart examples
+// ---------------------------------------------------------------------------
+
+function findSunburstNodeById(
+  node: SunburstNode,
+  id: string,
+  parentId: string | null = null
+): SunburstNode | null {
+  const nodeId = parentId ? `${parentId} / ${node.name}` : node.name;
+  if (nodeId === id) {
+    return node;
+  }
+  for (const child of node.children ?? []) {
+    const found = findSunburstNodeById(child, id, nodeId);
+    if (found) {
+      return found;
+    }
+  }
+  return null;
+}
+
+function sunburstLegendForFocus(data: SunburstNode, focusId: string) {
+  const { arcs, rootId } = buildArcs(data);
+  const focusNode = findSunburstNodeById(data, focusId) ?? data;
+  const children = focusNode.children ?? [];
+  const childValues = children.map((child) => sumValues(child));
+  const maxValue = Math.max(...childValues, 1);
+
+  const items: { label: string; value: number; color: string }[] = [];
+  const arcIndices: number[] = [];
+
+  for (const child of children) {
+    const childId =
+      focusId === rootId ? child.name : `${focusId} / ${child.name}`;
+    const arc = arcs.find((entry) => entry.id === childId);
+    if (!arc) {
+      continue;
+    }
+    items.push({
+      label: child.name,
+      value: sumValues(child),
+      color: `var(--chart-${(arc.categoryIndex % 5) + 1})`,
+    });
+    arcIndices.push(arc.arcIndex);
+  }
+
+  return {
+    items: items.map((item) => ({ ...item, maxValue })),
+    arcIndices,
+  };
+}
+
+function SunburstHeroInner() {
+  const { arcs, rootId } = useMemo(() => buildArcs(sunburstDemoData), []);
+  const [focusId, setFocusId] = useState(rootId);
+
+  useEffect(() => {
+    setFocusId(rootId);
+  }, [rootId]);
+
+  return (
+    <div className={chartExampleSunburstHeroShellClassName}>
+      <SunburstChart
+        data={sunburstDemoData}
+        focusId={focusId}
+        onFocusChange={setFocusId}
+        size={460}
+      >
+        <SunburstBreadcrumb>
+          <SunburstDrillBreadcrumb />
+        </SunburstBreadcrumb>
+        {arcs.map((arc) => (
+          <SunburstSegment index={arc.arcIndex} key={arc.id} />
+        ))}
+        <SunburstCenter />
+        <SunburstLabels />
+        <SunburstHint />
+      </SunburstChart>
+    </div>
+  );
+}
+
+function SunburstPatternsExample() {
+  const { arcs } = useMemo(() => buildArcs(sunburstDemoData), []);
+  const patternedInnerArcs = arcs.filter(
+    (arc) => arc.depth === 1 && arc.categoryIndex % 2 === 0
+  );
+
+  return (
+    <div className={chartExampleRadialShellClassName}>
+      <SunburstChart data={sunburstDemoData} size={320}>
+        {patternedInnerArcs.map((arc) => (
+          <PatternLines
+            height={6}
+            id={`sb-ex-inner-${arc.arcIndex}`}
+            key={`sb-ex-inner-def-${arc.arcIndex}`}
+            orientation={["diagonal"]}
+            stroke={`var(--chart-${(arc.categoryIndex % 5) + 1})`}
+            strokeWidth={1}
+            width={6}
+          />
+        ))}
+        {arcs.map((arc) => {
+          const fill =
+            arc.depth === 1 && arc.categoryIndex % 2 === 0
+              ? `url(#sb-ex-inner-${arc.arcIndex})`
+              : undefined;
+          return (
+            <SunburstSegment fill={fill} index={arc.arcIndex} key={arc.id} />
+          );
+        })}
+        <SunburstCenter />
+      </SunburstChart>
+    </div>
+  );
+}
+
+function SunburstWithLegend() {
+  const { arcs, rootId } = useMemo(() => buildArcs(sunburstDemoData), []);
+  const [focusId, setFocusId] = useState(rootId);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [legendHoveredIndex, setLegendHoveredIndex] = useState<number | null>(
+    null
+  );
+
+  const legendResult = useMemo(
+    () => sunburstLegendForFocus(sunburstDemoData, focusId),
+    [focusId]
+  );
+
+  const legendIndexByArc = useMemo(() => {
+    const map = new Map<number, number>();
+    for (const [legendIndex, arcIndex] of legendResult.arcIndices.entries()) {
+      map.set(arcIndex, legendIndex);
+    }
+    return map;
+  }, [legendResult.arcIndices]);
+
+  useEffect(() => {
+    setFocusId(rootId);
+  }, [rootId]);
+
+  useEffect(() => {
+    if (legendHoveredIndex != null) {
+      const arcIndex = legendResult.arcIndices[legendHoveredIndex];
+      if (arcIndex != null) {
+        setHoveredIndex(arcIndex);
+      }
+      return;
+    }
+    setHoveredIndex((current) =>
+      current != null && legendIndexByArc.has(current) ? null : current
+    );
+  }, [legendHoveredIndex, legendResult.arcIndices, legendIndexByArc]);
+
+  useEffect(() => {
+    setHoveredIndex(null);
+    setLegendHoveredIndex(null);
+  }, [focusId]);
+
+  const handleArcHoverChange = useCallback(
+    (arcIndex: number | null) => {
+      setHoveredIndex(arcIndex);
+      if (arcIndex == null) {
+        setLegendHoveredIndex(null);
+        return;
+      }
+      setLegendHoveredIndex(legendIndexByArc.get(arcIndex) ?? null);
+    },
+    [legendIndexByArc]
+  );
+
+  return (
+    <div className="flex w-full flex-col items-center gap-4">
+      <SunburstChart
+        data={sunburstDemoData}
+        focusId={focusId}
+        hoveredIndex={hoveredIndex}
+        onFocusChange={setFocusId}
+        onHoverChange={handleArcHoverChange}
+        size={280}
+      >
+        {arcs.map((arc) => (
+          <SunburstSegment index={arc.arcIndex} key={arc.id} />
+        ))}
+        <SunburstCenter />
+      </SunburstChart>
+      <Legend
+        className="flex-row flex-wrap justify-center gap-x-4 gap-y-1"
+        hoveredIndex={legendHoveredIndex}
+        items={legendResult.items}
+        onHoverChange={setLegendHoveredIndex}
+        title="Categories"
+      >
+        <LegendItemComponent className="flex items-center gap-1.5">
+          <LegendMarker />
+          <LegendLabel className="text-xs" />
+          <LegendValue className="text-xs" showPercentage />
+        </LegendItemComponent>
+      </Legend>
+    </div>
+  );
+}
+
+function makeSunburstHero(): ChartExample {
+  return {
+    title: "Sunburst Chart - Interactive",
+    description: "Hierarchical revenue breakdown with drill-down zoom",
+    code: `<SunburstChart data={data} size={460}>
+  <SunburstBreadcrumb>
+    <SunburstDrillBreadcrumb />
+  </SunburstBreadcrumb>
+  {arcs.map((arc) => (
+    <SunburstSegment index={arc.arcIndex} key={arc.id} />
+  ))}
+  <SunburstCenter />
+  <SunburstLabels />
+  <SunburstHint />
+</SunburstChart>`,
+    render: () => <SunburstHeroInner />,
+  };
+}
+
+function makeSunburstExamples(): ChartExample[] {
+  return [
+    {
+      title: "Sunburst Chart - Patterns",
+      description:
+        "Diagonal stripes on alternating inner-ring segments (Product & Partners)",
+      code: `<SunburstChart data={data} size={320}>
+  <PatternLines id="inner-product" orientation={["diagonal"]}
+    stroke="var(--chart-1)" width={6} height={6} />
+  <PatternLines id="inner-partners" orientation={["diagonal"]}
+    stroke="var(--chart-3)" width={6} height={6} />
+  <SunburstSegment index={0} fill="url(#inner-product)" />
+  <SunburstSegment index={2} fill="url(#inner-partners)" />
+  <SunburstCenter />
+</SunburstChart>`,
+      render: () => <SunburstPatternsExample />,
+    },
+    {
+      title: "Sunburst Chart - Legend",
+      description: "Legend synced to the current focus level and chart hover",
+      code: `const { items, arcIndices } = legendForFocus(data, focusId);
+
+<SunburstChart
+  data={data}
+  focusId={focusId}
+  hoveredIndex={hoveredIndex}
+  onFocusChange={setFocusId}
+  onHoverChange={setHoveredIndex}
+>
+  {arcs.map((arc) => (
+    <SunburstSegment index={arc.arcIndex} key={arc.id} />
+  ))}
+  <SunburstCenter />
+</SunburstChart>
+<Legend hoveredIndex={legendIndex} items={items} onHoverChange={setLegendIndex}>
+  <LegendItemComponent>
+    <LegendMarker />
+    <LegendLabel />
+    <LegendValue showPercentage />
+  </LegendItemComponent>
+</Legend>`,
+      render: () => <SunburstWithLegend />,
+    },
+  ];
+}
+
+// ---------------------------------------------------------------------------
 // Registry
 // ---------------------------------------------------------------------------
 
@@ -6073,6 +6355,12 @@ const chartExamplesRegistry: Record<string, RegistryEntry> = {
     previewLayout: "wide",
     notice:
       "The Sankey chart is in pre-alpha and is being actively developed. APIs may change.",
+  },
+  "sunburst-chart": {
+    factory: makeSunburstExamples,
+    columns: 2,
+    hero: makeSunburstHero,
+    previewLayout: "compact",
   },
 };
 
