@@ -39,6 +39,14 @@ export interface ArcGeometry {
 const TOP = -Math.PI / 2;
 const TWO_PI = 2 * Math.PI;
 const ID_SEP = " / ";
+/** Drill-down navigation hub is smaller than one ring to leave room for hover grow. */
+const DRILL_CENTER_SCALE = 0.65;
+/** Extra hub shrink per focus level beyond the first drill. */
+const DRILL_CENTER_DEPTH_SHRINK = 0.08;
+/** Max total radial hover grow as a fraction of the current ring width. */
+const HOVER_GROW_RING_BUDGET = 0.28;
+/** Per-segment hover grow cap as a fraction of ring width. */
+const HOVER_GROW_SEGMENT_CAP = 0.1;
 
 function nodeId(parentId: string | null, name: string): string {
   return parentId ? `${parentId}${ID_SEP}${name}` : name;
@@ -173,8 +181,13 @@ export function ringOptions(
     // Root view — segments fill from the center, no navigation hub gap.
     return { centerR: 0, ringWidth: oneLevelCenterR };
   }
-  // Hub stays the same size from the first drill onward; only the rings widen.
-  const centerR = oneLevelCenterR;
+  // Hub shrinks on drill-down; shrinks further when focus moves deeper.
+  const depthPastFirstDrill = Math.max(0, focusDepth - 1);
+  const centerScale = Math.max(
+    0.45,
+    DRILL_CENTER_SCALE - depthPastFirstDrill * DRILL_CENTER_DEPTH_SHRINK
+  );
+  const centerR = oneLevelCenterR * centerScale;
   const visibleRings = Math.max(1, maxDepth - focusDepth);
   const ringWidth = (radius - centerR) / visibleRings;
   return { centerR, ringWidth };
@@ -286,11 +299,22 @@ export function clockwiseFraction(angle: number): number {
   return normalized / TWO_PI;
 }
 
-/** Ring-by-ring, clockwise stagger for the init reveal. */
-export function buildRevealDelays(arcs: ArcDatum[]): Map<string, number> {
-  const map = new Map<string, number>();
-  const ringGap = 0.14;
-  const ringSpan = 0.28;
+/** Ring-chart-style enter delay (seconds) — scale from center. */
+export interface SunburstSegmentEnterDelays {
+  delay: number;
+}
+
+export interface SunburstEnterTiming {
+  segmentDelays: Map<string, SunburstSegmentEnterDelays>;
+  maxDelay: number;
+}
+
+/** Matches ring chart expand — each ring/segment grows from the chart center. */
+export function buildSunburstEnterTiming(
+  arcs: ArcDatum[],
+  staggerScale = 1
+): SunburstEnterTiming {
+  const scale = Math.max(0.25, staggerScale);
   const byDepth = new Map<number, ArcDatum[]>();
 
   for (const arc of arcs) {
@@ -299,34 +323,100 @@ export function buildRevealDelays(arcs: ArcDatum[]): Map<string, number> {
     byDepth.set(arc.depth, list);
   }
 
-  for (const [depth, ringArcs] of byDepth) {
+  const segmentDelays = new Map<string, SunburstSegmentEnterDelays>();
+  let maxDelay = 0;
+
+  for (const [, ringArcs] of byDepth) {
     const sorted = [...ringArcs].sort(
       (a, b) => clockwiseFraction(a.a0) - clockwiseFraction(b.a0)
     );
-    const ringIndex = depth - 1;
-    const baseDelay = ringIndex * ringGap;
+    const ringIndex = (sorted[0]?.depth ?? 1) - 1;
 
     for (const [index, arc] of sorted.entries()) {
-      const clockwiseSlot = sorted.length <= 1 ? 0 : index / sorted.length;
-      map.set(arc.id, baseDelay + clockwiseSlot * ringSpan);
+      const delay = (ringIndex * 0.12 + index * 0.08) * scale;
+      segmentDelays.set(arc.id, { delay });
+      maxDelay = Math.max(maxDelay, delay);
     }
   }
 
+  return { segmentDelays, maxDelay };
+}
+
+/** @deprecated Use buildSunburstEnterTiming */
+export interface SunburstRevealSchedule {
+  ringStarts: Map<number, number>;
+  ringDuration: number;
+  segmentsCompleteAt: number;
+  labelsStart: number;
+  labelDuration: number;
+}
+
+/** @deprecated Use buildSunburstEnterTiming */
+export function buildRevealSchedule(
+  arcs: ArcDatum[],
+  staggerScale = 1
+): SunburstRevealSchedule {
+  const timing = buildSunburstEnterTiming(arcs, staggerScale);
+  const ringStarts = new Map<number, number>();
+  for (const arc of arcs) {
+    const delays = timing.segmentDelays.get(arc.id);
+    if (delays) {
+      ringStarts.set(arc.depth, delays.delay);
+    }
+  }
+  return {
+    ringStarts,
+    ringDuration: 0.6,
+    segmentsCompleteAt: timing.maxDelay,
+    labelsStart: timing.maxDelay + 0.12,
+    labelDuration: 0.2,
+  };
+}
+
+/** @deprecated Ring sweep reveal — use expand + sweep enter instead. */
+export function segmentRevealFromRingSweep(
+  ringProgress: number,
+  a0: number,
+  a1: number
+): { angular: number; radial: number } {
+  const radial = Math.min(1, Math.max(0, ringProgress));
+  const startF = clockwiseFraction(a0);
+  const endF = clockwiseFraction(a1);
+
+  if (ringProgress <= startF) {
+    return { angular: 0, radial };
+  }
+  if (ringProgress >= endF) {
+    return { angular: 1, radial };
+  }
+  const angular = (ringProgress - startF) / Math.max(endF - startF, 1e-9);
+  return { angular, radial };
+}
+
+/** @deprecated Use buildSunburstEnterTiming */
+export function buildRevealDelays(arcs: ArcDatum[]): Map<string, number> {
+  const timing = buildSunburstEnterTiming(arcs);
+  const map = new Map<string, number>();
+  for (const arc of arcs) {
+    map.set(arc.id, timing.segmentDelays.get(arc.id)?.delay ?? 0);
+  }
   return map;
 }
 
 export function arcPath(
   geometry: ArcGeometry,
-  progress: number
+  progress: number,
+  radialProgress = progress
 ): string | null {
-  if (progress <= 0) {
+  if (progress <= 0 && radialProgress <= 0) {
     return null;
   }
 
   const p = Math.min(1, Math.max(0, progress));
+  const radialP = Math.min(1, Math.max(0, radialProgress));
   const { a0, a1, innerR, outerR } = geometry;
 
-  if (p >= 1) {
+  if (p >= 1 && radialP >= 1) {
     return arcPathFromGeometry(geometry);
   }
 
@@ -336,7 +426,8 @@ export function arcPath(
   const currentA0 = a0;
   const currentA1 = a0 + span * p;
   const currentInner = innerR < 1 ? 0 : innerR;
-  const currentOuter = innerR < 1 ? outerR * p : innerR + (outerR - innerR) * p;
+  const currentOuter =
+    innerR < 1 ? outerR * radialP : innerR + (outerR - innerR) * radialP;
 
   return arcPathFromRadii(currentA0, currentA1, currentInner, currentOuter);
 }
@@ -386,14 +477,157 @@ export function geomCentroidRadius(geometry: ArcGeometry): number {
   return (geometry.innerR + geometry.outerR) / 2;
 }
 
-export function localProgress(progress: number, delay: number): number {
+/** Visible path length from focus to hovered arc (in ring count). */
+export function visibleHoverPathLength(
+  hoveredDepth: number,
+  focusDepth: number
+): number {
+  return Math.max(1, hoveredDepth - focusDepth);
+}
+
+/** Scale hover grow so deep paths and wide drill-down rings stay within budget. */
+export function hoverGrowForPathSegment(
+  hoverPop: number,
+  ringWidth: number,
+  pathLength: number
+): number {
+  const maxTotalGrow = ringWidth * HOVER_GROW_RING_BUDGET;
+  const budgetPerSegment = maxTotalGrow / pathLength;
+  const perSegmentCap = ringWidth * HOVER_GROW_SEGMENT_CAP;
+  return Math.min(hoverPop, perSegmentCap, budgetPerSegment);
+}
+
+/**
+ * Max radial thickness for a hovered segment — matches one expanded ring at the
+ * first drill level (e.g. Enterprise under Product).
+ */
+export function maxHoverSegmentThickness(
+  maxDepth: number,
+  radius: number,
+  hoverPop: number,
+  referenceFocusDepth = 1
+): number {
+  const { ringWidth } = ringOptions(referenceFocusDepth, maxDepth, radius);
+  const grow = hoverGrowForPathSegment(hoverPop, ringWidth, 1);
+  return ringWidth + grow;
+}
+
+export function buildHoverGrowTargets(
+  arcs: ArcDatum[],
+  hoveredArc: ArcDatum,
+  focus: Focus,
+  maxDepth: number,
+  radius: number,
+  hoverPop: number,
+  isOnHoverPath: (arc: ArcDatum, hoveredId: string) => boolean
+): Map<string, number> {
+  const targets = new Map<string, number>();
+  const { ringWidth } = ringOptions(focus.depth, maxDepth, radius);
+  const pathLength = visibleHoverPathLength(hoveredArc.depth, focus.depth);
+  const segmentGrow = hoverGrowForPathSegment(hoverPop, ringWidth, pathLength);
+  const maxExpandedThickness = maxHoverSegmentThickness(
+    maxDepth,
+    radius,
+    hoverPop
+  );
+
+  for (const d of arcs) {
+    if (!isOnHoverPath(d, hoveredArc.id) || d.depth <= focus.depth) {
+      continue;
+    }
+    const base = geometryFor(d, focus, maxDepth, radius);
+    const baseThickness = base
+      ? base.outerR - base.innerR
+      : maxExpandedThickness;
+    const allowedGrow =
+      baseThickness >= maxExpandedThickness
+        ? 0
+        : Math.min(segmentGrow, maxExpandedThickness - baseThickness);
+    targets.set(d.id, allowedGrow);
+  }
+
+  return targets;
+}
+
+/** Inset reserved around the drawable chart so hover growth stays inside the view box. */
+export function defaultSunburstGrowPadding(
+  maxDepth: number,
+  size: number,
+  hoverPop: number
+): number {
+  const fullRadius = size / 2;
+  const rootRingWidth = fullRadius / Math.max(1, maxDepth);
+  const pathLength = Math.max(1, maxDepth - 1);
+  const segmentGrow = hoverGrowForPathSegment(
+    hoverPop,
+    rootRingWidth,
+    pathLength
+  );
+  return Math.ceil(segmentGrow * pathLength + segmentGrow);
+}
+
+/** Sum of hover grow from ancestors on the path to this arc (excludes self). */
+export function ancestorGrowOffset(
+  arcId: string,
+  growAmountForArc: (id: string) => number
+): number {
+  const parts = arcId.split(ID_SEP);
+  let push = 0;
+  for (let i = 1; i < parts.length; i++) {
+    push += growAmountForArc(parts.slice(0, i).join(ID_SEP));
+  }
+  return push;
+}
+
+/** Shift descendants outward and expand the hovered segment on its outer edge. */
+export function applyHoverGrow(
+  base: ArcGeometry,
+  arcId: string,
+  growAmountForArc: (id: string) => number,
+  maxExpandedThickness: number
+): ArcGeometry {
+  const push = ancestorGrowOffset(arcId, growAmountForArc);
+  const ownGrow = growAmountForArc(arcId);
+  if (push <= 0 && ownGrow <= 0) {
+    return base;
+  }
+
+  const baseThickness = base.outerR - base.innerR;
+  if (baseThickness >= maxExpandedThickness) {
+    if (push <= 0) {
+      return base;
+    }
+    return {
+      ...base,
+      innerR: base.innerR + push,
+      outerR: base.outerR + push,
+    };
+  }
+
+  const innerR = base.innerR + push;
+  let outerR = base.outerR + push + ownGrow;
+  const thickness = outerR - innerR;
+  if (thickness > maxExpandedThickness) {
+    outerR = innerR + maxExpandedThickness;
+  }
+
+  return {
+    ...base,
+    innerR,
+    outerR,
+  };
+}
+
+export function localProgress(
+  progress: number,
+  delay: number,
+  duration: number
+): number {
   if (progress <= delay) {
     return 0;
   }
-  const remaining = 1 - delay;
-  if (remaining <= 0) {
+  if (duration <= 0) {
     return 1;
   }
-  const raw = Math.min(1, (progress - delay) / remaining);
-  return raw;
+  return Math.min(1, (progress - delay) / duration);
 }

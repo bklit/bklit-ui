@@ -66,7 +66,8 @@ export interface SunburstStableContextValue {
 
   t: number;
   zoomT: number;
-  delays: Map<string, number>;
+  enterTiming: SunburstEnterTiming;
+  skipEnterAnimation: boolean;
   growAmountForArc: (arcId: string) => number;
 
   getColor: (categoryIndex: number, nodeColor?: string) => string;
@@ -84,6 +85,7 @@ export interface SunburstStableContextValue {
   enterStaggerScale: number;
   playKey: number;
   hoverPop: number;
+  maxExpandedThickness: number;
 
   containerRef: RefObject<HTMLDivElement | null>;
 }
@@ -118,9 +120,9 @@ export function SunburstProvider({
       prevFocus: value.prevFocus,
       focusId: value.focusId,
       zoomTo: value.zoomTo,
-      t: value.t,
       zoomT: value.zoomT,
-      delays: value.delays,
+      enterTiming: value.enterTiming,
+      skipEnterAnimation: value.skipEnterAnimation,
       growAmountForArc: value.growAmountForArc,
       getColor: value.getColor,
       getFill: value.getFill,
@@ -131,6 +133,7 @@ export function SunburstProvider({
       enterStaggerScale: value.enterStaggerScale,
       playKey: value.playKey,
       hoverPop: value.hoverPop,
+      maxExpandedThickness: value.maxExpandedThickness,
       containerRef: value.containerRef,
     }),
     [
@@ -145,9 +148,9 @@ export function SunburstProvider({
       value.prevFocus,
       value.focusId,
       value.zoomTo,
-      value.t,
       value.zoomT,
-      value.delays,
+      value.enterTiming,
+      value.skipEnterAnimation,
       value.growAmountForArc,
       value.getColor,
       value.getFill,
@@ -158,6 +161,7 @@ export function SunburstProvider({
       value.enterStaggerScale,
       value.playKey,
       value.hoverPop,
+      value.maxExpandedThickness,
       value.containerRef,
     ]
   );

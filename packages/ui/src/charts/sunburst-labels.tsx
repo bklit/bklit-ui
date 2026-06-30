@@ -1,13 +1,17 @@
 "use client";
 
+import { motion, useTransform } from "motion/react";
 import { memo } from "react";
+import { DEFAULT_CHART_ENTER_TRANSITION } from "./animation";
 import {
+  applyHoverGrow,
   geomCentroidAngle,
   geomCentroidRadius,
-  localProgress,
   transitionGeometry,
 } from "./sunburst";
 import { sunburstCssVars, useSunburstStable } from "./sunburst-context";
+import { useEnterComplete } from "./use-enter-complete";
+import { useMountProgress } from "./use-mount-progress";
 
 export interface SunburstLabelsProps {
   fontSize?: number;
@@ -16,8 +20,6 @@ export interface SunburstLabelsProps {
   strokeWidth?: number;
   className?: string;
 }
-
-const LABEL_REVEAL_LAG = 0.18;
 
 export const SunburstLabels = memo(function SunburstLabels({
   fontSize = 11,
@@ -33,11 +35,29 @@ export const SunburstLabels = memo(function SunburstLabels({
     maxDepth,
     radius,
     zoomT,
-    t,
-    delays,
+    enterTiming,
+    enterTransition,
+    playKey,
+    skipEnterAnimation,
     growAmountForArc,
     isRelated,
+    maxExpandedThickness,
   } = useSunburstStable();
+
+  const enterDuration =
+    typeof enterTransition?.duration === "number"
+      ? enterTransition.duration
+      : (DEFAULT_CHART_ENTER_TRANSITION.duration as number);
+  const labelsDelay = enterTiming.maxDelay + enterDuration * 0.85;
+
+  const labelsProgress = useMountProgress(
+    enterTransition,
+    labelsDelay,
+    `${playKey}-labels`
+  );
+  const labelsComplete = useEnterComplete(labelsProgress);
+  const labelOpacity = useTransform(labelsProgress, [0, 1], [0, 1]);
+  const showLabels = skipEnterAnimation || labelsComplete;
 
   return (
     <g className={className}>
@@ -53,8 +73,12 @@ export const SunburstLabels = memo(function SunburstLabels({
         if (!base) {
           return null;
         }
-        const gAmt = growAmountForArc(arc.id);
-        const g = gAmt > 0 ? { ...base, outerR: base.outerR + gAmt } : base;
+        const g = applyHoverGrow(
+          base,
+          arc.id,
+          growAmountForArc,
+          maxExpandedThickness
+        );
         const angleSpan = g.a1 - g.a0;
         const r = geomCentroidRadius(g);
         if (angleSpan * r < 26 || g.outerR - g.innerR < 16) {
@@ -75,18 +99,11 @@ export const SunburstLabels = memo(function SunburstLabels({
           deg += 180;
         }
 
-        const segmentDelay = delays.get(arc.id) ?? 0;
-        const segmentReveal = localProgress(t, segmentDelay);
-        const labelDelay = Math.min(0.98, segmentDelay + LABEL_REVEAL_LAG);
-        const labelOpacity =
-          segmentReveal > 0.05 ? localProgress(t, labelDelay) : 0;
-
         const labelStyle: React.CSSProperties = {
           fill,
           fontFamily: "inherit",
           fontSize,
           fontWeight: 600,
-          opacity: labelOpacity,
         };
         if (strokeWidth > 0) {
           labelStyle.paintOrder = "stroke";
@@ -95,19 +112,36 @@ export const SunburstLabels = memo(function SunburstLabels({
           labelStyle.strokeWidth = strokeWidth;
         }
 
+        if (showLabels) {
+          return (
+            <text
+              dominantBaseline="middle"
+              key={`label-${arc.id}`}
+              pointerEvents="none"
+              style={{ ...labelStyle, opacity: 1 }}
+              textAnchor="middle"
+              transform={`rotate(${deg} ${x} ${y})`}
+              x={x}
+              y={y}
+            >
+              {arc.name}
+            </text>
+          );
+        }
+
         return (
-          <text
+          <motion.text
             dominantBaseline="middle"
             key={`label-${arc.id}`}
             pointerEvents="none"
-            style={labelStyle}
+            style={{ ...labelStyle, opacity: labelOpacity }}
             textAnchor="middle"
             transform={`rotate(${deg} ${x} ${y})`}
             x={x}
             y={y}
           >
             {arc.name}
-          </text>
+          </motion.text>
         );
       })}
     </g>

@@ -92,14 +92,17 @@ const SunburstChartBody = memo(
 
     // Legend panel → chart (focus children only)
     useEffect(() => {
-      if (legendHoveredIndex == null) {
+      if (legendHoveredIndex != null) {
+        const arcIndex = legendArcIndices[legendHoveredIndex];
+        if (arcIndex != null) {
+          setArcHoveredIndex(arcIndex);
+        }
         return;
       }
-      const arcIndex = legendArcIndices[legendHoveredIndex];
-      if (arcIndex != null) {
-        setArcHoveredIndex(arcIndex);
-      }
-    }, [legendArcIndices, legendHoveredIndex]);
+      setArcHoveredIndex((current) =>
+        current != null && legendIndexByArc.has(current) ? null : current
+      );
+    }, [legendArcIndices, legendHoveredIndex, legendIndexByArc]);
 
     const handleArcHoverChange = useCallback(
       (arcIndex: number | null) => {

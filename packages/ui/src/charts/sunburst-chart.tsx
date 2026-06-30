@@ -14,7 +14,14 @@ import {
   useRef,
   useState,
 } from "react";
-import { type ArcDatum, buildArcs, buildRevealDelays } from "./sunburst";
+import {
+  type ArcDatum,
+  buildArcs,
+  buildHoverGrowTargets,
+  buildSunburstEnterTiming,
+  defaultSunburstGrowPadding,
+  maxHoverSegmentThickness,
+} from "./sunburst";
 import {
   defaultSunburstColors,
   opacityForRelativeDepth,
@@ -26,7 +33,7 @@ import type { SunburstNode } from "./sunburst-data";
 export type { ArcDatum, Focus } from "./sunburst";
 export type { SunburstNode } from "./sunburst-data";
 
-const DEFAULT_HOVER_POP = 10;
+const DEFAULT_HOVER_POP = 8;
 
 function componentDisplayName(child: ReactElement): string {
   return (
@@ -89,6 +96,8 @@ export interface SunburstChartProps {
   hoveredIndex?: number | null;
   onHoverChange?: (index: number | null) => void;
   hoverPop?: number;
+  /** Inset reserved for hover growth; defaults from layout depth and hoverPop. */
+  padding?: number;
   enterTransition?: Transition;
   enterStaggerScale?: number;
   children: ReactNode;
@@ -104,18 +113,25 @@ const SunburstChartCore = memo(function SunburstChartCore({
   hoveredIndex: hoveredIndexProp,
   onHoverChange,
   hoverPop = DEFAULT_HOVER_POP,
+  padding: paddingProp,
   enterTransition,
   enterStaggerScale = 1,
   children,
 }: SunburstChartProps) {
-  const radius = size / 2;
+  const fullRadius = size / 2;
   const containerRef = useRef<HTMLDivElement>(null);
   const { arcs, maxDepth, focusById, rootId } = useMemo(
     () => buildArcs(data),
     [data]
   );
 
-  const [t, setT] = useState(0);
+  const growPadding = useMemo(
+    () => paddingProp ?? defaultSunburstGrowPadding(maxDepth, size, hoverPop),
+    [paddingProp, maxDepth, size, hoverPop]
+  );
+  const radius = Math.max(8, fullRadius - growPadding);
+
+  const [skipEnterAnimation, setSkipEnterAnimation] = useState(false);
   const [internalHoveredArc, setInternalHoveredArc] = useState<ArcDatum | null>(
     null
   );
@@ -185,27 +201,22 @@ const SunburstChartCore = memo(function SunburstChartCore({
     setZoomT(1);
   }, [rootId, isFocusControlled]);
 
-  const delays = useMemo(() => buildRevealDelays(arcs), [arcs]);
+  const enterTiming = useMemo(
+    () => buildSunburstEnterTiming(arcs, enterStaggerScale),
+    [arcs, enterStaggerScale]
+  );
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: replay when data or playKey changes
+  useEffect(() => {
+    setSkipEnterAnimation(
+      typeof window !== "undefined" &&
+        window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true
+    );
+  }, [playKey, arcs]);
 
   const prefersReduced = () =>
     typeof window !== "undefined" &&
     window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: replay on data/playKey
-  useEffect(() => {
-    if (prefersReduced()) {
-      setT(1);
-      return;
-    }
-    setT(0);
-    const controls = animate(0, 1, {
-      duration: 1.85,
-      ease: [0.22, 1, 0.36, 1],
-      onUpdate: setT,
-      onComplete: () => setT(1),
-    });
-    return () => controls.stop();
-  }, [arcs, playKey]);
 
   const growControls = useRef<ReturnType<typeof animate> | null>(null);
   const zoomControls = useRef<ReturnType<typeof animate> | null>(null);
@@ -255,6 +266,12 @@ const SunburstChartCore = memo(function SunburstChartCore({
     []
   );
 
+  const isOnHoverPath = useCallback(
+    (d: ArcDatum, hoveredId: string) =>
+      d.id === hoveredId || hoveredId.startsWith(`${d.id} / `),
+    []
+  );
+
   const isRelated = useCallback(
     (d: ArcDatum) => {
       if (!hoveredArc) {
@@ -267,14 +284,20 @@ const SunburstChartCore = memo(function SunburstChartCore({
     [hoveredArc, isDescendant]
   );
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: grow targets from hovered subtree
+  // biome-ignore lint/correctness/useExhaustiveDependencies: grow targets from visible hover path
   useEffect(() => {
-    const targets = new Map<string, number>();
-    for (const d of arcs) {
-      if (hoveredArc && isDescendant(d, hoveredArc.id) && !d.hasChildren) {
-        targets.set(d.id, hoverPop);
-      }
-    }
+    const targets =
+      hoveredArc && focus
+        ? buildHoverGrowTargets(
+            arcs,
+            hoveredArc,
+            focus,
+            maxDepth,
+            radius,
+            hoverPop,
+            isOnHoverPath
+          )
+        : new Map<string, number>();
     const starts = new Map(growRef.current);
     const ids = new Set<string>([...starts.keys(), ...targets.keys()]);
 
@@ -304,7 +327,7 @@ const SunburstChartCore = memo(function SunburstChartCore({
       },
     });
     return () => growControls.current?.stop();
-  }, [hoveredArc, arcs, hoverPop, isDescendant]);
+  }, [hoveredArc, arcs, hoverPop, isOnHoverPath, focus, maxDepth, radius]);
 
   const getColor = useCallback((categoryIndex: number, nodeColor?: string) => {
     if (nodeColor) {
@@ -341,6 +364,11 @@ const SunburstChartCore = memo(function SunburstChartCore({
   const growAmountForArc = useCallback(
     (arcId: string) => growRef.current.get(arcId) ?? 0,
     [growTick]
+  );
+
+  const maxExpandedThickness = useMemo(
+    () => maxHoverSegmentThickness(maxDepth, radius, hoverPop),
+    [maxDepth, radius, hoverPop]
   );
 
   if (!(focus && prevFocus)) {
@@ -391,9 +419,9 @@ const SunburstChartCore = memo(function SunburstChartCore({
     prevFocus,
     focusId,
     zoomTo,
-    t,
     zoomT,
-    delays,
+    enterTiming,
+    skipEnterAnimation,
     growAmountForArc,
     getColor,
     getFill,
@@ -404,6 +432,7 @@ const SunburstChartCore = memo(function SunburstChartCore({
     enterStaggerScale,
     playKey,
     hoverPop,
+    maxExpandedThickness,
     containerRef,
     hoveredArcIndex,
     setHoveredArcIndex,
@@ -423,20 +452,25 @@ const SunburstChartCore = memo(function SunburstChartCore({
             isValidElement(child) &&
             componentDisplayName(child) === "SunburstBreadcrumb"
         )}
-        <motion.svg
-          animate={{ opacity: 1, scale: 1 }}
-          aria-label={`Sunburst chart of ${data.name}`}
-          initial={{ opacity: 0, scale: 0.96 }}
-          onPointerLeave={() => setHoveredArc(null)}
-          role="img"
-          style={{ display: "block", overflow: "visible" }}
-          transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
-          viewBox={`${-radius} ${-radius} ${size} ${size}`}
-          width="100%"
+        <div
+          className="mx-auto w-full"
+          style={{ aspectRatio: "1 / 1", maxWidth: size }}
         >
-          {defsChildren.length > 0 ? <defs>{defsChildren}</defs> : null}
-          {orderedSvgChildren}
-        </motion.svg>
+          <motion.svg
+            animate={{ opacity: 1 }}
+            aria-label={`Sunburst chart of ${data.name}`}
+            initial={{ opacity: 0 }}
+            onPointerLeave={() => setHoveredArc(null)}
+            role="img"
+            style={{ display: "block", overflow: "visible" }}
+            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+            viewBox={`${-fullRadius} ${-fullRadius} ${size} ${size}`}
+            width="100%"
+          >
+            {defsChildren.length > 0 ? <defs>{defsChildren}</defs> : null}
+            {orderedSvgChildren}
+          </motion.svg>
+        </div>
         {outsideChildren.filter(
           (child) =>
             isValidElement(child) &&

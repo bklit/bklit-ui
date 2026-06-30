@@ -6164,14 +6164,17 @@ function SunburstWithLegend() {
   }, [rootId]);
 
   useEffect(() => {
-    if (legendHoveredIndex == null) {
+    if (legendHoveredIndex != null) {
+      const arcIndex = legendResult.arcIndices[legendHoveredIndex];
+      if (arcIndex != null) {
+        setHoveredIndex(arcIndex);
+      }
       return;
     }
-    const arcIndex = legendResult.arcIndices[legendHoveredIndex];
-    if (arcIndex != null) {
-      setHoveredIndex(arcIndex);
-    }
-  }, [legendHoveredIndex, legendResult.arcIndices]);
+    setHoveredIndex((current) =>
+      current != null && legendIndexByArc.has(current) ? null : current
+    );
+  }, [legendHoveredIndex, legendResult.arcIndices, legendIndexByArc]);
 
   useEffect(() => {
     setHoveredIndex(null);

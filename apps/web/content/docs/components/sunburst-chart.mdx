@@ -130,14 +130,15 @@ The root component that computes the layout and provides context to children.
 | `onFocusChange` | `(focusId: string) => void` | - | Called when focus changes via click or breadcrumb |
 | `hoveredIndex` | `number \| null` | - | Controlled hover — arc index in the `arcs` array |
 | `onHoverChange` | `(index: number \| null) => void` | - | Hover state callback |
-| `hoverPop` | `number` | `10` | Leaf segment grow distance on hover (px) |
+| `hoverPop` | `number` | `8` | Segment grow distance on hover (px), cumulative along the path from root to hovered node |
+| `padding` | `number` | auto | Inset reserved inside the view box for hover growth (derived from depth and `hoverPop`) |
 | `enterTransition` | `Transition` | - | Override enter animation transition |
 | `enterStaggerScale` | `number` | `1` | Scale ring-by-ring stagger timing |
 | `className` | `string` | `""` | Wrapper class |
 
 ### SunburstSegment
 
-Renders one arc with enter animation, drill-down click handling, and hover grow on leaf nodes.
+Renders one arc with enter animation, drill-down click handling, and hover grow along the ancestor path.
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
@@ -246,8 +247,8 @@ The Sunburst Chart uses CSS variables for theming. Category colors default to `-
 1. **Enter reveal** — Rings animate clockwise with staggered segment timing
 2. **Label fade** — Labels fade in per segment after that segment's reveal completes
 3. **Drill-down zoom** — Focus morphs matching arcs; others collapse to a point
-4. **Hover grow** — Leaf segments in the hovered subtree extend outward
-5. **Fade** — Unrelated segments dim when another branch is hovered
+4. **Hover grow** — Segments on the path from root to the hovered node extend outward, capped at the thickness of one expanded ring at the first drill level; descendants shift radially to accommodate parent growth. A padded inset inside the view box (auto from `hoverPop` and depth) prevents clipping.
+5. **Fade** — Unrelated segments dim to 25% opacity when another branch is hovered (160ms ease-out)
 
 All animations respect `prefers-reduced-motion`.
 

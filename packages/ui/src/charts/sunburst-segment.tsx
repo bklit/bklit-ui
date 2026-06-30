@@ -1,12 +1,17 @@
 "use client";
 
-import { memo } from "react";
-import { arcPath, localProgress, transitionGeometry } from "./sunburst";
+import { motion, useTransform } from "motion/react";
+import { memo, useMemo } from "react";
+import { applyHoverGrow, arcPath, transitionGeometry } from "./sunburst";
 import {
   sunburstCssVars,
   useSunburstHover,
   useSunburstStable,
 } from "./sunburst-context";
+import { useEnterComplete } from "./use-enter-complete";
+import { useMountProgress } from "./use-mount-progress";
+
+const HOVER_DIM_TRANSITION = { duration: 0.16, ease: "easeOut" as const };
 
 export interface SunburstSegmentProps {
   index: number;
@@ -31,42 +36,65 @@ export const SunburstSegment = memo(function SunburstSegment({
     maxDepth,
     radius,
     zoomT,
-    t,
-    delays,
+    enterTiming,
+    enterTransition,
+    playKey,
+    skipEnterAnimation,
     growAmountForArc,
     getFill,
     getFillOpacity,
     isRelated,
+    maxExpandedThickness,
     zoomTo,
   } = useSunburstStable();
   const { setHoveredArc, setHoveredArcIndex } = useSunburstHover();
 
   const arc = arcs[index];
+  const segmentDelay =
+    (arc ? enterTiming.segmentDelays.get(arc.id)?.delay : undefined) ?? 0;
+  const replayId = arc?.id ?? `missing-${index}`;
+
+  const base = useMemo(() => {
+    if (!arc) {
+      return null;
+    }
+    return transitionGeometry(arc, prevFocus, focus, maxDepth, radius, zoomT);
+  }, [arc, prevFocus, focus, maxDepth, radius, zoomT]);
+
+  const visualGeometry = useMemo(() => {
+    if (!(arc && base)) {
+      return null;
+    }
+    return applyHoverGrow(base, arc.id, growAmountForArc, maxExpandedThickness);
+  }, [arc, base, growAmountForArc, maxExpandedThickness]);
+
+  const enterProgress = useMountProgress(
+    enterTransition,
+    segmentDelay,
+    `${playKey}-enter-${replayId}`
+  );
+  const enterComplete = useEnterComplete(enterProgress);
+  const enterScale = useTransform(enterProgress, [0, 1], [0, 1]);
+  const animatedHitPath = useTransform(enterProgress, (value) =>
+    base ? (arcPath(base, value, 1) ?? "") : ""
+  );
+  const animatedVisualPath = useTransform(enterProgress, (value) =>
+    visualGeometry ? (arcPath(visualGeometry, value, 1) ?? "") : ""
+  );
+
   if (!arc) {
     return null;
   }
 
-  const base = transitionGeometry(
-    arc,
-    prevFocus,
-    focus,
-    maxDepth,
-    radius,
-    zoomT
-  );
   if (!base) {
     return null;
   }
 
-  const gAmt = growAmountForArc(arc.id);
-  const visualGeometry =
-    gAmt > 0 ? { ...base, outerR: base.outerR + gAmt } : base;
+  const showStatic = skipEnterAnimation || enterComplete;
 
-  const lp = localProgress(t, delays.get(arc.id) ?? 0);
-  const reveal = lp >= 1 ? 1 : lp;
-  const hitPath = arcPath(base, reveal);
-  const visualPath = arcPath(visualGeometry, reveal);
-  if (!(hitPath && visualPath)) {
+  const fullHitPath = arcPath(base, 1, 1);
+  const fullVisualPath = visualGeometry ? arcPath(visualGeometry, 1, 1) : null;
+  if (!(fullHitPath && fullVisualPath)) {
     return null;
   }
 
@@ -74,39 +102,61 @@ export const SunburstSegment = memo(function SunburstSegment({
   const segmentFill = getFill(index, fillProp, colorProp);
   const fillOpacity = fillOpacityProp ?? getFillOpacity(relativeDepth);
   const related = isRelated(arc);
-  const segmentOpacity = lp * (related ? 1 : 0.25);
+  const layerOpacity = related ? 1 : 0.25;
+
+  const groupStyle = {
+    cursor: arc.hasChildren ? ("pointer" as const) : ("default" as const),
+    transformOrigin: "0px 0px",
+  };
+
+  const hitHandlers = {
+    onClick: () => arc.hasChildren && zoomTo(arc.id),
+    onPointerEnter: () => {
+      setHoveredArc(arc);
+      setHoveredArcIndex(index);
+    },
+  };
+
+  const visualPathProps = {
+    fill: segmentFill,
+    fillOpacity,
+    pointerEvents: "none" as const,
+    stroke: sunburstCssVars.ring,
+    strokeLinejoin: "round" as const,
+    strokeWidth: 1,
+  };
+
+  if (showStatic) {
+    return (
+      <motion.g
+        animate={{ opacity: layerOpacity }}
+        initial={false}
+        onClick={hitHandlers.onClick}
+        onPointerEnter={hitHandlers.onPointerEnter}
+        style={groupStyle}
+        transition={{ opacity: HOVER_DIM_TRANSITION }}
+      >
+        <path d={fullHitPath} fill="transparent" />
+        <path d={fullVisualPath} {...visualPathProps} />
+      </motion.g>
+    );
+  }
 
   return (
-    <g
+    <motion.g
+      animate={{ opacity: layerOpacity }}
+      initial={false}
+      onClick={hitHandlers.onClick}
+      onPointerEnter={hitHandlers.onPointerEnter}
       style={{
-        cursor: arc.hasChildren ? "pointer" : "default",
-        opacity: segmentOpacity,
-        transition: "opacity 320ms cubic-bezier(0.22, 1, 0.36, 1)",
+        ...groupStyle,
+        scale: enterScale,
       }}
+      transition={{ opacity: HOVER_DIM_TRANSITION }}
     >
-      {/* Stable hit target — ring band without hover grow (matches PieSlice pattern) */}
-      {/* biome-ignore lint/a11y/noStaticElementInteractions: Sunburst segment drill-down */}
-      <path
-        d={hitPath}
-        fill="transparent"
-        onClick={() => arc.hasChildren && zoomTo(arc.id)}
-        onPointerEnter={() => {
-          setHoveredArc(arc);
-          setHoveredArcIndex(index);
-        }}
-        pointerEvents="auto"
-      />
-      {/* Visible segment — may grow on hover; no pointer events */}
-      <path
-        d={visualPath}
-        fill={segmentFill}
-        fillOpacity={fillOpacity}
-        pointerEvents="none"
-        stroke={sunburstCssVars.ring}
-        strokeLinejoin="round"
-        strokeWidth={1}
-      />
-    </g>
+      <motion.path d={animatedHitPath} fill="transparent" />
+      <motion.path d={animatedVisualPath} {...visualPathProps} />
+    </motion.g>
   );
 });
 
