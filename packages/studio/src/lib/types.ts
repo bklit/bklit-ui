@@ -267,6 +267,7 @@ export const chartLabels = {
   "ring-chart": "Ring Chart",
   "scatter-chart": "Scatter Chart",
   "sankey-chart": "Sankey Chart",
+  "sunburst-chart": "Sunburst Chart",
 } satisfies Record<ChartSlug, string>;
 
 export const ASPECT_RATIO_OPTIONS = [

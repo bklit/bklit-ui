@@ -1,0 +1,27 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "sunburst-chart-example",
+  "type": "registry:example",
+  "title": "Sunburst Chart Example",
+  "description": "Composable sunburst-chart demo for Open in v0",
+  "dependencies": [
+    "motion"
+  ],
+  "registryDependencies": [
+    "@bklit/sunburst-chart"
+  ],
+  "files": [
+    {
+      "path": "registry/examples/sunburst-chart.tsx",
+      "content": "\"use client\"\n\n// In your app (monorepo/npm): import { buildArcs, SunburstBreadcrumb, SunburstCenter, SunburstChart, SunburstHint, SunburstLabels, SunburstSegment } from \"@bklitui/ui/charts\"\nimport { buildArcs, SunburstBreadcrumb, SunburstCenter, SunburstChart, SunburstHint, SunburstLabels, SunburstSegment } from \"@/components/charts\"\n\nconst data = {\n  name: \"Revenue\",\n  children: [\n    {\n      name: \"Product\",\n      children: [\n        { name: \"Enterprise\", value: 198 },\n        { name: \"Pro\", value: 145 },\n        { name: \"Starter\", value: 95 },\n      ],\n    },\n    {\n      name: \"Services\",\n      children: [\n        { name: \"Consulting\", value: 160 },\n        { name: \"Support\", value: 90 },\n        { name: \"Training\", value: 55 },\n      ],\n    },\n    {\n      name: \"Partners\",\n      children: [\n        { name: \"Referrals\", value: 120 },\n        { name: \"Affiliates\", value: 75 },\n      ],\n    },\n  ],\n};\n\nconst { arcs } = buildArcs(data);\n\nexport default function Component() {\n  return (\n    <main className=\"flex min-h-svh w-full items-center justify-center p-6 md:p-10\">\n      <div className=\"w-full max-w-3xl\">\n        <SunburstChart data={data} size={360}>\n  {arcs.map((arc) => (\n    <SunburstSegment index={arc.arcIndex} key={arc.id} />\n  ))}\n  <SunburstCenter />\n  <SunburstLabels />\n  <SunburstHint />\n</SunburstChart>\n      </div>\n    </main>\n  )\n}\n",
+      "type": "registry:page",
+      "target": "app/page.tsx"
+    },
+    {
+      "path": "registry/examples/sunburst-chart-index.ts",
+      "content": "// biome-ignore-all lint/performance/noBarrelFile: v0 registry example barrel for shadcn install\nexport { buildArcs } from \"./sunburst\";\nexport { SunburstBreadcrumb, useSunburstBreadcrumbItems } from \"./sunburst-breadcrumb\";\nexport { SunburstCenter } from \"./sunburst-center\";\nexport { SunburstChart } from \"./sunburst-chart\";\nexport { SunburstHint } from \"./sunburst-hint\";\nexport { SunburstLabels } from \"./sunburst-labels\";\nexport { SunburstSegment } from \"./sunburst-segment\";\nexport type { SunburstNode } from \"./sunburst-data\";\n",
+      "type": "registry:lib",
+      "target": "components/charts/index.ts"
+    }
+  ]
+}

@@ -6,6 +6,7 @@ import type {
   RadarData,
   RadarMetric,
   RingData,
+  SunburstNode,
 } from "@bklitui/ui/charts";
 
 export const areaData = [
@@ -122,6 +123,80 @@ export const funnelData: FunnelStage[] = [
   { label: "Subscribed", value: 890 },
   { label: "Retained", value: 520 },
 ];
+
+export const sunburstData: SunburstNode = {
+  name: "Revenue",
+  children: [
+    {
+      name: "Product",
+      children: [
+        {
+          name: "Enterprise",
+          children: [
+            {
+              name: "North America",
+              children: [
+                { name: "Direct", value: 52 },
+                { name: "Channel", value: 38 },
+              ],
+            },
+            { name: "EMEA", value: 60 },
+            { name: "APAC", value: 48 },
+          ],
+        },
+        {
+          name: "Pro",
+          children: [
+            { name: "Teams", value: 90 },
+            { name: "Solo", value: 55 },
+          ],
+        },
+        { name: "Starter", value: 95 },
+      ],
+    },
+    {
+      name: "Services",
+      children: [
+        {
+          name: "Consulting",
+          children: [
+            { name: "Strategy", value: 72 },
+            { name: "Implementation", value: 88 },
+          ],
+        },
+        {
+          name: "Support",
+          children: [
+            { name: "Premium", value: 48 },
+            { name: "Standard", value: 42 },
+          ],
+        },
+        { name: "Training", value: 55 },
+      ],
+    },
+    {
+      name: "Partners",
+      children: [
+        { name: "Referrals", value: 120 },
+        { name: "Affiliates", value: 75 },
+        {
+          name: "Resellers",
+          children: [
+            { name: "Regional", value: 64 },
+            { name: "Global", value: 46 },
+          ],
+        },
+      ],
+    },
+    {
+      name: "Other",
+      children: [
+        { name: "Licensing", value: 85 },
+        { name: "Events", value: 42 },
+      ],
+    },
+  ],
+};
 
 export const sankeySimple = {
   nodes: [
@@ -353,6 +428,32 @@ export function getPieData(seed = 0): PieData[] {
     ...slice,
     value: Math.max(1, Math.round(slice.value * scrambleFactor(index, seed))),
   }));
+}
+
+export function getSunburstData(seed = 0): SunburstNode {
+  if (seed === 0) {
+    return sunburstData;
+  }
+
+  const scaleLeaf = (node: SunburstNode, index: number): SunburstNode => {
+    if (node.children?.length) {
+      return {
+        ...node,
+        children: node.children.map((child, childIndex) =>
+          scaleLeaf(child, index + childIndex + 1)
+        ),
+      };
+    }
+    return {
+      ...node,
+      value: Math.max(
+        1,
+        Math.round((node.value ?? 1) * scrambleFactor(index, seed))
+      ),
+    };
+  };
+
+  return scaleLeaf(sunburstData, 0);
 }
 
 export function getRingData(seed = 0): RingData[] {

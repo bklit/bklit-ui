@@ -1,4 +1,4 @@
-import type { HeatmapLevelStyle } from "@bklitui/ui/charts";
+import { buildArcs, type HeatmapLevelStyle } from "@bklitui/ui/charts";
 import { fadeEdgesCodegen } from "@/components/controls/fade-edges-picker";
 import { motionSliceFromState } from "./chart-animation";
 import { curveImportName } from "./curves";
@@ -17,6 +17,7 @@ import {
   type StudioCartesianXAxis,
   sankeySimple,
   scatterStudioData,
+  sunburstData,
 } from "./demo-data";
 import { studioHeatmapLevelStyles } from "./heatmap-studio-colors";
 import {
@@ -911,6 +912,74 @@ export function funnelCodegen(state: StudioUrlState) {
   color="var(--chart-1)"
 />`,
     data: `const data = ${JSON.stringify(funnelData, null, 2)};`,
+  };
+}
+
+export function sunburstCodegen(state: StudioUrlState) {
+  const { arcs } = buildArcs(sunburstData);
+  const segmentLines = arcs
+    .map(
+      (arc) => `    <SunburstSegment index={${arc.arcIndex}} key="${arc.id}" />`
+    )
+    .join("\n");
+
+  const labelFill = state.sunburstLabelColor.trim()
+    ? `"${state.sunburstLabelColor.trim()}"`
+    : '"var(--chart-label)"';
+  const labelStroke = state.sunburstLabelOutlineColor.trim()
+    ? `"${state.sunburstLabelOutlineColor.trim()}"`
+    : '"var(--chart-background)"';
+
+  const labelsBlock = state.sunburstShowLabels
+    ? `
+  <SunburstLabels
+    fontSize={${state.sunburstLabelFontSize}}
+    fill={${labelFill}}
+    stroke={${labelStroke}}
+    strokeWidth={${state.sunburstLabelOutlineWidth}}
+  />`
+    : "";
+
+  return {
+    code: `import {
+  SunburstBreadcrumb,
+  SunburstCenter,
+  SunburstChart,
+  SunburstHint,
+  SunburstLabels,
+  SunburstSegment,
+  useSunburstBreadcrumbItems,
+} from "@bklitui/ui/charts";
+
+function DrillBreadcrumb() {
+  const { items, zoomTo } = useSunburstBreadcrumbItems();
+  // Compose your breadcrumb UI here (e.g. shadcn Breadcrumb)
+  return (
+    <ol>
+      {items.map((item) => (
+        <li key={item.id}>
+          {item.isCurrent ? (
+            item.label
+          ) : (
+            <button onClick={() => zoomTo(item.id)} type="button">
+              {item.label}
+            </button>
+          )}
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+<SunburstChart data={sunburstData} size={520} hoverPop={${state.pieHoverOffset}}>
+  <SunburstBreadcrumb>
+    <DrillBreadcrumb />
+  </SunburstBreadcrumb>${labelsBlock}
+${segmentLines}
+  <SunburstCenter />
+  <SunburstHint />
+</SunburstChart>`,
+    data: `const sunburstData = ${JSON.stringify(sunburstData, null, 2)};`,
   };
 }
 

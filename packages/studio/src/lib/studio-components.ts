@@ -1,3 +1,4 @@
+import { buildArcs } from "@bklitui/ui/charts";
 import {
   clampStudioSeriesCount,
   funnelData,
@@ -5,6 +6,7 @@ import {
   pieData,
   ringData,
   STUDIO_SERIES_KEYS,
+  sunburstData,
 } from "@/lib/demo-data";
 import {
   isAreaChartLoadingMode,
@@ -55,6 +57,8 @@ import {
   standardBrushStripControlGroups,
   standardChartTooltipControlGroups,
   standardLegendControlGroups,
+  sunburstChartControlGroups,
+  sunburstLabelsControlGroups,
   tooltipAppearanceControlGroup,
 } from "./registry-control-groups";
 import { controlGroup } from "./sidebar-control-templates";
@@ -848,6 +852,76 @@ export function resolvePieComponents(
         ]
       : []),
     legendNode("pie"),
+  ];
+}
+
+export function resolveSunburstComponents(
+  state: StudioUrlState
+): StudioComponentDefinition[] {
+  const [chartProps] = sunburstChartControlGroups;
+  const [labelProps] = sunburstLabelsControlGroups;
+  const chartId = "sunburst.chart";
+  const { arcs, rootId } = buildArcs(sunburstData);
+
+  const arcIndexByNodeId = new Map<string, number>();
+  for (const arc of arcs) {
+    arcIndexByNodeId.set(arc.id, arc.arcIndex);
+  }
+
+  const segmentParentId = (arc: (typeof arcs)[number]) => {
+    if (!arc.parentId || arc.parentId === rootId) {
+      return chartId;
+    }
+    const parentArcIndex = arcIndexByNodeId.get(arc.parentId);
+    return parentArcIndex == null
+      ? chartId
+      : `sunburst.segment.${parentArcIndex}`;
+  };
+
+  return [
+    {
+      id: chartId,
+      label: "Sunburst",
+      kind: "chart",
+      treeIcon: "pie-chart",
+      controlGroups: chartProps ? [chartProps] : [],
+      design: { seriesIndex: 0, supportsPattern: false },
+    },
+    ...arcs.map((arc) => ({
+      id: `sunburst.segment.${arc.arcIndex}`,
+      label: arc.name,
+      parentId: segmentParentId(arc),
+      kind: "series" as StudioComponentKind,
+      listMarker: "color-dot" as const,
+      swatchColor: getEffectiveSeriesColor(state, arc.categoryIndex),
+      controlGroups: [] as StudioControlGroup[],
+      design: {
+        seriesIndex: arc.arcIndex,
+        supportsPattern: true,
+      },
+    })),
+    {
+      id: "sunburst.breadcrumb",
+      label: "Breadcrumb",
+      parentId: chartId,
+      kind: "text" as StudioComponentKind,
+      controlGroups: [],
+    },
+    {
+      id: "sunburst.labels",
+      label: "Labels",
+      parentId: chartId,
+      kind: "text" as StudioComponentKind,
+      controlGroups: labelProps ? [labelProps] : [],
+    },
+    {
+      id: "sunburst.hint",
+      label: "Hint",
+      parentId: chartId,
+      kind: "text" as StudioComponentKind,
+      controlGroups: [],
+    },
+    legendNode("sunburst"),
   ];
 }
 

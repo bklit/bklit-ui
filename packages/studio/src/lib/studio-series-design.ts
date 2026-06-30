@@ -1,7 +1,12 @@
+import { buildArcs } from "@bklitui/ui/charts";
 import type { CSSProperties } from "react";
 import type { ChartSlug } from "@/chart-slugs";
 import { type ColorPresetId, presetStyle } from "@/lib/color-presets";
-import { clampStudioSeriesCount, STUDIO_SERIES_KEYS } from "@/lib/demo-data";
+import {
+  clampStudioSeriesCount,
+  STUDIO_SERIES_KEYS,
+  sunburstData,
+} from "@/lib/demo-data";
 import type { PatternPresetId } from "@/lib/pattern-presets";
 import { PATTERN_PRESET_IDS } from "@/lib/pattern-presets";
 import type { StudioUrlState } from "@/lib/studio-parsers";
@@ -21,6 +26,10 @@ const CHART_FIXED_SERIES_COUNTS: Partial<Record<ChartSlug, number>> = {
   "radar-chart": 2,
 };
 
+export function getSunburstArcCount(): number {
+  return buildArcs(sunburstData).arcs.length;
+}
+
 const SERIES_FIELD_SEP = "|";
 
 export type SeriesFillMode = "solid" | "pattern";
@@ -31,6 +40,9 @@ export function getDesignSeriesCount(
 ): number {
   if (CHARTS_WITH_DATA_SERIES.has(chart)) {
     return clampStudioSeriesCount(state.dataSeries);
+  }
+  if (chart === "sunburst-chart") {
+    return getSunburstArcCount();
   }
   const fixed = CHART_FIXED_SERIES_COUNTS[chart];
   if (fixed !== undefined) {

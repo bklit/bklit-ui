@@ -63,6 +63,14 @@ export { XAxis } from "./x-axis";
 export { ChartTooltip } from "./tooltip";`,
   "funnel-chart": `export { FunnelChart } from "./funnel-chart";`,
   "sankey-chart": `export { SankeyChart, SankeyLink, SankeyNode, SankeyTooltip } from "./sankey";`,
+  "sunburst-chart": `export { buildArcs } from "./sunburst";
+export { SunburstBreadcrumb, useSunburstBreadcrumbItems } from "./sunburst-breadcrumb";
+export { SunburstCenter } from "./sunburst-center";
+export { SunburstChart } from "./sunburst-chart";
+export { SunburstHint } from "./sunburst-hint";
+export { SunburstLabels } from "./sunburst-labels";
+export { SunburstSegment } from "./sunburst-segment";
+export type { SunburstNode } from "./sunburst-data";`,
   "candlestick-chart": `export { CandlestickChart } from "./candlestick-chart";
 export { Candlestick } from "./candlestick";
 export { Grid } from "./grid";
@@ -380,6 +388,50 @@ const data = [
   <SankeyNode />
   <SankeyTooltip />
 </SankeyChart>`,
+  },
+  "sunburst-chart": {
+    registryDependencies: ["@bklit/sunburst-chart"],
+    dependencies: ["motion"],
+    importFrom:
+      "buildArcs, SunburstBreadcrumb, SunburstCenter, SunburstChart, SunburstHint, SunburstLabels, SunburstSegment",
+    data: `const data = {
+  name: "Revenue",
+  children: [
+    {
+      name: "Product",
+      children: [
+        { name: "Enterprise", value: 198 },
+        { name: "Pro", value: 145 },
+        { name: "Starter", value: 95 },
+      ],
+    },
+    {
+      name: "Services",
+      children: [
+        { name: "Consulting", value: 160 },
+        { name: "Support", value: 90 },
+        { name: "Training", value: 55 },
+      ],
+    },
+    {
+      name: "Partners",
+      children: [
+        { name: "Referrals", value: 120 },
+        { name: "Affiliates", value: 75 },
+      ],
+    },
+  ],
+};
+
+const { arcs } = buildArcs(data);`,
+    body: `<SunburstChart data={data} size={360}>
+  {arcs.map((arc) => (
+    <SunburstSegment index={arc.arcIndex} key={arc.id} />
+  ))}
+  <SunburstCenter />
+  <SunburstLabels />
+  <SunburstHint />
+</SunburstChart>`,
   },
   "candlestick-chart": {
     registryDependencies: [

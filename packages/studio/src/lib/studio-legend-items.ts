@@ -1,4 +1,10 @@
-import type { LegendItem, SankeyData } from "@bklitui/ui/charts";
+import {
+  buildArcs,
+  type LegendItem,
+  type SankeyData,
+  type SunburstNode,
+  sumValues,
+} from "@bklitui/ui/charts";
 import {
   clampStudioSeriesCount,
   funnelData,
@@ -6,6 +12,7 @@ import {
   getRadarData,
   getRingData,
   getSankeyData,
+  getSunburstData,
   pieData,
   ringData,
   STUDIO_SERIES_KEYS,
@@ -71,6 +78,76 @@ export function studioFunnelLegendItems(state: StudioUrlState): LegendItem[] {
     maxValue: max,
     color: getEffectiveSeriesColor(state, index),
   }));
+}
+
+export interface SunburstLegendResult {
+  items: LegendItem[];
+  /** Maps legend item index → arc index for hover sync. */
+  arcIndices: number[];
+}
+
+function findSunburstNodeById(
+  root: SunburstNode,
+  nodeId: string
+): SunburstNode | undefined {
+  if (nodeId === root.name) {
+    return root;
+  }
+  const prefix = `${root.name} / `;
+  if (!nodeId.startsWith(prefix)) {
+    return undefined;
+  }
+  const parts = nodeId.slice(prefix.length).split(" / ");
+  let current: SunburstNode | undefined = root;
+  for (const part of parts) {
+    current = current?.children?.find((child) => child.name === part);
+    if (!current) {
+      return undefined;
+    }
+  }
+  return current;
+}
+
+function childNodeId(parentId: string, name: string): string {
+  return `${parentId} / ${name}`;
+}
+
+export function studioSunburstLegendItems(
+  state: StudioUrlState,
+  focusId: string,
+  seed = 0
+): SunburstLegendResult {
+  const root = getSunburstData(seed);
+  const { arcs, rootId } = buildArcs(root);
+  const focusNode = findSunburstNodeById(root, focusId) ?? root;
+  const children = focusNode.children ?? [];
+
+  const items: LegendItem[] = [];
+  const arcIndices: number[] = [];
+
+  for (const child of children) {
+    const childId =
+      focusId === rootId
+        ? childNodeId(rootId, child.name)
+        : childNodeId(focusId, child.name);
+    const arc = arcs.find((a) => a.id === childId);
+    if (!arc) {
+      continue;
+    }
+    if (!isStudioComponentVisible(state, `sunburst.segment.${arc.arcIndex}`)) {
+      continue;
+    }
+    const value = sumValues(child);
+    items.push({
+      label: child.name,
+      value,
+      maxValue: Math.max(...children.map((c) => sumValues(c)), 1),
+      color: getEffectiveSeriesColor(state, arc.categoryIndex),
+    });
+    arcIndices.push(arc.arcIndex);
+  }
+
+  return { items, arcIndices };
 }
 
 export function studioRadarLegendItems(

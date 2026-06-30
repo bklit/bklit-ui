@@ -125,6 +125,11 @@ export const studioSearchParams = {
   funnelShowValues: parseAsBoolean.withDefault(true),
   funnelShowLabels: parseAsBoolean.withDefault(true),
   funnelShowPercentage: parseAsBoolean.withDefault(true),
+  sunburstShowLabels: parseAsBoolean.withDefault(true),
+  sunburstLabelFontSize: parseAsInteger.withDefault(11),
+  sunburstLabelColor: parseAsString.withDefault(""),
+  sunburstLabelOutlineColor: parseAsString.withDefault(""),
+  sunburstLabelOutlineWidth: parseAsFloat.withDefault(2.5),
   candleFadedOpacity: parseAsFloat.withDefault(0.25),
   candleGap: parseAsFloat.withDefault(0.2),
   composedBarRadius: parseAsInteger.withDefault(0),
@@ -517,6 +522,11 @@ export interface StudioUrlState {
   funnelShowValues: boolean;
   funnelShowLabels: boolean;
   funnelShowPercentage: boolean;
+  sunburstShowLabels: boolean;
+  sunburstLabelFontSize: number;
+  sunburstLabelColor: string;
+  sunburstLabelOutlineColor: string;
+  sunburstLabelOutlineWidth: number;
   candleFadedOpacity: number;
   candleGap: number;
   composedBarRadius: number;
@@ -836,6 +846,11 @@ export function defaultStudioState(
     funnelShowValues: true,
     funnelShowLabels: true,
     funnelShowPercentage: true,
+    sunburstShowLabels: true,
+    sunburstLabelFontSize: 11,
+    sunburstLabelColor: "",
+    sunburstLabelOutlineColor: "",
+    sunburstLabelOutlineWidth: 2.5,
     candleFadedOpacity: 0.25,
     candleGap: 0.2,
     composedBarRadius: 0,
