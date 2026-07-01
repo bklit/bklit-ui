@@ -1,27 +1,37 @@
 "use client";
 
 import {
+  HEATMAP_WEEKS_ONE_YEAR,
   HeatmapCells,
   HeatmapChart,
   HeatmapInteractionBoundary,
   HeatmapInteractionProvider,
   HeatmapLegend,
+  HeatmapSeparator,
   HeatmapTooltip,
+  type HeatmapWeekStartDay,
   HeatmapXAxis,
   HeatmapYAxis,
 } from "@bklitui/ui/charts";
 import { memo, useMemo } from "react";
 import { StudioCartesianFill } from "@/components/charts/studio-chart-layout";
-import { StudioVisibleLayer } from "@/components/charts/studio-chart-shell";
+import {
+  StudioChartShell,
+  StudioVisibleLayer,
+} from "@/components/charts/studio-chart-shell";
 import {
   getStudioCssRevealPropsForPreview,
   studioEnterStaggerScale,
   studioPreviewChartKey,
 } from "@/lib/chart-animation";
-import { getHeatmapData, HEATMAP_WEEKS_ONE_YEAR } from "@/lib/demo-data";
+import { getHeatmapData } from "@/lib/demo-data";
 import { studioHeatmapLevelStyles } from "@/lib/heatmap-studio-colors";
+import {
+  HEATMAP_STUDIO_SEPARATOR_SPACING,
+  HEATMAP_STUDIO_SEPARATOR_START_OFFSET,
+  studioHeatmapSeparatorVisualProps,
+} from "@/lib/heatmap-studio-props";
 import type { StudioRenderContext } from "@/lib/render-context";
-import { StudioChartContentViewport } from "@/lib/studio-chart-content-frame";
 import {
   studioHeatmapLoadingCellsVisible,
   studioHeatmapLoadingLabel,
@@ -56,6 +66,7 @@ const HeatmapChartBody = memo(function HeatmapChartBody({
   const mountCells = studioHeatmapCellsMounted(state);
   const loadingCellsVisible = studioHeatmapLoadingCellsVisible(state);
   const levelStyles = useMemo(() => studioHeatmapLevelStyles(state), [state]);
+  const separatorVisual = studioHeatmapSeparatorVisualProps(state);
 
   return (
     <HeatmapChart
@@ -72,20 +83,47 @@ const HeatmapChartBody = memo(function HeatmapChartBody({
       loadingOpacity={studioHeatmapLoadingOpacity(state)}
       showLoadingCells={loadingCellsVisible}
       status={state.heatmapChartState}
+      weekStartDay={Number(state.heatmapWeekStartDay) as HeatmapWeekStartDay}
       {...motionProps}
     >
       {mountCells ? (
         <HeatmapCells
           cornerRadius={state.heatmapCornerRadius}
-          fadedOpacity={state.heatmapCellsFadedOpacity}
+          inactiveOpacity={state.heatmapCellsInactiveOpacity}
+          inactiveScale={state.heatmapCellsInactiveScale}
         />
       ) : null}
       <StudioVisibleLayer componentId="heatmap.xaxis" state={state}>
         <HeatmapXAxis />
       </StudioVisibleLayer>
       <StudioVisibleLayer componentId="heatmap.yaxis" state={state}>
-        <HeatmapYAxis />
+        <HeatmapYAxis
+          labelFormat={state.heatmapYAxisLabelFormat}
+          tickFilter={state.heatmapYAxisTickFilter}
+        />
       </StudioVisibleLayer>
+      {state.heatmapSeparatorGroupBy === "off" ? null : (
+        <StudioVisibleLayer componentId="heatmap.separator" state={state}>
+          <HeatmapSeparator
+            every={
+              state.heatmapSeparatorGroupBy === "every"
+                ? state.heatmapSeparatorEvery
+                : undefined
+            }
+            groupBy={
+              state.heatmapSeparatorGroupBy === "quarter" ? "quarter" : "every"
+            }
+            labelClassName="text-black dark:text-white"
+            showLabels={
+              state.heatmapSeparatorGroupBy === "quarter" &&
+              state.heatmapSeparatorShowLabels
+            }
+            spacing={HEATMAP_STUDIO_SEPARATOR_SPACING}
+            startOffset={HEATMAP_STUDIO_SEPARATOR_START_OFFSET}
+            {...separatorVisual}
+          />
+        </StudioVisibleLayer>
+      )}
       <StudioVisibleLayer componentId="heatmap.tooltip" state={state}>
         <HeatmapTooltip panelStyle={studioTooltipPanelStyle(state)} />
       </StudioVisibleLayer>
@@ -107,37 +145,36 @@ export function HeatmapStudioPreview({
     return getHeatmapData(ctx.dataSeed, weeks);
   }, [ctx.dataSeed, state.heatmapBinSize]);
   const chrome = ctx.chromeState;
-  const legendVisible =
-    chrome.showLegend && isStudioComponentVisible(state, "heatmap.legend");
 
   return (
     <HeatmapInteractionProvider>
       <HeatmapInteractionBoundary>
-        <StudioChartContentViewport>
-          <div className="flex size-full min-w-full items-center justify-center px-2">
-            <div className="flex w-full min-w-full flex-col items-stretch gap-3">
-              <StudioCartesianFill className="!h-auto min-h-0 w-full min-w-full">
-                <HeatmapChartBody ctx={ctx} data={data} state={state} />
-              </StudioCartesianFill>
-              {legendVisible ? (
-                <StudioVisibleLayer componentId="heatmap.legend" state={state}>
-                  <div
-                    className="self-center"
-                    style={studioLegendWrapperStyle(state)}
-                  >
-                    <HeatmapLegend
-                      align={state.legendAlign}
-                      cellSize={state.heatmapLegendCellSize}
-                      cornerRadius={state.heatmapCornerRadius}
-                      gap={state.heatmapGap}
-                      levelStyles={levelStyles}
-                    />
-                  </div>
-                </StudioVisibleLayer>
-              ) : null}
-            </div>
-          </div>
-        </StudioChartContentViewport>
+        <div className="flex size-full min-w-full items-center justify-center px-2">
+          <StudioChartShell
+            legendComponentId="heatmap.legend"
+            renderLegend={() => (
+              <div style={studioLegendWrapperStyle(chrome)}>
+                <HeatmapLegend
+                  align={chrome.legendAlign}
+                  cellSize={state.heatmapLegendCellSize}
+                  cornerRadius={state.heatmapCornerRadius}
+                  fontSize={state.legendFontSize}
+                  gap={state.heatmapGap}
+                  gradientSpan={state.heatmapLegendGradientSpan}
+                  inactiveOpacity={state.heatmapCellsInactiveOpacity}
+                  inactiveScale={state.heatmapCellsInactiveScale}
+                  levelStyles={levelStyles}
+                  variant={state.heatmapLegendVariant}
+                />
+              </div>
+            )}
+            state={chrome}
+          >
+            <StudioCartesianFill className="!h-auto min-h-0 w-full min-w-full">
+              <HeatmapChartBody ctx={ctx} data={data} state={state} />
+            </StudioCartesianFill>
+          </StudioChartShell>
+        </div>
       </HeatmapInteractionBoundary>
     </HeatmapInteractionProvider>
   );

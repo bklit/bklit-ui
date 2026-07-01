@@ -20,6 +20,7 @@ import {
   sunburstData,
 } from "./demo-data";
 import { studioHeatmapLevelStyles } from "./heatmap-studio-colors";
+import { heatmapSeparatorCodegenBlock } from "./heatmap-studio-props";
 import {
   getLineYAxisFormatLargeNumbers,
   getLineYAxisNumTicks,
@@ -1039,16 +1040,73 @@ export function heatmapCodegen(state: StudioUrlState) {
   loadingCellMaxOpacity={${state.heatmapLoadingCellMaxOpacity}}
   loadingCellRandomness={${state.heatmapLoadingCellRandomness}}`
       : "";
-  const cellProps = `cornerRadius={${state.heatmapCornerRadius}} fadedOpacity={${state.heatmapCellsFadedOpacity}}`;
+  const weekStartProp =
+    state.heatmapWeekStartDay === "0"
+      ? ""
+      : `\n  weekStartDay={${state.heatmapWeekStartDay}}`;
+  const cellInactiveProps = [
+    state.heatmapCellsInactiveOpacity === 0.3
+      ? null
+      : `inactiveOpacity={${state.heatmapCellsInactiveOpacity}}`,
+    state.heatmapCellsInactiveScale === 1
+      ? null
+      : `inactiveScale={${state.heatmapCellsInactiveScale}}`,
+  ]
+    .filter(Boolean)
+    .join(" ");
+  const cellProps = `cornerRadius={${state.heatmapCornerRadius}}${cellInactiveProps ? ` ${cellInactiveProps}` : ""}`;
   const levelStyles = studioHeatmapLevelStyles(state);
   const levelStylesLiteral = `[${levelStyles.map(serializeHeatmapLevelStyle).join(", ")}] as const`;
   const levelStylesConst = `const heatmapLevelStyles = ${levelStylesLiteral};`;
   const chartProps = `gap={${state.heatmapGap}}
-  levelStyles={heatmapLevelStyles}
+  levelStyles={heatmapLevelStyles}${weekStartProp}
   ${anim}
   ${enterTransition}
   ${enterStagger}${loadingProps}`;
-  const legendProps = `cornerRadius={${state.heatmapCornerRadius}} gap={${state.heatmapGap}} levelStyles={heatmapLevelStyles}`;
+  const legendProps = [
+    `align="${state.legendAlign}"`,
+    `cellSize={${state.heatmapLegendCellSize}}`,
+    `cornerRadius={${state.heatmapCornerRadius}}`,
+    `gap={${state.heatmapGap}}`,
+    state.legendFontSize === 13 ? null : `fontSize={${state.legendFontSize}}`,
+    state.heatmapLegendVariant === "swatches"
+      ? null
+      : `variant="${state.heatmapLegendVariant}"`,
+    state.heatmapLegendVariant === "gradient" &&
+    state.heatmapLegendGradientSpan !== 5
+      ? `gradientSpan={${state.heatmapLegendGradientSpan}}`
+      : null,
+    "levelStyles={heatmapLevelStyles}",
+    cellInactiveProps || null,
+  ]
+    .filter(Boolean)
+    .join(" ");
+  const yAxisProps = [
+    state.heatmapYAxisTickFilter === "odd"
+      ? null
+      : `tickFilter="${state.heatmapYAxisTickFilter}"`,
+    state.heatmapYAxisLabelFormat === "full"
+      ? null
+      : `labelFormat="${state.heatmapYAxisLabelFormat}"`,
+  ]
+    .filter(Boolean)
+    .join(" ");
+  const yAxisBlock = yAxisProps
+    ? `<HeatmapYAxis ${yAxisProps} />`
+    : "<HeatmapYAxis />";
+  const { separatorImport, separatorBlock } =
+    heatmapSeparatorCodegenBlock(state);
+  const legendBlock = `<HeatmapLegend ${legendProps} />`;
+  const chartBlock = `<HeatmapChart data={contributionData} ${chartProps}>
+      <HeatmapCells ${cellProps} />
+      <HeatmapXAxis />
+      ${yAxisBlock}
+      <HeatmapTooltip />${separatorBlock}
+    </HeatmapChart>`;
+  const layoutBlock =
+    state.legendPlacement === "top"
+      ? `${legendBlock}\n    ${chartBlock}`
+      : `${chartBlock}\n    ${legendBlock}`;
 
   return {
     code: `import {
@@ -1059,20 +1117,16 @@ export function heatmapCodegen(state: StudioUrlState) {
   HeatmapLegend,
   HeatmapTooltip,
   HeatmapXAxis,
-  HeatmapYAxis,
+  HeatmapYAxis${separatorImport},
 } from "@bklitui/ui/charts";
 
 ${levelStylesConst}
 
 <HeatmapInteractionProvider>
   <HeatmapInteractionBoundary>
-    <HeatmapChart data={contributionData} ${chartProps}>
-      <HeatmapCells ${cellProps} />
-      <HeatmapXAxis />
-      <HeatmapYAxis />
-      <HeatmapTooltip />
-    </HeatmapChart>
-    <HeatmapLegend ${legendProps} />
+    <div className="flex w-full flex-col items-stretch gap-3">
+    ${layoutBlock}
+    </div>
   </HeatmapInteractionBoundary>
 </HeatmapInteractionProvider>`,
     data: `import type { HeatmapColumn } from "@bklitui/ui/charts";

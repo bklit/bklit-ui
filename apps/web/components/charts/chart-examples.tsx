@@ -14,6 +14,7 @@ import {
   BarXAxis,
   BarYAxis,
   buildArcs,
+  buildHeatmapRowOpacity,
   Candlestick,
   CandlestickChart,
   type ChartMarker,
@@ -31,6 +32,9 @@ import {
   Gauge,
   Grid,
   HEATMAP_DEFAULT_LEVEL_STYLES,
+  HEATMAP_MONTHS_ONE_YEAR,
+  HEATMAP_MONTHS_SIX,
+  HEATMAP_WEEKS_ONE_YEAR,
   HeatmapCells,
   HeatmapChart,
   HeatmapChartLoading,
@@ -38,6 +42,7 @@ import {
   HeatmapInteractionProvider,
   HeatmapLegend,
   type HeatmapLevelStyles,
+  HeatmapSeparator,
   HeatmapTooltip,
   HeatmapXAxis,
   HeatmapYAxis,
@@ -996,14 +1001,60 @@ const ScatterExampleChart = createChartExamplePreview(ScatterChart);
 
 const HEATMAP_GALLERY_GAP = 3;
 const HEATMAP_CIRCULAR_CORNER_RADIUS = 999;
+const HEATMAP_SEPARATOR_SPACING = 20;
+/** Aligns separator tops with x-axis month labels (`text-xs` at container top). */
+const HEATMAP_SEPARATOR_START_OFFSET = -20;
+const HEATMAP_HERO_SEPARATOR_GRADIENT = {
+  from: "var(--muted)",
+  via: "var(--muted)",
+  to: "var(--muted)",
+  fromOpacity: 0,
+  viaOpacity: 1,
+  toOpacity: 0,
+} as const;
+const HEATMAP_HERO_SEPARATOR_LABEL_CLASS = "text-[var(--chart-3)]";
+const HEATMAP_HERO_INACTIVE_OPACITY = 0.8;
+const HEATMAP_HERO_INACTIVE_SCALE = 0.8;
+const HEATMAP_SCROLL_VISIBLE_WEEKS = Math.round(
+  (HEATMAP_WEEKS_ONE_YEAR / HEATMAP_MONTHS_ONE_YEAR) * HEATMAP_MONTHS_SIX
+);
 const HEATMAP_GALLERY_MARGIN = {
   top: 28,
   right: 12,
   bottom: 0,
   left: 44,
 } as const;
+const HEATMAP_SCROLL_MARGIN = {
+  top: 28,
+  right: 12,
+  bottom: 0,
+  left: 0,
+} as const;
+const HEATMAP_SCROLL_Y_LABELS = [
+  { row: 1, label: "Mon" },
+  { row: 3, label: "Wed" },
+  { row: 5, label: "Fri" },
+] as const;
+
+function getHeatmapScrollBinSize(
+  viewportWidth: number,
+  columnCount: number,
+  visibleWeeks: number,
+  marginRight: number
+) {
+  if (viewportWidth <= 0) {
+    return 0;
+  }
+
+  const plotWidth = viewportWidth * (columnCount / visibleWeeks) - marginRight;
+  return plotWidth / columnCount;
+}
 
 const heatmapContributionData = getHeatmapDemoData();
+const heatmapContributionDataSixMonths = getHeatmapDemoData(
+  0,
+  HEATMAP_MONTHS_SIX
+);
 
 const heatmapPatternLevelStyles = [
   HEATMAP_DEFAULT_LEVEL_STYLES[0],
@@ -1012,11 +1063,27 @@ const heatmapPatternLevelStyles = [
     ...HEATMAP_DEFAULT_LEVEL_STYLES[2],
     fillMode: "pattern" as const,
     pattern: "diagonal" as const,
-    patternColor: "#39d353",
+    patternColor: "var(--chart-scale-pattern-color)",
   },
   HEATMAP_DEFAULT_LEVEL_STYLES[3],
   HEATMAP_DEFAULT_LEVEL_STYLES[4],
 ] as const satisfies HeatmapLevelStyles;
+
+const heatmapPerformanceLevelStyles = [
+  { color: "#0e7490", fillMode: "solid" as const, pattern: "none" as const },
+  { color: "#22d3ee", fillMode: "solid" as const, pattern: "none" as const },
+  { color: "#bef264", fillMode: "solid" as const, pattern: "none" as const },
+  { color: "#facc15", fillMode: "solid" as const, pattern: "none" as const },
+  { color: "#f97316", fillMode: "solid" as const, pattern: "none" as const },
+] as const satisfies HeatmapLevelStyles;
+
+const HEATMAP_WEEKEND_ROW_OPACITY = buildHeatmapRowOpacity(
+  (row) => row >= 5,
+  0.35
+);
+const HEATMAP_ACTIVE_SCALE_GAP = 4;
+const HEATMAP_ACTIVE_SCALE = 1.1;
+const HEATMAP_ACTIVE_SCALE_INACTIVE_OPACITY = 0.45;
 
 function HeatmapExampleShell({ children }: { children: ReactNode }) {
   return (
@@ -1027,35 +1094,193 @@ function HeatmapExampleShell({ children }: { children: ReactNode }) {
 }
 
 function HeatmapGalleryExample({
+  data = heatmapContributionDataSixMonths,
   levelStyles = HEATMAP_DEFAULT_LEVEL_STYLES,
   gap = HEATMAP_GALLERY_GAP,
   cornerRadius = 2,
+  inactiveOpacity,
+  inactiveScale,
+  activeScale,
+  tooltipInstant,
 }: {
+  data?: HeatmapColumn[];
   levelStyles?: HeatmapLevelStyles;
   gap?: number;
   cornerRadius?: number;
+  inactiveOpacity?: number;
+  inactiveScale?: number;
+  activeScale?: number;
+  tooltipInstant?: boolean;
 }) {
   return (
     <HeatmapExampleShell>
       <div className="flex w-full max-w-full flex-col items-stretch gap-2">
         <HeatmapExampleChart
           className="w-full min-w-0"
-          data={heatmapContributionData}
+          data={data}
           gap={gap}
           layout="fluid"
           levelStyles={levelStyles}
           margin={HEATMAP_GALLERY_MARGIN}
         >
-          <HeatmapCells cornerRadius={cornerRadius} />
+          <HeatmapCells
+            activeScale={activeScale}
+            cornerRadius={cornerRadius}
+            inactiveOpacity={inactiveOpacity}
+            inactiveScale={inactiveScale}
+          />
           <HeatmapXAxis />
           <HeatmapYAxis />
+          <HeatmapTooltip instant={tooltipInstant} />
+        </HeatmapExampleChart>
+        <HeatmapLegend
+          activeScale={activeScale}
+          align="center"
+          cornerRadius={cornerRadius}
+          gap={gap}
+          inactiveOpacity={inactiveOpacity}
+          inactiveScale={inactiveScale}
+          levelStyles={levelStyles}
+        />
+      </div>
+    </HeatmapExampleShell>
+  );
+}
+
+function HeatmapCompactYAxisGalleryExample() {
+  return (
+    <HeatmapExampleShell>
+      <div className="flex w-full max-w-full flex-col items-stretch gap-2">
+        <HeatmapExampleChart
+          className="w-full min-w-0"
+          data={heatmapContributionDataSixMonths}
+          gap={HEATMAP_GALLERY_GAP}
+          layout="fluid"
+          margin={HEATMAP_GALLERY_MARGIN}
+        >
+          <HeatmapCells cornerRadius={2} />
+          <HeatmapSeparator
+            gradient={HEATMAP_HERO_SEPARATOR_GRADIENT}
+            groupBy="quarter"
+            labelClassName="text-black dark:text-white"
+            showLabels
+            spacing={HEATMAP_SEPARATOR_SPACING}
+            startOffset={HEATMAP_SEPARATOR_START_OFFSET}
+            stroke="var(--muted)"
+            strokeOpacity={1}
+            strokeStyle="solid"
+          />
+          <HeatmapXAxis />
+          <HeatmapYAxis labelFormat="initial" tickFilter="odd" />
+          <HeatmapTooltip />
+        </HeatmapExampleChart>
+        <HeatmapLegend align="center" gap={HEATMAP_GALLERY_GAP} />
+      </div>
+    </HeatmapExampleShell>
+  );
+}
+
+function HeatmapSolidSeparatorGalleryExample() {
+  return (
+    <HeatmapExampleShell>
+      <div className="flex w-full max-w-full flex-col items-stretch gap-2">
+        <HeatmapExampleChart
+          className="w-full min-w-0"
+          data={heatmapContributionDataSixMonths}
+          gap={HEATMAP_GALLERY_GAP}
+          layout="fluid"
+          margin={HEATMAP_GALLERY_MARGIN}
+        >
+          <HeatmapCells cornerRadius={2} />
+          <HeatmapSeparator
+            groupBy="quarter"
+            labelClassName="text-black dark:text-white"
+            showLabels
+            spacing={HEATMAP_SEPARATOR_SPACING}
+            startOffset={HEATMAP_SEPARATOR_START_OFFSET}
+            stroke="var(--border)"
+            strokeOpacity={1}
+            strokeStyle="solid"
+          />
+          <HeatmapXAxis />
+          <HeatmapYAxis labelFormat="initial" tickFilter="odd" />
+          <HeatmapTooltip />
+        </HeatmapExampleChart>
+        <HeatmapLegend align="center" gap={HEATMAP_GALLERY_GAP} />
+      </div>
+    </HeatmapExampleShell>
+  );
+}
+
+function HeatmapDashedSeparatorGalleryExample() {
+  return (
+    <HeatmapExampleShell>
+      <div className="flex w-full max-w-full flex-col items-stretch gap-2">
+        <HeatmapExampleChart
+          className="w-full min-w-0"
+          data={heatmapContributionDataSixMonths}
+          gap={HEATMAP_GALLERY_GAP}
+          layout="fluid"
+          margin={HEATMAP_GALLERY_MARGIN}
+        >
+          <HeatmapCells cornerRadius={2} />
+          <HeatmapSeparator
+            gradient={HEATMAP_HERO_SEPARATOR_GRADIENT}
+            groupBy="quarter"
+            showLabels
+            spacing={HEATMAP_SEPARATOR_SPACING}
+            startOffset={HEATMAP_SEPARATOR_START_OFFSET}
+            stroke="var(--muted)"
+            strokeDasharray="3,5"
+            strokeOpacity={1}
+            strokeStyle="dashed"
+          />
+          <HeatmapXAxis />
+          <HeatmapTooltip />
+        </HeatmapExampleChart>
+        <HeatmapLegend align="center" gap={HEATMAP_GALLERY_GAP} />
+      </div>
+    </HeatmapExampleShell>
+  );
+}
+
+function HeatmapHeroExample() {
+  return (
+    <HeatmapExampleShell>
+      <div className="flex w-full max-w-full flex-col items-stretch gap-2">
+        <HeatmapExampleChart
+          className="w-full min-w-0"
+          data={heatmapContributionData}
+          gap={HEATMAP_GALLERY_GAP}
+          layout="fluid"
+          margin={HEATMAP_GALLERY_MARGIN}
+        >
+          <HeatmapCells
+            cornerRadius={HEATMAP_CIRCULAR_CORNER_RADIUS}
+            inactiveOpacity={HEATMAP_HERO_INACTIVE_OPACITY}
+            inactiveScale={HEATMAP_HERO_INACTIVE_SCALE}
+          />
+          <HeatmapSeparator
+            gradient={HEATMAP_HERO_SEPARATOR_GRADIENT}
+            groupBy="quarter"
+            labelClassName={HEATMAP_HERO_SEPARATOR_LABEL_CLASS}
+            showLabels
+            spacing={HEATMAP_SEPARATOR_SPACING}
+            startOffset={HEATMAP_SEPARATOR_START_OFFSET}
+            stroke="var(--muted)"
+            strokeOpacity={1}
+            strokeStyle="solid"
+          />
+          <HeatmapXAxis />
+          <HeatmapYAxis labelFormat="initial" tickFilter="all" />
           <HeatmapTooltip />
         </HeatmapExampleChart>
         <HeatmapLegend
           align="center"
-          cornerRadius={cornerRadius}
-          gap={gap}
-          levelStyles={levelStyles}
+          cornerRadius={HEATMAP_CIRCULAR_CORNER_RADIUS}
+          gap={HEATMAP_GALLERY_GAP}
+          inactiveOpacity={HEATMAP_HERO_INACTIVE_OPACITY}
+          inactiveScale={HEATMAP_HERO_INACTIVE_SCALE}
         />
       </div>
     </HeatmapExampleShell>
@@ -1067,11 +1292,189 @@ function HeatmapLoadingGalleryExample() {
     <HeatmapChartLoadingExample
       className="w-full min-w-0"
       cornerRadius={2}
-      data={heatmapContributionData}
+      data={heatmapContributionDataSixMonths}
       gap={HEATMAP_GALLERY_GAP}
       label="Loading contributions"
       margin={HEATMAP_GALLERY_MARGIN}
     />
+  );
+}
+
+function HeatmapHorizontalScrollGalleryExample() {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [viewportWidth, setViewportWidth] = useState(0);
+  const columnCount = heatmapContributionData.length;
+  const innerWidthRatio = columnCount / HEATMAP_SCROLL_VISIBLE_WEEKS;
+
+  useEffect(() => {
+    const element = scrollRef.current;
+    if (!element) {
+      return;
+    }
+
+    const updateWidth = () => {
+      setViewportWidth(element.clientWidth);
+    };
+
+    updateWidth();
+    const observer = new ResizeObserver(updateWidth);
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+
+  const binSize = getHeatmapScrollBinSize(
+    viewportWidth,
+    columnCount,
+    HEATMAP_SCROLL_VISIBLE_WEEKS,
+    HEATMAP_SCROLL_MARGIN.right
+  );
+
+  return (
+    <HeatmapExampleShell>
+      <div className="flex w-full flex-col gap-2">
+        <div className="flex w-full min-w-0 overflow-hidden">
+          <div
+            className="relative shrink-0"
+            style={{ width: HEATMAP_GALLERY_MARGIN.left }}
+          >
+            {binSize > 0
+              ? HEATMAP_SCROLL_Y_LABELS.map((item) => (
+                  <div
+                    className="pointer-events-none absolute right-1 flex w-[calc(100%-4px)] items-center justify-end"
+                    key={item.label}
+                    style={{
+                      top:
+                        HEATMAP_SCROLL_MARGIN.top +
+                        item.row * binSize +
+                        (binSize - HEATMAP_GALLERY_GAP) / 2,
+                      transform: "translateY(-50%)",
+                    }}
+                  >
+                    <span className="whitespace-nowrap text-chart-label text-xs">
+                      {item.label}
+                    </span>
+                  </div>
+                ))
+              : null}
+          </div>
+          <div
+            className="scroll-fade-x no-scrollbar min-w-0 flex-1 overflow-x-auto overscroll-x-contain"
+            ref={scrollRef}
+          >
+            <div style={{ width: `${innerWidthRatio * 100}%` }}>
+              <HeatmapExampleChart
+                className="w-full"
+                data={heatmapContributionData}
+                gap={HEATMAP_GALLERY_GAP}
+                layout="fluid"
+                margin={HEATMAP_SCROLL_MARGIN}
+              >
+                <HeatmapCells />
+                <HeatmapXAxis />
+                <HeatmapTooltip />
+              </HeatmapExampleChart>
+            </div>
+          </div>
+        </div>
+        <HeatmapLegend align="center" gap={HEATMAP_GALLERY_GAP} />
+      </div>
+    </HeatmapExampleShell>
+  );
+}
+
+function HeatmapGradientLegendGalleryExample() {
+  return (
+    <HeatmapExampleShell>
+      <div className="flex w-full max-w-full flex-col items-stretch gap-2">
+        <HeatmapExampleChart
+          className="w-full min-w-0"
+          data={heatmapContributionDataSixMonths}
+          gap={HEATMAP_GALLERY_GAP}
+          layout="fluid"
+          levelStyles={heatmapPerformanceLevelStyles}
+          margin={HEATMAP_GALLERY_MARGIN}
+        >
+          <HeatmapCells cornerRadius={2} />
+          <HeatmapXAxis />
+          <HeatmapYAxis labelFormat="initial" tickFilter="odd" />
+          <HeatmapTooltip />
+        </HeatmapExampleChart>
+        <HeatmapLegend
+          align="center"
+          cellSize={11}
+          fontSize={12}
+          gap={HEATMAP_GALLERY_GAP}
+          labelClassName="text-muted-foreground"
+          lessLabel="Faster"
+          levelStyles={heatmapPerformanceLevelStyles}
+          moreLabel="Slower"
+          variant="gradient"
+        />
+      </div>
+    </HeatmapExampleShell>
+  );
+}
+
+function HeatmapMondayStartGalleryExample() {
+  return (
+    <HeatmapExampleShell>
+      <div className="flex w-full max-w-full flex-col items-stretch gap-2">
+        <HeatmapExampleChart
+          className="w-full min-w-0"
+          data={heatmapContributionDataSixMonths}
+          gap={HEATMAP_GALLERY_GAP}
+          layout="fluid"
+          margin={HEATMAP_GALLERY_MARGIN}
+          weekStartDay={1}
+        >
+          <HeatmapCells
+            cornerRadius={2}
+            rowOpacity={HEATMAP_WEEKEND_ROW_OPACITY}
+          />
+          <HeatmapXAxis />
+          <HeatmapYAxis
+            labelFormat="initial"
+            rowOpacity={HEATMAP_WEEKEND_ROW_OPACITY}
+            tickFilter="all"
+          />
+          <HeatmapTooltip />
+        </HeatmapExampleChart>
+        <HeatmapLegend align="center" gap={HEATMAP_GALLERY_GAP} />
+      </div>
+    </HeatmapExampleShell>
+  );
+}
+
+function HeatmapActiveScaleGalleryExample() {
+  return (
+    <HeatmapExampleShell>
+      <div className="flex w-full max-w-full flex-col items-stretch gap-2">
+        <HeatmapExampleChart
+          className="w-full min-w-0"
+          data={heatmapContributionDataSixMonths}
+          gap={HEATMAP_ACTIVE_SCALE_GAP}
+          layout="fluid"
+          margin={HEATMAP_GALLERY_MARGIN}
+        >
+          <HeatmapCells
+            activeScale={HEATMAP_ACTIVE_SCALE}
+            cornerRadius={2}
+            inactiveOpacity={HEATMAP_ACTIVE_SCALE_INACTIVE_OPACITY}
+            inactiveScale={1}
+          />
+          <HeatmapXAxis />
+          <HeatmapYAxis labelFormat="initial" tickFilter="odd" />
+          <HeatmapTooltip />
+        </HeatmapExampleChart>
+        <HeatmapLegend
+          activeScale={HEATMAP_ACTIVE_SCALE}
+          align="center"
+          gap={HEATMAP_ACTIVE_SCALE_GAP}
+          inactiveOpacity={HEATMAP_ACTIVE_SCALE_INACTIVE_OPACITY}
+          inactiveScale={1}
+        />
+      </div>
+    </HeatmapExampleShell>
   );
 }
 
@@ -4629,33 +5032,137 @@ function makeHeatmapExamples(): ChartExample[] {
   return [
     {
       title: "Heatmap Chart",
-      description: "GitHub-style contribution grid with axes and tooltip",
+      description:
+        "GitHub-style contribution grid with axes and tooltip (six months)",
       code: `<HeatmapChart data={data} gap={3} layout="fluid">
-  <HeatmapCells />
+  <HeatmapCells inactiveOpacity={1} inactiveScale={1} />
   <HeatmapXAxis />
   <HeatmapYAxis />
-  <HeatmapTooltip />
+  <HeatmapTooltip instant />
 </HeatmapChart>
-<HeatmapLegend align="center" gap={3} />`,
-      render: () => <HeatmapGalleryExample />,
+<HeatmapLegend align="center" gap={3} inactiveOpacity={1} inactiveScale={1} />`,
+      render: () => (
+        <HeatmapGalleryExample
+          activeScale={1}
+          inactiveOpacity={1}
+          inactiveScale={1}
+          tooltipInstant
+        />
+      ),
     },
     {
       title: "Heatmap Chart - Pattern Levels",
-      description: "Per-level pattern fills shared between chart and legend",
+      description:
+        "Per-level pattern fills shared between chart and legend (six months)",
       code: `<HeatmapChart data={data} gap={3} layout="fluid" levelStyles={levelStyles}>
   <HeatmapCells />
   <HeatmapXAxis />
   <HeatmapYAxis />
   <HeatmapTooltip />
 </HeatmapChart>
-<HeatmapLegend align="center" gap={3} levelStyles={levelStyles} />`,
+<HeatmapLegend align="center" gap={3} levelStyles={levelStyles} />
+
+const levelStyles = [
+  { color: "var(--chart-scale-01)", fillMode: "solid", pattern: "none" },
+  { color: "var(--chart-scale-02)", fillMode: "solid", pattern: "none" },
+  {
+    color: "var(--chart-scale-03)",
+    fillMode: "pattern",
+    pattern: "diagonal",
+    patternColor: "var(--chart-scale-pattern-color)",
+  },
+  { color: "var(--chart-scale-04)", fillMode: "solid", pattern: "none" },
+  { color: "var(--chart-scale-05)", fillMode: "solid", pattern: "none" },
+] as const;`,
       render: () => (
         <HeatmapGalleryExample levelStyles={heatmapPatternLevelStyles} />
       ),
     },
     {
+      title: "Heatmap Chart - Solid Separators",
+      description:
+        "Calendar quarter separators with a flat solid stroke (six months)",
+      code: `<HeatmapChart data={data} gap={3} layout="fluid">
+  <HeatmapCells />
+  <HeatmapSeparator
+    groupBy="quarter"
+    showLabels
+    labelClassName="text-black dark:text-white"
+    spacing={12}
+    startOffset={14}
+    stroke="var(--border)"
+    strokeStyle="solid"
+  />
+  <HeatmapXAxis />
+  <HeatmapYAxis tickFilter="odd" labelFormat="initial" />
+  <HeatmapTooltip />
+</HeatmapChart>
+<HeatmapLegend align="center" gap={3} />`,
+      render: () => <HeatmapSolidSeparatorGalleryExample />,
+    },
+    {
+      title: "Heatmap Chart - Compact Y Axis & Quarter Separators",
+      description:
+        "Mon / Wed / Fri labels, quarter separators with a vertical fade gradient (six months)",
+      code: `<HeatmapChart data={data} gap={3} layout="fluid">
+  <HeatmapCells />
+  <HeatmapSeparator
+    groupBy="quarter"
+    showLabels
+    labelClassName="text-black dark:text-white"
+    spacing={12}
+    startOffset={14}
+    strokeStyle="solid"
+    stroke="var(--muted)"
+    gradient={{
+      from: "var(--muted)",
+      via: "var(--muted)",
+      to: "var(--muted)",
+      fromOpacity: 0,
+      viaOpacity: 1,
+      toOpacity: 0,
+    }}
+  />
+  <HeatmapXAxis />
+  <HeatmapYAxis tickFilter="odd" labelFormat="initial" />
+  <HeatmapTooltip />
+</HeatmapChart>
+<HeatmapLegend align="center" gap={3} />`,
+      render: () => <HeatmapCompactYAxisGalleryExample />,
+    },
+    {
+      title: "Heatmap Chart - Dashed Separators",
+      description:
+        "Quarter separators without a Y axis — dashed lines with vertical fade (six months)",
+      code: `<HeatmapChart data={data} gap={3} layout="fluid">
+  <HeatmapCells />
+  <HeatmapSeparator
+    groupBy="quarter"
+    showLabels
+    spacing={12}
+    startOffset={14}
+    strokeStyle="dashed"
+    strokeDasharray="3,5"
+    stroke="var(--muted)"
+    gradient={{
+      from: "var(--muted)",
+      via: "var(--muted)",
+      to: "var(--muted)",
+      fromOpacity: 0,
+      viaOpacity: 1,
+      toOpacity: 0,
+    }}
+  />
+  <HeatmapXAxis />
+  <HeatmapTooltip />
+</HeatmapChart>
+<HeatmapLegend align="center" gap={3} />`,
+      render: () => <HeatmapDashedSeparatorGalleryExample />,
+    },
+    {
       title: "Heatmap Chart - Loading",
-      description: "Skeleton grid with cell shimmer while data loads",
+      description:
+        "Skeleton grid with cell shimmer while data loads (six months)",
       code: `import { HeatmapChartLoading } from "@bklitui/ui/charts";
 
 <HeatmapChartLoading
@@ -4664,6 +5171,102 @@ function makeHeatmapExamples(): ChartExample[] {
   label="Loading contributions"
 />`,
       render: () => <HeatmapLoadingGalleryExample />,
+    },
+    {
+      title: "Heatmap Chart - Horizontal Scroll",
+      description:
+        "Scroll a full year of contributions with a viewport sized to six months",
+      code: `<HeatmapInteractionProvider>
+  <HeatmapInteractionBoundary>
+    <div className="flex w-full min-w-0">
+      <div className="relative shrink-0" style={{ width: yAxisWidth }}>
+        {/* Mon / Wed / Fri labels aligned to row bins */}
+      </div>
+      <div className="scroll-fade-x no-scrollbar min-w-0 flex-1 overflow-x-auto">
+        <div style={{ width: \`\${(data.length / 26) * 100}%\` }}>
+          <HeatmapChart
+            data={data}
+            gap={3}
+            layout="fluid"
+            margin={{ top: 28, right: 12, bottom: 0, left: 0 }}
+          >
+            <HeatmapCells />
+            <HeatmapXAxis />
+            <HeatmapTooltip />
+          </HeatmapChart>
+        </div>
+      </div>
+    </div>
+    <HeatmapLegend align="center" gap={3} />
+  </HeatmapInteractionBoundary>
+</HeatmapInteractionProvider>`,
+      render: () => <HeatmapHorizontalScrollGalleryExample />,
+    },
+    {
+      title: "Heatmap Chart - Gradient Legend",
+      description:
+        "Continuous gradient bar legend with custom endpoint labels (six months)",
+      code: `<HeatmapChart data={data} gap={3} layout="fluid" levelStyles={levelStyles}>
+  <HeatmapCells />
+  <HeatmapXAxis />
+  <HeatmapYAxis tickFilter="odd" labelFormat="initial" />
+  <HeatmapTooltip />
+</HeatmapChart>
+<HeatmapLegend
+  align="center"
+  variant="gradient"
+  lessLabel="Faster"
+  moreLabel="Slower"
+  fontSize={12}
+  labelClassName="text-muted-foreground"
+  levelStyles={levelStyles}
+  gap={3}
+/>`,
+      render: () => <HeatmapGradientLegendGalleryExample />,
+    },
+    {
+      title: "Heatmap Chart - Monday Start",
+      description:
+        "Week starts on Monday with M–S labels and faded weekend rows (six months)",
+      code: `import { buildHeatmapRowOpacity } from "@bklitui/ui/charts";
+
+const weekendOpacity = buildHeatmapRowOpacity((row) => row >= 5, 0.35);
+
+<HeatmapChart data={data} gap={3} layout="fluid" weekStartDay={1}>
+  <HeatmapCells rowOpacity={weekendOpacity} />
+  <HeatmapXAxis />
+  <HeatmapYAxis
+    tickFilter="all"
+    labelFormat="initial"
+    rowOpacity={weekendOpacity}
+  />
+  <HeatmapTooltip />
+</HeatmapChart>
+<HeatmapLegend align="center" gap={3} />`,
+      render: () => <HeatmapMondayStartGalleryExample />,
+    },
+    {
+      title: "Heatmap Chart - Active Scale Hover",
+      description:
+        "Enlarge the hovered cell with a slightly larger gap (six months)",
+      code: `<HeatmapChart data={data} gap={4} layout="fluid">
+  <HeatmapCells
+    activeScale={1.1}
+    inactiveOpacity={0.45}
+    inactiveScale={1}
+  />
+  <HeatmapXAxis />
+  <HeatmapYAxis tickFilter="odd" labelFormat="initial" />
+  <HeatmapTooltip />
+</HeatmapChart>
+<HeatmapLegend
+  align="center"
+  gap={4}
+  activeScale={1.1}
+  inactiveOpacity={0.45}
+  inactiveScale={1}
+/>`,
+      render: () => <HeatmapActiveScaleGalleryExample />,
     },
   ];
 }
@@ -5459,17 +6062,34 @@ function makeSankeyHero(): ChartExample {
 function makeHeatmapHero(): ChartExample {
   return {
     title: "Heatmap Chart - Contributions",
-    description: "Activity grid with circular cells and synced legend hover",
+    description:
+      "Activity grid with circular cells, calendar quarter separators, compact day labels, and synced legend hover",
     code: `<HeatmapChart data={data} gap={3} layout="fluid">
-  <HeatmapCells cornerRadius={999} />
+  <HeatmapCells
+    cornerRadius={999}
+    inactiveOpacity={0.8}
+    inactiveScale={0.94}
+  />
+  <HeatmapSeparator
+    groupBy="quarter"
+    showLabels
+    labelClassName="text-[var(--chart-3)]"
+    spacing={12}
+    startOffset={14}
+    strokeOpacity={0.6}
+  />
   <HeatmapXAxis />
-  <HeatmapYAxis />
+  <HeatmapYAxis tickFilter="all" labelFormat="initial" />
   <HeatmapTooltip />
 </HeatmapChart>
-<HeatmapLegend align="center" cornerRadius={999} gap={3} />`,
-    render: () => (
-      <HeatmapGalleryExample cornerRadius={HEATMAP_CIRCULAR_CORNER_RADIUS} />
-    ),
+<HeatmapLegend
+  align="center"
+  cornerRadius={999}
+  gap={3}
+  inactiveOpacity={0.8}
+  inactiveScale={0.94}
+/>`,
+    render: () => <HeatmapHeroExample />,
   };
 }
 
@@ -6176,6 +6796,7 @@ function SunburstWithLegend() {
     );
   }, [legendHoveredIndex, legendResult.arcIndices, legendIndexByArc]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: reset hover when drill focus changes
   useEffect(() => {
     setHoveredIndex(null);
     setLegendHoveredIndex(null);

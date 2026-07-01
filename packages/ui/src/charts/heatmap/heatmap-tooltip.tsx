@@ -2,12 +2,16 @@
 
 import { memo } from "react";
 import { TooltipBox } from "../tooltip/tooltip-box";
-import { TooltipContent } from "../tooltip/tooltip-content";
 import { useHeatmap, useHeatmapInteraction } from "./heatmap-context";
-import { formatHeatmapContributionLabel } from "./heatmap-utils";
+import {
+  formatHeatmapContributionLabel,
+  formatHeatmapTooltipDate,
+  formatHeatmapTooltipWeekday,
+} from "./heatmap-utils";
+import { useDelayedTooltipData } from "./use-delayed-tooltip-data";
 
 export interface HeatmapTooltipProps {
-  /** Custom label for the hovered cell. */
+  /** Custom contribution line (bottom section). Default: `N contribution(s)`. */
   formatLabel?: (count: number, date: Date) => string;
   /** Custom class name */
   className?: string;
@@ -18,6 +22,20 @@ export interface HeatmapTooltipProps {
    * Default: `var(--chart-tooltip-background)`.
    */
   backgroundColor?: string;
+  /**
+   * Delay before showing the tooltip on first hover (ms).
+   * Moving between cells updates immediately once visible.
+   */
+  showDelay?: number;
+  /**
+   * Grace period before hiding when the pointer leaves a cell (ms).
+   * Helps avoid flicker when moving quickly between adjacent cells.
+   */
+  hideDelay?: number;
+  /**
+   * When true, the tooltip appears and disappears instantly with no motion.
+   */
+  instant?: boolean;
 }
 
 export const HeatmapTooltip = memo(function HeatmapTooltip({
@@ -25,13 +43,19 @@ export const HeatmapTooltip = memo(function HeatmapTooltip({
   className = "",
   panelStyle,
   backgroundColor,
+  showDelay = 0,
+  hideDelay = 120,
+  instant = false,
 }: HeatmapTooltipProps) {
   const { containerRef, width, height } = useHeatmap();
   const { tooltipData } = useHeatmapInteraction();
+  const displayData = useDelayedTooltipData(tooltipData, showDelay, hideDelay);
 
-  if (!tooltipData) {
+  if (!displayData) {
     return null;
   }
+
+  const { count, date } = displayData;
 
   return (
     <TooltipBox
@@ -41,15 +65,26 @@ export const HeatmapTooltip = memo(function HeatmapTooltip({
       containerHeight={height}
       containerRef={containerRef}
       containerWidth={width}
+      entrance={!instant}
       panelStyle={panelStyle}
       visible
-      x={tooltipData.x}
-      y={tooltipData.y}
+      x={displayData.x}
+      y={displayData.y}
     >
-      <TooltipContent
-        rows={[]}
-        title={formatLabel(tooltipData.count, tooltipData.date)}
-      />
+      <div className="overflow-hidden">
+        <div className="px-3 py-2.5 text-left">
+          <div className="font-medium text-chart-tooltip-foreground text-xs">
+            {formatHeatmapTooltipDate(date)}
+          </div>
+          <div className="mt-0.5 text-chart-tooltip-muted text-xs">
+            {formatHeatmapTooltipWeekday(date)}
+          </div>
+          <div className="my-2 border-chart-tooltip-muted/30 border-t" />
+          <div className="text-chart-tooltip-foreground text-sm">
+            {formatLabel(count, date)}
+          </div>
+        </div>
+      </div>
     </TooltipBox>
   );
 });

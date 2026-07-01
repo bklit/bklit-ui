@@ -1,6 +1,11 @@
-import type { HeatmapColumn } from "@bklitui/ui/charts";
+import {
+  getHeatmapCalendarRangeStart,
+  getHeatmapWeekCount,
+  getHeatmapWeekStartAlignedToRange,
+  HEATMAP_MONTHS_ONE_YEAR,
+  type HeatmapColumn,
+} from "@bklitui/ui/charts";
 
-const HEATMAP_WEEKS = 53;
 const HEATMAP_DAYS = 7;
 
 function seededRandom(seed: number): () => number {
@@ -53,28 +58,30 @@ function heatmapContributionCount(
 /** GitHub-style contribution grid for docs and gallery demos. */
 export function getHeatmapDemoData(
   seed = 0,
-  weeks = HEATMAP_WEEKS
+  calendarMonths: number = HEATMAP_MONTHS_ONE_YEAR
 ): HeatmapColumn[] {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const startDate = new Date(today);
-  startDate.setDate(startDate.getDate() - (weeks - 1) * 7);
-  startDate.setDate(startDate.getDate() - startDate.getDay());
+  const rangeStart = getHeatmapCalendarRangeStart(today, calendarMonths);
+  const startDate = getHeatmapWeekStartAlignedToRange(rangeStart);
+  const weekCount = getHeatmapWeekCount(startDate, today);
 
   const columns: HeatmapColumn[] = [];
   const cursor = new Date(startDate);
 
-  for (let week = 0; week < weeks; week++) {
+  for (let week = 0; week < weekCount; week++) {
     const bins = Array.from({ length: HEATMAP_DAYS }, (_, day) => {
       const date = new Date(cursor);
       const dayOfWeek = date.getDay();
       cursor.setDate(cursor.getDate() + 1);
 
-      const isFuture = date > today;
+      const isOutOfRange =
+        date > today || (rangeStart != null && date < rangeStart);
+
       return {
         bin: day,
-        count: isFuture
+        count: isOutOfRange
           ? 0
           : heatmapContributionCount(seed, week, day, dayOfWeek),
         date,

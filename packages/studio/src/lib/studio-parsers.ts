@@ -151,6 +151,20 @@ export const studioSearchParams = {
   heatmapGap: parseAsInteger.withDefault(2),
   heatmapCornerRadius: parseAsInteger.withDefault(2),
   heatmapLegendCellSize: parseAsInteger.withDefault(11),
+  heatmapLegendVariant: parseAsStringLiteral([
+    "swatches",
+    "gradient",
+  ]).withDefault("swatches"),
+  heatmapLegendGradientSpan: parseAsInteger.withDefault(5),
+  heatmapWeekStartDay: parseAsStringLiteral([
+    "0",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+  ]).withDefault("0"),
   heatmapChartState: parseAsStringLiteral(["ready", "loading"]).withDefault(
     "ready"
   ),
@@ -184,7 +198,30 @@ export const studioSearchParams = {
   heatmapLevelPatternTileBackgrounds: parseAsString.withDefault(""),
   heatmapLevelPatternOpacities: parseAsString.withDefault(""),
   heatmapLevelPatternDotsFills: parseAsString.withDefault(""),
-  heatmapCellsFadedOpacity: parseAsFloat.withDefault(0.3),
+  heatmapCellsInactiveOpacity: parseAsFloat.withDefault(0.3),
+  heatmapCellsInactiveScale: parseAsFloat.withDefault(1),
+  heatmapYAxisTickFilter: parseAsStringLiteral([
+    "all",
+    "odd",
+    "even",
+  ]).withDefault("odd"),
+  heatmapYAxisLabelFormat: parseAsStringLiteral([
+    "full",
+    "initial",
+  ]).withDefault("full"),
+  heatmapSeparatorGroupBy: parseAsStringLiteral([
+    "off",
+    "every",
+    "quarter",
+  ]).withDefault("quarter"),
+  heatmapSeparatorEvery: parseAsInteger.withDefault(4),
+  heatmapSeparatorShowLabels: parseAsBoolean.withDefault(true),
+  heatmapSeparatorStrokeStyle: parseAsStringLiteral([
+    "solid",
+    "dashed",
+  ]).withDefault("solid"),
+  heatmapSeparatorUseGradient: parseAsBoolean.withDefault(false),
+  heatmapSeparatorStroke: parseAsString.withDefault("var(--border)"),
   linkOpacity: parseAsFloat.withDefault(0.4),
   scatterRadius: parseAsFloat.withDefault(6),
   scatterRingGap: parseAsFloat.withDefault(2),
@@ -548,6 +585,9 @@ export interface StudioUrlState {
   heatmapGap: number;
   heatmapCornerRadius: number;
   heatmapLegendCellSize: number;
+  heatmapLegendVariant: "swatches" | "gradient";
+  heatmapLegendGradientSpan: number;
+  heatmapWeekStartDay: "0" | "1" | "2" | "3" | "4" | "5" | "6";
   heatmapChartState: "ready" | "loading";
   heatmapLoadingLabel: string;
   heatmapLoadingOpacity: number;
@@ -569,7 +609,16 @@ export interface StudioUrlState {
   heatmapLevelPatternTileBackgrounds: string;
   heatmapLevelPatternOpacities: string;
   heatmapLevelPatternDotsFills: string;
-  heatmapCellsFadedOpacity: number;
+  heatmapCellsInactiveOpacity: number;
+  heatmapCellsInactiveScale: number;
+  heatmapYAxisTickFilter: "all" | "odd" | "even";
+  heatmapYAxisLabelFormat: "full" | "initial";
+  heatmapSeparatorGroupBy: "off" | "every" | "quarter";
+  heatmapSeparatorEvery: number;
+  heatmapSeparatorShowLabels: boolean;
+  heatmapSeparatorStrokeStyle: "solid" | "dashed";
+  heatmapSeparatorUseGradient: boolean;
+  heatmapSeparatorStroke: string;
   linkOpacity: number;
   scatterRadius: number;
   scatterRingGap: number;
@@ -872,6 +921,9 @@ export function defaultStudioState(
     heatmapGap: 2,
     heatmapCornerRadius: 2,
     heatmapLegendCellSize: 11,
+    heatmapLegendVariant: "swatches",
+    heatmapLegendGradientSpan: 5,
+    heatmapWeekStartDay: "0",
     heatmapChartState: "ready",
     heatmapLoadingLabel: "Loading",
     heatmapLoadingOpacity: 1,
@@ -893,7 +945,16 @@ export function defaultStudioState(
     heatmapLevelPatternTileBackgrounds: "",
     heatmapLevelPatternOpacities: "",
     heatmapLevelPatternDotsFills: "",
-    heatmapCellsFadedOpacity: 0.3,
+    heatmapCellsInactiveOpacity: 0.3,
+    heatmapCellsInactiveScale: 1,
+    heatmapYAxisTickFilter: "odd",
+    heatmapYAxisLabelFormat: "full",
+    heatmapSeparatorGroupBy: "quarter",
+    heatmapSeparatorEvery: 4,
+    heatmapSeparatorShowLabels: true,
+    heatmapSeparatorStrokeStyle: "solid",
+    heatmapSeparatorUseGradient: false,
+    heatmapSeparatorStroke: "var(--border)",
     linkOpacity: 0.4,
     scatterRadius: 6,
     scatterRingGap: 2,

@@ -1401,6 +1401,20 @@ export const heatmapChartControlGroups: StudioControlGroup[] = [
       min: 0,
       max: 8,
     },
+    {
+      type: "select",
+      key: "heatmapWeekStartDay",
+      label: "Week starts",
+      options: [
+        { value: "0", label: "Sunday" },
+        { value: "1", label: "Monday" },
+        { value: "2", label: "Tuesday" },
+        { value: "3", label: "Wednesday" },
+        { value: "4", label: "Thursday" },
+        { value: "5", label: "Friday" },
+        { value: "6", label: "Saturday" },
+      ],
+    },
   ]),
   heatmapLevelPane(0, "Empty", "heatmapLevel0Color"),
   heatmapLevelPane(1, "Level 1", "heatmapLevel1Color"),
@@ -1413,12 +1427,98 @@ export const heatmapCellsControlGroups: StudioControlGroup[] = [
   controlGroup("Cells", [
     {
       type: "opacity",
-      key: "heatmapCellsFadedOpacity",
-      label: "Hover fade",
+      key: "heatmapCellsInactiveOpacity",
+      label: "Inactive opacity",
       min: 0.1,
       max: 1,
       step: 0.05,
       color: "var(--chart-1)",
+    },
+    {
+      type: "number",
+      key: "heatmapCellsInactiveScale",
+      label: "Inactive scale",
+      min: 0.5,
+      max: 1,
+      step: 0.05,
+      unit: "",
+    },
+  ]),
+];
+
+export const heatmapYAxisControlGroups: StudioControlGroup[] = [
+  controlGroup("Y Axis", [
+    {
+      type: "select",
+      key: "heatmapYAxisTickFilter",
+      label: "Ticks",
+      options: [
+        { value: "odd", label: "Odd (Mon / Wed / Fri)" },
+        { value: "even", label: "Even (Sun / Tue / Thu / Sat)" },
+        { value: "all", label: "All" },
+      ],
+    },
+    {
+      type: "select",
+      key: "heatmapYAxisLabelFormat",
+      label: "Labels",
+      options: [
+        { value: "full", label: "Full" },
+        { value: "initial", label: "Initial" },
+      ],
+    },
+  ]),
+];
+
+export const heatmapSeparatorControlGroups: StudioControlGroup[] = [
+  controlGroup("Separators", [
+    {
+      type: "select",
+      key: "heatmapSeparatorGroupBy",
+      label: "Group by",
+      options: [
+        { value: "off", label: "Off" },
+        { value: "quarter", label: "Calendar quarter" },
+        { value: "every", label: "Every N columns" },
+      ],
+    },
+    {
+      type: "number",
+      key: "heatmapSeparatorEvery",
+      label: "Every N columns",
+      min: 1,
+      max: 12,
+      step: 1,
+      unit: "",
+      visibleWhen: { key: "heatmapSeparatorGroupBy", equals: "every" },
+    },
+    {
+      type: "boolean",
+      key: "heatmapSeparatorShowLabels",
+      label: "Quarter labels",
+      visibleWhen: { key: "heatmapSeparatorGroupBy", equals: "quarter" },
+    },
+    {
+      type: "select",
+      key: "heatmapSeparatorStrokeStyle",
+      label: "Line style",
+      options: [
+        { value: "solid", label: "Solid" },
+        { value: "dashed", label: "Dashed" },
+      ],
+      visibleWhen: { key: "heatmapSeparatorGroupBy", not: "off" },
+    },
+    {
+      type: "boolean",
+      key: "heatmapSeparatorUseGradient",
+      label: "Gradient fade",
+      visibleWhen: { key: "heatmapSeparatorGroupBy", not: "off" },
+    },
+    {
+      type: "color",
+      key: "heatmapSeparatorStroke",
+      label: "Stroke",
+      visibleWhen: { key: "heatmapSeparatorGroupBy", not: "off" },
     },
   ]),
 ];
@@ -1427,6 +1527,25 @@ export const heatmapLegendControlGroups: StudioControlGroup[] = [
   controlGroup("Legend", [
     { type: "boolean", key: "showLegend", label: "Show" },
     { type: "legendPosition", key: "legendPlacement", label: "" },
+    {
+      type: "select",
+      key: "heatmapLegendVariant",
+      label: "Variant",
+      options: [
+        { value: "swatches", label: "Swatches" },
+        { value: "gradient", label: "Gradient bar" },
+      ],
+    },
+    {
+      type: "number",
+      key: "heatmapLegendGradientSpan",
+      label: "Gradient width",
+      min: 3,
+      max: 10,
+      step: 1,
+      unit: "swatches",
+      visibleWhen: { key: "heatmapLegendVariant", equals: "gradient" },
+    },
     {
       type: "number",
       key: "legendFontSize",

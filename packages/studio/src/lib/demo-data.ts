@@ -1,12 +1,14 @@
-import type {
-  FunnelStage,
-  HeatmapColumn,
-  OHLCDataPoint,
-  PieData,
-  RadarData,
-  RadarMetric,
-  RingData,
-  SunburstNode,
+import {
+  type FunnelStage,
+  HEATMAP_WEEKS_ONE_YEAR,
+  type HeatmapColumn,
+  type OHLCDataPoint,
+  type PieData,
+  type RadarData,
+  type RadarMetric,
+  type RingData,
+  resolveHeatmapWeekRange,
+  type SunburstNode,
 } from "@bklitui/ui/charts";
 
 export const areaData = [
@@ -492,11 +494,9 @@ export function getScatterData(seed = 0) {
   }));
 }
 
-const HEATMAP_WEEKS = 53;
 const HEATMAP_DAYS = 7;
 
-export const HEATMAP_WEEKS_ONE_YEAR = HEATMAP_WEEKS;
-export const HEATMAP_WEEKS_TWO_YEARS = HEATMAP_WEEKS * 2;
+export const HEATMAP_WEEKS_TWO_YEARS = HEATMAP_WEEKS_ONE_YEAR * 2;
 /** ~4 months of weekly columns — used for compact catalog previews. */
 export const HEATMAP_WEEKS_FOUR_MONTHS = Math.round(
   (HEATMAP_WEEKS_ONE_YEAR / 12) * 4
@@ -548,23 +548,26 @@ export function getHeatmapData(
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const startDate = new Date(today);
-  startDate.setDate(startDate.getDate() - (weeks - 1) * 7);
-  startDate.setDate(startDate.getDate() - startDate.getDay());
+  const { startDate, weekCount, rangeStart } = resolveHeatmapWeekRange(
+    today,
+    weeks
+  );
 
   const columns: HeatmapColumn[] = [];
   const cursor = new Date(startDate);
 
-  for (let week = 0; week < weeks; week++) {
+  for (let week = 0; week < weekCount; week++) {
     const bins = Array.from({ length: HEATMAP_DAYS }, (_, day) => {
       const date = new Date(cursor);
       const dayOfWeek = date.getDay();
       cursor.setDate(cursor.getDate() + 1);
 
-      const isFuture = date > today;
+      const isOutOfRange =
+        date > today || (rangeStart != null && date < rangeStart);
+
       return {
         bin: day,
-        count: isFuture
+        count: isOutOfRange
           ? 0
           : heatmapContributionCount(seed, week, day, dayOfWeek),
         date,

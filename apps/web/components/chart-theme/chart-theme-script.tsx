@@ -81,8 +81,11 @@ function buildChartThemeScript() {
 
 export function ChartThemeScript() {
   return (
-    <Script id="bklit-chart-theme" strategy="beforeInteractive">
-      {buildChartThemeScript()}
-    </Script>
+    <Script
+      // biome-ignore lint/security/noDangerouslySetInnerHtml: inline bootstrap before hydration
+      dangerouslySetInnerHTML={{ __html: buildChartThemeScript() }}
+      id="bklit-chart-theme"
+      strategy="beforeInteractive"
+    />
   );
 }

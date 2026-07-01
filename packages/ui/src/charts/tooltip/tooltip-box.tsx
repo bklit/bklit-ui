@@ -37,6 +37,8 @@ export interface TooltipBoxProps {
   springConfig?: SpringConfig;
   /** Animate panel position with a spring. Default: true */
   animate?: boolean;
+  /** Fade/scale the panel on show. Default: true */
+  entrance?: boolean;
   /** Inline styles for the inner tooltip panel. */
   panelStyle?: React.CSSProperties;
   /**
@@ -78,6 +80,7 @@ function TooltipBoxInner({
   flipped: flippedOverride,
   springConfig,
   animate = true,
+  entrance = true,
   panelStyle,
   backgroundColor = chartCssVars.tooltipBackground,
   container,
@@ -172,6 +175,36 @@ function TooltipBoxInner({
   const isFlipped = flippedOverride ?? shouldFlipX;
   const transformOrigin = isFlipped ? "right top" : "left top";
 
+  const panelClassName = cn(
+    "min-w-[140px] overflow-hidden rounded-lg text-chart-tooltip-foreground shadow-lg",
+    panelStyle?.backgroundColor === undefined &&
+      backgroundColor === chartCssVars.tooltipBackground &&
+      "bg-chart-tooltip-background",
+    panelStyle?.backdropFilter === undefined && "backdrop-blur-md"
+  );
+  const panelStyleResolved = {
+    transformOrigin,
+    ...(panelStyle?.backgroundColor === undefined && {
+      backgroundColor,
+    }),
+    ...panelStyle,
+  };
+
+  if (!entrance) {
+    return createPortal(
+      <div
+        className={cn("pointer-events-none absolute z-50", className)}
+        ref={tooltipRef}
+        style={{ left: finalLeft, top: finalTop }}
+      >
+        <div className={panelClassName} style={panelStyleResolved}>
+          {children}
+        </div>
+      </div>,
+      container
+    );
+  }
+
   return createPortal(
     <motion.div
       animate={{ opacity: 1 }}
@@ -184,22 +217,10 @@ function TooltipBoxInner({
     >
       <motion.div
         animate={{ scale: 1, opacity: 1, x: 0 }}
-        className={cn(
-          "min-w-[140px] overflow-hidden rounded-lg text-chart-tooltip-foreground shadow-lg",
-          panelStyle?.backgroundColor === undefined &&
-            backgroundColor === chartCssVars.tooltipBackground &&
-            "bg-chart-tooltip-background",
-          panelStyle?.backdropFilter === undefined && "backdrop-blur-md"
-        )}
+        className={panelClassName}
         initial={{ scale: 0.85, opacity: 0, x: isFlipped ? 20 : -20 }}
         key={flipKey}
-        style={{
-          transformOrigin,
-          ...(panelStyle?.backgroundColor === undefined && {
-            backgroundColor,
-          }),
-          ...panelStyle,
-        }}
+        style={panelStyleResolved}
         transition={{ type: "spring", stiffness: 300, damping: 25 }}
       >
         {children}

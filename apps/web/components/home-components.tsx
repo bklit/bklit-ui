@@ -648,7 +648,7 @@ function ShowcaseHeatmapChart({ compact }: { compact: boolean }) {
             levelStyles={heatmapLevelStyles}
             margin={homeHeatmapMargin(compact)}
           >
-            <HeatmapCells cornerRadius={2} fadedOpacity={0.3} />
+            <HeatmapCells cornerRadius={2} inactiveOpacity={0.3} />
             {!compact && <HeatmapXAxis />}
             {!compact && <HeatmapYAxis />}
             <HeatmapTooltip panelStyle={homeTooltipPanelStyle} />

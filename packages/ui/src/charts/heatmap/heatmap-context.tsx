@@ -20,6 +20,10 @@ import {
   HEATMAP_DEFAULT_LEVEL_COLORS,
   type HeatmapLevelStyles,
 } from "./heatmap-colors";
+import type {
+  HeatmapSeparatorLayout,
+  HeatmapWeekStartDay,
+} from "./heatmap-utils";
 
 type HeatmapTimeScale = ReturnType<typeof scaleTime<number>>;
 type HeatmapLinearScale = ReturnType<typeof scaleLinear<number>>;
@@ -64,8 +68,10 @@ export interface HeatmapContextValue {
   binWidth: number;
   binHeight: number;
   gap: number;
+  weekStartDay: HeatmapWeekStartDay;
   xScale: (columnIndex: number) => number;
   yScale: (rowIndex: number) => number;
+  separatorLayout: HeatmapSeparatorLayout | null;
   timeXScale: HeatmapTimeScale;
   brushYScale: HeatmapLinearScale;
   isReady: boolean;
