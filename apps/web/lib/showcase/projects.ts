@@ -33,4 +33,11 @@ export const showcaseProjects: ShowcaseProject[] = [
       "https://github.com/user-attachments/assets/d704e860-f7b5-428d-b950-9991d95b9dc3",
     imageAlt: "Cyberwiz GRC platform website",
   },
+  {
+    title: "Strava Widget",
+    url: "https://strava-widget.com/",
+    image:
+      "https://github.com/user-attachments/assets/c04c9d4b-4339-4504-8a3d-9ffd9df5821a",
+    imageAlt: "Strava Widget activity charts",
+  },
 ];
