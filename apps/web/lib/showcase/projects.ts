@@ -40,4 +40,11 @@ export const showcaseProjects: ShowcaseProject[] = [
       "https://github.com/user-attachments/assets/c04c9d4b-4339-4504-8a3d-9ffd9df5821a",
     imageAlt: "Strava Widget activity charts",
   },
+  {
+    title: "Better-T-Stack",
+    url: "https://www.better-t-stack.dev/",
+    image:
+      "https://github.com/user-attachments/assets/1139c9a5-75c5-44f9-acb0-12aeb883d76c",
+    imageAlt: "Better-T-Stack starter website",
+  },
 ];
