@@ -1469,9 +1469,29 @@
           "target": "components/charts/heatmap/heatmap-legend-swatch.tsx"
         },
         {
+          "path": "src/charts/heatmap/heatmap-legend-gradient.tsx",
+          "type": "registry:component",
+          "target": "components/charts/heatmap/heatmap-legend-gradient.tsx"
+        },
+        {
           "path": "src/charts/heatmap/heatmap-tooltip.tsx",
           "type": "registry:component",
           "target": "components/charts/heatmap/heatmap-tooltip.tsx"
+        },
+        {
+          "path": "src/charts/heatmap/use-delayed-tooltip-data.ts",
+          "type": "registry:component",
+          "target": "components/charts/heatmap/use-delayed-tooltip-data.ts"
+        },
+        {
+          "path": "src/charts/heatmap/heatmap-separator.tsx",
+          "type": "registry:component",
+          "target": "components/charts/heatmap/heatmap-separator.tsx"
+        },
+        {
+          "path": "src/charts/heatmap/heatmap-resolve-separator.ts",
+          "type": "registry:component",
+          "target": "components/charts/heatmap/heatmap-resolve-separator.ts"
         },
         {
           "path": "src/charts/heatmap/heatmap-colors.ts",
@@ -1517,6 +1537,11 @@
           "path": "src/charts/chart-loading-label.tsx",
           "type": "registry:component",
           "target": "components/charts/chart-loading-label.tsx"
+        },
+        {
+          "path": "src/charts/chart-child-passthrough.ts",
+          "type": "registry:component",
+          "target": "components/charts/chart-child-passthrough.ts"
         }
       ]
     },
