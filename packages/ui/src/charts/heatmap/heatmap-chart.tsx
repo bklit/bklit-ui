@@ -53,6 +53,7 @@ import {
   getHeatmapPlotInnerWidth,
   getHeatmapSeparatorCount,
   getHeatmapTimeExtent,
+  type HeatmapSeparatorLayout,
   type HeatmapSeparatorParsedConfig,
   type HeatmapWeekStartDay,
   rotateHeatmapColumnBins,

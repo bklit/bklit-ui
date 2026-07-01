@@ -12,8 +12,12 @@ export function useDelayedTooltipData(
     null
   );
   const isShowingRef = useRef(false);
-  const showTimerRef = useRef<ReturnType<typeof setTimeout>>();
-  const hideTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  const showTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined
+  );
+  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined
+  );
 
   useEffect(() => {
     if (showTimerRef.current) {

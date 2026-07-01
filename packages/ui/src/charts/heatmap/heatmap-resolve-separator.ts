@@ -1,12 +1,12 @@
 import type { ReactElement, ReactNode } from "react";
 import { Children, isValidElement } from "react";
 import { resolveChartChildElement } from "../chart-child-passthrough";
+import type { HeatmapColumn } from "./heatmap-context";
 import {
   HEATMAP_SEPARATOR_MARKER,
   HeatmapSeparator,
 } from "./heatmap-separator";
 import type {
-  HeatmapColumn,
   HeatmapSeparatorGroupBy,
   HeatmapSeparatorLayout,
   HeatmapSeparatorParsedConfig,

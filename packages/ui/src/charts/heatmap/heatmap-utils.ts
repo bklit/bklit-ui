@@ -1,4 +1,5 @@
-import type { HeatmapColumn } from "./heatmap-context";
+import type { HeatmapLevelStyles } from "./heatmap-colors";
+import type { HeatmapBin, HeatmapColumn } from "./heatmap-context";
 
 /** Calendar months shown in default one-year contribution grids. */
 export const HEATMAP_MONTHS_ONE_YEAR = 12;
@@ -572,7 +573,12 @@ export function getHeatmapSeparatorColumnIndices(
 export function inferHeatmapCalendarRangeStart(
   columns: HeatmapColumn[]
 ): Date | null {
-  const gridStart = getHeatmapColumnStartDate(columns[0]);
+  const firstColumn = columns[0];
+  if (!firstColumn) {
+    return null;
+  }
+
+  const gridStart = getHeatmapColumnStartDate(firstColumn);
   if (!gridStart) {
     return null;
   }
@@ -795,7 +801,12 @@ export function resolveHeatmapDisplayRange(
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const gridStart = getHeatmapColumnStartDate(columns[0]);
+  const firstColumn = columns[0];
+  if (!firstColumn) {
+    return { start: null, end: null };
+  }
+
+  const gridStart = getHeatmapColumnStartDate(firstColumn);
   if (!gridStart) {
     return { start: null, end: null };
   }

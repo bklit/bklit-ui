@@ -38,6 +38,7 @@ import {
   HeatmapCells,
   HeatmapChart,
   HeatmapChartLoading,
+  type HeatmapColumn,
   HeatmapInteractionBoundary,
   HeatmapInteractionProvider,
   HeatmapLegend,

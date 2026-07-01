@@ -195,7 +195,7 @@ function TooltipBoxInner({
       <div
         className={cn("pointer-events-none absolute z-50", className)}
         ref={tooltipRef}
-        style={{ left: finalLeft, top: finalTop }}
+        style={{ left: staticPosition.left, top: staticPosition.top }}
       >
         <div className={panelClassName} style={panelStyleResolved}>
           {children}

@@ -41,7 +41,7 @@ export default function Component() {
         <HeatmapCells />
         <HeatmapXAxis />
         <HeatmapYAxis />
-        <HeatmapTooltip instant />
+        <HeatmapTooltip />
       </HeatmapChart>
       <HeatmapLegend />
     </div>
