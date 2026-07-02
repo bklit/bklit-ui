@@ -4,6 +4,10 @@ import { cn } from "@bklitui/ui/lib/utils";
 import { useMemo, useState } from "react";
 import { studioFieldLabelClass } from "@/components/controls/control-field-helpers";
 import {
+  FillGradientEditor,
+  gradientStopsToCss,
+} from "@/components/controls/fill-gradient-editor";
+import {
   PatternPicker,
   PatternSwatch,
 } from "@/components/controls/pattern-picker";
@@ -26,12 +30,17 @@ import {
   studioColorToOklchField,
   studioColorToPickerState,
 } from "@/lib/studio-color-picker-value";
-import type { SeriesFillMode } from "@/lib/studio-series-design";
+import type {
+  SeriesFillMode,
+  SeriesGradientStop,
+} from "@/lib/studio-series-design";
 import { Popover, PopoverContent, PopoverTrigger } from "@/ui/popover";
 import {
   studioSidebarPopoverCollisionAvoidance,
   studioSidebarPopoverSideOffset,
 } from "@/ui/studio-sidebar-popover";
+
+type FillPopoverTab = "solid" | "gradient";
 
 function formatTriggerLabel(color: string): string {
   const body = studioColorToOklchField(color);
@@ -42,11 +51,22 @@ function FillSwatch({
   fillMode,
   pattern,
   previewColor,
+  gradientCss,
 }: {
   fillMode: SeriesFillMode;
   pattern: PatternPresetId;
   previewColor: string;
+  gradientCss?: string;
 }) {
+  if (gradientCss) {
+    return (
+      <span
+        className="block size-full rounded-[3px]"
+        style={{ background: gradientCss }}
+      />
+    );
+  }
+
   if (fillMode === "pattern" && pattern !== "none") {
     return <PatternSwatch preset={pattern} />;
   }
@@ -66,10 +86,14 @@ export function FillPicker({
   pattern,
   supportsPattern = true,
   disabled = false,
+  gradientEnabled = false,
+  gradientStops,
   onColorChange,
   onColorPreview,
   onFillModeChange,
   onPatternChange,
+  onGradientEnabledChange,
+  onGradientStopsChange,
 }: {
   label?: string;
   color: string;
@@ -77,20 +101,37 @@ export function FillPicker({
   pattern: PatternPresetId;
   supportsPattern?: boolean;
   disabled?: boolean;
+  gradientEnabled?: boolean;
+  gradientStops?: SeriesGradientStop[];
   onColorChange: (value: string) => void;
   onColorPreview?: (value: string) => void;
   onFillModeChange: (mode: SeriesFillMode) => void;
   onPatternChange: (pattern: PatternPresetId) => void;
+  onGradientEnabledChange?: (enabled: boolean) => void;
+  onGradientStopsChange?: (stops: SeriesGradientStop[]) => void;
 }) {
   const [colorOpen, setColorOpen] = useState(false);
+  const supportsGradient =
+    onGradientEnabledChange != null &&
+    onGradientStopsChange != null &&
+    gradientStops != null;
+  const popoverTab: FillPopoverTab = gradientEnabled ? "gradient" : "solid";
 
   const previewColor = useMemo(() => {
     const trimmed = color.trim();
     if (trimmed.startsWith("oklch(")) {
       return pickerStatePreviewCss(studioColorToPickerState(trimmed));
     }
-    return resolveCssColor(color);
+    return resolveCssColor(trimmed);
   }, [color]);
+
+  const gradientCss = useMemo(() => {
+    if (!(gradientEnabled && gradientStops?.length)) {
+      return undefined;
+    }
+    return gradientStopsToCss(gradientStops, "to right");
+  }, [gradientEnabled, gradientStops]);
+
   const opacity = useMemo(() => {
     const mix = parseColorMix(color);
     if (mix) {
@@ -99,7 +140,14 @@ export function FillPicker({
     return parseOpacityFromColor(color);
   }, [color]);
 
-  const triggerLabel = formatTriggerLabel(color);
+  const triggerLabel = gradientEnabled ? "Linear" : formatTriggerLabel(color);
+
+  const handleTabChange = (tab: FillPopoverTab) => {
+    if (!onGradientEnabledChange) {
+      return;
+    }
+    onGradientEnabledChange(tab === "gradient");
+  };
 
   return (
     <div className="flex flex-col gap-2">
@@ -135,6 +183,7 @@ export function FillPicker({
           <span className="flex size-4 shrink-0 items-center justify-center overflow-hidden rounded-[4px]">
             <FillSwatch
               fillMode={fillMode}
+              gradientCss={gradientCss}
               pattern={pattern}
               previewColor={previewColor}
             />
@@ -144,7 +193,7 @@ export function FillPicker({
             {triggerLabel}
           </span>
           <span className="shrink-0 font-mono text-muted-foreground text-xs tabular-nums">
-            {opacity}%
+            {gradientEnabled ? "100" : opacity}%
           </span>
         </PopoverTrigger>
 
@@ -156,12 +205,35 @@ export function FillPicker({
           side="left"
           sideOffset={studioSidebarPopoverSideOffset}
         >
-          <StudioColorPicker
-            color={color}
-            disabled={disabled}
-            onChange={onColorChange}
-            onPreview={onColorPreview}
-          />
+          {supportsGradient ? (
+            <StudioToggleGroup
+              layout="segmented"
+              onValueChange={(value) =>
+                handleTabChange(value as FillPopoverTab)
+              }
+              value={popoverTab}
+            >
+              <StudioToggleGroupItem value="solid">Solid</StudioToggleGroupItem>
+              <StudioToggleGroupItem value="gradient">
+                Gradient
+              </StudioToggleGroupItem>
+            </StudioToggleGroup>
+          ) : null}
+
+          {popoverTab === "solid" || !supportsGradient ? (
+            <StudioColorPicker
+              color={color}
+              disabled={disabled}
+              onChange={onColorChange}
+              onPreview={onColorPreview}
+            />
+          ) : (
+            <FillGradientEditor
+              disabled={disabled}
+              onStopsChange={onGradientStopsChange}
+              stops={gradientStops}
+            />
+          )}
         </PopoverContent>
       </Popover>
 

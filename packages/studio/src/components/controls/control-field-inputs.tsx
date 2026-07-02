@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@/ui/select";
 import { YesNoSwitch } from "@/ui/yes-no-switch";
+import { BarShapeToggle } from "./bar-shape-toggle";
 import { studioControlInputClass } from "./control-field-helpers";
 import { CrosshairFadePicker } from "./crosshair-fade-picker";
 import { CurvePickerField } from "./curve-picker";
@@ -28,6 +29,7 @@ import { PieFillPicker } from "./pie-fill-picker";
 import { PieHoverEffectPicker } from "./pie-hover-effect-picker";
 import { ProjectionCurvePickerField } from "./projection-curve-picker";
 import { StrokeStylePicker } from "./stroke-style-picker";
+import { TooltipDotVariantPicker } from "./tooltip-dot-variant-picker";
 
 export function ControlFieldInputs({
   control,
@@ -126,6 +128,27 @@ export function ControlFieldInputs({
         <LineCapPicker
           onChange={(v) => onChange("barLineCap", v)}
           value={value as "round" | "butt"}
+        />
+      );
+    case "barShape":
+      return (
+        <BarShapeToggle
+          label={control.label}
+          onChange={(v) => {
+            onChange("barVariant", v);
+            if (v === "shape") {
+              onChange("tooltipDotVariant", "ring");
+            }
+          }}
+          value={String(value)}
+        />
+      );
+    case "tooltipDotVariant":
+      return (
+        <TooltipDotVariantPicker
+          label={control.label}
+          onChange={(v) => onChange("tooltipDotVariant", v)}
+          value={value as "dot" | "ring"}
         />
       );
     case "pieHoverEffect":

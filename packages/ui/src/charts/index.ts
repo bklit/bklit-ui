@@ -55,6 +55,18 @@ export {
   type BarPulseProps,
   useBarDepthEntries,
 } from "./bar-depth";
+export {
+  BarColumnTrack,
+  type BarColumnTrackProps,
+  BarSquares,
+  type BarSquaresProps,
+  type GradientStop,
+} from "./bar-squares";
+export {
+  computeSquareColumn,
+  type SquareColumnLayout,
+  topSquareCenterY,
+} from "./bar-squares-layout";
 export { BarXAxis, type BarXAxisProps } from "./bar-x-axis";
 export { BarYAxis, type BarYAxisProps } from "./bar-y-axis";
 export { Candlestick, type CandlestickProps } from "./candlestick";

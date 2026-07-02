@@ -64,6 +64,19 @@ export function chartTooltipPropsFromState(
     showCrosshair: state.showCrosshair,
     showDots: state.showTooltipDots,
     showDatePill: state.showTooltipDatePill,
+    dotVariant: state.tooltipDotVariant,
+    dotRadiusFraction:
+      state.tooltipDotVariant === "ring" ? state.tooltipDotRadius : undefined,
+    dotScale:
+      state.tooltipDotVariant === "ring" ? state.tooltipDotScale : undefined,
+    dotStrokeWidth:
+      state.tooltipDotVariant === "ring"
+        ? state.tooltipDotStrokeWidth
+        : undefined,
+    dotColor:
+      state.tooltipDotColorMode === "custom" && state.tooltipDotColor.trim()
+        ? state.tooltipDotColor
+        : undefined,
     indicatorColor: state.crosshairColor,
     indicatorDasharray,
     indicatorFadeEdges,

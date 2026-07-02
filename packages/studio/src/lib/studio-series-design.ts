@@ -224,3 +224,98 @@ export function buildSeriesFillModeUpdate(
     seriesPatterns: buildSeriesPatternsUpdate(state, seriesIndex, pattern),
   };
 }
+
+export interface SeriesGradientStop {
+  offset: number;
+  color: string;
+}
+
+const GRADIENT_STOP_SEP = ",";
+const GRADIENT_OFFSET_SEP = ":";
+
+function parseSeriesGradientStopField(raw: string): SeriesGradientStop[] {
+  if (!raw.trim()) {
+    return [];
+  }
+  return raw.split(GRADIENT_STOP_SEP).map((part) => {
+    const [offsetRaw, ...colorParts] = part.split(GRADIENT_OFFSET_SEP);
+    const color = colorParts.join(GRADIENT_OFFSET_SEP).trim();
+    const offset = Number.parseFloat(offsetRaw ?? "0");
+    return {
+      offset: Number.isFinite(offset) ? offset : 0,
+      color: color || "var(--chart-1)",
+    };
+  });
+}
+
+function serializeSeriesGradientStops(stops: SeriesGradientStop[]): string {
+  return stops
+    .map(
+      ({ offset, color }) => `${offset}${GRADIENT_OFFSET_SEP}${color.trim()}`
+    )
+    .join(GRADIENT_STOP_SEP);
+}
+
+export function parseSeriesGradientEnabledFlags(
+  state: StudioUrlState
+): boolean[] {
+  return parsePipeField(state.seriesGradientEnabled).map(
+    (part) => part === "true"
+  );
+}
+
+export function getSeriesGradientEnabled(
+  state: StudioUrlState,
+  seriesIndex: number
+): boolean {
+  return parseSeriesGradientEnabledFlags(state)[seriesIndex] ?? false;
+}
+
+export function parseSeriesGradientStopsBySeries(
+  state: StudioUrlState
+): SeriesGradientStop[][] {
+  return parsePipeField(state.seriesGradientStops).map((part) =>
+    parseSeriesGradientStopField(part)
+  );
+}
+
+export function getSeriesGradientStops(
+  state: StudioUrlState,
+  seriesIndex: number
+): SeriesGradientStop[] {
+  const parsed = parseSeriesGradientStopsBySeries(state)[seriesIndex];
+  if (parsed && parsed.length >= 2) {
+    return parsed;
+  }
+  const base = getEffectiveSeriesColor(state, seriesIndex);
+  return [
+    { offset: 0, color: base },
+    { offset: 100, color: base },
+  ];
+}
+
+export function buildSeriesGradientEnabledUpdate(
+  state: StudioUrlState,
+  seriesIndex: number,
+  enabled: boolean
+): string {
+  const count = getDesignSeriesCount(state.chart, state);
+  const current = Array.from({ length: count }, (_, index) =>
+    getSeriesGradientEnabled(state, index)
+  );
+  current[seriesIndex] = enabled;
+  return serializePipeField(current.map((value) => (value ? "true" : "false")));
+}
+
+export function buildSeriesGradientStopsUpdate(
+  state: StudioUrlState,
+  seriesIndex: number,
+  stops: SeriesGradientStop[]
+): string {
+  const count = getDesignSeriesCount(state.chart, state);
+  const current = Array.from({ length: count }, (_, index) =>
+    serializeSeriesGradientStops(getSeriesGradientStops(state, index))
+  );
+  current[seriesIndex] = serializeSeriesGradientStops(stops);
+  return serializePipeField(current);
+}

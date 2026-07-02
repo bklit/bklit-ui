@@ -1,12 +1,63 @@
 "use client";
 
-import { Background, Grid } from "@bklitui/ui/charts";
+import {
+  Background,
+  BarColumnTrack,
+  Grid,
+  renderPatternPreset,
+} from "@bklitui/ui/charts";
 import {
   BACKGROUND_PATTERN_KEYS,
+  BAR_TRACK_PATTERN_KEYS,
   patternOptionsFromState,
 } from "./pattern-control-groups";
 import { isStudioComponentVisible } from "./studio-component-visibility";
 import type { StudioUrlState } from "./studio-parsers";
+
+export const STUDIO_BAR_TRACK_PATTERN_ID = "studio-bar-track-pattern";
+
+export function barTrackFillFromState(state: StudioUrlState): string {
+  if (state.barTrackPattern === "none") {
+    return state.barTrackColor;
+  }
+  return `url(#${STUDIO_BAR_TRACK_PATTERN_ID})`;
+}
+
+export function studioBarTrackPatternDef(state: StudioUrlState) {
+  if (state.barTrackPattern === "none") {
+    return null;
+  }
+  const options = patternOptionsFromState(state, BAR_TRACK_PATTERN_KEYS);
+  return renderPatternPreset(options.preset, STUDIO_BAR_TRACK_PATTERN_ID, {
+    color: options.color,
+    scale: options.scale,
+    strokeWidth: options.strokeWidth,
+    radius: options.radius,
+    complement: options.complement,
+    fill: options.fill || undefined,
+    dotFill: state.barTrackPatternDotsFill,
+    tileBackground: options.tileBackground,
+  });
+}
+
+export function studioBarTrackLayer(
+  state: StudioUrlState,
+  trackComponentId: string
+) {
+  if (!isStudioComponentVisible(state, trackComponentId)) {
+    return null;
+  }
+
+  return (
+    <BarColumnTrack
+      fill={barTrackFillFromState(state)}
+      groupGap={state.groupGap}
+      opacity={state.barTrackOpacity}
+      squareGap={state.barSquareGap}
+      squareRadius={state.barSquareRadius}
+    />
+  );
+}
 
 export function backgroundPropsFromState(state: StudioUrlState) {
   const options = patternOptionsFromState(state, BACKGROUND_PATTERN_KEYS);

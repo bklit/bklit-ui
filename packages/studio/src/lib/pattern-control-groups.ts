@@ -5,7 +5,7 @@ import type {
   StudioControlGroup,
   StudioControlVisibilityRule,
 } from "@/lib/types";
-import { controlGroup } from "./sidebar-control-templates";
+import { barCollapsibleGroup, controlGroup } from "./sidebar-control-templates";
 
 export interface PatternControlKeys {
   pattern: keyof StudioUrlState;
@@ -192,6 +192,47 @@ export const BRUSH_PATTERN_KEYS: PatternControlKeys = {
   tileBackground: "brushSelectionPatternTileBackground",
   opacity: "brushSelectionPatternOpacity",
 };
+
+export const BAR_TRACK_PATTERN_KEYS: PatternControlKeys = {
+  pattern: "barTrackPattern",
+  stroke: "barTrackPatternColor",
+  scale: "barTrackPatternScale",
+  strokeWidth: "barTrackPatternStrokeWidth",
+  radius: "barTrackPatternRadius",
+  complement: "barTrackPatternComplement",
+  fill: "barTrackPatternFill",
+  tileBackground: "barTrackPatternTileBackground",
+  opacity: "barTrackOpacity",
+};
+
+export const barTrackControlGroups: StudioControlGroup[] = [
+  barCollapsibleGroup("Track", [
+    { type: "pattern", key: "barTrackPattern", label: "Style" },
+    {
+      type: "boolean",
+      key: "barTrackPatternDotsFill",
+      label: "Fill dots",
+      visibleWhen: { key: "barTrackPattern", equals: "dots" },
+    },
+    ...patternDetailControls("barTrackPattern", BAR_TRACK_PATTERN_KEYS),
+    {
+      type: "color",
+      key: "barTrackColor",
+      label: "Color",
+      visibleWhen: { key: "barTrackPattern", equals: "none" },
+    },
+    {
+      type: "opacity",
+      key: "barTrackOpacity",
+      label: "Opacity",
+      min: 0,
+      max: 1,
+      step: 0.05,
+      color: "var(--chart-grid)",
+      visibleWhen: { key: "barTrackPattern", equals: "none" },
+    },
+  ]),
+];
 
 export const REFERENCE_AREA_PATTERN_KEYS: PatternControlKeys = {
   pattern: "referenceAreaPattern",

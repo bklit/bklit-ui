@@ -6,11 +6,16 @@ import type { StudioUrlState } from "@/lib/studio-parsers";
 import {
   buildSeriesColorsUpdate,
   buildSeriesFillModeUpdate,
+  buildSeriesGradientEnabledUpdate,
+  buildSeriesGradientStopsUpdate,
   buildSeriesPatternsUpdate,
   getEffectiveSeriesColor,
   getSeriesFillMode,
+  getSeriesGradientEnabled,
+  getSeriesGradientStops,
   getSeriesPattern,
   type SeriesFillMode,
+  type SeriesGradientStop,
 } from "@/lib/studio-series-design";
 import type { StudioComponentDesign } from "@/lib/types";
 
@@ -98,15 +103,49 @@ export function StudioDesignControls({
     onBatchChange(updates);
   };
 
+  const handleGradientEnabledChange = (enabled: boolean) => {
+    onBatchChange({
+      seriesGradientEnabled: buildSeriesGradientEnabledUpdate(
+        state,
+        seriesIndex,
+        enabled
+      ),
+    });
+  };
+
+  const handleGradientStopsChange = (stops: SeriesGradientStop[]) => {
+    onBatchChange({
+      seriesGradientStops: buildSeriesGradientStopsUpdate(
+        state,
+        seriesIndex,
+        stops
+      ),
+    });
+  };
+
+  const showGradient = !accentKey;
+
   return (
     <FillPicker
       color={pickerColor}
       disabled={disabled}
       fillMode={accentKey ? "solid" : getSeriesFillMode(state, seriesIndex)}
+      gradientEnabled={
+        showGradient ? getSeriesGradientEnabled(state, seriesIndex) : false
+      }
+      gradientStops={
+        showGradient ? getSeriesGradientStops(state, seriesIndex) : undefined
+      }
       label={design.colorLabel ?? "Fill"}
       onColorChange={handleColorCommit}
       onColorPreview={handleColorPreview}
       onFillModeChange={handleFillModeChange}
+      onGradientEnabledChange={
+        showGradient ? handleGradientEnabledChange : undefined
+      }
+      onGradientStopsChange={
+        showGradient ? handleGradientStopsChange : undefined
+      }
       onPatternChange={handlePatternChange}
       pattern={accentKey ? "none" : getSeriesPattern(state, seriesIndex)}
       supportsPattern={patternEnabled}

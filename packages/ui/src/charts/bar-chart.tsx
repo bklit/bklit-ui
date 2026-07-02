@@ -17,6 +17,7 @@ import {
 import { cn } from "@/lib/utils";
 import { DEFAULT_ANIMATION_EASING } from "./animation";
 import type { BarProps } from "./bar";
+import { topSquareCenterY } from "./bar-squares-layout";
 import {
   forEachChartChild,
   isChartClipPassthrough,
@@ -84,6 +85,8 @@ export interface BarChartProps {
   stacked?: boolean;
   /** Gap between stacked bar segments in pixels. Default: 0 */
   stackGap?: number;
+  /** When set, tooltip Y positions snap to the top square center (shape variant). */
+  squareSnap?: { squareGap: number; groupGap?: number; fit?: boolean };
   /** Child components (Bar, Grid, ChartTooltip, etc.). Optional — omit for a
    * pure `status="loading"` skeleton. */
   children?: ReactNode;
@@ -120,6 +123,7 @@ function extractBarConfigs(children: ReactNode): LineConfig[] {
     const props = child.props as BarProps | undefined;
     const isBarComponent =
       componentName === "Bar" ||
+      componentName === "BarSquares" ||
       (props && typeof props.dataKey === "string" && props.dataKey.length > 0);
 
     if (isBarComponent && props?.dataKey) {
@@ -154,6 +158,7 @@ interface ChartInnerProps {
   orientation: BarOrientation;
   stacked: boolean;
   stackGap: number;
+  squareSnap?: { squareGap: number; groupGap?: number; fit?: boolean };
   children: ReactNode;
   containerRef: React.RefObject<HTMLDivElement | null>;
   onPhaseChange?: (phase: ChartPhase) => void;
@@ -183,6 +188,7 @@ const ChartCore = memo(function ChartCore({
   orientation,
   stacked,
   stackGap,
+  squareSnap,
   children,
   containerRef,
   onPhaseChange,
@@ -472,7 +478,22 @@ const ChartCore = memo(function ChartCore({
           if (typeof value === "number") {
             const axisScale =
               yScales[normalizeYAxisId(line.yAxisId)] ?? primaryYScale;
-            yPositions[line.dataKey] = axisScale(value) ?? 0;
+            const baselineY = axisScale(0) ?? innerHeight;
+            const valueY = axisScale(value) ?? 0;
+            const barLengthPx = baselineY - valueY;
+
+            if (squareSnap && !isHorizontal && value > 0) {
+              yPositions[line.dataKey] = topSquareCenterY({
+                baselineY,
+                barLengthPx,
+                squareSize: individualBarWidth,
+                gap: squareSnap.squareGap,
+                fit: squareSnap.fit,
+              });
+            } else {
+              yPositions[line.dataKey] = valueY;
+            }
+
             xPositions[line.dataKey] =
               barPos +
               idx * (individualBarWidth + groupGap) +
@@ -515,6 +536,8 @@ const ChartCore = memo(function ChartCore({
       scheduleTooltip,
       yScales,
       primaryYScale,
+      squareSnap,
+      innerHeight,
     ]
   );
 
@@ -593,6 +616,7 @@ const ChartCore = memo(function ChartCore({
     orientation,
     stacked,
     stackOffsets,
+    squareSnap,
   };
 
   return (
@@ -659,6 +683,7 @@ export function BarChart({
   orientation = "vertical",
   stacked = false,
   stackGap = 0,
+  squareSnap,
   children,
   onPhaseChange,
   status = "ready",
@@ -687,6 +712,7 @@ export function BarChart({
             onPhaseChange={onPhaseChange}
             orientation={orientation}
             revealSignature={revealSignature}
+            squareSnap={squareSnap}
             stacked={stacked}
             stackGap={stackGap}
             status={status}

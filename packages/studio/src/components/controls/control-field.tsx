@@ -49,6 +49,7 @@ import { ProjectionStrokeControl } from "./projection-stroke-control";
 import { ReferenceAreaFillControl } from "./reference-area-fill-control";
 import { ReferenceAreaYAxisControl } from "./reference-area-y-axis-control";
 import { SliderInputGroup } from "./slider-input-group";
+import { TooltipDotColorPicker } from "./tooltip-dot-color-picker";
 
 function numberControlPreviewIcon(
   preview: NonNullable<Extract<StudioControl, { type: "number" }>["preview"]>,
@@ -529,6 +530,18 @@ export function ControlField({
   if (control.type === "referenceAreaFill") {
     return (
       <ReferenceAreaFillControl
+        onChange={onChange}
+        onCommit={onCommit}
+        onPreview={onPreview}
+        state={state}
+      />
+    );
+  }
+
+  if (control.type === "tooltipDotColorMode") {
+    return (
+      <TooltipDotColorPicker
+        label={control.label}
         onChange={onChange}
         onCommit={onCommit}
         onPreview={onPreview}

@@ -1,4 +1,5 @@
 import { buildArcs } from "@bklitui/ui/charts";
+import { isBarShapeVariant } from "@/lib/bar-shape-variant";
 import {
   clampStudioSeriesCount,
   funnelData,
@@ -27,11 +28,15 @@ import type {
   StudioControlGroup,
 } from "@/lib/types";
 import { getStudioControlGroups } from "./control-groups";
-import { backgroundControlGroups } from "./pattern-control-groups";
+import {
+  backgroundControlGroups,
+  barTrackControlGroups,
+} from "./pattern-control-groups";
 import {
   areaChartControlGroups,
   areaSeriesLineControlGroups,
   barChartControlGroups,
+  barChartTooltipControlGroups,
   candlestickChartControlGroups,
   choroplethChartControlGroups,
   composedChartControlGroups,
@@ -63,7 +68,7 @@ import {
   sunburstLabelsControlGroups,
   tooltipAppearanceControlGroup,
 } from "./registry-control-groups";
-import { controlGroup } from "./sidebar-control-templates";
+import { barCollapsibleGroup, controlGroup } from "./sidebar-control-templates";
 import { firstConfigurableStudioComponentId } from "./studio-component-visibility";
 import {
   getProjectionCount,
@@ -219,41 +224,51 @@ function referenceAreaNode(chartPrefix: string): StudioComponentDefinition {
 function chartYAxisNode(
   chartPrefix: string,
   axis: LineYAxisId,
-  label: string
+  label: string,
+  collapsible = false
 ): StudioComponentDefinition {
+  const tickControls = [
+    {
+      type: "lineYAxisNumTicks" as const,
+      key: "lineYAxisNumTicks" as const,
+      label: "Approx. tick count",
+      axis,
+    },
+    {
+      type: "lineYAxisFormatLarge" as const,
+      key: "lineYAxisFormatLarge" as const,
+      label: "Format large numbers (1k)",
+      axis,
+    },
+  ];
   return {
     id: `${chartPrefix}.yaxis.${axis}`,
     label,
     parentId: `${chartPrefix}.chart`,
     kind: "chart",
     controlGroups: [
-      controlGroup("Ticks", [
-        {
-          type: "lineYAxisNumTicks",
-          key: "lineYAxisNumTicks",
-          label: "Approx. tick count",
-          axis,
-        },
-        {
-          type: "lineYAxisFormatLarge",
-          key: "lineYAxisFormatLarge",
-          label: "Format large numbers (1k)",
-          axis,
-        },
-      ]),
+      collapsible
+        ? barCollapsibleGroup("Ticks", tickControls)
+        : controlGroup("Ticks", tickControls),
     ],
   };
 }
 
-function seriesYAxisControlGroup(seriesIndex: number): StudioControlGroup {
-  return controlGroup("Axis", [
+function seriesYAxisControlGroup(
+  seriesIndex: number,
+  collapsible = false
+): StudioControlGroup {
+  const controls = [
     {
-      type: "lineSeriesYAxis",
-      key: "lineSeriesYAxes",
+      type: "lineSeriesYAxis" as const,
+      key: "lineSeriesYAxes" as const,
       label: "Y axis",
       seriesIndex,
     },
-  ]);
+  ];
+  return collapsible
+    ? barCollapsibleGroup("Axis", controls)
+    : controlGroup("Axis", controls);
 }
 
 function slugifyComponentId(title: string): string {
@@ -611,16 +626,25 @@ export function resolveAreaComponents(
   return components;
 }
 
+// biome-ignore lint: squares variant adds track layer and control wiring.
 export function resolveBarComponents(
   state: StudioUrlState
 ): StudioComponentDefinition[] {
   const settings = barChartControlGroups.find(
     (group) => group.title === "Settings"
   );
+  const seriesSettings = barChartControlGroups.find(
+    (group) => group.title === "Series"
+  );
+  const designSettings = barChartControlGroups.find(
+    (group) => group.title === "Design"
+  );
   const referenceAreaBounds = barChartControlGroups.find(
     (group) => group.title === "Reference range"
   );
   const chartId = "bar.chart";
+  const isShapeVariant =
+    isBarShapeVariant(state) && state.barOrientation === "vertical";
 
   if (isBarChartLoadingMode(state)) {
     return [
@@ -651,6 +675,7 @@ export function resolveBarComponents(
       treeIcon: "layers",
       controlGroups: settings ? [settings] : [],
       design: rootPaletteDesign(true),
+      designPlacement: "after",
     },
     gridNode("bar"),
     backgroundNode("bar"),
@@ -659,21 +684,40 @@ export function resolveBarComponents(
 
   const horizontal = state.barOrientation === "horizontal";
 
+  if (isShapeVariant) {
+    components.push({
+      id: "bar.track",
+      label: "Column track",
+      parentId: chartId,
+      kind: "chart",
+      controlGroups: barTrackControlGroups,
+    });
+  }
+
   for (let index = 0; index < seriesCount; index += 1) {
     const controlGroups: StudioControlGroup[] = [];
     if (index === 0 && referenceAreaBounds) {
       controlGroups.push(referenceAreaBounds);
     }
-    if (!horizontal) {
-      controlGroups.push(seriesYAxisControlGroup(index));
+    if (index === 0 && seriesSettings && !isShapeVariant) {
+      controlGroups.push(seriesSettings);
     }
+    if (index === 0 && designSettings) {
+      controlGroups.push(designSettings);
+    }
+    if (!horizontal) {
+      controlGroups.push(seriesYAxisControlGroup(index, true));
+    }
+
+    const seriesKind = isShapeVariant ? "BarSquares" : "SeriesBar";
+    const seriesLabel =
+      seriesCount > 1
+        ? `${seriesKind} · ${STUDIO_SERIES_KEYS[index] ?? `Series ${index + 1}`}`
+        : seriesKind;
 
     components.push({
       id: `bar.series.${index}`,
-      label:
-        seriesCount > 1
-          ? `SeriesBar · ${STUDIO_SERIES_KEYS[index] ?? `Series ${index + 1}`}`
-          : "SeriesBar",
+      label: seriesLabel,
       parentId: chartId,
       kind: "series",
       listMarker: "color-dot",
@@ -690,14 +734,14 @@ export function resolveBarComponents(
     components.push(passiveNode("bar", "baryaxis", "BarYAxis"));
   } else {
     components.push(
-      chartYAxisNode("bar", "left", "YAxis · left"),
-      chartYAxisNode("bar", "right", "YAxis · right")
+      chartYAxisNode("bar", "left", "YAxis · left", true),
+      chartYAxisNode("bar", "right", "YAxis · right", true)
     );
   }
 
   components.push(
     passiveNode("bar", "xaxis", "BarXAxis"),
-    chartTooltipNode("bar"),
+    chartTooltipNode("bar", barChartTooltipControlGroups),
     legendNode("bar")
   );
 

@@ -197,6 +197,8 @@ export interface ChartContextValue extends ChartHoverContextValue {
   stacked?: boolean;
   /** Stack offsets: Map of data index -> Map of dataKey -> cumulative offset */
   stackOffsets?: Map<number, Map<string, number>>;
+  /** Squares variant — snap tooltip to top square and size ring dots. */
+  squareSnap?: { squareGap: number; groupGap?: number; fit?: boolean };
 
   // ComposedChart + SeriesBar (optional)
   /** `SeriesBar` dataKeys in tree order, for grouped columns at each x */

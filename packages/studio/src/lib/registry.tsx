@@ -4,6 +4,8 @@ import {
   Area,
   Bar,
   BarChart,
+  BarColumnTrack,
+  BarSquares,
   BarXAxis,
   BarYAxis,
   ChartTooltip,
@@ -15,6 +17,7 @@ import {
   SeriesBar,
   XAxis,
 } from "@bklitui/ui/charts";
+import type { ReactNode } from "react";
 import { validChartSlugs } from "@/chart-slugs";
 import { AreaStudioPreview } from "@/components/charts/area-studio-preview";
 import { CandlestickStudioPreview } from "@/components/charts/candlestick-studio-preview";
@@ -41,6 +44,7 @@ import {
 import { StudioReferenceAreaLayer } from "@/components/charts/studio-reference-area-layer";
 import { SunburstStudioPreview } from "@/components/charts/sunburst-studio-preview";
 import { fadeEdgesPropValue } from "@/components/controls/fade-edges-picker";
+import { isBarShapeVariant } from "./bar-shape-variant";
 import {
   getStudioCssRevealPropsForPreview,
   motionSliceFromState,
@@ -100,6 +104,8 @@ import {
 } from "./registry-control-groups";
 import { seriesStrokePropsFromState } from "./series-stroke-props";
 import {
+  barTrackFillFromState,
+  studioBarTrackPatternDef,
   studioCartesianBackgroundLayer,
   studioCartesianGridLayer,
 } from "./studio-cartesian-layers";
@@ -124,7 +130,12 @@ import {
   resolveSunburstComponents,
 } from "./studio-components";
 import { studioCartesianLegendItems } from "./studio-legend-items";
-import { getEffectiveSeriesColor } from "./studio-series-design";
+import {
+  getEffectiveSeriesColor,
+  getSeriesGradientEnabled,
+  getSeriesGradientStops,
+  getSeriesPattern,
+} from "./studio-series-design";
 import {
   getSeriesCurve,
   getSeriesFadeEdges,
@@ -305,15 +316,20 @@ const barConfig: StudioChartConfig = {
   controls: [],
   controlGroups: barChartControlGroups,
   resolveComponents: resolveBarComponents,
+  // biome-ignore lint: bar preview branches on variant, orientation, and loading.
   render: (state, ctx) => {
     const isLoading = state.barChartState === "loading";
     const horizontal = state.barOrientation === "horizontal";
+    const isShapeVariant =
+      isBarShapeVariant(state) && !horizontal && !isLoading;
     const seriesCount = clampStudioSeriesCount(state.dataSeries);
     // barSeriesMode "single" is treated as grouped when dataSeries > 1.
     const stacked = seriesCount > 1 && state.barSeriesMode === "stacked";
     const lineCap = state.barLineCap;
     const seriesFillAt = (idx: number) =>
       ctx.patternFillAt(idx) ?? `var(--chart-${(idx % 5) + 1})`;
+    const seriesStrokeAt = (idx: number) =>
+      getEffectiveSeriesColor(state, idx) ?? `var(--chart-${(idx % 5) + 1})`;
 
     let chartData: Record<string, unknown>[];
     let xKey: string;
@@ -335,6 +351,49 @@ const barConfig: StudioChartConfig = {
       }) as unknown as Record<string, unknown>[];
       xKey = "month";
       seriesKeys = STUDIO_SERIES_KEYS.slice(0, seriesCount);
+    }
+
+    const barTrackPatternDef = isShapeVariant
+      ? studioBarTrackPatternDef(state)
+      : null;
+
+    let barSeriesLayers: ReactNode = null;
+    if (!isLoading) {
+      if (isShapeVariant && !stacked) {
+        barSeriesLayers = seriesKeys.map((key, idx) => (
+          <BarSquares
+            dataKey={key}
+            fadedOpacity={state.barFadedOpacity}
+            fill={seriesFillAt(idx)}
+            gradientStops={getSeriesGradientStops(state, idx).map((stop) => ({
+              offset: stop.offset,
+              color: stop.color,
+            }))}
+            groupGap={state.groupGap}
+            key={key}
+            patternPreset={getSeriesPattern(state, idx)}
+            squareFit={state.barSquareFit}
+            squareGap={state.barSquareGap}
+            squareRadius={state.barSquareRadius}
+            stroke={seriesStrokeAt(idx)}
+            useGradient={getSeriesGradientEnabled(state, idx)}
+            yAxisId={getLineSeriesYAxisId(state, idx)}
+          />
+        ));
+      } else {
+        barSeriesLayers = seriesKeys.map((key, idx) => (
+          <Bar
+            dataKey={key}
+            fadedOpacity={state.barFadedOpacity}
+            fill={seriesFillAt(idx)}
+            groupGap={state.groupGap}
+            key={key}
+            lineCap={lineCap}
+            stackGap={stacked ? 3 : 0}
+            yAxisId={horizontal ? undefined : getLineSeriesYAxisId(state, idx)}
+          />
+        ));
+      }
     }
 
     return (
@@ -362,6 +421,15 @@ const barConfig: StudioChartConfig = {
             }
             onPhaseChange={ctx.reportOgPhase}
             orientation={state.barOrientation}
+            squareSnap={
+              isShapeVariant
+                ? {
+                    squareGap: state.barSquareGap,
+                    groupGap: state.groupGap,
+                    fit: state.barSquareFit,
+                  }
+                : undefined
+            }
             stacked={stacked}
             stackGap={stacked ? 3 : 0}
             status={state.barChartState}
@@ -378,22 +446,20 @@ const barConfig: StudioChartConfig = {
               state={state}
             />
             {isLoading ? null : ctx.patternDefs}
-            {isLoading
-              ? null
-              : seriesKeys.map((key, idx) => (
-                  <Bar
-                    dataKey={key}
-                    fadedOpacity={state.barFadedOpacity}
-                    fill={seriesFillAt(idx)}
-                    groupGap={state.groupGap}
-                    key={key}
-                    lineCap={lineCap}
-                    stackGap={stacked ? 3 : 0}
-                    yAxisId={
-                      horizontal ? undefined : getLineSeriesYAxisId(state, idx)
-                    }
-                  />
-                ))}
+            {barTrackPatternDef}
+            {isShapeVariant ? (
+              <StudioVisibleLayer componentId="bar.track" state={state}>
+                <BarColumnTrack
+                  fill={barTrackFillFromState(state)}
+                  groupGap={state.groupGap}
+                  opacity={state.barTrackOpacity}
+                  squareFit={state.barSquareFit}
+                  squareGap={state.barSquareGap}
+                  squareRadius={state.barSquareRadius}
+                />
+              </StudioVisibleLayer>
+            ) : null}
+            {barSeriesLayers}
             {!isLoading && horizontal ? (
               <StudioVisibleLayer componentId="bar.baryaxis" state={state}>
                 <BarYAxis />
@@ -409,7 +475,11 @@ const barConfig: StudioChartConfig = {
             )}
             {isLoading ? null : (
               <StudioVisibleLayer componentId="bar.tooltip" state={state}>
-                <ChartTooltip showCrosshair={false} />
+                <ChartTooltip
+                  {...chartTooltipPropsFromState(state, {
+                    showCrosshair: false,
+                  })}
+                />
               </StudioVisibleLayer>
             )}
           </BarChart>

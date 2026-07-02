@@ -98,6 +98,9 @@ export type StudioControl = StudioControlVisibility &
     | { type: "pieFill"; key: keyof StudioUrlState; label: string }
     | { type: "orientation"; key: keyof StudioUrlState; label: string }
     | { type: "lineCap"; key: "barLineCap"; label: string }
+    | { type: "barShape"; key: "barVariant"; label: string }
+    | { type: "tooltipDotVariant"; key: "tooltipDotVariant"; label: string }
+    | { type: "tooltipDotColorMode"; key: "tooltipDotColorMode"; label: string }
     | { type: "pieHoverEffect"; key: "pieHoverEffect"; label: string }
     | ({
         type: "projectionCurve";
@@ -225,6 +228,8 @@ export interface StudioComponentDefinition {
   swatchColor?: string;
   controlGroups: StudioControlGroup[];
   design?: StudioComponentDesign;
+  /** When `"after"`, control groups render above the Fill picker. Default: `"before"`. */
+  designPlacement?: "before" | "after";
 }
 
 export interface StudioChartConfig {

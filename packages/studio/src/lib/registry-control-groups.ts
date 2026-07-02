@@ -1,5 +1,6 @@
 import { brushPatternDetailControls } from "./pattern-control-groups";
 import {
+  barCollapsibleGroup,
   controlGroup,
   curveControl,
   dataGroup,
@@ -247,6 +248,11 @@ const referenceAreaBoundsControls: StudioControlGroup["controls"] = [
 ];
 
 export const referenceAreaBoundsControlGroup = controlGroup(
+  "Reference range",
+  referenceAreaBoundsControls
+);
+
+export const barReferenceAreaBoundsControlGroup = barCollapsibleGroup(
   "Reference range",
   referenceAreaBoundsControls
 );
@@ -585,10 +591,44 @@ export const tooltipAppearanceControlGroup = controlGroup("Appearance", [
   },
 ]);
 
-export const standardCrosshairControlGroup = controlGroup("Crosshair", [
+export const standardCrosshairControlGroup = barCollapsibleGroup("Crosshair", [
   { type: "boolean", key: "showCrosshair", label: "Show" },
   { type: "boolean", key: "showTooltipDots", label: "Dots" },
-  { type: "color", key: "crosshairColor", label: "Color" },
+  { type: "tooltipDotVariant", key: "tooltipDotVariant", label: "Style" },
+  {
+    type: "number",
+    key: "tooltipDotRadius",
+    label: "Radius",
+    min: 0,
+    max: 0.5,
+    step: 0.05,
+    visibleWhen: { key: "tooltipDotVariant", equals: "ring" },
+  },
+  {
+    type: "number",
+    key: "tooltipDotScale",
+    label: "Scale",
+    min: 0.5,
+    max: 2.5,
+    step: 0.05,
+    visibleWhen: { key: "tooltipDotVariant", equals: "ring" },
+  },
+  {
+    type: "number",
+    key: "tooltipDotStrokeWidth",
+    label: "Width",
+    min: 0.5,
+    max: 6,
+    step: 0.25,
+    visibleWhen: { key: "tooltipDotVariant", equals: "ring" },
+  },
+  {
+    type: "tooltipDotColorMode",
+    key: "tooltipDotColorMode",
+    label: "Color",
+    visibleWhen: { key: "tooltipDotVariant", equals: "ring" },
+  },
+  { type: "color", key: "crosshairColor", label: "Indicator" },
   { type: "strokeStyle", key: "crosshairStyle", label: "Style" },
   {
     type: "text",
@@ -616,6 +656,28 @@ export const standardCrosshairControlGroup = controlGroup("Crosshair", [
     ],
   },
 ]);
+
+export const barChartTooltipControlGroups: StudioControlGroup[] = [
+  barCollapsibleGroup("Tooltip", [
+    { type: "boolean", key: "showTooltipDatePill", label: "Date pill" },
+    {
+      type: "boolean",
+      key: "tooltipMatchCrosshair",
+      label: "Match crosshair",
+    },
+    {
+      type: "number",
+      key: "tooltipDamping",
+      label: "Panel damping",
+      min: 0,
+      max: 100,
+      step: 1,
+      visibleWhen: { key: "tooltipMatchCrosshair", truthy: false },
+    },
+  ]),
+  barCollapsibleGroup("Appearance", tooltipAppearanceControlGroup.controls),
+  standardCrosshairControlGroup,
+];
 
 export const standardChartTooltipControlGroups: StudioControlGroup[] = [
   controlGroup("Tooltip", [
@@ -897,20 +959,48 @@ export const profitLossLineChartControlGroups = getLineChartControlGroups({
 });
 
 export const barChartControlGroups: StudioControlGroup[] = [
-  controlGroup("Settings", [
-    {
-      type: "select",
-      key: "barChartState",
-      label: "State",
-      options: [
-        { value: "ready", label: "Ready" },
-        { value: "loading", label: "Loading" },
-      ],
-    },
-  ]),
+  barCollapsibleGroup(
+    "Settings",
+    [
+      {
+        type: "select",
+        key: "barChartState",
+        label: "State",
+        options: [
+          { value: "ready", label: "Ready" },
+          { value: "loading", label: "Loading" },
+        ],
+      },
+      { type: "barShape", key: "barVariant", label: "Shape" },
+      {
+        type: "boolean",
+        key: "barSquareFit",
+        label: "Scale to fit",
+        visibleWhen: { key: "barVariant", equals: ["shape", "squares"] },
+      },
+      {
+        type: "number",
+        key: "barSquareGap",
+        label: "Square gap",
+        min: 0,
+        max: 12,
+        visibleWhen: { key: "barVariant", equals: ["shape", "squares"] },
+      },
+      {
+        type: "number",
+        key: "barSquareRadius",
+        label: "Radius",
+        min: 0,
+        max: 0.5,
+        step: 0.05,
+        visibleWhen: { key: "barVariant", equals: ["shape", "squares"] },
+      },
+    ],
+    true
+  ),
   dataGroup(),
-  referenceAreaBoundsControlGroup,
-  controlGroup("Series", [
+  barReferenceAreaBoundsControlGroup,
+  barCollapsibleGroup("Series", [
     {
       type: "select",
       key: "barSeriesMode",
@@ -947,7 +1037,7 @@ export const barChartControlGroups: StudioControlGroup[] = [
     },
     { type: "lineCap", key: "barLineCap", label: "Line cap" },
   ]),
-  designGroup([
+  barCollapsibleGroup("Design", [
     {
       type: "opacity",
       key: "barFadedOpacity",

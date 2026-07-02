@@ -29,6 +29,16 @@ export interface ChartTooltipProps {
   showCrosshair?: boolean;
   /** Whether to show dots on the lines. Default: true */
   showDots?: boolean;
+  /** Dot style: filled circle or transparent ring. Default: "dot" */
+  dotVariant?: "dot" | "ring";
+  /** Dot / ring radius in pixels. Default: 5 */
+  dotSize?: number;
+  /** Ring corner radius as a fraction of side length (0 = square, 0.5 = circle). */
+  dotRadiusFraction?: number;
+  /** Multiplier applied to the computed dot / ring pixel radius. Default: 1 */
+  dotScale?: number;
+  /** Ring stroke width in pixels. Default: 1.5 for ring variant */
+  dotStrokeWidth?: number;
   /**
    * Color for the crosshair/indicator line. When a function, receives the hovered point
    * (e.g. for candlestick: match candle color from close vs open). Default: --chart-crosshair.
@@ -89,6 +99,11 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
   showDatePill = true,
   showCrosshair = true,
   showDots = true,
+  dotVariant = "dot",
+  dotSize = 5,
+  dotRadiusFraction,
+  dotScale = 1,
+  dotStrokeWidth,
   indicatorColor: indicatorColorProp,
   content,
   rows: rowsRenderer,
@@ -119,11 +134,30 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
     containerRef,
     orientation,
     barXAccessor,
+    bandWidth,
+    squareSnap,
   } = useChart();
   const { tooltipSpring } = useChartConfig();
 
   const isHorizontal = orientation === "horizontal";
   const discreteInteraction = dateLabels.length > 60;
+
+  const resolvedDotSize = useMemo(() => {
+    if (dotVariant !== "ring" || !bandWidth || lines.length === 0) {
+      return dotSize * dotScale;
+    }
+    const seriesCount = lines.length;
+    const gap = squareSnap?.groupGap ?? (seriesCount > 1 ? 4 : 0);
+    const squareSize = (bandWidth - gap * (seriesCount - 1)) / seriesCount;
+    return (squareSize / 2) * dotScale;
+  }, [
+    bandWidth,
+    dotScale,
+    dotSize,
+    dotVariant,
+    lines.length,
+    squareSnap?.groupGap,
+  ]);
   const boxMotion = useMemo(() => {
     if (boxSpringConfig) {
       return {
@@ -261,9 +295,15 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
             {lines.map((line, index) => (
               <TooltipDot
                 color={resolveDotColor(line, index)}
+                cornerRadiusFraction={
+                  dotVariant === "ring" ? dotRadiusFraction : undefined
+                }
                 key={line.dataKey}
+                size={resolvedDotSize}
                 springConfig={springConfig}
                 strokeColor={chartCssVars.background}
+                strokeWidth={dotVariant === "ring" ? dotStrokeWidth : undefined}
+                variant={dotVariant}
                 visible={visible}
                 x={tooltipData?.xPositions?.[line.dataKey] ?? x}
                 y={tooltipData?.yPositions[line.dataKey] ?? 0}

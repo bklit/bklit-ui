@@ -49,6 +49,31 @@ export function StudioPropertiesPanel({
     (group) => group.controls.length > 0
   );
   const hasDesign = Boolean(component.design);
+  const designFirst = component.designPlacement !== "after";
+
+  const designSection =
+    hasDesign && component.design ? (
+      <StudioDesignControls
+        design={component.design}
+        disabled={disabled}
+        onBatchChange={onBatchChange}
+        onBatchPreview={onBatchPreview}
+        state={state}
+        supportsPatterns={
+          component.design.supportsPattern ?? config.supportsPatterns
+        }
+      />
+    ) : null;
+
+  const controlsSection = hasControls ? (
+    <StudioControlGroups
+      groups={component.controlGroups}
+      onChange={onChange}
+      onCommit={onCommit}
+      onPreview={onPreview}
+      state={state}
+    />
+  ) : null;
 
   if (!(hasControls || hasDesign)) {
     return (
@@ -61,28 +86,17 @@ export function StudioPropertiesPanel({
   return (
     <StudioScrollArea className="min-h-0 min-w-0 flex-1">
       <div className="flex flex-col gap-5 p-3 pb-4">
-        {hasDesign && component.design ? (
-          <StudioDesignControls
-            design={component.design}
-            disabled={disabled}
-            onBatchChange={onBatchChange}
-            onBatchPreview={onBatchPreview}
-            state={state}
-            supportsPatterns={
-              component.design.supportsPattern ?? config.supportsPatterns
-            }
-          />
-        ) : null}
-
-        {hasControls ? (
-          <StudioControlGroups
-            groups={component.controlGroups}
-            onChange={onChange}
-            onCommit={onCommit}
-            onPreview={onPreview}
-            state={state}
-          />
-        ) : null}
+        {designFirst ? (
+          <>
+            {designSection}
+            {controlsSection}
+          </>
+        ) : (
+          <>
+            {controlsSection}
+            {designSection}
+          </>
+        )}
       </div>
     </StudioScrollArea>
   );

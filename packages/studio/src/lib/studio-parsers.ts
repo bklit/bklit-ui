@@ -27,6 +27,8 @@ export const studioSearchParams = {
   chartAccent: parseAsString.withDefault(""),
   seriesColors: parseAsString.withDefault(""),
   seriesPatterns: parseAsString.withDefault(""),
+  seriesGradientEnabled: parseAsString.withDefault(""),
+  seriesGradientStops: parseAsString.withDefault(""),
   frameW: parseAsInteger.withDefault(720),
   frameH: parseAsInteger.withDefault(400),
   value: parseAsInteger.withDefault(66),
@@ -104,6 +106,28 @@ export const studioSearchParams = {
   barOrientation: parseAsStringLiteral(["vertical", "horizontal"]).withDefault(
     "vertical"
   ),
+  barVariant: parseAsStringLiteral(["classic", "shape", "squares"]).withDefault(
+    "classic"
+  ),
+  barSquareGap: parseAsInteger.withDefault(3),
+  barSquareRadius: parseAsFloat.withDefault(0.25),
+  /** @deprecated Ignored — gradient lives in Fill popover */
+  barSquareFillMode: parseAsStringLiteral(["solid", "gradient"]).withDefault(
+    "solid"
+  ),
+  barSquareFit: parseAsBoolean.withDefault(false),
+  barTrackColor: parseAsString.withDefault("var(--chart-grid)"),
+  barTrackOpacity: parseAsFloat.withDefault(0.25),
+  barTrackPattern:
+    parseAsStringLiteral(PATTERN_PRESET_IDS).withDefault("diagonal"),
+  barTrackPatternColor: parseAsString.withDefault("var(--chart-grid)"),
+  barTrackPatternScale: parseAsFloat.withDefault(1),
+  barTrackPatternStrokeWidth: parseAsFloat.withDefault(1),
+  barTrackPatternRadius: parseAsFloat.withDefault(2),
+  barTrackPatternComplement: parseAsBoolean.withDefault(false),
+  barTrackPatternFill: parseAsString.withDefault(""),
+  barTrackPatternDotsFill: parseAsBoolean.withDefault(true),
+  barTrackPatternTileBackground: parseAsString.withDefault(""),
   ringGap: parseAsInteger.withDefault(6),
   ringBaseInnerRadius: parseAsInteger.withDefault(60),
   radarSize: parseAsInteger.withDefault(100),
@@ -365,6 +389,14 @@ export const studioSearchParams = {
   zeroLineStyle: parseAsStringLiteral(["solid", "dashed"]).withDefault("solid"),
   tooltipLabel: parseAsString.withDefault("Profit/Loss"),
   showTooltipDots: parseAsBoolean.withDefault(true),
+  tooltipDotVariant: parseAsStringLiteral(["dot", "ring"]).withDefault("dot"),
+  tooltipDotRadius: parseAsFloat.withDefault(0.25),
+  tooltipDotScale: parseAsFloat.withDefault(1),
+  tooltipDotStrokeWidth: parseAsFloat.withDefault(1.5),
+  tooltipDotColorMode: parseAsStringLiteral(["match", "custom"]).withDefault(
+    "match"
+  ),
+  tooltipDotColor: parseAsString.withDefault(""),
   showTooltipDatePill: parseAsBoolean.withDefault(true),
   showCrosshair: parseAsBoolean.withDefault(true),
   crosshairFollowsValue: parseAsBoolean.withDefault(true),
@@ -484,6 +516,8 @@ export interface StudioUrlState {
   chartAccent: string;
   seriesColors: string;
   seriesPatterns: string;
+  seriesGradientEnabled: string;
+  seriesGradientStops: string;
   frameW: number;
   frameH: number;
   value: number;
@@ -543,6 +577,23 @@ export interface StudioUrlState {
   barSeriesMode: "grouped" | "stacked";
   barLineCap: "round" | "butt";
   barOrientation: "vertical" | "horizontal";
+  barVariant: "classic" | "shape" | "squares";
+  barSquareGap: number;
+  barSquareRadius: number;
+  /** @deprecated Ignored — gradient lives in Fill popover */
+  barSquareFillMode: "solid" | "gradient";
+  barSquareFit: boolean;
+  barTrackColor: string;
+  barTrackOpacity: number;
+  barTrackPattern: PatternPresetId;
+  barTrackPatternColor: string;
+  barTrackPatternScale: number;
+  barTrackPatternStrokeWidth: number;
+  barTrackPatternRadius: number;
+  barTrackPatternComplement: boolean;
+  barTrackPatternFill: string;
+  barTrackPatternDotsFill: boolean;
+  barTrackPatternTileBackground: string;
   ringGap: number;
   ringBaseInnerRadius: number;
   radarSize: number;
@@ -728,6 +779,12 @@ export interface StudioUrlState {
   zeroLineStyle: "solid" | "dashed";
   tooltipLabel: string;
   showTooltipDots: boolean;
+  tooltipDotVariant: "dot" | "ring";
+  tooltipDotRadius: number;
+  tooltipDotScale: number;
+  tooltipDotStrokeWidth: number;
+  tooltipDotColorMode: "match" | "custom";
+  tooltipDotColor: string;
   showTooltipDatePill: boolean;
   showCrosshair: boolean;
   crosshairFollowsValue: boolean;
@@ -820,6 +877,8 @@ export function defaultStudioState(
     chartAccent: "",
     seriesColors: "",
     seriesPatterns: "",
+    seriesGradientEnabled: "",
+    seriesGradientStops: "",
     frameW: 720,
     frameH: 400,
     value: 66,
@@ -879,6 +938,22 @@ export function defaultStudioState(
     barSeriesMode: "grouped",
     barLineCap: "round",
     barOrientation: "vertical",
+    barVariant: "classic",
+    barSquareGap: 3,
+    barSquareRadius: 0.25,
+    barSquareFillMode: "solid",
+    barSquareFit: false,
+    barTrackColor: "var(--chart-grid)",
+    barTrackOpacity: 0.25,
+    barTrackPattern: "diagonal",
+    barTrackPatternColor: "var(--chart-grid)",
+    barTrackPatternScale: 1,
+    barTrackPatternStrokeWidth: 1,
+    barTrackPatternRadius: 2,
+    barTrackPatternComplement: false,
+    barTrackPatternFill: "",
+    barTrackPatternDotsFill: true,
+    barTrackPatternTileBackground: "",
     ringGap: 6,
     ringBaseInnerRadius: 60,
     radarSize: 100,
@@ -1067,6 +1142,12 @@ export function defaultStudioState(
     zeroLineStyle: "solid",
     tooltipLabel: "Profit/Loss",
     showTooltipDots: true,
+    tooltipDotVariant: "dot",
+    tooltipDotRadius: 0.25,
+    tooltipDotScale: 1,
+    tooltipDotStrokeWidth: 1.5,
+    tooltipDotColorMode: "match",
+    tooltipDotColor: "",
     showTooltipDatePill: true,
     showCrosshair: true,
     crosshairFollowsValue: true,
