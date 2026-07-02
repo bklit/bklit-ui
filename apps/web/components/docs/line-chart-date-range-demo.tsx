@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  ChartTooltip,
-  Grid,
-  Line,
-  LineChart,
-  XAxis,
-} from "@bklitui/ui/charts";
+import { ChartTooltip, Grid, Line, LineChart, XAxis } from "@bklitui/ui/charts";
 import { useMemo, useState } from "react";
 
 const fullData = Array.from({ length: 90 }, (_, index) => {
@@ -15,7 +9,7 @@ const fullData = Array.from({ length: 90 }, (_, index) => {
   return {
     date,
     revenue: Math.round(
-      15000 + Math.sin(index * 0.15) * 3000 + Math.random() * 2000 + index * 50
+      15_000 + Math.sin(index * 0.15) * 3000 + Math.random() * 2000 + index * 50
     ),
   };
 });
