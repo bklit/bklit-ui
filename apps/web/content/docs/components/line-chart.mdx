@@ -7,6 +7,7 @@ import { studioChartHref } from "@bklitui/studio";
 import { LineChart, Line, Grid, XAxis, ChartTooltip, ChartBrush, ChartBrushLayout, ChartMarkers } from "@bklitui/ui/charts";
 import { LineChartBrushDemo } from "@/components/docs/line-chart-brush-demo";
 import { LineChartYDomainDemo } from "@/components/docs/line-chart-y-domain-demo";
+import { LineChartDateRangeDemo } from "@/components/docs/line-chart-date-range-demo";
 import { ProjectionLineDemo } from "@/components/docs/projection-line-demo";
 import { MarkerContentDemo } from "@/components/docs/marker-content-demo";
 import { OpenInStudioButton } from "@/components/docs/open-in-studio-button";
@@ -58,6 +59,34 @@ export default function SimpleChart() {
   );
 }
 ```
+
+## Updating data smoothly
+
+When your data changes (e.g. filtering by date range, refreshing from an API), the chart automatically updates smoothly without replaying the enter animation. The y-domain tweens to the new scale via `yDomainTween` (enabled by default).
+
+**Do not** change or pass the `revealSignature` prop when updating data — that prop is only for manually replaying the reveal animation (used in Studio's replay button).
+
+<ComponentShowcase
+  code={`const [range, setRange] = useState<"7d" | "30d" | "90d">("30d");
+const filteredData = useMemo(() => {
+  const daysMap = { "7d": 7, "30d": 30, "90d": 90 };
+  const days = daysMap[range];
+  return fullData.slice(-days);
+}, [range]);
+
+<LineChart data={filteredData} yDomainTween>
+  <Grid horizontal />
+  <Line dataKey="revenue" />
+  <XAxis />
+  <ChartTooltip />
+</LineChart>`}
+  liveChartPreview
+  previewMinHeight={360}
+>
+  <LineChartDateRangeDemo />
+</ComponentShowcase>
+
+Click the date range buttons — the chart line and y-axis smoothly update without reinitialization.
 
 ## Components
 
