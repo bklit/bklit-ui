@@ -32,6 +32,7 @@ import { SeriesHighlightLayer } from "./series-highlight-layer";
 import { SeriesHoverDim } from "./series-hover-dim";
 import { SeriesMarkers } from "./series-markers";
 import type { SeriesPointMarkerStyle } from "./series-point-marker";
+import { useAnimatedSeriesPath } from "./use-animated-series-path";
 
 export interface LineProps {
   /** Key in data to use for y values */
@@ -87,6 +88,114 @@ export interface LineProps {
   loadingStyle?: LoadingStyle;
 }
 
+function LineSeriesStroke({
+  animatedPathD,
+  curve,
+  getY,
+  pathRef,
+  renderData,
+  strokeWidth,
+  useDataTransitionPath,
+  visibleStroke,
+  xAccessor,
+  xScale,
+}: {
+  animatedPathD: string;
+  curve: CurveFactory;
+  getY: (datum: Record<string, unknown>) => number;
+  pathRef: RefObject<SVGPathElement | null>;
+  renderData: Record<string, unknown>[];
+  strokeWidth: number;
+  useDataTransitionPath: boolean;
+  visibleStroke: string;
+  xAccessor: (datum: Record<string, unknown>) => Date;
+  xScale: (value: Date) => number | undefined;
+}) {
+  if (useDataTransitionPath && animatedPathD) {
+    return (
+      <path
+        d={animatedPathD}
+        fill="none"
+        ref={pathRef}
+        stroke={visibleStroke}
+        strokeLinecap="round"
+        strokeWidth={strokeWidth}
+      />
+    );
+  }
+
+  return (
+    <LinePath
+      curve={curve}
+      data={renderData}
+      innerRef={pathRef}
+      stroke={visibleStroke}
+      strokeLinecap="round"
+      strokeWidth={strokeWidth}
+      x={(d) => xScale(xAccessor(d)) ?? 0}
+      y={getY}
+    />
+  );
+}
+
+function LineLoadingOverlays({
+  curve,
+  handleLoadingPulseComplete,
+  innerWidth,
+  loadingStroke,
+  loadingStrokeOpacity,
+  loadingStyle,
+  pathD,
+  pulseEpoch,
+  pulseMode,
+  showLoadingPulse,
+  strokeWidth,
+}: {
+  curve: CurveFactory;
+  handleLoadingPulseComplete: () => void;
+  innerWidth: number;
+  loadingStroke: string;
+  loadingStrokeOpacity: number;
+  loadingStyle: LoadingStyle;
+  pathD: string | null;
+  pulseEpoch: number;
+  pulseMode: LineLoadingPulseMode | null;
+  showLoadingPulse: boolean;
+  strokeWidth: number;
+}) {
+  const sweepLoading =
+    showLoadingPulse && innerWidth > 0 && loadingStyle === "sweep";
+  const pulseLoading = showLoadingPulse && innerWidth > 0 && !sweepLoading;
+
+  return (
+    <>
+      {sweepLoading ? (
+        <LineLoadingSweep
+          curve={curve}
+          key="loading-sweep"
+          mode={pulseMode ?? "loop"}
+          onTransitionComplete={handleLoadingPulseComplete}
+          stroke={loadingStroke}
+          strokeOpacity={loadingStrokeOpacity}
+          strokeWidth={strokeWidth}
+        />
+      ) : null}
+      {pulseLoading && pathD ? (
+        <LineLoadingPulseStroke
+          key="loading-pulse"
+          loopEpoch={pulseEpoch}
+          mode={pulseMode}
+          onCycleComplete={handleLoadingPulseComplete}
+          pathD={pathD}
+          stroke={loadingStroke}
+          strokeOpacity={loadingStrokeOpacity}
+          strokeWidth={strokeWidth}
+        />
+      ) : null}
+    </>
+  );
+}
+
 export function Line({
   dataKey,
   yAxisId,
@@ -123,8 +232,22 @@ export function Line({
     lines,
     chartPhase,
     notifyLoadingPulseComplete,
+    yDomainTweenDuration,
   } = useChartStable();
   const yScale = useYScale(yAxisId);
+  const useDataTransitionPath = animate && chartPhase === "ready";
+  const { pathD: animatedPathD } = useAnimatedSeriesPath({
+    chartPhase,
+    curve,
+    dataKey,
+    durationMs: yDomainTweenDuration,
+    enabled: useDataTransitionPath,
+    innerWidth,
+    renderData,
+    xAccessor,
+    xScale,
+    yScale,
+  });
 
   const phasePulseMode = resolveLineLoadingPulseMode(chartPhase);
   const pulseMode =
@@ -157,6 +280,7 @@ export function Line({
     innerWidth,
     dashFromIndex,
     animate,
+    useDataTransitionPath ? animatedPathD : null,
   ]);
 
   const reactId = useId();
@@ -183,13 +307,6 @@ export function Line({
     visibleStroke = lineStroke;
   }
 
-  // Loading overlay: sweep only during steady "loop" (the infinite sweep has
-  // no cycle-complete callback, so the pulse must drive the exit/enter
-  // handoffs or the phase machine stalls).
-  const sweepLoading =
-    showLoadingPulse && innerWidth > 0 && loadingStyle === "sweep";
-  const pulseLoading = showLoadingPulse && innerWidth > 0 && !sweepLoading;
-
   return (
     <>
       {fadeStops ? (
@@ -214,15 +331,17 @@ export function Line({
         enabled={effectiveShowHighlight}
         seriesIndex={seriesIndex}
       >
-        <LinePath
+        <LineSeriesStroke
+          animatedPathD={animatedPathD}
           curve={curve}
-          data={renderData}
-          innerRef={pathRef}
-          stroke={visibleStroke}
-          strokeLinecap="round"
+          getY={getY}
+          pathRef={pathRef}
+          renderData={renderData}
           strokeWidth={strokeWidth}
-          x={(d) => xScale(xAccessor(d)) ?? 0}
-          y={getY}
+          useDataTransitionPath={useDataTransitionPath}
+          visibleStroke={visibleStroke}
+          xAccessor={xAccessor}
+          xScale={xScale}
         />
 
         <SeriesDashTailOverlay
@@ -258,29 +377,19 @@ export function Line({
         strokeWidth={strokeWidth}
       />
 
-      {sweepLoading ? (
-        <LineLoadingSweep
-          curve={curve}
-          key="loading-sweep"
-          mode={pulseMode ?? "loop"}
-          onTransitionComplete={handleLoadingPulseComplete}
-          stroke={loadingStroke}
-          strokeOpacity={loadingStrokeOpacity}
-          strokeWidth={strokeWidth}
-        />
-      ) : null}
-      {pulseLoading && pathD ? (
-        <LineLoadingPulseStroke
-          key="loading-pulse"
-          loopEpoch={pulseEpoch}
-          mode={pulseMode}
-          onCycleComplete={handleLoadingPulseComplete}
-          pathD={pathD}
-          stroke={loadingStroke}
-          strokeOpacity={loadingStrokeOpacity}
-          strokeWidth={strokeWidth}
-        />
-      ) : null}
+      <LineLoadingOverlays
+        curve={curve}
+        handleLoadingPulseComplete={handleLoadingPulseComplete}
+        innerWidth={innerWidth}
+        loadingStroke={loadingStroke}
+        loadingStrokeOpacity={loadingStrokeOpacity}
+        loadingStyle={loadingStyle}
+        pathD={pathD}
+        pulseEpoch={pulseEpoch}
+        pulseMode={pulseMode}
+        showLoadingPulse={showLoadingPulse}
+        strokeWidth={strokeWidth}
+      />
     </>
   );
 }

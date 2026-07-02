@@ -377,7 +377,8 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
     onSettled: notifyYDomainTweenComplete,
     skeletonByAxis: yDomainSkeletonByAxis,
     targetByAxis: yDomainTargetByAxis,
-    tweenOnTargetChange: tweenYDomainOnXDomainChange && xDomain != null,
+    tweenOnTargetChange:
+      yDomainTween || (tweenYDomainOnXDomainChange && xDomain != null),
   });
 
   const yDomainsForScales = animatedYDomainsByAxis;

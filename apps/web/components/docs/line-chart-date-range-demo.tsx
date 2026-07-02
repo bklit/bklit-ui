@@ -1,9 +1,15 @@
 "use client";
 
+import { Icon } from "@bklitui/icons";
 import { ChartTooltip, Grid, Line, LineChart, XAxis } from "@bklitui/ui/charts";
-import { RotateCcw } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
 import { useMemo, useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const fullData = Array.from({ length: 90 }, (_, index) => {
   const date = new Date();
@@ -27,10 +33,6 @@ export function LineChartDateRangeDemo() {
     const days = daysMap[range];
     return fullData.slice(-days);
   }, [range]);
-
-  const handleReplay = () => {
-    setReplayKey((prev) => prev + 1);
-  };
 
   return (
     <div className="w-full space-y-4">
@@ -69,39 +71,31 @@ export function LineChartDateRangeDemo() {
           Last 90 days
         </button>
         <div className="mx-1 h-5 w-px bg-border" />
-        <motion.button
-          className="flex items-center gap-1.5 rounded-md bg-muted px-3 py-1.5 font-medium text-muted-foreground text-sm transition-colors hover:bg-muted/80"
-          onClick={handleReplay}
-          type="button"
-          whileTap={{ scale: 0.95, rotate: -180 }}
-        >
-          <RotateCcw className="size-3.5" />
-          Replay
-        </motion.button>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger render={<span className="inline-flex" />}>
+              <Button
+                aria-label="Replay animation"
+                className="size-8 [&_svg]:size-4"
+                onClick={() => setReplayKey((key) => key + 1)}
+                size="icon"
+                type="button"
+                variant="outline"
+              >
+                <Icon className="size-4" name="IconArrowRotateClockwise" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Replay animation</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
-      <div className="relative">
-        <AnimatePresence mode="wait">
-          <motion.div
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -4, position: "absolute", inset: 0 }}
-            initial={{ opacity: 0, y: 4 }}
-            key={range}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-          >
-            <LineChart
-              animationDuration={600}
-              data={filteredData}
-              revealSignature={`replay-${replayKey}`}
-              yDomainTween
-              yDomainTweenDuration={400}
-            >
-              <Grid horizontal />
-              <Line dataKey="revenue" stroke="var(--chart-line-primary)" />
-              <XAxis />
-              <ChartTooltip />
-            </LineChart>
-          </motion.div>
-        </AnimatePresence>
+      <div className="relative" key={replayKey}>
+        <LineChart data={filteredData} yDomainTween>
+          <Grid horizontal />
+          <Line dataKey="revenue" stroke="var(--chart-line-primary)" />
+          <XAxis />
+          <ChartTooltip />
+        </LineChart>
       </div>
     </div>
   );

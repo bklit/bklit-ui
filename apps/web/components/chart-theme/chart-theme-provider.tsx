@@ -64,7 +64,7 @@ export function ChartThemeProvider({
       studioMode,
       studioElement: studioShell,
     });
-  }, [theme]);
+  }, [theme, resolvedTheme]);
 
   const setThemeId = useCallback((id: string) => {
     const nextTheme = getChartTheme(id);
@@ -86,7 +86,7 @@ export function ChartThemeProvider({
 
   useEffect(() => {
     applyCurrentTheme();
-  }, [applyCurrentTheme, resolvedTheme]);
+  }, [applyCurrentTheme]);
 
   useEffect(() => {
     const observer = new MutationObserver(() => {
