@@ -252,6 +252,7 @@
       ],
       "dependencies": [
         "@visx/shape@4.0.1-alpha.0",
+        "d3-shape",
         "motion"
       ],
       "files": [
@@ -259,6 +260,16 @@
           "path": "src/charts/path-stroke-utils.ts",
           "type": "registry:component",
           "target": "components/charts/path-stroke-utils.ts"
+        },
+        {
+          "path": "src/charts/series-path-utils.ts",
+          "type": "registry:component",
+          "target": "components/charts/series-path-utils.ts"
+        },
+        {
+          "path": "src/charts/use-animated-series-path.ts",
+          "type": "registry:component",
+          "target": "components/charts/use-animated-series-path.ts"
         },
         {
           "path": "src/charts/highlight-segment-bounds.ts",
