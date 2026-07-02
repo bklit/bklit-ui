@@ -1,6 +1,8 @@
 "use client";
 
 import { ChartTooltip, Grid, Line, LineChart, XAxis } from "@bklitui/ui/charts";
+import { RotateCcw } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import { useMemo, useState } from "react";
 
 const fullData = Array.from({ length: 90 }, (_, index) => {
@@ -18,6 +20,7 @@ type DateRange = "7d" | "30d" | "90d";
 
 export function LineChartDateRangeDemo() {
   const [range, setRange] = useState<DateRange>("30d");
+  const [replayKey, setReplayKey] = useState(0);
 
   const filteredData = useMemo(() => {
     const daysMap = { "7d": 7, "30d": 30, "90d": 90 };
@@ -25,9 +28,13 @@ export function LineChartDateRangeDemo() {
     return fullData.slice(-days);
   }, [range]);
 
+  const handleReplay = () => {
+    setReplayKey((prev) => prev + 1);
+  };
+
   return (
     <div className="w-full space-y-4">
-      <div className="flex gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <button
           className={`rounded-md px-3 py-1.5 font-medium text-sm transition-colors ${
             range === "7d"
@@ -61,13 +68,41 @@ export function LineChartDateRangeDemo() {
         >
           Last 90 days
         </button>
+        <div className="mx-1 h-5 w-px bg-border" />
+        <motion.button
+          className="flex items-center gap-1.5 rounded-md bg-muted px-3 py-1.5 font-medium text-muted-foreground text-sm transition-colors hover:bg-muted/80"
+          onClick={handleReplay}
+          type="button"
+          whileTap={{ scale: 0.95, rotate: -180 }}
+        >
+          <RotateCcw className="size-3.5" />
+          Replay
+        </motion.button>
       </div>
-      <LineChart data={filteredData} yDomainTween>
-        <Grid horizontal />
-        <Line dataKey="revenue" stroke="var(--chart-line-primary)" />
-        <XAxis />
-        <ChartTooltip />
-      </LineChart>
+      <div className="relative">
+        <AnimatePresence mode="wait">
+          <motion.div
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4, position: "absolute", inset: 0 }}
+            initial={{ opacity: 0, y: 4 }}
+            key={range}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+          >
+            <LineChart
+              animationDuration={600}
+              data={filteredData}
+              revealSignature={`replay-${replayKey}`}
+              yDomainTween
+              yDomainTweenDuration={400}
+            >
+              <Grid horizontal />
+              <Line dataKey="revenue" stroke="var(--chart-line-primary)" />
+              <XAxis />
+              <ChartTooltip />
+            </LineChart>
+          </motion.div>
+        </AnimatePresence>
+      </div>
     </div>
   );
 }

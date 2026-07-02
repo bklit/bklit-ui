@@ -40,7 +40,7 @@ export function BklitLogo({
         <title>Bklit Logo</title>
         <path
           d="M11.082 88.6498C11.082 88.6498 24.4884 66.4873 55.407 66.4873C84.2319 66.4873 99.732 88.6498 99.732 88.6498C99.732 88.6498 86.1801 110.813 55.407 110.812C26.7612 110.812 11.082 88.6498 11.082 88.6498Z"
-          fill="url(#paint0_radial_375_479)"
+          fill={`url(#paint0_radial_${id})`}
         />
         <g style={{ mixBlendMode: "normal" }}>
           <path
@@ -73,7 +73,18 @@ export function BklitLogo({
           />
         </g>
         <defs>
-          {/* Eye */}
+          {/* Eye base */}
+          <radialGradient
+            cx="0.5"
+            cy="0.5"
+            gradientUnits="objectBoundingBox"
+            id={`paint0_radial_${id}`}
+            r="0.5"
+          >
+            <stop offset="0" stopColor={`rgba(${rgbColor}, 0.2)`} />
+            <stop offset="1" stopColor={`rgba(${rgbColor}, 0.05)`} />
+          </radialGradient>
+          {/* Eye overlay */}
           <linearGradient
             gradientUnits="objectBoundingBox"
             id={`paint1_radial_${id}`}
