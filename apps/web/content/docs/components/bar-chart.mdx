@@ -153,15 +153,19 @@ Pass **`squareSnap`** on `<BarChart>` with the same `squareGap`, `groupGap`, and
   xDataKey="month"
   squareSnap={{ squareGap: 3, groupGap: 4 }}
 >
-  <BarSquares dataKey="desktop" fill="var(--chart-1)" squareGap={3} groupGap={4} />
+  <BarSquares dataKey="desktop" fill="url(#desktop-pattern)" stroke="var(--chart-5)" squareGap={3} groupGap={4} />
   <BarSquares
     dataKey="mobile"
-    fill="var(--chart-2)"
+    fill="var(--chart-1)"
     useGradient
     gradientStops={[
-      { offset: 0, color: "var(--chart-2)" },
-      { offset: 100, color: "oklch(0.837 0.129 124.18)" },
+      { offset: 0, color: "var(--chart-1)" },
+      { offset: 25, color: "var(--chart-2)" },
+      { offset: 50, color: "var(--chart-3)" },
+      { offset: 75, color: "var(--chart-4)" },
+      { offset: 100, color: "var(--chart-5)" },
     ]}
+    stroke="var(--chart-5)"
     squareGap={3}
     groupGap={4}
   />

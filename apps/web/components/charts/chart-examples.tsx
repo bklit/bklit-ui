@@ -427,6 +427,18 @@ const barStackedData = [
   { month: "Jun", desktop: 5500, mobile: 3800 },
 ];
 
+const barShapePatternColor = "var(--chart-5)";
+
+const barShapeTrackPatternColor = "var(--chart-grid)";
+
+const barShapeGradientStops = [
+  { offset: 0, color: "var(--chart-1)" },
+  { offset: 25, color: "var(--chart-2)" },
+  { offset: 50, color: "var(--chart-3)" },
+  { offset: 75, color: "var(--chart-4)" },
+  { offset: 100, color: "var(--chart-5)" },
+];
+
 const barHorizontalData = [
   { browser: "Chrome", users: 275 },
   { browser: "Safari", users: 200 },
@@ -2210,7 +2222,7 @@ function makeBarExamples(): ChartExample[] {
     height={6}
     width={6}
     orientation={["diagonal"]}
-    stroke="var(--chart-1)"
+    stroke="var(--chart-5)"
     strokeWidth={1}
   />
   <BarSquares
@@ -2219,20 +2231,23 @@ function makeBarExamples(): ChartExample[] {
     squareGap={3}
     squareRadius={0.25}
     groupGap={4}
-    stroke="var(--chart-1)"
+    stroke="var(--chart-5)"
   />
   <BarSquares
     dataKey="mobile"
-    fill="var(--chart-2)"
+    fill="var(--chart-1)"
     useGradient
     gradientStops={[
-      { offset: 0, color: "var(--chart-2)" },
-      { offset: 100, color: "oklch(0.837 0.129 124.18)" },
+      { offset: 0, color: "var(--chart-1)" },
+      { offset: 25, color: "var(--chart-2)" },
+      { offset: 50, color: "var(--chart-3)" },
+      { offset: 75, color: "var(--chart-4)" },
+      { offset: 100, color: "var(--chart-5)" },
     ]}
     squareGap={3}
     squareRadius={0.25}
     groupGap={4}
-    stroke="var(--chart-2)"
+    stroke="var(--chart-5)"
   />
   <BarXAxis />
   <ChartTooltip
@@ -2251,7 +2266,7 @@ function makeBarExamples(): ChartExample[] {
           xDataKey="month"
         >
           {renderPatternPreset("diagonal", "bar-shape-track-pattern", {
-            color: "var(--chart-grid)",
+            color: barShapeTrackPatternColor,
           })}
           <BarColumnTrack
             fill="url(#bar-shape-track-pattern)"
@@ -2261,7 +2276,7 @@ function makeBarExamples(): ChartExample[] {
             squareRadius={0.25}
           />
           {renderPatternPreset("diagonal", "bar-shape-desktop-pattern", {
-            color: "var(--chart-1)",
+            color: barShapePatternColor,
           })}
           <BarSquares
             dataKey="desktop"
@@ -2269,19 +2284,16 @@ function makeBarExamples(): ChartExample[] {
             groupGap={4}
             squareGap={3}
             squareRadius={0.25}
-            stroke="var(--chart-1)"
+            stroke={barShapePatternColor}
           />
           <BarSquares
             dataKey="mobile"
-            fill="var(--chart-2)"
-            gradientStops={[
-              { color: "var(--chart-2)", offset: 0 },
-              { color: "oklch(0.837 0.129 124.18)", offset: 100 },
-            ]}
+            fill="var(--chart-1)"
+            gradientStops={barShapeGradientStops}
             groupGap={4}
             squareGap={3}
             squareRadius={0.25}
-            stroke="var(--chart-2)"
+            stroke="var(--chart-5)"
             useGradient
           />
           <BarXAxis />
@@ -2324,7 +2336,7 @@ function makeBarExamples(): ChartExample[] {
     height={6}
     width={6}
     orientation={["diagonal"]}
-    stroke="var(--chart-1)"
+    stroke="var(--chart-5)"
     strokeWidth={1}
   />
   <BarSquares
@@ -2333,20 +2345,23 @@ function makeBarExamples(): ChartExample[] {
     squareGap={3}
     squareRadius={0.5}
     groupGap={4}
-    stroke="var(--chart-1)"
+    stroke="var(--chart-5)"
   />
   <BarSquares
     dataKey="mobile"
-    fill="var(--chart-2)"
+    fill="var(--chart-1)"
     useGradient
     gradientStops={[
-      { offset: 0, color: "var(--chart-2)" },
-      { offset: 100, color: "oklch(0.837 0.129 124.18)" },
+      { offset: 0, color: "var(--chart-1)" },
+      { offset: 25, color: "var(--chart-2)" },
+      { offset: 50, color: "var(--chart-3)" },
+      { offset: 75, color: "var(--chart-4)" },
+      { offset: 100, color: "var(--chart-5)" },
     ]}
     squareGap={3}
     squareRadius={0.5}
     groupGap={4}
-    stroke="var(--chart-2)"
+    stroke="var(--chart-5)"
   />
   <BarXAxis />
   <ChartTooltip
@@ -2364,7 +2379,7 @@ function makeBarExamples(): ChartExample[] {
           xDataKey="month"
         >
           {renderPatternPreset("diagonal", "bar-shape-squircle-track", {
-            color: "var(--chart-grid)",
+            color: barShapeTrackPatternColor,
           })}
           <BarColumnTrack
             fill="url(#bar-shape-squircle-track)"
@@ -2374,7 +2389,7 @@ function makeBarExamples(): ChartExample[] {
             squareRadius={0.5}
           />
           {renderPatternPreset("diagonal", "bar-shape-squircle-desktop", {
-            color: "var(--chart-1)",
+            color: barShapePatternColor,
           })}
           <BarSquares
             dataKey="desktop"
@@ -2382,19 +2397,16 @@ function makeBarExamples(): ChartExample[] {
             groupGap={4}
             squareGap={3}
             squareRadius={0.5}
-            stroke="var(--chart-1)"
+            stroke={barShapePatternColor}
           />
           <BarSquares
             dataKey="mobile"
-            fill="var(--chart-2)"
-            gradientStops={[
-              { color: "var(--chart-2)", offset: 0 },
-              { color: "oklch(0.837 0.129 124.18)", offset: 100 },
-            ]}
+            fill="var(--chart-1)"
+            gradientStops={barShapeGradientStops}
             groupGap={4}
             squareGap={3}
             squareRadius={0.5}
-            stroke="var(--chart-2)"
+            stroke="var(--chart-5)"
             useGradient
           />
           <BarXAxis />

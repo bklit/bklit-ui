@@ -246,10 +246,10 @@ function SquareColumn({
 
     return (
       <motion.rect
-        animate={{ height: squareSize, opacity: squareOpacity, y }}
+        animate={{ attrY: y, height: squareSize, opacity: squareOpacity }}
         fill={effectiveFill}
         height={squareSize}
-        initial={{ height: 0, opacity: 1, y: bottomY }}
+        initial={{ attrY: bottomY, height: 0, opacity: 1 }}
         key={key}
         rx={rx}
         ry={rx}
