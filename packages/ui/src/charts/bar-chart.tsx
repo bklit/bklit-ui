@@ -378,9 +378,10 @@ const ChartCore = memo(function ChartCore({
     if (status === "loading") {
       return;
     }
+    const staggerMs = data.length > 1 ? animationDuration * 0.4 : 0;
     const timer = setTimeout(() => {
       setIsLoaded(true);
-    }, animationDuration);
+    }, animationDuration + staggerMs);
     return () => clearTimeout(timer);
   }, [animationDuration, revealSignature, status]);
 

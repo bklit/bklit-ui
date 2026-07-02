@@ -21,6 +21,21 @@ export function barCollapsibleGroup(
   return controlGroup(title, controls, { collapsible: true, defaultOpen });
 }
 
+/** Expand the first N collapsible groups in a sidebar panel (bar chart default). */
+export function expandFirstCollapsible(
+  groups: StudioControlGroup[],
+  count = 2
+): StudioControlGroup[] {
+  let seen = 0;
+  return groups.map((group) => {
+    if (group.collapsible && seen < count) {
+      seen += 1;
+      return { ...group, defaultOpen: true };
+    }
+    return group;
+  });
+}
+
 export const lineGroup = (controls: StudioControl[]) =>
   controlGroup("Line", controls);
 

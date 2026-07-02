@@ -57,6 +57,7 @@ export interface BarColumnTrackProps {
   squareRadius?: number;
   groupGap?: number;
   squareFit?: boolean;
+  staggerDelay?: number;
 }
 
 interface BarSquaresInnerProps extends BarSquaresProps {
@@ -81,14 +82,61 @@ interface SquareColumnProps {
   isFaded: boolean;
   fadedOpacity: number;
   animate: boolean;
-  isLoaded: boolean;
   staggerDelay: number;
+  animationDuration: number;
   enterTransition?: Transition;
   revealEpoch: number;
 }
 
 function isPatternFill(fill: string): boolean {
   return fill.startsWith("url(");
+}
+
+/** Delay between stacked squares within one column (bottom → top). */
+function squareCascadeStepSeconds(
+  enterTransition: Transition | undefined,
+  animationDurationMs: number,
+  squareCount: number
+): number {
+  if (squareCount <= 1) {
+    return 0;
+  }
+  const durationMs =
+    enterTransition?.type === "tween" &&
+    typeof enterTransition.duration === "number"
+      ? enterTransition.duration * 1000
+      : animationDurationMs;
+  const cascadeSpreadMs = durationMs * 0.4;
+  return cascadeSpreadMs / 1000 / (squareCount - 1);
+}
+
+function cascadeColumnTransition(
+  enterTransition: Transition | undefined,
+  animationDurationMs: number,
+  columnIndex: number,
+  columnStaggerDelay: number,
+  squareCount: number
+): Transition {
+  const cascadeStep = squareCascadeStepSeconds(
+    enterTransition,
+    animationDurationMs,
+    squareCount
+  );
+  const base = transitionWithDelay(
+    enterTransition,
+    columnIndex * columnStaggerDelay
+  );
+  if (squareCount <= 1 || base.type !== "tween") {
+    return base;
+  }
+  const baseDuration =
+    typeof base.duration === "number"
+      ? base.duration
+      : animationDurationMs / 1000;
+  return {
+    ...base,
+    duration: baseDuration + cascadeStep * (squareCount - 1),
+  };
 }
 
 function SquareColumn({
@@ -107,8 +155,8 @@ function SquareColumn({
   isFaded,
   fadedOpacity,
   animate,
-  isLoaded,
   staggerDelay,
+  animationDuration,
   enterTransition,
   revealEpoch,
 }: SquareColumnProps) {
@@ -139,48 +187,12 @@ function SquareColumn({
     return fill;
   }, [useGradient, patternFill, patternPreset, fill, gradientId, patternId]);
 
-  const enterAnim = transitionWithDelay(enterTransition, index * staggerDelay);
-
-  const squares = layout.positions.map((relY, squareIndex) => {
-    const y = columnTop + relY;
-    const key = `sq-${index}-${squareIndex}-${revealEpoch}`;
-
-    if (animate && !isLoaded) {
-      return (
-        <motion.rect
-          animate={{
-            height: squareSize,
-            opacity: isFaded ? fadedOpacity : 1,
-            y,
-          }}
-          fill={effectiveFill}
-          height={squareSize}
-          initial={{ height: 0, opacity: 0, y: baselineY - squareSize }}
-          key={key}
-          rx={rx}
-          ry={rx}
-          transition={enterAnim}
-          width={squareSize}
-          x={x}
-        />
-      );
-    }
-
-    return (
-      <rect
-        fill={effectiveFill}
-        height={squareSize}
-        key={key}
-        opacity={isFaded ? fadedOpacity : 1}
-        rx={rx}
-        ry={rx}
-        style={{ transition: "opacity 0.15s ease-in-out" }}
-        width={squareSize}
-        x={x}
-        y={y}
-      />
-    );
-  });
+  const cascadeStep = squareCascadeStepSeconds(
+    enterTransition,
+    animationDuration,
+    layout.count
+  );
+  const squareOpacity = isFaded ? fadedOpacity : 1;
 
   const gradientPatternNode =
     useGradient && patternFill && patternPreset && patternPreset !== "none"
@@ -189,29 +201,74 @@ function SquareColumn({
         })
       : null;
 
+  const gradientDefs = useGradient ? (
+    <defs>
+      <linearGradient
+        gradientUnits="userSpaceOnUse"
+        id={gradientId}
+        x1={0}
+        x2={0}
+        y1={baselineY}
+        y2={columnTop}
+      >
+        {gradientStops.map((stop) => (
+          <stop
+            key={`${stop.offset}-${stop.color}`}
+            offset={`${stop.offset}%`}
+            stopColor={stop.color}
+          />
+        ))}
+      </linearGradient>
+      {gradientPatternNode}
+    </defs>
+  ) : null;
+
+  const squares = layout.positions.map((relY, squareIndex) => {
+    const y = columnTop + relY;
+    const bottomY = y + squareSize;
+    const key = `sq-${index}-${squareIndex}-${revealEpoch}`;
+
+    if (!animate) {
+      return (
+        <rect
+          fill={effectiveFill}
+          height={squareSize}
+          key={key}
+          opacity={squareOpacity}
+          rx={rx}
+          ry={rx}
+          width={squareSize}
+          x={x}
+          y={y}
+        />
+      );
+    }
+
+    return (
+      <motion.rect
+        animate={{ height: squareSize, opacity: squareOpacity, y }}
+        fill={effectiveFill}
+        height={squareSize}
+        initial={{ height: 0, opacity: 1, y: bottomY }}
+        key={key}
+        rx={rx}
+        ry={rx}
+        transition={{
+          ...transitionWithDelay(
+            enterTransition,
+            index * staggerDelay + squareIndex * cascadeStep
+          ),
+          opacity: { duration: 0.15 },
+        }}
+        width={squareSize}
+        x={x}
+      />
+    );
+  });
+
   return (
     <>
-      {useGradient ? (
-        <defs>
-          <linearGradient
-            gradientUnits="userSpaceOnUse"
-            id={gradientId}
-            x1={0}
-            x2={0}
-            y1={baselineY}
-            y2={columnTop}
-          >
-            {gradientStops.map((stop) => (
-              <stop
-                key={`${stop.offset}-${stop.color}`}
-                offset={`${stop.offset}%`}
-                stopColor={stop.color}
-              />
-            ))}
-          </linearGradient>
-          {gradientPatternNode}
-        </defs>
-      ) : null}
+      {gradientDefs}
       {squares}
     </>
   );
@@ -238,7 +295,6 @@ const BarSquaresInner = memo(function BarSquaresInner({
   const {
     data,
     innerHeight,
-    isLoaded,
     hoveredBarIndex,
     lines,
     orientation,
@@ -314,6 +370,7 @@ const BarSquaresInner = memo(function BarSquaresInner({
         return (
           <SquareColumn
             animate={animate}
+            animationDuration={animationDuration || 1100}
             barLengthPx={barLengthPx}
             baselineY={baselineY}
             enterTransition={enterTransition}
@@ -322,7 +379,6 @@ const BarSquaresInner = memo(function BarSquaresInner({
             gradientStops={stops}
             index={i}
             isFaded={isFaded}
-            isLoaded={isLoaded}
             key={`bar-squares-${dataKey}-${categoryValue}`}
             patternPreset={patternPreset}
             revealEpoch={revealEpoch}
@@ -367,6 +423,7 @@ const BarColumnTrackInner = memo(function BarColumnTrackInner({
   squareRadius = 0.25,
   squareFit = false,
   groupGap = 4,
+  staggerDelay,
   barScale,
   bandWidth,
   barXAccessor,
@@ -375,7 +432,16 @@ const BarColumnTrackInner = memo(function BarColumnTrackInner({
   bandWidth: number;
   barXAccessor: (d: Record<string, unknown>) => string;
 }) {
-  const { data, lines, orientation, stacked, hoveredBarIndex } = useChart();
+  const {
+    data,
+    lines,
+    orientation,
+    stacked,
+    hoveredBarIndex,
+    animationDuration,
+    enterTransition,
+    revealEpoch = 0,
+  } = useChart();
   const uniqueId = useId();
 
   const isHorizontal = orientation === "horizontal";
@@ -389,6 +455,11 @@ const BarColumnTrackInner = memo(function BarColumnTrackInner({
     const effectiveGroupGap = seriesCount > 1 ? groupGap : 0;
     return (bandWidth - effectiveGroupGap * (seriesCount - 1)) / seriesCount;
   }, [bandWidth, seriesCount, groupGap]);
+
+  const totalAnimDuration = animationDuration || 1100;
+  const staggerSpread = totalAnimDuration * 0.4;
+  const calculatedStaggerDelay =
+    staggerDelay ?? (data.length > 1 ? staggerSpread / 1000 / data.length : 0);
 
   if (isUnsupported) {
     return null;
@@ -409,18 +480,23 @@ const BarColumnTrackInner = memo(function BarColumnTrackInner({
 
         return lines.map((line, seriesIndex) => (
           <TrackColumn
+            animate
             bandPos={bandPos}
             d={d}
             dataKey={line.dataKey}
             effectiveGroupGap={effectiveGroupGap}
             effectiveOpacity={effectiveOpacity}
+            enterTransition={enterTransition}
             fill={fill}
+            index={i}
             key={`track-${i}-${line.dataKey}`}
+            revealEpoch={revealEpoch}
             rx={rx}
             seriesIndex={seriesIndex}
             squareFit={squareFit}
             squareGap={squareGap}
             squareSize={squareSize}
+            staggerDelay={calculatedStaggerDelay}
             yAxisId={line.yAxisId}
           />
         ));
@@ -442,6 +518,11 @@ function TrackColumn({
   fill,
   rx,
   effectiveOpacity,
+  index,
+  staggerDelay,
+  animate,
+  enterTransition,
+  revealEpoch,
 }: {
   d: Record<string, unknown>;
   dataKey: string;
@@ -455,8 +536,13 @@ function TrackColumn({
   fill: string;
   rx: number;
   effectiveOpacity: number;
+  index: number;
+  staggerDelay: number;
+  animate: boolean;
+  enterTransition?: Transition;
+  revealEpoch: number;
 }) {
-  const { innerHeight } = useChart();
+  const { innerHeight, animationDuration: chartAnimationDuration } = useChart();
   const valueScale = useYScale(yAxisId);
   const value = d[dataKey];
 
@@ -476,11 +562,41 @@ function TrackColumn({
   const columnTop = baselineY - layout.columnHeight;
   const trackHeight = Math.max(0, columnTop);
 
-  if (trackHeight <= 0) {
+  if (trackHeight <= 0 && !animate) {
     return null;
   }
 
   const x = bandPos + seriesIndex * (squareSize + effectiveGroupGap);
+  const enterAnim = cascadeColumnTransition(
+    enterTransition,
+    chartAnimationDuration || 1100,
+    index,
+    staggerDelay,
+    layout.count
+  );
+  const animatedHeight = trackHeight > 0 ? trackHeight : 0;
+
+  if (animate) {
+    return (
+      <motion.rect
+        animate={{ height: animatedHeight, y: 0 }}
+        fill={fill}
+        height={animatedHeight}
+        initial={{ height: baselineY, y: 0 }}
+        key={`track-${index}-${seriesIndex}-${revealEpoch}`}
+        opacity={effectiveOpacity}
+        rx={rx}
+        ry={rx}
+        transition={enterAnim}
+        width={squareSize}
+        x={x}
+      />
+    );
+  }
+
+  if (trackHeight <= 0) {
+    return null;
+  }
 
   return (
     <rect

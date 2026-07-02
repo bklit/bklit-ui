@@ -68,7 +68,11 @@ import {
   sunburstLabelsControlGroups,
   tooltipAppearanceControlGroup,
 } from "./registry-control-groups";
-import { barCollapsibleGroup, controlGroup } from "./sidebar-control-templates";
+import {
+  barCollapsibleGroup,
+  controlGroup,
+  expandFirstCollapsible,
+} from "./sidebar-control-templates";
 import { firstConfigurableStudioComponentId } from "./studio-component-visibility";
 import {
   getProjectionCount,
@@ -653,7 +657,7 @@ export function resolveBarComponents(
         label: "BarChart",
         kind: "chart",
         treeIcon: "layers",
-        controlGroups: settings ? [settings] : [],
+        controlGroups: expandFirstCollapsible(settings ? [settings] : []),
       },
       {
         id: "bar.grid",
@@ -673,7 +677,7 @@ export function resolveBarComponents(
       label: "BarChart",
       kind: "chart",
       treeIcon: "layers",
-      controlGroups: settings ? [settings] : [],
+      controlGroups: expandFirstCollapsible(settings ? [settings] : []),
       design: rootPaletteDesign(true),
       designPlacement: "after",
     },
@@ -690,7 +694,7 @@ export function resolveBarComponents(
       label: "Column track",
       parentId: chartId,
       kind: "chart",
-      controlGroups: barTrackControlGroups,
+      controlGroups: expandFirstCollapsible(barTrackControlGroups),
     });
   }
 
@@ -722,7 +726,7 @@ export function resolveBarComponents(
       kind: "series",
       listMarker: "color-dot",
       swatchColor: getEffectiveSeriesColor(state, index),
-      controlGroups,
+      controlGroups: expandFirstCollapsible(controlGroups),
       design: {
         seriesIndex: index,
         supportsPattern: true,
@@ -733,15 +737,24 @@ export function resolveBarComponents(
   if (horizontal) {
     components.push(passiveNode("bar", "baryaxis", "BarYAxis"));
   } else {
-    components.push(
-      chartYAxisNode("bar", "left", "YAxis · left", true),
-      chartYAxisNode("bar", "right", "YAxis · right", true)
-    );
+    for (const [axis, label] of [
+      ["left", "YAxis · left"],
+      ["right", "YAxis · right"],
+    ] as const) {
+      const yAxisNode = chartYAxisNode("bar", axis, label, true);
+      components.push({
+        ...yAxisNode,
+        controlGroups: expandFirstCollapsible(yAxisNode.controlGroups),
+      });
+    }
   }
 
   components.push(
     passiveNode("bar", "xaxis", "BarXAxis"),
-    chartTooltipNode("bar", barChartTooltipControlGroups),
+    chartTooltipNode(
+      "bar",
+      expandFirstCollapsible(barChartTooltipControlGroups)
+    ),
     legendNode("bar")
   );
 
