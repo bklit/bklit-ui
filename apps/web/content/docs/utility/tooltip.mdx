@@ -45,6 +45,11 @@ import { LineChart, Line, Grid, ChartTooltip } from "@bklitui/ui/charts";
 | `boxSpringConfig` | `{ stiffness: number; damping: number }` | chart config | Full spring override for the floating tooltip panel |
 | `backgroundColor` | `string` | `var(--chart-tooltip-background)` | Panel background (CSS variable or color value) |
 | `panelStyle` | `CSSProperties` | — | Inline styles for tooltip background and blur |
+| `dotVariant` | `"dot" \| "ring"` | `"dot"` | Dot style on series markers |
+| `dotRadiusFraction` | `number` | — | Ring corner radius as a fraction of side length (0 = square, 0.5 = circle). Ring variant only |
+| `dotScale` | `number` | `1` | Size multiplier for ring indicators. Ring variant only |
+| `dotStrokeWidth` | `number` | `1.5` | Ring stroke width in pixels. Ring variant only |
+| `dotColor` | `string \| (point, line) => string` | — | Override dot/ring color (e.g. when fill is gradient/pattern) |
 | `content` | `(props) => ReactNode` | - | Custom content renderer |
 | `rows` | `(point) => TooltipRow[]` | - | Custom row generator |
 | `children` | `ReactNode` | - | Additional content (e.g., markers) |

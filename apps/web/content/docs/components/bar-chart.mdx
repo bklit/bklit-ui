@@ -82,7 +82,7 @@ export default function RevenueChart() {
 }
 ```
 
-See the [charts gallery](/charts/bar-chart) for stacked bars, horizontal layouts, gradients, patterns, and more.
+See the [charts gallery](/charts/bar-chart) for stacked bars, horizontal layouts, gradients, patterns, the **Shape** square-column variant, and more.
 
 ## Components
 
@@ -102,6 +102,7 @@ The root component that provides context to all children.
 | `orientation`       | `"vertical" \| "horizontal"` | `"vertical"`                                   | Bar chart orientation                               |
 | `stacked`           | `boolean`                    | `false`                                        | Stack bars instead of grouping them                 |
 | `stackGap`          | `number`                     | `0`                                            | Gap between stacked bar segments in pixels          |
+| `squareSnap`        | `{ squareGap: number; groupGap?: number; fit?: boolean }` | — | Enables square-column tooltip snapping when using `<BarSquares>` |
 | `className`         | `string`                     | `""`                                           | Additional CSS class                                |
 
 ### Bar
@@ -122,6 +123,69 @@ Renders a bar for each data point with configurable styling and animations.
 | `stackGap`      | `number`                      | `0`                         | Gap between stacked bars in pixels                      |
 | `perspective` | `boolean`              | `false`                     | Make this a 3D depth bar: trims the front-face top to meet the lid and forces a flat top. Pass `true` when pairing with `BarDepthBack`/`BarDepthFront` (see [3D Depth](#3d-depth--glass-surfaces)) |
 | `minBarHeight`  | `number`                      | `0`                         | Minimum rendered height in px (non-stacked, vertical) — floors short/zero bars so they stay visible. Pair with `<BarDepthProvider minBarHeight>` |
+
+### BarSquares
+
+Renders a **Shape** bar as a vertical stack of discrete squares instead of a continuous `<Bar>`. Use one `<BarSquares>` per series (grouped, vertical charts only). Squares cascade upward on enter; supports solid fills, bar-spanning gradients, and pattern presets.
+
+| Prop            | Type                          | Default                     | Description                                             |
+| --------------- | ----------------------------- | --------------------------- | ------------------------------------------------------- |
+| `dataKey`       | `string`                      | required                    | Key in data for values                                  |
+| `yAxisId`       | `string \| number`            | series default              | Y-scale group for biaxial charts                        |
+| `fill`          | `string`                      | `var(--chart-line-primary)` | Solid color or pattern `url(#…)`                        |
+| `stroke`        | `string`                      | —                           | Tooltip ring/dot color when fill is gradient/pattern    |
+| `squareGap`     | `number`                      | `3`                         | Gap between stacked squares in pixels                   |
+| `squareRadius`  | `number`                      | `0.25`                      | Corner radius as a fraction of square size (0–0.5)    |
+| `squareFit`     | `boolean`                     | `false`                     | Redistribute gap so columns fit bar height exactly      |
+| `useGradient`   | `boolean`                     | `false`                     | Apply a bar-spanning gradient from `gradientStops`      |
+| `gradientStops` | `{ offset: number; color: string }[]` | —                 | Gradient stops (0–100) when `useGradient` is true     |
+| `patternPreset` | pattern preset id             | —                           | Pattern preset when `fill` is a pattern url             |
+| `groupGap`      | `number`                      | `4`                         | Gap between grouped series columns in pixels            |
+| `fadedOpacity`  | `number`                      | `0.3`                       | Opacity when another bar is hovered                     |
+| `animate`       | `boolean`                     | `true`                      | Enable enter animation                                  |
+| `staggerDelay`  | `number`                      | auto                        | Override per-column stagger delay                       |
+
+Pass **`squareSnap`** on `<BarChart>` with the same `squareGap`, `groupGap`, and `squareFit` so tooltip ring indicators align with square columns:
+
+```tsx
+<BarChart
+  data={data}
+  xDataKey="month"
+  squareSnap={{ squareGap: 3, groupGap: 4 }}
+>
+  <BarSquares dataKey="desktop" fill="var(--chart-1)" squareGap={3} groupGap={4} />
+  <BarSquares
+    dataKey="mobile"
+    fill="var(--chart-2)"
+    useGradient
+    gradientStops={[
+      { offset: 0, color: "var(--chart-2)" },
+      { offset: 100, color: "oklch(0.837 0.129 124.18)" },
+    ]}
+    squareGap={3}
+    groupGap={4}
+  />
+  <BarXAxis />
+  <ChartTooltip showCrosshair={false} dotVariant="ring" dotScale={1.05} />
+</BarChart>
+```
+
+See the **Shape & Gradient** and **Shape Squircle Ring** examples on the [bar chart gallery](/charts/bar-chart).
+
+### BarColumnTrack
+
+Optional underlay for Shape bars: patterned or solid fill in the **empty space above** each square column (not behind the bars). Place before `<BarSquares>`.
+
+| Prop           | Type     | Default            | Description                                      |
+| -------------- | -------- | ------------------ | ------------------------------------------------ |
+| `fill`         | `string` | `var(--chart-grid)` | Solid color or pattern `url(#…)`                |
+| `opacity`      | `number` | `0.3`              | Track opacity                                    |
+| `squareGap`    | `number` | `3`                | Match `<BarSquares squareGap>`                   |
+| `squareRadius` | `number` | `0.25`             | Match `<BarSquares squareRadius>`                |
+| `squareFit`    | `boolean`| `false`            | Match `<BarSquares squareFit>`                   |
+| `groupGap`     | `number` | `4`                | Match `<BarSquares groupGap>`                      |
+
+Tracks animate from full column height on enter and shrink in sync as squares stack upward.
 
 ### BarXAxis
 
