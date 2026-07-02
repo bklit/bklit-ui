@@ -842,6 +842,26 @@
           "target": "components/charts/bar.tsx"
         },
         {
+          "path": "src/charts/bar-squares.tsx",
+          "type": "registry:component",
+          "target": "components/charts/bar-squares.tsx"
+        },
+        {
+          "path": "src/charts/bar-squares-layout.ts",
+          "type": "registry:lib",
+          "target": "components/charts/bar-squares-layout.ts"
+        },
+        {
+          "path": "src/charts/pattern-preset.tsx",
+          "type": "registry:component",
+          "target": "components/charts/pattern-preset.tsx"
+        },
+        {
+          "path": "src/charts/visx-pattern.tsx",
+          "type": "registry:component",
+          "target": "components/charts/visx-pattern.tsx"
+        },
+        {
           "path": "src/charts/bar-depth-geometry.ts",
           "type": "registry:lib",
           "target": "components/charts/bar-depth-geometry.ts"
