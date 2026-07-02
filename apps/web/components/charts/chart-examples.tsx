@@ -2241,7 +2241,6 @@ function makeBarExamples(): ChartExample[] {
     dotScale={1.05}
     dotColor="oklch(1 0.002 186.385 / 0.7)"
   />
-  <Legend />
 </BarChart>`,
       footer:
         "Use squareSnap on BarChart so ring indicators align with square columns.",
@@ -2292,7 +2291,6 @@ function makeBarExamples(): ChartExample[] {
             dotVariant="ring"
             showCrosshair={false}
           />
-          <Legend className="w-full max-w-full flex-row flex-wrap justify-center gap-x-4 gap-y-2 px-2" />
         </BarExampleChart>
       ),
     },
@@ -2358,7 +2356,6 @@ function makeBarExamples(): ChartExample[] {
     dotStrokeWidth={1}
     dotColor="oklch(1 0.002 186.385 / 0.7)"
   />
-  <Legend />
 </BarChart>`,
       render: () => (
         <BarExampleChart
@@ -2408,7 +2405,6 @@ function makeBarExamples(): ChartExample[] {
             dotVariant="ring"
             showCrosshair={false}
           />
-          <Legend className="w-full max-w-full flex-row flex-wrap justify-center gap-x-4 gap-y-2 px-2" />
         </BarExampleChart>
       ),
     },
