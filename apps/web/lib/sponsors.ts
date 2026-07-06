@@ -73,6 +73,6 @@ export const sponsorTierLabels = {
 
 export type SponsorTier = keyof typeof sponsorTierLabels;
 
-export const premiumLogoClassName = "h-5 w-auto max-w-[140px] text-foreground";
+export const premiumLogoClassName = "h-8 w-auto max-w-[224px] text-foreground";
 
 export const silverLogoClassName = "h-4 w-auto max-w-[96px] text-foreground";
