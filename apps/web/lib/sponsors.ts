@@ -1,6 +1,7 @@
 import type { ComponentType } from "react";
 import { ChanhDai } from "@/components/brands/chanhdai";
 import { OpenPanel } from "@/components/brands/openpanel";
+import { ShadcnStudio } from "@/components/brands/shadcn-studio";
 import { Vercel } from "@/components/brands/vercel";
 
 function sponsorHref(origin: string, term: string) {
@@ -54,7 +55,12 @@ export const silverSponsorSlots: SponsorSlot[] = [
     href: sponsorHref("https://chanhdai.com", "silver-chanhdai"),
     Logo: ChanhDai,
   },
-  "placeholder",
+  {
+    id: "shadcn-studio",
+    name: "shadcn studio",
+    href: sponsorHref("https://shadcnstudio.com", "silver-shadcn-studio"),
+    Logo: ShadcnStudio,
+  },
   "placeholder",
   "placeholder",
   "placeholder",
