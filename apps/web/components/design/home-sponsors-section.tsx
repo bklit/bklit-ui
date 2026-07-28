@@ -1,3 +1,4 @@
+import { HomePastSponsors } from "@/components/design/home-past-sponsors";
 import { HomeSponsorsGrid } from "@/components/design/home-sponsors-grid";
 import { DesignSectionHeader } from "@/components/design/section-header";
 
@@ -15,6 +16,7 @@ export function HomeSponsorsSection() {
           titleId="sponsors-heading"
         />
         <HomeSponsorsGrid />
+        <HomePastSponsors />
       </div>
     </section>
   );

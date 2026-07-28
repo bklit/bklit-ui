@@ -1,5 +1,4 @@
 import type { ComponentType } from "react";
-import { ChanhDai } from "@/components/brands/chanhdai";
 import { OpenPanel } from "@/components/brands/openpanel";
 import { ShadcnStudio } from "@/components/brands/shadcn-studio";
 import { Vercel } from "@/components/brands/vercel";
@@ -50,12 +49,6 @@ export const premiumSponsorSlots: SponsorSlot[] = [
 
 export const silverSponsorSlots: SponsorSlot[] = [
   {
-    id: "chanhdai",
-    name: "Chánh Đại",
-    href: sponsorHref("https://chanhdai.com", "silver-chanhdai"),
-    Logo: ChanhDai,
-  },
-  {
     id: "shadcn-studio",
     name: "shadcn studio",
     href: sponsorHref("https://shadcnstudio.com", "silver-shadcn-studio"),
@@ -64,6 +57,21 @@ export const silverSponsorSlots: SponsorSlot[] = [
   "placeholder",
   "placeholder",
   "placeholder",
+  "placeholder",
+];
+
+export interface PastSponsor {
+  id: string;
+  name: string;
+  href: string;
+}
+
+export const pastSponsors: PastSponsor[] = [
+  {
+    id: "chanhdai",
+    name: "Chánh Đại",
+    href: sponsorHref("https://chanhdai.com", "past-chanhdai"),
+  },
 ];
 
 export const sponsorTierLabels = {
