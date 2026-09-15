@@ -131,6 +131,7 @@ export interface TimeSeriesChartInnerProps {
   height: number;
   data: Record<string, unknown>[];
   xDataKey: string;
+  formatXLabel?: (date: Date) => string;
   margin: Margin;
   animationDuration: number;
   animationEasing?: string;
@@ -181,6 +182,7 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
   height,
   data,
   xDataKey,
+  formatXLabel,
   margin,
   animationDuration,
   animationEasing = DEFAULT_ANIMATION_EASING,
@@ -399,8 +401,11 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
   );
 
   const dateLabels = useMemo(
-    () => visiblePlotData.map((d) => shortDateFmt.format(xAccessor(d))),
-    [visiblePlotData, xAccessor]
+    () =>
+      visiblePlotData.map((d) =>
+        (formatXLabel ?? shortDateFmt.format)(xAccessor(d))
+      ),
+    [visiblePlotData, xAccessor, formatXLabel]
   );
 
   const canInteract = isLoaded && isChartInteractionPhase(chartPhase);
@@ -538,6 +543,7 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
       notifyLoadingPulseComplete,
       xAccessor,
       dateLabels,
+      formatXLabel,
       xDomain,
       xDomainSlotCount,
       selection,
@@ -581,6 +587,7 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
       notifyLoadingPulseComplete,
       xAccessor,
       dateLabels,
+      formatXLabel,
       xDomain,
       xDomainSlotCount,
       selection,

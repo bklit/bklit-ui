@@ -54,6 +54,10 @@ import {
   getSeriesShowLine,
   getSeriesStrokeWidth,
 } from "./studio-series-line-props";
+import {
+  xLabelFormatCodegen,
+  xLabelFormatPropCodegen,
+} from "./studio-x-label-format";
 
 function visxCurveImportLines(
   state: StudioUrlState,
@@ -465,7 +469,8 @@ export function cartesianLoadingCodegen(
     code: `import { ${chartImports.join(", ")} } from "@bklitui/ui/charts";
 ${curveImports}
 
-<${chartType} data={chartData}${anim}
+${xLabelFormatCodegen(state)}
+<${chartType} data={chartData}${xLabelFormatPropCodegen(state)}${anim}
   status="loading"${loadingLabel}
   yDomainTween>${backgroundBlock}${gridBlock}${referenceAreaBlock}${child}
 </${chartType}>`,
@@ -564,7 +569,8 @@ export function cartesianCodegen(
   return `import { ${chartImports.join(", ")} } from "@bklitui/ui/charts";
 ${curveImports}
 
-<${chartType} data={chartData}${anim}>${backgroundBlock}${gridBlock}${referenceAreaBlock}${child}${projectionBlock}
+${xLabelFormatCodegen(state)}
+<${chartType} data={chartData}${xLabelFormatPropCodegen(state)}${anim}>${backgroundBlock}${gridBlock}${referenceAreaBlock}${child}${projectionBlock}
   <XAxis />
   <ChartTooltip />
 </${chartType}>`;
@@ -807,7 +813,8 @@ export function composedCodegen(state: StudioUrlState) {
     code: `import { ComposedChart, SeriesBar, Area, Line, XAxis, ChartTooltip${gridImport}${backgroundImport}${referenceAreaImport}${state.pattern === "none" ? "" : ", PatternLines"} } from "@bklitui/ui/charts";
 ${curveImports}
 
-<ComposedChart data={chartData}
+${xLabelFormatCodegen(state)}
+<ComposedChart data={chartData}${xLabelFormatPropCodegen(state)}
   ${cssRevealAnimationCodegen(state.animationDuration, motionSliceFromState(state))}>${backgroundBlock}${gridBlock}${referenceAreaBlock}${barPattern}${barLine}${overlays}
   <XAxis />
   <ChartTooltip />

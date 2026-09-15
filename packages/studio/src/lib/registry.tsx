@@ -44,6 +44,7 @@ import {
 import { StudioReferenceAreaLayer } from "@/components/charts/studio-reference-area-layer";
 import { SunburstStudioPreview } from "@/components/charts/sunburst-studio-preview";
 import { fadeEdgesPropValue } from "@/components/controls/fade-edges-picker";
+import { studioXLabelFormatter } from "@/lib/studio-x-label-format";
 import { isBarShapeVariant } from "./bar-shape-variant";
 import {
   getStudioCssRevealPropsForPreview,
@@ -521,6 +522,7 @@ const composedConfig: StudioChartConfig = {
       >
         <StudioCartesianFill>
           <ComposedChart
+            formatXLabel={studioXLabelFormatter(state)}
             {...getStudioCssRevealPropsForPreview(state, ctx)}
             className="size-full"
             data={data}

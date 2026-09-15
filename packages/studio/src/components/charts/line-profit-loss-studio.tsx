@@ -39,6 +39,7 @@ import {
 } from "@/lib/studio-cartesian-layers";
 import { chartTooltipPropsFromState } from "@/lib/studio-chart-overlays";
 import type { StudioUrlState } from "@/lib/studio-parsers";
+import { studioXLabelFormatter } from "@/lib/studio-x-label-format";
 
 function zeroLineDasharray(style: StudioUrlState["zeroLineStyle"]) {
   return style === "dashed" ? "4,4" : "0";
@@ -125,6 +126,7 @@ export function LineProfitLossStudioChart({
     >
       <StudioCartesianFill className="size-full">
         <LineChart
+          formatXLabel={studioXLabelFormatter(state)}
           {...motionProps}
           className="size-full"
           data={data}

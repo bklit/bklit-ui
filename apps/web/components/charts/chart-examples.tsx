@@ -1560,8 +1560,45 @@ function ProfitLossLineExampleWithState() {
   );
 }
 
+const hourlyAreaData = Array.from({ length: 12 }, (_, hour) => ({
+  date: new Date(Date.UTC(2026, 0, 1, hour + 6)),
+  inbound: 12 - Math.abs(hour - 4),
+  outbound: 12 - Math.abs(hour - 8),
+}));
+const formatAreaHour = new Intl.DateTimeFormat("en-GB", {
+  hour: "2-digit",
+  minute: "2-digit",
+  hourCycle: "h23",
+  timeZone: "UTC",
+}).format;
+
 function makeAreaExamples(): ChartExample[] {
   return [
+    {
+      title: "Area Chart - Hourly labels",
+      description:
+        "One formatter for hour-of-day ticks, the hover ticker and tooltip title",
+      code: `const formatHour = new Intl.DateTimeFormat("en-GB", {
+  hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone: "UTC",
+}).format;
+
+<AreaChart data={hourlyData} formatXLabel={formatHour}>
+  <Grid horizontal />
+  <Area dataKey="inbound" />
+  <Area dataKey="outbound" fill="var(--chart-line-secondary)" />
+  <XAxis />
+  <ChartTooltip />
+</AreaChart>`,
+      render: () => (
+        <AreaChart data={hourlyAreaData} formatXLabel={formatAreaHour}>
+          <Grid horizontal />
+          <Area dataKey="inbound" />
+          <Area dataKey="outbound" fill="var(--chart-line-secondary)" />
+          <XAxis />
+          <ChartTooltip />
+        </AreaChart>
+      ),
+    },
     {
       title: "Area Chart",
       description: "Default area with gradient fill and smooth curve",

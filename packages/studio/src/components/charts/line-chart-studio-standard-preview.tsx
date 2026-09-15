@@ -74,6 +74,7 @@ import {
   getSeriesTerminalMarkerRingGap,
   getSeriesTerminalMarkerShow,
 } from "@/lib/studio-series-line-props";
+import { studioXLabelFormatter } from "@/lib/studio-x-label-format";
 
 function renderBrushStripProjections(
   state: StudioUrlState,
@@ -343,6 +344,7 @@ export function LineChartStudioStandardPreview({
               animationDuration={0}
               className="size-full"
               data={data}
+              formatXLabel={studioXLabelFormatter(state)}
               margin={brushStripMargin}
               status="ready"
               style={{ aspectRatio: "unset", height: "100%" }}
@@ -366,6 +368,7 @@ export function LineChartStudioStandardPreview({
         >
           {(brushLayout) => (
             <LineChart
+              formatXLabel={studioXLabelFormatter(state)}
               {...getStudioCssRevealPropsForPreview(state, ctx)}
               className="size-full"
               data={data}

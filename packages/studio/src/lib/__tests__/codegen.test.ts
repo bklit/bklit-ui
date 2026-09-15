@@ -97,3 +97,29 @@ describe("liveLineCodegen", () => {
     assert.match(data ?? "", INTERVAL_750_RE);
   });
 });
+
+describe("time-series label formatter codegen", () => {
+  it("exports the selected formatter for every time-series root and loading branch", () => {
+    for (const chart of [
+      "area-chart",
+      "line-chart",
+      "composed-chart",
+      "profit-loss-line",
+    ] as const) {
+      for (const status of ["ready", "loading"] as const) {
+        const state = defaultStudioState({
+          chart,
+          xLabelFormat: "utcTime",
+          areaChartState: status,
+          lineChartState: status,
+        });
+        const { code } = generateStudioCode(chart, state);
+        assert.ok(
+          code.includes('const formatXLabel = new Intl.DateTimeFormat("en-GB"')
+        );
+        assert.ok(code.includes("formatXLabel={formatXLabel}"));
+        assert.ok(code.includes('"timeZone":"UTC"'));
+      }
+    }
+  });
+});

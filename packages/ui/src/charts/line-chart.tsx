@@ -31,6 +31,8 @@ export interface LineChartProps {
   data: Record<string, unknown>[];
   /** Key in data for the x-axis (date). Default: "date" */
   xDataKey?: string;
+  /** Formats axis ticks, the hover ticker and tooltip title. Defaults to English dates. */
+  formatXLabel?: (date: Date) => string;
   /** Chart margins */
   margin?: Partial<Margin>;
   /** Animation duration in milliseconds. Default: 1100 */
@@ -142,6 +144,7 @@ interface ChartInnerProps {
   height: number;
   data: Record<string, unknown>[];
   xDataKey: string;
+  formatXLabel?: (date: Date) => string;
   margin: Margin;
   animationDuration: number;
   animationEasing?: string;
@@ -164,6 +167,7 @@ function ChartInner({
   height,
   data,
   xDataKey,
+  formatXLabel,
   margin,
   animationDuration,
   animationEasing,
@@ -191,6 +195,7 @@ function ChartInner({
       containerRef={containerRef}
       data={data}
       enterTransition={enterTransition}
+      formatXLabel={formatXLabel}
       height={height}
       lines={lines}
       loadingLabel={loadingLabel}
@@ -213,6 +218,7 @@ function ChartInner({
 export function LineChart({
   data,
   xDataKey = "date",
+  formatXLabel,
   margin: marginProp,
   animationDuration = 1100,
   animationEasing,
@@ -271,6 +277,7 @@ export function LineChart({
             containerRef={containerRef}
             data={data}
             enterTransition={enterTransition}
+            formatXLabel={formatXLabel}
             height={height}
             loadingLabel={loadingLabel}
             margin={margin}

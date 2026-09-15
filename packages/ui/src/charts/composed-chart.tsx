@@ -23,6 +23,8 @@ export interface ComposedChartProps {
   data: Record<string, unknown>[];
   /** Key for the x-axis (time). Default: "date" */
   xDataKey?: string;
+  /** Formats axis ticks, the hover ticker and tooltip title. Defaults to English dates. */
+  formatXLabel?: (date: Date) => string;
   margin?: Partial<Margin>;
   animationDuration?: number;
   animationEasing?: string;
@@ -178,6 +180,7 @@ interface ChartInnerProps {
   height: number;
   data: Record<string, unknown>[];
   xDataKey: string;
+  formatXLabel?: (date: Date) => string;
   margin: Margin;
   animationDuration: number;
   animationEasing?: string;
@@ -198,6 +201,7 @@ function ChartInner({
   height,
   data,
   xDataKey,
+  formatXLabel,
   margin,
   animationDuration,
   animationEasing,
@@ -264,6 +268,7 @@ function ChartInner({
       containerRef={containerRef}
       data={data}
       enterTransition={enterTransition}
+      formatXLabel={formatXLabel}
       height={height}
       lines={lines}
       margin={margin}
@@ -281,6 +286,7 @@ function ChartInner({
 export function ComposedChart({
   data,
   xDataKey = "date",
+  formatXLabel,
   margin: marginProp,
   animationDuration = 1100,
   animationEasing,
@@ -315,6 +321,7 @@ export function ComposedChart({
             containerRef={containerRef}
             data={data}
             enterTransition={enterTransition}
+            formatXLabel={formatXLabel}
             height={height}
             margin={margin}
             maxBarSize={maxBarSize}

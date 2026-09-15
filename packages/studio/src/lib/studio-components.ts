@@ -188,7 +188,29 @@ function passiveNode(
     label,
     parentId: `${chartPrefix}.chart`,
     kind: "chart",
-    controlGroups: [],
+    controlGroups:
+      idSuffix === "xaxis" && ["area", "line", "composed"].includes(chartPrefix)
+        ? [
+            {
+              title: "Labels",
+              controls: [
+                {
+                  type: "select",
+                  key: "xLabelFormat",
+                  label: "Format",
+                  options: [
+                    { value: "default", label: "Default dates" },
+                    { value: "utcTime", label: "Time (UTC)" },
+                    {
+                      value: "stockholmDate",
+                      label: "Swedish dates (Stockholm)",
+                    },
+                  ],
+                },
+              ],
+            },
+          ]
+        : [],
   };
 }
 

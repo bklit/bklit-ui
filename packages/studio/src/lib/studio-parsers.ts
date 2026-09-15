@@ -25,6 +25,11 @@ export const studioSearchParams = {
   chart: parseAsStringLiteral(validChartSlugs).withDefault("area-chart"),
   preset: parseAsStringLiteral(COLOR_PRESET_IDS).withDefault("default"),
   chartAccent: parseAsString.withDefault(""),
+  xLabelFormat: parseAsStringLiteral([
+    "default",
+    "utcTime",
+    "stockholmDate",
+  ]).withDefault("default"),
   seriesColors: parseAsString.withDefault(""),
   seriesPatterns: parseAsString.withDefault(""),
   seriesGradientEnabled: parseAsString.withDefault(""),
@@ -514,6 +519,7 @@ export interface StudioUrlState {
   chart: ChartSlug;
   preset: ColorPresetId;
   chartAccent: string;
+  xLabelFormat: "default" | "utcTime" | "stockholmDate";
   seriesColors: string;
   seriesPatterns: string;
   seriesGradientEnabled: string;
@@ -875,6 +881,7 @@ export function defaultStudioState(
     chart: "area-chart",
     preset: "default",
     chartAccent: "",
+    xLabelFormat: "default",
     seriesColors: "",
     seriesPatterns: "",
     seriesGradientEnabled: "",

@@ -94,3 +94,9 @@ Use [`Background`](/docs/utility/background) instead of `Grid` for a pattern fil
 - [Line Chart](/docs/components/line-chart) — lines only
 - [Area Chart](/docs/components/area-chart) — areas only
 - [Bar Chart](/docs/components/bar-chart) — categorical bars with `<Bar />`
+
+## X-axis label formatting
+
+`ComposedChart` accepts `formatXLabel?: (date: Date) => string`. It formats axis ticks,
+the hover ticker and the default tooltip title, including generated domain and
+projection ticks. See [localized and hourly labels](/docs/components/area-chart#localized-and-hourly-x-labels).

@@ -7,6 +7,10 @@ import { cssRevealAnimationCodegen } from "./motion-codegen";
 import { chartTooltipCodegenProps } from "./studio-chart-overlays";
 import { isStudioComponentVisible } from "./studio-component-visibility";
 import type { StudioUrlState } from "./studio-parsers";
+import {
+  xLabelFormatCodegen,
+  xLabelFormatPropCodegen,
+} from "./studio-x-label-format";
 
 export function profitLossLineDataSnippet(state: StudioUrlState) {
   const points = state.dataPoints;
@@ -60,12 +64,13 @@ export function profitLossLineCodegen(state: StudioUrlState) {
 import { ${curveName} } from "@visx/curve";
 import { useState } from "react";
 
+${xLabelFormatCodegen(state)}
 export function ProfitLossChart({ data }: { data: Record<string, unknown>[] }) {
   const [legendHoveredIndex, setLegendHoveredIndex] = useState<number | null>(null);
 
   return (
     <div className="flex flex-col gap-2">
-      <LineChart data={data}${anim}>${backgroundBlock}${gridBlock}
+      <LineChart data={data}${xLabelFormatPropCodegen(state)}${anim}>${backgroundBlock}${gridBlock}
         <Line
           curve={${curveName}}
           dataKey="pnl"

@@ -98,6 +98,7 @@ The root component that provides context to all children.
 |------|------|---------|-------------|
 | `data` | `Record<string, unknown>[]` | required | Array of data points |
 | `xDataKey` | `string` | `"date"` | Key in data for x-axis values |
+| `formatXLabel` | `(date: Date) => string` | — | Formats axis ticks, the hover ticker, and the default tooltip title. Use a memoized `Intl.DateTimeFormat(...).format` for locale/timezone control. |
 | `margin` | `Partial<Margin>` | `{ top: 40, right: 40, bottom: 40, left: 40 }` | Chart margins |
 | `animationDuration` | `number` | `1100` | Clip-reveal duration in ms (`cubic-bezier(0.85, 0, 0.15, 1)`) |
 | `status` | `"loading" \| "ready"` | `"ready"` | Loading ↔ ready choreography on one chart instance |
@@ -592,3 +593,35 @@ This component requires the following packages:
 ```bash
 pnpm add @visx/shape @visx/curve @visx/scale @visx/gradient @visx/responsive @visx/event @visx/grid d3-array motion react-use-measure
 ```
+
+## Localized and hourly x labels
+
+Pass `formatXLabel` to the chart root to keep the axis, hover ticker, and default
+tooltip title in the same format. It also applies to domain ticks and projection
+tails. The callback receives a `Date`, including generated ticks that have no
+data row. Formatting changes labels only; it does not change the scale, brush
+range, or the instants in your data.
+
+```tsx
+const formatHour = new Intl.DateTimeFormat("en-GB", {
+  hour: "2-digit",
+  minute: "2-digit",
+  hourCycle: "h23",
+  timeZone: "UTC",
+}).format;
+
+<AreaChart data={hourlyData} formatXLabel={formatHour}>
+  <Area dataKey="inbound" />
+  <Area dataKey="outbound" fill="var(--chart-line-secondary)" />
+  <XAxis />
+  <ChartTooltip />
+</AreaChart>
+```
+
+The same prop is available on `LineChart` and `ComposedChart`. Create the formatter
+outside rendering, or memoize it by locale and timezone when those can change.
+Omitting the callback preserves the existing English short-date axis/ticker and
+weekday-date tooltip title. Custom tooltip content remains yours to format.
+
+Try the **XAxis → Labels → Format** presets in [Studio](/studio?chart=area-chart),
+or the hourly example in the [Area Chart gallery](/charts/area-chart).

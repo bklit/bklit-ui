@@ -71,6 +71,7 @@ export function ControlFieldInputs({
     case "select":
       return (
         <Select
+          items={control.options}
           onValueChange={(v) =>
             onChange(control.key, v as StudioUrlState[typeof control.key])
           }
