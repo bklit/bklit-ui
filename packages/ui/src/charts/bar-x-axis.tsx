@@ -115,9 +115,15 @@ const BarXAxisInner = memo(function BarXAxisInner({
       return allLabels;
     }
 
-    // Otherwise, skip some labels to avoid crowding
-    const step = Math.ceil(allLabels.length / maxLabels);
-    return allLabels.filter((_, i) => i % step === 0);
+    // Otherwise, distribute labels across the full range so both endpoints
+    // remain visible and the chart does not appear to end with an empty tail.
+    const labelCount = Math.max(2, maxLabels);
+    const visibleCount = Math.min(labelCount, allLabels.length);
+    const lastIndex = allLabels.length - 1;
+    const indices = Array.from({ length: visibleCount }, (_, index) =>
+      Math.round((index * lastIndex) / (visibleCount - 1))
+    );
+    return [...new Set(indices)].map((index) => allLabels[index]!);
   }, [
     barScale,
     bandWidth,

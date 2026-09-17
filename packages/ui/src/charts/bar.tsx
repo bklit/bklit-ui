@@ -83,6 +83,18 @@ export interface BarProps {
    * zero-value bars so they stay visible. Pair with the same value on
    * `<BarDepthProvider minBarHeight>` when using the 3D surfaces. Default: 0 */
   minBarHeight?: number;
+  /** Show the formatted value inside each bar when it fits. Default: false. */
+  showValue?: boolean;
+  /** Format values displayed inside bars. Defaults to Persian integers. */
+  valueLabelFormatter?: (value: number) => string;
+  /** Text color for values displayed inside bars. Default: white. */
+  valueLabelColor?: string;
+  /** Label text direction. `auto` uses horizontal text, then rotates if needed. */
+  valueLabelOrientation?: "auto" | "horizontal" | "vertical";
+  /** Position of the label inside the bar. Default: center. */
+  valueLabelPosition?: "top" | "center" | "bottom";
+  /** Optional class for value labels. */
+  valueLabelClassName?: string;
 }
 
 interface BarInnerProps extends BarProps {
@@ -108,6 +120,12 @@ interface AnimatedBarProps {
   enterTransition?: Transition;
   revealEpoch: number;
   isHorizontal: boolean;
+  valueLabel?: string;
+  valueLabelColor: string;
+  labelX: number;
+  labelY: number;
+  labelTransform?: string;
+  valueLabelClassName?: string;
 }
 
 function AnimatedBar({
@@ -127,27 +145,54 @@ function AnimatedBar({
   enterTransition,
   revealEpoch,
   isHorizontal,
+  valueLabel,
+  valueLabelColor,
+  labelX,
+  labelY,
+  labelTransform,
+  valueLabelClassName,
 }: AnimatedBarProps) {
   const enterAnim = transitionWithDelay(enterTransition, index * staggerDelay);
+  const label = valueLabel ? (
+    <motion.text
+      animate={{ opacity: 1 }}
+      dominantBaseline="middle"
+      fill={valueLabelColor}
+      fontSize={12}
+      fontWeight={600}
+      initial={{ opacity: 0 }}
+      textAnchor="middle"
+      className={valueLabelClassName}
+      transform={labelTransform}
+      transition={enterAnim}
+      x={labelX}
+      y={labelY}
+    >
+      {valueLabel}
+    </motion.text>
+  ) : null;
 
   if (animationType === "fade") {
     return (
-      <motion.rect
-        animate={{
-          opacity: isFaded ? fadedOpacity : 1,
-          filter: "blur(0px)",
-        }}
-        fill={fill}
-        height={height}
-        initial={{ opacity: 0, filter: "blur(2px)" }}
-        key={`fade-${index}-${revealEpoch}`}
-        rx={rx}
-        ry={ry}
-        transition={enterAnim}
-        width={width}
-        x={x}
-        y={y}
-      />
+      <g>
+        <motion.rect
+          animate={{
+            opacity: isFaded ? fadedOpacity : 1,
+            filter: "blur(0px)",
+          }}
+          fill={fill}
+          height={height}
+          initial={{ opacity: 0, filter: "blur(2px)" }}
+          key={`fade-${index}-${revealEpoch}`}
+          rx={rx}
+          ry={ry}
+          transition={enterAnim}
+          width={width}
+          x={x}
+          y={y}
+        />
+        {label}
+      </g>
     );
   }
 
@@ -172,6 +217,7 @@ function AnimatedBar({
         ry={ry}
         transition={enterAnim}
       />
+      {label}
     </g>
   );
 }
@@ -189,6 +235,13 @@ const BarInner = memo(function BarInner({
   groupGap = 4,
   perspective = false,
   minBarHeight = 0,
+  showValue = false,
+  valueLabelFormatter = (value) =>
+    value.toLocaleString("fa-IR", { maximumFractionDigits: 0 }),
+  valueLabelColor = "white",
+  valueLabelOrientation = "auto",
+  valueLabelPosition = "center",
+  valueLabelClassName,
   barScale,
   bandWidth,
   barXAccessor,
@@ -395,6 +448,34 @@ const BarInner = memo(function BarInner({
         const applyRounding = !stacked || stackGap > 0 || isLastSeries;
         const effectiveRx = applyRounding ? cornerRadius : 0;
         const effectiveRy = applyRounding ? cornerRadius : 0;
+        const valueLabel = showValue ? valueLabelFormatter(value) : "";
+        const labelWidth = valueLabel.length * 7.2;
+        const normalFits =
+          barW >= labelWidth + 10 && (isHorizontal ? barHeight >= 22 : barHeight >= 24);
+        const rotatedFits =
+          barHeight >= labelWidth + 10 && (isHorizontal ? barW >= 22 : barW >= 24);
+        const useRotatedLabel =
+          showValue &&
+          (valueLabelOrientation === "vertical" ||
+            (valueLabelOrientation === "auto" && !normalFits)) &&
+          rotatedFits;
+        const labelFits =
+          showValue &&
+          (valueLabelOrientation === "horizontal"
+            ? normalFits
+            : valueLabelOrientation === "vertical"
+              ? rotatedFits
+              : normalFits || rotatedFits);
+        const labelX = x + barW / 2;
+        const labelY =
+          valueLabelPosition === "top"
+            ? y + 14
+            : valueLabelPosition === "bottom"
+              ? y + barHeight - 8
+              : y + barHeight / 2;
+        const labelTransform = useRotatedLabel
+          ? `rotate(-90 ${labelX} ${labelY})`
+          : undefined;
 
         if (animate && !isLoaded) {
           return (
@@ -416,27 +497,49 @@ const BarInner = memo(function BarInner({
               width={barW}
               x={x}
               y={y}
+              labelX={labelX}
+              labelY={labelY}
+              valueLabel={labelFits ? valueLabel : undefined}
+              valueLabelColor={valueLabelColor}
+              labelTransform={labelTransform}
+              valueLabelClassName={valueLabelClassName}
             />
           );
         }
 
         // Static bar after animation completes
         return (
-          <rect
-            fill={fill}
-            height={barHeight}
-            key={barKey}
-            opacity={isFaded ? fadedOpacity : 1}
-            rx={effectiveRx}
-            ry={effectiveRy}
-            style={{
-              cursor: "default",
-              transition: "opacity 0.15s ease-in-out",
-            }}
-            width={barW}
-            x={x}
-            y={y}
-          />
+          <g key={barKey}>
+            <rect
+              fill={fill}
+              height={barHeight}
+              opacity={isFaded ? fadedOpacity : 1}
+              rx={effectiveRx}
+              ry={effectiveRy}
+              style={{
+                cursor: "default",
+                transition: "opacity 0.15s ease-in-out",
+              }}
+              width={barW}
+              x={x}
+              y={y}
+            />
+            {labelFits ? (
+              <text
+                dominantBaseline="middle"
+                fill={valueLabelColor}
+                fontSize={12}
+                fontWeight={600}
+                textAnchor="middle"
+                className={valueLabelClassName}
+                transform={useRotatedLabel ? labelTransform : undefined}
+                x={labelX}
+                y={labelY}
+              >
+                {valueLabel}
+              </text>
+            ) : null}
+          </g>
         );
       })}
     </g>
