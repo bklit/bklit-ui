@@ -24,10 +24,11 @@ describe("heatmap six-month quarter labels", () => {
     const expectedFirstQuarter = getCalendarQuarter(rangeStart);
 
     assert.equal(inferredStart?.toDateString(), rangeStart.toDateString());
-    assert.notEqual(
-      getCalendarQuarter(weekStart),
-      expectedFirstQuarter,
-      "lead week should fall in the prior quarter"
+    // Lead Sunday can share the range-start quarter (e.g. Mar 1 on a Sunday);
+    // when it does not, that is the cropping-risk case this label logic covers.
+    assert.ok(
+      weekStart.getTime() <= rangeStart.getTime(),
+      "lead week should start on or before the calendar range"
     );
 
     const groups = buildHeatmapQuarterSeparatorGroups(columns);
@@ -35,6 +36,10 @@ describe("heatmap six-month quarter labels", () => {
     assert.equal(groups[0]?.label, `Q${expectedFirstQuarter}`);
     assert.equal(groups[0]?.startColumnIndex, 0);
     assert.equal(groups[0]?.quarter, expectedFirstQuarter);
+    assert.equal(
+      groups[0]?.startDate.toDateString(),
+      rangeStart.toDateString()
+    );
   });
 });
 
