@@ -3,7 +3,6 @@
 import Link from "fumadocs-core/link";
 import { motion, useReducedMotion } from "motion/react";
 import { ChanhDaiIcon } from "@/components/icons/chanhdai";
-import { OpenPanelIcon } from "@/components/icons/openpanel";
 import { useGithubStats } from "@/components/providers/github-stats-provider";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,7 +15,6 @@ import { getAnalyticsUrl, trackEvent } from "@/lib/analytics/track-client";
 import { cn } from "@/lib/utils";
 
 const sponsorLink = "https://github.com/sponsors/uixmat";
-const openPanelLink = "https://openpanel.dev";
 const chanhDaiLink = "https://chanhdai.com";
 
 const fadeUp = {
@@ -67,25 +65,6 @@ function SponsorSkeletonCard({
         )}
       >
         +
-      </span>
-    </Link>
-  );
-}
-
-function OpenPanelSponsorCard({ className }: { className?: string }) {
-  return (
-    <Link
-      aria-label="OpenPanel"
-      className={cn(
-        "group flex aspect-[5/3] flex-col items-center justify-center gap-2 rounded-xl border border-border bg-card transition-colors hover:border-foreground/20 hover:bg-card/90",
-        className
-      )}
-      external
-      href={openPanelLink}
-    >
-      <OpenPanelIcon className="h-6 w-16 text-foreground transition-opacity group-hover:opacity-80" />
-      <span className="font-light text-muted-foreground text-xs transition-colors group-hover:text-foreground">
-        OpenPanel
       </span>
     </Link>
   );
@@ -198,15 +177,11 @@ export function HomeSponsorsSection() {
           transition={transition}
           variants={containerVariants}
         >
-          <motion.div transition={transition} variants={fadeUp}>
-            <SponsorSkeletonCard />
-          </motion.div>
-          <motion.div transition={transition} variants={fadeUp}>
-            <OpenPanelSponsorCard />
-          </motion.div>
-          <motion.div transition={transition} variants={fadeUp}>
-            <SponsorSkeletonCard />
-          </motion.div>
+          {["a", "b", "c"].map((id) => (
+            <motion.div key={id} transition={transition} variants={fadeUp}>
+              <SponsorSkeletonCard />
+            </motion.div>
+          ))}
         </motion.div>
       </div>
 
