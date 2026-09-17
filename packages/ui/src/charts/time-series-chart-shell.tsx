@@ -12,6 +12,7 @@ import {
   type ReactNode,
   useCallback,
   useEffect,
+  useId,
   useMemo,
   useState,
 } from "react";
@@ -141,7 +142,10 @@ export interface TimeSeriesChartInnerProps {
   containerRef: React.RefObject<HTMLDivElement | null>;
   /** Series keys driving y-domain and tooltip (Line / Area / SeriesBar configs). */
   lines: LineConfig[];
-  /** SVG clipPath id for grow animation. */
+  /**
+   * Base SVG clipPath id for grow animation. Uniquified per chart instance so
+   * multiple charts on one page do not share a clipPath (#226).
+   */
   clipPathId: string;
   /** Optional ComposedChart bar layout (forwarded into context). */
   composedBarDataKeys?: string[];
@@ -207,6 +211,8 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
   tweenYDomainOnXDomainChange = false,
   onPhaseChange,
 }: TimeSeriesChartInnerProps) {
+  // Unique per instance — shared clipPath ids crop later charts (#226).
+  const uniqueClipPathId = `${clipPathId}-${useId().replace(/:/g, "")}`;
   const staticPreview = useStaticChartPreview();
   const innerWidth = width - margin.left - margin.right;
   const innerHeight = height - margin.top - margin.bottom;
@@ -653,7 +659,7 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
             {useClipReveal ? (
               <ChartRevealClip
                 animating={isRevealAnimating || isRevealConcealing}
-                clipPathId={clipPathId}
+                clipPathId={uniqueClipPathId}
                 enterTransition={effectiveEnterTransition}
                 height={innerHeight + 20}
                 mode={isRevealConcealing ? "conceal" : "reveal"}
@@ -685,7 +691,7 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
             {clipExcludedChildren}
             {underlayChildren}
             {useClipReveal ? (
-              <g clipPath={`url(#${clipPathId})`}>{preOverlayChildren}</g>
+              <g clipPath={`url(#${uniqueClipPathId})`}>{preOverlayChildren}</g>
             ) : (
               preOverlayChildren
             )}
