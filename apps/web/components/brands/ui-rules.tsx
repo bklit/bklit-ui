@@ -1,3 +1,5 @@
+import { cn } from "@/lib/utils";
+
 interface UiRulesProps {
   className?: string;
 }
@@ -6,7 +8,7 @@ export const UiRules = ({ className }: UiRulesProps) => {
   return (
     <svg
       aria-label="UI Rules"
-      className={className}
+      className={cn(className, "h-7 w-7 max-w-none")}
       fill="none"
       role="img"
       viewBox="0 0 25 24"
