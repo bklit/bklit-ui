@@ -123,6 +123,9 @@ Renders a bar for each data point with configurable styling and animations.
 | `stackGap`      | `number`                      | `0`                         | Gap between stacked bars in pixels                      |
 | `perspective` | `boolean`              | `false`                     | Make this a 3D depth bar: trims the front-face top to meet the lid and forces a flat top. Pass `true` when pairing with `BarDepthBack`/`BarDepthFront` (see [3D Depth](#3d-depth--glass-surfaces)) |
 | `minBarHeight`  | `number`                      | `0`                         | Minimum rendered height in px (non-stacked, vertical) — floors short/zero bars so they stay visible. Pair with `<BarDepthProvider minBarHeight>` |
+| `showValue`     | `boolean`                     | `false`                     | Show the formatted value inside a bar when the available space is sufficient |
+| `valueLabelFormatter` | `(value: number) => string` | Persian integer format | Customize the value text shown inside bars |
+| `valueLabelColor` | `string`                    | `white`                     | Text color for values shown inside bars |
 
 ### BarSquares
 

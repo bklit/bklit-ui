@@ -744,6 +744,16 @@
           "path": "src/charts/pattern-area.tsx",
           "type": "registry:component",
           "target": "components/charts/pattern-area.tsx"
+        },
+        {
+          "path": "src/charts/area-value-labels.tsx",
+          "type": "registry:component",
+          "target": "components/charts/area-value-labels.tsx"
+        },
+        {
+          "path": "src/charts/area-value-label-layout.ts",
+          "type": "registry:component",
+          "target": "components/charts/area-value-label-layout.ts"
         }
       ]
     },
