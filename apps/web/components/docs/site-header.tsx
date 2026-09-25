@@ -35,7 +35,10 @@ interface SiteHeaderProps {
   discordUrl?: string;
 }
 
-const guides = [{ text: "Theming", url: "/docs/theming" }];
+const guides = [
+  { text: "Theming", url: "/docs/theming" },
+  { text: "Skills", url: "/docs/skills" },
+];
 
 const components = [
   { text: "Area Chart", url: "/docs/components/area-chart" },
