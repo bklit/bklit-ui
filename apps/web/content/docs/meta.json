@@ -1,4 +1,10 @@
 {
   "title": "Documentation",
-  "pages": ["---Components---", "...components", "---Utility---", "...utility"]
+  "pages": [
+    "theming",
+    "---Components---",
+    "...components",
+    "---Utility---",
+    "...utility"
+  ]
 }

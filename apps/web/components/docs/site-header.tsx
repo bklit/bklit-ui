@@ -35,6 +35,8 @@ interface SiteHeaderProps {
   discordUrl?: string;
 }
 
+const guides = [{ text: "Theming", url: "/docs/theming" }];
+
 const components = [
   { text: "Area Chart", url: "/docs/components/area-chart" },
   { text: "Bar Chart", url: "/docs/components/bar-chart" },
@@ -165,7 +167,9 @@ function MobileMenu({
     transitionDelay: isOpen ? `${index * staggerDelay}ms` : "0ms",
   });
 
-  const componentsStartIndex = links.length + 1;
+  const guidesStartIndex = links.length;
+  const componentsHeaderIndex = guidesStartIndex + guides.length;
+  const componentsStartIndex = componentsHeaderIndex + 1;
   const utilitiesLinksCount = utilities.flatMap((u) =>
     "children" in u && u.children ? u.children : [u]
   ).length;
@@ -215,11 +219,33 @@ function MobileMenu({
             ))}
           </div>
 
+          <div className="mt-3 border-border border-t pt-3">
+            <div className="flex flex-col gap-0.5">
+              {guides.map((guide, index) => (
+                <Link
+                  className="transition-[opacity,transform] duration-300 ease-out"
+                  href={guide.url}
+                  key={guide.url}
+                  onClick={onClose}
+                  style={getStaggerStyle(guidesStartIndex + index)}
+                >
+                  <Button
+                    className="h-10 w-full justify-start px-3"
+                    size="default"
+                    variant="ghost"
+                  >
+                    {guide.text}
+                  </Button>
+                </Link>
+              ))}
+            </div>
+          </div>
+
           {/* Components section */}
           <div className="mt-3 border-border border-t pt-3">
             <span
               className="mb-1 block px-3 font-medium text-muted-foreground text-xs uppercase tracking-wider transition-[opacity,transform] duration-300 ease-out"
-              style={getStaggerStyle(links.length)}
+              style={getStaggerStyle(componentsHeaderIndex)}
             >
               Components
             </span>
@@ -393,6 +419,7 @@ export function SiteHeader({
     ).length;
   const totalItems =
     links.length +
+    guides.length +
     1 + // Components header
     components.length +
     1 + // Utilities header
