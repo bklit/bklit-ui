@@ -542,3 +542,31 @@ This component requires the same packages as the Line Chart:
 ```bash
 pnpm add @visx/shape @visx/curve @visx/scale @visx/gradient @visx/responsive @visx/event @visx/grid d3-array motion react-use-measure
 ```
+
+
+## Smart value labels
+
+Enable labels on each `Area` independently. Labels use measured text bounds, stay
+inside the plot, and share collision detection across series. Crowded labels are
+hidden; full values remain available in the tooltip. Labels render above all area
+fills and do not inherit `fadeEdges` unless `fadeValueLabels` is enabled.
+
+```tsx
+<AreaChart data={data}>
+  <Area dataKey="net" showValue valueLabelMinCount={2} valueLabelMaxCount={5} />
+  <Area dataKey="gross" showValue valueLabelMinCount={2} valueLabelMaxCount={5} />
+  <ChartTooltip />
+</AreaChart>
+```
+
+| Prop on `Area` | Type | Default | Description |
+|---|---|---|---|
+| `showValue` | `boolean` | `false` | Enable labels; set `false` to disable them |
+| `valueLabelMinCount` | `number` | `2` | Preferred minimum per series; space and collisions take priority |
+| `valueLabelMaxCount` | `number` | automatic | Strict maximum per series; `0` hides all labels and takes precedence over minimum |
+| `valueLabelFormatter` | `(value: number) => string` | Persian integer formatting | Custom complete label text |
+| `valueLabelColor` | `string` | series stroke | Label color |
+| `fadeValueLabels` | `boolean` | `false` | Explicitly apply the series edge fade to labels |
+
+Open [Studio with value labels](/studio?chart=area-chart&areaShowValue=true)
+to adjust the label count and preview multiple series at different widths.
