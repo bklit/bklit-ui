@@ -10,6 +10,7 @@ import {
   type ReactNode,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -95,6 +96,8 @@ export interface BarChartProps {
   /** Fetch / display status. When `"loading"`, a shimmer skeleton replaces the
    * bars (no chart data required). Default: `"ready"`. */
   status?: ChartStatus;
+  /** Fill color for the loading skeleton. Defaults to `var(--foreground)`. */
+  loadingFill?: string;
 }
 
 const DEFAULT_MARGIN: Margin = { top: 40, right: 40, bottom: 40, left: 40 };
@@ -163,6 +166,7 @@ interface ChartInnerProps {
   containerRef: React.RefObject<HTMLDivElement | null>;
   onPhaseChange?: (phase: ChartPhase) => void;
   status: ChartStatus;
+  loadingFill?: string;
 }
 
 function ChartInner(props: ChartInnerProps) {
@@ -193,6 +197,7 @@ const ChartCore = memo(function ChartCore({
   containerRef,
   onPhaseChange,
   status,
+  loadingFill,
 }: ChartInnerProps) {
   const { tooltipData, setTooltipData, scheduleTooltip, clearTooltip } =
     useScheduledTooltip<TooltipData>();
@@ -204,6 +209,8 @@ const ChartCore = memo(function ChartCore({
 
   // Extract bar configs synchronously from children
   const lines = useMemo(() => extractBarConfigs(children), [children]);
+  const effectiveLoadingFill =
+    loadingFill ?? lines[0]?.stroke ?? "var(--foreground)";
 
   const innerWidth = width - margin.left - margin.right;
   const innerHeight = height - margin.top - margin.bottom;
@@ -370,7 +377,7 @@ const ChartCore = memo(function ChartCore({
 
   // Animation timing — replay when motion settings change
   // biome-ignore lint/correctness/useExhaustiveDependencies: revealSignature
-  useEffect(() => {
+  useLayoutEffect(() => {
     setRevealEpoch((n) => n + 1);
     setIsLoaded(false);
     // While loading, hold the skeleton (no reveal, no interaction). When
@@ -654,6 +661,7 @@ const ChartCore = memo(function ChartCore({
           {status === "loading" ? (
             <BarLoadingSkeleton
               barCount={data.length || FALLBACK_LOADING_BARS}
+              fill={effectiveLoadingFill}
               innerHeight={innerHeight}
               innerWidth={innerWidth}
             />
@@ -688,6 +696,7 @@ export function BarChart({
   children,
   onPhaseChange,
   status = "ready",
+  loadingFill,
 }: BarChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const margin = { ...DEFAULT_MARGIN, ...marginProp };
@@ -709,6 +718,7 @@ export function BarChart({
             data={data}
             enterTransition={enterTransition}
             height={height}
+            loadingFill={loadingFill}
             margin={margin}
             onPhaseChange={onPhaseChange}
             orientation={orientation}
