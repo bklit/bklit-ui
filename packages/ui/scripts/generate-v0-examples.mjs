@@ -94,11 +94,7 @@ const EXAMPLES = {
       "@bklit/x-axis",
       "@bklit/chart-tooltip",
     ],
-    dependencies: [
-      "@visx/curve@4.0.1-alpha.0",
-      "@visx/shape@4.0.1-alpha.0",
-      "motion",
-    ],
+    dependencies: ["@visx/curve@4.0.0", "@visx/shape@4.0.0", "motion"],
     importFrom: "AreaChart, Area, Grid, XAxis, ChartTooltip",
     data: `const chartData = [
   { date: new Date("2024-01-01"), desktop: 186 },
@@ -123,9 +119,9 @@ const EXAMPLES = {
       "@bklit/chart-tooltip",
     ],
     dependencies: [
-      "@visx/gradient@4.0.1-alpha.0",
-      "@visx/pattern@4.0.1-alpha.0",
-      "@visx/shape@4.0.1-alpha.0",
+      "@visx/gradient@4.0.0",
+      "@visx/pattern@4.0.0",
+      "@visx/shape@4.0.0",
       "motion",
     ],
     importFrom: "BarChart, Bar, BarXAxis, Grid, ChartTooltip",
@@ -152,11 +148,7 @@ const EXAMPLES = {
       "@bklit/x-axis",
       "@bklit/chart-tooltip",
     ],
-    dependencies: [
-      "@visx/curve@4.0.1-alpha.0",
-      "@visx/shape@4.0.1-alpha.0",
-      "motion",
-    ],
+    dependencies: ["@visx/curve@4.0.0", "@visx/shape@4.0.0", "motion"],
     importFrom: "LineChart, Line, Grid, XAxis, ChartTooltip",
     data: `const chartData = [
   { date: new Date("2024-01-01"), users: 1200 },
@@ -201,7 +193,7 @@ const EXAMPLES = {
   },
   "pie-chart": {
     registryDependencies: ["@bklit/pie-chart"],
-    dependencies: ["@visx/shape@4.0.1-alpha.0", "motion"],
+    dependencies: ["@visx/shape@4.0.0", "motion"],
     importFrom: "PieChart, PieSlice, PieCenter",
     data: `const pieData = [
   { label: "Direct", value: 320 },
@@ -218,7 +210,7 @@ const EXAMPLES = {
   },
   "gauge-chart": {
     registryDependencies: ["@bklit/gauge-chart"],
-    dependencies: ["@visx/shape@4.0.1-alpha.0", "motion"],
+    dependencies: ["@visx/shape@4.0.0", "motion"],
     importFrom: "Gauge",
     data: "",
     body: `<Gauge
@@ -231,11 +223,7 @@ const EXAMPLES = {
   },
   "heatmap-chart": {
     registryDependencies: ["@bklit/heatmap-chart"],
-    dependencies: [
-      "@visx/heatmap@4.0.1-alpha.0",
-      "@visx/shape@4.0.1-alpha.0",
-      "motion",
-    ],
+    dependencies: ["@visx/heatmap@4.0.0", "@visx/shape@4.0.0", "motion"],
     importFrom:
       "HeatmapCells, HeatmapChart, HeatmapInteractionBoundary, HeatmapInteractionProvider, HeatmapLegend, HeatmapTooltip, HeatmapXAxis, HeatmapYAxis",
     data: `const data = [
@@ -280,7 +268,7 @@ const EXAMPLES = {
   },
   "ring-chart": {
     registryDependencies: ["@bklit/ring-chart"],
-    dependencies: ["@visx/shape@4.0.1-alpha.0", "motion"],
+    dependencies: ["@visx/shape@4.0.0", "motion"],
     importFrom: "RingChart, Ring, RingCenter",
     data: `const ringData = [
   { label: "Email", value: 42 },
@@ -297,7 +285,7 @@ const EXAMPLES = {
   },
   "radar-chart": {
     registryDependencies: ["@bklit/radar-chart"],
-    dependencies: ["@visx/shape@4.0.1-alpha.0", "motion"],
+    dependencies: ["@visx/shape@4.0.0", "motion"],
     importFrom: "RadarChart, RadarGrid, RadarAxis, RadarLabels, RadarArea",
     data: `const metrics = [
   { key: "speed", label: "Speed" },
@@ -325,11 +313,7 @@ const data = [
       "@bklit/x-axis",
       "@bklit/chart-tooltip",
     ],
-    dependencies: [
-      "@visx/curve@4.0.1-alpha.0",
-      "@visx/shape@4.0.1-alpha.0",
-      "motion",
-    ],
+    dependencies: ["@visx/curve@4.0.0", "@visx/shape@4.0.0", "motion"],
     importFrom:
       "ComposedChart, SeriesBar, Area, Line, Grid, XAxis, ChartTooltip",
     data: `const chartData = [
@@ -350,7 +334,7 @@ const data = [
   },
   "funnel-chart": {
     registryDependencies: ["@bklit/funnel-chart"],
-    dependencies: ["@visx/shape@4.0.1-alpha.0", "motion"],
+    dependencies: ["@visx/shape@4.0.0", "motion"],
     importFrom: "FunnelChart",
     data: `const funnelData = [
   { label: "Visitors", value: 12000 },
@@ -362,11 +346,7 @@ const data = [
   },
   "sankey-chart": {
     registryDependencies: ["@bklit/sankey-chart"],
-    dependencies: [
-      "@visx/sankey@4.0.1-alpha.0",
-      "@visx/shape@4.0.1-alpha.0",
-      "motion",
-    ],
+    dependencies: ["@visx/sankey@4.0.0", "@visx/shape@4.0.0", "motion"],
     importFrom: "SankeyChart, SankeyLink, SankeyNode, SankeyTooltip",
     data: `const data = {
   nodes: [
@@ -441,7 +421,7 @@ const { arcs } = buildArcs(data);`,
       "@bklit/y-axis",
       "@bklit/chart-tooltip",
     ],
-    dependencies: ["@visx/shape@4.0.1-alpha.0", "motion"],
+    dependencies: ["@visx/shape@4.0.0", "motion"],
     importFrom:
       "CandlestickChart, Candlestick, Grid, XAxis, YAxis, ChartTooltip",
     data: `const ohlcData = [
@@ -460,7 +440,7 @@ const { arcs } = buildArcs(data);`,
   },
   "choropleth-chart": {
     registryDependencies: ["@bklit/choropleth-chart"],
-    dependencies: ["@visx/geo@4.0.1-alpha.0", "d3-geo", "topojson-client"],
+    dependencies: ["@visx/geo@4.0.0", "d3-geo", "topojson-client"],
     importFrom:
       "ChoroplethChart, ChoroplethFeatureComponent, ChoroplethTooltip",
     data: `const features = [
@@ -475,11 +455,7 @@ const { arcs } = buildArcs(data);`,
   },
   "live-line-chart": {
     registryDependencies: ["@bklit/live-line-chart", "@bklit/chart-tooltip"],
-    dependencies: [
-      "@visx/curve@4.0.1-alpha.0",
-      "@visx/shape@4.0.1-alpha.0",
-      "motion",
-    ],
+    dependencies: ["@visx/curve@4.0.0", "@visx/shape@4.0.0", "motion"],
     importFrom: "LiveLineChart, LiveLine, LiveXAxis, LiveYAxis, ChartTooltip",
     data: `const initialData = Array.from({ length: 24 }, (_, i) => ({
   time: Date.now() - (23 - i) * 60_000,

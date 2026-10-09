@@ -1,7 +1,7 @@
 "use client";
 
+import type { Bounds } from "@visx/brush";
 import { Brush } from "@visx/brush";
-import type { Bounds } from "@visx/brush/lib/types";
 import type React from "react";
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import {

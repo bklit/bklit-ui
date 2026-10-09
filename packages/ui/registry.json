@@ -72,9 +72,9 @@
         "@bklit/chart-utils"
       ],
       "dependencies": [
-        "@visx/event@4.0.1-alpha.0",
-        "@visx/responsive@4.0.1-alpha.0",
-        "@visx/scale@4.0.1-alpha.0",
+        "@visx/event@4.0.0",
+        "@visx/responsive@4.0.0",
+        "@visx/scale@4.0.0",
         "d3-array",
         "motion"
       ],
@@ -251,7 +251,7 @@
         "@bklit/chart-tooltip"
       ],
       "dependencies": [
-        "@visx/shape@4.0.1-alpha.0",
+        "@visx/shape@4.0.0",
         "d3-shape",
         "motion"
       ],
@@ -342,7 +342,7 @@
         "@bklit/chart-context"
       ],
       "dependencies": [
-        "@visx/grid@4.0.1-alpha.0"
+        "@visx/grid@4.0.0"
       ],
       "files": [
         {
@@ -397,7 +397,7 @@
         "@bklit/line-chart"
       ],
       "dependencies": [
-        "@visx/shape@4.0.1-alpha.0",
+        "@visx/shape@4.0.0",
         "motion"
       ],
       "files": [
@@ -432,7 +432,7 @@
         "@bklit/chart-context"
       ],
       "dependencies": [
-        "@visx/pattern@4.0.1-alpha.0",
+        "@visx/pattern@4.0.0",
         "motion"
       ],
       "files": [
@@ -669,9 +669,9 @@
         "@bklit/utils"
       ],
       "dependencies": [
-        "@visx/curve@4.0.1-alpha.0",
-        "@visx/gradient@4.0.1-alpha.0",
-        "@visx/shape@4.0.1-alpha.0",
+        "@visx/curve@4.0.0",
+        "@visx/gradient@4.0.0",
+        "@visx/shape@4.0.0",
         "motion"
       ],
       "files": [
@@ -763,10 +763,10 @@
         "@bklit/area-chart"
       ],
       "dependencies": [
-        "@visx/curve@4.0.1-alpha.0",
-        "@visx/scale@4.0.1-alpha.0",
-        "@visx/shape@4.0.1-alpha.0",
-        "@visx/responsive@4.0.1-alpha.0",
+        "@visx/curve@4.0.0",
+        "@visx/scale@4.0.0",
+        "@visx/shape@4.0.0",
+        "@visx/responsive@4.0.0",
         "d3-array",
         "motion"
       ],
@@ -826,9 +826,9 @@
         "@bklit/utils"
       ],
       "dependencies": [
-        "@visx/gradient@4.0.1-alpha.0",
-        "@visx/pattern@4.0.1-alpha.0",
-        "@visx/shape@4.0.1-alpha.0",
+        "@visx/gradient@4.0.0",
+        "@visx/pattern@4.0.0",
+        "@visx/shape@4.0.0",
         "motion"
       ],
       "files": [
@@ -915,8 +915,8 @@
         "@bklit/utils"
       ],
       "dependencies": [
-        "@visx/curve@4.0.1-alpha.0",
-        "@visx/shape@4.0.1-alpha.0",
+        "@visx/curve@4.0.0",
+        "@visx/shape@4.0.0",
         "motion"
       ],
       "files": [
@@ -1016,8 +1016,8 @@
         "@bklit/utils"
       ],
       "dependencies": [
-        "@visx/curve@4.0.1-alpha.0",
-        "@visx/shape@4.0.1-alpha.0"
+        "@visx/curve@4.0.0",
+        "@visx/shape@4.0.0"
       ],
       "files": [
         {
@@ -1150,11 +1150,11 @@
         "@bklit/utils"
       ],
       "dependencies": [
-        "@visx/curve@4.0.1-alpha.0",
-        "@visx/scale@4.0.1-alpha.0",
-        "@visx/shape@4.0.1-alpha.0",
-        "@visx/responsive@4.0.1-alpha.0",
-        "@visx/event@4.0.1-alpha.0",
+        "@visx/curve@4.0.0",
+        "@visx/scale@4.0.0",
+        "@visx/shape@4.0.0",
+        "@visx/responsive@4.0.0",
+        "@visx/event@4.0.0",
         "d3-array",
         "motion"
       ],
@@ -1201,8 +1201,8 @@
         "@bklit/utils"
       ],
       "dependencies": [
-        "@visx/scale@4.0.1-alpha.0",
-        "@visx/responsive@4.0.1-alpha.0",
+        "@visx/scale@4.0.0",
+        "@visx/responsive@4.0.0",
         "d3-array",
         "motion"
       ],
@@ -1240,9 +1240,9 @@
       ],
       "dependencies": [
         "@number-flow/react",
-        "@visx/group@4.0.1-alpha.0",
-        "@visx/responsive@4.0.1-alpha.0",
-        "@visx/shape@4.0.1-alpha.0",
+        "@visx/group@4.0.0",
+        "@visx/responsive@4.0.0",
+        "@visx/shape@4.0.0",
         "d3-shape",
         "motion"
       ],
@@ -1294,10 +1294,10 @@
         "@bklit/utils"
       ],
       "dependencies": [
-        "@visx/group@4.0.1-alpha.0",
-        "@visx/responsive@4.0.1-alpha.0",
-        "@visx/scale@4.0.1-alpha.0",
-        "@visx/shape@4.0.1-alpha.0",
+        "@visx/group@4.0.0",
+        "@visx/responsive@4.0.0",
+        "@visx/scale@4.0.0",
+        "@visx/shape@4.0.0",
         "d3-shape",
         "motion"
       ],
@@ -1344,9 +1344,9 @@
         "@bklit/utils"
       ],
       "dependencies": [
-        "@visx/group@4.0.1-alpha.0",
-        "@visx/responsive@4.0.1-alpha.0",
-        "@visx/shape@4.0.1-alpha.0",
+        "@visx/group@4.0.0",
+        "@visx/responsive@4.0.0",
+        "@visx/shape@4.0.0",
         "@number-flow/react",
         "motion"
       ],
@@ -1392,8 +1392,8 @@
         "@bklit/utils"
       ],
       "dependencies": [
-        "@visx/responsive@4.0.1-alpha.0",
-        "@visx/pattern@4.0.1-alpha.0",
+        "@visx/responsive@4.0.0",
+        "@visx/pattern@4.0.0",
         "@number-flow/react",
         "motion",
         "d3-shape"
@@ -1456,11 +1456,11 @@
         "@bklit/shimmering-text"
       ],
       "dependencies": [
-        "@visx/group@4.0.1-alpha.0",
-        "@visx/heatmap@4.0.1-alpha.0",
-        "@visx/pattern@4.0.1-alpha.0",
-        "@visx/responsive@4.0.1-alpha.0",
-        "@visx/scale@4.0.1-alpha.0",
+        "@visx/group@4.0.0",
+        "@visx/heatmap@4.0.0",
+        "@visx/pattern@4.0.0",
+        "@visx/responsive@4.0.0",
+        "@visx/scale@4.0.0",
         "motion"
       ],
       "files": [
@@ -1589,9 +1589,9 @@
       ],
       "dependencies": [
         "@types/geojson",
-        "@visx/geo@4.0.1-alpha.0",
-        "@visx/responsive@4.0.1-alpha.0",
-        "@visx/zoom@4.0.1-alpha.0",
+        "@visx/geo@4.0.0",
+        "@visx/responsive@4.0.0",
+        "@visx/zoom@4.0.0",
         "d3-geo",
         "topojson-client",
         "motion"
@@ -1667,11 +1667,11 @@
         "@bklit/chart-tooltip"
       ],
       "dependencies": [
-        "@visx/event@4.0.1-alpha.0",
-        "@visx/gradient@4.0.1-alpha.0",
-        "@visx/pattern@4.0.1-alpha.0",
-        "@visx/responsive@4.0.1-alpha.0",
-        "@visx/sankey@4.0.1-alpha.0",
+        "@visx/event@4.0.0",
+        "@visx/gradient@4.0.0",
+        "@visx/pattern@4.0.0",
+        "@visx/responsive@4.0.0",
+        "@visx/sankey@4.0.0",
         "d3-sankey",
         "motion"
       ],
@@ -1780,8 +1780,8 @@
         "@bklit/chart-tooltip"
       ],
       "dependencies": [
-        "@visx/curve@4.0.1-alpha.0",
-        "@visx/shape@4.0.1-alpha.0",
+        "@visx/curve@4.0.0",
+        "@visx/shape@4.0.0",
         "motion"
       ],
       "files": [
@@ -1808,9 +1808,9 @@
         "@bklit/chart-tooltip"
       ],
       "dependencies": [
-        "@visx/gradient@4.0.1-alpha.0",
-        "@visx/pattern@4.0.1-alpha.0",
-        "@visx/shape@4.0.1-alpha.0",
+        "@visx/gradient@4.0.0",
+        "@visx/pattern@4.0.0",
+        "@visx/shape@4.0.0",
         "motion"
       ],
       "files": [
@@ -1838,8 +1838,8 @@
         "@bklit/chart-tooltip"
       ],
       "dependencies": [
-        "@visx/curve@4.0.1-alpha.0",
-        "@visx/shape@4.0.1-alpha.0",
+        "@visx/curve@4.0.0",
+        "@visx/shape@4.0.0",
         "motion"
       ],
       "files": [
@@ -1894,7 +1894,7 @@
         "@bklit/pie-chart"
       ],
       "dependencies": [
-        "@visx/shape@4.0.1-alpha.0",
+        "@visx/shape@4.0.0",
         "motion"
       ],
       "files": [
@@ -1919,7 +1919,7 @@
         "@bklit/gauge-chart"
       ],
       "dependencies": [
-        "@visx/shape@4.0.1-alpha.0",
+        "@visx/shape@4.0.0",
         "motion"
       ],
       "files": [
@@ -1944,8 +1944,8 @@
         "@bklit/heatmap-chart"
       ],
       "dependencies": [
-        "@visx/heatmap@4.0.1-alpha.0",
-        "@visx/shape@4.0.1-alpha.0",
+        "@visx/heatmap@4.0.0",
+        "@visx/shape@4.0.0",
         "motion"
       ],
       "files": [
@@ -1970,7 +1970,7 @@
         "@bklit/ring-chart"
       ],
       "dependencies": [
-        "@visx/shape@4.0.1-alpha.0",
+        "@visx/shape@4.0.0",
         "motion"
       ],
       "files": [
@@ -1995,7 +1995,7 @@
         "@bklit/radar-chart"
       ],
       "dependencies": [
-        "@visx/shape@4.0.1-alpha.0",
+        "@visx/shape@4.0.0",
         "motion"
       ],
       "files": [
@@ -2023,8 +2023,8 @@
         "@bklit/chart-tooltip"
       ],
       "dependencies": [
-        "@visx/curve@4.0.1-alpha.0",
-        "@visx/shape@4.0.1-alpha.0",
+        "@visx/curve@4.0.0",
+        "@visx/shape@4.0.0",
         "motion"
       ],
       "files": [
@@ -2049,7 +2049,7 @@
         "@bklit/funnel-chart"
       ],
       "dependencies": [
-        "@visx/shape@4.0.1-alpha.0",
+        "@visx/shape@4.0.0",
         "motion"
       ],
       "files": [
@@ -2074,8 +2074,8 @@
         "@bklit/sankey-chart"
       ],
       "dependencies": [
-        "@visx/sankey@4.0.1-alpha.0",
-        "@visx/shape@4.0.1-alpha.0",
+        "@visx/sankey@4.0.0",
+        "@visx/shape@4.0.0",
         "motion"
       ],
       "files": [
@@ -2128,7 +2128,7 @@
         "@bklit/chart-tooltip"
       ],
       "dependencies": [
-        "@visx/shape@4.0.1-alpha.0",
+        "@visx/shape@4.0.0",
         "motion"
       ],
       "files": [
@@ -2153,7 +2153,7 @@
         "@bklit/choropleth-chart"
       ],
       "dependencies": [
-        "@visx/geo@4.0.1-alpha.0",
+        "@visx/geo@4.0.0",
         "d3-geo",
         "topojson-client"
       ],
@@ -2180,8 +2180,8 @@
         "@bklit/chart-tooltip"
       ],
       "dependencies": [
-        "@visx/curve@4.0.1-alpha.0",
-        "@visx/shape@4.0.1-alpha.0",
+        "@visx/curve@4.0.0",
+        "@visx/shape@4.0.0",
         "motion"
       ],
       "files": [
@@ -2229,8 +2229,8 @@
         "badge"
       ],
       "dependencies": [
-        "@visx/curve@4.0.1-alpha.0",
-        "@visx/gradient@4.0.1-alpha.0",
+        "@visx/curve@4.0.0",
+        "@visx/gradient@4.0.0",
         "@number-flow/react",
         "@central-icons-react/all"
       ],
@@ -2276,8 +2276,8 @@
         "@bklit/stat-card-area-01"
       ],
       "dependencies": [
-        "@visx/curve@4.0.1-alpha.0",
-        "@visx/gradient@4.0.1-alpha.0",
+        "@visx/curve@4.0.0",
+        "@visx/gradient@4.0.0",
         "@number-flow/react",
         "@central-icons-react/all"
       ],
@@ -2306,7 +2306,7 @@
         "badge"
       ],
       "dependencies": [
-        "@visx/curve@4.0.1-alpha.0",
+        "@visx/curve@4.0.0",
         "@number-flow/react",
         "@central-icons-react/all"
       ],
@@ -2352,7 +2352,7 @@
         "@bklit/stat-card-line-01"
       ],
       "dependencies": [
-        "@visx/curve@4.0.1-alpha.0",
+        "@visx/curve@4.0.0",
         "@number-flow/react",
         "@central-icons-react/all"
       ],

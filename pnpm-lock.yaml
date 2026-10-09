@@ -142,32 +142,32 @@ importers:
         specifier: ^149.0.0
         version: 149.0.0
       '@visx/brush':
-        specifier: 3.12.0
-        version: 3.12.0(react@19.2.0)
+        specifier: 4.0.0
+        version: 4.0.0(@types/react@19.2.2)(react@19.2.0)
       '@visx/curve':
-        specifier: 4.0.1-alpha.0
-        version: 4.0.1-alpha.0
+        specifier: 4.0.0
+        version: 4.0.0
       '@visx/event':
-        specifier: 4.0.1-alpha.0
-        version: 4.0.1-alpha.0
+        specifier: 4.0.0
+        version: 4.0.0(@types/react@19.2.2)(react@19.2.0)
       '@visx/gradient':
-        specifier: 4.0.1-alpha.0
-        version: 4.0.1-alpha.0(react@19.2.0)
+        specifier: 4.0.0
+        version: 4.0.0(@types/react@19.2.2)(react@19.2.0)
       '@visx/grid':
-        specifier: 4.0.1-alpha.0
-        version: 4.0.1-alpha.0(react@19.2.0)
+        specifier: 4.0.0
+        version: 4.0.0(@types/react@19.2.2)(react@19.2.0)
       '@visx/group':
-        specifier: 4.0.1-alpha.0
-        version: 4.0.1-alpha.0(react@19.2.0)
+        specifier: 4.0.0
+        version: 4.0.0(@types/react@19.2.2)(react@19.2.0)
       '@visx/responsive':
-        specifier: 4.0.1-alpha.0
-        version: 4.0.1-alpha.0(react@19.2.0)
+        specifier: 4.0.0
+        version: 4.0.0(@types/react@19.2.2)(react@19.2.0)
       '@visx/scale':
-        specifier: 4.0.1-alpha.0
-        version: 4.0.1-alpha.0
+        specifier: 4.0.0
+        version: 4.0.0
       '@visx/shape':
-        specifier: 4.0.1-alpha.0
-        version: 4.0.1-alpha.0(react@19.2.0)
+        specifier: 4.0.0
+        version: 4.0.0(@types/react@19.2.2)(react@19.2.0)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -357,8 +357,8 @@ importers:
         specifier: 4.0.462
         version: 4.0.462(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@visx/curve':
-        specifier: 4.0.1-alpha.0
-        version: 4.0.1-alpha.0
+        specifier: 4.0.0
+        version: 4.0.0
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -474,47 +474,47 @@ importers:
         specifier: ^0.5.4
         version: 0.5.11(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@visx/brush':
-        specifier: 3.12.0
-        version: 3.12.0(react@19.2.0)
+        specifier: 4.0.0
+        version: 4.0.0(@types/react@19.2.2)(react@19.2.0)
       '@visx/curve':
-        specifier: 4.0.1-alpha.0
-        version: 4.0.1-alpha.0
+        specifier: 4.0.0
+        version: 4.0.0
       '@visx/event':
-        specifier: 4.0.1-alpha.0
-        version: 4.0.1-alpha.0
+        specifier: 4.0.0
+        version: 4.0.0(@types/react@19.2.2)(react@19.2.0)
       '@visx/geo':
-        specifier: 4.0.1-alpha.0
-        version: 4.0.1-alpha.0(react@19.2.0)
+        specifier: 4.0.0
+        version: 4.0.0(@types/react@19.2.2)(react@19.2.0)
       '@visx/gradient':
-        specifier: 4.0.1-alpha.0
-        version: 4.0.1-alpha.0(react@19.2.0)
+        specifier: 4.0.0
+        version: 4.0.0(@types/react@19.2.2)(react@19.2.0)
       '@visx/grid':
-        specifier: 4.0.1-alpha.0
-        version: 4.0.1-alpha.0(react@19.2.0)
+        specifier: 4.0.0
+        version: 4.0.0(@types/react@19.2.2)(react@19.2.0)
       '@visx/group':
-        specifier: 4.0.1-alpha.0
-        version: 4.0.1-alpha.0(react@19.2.0)
+        specifier: 4.0.0
+        version: 4.0.0(@types/react@19.2.2)(react@19.2.0)
       '@visx/heatmap':
-        specifier: 4.0.1-alpha.0
-        version: 4.0.1-alpha.0(react@19.2.0)
+        specifier: 4.0.0
+        version: 4.0.0(@types/react@19.2.2)(react@19.2.0)
       '@visx/pattern':
-        specifier: 4.0.1-alpha.0
-        version: 4.0.1-alpha.0(react@19.2.0)
+        specifier: 4.0.0
+        version: 4.0.0(@types/react@19.2.2)(react@19.2.0)
       '@visx/responsive':
-        specifier: 4.0.1-alpha.0
-        version: 4.0.1-alpha.0(react@19.2.0)
+        specifier: 4.0.0
+        version: 4.0.0(@types/react@19.2.2)(react@19.2.0)
       '@visx/sankey':
-        specifier: 4.0.1-alpha.0
-        version: 4.0.1-alpha.0(react@19.2.0)
+        specifier: 4.0.0
+        version: 4.0.0(@types/react@19.2.2)(react@19.2.0)
       '@visx/scale':
-        specifier: 4.0.1-alpha.0
-        version: 4.0.1-alpha.0
+        specifier: 4.0.0
+        version: 4.0.0
       '@visx/shape':
-        specifier: 4.0.1-alpha.0
-        version: 4.0.1-alpha.0(react@19.2.0)
+        specifier: 4.0.0
+        version: 4.0.0(@types/react@19.2.2)(react@19.2.0)
       '@visx/zoom':
-        specifier: 4.0.1-alpha.0
-        version: 4.0.1-alpha.0(react@19.2.0)
+        specifier: 4.0.0
+        version: 4.0.0(@types/react@19.2.2)(react@19.2.0)
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -2451,9 +2451,6 @@ packages:
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
 
-  '@types/lodash@4.17.23':
-    resolution: {integrity: sha512-RDvF6wTulMPjrNdCoYRC8gNR880JNGT8uB+REUpC2Ns4pRqQJhGz90wh7rgdXDPpCczF3VGktDuFGVnz8zP7HA==}
-
   '@types/lz-string@1.5.0':
     resolution: {integrity: sha512-s84fKOrzqqNCAPljhVyC5TjAo6BH4jKHw9NRNFNiRUY5QSgZCmVm5XILlWbisiKl+0OcS7eWihmKGS5akc2iQw==}
     deprecated: This is a stub types definition. lz-string provides its own type definitions, so you do not need this installed.
@@ -2569,105 +2566,134 @@ packages:
     peerDependencies:
       react: '>= 16.8.0'
 
-  '@visx/brush@3.12.0':
-    resolution: {integrity: sha512-ceqQe/IlIi9X9FT/DuiO6b3l5YAGnux/aQMX8M1gvLdz4T8pXIW8nDv1OhqbZ7lmbQEUEEM9IexOkR9ix7pL+Q==}
+  '@visx/brush@4.0.0':
+    resolution: {integrity: sha512-gUPuqiyYlCnlU22lh3FZz3AxM9JuU1MrousTd6oNjr3bEtzeXyK+dBLVt66MqomSzN+fbU1LCXI2r7QBuebHqg==}
     peerDependencies:
-      react: ^16.0.0-0 || ^17.0.0-0 || ^18.0.0-0
+      '@types/react': ^18.0.0 || ^19.0.0
+      react: ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
-  '@visx/curve@3.12.0':
-    resolution: {integrity: sha512-Ng1mefXIzoIoAivw7dJ+ZZYYUbfuwXgZCgQynShr6ZIVw7P4q4HeQfJP3W24ON+1uCSrzoycHSXRelhR9SBPcw==}
+  '@visx/curve@4.0.0':
+    resolution: {integrity: sha512-bXrOSd2BzVCxR7kBE7gPTSU4plxzYN75w7erdHYabwn3vzP+xFk1o0gg3NOHEPJzt5tXqf0Ecm5YqHACOnipTA==}
 
-  '@visx/curve@4.0.1-alpha.0':
-    resolution: {integrity: sha512-jRu61Uz274pV1zyioXmboyrLutYbnKsgjj4njSGCnhdXj5GkZvZbg+ThDb6oOzoAnJOBRLz4rzPlWvNJOzuVMg==}
-
-  '@visx/drag@3.12.0':
-    resolution: {integrity: sha512-LXOoPVw//YPjpYhDJYBsCYDuv1QimsXjDV98duH0aCy4V94ediXMQpe2wHq4pnlDobLEB71FjOZMFrbFmqtERg==}
+  '@visx/drag@4.0.0':
+    resolution: {integrity: sha512-hWfe8a1sqkxTkcQP6EKNAsSZ9d/0owBOjyoC+cgULorfXkmBJpDK2xV7YGsicUqSbM1tuNIrPJME2HQACBc9Ng==}
     peerDependencies:
-      react: ^16.8.0-0 || ^17.0.0-0 || ^18.0.0-0
+      '@types/react': ^18.0.0 || ^19.0.0
+      react: ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
-  '@visx/event@3.12.0':
-    resolution: {integrity: sha512-9Lvw6qJ0Fi+y1vsC1WspfdIKCxHTb7oy59Uql1uBdPGT8zChP0vuxW0jQNQRDbKgoefj4pCXAFi8+MF1mEtVTw==}
-
-  '@visx/event@4.0.1-alpha.0':
-    resolution: {integrity: sha512-EQqCMSv/s8NbFjo+hz3FKsvvYfP+2QslsFJ/24/O5l/W+7UC6J6aAvO0ujVwrTwdYbuQ+vhxKi1xdPdKR/qj1g==}
-
-  '@visx/geo@4.0.1-alpha.0':
-    resolution: {integrity: sha512-ZzeXrMgT1JjUZl1GaW3KecN2PkCCTDfYDeTD8+kvugC6umLKTsJ4+ii1GpjrgnPTtOBzZnJHCAknJ3mzaz/DRg==}
+  '@visx/event@4.0.0':
+    resolution: {integrity: sha512-sOcVVzOUxOefF8mQenRFtutoEO7P9icpTcSJM36Sv13sepQbPBuYLknX7RV+EzqyNLOze5cO5GmLIUNH82FOoA==}
     peerDependencies:
-      react: ^16.14.0 || ^17.0.0-0 || ^18.0.0-0 || ^19.0.0-0
+      '@types/react': ^18.0.0 || ^19.0.0
+      react: ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
-  '@visx/gradient@4.0.1-alpha.0':
-    resolution: {integrity: sha512-HxkxLdThV/gPaulw+t7/ESo7AtqIBq9IlHIkHi7lQqXe0Yl+x8rpM3KYlYqEZjtihD9CeEaVJjBbdY7fQb54IA==}
+  '@visx/geo@4.0.0':
+    resolution: {integrity: sha512-YbjECakNrIkvS7y+EqEOXzn7HhIGTwIB9sx/MYoYA5XLxNILVLL7PTXrI/ey9gs8zz9Nb3WpxlLiuqC8G4iCOQ==}
     peerDependencies:
-      react: ^16.14.0 || ^17.0.0-0 || ^18.0.0-0 || ^19.0.0-0
+      '@types/react': ^18.0.0 || ^19.0.0
+      react: ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
-  '@visx/grid@4.0.1-alpha.0':
-    resolution: {integrity: sha512-rycutGmTHO+znNdPumheWMglm7YfpffvRwUkVy5zy4WoORIuKTMkDxwnOzHG2xMxU3EE/YCd37xFV5AxA30yeg==}
+  '@visx/gradient@4.0.0':
+    resolution: {integrity: sha512-AycKA/9Hhx9BXOdWACqYKGU+Dkq/gWzgaDAK/MkVDjXME+3Sl8oE6mn/ZO54gi6wg9qNHhWLnp8XKPJSp4/pzA==}
     peerDependencies:
-      react: ^16.14.0 || ^17.0.0-0 || ^18.0.0-0 || ^19.0.0-0
+      '@types/react': ^18.0.0 || ^19.0.0
+      react: ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
-  '@visx/group@3.12.0':
-    resolution: {integrity: sha512-Dye8iS1alVXPv7nj/7M37gJe6sSKqJLH7x6sEWAsRQ9clI0kFvjbKcKgF+U3aAVQr0NCohheFV+DtR8trfK/Ag==}
+  '@visx/grid@4.0.0':
+    resolution: {integrity: sha512-BUnznqYo8jyn3zXRWZiF0zwg1VQl6w5kYqZ+XMY+cPXtAHZZbwGXBChMpPefH5Lj1+P1b4Pf3QihKG8zjL9PCw==}
     peerDependencies:
-      react: ^16.0.0-0 || ^17.0.0-0 || ^18.0.0-0
+      '@types/react': ^18.0.0 || ^19.0.0
+      react: ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
-  '@visx/group@4.0.1-alpha.0':
-    resolution: {integrity: sha512-V19l7iQ7jccBv8kao/EByuI6o4xtxzzLV9nqVI1hRvmdzTVsuLpqlwzYCZUXJaTVvUWf8s4D2SQFjGkj/Nw+0w==}
+  '@visx/group@4.0.0':
+    resolution: {integrity: sha512-HGAq8BCqn5x0t94CJOLJeKtWss9LFpF3HY69HbuO1PlR+B9c4aVT9xbjfudmU8wGQZLT6JNt+PJvxbO2aJ+1aA==}
     peerDependencies:
-      react: ^16.14.0 || ^17.0.0-0 || ^18.0.0-0 || ^19.0.0-0
+      '@types/react': ^18.0.0 || ^19.0.0
+      react: ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
-  '@visx/heatmap@4.0.1-alpha.0':
-    resolution: {integrity: sha512-fxghd5MCLSDeLxlT8f0x6ulEcBPgJZg9VyLQvCwVNHwopm3DUkk6evPJOMlcpXJiESDXsHkhSNit42O2fIZBRA==}
+  '@visx/heatmap@4.0.0':
+    resolution: {integrity: sha512-+78FPvR3kGWRGwlA3j8kLARRdwTGWViIOMe8OC6layuAGWIa8Cgi1DXXc4054xoUwMkVC0bqcHdsbldIGKhz4w==}
     peerDependencies:
-      react: ^16.14.0 || ^17.0.0-0 || ^18.0.0-0 || ^19.0.0-0
+      '@types/react': ^18.0.0 || ^19.0.0
+      react: ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
-  '@visx/pattern@4.0.1-alpha.0':
-    resolution: {integrity: sha512-KCqHpjtHdu95uqamc5PIYG55Xp0w+7/Zz63k4eeZErwK1o0PN2rZiBiuodNtENL8NqIU2b5AP+XI/xXaUH0M4Q==}
+  '@visx/pattern@4.0.0':
+    resolution: {integrity: sha512-vhViDwBVRvKR0kcLSZELpn5c3zQm0LIsGMIhs1Qk5VMTeRo29jY0rb4IqplXDc9/6HRXgMYhGKWTpurQ5HVReg==}
     peerDependencies:
-      react: ^16.14.0 || ^17.0.0-0 || ^18.0.0-0 || ^19.0.0-0
+      '@types/react': ^18.0.0 || ^19.0.0
+      react: ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
-  '@visx/point@3.12.0':
-    resolution: {integrity: sha512-I6UrHoJAEVbx3RORQNupgTiX5EzjuZpiwLPxn8L2mI5nfERotPKi1Yus12Cq2WtXqEBR/WgqTnoImlqOXBykcA==}
+  '@visx/point@4.0.0':
+    resolution: {integrity: sha512-hwJ9UlIjg3iV4iiJ3RN5SNTXama+zGaNe57sXSrSvPiqhkDXypsYBdDSlAnHmKbMzHP0zFmgB1UJciB/QUyigw==}
 
-  '@visx/point@4.0.1-alpha.0':
-    resolution: {integrity: sha512-ijTfr/Nx09f03vIj9nyTr3z4Xth4Y75427UaogJh6dnIRLMEFHQOwNu791sbfiNj0a+ZXuaE32h0vKrFe4/8Qg==}
-
-  '@visx/responsive@4.0.1-alpha.0':
-    resolution: {integrity: sha512-o+1zGywQZY0+yOx3Iw87wc4bbPJRr/HnIukTwfOz4UVyj9pB1OQNVHB7OORO1+LBHJceWpB31co/ZV9KHncKrA==}
+  '@visx/responsive@4.0.0':
+    resolution: {integrity: sha512-MGPK8AeiBIhzz34o9TNJIyUDQIdWEj5mt+U/Je4qVRRXpXSMhor1IE7v71czAS5b90OrFxC9L3w27AV+szG25w==}
     peerDependencies:
-      react: ^16.14.0 || ^17.0.0-0 || ^18.0.0-0 || ^19.0.0-0
+      '@types/react': ^18.0.0 || ^19.0.0
+      react: ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
-  '@visx/sankey@4.0.1-alpha.0':
-    resolution: {integrity: sha512-bzF3MHdJ9A/KdWiGK7vy64A9MK8HhNldAxeUTiQd5wELdvx8YMHOkU8AxtKACWHveaoakthnesgQjbrEGt4oeg==}
+  '@visx/sankey@4.0.0':
+    resolution: {integrity: sha512-MQNl2iomysbAbouhdEMmiiXGC0ghJvKLA3ooLJtpdeO7M2RWiTU49vqyTJCsKPGXvt3BJud6fKDKtk9B5/Rw7w==}
     peerDependencies:
-      react: ^16.14.0 || ^17.0.0-0 || ^18.0.0-0 || ^19.0.0-0
+      '@types/react': ^18.0.0 || ^19.0.0
+      react: ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
-  '@visx/scale@3.12.0':
-    resolution: {integrity: sha512-+ubijrZ2AwWCsNey0HGLJ0YKNeC/XImEFsr9rM+Uef1CM3PNM43NDdNTrdBejSlzRq0lcfQPWYMYQFSlkLcPOg==}
+  '@visx/scale@4.0.0':
+    resolution: {integrity: sha512-Q3VaSLKlsrxxSl9CwS2D3Mvz4/4kIp/6NMKRY8Im0Au1hrQh2egU806p0+JwN0ccuGGDe03jyAxX4BSRAH8Plg==}
 
-  '@visx/scale@4.0.1-alpha.0':
-    resolution: {integrity: sha512-nzjeE87vFSAXGWFiiNfBpNLAf0Q8Qmf6syvKLjqNi4kGZkdhbUll3E/59YsgWXmjM8+llPLWzGsP+JPvo5eq1A==}
-
-  '@visx/shape@3.12.0':
-    resolution: {integrity: sha512-/1l0lrpX9tPic6SJEalryBKWjP/ilDRnQA+BGJTI1tj7i23mJ/J0t4nJHyA1GrL4QA/bM/qTJ35eyz5dEhJc4g==}
+  '@visx/shape@4.0.0':
+    resolution: {integrity: sha512-X0FP3OFjQhc5/6Vj2aY7cK2JwKYI0H0hQM7cdNRWy/ZMMlrh5KpEdqx0HVo0KoTeTlkUvO+kydMLnAuuCRFIFw==}
     peerDependencies:
-      react: ^16.3.0-0 || ^17.0.0-0 || ^18.0.0-0
+      '@types/react': ^18.0.0 || ^19.0.0
+      react: ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
-  '@visx/shape@4.0.1-alpha.0':
-    resolution: {integrity: sha512-62QeiVNmPlterQGwhkEDcbq7M0MqY0lBsK5QKXtM9ZoPZWkuGV3aykA3+Xu20B2FAvyJq4LqJzBc7Sxr+EAdbA==}
+  '@visx/vendor@4.0.0':
+    resolution: {integrity: sha512-LoBNzWjTXzBfu095BQxB14IwZQHHOLs8ZMzM6t2FL4ZGORaACgLcmXRRLhFo0VmRR8L7iNTM4HHc1j6yFvzsAA==}
+
+  '@visx/zoom@4.0.0':
+    resolution: {integrity: sha512-MKJ4RJZwnIPd9oyDUvfTsEGb9l89EIdwH7q3PEw2od9WUQjwKq517rt5Zv0s+TOxgREWbaU+NwneIqAPh1lwJw==}
     peerDependencies:
-      react: ^16.14.0 || ^17.0.0-0 || ^18.0.0-0 || ^19.0.0-0
-
-  '@visx/vendor@3.12.0':
-    resolution: {integrity: sha512-SVO+G0xtnL9dsNpGDcjCgoiCnlB3iLSM9KLz1sLbSrV7RaVXwY3/BTm2X9OWN1jH2a9M+eHt6DJ6sE6CXm4cUg==}
-
-  '@visx/vendor@4.0.0-alpha.0':
-    resolution: {integrity: sha512-6I+MuqXBcv9jnlcVowHoHKSdk9gXTWkHLKyqBwRWg7LY6A3Ei8SHfubpqGV5rBUSppxMq2RszPJUS6w+H0YgmQ==}
-
-  '@visx/zoom@4.0.1-alpha.0':
-    resolution: {integrity: sha512-f+Y3rI3Lhpn4wbkSQw3IPsqtcRbh/TcF4M4N5ETrciMXtkJVQNrYzzC6mgxN1fZcw2228oKZzNaMI7hpOLoPkw==}
-    peerDependencies:
-      react: ^16.14.0 || ^17.0.0-0 || ^18.0.0-0 || ^19.0.0-0
+      '@types/react': ^18.0.0 || ^19.0.0
+      react: ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
   '@xstate/fsm@1.6.5':
     resolution: {integrity: sha512-b5o1I6aLNeYlU/3CPlj/Z91ybk1gUsKT+5NAJI+2W4UjvS5KLG28K9v5UvNoFVjHV8PajVZ00RH3vnjyQO7ZAw==}
@@ -4320,9 +4346,6 @@ packages:
 
   lodash.merge@4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
-
-  lodash@4.17.21:
-    resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
 
   log-symbols@5.1.0:
     resolution: {integrity: sha512-l0x2DvrW294C9uDCoQe1VSU4gf529FkSZ6leBl4TiqZH/e+0R7hSfHQBNut2mNygDgHwvYHfFLn6Oxb3VWj2rA==}
@@ -7564,8 +7587,6 @@ snapshots:
 
   '@types/json-schema@7.0.15': {}
 
-  '@types/lodash@4.17.23': {}
-
   '@types/lz-string@1.5.0':
     dependencies:
       lz-string: 1.5.0
@@ -7709,175 +7730,122 @@ snapshots:
       '@use-gesture/core': 10.3.1
       react: 19.2.0
 
-  '@visx/brush@3.12.0(react@19.2.0)':
+  '@visx/brush@4.0.0(@types/react@19.2.2)(react@19.2.0)':
     dependencies:
-      '@visx/drag': 3.12.0(react@19.2.0)
-      '@visx/event': 3.12.0
-      '@visx/group': 3.12.0(react@19.2.0)
-      '@visx/scale': 3.12.0
-      '@visx/shape': 3.12.0(react@19.2.0)
+      '@visx/drag': 4.0.0(@types/react@19.2.2)(react@19.2.0)
+      '@visx/event': 4.0.0(@types/react@19.2.2)(react@19.2.0)
+      '@visx/group': 4.0.0(@types/react@19.2.2)(react@19.2.0)
+      '@visx/scale': 4.0.0
+      '@visx/shape': 4.0.0(@types/react@19.2.2)(react@19.2.0)
       classnames: 2.5.1
-      prop-types: 15.8.1
       react: 19.2.0
-
-  '@visx/curve@3.12.0':
-    dependencies:
-      '@types/d3-shape': 1.3.12
-      d3-shape: 1.3.7
-
-  '@visx/curve@4.0.1-alpha.0':
-    dependencies:
-      '@visx/vendor': 4.0.0-alpha.0
-
-  '@visx/drag@3.12.0(react@19.2.0)':
-    dependencies:
+    optionalDependencies:
       '@types/react': 19.2.2
-      '@visx/event': 3.12.0
-      '@visx/point': 3.12.0
-      prop-types: 15.8.1
+
+  '@visx/curve@4.0.0':
+    dependencies:
+      '@visx/vendor': 4.0.0
+
+  '@visx/drag@4.0.0(@types/react@19.2.2)(react@19.2.0)':
+    dependencies:
+      '@visx/event': 4.0.0(@types/react@19.2.2)(react@19.2.0)
+      '@visx/point': 4.0.0
       react: 19.2.0
-
-  '@visx/event@3.12.0':
-    dependencies:
+    optionalDependencies:
       '@types/react': 19.2.2
-      '@visx/point': 3.12.0
 
-  '@visx/event@4.0.1-alpha.0':
+  '@visx/event@4.0.0(@types/react@19.2.2)(react@19.2.0)':
     dependencies:
+      '@visx/point': 4.0.0
+      react: 19.2.0
+    optionalDependencies:
       '@types/react': 19.2.2
-      '@visx/point': 4.0.1-alpha.0
 
-  '@visx/geo@4.0.1-alpha.0(react@19.2.0)':
+  '@visx/geo@4.0.0(@types/react@19.2.2)(react@19.2.0)':
     dependencies:
       '@types/geojson': 7946.0.16
-      '@types/react': 19.2.2
-      '@visx/group': 4.0.1-alpha.0(react@19.2.0)
-      '@visx/vendor': 4.0.0-alpha.0
+      '@visx/group': 4.0.0(@types/react@19.2.2)(react@19.2.0)
+      '@visx/vendor': 4.0.0
       classnames: 2.5.1
       react: 19.2.0
-
-  '@visx/gradient@4.0.1-alpha.0(react@19.2.0)':
-    dependencies:
+    optionalDependencies:
       '@types/react': 19.2.2
+
+  '@visx/gradient@4.0.0(@types/react@19.2.2)(react@19.2.0)':
+    dependencies:
       react: 19.2.0
-
-  '@visx/grid@4.0.1-alpha.0(react@19.2.0)':
-    dependencies:
+    optionalDependencies:
       '@types/react': 19.2.2
-      '@visx/curve': 4.0.1-alpha.0
-      '@visx/group': 4.0.1-alpha.0(react@19.2.0)
-      '@visx/point': 4.0.1-alpha.0
-      '@visx/scale': 4.0.1-alpha.0
-      '@visx/shape': 4.0.1-alpha.0(react@19.2.0)
+
+  '@visx/grid@4.0.0(@types/react@19.2.2)(react@19.2.0)':
+    dependencies:
+      '@visx/curve': 4.0.0
+      '@visx/group': 4.0.0(@types/react@19.2.2)(react@19.2.0)
+      '@visx/point': 4.0.0
+      '@visx/scale': 4.0.0
+      '@visx/shape': 4.0.0(@types/react@19.2.2)(react@19.2.0)
       classnames: 2.5.1
       react: 19.2.0
-
-  '@visx/group@3.12.0(react@19.2.0)':
-    dependencies:
+    optionalDependencies:
       '@types/react': 19.2.2
-      classnames: 2.5.1
-      prop-types: 15.8.1
-      react: 19.2.0
 
-  '@visx/group@4.0.1-alpha.0(react@19.2.0)':
+  '@visx/group@4.0.0(@types/react@19.2.2)(react@19.2.0)':
     dependencies:
-      '@types/react': 19.2.2
       classnames: 2.5.1
       react: 19.2.0
-
-  '@visx/heatmap@4.0.1-alpha.0(react@19.2.0)':
-    dependencies:
+    optionalDependencies:
       '@types/react': 19.2.2
-      '@visx/group': 4.0.1-alpha.0(react@19.2.0)
+
+  '@visx/heatmap@4.0.0(@types/react@19.2.2)(react@19.2.0)':
+    dependencies:
+      '@visx/group': 4.0.0(@types/react@19.2.2)(react@19.2.0)
       classnames: 2.5.1
       react: 19.2.0
-
-  '@visx/pattern@4.0.1-alpha.0(react@19.2.0)':
-    dependencies:
+    optionalDependencies:
       '@types/react': 19.2.2
+
+  '@visx/pattern@4.0.0(@types/react@19.2.2)(react@19.2.0)':
+    dependencies:
       classnames: 2.5.1
       react: 19.2.0
-
-  '@visx/point@3.12.0': {}
-
-  '@visx/point@4.0.1-alpha.0': {}
-
-  '@visx/responsive@4.0.1-alpha.0(react@19.2.0)':
-    dependencies:
-      '@types/lodash': 4.17.23
+    optionalDependencies:
       '@types/react': 19.2.2
-      lodash: 4.17.21
-      react: 19.2.0
 
-  '@visx/sankey@4.0.1-alpha.0(react@19.2.0)':
+  '@visx/point@4.0.0': {}
+
+  '@visx/responsive@4.0.0(@types/react@19.2.2)(react@19.2.0)':
+    dependencies:
+      react: 19.2.0
+    optionalDependencies:
+      '@types/react': 19.2.2
+
+  '@visx/sankey@4.0.0(@types/react@19.2.2)(react@19.2.0)':
     dependencies:
       '@types/d3-sankey': 0.12.5
-      '@types/react': 19.2.2
-      '@visx/group': 4.0.1-alpha.0(react@19.2.0)
-      '@visx/vendor': 4.0.0-alpha.0
+      '@visx/group': 4.0.0(@types/react@19.2.2)(react@19.2.0)
+      '@visx/vendor': 4.0.0
       classnames: 2.5.1
       d3-sankey: 0.12.3
       react: 19.2.0
-
-  '@visx/scale@3.12.0':
-    dependencies:
-      '@visx/vendor': 3.12.0
-
-  '@visx/scale@4.0.1-alpha.0':
-    dependencies:
-      '@visx/vendor': 4.0.0-alpha.0
-
-  '@visx/shape@3.12.0(react@19.2.0)':
-    dependencies:
-      '@types/d3-path': 1.0.11
-      '@types/d3-shape': 1.3.12
-      '@types/lodash': 4.17.23
+    optionalDependencies:
       '@types/react': 19.2.2
-      '@visx/curve': 3.12.0
-      '@visx/group': 3.12.0(react@19.2.0)
-      '@visx/scale': 3.12.0
-      classnames: 2.5.1
-      d3-path: 1.0.9
-      d3-shape: 1.3.7
-      lodash: 4.17.21
-      prop-types: 15.8.1
-      react: 19.2.0
 
-  '@visx/shape@4.0.1-alpha.0(react@19.2.0)':
+  '@visx/scale@4.0.0':
     dependencies:
-      '@types/lodash': 4.17.23
+      '@visx/vendor': 4.0.0
+
+  '@visx/shape@4.0.0(@types/react@19.2.2)(react@19.2.0)':
+    dependencies:
+      '@visx/curve': 4.0.0
+      '@visx/group': 4.0.0(@types/react@19.2.2)(react@19.2.0)
+      '@visx/scale': 4.0.0
+      '@visx/vendor': 4.0.0
+      classnames: 2.5.1
+      react: 19.2.0
+    optionalDependencies:
       '@types/react': 19.2.2
-      '@visx/curve': 4.0.1-alpha.0
-      '@visx/group': 4.0.1-alpha.0(react@19.2.0)
-      '@visx/scale': 4.0.1-alpha.0
-      '@visx/vendor': 4.0.0-alpha.0
-      classnames: 2.5.1
-      lodash: 4.17.21
-      react: 19.2.0
 
-  '@visx/vendor@3.12.0':
-    dependencies:
-      '@types/d3-array': 3.0.3
-      '@types/d3-color': 3.1.0
-      '@types/d3-delaunay': 6.0.1
-      '@types/d3-format': 3.0.1
-      '@types/d3-geo': 3.1.0
-      '@types/d3-interpolate': 3.0.1
-      '@types/d3-scale': 4.0.2
-      '@types/d3-time': 3.0.0
-      '@types/d3-time-format': 2.1.0
-      d3-array: 3.2.1
-      d3-color: 3.1.0
-      d3-delaunay: 6.0.2
-      d3-format: 3.1.0
-      d3-geo: 3.1.0
-      d3-interpolate: 3.0.1
-      d3-scale: 4.0.2
-      d3-time: 3.1.0
-      d3-time-format: 4.1.0
-      internmap: 2.0.3
-
-  '@visx/vendor@4.0.0-alpha.0':
+  '@visx/vendor@4.0.0':
     dependencies:
       '@types/d3-array': 3.0.3
       '@types/d3-color': 3.1.0
@@ -7903,12 +7871,13 @@ snapshots:
       d3-time-format: 4.1.0
       internmap: 2.0.3
 
-  '@visx/zoom@4.0.1-alpha.0(react@19.2.0)':
+  '@visx/zoom@4.0.0(@types/react@19.2.2)(react@19.2.0)':
     dependencies:
-      '@types/react': 19.2.2
       '@use-gesture/react': 10.3.1(react@19.2.0)
-      '@visx/event': 4.0.1-alpha.0
+      '@visx/event': 4.0.0(@types/react@19.2.2)(react@19.2.0)
       react: 19.2.0
+    optionalDependencies:
+      '@types/react': 19.2.2
 
   '@xstate/fsm@1.6.5': {}
 
@@ -9807,8 +9776,6 @@ snapshots:
       p-locate: 5.0.0
 
   lodash.merge@4.6.2: {}
-
-  lodash@4.17.21: {}
 
   log-symbols@5.1.0:
     dependencies:
