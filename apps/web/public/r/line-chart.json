@@ -5,8 +5,8 @@
   "title": "Line Chart",
   "description": "A composable line chart with multiple series support",
   "dependencies": [
-    "@visx/curve@4.0.1-alpha.0",
-    "@visx/shape@4.0.1-alpha.0",
+    "@visx/curve@4.0.0",
+    "@visx/shape@4.0.0",
     "motion"
   ],
   "registryDependencies": [

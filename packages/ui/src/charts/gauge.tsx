@@ -681,7 +681,12 @@ export function Gauge({
 
     return (
       <div className={cn("relative w-full min-w-0 max-w-full", className)}>
-        <div className="w-full min-w-0" style={{ minWidth: resolvedMinWidth }}>
+        {/* Explicit height: visx 4's <ParentSize> renders children absolutely,
+            so a content-sized wrapper would collapse to zero height. */}
+        <div
+          className="w-full min-w-0"
+          style={{ height: resolvedLinearHeight, minWidth: resolvedMinWidth }}
+        >
           <ParentSize debounceTime={10}>
             {({ width }) =>
               width > 0 ? (

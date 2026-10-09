@@ -5,9 +5,9 @@
   "title": "Ring Chart",
   "description": "A composable donut/ring chart with progress indicators",
   "dependencies": [
-    "@visx/group@4.0.1-alpha.0",
-    "@visx/responsive@4.0.1-alpha.0",
-    "@visx/shape@4.0.1-alpha.0",
+    "@visx/group@4.0.0",
+    "@visx/responsive@4.0.0",
+    "@visx/shape@4.0.0",
     "@number-flow/react",
     "motion"
   ],

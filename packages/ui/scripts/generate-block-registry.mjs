@@ -87,8 +87,8 @@ const BLOCKS = {
       "badge",
     ],
     dependencies: [
-      "@visx/curve@4.0.1-alpha.0",
-      "@visx/gradient@4.0.1-alpha.0",
+      "@visx/curve@4.0.0",
+      "@visx/gradient@4.0.0",
       "@number-flow/react",
       "@central-icons-react/all",
     ],
@@ -112,7 +112,7 @@ const BLOCKS = {
       "badge",
     ],
     dependencies: [
-      "@visx/curve@4.0.1-alpha.0",
+      "@visx/curve@4.0.0",
       "@number-flow/react",
       "@central-icons-react/all",
     ],
