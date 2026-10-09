@@ -1,6 +1,6 @@
 "use client";
 
-import { ParentSize } from "@visx/responsive";
+import { useParentSize } from "@visx/responsive";
 import { scaleLinear, scaleTime } from "@visx/scale";
 import type { Transition } from "motion/react";
 import { useReducedMotion } from "motion/react";
@@ -673,6 +673,11 @@ export function HeatmapChart({
       (chartPhase === "loading" || chartPhase === "exitingReady")
   );
 
+  // Measure this container directly: visx 4's <ParentSize> renders children in
+  // an absolutely positioned box, which collapses the content-sized fluid
+  // layout to zero height.
+  const { parentRef, width, height: parentHeight } = useParentSize();
+
   return (
     <div
       className={cn(
@@ -680,45 +685,42 @@ export function HeatmapChart({
         layout === "fill" && "h-full min-h-0",
         className
       )}
+      ref={parentRef}
       style={aspectRatio ? { aspectRatio } : undefined}
     >
-      <ParentSize>
-        {({ width, height: parentHeight }) => (
-          <HeatmapChartInner
-            animateCells={animateCells}
-            animationDuration={animationDuration}
-            binSize={binSize}
-            chartPhase={chartPhase}
-            chartStatus={status}
-            colorScale={colorScale}
-            columnSeparators={columnSeparators}
-            data={data}
-            enterStaggerScale={enterStaggerScale}
-            enterTransition={enterTransition}
-            fillScale={fillScale}
-            gap={gap}
-            height={parentHeight}
-            isLoaded={isLoaded}
-            layout={layout}
-            levelStyles={levelStyles}
-            loadingCellMaxOpacity={loadingCellMaxOpacity}
-            loadingCellRandomness={loadingCellRandomness}
-            loadingLabel={loadingLabel}
-            loadingOpacity={loadingOpacity}
-            margin={margin}
-            revealEpoch={revealEpoch}
-            revealMode={revealMode}
-            showLoadingCells={showLoadingCells}
-            showLoadingLabel={showLoadingLabel}
-            sizingColumnCount={sizingColumnCount}
-            weekStartDay={weekStartDay}
-            width={width}
-            xDomain={xDomain}
-          >
-            {children}
-          </HeatmapChartInner>
-        )}
-      </ParentSize>
+      <HeatmapChartInner
+        animateCells={animateCells}
+        animationDuration={animationDuration}
+        binSize={binSize}
+        chartPhase={chartPhase}
+        chartStatus={status}
+        colorScale={colorScale}
+        columnSeparators={columnSeparators}
+        data={data}
+        enterStaggerScale={enterStaggerScale}
+        enterTransition={enterTransition}
+        fillScale={fillScale}
+        gap={gap}
+        height={parentHeight}
+        isLoaded={isLoaded}
+        layout={layout}
+        levelStyles={levelStyles}
+        loadingCellMaxOpacity={loadingCellMaxOpacity}
+        loadingCellRandomness={loadingCellRandomness}
+        loadingLabel={loadingLabel}
+        loadingOpacity={loadingOpacity}
+        margin={margin}
+        revealEpoch={revealEpoch}
+        revealMode={revealMode}
+        showLoadingCells={showLoadingCells}
+        showLoadingLabel={showLoadingLabel}
+        sizingColumnCount={sizingColumnCount}
+        weekStartDay={weekStartDay}
+        width={width}
+        xDomain={xDomain}
+      >
+        {children}
+      </HeatmapChartInner>
     </div>
   );
 }
