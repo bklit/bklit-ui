@@ -5,8 +5,8 @@
   "title": "Heatmap Chart Example",
   "description": "Composable heatmap-chart demo for Open in v0",
   "dependencies": [
-    "@visx/heatmap@4.0.1-alpha.0",
-    "@visx/shape@4.0.1-alpha.0",
+    "@visx/heatmap@4.0.0",
+    "@visx/shape@4.0.0",
     "motion"
   ],
   "registryDependencies": [

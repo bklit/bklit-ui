@@ -5,8 +5,8 @@
   "title": "Profit/Loss Line",
   "description": "Sign-colored line segments for profit and loss on LineChart",
   "dependencies": [
-    "@visx/curve@4.0.1-alpha.0",
-    "@visx/shape@4.0.1-alpha.0"
+    "@visx/curve@4.0.0",
+    "@visx/shape@4.0.0"
   ],
   "registryDependencies": [
     "@bklit/line-chart",

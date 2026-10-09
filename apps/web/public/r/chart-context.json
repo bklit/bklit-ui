@@ -5,9 +5,9 @@
   "title": "Chart Context",
   "description": "Shared context and hooks for Bklit chart components",
   "dependencies": [
-    "@visx/event@4.0.1-alpha.0",
-    "@visx/responsive@4.0.1-alpha.0",
-    "@visx/scale@4.0.1-alpha.0",
+    "@visx/event@4.0.0",
+    "@visx/responsive@4.0.0",
+    "@visx/scale@4.0.0",
     "d3-array",
     "motion"
   ],

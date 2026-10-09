@@ -5,9 +5,9 @@
   "title": "Bar Chart Example",
   "description": "Composable bar-chart demo for Open in v0",
   "dependencies": [
-    "@visx/gradient@4.0.1-alpha.0",
-    "@visx/pattern@4.0.1-alpha.0",
-    "@visx/shape@4.0.1-alpha.0",
+    "@visx/gradient@4.0.0",
+    "@visx/pattern@4.0.0",
+    "@visx/shape@4.0.0",
     "motion"
   ],
   "registryDependencies": [
