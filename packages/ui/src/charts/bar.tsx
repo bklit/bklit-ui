@@ -12,6 +12,7 @@ import {
   useChartStable,
   useYScale,
 } from "./chart-context";
+import { valueLabelFmt } from "./chart-formatters";
 import { useChartLegendHover } from "./chart-legend-hover";
 import { transitionWithDelay } from "./motion-utils";
 
@@ -86,7 +87,7 @@ export interface BarProps {
   minBarHeight?: number;
   /** Show the formatted value inside each bar when it fits. Default: false. */
   showValue?: boolean;
-  /** Format values displayed inside bars. Defaults to Persian integers. */
+  /** Format values displayed inside bars. Defaults to English integers. */
   valueLabelFormatter?: (value: number) => string;
   /** Text color for values displayed inside bars. Default: white. */
   valueLabelColor?: string;
@@ -237,8 +238,7 @@ const BarInner = memo(function BarInner({
   perspective = false,
   minBarHeight = 0,
   showValue = false,
-  valueLabelFormatter = (value) =>
-    value.toLocaleString("fa-IR", { maximumFractionDigits: 0 }),
+  valueLabelFormatter = valueLabelFmt,
   valueLabelColor = "white",
   valueLabelOrientation = "auto",
   valueLabelPosition = "center",
