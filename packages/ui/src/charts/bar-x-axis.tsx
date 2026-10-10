@@ -5,14 +5,18 @@ import { memo, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
 import { useChart, useChartStable } from "./chart-context";
+import {
+  type ChartLabelCount,
+  resolveResponsiveChartLabelCount,
+} from "./responsive-chart-label-count";
 
 export interface BarXAxisProps {
   /** Width of the date ticker box for fade calculation. Default: 50 */
   tickerHalfWidth?: number;
   /** Whether to show all labels or skip some for dense data. Default: false */
   showAllLabels?: boolean;
-  /** Maximum number of labels to show. Default: 12 */
-  maxLabels?: number;
+  /** Maximum number of labels to show. Supports responsive breakpoints. */
+  maxLabels?: ChartLabelCount;
 }
 
 interface BarXAxisLabelProps {
@@ -95,6 +99,21 @@ const BarXAxisInner = memo(function BarXAxisInner({
 }: BarXAxisProps & { container: HTMLDivElement }) {
   const { margin, tooltipData, barScale, bandWidth, barXAccessor, data } =
     useChart();
+  const [containerWidth, setContainerWidth] = useState(0);
+
+  useEffect(() => {
+    const updateWidth = () =>
+      setContainerWidth(container.getBoundingClientRect().width);
+    updateWidth();
+    const observer = new ResizeObserver(updateWidth);
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [container]);
+
+  const resolvedMaxLabels = useMemo(
+    () => resolveResponsiveChartLabelCount(maxLabels, containerWidth, 12),
+    [maxLabels, containerWidth]
+  );
 
   // Generate labels for each bar
   const labelsToShow = useMemo(() => {
@@ -111,13 +130,22 @@ const BarXAxisInner = memo(function BarXAxisInner({
     });
 
     // If showAllLabels is true or we have fewer than maxLabels, show all
-    if (showAllLabels || allLabels.length <= maxLabels) {
+    if (showAllLabels || allLabels.length <= resolvedMaxLabels) {
       return allLabels;
     }
 
-    // Otherwise, skip some labels to avoid crowding
-    const step = Math.ceil(allLabels.length / maxLabels);
-    return allLabels.filter((_, i) => i % step === 0);
+    // Otherwise, distribute labels across the full range so both endpoints
+    // remain visible and the chart does not appear to end with an empty tail.
+    const labelCount = Math.max(2, resolvedMaxLabels);
+    const visibleCount = Math.min(labelCount, allLabels.length);
+    const lastIndex = allLabels.length - 1;
+    const indices = Array.from({ length: visibleCount }, (_, index) =>
+      Math.round((index * lastIndex) / (visibleCount - 1))
+    );
+    return [...new Set(indices)].flatMap((index) => {
+      const label = allLabels[index];
+      return label === undefined ? [] : [label];
+    });
   }, [
     barScale,
     bandWidth,
@@ -125,7 +153,7 @@ const BarXAxisInner = memo(function BarXAxisInner({
     data,
     margin.left,
     showAllLabels,
-    maxLabels,
+    resolvedMaxLabels,
   ]);
 
   const isHovering = tooltipData !== null;

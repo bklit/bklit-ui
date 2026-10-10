@@ -669,6 +669,11 @@
           "path": "src/charts/x-axis.tsx",
           "type": "registry:component",
           "target": "components/charts/x-axis.tsx"
+        },
+        {
+          "path": "src/charts/responsive-chart-label-count.ts",
+          "type": "registry:component",
+          "target": "components/charts/responsive-chart-label-count.ts"
         }
       ]
     },
@@ -952,6 +957,16 @@
           "path": "src/charts/pattern-area.tsx",
           "type": "registry:component",
           "target": "components/charts/pattern-area.tsx"
+        },
+        {
+          "path": "src/charts/area-value-labels.tsx",
+          "type": "registry:component",
+          "target": "components/charts/area-value-labels.tsx"
+        },
+        {
+          "path": "src/charts/area-value-label-layout.ts",
+          "type": "registry:component",
+          "target": "components/charts/area-value-label-layout.ts"
         }
       ]
     },
@@ -1068,6 +1083,11 @@
           "target": "components/charts/bar.tsx"
         },
         {
+          "path": "src/charts/bar-value-label-layout.ts",
+          "type": "registry:lib",
+          "target": "components/charts/bar-value-label-layout.ts"
+        },
+        {
           "path": "src/charts/bar-squares.tsx",
           "type": "registry:component",
           "target": "components/charts/bar-squares.tsx"
@@ -1096,6 +1116,11 @@
           "path": "src/charts/bar-x-axis.tsx",
           "type": "registry:component",
           "target": "components/charts/bar-x-axis.tsx"
+        },
+        {
+          "path": "src/charts/responsive-chart-label-count.ts",
+          "type": "registry:component",
+          "target": "components/charts/responsive-chart-label-count.ts"
         },
         {
           "path": "src/charts/bar-y-axis.tsx",

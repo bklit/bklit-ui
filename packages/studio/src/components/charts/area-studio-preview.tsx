@@ -153,6 +153,7 @@ function renderMainAreas(
               ? false
               : fadeEdgesPropValue(getSeriesFadeEdges(state, idx))
           }
+          fadeValueLabels={state.areaFadeValueLabels}
           fill={fill}
           fillOpacity={state.fillOpacity}
           gradientToOpacity={state.gradientToOpacity}
@@ -160,8 +161,11 @@ function renderMainAreas(
           loading={studioCartesianSeriesLoadingProp(isPrimary)}
           showHighlight={getSeriesShowHighlight(state, idx)}
           showLine={getSeriesShowLine(state, idx)}
+          showValue={state.areaShowValue}
           stroke={idx === 0 ? undefined : STUDIO_SERIES_COLORS[idx]}
           strokeWidth={getSeriesStrokeWidth(state, idx)}
+          valueLabelMaxCount={state.areaValueLabelMaxCount}
+          valueLabelMinCount={state.areaValueLabelMinCount}
           yAxisId={getLineSeriesYAxisId(state, idx)}
           {...seriesStrokePropsFromState(state, options.dataLength, idx)}
           {...(isPrimary
