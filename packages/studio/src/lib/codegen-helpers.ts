@@ -740,7 +740,21 @@ function barReadyCodegen(
   const bars = keys
     .map((key, idx) => {
       const fill = idx === 0 ? primaryFill : SERIES_COLOR_BY_INDEX[idx];
-      return `\n  <Bar dataKey="${key}" lineCap="${state.barLineCap}" fill="${fill}" fadedOpacity={${state.barFadedOpacity}} groupGap={${state.groupGap}}${stacked ? " stackGap={3}" : ""} />`;
+      const labelProps = [
+        state.barShowValue ? "showValue" : "",
+        state.barValueLabelColor !== "white"
+          ? `valueLabelColor={${JSON.stringify(state.barValueLabelColor)}}`
+          : "",
+        state.barValueLabelOrientation !== "auto"
+          ? `valueLabelOrientation="${state.barValueLabelOrientation}"`
+          : "",
+        state.barValueLabelPosition !== "center"
+          ? `valueLabelPosition="${state.barValueLabelPosition}"`
+          : "",
+      ]
+        .filter(Boolean)
+        .join(" ");
+      return `\n  <Bar dataKey="${key}" lineCap="${state.barLineCap}" fill="${fill}" fadedOpacity={${state.barFadedOpacity}} groupGap={${state.groupGap}}${stacked ? " stackGap={3}" : ""}${labelProps ? ` ${labelProps}` : ""} />`;
     })
     .join("");
 

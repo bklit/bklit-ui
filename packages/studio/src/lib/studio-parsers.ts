@@ -103,6 +103,18 @@ export const studioSearchParams = {
   barWidth: parseAsInteger.withDefault(0),
   groupGap: parseAsInteger.withDefault(4),
   barFadedOpacity: parseAsFloat.withDefault(0.3),
+  barShowValue: parseAsBoolean.withDefault(false),
+  barValueLabelColor: parseAsString.withDefault("white"),
+  barValueLabelOrientation: parseAsStringLiteral([
+    "auto",
+    "horizontal",
+    "vertical",
+  ]).withDefault("auto"),
+  barValueLabelPosition: parseAsStringLiteral([
+    "top",
+    "center",
+    "bottom",
+  ]).withDefault("center"),
   barSeriesMode: parseAsStringLiteral(["grouped", "stacked"]).withDefault(
     "grouped"
   ),
@@ -582,6 +594,10 @@ export interface StudioUrlState {
   barWidth: number;
   groupGap: number;
   barFadedOpacity: number;
+  barShowValue: boolean;
+  barValueLabelColor: string;
+  barValueLabelOrientation: "auto" | "horizontal" | "vertical";
+  barValueLabelPosition: "top" | "center" | "bottom";
   barSeriesMode: "grouped" | "stacked";
   barLineCap: "round" | "butt";
   barOrientation: "vertical" | "horizontal";
@@ -947,6 +963,10 @@ export function defaultStudioState(
     barWidth: 0,
     groupGap: 4,
     barFadedOpacity: 0.3,
+    barShowValue: false,
+    barValueLabelColor: "white",
+    barValueLabelOrientation: "auto",
+    barValueLabelPosition: "center",
     barSeriesMode: "grouped",
     barLineCap: "round",
     barOrientation: "vertical",

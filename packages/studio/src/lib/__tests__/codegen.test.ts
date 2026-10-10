@@ -16,6 +16,10 @@ const DEFAULT_LABEL_REVENUE_RE = /defaultLabel="Revenue"/;
 const START_ANGLE_90_RE = /startAngle=\{90\}/;
 const DATA_KEY_MOBILE_RE = /dataKey="mobile"/;
 const INTERVAL_750_RE = /750/;
+const BAR_SHOW_VALUE_RE = /showValue/;
+const BAR_LABEL_COLOR_RE = /valueLabelColor=\{"#fff"\}/;
+const BAR_LABEL_ORIENTATION_RE = /valueLabelOrientation="vertical"/;
+const BAR_LABEL_POSITION_RE = /valueLabelPosition="top"/;
 
 describe("generateStudioCode", () => {
   for (const slug of validChartSlugs) {
@@ -67,6 +71,21 @@ describe("generateStudioCode", () => {
     });
     const { code } = generateStudioCode("bar-chart", state);
     assert.match(code, STACKED_RE);
+  });
+
+  it("bar emits enabled value-label options", () => {
+    const state = defaultStudioState({
+      chart: "bar-chart",
+      barShowValue: true,
+      barValueLabelColor: "#fff",
+      barValueLabelOrientation: "vertical",
+      barValueLabelPosition: "top",
+    });
+    const { code } = generateStudioCode("bar-chart", state);
+    assert.match(code, BAR_SHOW_VALUE_RE);
+    assert.match(code, BAR_LABEL_COLOR_RE);
+    assert.match(code, BAR_LABEL_ORIENTATION_RE);
+    assert.match(code, BAR_LABEL_POSITION_RE);
   });
 
   it("gauge uses dynamic label and angles", () => {

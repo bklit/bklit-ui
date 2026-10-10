@@ -1020,6 +1020,41 @@ export const barChartControlGroups: StudioControlGroup[] = [
     ],
     true
   ),
+  barCollapsibleGroup("Value labels", [
+    {
+      type: "boolean",
+      key: "barShowValue",
+      label: "Show values",
+    },
+    {
+      type: "select",
+      key: "barValueLabelOrientation",
+      label: "Orientation",
+      options: [
+        { value: "auto", label: "Auto" },
+        { value: "horizontal", label: "Horizontal" },
+        { value: "vertical", label: "Vertical" },
+      ],
+      visibleWhen: { key: "barShowValue", truthy: true },
+    },
+    {
+      type: "select",
+      key: "barValueLabelPosition",
+      label: "Position",
+      options: [
+        { value: "top", label: "Top" },
+        { value: "center", label: "Center" },
+        { value: "bottom", label: "Bottom" },
+      ],
+      visibleWhen: { key: "barShowValue", truthy: true },
+    },
+    {
+      type: "color",
+      key: "barValueLabelColor",
+      label: "Text color",
+      visibleWhen: { key: "barShowValue", truthy: true },
+    },
+  ]),
   dataGroup(),
   barReferenceAreaBoundsControlGroup,
   barCollapsibleGroup("Series", [
