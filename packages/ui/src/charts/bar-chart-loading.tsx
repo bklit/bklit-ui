@@ -12,6 +12,8 @@ export interface BarChartLoadingProps {
   aspectRatio?: string;
   /** Additional class name for the container. */
   className?: string;
+  /** Fill color for the loading skeleton. Defaults to the chart foreground. */
+  loadingFill?: string;
 }
 
 /**
@@ -23,12 +25,14 @@ export function BarChartLoading({
   margin,
   aspectRatio = "2 / 1",
   className = "",
+  loadingFill,
 }: BarChartLoadingProps) {
   return (
     <BarChart
       aspectRatio={aspectRatio}
       className={className}
       data={EMPTY_DATA}
+      loadingFill={loadingFill}
       margin={margin}
       status="loading"
     />
