@@ -41,7 +41,6 @@ const SWEEP_ANGLE_DEG = 25;
 const HEIGHT_MIN_PCT = 20;
 const HEIGHT_MAX_PCT = 80;
 const DEFAULT_POINT_COUNT = 14;
-const BAR_CORNER_RADIUS = 2;
 const DEFAULT_BAR_COUNT = 12;
 const DEFAULT_FILL = "var(--foreground)";
 const DEFAULT_BAR_FILL_OPACITY = 0.45;
@@ -373,6 +372,7 @@ function SkeletonBars({
 }) {
   const bandWidth = innerWidth / heights.length;
   const barW = bandWidth * barFraction;
+  const cornerRadius = Math.min(barW / 2, 8);
   const xOffset = (bandWidth * (1 - barFraction)) / 2;
   const isCenter = baseline === "center";
   const baselineY = isCenter ? innerHeight / 2 : innerHeight;
@@ -391,7 +391,7 @@ function SkeletonBars({
             fillOpacity={fillOpacity}
             height={barH}
             key={`${x.toFixed(2)}-${value}`}
-            rx={BAR_CORNER_RADIUS}
+            rx={cornerRadius}
             width={barW}
             x={x}
             y={y}
