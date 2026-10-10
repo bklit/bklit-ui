@@ -21,6 +21,10 @@ const TREND_LINE_IMPORT_RE =
   /import \{[^}]*TrendLine[^}]*\} from "@bklitui\/ui\/charts"/;
 const TREND_LINE_JSX_RE =
   /<TrendLine dataKey="mobile" stroke="var\(--chart-2\)" strokeStyle="solid" yAxisId="right" \/>/;
+const BAR_SHOW_VALUE_RE = /showValue/;
+const BAR_LABEL_COLOR_RE = /valueLabelColor=\{"#fff"\}/;
+const BAR_LABEL_ORIENTATION_RE = /valueLabelOrientation="vertical"/;
+const BAR_LABEL_POSITION_RE = /valueLabelPosition="top"/;
 
 describe("generateStudioCode", () => {
   for (const slug of validChartSlugs) {
@@ -72,6 +76,21 @@ describe("generateStudioCode", () => {
     });
     const { code } = generateStudioCode("bar-chart", state);
     assert.match(code, STACKED_RE);
+  });
+
+  it("bar emits enabled value-label options", () => {
+    const state = defaultStudioState({
+      chart: "bar-chart",
+      barShowValue: true,
+      barValueLabelColor: "#fff",
+      barValueLabelOrientation: "vertical",
+      barValueLabelPosition: "top",
+    });
+    const { code } = generateStudioCode("bar-chart", state);
+    assert.match(code, BAR_SHOW_VALUE_RE);
+    assert.match(code, BAR_LABEL_COLOR_RE);
+    assert.match(code, BAR_LABEL_ORIENTATION_RE);
+    assert.match(code, BAR_LABEL_POSITION_RE);
   });
 
   it("gauge uses dynamic label and angles", () => {
