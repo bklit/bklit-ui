@@ -82,3 +82,8 @@ export function resolveAreaValueLabelCount(
     Math.max(minimum, Math.floor(Math.max(0, width) / 48))
   );
 }
+
+export function resolveSharedAreaValueLabelCount(counts: number[]) {
+  const enabledCounts = counts.filter((count) => count > 0);
+  return enabledCounts.length ? Math.min(...enabledCounts) : 0;
+}

@@ -3,6 +3,7 @@ import { test } from "node:test";
 import {
   layoutAreaValueLabels,
   resolveAreaValueLabelCount,
+  resolveSharedAreaValueLabelCount,
 } from "../area-value-label-layout";
 
 const box = (index: number, x: number, y = 50, width = 70) => ({
@@ -69,4 +70,7 @@ test("keeps measured labels inside the plot, collision-free and within count lim
   assert.equal(resolveAreaValueLabelCount(2, 800, 5, 10), 2);
   assert.equal(resolveAreaValueLabelCount(20, 800, Number.NaN, -1), 0);
   assert.equal(resolveAreaValueLabelCount(0, 800, 2, 5), 0);
+  assert.equal(resolveSharedAreaValueLabelCount([5, 4]), 4);
+  assert.equal(resolveSharedAreaValueLabelCount([5, 0]), 5);
+  assert.equal(resolveSharedAreaValueLabelCount([0, 0]), 0);
 });

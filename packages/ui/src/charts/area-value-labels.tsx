@@ -5,8 +5,10 @@ import type { AreaProps } from "./area";
 import {
   layoutAreaValueLabels,
   resolveAreaValueLabelCount,
+  resolveSharedAreaValueLabelCount,
 } from "./area-value-label-layout";
 import { chartCssVars, useChartStable } from "./chart-context";
+import { valueLabelFmt } from "./chart-formatters";
 import {
   fadeGradientStops,
   resolveFadeSides,
@@ -35,21 +37,28 @@ export function AreaValueLabels({ series }: { series: AreaProps[] }) {
     const visible = data
       .map((datum, index) => ({ datum, index, x: xScale(xAccessor(datum)) }))
       .filter(({ x }) => Number.isFinite(x) && x >= 0 && x <= innerWidth);
-    return series.flatMap((area, seriesIndex) => {
-      if (!area.showValue) {
-        return [];
-      }
-      const points = visible.filter(
-        ({ datum }) =>
-          typeof datum[area.dataKey] === "number" &&
-          Number.isFinite(datum[area.dataKey])
-      );
-      const count = resolveAreaValueLabelCount(
+    const visibleSeries = series
+      .map((area, seriesIndex) => ({
+        area,
+        seriesIndex,
+        points: visible.filter(
+          ({ datum }) =>
+            typeof datum[area.dataKey] === "number" &&
+            Number.isFinite(datum[area.dataKey])
+        ),
+      }))
+      .filter(({ area }) => area.showValue);
+    const counts = visibleSeries.map(({ area, points }) =>
+      resolveAreaValueLabelCount(
         points.length,
         innerWidth,
         area.valueLabelMinCount,
         area.valueLabelMaxCount
-      );
+      )
+    );
+    const sharedCount = resolveSharedAreaValueLabelCount(counts);
+    return visibleSeries.flatMap(({ area, seriesIndex, points }) => {
+      const count = sharedCount;
       if (count === 0) {
         return [];
       }
@@ -82,9 +91,7 @@ export function AreaValueLabels({ series }: { series: AreaProps[] }) {
             seriesIndex,
             x,
             y,
-            text:
-              area.valueLabelFormatter?.(value) ??
-              value.toLocaleString("fa-IR", { maximumFractionDigits: 0 }),
+            text: area.valueLabelFormatter?.(value) ?? valueLabelFmt(value),
           },
         ];
       });
