@@ -481,6 +481,9 @@ export function cartesianCodegen(
 
   const keys = seriesKeysForState(state);
 
+  const valueLabels = state.areaShowValue
+    ? ` showValue valueLabelMinCount={${state.areaValueLabelMinCount}} valueLabelMaxCount={${state.areaValueLabelMaxCount}} fadeValueLabels={${state.areaFadeValueLabels}}`
+    : "";
   let child = "";
   if (chartType === "LineChart") {
     child = keys
@@ -499,7 +502,7 @@ export function cartesianCodegen(
           idx === 0 ? "" : ` fill="${SERIES_COLOR_BY_INDEX[idx]}"`;
         const seriesProps = seriesStrokePropsCodegen(state, idx);
         const curveName = curveImportName(getSeriesCurve(state, idx));
-        return `\n  <Area dataKey="${key}"${fillAttr} curve={${curveName}} fillOpacity={${state.fillOpacity}} strokeWidth={${getSeriesStrokeWidth(state, idx)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, idx))} gradientToOpacity={${state.gradientToOpacity}} showLine={${getSeriesShowLine(state, idx)}} showHighlight={${getSeriesShowHighlight(state, idx)}}${seriesProps} />`;
+        return `\n  <Area${valueLabels} dataKey="${key}"${fillAttr} curve={${curveName}} fillOpacity={${state.fillOpacity}} strokeWidth={${getSeriesStrokeWidth(state, idx)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, idx))} gradientToOpacity={${state.gradientToOpacity}} showLine={${getSeriesShowLine(state, idx)}} showHighlight={${getSeriesShowHighlight(state, idx)}}${seriesProps} />`;
       })
       .join("");
   } else {
@@ -508,14 +511,14 @@ export function cartesianCodegen(
     const primarySeriesProps = seriesStrokePropsCodegen(state, 0);
     const primaryCurveName = curveImportName(getSeriesCurve(state, 0));
     const primary = primaryKey
-      ? `\n  ${patternCodegenBlock(state.pattern)}\n  <PatternArea dataKey="${primaryKey}" fill="${fill}" curve={${primaryCurveName}} />\n  <Area dataKey="${primaryKey}" fillOpacity={0} curve={${primaryCurveName}} strokeWidth={${getSeriesStrokeWidth(state, 0)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, 0))} gradientToOpacity={${state.gradientToOpacity}} showLine={${getSeriesShowLine(state, 0)}} showHighlight={${getSeriesShowHighlight(state, 0)}}${primarySeriesProps} />`
+      ? `\n  ${patternCodegenBlock(state.pattern)}\n  <PatternArea dataKey="${primaryKey}" fill="${fill}" curve={${primaryCurveName}} />\n  <Area${valueLabels} dataKey="${primaryKey}" fillOpacity={0} curve={${primaryCurveName}} strokeWidth={${getSeriesStrokeWidth(state, 0)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, 0))} gradientToOpacity={${state.gradientToOpacity}} showLine={${getSeriesShowLine(state, 0)}} showHighlight={${getSeriesShowHighlight(state, 0)}}${primarySeriesProps} />`
       : "";
     const others = rest
       .map((key, idx) => {
         const seriesIndex = idx + 1;
         const seriesProps = seriesStrokePropsCodegen(state, seriesIndex);
         const curveName = curveImportName(getSeriesCurve(state, seriesIndex));
-        return `\n  <Area dataKey="${key}" fill="${SERIES_COLOR_BY_INDEX[seriesIndex]}" curve={${curveName}} fillOpacity={${state.fillOpacity}} strokeWidth={${getSeriesStrokeWidth(state, seriesIndex)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, seriesIndex))} gradientToOpacity={${state.gradientToOpacity}} showLine={${getSeriesShowLine(state, seriesIndex)}} showHighlight={${getSeriesShowHighlight(state, seriesIndex)}}${seriesProps} />`;
+        return `\n  <Area${valueLabels} dataKey="${key}" fill="${SERIES_COLOR_BY_INDEX[seriesIndex]}" curve={${curveName}} fillOpacity={${state.fillOpacity}} strokeWidth={${getSeriesStrokeWidth(state, seriesIndex)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, seriesIndex))} gradientToOpacity={${state.gradientToOpacity}} showLine={${getSeriesShowLine(state, seriesIndex)}} showHighlight={${getSeriesShowHighlight(state, seriesIndex)}}${seriesProps} />`;
       })
       .join("");
     child = `${primary}${others}`;

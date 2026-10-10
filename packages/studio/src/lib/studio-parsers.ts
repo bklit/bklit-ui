@@ -54,6 +54,10 @@ export const studioSearchParams = {
   ringCenterSuffix: parseAsString.withDefault(""),
   ringStrokeWidth: parseAsFloat.withDefault(12),
   curve: parseAsStringLiteral(CURVE_IDS).withDefault("natural"),
+  areaShowValue: parseAsBoolean.withDefault(false),
+  areaValueLabelMinCount: parseAsInteger.withDefault(2),
+  areaValueLabelMaxCount: parseAsInteger.withDefault(5),
+  areaFadeValueLabels: parseAsBoolean.withDefault(false),
   fillOpacity: parseAsFloat.withDefault(0.3),
   strokeWidth: parseAsFloat.withDefault(2),
   pattern: parseAsStringLiteral(PATTERN_PRESET_IDS).withDefault("none"),
@@ -543,6 +547,10 @@ export interface StudioUrlState {
   ringCenterSuffix: string;
   ringStrokeWidth: number;
   curve: CurveId;
+  areaShowValue: boolean;
+  areaValueLabelMinCount: number;
+  areaValueLabelMaxCount: number;
+  areaFadeValueLabels: boolean;
   fillOpacity: number;
   strokeWidth: number;
   pattern: PatternPresetId;
@@ -904,6 +912,10 @@ export function defaultStudioState(
     ringCenterSuffix: "",
     ringStrokeWidth: 12,
     curve: "natural",
+    areaShowValue: false,
+    areaValueLabelMinCount: 2,
+    areaValueLabelMaxCount: 5,
+    areaFadeValueLabels: false,
     fillOpacity: 0.3,
     strokeWidth: 2,
     pattern: "none",
