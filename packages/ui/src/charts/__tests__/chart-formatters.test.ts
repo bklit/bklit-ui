@@ -4,6 +4,7 @@ import {
   hmsTimeFmt,
   intFmt,
   shortDateFmt,
+  valueLabelFmt,
   weekdayDateFmt,
 } from "../chart-formatters";
 
@@ -71,6 +72,13 @@ describe("chart-formatters", () => {
     it("is a reusable formatter function", () => {
       const formatValue = intFmt;
       assert.equal(formatValue(1000), (1000).toLocaleString("en-US"));
+    });
+  });
+
+  describe("valueLabelFmt", () => {
+    it("uses English digits and keeps value labels to integers", () => {
+      assert.equal(valueLabelFmt(1234), "1,234");
+      assert.equal(valueLabelFmt(1234.5), "1,235");
     });
   });
 });

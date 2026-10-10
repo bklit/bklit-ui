@@ -54,6 +54,10 @@ export const studioSearchParams = {
   ringCenterSuffix: parseAsString.withDefault(""),
   ringStrokeWidth: parseAsFloat.withDefault(12),
   curve: parseAsStringLiteral(CURVE_IDS).withDefault("natural"),
+  areaShowValue: parseAsBoolean.withDefault(false),
+  areaValueLabelMinCount: parseAsInteger.withDefault(2),
+  areaValueLabelMaxCount: parseAsInteger.withDefault(5),
+  areaFadeValueLabels: parseAsBoolean.withDefault(false),
   fillOpacity: parseAsFloat.withDefault(0.3),
   strokeWidth: parseAsFloat.withDefault(2),
   pattern: parseAsStringLiteral(PATTERN_PRESET_IDS).withDefault("none"),
@@ -99,6 +103,18 @@ export const studioSearchParams = {
   barWidth: parseAsInteger.withDefault(0),
   groupGap: parseAsInteger.withDefault(4),
   barFadedOpacity: parseAsFloat.withDefault(0.3),
+  barShowValue: parseAsBoolean.withDefault(false),
+  barValueLabelColor: parseAsString.withDefault("white"),
+  barValueLabelOrientation: parseAsStringLiteral([
+    "auto",
+    "horizontal",
+    "vertical",
+  ]).withDefault("auto"),
+  barValueLabelPosition: parseAsStringLiteral([
+    "top",
+    "center",
+    "bottom",
+  ]).withDefault("center"),
   barSeriesMode: parseAsStringLiteral(["grouped", "stacked"]).withDefault(
     "grouped"
   ),
@@ -543,6 +559,10 @@ export interface StudioUrlState {
   ringCenterSuffix: string;
   ringStrokeWidth: number;
   curve: CurveId;
+  areaShowValue: boolean;
+  areaValueLabelMinCount: number;
+  areaValueLabelMaxCount: number;
+  areaFadeValueLabels: boolean;
   fillOpacity: number;
   strokeWidth: number;
   pattern: PatternPresetId;
@@ -574,6 +594,10 @@ export interface StudioUrlState {
   barWidth: number;
   groupGap: number;
   barFadedOpacity: number;
+  barShowValue: boolean;
+  barValueLabelColor: string;
+  barValueLabelOrientation: "auto" | "horizontal" | "vertical";
+  barValueLabelPosition: "top" | "center" | "bottom";
   barSeriesMode: "grouped" | "stacked";
   barLineCap: "round" | "butt";
   barOrientation: "vertical" | "horizontal";
@@ -904,6 +928,10 @@ export function defaultStudioState(
     ringCenterSuffix: "",
     ringStrokeWidth: 12,
     curve: "natural",
+    areaShowValue: false,
+    areaValueLabelMinCount: 2,
+    areaValueLabelMaxCount: 5,
+    areaFadeValueLabels: false,
     fillOpacity: 0.3,
     strokeWidth: 2,
     pattern: "none",
@@ -935,6 +963,10 @@ export function defaultStudioState(
     barWidth: 0,
     groupGap: 4,
     barFadedOpacity: 0.3,
+    barShowValue: false,
+    barValueLabelColor: "white",
+    barValueLabelOrientation: "auto",
+    barValueLabelPosition: "center",
     barSeriesMode: "grouped",
     barLineCap: "round",
     barOrientation: "vertical",

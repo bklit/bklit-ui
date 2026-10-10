@@ -14,6 +14,7 @@ import {
 } from "react";
 import { cn } from "@/lib/utils";
 import { Area, type AreaProps } from "./area";
+import { AreaValueLabels } from "./area-value-labels";
 import type { LineConfig, Margin } from "./chart-context";
 import { ChartLoadingLabel } from "./chart-loading-label";
 import {
@@ -69,8 +70,8 @@ export interface AreaChartProps {
 
 const DEFAULT_MARGIN: Margin = { top: 40, right: 40, bottom: 40, left: 40 };
 
-function extractAreaConfigs(children: ReactNode): LineConfig[] {
-  const configs: LineConfig[] = [];
+function extractAreaConfigs(children: ReactNode): (LineConfig & AreaProps)[] {
+  const configs: (LineConfig & AreaProps)[] = [];
 
   Children.forEach(children, (child) => {
     if (!isValidElement(child)) {
@@ -99,6 +100,7 @@ function extractAreaConfigs(children: ReactNode): LineConfig[] {
 
     if (isAreaComponent && props?.dataKey) {
       configs.push({
+        ...props,
         dataKey: props.dataKey,
         stroke: props.stroke || props.fill || "var(--chart-line-primary)",
         strokeWidth: props.strokeWidth || 2,
@@ -179,6 +181,8 @@ function ChartInner({
       yDomainTweenDuration={yDomainTweenDuration}
     >
       {children}
+      {/* Resolve labels together, above all fills and outside their edge masks. */}
+      <AreaValueLabels series={lines} />
     </TimeSeriesChartInner>
   );
 }

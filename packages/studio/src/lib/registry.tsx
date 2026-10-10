@@ -389,7 +389,11 @@ const barConfig: StudioChartConfig = {
             groupGap={state.groupGap}
             key={key}
             lineCap={lineCap}
+            showValue={state.barShowValue}
             stackGap={stacked ? 3 : 0}
+            valueLabelColor={state.barValueLabelColor}
+            valueLabelOrientation={state.barValueLabelOrientation}
+            valueLabelPosition={state.barValueLabelPosition}
             yAxisId={horizontal ? undefined : getLineSeriesYAxisId(state, idx)}
           />
         ));

@@ -418,6 +418,28 @@ export const areaChartControlGroups: StudioControlGroup[] = [
         { value: "loading", label: "Loading" },
       ],
     },
+    { type: "boolean", key: "areaShowValue", label: "Show values" },
+    {
+      type: "number",
+      key: "areaValueLabelMinCount",
+      label: "Minimum values",
+      min: 0,
+      max: 30,
+      step: 1,
+    },
+    {
+      type: "number",
+      key: "areaValueLabelMaxCount",
+      label: "Maximum values",
+      min: 0,
+      max: 30,
+      step: 1,
+    },
+    {
+      type: "boolean",
+      key: "areaFadeValueLabels",
+      label: "Fade values at edges",
+    },
     {
       ...loadingStyleControl,
       visibleWhen: { key: "areaChartState", equals: "loading" },
@@ -998,6 +1020,41 @@ export const barChartControlGroups: StudioControlGroup[] = [
     ],
     true
   ),
+  barCollapsibleGroup("Value labels", [
+    {
+      type: "boolean",
+      key: "barShowValue",
+      label: "Show values",
+    },
+    {
+      type: "select",
+      key: "barValueLabelOrientation",
+      label: "Orientation",
+      options: [
+        { value: "auto", label: "Auto" },
+        { value: "horizontal", label: "Horizontal" },
+        { value: "vertical", label: "Vertical" },
+      ],
+      visibleWhen: { key: "barShowValue", truthy: true },
+    },
+    {
+      type: "select",
+      key: "barValueLabelPosition",
+      label: "Position",
+      options: [
+        { value: "top", label: "Top" },
+        { value: "center", label: "Center" },
+        { value: "bottom", label: "Bottom" },
+      ],
+      visibleWhen: { key: "barShowValue", truthy: true },
+    },
+    {
+      type: "color",
+      key: "barValueLabelColor",
+      label: "Text color",
+      visibleWhen: { key: "barShowValue", truthy: true },
+    },
+  ]),
   dataGroup(),
   barReferenceAreaBoundsControlGroup,
   barCollapsibleGroup("Series", [
