@@ -1,11 +1,11 @@
 "use client";
 
 import { Group } from "@visx/group";
-import { ParentSize } from "@visx/responsive";
 import { scaleLinear } from "@visx/scale";
 import type { Transition } from "motion/react";
 import { type ReactNode, useCallback, useState } from "react";
 import { cn } from "@/lib/utils";
+import { ParentSize } from "./chart-parent-size";
 import {
   defaultRadarColors,
   type RadarContextValue,

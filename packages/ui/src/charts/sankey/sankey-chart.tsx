@@ -1,7 +1,6 @@
 "use client";
 
 import { localPoint } from "@visx/event";
-import { ParentSize } from "@visx/responsive";
 import { sankey, sankeyCenter, sankeyLinkHorizontal } from "@visx/sankey";
 import type { Transition } from "motion/react";
 import {
@@ -14,6 +13,7 @@ import {
   useState,
 } from "react";
 import { cn } from "@/lib/utils";
+import { ParentSize } from "../chart-parent-size";
 import {
   type Margin,
   type SankeyLinkDatum,

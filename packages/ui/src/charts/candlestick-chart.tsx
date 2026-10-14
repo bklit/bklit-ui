@@ -1,6 +1,5 @@
 "use client";
 
-import { ParentSize } from "@visx/responsive";
 import { scaleLinear, scaleTime } from "@visx/scale";
 import { bisector } from "d3-array";
 import type { Transition } from "motion/react";
@@ -24,6 +23,7 @@ import {
 } from "./chart-child-passthrough";
 import { ChartProvider, type LineConfig, type Margin } from "./chart-context";
 import { shortDateFmt } from "./chart-formatters";
+import { ParentSize } from "./chart-parent-size";
 import { DEFAULT_CHART_LIFECYCLE } from "./chart-phase";
 import {
   decimateOhlcData,

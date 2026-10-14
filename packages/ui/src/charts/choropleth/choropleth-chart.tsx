@@ -1,7 +1,6 @@
 "use client";
 
 import { Mercator } from "@visx/geo";
-import { ParentSize } from "@visx/responsive";
 import type { TransformMatrix } from "@visx/zoom";
 import { Zoom } from "@visx/zoom";
 import type { FeatureCollection, Geometry } from "geojson";
@@ -16,6 +15,7 @@ import React, {
   useState,
 } from "react";
 import { cn } from "@/lib/utils";
+import { ParentSize } from "../chart-parent-size";
 import {
   type ChoroplethFeature,
   type ChoroplethFeatureProperties,

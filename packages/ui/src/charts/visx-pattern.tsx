@@ -1,12 +1,12 @@
 "use client";
 
+import type { ComponentProps } from "react";
 import {
   PatternCircles as VisxPatternCircles,
   PatternHexagons as VisxPatternHexagons,
   PatternLines as VisxPatternLines,
   PatternWaves as VisxPatternWaves,
-} from "@visx/pattern";
-import type { ComponentProps } from "react";
+} from "./patterns/index";
 
 export function PatternLines(props: ComponentProps<typeof VisxPatternLines>) {
   return <VisxPatternLines {...props} />;

@@ -1,6 +1,5 @@
 "use client";
 
-import { ParentSize } from "@visx/responsive";
 import type { Transition } from "motion/react";
 import {
   Children,
@@ -13,6 +12,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Area, type AreaProps } from "./area";
 import type { LineConfig, Margin } from "./chart-context";
+import { ParentSize } from "./chart-parent-size";
 import type { ChartPhase } from "./chart-phase";
 import { Line, type LineProps } from "./line";
 import { SeriesBar, type SeriesBarProps } from "./series-bar";

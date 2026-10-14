@@ -2,7 +2,6 @@
 
 import { curveNatural } from "@visx/curve";
 import { localPoint } from "@visx/event";
-import { ParentSize } from "@visx/responsive";
 import { scaleLinear, scaleTime } from "@visx/scale";
 import { LinePath } from "@visx/shape";
 import { bisector } from "d3-array";
@@ -11,6 +10,7 @@ import type React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ChartGrid } from "./chart-grid";
 import { shortDateFmt, weekdayDateFmt } from "./charts/chart-formatters";
+import { ParentSize } from "./charts/chart-parent-size";
 import { MarkerTooltipContent } from "./charts/markers/chart-markers";
 import { type ChartMarker, MarkerGroup } from "./charts/markers/marker-group";
 

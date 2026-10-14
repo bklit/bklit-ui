@@ -118,12 +118,7 @@ const EXAMPLES = {
       "@bklit/grid",
       "@bklit/chart-tooltip",
     ],
-    dependencies: [
-      "@visx/gradient@4.0.0",
-      "@visx/pattern@4.0.0",
-      "@visx/shape@4.0.0",
-      "motion",
-    ],
+    dependencies: ["@visx/gradient@4.0.0", "@visx/shape@4.0.0", "motion"],
     importFrom: "BarChart, Bar, BarXAxis, Grid, ChartTooltip",
     data: `const data = [
   { month: "Jan", revenue: 12000, profit: 4500 },

@@ -5,11 +5,11 @@
   "title": "Chart Background",
   "description": "Pattern fill for the plot area when grid lines are hidden",
   "dependencies": [
-    "@visx/pattern@4.0.0",
     "motion"
   ],
   "registryDependencies": [
-    "@bklit/chart-context"
+    "@bklit/chart-context",
+    "@bklit/patterns"
   ],
   "files": [
     {
@@ -26,7 +26,7 @@
     },
     {
       "path": "src/charts/visx-pattern.tsx",
-      "content": "\"use client\";\n\nimport {\n  PatternCircles as VisxPatternCircles,\n  PatternHexagons as VisxPatternHexagons,\n  PatternLines as VisxPatternLines,\n  PatternWaves as VisxPatternWaves,\n} from \"@visx/pattern\";\nimport type { ComponentProps } from \"react\";\n\nexport function PatternLines(props: ComponentProps<typeof VisxPatternLines>) {\n  return <VisxPatternLines {...props} />;\n}\nPatternLines.displayName = \"PatternLines\";\n\nexport function PatternCircles(\n  props: ComponentProps<typeof VisxPatternCircles>\n) {\n  return <VisxPatternCircles {...props} />;\n}\nPatternCircles.displayName = \"PatternCircles\";\n\nexport function PatternWaves(props: ComponentProps<typeof VisxPatternWaves>) {\n  return <VisxPatternWaves {...props} />;\n}\nPatternWaves.displayName = \"PatternWaves\";\n\nexport function PatternHexagons(\n  props: ComponentProps<typeof VisxPatternHexagons>\n) {\n  return <VisxPatternHexagons {...props} />;\n}\nPatternHexagons.displayName = \"PatternHexagons\";\n",
+      "content": "\"use client\";\n\nimport type { ComponentProps } from \"react\";\nimport {\n  PatternCircles as VisxPatternCircles,\n  PatternHexagons as VisxPatternHexagons,\n  PatternLines as VisxPatternLines,\n  PatternWaves as VisxPatternWaves,\n} from \"./patterns/index\";\n\nexport function PatternLines(props: ComponentProps<typeof VisxPatternLines>) {\n  return <VisxPatternLines {...props} />;\n}\nPatternLines.displayName = \"PatternLines\";\n\nexport function PatternCircles(\n  props: ComponentProps<typeof VisxPatternCircles>\n) {\n  return <VisxPatternCircles {...props} />;\n}\nPatternCircles.displayName = \"PatternCircles\";\n\nexport function PatternWaves(props: ComponentProps<typeof VisxPatternWaves>) {\n  return <VisxPatternWaves {...props} />;\n}\nPatternWaves.displayName = \"PatternWaves\";\n\nexport function PatternHexagons(\n  props: ComponentProps<typeof VisxPatternHexagons>\n) {\n  return <VisxPatternHexagons {...props} />;\n}\nPatternHexagons.displayName = \"PatternHexagons\";\n",
       "type": "registry:component",
       "target": "components/charts/visx-pattern.tsx"
     }

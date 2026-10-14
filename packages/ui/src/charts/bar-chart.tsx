@@ -1,7 +1,6 @@
 "use client";
 
 import { localPoint } from "@visx/event";
-import { ParentSize } from "@visx/responsive";
 import { scaleBand, scaleLinear } from "@visx/scale";
 import type { Transition } from "motion/react";
 import {
@@ -35,6 +34,7 @@ import {
 } from "./chart-context";
 import { isGradientDefComponent, isPatternDefComponent } from "./chart-defs";
 import { shortDateFmt } from "./chart-formatters";
+import { ParentSize } from "./chart-parent-size";
 import {
   type ChartPhase,
   type ChartStatus,

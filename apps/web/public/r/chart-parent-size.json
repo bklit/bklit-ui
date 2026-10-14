@@ -1,0 +1,18 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "chart-parent-size",
+  "type": "registry:component",
+  "title": "Chart Parent Size",
+  "description": "Responsive size wrapper for charts (visx useParentSize without overflow clipping).",
+  "dependencies": [
+    "@visx/responsive@4.0.0"
+  ],
+  "files": [
+    {
+      "path": "src/charts/chart-parent-size.tsx",
+      "content": "\"use client\";\n\nimport { useParentSize } from \"@visx/responsive\";\nimport type { CSSProperties, ReactNode } from \"react\";\n\nexport interface ChartParentSizeProps {\n  children: (size: { width: number; height: number }) => ReactNode;\n  className?: string;\n  debounceTime?: number;\n  style?: CSSProperties;\n}\n\n/**\n * Drop-in for visx `<ParentSize>` without its `overflow: hidden` measuring\n * layer, so tooltips, markers, and strokes at the chart edge aren't clipped.\n */\nexport function ParentSize({\n  children,\n  className,\n  debounceTime,\n  style,\n}: ChartParentSizeProps) {\n  const { parentRef, width, height } = useParentSize({ debounceTime });\n  return (\n    <div\n      className={className}\n      style={{ position: \"relative\", width: \"100%\", height: \"100%\", ...style }}\n    >\n      <div ref={parentRef} style={{ position: \"absolute\", inset: 0 }}>\n        {children({ width, height })}\n      </div>\n    </div>\n  );\n}\n",
+      "type": "registry:component",
+      "target": "components/charts/chart-parent-size.tsx"
+    }
+  ]
+}

@@ -1,9 +1,9 @@
 "use client";
 
-import { ParentSize } from "@visx/responsive";
 import { motion, type Transition, useReducedMotion } from "motion/react";
 import { type ReactNode, useId, useMemo } from "react";
 import { cn } from "@/lib/utils";
+import { ParentSize } from "./chart-parent-size";
 import {
   type ChartStatFlowFormat,
   defaultChartStatFlowFormat,

@@ -1,7 +1,6 @@
 "use client";
 
 import { Group } from "@visx/group";
-import { ParentSize } from "@visx/responsive";
 import { arc as arcGenerator } from "@visx/shape";
 import { pie as d3Pie } from "d3-shape";
 import type { Transition } from "motion/react";
@@ -18,6 +17,7 @@ import {
   useState,
 } from "react";
 import { cn } from "@/lib/utils";
+import { ParentSize } from "./chart-parent-size";
 import {
   defaultPieColors,
   type PieArcData,

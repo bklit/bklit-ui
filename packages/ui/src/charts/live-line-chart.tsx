@@ -1,7 +1,6 @@
 "use client";
 
 import { localPoint } from "@visx/event";
-import { ParentSize } from "@visx/responsive";
 import { scaleLinear, scaleTime } from "@visx/scale";
 import { bisector } from "d3-array";
 import {
@@ -29,6 +28,7 @@ import {
   type TooltipData,
 } from "./chart-context";
 import { hmsTimeFmt } from "./chart-formatters";
+import { ParentSize } from "./chart-parent-size";
 import { DEFAULT_CHART_LIFECYCLE } from "./chart-phase";
 import type { LiveLineProps } from "./live-line";
 import { extractReferenceAreaConfigs } from "./reference-area-config";

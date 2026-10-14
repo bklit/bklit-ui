@@ -195,6 +195,22 @@
       ]
     },
     {
+      "name": "chart-parent-size",
+      "type": "registry:component",
+      "title": "Chart Parent Size",
+      "description": "Responsive size wrapper for charts (visx useParentSize without overflow clipping).",
+      "dependencies": [
+        "@visx/responsive@4.0.0"
+      ],
+      "files": [
+        {
+          "path": "src/charts/chart-parent-size.tsx",
+          "type": "registry:component",
+          "target": "components/charts/chart-parent-size.tsx"
+        }
+      ]
+    },
+    {
       "name": "chart-animation",
       "type": "registry:component",
       "title": "Chart Animation",
@@ -424,15 +440,72 @@
       ]
     },
     {
+      "name": "patterns",
+      "type": "registry:component",
+      "title": "Patterns",
+      "description": "SVG pattern primitives (lines, circles, waves, hexagons, path) vendored from @visx/pattern (MIT).",
+      "registryDependencies": [
+        "@bklit/utils"
+      ],
+      "dependencies": [],
+      "files": [
+        {
+          "path": "src/charts/patterns/index.ts",
+          "type": "registry:component",
+          "target": "components/charts/patterns/index.ts"
+        },
+        {
+          "path": "src/charts/patterns/pattern.tsx",
+          "type": "registry:component",
+          "target": "components/charts/patterns/pattern.tsx"
+        },
+        {
+          "path": "src/charts/patterns/constants.ts",
+          "type": "registry:component",
+          "target": "components/charts/patterns/constants.ts"
+        },
+        {
+          "path": "src/charts/patterns/lines.tsx",
+          "type": "registry:component",
+          "target": "components/charts/patterns/lines.tsx"
+        },
+        {
+          "path": "src/charts/patterns/circles.tsx",
+          "type": "registry:component",
+          "target": "components/charts/patterns/circles.tsx"
+        },
+        {
+          "path": "src/charts/patterns/waves.tsx",
+          "type": "registry:component",
+          "target": "components/charts/patterns/waves.tsx"
+        },
+        {
+          "path": "src/charts/patterns/hexagons.tsx",
+          "type": "registry:component",
+          "target": "components/charts/patterns/hexagons.tsx"
+        },
+        {
+          "path": "src/charts/patterns/path.tsx",
+          "type": "registry:component",
+          "target": "components/charts/patterns/path.tsx"
+        },
+        {
+          "path": "src/charts/patterns/LICENSE-visx-pattern",
+          "type": "registry:file",
+          "target": "components/charts/patterns/LICENSE-visx-pattern"
+        }
+      ]
+    },
+    {
       "name": "background",
       "type": "registry:component",
       "title": "Chart Background",
       "description": "Pattern fill for the plot area when grid lines are hidden",
       "registryDependencies": [
-        "@bklit/chart-context"
+        "@bklit/chart-context",
+        "@bklit/patterns"
       ],
       "dependencies": [
-        "@visx/pattern@4.0.0",
         "motion"
       ],
       "files": [
@@ -666,7 +739,8 @@
         "@bklit/x-axis",
         "@bklit/chart-tooltip",
         "@bklit/shimmering-text",
-        "@bklit/utils"
+        "@bklit/utils",
+        "@bklit/chart-parent-size"
       ],
       "dependencies": [
         "@visx/curve@4.0.0",
@@ -760,7 +834,8 @@
         "@bklit/chart-tooltip",
         "@bklit/utils",
         "@bklit/line-chart",
-        "@bklit/area-chart"
+        "@bklit/area-chart",
+        "@bklit/chart-parent-size"
       ],
       "dependencies": [
         "@visx/curve@4.0.0",
@@ -823,11 +898,12 @@
         "@bklit/chart-animation",
         "@bklit/grid",
         "@bklit/chart-tooltip",
-        "@bklit/utils"
+        "@bklit/utils",
+        "@bklit/patterns",
+        "@bklit/chart-parent-size"
       ],
       "dependencies": [
         "@visx/gradient@4.0.0",
-        "@visx/pattern@4.0.0",
         "@visx/shape@4.0.0",
         "motion"
       ],
@@ -912,7 +988,8 @@
         "@bklit/x-axis",
         "@bklit/chart-tooltip",
         "@bklit/shimmering-text",
-        "@bklit/utils"
+        "@bklit/utils",
+        "@bklit/chart-parent-size"
       ],
       "dependencies": [
         "@visx/curve@4.0.0",
@@ -1147,7 +1224,8 @@
       "registryDependencies": [
         "@bklit/chart-context",
         "@bklit/chart-tooltip",
-        "@bklit/utils"
+        "@bklit/utils",
+        "@bklit/chart-parent-size"
       ],
       "dependencies": [
         "@visx/curve@4.0.0",
@@ -1198,7 +1276,8 @@
         "@bklit/x-axis",
         "@bklit/y-axis",
         "@bklit/chart-tooltip",
-        "@bklit/utils"
+        "@bklit/utils",
+        "@bklit/chart-parent-size"
       ],
       "dependencies": [
         "@visx/scale@4.0.0",
@@ -1236,7 +1315,8 @@
       "description": "A composable pie chart with animations and customizable slices",
       "registryDependencies": [
         "@bklit/chart-animation",
-        "@bklit/utils"
+        "@bklit/utils",
+        "@bklit/chart-parent-size"
       ],
       "dependencies": [
         "@number-flow/react",
@@ -1291,7 +1371,8 @@
       "description": "A composable radar/spider chart with multiple data series",
       "registryDependencies": [
         "@bklit/chart-animation",
-        "@bklit/utils"
+        "@bklit/utils",
+        "@bklit/chart-parent-size"
       ],
       "dependencies": [
         "@visx/group@4.0.0",
@@ -1341,7 +1422,8 @@
       "description": "A composable donut/ring chart with progress indicators",
       "registryDependencies": [
         "@bklit/chart-animation",
-        "@bklit/utils"
+        "@bklit/utils",
+        "@bklit/chart-parent-size"
       ],
       "dependencies": [
         "@visx/group@4.0.0",
@@ -1389,11 +1471,11 @@
       "title": "Gauge",
       "description": "Notch-based radial or linear gauge with optional center label, patterns, and optional gradients",
       "registryDependencies": [
-        "@bklit/utils"
+        "@bklit/utils",
+        "@bklit/chart-parent-size"
       ],
       "dependencies": [
         "@visx/responsive@4.0.0",
-        "@visx/pattern@4.0.0",
         "@number-flow/react",
         "motion",
         "d3-shape"
@@ -1458,7 +1540,6 @@
       "dependencies": [
         "@visx/group@4.0.0",
         "@visx/heatmap@4.0.0",
-        "@visx/pattern@4.0.0",
         "@visx/responsive@4.0.0",
         "@visx/scale@4.0.0",
         "motion"
@@ -1585,7 +1666,8 @@
         "@bklit/chart-animation",
         "@bklit/utils",
         "@bklit/chart-utils",
-        "@bklit/chart-tooltip"
+        "@bklit/chart-tooltip",
+        "@bklit/chart-parent-size"
       ],
       "dependencies": [
         "@types/geojson",
@@ -1664,12 +1746,12 @@
         "@bklit/chart-animation",
         "@bklit/utils",
         "@bklit/chart-utils",
-        "@bklit/chart-tooltip"
+        "@bklit/chart-tooltip",
+        "@bklit/chart-parent-size"
       ],
       "dependencies": [
         "@visx/event@4.0.0",
         "@visx/gradient@4.0.0",
-        "@visx/pattern@4.0.0",
         "@visx/responsive@4.0.0",
         "@visx/sankey@4.0.0",
         "d3-sankey",
@@ -1809,7 +1891,6 @@
       ],
       "dependencies": [
         "@visx/gradient@4.0.0",
-        "@visx/pattern@4.0.0",
         "@visx/shape@4.0.0",
         "motion"
       ],

@@ -70,7 +70,7 @@ Renders the geographic feature paths with hover states and optional patterns.
 | `strokeWidth` | `number` | `0.5` | Border stroke width |
 | `fadedOpacity` | `number` | `0.4` | Opacity when another feature is hovered |
 | `getFeatureColor` | `(feature, index) => string` | - | Custom color function |
-| `patterns` | `ReactNode` | - | Pattern definitions using `@visx/pattern` components |
+| `patterns` | `ReactNode` | - | Pattern definitions, e.g. `PatternLines` from the `@bklit/patterns` registry item |
 | `getFeaturePattern` | `(feature, index) => string \| null` | - | Return pattern ID for a feature |
 
 ### ChoroplethGraticule
@@ -136,5 +136,5 @@ See [Theming](/docs/theming) for the full sequential scale reference.
 This component requires:
 
 ```bash
-pnpm add @visx/geo @visx/responsive @visx/pattern @visx/zoom topojson-client motion react-use-measure
+pnpm add @visx/geo @visx/responsive @visx/zoom topojson-client motion react-use-measure
 ```
