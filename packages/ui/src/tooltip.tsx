@@ -279,9 +279,15 @@ export function ChartTooltip({
   // Calculate target position - this is the actual left position in pixels
   // When flipped, we need to position the tooltip so its RIGHT edge is offset from crosshair
   const shouldFlip = x + tooltipWidth + tooltipOffset > containerWidth;
-  const targetX = shouldFlip
+  const preferredX = shouldFlip
     ? x - tooltipOffset - tooltipWidth // Position left of crosshair
     : x + tooltipOffset; // Position right of crosshair
+  const maxX = Math.max(
+    tooltipOffset,
+    containerWidth - tooltipWidth - tooltipOffset
+  );
+  const targetX = Math.max(tooltipOffset, Math.min(preferredX, maxX));
+  const availableWidth = Math.max(containerWidth - tooltipOffset * 2, 0);
 
   // Track flip state changes for animation
   const prevFlipRef = useRef(shouldFlip);
@@ -332,10 +338,14 @@ export function ChartTooltip({
         {/* Inner content with flip animation and height animation */}
         <motion.div
           animate={{ scale: 1, opacity: 1, x: 0 }}
-          className="min-w-[140px] overflow-hidden rounded-lg bg-zinc-900/30 text-white shadow-lg backdrop-blur-md"
+          className="min-w-0 max-w-full overflow-hidden rounded-lg bg-zinc-900/30 text-white shadow-lg backdrop-blur-md [&>div]:min-w-0 [&>div]:max-w-full"
           initial={{ scale: 0.85, opacity: 0, x: shouldFlip ? 20 : -20 }}
           key={flipKey}
-          style={{ transformOrigin }}
+          style={{
+            maxWidth: availableWidth,
+            minWidth: Math.min(140, availableWidth),
+            transformOrigin,
+          }}
           transition={{
             type: "spring",
             stiffness: 300,

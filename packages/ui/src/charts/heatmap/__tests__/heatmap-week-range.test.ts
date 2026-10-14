@@ -5,6 +5,7 @@ import {
   getHeatmapMonthLabelColumnIndex,
   getHeatmapWeekStartAlignedToRange,
   getHeatmapYearStartMonth,
+  type HeatmapSeparatorLayout,
   resolveHeatmapWeekRange,
 } from "../heatmap-utils";
 
@@ -30,7 +31,9 @@ describe("heatmap week range alignment", () => {
 
 describe("heatmap month label columns", () => {
   it("snaps month ticks to separator group starts", () => {
-    const layout = { spacing: 12, atColumns: [4, 8], groups: [] };
+    const layout: Pick<HeatmapSeparatorLayout, "spacing" | "atColumns"> & {
+      groups: number[];
+    } = { spacing: 12, atColumns: [4, 8], groups: [] };
 
     assert.equal(getHeatmapMonthLabelColumnIndex(5, layout), 4);
     assert.equal(getHeatmapMonthLabelColumnIndex(0, layout), 0);
@@ -41,9 +44,7 @@ describe("heatmap month label columns", () => {
     assert.equal(getHeatmapMonthLabelColumnIndex(5, null), 5);
     assert.equal(
       getHeatmapMonthLabelColumnIndex(5, {
-        spacing: 0,
         atColumns: [],
-        groups: [],
       }),
       5
     );

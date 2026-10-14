@@ -4,6 +4,8 @@ import { motion, useReducedMotion, type Variants } from "motion/react";
 import { type ComponentProps, useCallback } from "react";
 import { cn } from "@/lib/utils";
 
+const PERSIAN_TEXT_PATTERN = /[\u0600-\u06ff]/u;
+
 export type ShimmeringTextProps = Omit<
   ComponentProps<typeof motion.span>,
   "children"
@@ -61,6 +63,38 @@ export function ShimmeringText({
     }),
     [duration, text.length]
   );
+
+  const containsPersian = PERSIAN_TEXT_PATTERN.test(text);
+
+  if (containsPersian) {
+    return (
+      <motion.span
+        animate={
+          stopped
+            ? { color: "var(--color)" }
+            : {
+                color: [
+                  "var(--color)",
+                  "var(--shimmering-color)",
+                  "var(--color)",
+                ],
+              }
+        }
+        className={cn(
+          "inline-block select-none whitespace-nowrap leading-none",
+          className
+        )}
+        transition={{
+          duration,
+          ease: "easeInOut",
+          repeat: stopped ? 0 : Number.POSITIVE_INFINITY,
+        }}
+        {...props}
+      >
+        {text}
+      </motion.span>
+    );
+  }
 
   return (
     <motion.span
