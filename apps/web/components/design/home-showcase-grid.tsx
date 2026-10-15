@@ -73,23 +73,34 @@ const showcaseRows: {
   ],
 ];
 
-export function HomeShowcaseGrid() {
+/**
+ * Showcase charts, two per row (7 + 5 columns). `rows` renders a slice
+ * `[start, end)` so the homepage can split the grid around other sections.
+ */
+export function HomeShowcaseGrid({
+  rows = [0, showcaseRows.length],
+}: {
+  rows?: readonly [start: number, end: number];
+}) {
   return (
     <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-12 lg:gap-6">
-      {showcaseRows.flat().map(({ id, chart, span, panelClassName }) => (
-        <DesignShowcasePanel
-          chart={chart}
-          className={cn(
-            "col-span-full min-w-0",
-            span === 7 ? "md:col-span-7" : "md:col-span-5",
-            panelClassName
-          )}
-          key={id}
-          mountKey={`showcase-${id}`}
-        >
-          <HomeShowcaseChart id={id} />
-        </DesignShowcasePanel>
-      ))}
+      {showcaseRows
+        .slice(rows[0], rows[1])
+        .flat()
+        .map(({ id, chart, span, panelClassName }) => (
+          <DesignShowcasePanel
+            chart={chart}
+            className={cn(
+              "col-span-full min-w-0",
+              span === 7 ? "md:col-span-7" : "md:col-span-5",
+              panelClassName
+            )}
+            key={id}
+            mountKey={`showcase-${id}`}
+          >
+            <HomeShowcaseChart id={id} />
+          </DesignShowcasePanel>
+        ))}
     </div>
   );
 }
