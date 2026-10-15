@@ -10,7 +10,9 @@ For example, you can ask your agent to:
 - "Add an area chart with tooltips to my dashboard."
 - "Build a KPI stat card with a revenue sparkline."
 - "Give the bar chart rounded tops and a diagonal pattern that matches our theme."
+- "Use a diagonal pattern background that fades out on all sides."
 - "Replace our Recharts line chart with the Bklit one."
+- "Migrate all our shadcn charts to Bklit."
 - "Fix the crosshair color on my candlestick chart tooltip."
 
 ## Install
@@ -64,6 +66,51 @@ Root chart → `Grid` → series → axes → overlays → `ChartTooltip`; `char
 ### Catalog
 
 17 chart items — area, bar, line, live line, composed, scatter, candlestick, profit/loss line, pie, ring, radar, gauge, heatmap, funnel, sankey, sunburst, and choropleth — plus add-ons (axes, grid, tooltip, legend, markers, background, patterns, reference area, projection line, bar depth, stat flow) and stat-card blocks, each with install commands and links to [docs](/docs/components), the [charts gallery](/charts/area-chart), and [Studio](/studio).
+
+## What bklit-ui-design covers
+
+### Reading your app's design
+
+Before styling, the skill runs a small dependency-free script, `detect-design.mjs`, that reports your Tailwind version, color format (oklch or hsl), dark-mode strategy, `--radius`, existing `--chart-*` palette, `components.json` style, and UI primitives. Charts are styled to fit what it finds, using your tokens rather than hardcoded colors.
+
+### Design vocabulary
+
+Plain-English requests map to exact components and props. For example:
+
+| You say | The agent writes |
+|---------|------------------|
+| "Diagonal pattern background that fades out on all sides" | `<Background />` (diagonal with a four-sided fade is the default) |
+| "Squircle bars" | `BarSquares` with `squareRadius={0.5}`, plus a ring tooltip |
+| "Pill bars" / "square bars" | `Bar` with `lineCap="round"` / `lineCap="butt"` |
+| "3D glass bars" | `BarDepthBack` → `Bar perspective` → `BarDepthFront` |
+| "Hatched area" | `PatternLines` with `PatternArea` |
+| "Dashed last few days" / "forecast" | `dashFromIndex` / `ProjectionLine` |
+| "Target band" | `ReferenceArea` |
+| "Skeleton while loading" | `status="loading"` with a `pulse` or `sweep` style |
+
+### Recipes, taste, and theming
+
+Fifteen ready-made compositions from the [charts gallery](/charts/area-chart), opinionated taste rules (one decorative layer, subtle patterns, faded backgrounds, corner style that matches your `--radius`), and theming guidance for light and dark mode, including fixes for Tailwind v3 projects.
+
+When you ask for something Bklit doesn't support, such as a wave or hexagon background preset, the skill says so and offers the closest composition instead of inventing props.
+
+## What bklit-ui-migrate covers
+
+### Finding your charts
+
+A dependency-free script, `detect-recharts.mjs`, lists every chart that uses Recharts directly or through shadcn's `components/ui/chart.tsx` (`ChartContainer`, `ChartConfig`, `ChartTooltipContent`).
+
+### Planning the migration
+
+Each chart is classified as:
+
+- **Clean**: a direct Bklit equivalent, such as line, area, bar, pie, radar, funnel, or sankey charts.
+- **Needs a workaround**: for example numeric x values on a line chart, stacked areas, or a fixed y domain. The agent asks before converting these.
+- **Keep on Recharts**: no Bklit equivalent yet, such as `Treemap`, `syncId`, or `ErrorBar`.
+
+### Converting
+
+Files are converted one at a time: data is reshaped where needed (for example, x values to dates), components and props are mapped, and `ChartConfig` colors and labels carry over to series and tooltip rows. `components/ui/chart.tsx` and the `recharts` dependency are removed only once nothing imports them, then the project is typechecked and built.
 
 ## Learn more
 
