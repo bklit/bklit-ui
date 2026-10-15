@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 
 /** coss ui docs sidebar styling (https://coss.com/ui, MIT). */
 const linkStyles = {
-  base: "flex h-8 w-full min-w-0 items-center gap-2 rounded-lg ps-3.5 pe-2 text-sm no-underline outline-hidden ring-sidebar-ring transition-colors focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0 [&>span]:truncate",
+  base: "flex h-8 w-full min-w-0 items-center gap-2 rounded-lg ps-3.5 pe-2 text-sm no-underline outline-hidden ring-sidebar-ring transition-colors focus-visible:ring-2 focus-visible:ring-inset [&>svg]:size-4 [&>svg]:shrink-0 [&>span]:truncate",
   active: "bg-sidebar-accent font-medium text-sidebar-accent-foreground",
   inactive: "text-sidebar-foreground hover:text-sidebar-accent-foreground",
   heading:
@@ -153,7 +153,7 @@ function SidebarFolder({
           <button
             aria-expanded={isOpen}
             aria-label={isOpen ? "Collapse" : "Expand"}
-            className="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-lg border-none bg-transparent text-sidebar-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+            className="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-lg border-none bg-transparent text-sidebar-foreground outline-hidden ring-sidebar-ring transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 focus-visible:ring-inset"
             onClick={() => setIsOpen(!isOpen)}
             type="button"
           >
