@@ -91,7 +91,7 @@ export function SitePageHeader({
         {eyebrow}
         <h1
           className={cn(
-            "text-balance font-bold font-heading text-4xl tracking-tight lg:text-5xl",
+            "text-balance font-bold font-heading text-4xl lg:text-5xl",
             headingClassName
           )}
         >
@@ -133,7 +133,7 @@ export function SiteSectionHeader({
     >
       <div className="flex max-w-2xl flex-col gap-1.5">
         <h2
-          className="text-balance font-bold font-heading text-2xl tracking-tight lg:text-3xl"
+          className="text-balance font-bold font-heading text-2xl lg:text-3xl"
           id={titleId}
         >
           {title}

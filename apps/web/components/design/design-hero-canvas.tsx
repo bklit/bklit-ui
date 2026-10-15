@@ -8,7 +8,7 @@ export function DesignHeroCanvas() {
     <div className="flex min-w-0 flex-col justify-center py-6 text-left sm:py-8 md:py-10 lg:py-12">
       <div className="flex min-h-0 flex-col gap-4 sm:gap-6">
         <div className="flex flex-col items-start gap-3 sm:gap-5">
-          <h1 className="max-w-3xl text-balance font-bold font-heading text-2xl tracking-tight sm:text-4xl md:text-5xl lg:text-6xl">
+          <h1 className="max-w-3xl text-balance font-bold font-heading text-2xl sm:text-4xl md:text-5xl lg:text-6xl">
             Design engineered charts and data visualization
           </h1>
           <div className="flex flex-wrap items-start gap-2">
