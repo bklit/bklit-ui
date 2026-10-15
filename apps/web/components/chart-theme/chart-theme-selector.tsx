@@ -5,12 +5,12 @@ import { useChartTheme } from "@/components/chart-theme/chart-theme-provider";
 import { ChartThemeSwatchIcon } from "@/components/chart-theme/chart-theme-swatch-icon";
 import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  Menu,
+  MenuPopup,
+  MenuRadioGroup,
+  MenuRadioItem,
+  MenuTrigger,
+} from "@/components/ui/menu";
 
 export function ChartThemeSelector() {
   const { themeId, theme, themes, setThemeId } = useChartTheme();
@@ -29,8 +29,8 @@ export function ChartThemeSelector() {
   }
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger
+    <Menu>
+      <MenuTrigger
         render={
           <Button
             aria-label="Chart color theme"
@@ -42,25 +42,23 @@ export function ChartThemeSelector() {
         }
       >
         <ChartThemeSwatchIcon context="trigger" swatch={theme.swatch} />
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="min-w-36 text-xs">
-        <DropdownMenuRadioGroup onValueChange={setThemeId} value={themeId}>
+      </MenuTrigger>
+      <MenuPopup align="end" className="min-w-36 text-xs">
+        <MenuRadioGroup onValueChange={setThemeId} value={themeId}>
           {themes.map((entry) => (
-            <DropdownMenuRadioItem
-              className="text-xs"
-              key={entry.id}
-              value={entry.id}
-            >
-              <ChartThemeSwatchIcon
-                context="menu"
-                size="sm"
-                swatch={entry.swatch}
-              />
-              <span>{entry.name}</span>
-            </DropdownMenuRadioItem>
+            <MenuRadioItem className="text-xs" key={entry.id} value={entry.id}>
+              <span className="flex items-center gap-2">
+                <ChartThemeSwatchIcon
+                  context="menu"
+                  size="sm"
+                  swatch={entry.swatch}
+                />
+                <span>{entry.name}</span>
+              </span>
+            </MenuRadioItem>
           ))}
-        </DropdownMenuRadioGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
+        </MenuRadioGroup>
+      </MenuPopup>
+    </Menu>
   );
 }

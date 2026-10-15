@@ -5,6 +5,7 @@ import { useSearchContext } from "fumadocs-ui/contexts/search";
 import { useEffect, useState } from "react";
 import { markSearchOpenedFromClick } from "@/lib/analytics/search-source";
 import { cn } from "@/lib/utils";
+import { Button } from "../ui/button";
 
 function SearchShortcut() {
   const [modifier, setModifier] = useState("⌘");
@@ -16,12 +17,16 @@ function SearchShortcut() {
   }, []);
 
   return (
-    <kbd className="pointer-events-none hidden items-center gap-0.5 px-1.5 py-0.5 font-medium font-mono text-[0.625rem] text-muted-foreground sm:inline-flex">
-      <span>{modifier}</span>
-      <span>K</span>
-    </kbd>
+    <span className="pointer-events-none hidden items-center gap-1 sm:inline-flex">
+      <kbd className={kbdClassName}>{modifier}</kbd>
+      <kbd className={cn(kbdClassName, "aspect-square")}>K</kbd>
+    </span>
   );
 }
+
+/** coss Kbd look (https://coss.com/ui, MIT). */
+const kbdClassName =
+  "pointer-events-none inline-flex h-5 min-w-5 select-none items-center justify-center gap-1 rounded-[.25rem] bg-muted px-1 font-medium font-sans text-muted-foreground text-xs";
 
 interface DocsSearchTriggerProps {
   className?: string;
@@ -39,21 +44,18 @@ export function DocsSearchTrigger({
   }
 
   return (
-    <button
+    <Button
       aria-label="Open search"
-      className={cn(
-        "inline-flex h-8 shrink-0 items-center gap-1.5 border border-input bg-input px-2 text-sm/relaxed outline-none transition-colors hover:bg-input/40 focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30 dark:bg-input/30",
-        className
-      )}
+      className={className}
       data-search-full=""
       onClick={() => {
         markSearchOpenedFromClick();
         setOpenSearch(true);
       }}
-      type="button"
+      variant="outline"
     >
-      <Icon className="size-3.5 text-muted-foreground" name="IconQuickSearch" />
+      <Icon className="size-4" name="IconQuickSearch" />
       <SearchShortcut />
-    </button>
+    </Button>
   );
 }

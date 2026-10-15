@@ -19,7 +19,6 @@ export function WebStudioCodeSheet({ state }: { state: StudioUrlState }) {
         <>
           <Button
             className="h-8 text-xs"
-            nativeButton={false}
             render={<Link href={studioChartDocsHref(state.chart)} />}
             size="sm"
             variant="outline"

@@ -8,11 +8,11 @@ import { DocsChartPreviewShell } from "@/components/docs/docs-chart-preview-shel
 import { OpenInStudioButton } from "@/components/docs/open-in-studio-button";
 import { OpenInV0Button } from "@/components/docs/open-in-v0-button";
 import {
-  Card,
-  CardContent,
-  previewCardClassName,
-  previewCardContentClassName,
-} from "@/components/ui/card";
+  Frame,
+  FrameHeader,
+  FramePanel,
+  FrameTitle,
+} from "@/components/ui/frame";
 import { cn } from "@/lib/utils";
 
 /**
@@ -38,33 +38,30 @@ export function ComponentPreview({
   const studioSlug =
     registryName && isChartSlug(registryName) ? registryName : undefined;
 
+  // coss-style Frame: muted shell, optional header strip, chart on a white panel.
   return (
-    <div className={cn("not-prose my-6", className)}>
+    <Frame className={cn("not-prose my-6", className)}>
       {registryJsonUrl ? (
-        <div className="mb-3 flex items-center justify-between gap-4">
-          <h2 className="m-0 font-semibold text-foreground text-lg tracking-tight">
+        <FrameHeader className="flex-row items-center justify-between gap-4 py-1.5 ps-4 pe-1.5">
+          <FrameTitle className="font-medium text-foreground">
             Preview
-          </h2>
-          <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+          </FrameTitle>
+          <div className="flex flex-wrap items-center justify-end gap-2 sm:shrink-0">
             {studioSlug ? <OpenInStudioButton slug={studioSlug} /> : null}
             <OpenInV0Button
               chart={registryName}
               registryJsonUrl={registryJsonUrl}
             />
           </div>
-        </div>
+        </FrameHeader>
       ) : null}
-      <Card className={cn("flex flex-col", previewCardClassName)}>
-        <CardContent
-          className={cn(previewCardContentClassName, "min-h-[200px] shrink-0")}
-        >
-          <DocsChartPreviewShell>
-            <div className="flex w-full items-center justify-center">
-              {children}
-            </div>
-          </DocsChartPreviewShell>
-        </CardContent>
-      </Card>
-    </div>
+      <FramePanel className="flex min-h-[200px] w-full shrink-0 items-center justify-center p-6 sm:p-8">
+        <DocsChartPreviewShell>
+          <div className="flex w-full items-center justify-center">
+            {children}
+          </div>
+        </DocsChartPreviewShell>
+      </FramePanel>
+    </Frame>
   );
 }

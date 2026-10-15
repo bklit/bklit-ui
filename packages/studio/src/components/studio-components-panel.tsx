@@ -28,8 +28,8 @@ import type { StudioUrlState } from "@/lib/studio-parsers";
 import type { StudioComponentDefinition } from "@/lib/types";
 import {
   ContextMenu,
-  ContextMenuContent,
   ContextMenuItem,
+  ContextMenuPopup,
   ContextMenuSeparator,
   ContextMenuTrigger,
 } from "@/ui/context-menu";
@@ -95,7 +95,7 @@ function ComponentContextMenuContent({
     const canAdd = canAddProjectionLine(state);
 
     return (
-      <ContextMenuContent>
+      <ContextMenuPopup>
         <ContextMenuItem
           disabled={!canAdd}
           onClick={() => {
@@ -122,13 +122,13 @@ function ComponentContextMenuContent({
         <ContextMenuItem onClick={toggleVisibility}>
           {visible ? "Hide" : "Show"}
         </ContextMenuItem>
-      </ContextMenuContent>
+      </ContextMenuPopup>
     );
   }
 
   if (projectionIndex != null) {
     return (
-      <ContextMenuContent>
+      <ContextMenuPopup>
         <ContextMenuItem
           onClick={() => {
             const updates = buildRemoveProjectionUpdate(state, projectionIndex);
@@ -143,16 +143,16 @@ function ComponentContextMenuContent({
         <ContextMenuItem onClick={toggleVisibility}>
           {visible ? "Hide" : "Show"}
         </ContextMenuItem>
-      </ContextMenuContent>
+      </ContextMenuPopup>
     );
   }
 
   return (
-    <ContextMenuContent>
+    <ContextMenuPopup>
       <ContextMenuItem onClick={toggleVisibility}>
         {visible ? "Hide" : "Show"}
       </ContextMenuItem>
-    </ContextMenuContent>
+    </ContextMenuPopup>
   );
 }
 

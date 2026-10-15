@@ -8,9 +8,9 @@ import { useCallback, useEffect, useState } from "react";
 import type { ChartSlug } from "@/components/charts/chart-slugs";
 import { ChartMountPlaceholder } from "@/components/design/chart-mount-placeholder";
 import { Button } from "@/components/ui/button";
+import { Frame, FramePanel } from "@/components/ui/frame";
 import { useDeferredInViewOnce } from "@/lib/use-deferred-in-view-once";
 import { cn } from "@/lib/utils";
-import { GridCornerDots } from "./line-grid";
 
 const easeOutQuint = [0.23, 1, 0.32, 1] as const;
 const actionEnterDuration = 0.2;
@@ -122,12 +122,7 @@ function CardAction({
           }
           initial={reducedMotion ? false : { opacity: 0, y: 6 }}
         >
-          <Button
-            nativeButton={false}
-            render={<Link href={href} />}
-            size="sm"
-            variant={variant}
-          >
+          <Button render={<Link href={href} />} size="sm" variant={variant}>
             {label}
           </Button>
         </motion.div>
@@ -175,11 +170,8 @@ export function DesignShowcasePanel({
     reducedMotion === true || coarsePointer || hoverFine || focused;
 
   return (
-    <div
-      className={cn(
-        "relative flex min-h-[280px] flex-col overflow-visible border-border border-r border-b md:overflow-hidden",
-        className
-      )}
+    <Frame
+      className={cn("min-h-[280px]", className)}
       onBlurCapture={(e) => {
         if (!e.currentTarget.contains(e.relatedTarget)) {
           setFocused(false);
@@ -189,46 +181,43 @@ export function DesignShowcasePanel({
       onPointerEnter={() => setHoverFine(true)}
       onPointerLeave={() => setHoverFine(false)}
     >
-      <div
-        aria-hidden
-        className="absolute inset-0 z-0 bg-white dark:bg-black"
-      />
-      <GridCornerDots className="z-3 md:hidden" columns={1} rows={1} />
-      <div className="absolute top-3 left-3 z-10">
-        <ShowcaseReplayAction
-          index={0}
-          onReplay={replay}
-          reducedMotion={reducedMotion}
-          visible={showActions}
-        />
-      </div>
-      <div className="absolute top-3 right-3 z-10 flex items-center gap-2">
-        <CardAction
-          href={studioChartDocsHref(chart)}
-          index={1}
-          label="Docs"
-          reducedMotion={reducedMotion}
-          variant="outline"
-          visible={showActions}
-        />
-        <CardAction
-          href={studioChartHref(chart)}
-          index={2}
-          label="Open in Studio"
-          reducedMotion={reducedMotion}
-          variant="default"
-          visible={showActions}
-        />
-      </div>
-      <div className="absolute inset-0 z-2 flex items-center justify-center p-5 pt-14 sm:p-6 sm:pt-14 md:p-8 md:pt-16">
-        <div
-          className="flex size-full max-h-full min-w-0 items-center justify-center"
-          key={replayKey}
-          ref={chartViewportRef}
-        >
-          {chartMounted ? children : <ChartMountPlaceholder />}
+      <FramePanel className="flex-1 overflow-visible p-0 md:overflow-hidden">
+        <div className="absolute top-3 left-3 z-10">
+          <ShowcaseReplayAction
+            index={0}
+            onReplay={replay}
+            reducedMotion={reducedMotion}
+            visible={showActions}
+          />
         </div>
-      </div>
-    </div>
+        <div className="absolute top-3 right-3 z-10 flex items-center gap-2">
+          <CardAction
+            href={studioChartDocsHref(chart)}
+            index={1}
+            label="Docs"
+            reducedMotion={reducedMotion}
+            variant="outline"
+            visible={showActions}
+          />
+          <CardAction
+            href={studioChartHref(chart)}
+            index={2}
+            label="Open in Studio"
+            reducedMotion={reducedMotion}
+            variant="default"
+            visible={showActions}
+          />
+        </div>
+        <div className="absolute inset-0 z-2 flex items-center justify-center p-5 pt-14 sm:p-6 sm:pt-14 md:p-8 md:pt-16">
+          <div
+            className="flex size-full max-h-full min-w-0 items-center justify-center"
+            key={replayKey}
+            ref={chartViewportRef}
+          >
+            {chartMounted ? children : <ChartMountPlaceholder />}
+          </div>
+        </div>
+      </FramePanel>
+    </Frame>
   );
 }

@@ -7,7 +7,6 @@ import { useEffect, useState } from "react";
 import { CopyButton } from "@/components/copy-button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { codeThemes } from "@/lib/code-theme";
-import { cn } from "@/lib/utils";
 
 const STORAGE_KEY = "bklit-package-manager";
 
@@ -58,23 +57,19 @@ export function PackageManagerTabs({ name }: PackageManagerTabsProps) {
 
   const command = getCommand(pm);
 
+  // Adapted from coss ui code-block-command (https://coss.com/ui, MIT).
   return (
-    <figure className="not-prose relative my-4 overflow-hidden rounded-xl border border-border bg-card shadow-sm">
-      <Tabs onValueChange={handleValueChange} value={pm}>
-        <div className="flex items-center gap-2 border-border border-b bg-muted/40 px-3 py-1.5">
-          <div className="flex size-4 items-center justify-center rounded-[1px] bg-foreground/80">
-            <Icon className="size-3 text-background" name="IconConsole" />
-          </div>
-          <TabsList
-            className="h-auto gap-0 rounded-none bg-transparent p-0"
-            variant="line"
-          >
+    <figure className="not-prose relative my-4 overflow-hidden rounded-xl border border-border bg-code text-code-foreground">
+      <Tabs className="gap-0" onValueChange={handleValueChange} value={pm}>
+        <div className="flex items-center gap-2 border-border/64 border-b px-3 py-1 font-mono">
+          <Icon
+            className="size-4 shrink-0 text-muted-foreground"
+            name="IconConsole"
+          />
+          <TabsList className={commandTabsListClassName}>
             {(["pnpm", "npm", "yarn", "bun"] as const).map((manager) => (
               <TabsTrigger
-                className={cn(
-                  "h-7 border border-transparent px-2 pt-0.5 shadow-none",
-                  "data-[state=active]:border-border data-[state=active]:bg-background"
-                )}
+                className="h-7 rounded-lg px-2 font-mono text-[0.8125rem] sm:h-7"
                 key={manager}
                 value={manager}
               >
@@ -92,7 +87,8 @@ export function PackageManagerTabs({ name }: PackageManagerTabsProps) {
                 codeblock={{
                   allowCopy: false,
                   className:
-                    "my-0 rounded-none border-0 bg-transparent [&_pre]:bg-transparent",
+                    "my-0 rounded-none border-0 bg-transparent shadow-none [&_pre]:bg-transparent",
+                  viewportProps: { className: "py-3 text-[0.8125rem]" },
                 }}
                 lang="bash"
                 options={{ themes: codeThemes }}
@@ -102,7 +98,14 @@ export function PackageManagerTabs({ name }: PackageManagerTabsProps) {
         </div>
       </Tabs>
 
-      <CopyButton className="absolute top-2 right-2 z-10" text={command} />
+      <CopyButton
+        className="absolute top-1.5 right-1.5 z-10 opacity-72 transition-opacity hover:opacity-100 focus-visible:opacity-100"
+        text={command}
+      />
     </figure>
   );
 }
+
+/** coss transparent tab list with a soft accent pill indicator. */
+export const commandTabsListClassName =
+  "gap-0.5 bg-transparent p-0 *:data-[slot=tab-indicator]:rounded-lg *:data-[slot=tab-indicator]:bg-accent *:data-[slot=tab-indicator]:shadow-none dark:*:data-[slot=tab-indicator]:bg-accent";

@@ -1,25 +1,31 @@
-import { Slider as SliderPrimitive } from "@base-ui/react/slider";
+"use client";
 
+import { Slider as SliderPrimitive } from "@base-ui/react/slider";
+import * as React from "react";
 import { cn } from "@/lib/utils";
 
-function Slider({
+export function Slider({
   className,
+  children,
   defaultValue,
   value,
   min = 0,
   max = 100,
   ...props
-}: SliderPrimitive.Root.Props) {
-  const _values = Array.isArray(value)
-    ? value
-    : Array.isArray(defaultValue)
-      ? defaultValue
-      : [min, max];
+}: SliderPrimitive.Root.Props): React.ReactElement {
+  const _values = React.useMemo(() => {
+    if (value !== undefined) {
+      return Array.isArray(value) ? value : [value];
+    }
+    if (defaultValue !== undefined) {
+      return Array.isArray(defaultValue) ? defaultValue : [defaultValue];
+    }
+    return [min];
+  }, [value, defaultValue, min]);
 
   return (
     <SliderPrimitive.Root
-      className={cn("data-vertical:h-full data-horizontal:w-full", className)}
-      data-slot="slider"
+      className={cn("data-[orientation=horizontal]:w-full", className)}
       defaultValue={defaultValue}
       max={max}
       min={min}
@@ -27,26 +33,44 @@ function Slider({
       value={value}
       {...props}
     >
-      <SliderPrimitive.Control className="relative flex w-full touch-none select-none items-center data-vertical:h-full data-vertical:min-h-40 data-vertical:w-auto data-vertical:flex-col data-disabled:opacity-50">
+      {children}
+      <SliderPrimitive.Control
+        className="flex touch-none select-none data-disabled:pointer-events-none data-[orientation=vertical]:h-full data-[orientation=vertical]:min-h-44 data-[orientation=horizontal]:w-full data-[orientation=horizontal]:min-w-44 data-[orientation=vertical]:flex-col data-disabled:opacity-64"
+        data-slot="slider-control"
+      >
         <SliderPrimitive.Track
-          className="relative grow select-none overflow-hidden rounded-full bg-muted data-horizontal:h-1 data-vertical:h-full data-horizontal:w-full data-vertical:w-1"
+          className="relative grow select-none before:absolute before:rounded-full before:bg-input data-[orientation=horizontal]:h-1 data-[orientation=vertical]:h-full data-[orientation=horizontal]:w-full data-[orientation=vertical]:w-1 data-[orientation=horizontal]:before:inset-x-0.5 data-[orientation=vertical]:before:inset-x-0 data-[orientation=horizontal]:before:inset-y-0 data-[orientation=vertical]:before:inset-y-0.5"
           data-slot="slider-track"
         >
           <SliderPrimitive.Indicator
-            className="select-none bg-primary data-horizontal:h-full data-vertical:w-full"
-            data-slot="slider-range"
+            className="select-none rounded-full bg-primary data-[orientation=horizontal]:ms-0.5 data-[orientation=vertical]:mb-0.5"
+            data-slot="slider-indicator"
           />
+          {Array.from({ length: _values.length }, (_, index) => (
+            <SliderPrimitive.Thumb
+              className="block size-5 shrink-0 select-none rounded-full border border-input bg-white not-dark:bg-clip-padding shadow-xs/5 outline-none transition-[box-shadow,scale] before:absolute before:inset-0 before:rounded-full before:shadow-[0_1px_--theme(--color-black/4%)] has-focus-visible:ring-[3px] has-focus-visible:ring-ring/24 data-dragging:scale-120 sm:size-4 dark:border-background dark:has-focus-visible:ring-ring/48 [:has(*:focus-visible),[data-dragging]]:shadow-none"
+              data-slot="slider-thumb"
+              index={index}
+              key={String(index)}
+            />
+          ))}
         </SliderPrimitive.Track>
-        {Array.from({ length: _values.length }, (_, index) => (
-          <SliderPrimitive.Thumb
-            className="relative block size-3 shrink-0 select-none rounded-full border border-transparent bg-white ring-ring/50 transition-[color,box-shadow] after:absolute after:-inset-2 hover:ring-3 focus-visible:outline-hidden focus-visible:ring-3 active:ring-3 disabled:pointer-events-none disabled:opacity-50"
-            data-slot="slider-thumb"
-            key={index}
-          />
-        ))}
       </SliderPrimitive.Control>
     </SliderPrimitive.Root>
   );
 }
 
-export { Slider };
+export function SliderValue({
+  className,
+  ...props
+}: SliderPrimitive.Value.Props): React.ReactElement {
+  return (
+    <SliderPrimitive.Value
+      className={cn("flex justify-end text-sm", className)}
+      data-slot="slider-value"
+      {...props}
+    />
+  );
+}
+
+export { SliderPrimitive };

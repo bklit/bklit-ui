@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { FocusEvent, PointerEvent, ReactNode } from "react";
+import { FramePanel } from "@/components/ui/frame";
 import { cn } from "@/lib/utils";
 import { SponsorPlaceholderPattern } from "./sponsor-placeholder-pattern";
 
@@ -31,17 +32,14 @@ export function DesignSponsorPanel({
   variant?: "default" | "placeholder";
 }) {
   const panel = (
-    <div
+    <FramePanel
       className={cn(
-        "relative w-full min-w-0 overflow-visible border-border border-r border-b",
+        "h-full w-full min-w-0 overflow-hidden p-0 transition-colors",
+        href && "group-hover:bg-card group-focus-visible:bg-card",
         className
       )}
       style={{ minHeight }}
     >
-      <div
-        aria-hidden
-        className="absolute inset-0 z-0 bg-white dark:bg-black"
-      />
       {variant === "placeholder" ? (
         <SponsorPlaceholderPattern reversed={patternReversed} />
       ) : null}
@@ -50,11 +48,11 @@ export function DesignSponsorPanel({
           "relative z-2 flex h-full min-w-0 flex-col",
           variant === "placeholder" ? "p-0" : "items-center justify-center p-8"
         )}
-        style={{ minHeight: minHeight - 1 }}
+        style={{ minHeight: minHeight - 2 }}
       >
         {children}
       </div>
-    </div>
+    </FramePanel>
   );
 
   if (href) {
@@ -64,7 +62,7 @@ export function DesignSponsorPanel({
           ariaLabel ??
           (variant === "placeholder" ? "Become a sponsor" : undefined)
         }
-        className="group block w-full min-w-0"
+        className="group block w-full min-w-0 rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-ring"
         href={href}
         onBlur={onBlur}
         onClick={onClick}

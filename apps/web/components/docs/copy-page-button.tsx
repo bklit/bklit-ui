@@ -4,12 +4,7 @@ import { Icon } from "@bklitui/icons";
 import { useState } from "react";
 import { getAnalyticsUrl, trackEvent } from "@/lib/analytics/track-client";
 import { Button } from "../ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
+import { Menu, MenuLinkItem, MenuPopup, MenuTrigger } from "../ui/menu";
 
 interface CopyPageButtonProps {
   content: string;
@@ -54,11 +49,11 @@ export function CopyPageButton({ content, url, title }: CopyPageButtonProps) {
   };
 
   return (
-    <div className="hidden md:flex">
+    <div className="flex">
       <Button
-        className="rounded-r-none border-r-0"
+        className="rounded-r-none border-r-0 before:rounded-r-none"
         onClick={handleCopy}
-        size="default"
+        size="xs"
         variant="outline"
       >
         <span className="relative size-3.5">
@@ -81,59 +76,44 @@ export function CopyPageButton({ content, url, title }: CopyPageButtonProps) {
             }}
           />
         </span>
-        <span>Copy Page</span>
+        <span>Copy Markdown</span>
       </Button>
-      <DropdownMenu>
-        <DropdownMenuTrigger
+      <Menu>
+        <MenuTrigger
           render={
             <Button
-              className="rounded-l-none px-2.5"
-              size="default"
+              aria-label="More page actions"
+              className="rounded-l-none px-1.5 before:rounded-l-none"
+              size="xs"
               variant="outline"
             />
           }
         >
-          <Icon className="size-4" name="IconChevronDownSmall" />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="!w-auto min-w-max">
-          <DropdownMenuItem
-            className="text-sm"
-            nativeButton={false}
-            render={
-              // biome-ignore lint/a11y/useAnchorContent: Base UI merges menu item children into this anchor
-              <a
-                aria-label="Open in ChatGPT"
-                className="whitespace-nowrap"
-                href={getPromptUrl("https://chatgpt.com", fullUrl, content)}
-                onClick={() => trackLlmOpen("chatgpt")}
-                rel="noreferrer"
-                target="_blank"
-              />
-            }
+          <Icon className="size-3.5" name="IconChevronDownSmall" />
+        </MenuTrigger>
+        <MenuPopup align="start" className="!w-auto min-w-max">
+          <MenuLinkItem
+            className="whitespace-nowrap text-sm"
+            href={getPromptUrl("https://chatgpt.com", fullUrl, content)}
+            onClick={() => trackLlmOpen("chatgpt")}
+            rel="noreferrer"
+            target="_blank"
           >
             <ChatGPTIcon />
             Open in ChatGPT
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            className="text-sm"
-            nativeButton={false}
-            render={
-              // biome-ignore lint/a11y/useAnchorContent: Base UI merges menu item children into this anchor
-              <a
-                aria-label="Open in Claude"
-                className="whitespace-nowrap"
-                href={getPromptUrl("https://claude.ai/new", fullUrl, content)}
-                onClick={() => trackLlmOpen("claude")}
-                rel="noreferrer"
-                target="_blank"
-              />
-            }
+          </MenuLinkItem>
+          <MenuLinkItem
+            className="whitespace-nowrap text-sm"
+            href={getPromptUrl("https://claude.ai/new", fullUrl, content)}
+            onClick={() => trackLlmOpen("claude")}
+            rel="noreferrer"
+            target="_blank"
           >
             <ClaudeIcon />
             Open in Claude
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+          </MenuLinkItem>
+        </MenuPopup>
+      </Menu>
     </div>
   );
 }

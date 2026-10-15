@@ -21,5 +21,7 @@
   "menuColor": "default-translucent",
   "menuAccent": "subtle",
   "rtl": false,
-  "registries": {}
+  "registries": {
+    "@coss": "https://coss.com/ui/r/{name}.json"
+  }
 }

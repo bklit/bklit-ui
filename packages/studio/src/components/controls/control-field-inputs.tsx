@@ -76,7 +76,10 @@ export function ControlFieldInputs({
           }
           value={String(value)}
         >
-          <SelectTrigger className="w-full text-xs" id={String(control.key)}>
+          <SelectTrigger
+            className="w-full text-xs sm:text-xs"
+            id={String(control.key)}
+          >
             <SelectValue />
           </SelectTrigger>
           <SelectContent>

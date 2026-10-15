@@ -243,12 +243,7 @@ function CardAction({
           }
           initial={reducedMotion ? false : { opacity: 0, y: 6 }}
         >
-          <Button
-            nativeButton={false}
-            render={<Link href={href} />}
-            size="sm"
-            variant={variant}
-          >
+          <Button render={<Link href={href} />} size="sm" variant={variant}>
             {label}
           </Button>
         </motion.div>

@@ -60,8 +60,8 @@ export function StudioCodeSheetTrigger({
           <Button
             className={cn(
               triggerSize === "sm"
-                ? "font-mono text-xs"
-                : "h-10 px-4 font-mono text-[11px]",
+                ? "font-mono text-xs sm:text-xs"
+                : "h-10 px-4 font-mono text-[11px] sm:h-10 sm:text-[11px]",
               triggerClassName
             )}
             size={triggerSize}

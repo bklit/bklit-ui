@@ -45,7 +45,7 @@ export function PresetSelect({
           <Button
             aria-expanded={open}
             aria-label="Color preset"
-            className="h-10 gap-2 px-3 text-sm"
+            className="h-10 gap-2 px-3 text-sm sm:h-10"
             disabled={disabled}
             type="button"
             variant="outline"
@@ -63,9 +63,10 @@ export function PresetSelect({
       </PopoverTrigger>
       <PopoverContent
         align="end"
-        className="w-52 p-1.5"
+        className="w-52"
         side="bottom"
         sideOffset={8}
+        viewportClassName="p-1.5"
       >
         <p className="px-2 py-1.5 font-medium text-[11px] text-muted-foreground uppercase tracking-wide">
           Theme

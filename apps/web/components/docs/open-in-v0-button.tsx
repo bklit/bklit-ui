@@ -30,7 +30,6 @@ export function OpenInV0Button({
     <Button
       aria-label="Open in v0"
       className="h-8 gap-1 px-3 text-xs"
-      nativeButton={false}
       render={
         // biome-ignore lint/a11y/useAnchorContent: Base UI merges Button children into this anchor
         <a

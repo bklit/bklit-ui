@@ -55,12 +55,12 @@ export function StudioOnboardingDialog() {
     <Dialog onOpenChange={handleOpenChange} open={open}>
       <DialogContent
         className={cn(
-          "gap-6 px-8 py-8",
+          "max-w-sm gap-6 px-8 py-8",
           "[&_[data-slot=dialog-close]]:top-8 [&_[data-slot=dialog-close]]:right-8"
         )}
         initialFocus={false}
       >
-        <DialogHeader className="gap-5">
+        <DialogHeader className="gap-5 p-0">
           <div className="flex justify-center">
             <StudioVersionPill showChevron={false} tabIndex={-1} />
           </div>
@@ -79,7 +79,7 @@ export function StudioOnboardingDialog() {
             make it great.
           </blockquote>
           <figcaption className="flex items-center justify-center gap-2 font-light text-muted-foreground text-sm">
-            <Avatar size="sm">
+            <Avatar className="size-6">
               <AvatarImage alt="Matt" src={MAT_AVATAR_URL} />
               <AvatarFallback>Ma</AvatarFallback>
             </Avatar>
@@ -87,7 +87,7 @@ export function StudioOnboardingDialog() {
           </figcaption>
         </figure>
 
-        <DialogFooter>
+        <DialogFooter className="p-0" variant="bare">
           <Button
             className={cn("min-w-36")}
             onClick={dismiss}

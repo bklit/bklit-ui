@@ -16,7 +16,7 @@ export function StudioVersionPill({
     <ParticleBadge>
       <Button
         aria-label="Studio Version 2"
-        className="relative isolate inline-flex h-auto cursor-default items-center gap-0 rounded-full bg-background px-0.5 py-0.5 text-xs"
+        className="relative isolate inline-flex h-auto cursor-default items-center gap-0 rounded-full bg-background px-0.5 py-0.5 text-xs before:rounded-full sm:h-auto sm:text-xs"
         tabIndex={tabIndex}
         type="button"
         variant="outline"

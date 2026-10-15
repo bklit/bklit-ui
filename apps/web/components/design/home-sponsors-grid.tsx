@@ -3,6 +3,7 @@
 import { DEFAULT_CHART_ENTER_TRANSITION } from "@bklitui/ui/charts";
 import { motion, useReducedMotion } from "motion/react";
 import { useState } from "react";
+import { Frame } from "@/components/ui/frame";
 import { getAnalyticsUrl, trackEvent } from "@/lib/analytics/track-client";
 import {
   premiumLogoClassName,
@@ -16,7 +17,6 @@ import {
   sponsorTierLabels,
 } from "@/lib/sponsors";
 import { cn } from "@/lib/utils";
-import { GridCornerDots } from "./line-grid";
 import { DesignSponsorPanel } from "./sponsor-panel";
 
 const chartEase = DEFAULT_CHART_ENTER_TRANSITION.ease as [
@@ -256,9 +256,6 @@ function SponsorRow({
   placeholderOffset?: number;
 }) {
   const mobileSlots = getMobileSponsorSlots(slots, variant);
-  const mobileColumns = variant === "premium" ? 1 : 2;
-  const mobileRows = Math.ceil(mobileSlots.length / mobileColumns);
-  const desktopColumns = slots.length;
   const gridClassName =
     variant === "premium"
       ? "grid-cols-1 md:grid-cols-3"
@@ -266,9 +263,7 @@ function SponsorRow({
 
   return (
     <div className="relative w-full overflow-visible">
-      <div
-        className={cn("grid w-full overflow-visible md:hidden", gridClassName)}
-      >
+      <div className={cn("grid w-full gap-1 md:hidden", gridClassName)}>
         <SponsorSlotItems
           keyPrefix={`${variant}-mobile`}
           logoClassName={logoClassName}
@@ -278,9 +273,7 @@ function SponsorRow({
           variant={variant}
         />
       </div>
-      <div
-        className={cn("hidden w-full overflow-visible md:grid", gridClassName)}
-      >
+      <div className={cn("hidden w-full gap-1 md:grid", gridClassName)}>
         <SponsorSlotItems
           keyPrefix={`${variant}-desktop`}
           logoClassName={logoClassName}
@@ -290,16 +283,6 @@ function SponsorRow({
           variant={variant}
         />
       </div>
-      <GridCornerDots
-        className="z-3 md:hidden"
-        columns={mobileColumns}
-        rows={mobileRows}
-      />
-      <GridCornerDots
-        className="z-3 hidden md:block"
-        columns={desktopColumns}
-        rows={1}
-      />
     </div>
   );
 }
@@ -310,7 +293,7 @@ export function HomeSponsorsGrid() {
   ).length;
 
   return (
-    <div className="relative flex w-full flex-col overflow-visible border-border border-t border-l">
+    <Frame className="gap-1">
       <SponsorRow
         logoClassName={premiumLogoClassName}
         minHeight={160}
@@ -324,24 +307,6 @@ export function HomeSponsorsGrid() {
         slots={silverSponsorSlots}
         variant="silver"
       />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10"
-        data-grid-rulers
-      >
-        <div className="absolute -top-8 left-0 block h-10 w-px bg-muted-foreground/40" />
-        <div className="absolute top-0 -left-8 block h-px w-10 bg-muted-foreground/40" />
-        <div className="absolute -top-8 right-0 block h-10 w-px bg-muted-foreground/40" />
-        <div className="absolute top-0 -right-8 block h-px w-10 bg-muted-foreground/40" />
-
-        <div className="absolute -bottom-8 left-0 block h-10 w-px bg-muted-foreground/40" />
-        <div className="absolute bottom-0 -left-8 block h-px w-10 bg-muted-foreground/40" />
-        <div className="absolute right-0 -bottom-8 block h-10 w-px bg-muted-foreground/40" />
-        <div className="absolute -right-8 bottom-0 block h-px w-10 bg-muted-foreground/40" />
-
-        <div className="absolute -top-8 -right-8 block h-6 w-6 bg-[repeating-linear-gradient(45deg,color-mix(in_oklch,var(--muted-foreground)_40%,transparent)_0,color-mix(in_oklch,var(--muted-foreground)_40%,transparent)_1px,transparent_0,transparent_50%)] bg-size-[5px_5px] bg-fixed opacity-80" />
-        <div className="absolute -bottom-8 -left-8 block h-6 w-6 bg-[repeating-linear-gradient(45deg,color-mix(in_oklch,var(--muted-foreground)_40%,transparent)_0,color-mix(in_oklch,var(--muted-foreground)_40%,transparent)_1px,transparent_0,transparent_50%)] bg-size-[5px_5px] bg-fixed opacity-80" />
-      </div>
-    </div>
+    </Frame>
   );
 }

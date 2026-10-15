@@ -51,9 +51,8 @@ function EditorMenuBarZoomControls({
       <EditorMenuBarTooltipItem label="Zoom out">
         <Button
           aria-label="Zoom out"
-          className="size-8"
           onClick={onZoomOut}
-          size="icon-sm"
+          size="icon"
           type="button"
           variant="ghost"
         >
@@ -72,9 +71,8 @@ function EditorMenuBarZoomControls({
       <EditorMenuBarTooltipItem label="Zoom in">
         <Button
           aria-label="Zoom in"
-          className="size-8"
           onClick={onZoomIn}
-          size="icon-sm"
+          size="icon"
           type="button"
           variant="ghost"
         >
@@ -86,9 +84,8 @@ function EditorMenuBarZoomControls({
         <EditorMenuBarTooltipItem label="Zoom to fit (double-click canvas)">
           <Button
             aria-label="Zoom to fit"
-            className="size-8"
             onClick={onFitView}
-            size="icon-sm"
+            size="icon"
             type="button"
             variant="ghost"
           >
@@ -101,9 +98,8 @@ function EditorMenuBarZoomControls({
         <EditorMenuBarTooltipItem label="Center chart on canvas">
           <Button
             aria-label="Center chart on canvas"
-            className="size-8"
             onClick={onCenterOnContent}
-            size="icon-sm"
+            size="icon"
             type="button"
             variant="ghost"
           >

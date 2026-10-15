@@ -273,17 +273,16 @@ export function StudioPreview({
   ]);
 
   return (
-    <TooltipProvider>
+    <TooltipProvider delay={0}>
       <StudioPanel className="relative flex h-full min-h-0 min-w-0 flex-col overflow-hidden">
         <div className="absolute top-6 right-6 z-30 flex items-center gap-2.5">
           <Tooltip>
             <TooltipTrigger render={<span className="inline-flex" />}>
               <Button
                 aria-label="Replay animation"
-                className="size-10"
                 disabled={controlsDisabled}
                 onClick={replay}
-                size="icon"
+                size="icon-xl"
                 type="button"
                 variant="outline"
               >
@@ -296,10 +295,9 @@ export function StudioPreview({
             <TooltipTrigger render={<span className="inline-flex" />}>
               <Button
                 aria-label="Scramble data"
-                className="size-10"
                 disabled={controlsDisabled}
                 onClick={scrambleData}
-                size="icon"
+                size="icon-xl"
                 type="button"
                 variant="outline"
               >

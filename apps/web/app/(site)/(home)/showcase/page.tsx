@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
+import {
+  SiteDivider,
+  siteContainerClassName,
+} from "@/components/design/site-chrome";
 import { ShowcaseGrid } from "@/components/showcase/showcase-grid";
 import { ShowcaseHero } from "@/components/showcase/showcase-hero";
+import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Showcase",
@@ -10,17 +15,11 @@ export const metadata: Metadata = {
 
 export default function ShowcasePage() {
   return (
-    <main className="flex flex-1 flex-col space-y-24">
-      <section className="relative w-full">
-        <div className="container mx-auto w-full overflow-visible">
-          <ShowcaseHero />
-        </div>
-      </section>
-
-      <section className="relative w-full pt-8 pb-16 md:pt-12 md:pb-24">
-        <div className="container mx-auto w-full overflow-visible">
-          <ShowcaseGrid />
-        </div>
+    <main className="flex flex-1 flex-col">
+      <ShowcaseHero />
+      <SiteDivider />
+      <section className={cn(siteContainerClassName, "pt-8 pb-8 md:pt-12")}>
+        <ShowcaseGrid />
       </section>
     </main>
   );

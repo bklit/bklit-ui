@@ -22,7 +22,7 @@ export function StudioPageClient() {
         githubUrl="https://github.com/bklit/bklit-ui"
         links={[...siteNavLinks]}
       />
-      <main className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background pt-18">
+      <main className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background pt-16">
         <div className="flex min-h-0 flex-1 flex-col border-border border-t">
           <Suspense fallback={<StudioFallback />}>
             <StudioShell

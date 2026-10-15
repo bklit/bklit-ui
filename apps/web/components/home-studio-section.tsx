@@ -60,7 +60,6 @@ export function HomeStudioSection() {
           variants={fadeUp}
         >
           <Button
-            nativeButton={false}
             render={<Link href="/studio">Open Studio</Link>}
             size="sm"
             variant="white"

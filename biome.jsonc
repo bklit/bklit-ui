@@ -42,12 +42,20 @@
       }
     },
     {
-      // Allow namespace imports for shadcn/ui components - standard pattern
+      // Vendored coss ui primitives (shadcn registry @coss) — keep close to upstream
       "includes": ["apps/web/components/ui/**"],
       "linter": {
         "rules": {
+          "a11y": {
+            "noNoninteractiveElementInteractions": "off",
+            "noStaticElementInteractions": "off",
+            "useSemanticElements": "off"
+          },
           "performance": {
             "noNamespaceImport": "off"
+          },
+          "style": {
+            "noExportedImports": "off"
           }
         }
       }
@@ -59,6 +67,7 @@
         "rules": {
           "a11y": {
             "noLabelWithoutControl": "off",
+            "noStaticElementInteractions": "off",
             "noNoninteractiveElementInteractions": "off",
             "useKeyWithClickEvents": "off",
             "useSemanticElements": "off"
@@ -67,7 +76,8 @@
             "noNamespaceImport": "off"
           },
           "style": {
-            "noNestedTernary": "off"
+            "noNestedTernary": "off",
+            "noExportedImports": "off"
           },
           "suspicious": {
             "noArrayIndexKey": "off"

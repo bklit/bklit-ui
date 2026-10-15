@@ -5,6 +5,7 @@
 @import "shadcn/tailwind.css";
 @import "../../../packages/studio/src/styles/studio-theme.css";
 @import "../../../packages/studio/src/styles/studio-chrome.css";
+@import "../../../packages/studio/src/styles/coss-animations.css";
 
 /* Note: Run `npx shadcn@latest init` to generate shadcn/tailwind.css if needed */
 
@@ -12,15 +13,15 @@
 @source "../../../packages/ui/src/**/*.tsx";
 @source "../../../packages/studio/src/**/*.{ts,tsx}";
 
-/* Studio owns dark mode inside `.studio-shell`; site `html.dark` must not leak in. */
-@custom-variant dark {
-  &:is(.studio-shell.dark, .studio-shell.dark *) {
-    @slot;
-  }
-  &:is(.dark *):not(:is(.studio-shell, .studio-shell *)) {
-    @slot;
-  }
-}
+/*
+ * Studio owns dark mode inside `.studio-shell`; site `html.dark` must not leak in.
+ * Single selector (not a block of rules) so Tailwind can negate it — coss uses `not-dark:`.
+ */
+@custom-variant dark (&:is(
+    .studio-shell.dark,
+    .studio-shell.dark *,
+    .dark *:not(.studio-shell, .studio-shell *)
+  ));
 
 @theme inline {
   --color-background: var(--background);
@@ -56,6 +57,13 @@
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);

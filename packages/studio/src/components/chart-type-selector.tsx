@@ -31,7 +31,7 @@ export function ChartTypeSelector({
         render={
           <Button
             aria-expanded={open}
-            className="h-10 w-full justify-start text-left text-xs"
+            className="h-10 w-full justify-start text-left text-xs sm:h-10 sm:text-xs"
             type="button"
             variant="secondary"
           />
@@ -48,11 +48,12 @@ export function ChartTypeSelector({
       </PopoverTrigger>
       <PopoverContent
         align="start"
-        className="w-max min-w-[var(--radix-popover-trigger-width)] p-2"
+        className="w-max min-w-(--anchor-width)"
         collisionAvoidance={studioSidebarPopoverCollisionAvoidance}
         positionMethod="fixed"
         side="right"
         sideOffset={studioSidebarPopoverSideOffset}
+        viewportClassName="p-2"
       >
         <p className="px-2 py-1.5 font-medium text-[11px] text-muted-foreground uppercase tracking-wide">
           Chart type
@@ -63,7 +64,7 @@ export function ChartTypeSelector({
             return (
               <Button
                 className={cn(
-                  "h-auto w-full justify-start gap-2 rounded-lg px-2 py-2 text-left font-normal",
+                  "h-auto w-full justify-start gap-2 rounded-lg px-2 py-2 text-left font-normal sm:h-auto",
                   selected
                     ? "bg-accent/50 text-foreground"
                     : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"

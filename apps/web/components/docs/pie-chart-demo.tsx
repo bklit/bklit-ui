@@ -18,8 +18,8 @@ import {
 import { useState } from "react";
 import {
   Select,
-  SelectContent,
   SelectItem,
+  SelectPopup,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -51,7 +51,7 @@ export function PieChartDemo() {
   const legendItems = toLegendItems(salesData);
 
   return (
-    <div className="flex flex-col items-center justify-center gap-8 lg:flex-row lg:gap-12">
+    <div className="flex w-full min-w-0 max-w-full flex-col items-center justify-center gap-8 lg:w-auto lg:flex-row lg:gap-12">
       {/* Pie Chart */}
       <PieChart
         data={salesData}
@@ -125,7 +125,7 @@ export function PieChartDonutLegendDemo() {
   const legendItems = toLegendItems(salesData);
 
   return (
-    <div className="flex flex-col items-center justify-center gap-8 lg:flex-row lg:gap-12">
+    <div className="flex w-full min-w-0 max-w-full flex-col items-center justify-center gap-8 lg:w-auto lg:flex-row lg:gap-12">
       <PieChart
         data={salesData}
         hoveredIndex={hoveredIndex}
@@ -272,11 +272,11 @@ export function PieChartHoverEffectDemo() {
           <SelectTrigger className="w-[140px]">
             <SelectValue />
           </SelectTrigger>
-          <SelectContent>
+          <SelectPopup>
             <SelectItem value="translate">Translate</SelectItem>
             <SelectItem value="grow">Grow</SelectItem>
             <SelectItem value="none">None</SelectItem>
-          </SelectContent>
+          </SelectPopup>
         </Select>
       </div>
 

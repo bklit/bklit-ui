@@ -4,16 +4,11 @@ import { type ReactNode, useState } from "react";
 import { DocsChartPreviewShell } from "@/components/docs/docs-chart-preview-shell";
 import { ShowcaseCodeBlock } from "@/components/docs/showcase-code-block";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  previewCardClassName,
-  previewCardContentClassName,
-} from "@/components/ui/card";
+import { Frame, FramePanel } from "@/components/ui/frame";
 import { cn } from "@/lib/utils";
 
-/** ~3 lines at showcase line-height when the panel is collapsed. */
-const collapsedCodeMaxHeightClassName = "max-h-[5.75rem]";
+/** ~5 lines at showcase line-height when the panel is collapsed. */
+const collapsedCodeMaxHeightClassName = "max-h-[8.5rem]";
 
 interface ComponentShowcaseProps {
   /** The live preview component to render */
@@ -61,16 +56,12 @@ export function ComponentShowcase({
     <div className="flex w-full items-stretch justify-stretch">{children}</div>
   );
 
+  // coss-style Frame: preview panel on top, code panel below (adapted from
+  // coss ui component-preview + code-collapsible-wrapper, https://coss.com/ui, MIT).
   return (
-    <Card
-      className={cn(
-        "not-prose my-6 flex flex-col overflow-visible",
-        previewCardClassName,
-        className
-      )}
-    >
-      <CardContent
-        className={cn(previewCardContentClassName, "shrink-0")}
+    <Frame className={cn("not-prose my-6", className)}>
+      <FramePanel
+        className="flex w-full shrink-0 items-center justify-center p-6 sm:p-8"
         style={{ minHeight: previewMinHeight }}
       >
         {liveChartPreview ? (
@@ -78,57 +69,46 @@ export function ComponentShowcase({
         ) : (
           <DocsChartPreviewShell>{preview}</DocsChartPreviewShell>
         )}
-      </CardContent>
+      </FramePanel>
 
       {hasCode ? (
-        <div className="relative border-border border-t p-3">
+        <FramePanel className="overflow-hidden bg-code p-0">
           <div
             className={cn(
               codePanelContentClassName,
+              "py-1",
               isOpen ? "" : collapsedCodeMaxHeightClassName
             )}
           >
             {codeBlock || <ShowcaseCodeBlock code={code || ""} lang={lang} />}
           </div>
 
-          {isOpen ? null : (
-            <>
-              <div
-                aria-hidden
-                className={cn(
-                  "pointer-events-none absolute inset-0 z-10",
-                  "bg-linear-to-t from-card via-card/80 to-transparent"
-                )}
-              />
-              <div
-                className={cn(
-                  "absolute inset-0 z-20 flex items-center justify-center"
-                )}
-              >
-                <Button onClick={() => setIsOpen(true)} variant="secondary">
-                  View Code
-                </Button>
-              </div>
-            </>
-          )}
-
           {isOpen ? (
+            <div className="flex justify-center border-border/64 border-t p-1.5">
+              <Button
+                className="text-muted-foreground"
+                onClick={() => setIsOpen(false)}
+                size="sm"
+                variant="ghost"
+              >
+                Collapse
+              </Button>
+            </div>
+          ) : (
             <button
               className={cn(
-                "absolute right-3 bottom-3 z-10",
-                "rounded-md px-2.5 py-1 font-medium text-xs",
-                "text-muted-foreground hover:text-foreground",
-                "bg-muted/80 hover:bg-muted",
-                "cursor-pointer transition-colors"
+                "absolute inset-x-0 bottom-0 z-10 flex h-20 cursor-pointer items-end justify-center rounded-b-xl pb-3",
+                "bg-linear-to-b from-transparent via-code/80 to-code",
+                "font-medium text-muted-foreground text-sm transition-colors hover:text-foreground"
               )}
-              onClick={() => setIsOpen(false)}
+              onClick={() => setIsOpen(true)}
               type="button"
             >
-              Collapse
+              View code
             </button>
-          ) : null}
-        </div>
+          )}
+        </FramePanel>
       ) : null}
-    </Card>
+    </Frame>
   );
 }

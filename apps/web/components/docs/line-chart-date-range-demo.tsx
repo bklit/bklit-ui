@@ -6,7 +6,7 @@ import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
-  TooltipContent,
+  TooltipPopup,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
@@ -85,7 +85,7 @@ export function LineChartDateRangeDemo() {
                 <Icon className="size-4" name="IconArrowRotateClockwise" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Replay animation</TooltipContent>
+            <TooltipPopup>Replay animation</TooltipPopup>
           </Tooltip>
         </TooltipProvider>
       </div>

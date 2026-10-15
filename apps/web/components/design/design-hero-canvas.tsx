@@ -7,9 +7,8 @@ import { createPortal } from "react-dom";
 import { VercelOss } from "@/components/brands/vercel-oss";
 import { HeroPlayPill, HeroStudioPill } from "@/components/hero";
 import { HomeStudioVideo } from "@/components/home-studio-video";
-import { buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { getAnalyticsUrl, trackEvent } from "@/lib/analytics/track-client";
-import { cn } from "@/lib/utils";
 
 const easeOutQuint = [0.23, 1, 0.32, 1] as const;
 
@@ -69,25 +68,27 @@ export function DesignHeroCanvas() {
             <HeroPlayPill onClick={handlePlay} />
           </div>
 
-          <div className="flex flex-col items-start gap-4">
-            <div className="flex max-w-full flex-col items-start">
-              <h1 className="font-bold text-3xl tracking-tight sm:text-5xl md:text-7xl lg:text-9xl">
+          <div className="flex flex-col items-start gap-3 sm:gap-5">
+            <div className="flex max-w-full flex-col items-start gap-1 sm:gap-3">
+              <h1 className="font-bold font-heading text-3xl tracking-tight sm:text-5xl md:text-7xl lg:text-8xl xl:text-9xl">
                 Bklit UI
               </h1>
-              <p className="font-mono text-muted-foreground text-xs uppercase tracking-widest sm:text-lg md:text-lg">
-                Design engineered data visualization components
-                <span className="animate-caret-blink">_</span>
+              <p className="max-w-md text-pretty text-muted-foreground text-xs sm:text-base lg:text-lg">
+                Design engineered data visualization components.
               </p>
             </div>
-            <div className="pointer-events-auto flex items-start justify-center">
-              <Link
-                className={cn(
-                  buttonVariants({ size: "lg", variant: "default" })
-                )}
-                href="/docs/installation"
-              >
+            <div className="pointer-events-auto flex flex-wrap items-start gap-2">
+              <Button render={<Link href="/docs/installation" />} size="lg">
                 Get started
-              </Link>
+              </Button>
+              <Button
+                className="max-sm:hidden"
+                render={<Link href="/charts/area-chart" />}
+                size="lg"
+                variant="outline"
+              >
+                Browse charts
+              </Button>
             </div>
           </div>
 
@@ -98,7 +99,7 @@ export function DesignHeroCanvas() {
               rel="noopener noreferrer"
               target="_blank"
             >
-              <VercelOss className="h-auto w-[180px] max-w-full sm:w-[220px] md:w-[280px]" />
+              <VercelOss className="h-auto w-[150px] max-w-full sm:w-[200px] md:w-[240px]" />
             </a>
           </div>
         </div>

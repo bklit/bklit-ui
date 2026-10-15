@@ -121,7 +121,6 @@ import {
   curveNatural,
   curveStep,
 } from "@visx/curve";
-import { DynamicCodeBlock } from "fumadocs-ui/components/dynamic-codeblock";
 import { motion, useSpring } from "motion/react";
 import {
   type ComponentProps,
@@ -132,10 +131,10 @@ import {
   useRef,
   useState,
 } from "react";
+import { ChartExampleFrame } from "@/components/charts/chart-example-frame";
 import {
   ChartExamplePreviewFrame,
   type ChartExamplePreviewLayout,
-  chartExampleCardClassName,
   chartExampleGaugeClassName,
   chartExampleGaugeShellClassName,
   chartExampleRadialShellClassName,
@@ -144,7 +143,7 @@ import {
 } from "@/components/charts/chart-example-preview";
 import { FeaturedChartHero } from "@/components/charts/featured-chart-hero";
 import { LineChartStudioTrioDemo } from "@/components/charts/line-chart-studio-trio-demo";
-import { CopyButton } from "@/components/copy-button";
+import { siteContainerClassName } from "@/components/design/site-chrome";
 import {
   buildLineChartDemoData,
   REFERENCE_AREA_DEMO,
@@ -158,37 +157,19 @@ import { sunburstDemoData } from "@/components/docs/sunburst-chart-demo-data";
 import { SunburstDrillBreadcrumb } from "@/components/docs/sunburst-drill-breadcrumb";
 import { useWorldDataStandalone } from "@/components/docs/use-world-data";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
   Select,
-  SelectContent,
   SelectItem,
+  SelectPopup,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
 import { createChartExamplePreview } from "@/lib/chart-example-preview";
-import { codeThemes } from "@/lib/code-theme";
 import {
   composedDemoData,
   composedStackedData,
   composedTriSeriesData,
 } from "@/lib/composed-demo-data";
 import { getHeatmapDemoData } from "@/lib/heatmap-demo-data";
-import { cn } from "@/lib/utils";
 import {
   weeklyVisitorsDashFromIndex,
   weeklyVisitorsData,
@@ -670,69 +651,22 @@ function ChartExampleCard({
   previewRole = "example",
   children,
 }: ChartExampleCardProps) {
-  const fullCode = data ? `${data}\n\n${code}` : code;
-  const contentPaddingClassName =
-    getChartExampleContentPaddingClassName(previewLayout);
-
   return (
-    <Card className={chartExampleCardClassName}>
-      <CardHeader>
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex flex-col gap-1.5">
-            <CardTitle className="text-base">{title}</CardTitle>
-            <CardDescription>{description}</CardDescription>
-          </div>
-          <div className="flex shrink-0 items-center gap-1">
-            <CopyButton text={fullCode} />
-            <Sheet>
-              <SheetTrigger className="shrink-0 rounded-md border px-2.5 py-1 font-medium text-muted-foreground text-xs transition-colors hover:bg-muted hover:text-foreground">
-                View Code
-              </SheetTrigger>
-              <SheetContent className="overflow-y-auto">
-                <SheetHeader>
-                  <SheetTitle>{title}</SheetTitle>
-                  <SheetDescription>{description}</SheetDescription>
-                </SheetHeader>
-                <div className="space-y-4 px-6 pb-6">
-                  <div className="overflow-hidden rounded-lg border [&_figure]:my-0! [&_pre]:my-0!">
-                    <DynamicCodeBlock
-                      code={code}
-                      lang="tsx"
-                      options={{ themes: codeThemes }}
-                    />
-                  </div>
-                  {data && (
-                    <>
-                      <p className="font-medium text-muted-foreground text-xs uppercase tracking-wider">
-                        Data
-                      </p>
-                      <div className="overflow-hidden rounded-lg border [&_figure]:my-0! [&_pre]:my-0!">
-                        <DynamicCodeBlock
-                          code={data}
-                          lang="tsx"
-                          options={{ themes: codeThemes }}
-                        />
-                      </div>
-                    </>
-                  )}
-                </div>
-              </SheetContent>
-            </Sheet>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className={cn(contentPaddingClassName, "overflow-visible")}>
-        <ChartExamplePreviewFrame
-          layout={previewLayout}
-          previewRole={previewRole}
-        >
-          {children}
-        </ChartExamplePreviewFrame>
-      </CardContent>
-      <CardFooter>
-        <p className="text-muted-foreground text-xs">{footer}</p>
-      </CardFooter>
-    </Card>
+    <ChartExampleFrame
+      code={code}
+      data={data}
+      description={description}
+      footer={footer}
+      panelClassName={getChartExampleContentPaddingClassName(previewLayout)}
+      title={title}
+    >
+      <ChartExamplePreviewFrame
+        layout={previewLayout}
+        previewRole={previewRole}
+      >
+        {children}
+      </ChartExamplePreviewFrame>
+    </ChartExampleFrame>
   );
 }
 
@@ -5922,17 +5856,18 @@ function ChartHeroCurveToolbar({
       >
         <SelectTrigger
           aria-label="Chart curve"
-          className="h-8 w-[min(100%,11rem)] text-xs"
+          className="w-[min(100%,11rem)] text-xs"
+          size="sm"
         >
           <SelectValue placeholder="Curve" />
         </SelectTrigger>
-        <SelectContent alignItemWithTrigger={false}>
+        <SelectPopup alignItemWithTrigger={false}>
           {HERO_CURVE_OPTIONS.map((opt) => (
             <SelectItem key={opt.value} value={opt.value}>
               {opt.label}
             </SelectItem>
           ))}
-        </SelectContent>
+        </SelectPopup>
       </Select>
     </div>
   );
@@ -7233,7 +7168,7 @@ const chartExamplesRegistry: Record<string, RegistryEntry> = {
 // Public component
 // ---------------------------------------------------------------------------
 
-const chartsPageContentClassName = "container mx-auto w-full overflow-visible";
+const chartsPageContentClassName = siteContainerClassName;
 
 export function ChartExamplesGrid({ chartSlug }: { chartSlug: string }) {
   const entry = chartExamplesRegistry[chartSlug];
@@ -7250,8 +7185,8 @@ export function ChartExamplesGrid({ chartSlug }: { chartSlug: string }) {
   const hero = entry.hero?.();
   const gridCols =
     entry.columns === 2
-      ? "grid grid-cols-1 gap-6 md:grid-cols-2"
-      : "grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3";
+      ? "grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-6"
+      : "grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 lg:gap-6";
 
   return (
     <>
@@ -7275,7 +7210,7 @@ export function ChartExamplesGrid({ chartSlug }: { chartSlug: string }) {
       <section className="relative w-full">
         <div className={chartsPageContentClassName}>
           {entry.notice ? (
-            <div className="mb-6 rounded-lg border border-border/50 bg-muted/30 px-3 py-3 text-muted-foreground text-sm">
+            <div className="mb-6 rounded-xl border bg-card px-4 py-3 text-muted-foreground text-sm shadow-xs/5">
               {entry.notice}
             </div>
           ) : null}

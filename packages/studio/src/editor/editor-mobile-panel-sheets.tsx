@@ -36,9 +36,9 @@ function MobilePanelTrigger({
   return (
     <Button
       aria-label={label}
-      className={cn("size-8", className)}
+      className={className}
       onClick={onClick}
-      size="icon-sm"
+      size="icon"
       type="button"
       variant="outline"
     >

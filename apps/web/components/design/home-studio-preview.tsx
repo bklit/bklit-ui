@@ -63,11 +63,7 @@ function StudioHoverButton({
                 : { duration: hoverEnterDuration, ease: easeOutQuint }
             }
           >
-            <Button
-              nativeButton={false}
-              render={<Link href="/studio" />}
-              size="lg"
-            >
+            <Button render={<Link href="/studio" />} size="lg">
               Open Studio
             </Button>
           </motion.div>

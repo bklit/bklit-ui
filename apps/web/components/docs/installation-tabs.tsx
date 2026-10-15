@@ -3,9 +3,10 @@
 import { DynamicCodeBlock } from "fumadocs-ui/components/dynamic-codeblock";
 import { Step, Steps } from "fumadocs-ui/components/steps";
 import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Collapsible,
-  CollapsibleContent,
+  CollapsiblePrimitive,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { TabsContent } from "@/components/ui/tabs";
@@ -41,34 +42,42 @@ function CodeFileBlock({
 }) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
+  // Title bar + expand fade adapted from coss ui code-collapsible-wrapper
+  // (https://coss.com/ui, MIT).
   return (
     <Collapsible
-      className="group/collapsible relative overflow-hidden rounded-xl border border-border bg-card shadow-sm"
+      className="group/collapsible relative overflow-hidden rounded-xl border border-border bg-code text-code-foreground"
       onOpenChange={setIsOpen}
       open={isOpen}
     >
-      {/* Header with filename */}
-      <div className="relative z-10 flex items-center justify-between border-border border-b bg-muted/20 px-4 py-2">
-        <div className="flex items-center gap-2">
-          <span className="font-mono text-foreground/70 text-xs">TS</span>
-          <span className="font-mono text-foreground text-sm">
-            {file.target}
-          </span>
+      <div className="relative z-10 flex min-h-11 items-center justify-between gap-3 border-border/64 border-b ps-4 pe-1.5">
+        <div className="flex min-w-0 items-center gap-2 font-mono text-[0.8125rem]">
+          <span className="shrink-0 text-muted-foreground text-xs">TS</span>
+          <span className="truncate text-foreground">{file.target}</span>
         </div>
-        <CollapsibleTrigger className="font-medium text-foreground/70 text-xs hover:text-foreground">
+        <CollapsibleTrigger
+          render={
+            <Button
+              className="text-muted-foreground"
+              size="sm"
+              variant="ghost"
+            />
+          }
+        >
           {isOpen ? "Collapse" : "Expand"}
         </CollapsibleTrigger>
       </div>
 
-      {/* Code content */}
-      <CollapsibleContent
+      {/* Unstyled, always-rendered panel: collapsed state is a max-height peek (coss pattern) */}
+      <CollapsiblePrimitive.Panel
         className={cn(
           "relative overflow-hidden transition-all duration-300",
-          "data-[state=closed]:max-h-[180px]",
-          "[&_figure]:!my-0 [&_figure]:!rounded-none [&_figure]:!border-0",
+          "data-closed:max-h-64",
+          "[&_figure]:!my-0 [&_figure]:!rounded-none [&_figure]:!border-0 [&_figure]:!bg-transparent [&_figure]:!shadow-none",
           "[&_pre]:!my-0 [&_pre]:!rounded-none [&_pre]:!border-0",
           "[&_[data-rehype-pretty-code-figure]]:!mt-0"
         )}
+        hidden={false}
         keepMounted
       >
         <DynamicCodeBlock
@@ -76,16 +85,13 @@ function CodeFileBlock({
           lang="tsx"
           options={{ themes: codeThemes }}
         />
-      </CollapsibleContent>
+      </CollapsiblePrimitive.Panel>
 
-      {/* Gradient overlay when collapsed */}
-      <div
-        className={cn(
-          "pointer-events-none absolute inset-x-0 bottom-0 h-16",
-          "bg-gradient-to-t from-card via-card/80 to-transparent",
-          "group-data-[state=open]/collapsible:hidden"
-        )}
-      />
+      {isOpen ? null : (
+        <CollapsibleTrigger className="absolute inset-x-0 bottom-0 z-10 flex h-20 cursor-pointer items-end justify-center bg-linear-to-b from-transparent via-50% via-code to-code pb-3 font-medium text-muted-foreground text-sm transition-colors hover:text-foreground">
+          Expand
+        </CollapsibleTrigger>
+      )}
     </Collapsible>
   );
 }
@@ -101,7 +107,7 @@ function CodeFilesContent({
 }) {
   if (loading) {
     return (
-      <div className="flex h-24 items-center justify-center rounded-lg border border-fd-border bg-fd-muted/30">
+      <div className="flex h-24 items-center justify-center rounded-xl border border-border bg-muted/40">
         <span className="text-muted-foreground text-sm">
           Loading component source...
         </span>

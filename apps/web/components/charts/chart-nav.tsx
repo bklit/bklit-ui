@@ -37,7 +37,7 @@ export function ChartNav() {
 
   return (
     <HorizontalScrollArea scrollClassName="snap-x snap-mandatory scroll-px-4">
-      <nav className="flex w-max min-w-full gap-1">
+      <nav className="flex w-max min-w-full gap-1 rounded-xl bg-muted/72 p-1">
         {chartTypes.map((chart) => {
           const href = `/charts/${chart.slug}`;
           const isActive = pathname === href;
@@ -45,10 +45,10 @@ export function ChartNav() {
           return (
             <Link
               className={cn(
-                "shrink-0 snap-center rounded-md px-3 py-1.5 font-medium text-sm transition-colors",
+                "shrink-0 snap-center rounded-lg border px-3 py-1.5 font-medium text-sm transition-colors",
                 isActive
-                  ? "bg-foreground text-background"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  ? "border-border bg-background text-foreground shadow-xs/5 dark:bg-input/32"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
               )}
               href={href}
               key={chart.slug}

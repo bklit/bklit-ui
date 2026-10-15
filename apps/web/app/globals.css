@@ -5,6 +5,7 @@
 @import "shadcn/tailwind.css";
 @import "../../../packages/studio/src/styles/studio-theme.css";
 @import "../../../packages/studio/src/styles/studio-chrome.css";
+@import "../../../packages/studio/src/styles/coss-animations.css";
 
 /* Note: Run `npx shadcn@latest init` to generate shadcn/tailwind.css if needed */
 
@@ -12,15 +13,15 @@
 @source "../../../packages/ui/src/**/*.tsx";
 @source "../../../packages/studio/src/**/*.{ts,tsx}";
 
-/* Studio owns dark mode inside `.studio-shell`; site `html.dark` must not leak in. */
-@custom-variant dark {
-  &:is(.studio-shell.dark, .studio-shell.dark *) {
-    @slot;
-  }
-  &:is(.dark *):not(:is(.studio-shell, .studio-shell *)) {
-    @slot;
-  }
-}
+/*
+ * Studio owns dark mode inside `.studio-shell`; site `html.dark` must not leak in.
+ * Single selector (not a block of rules) so Tailwind can negate it — coss uses `not-dark:`.
+ */
+@custom-variant dark (&:is(
+    .studio-shell.dark,
+    .studio-shell.dark *,
+    .dark *:not(.studio-shell, .studio-shell *)
+  ));
 
 @theme inline {
   --color-background: var(--background);
@@ -56,6 +57,13 @@
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -111,7 +119,7 @@
 
 :root {
   /* Site-only tokens (shared palette is in packages/studio bklit-tokens.css) */
-  --site-header-height: 3.5rem;
+  --site-header-height: 4rem;
 
   /* Text selection */
   --text-highlight-background: var(--color-indigo-500);
@@ -255,23 +263,51 @@
   }
 }
 
-/* Align Fumadocs UI tokens with shadcn card surfaces */
+/*
+ * Docs surfaces — adapted from coss ui (https://coss.com/ui, MIT).
+ * `--code` mirrors coss `@coss/ui/globals.css` code-block tokens.
+ */
+:root {
+  --code: var(--color-white);
+  --code-foreground: var(--foreground);
+  --code-highlight: color-mix(in oklab, var(--color-black) 4%, transparent);
+}
+
+.dark {
+  --code: color-mix(in srgb, var(--background) 98%, var(--color-white));
+  --code-highlight: color-mix(in oklab, var(--color-white) 4%, transparent);
+}
+
+@theme inline {
+  --color-code: var(--code);
+  --color-code-foreground: var(--code-foreground);
+  --color-code-highlight: var(--code-highlight);
+}
+
+/* Align Fumadocs UI tokens with coss surfaces */
 :root {
   --color-fd-background: var(--background);
   --color-fd-foreground: var(--foreground);
   --color-fd-muted: var(--muted);
   --color-fd-muted-foreground: var(--muted-foreground);
+  --color-fd-popover: var(--popover);
+  --color-fd-popover-foreground: var(--popover-foreground);
+  --color-fd-card: var(--code);
+  --color-fd-card-foreground: var(--card-foreground);
   --color-fd-border: var(--border);
   --color-fd-input: var(--input);
   --color-fd-secondary: var(--card);
+  --color-fd-secondary-foreground: var(--secondary-foreground);
   --color-fd-accent: var(--accent);
+  --color-fd-accent-foreground: var(--accent-foreground);
   --color-fd-primary: var(--primary);
   --color-fd-primary-foreground: var(--primary-foreground);
+  --color-fd-ring: var(--ring);
 }
 
-/* Legacy MDX hook — previews use Card + previewCardClassName in component-preview.tsx */
+/* Legacy MDX hook — previews use Frame in component-preview.tsx */
 .component-preview {
-  @apply rounded-xl border border-border bg-card shadow-sm ring-0;
+  @apply rounded-xl border border-border bg-card shadow-xs/5 ring-0;
 }
 
 .component-preview-dark {
@@ -283,7 +319,7 @@
   --showcase-code-line-height: 1.625;
 
   & .fd-scroll-container {
-    @apply text-sm;
+    @apply text-[0.8125rem];
     line-height: var(--showcase-code-line-height);
   }
 
@@ -296,4 +332,190 @@
     line-height: var(--showcase-code-line-height);
     white-space: pre;
   }
+}
+
+/*
+ * Docs article prose — coss docs rhythm (muted body copy, 2xl/lg headings,
+ * borderless inline code, rounded-xl code frames). Scoped so previews
+ * (`not-prose`) and charts are untouched. Unlayered so it wins over the
+ * fumadocs typography plugin.
+ */
+.docs-prose {
+  --tw-prose-body: var(--muted-foreground);
+  --tw-prose-bullets: color-mix(
+    in oklab,
+    var(--muted-foreground) 64%,
+    transparent
+  );
+  --tw-prose-counters: var(--muted-foreground);
+  --tw-prose-bold: var(--foreground);
+  --tw-prose-links: var(--foreground);
+  --tw-prose-th-borders: var(--border);
+  --tw-prose-td-borders: var(--border);
+  line-height: 1.625;
+}
+
+.docs-prose :where(h2):not(:where(.not-prose, .not-prose *)) {
+  margin-top: calc(var(--spacing) * 12);
+  margin-bottom: calc(var(--spacing) * 4);
+  font-weight: 600;
+  font-size: var(--text-2xl);
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  scroll-margin-top: calc(var(--site-header-height) + 1.5rem);
+}
+
+@media (width >= 64rem) {
+  .docs-prose :where(h2):not(:where(.not-prose, .not-prose *)) {
+    margin-top: calc(var(--spacing) * 16);
+  }
+}
+
+.docs-prose :where(h3):not(:where(.not-prose, .not-prose *)) {
+  margin-top: calc(var(--spacing) * 8);
+  margin-bottom: calc(var(--spacing) * 3);
+  font-weight: 600;
+  font-size: var(--text-lg);
+  line-height: 1.4;
+  scroll-margin-top: calc(var(--site-header-height) + 1.5rem);
+}
+
+.docs-prose :where(h4):not(:where(.not-prose, .not-prose *)) {
+  font-weight: 500;
+  scroll-margin-top: calc(var(--site-header-height) + 1.5rem);
+}
+
+.docs-prose :where(h2, h3, h4) a {
+  text-decoration: none;
+}
+
+.docs-prose :where(a):not(:where(.not-prose, .not-prose *, [data-card])) {
+  font-weight: 500;
+  text-decoration-line: underline;
+  text-decoration-color: color-mix(
+    in oklab,
+    var(--foreground) 32%,
+    transparent
+  );
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  transition: text-decoration-color 150ms ease-out;
+}
+
+.docs-prose :where(a):not(:where(.not-prose, .not-prose *, [data-card])):hover {
+  opacity: 1;
+  text-decoration-color: var(--foreground);
+}
+
+/* Inline code: borderless muted pill (coss) */
+.docs-prose :where(code):not(:where(pre code, .not-prose *, figure *)) {
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--muted);
+  padding: 0.2rem 0.3rem;
+  font-size: 0.8125rem;
+  color: var(--foreground);
+}
+
+.docs-prose :where(h2, h3) :where(code) {
+  font-size: 0.9em;
+}
+
+/* Code fences: coss rounded-xl code frame */
+.docs-prose figure.shiki:not(:where(.not-prose *, .showcase-code-block *)),
+.docs-code-frame figure.shiki {
+  border-radius: var(--radius-xl);
+  border-color: var(--border);
+  background-color: var(--code);
+  box-shadow: none;
+}
+
+.docs-prose figure.shiki .fd-scroll-container {
+  font-size: 0.8125rem;
+  line-height: 1.7;
+}
+
+.docs-prose figure.shiki > div:first-child:has(> button) {
+  top: calc(var(--spacing) * 1.5);
+  right: calc(var(--spacing) * 1.5);
+  opacity: 0.72;
+  backdrop-filter: none;
+  transition: opacity 150ms ease-out;
+}
+
+.docs-prose figure.shiki:hover > div:first-child:has(> button),
+.docs-prose figure.shiki > div:first-child:has(> button:focus-visible) {
+  opacity: 1;
+}
+
+/* Tables: framed scroller, coss row rhythm */
+.docs-prose .docs-table-frame {
+  margin-block: calc(var(--spacing) * 6);
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  background: var(--background);
+}
+
+.docs-prose .docs-table-frame table {
+  margin: 0;
+  width: 100%;
+  border: 0;
+  border-radius: 0;
+  border-collapse: collapse;
+  background: transparent;
+  overflow: visible;
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+
+/* Fallback for tables that bypass the MDX `table` mapping (raw JSX tables):
+   the table itself becomes the framed scroller so it never widens the article. */
+.docs-prose table:not(.docs-table-frame > table, .not-prose, .not-prose *) {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+
+.docs-prose .docs-table-frame tr:not(:last-child) :where(td, th),
+.docs-prose .docs-table-frame thead :where(th) {
+  border-bottom: 1px solid var(--border);
+}
+
+.docs-prose :where(th, td):not(:where(.not-prose *)) {
+  border-inline-start: 0;
+  padding: calc(var(--spacing) * 2.5) calc(var(--spacing) * 4);
+}
+
+.docs-prose :where(th):not(:where(.not-prose *)) {
+  background: color-mix(in oklab, var(--muted) 72%, transparent);
+  color: var(--foreground);
+  font-weight: 500;
+}
+
+.docs-prose :where(td):not(:where(.not-prose *)) {
+  color: var(--muted-foreground);
+}
+
+.docs-prose :where(td code, th code) {
+  white-space: nowrap;
+}
+
+/* Steps (fumadocs) — coss counters */
+.docs-prose .fd-steps {
+  border-inline-start-color: var(--border);
+}
+
+.docs-prose .fd-step::before {
+  background-color: var(--muted);
+  color: var(--foreground);
+  font-weight: 500;
 }

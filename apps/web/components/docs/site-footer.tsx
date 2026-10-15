@@ -3,6 +3,11 @@
 import Link from "fumadocs-core/link";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
+import {
+  SiteDivider,
+  siteContainerClassName,
+} from "@/components/design/site-chrome";
+import { cn } from "@/lib/utils";
 import { BklitLogo } from "../icons/bklit";
 
 export function SiteFooter() {
@@ -16,13 +21,19 @@ export function SiteFooter() {
   const logoTheme = mounted && resolvedTheme === "dark" ? "dark" : "light";
 
   return (
-    <footer className="py-8">
-      <div className="mx-auto flex items-center justify-center gap-2 px-6">
+    <footer className="mt-8 text-muted-foreground">
+      <SiteDivider />
+      <div
+        className={cn(
+          siteContainerClassName,
+          "flex items-center justify-center gap-2 py-6"
+        )}
+      >
         <BklitLogo size={16} theme={logoTheme} />
-        <span className="text-muted-foreground text-sm">
+        <span className="text-sm">
           built by{" "}
           <Link
-            className="text-foreground underline-offset-4 hover:underline"
+            className="font-medium text-foreground underline-offset-4 hover:underline"
             external
             href="https://x.com/uixmat"
           >

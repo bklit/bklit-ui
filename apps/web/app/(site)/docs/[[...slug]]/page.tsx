@@ -4,7 +4,7 @@ import { findNeighbour } from "fumadocs-core/server";
 import type { TOCItemType } from "fumadocs-core/toc";
 import defaultMdxComponents from "fumadocs-ui/mdx";
 import { notFound } from "next/navigation";
-import type { ComponentType } from "react";
+import type { ComponentProps, ComponentType } from "react";
 import { ComponentPreview } from "@/components/docs/component-preview";
 import { ComponentShowcase } from "@/components/docs/component-showcase";
 import { ComponentsList } from "@/components/docs/components-list";
@@ -15,6 +15,7 @@ import { PageFooter } from "@/components/docs/page-footer";
 import { SocialLinks } from "@/components/docs/social-links";
 import { StudioEmbedPreview } from "@/components/docs/studio-embed-preview";
 import { TableOfContents } from "@/components/docs/toc";
+import { Frame, FramePanel } from "@/components/ui/frame";
 import { source } from "@/lib/source";
 
 // Extended page data types from fumadocs-mdx
@@ -50,45 +51,61 @@ export default async function Page(props: {
     rawContent = "";
   }
 
+  // Layout adapted from coss ui docs (https://coss.com/ui, MIT): the article
+  // sits in a Frame on the tinted docs canvas; prev/next live in the frame foot.
   return (
-    <div className="flex w-full justify-center">
-      <article className="w-full max-w-[790px] px-10 pt-24 pb-16">
-        <header className="mb-8">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h1 className="m-0 font-bold text-3xl text-foreground leading-tight">
-                {data.title}
-              </h1>
-              {data.description && (
-                <p className="mt-2 text-lg text-muted-foreground">
-                  {data.description}
-                </p>
-              )}
-            </div>
-            <CopyPageButton
-              content={rawContent}
-              title={data.title}
-              url={page.url}
-            />
-          </div>
-        </header>
-        <div className="prose prose-neutral dark:prose-invert max-w-none">
-          <MDX
-            components={{
-              ...defaultMdxComponents,
-              ComponentPreview,
-              ComponentShowcase,
-              ComponentsList,
-              InstallationTabs,
-              PackageManagerTabs,
-              SocialLinks,
-              StudioEmbedPreview,
-            }}
-          />
-        </div>
-        <PageFooter next={neighbours.next} previous={neighbours.previous} />
-      </article>
+    <div className="flex items-stretch xl:w-full" data-slot="docs">
+      <div className="relative flex w-full min-w-0 flex-1 flex-col lg:my-6">
+        <Frame className="max-lg:rounded-none max-lg:bg-transparent max-lg:p-0">
+          <FramePanel className="px-4 pt-8 pb-12 max-lg:rounded-none max-lg:border-0 max-lg:shadow-none max-lg:before:hidden sm:px-6 lg:px-10 lg:pt-12 lg:pb-16">
+            <article className="mx-auto w-full max-w-3xl">
+              <header className="mb-10 flex flex-col gap-2">
+                <h1 className="m-0 scroll-m-20 font-heading font-semibold text-3xl text-foreground tracking-tight xl:text-4xl">
+                  {data.title}
+                </h1>
+                {data.description && (
+                  <p className="m-0 text-balance text-muted-foreground sm:text-lg">
+                    {data.description}
+                  </p>
+                )}
+                <div className="flex items-center gap-2 pt-3">
+                  <CopyPageButton
+                    content={rawContent}
+                    title={data.title}
+                    url={page.url}
+                  />
+                </div>
+              </header>
+              <div className="docs-prose prose prose-neutral dark:prose-invert max-w-none">
+                <MDX
+                  components={{
+                    ...defaultMdxComponents,
+                    ComponentPreview,
+                    ComponentShowcase,
+                    ComponentsList,
+                    InstallationTabs,
+                    PackageManagerTabs,
+                    SocialLinks,
+                    StudioEmbedPreview,
+                    table: DocsTable,
+                  }}
+                />
+              </div>
+            </article>
+          </FramePanel>
+          <PageFooter next={neighbours.next} previous={neighbours.previous} />
+        </Frame>
+      </div>
       <TableOfContents items={data.toc} />
+    </div>
+  );
+}
+
+/** Framed, horizontally scrollable table (border lives on the scroller). */
+function DocsTable(props: ComponentProps<"table">) {
+  return (
+    <div className="docs-table-frame">
+      <table {...props} />
     </div>
   );
 }

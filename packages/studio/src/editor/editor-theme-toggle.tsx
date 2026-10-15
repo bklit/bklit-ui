@@ -2,7 +2,6 @@
 
 import { Icon } from "@bklitui/icons";
 import { useEffect, useState } from "react";
-import { cn } from "@/lib/utils";
 import { useStudioTheme } from "@/providers/studio-theme-provider";
 import { Button } from "@/ui/button";
 
@@ -56,10 +55,10 @@ export function EditorThemeToggle({ className }: { className?: string }) {
     <Button
       aria-keyshortcuts="D"
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
-      className={cn("size-8", className)}
+      className={className}
       disabled={!mounted}
       onClick={toggleTheme}
-      size="icon-sm"
+      size="icon"
       type="button"
       variant="ghost"
     >

@@ -2,7 +2,6 @@
 
 import { Icon, type IconName } from "@bklitui/icons";
 import { cn } from "@bklitui/ui/lib/utils";
-import type { VariantProps } from "class-variance-authority";
 import {
   Children,
   type ComponentProps,
@@ -15,7 +14,6 @@ import {
   SlidingToggleControl,
   type SlidingToggleOption,
 } from "@/ui/segmented-control";
-import type { toggleVariants } from "@/ui/toggle";
 import { ToggleGroup, ToggleGroupItem } from "@/ui/toggle-group";
 
 function collectToggleOptions(
@@ -67,50 +65,31 @@ export type StudioToggleLayout =
 
 interface LayoutConfig {
   groupClassName: string;
+  /** Item sizing for the coss `ToggleGroup` grid layouts (`cards-3`, `swatch`). */
   itemClassName?: string;
-  size: NonNullable<VariantProps<typeof toggleVariants>["size"]>;
-  spacing: number;
-  variant: NonNullable<VariantProps<typeof toggleVariants>["variant"]>;
-  joined?: boolean;
 }
 
+/** Card tile — icon over a short caption. `sm:` repeats override coss toggle responsive sizes. */
+const studioToggleCardItemClass =
+  "h-auto min-h-0 min-w-0 flex-col gap-1 px-1.5 py-2 font-normal text-[10px] leading-tight sm:h-auto sm:min-w-0 sm:text-[10px]";
+
+/** Swatch row — colour chip + label, left aligned. */
+const studioToggleSwatchItemClass =
+  "h-9 min-h-9 w-full min-w-0 flex-row justify-start gap-2 px-2.5 font-normal text-xs sm:h-9 sm:min-w-0 sm:text-xs";
+
 export const STUDIO_TOGGLE_LAYOUTS: Record<StudioToggleLayout, LayoutConfig> = {
-  segmented: {
-    groupClassName: "",
-    size: "segmented",
-    spacing: 0,
-    variant: "default",
-  },
-  icons: {
-    groupClassName: "",
-    size: "icon",
-    spacing: 0,
-    variant: "default",
-  },
-  "cards-2": {
-    groupClassName: "",
-    size: "card",
-    spacing: 0,
-    variant: "default",
-  },
+  segmented: { groupClassName: "" },
+  icons: { groupClassName: "" },
+  "cards-2": { groupClassName: "" },
   "cards-3": {
     groupClassName: "grid w-full grid-cols-3 gap-1.5",
-    size: "card",
-    spacing: 2,
-    variant: "outline",
+    itemClassName: studioToggleCardItemClass,
   },
   swatch: {
     groupClassName: "grid w-full grid-cols-2 gap-2",
-    size: "swatch",
-    spacing: 2,
-    variant: "outline",
+    itemClassName: studioToggleSwatchItemClass,
   },
-  legend: {
-    groupClassName: "",
-    size: "icon",
-    spacing: 0,
-    variant: "default",
-  },
+  legend: { groupClassName: "" },
 };
 
 const StudioToggleLayoutContext =
@@ -172,17 +151,13 @@ export function StudioToggleGroup<T extends string>({
     <StudioToggleLayoutContext.Provider value={layout}>
       <ToggleGroup
         className={cn(config.groupClassName, className)}
-        data-joined={config.joined ? "" : undefined}
         onValueChange={(values) => {
           const next = values.at(-1) ?? values[0];
           if (next != null) {
             onValueChange(next as T);
           }
         }}
-        size={config.size}
-        spacing={config.spacing}
         value={[value]}
-        variant={config.variant}
       >
         {children}
       </ToggleGroup>

@@ -54,14 +54,12 @@ type SlidingToggleVariant = "text" | "icon" | "card" | "legend";
 const GHOST_FLEX_ROW_SURFACE =
   "relative flex w-full min-w-0 flex-nowrap items-stretch";
 
-const TRACK_SURFACE_CLASS = cn(
-  studioControlRadiusClass,
-  "bg-input/40 p-0.5 dark:bg-background"
-);
+/** Track + thumb use the coss segmented-control surface (`bg-muted` track, raised `bg-background` thumb). */
+const TRACK_SURFACE_CLASS = cn(studioControlRadiusClass, "bg-muted p-0.5");
 
 const TRACK_THUMB_CLASS = cn(
   studioControlRadiusInnerClass,
-  "pointer-events-none absolute top-0.5 bottom-0.5 left-0.5 z-0 bg-accent"
+  "pointer-events-none absolute top-0.5 bottom-0.5 left-0.5 z-0 bg-background shadow-sm/5 dark:bg-input"
 );
 
 const GHOST_THUMB_CLASS = cn(
@@ -94,7 +92,10 @@ const SLIDING_VARIANTS: Record<
 > = {
   text: {
     surfaceClass: cn(GHOST_FLEX_ROW_SURFACE, TRACK_SURFACE_CLASS, "h-10"),
-    labelClass: cn(GHOST_LABEL_CLASS, "px-2 font-medium text-xs"),
+    labelClass: cn(
+      GHOST_LABEL_CLASS,
+      "px-2 font-medium text-muted-foreground/72 text-xs hover:text-muted-foreground has-[:checked]:text-foreground"
+    ),
     thumbClass: TRACK_THUMB_CLASS,
     defaultColumns: (count) => count,
     trackInset: 2,
