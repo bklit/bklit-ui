@@ -105,16 +105,19 @@ export function GlitchSwapLogo({
       const width = containerRef.current?.getBoundingClientRect().width ?? 100;
       const gt = (performance.now() - start) / cfg.glitch;
 
-      if (gt >= 1) {
-        apply(0, 0, 0);
-        return;
-      }
-
+      // Swap before the end-of-glitch check: if frames were skipped (background
+      // tab, long task) the first tick can land past the end, and returning
+      // early would leave the old logo on screen while its slot moved on.
       if (gt >= 0.5 && !swappedRef.current) {
         swappedRef.current = true;
         const next = pendingRef.current;
         displayedRef.current = next;
         setDisplayed(next);
+      }
+
+      if (gt >= 1) {
+        apply(0, 0, 0);
+        return;
       }
 
       const env = Math.sin(gt * Math.PI);
