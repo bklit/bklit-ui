@@ -17,11 +17,13 @@
  * Studio owns dark mode inside `.studio-shell`; site `html.dark` must not leak in.
  * Single selector (not a block of rules) so Tailwind can negate it — coss uses `not-dark:`.
  */
-@custom-variant dark (&:is(
+@custom-variant dark (
+  &:is(
     .studio-shell.dark,
     .studio-shell.dark *,
     .dark *:not(.studio-shell, .studio-shell *)
-  ));
+  )
+);
 
 @theme inline {
   --color-background: var(--background);
