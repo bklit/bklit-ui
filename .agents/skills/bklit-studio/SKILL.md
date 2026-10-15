@@ -4,6 +4,8 @@ description: >
   bklit-ui monorepo contributors only. Use automatically when building or editing
   charts, tuning props/animation, or prototyping in Studio (/studio). Replaces
   the deprecated local /playground route.
+metadata:
+  internal: "true"
 ---
 
 # Bklit Studio Skill (chart development)

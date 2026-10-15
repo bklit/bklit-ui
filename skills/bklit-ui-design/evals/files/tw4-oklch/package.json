@@ -1,0 +1,15 @@
+{
+  "name": "fixture-tw4-oklch",
+  "private": true,
+  "dependencies": {
+    "@radix-ui/react-slot": "^1.2.3",
+    "next": "15.5.0",
+    "next-themes": "^0.4.6",
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.8",
+    "tailwindcss": "^4.1.8"
+  }
+}

@@ -2,6 +2,8 @@
 name: bklit-ship
 description: bklit-ui monorepo contributors only — ship a chart or component from Studio prototype to production in packages/ui with docs and registry.
 disable-model-invocation: true
+metadata:
+  internal: "true"
 ---
 
 # Bklit Ship Skill

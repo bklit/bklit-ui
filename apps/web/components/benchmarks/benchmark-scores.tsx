@@ -102,7 +102,7 @@ function ScoreCard({ entry }: { entry: BenchLibraryScore }) {
         </div>
       ) : (
         <div className="flex items-baseline gap-1.5">
-          <span className="font-heading font-semibold text-4xl tabular-nums tracking-tight">
+          <span className="font-heading font-semibold text-4xl tabular-nums">
             {Math.round(entry.score)}
           </span>
           <span className="text-muted-foreground text-sm">/ 100</span>

@@ -250,6 +250,48 @@ function ProjectionLineIllustration() {
   );
 }
 
+function MarkersIllustration() {
+  return (
+    <ThumbCard>
+      <ThumbPanel className="flex flex-col gap-4">
+        <ThumbHeader />
+        <ThumbSvg viewBox="0 0 120 50">
+          {[36, 84].map((x) => (
+            <line
+              key={x}
+              stroke="currentColor"
+              strokeDasharray="2 2"
+              strokeOpacity={0.32}
+              x1={x}
+              x2={x}
+              y1="9"
+              y2="50"
+            />
+          ))}
+          <SoftLine />
+          <circle
+            className="fill-card text-primary"
+            cx="36"
+            cy="4"
+            r="3.5"
+            stroke="currentColor"
+            strokeWidth={1.25}
+          />
+          <rect
+            fill="currentColor"
+            fillOpacity={0.56}
+            height="4.5"
+            transform="rotate(45 84 4)"
+            width="4.5"
+            x="81.75"
+            y="1.75"
+          />
+        </ThumbSvg>
+      </ThumbPanel>
+    </ThumbCard>
+  );
+}
+
 function TooltipIllustration() {
   return (
     <div className="relative w-full max-w-48">
@@ -441,6 +483,7 @@ export const utilityIllustrations: Record<string, () => ReactNode> = {
   "custom-indicator": CustomIndicatorIllustration,
   grid: GridIllustration,
   legend: LegendIllustration,
+  markers: MarkersIllustration,
   "projection-line": ProjectionLineIllustration,
   "reference-area": ReferenceAreaIllustration,
   tooltip: TooltipIllustration,

@@ -41,4 +41,9 @@ Read `.agents/skills/bklit-ship/SKILL.md` when the chart API is stable in `packa
 | `add-x-tweet` | Homepage testimonial from an X URL |
 | `wiki-llms-text` | Generate llms.txt for docs |
 
+## Public vs contributor skills
+
+- **Public** skills for app developers live in `skills/` (`bklit-ui`, `bklit-ui-design`, `bklit-ui-migrate`) and install with `npx skills add bklit/bklit-ui`. Keep them in sync with `packages/ui` and `apps/web/content/docs/skills.mdx`.
+- **Contributor** skills in `.agents/skills/` must keep `metadata: { internal: "true" }` in their frontmatter so the skills CLI does not ship them to users. Each skill's `name` must equal its folder name.
+
 `bklit-playground` is **deprecated** — see `.agents/skills/bklit-playground/SKILL.md` for the redirect to `bklit-studio`.

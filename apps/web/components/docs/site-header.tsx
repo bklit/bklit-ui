@@ -11,7 +11,10 @@ import {
   useState,
 } from "react";
 import { ChartThemeSelector } from "@/components/chart-theme/chart-theme-selector";
-import { siteContainerClassName } from "@/components/design/site-chrome";
+import {
+  siteContainerClassName,
+  siteRailsClassName,
+} from "@/components/design/site-chrome";
 import { ModeToggle } from "@/components/mode-toggle";
 import { getAnalyticsUrl, trackEvent } from "@/lib/analytics/track-client";
 import { cn } from "@/lib/utils";
@@ -81,6 +84,7 @@ const utilities = [
   { text: "Background", url: "/docs/utility/background" },
   { text: "Reference Area", url: "/docs/utility/reference-area" },
   { text: "Projection Line", url: "/docs/utility/projection-line" },
+  { text: "Markers", url: "/docs/utility/markers" },
   { text: "Tooltip", url: "/docs/utility/tooltip" },
   { text: "Brush", url: "/docs/utility/brush" },
   {
@@ -364,6 +368,9 @@ export function SiteHeader({
       <div
         className={cn(
           siteContainerClassName,
+          // Same rails as the page frame below, so the header reads as part of
+          // the framed column (coss ui draws one rail layer through both).
+          siteRailsClassName,
           "relative flex h-16 items-center justify-between gap-2"
         )}
       >

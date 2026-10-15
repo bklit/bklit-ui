@@ -15,7 +15,7 @@ export default function Component() {
     <main className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
       <div className="w-full max-w-3xl">
         <CandlestickChart data={ohlcData}>
-  <Grid horizontal vertical />
+  <Grid fadeHorizontal={false} horizontal vertical />
   <Candlestick />
   <XAxis />
   <YAxis />

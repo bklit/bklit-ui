@@ -1,16 +1,17 @@
 # Installation
 
+Bklit UI is a shadcn registry. Components are copied into the project as source.
+
 ## Prerequisites
 
-Bklit UI is a shadcn registry. Initialize shadcn in the project first:
-
 ```bash
-npx shadcn@latest init
+npx shadcn@latest init        # if there is no components.json
+npx shadcn@latest info --json # framework, aliases, installed components
 ```
 
 ## Registry namespace
 
-Add the `@bklit` namespace to `components.json` if it is not already present:
+`@bklit` is listed in the shadcn registry index, and new projects usually resolve it automatically. If `info` shows it isn't configured, add it to `components.json`:
 
 ```json
 {
@@ -20,55 +21,51 @@ Add the `@bklit` namespace to `components.json` if it is not already present:
 }
 ```
 
-New projects scaffolded with Bklit often include this automatically.
+(`https://bklit.com/r/{name}.json` serves the same files.) Without a namespace you can still install by URL: `npx shadcn@latest add https://ui.bklit.com/r/area-chart.json`.
 
-## Install a chart
+## Install
 
 ```bash
 npx shadcn@latest add @bklit/line-chart
+npx shadcn@latest add @bklit/bar-chart @bklit/legend @bklit/y-axis   # several at once
+npx shadcn@latest view @bklit/line-chart                              # inspect before installing
 ```
 
-Replace `line-chart` with any chart slug from the catalog. The CLI copies source into your components directory and installs peer dependencies.
+The CLI resolves `registryDependencies` (`@bklit/chart-context`, `@bklit/grid`, `@bklit/x-axis`, `@bklit/chart-tooltip`, …) and npm dependencies (`@visx/*`, `motion`, `d3-*`, `@number-flow/react`, …). Don't pre-install or pin these by hand unless resolving a real conflict.
 
-## Verify project context
+## Where files land
 
-```bash
-npx shadcn@latest info --json
-```
+Every component item targets `components/charts/…` (inside `src/` for `src`-dir projects): e.g. `components/charts/line-chart.tsx`, `components/charts/line.tsx`, `components/charts/tooltip/index.ts`, `components/charts/legend/index.ts`. Exceptions: `shimmering-text` → `components/shimmering-text.tsx`, `utils` → `lib/utils.ts`, `profit-loss-line` also writes `lib/profit-loss-segments.ts`.
 
-Use the JSON to confirm framework, aliases, Tailwind version, and which `@bklit` components are already installed.
-
-## Import path
-
-After install, import from the charts entry (path may vary by alias — check `info --json`):
+### Incorrect
 
 ```tsx
-import { LineChart, Line, Grid, XAxis, ChartTooltip } from "@/components/ui/line-chart";
-// or from package re-exports when using the npm package directly:
-import { LineChart, Line, Grid, XAxis, ChartTooltip } from "@bklitui/ui/charts";
+import { LineChart } from "@bklitui/ui/charts";          // private monorepo package — not installed
+import { LineChart } from "@/components/ui/line-chart";  // charts don't go to components/ui
+import { LineChart, XAxis } from "@/components/charts"; // no barrel for component items
 ```
 
-Prefer the import path your project’s shadcn install actually generated.
+### Correct
 
-## Common peer dependencies
+```tsx
+import { Line, LineChart } from "@/components/charts/line-chart";
+import { XAxis } from "@/components/charts/x-axis";
+import { ChartTooltip } from "@/components/charts/tooltip";
+```
 
-| Chart | Typical dependencies |
-|-------|---------------------|
-| line-chart, area-chart | `@visx/curve`, `@visx/shape`, `motion` |
-| bar-chart | `@visx/gradient`, `@visx/pattern`, `@visx/shape`, `motion` |
-| candlestick-chart | `@visx/scale`, `@visx/shape`, `@visx/responsive`, `d3-array`, `motion` |
-| live-line-chart | `@visx/curve`, `@visx/scale`, `@visx/shape`, `@visx/responsive`, `@visx/event`, `d3-array`, `motion` |
-| choropleth-chart | `@visx/geo`, `@visx/responsive`, `@visx/zoom`, `d3-geo`, `topojson-client`, `motion` |
-| sankey-chart | `@visx/gradient`, `@visx/pattern`, `@visx/responsive`, `@visx/sankey`, `motion` |
-| scatter-chart | `d3-scale`, `d3-array`, `motion`, `react-use-measure` |
-| pie-chart, ring-chart | `@visx/responsive`, `@visx/shape`, `motion` |
-| radar-chart | `@visx/responsive`, `d3-shape`, `motion` |
-| funnel-chart | `motion` |
-| gauge-chart | `@visx/responsive`, `motion` |
+Use the alias from `info --json` (it may not be `@/`). If the user wants a barrel, create `components/charts/index.ts` yourself and re-export only what's installed.
 
-The CLI installs these when adding a chart — do not guess versions; let `shadcn add` resolve them.
+## Items to avoid in existing apps
 
-## Docs
+- `*-example` items (`line-chart-example`, …) write `app/page.tsx` and a `components/charts/index.ts` barrel — they're for v0 / fresh sandboxes. Use the plain item instead.
+- Blocks (`stat-card-*-01`) also write `components/charts/index.ts` plus shared `components/stat-card-chart.tsx` / `components/trend-badge.tsx` and sample `data/*.ts`. When the CLI asks to overwrite, merge by hand instead of accepting blindly.
 
-- Installation: https://ui.bklit.com/docs/installation
-- Per-chart install tabs: https://ui.bklit.com/docs/components/<slug>
+## Updating
+
+Re-running `add` prompts before overwriting changed files. The user owns the code — diff (`npx shadcn@latest add @bklit/<item> --dry-run --diff` on recent CLIs, or `view`) before overwriting local edits.
+
+## After installing
+
+Open the written files and read the `Props` interfaces before composing. They are the source of truth for this project's version.
+
+Docs: https://bklit.com/docs/installation

@@ -3,9 +3,9 @@ import "./globals.css";
 import { OpenPanelComponent } from "@openpanel/nextjs";
 import { RootProvider } from "fumadocs-ui/provider";
 import { GeistMono } from "geist/font/mono";
-import { GeistSans } from "geist/font/sans";
 import type { Metadata } from "next";
 import { Source_Serif_4 } from "next/font/google";
+import localFont from "next/font/local";
 import type { ReactNode } from "react";
 import { ChartThemeProvider } from "@/components/chart-theme/chart-theme-provider";
 import { ChartThemeScript } from "@/components/chart-theme/chart-theme-script";
@@ -15,6 +15,21 @@ import { getChartThemeIdFromCookie } from "@/lib/chart-theme-cookie.server";
 import { getOpenPanelClientId } from "@/lib/openpanel-env";
 import { SITE_URL } from "@/lib/site-url";
 import { cn } from "@/lib/utils";
+
+/**
+ * Cal Sans 2.010 variable font (OFL-1.1, see ./fonts/OFL.txt), loaded the
+ * same way as coss ui (`@coss/ui/fonts` `fontSans`): one family for body and
+ * headings, `--font-heading` aliases it in globals.css.
+ */
+const calSans = localFont({
+  display: "swap",
+  src: [
+    { path: "./fonts/CalSansVF.woff2", style: "normal" },
+    { path: "./fonts/CalSansVF-Italic.woff2", style: "italic" },
+  ],
+  variable: "--font-cal-sans",
+  weight: "400 700",
+});
 
 /** Paired serif until `geist/font/serif` ships in the geist package. */
 const geistSerif = Source_Serif_4({
@@ -55,12 +70,7 @@ export default async function RootLayout({
 
   return (
     <html
-      className={cn(
-        GeistSans.variable,
-        GeistMono.variable,
-        geistSerif.variable,
-        GeistSans.className
-      )}
+      className={cn(calSans.variable, GeistMono.variable, geistSerif.variable)}
       lang="en"
       suppressHydrationWarning
     >

@@ -3,7 +3,12 @@
 import { arc as arcGenerator } from "@visx/shape";
 import { type MotionValue, motion, useTransform } from "motion/react";
 import { memo, useCallback } from "react";
-import { ringCssVars, useRingHover, useRingStable } from "./ring-context";
+import {
+  getRingHitRadii,
+  ringCssVars,
+  useRingHover,
+  useRingStable,
+} from "./ring-context";
 import { useEnterComplete } from "./use-enter-complete";
 import { useMountProgress } from "./use-mount-progress";
 
@@ -78,6 +83,9 @@ export const Ring = memo(function Ring({
     enterTransition,
     enterStaggerScale,
     animationKey,
+    baseInnerRadius,
+    strokeWidth,
+    ringGap,
   } = useRingStable();
   const { hoveredIndex, setHoveredIndex } = useRingHover();
 
@@ -169,17 +177,80 @@ export const Ring = memo(function Ring({
   const enterDone = !animate || (expandComplete && progressComplete);
 
   const groupStyle = {
-    cursor: "pointer" as const,
     transformOrigin: "0px 0px",
     filter: showGlow && isHovered ? `drop-shadow(0 0 12px ${color})` : "none",
   };
 
+  // Static hit band (does not scale with hover) so the pointer can't fall
+  // off the edge of a growing ring and flicker between hover states.
+  const hitRadii = getRingHitRadii(
+    index,
+    baseInnerRadius,
+    strokeWidth,
+    ringGap
+  );
+  const hitboxPath = generateArcPath(
+    hitRadii.innerRadius,
+    hitRadii.outerRadius,
+    startAngle,
+    endAngle,
+    0
+  );
+  const hitbox = (
+    // biome-ignore lint/a11y/noStaticElementInteractions: SVG path used as hover hitbox for visualization
+    <path
+      d={hitboxPath}
+      fill="transparent"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      style={{ cursor: "pointer" }}
+    />
+  );
+
   if (enterDone) {
     return (
+      <g>
+        {hitbox}
+        <motion.g
+          animate={{ scale: hoverScale, opacity: layerOpacity }}
+          pointerEvents="none"
+          style={groupStyle}
+          transition={{
+            scale: { type: "spring", stiffness: 400, damping: 25 },
+            opacity: { duration: 0.15 },
+          }}
+        >
+          <path d={bgPath} fill={ringCssVars.ringBackground} />
+          {progressPath ? <path d={progressPath} fill={color} /> : null}
+        </motion.g>
+      </g>
+    );
+  }
+
+  if (!expandComplete) {
+    return (
+      <g>
+        {hitbox}
+        <motion.g
+          pointerEvents="none"
+          style={{
+            ...groupStyle,
+            scale: enterScale,
+            opacity: layerOpacity,
+          }}
+        >
+          <path d={bgPath} fill={ringCssVars.ringBackground} />
+        </motion.g>
+      </g>
+    );
+  }
+
+  return (
+    <g>
+      {hitbox}
       <motion.g
         animate={{ scale: hoverScale, opacity: layerOpacity }}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
+        pointerEvents="none"
         style={groupStyle}
         transition={{
           scale: { type: "spring", stiffness: 400, damping: 25 },
@@ -187,46 +258,14 @@ export const Ring = memo(function Ring({
         }}
       >
         <path d={bgPath} fill={ringCssVars.ringBackground} />
-        {progressPath ? <path d={progressPath} fill={color} /> : null}
+        <RingProgressPath
+          animatedProgressPath={animatedProgressPath}
+          color={color}
+          progressComplete={progressComplete}
+          progressPath={progressPath}
+        />
       </motion.g>
-    );
-  }
-
-  if (!expandComplete) {
-    return (
-      <motion.g
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-        style={{
-          ...groupStyle,
-          scale: enterScale,
-          opacity: layerOpacity,
-        }}
-      >
-        <path d={bgPath} fill={ringCssVars.ringBackground} />
-      </motion.g>
-    );
-  }
-
-  return (
-    <motion.g
-      animate={{ scale: hoverScale, opacity: layerOpacity }}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      style={groupStyle}
-      transition={{
-        scale: { type: "spring", stiffness: 400, damping: 25 },
-        opacity: { duration: 0.15 },
-      }}
-    >
-      <path d={bgPath} fill={ringCssVars.ringBackground} />
-      <RingProgressPath
-        animatedProgressPath={animatedProgressPath}
-        color={color}
-        progressComplete={progressComplete}
-        progressPath={progressPath}
-      />
-    </motion.g>
+    </g>
   );
 });
 

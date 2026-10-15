@@ -60,7 +60,7 @@ export default async function Page(props: {
           <FramePanel className="px-4 pt-8 pb-12 max-lg:rounded-none max-lg:border-0 max-lg:shadow-none max-lg:before:hidden sm:px-6 lg:px-10 lg:pt-12 lg:pb-16">
             <article className="mx-auto w-full max-w-3xl">
               <header className="mb-10 flex flex-col gap-2">
-                <h1 className="m-0 scroll-m-20 font-heading font-semibold text-3xl text-foreground tracking-tight xl:text-4xl">
+                <h1 className="m-0 scroll-m-20 font-bold font-heading text-3xl text-foreground xl:text-4xl">
                   {data.title}
                 </h1>
                 {data.description && (

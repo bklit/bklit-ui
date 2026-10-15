@@ -1,0 +1,161 @@
+{
+  "skill_name": "bklit-ui-migrate",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We use shadcn charts. Migrate components/chart-area-interactive.tsx from Recharts to bklit and clean up whatever is no longer needed.",
+      "expected_output": "Inventory table listing chart-area-interactive.tsx (AreaChart via ChartContainer) and components/ui/chart.tsx as the wrapper; the area chart is classified needs-workaround because both Areas use stackId=\"a\"; the agent asks overlap vs cumulative before converting, installs @bklit/area-chart and @bklit/legend, rewrites the chart with AreaChart/Area/Grid/XAxis/ChartTooltip/Legend imported from @/components/charts/..., resolves var(--color-*) from chartConfig, then deletes components/ui/chart.tsx and the recharts dependency only after confirming nothing else imports them.",
+      "files": [
+        "evals/files/shadcn-area-interactive/package.json",
+        "evals/files/shadcn-area-interactive/components/chart-area-interactive.tsx",
+        "evals/files/shadcn-area-interactive/components/ui/chart.tsx"
+      ],
+      "expectations": [
+        "Runs scripts/detect-recharts.mjs (or equivalent search) and presents an inventory table before editing",
+        "Classifies the chart as needs-workaround and names Area stackId as the reason",
+        "Asks the user how to handle the area stacking (overlap or cumulative) before converting",
+        "Installs with `npx shadcn@latest add @bklit/area-chart` (plus @bklit/legend for the legend)",
+        "Imports from @/components/charts/* and never from @bklitui/ui/charts",
+        "Replaces every var(--color-desktop) / var(--color-mobile) with the chartConfig colours (var(--chart-1) / var(--chart-2))",
+        "Converts the date strings to Date objects (local-day parsing such as `${date}T00:00:00`)",
+        "Maps type=\"natural\" to curve={curveNatural} and the linearGradient defs to Area fillOpacity/gradientToOpacity (or a url fill with explicit stroke)",
+        "Uses ChartTooltip rows (or content) to show the 'Desktop'/'Mobile' labels and showCrosshair={false} for cursor={false}",
+        "Renders the legend with Legend/LegendItem/LegendMarker/LegendLabel outside the AreaChart",
+        "Does not invent props such as stacked on AreaChart, stackId on Area, or tickFormatter on XAxis",
+        "Deletes components/ui/chart.tsx and removes recharts only after verifying no remaining imports"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Replace the Recharts line chart in components/traffic-chart.tsx with bklit. Keep the same colours, labels and y-axis formatting.",
+      "expected_output": "A LineChart from @/components/charts/line-chart with two Line series (curve={curveMonotoneX}, stroke #2563eb and #16a34a), Grid, XAxis, YAxis formatValue reproducing the k formatter, ChartTooltip rows with 'Users'/'Sessions', and an HTML Legend; ResponsiveContainer removed and the 300px height preserved; date strings converted to Dates; @bklit/line-chart, @bklit/y-axis and @bklit/legend installed.",
+      "files": [
+        "evals/files/line-multi-series/package.json",
+        "evals/files/line-multi-series/components/traffic-chart.tsx"
+      ],
+      "expectations": [
+        "Classifies the chart as clean",
+        "Installs @bklit/line-chart, @bklit/y-axis and @bklit/legend",
+        "Removes ResponsiveContainer and keeps a 300px height (className=\"h-[300px]\" or a sized wrapper)",
+        "Maps type=\"monotone\" to curve={curveMonotoneX} imported from @visx/curve",
+        "Maps YAxis tickFormatter to YAxis formatValue",
+        "Keeps stroke colours #2563eb and #16a34a",
+        "Shows 'Users' and 'Sessions' (not the raw dataKeys) in the tooltip via rows and in a Legend",
+        "Converts the x values to Date objects",
+        "Does not use dot or type props on the bklit Line"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Migrate components/browser-share.tsx to bklit charts.",
+      "expected_output": "BarChart with orientation=\"horizontal\" (from Recharts layout=\"vertical\"), xDataKey=\"browser\", BarYAxis for the category labels, the hidden numeric XAxis omitted, Bar fill #6366f1 with lineCap={4}, ChartTooltip showCrosshair={false}, aspectRatio=\"4 / 3\", margin.left widened for labels; only @bklit/bar-chart installed.",
+      "files": [
+        "evals/files/bar-layout-vertical/package.json",
+        "evals/files/bar-layout-vertical/components/browser-share.tsx"
+      ],
+      "expectations": [
+        "Maps layout=\"vertical\" to orientation=\"horizontal\" (not orientation=\"vertical\")",
+        "Sets xDataKey=\"browser\" on BarChart",
+        "Uses BarYAxis for the category labels instead of YAxis",
+        "Omits the hidden numeric XAxis",
+        "Maps radius={4} to lineCap={4}",
+        "Maps cursor={false} to showCrosshair={false}",
+        "Replaces ResponsiveContainer aspect={4 / 3} with aspectRatio=\"4 / 3\"",
+        "Does not install @bklit/y-axis"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Move this project off Recharts entirely and onto bklit.",
+      "expected_output": "Inventory shows monthly-bars.tsx (BarChart, clean) and storage-treemap.tsx (Treemap, keep on Recharts). The agent explains bklit has no treemap (SunburstChart is a different chart type) and asks before changing chart type; converts MonthlyBars to BarChart/Bar/BarXAxis/Grid/ChartTooltip; leaves storage-treemap.tsx untouched and keeps the recharts dependency, telling the user a full removal is not possible without dropping or redesigning the treemap.",
+      "files": [
+        "evals/files/treemap-keep/package.json",
+        "evals/files/treemap-keep/components/monthly-bars.tsx",
+        "evals/files/treemap-keep/components/storage-treemap.tsx"
+      ],
+      "expectations": [
+        "Classifies the Treemap as keep on Recharts with the reason that bklit has no treemap",
+        "Does not import or invent a bklit Treemap component",
+        "Mentions SunburstChart only as an optional, user-approved redesign",
+        "Converts monthly-bars.tsx to BarChart (default xDataKey \"name\" works) with Bar, BarXAxis, Grid and ChartTooltip",
+        "Uses lineCap=\"butt\" or explicitly notes that bklit bars are rounded by default",
+        "Leaves storage-treemap.tsx unchanged",
+        "Does not remove recharts from package.json and explains why"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Can you convert components/height-weight.tsx to bklit? It's a height vs weight scatter plot.",
+      "expected_output": "The agent flags needs-workaround: XAxis type=\"number\" with a height key, while bklit ScatterChart uses a time x scale. It explains the trade-off and asks before converting. The workaround keeps numeric heights as x (positions stay proportional), merges the Scatter data into ScatterChart data with xDataKey=\"height\" and Scatter dataKey=\"weight\", sorts by height, omits XAxis, sets showDatePill={false} and shows height/weight in ChartTooltip content, and keeps the y unit via YAxis formatValue. Keeping Recharts is offered as the alternative.",
+      "files": [
+        "evals/files/scatter-numeric-x/package.json",
+        "evals/files/scatter-numeric-x/components/height-weight.tsx"
+      ],
+      "expectations": [
+        "Classifies the chart as needs-workaround because of numeric x (XAxis type=\"number\")",
+        "Asks the user before applying the workaround and offers keeping Recharts",
+        "Moves the series data onto ScatterChart data with xDataKey=\"height\"",
+        "Uses Scatter dataKey=\"weight\" (the y key)",
+        "Does not render bklit XAxis for the numeric axis (its labels would be dates)",
+        "Uses ChartTooltip content (or rows) plus showDatePill={false} to show real height values",
+        "Does not invent props such as xScale, xType or tickFormatter"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Swap the donut in components/plan-mix.tsx to bklit and keep the total in the middle.",
+      "expected_output": "PieChart with data mapped to { label: plan, value: seats, color: fill }, innerRadius={70}, padAngle converted from 2 degrees to radians, size={260}, one PieSlice per row, and PieCenter (defaultLabel e.g. \"seats\") replacing both the centre Label and the Tooltip; @bklit/pie-chart installed.",
+      "files": [
+        "evals/files/donut-pie-center/package.json",
+        "evals/files/donut-pie-center/components/plan-mix.tsx"
+      ],
+      "expectations": [
+        "Classifies the chart as clean",
+        "Reshapes data to PieData { label, value, color } using nameKey/dataKey and the Cell fill colours",
+        "Renders one PieSlice index={i} per row",
+        "Converts paddingAngle={2} (degrees) to padAngle in radians (2 * Math.PI / 180)",
+        "Keeps innerRadius={70} in pixels and does not pass outerRadius",
+        "Replaces the centre Label with PieCenter",
+        "Imports from @/components/charts/pie-chart, pie-slice and pie-center"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Migrate the shadcn stacked bar chart in components/chart-bar-stacked.tsx to bklit.",
+      "expected_output": "BarChart stacked xDataKey=\"month\" with Bar desktop (var(--chart-1)) and Bar mobile (var(--chart-2)) in the same order, BarXAxis, Grid horizontal, ChartTooltip rows with 'Desktop'/'Mobile', HTML Legend; month names shortened in the data (replacing tickFormatter slice(0, 3)); ChartContainer and the var(--color-*) references removed.",
+      "files": [
+        "evals/files/shadcn-stacked-bar/package.json",
+        "evals/files/shadcn-stacked-bar/components/chart-bar-stacked.tsx",
+        "evals/files/shadcn-stacked-bar/components/ui/chart.tsx"
+      ],
+      "expectations": [
+        "Classifies the chart as clean (single shared stackId)",
+        "Maps stackId=\"a\" on both bars to stacked on BarChart",
+        "Sets xDataKey=\"month\"",
+        "Replaces var(--color-desktop)/var(--color-mobile) with var(--chart-1)/var(--chart-2)",
+        "Moves the tickFormatter (slice(0, 3)) into the data because BarXAxis has no formatter",
+        "Maps radius to lineCap and notes that [4,4,0,0] has no exact equivalent",
+        "Uses ChartTooltip rows for 'Desktop'/'Mobile' labels",
+        "Replaces ChartLegend/ChartLegendContent with Legend from @/components/charts/legend",
+        "Removes the @/components/ui/chart import from the converted file"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Convert components/skills-radar.tsx to the bklit radar chart.",
+      "expected_output": "RadarChart with metrics built from the subjects ({ key, label }), one RadarData per student ({ label: 'Alice' | 'Bob', color, values }) with scores normalised to 0–100 using the old PolarRadiusAxis max of 150, RadarGrid, RadarAxis, RadarLabels, one RadarArea per series, and an HTML Legend; ResponsiveContainer removed; @bklit/radar-chart and @bklit/legend installed.",
+      "files": [
+        "evals/files/radar-normalize/package.json",
+        "evals/files/radar-normalize/components/skills-radar.tsx"
+      ],
+      "expectations": [
+        "Pivots row-per-subject data into metrics + one RadarData per series",
+        "Normalises values to 0–100 by dividing by 150 (the PolarRadiusAxis domain max)",
+        "Keeps the series colours #8884d8 and #82ca9d and the names Alice/Bob",
+        "Uses RadarGrid, RadarAxis, RadarLabels and RadarArea index={i}",
+        "Does not pass fill, fillOpacity or dataKey props to RadarArea",
+        "Renders the legend with the bklit Legend outside the RadarChart"
+      ]
+    }
+  ]
+}

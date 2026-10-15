@@ -6,6 +6,8 @@ description: |
   build, fix failures, push, and create a PR with a structured summary. Use when the
   user asks to commit, push,
   open a PR, "ship it", or run the full pre-PR checklist.
+metadata:
+  internal: "true"
 ---
 
 # PR Open Skill

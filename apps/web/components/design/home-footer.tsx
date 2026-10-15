@@ -83,7 +83,7 @@ export function HomeFooter() {
               href="/"
             >
               <BklitLogo size={28} theme={logoTheme} />
-              <span className="font-bold font-heading text-foreground text-lg tracking-tight">
+              <span className="font-bold font-heading text-foreground text-lg">
                 Bklit UI
               </span>
             </Link>

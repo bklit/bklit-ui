@@ -9,6 +9,7 @@ description: |
   monorepo, shares code between apps, runs changed/affected packages, debugs cache,
   or has apps/packages directories.
 metadata:
+  internal: "true"
   version: 2.7.6-canary.3
 ---
 

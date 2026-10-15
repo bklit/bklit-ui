@@ -3131,7 +3131,7 @@ const autoProjectionPath = buildProjectionPath({
       title: "Line Chart - X & Y Axis",
       description: "With both horizontal grid and x-axis labels",
       code: `<LineChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={chartData}>
-  <Grid horizontal vertical />
+  <Grid fadeHorizontal={false} horizontal vertical />
   <Line dataKey="desktop" strokeWidth={2} />
   <XAxis />
   <ChartTooltip />
@@ -3139,7 +3139,7 @@ const autoProjectionPath = buildProjectionPath({
       footer: "Horizontal grid lines serve as the y-axis reference",
       render: () => (
         <LineExampleChart data={lineData}>
-          <Grid horizontal vertical />
+          <Grid fadeHorizontal={false} horizontal vertical />
           <Line dataKey="desktop" strokeWidth={2} />
           <XAxis />
           <ChartTooltip />

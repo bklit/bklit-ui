@@ -29,15 +29,28 @@ export interface ChartTooltipProps {
   showCrosshair?: boolean;
   /** Whether to show dots on the lines. Default: true */
   showDots?: boolean;
-  /** Dot style: filled circle or transparent ring. Default: "dot" */
+  /**
+   * Dot style: filled circle with a soft same-color halo, or transparent ring.
+   * Default: "dot"
+   */
   dotVariant?: "dot" | "ring";
-  /** Dot / ring radius in pixels. Default: 5 */
+  /** Dot core / ring radius in pixels. Default: 5 */
   dotSize?: number;
+  /**
+   * `dot` variant: halo radius as a multiple of the core radius. `0` hides the halo.
+   * Default: `2.6`
+   */
+  dotHaloScale?: number;
+  /** `dot` variant: halo opacity (0–1). Default: `0.3` */
+  dotHaloOpacity?: number;
   /** Ring corner radius as a fraction of side length (0 = square, 0.5 = circle). */
   dotRadiusFraction?: number;
   /** Multiplier applied to the computed dot / ring pixel radius. Default: 1 */
   dotScale?: number;
-  /** Ring stroke width in pixels. Default: 1.5 for ring variant */
+  /**
+   * Ring stroke width in pixels (default `1.5`). For the `dot` variant, draws a
+   * background-colored outline around the core (default `0`, none).
+   */
   dotStrokeWidth?: number;
   /**
    * Color for the crosshair/indicator line. When a function, receives the hovered point
@@ -101,6 +114,8 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
   showDots = true,
   dotVariant = "dot",
   dotSize = 5,
+  dotHaloScale,
+  dotHaloOpacity,
   dotRadiusFraction,
   dotScale = 1,
   dotStrokeWidth,
@@ -298,11 +313,13 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
                 cornerRadiusFraction={
                   dotVariant === "ring" ? dotRadiusFraction : undefined
                 }
+                haloOpacity={dotHaloOpacity}
+                haloScale={dotHaloScale}
                 key={line.dataKey}
                 size={resolvedDotSize}
                 springConfig={springConfig}
                 strokeColor={chartCssVars.background}
-                strokeWidth={dotVariant === "ring" ? dotStrokeWidth : undefined}
+                strokeWidth={dotStrokeWidth}
                 variant={dotVariant}
                 visible={visible}
                 x={tooltipData?.xPositions?.[line.dataKey] ?? x}
