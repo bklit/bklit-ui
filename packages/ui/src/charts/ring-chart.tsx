@@ -354,7 +354,12 @@ const RingChartCore = memo(function RingChartCore({
         <svg
           aria-hidden="true"
           height={size}
-          style={{ gridArea: "1 / 1", contain: "layout style paint" }}
+          style={{
+            gridArea: "1 / 1",
+            // No `paint` containment: it clips hover glow at the svg box.
+            contain: "layout style",
+            overflow: "visible",
+          }}
           width={size}
         >
           <Group left={center} top={center}>

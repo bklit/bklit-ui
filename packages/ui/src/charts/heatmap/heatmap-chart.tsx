@@ -475,7 +475,12 @@ function HeatmapChartSurface({
       ref={containerRef}
       style={{ opacity: reducedOpacity }}
     >
-      <svg aria-hidden="true" height={height} width={width}>
+      <svg
+        aria-hidden="true"
+        className="overflow-visible"
+        height={height}
+        width={width}
+      >
         <HeatmapPatternDefs levelStyles={levelStyles} />
         <g transform={`translate(${margin.left},${margin.top})`}>{children}</g>
       </svg>

@@ -211,6 +211,7 @@ const SankeyChartCore = memo(function SankeyChartCore({
       <div className="relative h-full w-full" ref={containerRef}>
         <svg
           aria-hidden="true"
+          className="overflow-visible"
           height={height}
           onMouseLeave={handleMouseLeave}
           onMouseMove={handleMouseMove}

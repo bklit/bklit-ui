@@ -258,7 +258,7 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
       {showCrosshair && (
         <svg
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0"
+          className="pointer-events-none absolute inset-0 overflow-visible"
           height="100%"
           width="100%"
         >
@@ -287,7 +287,7 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
       {showDots && visible && !isHorizontal && (
         <svg
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0"
+          className="pointer-events-none absolute inset-0 overflow-visible"
           height="100%"
           width="100%"
         >

@@ -72,6 +72,15 @@ import {
 } from "./y-axis-scales";
 import { computeYDomainsByAxis } from "./y-domain-utils";
 
+/**
+ * Bleed around the series reveal clip so glyphs centred on the plot edge
+ * (point markers, active rings, round stroke caps at min/max values) are not
+ * cut in half once the reveal settles. The reveal only animates x, so the
+ * vertical bleed is always applied; horizontal bleed is skipped while an
+ * `xDomain` viewport is set because series then extend past the plot edges.
+ */
+const SERIES_CLIP_EDGE_BLEED = 24;
+
 function collectNumericExtents(
   data: Record<string, unknown>[],
   dataKeys: string[]
@@ -617,7 +626,7 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
       duration: animationDuration / 1000,
     } satisfies Transition);
 
-  const revealClipPadding = useMemo(() => {
+  const barRevealClipPadding = useMemo(() => {
     if (!composedBarDataKeys?.length) {
       return 0;
     }
@@ -648,12 +657,25 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
     plotData.length,
   ]);
 
+  const revealClipPadding = xDomain
+    ? barRevealClipPadding
+    : Math.max(barRevealClipPadding, SERIES_CLIP_EDGE_BLEED);
+  const revealClipPaddingY = Math.max(
+    barRevealClipPadding,
+    SERIES_CLIP_EDGE_BLEED
+  );
+
   return (
     <ReferenceAreaRegistrationContext.Provider
       value={referenceAreaRegistration}
     >
       <ChartProvider value={contextValue}>
-        <svg aria-hidden="true" height={height} width={width}>
+        <svg
+          aria-hidden="true"
+          className="overflow-visible"
+          height={height}
+          width={width}
+        >
           <defs>
             {defsChildren}
             {useClipReveal ? (
@@ -661,12 +683,13 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
                 animating={isRevealAnimating || isRevealConcealing}
                 clipPathId={uniqueClipPathId}
                 enterTransition={effectiveEnterTransition}
-                height={innerHeight + 20}
+                height={innerHeight}
                 mode={isRevealConcealing ? "conceal" : "reveal"}
                 onComplete={
                   isRevealConcealing ? notifyRevealConcealComplete : undefined
                 }
                 padding={revealClipPadding}
+                paddingY={revealClipPaddingY}
                 revealEpoch={isRevealConcealing ? concealEpoch : revealEpoch}
                 targetWidth={innerWidth}
               />

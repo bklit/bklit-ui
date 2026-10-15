@@ -333,7 +333,12 @@ const ChartCore = memo(function ChartCore({
 
   return (
     <ChartProvider value={contextValue}>
-      <svg aria-hidden="true" height={height} width={width}>
+      <svg
+        aria-hidden="true"
+        className="overflow-visible"
+        height={height}
+        width={width}
+      >
         <defs>
           {/* Default vertical gradients for positive/negative candles (emerald / red) */}
           <linearGradient id="candlestick-positive" x1="0" x2="0" y1="1" y2="0">
