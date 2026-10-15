@@ -7170,6 +7170,14 @@ const chartExamplesRegistry: Record<string, RegistryEntry> = {
 
 const chartsPageContentClassName = siteContainerClassName;
 
+/** Every gallery variation: each chart type's hero plus its example cards. */
+export function chartExampleVariationCount(): number {
+  return Object.values(chartExamplesRegistry).reduce(
+    (total, entry) => total + entry.factory().length + (entry.hero ? 1 : 0),
+    0
+  );
+}
+
 export function ChartExamplesGrid({ chartSlug }: { chartSlug: string }) {
   const entry = chartExamplesRegistry[chartSlug];
 
