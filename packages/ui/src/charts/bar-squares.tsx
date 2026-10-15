@@ -29,6 +29,11 @@ export interface BarSquaresProps {
   yAxisId?: string | number;
   /** Fill color, gradient url, or pattern url. Default: var(--chart-line-primary) */
   fill?: string;
+  /**
+   * Datum key holding a per-column color. When the datum has a string there,
+   * it replaces `fill` for that column and solid-fills it (no gradient).
+   */
+  colorKey?: string;
   /** Tooltip dot / ring stroke color when fill is gradient/pattern */
   stroke?: string;
   /** Gap between stacked squares in pixels. Default: 3 */
@@ -278,6 +283,7 @@ const BarSquaresInner = memo(function BarSquaresInner({
   dataKey,
   yAxisId,
   fill = chartCssVars.linePrimary,
+  colorKey,
   squareGap = 3,
   squareRadius = 0.25,
   squareFit = false,
@@ -367,6 +373,9 @@ const BarSquaresInner = memo(function BarSquaresInner({
         const isFaded =
           (hoveredBarIndex !== null && hoveredBarIndex !== i) || isLegendDimmed;
 
+        const columnColor = colorKey ? d[colorKey] : undefined;
+        const hasColumnColor = typeof columnColor === "string";
+
         return (
           <SquareColumn
             animate={animate}
@@ -375,7 +384,7 @@ const BarSquaresInner = memo(function BarSquaresInner({
             baselineY={baselineY}
             enterTransition={enterTransition}
             fadedOpacity={fadedOpacity}
-            fill={fill}
+            fill={hasColumnColor ? columnColor : fill}
             gradientStops={stops}
             index={i}
             isFaded={isFaded}
@@ -387,7 +396,7 @@ const BarSquaresInner = memo(function BarSquaresInner({
             squareRadius={squareRadius}
             squareSize={squareSize}
             staggerDelay={calculatedStaggerDelay}
-            useGradient={useGradient}
+            useGradient={useGradient && !hasColumnColor}
             x={x}
           />
         );
