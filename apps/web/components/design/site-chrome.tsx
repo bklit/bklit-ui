@@ -17,6 +17,13 @@ const rivetBefore =
 const rivetAfter =
   "after:absolute after:-right-[11.5px] after:z-1 after:-mr-1 after:size-2 after:rounded-[2px] after:border after:border-border after:bg-background after:bg-clip-padding after:shadow-xs/5 dark:after:bg-clip-border";
 
+/**
+ * Vertical rail lines drawn 12px outside a `siteContainerClassName` element.
+ * Shared by the page rails and the header so both land on the same pixels.
+ */
+export const siteRailsClassName =
+  "before:pointer-events-none before:absolute before:inset-y-0 before:-left-3 before:w-px before:bg-border/64 after:pointer-events-none after:absolute after:inset-y-0 after:-right-3 after:w-px after:bg-border/64";
+
 /** Vertical rails on both sides of the page container (render inside a `relative` wrapper). */
 export function SiteEdgeLines() {
   return (
@@ -24,7 +31,8 @@ export function SiteEdgeLines() {
       aria-hidden
       className={cn(
         siteContainerClassName,
-        "pointer-events-none absolute inset-0 z-40 before:absolute before:inset-y-0 before:-left-3 before:w-px before:bg-border/64 after:absolute after:inset-y-0 after:-right-3 after:w-px after:bg-border/64"
+        siteRailsClassName,
+        "pointer-events-none absolute inset-0 z-40"
       )}
     />
   );
