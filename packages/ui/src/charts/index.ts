@@ -598,6 +598,8 @@ export {
   type TooltipContentProps,
   TooltipDot,
   type TooltipDotProps,
+  TooltipHeader,
+  type TooltipHeaderProps,
   TooltipIndicator,
   type TooltipIndicatorProps,
   type TooltipRow,

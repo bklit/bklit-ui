@@ -11,7 +11,7 @@ export function studioTooltipPanelStyle(
   const blur = state.tooltipBlur;
   const color = state.tooltipBackgroundColor;
   const defaultColor = "var(--chart-tooltip-background)";
-  if (opacity === 0.8 && blur === 12 && color === defaultColor) {
+  if (opacity === 1 && blur === 12 && color === defaultColor) {
     return undefined;
   }
   return {
@@ -32,6 +32,15 @@ export function chartTooltipCodegenProps(state: StudioUrlState): string {
   }
   if (state.crosshairFadeLength !== 10) {
     parts.push(`indicatorFadeLength={${state.crosshairFadeLength}}`);
+  }
+  if (state.tooltipDotVariant === "dot" && state.tooltipDotHaloScale !== 2.6) {
+    parts.push(`dotHaloScale={${state.tooltipDotHaloScale}}`);
+  }
+  if (
+    state.tooltipDotVariant === "dot" &&
+    state.tooltipDotHaloOpacity !== 0.3
+  ) {
+    parts.push(`dotHaloOpacity={${state.tooltipDotHaloOpacity}}`);
   }
   if (state.tooltipMatchCrosshair) {
     parts.push("matchCrosshair");
@@ -72,6 +81,14 @@ export function chartTooltipPropsFromState(
     dotStrokeWidth:
       state.tooltipDotVariant === "ring"
         ? state.tooltipDotStrokeWidth
+        : undefined,
+    dotHaloScale:
+      state.tooltipDotVariant === "dot" && state.tooltipDotHaloScale !== 2.6
+        ? state.tooltipDotHaloScale
+        : undefined,
+    dotHaloOpacity:
+      state.tooltipDotVariant === "dot" && state.tooltipDotHaloOpacity !== 0.3
+        ? state.tooltipDotHaloOpacity
         : undefined,
     dotColor:
       state.tooltipDotColorMode === "custom" && state.tooltipDotColor.trim()

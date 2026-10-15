@@ -2,6 +2,7 @@
 
 import { memo } from "react";
 import { TooltipBox } from "../tooltip/tooltip-box";
+import { TooltipHeader } from "../tooltip/tooltip-content";
 import { useHeatmap, useHeatmapInteraction } from "./heatmap-context";
 import {
   formatHeatmapContributionLabel,
@@ -71,19 +72,14 @@ export const HeatmapTooltip = memo(function HeatmapTooltip({
       x={displayData.x}
       y={displayData.y}
     >
-      <div className="overflow-hidden">
-        <div className="px-3 py-2.5 text-left">
-          <div className="font-medium text-chart-tooltip-foreground text-xs">
-            {formatHeatmapTooltipDate(date)}
-          </div>
-          <div className="mt-0.5 text-chart-tooltip-muted text-xs">
-            {formatHeatmapTooltipWeekday(date)}
-          </div>
-          <div className="my-2 border-chart-tooltip-muted/30 border-t" />
-          <div className="text-chart-tooltip-foreground text-sm">
-            {formatLabel(count, date)}
-          </div>
+      <TooltipHeader>
+        {formatHeatmapTooltipDate(date)}
+        <div className="mt-0.5 font-normal text-chart-tooltip-muted text-xs">
+          {formatHeatmapTooltipWeekday(date)}
         </div>
+      </TooltipHeader>
+      <div className="px-3.5 py-3 text-left text-chart-tooltip-foreground text-sm">
+        {formatLabel(count, date)}
       </div>
     </TooltipBox>
   );

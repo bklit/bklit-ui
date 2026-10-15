@@ -397,6 +397,8 @@ export const studioSearchParams = {
     "match"
   ),
   tooltipDotColor: parseAsString.withDefault(""),
+  tooltipDotHaloScale: parseAsFloat.withDefault(2.6),
+  tooltipDotHaloOpacity: parseAsFloat.withDefault(0.3),
   showTooltipDatePill: parseAsBoolean.withDefault(true),
   showCrosshair: parseAsBoolean.withDefault(true),
   crosshairFollowsValue: parseAsBoolean.withDefault(true),
@@ -449,7 +451,7 @@ export const studioSearchParams = {
   tooltipBackgroundColor: parseAsString.withDefault(
     "var(--chart-tooltip-background)"
   ),
-  tooltipBackgroundOpacity: parseAsFloat.withDefault(0.8),
+  tooltipBackgroundOpacity: parseAsFloat.withDefault(1),
   tooltipBlur: parseAsInteger.withDefault(12),
   hiddenComponents: parseAsString.withDefault(""),
   lineDataTrend: parseAsStringLiteral(["up", "down"]).withDefault("up"),
@@ -785,6 +787,8 @@ export interface StudioUrlState {
   tooltipDotStrokeWidth: number;
   tooltipDotColorMode: "match" | "custom";
   tooltipDotColor: string;
+  tooltipDotHaloScale: number;
+  tooltipDotHaloOpacity: number;
   showTooltipDatePill: boolean;
   showCrosshair: boolean;
   crosshairFollowsValue: boolean;
@@ -1148,6 +1152,8 @@ export function defaultStudioState(
     tooltipDotStrokeWidth: 1.5,
     tooltipDotColorMode: "match",
     tooltipDotColor: "",
+    tooltipDotHaloScale: 2.6,
+    tooltipDotHaloOpacity: 0.3,
     showTooltipDatePill: true,
     showCrosshair: true,
     crosshairFollowsValue: true,
@@ -1184,7 +1190,7 @@ export function defaultStudioState(
     legendShowMarker: true,
     legendShowValue: true,
     tooltipBackgroundColor: "var(--chart-tooltip-background)",
-    tooltipBackgroundOpacity: 0.8,
+    tooltipBackgroundOpacity: 1,
     tooltipBlur: 12,
     hiddenComponents: "",
     lineDataTrend: "up",

@@ -358,6 +358,8 @@ export const STUDIO_STATE_KEY_ORDER = [
   "tooltipDotStrokeWidth",
   "tooltipDotColorMode",
   "tooltipDotColor",
+  "tooltipDotHaloScale",
+  "tooltipDotHaloOpacity",
 ] as const satisfies readonly (keyof StudioUrlState)[];
 
 /** Frozen historical layout (cc7bc08 — first compressed-URL release). Decode-only. */

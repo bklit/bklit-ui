@@ -31,7 +31,7 @@ export function MarkerTooltipContent({ markers }: MarkerTooltipContentProps) {
   const hiddenCount = markers.length - MAX_TOOLTIP_MARKERS;
 
   return (
-    <div className="mt-2 space-y-2 border-chart-tooltip-muted border-t pt-2">
+    <div className="mt-2 space-y-2 border-t pt-2">
       {visibleMarkers.map((marker) => {
         const isClickable = !!(marker.onClick || marker.href);
         return (
