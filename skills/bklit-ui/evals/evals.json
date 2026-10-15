@@ -1,0 +1,104 @@
+{
+  "skill_name": "bklit-ui",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "In my Next.js app (shadcn already set up, @/ alias), add a line chart to the analytics dashboard showing daily users and sessions over the last 30 days, with a tooltip.",
+      "expected_output": "Installs @bklit/line-chart with the shadcn CLI, then a client component that composes LineChart > Grid > two Line series > XAxis > ChartTooltip, importing from @/components/charts/* files.",
+      "files": [],
+      "expectations": [
+        "Runs or recommends `npx shadcn@latest add @bklit/line-chart` (or the project's package-runner equivalent) instead of hand-writing SVG",
+        "Imports from installed files such as `@/components/charts/line-chart`, `@/components/charts/x-axis`, `@/components/charts/tooltip` — never from `@bklitui/ui/charts` or `@/components/ui/line-chart`",
+        "Grid, Line, XAxis and ChartTooltip are children of a single LineChart root, with Grid before the series",
+        "Data uses Date objects under the `date` key (or sets `xDataKey` to match)",
+        "Series colors use theme tokens (var(--chart-1), var(--chart-2) or chartCssVars), not hex literals"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Customize the tooltip on my bklit area chart so it shows the date as 'Mon, Jan 6' and the revenue formatted as USD.",
+      "expected_output": "Uses ChartTooltip `content` with the ({ point, index }) signature (formatting point.date itself) or the `rows` prop returning { color, label, value }.",
+      "files": [],
+      "expectations": [
+        "Uses ChartTooltip `content` or `rows` rather than building a tooltip outside the chart",
+        "The `content` callback destructures only `point` and/or `index` — it does not rely on a `formattedDate` or `payload` argument",
+        "Formats the date from `point.date` (e.g. toLocaleDateString / Intl.DateTimeFormat)",
+        "Uses Intl.NumberFormat or equivalent for USD formatting",
+        "Custom tooltip surface uses theme tokens (bg-popover/text-popover-foreground or --chart-tooltip-*) rather than hardcoded colors"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Build a real-time price ticker chart that updates every second from a websocket using bklit.",
+      "expected_output": "Installs @bklit/live-line-chart and composes LiveLineChart with LiveLine, LiveXAxis, LiveYAxis and ChartTooltip, passing data ({ time: unixSeconds, value }) and the latest `value`.",
+      "files": [],
+      "expectations": [
+        "Uses LiveLineChart as the root",
+        "Uses LiveLine as the series (not Line) and LiveXAxis/LiveYAxis (not XAxis/YAxis)",
+        "Passes both `data` (array of { time, value } with time in Unix seconds) and the latest `value` prop to LiveLineChart",
+        "Appends new points and trims the array (e.g. slice) instead of rebuilding history every tick",
+        "Any use of `paused` or `window` is correct (`paused` freezes scrolling, `window` is seconds)"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Add release annotations (v1.0 on Jan 5, v1.1 on Feb 2) to my bklit line chart, with details shown when hovering that date.",
+      "expected_output": "Installs @bklit/markers; renders ChartMarkers as a sibling of ChartTooltip inside LineChart and puts marker content (filtered with useActiveMarkers) inside ChartTooltip children.",
+      "files": [],
+      "expectations": [
+        "Installs or references `@bklit/markers`",
+        "ChartMarkers is a direct child of LineChart and a sibling of ChartTooltip — not nested inside ChartTooltip",
+        "Hover details are rendered as ChartTooltip children using useActiveMarkers (optionally with MarkerTooltipContent)",
+        "Marker objects include `date` (Date), `icon`, and `title`",
+        "Imports come from `@/components/charts/markers` (or the project alias), not `@bklitui/ui/charts`"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "My app uses a custom shadcn theme with brand --chart-1 to --chart-5 colors. Will installing bklit charts overwrite them? And how do I make the chart grid lighter in dark mode?",
+      "expected_output": "Explains that shadcn add merges registry cssVars without overwriting existing variables, so the brand --chart-1..5 survive and only missing --chart-* tokens are added; dark grid is changed by overriding --chart-grid in .dark.",
+      "files": [],
+      "expectations": [
+        "States that existing --chart-1..--chart-5 are not overwritten by installing @bklit components",
+        "Explains that chart-context only adds missing --chart-* tokens",
+        "Recommends overriding --chart-grid inside a .dark selector in CSS",
+        "Does not suggest adding dark: Tailwind classes to chart SVG elements"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Add a KPI stat card with a sparkline showing monthly revenue to my dashboard using bklit.",
+      "expected_output": "Recommends the stat-card-area-01 (or stat-card-line-01) block, or composes an AreaChart/LineChart sparkline in a shadcn Card, noting the block's barrel and sample-data files.",
+      "files": [],
+      "expectations": [
+        "Mentions an existing block (`@bklit/stat-card-area-01` or `@bklit/stat-card-line-01`) or builds from @bklit/area-chart / @bklit/line-chart rather than hand-rolled SVG",
+        "If using a block, notes that it needs shadcn card/badge and writes components/charts/index.ts plus sample data that may need merging or replacing",
+        "Uses theme tokens for colors",
+        "Does not import from `@bklitui/ui/charts`"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Add a brush / range selector under my bklit area chart so users can zoom into a date range. Install whatever is needed.",
+      "expected_output": "Explains that ChartBrush / ChartBrushLayout are not distributed by any @bklit registry item, so there is no install command; points to the brush docs and suggests xDomain-based zoom as an alternative.",
+      "files": [],
+      "expectations": [
+        "Does not run or recommend a non-existent install command such as `@bklit/brush` or `@bklit/chart-brush`",
+        "States clearly that the brush is not available through the registry today",
+        "Mentions the chart's xDomain / xDomainSlotCount props or the brush docs as a path forward"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Make the bar chart enter animation respect prefers-reduced-motion.",
+      "expected_output": "Notes that reduced motion is only partially handled internally (the bar grow/stagger is not), and gates animation with useReducedMotion — e.g. Bar animate={false}.",
+      "files": [],
+      "expectations": [
+        "Does not claim bklit charts already fully respect prefers-reduced-motion",
+        "Uses `useReducedMotion` from motion/react (or a matchMedia check)",
+        "Disables the bar enter via `animate={false}` on Bar (not only `animationDuration={0}`, which leaves the stagger)",
+        "Keeps the default timing (1100ms, cubic-bezier(0.85, 0, 0.15, 1)) when motion is allowed"
+      ]
+    }
+  ]
+}
