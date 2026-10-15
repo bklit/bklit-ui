@@ -181,7 +181,7 @@ export function DesignShowcasePanel({
       onPointerEnter={() => setHoverFine(true)}
       onPointerLeave={() => setHoverFine(false)}
     >
-      <FramePanel className="flex-1 overflow-visible p-0 md:overflow-hidden">
+      <FramePanel className="flex-1 overflow-visible p-0">
         <div className="absolute top-3 left-3 z-10">
           <ShowcaseReplayAction
             index={0}

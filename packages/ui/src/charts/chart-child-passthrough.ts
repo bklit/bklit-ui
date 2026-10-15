@@ -1,6 +1,7 @@
 import {
   Children,
   cloneElement,
+  createElement,
   Fragment,
   isValidElement,
   type ReactElement,
@@ -18,15 +19,66 @@ export function isChartClipPassthrough(type: unknown): boolean {
   );
 }
 
+const REACT_LAZY_TYPE = Symbol.for("react.lazy");
+
+interface LazyComponentType {
+  $$typeof: symbol;
+  _init: (payload: unknown) => unknown;
+  _payload: unknown;
+}
+
+function isLazyComponentType(type: unknown): type is LazyComponentType {
+  return (
+    typeof type === "object" &&
+    type !== null &&
+    (type as { $$typeof?: unknown }).$$typeof === REACT_LAZY_TYPE &&
+    typeof (type as { _init?: unknown })._init === "function"
+  );
+}
+
+/**
+ * Unwrap a `React.lazy` element type to the component it resolves to.
+ *
+ * Chart children written in a Server Component (e.g. MDX docs) reach the
+ * client chart as lazy client references, which hide `displayName` and the
+ * `__isChartMarkers` / `__isPostOverlay` flags. Without unwrapping, markers,
+ * axes and grids are classified as series and end up inside the reveal clip,
+ * which cuts off marker count badges above the plot.
+ */
+export function resolveLazyChartChild(child: ReactElement): ReactElement {
+  const type: unknown = child.type;
+  if (!isLazyComponentType(type)) {
+    return child;
+  }
+  let resolved: unknown;
+  try {
+    resolved = type._init(type._payload);
+  } catch {
+    // Module still loading (lazy init throws a thenable) — keep the lazy element.
+    return child;
+  }
+  if (
+    typeof resolved !== "function" &&
+    !(typeof resolved === "object" && resolved !== null)
+  ) {
+    return child;
+  }
+  return createElement(resolved as Parameters<typeof createElement>[0], {
+    ...(child.props as object),
+    key: child.key,
+  });
+}
+
 /** Unwrap visibility wrappers so `Grid` / axes stay outside the series clip. */
 export function resolveChartChildElement(child: ReactElement): ReactElement {
-  if (isChartClipPassthrough(child.type)) {
-    const inner = (child.props as { children?: unknown }).children;
+  const element = resolveLazyChartChild(child);
+  if (isChartClipPassthrough(element.type)) {
+    const inner = (element.props as { children?: unknown }).children;
     if (isValidElement(inner)) {
       return resolveChartChildElement(inner);
     }
   }
-  return child;
+  return element;
 }
 
 /** Walk chart children, flattening React fragments (studio often groups layers in `<>...</>`). */
@@ -44,7 +96,7 @@ export function forEachChartChild(
         visit((child.props as { children?: ReactNode }).children);
         return;
       }
-      callback(child, index);
+      callback(resolveLazyChartChild(child), index);
       index += 1;
     });
   };

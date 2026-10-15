@@ -137,7 +137,7 @@ function CatalogChartPreview({ slug }: { slug: ChartSlug }) {
   return (
     <StaticChartPreviewProvider>
       <div
-        className="relative size-full min-h-0 overflow-hidden rounded-md border border-border/60 bg-card"
+        className="relative size-full min-h-0 rounded-md border border-border/60 bg-card"
         style={themeStyle}
       >
         <StudioChartViewport>

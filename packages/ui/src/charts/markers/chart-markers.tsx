@@ -83,6 +83,12 @@ export function MarkerTooltipContent({ markers }: MarkerTooltipContentProps) {
   );
 }
 
+/**
+ * Date markers drawn above the plot. Markers sit 8px above the plot top and
+ * the count badge reaches ~33px above it (at the default `size`), so keep
+ * `margin.top` ≥ 36 if the chart's container clips its overflow. Chart SVGs
+ * are `overflow: visible` and markers render outside the series reveal clip.
+ */
 export function ChartMarkers({
   items,
   size = 28,

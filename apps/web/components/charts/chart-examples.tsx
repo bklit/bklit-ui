@@ -1282,7 +1282,7 @@ function HeatmapHorizontalScrollGalleryExample() {
   return (
     <HeatmapExampleShell>
       <div className="flex w-full flex-col gap-2">
-        <div className="flex w-full min-w-0 overflow-hidden">
+        <div className="flex w-full min-w-0">
           <div
             className="relative shrink-0"
             style={{ width: HEATMAP_GALLERY_MARGIN.left }}

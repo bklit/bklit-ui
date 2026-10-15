@@ -20,6 +20,7 @@ import {
   isClipExcludedComponent,
   isPostOverlayComponent,
   isUnderlayComponent,
+  resolveLazyChartChild,
 } from "./chart-child-passthrough";
 import { ChartProvider, type LineConfig, type Margin } from "./chart-context";
 import { shortDateFmt } from "./chart-formatters";
@@ -247,10 +248,11 @@ const ChartCore = memo(function ChartCore({
   const underlayChildren: ReactElement[] = [];
   const preOverlayChildren: ReactElement[] = [];
   const postOverlayChildren: ReactElement[] = [];
-  Children.forEach(children, (child) => {
-    if (!isValidElement(child)) {
+  Children.forEach(children, (rawChild) => {
+    if (!isValidElement(rawChild)) {
       return;
     }
+    const child = resolveLazyChartChild(rawChild);
     if (isDefsComponent(child)) {
       defsChildren.push(child);
     } else if (isPostOverlayComponent(child)) {
