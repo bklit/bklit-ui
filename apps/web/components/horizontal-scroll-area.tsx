@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  type CSSProperties,
   type ReactNode,
   type RefObject,
   useCallback,
@@ -12,11 +13,13 @@ import { cn } from "@/lib/utils";
 
 const SCROLL_FADE_THRESHOLD_PX = 4;
 
-const leftFadeClass =
-  "pointer-events-none absolute inset-y-0 left-0 z-10 w-[60px] bg-linear-to-r from-background via-background/90 to-transparent transition-opacity duration-200";
+const SCROLL_FADE_WIDTH_PX = 60;
 
-const rightFadeClass =
-  "pointer-events-none absolute inset-y-0 right-0 z-10 w-[60px] bg-linear-to-l from-background via-background/90 to-transparent transition-opacity duration-200";
+// Masks the scroll content itself so it fades to whatever sits behind it,
+// instead of painting a gradient that has to match the surrounding color.
+// --scroll-fade-left/right are registered in globals.css so they transition.
+const fadeMaskClass =
+  "[mask-image:linear-gradient(to_right,transparent,black_var(--scroll-fade-left),black_calc(100%-var(--scroll-fade-right)),transparent)] transition-[--scroll-fade-left,--scroll-fade-right] duration-200";
 
 export function HorizontalScrollArea({
   children,
@@ -69,26 +72,19 @@ export function HorizontalScrollArea({
       <div
         className={cn(
           "no-scrollbar min-w-0 overflow-x-auto overflow-y-hidden overscroll-x-contain",
+          fadeMaskClass,
           scrollClassName
         )}
         ref={scrollRef}
+        style={
+          {
+            "--scroll-fade-left": `${showLeftFade ? SCROLL_FADE_WIDTH_PX : 0}px`,
+            "--scroll-fade-right": `${showRightFade ? SCROLL_FADE_WIDTH_PX : 0}px`,
+          } as CSSProperties
+        }
       >
         {children}
       </div>
-      <div
-        aria-hidden
-        className={cn(
-          leftFadeClass,
-          showLeftFade ? "opacity-100" : "opacity-0"
-        )}
-      />
-      <div
-        aria-hidden
-        className={cn(
-          rightFadeClass,
-          showRightFade ? "opacity-100" : "opacity-0"
-        )}
-      />
     </div>
   );
 }

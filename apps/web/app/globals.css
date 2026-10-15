@@ -13,6 +13,19 @@
 @source "../../../packages/ui/src/**/*.tsx";
 @source "../../../packages/studio/src/**/*.{ts,tsx}";
 
+/* Animatable edge-fade widths for HorizontalScrollArea's mask. */
+@property --scroll-fade-left {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+@property --scroll-fade-right {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
 /*
  * Studio owns dark mode inside `.studio-shell`; site `html.dark` must not leak in.
  * Single selector (not a block of rules) so Tailwind can negate it — coss uses `not-dark:`.
