@@ -426,7 +426,7 @@ const { arcs } = buildArcs(data);`,
   { date: new Date("2024-01-05"), open: 110, high: 115, low: 107, close: 108 },
 ];`,
     body: `<CandlestickChart data={ohlcData}>
-  <Grid horizontal vertical />
+  <Grid fadeHorizontal={false} horizontal vertical />
   <Candlestick />
   <XAxis />
   <YAxis />

@@ -99,10 +99,10 @@ Use vertical grid lines to emphasize time intervals.
 
 ### Both Horizontal and Vertical
 
-Display a full grid for detailed reference.
+Display a full grid for detailed reference. Turn off `fadeHorizontal` so the rows run edge to edge like the columns (vertical lines don't fade by default).
 
 <ComponentShowcase code={`<LineChart data={data}>
-  <Grid horizontal vertical />
+  <Grid horizontal vertical fadeHorizontal={false} />
   <Line dataKey="value" />
   <XAxis />
   <ChartTooltip />
@@ -154,7 +154,7 @@ Omit the outermost horizontal or vertical grid lines — useful when the chart b
 Increase the number of grid lines for more granular reference.
 
 <ComponentShowcase code={`<LineChart data={data}>
-  <Grid horizontal vertical numTicksRows={10} numTicksColumns={15} />
+  <Grid horizontal vertical fadeHorizontal={false} numTicksRows={10} numTicksColumns={15} />
   <Line dataKey="value" />
   <XAxis />
   <ChartTooltip />

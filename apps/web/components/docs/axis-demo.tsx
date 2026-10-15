@@ -23,7 +23,7 @@ export function AxisBothDemo() {
   return (
     <div className="w-full">
       <LineChart data={chartData} margin={{ left: 50 }}>
-        <Grid horizontal vertical />
+        <Grid fadeHorizontal={false} horizontal vertical />
         <Line dataKey="value" stroke="var(--chart-line-primary)" />
         <YAxis />
         <XAxis />
