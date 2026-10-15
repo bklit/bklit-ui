@@ -1,0 +1,227 @@
+---
+title: Markers
+description: Annotate dates on time-series charts — rich icon badges with a radial fan-out and tooltip, or your own minimal glyphs built on useChart
+---
+
+import {
+  DiamondMarkersDemo,
+  MarkersCompactDemo,
+  MarkersDemo,
+} from "@/components/docs/markers-demo";
+
+<ComponentPreview registryName="markers">
+  <MarkersDemo />
+</ComponentPreview>
+
+## Installation
+
+<InstallationTabs name="markers" dependencies={["motion"]} />
+
+## Usage
+
+`ChartMarkers` pins an icon badge above the plot at each marker's `date`, with a dashed guide line down through the chart. Place it as a child of a time-series chart (`LineChart`, `AreaChart`, `ComposedChart`). Markers render after the interaction overlay, so they stay hoverable and clickable on top of the crosshair.
+
+```tsx
+import {
+  ChartMarkers,
+  ChartTooltip,
+  Grid,
+  Line,
+  LineChart,
+  MarkerTooltipContent,
+  type ChartMarker,
+  useActiveMarkers,
+  XAxis,
+} from "@bklitui/ui/charts";
+
+const markers: ChartMarker[] = [
+  {
+    date: new Date(2024, 0, 4),
+    icon: "🚀",
+    title: "v2.0 Launch",
+    description: "Major release with new features",
+    href: "https://github.com/bklit/bklit-ui/releases",
+    target: "_blank",
+  },
+  { date: new Date(2024, 0, 9), icon: "📣", title: "Marketing Push" },
+  { date: new Date(2024, 0, 9), icon: "🐛", title: "Bug Fix" }, // same day → stacks
+];
+
+// Shows the markers for the hovered date inside the chart tooltip
+function MarkerContent({ markers }: { markers: ChartMarker[] }) {
+  const activeMarkers = useActiveMarkers(markers);
+  if (activeMarkers.length === 0) return null;
+  return <MarkerTooltipContent markers={activeMarkers} />;
+}
+
+<LineChart data={data}>
+  <Grid horizontal />
+  <Line dataKey="value" />
+  <ChartMarkers items={markers} />
+  <XAxis />
+  <ChartTooltip>
+    <MarkerContent markers={markers} />
+  </ChartTooltip>
+</LineChart>
+```
+
+Markers that share a calendar day are grouped into one badge with a count. Hovering the badge fans the group out in a radial arc; each fanned badge is clickable when the marker has `onClick` or `href`. When the crosshair lands on a marker's date, `useActiveMarkers` returns those markers so `MarkerTooltipContent` can list them under the tooltip rows.
+
+## Marker item
+
+```ts
+interface ChartMarker {
+  date: Date;                   // Matched to data points by calendar day
+  icon: React.ReactNode;        // Emoji, SVG, or image inside the badge
+  title: string;                // Tooltip title (also the React key in the fan)
+  description?: string;         // Secondary tooltip line
+  content?: React.ReactNode;    // Replaces title/description in the tooltip
+  color?: string;               // Badge background override
+  onClick?: () => void;         // Click handler (fanned badges)
+  href?: string;                // Navigate on click
+  target?: "_blank" | "_self";  // Link target. Default "_self"
+}
+```
+
+## Props
+
+### ChartMarkers
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `items` | `ChartMarker[]` | required | Markers to display (grouped by calendar day) |
+| `size` | `number` | `28` | Badge diameter in px |
+| `showLines` | `boolean` | `true` | Dashed vertical guide line from the badge to the plot bottom |
+| `animate` | `boolean` | `true` | Staggered spring entrance after the series reveal |
+
+### MarkerTooltipContent
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `markers` | `ChartMarker[]` | required | Markers to list — typically the result of `useActiveMarkers` (shows up to two, then "+N more") |
+
+### useActiveMarkers
+
+`useActiveMarkers(items: ChartMarker[]): ChartMarker[]` returns the markers whose `date` falls on the same day as the hovered data point, or `[]` when nothing is hovered. Call it from a component rendered inside the chart (for example inside `ChartTooltip`).
+
+## Examples
+
+### Rich markers with radial menu
+
+Three markers share a date, so the middle badge shows a count and fans out on hover. The first marker links out, and the last uses a custom `color`.
+
+<ComponentShowcase code={`<LineChart data={data}>
+  <Grid horizontal />
+  <Line dataKey="value" strokeWidth={2} />
+  <ChartMarkers items={markers} />
+  <XAxis />
+  <ChartTooltip>
+    <MarkerContent markers={markers} />
+  </ChartTooltip>
+</LineChart>`}>
+  <MarkersDemo />
+</ComponentShowcase>
+
+### Compact badges without guide lines
+
+<ComponentShowcase code={`<LineChart data={data} margin={{ top: 24 }}>
+  <Grid horizontal />
+  <Line dataKey="value" strokeWidth={2} />
+  <ChartMarkers items={markers} size={20} showLines={false} animate={false} />
+  <XAxis />
+  <ChartTooltip>
+    <MarkerContent markers={markers} />
+  </ChartTooltip>
+</LineChart>`}>
+  <MarkersCompactDemo />
+</ComponentShowcase>
+
+### Simple custom marker
+
+`ChartMarkers` always draws a circular badge. For a minimal annotation — a small diamond above the plot with a dashed guide — write your own layer with [`useChart`](/docs/utility/use-chart). `xScale` maps the marker date to a pixel, and `innerHeight` is the plot height. Any SVG you return renders in the chart's plot space, so negative `y` sits in the top margin. Set the static `__isPostOverlay` flag on the component (the same flag `LineSeriesTerminalMarker` uses) so the layer renders outside the series reveal clip; otherwise the glyph above the plot top is clipped.
+
+<ComponentShowcase code={`import {
+  AreaChart,
+  Area,
+  ChartTooltip,
+  chartCssVars,
+  Grid,
+  useChart,
+  XAxis,
+} from "@bklitui/ui/charts";
+
+const markers = [
+  { date: new Date(2024, 0, 5), title: "Deploy" },
+  { date: new Date(2024, 0, 10), title: "Pricing change" },
+];
+
+function DiamondMarkers({ items, size = 8, y = -12 }) {
+  const { xScale, innerHeight, tooltipData, isLoaded } = useChart();
+  const half = size / 2;
+
+  return (
+    <g
+      style={{
+        pointerEvents: "none",
+        opacity: isLoaded ? 1 : 0,
+        transition: "opacity 300ms ease-out",
+      }}
+    >
+      {items.map((marker) => {
+        const x = xScale(marker.date) ?? 0;
+        const hovered = tooltipData?.point.date as Date | undefined;
+        const active =
+          hovered?.toDateString() === marker.date.toDateString();
+        return (
+          <g key={marker.date.toISOString()} transform={\`translate(\${x}, 0)\`}>
+            <line
+              x1={0}
+              x2={0}
+              y1={y + half + 4}
+              y2={innerHeight}
+              stroke={chartCssVars.markerBorder}
+              strokeDasharray="4,4"
+              strokeOpacity={active ? 1 : 0.7}
+            />
+            <rect
+              x={-half}
+              y={-half}
+              width={size}
+              height={size}
+              transform={\`translate(0, \${y}) rotate(45)\`}
+              fill={chartCssVars.foregroundMuted}
+            />
+          </g>
+        );
+      })}
+    </g>
+  );
+}
+
+// Render outside the series reveal clip (above the interaction overlay)
+// so the diamond in the top margin isn't cut off
+DiamondMarkers.__isPostOverlay = true;
+
+<AreaChart data={data}>
+  <Grid horizontal />
+  <Area dataKey="value" fill="var(--chart-line-primary)" fillOpacity={0.15} />
+  <DiamondMarkers items={markers} />
+  <XAxis />
+  <ChartTooltip />
+</AreaChart>`}>
+  <DiamondMarkersDemo />
+</ComponentShowcase>
+
+The demo also adds a small tooltip section that lists the diamond's title when the crosshair lands on its date — read `tooltipData` from `useChart` inside `ChartTooltip` children, the same way `useActiveMarkers` works.
+
+## Tips
+
+- **Leave room above the plot.** Badges sit 8px above the plot top, so they need `margin.top` of at least `size / 2 + 8` (22px at the default `size={28}`). Charts default to `margin.top = 40`; if you tighten margins, keep enough headroom or the badges and the fan-out arc will be cut off by surrounding layout.
+- **Match dates to data.** Markers group and highlight by calendar day (`toDateString()`), so use dates that land on your data points' days.
+- **Unique titles per day.** `title` keys the fanned badges, so give markers that share a date distinct titles.
+- **Theme with CSS variables.** Badge colors come from `--chart-marker-background`, `--chart-marker-border`, `--chart-marker-foreground`, and the count badge from `--chart-marker-badge-background` / `--chart-marker-badge-foreground` — see [Theming](/docs/theming).
+- **Custom glyphs stay passive.** A post-overlay layer like the diamond above sits on top of the chart's hover surface, so set `pointerEvents: "none"` to keep the crosshair working, and surface details through `ChartTooltip`.
+
+## Gallery
+
+See **Markers** on the [line chart gallery](/charts/line-chart).
