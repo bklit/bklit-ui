@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { ScrollToTopOnNavigate } from "@/components/docs/scroll-to-top-on-navigate";
 import { SiteHeader } from "@/components/docs/site-header";
-import { siteNavLinks } from "@/lib/site-nav-links";
+import { siteHeaderNavLinks } from "@/lib/site-nav-links";
 
 export default function SiteLayout({ children }: { children: ReactNode }) {
   return (
@@ -10,7 +10,7 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
       <SiteHeader
         discordUrl="https://discord.gg/75s4frfE8X"
         githubUrl="https://github.com/bklit/bklit-ui"
-        links={[...siteNavLinks]}
+        links={[...siteHeaderNavLinks]}
       />
       <div className="flex flex-1 flex-col pt-(--site-header-height)">
         {children}
