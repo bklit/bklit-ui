@@ -67,6 +67,7 @@ import {
   sunburstChartControlGroups,
   sunburstLabelsControlGroups,
   tooltipAppearanceControlGroup,
+  trendLineControlGroups,
 } from "./registry-control-groups";
 import {
   barCollapsibleGroup,
@@ -81,6 +82,7 @@ import {
   PER_PROJECTION_CONTROL_KEYS,
   PROJECTION_PRESET_LABELS,
 } from "./studio-projection-props";
+import { trendLineSeriesOptions } from "./studio-trend-line-props";
 
 const DESIGN_SERIES_LABEL_PREFIX = /^Series \d+ · /;
 
@@ -222,6 +224,21 @@ function referenceAreaNode(chartPrefix: string): StudioComponentDefinition {
     parentId: `${chartPrefix}.chart`,
     kind: "chart",
     controlGroups: referenceAreaControlGroups,
+  };
+}
+
+function trendLineNode(
+  chartPrefix: string,
+  state: StudioUrlState
+): StudioComponentDefinition {
+  return {
+    id: `${chartPrefix}.trend-line`,
+    label: "Trend line",
+    parentId: `${chartPrefix}.chart`,
+    kind: "line",
+    controlGroups: trendLineControlGroups(
+      trendLineSeriesOptions(state, chartPrefix)
+    ),
   };
 }
 
@@ -591,6 +608,7 @@ export function resolveAreaComponents(
     gridNode("area"),
     backgroundNode("area"),
     referenceAreaNode("area"),
+    trendLineNode("area", state),
   ];
 
   for (let index = 0; index < seriesCount; index += 1) {
@@ -684,6 +702,7 @@ export function resolveBarComponents(
     gridNode("bar"),
     backgroundNode("bar"),
     referenceAreaNode("bar"),
+    trendLineNode("bar", state),
   ];
 
   const horizontal = state.barOrientation === "horizontal";
@@ -780,6 +799,7 @@ export function resolveComposedComponents(
     passiveNode("composed", "grid", "Grid"),
     backgroundNode("composed"),
     referenceAreaNode("composed"),
+    trendLineNode("composed", state),
   ];
 
   for (let index = 0; index < seriesCount; index += 1) {
@@ -1178,6 +1198,7 @@ export function resolveLineComponents(
     gridNode("line"),
     backgroundNode("line"),
     referenceAreaNode("line"),
+    trendLineNode("line", state),
   ];
 
   appendLineSeriesComponents(

@@ -531,6 +531,7 @@ const BKLIT_MARKERS = [
   "grid.tsx",
   "reference-area.tsx",
   "projection-line.tsx",
+  "trend-line.tsx",
 ];
 const chartFiles = chartsDir
   ? safe(() => readdirSync(chartsDir).filter((f) => SCRIPT_EXT_RE.test(f)), [])

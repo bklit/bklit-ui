@@ -99,6 +99,15 @@ export interface BarChartProps {
 
 const DEFAULT_MARGIN: Margin = { top: 40, right: 40, bottom: 40, left: 40 };
 
+function isSeriesOverlayComponent(child: ReactElement): boolean {
+  const childType = child.type as { displayName?: string; name?: string };
+  const componentName =
+    typeof child.type === "function"
+      ? childType.displayName || childType.name || ""
+      : "";
+  return componentName === "TrendLine";
+}
+
 // Extract bar configs from children synchronously
 function extractBarConfigs(children: ReactNode): LineConfig[] {
   const configs: LineConfig[] = [];
@@ -119,6 +128,10 @@ function extractBarConfigs(children: ReactNode): LineConfig[] {
       typeof child.type === "function"
         ? childType.displayName || childType.name || ""
         : "";
+    // Trend overlays fit an existing series — not a bar series themselves.
+    if (componentName === "TrendLine") {
+      return;
+    }
 
     const props = child.props as BarProps | undefined;
     const isBarComponent =
@@ -553,6 +566,8 @@ const ChartCore = memo(function ChartCore({
   const clipExcludedChildren: ReactElement[] = [];
   const underlayChildren: ReactElement[] = [];
   const preOverlayChildren: ReactElement[] = [];
+  // Trend lines draw above every bar regardless of child order.
+  const seriesOverlayChildren: ReactElement[] = [];
   const postOverlayChildren: ReactElement[] = [];
 
   forEachChartChild(children, (child) => {
@@ -570,6 +585,8 @@ const ChartCore = memo(function ChartCore({
       );
     } else if (isUnderlayComponent(resolvedChild)) {
       underlayChildren.push(resolvedChild);
+    } else if (isSeriesOverlayComponent(resolvedChild)) {
+      seriesOverlayChildren.push(child);
     } else {
       preOverlayChildren.push(child);
     }
@@ -658,7 +675,10 @@ const ChartCore = memo(function ChartCore({
               innerWidth={innerWidth}
             />
           ) : (
-            renderKeyedChartLayers(preOverlayChildren)
+            <>
+              {renderKeyedChartLayers(preOverlayChildren)}
+              {renderKeyedChartLayers(seriesOverlayChildren)}
+            </>
           )}
 
           {/* Markers rendered last so they're on top for interaction */}

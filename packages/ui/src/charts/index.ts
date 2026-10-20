@@ -604,6 +604,19 @@ export {
   type TooltipIndicatorProps,
   type TooltipRow,
 } from "./tooltip";
+export {
+  TrendLine,
+  type TrendLineProps,
+  type TrendLineStrokeStyle,
+} from "./trend-line";
+export {
+  computeLinearRegression,
+  computeTrendSegment,
+  interpolateTrendSegment,
+  type LinearRegression,
+  type TrendPoint,
+  type TrendSegment,
+} from "./trend-line-utils";
 export { useAnimatedYDomains } from "./use-animated-y-domains";
 // Chart interaction hook
 export {

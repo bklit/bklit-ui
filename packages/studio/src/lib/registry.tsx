@@ -42,6 +42,7 @@ import {
   timeSeriesChartMargin,
 } from "@/components/charts/studio-chart-y-axis";
 import { StudioReferenceAreaLayer } from "@/components/charts/studio-reference-area-layer";
+import { StudioTrendLineLayer } from "@/components/charts/studio-trend-line-layer";
 import { SunburstStudioPreview } from "@/components/charts/sunburst-studio-preview";
 import { fadeEdgesPropValue } from "@/components/controls/fade-edges-picker";
 import { isBarShapeVariant } from "./bar-shape-variant";
@@ -141,6 +142,7 @@ import {
   getSeriesFadeEdges,
   getSeriesStrokeWidth,
 } from "./studio-series-line-props";
+import { HORIZONTAL_BAR_TREND_LINE_DATA_KEY } from "./studio-trend-line-props";
 import type { ChartSlug, StudioChartConfig } from "./types";
 import { chartLabels } from "./types";
 
@@ -460,6 +462,16 @@ const barConfig: StudioChartConfig = {
               </StudioVisibleLayer>
             ) : null}
             {barSeriesLayers}
+            {isLoading ? null : (
+              <StudioTrendLineLayer
+                componentId="bar.trend-line"
+                dataKey={
+                  horizontal ? HORIZONTAL_BAR_TREND_LINE_DATA_KEY : undefined
+                }
+                ignoreYAxis={horizontal}
+                state={state}
+              />
+            )}
             {!isLoading && horizontal ? (
               <StudioVisibleLayer componentId="bar.baryaxis" state={state}>
                 <BarYAxis />
@@ -591,6 +603,10 @@ const composedConfig: StudioChartConfig = {
                 ];
               }
             )}
+            <StudioTrendLineLayer
+              componentId="composed.trend-line"
+              state={state}
+            />
             <StudioChartYAxisLayers chartPrefix="composed" state={state} />
             <StudioVisibleLayer componentId="composed.xaxis" state={state}>
               <XAxis />

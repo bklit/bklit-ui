@@ -158,6 +158,15 @@ Renders grid lines.
 
 Pattern fill for the plot area when you omit `Grid`. Fades in after the series reveal on time-series charts. See the [Background utility](/docs/utility/background) for presets (`diagonal`, `dots`, `cross`, …), edge fade, and opacity — and the **Pattern Background** examples on the [line chart gallery](/charts/line-chart).
 
+### TrendLine
+
+Least-squares regression line over one series. Place it after the `Line` so it draws on top. Dashed by default; also `solid` or `gradient`, with optional `fadeEdges`. See the [Trend Line utility](/docs/utility/trend-line) and the **Trend Line** examples on the [line chart gallery](/charts/line-chart).
+
+```tsx
+<Line dataKey="value" />
+<TrendLine dataKey="value" stroke="var(--chart-1)" />
+```
+
 ### XAxis
 
 Renders x-axis labels that fade when the crosshair passes.

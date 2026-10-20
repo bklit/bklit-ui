@@ -440,6 +440,31 @@
       ]
     },
     {
+      "name": "trend-line",
+      "type": "registry:component",
+      "title": "Trend Line",
+      "description": "Linear least-squares trend line for a series on line, area, bar, and composed charts",
+      "registryDependencies": [
+        "@bklit/chart-context",
+        "@bklit/chart-series"
+      ],
+      "dependencies": [
+        "motion"
+      ],
+      "files": [
+        {
+          "path": "src/charts/trend-line.tsx",
+          "type": "registry:component",
+          "target": "components/charts/trend-line.tsx"
+        },
+        {
+          "path": "src/charts/trend-line-utils.ts",
+          "type": "registry:component",
+          "target": "components/charts/trend-line-utils.ts"
+        }
+      ]
+    },
+    {
       "name": "patterns",
       "type": "registry:component",
       "title": "Patterns",

@@ -360,6 +360,16 @@ export const STUDIO_STATE_KEY_ORDER = [
   "tooltipDotColor",
   "tooltipDotHaloScale",
   "tooltipDotHaloOpacity",
+  "trendLineSeries",
+  "trendLineStrokeStyle",
+  "trendLineDashArray",
+  "trendLineStrokeWidth",
+  "trendLineColor",
+  "trendLineGradientStart",
+  "trendLineGradientEnd",
+  "trendLineFadeEdges",
+  "trendLineFadeEdgesLength",
+  "trendLineOpacity",
 ] as const satisfies readonly (keyof StudioUrlState)[];
 
 /** Frozen historical layout (cc7bc08 — first compressed-URL release). Decode-only. */

@@ -109,6 +109,7 @@ import {
   type SunburstNode,
   SunburstSegment,
   sumValues,
+  TrendLine,
   useChart,
   XAxis,
   YAxis,
@@ -903,6 +904,71 @@ ${chartClose}`,
             patternColor="var(--chart-foreground-muted)"
             y1={y1}
             y2={y2}
+          />
+        ),
+    },
+  ];
+}
+
+function makeCartesianTrendLineExamples(options: {
+  titlePrefix: string;
+  chartOpen: string;
+  chartClose: string;
+  seriesSnippet: string;
+  chromeSnippet: string;
+  dataKey: string;
+  render: (trendLine: ReactNode) => ReactNode;
+}): ChartExample[] {
+  const {
+    titlePrefix,
+    chartOpen,
+    chartClose,
+    seriesSnippet,
+    chromeSnippet,
+    dataKey,
+    render,
+  } = options;
+
+  return [
+    {
+      title: `${titlePrefix} - Trend Line`,
+      description: "Dashed least-squares trend line drawn over the series",
+      code: `${chartOpen}
+  <Grid horizontal />
+  ${seriesSnippet}
+  <TrendLine dataKey="${dataKey}" stroke="var(--chart-1)" />
+  ${chromeSnippet}
+${chartClose}`,
+      footer:
+        "See /docs/utility/trend-line — place TrendLine after the series so it draws on top",
+      render: () =>
+        render(<TrendLine dataKey={dataKey} stroke="var(--chart-1)" />),
+    },
+    {
+      title: `${titlePrefix} - Gradient Trend Line`,
+      description: "Gradient stroke along the fit with faded ends",
+      code: `${chartOpen}
+  <Grid horizontal />
+  ${seriesSnippet}
+  <TrendLine
+    dataKey="${dataKey}"
+    strokeStyle="gradient"
+    gradientStart="var(--chart-3)"
+    gradientEnd="var(--chart-1)"
+    strokeWidth={2.5}
+    fadeEdges
+  />
+  ${chromeSnippet}
+${chartClose}`,
+      render: () =>
+        render(
+          <TrendLine
+            dataKey={dataKey}
+            fadeEdges
+            gradientEnd="var(--chart-1)"
+            gradientStart="var(--chart-3)"
+            strokeStyle="gradient"
+            strokeWidth={2.5}
           />
         ),
     },
@@ -1888,6 +1954,26 @@ function makeAreaExamples(): ChartExample[] {
         </AreaExampleChart>
       ),
     }),
+    ...makeCartesianTrendLineExamples({
+      titlePrefix: "Area Chart",
+      chartOpen:
+        "<AreaChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={chartData}>",
+      chartClose: "</AreaChart>",
+      seriesSnippet:
+        '<Area dataKey="desktop" fillOpacity={0.3} strokeWidth={2} />',
+      chromeSnippet: `<XAxis />
+  <ChartTooltip />`,
+      dataKey: "desktop",
+      render: (trendLine) => (
+        <AreaExampleChart data={areaData}>
+          <Grid horizontal />
+          <Area dataKey="desktop" fillOpacity={0.3} strokeWidth={2} />
+          {trendLine}
+          <XAxis />
+          <ChartTooltip />
+        </AreaExampleChart>
+      ),
+    }),
   ];
 }
 
@@ -2573,6 +2659,58 @@ function makeBarExamples(): ChartExample[] {
         </BarExampleChart>
       ),
     }),
+    ...makeCartesianTrendLineExamples({
+      titlePrefix: "Bar Chart",
+      chartOpen:
+        '<BarChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={chartData} xDataKey="month">',
+      chartClose: "</BarChart>",
+      seriesSnippet: '<Bar dataKey="desktop" lineCap="round" />',
+      chromeSnippet: `<BarXAxis />
+  <ChartTooltip showCrosshair={false} />`,
+      dataKey: "desktop",
+      render: (trendLine) => (
+        <BarExampleChart data={barStackedData} xDataKey="month">
+          <Grid horizontal />
+          <Bar dataKey="desktop" lineCap="round" />
+          {trendLine}
+          <BarXAxis />
+          <ChartTooltip showCrosshair={false} />
+        </BarExampleChart>
+      ),
+    }),
+    {
+      title: "Bar Chart - Horizontal Trend Line",
+      description: "Trend line through horizontal bar centers",
+      code: `<BarChart
+  data={chartData}
+  xDataKey="browser"
+  orientation="horizontal"
+  margin={{ top: 8, right: 8, bottom: 40, left: 80 }}
+  aspectRatio="4 / 3"
+>
+  <Grid horizontal={false} vertical fadeVertical />
+  <Bar dataKey="users" lineCap={4} />
+  <TrendLine dataKey="users" stroke="var(--chart-1)" />
+  <BarYAxis />
+  <ChartTooltip showCrosshair={false} />
+</BarChart>`,
+      footer: "See /docs/utility/trend-line",
+      render: () => (
+        <BarExampleChart
+          aspectRatio="4 / 3"
+          data={barHorizontalData}
+          margin={{ left: 80 }}
+          orientation="horizontal"
+          xDataKey="browser"
+        >
+          <Grid fadeVertical horizontal={false} vertical />
+          <Bar dataKey="users" lineCap={4} />
+          <TrendLine dataKey="users" stroke="var(--chart-1)" />
+          <BarYAxis />
+          <ChartTooltip showCrosshair={false} />
+        </BarExampleChart>
+      ),
+    },
   ];
 }
 
@@ -2943,6 +3081,27 @@ function makeComposedExamples(): ChartExample[] {
           {referenceArea}
           <SeriesBar dataKey="units" fill="var(--chart-3)" radius={4} />
           <Line dataKey="revenue" stroke="var(--chart-1)" />
+          <ChartTooltip showCrosshair={false} />
+          <XAxis numTicks={8} />
+        </ComposedExampleChart>
+      ),
+    }),
+    ...makeCartesianTrendLineExamples({
+      titlePrefix: "Composed Chart",
+      chartOpen:
+        '<ComposedChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={data} xDataKey="date">',
+      chartClose: "</ComposedChart>",
+      seriesSnippet: `<SeriesBar dataKey="units" fill="var(--chart-3)" radius={4} />
+  <Line dataKey="revenue" stroke="var(--chart-2)" />`,
+      chromeSnippet: `<ChartTooltip showCrosshair={false} />
+  <XAxis numTicks={8} />`,
+      dataKey: "revenue",
+      render: (trendLine) => (
+        <ComposedExampleChart data={dataCast} xDataKey="date">
+          <Grid horizontal />
+          <SeriesBar dataKey="units" fill="var(--chart-3)" radius={4} />
+          <Line dataKey="revenue" stroke="var(--chart-2)" />
+          {trendLine}
           <ChartTooltip showCrosshair={false} />
           <XAxis numTicks={8} />
         </ComposedExampleChart>
@@ -3345,6 +3504,25 @@ const autoProjectionPath = buildProjectionPath({
         <LineExampleChart data={buildLineChartDemoData()}>
           {referenceArea}
           <Line dataKey="value" strokeWidth={2} />
+          <XAxis />
+          <ChartTooltip />
+        </LineExampleChart>
+      ),
+    }),
+    ...makeCartesianTrendLineExamples({
+      titlePrefix: "Line Chart",
+      chartOpen:
+        "<LineChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={chartData}>",
+      chartClose: "</LineChart>",
+      seriesSnippet: '<Line dataKey="value" strokeWidth={2} />',
+      chromeSnippet: `<XAxis />
+  <ChartTooltip />`,
+      dataKey: "value",
+      render: (trendLine) => (
+        <LineExampleChart data={buildLineChartDemoData()}>
+          <Grid horizontal />
+          <Line dataKey="value" strokeWidth={2} />
+          {trendLine}
           <XAxis />
           <ChartTooltip />
         </LineExampleChart>

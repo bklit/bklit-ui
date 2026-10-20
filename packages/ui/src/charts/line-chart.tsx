@@ -77,6 +77,7 @@ const LINE_DOMAIN_EXCLUDED_NAMES = new Set([
   "Candlestick",
   "Bar",
   "PatternArea",
+  "TrendLine",
 ]);
 
 function getChildComponentName(child: ReactElement) {

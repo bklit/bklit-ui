@@ -36,6 +36,7 @@ private to the bklit monorepo).
 | `Background` | `@/components/charts/background` | `@bklit/background` |
 | `PatternLines`, `PatternCircles`, `PatternWaves`, `PatternHexagons`, `PatternPath`, `Pattern` | `@/components/charts/patterns` | `@bklit/patterns` |
 | `ReferenceArea` | `@/components/charts/reference-area` | `@bklit/reference-area` |
+| `TrendLine` | `@/components/charts/trend-line` | `@bklit/trend-line` |
 | `ChartMarkers` | `@/components/charts/markers` | `@bklit/markers` |
 | `Legend`, `LegendItem`, `LegendMarker`, `LegendLabel`, `LegendValue`, `LegendProgress` | `@/components/charts/legend` | `@bklit/legend` |
 | `PieChart` / `PieSlice` / `PieCenter` | `@/components/charts/pie-chart` / `pie-slice` / `pie-center` | `@bklit/pie-chart` |
@@ -112,6 +113,7 @@ returns the matching pattern node (same presets as `Background`).
 | "vertical grid fades top/bottom" | `<Grid vertical fadeVertical />` | `fadeVertical` default false. |
 | "crosshair fades", "solid crosshair" | `<ChartTooltip indicatorFadeEdges="none" />` | `"both"` (default) / `"top"` / `"bottom"` / `"none"`; `indicatorFadeLength` default 10. |
 | "reference band fades" | `<ReferenceArea fadeEdges />` | Default true, `fadeEdgesLength` 10. |
+| "trend line fades at the ends" | `<TrendLine dataKey="v" fadeEdges />` | Default **false**; `fadeEdgesLength` 15 (% of line length per end). Composes with gradient and dashed strokes. |
 
 ## Bar shapes
 
@@ -143,6 +145,7 @@ returns the matching pattern node (same presets as `Background`).
 | "bars that fade to transparent" | `<LinearGradient id="g" from="var(--chart-3)" to="transparent" />` + `<Bar fill="url(#g)" lineCap="butt" />` | Gallery "Bar Chart - No Gap". |
 | "soft/glassy area" | `<Area fillOpacity={0.5} gradientToOpacity={0.05} />` | `fillOpacity` default 0.4. |
 | "radial gradient pie slices" | `<RadialGradient id="r" from="var(--chart-1)" to="var(--chart-2)" />` + `<PieSlice fill="url(#r)" />` | Gallery uses hex colours — replace with tokens. |
+| "gradient trend line" | `<TrendLine dataKey="v" strokeStyle="gradient" gradientStart="var(--chart-1)" gradientEnd="var(--chart-5)" />` | Same defaults as `ProjectionLine`; gradient runs start → end of the fit. |
 | "gradient projection line" | `<ProjectionLine strokeStyle="gradient" gradientStart="var(--chart-1)" gradientEnd="var(--chart-5)" />` | Defaults: `gradientStart` = `stroke`, `gradientEnd="var(--chart-5)"`. |
 | "preset gradients" (`GradientPinkBlue`, `GradientTealBlue`, …) | `@visx/gradient` named gradients | Hardcoded colours — avoid in themed apps. |
 
@@ -166,6 +169,7 @@ returns the matching pattern node (same presets as `Background`).
 | "area without the outline", "no stroke" | `<Area showLine={false} />` |
 | "line only, no fill" | use `Line` in `LineChart` (or `Area fillOpacity={0}`) |
 | "forecast", "projection", "target line" | `ProjectionLine` + `buildProjectionPath` (recipe "Projection") |
+| "trend line", "line of best fit", "regression" | `<TrendLine dataKey="v" />` after the series — dashed `"6,4"` by default; `strokeStyle="solid"` for a solid fit. Line, area, bar (incl. horizontal), composed. |
 
 ## Markers & points
 

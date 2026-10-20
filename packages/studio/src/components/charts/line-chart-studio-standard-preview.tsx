@@ -22,6 +22,7 @@ import {
   timeSeriesChartMargin,
 } from "@/components/charts/studio-chart-y-axis";
 import { StudioReferenceAreaLayer } from "@/components/charts/studio-reference-area-layer";
+import { StudioTrendLineLayer } from "@/components/charts/studio-trend-line-layer";
 import { fadeEdgesPropValue } from "@/components/controls/fade-edges-picker";
 import { getStudioCssRevealPropsForPreview } from "@/lib/chart-animation";
 import { resolveCurve } from "@/lib/curves";
@@ -393,6 +394,12 @@ export function LineChartStudioStandardPreview({
                 dataLength: data.length,
                 seriesCount,
               })}
+              {isLoading ? null : (
+                <StudioTrendLineLayer
+                  componentId="line.trend-line"
+                  state={state}
+                />
+              )}
               {isLoading
                 ? null
                 : renderProjectionLayers(state, data, projectionCount)}

@@ -5,6 +5,8 @@ import type { StudioUrlState } from "./studio-parsers";
 
 export type { ChartSlug } from "@/chart-slugs";
 
+export type StrokeStyleOption = "solid" | "dashed" | "gradient";
+
 export type NumberControlPreview = "ringWidth" | "ringGap" | "ringScale";
 
 export interface StudioControlVisibilityRule {
@@ -115,7 +117,7 @@ export type StudioControl = StudioControlVisibility &
     | { type: "funnelEdges"; key: "funnelEdges"; label: string }
     | ({
         type: "fadeEdges";
-        key: "fadeEdges";
+        key: "fadeEdges" | "trendLineFadeEdges";
         label: string;
       } & SeriesScopedControl)
     | { type: "graticuleToggle"; key: "showGraticule"; label: string }
@@ -123,6 +125,8 @@ export type StudioControl = StudioControlVisibility &
         type: "strokeStyle";
         key: keyof StudioUrlState;
         label: string;
+        /** Options to offer. Default: solid + dashed. */
+        options?: readonly StrokeStyleOption[];
       }
     | {
         type: "crosshairFade";

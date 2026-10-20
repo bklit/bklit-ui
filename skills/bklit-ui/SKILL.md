@@ -7,7 +7,7 @@ description: >
   scatter, candlestick/OHLC, pie, ring/donut, radar, gauge, heatmap, funnel,
   sankey, sunburst, or choropleth/world map; a sparkline, dashboard, analytics
   page, KPI or stat card; chart tooltips, crosshairs, legends, markers,
-  reference bands, projections, axes, or grids; or when code imports from
+  reference bands, projections, trend lines, axes, or grids; or when code imports from
   components/charts/* or mentions @bklit/* or bklit.com. For styling vocabulary
   (patterns, squircle/rounded/3D bars, fades, loading looks, matching the app
   theme) also use bklit-ui-design. For moving from Recharts or shadcn
@@ -60,7 +60,7 @@ There is no barrel for component items — import each export from the file that
 | `funnel-chart` | `FunnelChart` |
 | `sunburst-chart`, `sunburst-segment`, `sunburst-center`, `sunburst` (`buildArcs`) … | sunburst parts |
 | `heatmap` · `choropleth` · `sankey` | folder `index.ts` re-exports every part |
-| `grid` · `x-axis` · `y-axis` · `background` · `reference-area` · `projection-line` | `Grid` · `XAxis` · `YAxis` · `Background` · `ReferenceArea` · `ProjectionLine` |
+| `grid` · `x-axis` · `y-axis` · `background` · `reference-area` · `projection-line` · `trend-line` | `Grid` · `XAxis` · `YAxis` · `Background` · `ReferenceArea` · `ProjectionLine` · `TrendLine` |
 | `tooltip` · `legend` · `markers` · `patterns` | folder `index.ts` (`ChartTooltip`, `Legend*`, `ChartMarkers`, `Pattern*`) |
 | `chart-context` | `chartCssVars`, `useChart`, `TooltipData` |
 
@@ -94,6 +94,7 @@ import { chartCssVars } from "@/components/charts/chart-context";
 ### Overlays → [overlays.md](./rules/overlays.md)
 - `ChartMarkers` is a **sibling** of `ChartTooltip`; marker hover content goes inside `ChartTooltip` children.
 - `ChartBrush` has **no registry item** — don't promise `@bklit/brush`.
+- `TrendLine` (`@bklit/trend-line`) fits an existing series' `dataKey`; place it after that series (line, area, bar incl. horizontal, composed).
 
 ### Animation and loading → [animation.md](./rules/animation.md), [loading.md](./rules/loading.md)
 - Default enter: **1100ms**, ease `cubic-bezier(0.85, 0, 0.15, 1)`; bars stagger across ~40% of that.
@@ -137,7 +138,7 @@ All items install with `npx shadcn@latest add @bklit/<item>`. For any `<item>`:
 
 ### Add-ons (most install automatically as dependencies)
 
-`grid`, `x-axis`, `y-axis` (not pulled in by line/area — add it for a value axis), `chart-tooltip`, `legend`, `markers`, `background`, `patterns`, `reference-area`, `projection-line`, `bar-depth` (3D/extruded bars on `BarChart`), `chart-stat-flow` (animated stat number used by pie/ring/gauge centers and stat cards). Internal plumbing items (`chart-context`, `chart-animation`, `chart-series`, `chart-utils`, `chart-parent-size`, `utils`, `shimmering-text`) come in automatically.
+`grid`, `x-axis`, `y-axis` (not pulled in by line/area — add it for a value axis), `chart-tooltip`, `legend`, `markers`, `background`, `patterns`, `reference-area`, `projection-line`, `trend-line` (least-squares trend overlay for line/area/bar/composed), `bar-depth` (3D/extruded bars on `BarChart`), `chart-stat-flow` (animated stat number used by pie/ring/gauge centers and stat cards). Internal plumbing items (`chart-context`, `chart-animation`, `chart-series`, `chart-utils`, `chart-parent-size`, `utils`, `shimmering-text`) come in automatically.
 
 **Brush:** `ChartBrush` / `ChartBrushLayout` (docs: `/docs/utility/brush`) are **not** in any registry item today. If the user needs brush zoom, say so and point to the docs/source rather than inventing an install command.
 
@@ -207,7 +208,7 @@ Install all three with `npx skills add bklit/bklit-ui`.
 - [composition.md](./rules/composition.md) — structure, data shapes, multi-series
 - [theming.md](./rules/theming.md) — tokens, `chartCssVars`, dark mode
 - [tooltips.md](./rules/tooltips.md) — `ChartTooltip` props, custom content, `useChart`
-- [overlays.md](./rules/overlays.md) — legend, markers, reference area, projection, background, brush
+- [overlays.md](./rules/overlays.md) — legend, markers, reference area, projection, trend line, background, brush
 - [animation.md](./rules/animation.md) — enter timing, replay, live charts, reduced motion
 - [loading.md](./rules/loading.md) — `status`, skeletons, loading labels
 - [installation.md](./rules/installation.md) — registry setup, file layout, dependencies

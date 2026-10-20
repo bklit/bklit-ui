@@ -89,6 +89,16 @@ See the [charts gallery](/charts/composed-chart) for stacked bars, pattern fills
 
 Use [`Background`](/docs/utility/background) instead of `Grid` for a pattern fill behind bars and lines. See **Pattern Background** examples on the [composed chart gallery](/charts/composed-chart).
 
+### Trend line
+
+Add a [`TrendLine`](/docs/utility/trend-line) per series you want to fit (bars or lines), after the series children so it draws on top. See the **Trend Line** examples on the [composed chart gallery](/charts/composed-chart).
+
+```tsx
+<SeriesBar dataKey="units" fill="var(--chart-3)" />
+<Line dataKey="revenue" stroke="var(--chart-1)" />
+<TrendLine dataKey="revenue" stroke="var(--chart-1)" />
+```
+
 ## See also
 
 - [Line Chart](/docs/components/line-chart) — lines only

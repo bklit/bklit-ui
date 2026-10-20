@@ -250,6 +250,50 @@ function ProjectionLineIllustration() {
   );
 }
 
+function TrendLineIllustration() {
+  return (
+    <ThumbCard>
+      <ThumbPanel className="flex flex-col gap-4">
+        <ThumbHeader />
+        <ThumbSvg viewBox="0 0 120 50">
+          <SoftLine
+            accent={false}
+            d="M0 40L14 30L26 36L40 24L54 30L68 18L82 24L96 10L108 18L120 8"
+          />
+          {[
+            [0, 40],
+            [26, 36],
+            [54, 30],
+            [82, 24],
+            [108, 18],
+          ].map(([cx, cy]) => (
+            <circle
+              cx={cx}
+              cy={cy}
+              fill="currentColor"
+              fillOpacity={0.4}
+              key={`pt-${cx}`}
+              r="1.5"
+            />
+          ))}
+          <line
+            className="text-primary"
+            stroke="currentColor"
+            strokeDasharray="4 3"
+            strokeLinecap="round"
+            strokeOpacity={0.88}
+            strokeWidth={1.5}
+            x1="2"
+            x2="118"
+            y1="38"
+            y2="10"
+          />
+        </ThumbSvg>
+      </ThumbPanel>
+    </ThumbCard>
+  );
+}
+
 function MarkersIllustration() {
   return (
     <ThumbCard>
@@ -487,6 +531,7 @@ export const utilityIllustrations: Record<string, () => ReactNode> = {
   "projection-line": ProjectionLineIllustration,
   "reference-area": ReferenceAreaIllustration,
   tooltip: TooltipIllustration,
+  "trend-line": TrendLineIllustration,
   "use-chart": UseChartIllustration,
   "x-axis": () => <AxisIllustration showY={false} />,
   "y-axis": () => <AxisIllustration showX={false} />,

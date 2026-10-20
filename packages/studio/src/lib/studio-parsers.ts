@@ -510,6 +510,27 @@ export const studioSearchParams = {
   gaugeLabelAlign: parseAsStringLiteral(["start", "center", "end"]).withDefault(
     "start"
   ),
+  /** Index of the series the trend line fits (clamped to the series count). */
+  trendLineSeries: parseAsInteger.withDefault(0),
+  trendLineStrokeStyle: parseAsStringLiteral([
+    "solid",
+    "gradient",
+    "dashed",
+  ] as const).withDefault("dashed"),
+  trendLineDashArray: parseAsString.withDefault("6,4"),
+  trendLineStrokeWidth: parseAsFloat.withDefault(2),
+  /** Empty = use the fitted series' colour. */
+  trendLineColor: parseAsString.withDefault(""),
+  trendLineGradientStart: parseAsString.withDefault(""),
+  trendLineGradientEnd: parseAsString.withDefault("var(--chart-5)"),
+  trendLineFadeEdges: parseAsStringLiteral([
+    "both",
+    "none",
+    "left",
+    "right",
+  ] as const).withDefault("none"),
+  trendLineFadeEdgesLength: parseAsFloat.withDefault(15),
+  trendLineOpacity: parseAsFloat.withDefault(1),
 };
 
 export interface StudioUrlState {
@@ -864,6 +885,16 @@ export interface StudioUrlState {
   gaugeShowLabel: boolean;
   gaugeLabelPlacement: "top" | "bottom";
   gaugeLabelAlign: "start" | "center" | "end";
+  trendLineSeries: number;
+  trendLineStrokeStyle: "solid" | "gradient" | "dashed";
+  trendLineDashArray: string;
+  trendLineStrokeWidth: number;
+  trendLineColor: string;
+  trendLineGradientStart: string;
+  trendLineGradientEnd: string;
+  trendLineFadeEdges: "both" | "none" | "left" | "right";
+  trendLineFadeEdgesLength: number;
+  trendLineOpacity: number;
 }
 
 /** Full default state for chart switches (nuqs used `null` to clear keys; in-memory state needs real defaults). */
@@ -1229,6 +1260,16 @@ export function defaultStudioState(
     gaugeShowLabel: true,
     gaugeLabelPlacement: "top",
     gaugeLabelAlign: "start",
+    trendLineSeries: 0,
+    trendLineStrokeStyle: "dashed",
+    trendLineDashArray: "6,4",
+    trendLineStrokeWidth: 2,
+    trendLineColor: "",
+    trendLineGradientStart: "",
+    trendLineGradientEnd: "var(--chart-5)",
+    trendLineFadeEdges: "none",
+    trendLineFadeEdgesLength: 15,
+    trendLineOpacity: 1,
     ...overrides,
   };
 }

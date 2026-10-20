@@ -89,13 +89,16 @@ function extractAreaConfigs(children: ReactNode): LineConfig[] {
     const props = child.props as AreaProps | undefined;
     const isPatternArea =
       componentName === "PatternArea" || child.type === PatternArea;
+    // Overlays that carry a dataKey but are not series of their own.
+    const isSeriesOverlay = componentName === "TrendLine";
     const isAreaComponent =
       componentName === "Area" ||
       child.type === Area ||
       (props &&
         typeof props.dataKey === "string" &&
         props.dataKey.length > 0 &&
-        !isPatternArea);
+        !isPatternArea &&
+        !isSeriesOverlay);
 
     if (isAreaComponent && props?.dataKey) {
       configs.push({

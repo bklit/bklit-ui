@@ -54,6 +54,12 @@ import {
   getSeriesShowLine,
   getSeriesStrokeWidth,
 } from "./studio-series-line-props";
+import {
+  getTrendLineDataKey,
+  getTrendLineSeriesIndex,
+  getTrendLineYAxisId,
+  HORIZONTAL_BAR_TREND_LINE_DATA_KEY,
+} from "./studio-trend-line-props";
 
 function visxCurveImportLines(
   state: StudioUrlState,
@@ -389,6 +395,62 @@ function referenceAreaCodegenImport(
   }
 }
 
+function trendLinePropsCodegen(
+  state: StudioUrlState,
+  ignoreYAxis: boolean,
+  dataKey: string | undefined
+): string {
+  const seriesIndex = getTrendLineSeriesIndex(state);
+  const style = state.trendLineStrokeStyle;
+  const parts: string[] = [
+    `dataKey="${dataKey ?? getTrendLineDataKey(state)}"`,
+    `stroke="${state.trendLineColor || SERIES_COLOR_BY_INDEX[seriesIndex]}"`,
+  ];
+  if (state.trendLineStrokeWidth !== 2) {
+    parts.push(`strokeWidth={${state.trendLineStrokeWidth}}`);
+  }
+  if (style !== "dashed") {
+    parts.push(`strokeStyle="${style}"`);
+  }
+  if (style === "dashed" && state.trendLineDashArray !== "6,4") {
+    parts.push(`strokeDasharray="${state.trendLineDashArray}"`);
+  }
+  if (style === "gradient" && state.trendLineGradientStart) {
+    parts.push(`gradientStart="${state.trendLineGradientStart}"`);
+  }
+  if (style === "gradient" && state.trendLineGradientEnd !== "var(--chart-5)") {
+    parts.push(`gradientEnd="${state.trendLineGradientEnd}"`);
+  }
+  if (state.trendLineFadeEdges !== "none") {
+    parts.push(fadeEdgesCodegen(state.trendLineFadeEdges));
+    if (state.trendLineFadeEdgesLength !== 15) {
+      parts.push(`fadeEdgesLength={${state.trendLineFadeEdgesLength}}`);
+    }
+  }
+  if (state.trendLineOpacity !== 1) {
+    parts.push(`opacity={${state.trendLineOpacity}}`);
+  }
+  if (!ignoreYAxis && getTrendLineYAxisId(state) === "right") {
+    parts.push('yAxisId="right"');
+  }
+  return parts.join(" ");
+}
+
+/** `<TrendLine />` JSX when the `<prefix>.trend-line` layer is visible. */
+export function trendLineCodegenBlock(
+  state: StudioUrlState,
+  chartPrefix: string,
+  {
+    dataKey,
+    ignoreYAxis = false,
+  }: { dataKey?: string; ignoreYAxis?: boolean } = {}
+): string {
+  if (!isStudioComponentVisible(state, `${chartPrefix}.trend-line`)) {
+    return "";
+  }
+  return `\n  <TrendLine ${trendLinePropsCodegen(state, ignoreYAxis, dataKey)} />`;
+}
+
 function loadingGridPropsCodegen(state: StudioUrlState): string {
   const props = [`loadingStroke="${state.lineLoadingGridStroke}"`];
   const useShimmer =
@@ -527,12 +589,16 @@ export function cartesianCodegen(
   const gridVisible = isStudioComponentVisible(state, `${chartPrefix}.grid`);
   const gridBlock = gridVisible ? `\n  <Grid${gridPropsCodegen(state)} />` : "";
   const referenceAreaBlock = referenceAreaCodegenBlock(state, chartPrefix);
+  const trendLineBlock = trendLineCodegenBlock(state, chartPrefix);
 
   const chartImports = [chartType, "XAxis", "ChartTooltip"];
   if (gridVisible) {
     chartImports.push("Grid");
   }
   referenceAreaCodegenImport(state, chartPrefix, chartImports);
+  if (trendLineBlock) {
+    chartImports.push("TrendLine");
+  }
   if (usesBackground) {
     chartImports.push("Background");
   }
@@ -564,7 +630,7 @@ export function cartesianCodegen(
   return `import { ${chartImports.join(", ")} } from "@bklitui/ui/charts";
 ${curveImports}
 
-<${chartType} data={chartData}${anim}>${backgroundBlock}${gridBlock}${referenceAreaBlock}${child}${projectionBlock}
+<${chartType} data={chartData}${anim}>${backgroundBlock}${gridBlock}${referenceAreaBlock}${child}${trendLineBlock}${projectionBlock}
   <XAxis />
   <ChartTooltip />
 </${chartType}>`;
@@ -745,6 +811,10 @@ function barReadyCodegen(
   const gridVisible = isStudioComponentVisible(state, "bar.grid");
   const gridBlock = gridVisible ? `\n  <Grid${gridPropsCodegen(state)} />` : "";
   const referenceAreaBlock = referenceAreaCodegenBlock(state, "bar");
+  const trendLineBlock = trendLineCodegenBlock(state, "bar", {
+    dataKey: horizontal ? HORIZONTAL_BAR_TREND_LINE_DATA_KEY : undefined,
+    ignoreYAxis: horizontal,
+  });
   const gridImport = gridVisible ? ", Grid" : "";
   const backgroundImport = backgroundBlock ? ", Background" : "";
   const referenceAreaImport = isStudioComponentVisible(
@@ -753,11 +823,12 @@ function barReadyCodegen(
   )
     ? ", ReferenceArea"
     : "";
+  const trendLineImport = trendLineBlock ? ", TrendLine" : "";
 
   return {
-    code: `import { BarChart, Bar, BarXAxis, ChartTooltip${gridImport}${backgroundImport}${referenceAreaImport}${state.pattern === "none" ? "" : ", PatternLines"} } from "@bklitui/ui/charts";
+    code: `import { BarChart, Bar, BarXAxis, ChartTooltip${gridImport}${backgroundImport}${referenceAreaImport}${trendLineImport}${state.pattern === "none" ? "" : ", PatternLines"} } from "@bklitui/ui/charts";
 
-<BarChart ${chartProps}>${backgroundBlock}${gridBlock}${referenceAreaBlock}${patternBlock}${bars}
+<BarChart ${chartProps}>${backgroundBlock}${gridBlock}${referenceAreaBlock}${patternBlock}${bars}${trendLineBlock}
   <BarXAxis />
   <ChartTooltip showCrosshair={false} />
 </BarChart>`,
@@ -789,6 +860,7 @@ export function composedCodegen(state: StudioUrlState) {
   const gridVisible = isStudioComponentVisible(state, "composed.grid");
   const gridBlock = gridVisible ? "\n  <Grid horizontal />" : "";
   const referenceAreaBlock = referenceAreaCodegenBlock(state, "composed");
+  const trendLineBlock = trendLineCodegenBlock(state, "composed");
   const gridImport = gridVisible ? ", Grid" : "";
   const backgroundImport = backgroundBlock ? ", Background" : "";
   const referenceAreaImport = isStudioComponentVisible(
@@ -797,6 +869,7 @@ export function composedCodegen(state: StudioUrlState) {
   )
     ? ", ReferenceArea"
     : "";
+  const trendLineImport = trendLineBlock ? ", TrendLine" : "";
 
   const curveImports = visxCurveImportLines(
     state,
@@ -804,11 +877,11 @@ export function composedCodegen(state: StudioUrlState) {
   );
 
   return {
-    code: `import { ComposedChart, SeriesBar, Area, Line, XAxis, ChartTooltip${gridImport}${backgroundImport}${referenceAreaImport}${state.pattern === "none" ? "" : ", PatternLines"} } from "@bklitui/ui/charts";
+    code: `import { ComposedChart, SeriesBar, Area, Line, XAxis, ChartTooltip${gridImport}${backgroundImport}${referenceAreaImport}${trendLineImport}${state.pattern === "none" ? "" : ", PatternLines"} } from "@bklitui/ui/charts";
 ${curveImports}
 
 <ComposedChart data={chartData}
-  ${cssRevealAnimationCodegen(state.animationDuration, motionSliceFromState(state))}>${backgroundBlock}${gridBlock}${referenceAreaBlock}${barPattern}${barLine}${overlays}
+  ${cssRevealAnimationCodegen(state.animationDuration, motionSliceFromState(state))}>${backgroundBlock}${gridBlock}${referenceAreaBlock}${barPattern}${barLine}${overlays}${trendLineBlock}
   <XAxis />
   <ChartTooltip />
 </ComposedChart>`,

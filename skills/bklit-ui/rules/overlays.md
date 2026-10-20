@@ -93,6 +93,22 @@ const path = buildProjectionPath({ sourceData: data, seriesKey: "value", mode: "
 
 For a dashed tail on **existing** data (incomplete period) use `Line` `dashFromIndex` instead. Projection and brush zoom are not supported together.
 
+## Trend line — `@bklit/trend-line`
+
+Linear least-squares fit of an existing series, drawn from the first to the last data row. Works inside `LineChart`, `AreaChart`, `BarChart` (vertical and `orientation="horizontal"`), and `ComposedChart`. It is an overlay, not a series — it doesn't add a bar slot or drive the y-domain. Place it **after** the series it fits so it paints on top.
+
+```tsx
+import { TrendLine } from "@/components/charts/trend-line";
+
+<BarChart data={data} xDataKey="month">
+  <Bar dataKey="revenue" />
+  <BarXAxis />
+  <TrendLine dataKey="revenue" strokeStyle="gradient" fadeEdges />
+</BarChart>
+```
+
+Defaults: `strokeStyle="dashed"` (`"solid" | "dashed" | "gradient"`), `strokeDasharray="6,4"`, `stroke` = `var(--chart-line-primary)`, `strokeWidth` 2, `gradientStart` = `stroke`, `gradientEnd` = `var(--chart-5)`, `fadeEdges` false (`true`, `"left"`, `"right"`), `fadeEdgesLength` 15 (% of line length per end), `opacity` 1, `animate` true (fades in, tweens on data change), `yAxisId` for dual scales. The fade is a mask along the line, so it composes with gradient and dashed strokes. Needs at least two numeric points; otherwise renders nothing. `computeLinearRegression` / `computeTrendSegment` from `@/components/charts/trend-line-utils` expose the fit for custom labels (slope, etc.).
+
 ## Background — `@bklit/background`
 
 Textured plot fill instead of (or with) `Grid`: `<Background pattern="diagonal" />`. Presets: `none`, `diagonal`, `horizontal`, `vertical`, `cross`, `dots`, `circles`, `accent`. Edge fades on by default (`fadeHorizontal`, `fadeVertical`). Pattern design choices → **bklit-ui-design**.
