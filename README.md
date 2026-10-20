@@ -23,6 +23,14 @@
 
 Bklit UI is supported by our sponsors. [Become a sponsor](https://github.com/sponsors/uixmat).
 
+**Premium sponsors:** [OpenPanel](https://openpanel.dev)
+
+<a href="https://openpanel.dev">
+<img alt="OpenPanel" src="https://github.com/user-attachments/assets/279ef3ca-ed28-4a75-bac7-3fb90db4954d" />
+</a>
+
+**[OpenPanel](https://openpanel.dev)** — OpenPanel is an open source analytics platform that combines web analytics and product analytics in one privacy-first tool. Track pageviews, events, funnels, retention, and user journeys — all without cookies.
+
 **Silver sponsors:** [UI Rules](https://uirules.com), [shadcn studio](https://shadcnstudio.com)
 
 ## Charts
