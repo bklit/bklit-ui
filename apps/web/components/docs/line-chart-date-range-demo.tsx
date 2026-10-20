@@ -5,11 +5,19 @@ import { ChartTooltip, Grid, Line, LineChart, XAxis } from "@bklitui/ui/charts";
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
+  RadioGroupPrimitive,
+  RadioPrimitive,
+} from "@/components/ui/radio-group";
+import {
   Tooltip,
   TooltipPopup,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  segmentedControlItemVariants,
+  segmentedControlRootClassName,
+} from "@/lib/segmented-control";
 
 const fullData = Array.from({ length: 90 }, (_, index) => {
   const date = new Date();
@@ -24,6 +32,14 @@ const fullData = Array.from({ length: 90 }, (_, index) => {
 
 type DateRange = "7d" | "30d" | "90d";
 
+const DATE_RANGES: { value: DateRange; label: string }[] = [
+  { value: "7d", label: "Last 7 days" },
+  { value: "30d", label: "Last 30 days" },
+  { value: "90d", label: "Last 90 days" },
+];
+
+const rangeItemClassName = segmentedControlItemVariants({ state: "checked" });
+
 export function LineChartDateRangeDemo() {
   const [range, setRange] = useState<DateRange>("30d");
   const [replayKey, setReplayKey] = useState(0);
@@ -37,39 +53,22 @@ export function LineChartDateRangeDemo() {
   return (
     <div className="w-full space-y-4">
       <div className="flex flex-wrap items-center gap-2">
-        <button
-          className={`rounded-md px-3 py-1.5 font-medium text-sm transition-colors ${
-            range === "7d"
-              ? "bg-foreground text-background"
-              : "bg-muted text-muted-foreground hover:bg-muted/80"
-          }`}
-          onClick={() => setRange("7d")}
-          type="button"
+        <RadioGroupPrimitive
+          aria-label="Date range"
+          className={segmentedControlRootClassName}
+          onValueChange={(value) => setRange(value as DateRange)}
+          value={range}
         >
-          Last 7 days
-        </button>
-        <button
-          className={`rounded-md px-3 py-1.5 font-medium text-sm transition-colors ${
-            range === "30d"
-              ? "bg-foreground text-background"
-              : "bg-muted text-muted-foreground hover:bg-muted/80"
-          }`}
-          onClick={() => setRange("30d")}
-          type="button"
-        >
-          Last 30 days
-        </button>
-        <button
-          className={`rounded-md px-3 py-1.5 font-medium text-sm transition-colors ${
-            range === "90d"
-              ? "bg-foreground text-background"
-              : "bg-muted text-muted-foreground hover:bg-muted/80"
-          }`}
-          onClick={() => setRange("90d")}
-          type="button"
-        >
-          Last 90 days
-        </button>
+          {DATE_RANGES.map((option) => (
+            <RadioPrimitive.Root
+              className={rangeItemClassName}
+              key={option.value}
+              value={option.value}
+            >
+              {option.label}
+            </RadioPrimitive.Root>
+          ))}
+        </RadioGroupPrimitive>
         <div className="mx-1 h-5 w-px bg-border" />
         <TooltipProvider>
           <Tooltip>
