@@ -28,6 +28,14 @@ export {
 } from "./area-chart-loading";
 // Shared chart elements
 export { Background, type BackgroundProps } from "./background";
+export {
+  Band,
+  type BandFadeEdges,
+  type BandFillType,
+  type BandProps,
+  type BandStrokeProps,
+} from "./band";
+export { type BandConfig, extractBandConfigs } from "./band-config";
 // Bar chart components
 export {
   Bar,
@@ -69,6 +77,10 @@ export {
 } from "./bar-squares-layout";
 export { BarXAxis, type BarXAxisProps } from "./bar-x-axis";
 export { BarYAxis, type BarYAxisProps } from "./bar-y-axis";
+export {
+  type BollingerBandsOptions,
+  withBollingerBands,
+} from "./bollinger";
 export { Candlestick, type CandlestickProps } from "./candlestick";
 export {
   CandlestickChart,

@@ -61,11 +61,11 @@ Root chart → `Grid` → series → axes → overlays → `ChartTooltip`; `char
 
 ### Tooltips, overlays, animation, and loading
 
-`ChartTooltip` props (`content`, `rows`, `indicatorColor`, `dotVariant`, …), legends, markers, reference areas, projection lines, backgrounds, enter-animation defaults and replay, and the `status="loading"` hand-off.
+`ChartTooltip` props (`content`, `rows`, `indicatorColor`, `dotVariant`, …), legends, markers, reference areas, projection lines, range bands, backgrounds, enter-animation defaults and replay, and the `status="loading"` hand-off.
 
 ### Catalog
 
-17 chart items — area, bar, line, live line, composed, scatter, candlestick, profit/loss line, pie, ring, radar, gauge, heatmap, funnel, sankey, sunburst, and choropleth — plus add-ons (axes, grid, tooltip, legend, markers, background, patterns, reference area, projection line, bar depth, stat flow) and stat-card blocks, each with install commands and links to [docs](/docs/components), the [charts gallery](/charts/area-chart), and [Studio](/studio).
+17 chart items — area, bar, line, live line, composed, scatter, candlestick, profit/loss line, pie, ring, radar, gauge, heatmap, funnel, sankey, sunburst, and choropleth — plus add-ons (axes, grid, tooltip, legend, markers, background, patterns, reference area, projection line, band, bar depth, stat flow) and stat-card blocks, each with install commands and links to [docs](/docs/components), the [charts gallery](/charts/area-chart), and [Studio](/studio).
 
 ## What bklit-ui-design covers
 
@@ -86,6 +86,7 @@ Plain-English requests map to exact components and props. For example:
 | "Hatched area" | `PatternLines` with `PatternArea` |
 | "Dashed last few days" / "forecast" | `dashFromIndex` / `ProjectionLine` |
 | "Target band" | `ReferenceArea` |
+| "Min/max range" / "Bollinger bands" | `Band` (+ `withBollingerBands`) |
 | "Skeleton while loading" | `status="loading"` with a `pulse` or `sweep` style |
 
 ### Recipes, taste, and theming

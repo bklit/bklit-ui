@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Band,
   ChartBrush,
   ChartBrushLayout,
   ChartTooltip,
@@ -34,6 +35,12 @@ import {
 import { getLineSeriesYAxisId } from "@/lib/line-series-y-axis";
 import type { StudioRenderContext } from "@/lib/render-context";
 import { seriesStrokePropsFromState } from "@/lib/series-stroke-props";
+import {
+  isStudioBandVisible,
+  studioBandMiddleProps,
+  studioBandProps,
+  withStudioBandData,
+} from "@/lib/studio-band";
 import { studioChartBrushProps } from "@/lib/studio-brush-props";
 import {
   studioCartesianBackgroundLayer,
@@ -141,6 +148,21 @@ function renderBrushStripLines(
       />
     );
   });
+}
+
+function renderBand(state: StudioUrlState) {
+  if (!isStudioBandVisible(state)) {
+    return null;
+  }
+  const yAxisId = getLineSeriesYAxisId(state, 0);
+  const curve = resolveCurve(getSeriesCurve(state, 0));
+  const middle = studioBandMiddleProps(state, yAxisId);
+  return (
+    <>
+      <Band curve={curve} {...studioBandProps(state, yAxisId)} />
+      {middle ? <Band curve={curve} {...middle} /> : null}
+    </>
+  );
 }
 
 function renderMainLines(
@@ -282,7 +304,7 @@ export function LineChartStudioStandardPreview({
   const isLoading = state.lineChartState === "loading";
   const seriesCount = clampStudioSeriesCount(state.dataSeries);
   const projectionCount = getProjectionCount(state);
-  const data = useMemo(
+  const baseData = useMemo(
     () =>
       projectionCount > 0
         ? generateStudioTrendingData({
@@ -303,6 +325,30 @@ export function LineChartStudioStandardPreview({
       seriesCount,
       state.dataPoints,
       state.lineDataTrend,
+    ]
+  );
+  const bandVisible = isStudioBandVisible(state);
+  const { bandMode, bandMultiplier, bandPeriod, bandSpread, bandWarmup } =
+    state;
+  const data = useMemo(
+    () =>
+      bandVisible
+        ? withStudioBandData(baseData, {
+            bandMode,
+            bandMultiplier,
+            bandPeriod,
+            bandSpread,
+            bandWarmup,
+          })
+        : baseData,
+    [
+      baseData,
+      bandVisible,
+      bandMode,
+      bandMultiplier,
+      bandPeriod,
+      bandSpread,
+      bandWarmup,
     ]
   );
   const brushXExtentMax = useMemo(
@@ -347,6 +393,7 @@ export function LineChartStudioStandardPreview({
               status="ready"
               style={{ aspectRatio: "unset", height: "100%" }}
             >
+              {renderBand(state)}
               {renderBrushStripLines(state, {
                 dataLength: data.length,
                 seriesCount,
@@ -389,6 +436,7 @@ export function LineChartStudioStandardPreview({
                 componentId="line.reference-area"
                 state={state}
               />
+              {renderBand(state)}
               {renderMainLines(state, {
                 dataLength: data.length,
                 seriesCount,

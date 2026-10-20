@@ -93,6 +93,23 @@ const path = buildProjectionPath({ sourceData: data, seriesKey: "value", mode: "
 
 For a dashed tail on **existing** data (incomplete period) use `Line` `dashFromIndex` instead. Projection and brush zoom are not supported together.
 
+## Band — `@bklit/band` (ships with `@bklit/line-chart`)
+
+Shaded range between two per-row keys (min/max, confidence interval, Bollinger) inside `LineChart`. Place it **before** the `Line`s. It reveals and morphs with the lines and extends the y-domain; the tooltip ignores it. `null` edge values become gaps.
+
+```tsx
+<LineChart data={data}> {/* rows: { date, value, valueUpper, valueLower } */}
+  <Grid horizontal />
+  <Band upperKey="valueUpper" lowerKey="valueLower" />
+  <Line dataKey="value" />
+  <XAxis />
+</LineChart>
+```
+
+Props: `fill` (default `var(--chart-line-primary)`), `fillType` (`"solid" | "gradient" | "pattern"`), `fillOpacity` (0.15), `gradientToOpacity`, `pattern`, `stroke`, `strokeWidth`, `strokeDasharray`, `strokeOpacity`, `upperStroke` / `lowerStroke` (override object or `false` to hide), `fadeEdges` (`true | "left" | "right" | { top, right, bottom, left }`), `fadeSize`, `curve`, `yAxisId`.
+
+Bollinger: `withBollingerBands(data, { dataKey: "price", period: 20, multiplier: 2 })` (from `@/components/charts/bollinger`) adds `priceUpper` / `priceLower` / `priceSma` (`null` during warm-up; pass `minPeriods: 1` to start at the first row with a partial window). Draw the SMA as a zero-height `<Band upperKey="priceSma" lowerKey="priceSma" fillOpacity={0} strokeDasharray="4,4" lowerStroke={false} />` — `Line` does not skip `null`s.
+
 ## Background — `@bklit/background`
 
 Textured plot fill instead of (or with) `Grid`: `<Background pattern="diagonal" />`. Presets: `none`, `diagonal`, `horizontal`, `vertical`, `cross`, `dots`, `circles`, `accent`. Edge fades on by default (`fadeHorizontal`, `fadeVertical`). Pattern design choices → **bklit-ui-design**.

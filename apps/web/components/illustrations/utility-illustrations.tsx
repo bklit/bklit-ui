@@ -201,6 +201,36 @@ function ReferenceAreaIllustration() {
   );
 }
 
+function BandIllustration() {
+  return (
+    <ThumbCard>
+      <ThumbPanel className="flex flex-col gap-4">
+        <ThumbHeader />
+        <ThumbSvg viewBox="0 0 104 50">
+          <path
+            d="M0 30C10 26 18 14 28 16S44 22 54 12S74 0 84 4S98 14 104 8L104 26C98 32 90 22 84 22S66 30 54 32S38 34 28 34S10 46 0 46Z"
+            fill="currentColor"
+            fillOpacity={0.1}
+          />
+          {[
+            "M0 30C10 26 18 14 28 16S44 22 54 12S74 0 84 4S98 14 104 8",
+            "M0 46C10 46 18 34 28 34S44 34 54 32S78 22 84 22S98 32 104 26",
+          ].map((d) => (
+            <path
+              d={d}
+              key={d}
+              stroke="currentColor"
+              strokeDasharray="2 2"
+              strokeOpacity={0.4}
+            />
+          ))}
+          <SoftLine d="M0 38C10 36 18 24 28 25S44 28 54 22S74 11 84 13S98 20 104 17" />
+        </ThumbSvg>
+      </ThumbPanel>
+    </ThumbCard>
+  );
+}
+
 function ProjectionLineIllustration() {
   return (
     <ThumbCard>
@@ -479,6 +509,7 @@ function CustomIndicatorIllustration() {
 export const utilityIllustrations: Record<string, () => ReactNode> = {
   axis: () => <AxisIllustration />,
   background: BackgroundIllustration,
+  band: BandIllustration,
   brush: BrushIllustration,
   "custom-indicator": CustomIndicatorIllustration,
   grid: GridIllustration,

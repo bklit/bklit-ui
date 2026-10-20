@@ -35,6 +35,7 @@ import {
 import {
   areaChartControlGroups,
   areaSeriesLineControlGroups,
+  bandControlGroups,
   barChartControlGroups,
   barChartTooltipControlGroups,
   candlestickChartControlGroups,
@@ -222,6 +223,16 @@ function referenceAreaNode(chartPrefix: string): StudioComponentDefinition {
     parentId: `${chartPrefix}.chart`,
     kind: "chart",
     controlGroups: referenceAreaControlGroups,
+  };
+}
+
+function bandNode(chartPrefix: string): StudioComponentDefinition {
+  return {
+    id: `${chartPrefix}.band`,
+    label: "Band",
+    parentId: `${chartPrefix}.chart`,
+    kind: "geometry",
+    controlGroups: bandControlGroups,
   };
 }
 
@@ -1178,6 +1189,7 @@ export function resolveLineComponents(
     gridNode("line"),
     backgroundNode("line"),
     referenceAreaNode("line"),
+    bandNode("line"),
   ];
 
   appendLineSeriesComponents(

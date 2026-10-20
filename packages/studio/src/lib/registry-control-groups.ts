@@ -298,6 +298,192 @@ export const referenceAreaControlGroups: StudioControlGroup[] = [
   ]),
 ];
 
+const bandBollinger = { key: "bandMode", equals: "bollinger" } as const;
+
+/** Line chart `<Band>` layer (`line.band`). */
+export const bandControlGroups: StudioControlGroup[] = [
+  controlGroup("Source", [
+    {
+      type: "select",
+      key: "bandMode",
+      label: "Mode",
+      options: [
+        { value: "range", label: "Range (upper / lower)" },
+        { value: "bollinger", label: "Bollinger bands" },
+      ],
+    },
+    {
+      type: "number",
+      key: "bandSpread",
+      label: "Spread",
+      min: 0,
+      max: 0.5,
+      step: 0.01,
+      format: { style: "percent" },
+      visibleWhen: { key: "bandMode", equals: "range" },
+    },
+    {
+      type: "number",
+      key: "bandPeriod",
+      label: "Period",
+      min: 2,
+      max: 30,
+      step: 1,
+      visibleWhen: bandBollinger,
+    },
+    {
+      type: "number",
+      key: "bandMultiplier",
+      label: "Std. dev.",
+      min: 0.5,
+      max: 4,
+      step: 0.25,
+      visibleWhen: bandBollinger,
+    },
+    {
+      type: "select",
+      key: "bandWarmup",
+      label: "Warm-up",
+      options: [
+        { value: "gap", label: "Gap until window fills" },
+        { value: "partial", label: "Partial window" },
+      ],
+      visibleWhen: bandBollinger,
+    },
+    {
+      type: "boolean",
+      key: "bandShowMiddle",
+      label: "Show SMA",
+      visibleWhen: bandBollinger,
+    },
+  ]),
+  controlGroup("Fill", [
+    {
+      type: "select",
+      key: "bandFillType",
+      label: "Type",
+      options: [
+        { value: "solid", label: "Solid" },
+        { value: "gradient", label: "Gradient" },
+        { value: "pattern", label: "Pattern" },
+      ],
+    },
+    { type: "color", key: "bandFill", label: "Color" },
+    {
+      type: "opacity",
+      key: "bandFillOpacity",
+      label: "Opacity",
+      min: 0,
+      max: 1,
+      step: 0.05,
+      color: "var(--chart-1)",
+    },
+    {
+      type: "opacity",
+      key: "bandGradientToOpacity",
+      label: "Gradient to",
+      min: 0,
+      max: 1,
+      step: 0.05,
+      color: "var(--chart-1)",
+      visibleWhen: { key: "bandFillType", equals: "gradient" },
+    },
+    {
+      type: "pattern",
+      key: "bandPattern",
+      label: "Pattern",
+      visibleWhen: { key: "bandFillType", equals: "pattern" },
+    },
+    {
+      type: "color",
+      key: "bandPatternColor",
+      label: "Pattern color",
+      visibleWhen: { key: "bandFillType", equals: "pattern" },
+    },
+    {
+      type: "number",
+      key: "bandPatternScale",
+      label: "Pattern scale",
+      min: 0.25,
+      max: 4,
+      step: 0.25,
+      visibleWhen: { key: "bandFillType", equals: "pattern" },
+    },
+    {
+      type: "number",
+      key: "bandPatternStrokeWidth",
+      label: "Pattern stroke",
+      min: 0.5,
+      max: 4,
+      step: 0.5,
+      visibleWhen: { key: "bandFillType", equals: "pattern" },
+    },
+    {
+      type: "opacity",
+      key: "bandPatternOpacity",
+      label: "Pattern opacity",
+      min: 0,
+      max: 1,
+      step: 0.05,
+      color: "var(--chart-1)",
+      visibleWhen: { key: "bandFillType", equals: "pattern" },
+    },
+  ]),
+  controlGroup("Stroke", [
+    { type: "boolean", key: "bandShowUpperStroke", label: "Upper edge" },
+    { type: "boolean", key: "bandShowLowerStroke", label: "Lower edge" },
+    { type: "color", key: "bandStroke", label: "Color" },
+    {
+      type: "number",
+      key: "bandStrokeWidth",
+      label: "Width",
+      min: 0.5,
+      max: 4,
+      step: 0.5,
+    },
+    {
+      type: "select",
+      key: "bandStrokeStyle",
+      label: "Style",
+      options: [
+        { value: "solid", label: "Solid" },
+        { value: "dashed", label: "Dashed" },
+        { value: "dotted", label: "Dotted" },
+      ],
+    },
+    {
+      type: "text",
+      key: "bandStrokeDasharray",
+      label: "Dash array",
+      visibleWhen: { key: "bandStrokeStyle", equals: "dashed" },
+    },
+    {
+      type: "opacity",
+      key: "bandStrokeOpacity",
+      label: "Opacity",
+      min: 0,
+      max: 1,
+      step: 0.05,
+      color: "var(--chart-1)",
+    },
+  ]),
+  controlGroup("Fade edges", [
+    { type: "boolean", key: "bandFadeTop", label: "Top" },
+    { type: "boolean", key: "bandFadeRight", label: "Right" },
+    { type: "boolean", key: "bandFadeBottom", label: "Bottom" },
+    { type: "boolean", key: "bandFadeLeft", label: "Left" },
+    {
+      type: "number",
+      key: "bandFadeSize",
+      label: "Size",
+      min: 0.05,
+      max: 0.5,
+      step: 0.01,
+      format: { style: "percent" },
+    },
+  ]),
+];
+
 export const seriesMarkersControlGroup = controlGroup("Markers", [
   { type: "boolean", key: "seriesShowMarkers", label: "Show" },
   {

@@ -20,6 +20,7 @@ import {
   DEFAULT_ANIMATION_EASING,
   DEFAULT_CHART_ENTER_TRANSITION,
 } from "./animation";
+import { bandKeysByAxis, extractBandConfigs } from "./band-config";
 import {
   isClipExcludedComponent,
   isPostOverlayComponent,
@@ -296,6 +297,17 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
     [children]
   );
 
+  // `<Band>` edges extend the y-domain and survive decimation, but are not
+  // series: they never enter `lines` (tooltip rows / hover dots). Keyed by a
+  // string signature so new `children` identities don't redo decimation.
+  const bandKeysSignature = JSON.stringify(
+    bandKeysByAxis(extractBandConfigs(children))
+  );
+  const bandKeysByAxisId = useMemo(
+    () => JSON.parse(bandKeysSignature) as Record<string, string[]>,
+    [bandKeysSignature]
+  );
+
   const xScale = useMemo(() => {
     const minTime = xDomain
       ? xDomain[0].getTime()
@@ -322,12 +334,19 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
 
   const renderData = useMemo(() => {
     const valueKeys = lines.map((line) => line.dataKey);
+    for (const keys of Object.values(bandKeysByAxisId)) {
+      for (const key of keys) {
+        if (!valueKeys.includes(key)) {
+          valueKeys.push(key);
+        }
+      }
+    }
     return decimateTimeSeries(
       seriesSourceData,
       maxRenderPointsForWidth(innerWidth),
       valueKeys
     );
-  }, [seriesSourceData, innerWidth, lines]);
+  }, [seriesSourceData, innerWidth, lines, bandKeysByAxisId]);
 
   const columnWidth = useMemo(() => {
     const slotCount =
@@ -351,6 +370,7 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
 
   const yDomainTargetByAxis = useMemo(() => {
     const base = computeYDomainsByAxis({
+      extraKeysByAxis: bandKeysByAxisId,
       lines,
       resolveDomain: (dataKeys) =>
         resolveYDomain(xDomain ? visiblePlotData : data, dataKeys),
@@ -377,6 +397,7 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
     }
     return merged;
   }, [
+    bandKeysByAxisId,
     data,
     lines,
     projectionConfigs,

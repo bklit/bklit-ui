@@ -22,6 +22,8 @@ private to the bklit monorepo).
 | `ProjectionLine` | `@/components/charts/projection-line` | `@bklit/line-chart` (also `@bklit/projection-line`) |
 | `buildProjectionPath` | `@/components/charts/projection-utils` | `@bklit/line-chart` |
 | `LineSeriesTerminalMarker` | `@/components/charts/line-series-terminal-marker` | `@bklit/line-chart` |
+| `Band` | `@/components/charts/band` | `@bklit/line-chart` (also `@bklit/band`) |
+| `withBollingerBands` | `@/components/charts/bollinger` | `@bklit/line-chart` (also `@bklit/band`) |
 | `BarChart` | `@/components/charts/bar-chart` | `@bklit/bar-chart` |
 | `Bar` | `@/components/charts/bar` | `@bklit/bar-chart` |
 | `BarXAxis` / `BarYAxis` | `@/components/charts/bar-x-axis` / `bar-y-axis` | `@bklit/bar-chart` |
@@ -49,7 +51,7 @@ private to the bklit monorepo).
 — add it when a pie needs `PatternLines`.
 
 Docs: `https://bklit.com/docs/components/<slug>` and
-`https://bklit.com/docs/utility/<background|grid|tooltip|legend|reference-area|projection-line>`.
+`https://bklit.com/docs/utility/<background|grid|tooltip|legend|reference-area|projection-line|band>`.
 Gallery: `https://bklit.com/charts/<slug>`. Studio: `https://bklit.com/studio?chart=<slug>`.
 
 ---
@@ -245,6 +247,8 @@ returns the matching pattern node (same presets as `Background`).
 | "target range", "goal band", "normal range" | `<ReferenceArea y1={160} y2={220} strokeStyle="dashed" showMarkers />` | Defaults: `strokeStyle="dashed"`, `fadeEdges` true, `pattern="none"`. |
 | "hatched target band" | `<ReferenceArea y1 y2 pattern="diagonal" patternColor="var(--chart-foreground-muted)" axisLabelColor="var(--chart-1)" fillOpacity={0.85} />` | Gallery "Pattern Reference Band". |
 | "highlight a time window" | `<ReferenceArea x1={startDate} x2={endDate} />` | |
+| "min/max range", "confidence band", "range around the line" | `<Band upperKey="valueUpper" lowerKey="valueLower" />` before the `<Line>` | Per-row edges (not fixed Y). Defaults: `fillOpacity` 0.15, solid edges at the band color. `fillType="gradient"` / `"pattern"`. |
+| "Bollinger bands" | `withBollingerBands(data, { dataKey: "price" })` → `<Band upperKey="priceUpper" lowerKey="priceLower" />` | Defaults: `period` 20, `multiplier` 2. Dashed SMA = zero-height `Band` on `priceSma` with `lowerStroke={false}`. |
 
 ## Pie, donut, ring
 

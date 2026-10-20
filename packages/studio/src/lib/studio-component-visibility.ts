@@ -28,14 +28,24 @@ export function chartDefaultHiddenYAxes(chartPrefix: string): string {
   ]);
 }
 
-/** Default hidden layers for a cartesian chart (axes, reference area, legend, brush). */
+/** Line chart `<Band>` layer — hidden until enabled (synced with `bandEnabled`). */
+export const LINE_BAND_COMPONENT_ID = "line.band";
+
+/** Default hidden layers for a cartesian chart (axes, reference area, legend, brush, band). */
 export function chartDefaultHiddenComponents(
   chartPrefix: string,
-  options: { showLegend?: boolean; showBrush?: boolean } = {}
+  options: {
+    showLegend?: boolean;
+    showBrush?: boolean;
+    showBand?: boolean;
+  } = {}
 ): string {
   const hidden = new Set(
     parseHiddenStudioComponents(chartDefaultHiddenYAxes(chartPrefix))
   );
+  if (chartPrefix === "line" && options.showBand !== true) {
+    hidden.add(LINE_BAND_COMPONENT_ID);
+  }
   if (options.showLegend === false) {
     hidden.add(`${chartPrefix}.legend`);
   }

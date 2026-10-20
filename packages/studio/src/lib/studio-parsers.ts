@@ -399,6 +399,42 @@ export const studioSearchParams = {
   tooltipDotColor: parseAsString.withDefault(""),
   tooltipDotHaloScale: parseAsFloat.withDefault(2.6),
   tooltipDotHaloOpacity: parseAsFloat.withDefault(0.3),
+  bandEnabled: parseAsBoolean.withDefault(false),
+  bandMode: parseAsStringLiteral(["range", "bollinger"]).withDefault("range"),
+  bandSpread: parseAsFloat.withDefault(0.15),
+  bandPeriod: parseAsInteger.withDefault(5),
+  bandMultiplier: parseAsFloat.withDefault(2),
+  bandWarmup: parseAsStringLiteral(["gap", "partial"]).withDefault("gap"),
+  bandShowMiddle: parseAsBoolean.withDefault(false),
+  bandFillType: parseAsStringLiteral([
+    "solid",
+    "gradient",
+    "pattern",
+  ]).withDefault("solid"),
+  bandFill: parseAsString.withDefault("var(--chart-1)"),
+  bandFillOpacity: parseAsFloat.withDefault(0.15),
+  bandGradientToOpacity: parseAsFloat.withDefault(0),
+  bandPattern: parseAsStringLiteral(PATTERN_PRESET_IDS).withDefault("diagonal"),
+  bandPatternColor: parseAsString.withDefault("var(--chart-1)"),
+  bandPatternScale: parseAsFloat.withDefault(1),
+  bandPatternStrokeWidth: parseAsFloat.withDefault(1),
+  bandPatternOpacity: parseAsFloat.withDefault(0.5),
+  bandStroke: parseAsString.withDefault("var(--chart-1)"),
+  bandStrokeWidth: parseAsFloat.withDefault(1),
+  bandStrokeStyle: parseAsStringLiteral([
+    "solid",
+    "dashed",
+    "dotted",
+  ]).withDefault("solid"),
+  bandStrokeDasharray: parseAsString.withDefault("4,4"),
+  bandStrokeOpacity: parseAsFloat.withDefault(0.5),
+  bandShowUpperStroke: parseAsBoolean.withDefault(true),
+  bandShowLowerStroke: parseAsBoolean.withDefault(true),
+  bandFadeTop: parseAsBoolean.withDefault(false),
+  bandFadeRight: parseAsBoolean.withDefault(false),
+  bandFadeBottom: parseAsBoolean.withDefault(false),
+  bandFadeLeft: parseAsBoolean.withDefault(false),
+  bandFadeSize: parseAsFloat.withDefault(0.15),
   showTooltipDatePill: parseAsBoolean.withDefault(true),
   showCrosshair: parseAsBoolean.withDefault(true),
   crosshairFollowsValue: parseAsBoolean.withDefault(true),
@@ -789,6 +825,35 @@ export interface StudioUrlState {
   tooltipDotColor: string;
   tooltipDotHaloScale: number;
   tooltipDotHaloOpacity: number;
+  bandEnabled: boolean;
+  bandMode: "range" | "bollinger";
+  bandSpread: number;
+  bandPeriod: number;
+  bandMultiplier: number;
+  /** Bollinger warm-up: `gap` (minPeriods = period) or `partial` (minPeriods = 1). */
+  bandWarmup: "gap" | "partial";
+  bandShowMiddle: boolean;
+  bandFillType: "solid" | "gradient" | "pattern";
+  bandFill: string;
+  bandFillOpacity: number;
+  bandGradientToOpacity: number;
+  bandPattern: PatternPresetId;
+  bandPatternColor: string;
+  bandPatternScale: number;
+  bandPatternStrokeWidth: number;
+  bandPatternOpacity: number;
+  bandStroke: string;
+  bandStrokeWidth: number;
+  bandStrokeStyle: "solid" | "dashed" | "dotted";
+  bandStrokeDasharray: string;
+  bandStrokeOpacity: number;
+  bandShowUpperStroke: boolean;
+  bandShowLowerStroke: boolean;
+  bandFadeTop: boolean;
+  bandFadeRight: boolean;
+  bandFadeBottom: boolean;
+  bandFadeLeft: boolean;
+  bandFadeSize: number;
   showTooltipDatePill: boolean;
   showCrosshair: boolean;
   crosshairFollowsValue: boolean;
@@ -1154,6 +1219,34 @@ export function defaultStudioState(
     tooltipDotColor: "",
     tooltipDotHaloScale: 2.6,
     tooltipDotHaloOpacity: 0.3,
+    bandEnabled: false,
+    bandMode: "range",
+    bandSpread: 0.15,
+    bandPeriod: 5,
+    bandMultiplier: 2,
+    bandWarmup: "gap",
+    bandShowMiddle: false,
+    bandFillType: "solid",
+    bandFill: "var(--chart-1)",
+    bandFillOpacity: 0.15,
+    bandGradientToOpacity: 0,
+    bandPattern: "diagonal",
+    bandPatternColor: "var(--chart-1)",
+    bandPatternScale: 1,
+    bandPatternStrokeWidth: 1,
+    bandPatternOpacity: 0.5,
+    bandStroke: "var(--chart-1)",
+    bandStrokeWidth: 1,
+    bandStrokeStyle: "solid",
+    bandStrokeDasharray: "4,4",
+    bandStrokeOpacity: 0.5,
+    bandShowUpperStroke: true,
+    bandShowLowerStroke: true,
+    bandFadeTop: false,
+    bandFadeRight: false,
+    bandFadeBottom: false,
+    bandFadeLeft: false,
+    bandFadeSize: 0.15,
     showTooltipDatePill: true,
     showCrosshair: true,
     crosshairFollowsValue: true,

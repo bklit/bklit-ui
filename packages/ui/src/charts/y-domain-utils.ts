@@ -77,16 +77,36 @@ export function resolveAnimatedYDestinationDomains(
 export function computeYDomainsByAxis({
   lines,
   resolveDomain,
+  extraKeysByAxis,
 }: {
   lines: LineConfig[];
   resolveDomain: (dataKeys: string[]) => YDomain;
+  /**
+   * Additional value keys per axis that extend the domain without being
+   * series (e.g. `<Band>` upper/lower keys). Axes with only extra keys still
+   * get a domain.
+   */
+  extraKeysByAxis?: Record<string, string[]>;
 }): Record<string, YDomain> {
-  const groups = groupLinesByYAxisId(lines);
-  const domains: Record<string, YDomain> = {};
+  const keysByAxis = new Map<string, string[]>();
+  for (const [axisId, axisLines] of groupLinesByYAxisId(lines)) {
+    keysByAxis.set(
+      normalizeYAxisId(axisId),
+      axisLines.map((line) => line.dataKey)
+    );
+  }
+  for (const [axisId, extraKeys] of Object.entries(extraKeysByAxis ?? {})) {
+    const id = normalizeYAxisId(axisId);
+    const keys = keysByAxis.get(id) ?? [];
+    keysByAxis.set(id, [
+      ...keys,
+      ...extraKeys.filter((key) => !keys.includes(key)),
+    ]);
+  }
 
-  for (const [axisId, axisLines] of groups) {
-    const dataKeys = axisLines.map((line) => line.dataKey);
-    domains[normalizeYAxisId(axisId)] = niceYDomain(resolveDomain(dataKeys));
+  const domains: Record<string, YDomain> = {};
+  for (const [axisId, dataKeys] of keysByAxis) {
+    domains[axisId] = niceYDomain(resolveDomain(dataKeys));
   }
 
   if (!domains.left) {
