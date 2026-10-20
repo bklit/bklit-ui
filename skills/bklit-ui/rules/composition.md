@@ -32,7 +32,7 @@ import { XAxis } from "@/components/charts/x-axis";
 
 ## Child order
 
-`Grid` or `Background` → series → axes → overlays (`ReferenceArea`, `ProjectionLine`, `ChartMarkers`) → `ChartTooltip`. Grid first so series paint above it.
+`Grid` or `Background` → series → axes → overlays (`ReferenceArea`, `ProjectionLine`, `TrendLine`, `ChartMarkers`) → `ChartTooltip`. Grid first so series paint above it.
 
 ## Which pieces go with which root
 

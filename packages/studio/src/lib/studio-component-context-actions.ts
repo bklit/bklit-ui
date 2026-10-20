@@ -1,6 +1,7 @@
 import {
   parseHiddenStudioComponents,
   serializeHiddenStudioComponents,
+  setStudioComponentHidden,
 } from "@/lib/studio-component-visibility";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import {
@@ -169,7 +170,7 @@ export function buildHideComponentUpdate(
   componentId: string
 ): Partial<StudioUrlState> {
   const hidden = parseHiddenStudioComponents(state.hiddenComponents);
-  hidden.add(componentId);
+  setStudioComponentHidden(hidden, componentId, true);
   return {
     hiddenComponents: serializeHiddenStudioComponents(hidden),
   };

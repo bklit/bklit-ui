@@ -164,6 +164,15 @@ Renders grid lines.
 
 Pattern fill for the plot area when you omit `Grid`. See the [Background utility](/docs/utility/background) and **Pattern Background** examples on the [area chart gallery](/charts/area-chart).
 
+### TrendLine
+
+Least-squares regression line over one series. Place it after the `Area` so it draws on top. See the [Trend Line utility](/docs/utility/trend-line) for stroke styles and edge fade, and the **Trend Line** examples on the [area chart gallery](/charts/area-chart).
+
+```tsx
+<Area dataKey="desktop" />
+<TrendLine dataKey="desktop" fadeEdges />
+```
+
 ### YAxis
 
 Value labels on the left or right. See [Y Axis](/docs/utility/axis/y-axis) for `yAxisId`, `orientation`, and biaxial usage.

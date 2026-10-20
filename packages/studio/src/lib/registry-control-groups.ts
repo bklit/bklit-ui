@@ -257,6 +257,78 @@ export const barReferenceAreaBoundsControlGroup = barCollapsibleGroup(
   referenceAreaBoundsControls
 );
 
+/** Trend line layer controls; `seriesOptions` lists the chart's fittable series. */
+export function trendLineControlGroups(
+  seriesOptions: { value: string; label: string }[]
+): StudioControlGroup[] {
+  return [
+    controlGroup("Series", [
+      {
+        type: "select",
+        key: "trendLineSeries",
+        label: "Fit series",
+        options: seriesOptions,
+      },
+    ]),
+    controlGroup("Stroke", [
+      {
+        type: "strokeStyle",
+        key: "trendLineStrokeStyle",
+        label: "Style",
+        options: ["solid", "dashed", "gradient"],
+      },
+      {
+        type: "text",
+        key: "trendLineDashArray",
+        label: "Dash array",
+        visibleWhen: { key: "trendLineStrokeStyle", equals: "dashed" },
+      },
+      {
+        type: "color",
+        key: "trendLineGradientStart",
+        label: "Gradient start",
+        visibleWhen: { key: "trendLineStrokeStyle", equals: "gradient" },
+      },
+      {
+        type: "color",
+        key: "trendLineGradientEnd",
+        label: "Gradient end",
+        visibleWhen: { key: "trendLineStrokeStyle", equals: "gradient" },
+      },
+      { type: "color", key: "trendLineColor", label: "Color" },
+      {
+        type: "number",
+        key: "trendLineStrokeWidth",
+        label: "Width",
+        min: 1,
+        max: 6,
+        step: 0.5,
+      },
+      {
+        type: "number",
+        key: "trendLineOpacity",
+        label: "Opacity",
+        min: 0,
+        max: 1,
+        step: 0.05,
+      },
+    ]),
+    controlGroup("Edges", [
+      { type: "fadeEdges", key: "trendLineFadeEdges", label: "Fade edges" },
+      {
+        type: "number",
+        key: "trendLineFadeEdgesLength",
+        label: "Fade length",
+        min: 0,
+        max: 45,
+        step: 1,
+        unit: "%",
+        visibleWhen: { key: "trendLineFadeEdges", not: "none" },
+      },
+    ]),
+  ];
+}
+
 export const referenceAreaControlGroups: StudioControlGroup[] = [
   controlGroup("Bounds", referenceAreaBoundsControls),
   controlGroup("Fill", [

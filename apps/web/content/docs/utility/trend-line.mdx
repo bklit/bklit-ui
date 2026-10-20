@@ -1,0 +1,202 @@
+---
+title: Trend Line
+description: Least-squares regression line over a series on line, area, bar, and composed charts — dashed, solid, or gradient stroke with optional edge fade
+---
+
+import {
+  TrendLineAreaDemo,
+  TrendLineBarDemo,
+  TrendLineComposedDemo,
+  TrendLineDashedDemo,
+  TrendLineDemo,
+  TrendLineFadeEdgesDemo,
+  TrendLineGradientDemo,
+  TrendLineHorizontalBarDemo,
+  TrendLineSolidDemo,
+} from "@/components/docs/trend-line-demo";
+
+<ComponentPreview registryName="trend-line">
+  <TrendLineDemo />
+</ComponentPreview>
+
+## Installation
+
+<InstallationTabs name="trend-line" dependencies={["motion"]} />
+
+## Usage
+
+`TrendLine` fits a straight line through one series (`dataKey`) using linear least squares and draws it across the full data range. Place it as a child of `LineChart`, `AreaChart`, `BarChart` (vertical or horizontal), or `ComposedChart` — **after** the series so it draws on top.
+
+```tsx
+import { LineChart, Line, Grid, TrendLine, ChartTooltip, XAxis } from "@bklitui/ui/charts";
+
+<LineChart data={data}>
+  <Grid horizontal />
+  <Line dataKey="value" />
+  <TrendLine dataKey="value" />
+  <XAxis />
+  <ChartTooltip />
+</LineChart>
+```
+
+On time-series charts the fit uses the date as x. On `BarChart` it uses the category index, so the line runs through bar centers (and along the value axis when `orientation="horizontal"`). Non-numeric values are skipped. The line fades in with the chart reveal (after bars land) and tweens to the new fit when data changes.
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `dataKey` | `string` | — | Series key to fit (required) |
+| `stroke` | `string` | `var(--chart-line-primary)` | Stroke color |
+| `strokeWidth` | `number` | `2` | Stroke width |
+| `strokeStyle` | `"solid" \| "dashed" \| "gradient"` | `"dashed"` | Stroke style |
+| `strokeDasharray` | `string` | `"6,4"` | Dash pattern when `strokeStyle` is `"dashed"` |
+| `gradientStart` | `string` | `stroke` | Gradient start color when `strokeStyle` is `"gradient"` |
+| `gradientEnd` | `string` | `var(--chart-5)` | Gradient end color when `strokeStyle` is `"gradient"` |
+| `fadeEdges` | `boolean \| "left" \| "right"` | `false` | Fade the line ends to transparent |
+| `fadeEdgesLength` | `number` | `15` | Fade zone as % of line length per faded end (0–50) |
+| `opacity` | `number` | `1` | Line opacity |
+| `yAxisId` | `string` | `"left"` | Y-scale group id (biaxial charts) |
+| `animate` | `boolean` | `true` | Fade in on reveal and tween on data change |
+| `className` | `string` | `"chart-trend-line"` | Class on the wrapping `<g>` |
+
+## Examples
+
+### Dashed (default)
+
+<ComponentShowcase code={`<LineChart data={data}>
+  <Grid horizontal />
+  <Line dataKey="value" strokeWidth={2} />
+  <TrendLine dataKey="value" stroke="var(--chart-1)" />
+  <XAxis />
+  <ChartTooltip />
+</LineChart>`}>
+  <TrendLineDashedDemo />
+</ComponentShowcase>
+
+### Solid
+
+<ComponentShowcase code={`<LineChart data={data}>
+  <Grid horizontal />
+  <Line dataKey="value" strokeWidth={2} />
+  <TrendLine
+    dataKey="value"
+    strokeStyle="solid"
+    stroke="var(--chart-1)"
+    opacity={0.8}
+  />
+  <XAxis />
+  <ChartTooltip />
+</LineChart>`}>
+  <TrendLineSolidDemo />
+</ComponentShowcase>
+
+### Gradient
+
+The gradient runs along the line from `gradientStart` to `gradientEnd`.
+
+<ComponentShowcase code={`<LineChart data={data}>
+  <Grid horizontal />
+  <Line dataKey="value" strokeWidth={2} />
+  <TrendLine
+    dataKey="value"
+    strokeStyle="gradient"
+    gradientStart="var(--chart-3)"
+    gradientEnd="var(--chart-1)"
+    strokeWidth={2.5}
+  />
+  <XAxis />
+  <ChartTooltip />
+</LineChart>`}>
+  <TrendLineGradientDemo />
+</ComponentShowcase>
+
+### Fade edges
+
+Fade one or both ends with `fadeEdges` (`true`, `"left"`, or `"right"`). The fade follows the line direction and composes with dashed and gradient strokes.
+
+<ComponentShowcase code={`<LineChart data={data}>
+  <Grid horizontal />
+  <Line dataKey="value" strokeWidth={2} />
+  <TrendLine
+    dataKey="value"
+    strokeStyle="solid"
+    stroke="var(--chart-1)"
+    fadeEdges
+    fadeEdgesLength={25}
+  />
+  <XAxis />
+  <ChartTooltip />
+</LineChart>`}>
+  <TrendLineFadeEdgesDemo />
+</ComponentShowcase>
+
+### Area chart
+
+<ComponentShowcase code={`<AreaChart data={data}>
+  <Grid horizontal />
+  <Area dataKey="desktop" fillOpacity={0.3} strokeWidth={2} />
+  <TrendLine dataKey="desktop" stroke="var(--chart-1)" fadeEdges />
+  <XAxis />
+  <ChartTooltip />
+</AreaChart>`}>
+  <TrendLineAreaDemo />
+</ComponentShowcase>
+
+### Bar chart
+
+<ComponentShowcase code={`<BarChart data={data} xDataKey="month">
+  <Grid horizontal />
+  <Bar dataKey="revenue" lineCap="round" />
+  <TrendLine
+    dataKey="revenue"
+    strokeStyle="gradient"
+    gradientStart="var(--chart-3)"
+    gradientEnd="var(--chart-1)"
+  />
+  <BarXAxis />
+  <ChartTooltip showCrosshair={false} />
+</BarChart>`}>
+  <TrendLineBarDemo />
+</ComponentShowcase>
+
+### Horizontal bar chart
+
+<ComponentShowcase code={`<BarChart
+  data={data}
+  xDataKey="browser"
+  orientation="horizontal"
+  margin={{ left: 80 }}
+  aspectRatio="4 / 3"
+>
+  <Grid horizontal={false} vertical fadeVertical />
+  <Bar dataKey="users" lineCap={4} />
+  <TrendLine dataKey="users" stroke="var(--chart-1)" />
+  <BarYAxis />
+  <ChartTooltip showCrosshair={false} />
+</BarChart>`}>
+  <TrendLineHorizontalBarDemo />
+</ComponentShowcase>
+
+### Composed chart
+
+Add one `TrendLine` per series you want to fit.
+
+<ComponentShowcase code={`<ComposedChart data={data} xDataKey="date" barGap={0} maxBarSize={32}>
+  <Grid horizontal />
+  <SeriesBar dataKey="units" fill="var(--chart-3)" radius={4} />
+  <Line dataKey="revenue" stroke="var(--chart-1)" />
+  <TrendLine dataKey="revenue" stroke="var(--chart-1)" fadeEdges />
+  <TrendLine dataKey="units" stroke="var(--chart-3)" strokeDasharray="2,4" />
+  <ChartTooltip showCrosshair={false} />
+  <XAxis numTicks={8} />
+</ComposedChart>`}>
+  <TrendLineComposedDemo />
+</ComponentShowcase>
+
+## Studio
+
+Open [Studio](/studio?chart=line-chart) and select **Trend line** in the layers panel to pick the series and tune the stroke, gradient, and edge fade. The same layer is available on area, bar, and composed charts.
+
+## Gallery
+
+See **Trend Line** examples on the [line](/charts/line-chart), [area](/charts/area-chart), [bar](/charts/bar-chart), and [composed](/charts/composed-chart) chart galleries.

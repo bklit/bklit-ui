@@ -225,6 +225,15 @@ The Grid component now supports `fadeVertical` for vertical grid lines.
 
 Pattern fill for the plot area when you omit `Grid`. See the [Background utility](/docs/utility/background) and **Pattern Background** examples on the [bar chart gallery](/charts/bar-chart).
 
+### TrendLine
+
+Least-squares regression line through the bar centers of one series (vertical or horizontal). Place it after the `Bar` so it draws on top; it fades in once the bars have landed. See the [Trend Line utility](/docs/utility/trend-line) and the **Trend Line** examples on the [bar chart gallery](/charts/bar-chart).
+
+```tsx
+<Bar dataKey="revenue" />
+<TrendLine dataKey="revenue" strokeStyle="gradient" />
+```
+
 ### BarDepthBack
 
 Renders the 3D side + top faces. Place **before** `<Bar>` so the bar's front face occludes depth that would extend into the next column.

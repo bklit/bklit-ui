@@ -85,6 +85,7 @@ const utilities = [
   { text: "Reference Area", url: "/docs/utility/reference-area" },
   { text: "Projection Line", url: "/docs/utility/projection-line" },
   { text: "Band", url: "/docs/utility/band" },
+  { text: "Trend Line", url: "/docs/utility/trend-line" },
   { text: "Markers", url: "/docs/utility/markers" },
   { text: "Tooltip", url: "/docs/utility/tooltip" },
   { text: "Brush", url: "/docs/utility/brush" },
