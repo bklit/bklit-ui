@@ -3,6 +3,7 @@ import { describe, it } from "node:test";
 import {
   computeSeriesPathPoints,
   interpolateSeriesPathPoints,
+  morphSeriesPolylines,
   seriesPathTransitionSignature,
 } from "../series-path-utils";
 
@@ -76,5 +77,39 @@ describe("series-path-utils", () => {
     assert.deepEqual(points, [
       { key: String(data[0]?.date.getTime()), x: 24, y: 120 },
     ]);
+  });
+
+  it("morphs vertically on a shared x grid between polylines", () => {
+    const from = [
+      { key: "", x: 0, y: 0 },
+      { key: "", x: 100, y: 100 },
+    ];
+    const to = [
+      { key: "", x: 0, y: 50 },
+      { key: "", x: 50, y: 50 },
+      { key: "", x: 100, y: 50 },
+    ];
+
+    const start = morphSeriesPolylines(from, to, 0, 25);
+    const mid = morphSeriesPolylines(from, to, 0.5, 25);
+    const end = morphSeriesPolylines(from, to, 1, 25);
+
+    assert.deepEqual(
+      start.map((point) => point.x),
+      [0, 25, 50, 75, 100]
+    );
+    assert.deepEqual(
+      start.map((point) => point.y),
+      [0, 25, 50, 75, 100]
+    );
+    assert.deepEqual(
+      mid.map((point) => point.x),
+      start.map((point) => point.x)
+    );
+    assert.deepEqual(
+      mid.map((point) => point.y),
+      [25, 37.5, 50, 62.5, 75]
+    );
+    assert.ok(end.every((point) => point.y === 50));
   });
 });
