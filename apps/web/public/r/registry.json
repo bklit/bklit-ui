@@ -440,6 +440,44 @@
       ]
     },
     {
+      "name": "band",
+      "type": "registry:component",
+      "title": "Band",
+      "description": "Shaded range between per-row upper and lower values on a line chart, with a Bollinger bands helper",
+      "registryDependencies": [
+        "@bklit/chart-context",
+        "@bklit/line-chart",
+        "@bklit/background"
+      ],
+      "dependencies": [
+        "@visx/curve@4.0.0",
+        "d3-shape",
+        "motion"
+      ],
+      "files": [
+        {
+          "path": "src/charts/band.tsx",
+          "type": "registry:component",
+          "target": "components/charts/band.tsx"
+        },
+        {
+          "path": "src/charts/band-geometry.ts",
+          "type": "registry:component",
+          "target": "components/charts/band-geometry.ts"
+        },
+        {
+          "path": "src/charts/use-animated-band.ts",
+          "type": "registry:component",
+          "target": "components/charts/use-animated-band.ts"
+        },
+        {
+          "path": "src/charts/bollinger.ts",
+          "type": "registry:component",
+          "target": "components/charts/bollinger.ts"
+        }
+      ]
+    },
+    {
       "name": "patterns",
       "type": "registry:component",
       "title": "Patterns",
@@ -770,6 +808,11 @@
           "target": "components/charts/projection-config.ts"
         },
         {
+          "path": "src/charts/band-config.ts",
+          "type": "registry:component",
+          "target": "components/charts/band-config.ts"
+        },
+        {
           "path": "src/charts/projection-utils.ts",
           "type": "registry:component",
           "target": "components/charts/projection-utils.ts"
@@ -875,6 +918,11 @@
           "path": "src/charts/projection-config.ts",
           "type": "registry:component",
           "target": "components/charts/projection-config.ts"
+        },
+        {
+          "path": "src/charts/band-config.ts",
+          "type": "registry:component",
+          "target": "components/charts/band-config.ts"
         },
         {
           "path": "src/charts/projection-utils.ts",
@@ -989,11 +1037,13 @@
         "@bklit/chart-tooltip",
         "@bklit/shimmering-text",
         "@bklit/utils",
-        "@bklit/chart-parent-size"
+        "@bklit/chart-parent-size",
+        "@bklit/background"
       ],
       "dependencies": [
         "@visx/curve@4.0.0",
         "@visx/shape@4.0.0",
+        "d3-shape",
         "motion"
       ],
       "files": [
@@ -1016,6 +1066,11 @@
           "path": "src/charts/projection-config.ts",
           "type": "registry:component",
           "target": "components/charts/projection-config.ts"
+        },
+        {
+          "path": "src/charts/band-config.ts",
+          "type": "registry:component",
+          "target": "components/charts/band-config.ts"
         },
         {
           "path": "src/charts/projection-utils.ts",
@@ -1051,6 +1106,26 @@
           "path": "src/charts/line.tsx",
           "type": "registry:component",
           "target": "components/charts/line.tsx"
+        },
+        {
+          "path": "src/charts/band.tsx",
+          "type": "registry:component",
+          "target": "components/charts/band.tsx"
+        },
+        {
+          "path": "src/charts/band-geometry.ts",
+          "type": "registry:component",
+          "target": "components/charts/band-geometry.ts"
+        },
+        {
+          "path": "src/charts/use-animated-band.ts",
+          "type": "registry:component",
+          "target": "components/charts/use-animated-band.ts"
+        },
+        {
+          "path": "src/charts/bollinger.ts",
+          "type": "registry:component",
+          "target": "components/charts/bollinger.ts"
         },
         {
           "path": "src/charts/line-chart-loading.tsx",
@@ -1183,6 +1258,11 @@
           "path": "src/charts/projection-config.ts",
           "type": "registry:component",
           "target": "components/charts/projection-config.ts"
+        },
+        {
+          "path": "src/charts/band-config.ts",
+          "type": "registry:component",
+          "target": "components/charts/band-config.ts"
         },
         {
           "path": "src/charts/projection-utils.ts",
