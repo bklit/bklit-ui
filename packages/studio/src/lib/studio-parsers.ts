@@ -435,6 +435,39 @@ export const studioSearchParams = {
   bandFadeBottom: parseAsBoolean.withDefault(false),
   bandFadeLeft: parseAsBoolean.withDefault(false),
   bandFadeSize: parseAsFloat.withDefault(0.15),
+  weekendsDays: parseAsStringLiteral(["sat-sun", "fri-sat", "sun"]).withDefault(
+    "sat-sun"
+  ),
+  weekendsFillType: parseAsStringLiteral(["pattern", "solid"]).withDefault(
+    "pattern"
+  ),
+  weekendsColor: parseAsString.withDefault("var(--chart-foreground-muted)"),
+  weekendsOpacity: parseAsFloat.withDefault(0.45),
+  weekendsPatternScale: parseAsFloat.withDefault(1.5),
+  weekendsAlign: parseAsStringLiteral([
+    "auto",
+    "calendar",
+    "centered",
+  ]).withDefault("auto"),
+  /** Deadline position as a fraction (0–1) of the data's date range, snapped to a row. */
+  deadlinePosition: parseAsFloat.withDefault(0.65),
+  deadlineFillType: parseAsStringLiteral([
+    "pattern",
+    "gradient",
+    "solid",
+    "none",
+  ]).withDefault("pattern"),
+  deadlineColor: parseAsString.withDefault("var(--chart-negative)"),
+  deadlineOpacity: parseAsFloat.withDefault(0.6),
+  deadlinePatternScale: parseAsFloat.withDefault(1.5),
+  deadlineFade: parseAsBoolean.withDefault(true),
+  deadlineFadeLength: parseAsFloat.withDefault(0.5),
+  deadlineShowLine: parseAsBoolean.withDefault(true),
+  deadlineStrokeWidth: parseAsFloat.withDefault(1),
+  deadlineStrokeStyle: parseAsStringLiteral(["solid", "dashed"]).withDefault(
+    "solid"
+  ),
+  deadlineLabel: parseAsString.withDefault("Due"),
   showTooltipDatePill: parseAsBoolean.withDefault(true),
   showCrosshair: parseAsBoolean.withDefault(true),
   crosshairFollowsValue: parseAsBoolean.withDefault(true),
@@ -875,6 +908,23 @@ export interface StudioUrlState {
   bandFadeBottom: boolean;
   bandFadeLeft: boolean;
   bandFadeSize: number;
+  weekendsDays: "sat-sun" | "fri-sat" | "sun";
+  weekendsFillType: "pattern" | "solid";
+  weekendsColor: string;
+  weekendsOpacity: number;
+  weekendsPatternScale: number;
+  weekendsAlign: "auto" | "calendar" | "centered";
+  deadlinePosition: number;
+  deadlineFillType: "pattern" | "gradient" | "solid" | "none";
+  deadlineColor: string;
+  deadlineOpacity: number;
+  deadlinePatternScale: number;
+  deadlineFade: boolean;
+  deadlineFadeLength: number;
+  deadlineShowLine: boolean;
+  deadlineStrokeWidth: number;
+  deadlineStrokeStyle: "solid" | "dashed";
+  deadlineLabel: string;
   showTooltipDatePill: boolean;
   showCrosshair: boolean;
   crosshairFollowsValue: boolean;
@@ -1278,6 +1328,23 @@ export function defaultStudioState(
     bandFadeBottom: false,
     bandFadeLeft: false,
     bandFadeSize: 0.15,
+    weekendsDays: "sat-sun",
+    weekendsFillType: "pattern",
+    weekendsColor: "var(--chart-foreground-muted)",
+    weekendsOpacity: 0.45,
+    weekendsPatternScale: 1.5,
+    weekendsAlign: "auto",
+    deadlinePosition: 0.65,
+    deadlineFillType: "pattern",
+    deadlineColor: "var(--chart-negative)",
+    deadlineOpacity: 0.6,
+    deadlinePatternScale: 1.5,
+    deadlineFade: true,
+    deadlineFadeLength: 0.5,
+    deadlineShowLine: true,
+    deadlineStrokeWidth: 1,
+    deadlineStrokeStyle: "solid",
+    deadlineLabel: "Due",
     showTooltipDatePill: true,
     showCrosshair: true,
     crosshairFollowsValue: true,

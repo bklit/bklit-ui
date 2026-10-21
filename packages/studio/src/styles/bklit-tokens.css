@@ -34,11 +34,16 @@
   --border: color-mix(in oklab, var(--color-black) 8%, transparent);
   --input: color-mix(in oklab, var(--color-black) 10%, transparent);
   --ring: var(--color-neutral-400);
-  --chart-1: var(--color-stone-700);
-  --chart-2: var(--color-stone-500);
-  --chart-3: var(--color-stone-400);
-  --chart-4: var(--color-stone-300);
-  --chart-5: var(--color-stone-100);
+  /* Chart palette "Primary" — keep in sync with lib/chart-palettes.ts */
+  --chart-1: var(--color-indigo-500);
+  --chart-2: var(--color-yellow-400);
+  --chart-3: var(--color-fuchsia-500);
+  /* Tailwind v4.2 mist-500 (not in the installed Tailwind theme yet) */
+  --chart-4: oklch(0.56 0.021 213.5);
+  --chart-5: var(--color-black);
+  /* Semantic trend colors (profit/loss, candlesticks, up/down) */
+  --chart-positive: var(--color-emerald-500);
+  --chart-negative: var(--color-red-500);
   --radius: 0.625rem;
   --sidebar: var(--color-neutral-50);
   --sidebar-foreground: color-mix(
@@ -81,13 +86,19 @@
   --legend-muted-foreground: oklch(0.552 0.016 285.938);
   --legend-track: oklch(0.92 0.004 286.32);
 
-  /* Sequential scale for heatmaps, choropleths, and binned data (01 = lowest) */
-  --chart-scale-01: var(--color-stone-50);
-  --chart-scale-02: var(--color-stone-200);
-  --chart-scale-03: var(--color-stone-300);
-  --chart-scale-04: var(--color-stone-400);
-  --chart-scale-05: var(--color-stone-500);
-  --chart-scale-pattern-color: var(--color-stone-100);
+  /*
+   * Sequential scale for heatmaps, choropleths, and binned data (01 = lowest).
+   * 01 is a neutral "empty / zero" tone. 02–05 are a single-hue ramp derived
+   * from the active palette's --chart-1 (05 = --chart-1 itself), mixed toward
+   * --chart-scale-mix (white in light mode, near-black in dark mode), so every
+   * palette — including custom ones — gets a matching ramp. Mixing in oklab
+   * keeps chart-1's hue exactly (the mix target is achromatic).
+   * The 02–05 formulas live in the shared rule below (re-declared on .dark so
+   * nested dark scopes resolve against their own --chart-scale-mix).
+   */
+  --chart-scale-mix: oklch(1 0 0);
+  --chart-scale-01: var(--color-neutral-200);
+  --chart-scale-pattern-color: var(--background);
 
   /* Studio editor canvas dot grid */
   --studio-canvas-grid-gap: 32px;
@@ -137,11 +148,13 @@
   --border: color-mix(in oklab, var(--color-white) 6%, transparent);
   --input: color-mix(in oklab, var(--color-white) 8%, transparent);
   --ring: var(--color-neutral-500);
-  --chart-1: var(--color-zinc-800);
-  --chart-2: var(--color-zinc-600);
-  --chart-3: var(--color-zinc-500);
-  --chart-4: var(--color-zinc-400);
-  --chart-5: var(--color-zinc-300);
+  --chart-1: var(--color-indigo-500);
+  --chart-2: var(--color-yellow-400);
+  --chart-3: var(--color-fuchsia-500);
+  --chart-4: oklch(0.56 0.021 213.5);
+  --chart-5: var(--color-white);
+  --chart-positive: var(--color-emerald-400);
+  --chart-negative: var(--color-red-400);
   --shadow: oklch(0 0 none);
   --sidebar: color-mix(
     in srgb,
@@ -186,11 +199,33 @@
   --legend-muted-foreground: oklch(0.705 0.015 286.067);
   --legend-track: oklch(0.274 0.006 286.033);
 
-  /* Sequential scale (dark) */
-  --chart-scale-01: var(--color-zinc-900);
-  --chart-scale-02: var(--color-zinc-700);
-  --chart-scale-03: var(--color-zinc-500);
-  --chart-scale-04: var(--color-zinc-300);
-  --chart-scale-05: var(--color-zinc-200);
+  /* Sequential scale (dark): 02–05 are darker shades of --chart-1 (see shared rule below) */
+  --chart-scale-mix: oklch(0.25 0 0);
+  --chart-scale-01: oklch(0.3 0 0);
   --chart-scale-pattern-color: var(--background);
+}
+
+/*
+ * Palette-derived sequential ramp (light + dark). Keep in sync with
+ * CHART_PALETTE_DERIVED_VARS in packages/studio/src/lib/svg-export/chart-var-aliases.ts.
+ */
+:root,
+.studio-shell,
+.dark {
+  --chart-scale-02: color-mix(
+    in oklab,
+    var(--chart-1) 35%,
+    var(--chart-scale-mix)
+  );
+  --chart-scale-03: color-mix(
+    in oklab,
+    var(--chart-1) 55%,
+    var(--chart-scale-mix)
+  );
+  --chart-scale-04: color-mix(
+    in oklab,
+    var(--chart-1) 78%,
+    var(--chart-scale-mix)
+  );
+  --chart-scale-05: var(--chart-1);
 }

@@ -1,0 +1,142 @@
+---
+title: Weekends
+description: Shade weekend days behind the series on date x axes — diagonal stripes or a solid fill, configurable weekend days, and zoom-aware rendering
+---
+
+import { studioChartHref } from "@bklitui/studio";
+import {
+  DateHighlightsBarDemo,
+  DateHighlightsBrushDemo,
+  DateHighlightsComposedDemo,
+  WeekendsLineDemo,
+} from "@/components/docs/date-highlights-demo";
+import { OpenInStudioButton } from "@/components/docs/open-in-studio-button";
+
+<ComponentPreview registryName="weekends">
+  <WeekendsLineDemo />
+</ComponentPreview>
+
+## Installation
+
+<InstallationTabs name="weekends" dependencies={["motion"]} />
+
+## Usage
+
+`Weekends` draws a band over every weekend span on a date x axis. Place it as a child of `LineChart`, `AreaChart`, `ComposedChart`, `CandlestickChart`, or `BarChart` (with date rows). It renders in the underlay layer — above grid and background, behind series.
+
+```tsx
+import { LineChart, Line, Grid, Weekends, ChartTooltip, XAxis } from "@bklitui/ui/charts";
+
+<LineChart data={data}>
+  <Grid horizontal />
+  <Weekends />
+  <Line dataKey="completed" />
+  <XAxis />
+  <ChartTooltip />
+</LineChart>
+```
+
+- **Time scales** (line, area, composed, candlestick) — only spans inside the visible x-domain are drawn, so brush zoom and long ranges stay cheap. When one day is narrower than `minDayWidth` pixels (e.g. multi-year ranges), nothing renders.
+- **Band scales** (`BarChart`) — consecutive weekend columns merge into one band that covers the full column slots. Dates are read from the first field holding a `Date` or a `"YYYY-MM-DD"` string; pass `dateKey` to pick one. Horizontal bar charts shade rows instead of columns.
+- **Locales** — set `weekendDays` with `Date#getDay()` numbers (0 = Sunday … 6 = Saturday), e.g. `[5, 6]` for Friday–Saturday weekends.
+- **Time zones** — day boundaries use local time. Pass `utc` when your dates are anchored to UTC (e.g. ISO strings ending in `Z`).
+- **Alignment** — by default bands run midnight to midnight. On a `ComposedChart` with `SeriesBar` columns at midnight, `align="auto"` shifts bands half a day so each column sits inside its day.
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `weekendDays` | `number[]` | `[6, 0]` | Days that count as weekend (`Date#getDay()` numbers) |
+| `fillType` | `"pattern" \| "solid"` | `"pattern"` | Diagonal stripes or a solid fill |
+| `fill` | `string` | `var(--chart-foreground-muted)` | Stripe / fill colour |
+| `fillOpacity` | `number` | `0.45` (pattern), `0.08` (solid) | Fill opacity |
+| `pattern` | Pattern preset id | `"diagonal"` | Pattern when `fillType` is `"pattern"` (see [Background](/docs/utility/background)) |
+| `patternScale` | `number` | `1.5` | Pattern tile scale |
+| `patternStrokeWidth` | `number` | `1` | Stripe width |
+| `align` | `"auto" \| "calendar" \| "centered"` | `"auto"` | `calendar` = midnight to midnight; `centered` = shifted half a day so daily points sit mid-band |
+| `utc` | `boolean` | `false` | Use UTC day boundaries |
+| `minDayWidth` | `number` | `2` | Skip rendering when one day is narrower than this (px) |
+| `dateKey` | `string` | auto | Band (bar) scales only — data key holding each row's date |
+| `className` | `string` | — | Class on the root `<g>` |
+
+The date math is exported as `computeWeekendRanges(start, end, options)` (time domains) and `computeWeekendIndexRuns(dates, options)` (row runs) if you need the spans elsewhere — for example to skip weekends in a tooltip.
+
+## Studio
+
+<div className="not-prose mb-3 flex items-center justify-between gap-4">
+  <h3 className="m-0 font-semibold text-foreground text-base tracking-tight">
+    Edit in Studio
+  </h3>
+  <OpenInStudioButton
+    href={studioChartHref("line-chart", {
+      hiddenComponents:
+        "line.yaxis.left|line.yaxis.right|line.reference-area|line.band|+line.weekends|+line.deadline",
+    })}
+    slug="line-chart"
+  />
+</div>
+
+Open [Studio with the line chart](/studio?chart=line-chart) and toggle the **Weekends** layer (eye icon) in the layers panel to tune weekend days, alignment, fill type, colour, and opacity. The same layer is available on area and composed charts.
+
+## Examples
+
+### Brush zoom
+
+Bands are recomputed from the visible domain, so zooming in reveals weekends that were too narrow to draw at full range.
+
+<ComponentShowcase code={`<ChartBrushLayout data={data} enabled height={72} brushStrip={...}>
+  {(layout) => (
+    <LineChart
+      data={data}
+      xDomain={layout.xDomain}
+      xDomainSlotCount={layout.xDomainSlotCount}
+      tweenYDomainOnXDomainChange
+    >
+      <Grid horizontal />
+      <Weekends />
+      <Deadline date={new Date(2026, 9, 1)} label="Launch" />
+      <Line dataKey="value" />
+      <XAxis />
+      <ChartTooltip />
+    </LineChart>
+  )}
+</ChartBrushLayout>`}
+  liveChartPreview
+  previewMinHeight={360}
+>
+  <DateHighlightsBrushDemo />
+</ComponentShowcase>
+
+### Bar chart columns
+
+<ComponentShowcase code={`// Each row: { date: Date, issues: number }
+<BarChart data={data} xDataKey="date">
+  <Grid horizontal />
+  <Weekends />
+  <Deadline date={new Date(2026, 9, 15)} label="Due" />
+  <Bar dataKey="issues" lineCap={2} />
+  <BarXAxis maxLabels={7} />
+  <ChartTooltip />
+</BarChart>`}>
+  <DateHighlightsBarDemo />
+</ComponentShowcase>
+
+### Composed chart
+
+<ComponentShowcase code={`// composedDemoData rows use UTC-noon ISO dates
+<ComposedChart data={composedDemoData} barGap={0} maxBarSize={24}>
+  <Grid horizontal />
+  <Weekends utc />
+  <Deadline date={composedDemoData[21].date} label="Quarter close" />
+  <SeriesBar dataKey="units" fill="var(--chart-3)" radius={3} />
+  <Line dataKey="revenue" stroke="var(--chart-1)" />
+  <ChartTooltip showCrosshair={false} />
+  <XAxis numTicks={8} />
+</ComposedChart>`}>
+  <DateHighlightsComposedDemo />
+</ComponentShowcase>
+
+## See also
+
+- [Deadline](/docs/utility/deadline) — due-date marker with a fading region
+- [Reference Area](/docs/utility/reference-area) — shaded Y (or X) data band

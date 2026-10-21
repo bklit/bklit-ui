@@ -41,6 +41,10 @@ import {
   StudioChartYAxisLayers,
   timeSeriesChartMargin,
 } from "@/components/charts/studio-chart-y-axis";
+import {
+  studioDeadlineLayer,
+  studioWeekendsLayer,
+} from "@/components/charts/studio-date-highlight-layers";
 import { StudioReferenceAreaLayer } from "@/components/charts/studio-reference-area-layer";
 import { StudioTrendLineLayer } from "@/components/charts/studio-trend-line-layer";
 import { SunburstStudioPreview } from "@/components/charts/sunburst-studio-preview";
@@ -552,6 +556,8 @@ const composedConfig: StudioChartConfig = {
               componentId="composed.reference-area"
               state={state}
             />
+            {studioWeekendsLayer(state, "composed")}
+            {studioDeadlineLayer(state, "composed", data)}
             {ctx.patternDefs}
             {barKey ? (
               <SeriesBar

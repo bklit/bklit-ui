@@ -62,6 +62,7 @@ There is no barrel for component items — import each export from the file that
 | `heatmap` · `choropleth` · `sankey` | folder `index.ts` re-exports every part |
 | `grid` · `x-axis` · `y-axis` · `background` · `reference-area` · `projection-line` · `trend-line` | `Grid` · `XAxis` · `YAxis` · `Background` · `ReferenceArea` · `ProjectionLine` · `TrendLine` |
 | `band` · `bollinger` | `Band` · `withBollingerBands` (installed by `@bklit/line-chart`, also `@bklit/band`) |
+| `weekends` · `deadline` | `Weekends` · `Deadline` (date-axis shading and due-date marker) |
 | `tooltip` · `legend` · `markers` · `patterns` | folder `index.ts` (`ChartTooltip`, `Legend*`, `ChartMarkers`, `Pattern*`) |
 | `chart-context` | `chartCssVars`, `useChart`, `TooltipData` |
 

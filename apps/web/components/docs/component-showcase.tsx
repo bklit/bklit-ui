@@ -25,6 +25,8 @@ interface ComponentShowcaseProps {
   previewMinHeight?: number;
   /** Keep chart animations live (skip static docs preview shell). */
   liveChartPreview?: boolean;
+  /** Absolutely positioned controls painted over the preview panel. */
+  previewOverlay?: ReactNode;
 }
 
 const codePanelContentClassName = cn(
@@ -48,6 +50,7 @@ export function ComponentShowcase({
   className,
   previewMinHeight = 200,
   liveChartPreview = false,
+  previewOverlay,
 }: ComponentShowcaseProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -69,6 +72,7 @@ export function ComponentShowcase({
         ) : (
           <DocsChartPreviewShell>{preview}</DocsChartPreviewShell>
         )}
+        {previewOverlay}
       </FramePanel>
 
       {hasCode ? (

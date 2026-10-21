@@ -8,6 +8,7 @@ import { AreaChart, Area, Grid, XAxis, ChartTooltip, ChartBrush, ChartBrushLayou
 import { AreaChartBrushDemo } from "@/components/docs/area-chart-brush-demo";
 import { AreaChartYDomainDemo } from "@/components/docs/area-chart-y-domain-demo";
 import { AreaTooltipDemo } from "@/components/docs/area-tooltip-demo";
+import { DateHighlightsAreaDemo } from "@/components/docs/date-highlights-demo";
 import { OpenInStudioButton } from "@/components/docs/open-in-studio-button";
 
 export const chartData = [
@@ -204,6 +205,25 @@ Renders the tooltip with crosshair, dots, and content box.
 | `damping` | `number` | `20` | Panel follow when `matchCrosshair={false}`; `0` = instant |
 | `content` | `(props) => ReactNode` | - | Custom content renderer |
 | `rows` | `(point) => TooltipRow[]` | - | Custom row generator |
+
+## Weekends and deadlines
+
+Add [`Weekends`](/docs/utility/weekends) to shade Saturday and Sunday, and [`Deadline`](/docs/utility/deadline) to mark a due date with a fading region. Both sit behind the areas and follow brush zoom.
+
+<ComponentShowcase
+  code={`import { Deadline, Weekends } from "@bklitui/ui/charts";
+
+<AreaChart data={data}>
+  <Grid horizontal />
+  <Weekends />
+  <Deadline date={new Date(2026, 9, 15)} fillType="gradient" />
+  <Area dataKey="completed" fill="var(--chart-1)" />
+  <XAxis />
+  <ChartTooltip />
+</AreaChart>`}
+>
+  <DateHighlightsAreaDemo />
+</ComponentShowcase>
 
 ## Brush zoom
 

@@ -110,22 +110,19 @@ function getVisitorColor(feature: ChoroplethFeature): string {
   const visitors = visitorsByCountry[name];
 
   if (!visitors) {
-    return "var(--muted)"; // No data = muted gray
+    return "var(--chart-scale-01)"; // No data = neutral empty tone
   }
 
   if (visitors >= 17) {
     return "var(--chart-scale-05)";
   }
-  if (visitors >= 13) {
+  if (visitors >= 9) {
     return "var(--chart-scale-04)";
   }
-  if (visitors >= 9) {
+  if (visitors >= 5) {
     return "var(--chart-scale-03)";
   }
-  if (visitors >= 5) {
-    return "var(--chart-scale-02)";
-  }
-  return "var(--chart-scale-01)";
+  return "var(--chart-scale-02)";
 }
 
 function getVisitorValue(feature: ChoroplethFeature): number | undefined {
@@ -135,11 +132,10 @@ function getVisitorValue(feature: ChoroplethFeature): number | undefined {
 
 // Legend items matching the color scale
 const legendItems = [
-  { color: "var(--muted)", label: "No data" },
-  { color: "var(--chart-scale-01)", label: "1-4" },
-  { color: "var(--chart-scale-02)", label: "5-8" },
-  { color: "var(--chart-scale-03)", label: "9-12" },
-  { color: "var(--chart-scale-04)", label: "13-16" },
+  { color: "var(--chart-scale-01)", label: "No data" },
+  { color: "var(--chart-scale-02)", label: "1-4" },
+  { color: "var(--chart-scale-03)", label: "5-8" },
+  { color: "var(--chart-scale-04)", label: "9-16" },
   { color: "var(--chart-scale-05)", label: "17+" },
 ];
 

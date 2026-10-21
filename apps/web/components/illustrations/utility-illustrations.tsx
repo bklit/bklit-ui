@@ -550,12 +550,111 @@ function CustomIndicatorIllustration() {
   );
 }
 
+function WeekendsIllustration() {
+  return (
+    <ThumbCard>
+      <ThumbPanel className="flex flex-col gap-4">
+        <ThumbHeader />
+        <ThumbSvg viewBox="0 0 104 50">
+          <defs>
+            <pattern
+              height="4"
+              id="bk-ill-weekend-pattern"
+              patternTransform="rotate(45)"
+              patternUnits="userSpaceOnUse"
+              width="4"
+            >
+              <line
+                stroke="currentColor"
+                strokeOpacity={0.35}
+                x1="0"
+                x2="0"
+                y1="0"
+                y2="4"
+              />
+            </pattern>
+          </defs>
+          {[22, 74].map((x) => (
+            <rect
+              fill="url(#bk-ill-weekend-pattern)"
+              height="50"
+              key={`weekend-${x}`}
+              width="15"
+              x={x}
+              y="0"
+            />
+          ))}
+          <SoftLine d="M0 40C10 36 18 24 28 26S44 34 54 22S74 6 84 12S98 26 104 20" />
+        </ThumbSvg>
+      </ThumbPanel>
+    </ThumbCard>
+  );
+}
+
+function DeadlineIllustration() {
+  return (
+    <ThumbCard>
+      <ThumbPanel className="flex flex-col gap-4">
+        <ThumbHeader />
+        <ThumbSvg viewBox="0 0 104 50">
+          <defs>
+            <pattern
+              height="4"
+              id="bk-ill-deadline-pattern"
+              patternTransform="rotate(45)"
+              patternUnits="userSpaceOnUse"
+              width="4"
+            >
+              <line
+                stroke="var(--color-red-500)"
+                strokeOpacity={0.6}
+                x1="0"
+                x2="0"
+                y1="0"
+                y2="4"
+              />
+            </pattern>
+            <linearGradient
+              id="bk-ill-deadline-fade"
+              x1="0"
+              x2="1"
+              y1="0"
+              y2="0"
+            >
+              <stop offset="0.4" stopColor="white" stopOpacity={1} />
+              <stop offset="1" stopColor="white" stopOpacity={0} />
+            </linearGradient>
+            <mask id="bk-ill-deadline-mask">
+              <rect
+                fill="url(#bk-ill-deadline-fade)"
+                height="50"
+                width="40"
+                x="62"
+              />
+            </mask>
+          </defs>
+          <rect
+            fill="url(#bk-ill-deadline-pattern)"
+            height="50"
+            mask="url(#bk-ill-deadline-mask)"
+            width="40"
+            x="62"
+          />
+          <line stroke="var(--color-red-500)" x1="62" x2="62" y1="0" y2="50" />
+          <SoftLine d="M0 46C12 34 24 22 40 16S70 10 104 8" />
+        </ThumbSvg>
+      </ThumbPanel>
+    </ThumbCard>
+  );
+}
+
 export const utilityIllustrations: Record<string, () => ReactNode> = {
   axis: () => <AxisIllustration />,
   background: BackgroundIllustration,
   band: BandIllustration,
   brush: BrushIllustration,
   "custom-indicator": CustomIndicatorIllustration,
+  deadline: DeadlineIllustration,
   grid: GridIllustration,
   legend: LegendIllustration,
   markers: MarkersIllustration,
@@ -564,6 +663,7 @@ export const utilityIllustrations: Record<string, () => ReactNode> = {
   tooltip: TooltipIllustration,
   "trend-line": TrendLineIllustration,
   "use-chart": UseChartIllustration,
+  weekends: WeekendsIllustration,
   "x-axis": () => <AxisIllustration showY={false} />,
   "y-axis": () => <AxisIllustration showX={false} />,
 };

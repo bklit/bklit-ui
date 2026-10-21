@@ -43,6 +43,7 @@ import {
 } from "@/lib/studio-series-design";
 import { exportStudioChartSvg } from "@/lib/svg-export/export-studio-chart-svg";
 import { useStudioAnalytics } from "@/providers/studio-analytics-context";
+import { useOptionalStudioThemeMode } from "@/providers/studio-theme-provider";
 import { Button } from "@/ui/button";
 import {
   Tooltip,
@@ -66,6 +67,7 @@ export function StudioPreview({
     numberScrubbing,
   } = useStudioState();
   const { track, getUrl } = useStudioAnalytics();
+  const paletteMode = useOptionalStudioThemeMode();
   const [animationKey, setAnimationKey] = useState(0);
   const [dataSeed, setDataSeed] = useState(0);
   const motionRemountKey = useStudioMotionRemountKey(displayState);
@@ -421,7 +423,7 @@ export function StudioPreview({
                     isRecording={isRecording}
                     onResize={handleFrameResize}
                     ref={frameRef}
-                    style={resolveChartThemeStyle(displayState)}
+                    style={resolveChartThemeStyle(displayState, paletteMode)}
                     width={state.frameW}
                   >
                     <div className="flex size-full min-h-0 items-center justify-center">

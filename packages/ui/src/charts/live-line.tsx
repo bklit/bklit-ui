@@ -243,6 +243,9 @@ export function LiveLine({
       {/* Live indicator (dot + badge) — dims when crosshair is active */}
       <motion.g
         animate={{ opacity: isScrubbing ? 0.25 : 1 }}
+        // Start at the target: an SVG <g> has no readable opacity, so without
+        // this Motion tries to animate from `undefined` on mount.
+        initial={false}
         transition={{ duration: 0.3, ease: "easeInOut" }}
       >
         {/* Pulsing dot */}

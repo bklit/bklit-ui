@@ -1,80 +1,27 @@
 "use client";
 
-import { Icon } from "@bklitui/icons";
 import { studioChartDocsHref, studioChartHref } from "@bklitui/studio";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import type { ChartSlug } from "@/components/charts/chart-slugs";
 import { ChartMountPlaceholder } from "@/components/design/chart-mount-placeholder";
+import {
+  ShowcaseReplayAction,
+  showcaseActionEase,
+  showcaseActionEnterDuration,
+  showcaseActionExitDuration,
+  showcaseActionStagger,
+} from "@/components/showcase-replay-action";
 import { Button } from "@/components/ui/button";
 import { Frame, FramePanel } from "@/components/ui/frame";
 import { useDeferredInViewOnce } from "@/lib/use-deferred-in-view-once";
 import { cn } from "@/lib/utils";
 
-const easeOutQuint = [0.23, 1, 0.32, 1] as const;
-const actionEnterDuration = 0.2;
-const actionExitDuration = 0.16;
-const actionStagger = 0.04;
-
-function ShowcaseReplayAction({
-  index,
-  visible,
-  reducedMotion,
-  onReplay,
-}: {
-  index: number;
-  visible: boolean;
-  reducedMotion: boolean | null;
-  onReplay: () => void;
-}) {
-  return (
-    <AnimatePresence>
-      {visible && (
-        <motion.div
-          animate={
-            reducedMotion
-              ? { opacity: 1, y: 0 }
-              : {
-                  opacity: 1,
-                  y: 0,
-                  transition: {
-                    duration: actionEnterDuration,
-                    ease: easeOutQuint,
-                    delay: index * actionStagger,
-                  },
-                }
-          }
-          exit={
-            reducedMotion
-              ? undefined
-              : {
-                  opacity: 0,
-                  y: 4,
-                  transition: {
-                    duration: actionExitDuration,
-                    ease: easeOutQuint,
-                  },
-                }
-          }
-          initial={reducedMotion ? false : { opacity: 0, y: 6 }}
-        >
-          <Button
-            aria-label="Replay animation"
-            className="size-7 [&_svg]:size-4"
-            onClick={onReplay}
-            size="icon"
-            title="Replay animation"
-            type="button"
-            variant="outline"
-          >
-            <Icon className="size-4" name="IconArrowRotateClockwise" />
-          </Button>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
-}
+const easeOutQuint = showcaseActionEase;
+const actionEnterDuration = showcaseActionEnterDuration;
+const actionExitDuration = showcaseActionExitDuration;
+const actionStagger = showcaseActionStagger;
 
 function CardAction({
   href,

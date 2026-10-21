@@ -16,8 +16,8 @@ export interface ScatterProps extends Omit<SeriesMarkersProps, "animate"> {
   yGradient?: boolean | { from?: string; to?: string };
 }
 
-const DEFAULT_Y_GRADIENT_FROM = "var(--color-red-500)";
-const DEFAULT_Y_GRADIENT_TO = "var(--color-emerald-500)";
+const DEFAULT_Y_GRADIENT_FROM = "var(--chart-negative, var(--color-red-500))";
+const DEFAULT_Y_GRADIENT_TO = "var(--chart-positive, var(--color-emerald-500))";
 
 export function Scatter({
   dataKey,

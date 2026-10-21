@@ -21,8 +21,10 @@ Verified against the shadcn CLI source (v4.x):
   like `text-chart-label` and `bg-chart-tooltip-background` work.
 - Tailwind v3: nothing is written to `tailwind.config` (bklit items have no
   `tailwind` key) — see "Tailwind v3" below.
-- bklit's defaults are a **grayscale** palette (`--chart-1: oklch(0.32 0 none)` …).
-  If the host had no chart palette, the charts will come out gray until you seed one.
+- bklit's defaults are the **Primary** palette: indigo, yellow, fuchsia, mist and
+  black (`--chart-1: oklch(0.585 0.233 277.117)` …; `--chart-5` is white in dark
+  mode). If the host had no chart palette, the charts get these colours until you
+  seed one that matches the brand.
 
 ## Tokens bklit actually reads
 
@@ -54,7 +56,7 @@ those features.
 |---|---|
 | Host has `--chart-1..5` (any format except bare channels) | Keep them. Do not overwrite. Only fill gaps (`--chart-grid`, `--chart-label`, tooltip) if bklit's defaults clash. |
 | `--chart-1..5` are the untouched shadcn defaults **and** the user asked to match the brand | Re-seed from `--primary` (below), in both light and dark. |
-| No `--chart-*` at all | Seed from `--primary` **before** or right after install, otherwise charts render gray. |
+| No `--chart-*` at all | Seed from `--primary` **before** or right after install, otherwise charts use bklit's default Primary palette rather than the brand. |
 | `chartVarsFormat: "hsl-channels"` (Tailwind v3 shadcn) | Scope a wrapper (below). Never rewrite the global vars — recharts/shadcn `ChartContainer` consumes `hsl(var(--chart-N))`. |
 | `colorFormat` oklch / hsl / hex | Write new values in the same notation. |
 | `colorFormat: "tailwind-var"` (e.g. `var(--color-neutral-800)`) | Write chart tokens as palette references too (`var(--color-violet-500)`), v4 only. |
@@ -67,7 +69,7 @@ those features.
 
 Make `--chart-1` the brand colour, then step lightness so series stay
 distinguishable; keep hue within ~±40° of the brand so it reads as one family.
-Light mode runs dark→light, dark mode light→dark (mirrors bklit's defaults).
+Light mode runs dark→light, dark mode light→dark.
 
 Example — host `--primary: oklch(0.541 0.281 293.009)` (violet), oklch format:
 
@@ -144,9 +146,10 @@ Whenever you override `--chart-N` on a non-root selector, also re-declare:
      --color-legend-track: var(--legend-track);
    }
    ```
-2. The Tailwind default palette (`--color-red-500`, `--color-emerald-500`,
-   `--color-zinc-500`) exists automatically in v4 — candlestick, profit/loss and
-   scatter defaults work. `--color-muted` (funnel grid bands) exists only if the
+2. Candlestick, profit/loss and scatter defaults read `--chart-positive` /
+   `--chart-negative` (added by `chart-context` cssVars) and fall back to the
+   Tailwind default palette (`--color-emerald-500`, `--color-red-500`), which
+   exists automatically in v4. `--color-zinc-500` is likewise built in. `--color-muted` (funnel grid bands) exists only if the
    host maps `--muted` in `@theme inline` (shadcn v4 does).
 3. Make sure Tailwind scans the charts folder (it does by default for files under
    the project; add `@source` only for out-of-tree paths).
@@ -191,7 +194,7 @@ legend: {
 
 | Variable | Where | Effect if missing |
 |---|---|---|
-| `--color-red-500`, `--color-emerald-500` | `candlestick.tsx`, `candlestick-chart.tsx`, `profit-loss-line.tsx`, `profit-loss-legend.tsx`, `scatter.tsx` (`yGradient` enabled without `from`/`to`) | Candles / P&L segments / scatter gradient render with an invalid colour |
+| `--color-red-500`, `--color-emerald-500` | Fallbacks after `--chart-negative` / `--chart-positive` in `candlestick.tsx`, `candlestick-chart.tsx`, `profit-loss-line.tsx`, `profit-loss-legend.tsx`, `scatter.tsx` (`yGradient` enabled without `from`/`to`) | Harmless when `--chart-positive` / `--chart-negative` are defined; otherwise candles / P&L segments / scatter gradient render with an invalid colour |
 | `--color-zinc-500` | `bar-y-axis.tsx` | Only a fallback after `--chart-label`; harmless when `--chart-label` exists |
 | `--color-muted` | `funnel-chart.tsx` (grid `bandColor` default) | Funnel bands invisible |
 

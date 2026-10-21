@@ -370,6 +370,145 @@ export const referenceAreaControlGroups: StudioControlGroup[] = [
   ]),
 ];
 
+/** `<Weekends>` layer on date-axis charts (`<prefix>.weekends`). */
+export const weekendsControlGroups: StudioControlGroup[] = [
+  controlGroup("Days", [
+    {
+      type: "select",
+      key: "weekendsDays",
+      label: "Weekend",
+      options: [
+        { value: "sat-sun", label: "Saturday + Sunday" },
+        { value: "fri-sat", label: "Friday + Saturday" },
+        { value: "sun", label: "Sunday only" },
+      ],
+    },
+    {
+      type: "select",
+      key: "weekendsAlign",
+      label: "Align",
+      options: [
+        { value: "auto", label: "Auto" },
+        { value: "calendar", label: "Calendar (midnight)" },
+        { value: "centered", label: "Centered on points" },
+      ],
+    },
+  ]),
+  controlGroup("Fill", [
+    {
+      type: "select",
+      key: "weekendsFillType",
+      label: "Type",
+      options: [
+        { value: "pattern", label: "Diagonal stripes" },
+        { value: "solid", label: "Solid" },
+      ],
+    },
+    { type: "color", key: "weekendsColor", label: "Color" },
+    {
+      type: "number",
+      key: "weekendsOpacity",
+      label: "Opacity",
+      min: 0,
+      max: 1,
+      step: 0.01,
+      format: { style: "percent" },
+    },
+    {
+      type: "number",
+      key: "weekendsPatternScale",
+      label: "Stripe scale",
+      min: 0.5,
+      max: 4,
+      step: 0.25,
+      visibleWhen: { key: "weekendsFillType", equals: "pattern" },
+    },
+  ]),
+];
+
+/** `<Deadline>` layer on date-axis charts (`<prefix>.deadline`). */
+export const deadlineControlGroups: StudioControlGroup[] = [
+  controlGroup("Date", [
+    {
+      type: "number",
+      key: "deadlinePosition",
+      label: "Position",
+      min: 0,
+      max: 1,
+      step: 0.01,
+      format: { style: "percent" },
+    },
+    { type: "text", key: "deadlineLabel", label: "Label" },
+  ]),
+  controlGroup("Region", [
+    {
+      type: "select",
+      key: "deadlineFillType",
+      label: "Fill",
+      options: [
+        { value: "pattern", label: "Diagonal stripes" },
+        { value: "gradient", label: "Gradient" },
+        { value: "solid", label: "Solid" },
+        { value: "none", label: "None (line only)" },
+      ],
+    },
+    { type: "color", key: "deadlineColor", label: "Color" },
+    {
+      type: "number",
+      key: "deadlineOpacity",
+      label: "Opacity",
+      min: 0,
+      max: 1,
+      step: 0.01,
+      format: { style: "percent" },
+      visibleWhen: { key: "deadlineFillType", not: "none" },
+    },
+    {
+      type: "number",
+      key: "deadlinePatternScale",
+      label: "Stripe scale",
+      min: 0.5,
+      max: 4,
+      step: 0.25,
+      visibleWhen: { key: "deadlineFillType", equals: "pattern" },
+    },
+    {
+      type: "boolean",
+      key: "deadlineFade",
+      label: "Fade out",
+      visibleWhen: { key: "deadlineFillType", not: "none" },
+    },
+    {
+      type: "number",
+      key: "deadlineFadeLength",
+      label: "Fade length",
+      min: 0,
+      max: 1,
+      step: 0.05,
+      format: { style: "percent" },
+      visibleWhen: { key: "deadlineFade", truthy: true },
+    },
+  ]),
+  controlGroup("Line", [
+    { type: "boolean", key: "deadlineShowLine", label: "Show line" },
+    {
+      type: "number",
+      key: "deadlineStrokeWidth",
+      label: "Width",
+      min: 0.5,
+      max: 4,
+      step: 0.5,
+      visibleWhen: { key: "deadlineShowLine", truthy: true },
+    },
+    {
+      type: "strokeStyle",
+      key: "deadlineStrokeStyle",
+      label: "Style",
+      visibleWhen: { key: "deadlineShowLine", truthy: true },
+    },
+  ]),
+];
+
 const bandBollinger = { key: "bandMode", equals: "bollinger" } as const;
 
 /** Line chart `<Band>` layer (`line.band`). */

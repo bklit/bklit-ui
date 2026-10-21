@@ -127,7 +127,7 @@ See the [charts gallery](/charts/choropleth-chart) for analytics color scales, z
 
 ## Theming
 
-For categorical maps, `defaultChoroplethColors` cycles through **`--chart-scale-01`** … **`--chart-scale-05`**. Pass `getFeatureColor` for custom bins (see gallery analytics demo). Empty / no-data regions typically use `var(--muted)`.
+For categorical maps, `defaultChoroplethColors` cycles through **`--chart-scale-01`** … **`--chart-scale-05`**. Pass `getFeatureColor` for custom bins (see gallery analytics demo). Use `var(--chart-scale-01)` (a neutral empty tone) for zero / no-data regions so they stay visible in light and dark.
 
 See [Theming](/docs/theming) for the full sequential scale reference.
 

@@ -581,7 +581,7 @@ const hasPalette = [
 ].every((k) => chartKeys.includes(k));
 if (!hasPalette) {
   warnings.push(
-    "--chart-1..5 are not all defined: `shadcn add @bklit/...` will insert bklit's grayscale defaults. Seed them from --primary instead (see rules/theming.md)."
+    "--chart-1..5 are not all defined: `shadcn add @bklit/...` will insert bklit's default Primary palette (indigo, yellow, fuchsia, mist, black). Seed them from --primary instead (see rules/theming.md)."
   );
 }
 if (chartVarsFormat === "hsl-channels") {

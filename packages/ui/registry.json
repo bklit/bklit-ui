@@ -80,11 +80,13 @@
       ],
       "cssVars": {
         "light": {
-          "--chart-1": "oklch(0.32 0 none)",
-          "--chart-2": "oklch(0.41 0 none)",
-          "--chart-3": "oklch(0.54 0 none)",
-          "--chart-4": "oklch(0.71 0 none)",
-          "--chart-5": "oklch(0.89 0 none)",
+          "--chart-1": "oklch(0.585 0.233 277.117)",
+          "--chart-2": "oklch(0.852 0.199 91.936)",
+          "--chart-3": "oklch(0.667 0.295 322.15)",
+          "--chart-4": "oklch(0.56 0.021 213.5)",
+          "--chart-5": "oklch(0 0 0)",
+          "--chart-positive": "oklch(0.696 0.17 162.48)",
+          "--chart-negative": "oklch(0.637 0.237 25.331)",
           "--chart-background": "oklch(1 0 0)",
           "--chart-foreground": "oklch(0.145 0.004 285)",
           "--chart-foreground-muted": "oklch(0.55 0.014 260)",
@@ -100,19 +102,22 @@
           "--chart-marker-border": "oklch(0.85 0.01 260)",
           "--chart-marker-foreground": "oklch(0.3 0.01 260)",
           "--chart-label": "oklch(0.45 0.01 260)",
-          "--chart-scale-01": "oklch(0.98 0.003 106)",
-          "--chart-scale-02": "oklch(0.92 0.008 106)",
-          "--chart-scale-03": "oklch(0.82 0.015 106)",
-          "--chart-scale-04": "oklch(0.68 0.02 106)",
-          "--chart-scale-05": "oklch(0.55 0.025 106)",
-          "--chart-scale-pattern-color": "oklch(0.96 0.005 106)"
+          "--chart-scale-mix": "oklch(1 0 0)",
+          "--chart-scale-01": "oklch(0.922 0 0)",
+          "--chart-scale-02": "color-mix(in oklab, var(--chart-1) 35%, var(--chart-scale-mix))",
+          "--chart-scale-03": "color-mix(in oklab, var(--chart-1) 55%, var(--chart-scale-mix))",
+          "--chart-scale-04": "color-mix(in oklab, var(--chart-1) 78%, var(--chart-scale-mix))",
+          "--chart-scale-05": "var(--chart-1)",
+          "--chart-scale-pattern-color": "oklch(1 0 0)"
         },
         "dark": {
-          "--chart-1": "oklch(1 0 none)",
-          "--chart-2": "oklch(0.73 0 none)",
-          "--chart-3": "oklch(0.51 0 none)",
-          "--chart-4": "oklch(0.39 0 none)",
-          "--chart-5": "oklch(0.32 0 none)",
+          "--chart-1": "oklch(0.585 0.233 277.117)",
+          "--chart-2": "oklch(0.852 0.199 91.936)",
+          "--chart-3": "oklch(0.667 0.295 322.15)",
+          "--chart-4": "oklch(0.56 0.021 213.5)",
+          "--chart-5": "oklch(1 0 0)",
+          "--chart-positive": "oklch(0.765 0.177 163.223)",
+          "--chart-negative": "oklch(0.704 0.191 22.216)",
           "--chart-background": "oklch(0.145 0 0)",
           "--chart-foreground": "oklch(0.45 0 0)",
           "--chart-foreground-muted": "oklch(0.65 0.01 260)",
@@ -123,11 +128,12 @@
           "--chart-marker-border": "oklch(0.4 0.01 260)",
           "--chart-marker-foreground": "oklch(0.9 0 0)",
           "--chart-label": "oklch(0.75 0.01 260)",
-          "--chart-scale-01": "oklch(0.28 0.03 270)",
-          "--chart-scale-02": "oklch(0.38 0.04 270)",
-          "--chart-scale-03": "oklch(0.48 0.05 270)",
-          "--chart-scale-04": "oklch(0.58 0.06 270)",
-          "--chart-scale-05": "oklch(0.68 0.07 270)",
+          "--chart-scale-mix": "oklch(0.25 0 0)",
+          "--chart-scale-01": "oklch(0.3 0 0)",
+          "--chart-scale-02": "color-mix(in oklab, var(--chart-1) 35%, var(--chart-scale-mix))",
+          "--chart-scale-03": "color-mix(in oklab, var(--chart-1) 55%, var(--chart-scale-mix))",
+          "--chart-scale-04": "color-mix(in oklab, var(--chart-1) 78%, var(--chart-scale-mix))",
+          "--chart-scale-05": "var(--chart-1)",
           "--chart-scale-pattern-color": "oklch(0.145 0 0)"
         }
       },
@@ -474,6 +480,66 @@
           "path": "src/charts/bollinger.ts",
           "type": "registry:component",
           "target": "components/charts/bollinger.ts"
+        }
+      ]
+    },
+    {
+      "name": "weekends",
+      "type": "registry:component",
+      "title": "Weekends",
+      "description": "Diagonal-stripe or solid weekend shading behind series on date x axes (line, area, composed, bar)",
+      "registryDependencies": [
+        "@bklit/chart-context",
+        "@bklit/background"
+      ],
+      "dependencies": [
+        "motion"
+      ],
+      "files": [
+        {
+          "path": "src/charts/weekends.tsx",
+          "type": "registry:component",
+          "target": "components/charts/weekends.tsx"
+        },
+        {
+          "path": "src/charts/date-ranges.ts",
+          "type": "registry:component",
+          "target": "components/charts/date-ranges.ts"
+        },
+        {
+          "path": "src/charts/use-category-slots.ts",
+          "type": "registry:component",
+          "target": "components/charts/use-category-slots.ts"
+        }
+      ]
+    },
+    {
+      "name": "deadline",
+      "type": "registry:component",
+      "title": "Deadline",
+      "description": "Due-date marker line with a fading solid, gradient, or striped region to its right on date x axes",
+      "registryDependencies": [
+        "@bklit/chart-context",
+        "@bklit/background"
+      ],
+      "dependencies": [
+        "motion"
+      ],
+      "files": [
+        {
+          "path": "src/charts/deadline.tsx",
+          "type": "registry:component",
+          "target": "components/charts/deadline.tsx"
+        },
+        {
+          "path": "src/charts/date-ranges.ts",
+          "type": "registry:component",
+          "target": "components/charts/date-ranges.ts"
+        },
+        {
+          "path": "src/charts/use-category-slots.ts",
+          "type": "registry:component",
+          "target": "components/charts/use-category-slots.ts"
         }
       ]
     },

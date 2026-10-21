@@ -42,6 +42,7 @@ import {
   choroplethChartControlGroups,
   composedChartControlGroups,
   composedOverlayLineControlGroups,
+  deadlineControlGroups,
   funnelChartControlGroups,
   gaugeControlGroups,
   getLineChartControlGroups,
@@ -69,6 +70,7 @@ import {
   sunburstLabelsControlGroups,
   tooltipAppearanceControlGroup,
   trendLineControlGroups,
+  weekendsControlGroups,
 } from "./registry-control-groups";
 import {
   barCollapsibleGroup,
@@ -225,6 +227,26 @@ function referenceAreaNode(chartPrefix: string): StudioComponentDefinition {
     parentId: `${chartPrefix}.chart`,
     kind: "chart",
     controlGroups: referenceAreaControlGroups,
+  };
+}
+
+function weekendsNode(chartPrefix: string): StudioComponentDefinition {
+  return {
+    id: `${chartPrefix}.weekends`,
+    label: "Weekends",
+    parentId: `${chartPrefix}.chart`,
+    kind: "chart",
+    controlGroups: weekendsControlGroups,
+  };
+}
+
+function deadlineNode(chartPrefix: string): StudioComponentDefinition {
+  return {
+    id: `${chartPrefix}.deadline`,
+    label: "Deadline",
+    parentId: `${chartPrefix}.chart`,
+    kind: "chart",
+    controlGroups: deadlineControlGroups,
   };
 }
 
@@ -619,6 +641,8 @@ export function resolveAreaComponents(
     gridNode("area"),
     backgroundNode("area"),
     referenceAreaNode("area"),
+    weekendsNode("area"),
+    deadlineNode("area"),
     trendLineNode("area", state),
   ];
 
@@ -810,6 +834,8 @@ export function resolveComposedComponents(
     passiveNode("composed", "grid", "Grid"),
     backgroundNode("composed"),
     referenceAreaNode("composed"),
+    weekendsNode("composed"),
+    deadlineNode("composed"),
     trendLineNode("composed", state),
   ];
 
@@ -1209,6 +1235,8 @@ export function resolveLineComponents(
     gridNode("line"),
     backgroundNode("line"),
     referenceAreaNode("line"),
+    weekendsNode("line"),
+    deadlineNode("line"),
     bandNode("line"),
     trendLineNode("line", state),
   ];

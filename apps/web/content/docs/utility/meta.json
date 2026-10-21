@@ -7,6 +7,8 @@
     "reference-area",
     "projection-line",
     "band",
+    "weekends",
+    "deadline",
     "trend-line",
     "markers",
     "tooltip",

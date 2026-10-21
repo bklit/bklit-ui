@@ -213,6 +213,7 @@ export const Ring = memo(function Ring({
         {hitbox}
         <motion.g
           animate={{ scale: hoverScale, opacity: layerOpacity }}
+          initial={false}
           pointerEvents="none"
           style={groupStyle}
           transition={{
@@ -250,6 +251,7 @@ export const Ring = memo(function Ring({
       {hitbox}
       <motion.g
         animate={{ scale: hoverScale, opacity: layerOpacity }}
+        initial={false}
         pointerEvents="none"
         style={groupStyle}
         transition={{

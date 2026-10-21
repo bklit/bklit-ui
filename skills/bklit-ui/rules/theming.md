@@ -38,6 +38,7 @@ Keys: `background`, `foreground`, `foregroundMuted`, `label`, `linePrimary`, `li
 ## Series palette
 
 - Multi-series: `var(--chart-1)` … `var(--chart-5)`.
+- Up / down (profit-loss, candlesticks, scatter y-gradient): `--chart-positive` / `--chart-negative` (registry `cssVars`; components fall back to Tailwind emerald-500 / red-500 when unset). Use `text-chart-positive` / `text-chart-negative` for matching tooltip text after mapping `--color-chart-positive` / `--color-chart-negative` in `@theme inline`.
 - Single-line defaults: `--chart-line-primary` (→ `--chart-1`) and `--chart-line-secondary` (→ `--chart-2`).
 - Heatmap / choropleth intensity: `--chart-scale-01` … `--chart-scale-05`, `--chart-scale-pattern-color` (`chartScaleCssVars` from `chart-scale`).
 - Ring tracks, gauge notches, radar grid: shadcn `--border`.

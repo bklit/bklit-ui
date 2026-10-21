@@ -548,6 +548,7 @@ function Chart({
             {/* Base lines - animate opacity when hovering */}
             <motion.g
               animate={{ opacity: isHovering ? 0.3 : 1 }}
+              initial={false}
               transition={{ duration: 0.4, ease: "easeInOut" }}
             >
               {/* Pageviews base line */}

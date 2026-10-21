@@ -247,6 +247,7 @@ export function SeriesBar({
             animate={{ opacity: isFaded ? fadedOpacity : 1 }}
             fill={fill}
             height={barHeight}
+            initial={false}
             key={`${dataKey}-${categoryLabel}`}
             rx={effectiveRadius}
             ry={effectiveRadius}

@@ -1,114 +1,143 @@
 "use client";
 
-import { DynamicCodeBlock } from "fumadocs-ui/components/dynamic-codeblock";
-import type { ReactNode } from "react";
-import { CopyButton } from "@/components/copy-button";
+import { studioChartHref } from "@bklitui/studio";
+import { useReducedMotion } from "motion/react";
+import Link from "next/link";
+import { Fragment, type ReactNode, useEffect, useState } from "react";
+import type { ChartExamplePreviewLayout } from "@/components/charts/chart-example-preview";
+import { ChartPreviewGate } from "@/components/charts/chart-preview-gate";
+import { isChartSlug } from "@/components/charts/chart-slugs";
+import { ComponentShowcase } from "@/components/docs/component-showcase";
+import { ShowcaseReplayAction } from "@/components/showcase-replay-action";
 import { Button } from "@/components/ui/button";
-import {
-  Frame,
-  FrameDescription,
-  FrameFooter,
-  FrameHeader,
-  FramePanel,
-  FrameTitle,
-} from "@/components/ui/frame";
-import {
-  Sheet,
-  SheetDescription,
-  SheetHeader,
-  SheetPanel,
-  SheetPopup,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import { codeThemes } from "@/lib/code-theme";
 import { cn } from "@/lib/utils";
 
-function CodeBlock({ code }: { code: string }) {
-  return (
-    <div className="overflow-hidden rounded-lg border [&_figure]:my-0! [&_pre]:my-0!">
-      <DynamicCodeBlock
-        code={code}
-        lang="tsx"
-        options={{ themes: codeThemes }}
-      />
-    </div>
-  );
-}
-
 /**
- * Chart gallery card: title row on the frame rim, chart in an inset panel,
- * footnote below — coss ui "frame" layout (https://coss.com/ui, MIT).
+ * Chart gallery item: title row with docs / Studio actions, then the docs
+ * `ComponentShowcase` (live preview with collapsible code below it). The
+ * homepage's icon-only Replay control sits over the preview's top-right corner,
+ * revealed on hover / focus (always shown on touch or reduced motion).
  */
 export function ChartExampleFrame({
+  anchorId,
+  chartSlug,
   title,
   description,
   code,
   data,
   footer,
   hero = false,
-  panelClassName,
+  previewLayout = "cartesian",
   children,
 }: {
+  /** Deep-link target (`#anchorId`) placed on the title row for the gallery sidebar. */
+  anchorId?: string;
+  /** Gallery chart type (`/charts/[chart]`) — drives the docs and Studio links. */
+  chartSlug: string;
   title: string;
   description: string;
   code: string;
   data?: string;
   footer?: string;
   hero?: boolean;
-  panelClassName?: string;
+  previewLayout?: ChartExamplePreviewLayout;
   children: ReactNode;
 }) {
-  const fullCode = data ? `${data}\n\n${code}` : code;
+  const [replayKey, setReplayKey] = useState(0);
+  const reducedMotion = useReducedMotion();
+  const [hovered, setHovered] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const [coarsePointer, setCoarsePointer] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(hover: hover) and (pointer: fine)");
+    const update = () => setCoarsePointer(!mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
+  const showReplay =
+    reducedMotion === true || coarsePointer || hovered || focused;
+  const fullCode = data ? `${code}\n\n${data}` : code;
   const TitleTag = hero ? "h2" : "h3";
 
   return (
-    <Frame className="min-w-0">
-      <FrameHeader className="flex-row items-start justify-between gap-4 px-4 py-3">
-        <div className="flex min-w-0 flex-col gap-0.5">
-          <FrameTitle className={hero ? "text-base" : "text-sm"}>
-            <TitleTag>{title}</TitleTag>
-          </FrameTitle>
-          <FrameDescription className="text-pretty">
-            {description}
-          </FrameDescription>
-        </div>
-        <div className="flex shrink-0 items-center gap-1">
-          <CopyButton text={fullCode} />
-          <Sheet>
-            <SheetTrigger render={<Button size="xs" variant="outline" />}>
-              View Code
-            </SheetTrigger>
-            <SheetPopup>
-              <SheetHeader>
-                <SheetTitle>{title}</SheetTitle>
-                <SheetDescription>{description}</SheetDescription>
-              </SheetHeader>
-              <SheetPanel className="space-y-4">
-                <CodeBlock code={code} />
-                {data ? (
-                  <>
-                    <p className="font-medium text-muted-foreground text-xs uppercase tracking-wider">
-                      Data
-                    </p>
-                    <CodeBlock code={data} />
-                  </>
-                ) : null}
-              </SheetPanel>
-            </SheetPopup>
-          </Sheet>
-        </div>
-      </FrameHeader>
-      <FramePanel
-        className={cn("flex-1 overflow-visible p-4 sm:p-6", panelClassName)}
+    <div
+      className="flex min-w-0 flex-col gap-3"
+      onBlurCapture={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget)) {
+          setFocused(false);
+        }
+      }}
+      onFocusCapture={() => setFocused(true)}
+      onPointerEnter={() => setHovered(true)}
+      onPointerLeave={() => setHovered(false)}
+    >
+      <header
+        className="flex scroll-mt-[calc(var(--site-header-height)+1.5rem)] flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4"
+        id={anchorId}
       >
-        {children}
-      </FramePanel>
+        <div className="flex min-w-0 flex-col gap-0.5">
+          <TitleTag
+            className={cn(
+              "m-0 font-semibold text-foreground tracking-tight",
+              hero ? "text-base" : "text-sm"
+            )}
+          >
+            {title}
+          </TitleTag>
+          <p className="m-0 text-pretty text-muted-foreground text-sm">
+            {description}
+          </p>
+        </div>
+        <div className="flex shrink-0 flex-wrap items-center gap-1.5">
+          <Button
+            render={<Link href={`/docs/components/${chartSlug}`} />}
+            size="xs"
+            variant="outline"
+          >
+            Open docs
+          </Button>
+          {isChartSlug(chartSlug) ? (
+            <Button
+              render={<Link href={studioChartHref(chartSlug)} />}
+              size="xs"
+              variant="outline"
+            >
+              Open in Studio
+            </Button>
+          ) : null}
+        </div>
+      </header>
+
+      <ComponentShowcase
+        className="my-0"
+        code={fullCode}
+        liveChartPreview
+        previewMinHeight={0}
+        previewOverlay={
+          <div className="absolute top-3 right-3 z-10">
+            <ShowcaseReplayAction
+              index={0}
+              onReplay={() => setReplayKey((key) => key + 1)}
+              reducedMotion={reducedMotion}
+              visible={showReplay}
+            />
+          </div>
+        }
+      >
+        <ChartPreviewGate
+          layout={previewLayout}
+          previewRole={hero ? "hero" : "example"}
+        >
+          <Fragment key={replayKey}>{children}</Fragment>
+        </ChartPreviewGate>
+      </ComponentShowcase>
+
       {footer ? (
-        <FrameFooter className="px-4 py-3">
-          <p className="text-muted-foreground text-xs">{footer}</p>
-        </FrameFooter>
+        <p className="m-0 text-muted-foreground text-xs">{footer}</p>
       ) : null}
-    </Frame>
+    </div>
   );
 }

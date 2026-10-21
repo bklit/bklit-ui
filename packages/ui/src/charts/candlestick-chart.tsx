@@ -342,14 +342,26 @@ const ChartCore = memo(function ChartCore({
         width={width}
       >
         <defs>
-          {/* Default vertical gradients for positive/negative candles (emerald / red) */}
+          {/* Default vertical gradients for positive/negative candles (--chart-positive / --chart-negative) */}
           <linearGradient id="candlestick-positive" x1="0" x2="0" y1="1" y2="0">
-            <stop offset="0%" stopColor="var(--color-emerald-500)" />
-            <stop offset="100%" stopColor="var(--color-emerald-500)" />
+            <stop
+              offset="0%"
+              stopColor="var(--chart-positive, var(--color-emerald-500))"
+            />
+            <stop
+              offset="100%"
+              stopColor="var(--chart-positive, var(--color-emerald-500))"
+            />
           </linearGradient>
           <linearGradient id="candlestick-negative" x1="0" x2="0" y1="1" y2="0">
-            <stop offset="0%" stopColor="var(--color-red-500)" />
-            <stop offset="100%" stopColor="var(--color-red-500)" />
+            <stop
+              offset="0%"
+              stopColor="var(--chart-negative, var(--color-red-500))"
+            />
+            <stop
+              offset="100%"
+              stopColor="var(--chart-negative, var(--color-red-500))"
+            />
           </linearGradient>
           {defsChildren}
         </defs>

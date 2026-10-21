@@ -3,7 +3,6 @@
 import { motion, useReducedMotion } from "motion/react";
 import Link from "next/link";
 import { HomeStudioVideo } from "@/components/home-studio-video";
-import { ParticleBadge } from "@/components/particle-badge";
 import { Button } from "@/components/ui/button";
 
 const sectionTitleClassName =
@@ -37,9 +36,7 @@ export function HomeStudioSection() {
             transition={transition}
             variants={fadeUp}
           >
-            <ParticleBadge disableHover>
-              <h2 className={sectionTitleClassName}>Studio Version 2</h2>
-            </ParticleBadge>
+            <h2 className={sectionTitleClassName}>Studio Version 2</h2>
           </motion.div>
           <motion.p
             animate="animate"

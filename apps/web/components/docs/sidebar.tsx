@@ -5,7 +5,6 @@ import type * as PageTree from "fumadocs-core/page-tree";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { DocsScrollArea } from "@/components/docs/docs-scroll-area";
-import { NavLinkLabel } from "@/components/docs/nav-link-label";
 import { cn } from "@/lib/utils";
 
 /** coss ui docs sidebar styling (https://coss.com/ui, MIT). */
@@ -51,7 +50,7 @@ export function Sidebar({ tree, links = [] }: SidebarProps) {
                       )}
                       href={link.url}
                     >
-                      <NavLinkLabel text={link.text} url={link.url} />
+                      {link.text}
                     </Link>
                   </li>
                 );

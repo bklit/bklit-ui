@@ -4,7 +4,7 @@ import { memo, type ReactNode } from "react";
 import { StudioPropertiesPanel } from "@/components/studio-properties-panel";
 import { EditorCollapsiblePane } from "@/editor/editor-collapsible-pane";
 import { EditorExportSection } from "@/editor/editor-export-section";
-import { EditorPropertiesSidebarHeader } from "@/editor/editor-properties-sidebar-header";
+import { EditorPropertiesSidebarFooter } from "@/editor/editor-properties-sidebar-footer";
 import { useStudioComponentSelection } from "@/editor/studio-component-selection";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import type {
@@ -23,7 +23,7 @@ export const EditorRightPanel = memo(function EditorRightPanel({
   onPreview,
   onCommit,
   controlsDisabled = false,
-  headerActions,
+  footerActions,
   isRecording = false,
   recordingBlocked = false,
   onExportSvg = () => undefined,
@@ -47,7 +47,7 @@ export const EditorRightPanel = memo(function EditorRightPanel({
     value: StudioUrlState[K]
   ) => void;
   controlsDisabled?: boolean;
-  headerActions?: ReactNode;
+  footerActions?: ReactNode;
   isRecording?: boolean;
   recordingBlocked?: boolean;
   onExportSvg?: () => void;
@@ -63,7 +63,6 @@ export const EditorRightPanel = memo(function EditorRightPanel({
   return (
     <EditorCollapsiblePane className="h-full" label="Properties" side="right">
       <div className="flex h-full min-h-0 w-full flex-col">
-        <EditorPropertiesSidebarHeader actions={headerActions} />
         <StudioPropertiesPanel
           component={selectedComponent}
           config={config}
@@ -83,6 +82,7 @@ export const EditorRightPanel = memo(function EditorRightPanel({
           onStopRecording={onStopRecording}
           recordingBlocked={recordingBlocked}
         />
+        <EditorPropertiesSidebarFooter actions={footerActions} />
       </div>
     </EditorCollapsiblePane>
   );

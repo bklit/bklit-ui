@@ -16,7 +16,7 @@ export function StudioEditorSidebarActions({
   ) : (
     <StudioCodeSheetTrigger
       state={state}
-      triggerClassName="font-mono text-xs sm:text-xs"
+      triggerClassName="w-full font-mono text-xs sm:text-xs"
       triggerSize="sm"
     />
   );

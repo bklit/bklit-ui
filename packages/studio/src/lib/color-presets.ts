@@ -1,12 +1,27 @@
 import type { CSSProperties } from "react";
+import {
+  CHART_PALETTE_VAR_NAMES,
+  CHART_PALETTES,
+  type ChartPaletteMode,
+  chartPaletteColors,
+  getChartPalette,
+  isChartPaletteId,
+} from "./chart-palettes";
 import { CHART_PALETTE_DERIVED_VARS } from "./svg-export/chart-var-aliases";
 
+/**
+ * Studio `preset` URL values. `default` inherits the site palette (docs header
+ * picker, `Primary` out of the box); the rest come from `chart-palettes.ts`.
+ * Legacy ids (lime, violet, warm, mono) fail the URL parser and fall back to `default`.
+ */
 export const COLOR_PRESET_IDS = [
   "default",
-  "lime",
-  "violet",
-  "warm",
-  "mono",
+  "primary",
+  "monochrome",
+  "ocean",
+  "sunset",
+  "grove",
+  "vivid",
 ] as const;
 
 export type ColorPresetId = (typeof COLOR_PRESET_IDS)[number];
@@ -14,75 +29,56 @@ export type ColorPresetId = (typeof COLOR_PRESET_IDS)[number];
 export interface ColorPreset {
   id: ColorPresetId;
   label: string;
-  vars: Record<string, string>;
 }
 
-/** Overrides --chart-1 … --chart-5 on the preview wrapper */
 export const COLOR_PRESETS: ColorPreset[] = [
-  {
-    id: "default",
-    label: "Mist (default)",
-    vars: {},
-  },
-  {
-    id: "lime",
-    label: "Lime",
-    vars: {
-      "--chart-1": "oklch(0.84 0.18 128)",
-      "--chart-2": "oklch(0.76 0.16 132)",
-      "--chart-3": "oklch(0.68 0.14 136)",
-      "--chart-4": "oklch(0.58 0.12 140)",
-      "--chart-5": "oklch(0.48 0.1 144)",
-    },
-  },
-  {
-    id: "violet",
-    label: "Violet / cyan",
-    vars: {
-      "--chart-1": "oklch(0.62 0.22 303)",
-      "--chart-2": "oklch(0.72 0.14 220)",
-      "--chart-3": "oklch(0.55 0.18 280)",
-      "--chart-4": "oklch(0.65 0.12 200)",
-      "--chart-5": "oklch(0.45 0.1 260)",
-    },
-  },
-  {
-    id: "warm",
-    label: "Warm",
-    vars: {
-      "--chart-1": "oklch(0.75 0.16 55)",
-      "--chart-2": "oklch(0.68 0.18 35)",
-      "--chart-3": "oklch(0.62 0.2 25)",
-      "--chart-4": "oklch(0.55 0.16 15)",
-      "--chart-5": "oklch(0.48 0.12 10)",
-    },
-  },
-  {
-    id: "mono",
-    label: "Monochrome",
-    vars: {
-      "--chart-1": "oklch(0.35 0.01 260)",
-      "--chart-2": "oklch(0.5 0.01 260)",
-      "--chart-3": "oklch(0.65 0.01 260)",
-      "--chart-4": "oklch(0.78 0.01 260)",
-      "--chart-5": "oklch(0.88 0.01 260)",
-    },
-  },
+  { id: "default", label: "Site palette" },
+  ...CHART_PALETTES.filter((palette) =>
+    (COLOR_PRESET_IDS as readonly string[]).includes(palette.id)
+  ).map((palette) => ({
+    id: palette.id as ColorPresetId,
+    label: palette.name,
+  })),
 ];
 
+/** Resolved light/dark mode for Studio palette values outside React. */
+export function readStudioPaletteMode(): ChartPaletteMode {
+  if (typeof document === "undefined") {
+    return "light";
+  }
+  const shell = document.querySelector(".studio-shell");
+  const element = shell ?? document.documentElement;
+  return element.classList.contains("dark") ? "dark" : "light";
+}
+
+/** `--chart-*` overrides for a preset (empty for `default`). */
+export function presetVars(
+  id: ColorPresetId,
+  mode: ChartPaletteMode = readStudioPaletteMode()
+): Record<string, string> {
+  if (id === "default" || !isChartPaletteId(id)) {
+    return {};
+  }
+  const colors = chartPaletteColors(getChartPalette(id), mode);
+  return Object.fromEntries(
+    CHART_PALETTE_VAR_NAMES.map((name) => [`--${name}`, colors[name]])
+  );
+}
+
+/** Overrides --chart-1 … --chart-5 (+ positive / negative) on the preview wrapper */
 export function presetStyle(
   id: ColorPresetId,
-  chartAccent?: string
+  chartAccent?: string,
+  mode?: ChartPaletteMode
 ): CSSProperties {
-  const preset = COLOR_PRESETS.find((p) => p.id === id);
-  const vars = { ...(preset?.vars ?? {}) };
+  const vars = presetVars(id, mode);
   const accent = chartAccent?.trim();
 
   if (accent) {
     vars["--chart-1"] = accent;
   }
 
-  if (Object.keys(vars).length > 0 || accent) {
+  if (Object.keys(vars).length > 0) {
     Object.assign(vars, CHART_PALETTE_DERIVED_VARS);
   }
 
@@ -91,14 +87,25 @@ export function presetStyle(
 
 /** Representative swatch for preset picker (chart-1). */
 export function presetSwatchColor(id: ColorPresetId): string {
-  const preset = COLOR_PRESETS.find((p) => p.id === id);
-  return preset?.vars["--chart-1"] ?? "var(--chart-1)";
+  return presetVars(id)["--chart-1"] ?? "var(--chart-1)";
 }
 
-/** Radial preview from chart-1 (top-left) to chart-5 for palette circles. */
-export function presetSwatchGradient(id: ColorPresetId): string {
-  const preset = COLOR_PRESETS.find((p) => p.id === id);
-  const chart1 = preset?.vars["--chart-1"] ?? "var(--chart-1)";
-  const chart5 = preset?.vars["--chart-5"] ?? "var(--chart-5)";
-  return `radial-gradient(circle at 0% 0%, ${chart1}, ${chart5})`;
+/** Chart-1 … chart-5 colors for palette strips (CSS vars for `default`). */
+export function presetSwatchColors(
+  id: ColorPresetId,
+  mode?: ChartPaletteMode
+): string[] {
+  const vars = presetVars(id, mode);
+  return [1, 2, 3, 4, 5].map(
+    (index) => vars[`--chart-${index}`] ?? `var(--chart-${index})`
+  );
+}
+
+/** Three-slice (chart-1 … chart-3) conic preview for palette circles. */
+export function presetSwatchGradient(
+  id: ColorPresetId,
+  mode?: ChartPaletteMode
+): string {
+  const [chart1, chart2, chart3] = presetSwatchColors(id, mode);
+  return `conic-gradient(${chart1} 0 33%, ${chart2} 0 66%, ${chart3} 0)`;
 }

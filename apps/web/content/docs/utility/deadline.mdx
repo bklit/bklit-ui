@@ -1,0 +1,107 @@
+---
+title: Deadline
+description: Due-date marker for date x axes — a vertical line with a striped, gradient, or solid region to its right that fades out
+---
+
+import { studioChartHref } from "@bklitui/studio";
+import {
+  DateHighlightsAreaDemo,
+  DeadlineFillTypesDemo,
+  DeadlineLineDemo,
+} from "@/components/docs/date-highlights-demo";
+import { OpenInStudioButton } from "@/components/docs/open-in-studio-button";
+
+<ComponentPreview registryName="deadline">
+  <DeadlineLineDemo />
+</ComponentPreview>
+
+## Installation
+
+<InstallationTabs name="deadline" dependencies={["motion"]} />
+
+## Usage
+
+`Deadline` marks a due date or point of no return: a vertical line at `date`, plus a region that extends right — to `endDate` or the plot edge — and fades out. Place it as a child of `LineChart`, `AreaChart`, `ComposedChart`, `CandlestickChart`, or a vertical `BarChart` with date rows. It renders in the underlay layer, behind series.
+
+```tsx
+import { LineChart, Line, Grid, Deadline, ChartTooltip, XAxis } from "@bklitui/ui/charts";
+
+<LineChart data={data}>
+  <Grid horizontal />
+  <Deadline date={new Date(2026, 9, 15)} label="Due Oct 15" />
+  <Line dataKey="scope" />
+  <Line dataKey="completed" />
+  <XAxis />
+  <ChartTooltip />
+</LineChart>
+```
+
+The colour defaults to `--chart-negative` (red), with a fallback to `--color-red-500` when the token is missing. The fade gradient is pinned to the region's data coordinates, so it stays in place while you brush or pan. On bar charts the line sits on the left edge of the first column on or after `date`.
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `date` | `Date \| number \| string` | required | Marker date (left edge of the region) |
+| `endDate` | `Date \| number \| string` | — | Region end (plot right edge when omitted) |
+| `color` | `string` | `var(--chart-negative)` | Line and fill colour |
+| `fillType` | `"pattern" \| "gradient" \| "solid" \| "none"` | `"pattern"` | Region fill; `"none"` draws only the line |
+| `fillOpacity` | `number` | `0.6` (pattern), `0.25` (gradient), `0.12` (solid) | Region opacity |
+| `gradientToOpacity` | `number` | `0` | `gradient` only — opacity at the region's right edge |
+| `pattern` | Pattern preset id | `"diagonal"` | Pattern when `fillType` is `"pattern"` |
+| `patternScale` | `number` | `1.5` | Pattern tile scale |
+| `patternStrokeWidth` | `number` | `1` | Stripe width |
+| `fade` | `boolean` | `true` | Fade the region out towards its right edge |
+| `fadeLength` | `number` | `0.5` | Fraction (0–1) of the region, from the right, that fades |
+| `showLine` | `boolean` | `true` | Draw the vertical marker line |
+| `stroke` | `string` | `color` | Line colour |
+| `strokeWidth` | `number` | `1` | Line width |
+| `strokeDasharray` | `string` | — | Dash array for a dashed line |
+| `strokeOpacity` | `number` | `1` | Line opacity |
+| `label` | `string` | — | Text beside the line (flips to the left near the right edge) |
+| `labelPosition` | `"top" \| "bottom"` | `"top"` | Label placement |
+| `labelColor` | `string` | `color` | Label colour |
+| `dateKey` | `string` | auto | Band (bar) scales only — data key holding each row's date |
+| `className` | `string` | — | Class on the root `<g>` |
+
+## Studio
+
+<div className="not-prose mb-3 flex items-center justify-between gap-4">
+  <h3 className="m-0 font-semibold text-foreground text-base tracking-tight">
+    Edit in Studio
+  </h3>
+  <OpenInStudioButton
+    href={studioChartHref("line-chart", {
+      hiddenComponents:
+        "line.yaxis.left|line.yaxis.right|line.reference-area|line.band|+line.weekends|+line.deadline",
+    })}
+    slug="line-chart"
+  />
+</div>
+
+Open [Studio with the line chart](/studio?chart=line-chart) and toggle the **Deadline** layer (eye icon) in the layers panel to set its position, label, fill type, fade, and line style. The same layer is available on area and composed charts.
+
+## Examples
+
+### Fill types
+
+<ComponentShowcase code={`<Deadline date={dueDate} fillType="pattern" />
+<Deadline date={dueDate} fillType="gradient" />
+<Deadline date={dueDate} fillType="solid" />`}>
+  <DeadlineFillTypesDemo />
+</ComponentShowcase>
+
+### Area chart with weekends
+
+<ComponentShowcase code={`<AreaChart data={data}>
+  <Grid horizontal />
+  <Weekends />
+  <Deadline date={new Date(2026, 9, 15)} fillType="gradient" />
+  <Area dataKey="completed" fill="var(--chart-1)" />
+  <XAxis />
+  <ChartTooltip />
+</AreaChart>`}>
+  <DateHighlightsAreaDemo />
+</ComponentShowcase>
+
+See [Weekends](/docs/utility/weekends) for brush-zoom, bar chart, and composed chart examples that combine both utilities.

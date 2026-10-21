@@ -114,7 +114,12 @@ const CLIP_EXCLUDED_COMPONENT_NAMES = new Set([
   "LiveYAxis",
 ]);
 
-const UNDERLAY_COMPONENT_NAMES = new Set(["ReferenceArea", "BarColumnTrack"]);
+const UNDERLAY_COMPONENT_NAMES = new Set([
+  "ReferenceArea",
+  "BarColumnTrack",
+  "Weekends",
+  "Deadline",
+]);
 
 /** Markers render after the interaction overlay so they stay clickable. */
 export function isPostOverlayComponent(child: ReactElement): boolean {

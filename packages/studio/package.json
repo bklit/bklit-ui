@@ -12,6 +12,9 @@
   ],
   "exports": {
     ".": "./src/index.ts",
+    "./chart-palettes": "./src/lib/chart-palettes.ts",
+    "./chart-palette-editor": "./src/components/chart-palette/chart-palette-editor.tsx",
+    "./ui/dialog": "./src/ui/dialog.tsx",
     "./dev/ui-demos": "./src/dev/studio-ui-demos.tsx",
     "./dev/ui-preview": "./src/dev/studio-ui-preview.tsx",
     "./styles/studio.css": "./src/styles/studio.css",

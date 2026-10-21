@@ -19,6 +19,10 @@ import {
   StudioChartYAxisLayers,
   timeSeriesChartMargin,
 } from "@/components/charts/studio-chart-y-axis";
+import {
+  studioDeadlineLayer,
+  studioWeekendsLayer,
+} from "@/components/charts/studio-date-highlight-layers";
 import { StudioReferenceAreaLayer } from "@/components/charts/studio-reference-area-layer";
 import { StudioTrendLineLayer } from "@/components/charts/studio-trend-line-layer";
 import { fadeEdgesPropValue } from "@/components/controls/fade-edges-picker";
@@ -279,6 +283,8 @@ export function AreaStudioPreview({
                 componentId="area.reference-area"
                 state={state}
               />
+              {studioWeekendsLayer(state, "area")}
+              {studioDeadlineLayer(state, "area", data)}
               {ctx.patternDefs}
               {renderMainAreas(state, ctx, {
                 dataLength: data.length,

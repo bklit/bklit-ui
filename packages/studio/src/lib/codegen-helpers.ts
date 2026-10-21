@@ -401,6 +401,96 @@ function referenceAreaCodegenImport(
   }
 }
 
+const WEEKEND_DAYS_CODEGEN: Record<StudioUrlState["weekendsDays"], string> = {
+  "sat-sun": "",
+  "fri-sat": " weekendDays={[5, 6]}",
+  sun: " weekendDays={[0]}",
+};
+
+function weekendsCodegenBlock(state: StudioUrlState, chartPrefix: string) {
+  if (!isStudioComponentVisible(state, `${chartPrefix}.weekends`)) {
+    return "";
+  }
+  const parts = [WEEKEND_DAYS_CODEGEN[state.weekendsDays] ?? ""];
+  if (state.weekendsFillType !== "pattern") {
+    parts.push(` fillType="${state.weekendsFillType}"`);
+  }
+  if (state.weekendsColor !== "var(--chart-foreground-muted)") {
+    parts.push(` fill="${state.weekendsColor}"`);
+  }
+  parts.push(` fillOpacity={${state.weekendsOpacity}}`);
+  if (
+    state.weekendsFillType === "pattern" &&
+    state.weekendsPatternScale !== 1.5
+  ) {
+    parts.push(` patternScale={${state.weekendsPatternScale}}`);
+  }
+  if (state.weekendsAlign !== "auto") {
+    parts.push(` align="${state.weekendsAlign}"`);
+  }
+  return `\n  <Weekends${parts.join("")} />`;
+}
+
+function deadlineCodegenBlock(state: StudioUrlState, chartPrefix: string) {
+  if (!isStudioComponentVisible(state, `${chartPrefix}.deadline`)) {
+    return "";
+  }
+  const points = clampStudioPointCount(state.dataPoints);
+  const position = Math.min(1, Math.max(0, state.deadlinePosition));
+  const day = Math.round(position * (points - 1)) + 1;
+  const parts = [` date={new Date(2024, 0, ${day})}`];
+  if (state.deadlineLabel) {
+    parts.push(` label="${state.deadlineLabel.replace(/"/g, '\\"')}"`);
+  }
+  if (state.deadlineFillType !== "pattern") {
+    parts.push(` fillType="${state.deadlineFillType}"`);
+  }
+  if (state.deadlineColor !== "var(--chart-negative)") {
+    parts.push(` color="${state.deadlineColor}"`);
+  }
+  if (state.deadlineFillType !== "none") {
+    parts.push(` fillOpacity={${state.deadlineOpacity}}`);
+    if (
+      state.deadlineFillType === "pattern" &&
+      state.deadlinePatternScale !== 1.5
+    ) {
+      parts.push(` patternScale={${state.deadlinePatternScale}}`);
+    }
+    if (!state.deadlineFade) {
+      parts.push(" fade={false}");
+    } else if (state.deadlineFadeLength !== 0.5) {
+      parts.push(` fadeLength={${state.deadlineFadeLength}}`);
+    }
+  }
+  if (state.deadlineShowLine) {
+    if (state.deadlineStrokeWidth !== 1) {
+      parts.push(` strokeWidth={${state.deadlineStrokeWidth}}`);
+    }
+    if (state.deadlineStrokeStyle === "dashed") {
+      parts.push(' strokeDasharray="4,4"');
+    }
+  } else {
+    parts.push(" showLine={false}");
+  }
+  return `\n  <Deadline${parts.join("")} />`;
+}
+
+/** `<Weekends />` + `<Deadline />` blocks and their imports for date-axis charts. */
+export function dateHighlightsCodegen(
+  state: StudioUrlState,
+  chartPrefix: string
+): { block: string; imports: string[] } {
+  const weekends = weekendsCodegenBlock(state, chartPrefix);
+  const deadline = deadlineCodegenBlock(state, chartPrefix);
+  return {
+    block: `${weekends}${deadline}`,
+    imports: [
+      ...(weekends ? ["Weekends"] : []),
+      ...(deadline ? ["Deadline"] : []),
+    ],
+  };
+}
+
 function trendLinePropsCodegen(
   state: StudioUrlState,
   ignoreYAxis: boolean,
@@ -596,12 +686,14 @@ export function cartesianCodegen(
   const gridBlock = gridVisible ? `\n  <Grid${gridPropsCodegen(state)} />` : "";
   const referenceAreaBlock = referenceAreaCodegenBlock(state, chartPrefix);
   const trendLineBlock = trendLineCodegenBlock(state, chartPrefix);
+  const dateHighlights = dateHighlightsCodegen(state, chartPrefix);
 
   const chartImports = [chartType, "XAxis", "ChartTooltip"];
   if (gridVisible) {
     chartImports.push("Grid");
   }
   referenceAreaCodegenImport(state, chartPrefix, chartImports);
+  chartImports.push(...dateHighlights.imports);
   if (trendLineBlock) {
     chartImports.push("TrendLine");
   }
@@ -641,7 +733,7 @@ export function cartesianCodegen(
   return `import { ${chartImports.join(", ")} } from "@bklitui/ui/charts";
 ${curveImports}
 
-<${chartType} data={${band.dataVar}}${anim}>${backgroundBlock}${gridBlock}${referenceAreaBlock}${band.block}${child}${trendLineBlock}${projectionBlock}
+<${chartType} data={${band.dataVar}}${anim}>${backgroundBlock}${gridBlock}${referenceAreaBlock}${dateHighlights.block}${band.block}${child}${trendLineBlock}${projectionBlock}
   <XAxis />
   <ChartTooltip />
 </${chartType}>`;
@@ -872,6 +964,10 @@ export function composedCodegen(state: StudioUrlState) {
   const gridBlock = gridVisible ? "\n  <Grid horizontal />" : "";
   const referenceAreaBlock = referenceAreaCodegenBlock(state, "composed");
   const trendLineBlock = trendLineCodegenBlock(state, "composed");
+  const dateHighlights = dateHighlightsCodegen(state, "composed");
+  const dateHighlightsImport = dateHighlights.imports
+    .map((name) => `, ${name}`)
+    .join("");
   const gridImport = gridVisible ? ", Grid" : "";
   const backgroundImport = backgroundBlock ? ", Background" : "";
   const referenceAreaImport = isStudioComponentVisible(
@@ -888,11 +984,11 @@ export function composedCodegen(state: StudioUrlState) {
   );
 
   return {
-    code: `import { ComposedChart, SeriesBar, Area, Line, XAxis, ChartTooltip${gridImport}${backgroundImport}${referenceAreaImport}${trendLineImport}${state.pattern === "none" ? "" : ", PatternLines"} } from "@bklitui/ui/charts";
+    code: `import { ComposedChart, SeriesBar, Area, Line, XAxis, ChartTooltip${gridImport}${backgroundImport}${referenceAreaImport}${dateHighlightsImport}${trendLineImport}${state.pattern === "none" ? "" : ", PatternLines"} } from "@bklitui/ui/charts";
 ${curveImports}
 
 <ComposedChart data={chartData}
-  ${cssRevealAnimationCodegen(state.animationDuration, motionSliceFromState(state))}>${backgroundBlock}${gridBlock}${referenceAreaBlock}${barPattern}${barLine}${overlays}${trendLineBlock}
+  ${cssRevealAnimationCodegen(state.animationDuration, motionSliceFromState(state))}>${backgroundBlock}${gridBlock}${referenceAreaBlock}${dateHighlights.block}${barPattern}${barLine}${overlays}${trendLineBlock}
   <XAxis />
   <ChartTooltip />
 </ComposedChart>`,

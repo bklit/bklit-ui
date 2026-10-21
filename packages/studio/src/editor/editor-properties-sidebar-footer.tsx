@@ -3,7 +3,8 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-export function EditorPropertiesSidebarHeader({
+/** Pinned footer at the bottom of the properties sidebar (outside the scroll area). */
+export function EditorPropertiesSidebarFooter({
   actions,
   className,
 }: {
@@ -17,7 +18,7 @@ export function EditorPropertiesSidebarHeader({
   return (
     <div
       className={cn(
-        "flex shrink-0 items-center justify-end gap-1 border-border/60 border-b px-3 py-1.5",
+        "flex shrink-0 flex-col gap-2 border-border/60 border-t p-3 *:w-full",
         className
       )}
     >

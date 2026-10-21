@@ -2,13 +2,11 @@
 
 import type { ReactNode } from "react";
 import { ChartExampleFrame } from "@/components/charts/chart-example-frame";
-import {
-  ChartExamplePreviewFrame,
-  type ChartExamplePreviewLayout,
-  getChartExampleContentPaddingClassName,
-} from "@/components/charts/chart-example-preview";
+import type { ChartExamplePreviewLayout } from "@/components/charts/chart-example-preview";
 
 export function FeaturedChartHero({
+  anchorId,
+  chartSlug,
   title,
   description,
   code,
@@ -17,6 +15,8 @@ export function FeaturedChartHero({
   previewLayout = "cartesian",
   children,
 }: {
+  anchorId?: string;
+  chartSlug: string;
   title: string;
   description: string;
   code: string;
@@ -27,17 +27,17 @@ export function FeaturedChartHero({
 }) {
   return (
     <ChartExampleFrame
+      anchorId={anchorId}
+      chartSlug={chartSlug}
       code={code}
       data={data}
       description={description}
       footer={footer}
       hero
-      panelClassName={getChartExampleContentPaddingClassName(previewLayout)}
+      previewLayout={previewLayout}
       title={title}
     >
-      <ChartExamplePreviewFrame layout={previewLayout} previewRole="hero">
-        {children}
-      </ChartExamplePreviewFrame>
+      {children}
     </ChartExampleFrame>
   );
 }

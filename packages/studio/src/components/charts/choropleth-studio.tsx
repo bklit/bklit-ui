@@ -48,7 +48,7 @@ const ChoroplethChartBody = memo(function ChoroplethChartBody({
     (feat: ChoroplethFeature): string => {
       const visitors = visitorCounts[feat.properties?.name as string];
       if (!visitors) {
-        return "var(--muted)";
+        return "var(--chart-scale-01)";
       }
       if (visitors >= 17) {
         return "var(--chart-1)";

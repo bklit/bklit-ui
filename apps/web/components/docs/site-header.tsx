@@ -32,7 +32,6 @@ import {
   SheetTrigger,
 } from "../ui/sheet";
 import { DocsSearchTrigger } from "./docs-search-trigger";
-import { NavLinkLabel } from "./nav-link-label";
 
 function trackDiscordClick(location: "header" | "mobile_menu") {
   trackEvent("discord_click", {
@@ -85,6 +84,8 @@ const utilities = [
   { text: "Reference Area", url: "/docs/utility/reference-area" },
   { text: "Projection Line", url: "/docs/utility/projection-line" },
   { text: "Band", url: "/docs/utility/band" },
+  { text: "Weekends", url: "/docs/utility/weekends" },
+  { text: "Deadline", url: "/docs/utility/deadline" },
   { text: "Trend Line", url: "/docs/utility/trend-line" },
   { text: "Markers", url: "/docs/utility/markers" },
   { text: "Tooltip", url: "/docs/utility/tooltip" },
@@ -215,7 +216,7 @@ function MobileMenu({
                   key={link.url}
                   onClick={onClose}
                 >
-                  <NavLinkLabel text={link.text} url={link.url} />
+                  {link.text}
                 </MobileLink>
               ))}
             </div>
@@ -412,7 +413,7 @@ export function SiteHeader({
                   }
                   variant="ghost"
                 >
-                  <NavLinkLabel text={link.text} url={link.url} />
+                  {link.text}
                 </Button>
               );
             })}

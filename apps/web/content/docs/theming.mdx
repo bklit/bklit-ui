@@ -68,18 +68,32 @@ These are used for coloring different data series in multi-line charts:
 | `--chart-4` | Fourth series color |
 | `--chart-5` | Fifth series color |
 
+### Trend Colors
+
+Semantic up / down colors used by `ProfitLossLine`, `Candlestick`, and the `Scatter` y-gradient. Components fall back to Tailwind's emerald / red when these are not defined.
+
+| CSS Property | Description |
+|-------------|-------------|
+| `--chart-positive` | Profit, gain, and up candles (default emerald) |
+| `--chart-negative` | Loss, decline, and down candles (default red) |
+
+Pick a palette (or customize one and export its CSS) from the palette menu in the site header.
+
 ### Sequential Scale
 
 For heatmaps, choropleths, and other binned or intensity-based charts, use the sequential scale tokens (`01` = lowest, `05` = highest):
 
 | CSS Property | Description |
 |-------------|-------------|
-| `--chart-scale-01` | Empty / lowest intensity |
-| `--chart-scale-02` | Level 1 |
-| `--chart-scale-03` | Level 2 |
-| `--chart-scale-04` | Level 3 |
-| `--chart-scale-05` | Highest intensity |
+| `--chart-scale-01` | Empty / zero (neutral muted tone) |
+| `--chart-scale-02` | Level 1 — `color-mix(in oklab, var(--chart-1) 35%, var(--chart-scale-mix))` |
+| `--chart-scale-03` | Level 2 — `--chart-1` at 55% |
+| `--chart-scale-04` | Level 3 — `--chart-1` at 78% |
+| `--chart-scale-05` | Highest intensity — `var(--chart-1)` |
+| `--chart-scale-mix` | Ramp mix target: white in light mode, near-black in dark mode |
 | `--chart-scale-pattern-color` | Pattern stroke for zero / empty cells |
+
+Levels 02–05 derive from `--chart-1`, so the heatmap and choropleth ramp follows whichever palette is active (including custom palettes) with no extra variables. Override any `--chart-scale-*` to use a custom ramp.
 
 Import typed references from `@bklitui/ui/charts`:
 
@@ -118,9 +132,15 @@ Override CSS variables in your stylesheet to customize chart appearance:
   --chart-indicator-color: oklch(0.21 0.006 285);
   
   /* Series colors */
-  --chart-1: oklch(0.32 0 none);
-  --chart-2: oklch(0.41 0 none);
-  --chart-3: oklch(0.54 0 none);
+  --chart-1: oklch(0.585 0.233 277.117);
+  --chart-2: oklch(0.852 0.199 91.936);
+  --chart-3: oklch(0.667 0.295 322.15);
+  --chart-4: oklch(0.56 0.021 213.5);
+  --chart-5: oklch(0 0 0);
+
+  /* Trend colors */
+  --chart-positive: oklch(0.696 0.17 162.48);
+  --chart-negative: oklch(0.637 0.237 25.331);
 
   /* Sequential scale (heatmap / choropleth) */
   --chart-scale-01: oklch(0.98 0.003 106);
@@ -140,6 +160,9 @@ Override CSS variables in your stylesheet to customize chart appearance:
   --chart-foreground: oklch(0.45 0 0);
   --chart-grid: oklch(0.25 0 0);
   --chart-indicator-color: oklch(1 0 0);
+  --chart-5: oklch(1 0 0);
+  --chart-positive: oklch(0.765 0.177 163.223);
+  --chart-negative: oklch(0.704 0.191 22.216);
 }
 ```
 

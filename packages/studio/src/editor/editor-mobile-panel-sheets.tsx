@@ -8,7 +8,7 @@ import { StudioScrollArea } from "@/components/studio-scroll-area";
 import { EditorAnimationSection } from "@/editor/editor-animation-section";
 import { EditorDataSection } from "@/editor/editor-data-section";
 import { EditorExportSection } from "@/editor/editor-export-section";
-import { EditorPropertiesSidebarHeader } from "@/editor/editor-properties-sidebar-header";
+import { EditorPropertiesSidebarFooter } from "@/editor/editor-properties-sidebar-footer";
 import { useStudioComponentSelection } from "@/editor/studio-component-selection";
 import { isCartesianLoadingMode } from "@/lib/line-chart-mode";
 import type { StudioUrlState } from "@/lib/studio-parsers";
@@ -91,7 +91,7 @@ export function EditorMobilePanelSheets({
   showMotionControls = false,
   chartSelector,
   controlsDisabled = false,
-  headerActions,
+  footerActions,
   onScramble,
   isRecording = false,
   recordingBlocked = false,
@@ -123,7 +123,7 @@ export function EditorMobilePanelSheets({
   showMotionControls?: boolean;
   chartSelector?: React.ReactNode;
   controlsDisabled?: boolean;
-  headerActions?: ReactNode;
+  footerActions?: ReactNode;
   onScramble: () => void;
   isRecording?: boolean;
   recordingBlocked?: boolean;
@@ -208,7 +208,6 @@ export function EditorMobilePanelSheets({
           <SheetDescription className="sr-only">
             Configurable options for the selected chart component.
           </SheetDescription>
-          <EditorPropertiesSidebarHeader actions={headerActions} />
           <StudioPropertiesPanel
             component={selectedComponent}
             config={config}
@@ -228,6 +227,7 @@ export function EditorMobilePanelSheets({
             onStopRecording={onStopRecording}
             recordingBlocked={recordingBlocked}
           />
+          <EditorPropertiesSidebarFooter actions={footerActions} />
         </SheetContent>
       </Sheet>
     </>

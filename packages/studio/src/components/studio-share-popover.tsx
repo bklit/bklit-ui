@@ -2,7 +2,6 @@
 
 import { Icon } from "@bklitui/icons";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ParticleBadge } from "@/components/onboarding/particle-badge";
 import { StudioShareCopyField } from "@/components/studio-share-copy-field";
 import {
   useStudioToolbarMounted,
@@ -72,9 +71,7 @@ export function StudioSharePopover({
       type="button"
       variant="ghost"
     >
-      <ParticleBadge>
-        <Icon className="size-4" name="IconShareOs" />
-      </ParticleBadge>
+      <Icon className="size-4" name="IconShareOs" />
     </Button>
   );
 
@@ -104,9 +101,7 @@ export function StudioSharePopover({
               />
             }
           >
-            <ParticleBadge>
-              <Icon className="size-4" name="IconShareOs" />
-            </ParticleBadge>
+            <Icon className="size-4" name="IconShareOs" />
           </PopoverTrigger>
         </TooltipTrigger>
         <TooltipContent side={tooltipSide}>Share</TooltipContent>

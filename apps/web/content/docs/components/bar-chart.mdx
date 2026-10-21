@@ -12,6 +12,7 @@ import {
 } from "@bklitui/ui/charts";
 import { BarChartLoadingDemo } from "@/components/docs/bar-chart-loading-demo";
 import { BarChartProfitLossDemo } from "@/components/docs/bar-chart-profit-loss-demo";
+import { DateHighlightsBarDemo } from "@/components/docs/date-highlights-demo";
 import { Icon } from "@bklitui/icons";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
@@ -234,6 +235,23 @@ Least-squares regression line through the bar centers of one series (vertical or
 <Bar dataKey="revenue" />
 <TrendLine dataKey="revenue" strokeStyle="gradient" />
 ```
+
+### Weekends / Deadline
+
+With daily rows whose x value is a `Date` (or a `"YYYY-MM-DD"` string), [`Weekends`](/docs/utility/weekends) shades the weekend columns and [`Deadline`](/docs/utility/deadline) marks a due date at the left edge of its column. Pass `dateKey` if the date lives in a different field than the x key.
+
+<ComponentShowcase
+  code={`<BarChart data={data} xDataKey="date">
+  <Grid horizontal />
+  <Weekends />
+  <Deadline date={new Date(2026, 9, 15)} label="Due" />
+  <Bar dataKey="issues" lineCap={2} />
+  <BarXAxis maxLabels={7} />
+  <ChartTooltip />
+</BarChart>`}
+>
+  <DateHighlightsBarDemo />
+</ComponentShowcase>
 
 ### BarDepthBack
 

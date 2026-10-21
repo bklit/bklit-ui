@@ -398,6 +398,23 @@ export const STUDIO_STATE_KEY_ORDER = [
   "bandFadeLeft",
   "bandFadeSize",
   "bandWarmup",
+  "weekendsDays",
+  "weekendsFillType",
+  "weekendsColor",
+  "weekendsOpacity",
+  "weekendsPatternScale",
+  "weekendsAlign",
+  "deadlinePosition",
+  "deadlineFillType",
+  "deadlineColor",
+  "deadlineOpacity",
+  "deadlinePatternScale",
+  "deadlineFade",
+  "deadlineFadeLength",
+  "deadlineShowLine",
+  "deadlineStrokeWidth",
+  "deadlineStrokeStyle",
+  "deadlineLabel",
 ] as const satisfies readonly (keyof StudioUrlState)[];
 
 /** Frozen historical layout (cc7bc08 — first compressed-URL release). Decode-only. */

@@ -66,7 +66,11 @@ export const LINE_CHART_DEFAULT_HIDDEN_Y_AXES = chartDefaultHiddenYAxes("line");
  * Used for layers added after share URLs existed (trend line) so older URLs
  * with an explicit `hiddenComponents` list keep rendering unchanged.
  */
-const OPT_IN_COMPONENT_SUFFIXES = [".trend-line"] as const;
+const OPT_IN_COMPONENT_SUFFIXES = [
+  ".trend-line",
+  ".weekends",
+  ".deadline",
+] as const;
 const SHOWN_TOKEN_PREFIX = "+";
 
 function isOptInStudioComponent(componentId: string): boolean {

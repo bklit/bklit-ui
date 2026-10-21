@@ -134,14 +134,19 @@ import {
 } from "react";
 import { ChartExampleFrame } from "@/components/charts/chart-example-frame";
 import {
-  ChartExamplePreviewFrame,
   type ChartExamplePreviewLayout,
   chartExampleGaugeClassName,
   chartExampleGaugeShellClassName,
   chartExampleRadialShellClassName,
   chartExampleSunburstHeroShellClassName,
-  getChartExampleContentPaddingClassName,
 } from "@/components/charts/chart-example-preview";
+import {
+  type ChartGalleryAnchor,
+  ChartGallerySidebar,
+  chartGalleryAnchorLabel,
+  createChartGalleryAnchorIds,
+} from "@/components/charts/chart-gallery-sidebar";
+import { useChartPreviewOffscreen } from "@/components/charts/chart-preview-gate";
 import { FeaturedChartHero } from "@/components/charts/featured-chart-hero";
 import { LineChartStudioTrioDemo } from "@/components/charts/line-chart-studio-trio-demo";
 import { siteContainerClassName } from "@/components/design/site-chrome";
@@ -171,6 +176,7 @@ import {
   composedTriSeriesData,
 } from "@/lib/composed-demo-data";
 import { getHeatmapDemoData } from "@/lib/heatmap-demo-data";
+import { cn } from "@/lib/utils";
 import {
   weeklyVisitorsDashFromIndex,
   weeklyVisitorsData,
@@ -313,13 +319,9 @@ function CandlestickTooltipContent({
           {fmt(open)}
         </span>
         <span className="text-chart-tooltip-muted">High</span>
-        <span className="text-emerald-600 tabular-nums dark:text-emerald-400">
-          {fmt(high)}
-        </span>
+        <span className="text-chart-positive tabular-nums">{fmt(high)}</span>
         <span className="text-chart-tooltip-muted">Low</span>
-        <span className="text-red-600 tabular-nums dark:text-red-400">
-          {fmt(low)}
-        </span>
+        <span className="text-chart-negative tabular-nums">{fmt(low)}</span>
         <span className="text-chart-tooltip-muted">Close</span>
         <span className="text-chart-tooltip-foreground tabular-nums">
           {fmt(close)}
@@ -339,11 +341,13 @@ function useLiveData(
   const [value, setValue] = useState(initialPrice);
   const priceRef = useRef(initialPrice);
   const momentumRef = useRef(0);
-  const pausedRef = useRef(paused);
+  const offscreen = useChartPreviewOffscreen();
+  const isPaused = paused || offscreen;
+  const pausedRef = useRef(isPaused);
 
   useEffect(() => {
-    pausedRef.current = paused;
-  }, [paused]);
+    pausedRef.current = isPaused;
+  }, [isPaused]);
 
   useEffect(() => {
     const nowSec = Date.now() / 1000;
@@ -654,43 +658,22 @@ const sankeyAnalytics = {
 // ---------------------------------------------------------------------------
 
 interface ChartExampleCardProps {
+  anchorId?: string;
+  chartSlug: string;
   title: string;
   description: string;
   code: string;
   data?: string;
   footer?: string;
   previewLayout?: ChartExamplePreviewLayout;
-  previewRole?: "hero" | "example";
   children: ReactNode;
 }
 
 function ChartExampleCard({
-  title,
-  description,
-  code,
-  data,
   footer = "Trending up by 5.2% this month",
-  previewLayout = "cartesian",
-  previewRole = "example",
-  children,
+  ...props
 }: ChartExampleCardProps) {
-  return (
-    <ChartExampleFrame
-      code={code}
-      data={data}
-      description={description}
-      footer={footer}
-      panelClassName={getChartExampleContentPaddingClassName(previewLayout)}
-      title={title}
-    >
-      <ChartExamplePreviewFrame
-        layout={previewLayout}
-        previewRole={previewRole}
-      >
-        {children}
-      </ChartExamplePreviewFrame>
-    </ChartExampleFrame>
-  );
+  return <ChartExampleFrame footer={footer} {...props} />;
 }
 
 // ---------------------------------------------------------------------------
@@ -833,6 +816,8 @@ function BarLineIndicator({
 // ---------------------------------------------------------------------------
 
 interface ChartExample {
+  /** Overrides the chart type's preview layout (e.g. horizontal bars). */
+  previewLayout?: ChartExamplePreviewLayout;
   title: string;
   description: string;
   code: string;
@@ -1005,7 +990,17 @@ const LineExampleChart = createChartExamplePreview(LineChart);
 const LineChartLoadingExample = createChartExamplePreview(LineChartLoading);
 const ComposedExampleChart = createChartExamplePreview(ComposedChart);
 const CandlestickExampleChart = createChartExamplePreview(CandlestickChart);
-const LiveLineExampleChart = createChartExamplePreview(LiveLineChart);
+const LiveLinePreviewChart = createChartExamplePreview(LiveLineChart);
+
+/** Freezes the live ticker while its gallery card is scrolled offscreen. */
+function LiveLineExampleChart({
+  paused,
+  ...props
+}: ComponentProps<typeof LiveLineChart>) {
+  const offscreen = useChartPreviewOffscreen();
+
+  return <LiveLinePreviewChart {...props} paused={paused || offscreen} />;
+}
 const ChoroplethExampleChart = createChartExamplePreview(ChoroplethChart);
 const SankeyExampleChart = createChartExamplePreview(SankeyChart);
 
@@ -1185,10 +1180,17 @@ function HeatmapGalleryExample({
   );
 }
 
+/**
+ * Quarter separator labels paint above the plot (outside the chart box), so
+ * reserve that space on top to keep the chart + legend vertically centered.
+ */
+const HEATMAP_SEPARATOR_LABELS_WRAPPER_CLASS =
+  "flex w-full max-w-full flex-col items-stretch gap-2 pt-5";
+
 function HeatmapCompactYAxisGalleryExample() {
   return (
     <HeatmapExampleShell>
-      <div className="flex w-full max-w-full flex-col items-stretch gap-2">
+      <div className={HEATMAP_SEPARATOR_LABELS_WRAPPER_CLASS}>
         <HeatmapExampleChart
           className="w-full min-w-0"
           data={heatmapContributionDataSixMonths}
@@ -1221,7 +1223,7 @@ function HeatmapCompactYAxisGalleryExample() {
 function HeatmapSolidSeparatorGalleryExample() {
   return (
     <HeatmapExampleShell>
-      <div className="flex w-full max-w-full flex-col items-stretch gap-2">
+      <div className={HEATMAP_SEPARATOR_LABELS_WRAPPER_CLASS}>
         <HeatmapExampleChart
           className="w-full min-w-0"
           data={heatmapContributionDataSixMonths}
@@ -1253,7 +1255,7 @@ function HeatmapSolidSeparatorGalleryExample() {
 function HeatmapDashedSeparatorGalleryExample() {
   return (
     <HeatmapExampleShell>
-      <div className="flex w-full max-w-full flex-col items-stretch gap-2">
+      <div className={HEATMAP_SEPARATOR_LABELS_WRAPPER_CLASS}>
         <HeatmapExampleChart
           className="w-full min-w-0"
           data={heatmapContributionDataSixMonths}
@@ -1285,7 +1287,7 @@ function HeatmapDashedSeparatorGalleryExample() {
 function HeatmapHeroExample() {
   return (
     <HeatmapExampleShell>
-      <div className="flex w-full max-w-full flex-col items-stretch gap-2">
+      <div className={HEATMAP_SEPARATOR_LABELS_WRAPPER_CLASS}>
         <HeatmapExampleChart
           className="w-full min-w-0"
           data={heatmapContributionData}
@@ -2149,6 +2151,7 @@ function makeBarExamples(): ChartExample[] {
       ),
     },
     {
+      previewLayout: "cartesian",
       title: "Bar Chart - Horizontal",
       description: "Horizontal orientation with y-axis labels",
       code: `<BarChart
@@ -2721,6 +2724,7 @@ function makeBarExamples(): ChartExample[] {
       ),
     }),
     {
+      previewLayout: "cartesian",
       title: "Bar Chart - Horizontal Trend Line",
       description: "Trend line through horizontal bar centers",
       code: `<BarChart
@@ -3643,8 +3647,8 @@ function LiveLineOffsetDemo() {
 }
 
 const momentumColors: MomentumColors = {
-  up: "var(--color-emerald-500)",
-  down: "var(--color-red-500)",
+  up: "var(--chart-positive)",
+  down: "var(--chart-negative)",
   flat: "var(--muted-foreground)",
 };
 
@@ -3736,7 +3740,7 @@ function makeLiveLineExamples(): ChartExample[] {
     {
       title: "Live Line - Momentum Colors",
       description: "Green for increase, red for decrease",
-      code: `const momentumColors = { up: "var(--color-emerald-500)", down: "var(--color-red-500)", flat: "var(--muted-foreground)" };
+      code: `const momentumColors = { up: "var(--chart-positive)", down: "var(--chart-negative)", flat: "var(--muted-foreground)" };
 
 <LiveLineChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={data} value={value} window={25}>
   <LiveLine dataKey="value" momentumColors={momentumColors} formatValue={formatUsd} dotSize={5} />
@@ -3954,7 +3958,7 @@ const visitorsByCountry: Record<string, number> = {
 function getVisitorColor(feat: ChoroplethFeature): string {
   const visitors = visitorsByCountry[feat.properties?.name as string];
   if (!visitors) {
-    return "var(--muted)";
+    return "var(--chart-scale-01)";
   }
   if (visitors >= 17) {
     return "var(--chart-1)";
@@ -5721,7 +5725,7 @@ function makeChoroplethExamples(): ChartExample[] {
 function candlestickIndicatorColor(point: Record<string, unknown>): string {
   const close = (point.close as number) ?? 0;
   const open = (point.open as number) ?? 0;
-  return close >= open ? "var(--color-emerald-500)" : "var(--color-red-500)";
+  return close >= open ? "var(--chart-positive)" : "var(--chart-negative)";
 }
 
 function makeCandlestickExamples(): ChartExample[] {
@@ -5740,7 +5744,7 @@ function makeCandlestickExamples(): ChartExample[] {
   />
   <ChartTooltip
     content={OHLCTooltipContent}
-    indicatorColor={(p) => (p.close >= p.open) ? "var(--color-emerald-500)" : "var(--color-red-500)"}
+    indicatorColor={(p) => (p.close >= p.open) ? "var(--chart-positive)" : "var(--chart-negative)"}
     showDots={false}
   />
   <XAxis />
@@ -6064,7 +6068,8 @@ function ChartHeroCurveToolbar({
   onValueChange: (v: string) => void;
 }) {
   return (
-    <div className="flex flex-wrap items-center justify-end gap-2">
+    // Right inset clears the frame's top-right Replay overlay.
+    <div className="flex flex-wrap items-center justify-end gap-2 pr-6 sm:pr-4">
       <span className="text-muted-foreground text-xs">Curve</span>
       <Select
         onValueChange={(v) => {
@@ -6348,9 +6353,9 @@ import {
   {(brushLayout) => (
     <LineChart data={chartData} xDomain={brushLayout.xDomain} tweenYDomainOnXDomainChange>
       <Background pattern="dots" opacity={0.85} />
-      <Line dataKey="desktop" curve={curveCatmullRom} fadeEdges strokeWidth={2} />
-      <Line dataKey="mobile" curve={curveCatmullRom} fadeEdges strokeWidth={2} />
-      <Line dataKey="tablet" curve={curveCatmullRom} fadeEdges strokeWidth={2} />
+      <Line dataKey="desktop" curve={curveCatmullRom} fadeEdges stroke="var(--chart-1)" strokeWidth={2} />
+      <Line dataKey="mobile" curve={curveCatmullRom} fadeEdges stroke="var(--chart-2)" strokeWidth={2} />
+      <Line dataKey="tablet" curve={curveCatmullRom} fadeEdges stroke="var(--chart-3)" strokeWidth={2} />
       <XAxis />
       <ChartTooltip />
     </LineChart>
@@ -7316,35 +7321,41 @@ function makeSunburstExamples(): ChartExample[] {
 
 interface RegistryEntry {
   factory: () => ChartExample[];
-  columns?: 2 | 3;
   hero?: () => ChartExample;
   notice?: string;
   previewLayout?: ChartExamplePreviewLayout;
 }
 
 const chartExamplesRegistry: Record<string, RegistryEntry> = {
-  "area-chart": { factory: makeAreaExamples, hero: makeAreaHero },
-  "bar-chart": { factory: makeBarExamples, hero: makeBarHero },
+  "area-chart": {
+    factory: makeAreaExamples,
+    hero: makeAreaHero,
+    previewLayout: "time-series",
+  },
+  "bar-chart": {
+    factory: makeBarExamples,
+    hero: makeBarHero,
+    previewLayout: "time-series",
+  },
   "candlestick-chart": {
     factory: makeCandlestickExamples,
     hero: makeCandlestickHero,
+    previewLayout: "time-series",
   },
   "choropleth-chart": {
     factory: makeChoroplethExamples,
-    columns: 2,
     hero: makeChoroplethHero,
     previewLayout: "wide",
   },
   "composed-chart": {
     factory: makeComposedExamples,
-    columns: 2,
     hero: makeComposedHero,
+    previewLayout: "time-series",
   },
   "funnel-chart": {
     factory: makeFunnelExamples,
-    columns: 2,
     hero: makeFunnelHero,
-    previewLayout: "compact",
+    previewLayout: "funnel",
   },
   "gauge-chart": {
     factory: makeGaugeExamples,
@@ -7353,16 +7364,22 @@ const chartExamplesRegistry: Record<string, RegistryEntry> = {
   },
   "heatmap-chart": {
     factory: makeHeatmapExamples,
-    columns: 2,
     hero: makeHeatmapHero,
     previewLayout: "heatmap",
   },
-  "line-chart": { factory: makeLineExamples, hero: makeLineHero },
-  "profit-loss-line": { factory: makeProfitLossLineExamples },
+  "line-chart": {
+    factory: makeLineExamples,
+    hero: makeLineHero,
+    previewLayout: "time-series",
+  },
+  "profit-loss-line": {
+    factory: makeProfitLossLineExamples,
+    previewLayout: "time-series",
+  },
   "live-line-chart": {
-    columns: 2,
     factory: makeLiveLineExamples,
     hero: makeLiveLineHero,
+    previewLayout: "time-series",
   },
   "pie-chart": { factory: makePieExamples, previewLayout: "compact" },
   "radar-chart": { factory: makeRadarExamples, previewLayout: "compact" },
@@ -7370,7 +7387,6 @@ const chartExamplesRegistry: Record<string, RegistryEntry> = {
   "scatter-chart": { factory: makeScatterExamples, hero: makeScatterHero },
   "sankey-chart": {
     factory: makeSankeyExamples,
-    columns: 2,
     hero: makeSankeyHero,
     previewLayout: "wide",
     notice:
@@ -7378,7 +7394,6 @@ const chartExamplesRegistry: Record<string, RegistryEntry> = {
   },
   "sunburst-chart": {
     factory: makeSunburstExamples,
-    columns: 2,
     hero: makeSunburstHero,
     previewLayout: "compact",
   },
@@ -7411,17 +7426,49 @@ export function ChartExamplesGrid({ chartSlug }: { chartSlug: string }) {
 
   const examples = entry.factory();
   const hero = entry.hero?.();
-  const gridCols =
-    entry.columns === 2
-      ? "grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-6"
-      : "grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 lg:gap-6";
+  const anchorIds = createChartGalleryAnchorIds([
+    ...(hero ? [hero.title] : []),
+    ...examples.map((example) => example.title),
+  ]);
+  const heroAnchorId = hero ? anchorIds[0] : undefined;
+  const exampleAnchorIds = hero ? anchorIds.slice(1) : anchorIds;
+  const anchors: ChartGalleryAnchor[] = [
+    ...(hero && heroAnchorId
+      ? [
+          {
+            id: heroAnchorId,
+            label: chartGalleryAnchorLabel(hero.title),
+            featured: true,
+          },
+        ]
+      : []),
+    ...examples.map((example, index) => ({
+      id: exampleAnchorIds[index] ?? "",
+      label: chartGalleryAnchorLabel(example.title),
+    })),
+  ];
 
   return (
-    <>
-      {hero ? (
-        <section className="relative w-full">
-          <div className={chartsPageContentClassName}>
+    <section className="relative w-full">
+      <div
+        className={cn(
+          chartsPageContentClassName,
+          "grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,4fr)] lg:gap-10"
+        )}
+      >
+        <ChartGallerySidebar anchors={anchors} />
+
+        <div className="flex min-w-0 flex-col gap-6 lg:gap-8">
+          {entry.notice ? (
+            <div className="rounded-xl border bg-card px-4 py-3 text-muted-foreground text-sm shadow-xs/5">
+              {entry.notice}
+            </div>
+          ) : null}
+
+          {hero ? (
             <FeaturedChartHero
+              anchorId={heroAnchorId}
+              chartSlug={chartSlug}
               code={hero.code}
               data={hero.data}
               description={hero.description}
@@ -7431,35 +7478,25 @@ export function ChartExamplesGrid({ chartSlug }: { chartSlug: string }) {
             >
               {hero.render()}
             </FeaturedChartHero>
-          </div>
-        </section>
-      ) : null}
-
-      <section className="relative w-full">
-        <div className={chartsPageContentClassName}>
-          {entry.notice ? (
-            <div className="mb-6 rounded-xl border bg-card px-4 py-3 text-muted-foreground text-sm shadow-xs/5">
-              {entry.notice}
-            </div>
           ) : null}
 
-          <div className={gridCols}>
-            {examples.map((example) => (
-              <ChartExampleCard
-                code={example.code}
-                data={example.data}
-                description={example.description}
-                footer={example.footer}
-                key={example.title}
-                previewLayout={entry.previewLayout}
-                title={example.title}
-              >
-                {example.render()}
-              </ChartExampleCard>
-            ))}
-          </div>
+          {examples.map((example, index) => (
+            <ChartExampleCard
+              anchorId={exampleAnchorIds[index]}
+              chartSlug={chartSlug}
+              code={example.code}
+              data={example.data}
+              description={example.description}
+              footer={example.footer}
+              key={example.title}
+              previewLayout={example.previewLayout ?? entry.previewLayout}
+              title={example.title}
+            >
+              {example.render()}
+            </ChartExampleCard>
+          ))}
         </div>
-      </section>
-    </>
+      </div>
+    </section>
   );
 }

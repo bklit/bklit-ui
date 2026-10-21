@@ -124,6 +124,11 @@ export function StudioThemeProvider({
   );
 }
 
+/** Resolved Studio theme, or `light` outside `StudioThemeProvider`. */
+export function useOptionalStudioThemeMode(): StudioTheme {
+  return useContext(StudioThemeContext)?.resolvedTheme ?? "light";
+}
+
 export function useStudioTheme() {
   const context = useContext(StudioThemeContext);
   if (!context) {

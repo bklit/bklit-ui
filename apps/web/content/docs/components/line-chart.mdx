@@ -10,6 +10,7 @@ import { LineChartYDomainDemo } from "@/components/docs/line-chart-y-domain-demo
 import { LineChartDateRangeDemo } from "@/components/docs/line-chart-date-range-demo";
 import { ProjectionLineDemo } from "@/components/docs/projection-line-demo";
 import { BandRangeDemo } from "@/components/docs/band-demo";
+import { DateHighlightsLineDemo } from "@/components/docs/date-highlights-demo";
 import { MarkerContentDemo } from "@/components/docs/marker-content-demo";
 import { OpenInStudioButton } from "@/components/docs/open-in-studio-button";
 import {
@@ -288,6 +289,27 @@ Shade a range between two per-row values — min/max, a confidence interval, or 
 </ComponentShowcase>
 
 See the [Band utility](/docs/utility/band) for fill types, edge strokes, faded edges, and `withBollingerBands` options.
+
+## Weekends and deadlines
+
+Shade weekends with [`Weekends`](/docs/utility/weekends) and mark a due date with [`Deadline`](/docs/utility/deadline) — a line at the date plus a striped region that fades out to the right. Both render behind the series and only draw what is inside the visible x-domain, so they work with [brush zoom](#brush-zoom).
+
+<ComponentShowcase
+  code={`import { Deadline, Weekends } from "@bklitui/ui/charts";
+
+<LineChart data={data}>
+  <Grid horizontal />
+  <Weekends />
+  <Deadline date={new Date(2026, 9, 15)} label="Due Oct 15" />
+  <Line dataKey="scope" stroke="var(--chart-4)" />
+  <Line dataKey="started" stroke="var(--chart-2)" />
+  <Line dataKey="completed" stroke="var(--chart-1)" />
+  <XAxis />
+  <ChartTooltip />
+</LineChart>`}
+>
+  <DateHighlightsLineDemo />
+</ComponentShowcase>
 
 ## Brush zoom
 

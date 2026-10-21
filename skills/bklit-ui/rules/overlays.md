@@ -110,6 +110,28 @@ Props: `fill` (default `var(--chart-line-primary)`), `fillType` (`"solid" | "gra
 
 Bollinger: `withBollingerBands(data, { dataKey: "price", period: 20, multiplier: 2 })` (from `@/components/charts/bollinger`) adds `priceUpper` / `priceLower` / `priceSma` (`null` during warm-up; pass `minPeriods: 1` to start at the first row with a partial window). Draw the SMA as a zero-height `<Band upperKey="priceSma" lowerKey="priceSma" fillOpacity={0} strokeDasharray="4,4" lowerStroke={false} />` — `Line` does not skip `null`s.
 
+## Weekends — `@bklit/weekends`
+
+Diagonal-stripe (or solid) shading over weekend spans on date x axes. Renders behind series. Works in line, area, composed, candlestick (time scales — only visible spans draw, so brush zoom is cheap) and `BarChart` with `Date` / `"YYYY-MM-DD"` rows (shades whole columns; `dateKey` picks the field).
+
+```tsx
+<Weekends />                         {/* Sat + Sun, muted stripes */}
+<Weekends weekendDays={[5, 6]} fillType="solid" />
+```
+
+Props: `weekendDays` (`Date#getDay()` numbers, default `[6, 0]`), `fillType` (`"pattern" | "solid"`), `fill` (default `var(--chart-foreground-muted)`), `fillOpacity`, `pattern`, `patternScale`, `align` (`"auto" | "calendar" | "centered"`), `utc`, `minDayWidth`, `dateKey`.
+
+## Deadline — `@bklit/deadline`
+
+Due-date marker: vertical line at `date` plus a region to the right (to `endDate` or the plot edge) that fades out. Default colour `var(--chart-negative)`.
+
+```tsx
+<Deadline date={new Date(2026, 9, 15)} label="Due Oct 15" />
+<Deadline date={due} fillType="gradient" fadeLength={0.8} />
+```
+
+Props: `date`, `endDate`, `color`, `fillType` (`"pattern" | "gradient" | "solid" | "none"`), `fillOpacity`, `gradientToOpacity`, `pattern`, `patternScale`, `fade`, `fadeLength` (0–1), `showLine`, `stroke`, `strokeWidth`, `strokeDasharray`, `label`, `labelPosition`, `labelColor`, `dateKey` (bar charts).
+
 ## Trend line — `@bklit/trend-line`
 
 Linear least-squares fit of an existing series, drawn from the first to the last data row. Works inside `LineChart`, `AreaChart`, `BarChart` (vertical and `orientation="horizontal"`), and `ComposedChart`. It is an overlay, not a series — it doesn't add a bar slot or drive the y-domain. Place it **after** the series it fits so it paints on top.

@@ -8,7 +8,6 @@ import { StudioNuqsAdapter } from "@/providers/studio-nuqs-adapter";
 import { StudioThemeProvider } from "@/providers/studio-theme-provider";
 import { ToastProvider } from "@/ui/toast";
 import { StudioEditorLayout } from "./studio-editor-layout";
-import { StudioOnboardingDialog } from "./studio-onboarding-dialog";
 import { StudioStateProvider } from "./studio-state-provider";
 
 export function StudioShell({
@@ -25,7 +24,6 @@ export function StudioShell({
       <StudioAnalyticsProvider value={analytics ?? {}}>
         <StudioStateProvider>
           <StudioThemeProvider onThemeChange={onThemeChange}>
-            <StudioOnboardingDialog />
             <StudioEditorLayout renderCodeSheet={renderCodeSheet} />
             <ToastProvider position="top-center" />
           </StudioThemeProvider>

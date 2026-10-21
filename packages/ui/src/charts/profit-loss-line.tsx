@@ -16,8 +16,11 @@ import { splitProfitLossSegments } from "./profit-loss-segments";
 // biome-ignore lint/suspicious/noExplicitAny: d3 curve factory type
 type CurveFactory = any;
 
-export const PROFIT_LOSS_POSITIVE_COLOR = "var(--color-emerald-500)";
-export const PROFIT_LOSS_NEGATIVE_COLOR = "var(--color-red-500)";
+/** Semantic trend tokens with Tailwind fallbacks for apps without `--chart-positive` / `--chart-negative`. */
+export const PROFIT_LOSS_POSITIVE_COLOR =
+  "var(--chart-positive, var(--color-emerald-500))";
+export const PROFIT_LOSS_NEGATIVE_COLOR =
+  "var(--chart-negative, var(--color-red-500))";
 
 const LEGEND_DIM_OPACITY = 0.25;
 
