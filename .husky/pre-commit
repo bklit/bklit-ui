@@ -1,2 +1,2 @@
 #!/bin/sh
-npx ultracite fix
+pnpm lint:fix
