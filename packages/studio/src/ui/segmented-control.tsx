@@ -1,129 +1,109 @@
 "use client";
 
-import { type ReactNode, useId } from "react";
+import {
+  type CSSProperties,
+  type ReactNode,
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   studioControlRadiusClass,
   studioControlRadiusInnerClass,
 } from "@/lib/studio-chrome-classes";
 import { cn } from "@/lib/utils";
 
-const SLIDING_THUMB_SPRING =
-  "transition-[translate,scale] duration-[350ms] ease-[linear(0,0.3667,0.8271,1.0379,1.0652,1.0332,1.006,0.9961,0.996,0.9984,0.9999,1)] motion-reduce:transition-none";
+/**
+ * Sliding segmented control modelled on coss ui `SegmentedControl`
+ * (https://coss.com/ui/docs/components/segmented-control): the indicator
+ * measures the active item and slides to it (200ms ease-in-out, width/height
+ * + translate via CSS custom properties). Native radio inputs supply the
+ * semantics + arrow-key behaviour; the active label carries `data-checked`
+ * so it can paint a static pill until the indicator has measured.
+ */
 
-const SLIDING_THUMB_PRESS =
-  "group-has-[label:active]/sliding:scale-[0.92] group-has-[label:active]/sliding:duration-150";
+/** Indicator motion — coss `segmented-control-indicator`. */
+const INDICATOR_TRANSITION_CLASS =
+  "transition-[width,height,translate] duration-200 ease-in-out motion-reduce:transition-none";
 
-/** 1-column layouts — segmented text, icon row */
-const SLIDING_THUMB_TRANSLATES_X = [
-  "group-has-[[data-segment-index='0']:checked]/sliding:translate-x-0",
-  "group-has-[[data-segment-index='1']:checked]/sliding:translate-x-full",
-  "group-has-[[data-segment-index='2']:checked]/sliding:translate-x-[200%]",
-  "group-has-[[data-segment-index='3']:checked]/sliding:translate-x-[300%]",
-  "group-has-[[data-segment-index='4']:checked]/sliding:translate-x-[400%]",
-  "group-has-[[data-segment-index='5']:checked]/sliding:translate-x-[500%]",
-  "group-has-[[data-segment-index='6']:checked]/sliding:translate-x-[600%]",
-] as const;
+const INDICATOR_POSITION_CLASS =
+  "pointer-events-none absolute top-0 left-0 z-0 h-(--active-item-height) w-(--active-item-width) translate-x-(--active-item-left) translate-y-(--active-item-top)";
 
-/** 2-column grids — cards-2 */
-const SLIDING_THUMB_TRANSLATES_2COL = [
-  "group-has-[[data-segment-index='0']:checked]/sliding:translate-x-0 group-has-[[data-segment-index='0']:checked]/sliding:translate-y-0",
-  "group-has-[[data-segment-index='1']:checked]/sliding:translate-x-full group-has-[[data-segment-index='1']:checked]/sliding:translate-y-0",
-  "group-has-[[data-segment-index='2']:checked]/sliding:translate-x-0 group-has-[[data-segment-index='2']:checked]/sliding:translate-y-full",
-  "group-has-[[data-segment-index='3']:checked]/sliding:translate-x-full group-has-[[data-segment-index='3']:checked]/sliding:translate-y-full",
-  "group-has-[[data-segment-index='4']:checked]/sliding:translate-x-0 group-has-[[data-segment-index='4']:checked]/sliding:translate-y-[200%]",
-  "group-has-[[data-segment-index='5']:checked]/sliding:translate-x-full group-has-[[data-segment-index='5']:checked]/sliding:translate-y-[200%]",
-  "group-has-[[data-segment-index='6']:checked]/sliding:translate-x-0 group-has-[[data-segment-index='6']:checked]/sliding:translate-y-[300%]",
-  "group-has-[[data-segment-index='7']:checked]/sliding:translate-x-full group-has-[[data-segment-index='7']:checked]/sliding:translate-y-[300%]",
-] as const;
-
-/** 3-column grids — legend placement */
-const SLIDING_THUMB_TRANSLATES_3COL = [
-  "group-has-[[data-segment-index='0']:checked]/sliding:translate-x-0 group-has-[[data-segment-index='0']:checked]/sliding:translate-y-0",
-  "group-has-[[data-segment-index='1']:checked]/sliding:translate-x-full group-has-[[data-segment-index='1']:checked]/sliding:translate-y-0",
-  "group-has-[[data-segment-index='2']:checked]/sliding:translate-x-[200%] group-has-[[data-segment-index='2']:checked]/sliding:translate-y-0",
-  "group-has-[[data-segment-index='3']:checked]/sliding:translate-x-0 group-has-[[data-segment-index='3']:checked]/sliding:translate-y-full",
-  "group-has-[[data-segment-index='4']:checked]/sliding:translate-x-full group-has-[[data-segment-index='4']:checked]/sliding:translate-y-full",
-  "group-has-[[data-segment-index='5']:checked]/sliding:translate-x-[200%] group-has-[[data-segment-index='5']:checked]/sliding:translate-y-full",
-  "group-has-[[data-segment-index='6']:checked]/sliding:translate-x-0 group-has-[[data-segment-index='6']:checked]/sliding:translate-y-[200%]",
-  "group-has-[[data-segment-index='7']:checked]/sliding:translate-x-full group-has-[[data-segment-index='7']:checked]/sliding:translate-y-[200%]",
-  "group-has-[[data-segment-index='8']:checked]/sliding:translate-x-[200%] group-has-[[data-segment-index='8']:checked]/sliding:translate-y-[200%]",
-] as const;
+/** While the indicator is visible, the static checked pill on items is suppressed. */
+const HIDE_STATIC_PILL_CLASS =
+  "[:has(>[data-slot=sliding-toggle-control-indicator]:not([hidden]))>&]:bg-transparent! [:has(>[data-slot=sliding-toggle-control-indicator]:not([hidden]))>&]:shadow-none!";
 
 type SlidingToggleVariant = "text" | "icon" | "card" | "legend";
 
-const GHOST_FLEX_ROW_SURFACE =
-  "relative flex w-full min-w-0 flex-nowrap items-stretch";
-
-/** Track + thumb use the coss segmented-control surface (`bg-muted` track, raised `bg-background` thumb). */
-const TRACK_SURFACE_CLASS = cn(studioControlRadiusClass, "bg-muted p-0.5");
-
-const TRACK_THUMB_CLASS = cn(
+/** Shared item chrome — coss item colours, focus outline, and disabled state. */
+const ITEM_BASE_CLASS = cn(
   studioControlRadiusInnerClass,
-  "pointer-events-none absolute top-0.5 bottom-0.5 left-0.5 z-0 bg-background shadow-sm/5 dark:bg-input"
+  "relative z-10 flex min-w-0 cursor-pointer select-none items-center justify-center border border-transparent bg-transparent text-muted-foreground outline-2 outline-transparent -outline-offset-1 transition-[color,outline-color] duration-150 ease-out has-focus-visible:outline-ring motion-reduce:transition-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:text-current",
+  HIDE_STATIC_PILL_CLASS
 );
 
-const GHOST_THUMB_CLASS = cn(
+/** Raised pill on the muted track — coss `segmentedControlIndicatorSurfaceClassName`. */
+const TRACK_PILL_SURFACE_CLASS = cn(
   studioControlRadiusInnerClass,
-  "pointer-events-none absolute top-0 bottom-0 left-0 z-0 bg-accent"
+  "bg-background shadow-sm/5 dark:bg-input"
 );
 
-const GHOST_GRID_THUMB_CLASS = cn(
-  studioControlRadiusInnerClass,
-  "pointer-events-none absolute top-0 left-0 z-0 bg-accent"
-);
-
-const GHOST_LABEL_CLASS = cn(
-  studioControlRadiusInnerClass,
-  "relative z-10 flex h-full min-h-0 min-w-0 flex-1 basis-0 cursor-pointer select-none items-center justify-center border-0 bg-transparent text-muted-foreground transition-colors duration-150 ease-out has-[:checked]:text-accent-foreground motion-reduce:transition-none [&_svg]:text-current"
-);
+/** Ghost pill (no track) for icon / card / legend layouts. */
+const GHOST_PILL_SURFACE_CLASS = cn(studioControlRadiusInnerClass, "bg-accent");
 
 const SLIDING_VARIANTS: Record<
   SlidingToggleVariant,
   {
     surfaceClass: string;
-    labelClass: string;
-    thumbClass: string;
+    itemClass: string;
+    indicatorSurfaceClass: string;
     defaultColumns: (count: number) => number;
-    /** Inset padding (px) around the thumb inside the track. `0` = ghost. */
-    trackInset: number;
     /** Single-row strips use flex so items never wrap. */
     useFlexRow?: boolean;
   }
 > = {
   text: {
-    surfaceClass: cn(GHOST_FLEX_ROW_SURFACE, TRACK_SURFACE_CLASS, "h-10"),
-    labelClass: cn(
-      GHOST_LABEL_CLASS,
-      "px-2 font-medium text-muted-foreground/72 text-xs hover:text-muted-foreground has-[:checked]:text-foreground"
+    surfaceClass: cn(
+      studioControlRadiusClass,
+      "relative z-0 flex h-10 w-full min-w-0 flex-nowrap items-stretch gap-0.5 bg-muted p-0.5"
     ),
-    thumbClass: TRACK_THUMB_CLASS,
+    itemClass: cn(
+      ITEM_BASE_CLASS,
+      "h-full flex-1 basis-0 whitespace-nowrap px-2 font-medium text-muted-foreground/72 text-xs hover:text-muted-foreground data-checked:bg-background data-checked:text-foreground data-checked:shadow-sm/5 dark:data-checked:bg-input"
+    ),
+    indicatorSurfaceClass: TRACK_PILL_SURFACE_CLASS,
     defaultColumns: (count) => count,
-    trackInset: 2,
     useFlexRow: true,
   },
   icon: {
-    surfaceClass: cn(GHOST_FLEX_ROW_SURFACE, "h-11"),
-    labelClass: cn(GHOST_LABEL_CLASS, "px-0"),
-    thumbClass: GHOST_THUMB_CLASS,
+    surfaceClass:
+      "relative z-0 flex h-11 w-full min-w-0 flex-nowrap items-stretch",
+    itemClass: cn(
+      ITEM_BASE_CLASS,
+      "h-full flex-1 basis-0 px-0 hover:text-accent-foreground/80 data-checked:bg-accent data-checked:text-accent-foreground"
+    ),
+    indicatorSurfaceClass: GHOST_PILL_SURFACE_CLASS,
     defaultColumns: (count) => count,
-    trackInset: 0,
     useFlexRow: true,
   },
   card: {
-    surfaceClass: "relative grid w-full min-w-0",
-    labelClass:
-      "relative z-10 flex min-h-[4.25rem] w-full min-w-0 cursor-pointer select-none flex-col items-center justify-center gap-1 rounded-md border-0 bg-transparent px-1.5 py-2 font-normal text-[10px] text-muted-foreground leading-tight transition-colors duration-150 ease-out has-[:checked]:text-accent-foreground [&_svg]:text-current motion-reduce:transition-none",
-    thumbClass: GHOST_GRID_THUMB_CLASS,
+    surfaceClass: "relative z-0 grid w-full min-w-0",
+    itemClass: cn(
+      ITEM_BASE_CLASS,
+      "min-h-[4.25rem] w-full flex-col gap-1 px-1.5 py-2 font-normal text-[10px] leading-tight hover:text-accent-foreground/80 data-checked:bg-accent data-checked:text-accent-foreground"
+    ),
+    indicatorSurfaceClass: GHOST_PILL_SURFACE_CLASS,
     defaultColumns: () => 2,
-    trackInset: 0,
   },
   legend: {
-    surfaceClass: "relative grid w-full min-w-0",
-    labelClass:
-      "group/legend-item relative z-10 flex h-11 w-full min-w-0 cursor-pointer select-none items-center justify-center rounded-md border-0 bg-transparent text-muted-foreground transition-colors duration-150 ease-out has-[:checked]:text-accent-foreground [&_svg]:text-current motion-reduce:transition-none",
-    thumbClass: GHOST_GRID_THUMB_CLASS,
+    surfaceClass: "relative z-0 grid w-full min-w-0",
+    itemClass: cn(
+      ITEM_BASE_CLASS,
+      "group/legend-item h-11 w-full hover:text-accent-foreground/80 data-checked:bg-accent data-checked:text-accent-foreground"
+    ),
+    indicatorSurfaceClass: GHOST_PILL_SURFACE_CLASS,
     defaultColumns: () => 3,
-    trackInset: 0,
   },
 };
 
@@ -134,15 +114,138 @@ interface SlidingToggleOption<T extends string> {
   title?: string;
 }
 
-function getThumbTranslateClasses(columnCount: number, segmentCount: number) {
-  const rowCount = Math.ceil(segmentCount / columnCount);
-  if (rowCount === 1) {
-    return SLIDING_THUMB_TRANSLATES_X.slice(0, segmentCount);
+const ACTIVE_ITEM_SELECTOR = ":scope > [data-checked]";
+const MAX_LAYOUT_ROUNDING_ERROR = 2;
+
+interface ActiveItemRect {
+  height: number;
+  left: number;
+  top: number;
+  width: number;
+}
+
+function isSameRect(a: ActiveItemRect | null, b: ActiveItemRect | null) {
+  return (
+    a?.left === b?.left &&
+    a?.top === b?.top &&
+    a?.width === b?.width &&
+    a?.height === b?.height
+  );
+}
+
+/** Layout size, falling back to offset size when CSS size is unreliable. */
+function getCssSize(element: HTMLElement) {
+  const style = getComputedStyle(element);
+  const width = Number.parseFloat(style.width) || 0;
+  const height = Number.parseFloat(style.height) || 0;
+  if (
+    Math.round(width) !== element.offsetWidth ||
+    Math.round(height) !== element.offsetHeight
+  ) {
+    return { height: element.offsetHeight, width: element.offsetWidth };
   }
-  if (columnCount === 3) {
-    return SLIDING_THUMB_TRANSLATES_3COL.slice(0, segmentCount);
-  }
-  return SLIDING_THUMB_TRANSLATES_2COL.slice(0, segmentCount);
+  return { height, width };
+}
+
+/** Item rect relative to the root padding box, robust to ancestor transforms. */
+function measureItem(item: HTMLElement, root: HTMLElement): ActiveItemRect {
+  const { width, height } = getCssSize(item);
+  const rootSize = getCssSize(root);
+  const itemRect = item.getBoundingClientRect();
+  const rootRect = root.getBoundingClientRect();
+  const scaleX = rootSize.width > 0 ? rootRect.width / rootSize.width : 1;
+  const scaleY = rootSize.height > 0 ? rootRect.height / rootSize.height : 1;
+
+  const rectLeft =
+    (itemRect.left - rootRect.left) / scaleX -
+    root.clientLeft +
+    root.scrollLeft;
+  const rectTop =
+    (itemRect.top - rootRect.top) / scaleY - root.clientTop + root.scrollTop;
+
+  const isUndistorted =
+    Math.abs(rectLeft - item.offsetLeft) <= MAX_LAYOUT_ROUNDING_ERROR &&
+    Math.abs(rectTop - item.offsetTop) <= MAX_LAYOUT_ROUNDING_ERROR;
+
+  return {
+    height,
+    left: isUndistorted ? rectLeft : item.offsetLeft,
+    top: isUndistorted ? rectTop : item.offsetTop,
+    width,
+  };
+}
+
+/**
+ * Measures the `[data-checked]` sibling and slides to it. Re-renders only when
+ * the active rect changes (selection, resize) — never per frame; the motion
+ * itself is a CSS transition.
+ */
+function SlidingToggleIndicator({ className }: { className: string }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const [rect, setRect] = useState<ActiveItemRect | null>(null);
+
+  useLayoutEffect(() => {
+    const root = ref.current?.parentElement;
+    if (!root) {
+      return;
+    }
+
+    const update = () => {
+      const item = root.querySelector<HTMLElement>(ACTIVE_ITEM_SELECTOR);
+      const next = item ? measureItem(item, root) : null;
+      setRect((previous) => (isSameRect(previous, next) ? previous : next));
+    };
+
+    const resizeObserver = new ResizeObserver(update);
+    const observeItems = () => {
+      resizeObserver.disconnect();
+      resizeObserver.observe(root);
+      for (const child of root.children) {
+        resizeObserver.observe(child);
+        mutationObserver.observe(child, {
+          attributeFilter: ["data-checked"],
+          attributes: true,
+        });
+      }
+    };
+    const mutationObserver = new MutationObserver((records) => {
+      if (records.some((record) => record.type === "childList")) {
+        observeItems();
+      }
+      update();
+    });
+
+    update();
+    mutationObserver.observe(root, { childList: true });
+    observeItems();
+
+    return () => {
+      resizeObserver.disconnect();
+      mutationObserver.disconnect();
+    };
+  }, []);
+
+  return (
+    <span
+      aria-hidden="true"
+      className={cn(
+        INDICATOR_POSITION_CLASS,
+        INDICATOR_TRANSITION_CLASS,
+        className
+      )}
+      data-slot="sliding-toggle-control-indicator"
+      hidden={!rect}
+      ref={ref}
+      style={
+        {
+          "--active-item-height": `${rect?.height ?? 0}px`,
+          "--active-item-left": `${rect?.left ?? 0}px`,
+          "--active-item-top": `${rect?.top ?? 0}px`,
+          "--active-item-width": `${rect?.width ?? 0}px`,
+        } as CSSProperties
+      }
+    />
+  );
 }
 
 function SlidingToggleControl<T extends string>({
@@ -172,69 +275,55 @@ function SlidingToggleControl<T extends string>({
   const config = SLIDING_VARIANTS[variant];
   const columnCount = columns ?? config.defaultColumns(segmentCount);
   const rowCount = Math.ceil(segmentCount / columnCount);
-  const isGrid = rowCount > 1;
-  const trackPadding = config.trackInset * 2;
 
   return (
     <div
+      aria-disabled={disabled || undefined}
       aria-label={ariaLabel}
       className={cn(
-        "group/sliding",
         config.surfaceClass,
-        disabled && "pointer-events-none opacity-50",
+        disabled && "pointer-events-none opacity-64",
         className
       )}
       data-segment-count={segmentCount}
       data-slot="sliding-toggle-control"
+      data-variant={variant}
       role="radiogroup"
       style={
         config.useFlexRow
           ? undefined
           : {
               gridTemplateColumns: `repeat(${columnCount}, minmax(0, 1fr))`,
-              ...(isGrid
-                ? { gridTemplateRows: `repeat(${rowCount}, auto)` }
-                : { gridTemplateRows: "1fr" }),
+              gridTemplateRows:
+                rowCount > 1 ? `repeat(${rowCount}, auto)` : "1fr",
             }
       }
     >
-      <span
-        aria-hidden
-        className={cn(
-          config.thumbClass,
-          SLIDING_THUMB_SPRING,
-          SLIDING_THUMB_PRESS,
-          getThumbTranslateClasses(columnCount, segmentCount)
-        )}
-        data-slot="sliding-toggle-control-thumb"
-        style={{
-          width: `calc((100% - ${trackPadding}px) / ${columnCount})`,
-          ...(isGrid
-            ? { height: `calc((100% - ${trackPadding}px) / ${rowCount})` }
-            : null),
-        }}
-      />
-
-      {options.map((option, index) => (
-        <label
-          aria-label={option["aria-label"]}
-          className={config.labelClass}
-          key={option.value}
-          title={option.title}
-        >
-          <input
-            checked={value === option.value}
-            className="sr-only"
-            data-segment-index={index}
-            disabled={disabled}
-            name={groupName}
-            onChange={() => onValueChange(option.value)}
-            type="radio"
-            value={option.value}
-          />
-          {option.label}
-        </label>
-      ))}
+      {options.map((option) => {
+        const checked = value === option.value;
+        return (
+          <label
+            aria-label={option["aria-label"]}
+            className={config.itemClass}
+            data-checked={checked ? "" : undefined}
+            data-slot="sliding-toggle-control-item"
+            key={option.value}
+            title={option.title}
+          >
+            <input
+              checked={checked}
+              className="sr-only"
+              disabled={disabled}
+              name={groupName}
+              onChange={() => onValueChange(option.value)}
+              type="radio"
+              value={option.value}
+            />
+            {option.label}
+          </label>
+        );
+      })}
+      <SlidingToggleIndicator className={config.indicatorSurfaceClass} />
     </div>
   );
 }
@@ -251,8 +340,6 @@ function SegmentedControl<T extends string>(
 
 export {
   SegmentedControl,
-  SLIDING_THUMB_PRESS,
-  SLIDING_THUMB_SPRING,
   SlidingToggleControl,
   type SlidingToggleOption,
   type SlidingToggleVariant,

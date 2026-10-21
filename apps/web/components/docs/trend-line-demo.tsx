@@ -23,11 +23,11 @@ import {
   RadioGroupPrimitive,
   RadioPrimitive,
 } from "@/components/ui/radio-group";
-import { composedDemoData } from "@/lib/composed-demo-data";
 import {
-  segmentedControlItemVariants,
-  segmentedControlRootClassName,
-} from "@/lib/segmented-control";
+  SegmentedControl,
+  SegmentedControlItem,
+} from "@/components/ui/segmented-control";
+import { composedDemoData } from "@/lib/composed-demo-data";
 
 const lineData = buildLineChartDemoData();
 
@@ -67,10 +67,6 @@ const STROKE_STYLES: { value: TrendLineStrokeStyle; label: string }[] = [
   { value: "gradient", label: "Gradient" },
 ];
 
-const strokeStyleItemClassName = segmentedControlItemVariants({
-  state: "checked",
-});
-
 function LineTrendChart({ children }: { children: ReactNode }) {
   return (
     <div className="w-full">
@@ -92,22 +88,26 @@ export function TrendLineDemo() {
 
   return (
     <div className="w-full space-y-4">
-      <RadioGroupPrimitive
+      <SegmentedControl
         aria-label="Trend line stroke style"
-        className={segmentedControlRootClassName}
-        onValueChange={(value) => setStrokeStyle(value as TrendLineStrokeStyle)}
-        value={strokeStyle}
+        render={
+          <RadioGroupPrimitive
+            onValueChange={(value) =>
+              setStrokeStyle(value as TrendLineStrokeStyle)
+            }
+            value={strokeStyle}
+          />
+        }
       >
         {STROKE_STYLES.map((option) => (
-          <RadioPrimitive.Root
-            className={strokeStyleItemClassName}
+          <SegmentedControlItem
             key={option.value}
-            value={option.value}
+            render={<RadioPrimitive.Root value={option.value} />}
           >
             {option.label}
-          </RadioPrimitive.Root>
+          </SegmentedControlItem>
         ))}
-      </RadioGroupPrimitive>
+      </SegmentedControl>
       <LineTrendChart>
         <TrendLine
           dataKey="value"

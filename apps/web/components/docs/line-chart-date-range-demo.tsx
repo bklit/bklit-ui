@@ -9,15 +9,15 @@ import {
   RadioPrimitive,
 } from "@/components/ui/radio-group";
 import {
+  SegmentedControl,
+  SegmentedControlItem,
+} from "@/components/ui/segmented-control";
+import {
   Tooltip,
   TooltipPopup,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {
-  segmentedControlItemVariants,
-  segmentedControlRootClassName,
-} from "@/lib/segmented-control";
 
 const fullData = Array.from({ length: 90 }, (_, index) => {
   const date = new Date();
@@ -38,8 +38,6 @@ const DATE_RANGES: { value: DateRange; label: string }[] = [
   { value: "90d", label: "Last 90 days" },
 ];
 
-const rangeItemClassName = segmentedControlItemVariants({ state: "checked" });
-
 export function LineChartDateRangeDemo() {
   const [range, setRange] = useState<DateRange>("30d");
   const [replayKey, setReplayKey] = useState(0);
@@ -53,22 +51,24 @@ export function LineChartDateRangeDemo() {
   return (
     <div className="w-full space-y-4">
       <div className="flex flex-wrap items-center gap-2">
-        <RadioGroupPrimitive
+        <SegmentedControl
           aria-label="Date range"
-          className={segmentedControlRootClassName}
-          onValueChange={(value) => setRange(value as DateRange)}
-          value={range}
+          render={
+            <RadioGroupPrimitive
+              onValueChange={(value) => setRange(value as DateRange)}
+              value={range}
+            />
+          }
         >
           {DATE_RANGES.map((option) => (
-            <RadioPrimitive.Root
-              className={rangeItemClassName}
+            <SegmentedControlItem
               key={option.value}
-              value={option.value}
+              render={<RadioPrimitive.Root value={option.value} />}
             >
               {option.label}
-            </RadioPrimitive.Root>
+            </SegmentedControlItem>
           ))}
-        </RadioGroupPrimitive>
+        </SegmentedControl>
         <div className="mx-1 h-5 w-px bg-border" />
         <TooltipProvider>
           <Tooltip>

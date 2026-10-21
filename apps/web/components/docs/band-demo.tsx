@@ -16,9 +16,9 @@ import {
   RadioPrimitive,
 } from "@/components/ui/radio-group";
 import {
-  segmentedControlItemVariants,
-  segmentedControlRootClassName,
-} from "@/lib/segmented-control";
+  SegmentedControl,
+  SegmentedControlItem,
+} from "@/components/ui/segmented-control";
 
 const BAND_DEMO_POINT_COUNT = 24;
 const BOLLINGER_DEMO_POINT_COUNT = 60;
@@ -132,31 +132,29 @@ const FILL_TYPES: { value: BandFillType; label: string }[] = [
   { value: "pattern", label: "Pattern" },
 ];
 
-const fillTypeItemClassName = segmentedControlItemVariants({
-  state: "checked",
-});
-
 export function BandFillTypeDemo() {
   const [fillType, setFillType] = useState<BandFillType>("gradient");
 
   return (
     <div className="w-full space-y-4">
-      <RadioGroupPrimitive
+      <SegmentedControl
         aria-label="Band fill type"
-        className={segmentedControlRootClassName}
-        onValueChange={(value) => setFillType(value as BandFillType)}
-        value={fillType}
+        render={
+          <RadioGroupPrimitive
+            onValueChange={(value) => setFillType(value as BandFillType)}
+            value={fillType}
+          />
+        }
       >
         {FILL_TYPES.map((option) => (
-          <RadioPrimitive.Root
-            className={fillTypeItemClassName}
+          <SegmentedControlItem
             key={option.value}
-            value={option.value}
+            render={<RadioPrimitive.Root value={option.value} />}
           >
             {option.label}
-          </RadioPrimitive.Root>
+          </SegmentedControlItem>
         ))}
-      </RadioGroupPrimitive>
+      </SegmentedControl>
       <LineChart data={rangeData}>
         <Grid horizontal />
         <Band

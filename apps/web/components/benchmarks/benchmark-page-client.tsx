@@ -17,8 +17,15 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { Label } from "@/components/ui/label";
+import {
+  RadioGroupPrimitive,
+  RadioPrimitive,
+} from "@/components/ui/radio-group";
+import {
+  SegmentedControl,
+  SegmentedControlItem,
+} from "@/components/ui/segmented-control";
 import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsList, TabsTab } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { BENCH_ADAPTERS } from "./adapters";
 import {
@@ -83,7 +90,7 @@ function ControlGroup({
   );
 }
 
-function SegmentedControl<T extends string | number>({
+function BenchOptionControl<T extends string | number>({
   value,
   options,
   onChange,
@@ -99,15 +106,25 @@ function SegmentedControl<T extends string | number>({
   label: string;
 }) {
   return (
-    <Tabs onValueChange={(next) => onChange(next as T)} value={value}>
-      <TabsList aria-label={label}>
-        {options.map((option) => (
-          <TabsTab disabled={disabled} key={option} value={option}>
-            {format ? format(option) : String(option)}
-          </TabsTab>
-        ))}
-      </TabsList>
-    </Tabs>
+    <SegmentedControl
+      aria-label={label}
+      render={
+        <RadioGroupPrimitive
+          disabled={disabled}
+          onValueChange={(next) => onChange(next as T)}
+          value={value}
+        />
+      }
+    >
+      {options.map((option) => (
+        <SegmentedControlItem
+          key={option}
+          render={<RadioPrimitive.Root value={option} />}
+        >
+          {format ? format(option) : String(option)}
+        </SegmentedControlItem>
+      ))}
+    </SegmentedControl>
   );
 }
 
@@ -351,7 +368,7 @@ export function BenchmarkPageClient() {
           <BenchPanel variant="ghost">
             <div className="flex flex-wrap gap-x-8 gap-y-5">
               <ControlGroup label="Chart">
-                <SegmentedControl
+                <BenchOptionControl
                   disabled={isRunning}
                   format={(value) => BENCH_KIND_LABELS[value]}
                   label="Chart type"
@@ -363,7 +380,7 @@ export function BenchmarkPageClient() {
               <ControlGroup
                 label={kind === "bar" ? "Bars" : "Points per series"}
               >
-                <SegmentedControl
+                <BenchOptionControl
                   disabled={isRunning}
                   format={(value) => value.toLocaleString("en-US")}
                   label="Dataset size"
@@ -373,7 +390,7 @@ export function BenchmarkPageClient() {
                 />
               </ControlGroup>
               <ControlGroup label="Series">
-                <SegmentedControl
+                <BenchOptionControl
                   disabled={isRunning}
                   label="Series count"
                   onChange={setSeriesCount}
@@ -382,7 +399,7 @@ export function BenchmarkPageClient() {
                 />
               </ControlGroup>
               <ControlGroup label="Iterations">
-                <SegmentedControl
+                <BenchOptionControl
                   disabled={isRunning}
                   label="Iterations"
                   onChange={setIterations}
