@@ -429,6 +429,28 @@ const barHorizontalData = [
   { browser: "Other", users: 90 },
 ];
 
+const barProfitLossData = [
+  { month: "Jan", profit: 4200 },
+  { month: "Feb", profit: -1800 },
+  { month: "Mar", profit: 2600 },
+  { month: "Apr", profit: -3400 },
+  { month: "May", profit: 5100 },
+  { month: "Jun", profit: -900 },
+  { month: "Jul", profit: 3800 },
+  { month: "Aug", profit: 6200 },
+];
+
+const barProfitLossDataSnippet = `const chartData = [
+  { month: "Jan", profit: 4200 },
+  { month: "Feb", profit: -1800 },
+  { month: "Mar", profit: 2600 },
+  { month: "Apr", profit: -3400 },
+  { month: "May", profit: 5100 },
+  { month: "Jun", profit: -900 },
+  { month: "Jul", profit: 3800 },
+  { month: "Aug", profit: 6200 },
+];`;
+
 const barDailyData = Array.from({ length: 60 }, (_, i) => {
   const date = new Date(2024, 0, 1);
   date.setDate(date.getDate() + i);
@@ -2153,6 +2175,26 @@ function makeBarExamples(): ChartExample[] {
           <Bar dataKey="users" lineCap={4} />
           <BarYAxis />
           <ChartTooltip showCrosshair={false} />
+        </BarExampleChart>
+      ),
+    },
+    {
+      title: "Bar Chart - Positive & Negative",
+      description:
+        "Monthly profit and loss — bars grow up or down from a highlighted zero line",
+      code: `<BarChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={chartData} xDataKey="month">
+  <Grid horizontal highlightRowValues={[0]} />
+  <Bar dataKey="profit" lineCap={4} />
+  <BarXAxis />
+  <ChartTooltip />
+</BarChart>`,
+      data: barProfitLossDataSnippet,
+      render: () => (
+        <BarExampleChart data={barProfitLossData} xDataKey="month">
+          <Grid highlightRowValues={[0]} horizontal />
+          <Bar dataKey="profit" lineCap={4} />
+          <BarXAxis />
+          <ChartTooltip />
         </BarExampleChart>
       ),
     },

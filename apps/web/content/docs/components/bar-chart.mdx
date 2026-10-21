@@ -11,6 +11,7 @@ import {
   ChartTooltip,
 } from "@bklitui/ui/charts";
 import { BarChartLoadingDemo } from "@/components/docs/bar-chart-loading-demo";
+import { BarChartProfitLossDemo } from "@/components/docs/bar-chart-profit-loss-demo";
 import { Icon } from "@bklitui/icons";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
@@ -362,7 +363,40 @@ To keep **zero or very short** bars visible as a tiny bar instead of vanishing, 
 </BarDepthProvider>
 ```
 
-Negative values are supported (bars grow downward from the baseline) as long as the chart's value scale includes negatives. See the [charts gallery](/charts/bar-chart) for a live 3D depth example.
+Negative values are supported (bars grow downward from the zero line — see [Negative values](#negative-values)). See the [charts gallery](/charts/bar-chart) for a live 3D depth example.
+
+## Negative values
+
+`BarChart` handles positive and negative values. While every value is zero or above, the value axis starts at `0`; once any value is negative, the domain stretches to include it and bars grow up or down from the zero line (or left / right for `orientation="horizontal"`). Use `Grid highlightRowValues={[0]}` to draw a visible zero line.
+
+<div className="not-prose mb-3 flex items-center justify-between gap-4">
+  <h3 className="m-0 font-semibold text-foreground text-base tracking-tight">
+    Preview
+  </h3>
+</div>
+
+<ComponentShowcase
+  code={`const data = [
+  { month: "Jan", profit: 4200 },
+  { month: "Feb", profit: -1800 },
+  { month: "Mar", profit: 2600 },
+  { month: "Apr", profit: -3400 },
+  // ...
+];
+
+<BarChart data={data} xDataKey="month">
+  <Grid horizontal highlightRowValues={[0]} />
+  <Bar dataKey="profit" lineCap={4} />
+  <BarXAxis />
+  <ChartTooltip />
+</BarChart>`}
+  liveChartPreview
+  previewMinHeight={320}
+>
+  <BarChartProfitLossDemo />
+</ComponentShowcase>
+
+Negative values in **stacked** charts (diverging stacks) are not supported yet.
 
 ## Loading state
 

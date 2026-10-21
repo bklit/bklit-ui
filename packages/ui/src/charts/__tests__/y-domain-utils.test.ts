@@ -1,10 +1,12 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
+  collectBarValueExtents,
   domainsEqual,
   isReferenceAreaVisiblePhase,
   mergeYDomainRecords,
   niceYDomain,
+  resolveBarValueDomain,
   shouldTweenYDomain,
 } from "../y-domain-utils";
 
@@ -61,5 +63,54 @@ describe("isReferenceAreaVisiblePhase", () => {
     assert.equal(isReferenceAreaVisiblePhase("exitingReady"), false);
     assert.equal(isReferenceAreaVisiblePhase("gridTweenLoading"), false);
     assert.equal(isReferenceAreaVisiblePhase("revealingLoading"), false);
+  });
+});
+
+describe("resolveBarValueDomain", () => {
+  it("keeps the zero-anchored [0, max * 1.1] domain for non-negative data", () => {
+    assert.deepEqual(resolveBarValueDomain({ minValue: 5, maxValue: 200 }), [
+      0,
+      200 * 1.1,
+    ]);
+  });
+
+  it("falls back to [0, 110] when there is no positive value", () => {
+    assert.deepEqual(resolveBarValueDomain({ minValue: 0, maxValue: 0 }), [
+      0,
+      100 * 1.1,
+    ]);
+  });
+
+  it("extends below zero for mixed data", () => {
+    const [min, max] = resolveBarValueDomain({ minValue: -50, maxValue: 150 });
+    assert.ok(min < -50);
+    assert.ok(max > 150);
+  });
+
+  it("keeps zero in the domain when every value is negative", () => {
+    const [min, max] = resolveBarValueDomain({ minValue: -12, maxValue: -5 });
+    assert.ok(min < -12);
+    assert.equal(max, 0);
+  });
+});
+
+describe("collectBarValueExtents", () => {
+  const data = [
+    { a: 60, b: 40 },
+    { a: 30, b: 90 },
+  ];
+
+  it("uses single values for grouped bars", () => {
+    assert.deepEqual(collectBarValueExtents(data, ["a", "b"], false), {
+      minValue: 30,
+      maxValue: 90,
+    });
+  });
+
+  it("uses stack totals for stacked bars", () => {
+    assert.deepEqual(collectBarValueExtents(data, ["a", "b"], true), {
+      minValue: 0,
+      maxValue: 120,
+    });
   });
 });

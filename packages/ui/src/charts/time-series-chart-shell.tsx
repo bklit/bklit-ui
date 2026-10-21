@@ -71,7 +71,10 @@ import {
   getPrimaryYScale,
   groupLinesByYAxisId,
 } from "./y-axis-scales";
-import { computeYDomainsByAxis } from "./y-domain-utils";
+import {
+  computeYDomainsByAxis,
+  resolveTimeSeriesYDomain,
+} from "./y-domain-utils";
 
 /**
  * Bleed around the series reveal clip so glyphs centred on the plot edge
@@ -81,54 +84,6 @@ import { computeYDomainsByAxis } from "./y-domain-utils";
  * `xDomain` viewport is set because series then extend past the plot edges.
  */
 const SERIES_CLIP_EDGE_BLEED = 24;
-
-function collectNumericExtents(
-  data: Record<string, unknown>[],
-  dataKeys: string[]
-) {
-  let minValue = Number.POSITIVE_INFINITY;
-  let maxValue = Number.NEGATIVE_INFINITY;
-
-  for (const d of data) {
-    for (const key of dataKeys) {
-      const value = d[key];
-      if (typeof value === "number") {
-        if (value < minValue) {
-          minValue = value;
-        }
-        if (value > maxValue) {
-          maxValue = value;
-        }
-      }
-    }
-  }
-
-  if (minValue === Number.POSITIVE_INFINITY) {
-    return { minValue: 0, maxValue: 100 };
-  }
-
-  return { minValue, maxValue };
-}
-
-function resolveTimeSeriesYDomain(
-  data: Record<string, unknown>[],
-  dataKeys: string[],
-  yScaleDomainMax: number | undefined
-): [number, number] {
-  if (yScaleDomainMax != null && yScaleDomainMax > 0) {
-    return [0, yScaleDomainMax * 1.1];
-  }
-
-  const { minValue, maxValue } = collectNumericExtents(data, dataKeys);
-
-  if (minValue >= 0) {
-    const top = maxValue <= 0 ? 100 : maxValue * 1.1;
-    return [0, top];
-  }
-
-  const padding = (maxValue - minValue) * 0.05 || 1;
-  return [minValue - padding, maxValue + padding];
-}
 
 function ensureChildKey(child: ReactElement, index: number): ReactElement {
   if (child.key != null) {

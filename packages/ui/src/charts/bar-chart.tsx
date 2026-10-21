@@ -50,6 +50,10 @@ import {
   normalizeYAxisId,
   wrapSingleYScale,
 } from "./y-axis-scales";
+import {
+  collectBarValueExtents,
+  resolveBarValueDomain,
+} from "./y-domain-utils";
 
 /** Skeleton bars to show when `status="loading"` and `data` is empty. */
 const FALLBACK_LOADING_BARS = 12;
@@ -261,47 +265,26 @@ const ChartCore = memo(function ChartCore({
   // Band width for bars - use prop if provided, otherwise use scale's bandwidth
   const bandWidth = barWidthProp ?? categoryScale.bandwidth();
 
-  // Compute max value considering stacking
-  const maxValue = useMemo(() => {
-    if (stacked) {
-      // For stacked bars, sum all values at each data point
-      let max = 0;
-      for (const d of data) {
-        let sum = 0;
-        for (const line of lines) {
-          const value = d[line.dataKey];
-          if (typeof value === "number") {
-            sum += value;
-          }
-        }
-        if (sum > max) {
-          max = sum;
-        }
-      }
-      return max || 100;
-    }
-    // For grouped bars, find max single value
-    let max = 0;
-    for (const line of lines) {
-      for (const d of data) {
-        const value = d[line.dataKey];
-        if (typeof value === "number" && value > max) {
-          max = value;
-        }
-      }
-    }
-    return max || 100;
-  }, [data, lines, stacked]);
+  const valueExtents = useMemo(
+    () =>
+      collectBarValueExtents(
+        data,
+        lines.map((line) => line.dataKey),
+        stacked
+      ),
+    [data, lines, stacked]
+  );
 
-  // Value scale (linear) - for the value axis
+  // Value scale (linear) - for the value axis. Always includes zero so bars
+  // grow from the zero line in either direction.
   const valueScale = useMemo(() => {
     const range = isHorizontal ? [0, innerWidth] : [innerHeight, 0];
     return scaleLinear({
       range,
-      domain: [0, maxValue * 1.1],
+      domain: resolveBarValueDomain(valueExtents),
       nice: true,
     });
-  }, [innerWidth, innerHeight, maxValue, isHorizontal]);
+  }, [innerWidth, innerHeight, valueExtents, isHorizontal]);
 
   const yScales = useMemo(() => {
     if (isHorizontal) {
@@ -311,20 +294,10 @@ const ChartCore = memo(function ChartCore({
       lines,
       data,
       innerHeight,
-      resolveDomain: (dataKeys) => {
-        let max = 0;
-        for (const d of data) {
-          for (const key of dataKeys) {
-            const value = d[key];
-            if (typeof value === "number" && value > max) {
-              max = value;
-            }
-          }
-        }
-        return [0, (max || 100) * 1.1];
-      },
+      resolveDomain: (dataKeys) =>
+        resolveBarValueDomain(collectBarValueExtents(data, dataKeys, stacked)),
     });
-  }, [data, innerHeight, isHorizontal, lines, valueScale]);
+  }, [data, innerHeight, isHorizontal, lines, stacked, valueScale]);
 
   const primaryYScale = getPrimaryYScale(yScales, valueScale);
 
@@ -519,8 +492,9 @@ const ChartCore = memo(function ChartCore({
       // Tooltip position: for horizontal, position at max bar end; for vertical, center of band
       let tooltipX: number;
       if (isHorizontal) {
-        // Position tooltip at the end of the longest bar
-        const maxX = Math.max(...Object.values(xPositions), 0);
+        // Position tooltip at the right-most bar edge — the value end for
+        // positive bars, the zero line for negative ones.
+        const maxX = Math.max(...Object.values(xPositions), valueScale(0) ?? 0);
         tooltipX = maxX;
       } else {
         tooltipX = barPos + bandWidth / 2;
