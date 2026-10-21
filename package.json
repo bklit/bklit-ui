@@ -5,9 +5,9 @@
     "build": "turbo run build",
     "dev": "turbo run dev",
     "dev:studio-docs": "pnpm --filter studio-docs dev",
-    "lint": "ultracite check",
-    "lint:fix": "ultracite fix",
-    "format": "ultracite fix",
+    "lint": "biome check --no-errors-on-unmatched ./",
+    "lint:fix": "biome check --write --no-errors-on-unmatched ./",
+    "format": "biome check --write --no-errors-on-unmatched ./",
     "check-types": "turbo run check-types",
     "test": "turbo run test",
     "prepare": "husky",
@@ -15,7 +15,7 @@
     "registry:verify": "node packages/ui/scripts/verify-registry-files.mjs && node packages/ui/scripts/verify-registry-deps.mjs && node packages/ui/scripts/verify-registry-sync.mjs"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.3.11",
+    "@biomejs/biome": "2.5.15",
     "husky": "^9.1.7",
     "prettier": "^3.7.4",
     "turbo": "^2.7.5",
