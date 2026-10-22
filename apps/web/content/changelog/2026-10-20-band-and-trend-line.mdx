@@ -1,0 +1,24 @@
+---
+title: Band and TrendLine
+description: Range areas and best-fit lines for line, area, bar and composed charts.
+date: 2026-10-20
+image: /changelog/2026-10-20-band-and-trend-line.svg
+imageAlt: Two wavy lines with vertical hatching between them
+tags: [band, trend-line, line-chart]
+---
+
+Two new layers for showing what's around and underneath your data.
+
+## Band
+
+`Band` fills the space between an upper and a lower value — confidence intervals, min–max ranges, forecasts. Fill it solid, with a gradient or with a pattern, style each edge on its own, and fade any of its four sides. It draws in with the line it sits behind.
+
+Bands also work on their own as range areas. The tooltip shows each band's low–high range with a dot on both edges, and the chart's scale fits the bands even when there's no line. For finance charts, `withBollingerBands` works the bands out for you.
+
+## TrendLine
+
+![A stepped line with a straight line running through it](/changelog/2026-10-20-trend-line.svg)
+
+`TrendLine` draws the straight line of best fit through a series, so the direction of noisy data is obvious at a glance. Make it solid, dashed or a gradient, with optional faded ends. It works in line, area and composed charts, and in bar charts in either orientation.
+
+Both are layers in Studio. See the [Band](/docs/utility/band) and [TrendLine](/docs/utility/trend-line) docs.

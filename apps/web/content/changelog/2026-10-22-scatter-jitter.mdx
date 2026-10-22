@@ -1,0 +1,24 @@
+---
+title: Jittered scatter plots
+description: Spread overlapping points into a readable strip plot, with offsets that never jump.
+date: 2026-10-22T14:00:00Z
+image: /changelog/2026-10-22-scatter-jitter.svg
+imageAlt: Columns of dots scattered around vertical guide lines
+tags: [scatter-chart, breaking]
+---
+
+When many rows share the same date, scatter points pile on top of each other and a hundred values look like five. Pass `jitter` to `ScatterChart` and they spread out sideways (and optionally vertically) into a strip plot you can actually read.
+
+## Deterministic by design
+
+The offsets come from a seeded hash, not `Math.random`. Points land in the same place on every render and on both the server and the client, so nothing jumps after hydration or when data updates. Change the `seed` if you'd prefer a different arrangement.
+
+## Hover still tells the truth
+
+Hover snaps to the nearest jittered point and the tooltip shows its real values, not the nudged position. The crosshair line is hidden by default for jittered charts, since it would point at a date rather than the point you are on.
+
+## New defaults
+
+`Scatter` now dims inactive points with opacity instead of blur, and drops the ring around each point — a quieter default that reads better in dense plots. To keep the previous look, pass `strokeWidth={2}` and `inactiveMode="blur"`.
+
+See the [scatter chart docs](/docs/components/scatter-chart) for the full `jitter` options.

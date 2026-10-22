@@ -1,0 +1,24 @@
+---
+title: Agent skills for design and migration
+description: Two new skills teach coding agents to style charts from plain language and to move off Recharts.
+date: 2026-10-15T12:00:00Z
+image: /changelog/2026-10-15-agent-skills.svg
+imageAlt: Loose circles on the left joined by dashed curves to a neat grid of squares on the right
+tags: [skills, ai, recharts]
+---
+
+Bklit UI ships [agent skills](/docs/skills) — instructions your coding agent loads so it uses the right components and props instead of guessing. Two new ones join the core skill.
+
+```bash
+npx skills add bklit/bklit-ui
+```
+
+## bklit-ui-design
+
+Describe the look you want in plain words — "faded pattern background", "squircle bars", "3D glass bars", "hatched area", "skeleton loading", "match our brand" — and the agent maps it to real Bklit components and props. It checks your Tailwind version, colour format, dark mode and corner radius first, so the result fits your app.
+
+## bklit-ui-migrate
+
+Point your agent at a codebase using Recharts, directly or through shadcn's chart component. It finds every chart, sorts them into ones that convert cleanly, ones that need a workaround, and ones to leave on Recharts, then converts them to Bklit UI and checks the result.
+
+The core `bklit-ui` skill has been rewritten alongside them.

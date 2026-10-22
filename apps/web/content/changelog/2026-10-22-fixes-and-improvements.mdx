@@ -1,0 +1,32 @@
+---
+title: Fixes and improvements
+description: Negative bars, smoother line updates, RTL labels, safer registry installs and more.
+date: 2026-10-22T09:00:00Z
+image: /changelog/2026-10-22-fixes-and-improvements.svg
+imageAlt: Stacked wavy lines that go from jagged at the top to smooth at the bottom
+tags: [fixes, bar-chart, line-chart, registry, rtl]
+---
+
+Alongside the bigger releases, a long list of things that now simply work the way you'd expect.
+
+## Charts
+
+- **Bar charts handle negative values.** The scale always includes zero and bars grow from the zero line in both orientations — profit and loss charts now just work.
+- **Stacked horizontal bars** draw every segment at the right width and grow from their own position instead of overlapping while they animate.
+- **Line charts morph** smoothly when their data changes, rather than snapping to the new values.
+- **Markers and edge points** are no longer clipped at the edge of the plot.
+- **Ring charts** no longer flicker when you hover near the inner edge of a ring.
+- **Custom `PieCenter` content** shows at rest, not only while hovering a slice.
+- **Persian, Arabic and Hebrew labels** animate as a single run so letters stay joined and in order, and the date ticker only scrolls the part of the date that changed.
+
+## Installing with shadcn
+
+- Charts installed from the registry keep their imports valid in your project's folder layout.
+- Theme tokens map correctly into your `@theme` variables.
+- Every chart passes the React Compiler lint rules.
+
+## Docs and site
+
+- A new [Markers](/docs/utility/markers) page, and an up-to-date [Theming](/docs/theming) guide.
+- "New" badges in the sidebar and mobile menu, which now share one navigation.
+- Better page titles, social cards and structured data across the site.

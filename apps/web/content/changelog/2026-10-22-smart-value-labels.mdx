@@ -1,0 +1,24 @@
+---
+title: Smart value labels
+description: Opt-in labels on area and bar charts that only appear where they fit.
+date: 2026-10-22T18:00:00Z
+image: /changelog/2026-10-22-smart-value-labels.svg
+imageAlt: Bars rising along a curve, each with a dashed outline above it
+tags: [area-chart, bar-chart, labels]
+---
+
+Sometimes a tooltip is one interaction too many. Area and bar charts can now print their values directly on the chart — turn it on with `showValue` and the chart decides where each label can go. Anything that would collide or overflow is hidden rather than clipped.
+
+## Bars
+
+A bar label appears only when it fits inside its bar. By default the chart tries horizontal text first, rotates it when vertical text fits better, and hides it when neither does. You can lock the orientation, and move the label to the top, centre or base of the bar.
+
+## Areas
+
+Area labels sit above a sample of points rather than every one, so the line stays readable. Stacked series share one label count so their labels line up, and you can set a minimum and maximum per series.
+
+## Built to resize
+
+Every fit check re-runs as the chart changes size. A dense chart shows fewer labels on a phone than on a laptop — never overlapping, never cut off. Numbers default to English digits; pass `valueLabelFormatter` for currency or localised output.
+
+Studio has controls for all of it, and they carry through to the generated code. See the [bar chart](/docs/components/bar-chart#value-labels) and [area chart](/docs/components/area-chart) docs.

@@ -13,6 +13,11 @@ function getSiteTransitionKey(pathname: string) {
     return "/charts";
   }
 
+  // The changelog rewrites its URL while scrolling; never remount the feed.
+  if (pathname === "/changelog" || pathname.startsWith("/changelog/")) {
+    return "/changelog";
+  }
+
   return pathname;
 }
 

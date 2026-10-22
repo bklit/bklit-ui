@@ -388,6 +388,17 @@
   }
 }
 
+/* Changelog entries: headings rank below the entry title. */
+.changelog-prose :where(h2):not(:where(.not-prose, .not-prose *)) {
+  margin-top: calc(var(--spacing) * 10);
+  margin-bottom: calc(var(--spacing) * 3);
+  font-size: var(--text-xl);
+}
+
+.changelog-prose > :first-child {
+  margin-top: 0;
+}
+
 .docs-prose :where(h3):not(:where(.not-prose, .not-prose *)) {
   margin-top: calc(var(--spacing) * 8);
   margin-bottom: calc(var(--spacing) * 3);

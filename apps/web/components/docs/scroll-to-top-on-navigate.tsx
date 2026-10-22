@@ -2,12 +2,16 @@
 
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
+import { isQuietUrl } from "@/lib/quiet-url";
 
 export function ScrollToTopOnNavigate() {
   const pathname = usePathname();
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: pathname triggers scroll reset on navigation
   useEffect(() => {
+    // URL synced in place (changelog scroll-spy) — not a navigation.
+    if (isQuietUrl(pathname)) {
+      return;
+    }
     if ("scrollRestoration" in history) {
       history.scrollRestoration = "manual";
     }

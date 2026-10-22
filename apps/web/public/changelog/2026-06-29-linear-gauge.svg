@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" fill="#000" stroke="#000" stroke-linecap="round">
+  <g>
+    <line x1="440" y1="720" x2="280" y2="720" stroke-opacity="0.9" stroke-width="6"/>
+    <line x1="440.8" y1="696" x2="281.2" y2="685.3" stroke-opacity="0.9" stroke-width="6"/>
+    <line x1="443.2" y1="672" x2="284.6" y2="650.7" stroke-opacity="0.9" stroke-width="6"/>
+    <line x1="447.2" y1="648.3" x2="290.4" y2="616.4" stroke-opacity="0.9" stroke-width="6"/>
+    <line x1="452.8" y1="624.9" x2="298.5" y2="582.6" stroke-opacity="0.9" stroke-width="6"/>
+    <line x1="459.9" y1="601.9" x2="308.8" y2="549.4" stroke-opacity="0.9" stroke-width="6"/>
+    <line x1="468.6" y1="579.5" x2="321.3" y2="517" stroke-opacity="0.9" stroke-width="6"/>
+    <line x1="478.7" y1="557.6" x2="335.9" y2="485.5" stroke-opacity="0.9" stroke-width="6"/>
+    <line x1="490.3" y1="536.5" x2="352.6" y2="455" stroke-opacity="0.9" stroke-width="6"/>
+    <line x1="503.2" y1="516.3" x2="371.3" y2="425.7" stroke-opacity="0.9" stroke-width="6"/>
+    <line x1="517.5" y1="496.9" x2="391.9" y2="397.7" stroke-opacity="0.9" stroke-width="6"/>
+    <line x1="533" y1="478.5" x2="414.3" y2="371.2" stroke-opacity="0.9" stroke-width="6"/>
+    <line x1="549.7" y1="461.2" x2="438.5" y2="346.2" stroke-opacity="0.9" stroke-width="6"/>
+    <line x1="567.6" y1="445.1" x2="464.3" y2="322.9" stroke-opacity="0.9" stroke-width="6"/>
+    <line x1="586.5" y1="430.2" x2="491.5" y2="301.4" stroke-opacity="0.9" stroke-width="6"/>
+    <line x1="606.3" y1="416.6" x2="520.2" y2="281.7" stroke-opacity="0.9" stroke-width="6"/>
+    <line x1="627" y1="404.3" x2="550.1" y2="264" stroke-opacity="0.9" stroke-width="6"/>
+    <line x1="648.5" y1="393.4" x2="581.1" y2="248.3" stroke-opacity="0.9" stroke-width="6"/>
+    <line x1="670.6" y1="384.1" x2="613.1" y2="234.7" stroke-opacity="0.9" stroke-width="6"/>
+    <line x1="693.3" y1="376.2" x2="645.9" y2="223.3" stroke-opacity="0.9" stroke-width="6"/>
+    <line x1="716.5" y1="369.8" x2="679.5" y2="214.2" stroke-opacity="0.9" stroke-width="6"/>
+    <line x1="740.1" y1="365" x2="713.5" y2="207.2" stroke-opacity="0.9" stroke-width="6"/>
+    <line x1="764" y1="361.8" x2="748" y2="202.6" stroke-opacity="0.9" stroke-width="6"/>
+    <line x1="788" y1="360.2" x2="782.6" y2="200.3" stroke-opacity="0.9" stroke-width="6"/>
+    <line x1="812" y1="360.2" x2="817.4" y2="200.3" stroke-opacity="0.9" stroke-width="6"/>
+    <line x1="836" y1="361.8" x2="852" y2="202.6" stroke-opacity="0.9" stroke-width="6"/>
+    <line x1="859.9" y1="365" x2="886.5" y2="207.2" stroke-opacity="0.9" stroke-width="6"/>
+    <line x1="883.5" y1="369.8" x2="920.5" y2="214.2" stroke-opacity="0.9" stroke-width="6"/>
+    <line x1="906.7" y1="376.2" x2="954.1" y2="223.3" stroke-opacity="0.9" stroke-width="6"/>
+    <line x1="929.4" y1="384.1" x2="986.9" y2="234.7" stroke-opacity="0.2" stroke-width="4"/>
+    <line x1="951.5" y1="393.4" x2="1018.9" y2="248.3" stroke-opacity="0.2" stroke-width="4"/>
+    <line x1="973" y1="404.3" x2="1049.9" y2="264" stroke-opacity="0.2" stroke-width="4"/>
+    <line x1="993.7" y1="416.6" x2="1079.8" y2="281.7" stroke-opacity="0.2" stroke-width="4"/>
+    <line x1="1013.5" y1="430.2" x2="1108.5" y2="301.4" stroke-opacity="0.2" stroke-width="4"/>
+    <line x1="1032.4" y1="445.1" x2="1135.7" y2="322.9" stroke-opacity="0.2" stroke-width="4"/>
+    <line x1="1050.3" y1="461.2" x2="1161.5" y2="346.2" stroke-opacity="0.2" stroke-width="4"/>
+    <line x1="1067" y1="478.5" x2="1185.7" y2="371.2" stroke-opacity="0.2" stroke-width="4"/>
+    <line x1="1082.5" y1="496.9" x2="1208.1" y2="397.7" stroke-opacity="0.2" stroke-width="4"/>
+    <line x1="1096.8" y1="516.3" x2="1228.7" y2="425.7" stroke-opacity="0.2" stroke-width="4"/>
+    <line x1="1109.7" y1="536.5" x2="1247.4" y2="455" stroke-opacity="0.2" stroke-width="4"/>
+    <line x1="1121.3" y1="557.6" x2="1264.1" y2="485.5" stroke-opacity="0.2" stroke-width="4"/>
+    <line x1="1131.4" y1="579.5" x2="1278.7" y2="517" stroke-opacity="0.2" stroke-width="4"/>
+    <line x1="1140.1" y1="601.9" x2="1291.2" y2="549.4" stroke-opacity="0.2" stroke-width="4"/>
+    <line x1="1147.2" y1="624.9" x2="1301.5" y2="582.6" stroke-opacity="0.2" stroke-width="4"/>
+    <line x1="1152.8" y1="648.3" x2="1309.6" y2="616.4" stroke-opacity="0.2" stroke-width="4"/>
+    <line x1="1156.8" y1="672" x2="1315.4" y2="650.7" stroke-opacity="0.2" stroke-width="4"/>
+    <line x1="1159.2" y1="696" x2="1318.8" y2="685.3" stroke-opacity="0.2" stroke-width="4"/>
+    <line x1="1160" y1="720" x2="1320" y2="720" stroke-opacity="0.2" stroke-width="4"/>
+  </g>
+</svg>

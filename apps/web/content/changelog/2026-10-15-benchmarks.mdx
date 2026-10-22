@@ -1,0 +1,18 @@
+---
+title: Chart benchmarks, in your browser
+description: Bklit UI, Recharts and TanStack Charts measured side by side, on your machine.
+date: 2026-10-15T14:00:00Z
+image: /changelog/2026-10-15-benchmarks.svg
+imageAlt: Concentric arcs of different lengths starting from the top of a circle
+tags: [benchmarks, performance]
+---
+
+Performance claims are easy to make and hard to check. [Benchmarks](/benchmarks) lets you check ours: it runs Bklit UI, Recharts and TanStack Charts against the same seeded data — line, area, bar and scatter — in your own browser.
+
+## What it measures
+
+Each run reports how long a chart takes to mount, to update and to respond to hover, how many DOM nodes it creates, and how much it adds to your bundle, then combines them into a score. Enter animations are timed for reference but never scored, so no library is penalised for animating.
+
+## Smaller tooltip dates
+
+Building it, we also made the tooltip's date pill fit its label: it measures the current date and springs its width as you move, instead of sizing itself to the longest month.

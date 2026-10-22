@@ -246,6 +246,9 @@ importers:
       tw-animate-css:
         specifier: ^1.4.0
         version: 1.4.0
+      zod:
+        specifier: 4.3.5
+        version: 4.3.5
     devDependencies:
       '@bklitui/eslint-config':
         specifier: workspace:*

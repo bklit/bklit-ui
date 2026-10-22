@@ -1,5 +1,10 @@
 import type { MetadataRoute } from "next";
 import { validChartSlugs } from "@/components/charts/chart-slugs";
+import {
+  changelogPageHref,
+  getChangelogEntries,
+  getChangelogPageCount,
+} from "@/lib/changelog";
 import { gitLastModified, latestDate } from "@/lib/git-last-modified";
 import { SITE_URL } from "@/lib/site-url";
 import { source } from "@/lib/source";
@@ -97,5 +102,28 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 
-  return [...staticRoutes, ...chartRoutes, ...docRoutes];
+  const changelogEntries = getChangelogEntries();
+  const changelogRoutes: MetadataRoute.Sitemap = [
+    {
+      url: `${SITE_URL}/changelog`,
+      lastModified: changelogEntries[0]
+        ? new Date(changelogEntries[0].date)
+        : undefined,
+      changeFrequency: "weekly",
+      priority: 0.7,
+    },
+    ...Array.from({ length: getChangelogPageCount() - 1 }, (_, index) => ({
+      url: `${SITE_URL}${changelogPageHref(index + 2)}`,
+      changeFrequency: "weekly" as const,
+      priority: 0.4,
+    })),
+    ...changelogEntries.map((entry) => ({
+      url: `${SITE_URL}${entry.url}`,
+      lastModified: new Date(entry.date),
+      changeFrequency: "yearly" as const,
+      priority: 0.5,
+    })),
+  ];
+
+  return [...staticRoutes, ...chartRoutes, ...changelogRoutes, ...docRoutes];
 }

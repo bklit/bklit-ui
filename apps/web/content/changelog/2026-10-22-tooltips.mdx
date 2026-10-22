@@ -1,0 +1,31 @@
+---
+title: Tooltips, rebuilt
+description: A cleaner panel, haloed hover dots, and motion that follows the pointer and fades out on leave.
+date: 2026-10-22T16:00:00Z
+image: /changelog/2026-10-22-tooltips.svg
+imageAlt: A curve with a haloed dot, a dashed vertical guide and a rounded panel beside it
+tags: [tooltip, motion, heatmap-chart, bar-chart]
+---
+
+Tooltips are the part of a chart people touch most, so this week they got the most attention.
+
+## A panel that matches your app
+
+The panel now looks like the popovers in shadcn and coss ui: a rounded frame with a hairline border, a soft shadow, and a header row separated from the values. Series get small colour dots, labels are muted, and values are right-aligned in tabular figures so columns of numbers line up. Its colours come from your `popover` tokens, so it follows your theme without extra setup. Building custom tooltip content? The new `TooltipHeader` gives you the same header.
+
+## Hover dots with a halo
+
+The default hover dot is now a solid core inside a soft halo of the same colour. Both spring open when you hover and follow the tooltip as you move. Tune them with `dotHaloScale` and `dotHaloOpacity`.
+
+## Motion that feels connected
+
+- **Every tooltip fades out** when the pointer leaves, instead of vanishing. Pass `exit={false}` for the old behaviour.
+- **Heatmap tooltips spring** from cell to cell like the other charts instead of snapping.
+- **Jittered scatter tooltips** sit beside the point you are on and spring to the other side when they run out of room, rather than pinning to the top of the plot.
+- **Reduced motion is respected**: the panel jumps into place and keeps only a short fade.
+
+## Bar charts lose the crosshair
+
+A vertical crosshair line helps on a line chart and gets in the way on a bar chart. Bar charts now hide it by default; pass `showCrosshair` to bring it back.
+
+See the [Tooltip docs](/docs/utility/tooltip) for every option.

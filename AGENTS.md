@@ -34,6 +34,7 @@ Read `.agents/skills/bklit-ship/SKILL.md` when the chart API is stable in `packa
 | `bklit-studio` | New or existing chart — prototype and edit in `/studio` |
 | `bklit-ship` | Ship chart to docs, gallery, shadcn registry |
 | `bklit-studio-chart-performance` | Studio chart FPS audit, pan/zoom jank, Motion subscription cleanup |
+| `bklit-changelog` | Write a website changelog entry (markdown + geometric cover art) |
 | `pr-open` | Commit, push, open PR (bklit-ui checklist) |
 | `unit-tests` | Adding tests — avoid over-testing |
 | `turborepo` | Monorepo tasks, turbo.json, caching |

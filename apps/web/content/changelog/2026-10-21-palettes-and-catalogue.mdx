@@ -1,0 +1,24 @@
+---
+title: Multi-hue palettes, Weekends and Deadline
+description: A new default palette, a faster chart catalogue, and two primitives for time-series charts.
+date: 2026-10-21
+image: /changelog/2026-10-21-palettes-and-catalogue.svg
+imageAlt: Five overlapping circles whose overlaps grow darker
+tags: [theming, charts, weekends, deadline]
+---
+
+## Palettes
+
+Charts now default to a primary palette — indigo, yellow, fuchsia, mist and black-and-white — and come with a set of curated multi-hue palettes shared by the docs and Studio. Pick one from the palette menu, fine-tune any colour with the Studio colour picker, and export the result as CSS variables.
+
+Trend charts get semantic `--chart-positive` and `--chart-negative` tokens, so gains and losses stay meaningful in any palette. The heatmap scale now derives from your first chart colour.
+
+## Weekends and Deadline
+
+Two small primitives that make time-series charts easier to read at a glance. `Weekends` shades weekend days behind the series, with stripes or a solid fill. `Deadline` marks a due date with a line and a fading region after it — striped, gradient or solid.
+
+## A faster chart catalogue
+
+[/charts](/charts) has been rebuilt around a sticky sidebar that tracks where you are and links straight to any variation. Charts only mount as they scroll into view, so the page stays fast however many examples it holds.
+
+Read more in the [Weekends](/docs/utility/weekends) and [Deadline](/docs/utility/deadline) docs.

@@ -15,11 +15,16 @@ export const siteNavLinks = [
   { text: "Showcase", url: "/showcase" },
   { text: "Charts", url: "/charts/area-chart" },
   { text: "Benchmarks", url: "/benchmarks" },
+  { text: "Changelog", url: "/changelog" },
   { text: "Studio", url: "/studio" },
 ] as const satisfies readonly SiteNavLink[];
 
 /** Sidebar-only destinations, left out of the desktop top navigation. */
-const SIDEBAR_ONLY_URLS = new Set<string>(["/showcase", "/benchmarks"]);
+const SIDEBAR_ONLY_URLS = new Set<string>([
+  "/showcase",
+  "/benchmarks",
+  "/changelog",
+]);
 
 /** Desktop top navigation (site header). */
 export const siteHeaderNavLinks = siteNavLinks.filter(

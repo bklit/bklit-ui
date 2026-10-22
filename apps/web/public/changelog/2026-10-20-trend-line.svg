@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" fill="#000" stroke="#000" stroke-linecap="round">
+  <g>
+    <circle cx="200" cy="620.8" r="5" stroke="none" fill-opacity="0.55"/>
+    <circle cx="280" cy="694" r="5" stroke="none" fill-opacity="0.55"/>
+    <circle cx="360" cy="620.9" r="5" stroke="none" fill-opacity="0.55"/>
+    <circle cx="440" cy="640" r="5" stroke="none" fill-opacity="0.55"/>
+    <circle cx="520" cy="480.4" r="5" stroke="none" fill-opacity="0.55"/>
+    <circle cx="600" cy="573.4" r="5" stroke="none" fill-opacity="0.55"/>
+    <circle cx="680" cy="471.1" r="5" stroke="none" fill-opacity="0.55"/>
+    <circle cx="760" cy="397" r="5" stroke="none" fill-opacity="0.55"/>
+    <circle cx="840" cy="371.3" r="5" stroke="none" fill-opacity="0.55"/>
+    <circle cx="920" cy="480.6" r="5" stroke="none" fill-opacity="0.55"/>
+    <circle cx="1000" cy="450.9" r="5" stroke="none" fill-opacity="0.55"/>
+    <circle cx="1080" cy="356.7" r="5" stroke="none" fill-opacity="0.55"/>
+    <circle cx="1160" cy="316.8" r="5" stroke="none" fill-opacity="0.55"/>
+    <circle cx="1240" cy="303.2" r="5" stroke="none" fill-opacity="0.55"/>
+    <circle cx="1320" cy="283.8" r="5" stroke="none" fill-opacity="0.55"/>
+    <circle cx="1400" cy="281.6" r="5" stroke="none" fill-opacity="0.55"/>
+    <path d="M 160 660 L 160 620.8 L 240 620.8 L 240 694 L 320 694 L 320 620.9 L 400 620.9 L 400 640 L 480 640 L 480 480.4 L 560 480.4 L 560 573.4 L 640 573.4 L 640 471.1 L 720 471.1 L 720 397 L 800 397 L 800 371.3 L 880 371.3 L 880 480.6 L 960 480.6 L 960 450.9 L 1040 450.9 L 1040 356.7 L 1120 356.7 L 1120 316.8 L 1200 316.8 L 1200 303.2 L 1280 303.2 L 1280 283.8 L 1360 283.8 L 1360 281.6 L 1440 281.6" fill="none" stroke-width="2" stroke-opacity="0.4" stroke-linejoin="round"/>
+    <line x1="140" y1="690" x2="1460" y2="220" stroke-opacity="1" stroke-width="4"/>
+  </g>
+</svg>

@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" fill="#000" stroke="#000" stroke-linecap="round">
+  <g>
+    <circle cx="800" cy="450" r="110" fill="none" stroke-opacity="0.12" stroke-width="2" stroke-dasharray="6 10"/>
+    <path d="M 800 340 A 110 110 0 0 1 855.2 545.1" fill="none" stroke-width="6" stroke-opacity="1"/>
+    <circle cx="855.2" cy="545.1" r="6" stroke="none"/>
+    <circle cx="800" cy="450" r="152" fill="none" stroke-opacity="0.12" stroke-width="2" stroke-dasharray="6 10"/>
+    <path d="M 800 298 A 152 152 0 1 1 655.7 497.9" fill="none" stroke-width="4" stroke-opacity="0.9"/>
+    <circle cx="655.7" cy="497.9" r="6" stroke="none"/>
+    <circle cx="800" cy="450" r="194" fill="none" stroke-opacity="0.12" stroke-width="2" stroke-dasharray="6 10"/>
+    <path d="M 800 256 A 194 194 0 1 1 649.9 572.9" fill="none" stroke-width="4" stroke-opacity="0.8"/>
+    <circle cx="649.9" cy="572.9" r="6" stroke="none"/>
+    <circle cx="800" cy="450" r="236" fill="none" stroke-opacity="0.12" stroke-width="2" stroke-dasharray="6 10"/>
+    <path d="M 800 214 A 236 236 0 1 1 587.2 348" fill="none" stroke-width="4" stroke-opacity="0.6"/>
+    <circle cx="587.2" cy="348" r="6" stroke="none"/>
+    <circle cx="800" cy="450" r="278" fill="none" stroke-opacity="0.12" stroke-width="2" stroke-dasharray="6 10"/>
+    <path d="M 800 172 A 278 278 0 0 1 1071.3 510.6" fill="none" stroke-width="4" stroke-opacity="0.5"/>
+    <circle cx="1071.3" cy="510.6" r="6" stroke="none"/>
+    <circle cx="800" cy="450" r="320" fill="none" stroke-opacity="0.12" stroke-width="2" stroke-dasharray="6 10"/>
+    <path d="M 800 130 A 320 320 0 1 1 511.4 588.3" fill="none" stroke-width="4" stroke-opacity="0.5"/>
+    <circle cx="511.4" cy="588.3" r="6" stroke="none"/>
+    <circle cx="800" cy="450" r="362" fill="none" stroke-opacity="0.12" stroke-width="2" stroke-dasharray="6 10"/>
+    <path d="M 800 88 A 362 362 0 0 1 1146 556.5" fill="none" stroke-width="4" stroke-opacity="0.3"/>
+    <circle cx="1146" cy="556.5" r="6" stroke="none"/>
+  </g>
+</svg>

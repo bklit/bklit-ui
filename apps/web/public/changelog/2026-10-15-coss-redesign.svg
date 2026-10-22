@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" fill="#000" stroke="#000" stroke-linecap="round">
+  <g>
+    <line x1="280" y1="60" x2="280" y2="840" stroke-opacity="0.5" stroke-width="2"/>
+    <line x1="1320" y1="60" x2="1320" y2="840" stroke-opacity="0.5" stroke-width="2"/>
+    <line x1="60" y1="200" x2="1540" y2="200" stroke-opacity="0.2" stroke-width="2"/>
+    <rect x="271" y="191" width="18" height="18" rx="4" fill="none" stroke-width="2.5"/>
+    <rect x="1311" y="191" width="18" height="18" rx="4" fill="none" stroke-width="2.5"/>
+    <line x1="60" y1="330" x2="1540" y2="330" stroke-opacity="0.2" stroke-width="2"/>
+    <rect x="271" y="321" width="18" height="18" rx="4" fill="none" stroke-width="2.5"/>
+    <rect x="1311" y="321" width="18" height="18" rx="4" fill="none" stroke-width="2.5"/>
+    <line x1="60" y1="560" x2="1540" y2="560" stroke-opacity="0.2" stroke-width="2"/>
+    <rect x="271" y="551" width="18" height="18" rx="4" fill="none" stroke-width="2.5"/>
+    <rect x="1311" y="551" width="18" height="18" rx="4" fill="none" stroke-width="2.5"/>
+    <line x1="60" y1="700" x2="1540" y2="700" stroke-opacity="0.2" stroke-width="2"/>
+    <rect x="271" y="691" width="18" height="18" rx="4" fill="none" stroke-width="2.5"/>
+    <rect x="1311" y="691" width="18" height="18" rx="4" fill="none" stroke-width="2.5"/>
+    <rect x="320" y="368.1" width="301.3" height="161.9" rx="20" fill="none" stroke-width="2" stroke-opacity="0.4"/>
+    <rect x="649.3" y="352.5" width="301.3" height="177.5" rx="20" fill="none" stroke-width="2" stroke-opacity="0.6"/>
+    <rect x="978.7" y="336.3" width="301.3" height="193.7" rx="20" fill="none" stroke-width="2" stroke-opacity="0.9"/>
+  </g>
+</svg>

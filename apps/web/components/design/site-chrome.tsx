@@ -85,6 +85,7 @@ export function SitePageHeader({
   actions,
   className,
   headingClassName,
+  titleAs: Title = "h1",
 }: {
   title: ReactNode;
   description?: ReactNode;
@@ -92,19 +93,21 @@ export function SitePageHeader({
   actions?: ReactNode;
   className?: string;
   headingClassName?: string;
+  /** Use `"p"` when the page's `h1` lives further down (e.g. a permalink). */
+  titleAs?: "h1" | "p";
 }) {
   return (
     <section className={cn(siteContainerClassName, className)}>
       <div className="flex max-w-2xl flex-col items-start gap-2 py-8 md:py-12 lg:py-16 xl:gap-4">
         {eyebrow}
-        <h1
+        <Title
           className={cn(
             "text-balance font-bold font-heading text-4xl lg:text-5xl",
             headingClassName
           )}
         >
           {title}
-        </h1>
+        </Title>
         {description ? (
           <p className="text-pretty text-muted-foreground lg:text-lg">
             {description}

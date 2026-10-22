@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" fill="#000" stroke="#000" stroke-linecap="round">
+  <g>
+    <rect x="174.2" y="610.5" width="42.7" height="129.5" fill-opacity="0.1" stroke="none"/>
+    <rect x="174.2" y="160" width="42.7" height="434.5" stroke-opacity="0.18" stroke-width="2" fill="none" stroke-dasharray="6 10"/>
+    <rect x="245.3" y="598" width="42.7" height="142" fill-opacity="0.1" stroke="none"/>
+    <rect x="245.3" y="160" width="42.7" height="422" stroke-opacity="0.18" stroke-width="2" fill="none" stroke-dasharray="6 10"/>
+    <rect x="316.4" y="598.3" width="42.7" height="141.7" fill-opacity="0.2" stroke="none"/>
+    <rect x="316.4" y="160" width="42.7" height="422.3" stroke-opacity="0.18" stroke-width="2" fill="none" stroke-dasharray="6 10"/>
+    <rect x="387.6" y="558.9" width="42.7" height="181.1" fill-opacity="0.2" stroke="none"/>
+    <rect x="387.6" y="160" width="42.7" height="382.9" stroke-opacity="0.18" stroke-width="2" fill="none" stroke-dasharray="6 10"/>
+    <rect x="458.7" y="536.5" width="42.7" height="203.5" fill-opacity="0.2" stroke="none"/>
+    <rect x="458.7" y="160" width="42.7" height="360.5" stroke-opacity="0.18" stroke-width="2" fill="none" stroke-dasharray="6 10"/>
+    <rect x="529.8" y="531.9" width="42.7" height="208.1" fill-opacity="0.3" stroke="none"/>
+    <rect x="529.8" y="160" width="42.7" height="355.9" stroke-opacity="0.18" stroke-width="2" fill="none" stroke-dasharray="6 10"/>
+    <rect x="600.9" y="495.4" width="42.7" height="244.6" fill-opacity="0.3" stroke="none"/>
+    <rect x="600.9" y="160" width="42.7" height="319.4" stroke-opacity="0.18" stroke-width="2" fill="none" stroke-dasharray="6 10"/>
+    <rect x="672" y="448.6" width="42.7" height="291.4" fill-opacity="0.3" stroke="none"/>
+    <rect x="672" y="160" width="42.7" height="272.6" stroke-opacity="0.18" stroke-width="2" fill="none" stroke-dasharray="6 10"/>
+    <rect x="743.1" y="408.4" width="42.7" height="331.6" fill-opacity="0.4" stroke="none"/>
+    <rect x="743.1" y="160" width="42.7" height="232.4" stroke-opacity="0.18" stroke-width="2" fill="none" stroke-dasharray="6 10"/>
+    <rect x="814.2" y="362.8" width="42.7" height="377.2" fill-opacity="0.4" stroke="none"/>
+    <rect x="814.2" y="160" width="42.7" height="186.8" stroke-opacity="0.18" stroke-width="2" fill="none" stroke-dasharray="6 10"/>
+    <rect x="885.3" y="324.4" width="42.7" height="415.6" fill-opacity="0.4" stroke="none"/>
+    <rect x="885.3" y="160" width="42.7" height="148.4" stroke-opacity="0.18" stroke-width="2" fill="none" stroke-dasharray="6 10"/>
+    <rect x="956.4" y="312.1" width="42.7" height="427.9" fill-opacity="0.4" stroke="none"/>
+    <rect x="956.4" y="160" width="42.7" height="136.1" stroke-opacity="0.18" stroke-width="2" fill="none" stroke-dasharray="6 10"/>
+    <rect x="1027.6" y="260.7" width="42.7" height="479.3" fill-opacity="0.5" stroke="none"/>
+    <rect x="1027.6" y="160" width="42.7" height="84.7" stroke-opacity="0.18" stroke-width="2" fill="none" stroke-dasharray="6 10"/>
+    <rect x="1098.7" y="223.3" width="42.7" height="516.7" fill-opacity="0.5" stroke="none"/>
+    <rect x="1098.7" y="160" width="42.7" height="47.3" stroke-opacity="0.18" stroke-width="2" fill="none" stroke-dasharray="6 10"/>
+    <rect x="1169.8" y="212.9" width="42.7" height="527.1" fill-opacity="0.5" stroke="none"/>
+    <rect x="1169.8" y="160" width="42.7" height="36.9" stroke-opacity="0.18" stroke-width="2" fill="none" stroke-dasharray="6 10"/>
+    <rect x="1240.9" y="196.3" width="42.7" height="543.7" fill-opacity="0.6" stroke="none"/>
+    <rect x="1240.9" y="160" width="42.7" height="20.3" stroke-opacity="0.18" stroke-width="2" fill="none" stroke-dasharray="6 10"/>
+    <rect x="1312" y="203" width="42.7" height="537" fill-opacity="0.6" stroke="none"/>
+    <rect x="1312" y="160" width="42.7" height="27" stroke-opacity="0.18" stroke-width="2" fill="none" stroke-dasharray="6 10"/>
+    <rect x="1383.1" y="186.3" width="42.7" height="553.7" fill-opacity="0.6" stroke="none"/>
+    <rect x="1383.1" y="160" width="42.7" height="10.3" stroke-opacity="0.18" stroke-width="2" fill="none" stroke-dasharray="6 10"/>
+  </g>
+</svg>
