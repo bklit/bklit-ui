@@ -4,7 +4,14 @@ import { motion, useReducedMotion, type Variants } from "motion/react";
 import { type ComponentProps, useCallback } from "react";
 import { cn } from "@/lib/utils";
 
-const PERSIAN_TEXT_PATTERN = /[\u0600-\u06ff]/u;
+/**
+ * RTL / cursive scripts (Hebrew, Arabic incl. Persian & Urdu, Syriac, Thaana,
+ * N'Ko and their presentation forms). Splitting these into per-character
+ * spans breaks glyph joining and reverses the visual order, so they shimmer
+ * as a single run instead.
+ */
+const WHOLE_TEXT_SCRIPT_PATTERN =
+  /[\u0590-\u07ff\u0860-\u08ff\ufb1d-\ufdff\ufe70-\ufeff]/u;
 
 export type ShimmeringTextProps = Omit<
   ComponentProps<typeof motion.span>,
@@ -64,9 +71,7 @@ export function ShimmeringText({
     [duration, text.length]
   );
 
-  const containsPersian = PERSIAN_TEXT_PATTERN.test(text);
-
-  if (containsPersian) {
+  if (WHOLE_TEXT_SCRIPT_PATTERN.test(text)) {
     return (
       <motion.span
         animate={
@@ -82,6 +87,7 @@ export function ShimmeringText({
         }
         className={cn(
           "inline-block select-none whitespace-nowrap leading-none",
+          "[--color:var(--muted-foreground)] [--shimmering-color:var(--foreground)]",
           className
         )}
         transition={{

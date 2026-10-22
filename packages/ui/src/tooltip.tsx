@@ -287,7 +287,11 @@ export function ChartTooltip({
     containerWidth - tooltipWidth - tooltipOffset
   );
   const targetX = Math.max(tooltipOffset, Math.min(preferredX, maxX));
-  const availableWidth = Math.max(containerWidth - tooltipOffset * 2, 0);
+  // Unmeasured container (0) → no cap, rather than collapsing the tooltip.
+  const availableWidth =
+    containerWidth > 0
+      ? Math.max(containerWidth - tooltipOffset * 2, 0)
+      : undefined;
 
   // Track flip state changes for animation
   const prevFlipRef = useRef(shouldFlip);
@@ -343,7 +347,7 @@ export function ChartTooltip({
           key={flipKey}
           style={{
             maxWidth: availableWidth,
-            minWidth: Math.min(140, availableWidth),
+            minWidth: Math.min(140, availableWidth ?? 140),
             transformOrigin,
           }}
           transition={{
