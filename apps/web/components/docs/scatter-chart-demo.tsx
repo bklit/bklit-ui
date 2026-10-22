@@ -27,3 +27,26 @@ export function ScatterChartDemo() {
     </div>
   );
 }
+
+/** 7 days × 24 samples — many rows share each date, so points overlap without jitter. */
+const jitterData = Array.from({ length: 7 }, (_, day) =>
+  Array.from({ length: 24 }, (_, i) => ({
+    date: new Date(2024, 0, day + 1),
+    desktop: 160 + day * 8 + ((i * 37 + day * 11) % 61) - 30,
+    mobile: 120 + day * 6 + ((i * 53 + day * 7) % 51) - 25,
+  }))
+).flat();
+
+export function ScatterJitterDemo() {
+  return (
+    <div className="w-full">
+      <ScatterChart data={jitterData} jitter={{ x: 0.5 }}>
+        <Grid horizontal />
+        <Scatter dataKey="desktop" radius={3} />
+        <Scatter dataKey="mobile" radius={3} />
+        <XAxis numTicks={7} />
+        <ChartTooltip />
+      </ScatterChart>
+    </div>
+  );
+}

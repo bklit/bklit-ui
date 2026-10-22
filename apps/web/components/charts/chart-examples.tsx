@@ -258,6 +258,24 @@ const scatterChartDataSnippet = `const chartData = Array.from({ length: 24 }, (_
   mobile: Math.floor(70 + Math.cos(i / 2.5) * 55 + ((i * 7) % 35)),
 }));`;
 
+/** 7 days × 24 samples — many rows share each date, so points overlap without jitter */
+const scatterJitterData = Array.from({ length: 7 }, (_, day) =>
+  Array.from({ length: 24 }, (_, i) => ({
+    date: new Date(2024, 0, day + 1),
+    desktop: 160 + day * 8 + ((i * 37 + day * 11) % 61) - 30,
+    mobile: 120 + day * 6 + ((i * 53 + day * 7) % 51) - 25,
+  }))
+).flat();
+
+const scatterJitterDataSnippet = `// 7 days × 24 samples — many rows share each date
+const chartData = Array.from({ length: 7 }, (_, day) =>
+  Array.from({ length: 24 }, (_, i) => ({
+    date: new Date(2024, 0, day + 1),
+    desktop: 160 + day * 8 + ((i * 37 + day * 11) % 61) - 30,
+    mobile: 120 + day * 6 + ((i * 53 + day * 7) % 51) - 25,
+  }))
+).flat();`;
+
 const lineMarkers: ChartMarker[] = [
   {
     date: new Date(2024, 2, 1),
@@ -6846,21 +6864,64 @@ function makeFunnelExamples(): ChartExample[] {
 function makeScatterExamples(): ChartExample[] {
   return [
     {
-      title: "Scatter Chart - No Rings",
+      title: "Scatter Chart - With Jitter",
       description:
-        "Solid fills only — set `strokeWidth={0}` to hide the outer ring",
+        "Strip plot — `jitter` spreads overlapping points at each date with a deterministic offset; tooltips keep the original values",
+      code: `<ScatterChart data={chartData} jitter={{ x: 0.5 }} margin={{ top: 8, right: 8, bottom: 40, left: 8 }}>
+  <Grid horizontal />
+  <Scatter dataKey="desktop" radius={3} />
+  <Scatter dataKey="mobile" radius={3} />
+  <XAxis numTicks={7} />
+  <ChartTooltip />
+</ScatterChart>`,
+      data: scatterJitterDataSnippet,
+      render: () => (
+        <ScatterExampleChart data={scatterJitterData} jitter={{ x: 0.5 }}>
+          <Grid horizontal />
+          <Scatter dataKey="desktop" radius={3} />
+          <Scatter dataKey="mobile" radius={3} />
+          <XAxis numTicks={7} />
+          <ChartTooltip />
+        </ScatterExampleChart>
+      ),
+    },
+    {
+      title: "Scatter Chart - Rings",
+      description:
+        "Offset rings are opt-in — set `strokeWidth` (and optionally `ringGap`) to draw one",
       code: `<ScatterChart data={chartData} margin={{ top: 8, right: 8, bottom: 40, left: 8 }}>
   <Grid horizontal />
-  <Scatter dataKey="desktop" strokeWidth={0} />
-  <Scatter dataKey="mobile" strokeWidth={0} />
+  <Scatter dataKey="desktop" ringGap={2} strokeWidth={2} />
+  <Scatter dataKey="mobile" ringGap={2} strokeWidth={2} />
   <XAxis />
   <ChartTooltip />
 </ScatterChart>`,
       render: () => (
         <ScatterExampleChart data={multiLineData}>
           <Grid horizontal />
-          <Scatter dataKey="desktop" strokeWidth={0} />
-          <Scatter dataKey="mobile" strokeWidth={0} />
+          <Scatter dataKey="desktop" ringGap={2} strokeWidth={2} />
+          <Scatter dataKey="mobile" ringGap={2} strokeWidth={2} />
+          <XAxis />
+          <ChartTooltip />
+        </ScatterExampleChart>
+      ),
+    },
+    {
+      title: "Scatter Chart - Blur Inactive",
+      description:
+        'Opt into blur on non-active points while hovering with `inactiveMode="blur"`',
+      code: `<ScatterChart data={chartData} margin={{ top: 8, right: 8, bottom: 40, left: 8 }}>
+  <Grid horizontal />
+  <Scatter dataKey="desktop" inactiveMode="blur" />
+  <Scatter dataKey="mobile" inactiveMode="blur" />
+  <XAxis />
+  <ChartTooltip />
+</ScatterChart>`,
+      render: () => (
+        <ScatterExampleChart data={multiLineData}>
+          <Grid horizontal />
+          <Scatter dataKey="desktop" inactiveMode="blur" />
+          <Scatter dataKey="mobile" inactiveMode="blur" />
           <XAxis />
           <ChartTooltip />
         </ScatterExampleChart>
@@ -7023,7 +7084,7 @@ function makeScatterHero(): ChartExample {
   return {
     title: "Scatter Chart",
     description:
-      "Desktop vs mobile over 24 months with default offset rings and crosshair tooltip",
+      "Desktop vs mobile over 24 months with hover dimming and crosshair tooltip",
     code: `<ScatterChart data={chartData} margin={{ top: 8, right: 8, bottom: 40, left: 8 }}>
   <Grid horizontal />
   <Scatter dataKey="desktop" />

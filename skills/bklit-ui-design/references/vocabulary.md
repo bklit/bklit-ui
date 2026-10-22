@@ -178,6 +178,9 @@ returns the matching pattern node (same presets as `Background`).
 | People say | JSX | Notes |
 |---|---|---|
 | "dots on every point", "markers", "beads" | `<Line showMarkers />` / `<Area showMarkers />` | `markers={{ radius: 5, ringGap: 2, strokeWidth: 2 }}` — `SeriesPointMarkerStyle`: `fill`, `stroke`, `strokeWidth` (2), `ringGap` (2), `outlineWidth` (0), `outlineColor`, `radius` (5), `fadeOnHover` (true), `inactiveOpacity` (0.5), `inactiveBlur` (2), `enterBlur` (2), `showActiveHighlight` (true). Pair with `fadeEdges={false}` on Line so end points are visible. |
+| "scatter rings", "halo dots" | `<Scatter dataKey="v" strokeWidth={2} ringGap={2} />` | Scatter is solid dots by default (`strokeWidth` 0); rings are opt-in. |
+| "blur the other dots", "frosted unfocused points" | `<Scatter dataKey="v" inactiveMode="blur" />` | Default `inactiveMode="opacity"` fades others to `inactiveOpacity` (0.3); `"blur"` adds `inactiveBlur` (2px). |
+| "jitter", "strip plot", "beeswarm-ish", "spread overlapping dots" | `<ScatterChart data={rows} jitter={{ x: 0.5 }}>` | Many rows per date. `x` = fraction of the band step, `y` = px; deterministic (`seed`), tooltips show original values. |
 | "ring at the last point", "end dot" | `<LineSeriesTerminalMarker dataKey="v" />` | Defaults `fill="transparent"`, `stroke="var(--chart-1)"`, `radius={5}`, `strokeWidth={1.5}`. |
 | "event pins", "annotations", "launch markers" | `<ChartMarkers items={[{ date, icon, title, description?, color?, href? }]} />` | `size` default 28, `showLines` default true. |
 

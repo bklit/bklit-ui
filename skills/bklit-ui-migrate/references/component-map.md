@@ -31,7 +31,7 @@ Docs: `https://bklit.com/docs/components/<slug>`.
 | `Area` | `Area` | `@/components/charts/area-chart` (re-export) or `@/components/charts/area` | `fill`, `fillOpacity` (0.4), `gradientToOpacity` (0), `stroke`, `curve` (`curveMonotoneX`). |
 | `Bar` in `BarChart` | `Bar` | `@/components/charts/bar` | `fill`, `lineCap` (`"round"`), `groupGap` (4), `yAxisId`. |
 | `Bar` in `ComposedChart` | `SeriesBar` | `@/components/charts/series-bar` | `fill`, `radius` (0), `fadedOpacity` (0.3). |
-| `Scatter` | `Scatter` | `@/components/charts/scatter-chart` (re-export) or `@/components/charts/scatter` | `dataKey` is the **y** key; `fill`, `radius` (5). |
+| `Scatter` | `Scatter` | `@/components/charts/scatter-chart` (re-export) or `@/components/charts/scatter` | `dataKey` is the **y** key; `fill`, `radius` (5). Solid dots by default — rings opt-in via `strokeWidth` (0). Hover dims others to `inactiveOpacity` (0.3); `inactiveMode="blur"` adds blur. Overlapping points: root `jitter` (e.g. `jitter={{ x: 0.5 }}`). |
 | `Pie` | — (props move to `PieChart`) | — | `innerRadius`, `padAngle`, `cornerRadius`, `startAngle`, `endAngle` on `PieChart`. |
 | `Cell` | `PieSlice` | `@/components/charts/pie-slice` | One `<PieSlice index={i} />` per row; colour from `data[i].color` or `PieSlice color`. |
 | `Radar` | `RadarArea` | `@/components/charts/radar-area` | `index` into `data`; `color`, `showPoints`, `showStroke`, `showGlow`. |
