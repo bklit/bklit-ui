@@ -33,7 +33,7 @@ import { LineChart, Line, Grid, ChartTooltip } from "@bklitui/ui/charts";
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `showDatePill` | `boolean` | `true` | Show animated date ticker at bottom |
-| `showCrosshair` | `boolean` | `true` (`false` in `BarChart`) | Show the crosshair indicator line. Bar charts (vertical and horizontal) hide it by default — pass `showCrosshair` to opt in |
+| `showCrosshair` | `boolean` | `true` (`false` in `BarChart` and jittered `ScatterChart`) | Show the crosshair indicator line. Bar charts (vertical and horizontal) and `ScatterChart` with `jitter` (hover snaps to the nearest point, not a date) hide it by default — pass `showCrosshair` to opt in |
 | `showDots` | `boolean` | `true` | Show dots on data points |
 | `indicatorColor` | `string \| (point) => string` | — | Crosshair and dot color; pass a function for dynamic colors |
 | `indicatorDasharray` | `string` | — | SVG dash pattern for the crosshair (e.g. `"4,4"`). Omit for solid |

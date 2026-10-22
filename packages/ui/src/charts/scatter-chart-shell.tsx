@@ -53,6 +53,8 @@ export interface ScatterChartInnerProps {
   children: ReactNode;
   containerRef: React.RefObject<HTMLDivElement | null>;
   lines: LineConfig[];
+  /** X-axis tick / date-pill label formatter. Default: "Jan 1" */
+  formatXLabel?: (date: Date) => string;
   /** Resolved jitter config (see `ScatterChart` `jitter`). */
   jitter?: ResolvedScatterJitterConfig | null;
   onPhaseChange?: (phase: ChartPhase) => void;
@@ -72,6 +74,7 @@ export function ScatterChartInner({
   containerRef,
   lines,
   jitter = null,
+  formatXLabel,
   onPhaseChange,
 }: ScatterChartInnerProps) {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -177,8 +180,13 @@ export function ScatterChartInner({
   );
 
   const dateLabels = useMemo(
-    () => data.map((d) => shortDateFmt.format(xAccessor(d))),
-    [data, xAccessor]
+    () =>
+      data.map((d) =>
+        formatXLabel
+          ? formatXLabel(xAccessor(d))
+          : shortDateFmt.format(xAccessor(d))
+      ),
+    [data, xAccessor, formatXLabel]
   );
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: revealSignature
@@ -280,6 +288,7 @@ export function ScatterChartInner({
     dateLabels,
     selection,
     clearSelection,
+    nearestPointHover: jitterOffsets !== null,
   };
 
   return (

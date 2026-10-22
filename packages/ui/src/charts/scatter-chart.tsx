@@ -50,6 +50,11 @@ export interface ScatterChartProps {
    * values. `true` = `0.35` band steps horizontally. Default: off
    */
   jitter?: ScatterJitter;
+  /**
+   * Format x-axis tick and date-pill labels, e.g. short month names for
+   * monthly data. Hoist or memoize it to avoid recomputing labels. Default: "Jan 1"
+   */
+  formatXLabel?: (date: Date) => string;
   onPhaseChange?: (phase: ChartPhase) => void;
 }
 
@@ -109,6 +114,7 @@ interface ChartInnerProps {
   children: ReactNode;
   containerRef: React.RefObject<HTMLDivElement | null>;
   jitter: ResolvedScatterJitterConfig | null;
+  formatXLabel?: (date: Date) => string;
   onPhaseChange?: (phase: ChartPhase) => void;
 }
 
@@ -125,6 +131,7 @@ function ChartInner({
   children,
   containerRef,
   jitter,
+  formatXLabel,
   onPhaseChange,
 }: ChartInnerProps) {
   const lines = useMemo(() => extractScatterConfigs(children), [children]);
@@ -136,6 +143,7 @@ function ChartInner({
       containerRef={containerRef}
       data={data}
       enterTransition={enterTransition}
+      formatXLabel={formatXLabel}
       height={height}
       jitter={jitter}
       lines={lines}
@@ -162,6 +170,7 @@ export function ScatterChart({
   className = "",
   children,
   jitter: jitterProp,
+  formatXLabel,
   onPhaseChange,
 }: ScatterChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -199,6 +208,7 @@ export function ScatterChart({
           containerRef={containerRef}
           data={data}
           enterTransition={enterTransition}
+          formatXLabel={formatXLabel}
           height={height}
           jitter={jitter}
           margin={margin}

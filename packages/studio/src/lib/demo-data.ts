@@ -494,33 +494,49 @@ export function getScatterData(seed = 0) {
   }));
 }
 
-const SCATTER_JITTER_DAYS = 7;
-const SCATTER_JITTER_SAMPLES_PER_DAY = 24;
+/** Series metadata for the jittered scatter sample (PR size by merge path). */
+export const SCATTER_JITTER_SERIES = [
+  { dataKey: "fastlane", label: "Fastlane (auto-merged)" },
+  { dataKey: "human", label: "Human reviewed" },
+] as const;
+
+export interface ScatterJitterRow {
+  [key: string]: unknown;
+  date: Date;
+  fastlane?: number;
+  human?: number;
+}
 
 /**
- * Strip-plot sample data for jitter: many rows share each date, so points
- * overlap without `ScatterChart jitter`. Deterministic per `seed`.
+ * Jittered scatter sample: lines changed per merged PR, month by month.
+ * Fastlane PRs are auto-merged and always < 500 LOC (skewed small); human-
+ * reviewed PRs spread 40–2,500 LOC with a few large outliers. 15–30 PRs per
+ * month per series. Seeded Park–Miller with exact integer math, so server and
+ * client agree (matches the docs demo at `seed = 0`).
  */
-export function getScatterJitterData(seed = 0) {
-  const random = seededRandom(seed + 31);
-  const sample = (mean: number, spread: number) =>
-    // Sum of uniforms ≈ normal; floor keeps values readable in tooltips.
-    Math.max(
-      10,
-      Math.round(mean + (random() + random() + random() - 1.5) * (spread / 0.5))
-    );
-  const rows: { date: Date; desktop: number; mobile: number }[] = [];
-  for (let day = 0; day < SCATTER_JITTER_DAYS; day++) {
-    const isWeekend = day >= 5;
-    for (
-      let sampleIndex = 0;
-      sampleIndex < SCATTER_JITTER_SAMPLES_PER_DAY;
-      sampleIndex++
-    ) {
+export function getScatterJitterData(seed = 0): ScatterJitterRow[] {
+  let state = 42 + seed * 9973;
+  const random = () => {
+    state = (state * 48_271) % 2_147_483_647;
+    return state / 2_147_483_647;
+  };
+  const rows: ScatterJitterRow[] = [];
+  for (let month = 0; month < 12; month++) {
+    const date = new Date(2025, month, 1);
+    const fastlaneCount = 15 + Math.floor(random() * 16);
+    for (let i = 0; i < fastlaneCount; i++) {
+      const r = random();
+      rows.push({ date, fastlane: Math.round(10 + r * r * 480) });
+    }
+    const humanCount = 15 + Math.floor(random() * 16);
+    for (let i = 0; i < humanCount; i++) {
+      const r = random();
+      const isOutlier = random() < 0.06;
       rows.push({
-        date: new Date(2024, 0, day + 1),
-        desktop: sample(isWeekend ? 120 : 200 + day * 8, 28),
-        mobile: sample(isWeekend ? 170 : 130 + day * 6, 24),
+        date,
+        human: Math.round(
+          isOutlier ? 1500 + r * 1000 : 40 + r * Math.sqrt(r) * 1160
+        ),
       });
     }
   }

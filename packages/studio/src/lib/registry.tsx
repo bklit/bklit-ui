@@ -83,6 +83,7 @@ import {
   getScatterJitterData,
   getVisitorsByCountry,
   pieData,
+  SCATTER_JITTER_SERIES,
   STUDIO_SERIES_KEYS,
 } from "./demo-data";
 import { isProfitLossLineMode } from "./line-chart-mode";
@@ -108,6 +109,11 @@ import {
   scatterChartControlGroups,
   sunburstChartControlGroups,
 } from "./registry-control-groups";
+import {
+  formatScatterJitterLoc,
+  formatScatterJitterMonth,
+  ScatterJitterTooltipContent,
+} from "./scatter-jitter-studio";
 import { seriesStrokePropsFromState } from "./series-stroke-props";
 import {
   barTrackFillFromState,
@@ -256,77 +262,100 @@ const scatterConfig: StudioChartConfig = {
   controls: [],
   controlGroups: scatterChartControlGroups,
   resolveComponents: resolveScatterComponents,
-  render: (state, ctx) => (
-    <StudioChartShell
-      legendComponentId="scatter.legend"
-      legendItems={[
-        {
-          label: "desktop",
-          value: 100,
-          color: getEffectiveSeriesColor(state, 0),
-        },
-        ...(state.scatterSecondSeries
-          ? [
-              {
-                label: "mobile",
-                value: 80,
-                color: getEffectiveSeriesColor(state, 1),
-              },
-            ]
-          : []),
-      ]}
-      state={ctx.chromeState}
-    >
-      <StudioCartesianFill>
-        <ScatterChart
-          {...getStudioCssRevealPropsForPreview(state, ctx)}
-          className="size-full"
-          data={
-            state.scatterJitter
-              ? getScatterJitterData(ctx.dataSeed)
-              : getScatterData(ctx.dataSeed)
-          }
-          jitter={scatterJitterPropFromState(state)}
-          key={studioPreviewChartKey(ctx)}
-          margin={timeSeriesChartMargin(state)}
-          onPhaseChange={ctx.reportOgPhase}
-        >
-          {studioCartesianBackgroundLayer(
-            state,
-            "scatter.background",
-            "scatter.grid"
-          )}
-          {studioCartesianGridLayer(state, "scatter.grid")}
-          <StudioReferenceAreaLayer
-            componentId="scatter.reference-area"
-            state={state}
-          />
-          {isStudioComponentVisible(state, "scatter.desktop") ? (
-            <Scatter
-              dataKey="desktop"
-              {...scatterSeriesPropsFromState(state)}
-              yAxisId={getLineSeriesYAxisId(state, 0)}
+  render: (state, ctx) => {
+    const jitter = state.scatterJitter;
+    const [firstKey, secondKey] = jitter
+      ? SCATTER_JITTER_SERIES.map((series) => series.dataKey)
+      : ["desktop", "mobile"];
+    const [firstLabel, secondLabel] = jitter
+      ? SCATTER_JITTER_SERIES.map((series) => series.label)
+      : ["desktop", "mobile"];
+    const seriesColors: [string, string] = [
+      getEffectiveSeriesColor(state, 0),
+      getEffectiveSeriesColor(state, 1),
+    ];
+    return (
+      <StudioChartShell
+        legendComponentId="scatter.legend"
+        legendItems={[
+          { label: firstLabel, value: 100, color: seriesColors[0] },
+          ...(state.scatterSecondSeries
+            ? [{ label: secondLabel, value: 80, color: seriesColors[1] }]
+            : []),
+        ]}
+        state={ctx.chromeState}
+      >
+        <StudioCartesianFill>
+          <ScatterChart
+            {...getStudioCssRevealPropsForPreview(state, ctx)}
+            className="size-full"
+            data={
+              jitter
+                ? getScatterJitterData(ctx.dataSeed)
+                : getScatterData(ctx.dataSeed)
+            }
+            formatXLabel={jitter ? formatScatterJitterMonth : undefined}
+            jitter={scatterJitterPropFromState(state)}
+            key={studioPreviewChartKey(ctx)}
+            margin={timeSeriesChartMargin(state)}
+            onPhaseChange={ctx.reportOgPhase}
+          >
+            {studioCartesianBackgroundLayer(
+              state,
+              "scatter.background",
+              "scatter.grid"
+            )}
+            {studioCartesianGridLayer(state, "scatter.grid")}
+            <StudioReferenceAreaLayer
+              componentId="scatter.reference-area"
+              state={state}
             />
-          ) : null}
-          {state.scatterSecondSeries &&
-          isStudioComponentVisible(state, "scatter.mobile") ? (
-            <Scatter
-              dataKey="mobile"
-              {...scatterSeriesPropsFromState(state)}
-              yAxisId={getLineSeriesYAxisId(state, 1)}
+            {isStudioComponentVisible(state, "scatter.desktop") ? (
+              <Scatter
+                dataKey={firstKey}
+                {...scatterSeriesPropsFromState(state)}
+                yAxisId={getLineSeriesYAxisId(state, 0)}
+              />
+            ) : null}
+            {state.scatterSecondSeries &&
+            isStudioComponentVisible(state, "scatter.mobile") ? (
+              <Scatter
+                dataKey={secondKey}
+                {...scatterSeriesPropsFromState(state)}
+                yAxisId={getLineSeriesYAxisId(state, 1)}
+              />
+            ) : null}
+            <StudioChartYAxisLayers
+              chartPrefix="scatter"
+              formatValue={jitter ? formatScatterJitterLoc : undefined}
+              state={state}
             />
-          ) : null}
-          <StudioChartYAxisLayers chartPrefix="scatter" state={state} />
-          <StudioVisibleLayer componentId="scatter.xaxis" state={state}>
-            <XAxis />
-          </StudioVisibleLayer>
-          <StudioVisibleLayer componentId="scatter.tooltip" state={state}>
-            <ChartTooltip {...chartTooltipPropsFromState(state)} />
-          </StudioVisibleLayer>
-        </ScatterChart>
-      </StudioCartesianFill>
-    </StudioChartShell>
-  ),
+            <StudioVisibleLayer componentId="scatter.xaxis" state={state}>
+              <XAxis numTicks={jitter ? 12 : undefined} />
+            </StudioVisibleLayer>
+            <StudioVisibleLayer componentId="scatter.tooltip" state={state}>
+              <ChartTooltip
+                {...chartTooltipPropsFromState(
+                  state,
+                  jitter
+                    ? {
+                        showCrosshair: state.scatterJitterShowCrosshair,
+                        content: ({ point }) => (
+                          <ScatterJitterTooltipContent
+                            colors={seriesColors}
+                            point={point}
+                          />
+                        ),
+                      }
+                    : {}
+                )}
+              />
+            </StudioVisibleLayer>
+          </ScatterChart>
+        </StudioCartesianFill>
+      </StudioChartShell>
+    );
+  },
   generateCode: (state) => scatterCodegen(state),
 };
 

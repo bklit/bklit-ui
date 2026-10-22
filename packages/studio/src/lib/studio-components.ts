@@ -63,6 +63,7 @@ import {
   ringChartControlGroups,
   sankeyChartControlGroups,
   scatterInteractionControlGroup,
+  scatterJitterChartTooltipControlGroups,
   scatterJitterControlGroup,
   scatterPointsControlGroup,
   standardBrushControlGroups,
@@ -1365,7 +1366,7 @@ export function resolveScatterComponents(
     referenceAreaNode("scatter"),
     {
       id: "scatter.desktop",
-      label: "Scatter · desktop",
+      label: state.scatterJitter ? "Scatter · fastlane" : "Scatter · desktop",
       parentId: chartId,
       kind: "series",
       listMarker: "color-dot",
@@ -1382,7 +1383,7 @@ export function resolveScatterComponents(
   if (state.scatterSecondSeries) {
     components.push({
       id: "scatter.mobile",
-      label: "Scatter · mobile",
+      label: state.scatterJitter ? "Scatter · human" : "Scatter · mobile",
       parentId: chartId,
       kind: "series",
       listMarker: "color-dot",
@@ -1396,7 +1397,10 @@ export function resolveScatterComponents(
     chartYAxisNode("scatter", "left", "YAxis · left"),
     chartYAxisNode("scatter", "right", "YAxis · right"),
     passiveNode("scatter", "xaxis", "XAxis"),
-    chartTooltipNode("scatter"),
+    chartTooltipNode(
+      "scatter",
+      state.scatterJitter ? scatterJitterChartTooltipControlGroups : undefined
+    ),
     legendNode("scatter")
   );
 

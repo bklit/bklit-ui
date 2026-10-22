@@ -176,6 +176,15 @@ import {
   composedTriSeriesData,
 } from "@/lib/composed-demo-data";
 import { getHeatmapDemoData } from "@/lib/heatmap-demo-data";
+import {
+  formatLoc,
+  formatPrMonth,
+  PrLocTooltip,
+  prLocChartSnippet,
+  prLocData,
+  prLocDataSnippet,
+  prLocSeries,
+} from "@/lib/scatter-pr-demo-data";
 import { cn } from "@/lib/utils";
 import {
   weeklyVisitorsDashFromIndex,
@@ -257,24 +266,6 @@ const scatterChartDataSnippet = `const chartData = Array.from({ length: 24 }, (_
   desktop: Math.floor(140 + Math.sin(i / 3) * 90 + ((i * 11) % 40)),
   mobile: Math.floor(70 + Math.cos(i / 2.5) * 55 + ((i * 7) % 35)),
 }));`;
-
-/** 7 days × 24 samples — many rows share each date, so points overlap without jitter */
-const scatterJitterData = Array.from({ length: 7 }, (_, day) =>
-  Array.from({ length: 24 }, (_, i) => ({
-    date: new Date(2024, 0, day + 1),
-    desktop: 160 + day * 8 + ((i * 37 + day * 11) % 61) - 30,
-    mobile: 120 + day * 6 + ((i * 53 + day * 7) % 51) - 25,
-  }))
-).flat();
-
-const scatterJitterDataSnippet = `// 7 days × 24 samples — many rows share each date
-const chartData = Array.from({ length: 7 }, (_, day) =>
-  Array.from({ length: 24 }, (_, i) => ({
-    date: new Date(2024, 0, day + 1),
-    desktop: 160 + day * 8 + ((i * 37 + day * 11) % 61) - 30,
-    mobile: 120 + day * 6 + ((i * 53 + day * 7) % 51) - 25,
-  }))
-).flat();`;
 
 const lineMarkers: ChartMarker[] = [
   {
@@ -6866,22 +6857,32 @@ function makeScatterExamples(): ChartExample[] {
     {
       title: "Scatter Chart - With Jitter",
       description:
-        "Strip plot — `jitter` spreads overlapping points at each date with a deterministic offset; tooltips keep the original values",
-      code: `<ScatterChart data={chartData} jitter={{ x: 0.5 }} margin={{ top: 8, right: 8, bottom: 40, left: 8 }}>
-  <Grid horizontal />
-  <Scatter dataKey="desktop" radius={3} />
-  <Scatter dataKey="mobile" radius={3} />
-  <XAxis numTicks={7} />
-  <ChartTooltip />
-</ScatterChart>`,
-      data: scatterJitterDataSnippet,
+        "Lines changed per merged PR by month — `jitter` spreads overlapping PRs with a deterministic offset. Fastlane auto-merges stay under 500 LOC; human-reviewed PRs spread wider. No crosshair by default; tooltips keep the original values",
+      code: prLocChartSnippet,
+      data: prLocDataSnippet,
       render: () => (
-        <ScatterExampleChart data={scatterJitterData} jitter={{ x: 0.5 }}>
-          <Grid horizontal />
-          <Scatter dataKey="desktop" radius={3} />
-          <Scatter dataKey="mobile" radius={3} />
-          <XAxis numTicks={7} />
-          <ChartTooltip />
+        <ScatterExampleChart
+          data={prLocData}
+          formatXLabel={formatPrMonth}
+          jitter={{ x: 0.6 }}
+          margin={chartMarginLeftYAxis}
+        >
+          <Grid
+            highlightRowStrokeDasharray="4,4"
+            highlightRowValues={[500]}
+            horizontal
+          />
+          <Scatter
+            dataKey="fastlane"
+            fill={prLocSeries.fastlane.color}
+            radius={3}
+          />
+          <Scatter dataKey="human" fill={prLocSeries.human.color} radius={3} />
+          <YAxis formatValue={formatLoc} />
+          <XAxis numTicks={12} />
+          <ChartTooltip
+            content={({ point }) => <PrLocTooltip point={point} />}
+          />
         </ScatterExampleChart>
       ),
     },

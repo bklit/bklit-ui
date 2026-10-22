@@ -1141,6 +1141,21 @@ export const standardChartTooltipControlGroups: StudioControlGroup[] = [
   standardCrosshairControlGroup,
 ];
 
+/** Jittered scatter hides the crosshair line by default (`scatterJitterShowCrosshair`). */
+export const scatterJitterChartTooltipControlGroups: StudioControlGroup[] =
+  standardChartTooltipControlGroups.map((group) =>
+    group === standardCrosshairControlGroup
+      ? {
+          ...group,
+          controls: group.controls.map((control) =>
+            control.key === "showCrosshair"
+              ? { ...control, key: "scatterJitterShowCrosshair" }
+              : control
+          ),
+        }
+      : group
+  );
+
 export const standardBrushStripControlGroups: StudioControlGroup[] = [
   controlGroup("Brush", [
     { type: "boolean", key: "showBrush", label: "Show" },

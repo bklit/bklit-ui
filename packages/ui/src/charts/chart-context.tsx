@@ -215,6 +215,13 @@ export interface ChartContextValue extends ChartHoverContextValue {
   composedStackOffsets?: Map<number, Map<string, number>>;
   /** Vertical gap in px between stacked `SeriesBar` segments. Default: 0 */
   composedStackGap?: number;
+
+  /**
+   * Hover resolves to the nearest point in 2D rather than the nearest x column
+   * (e.g. `ScatterChart` with `jitter`). `ChartTooltip` hides its crosshair
+   * line by default when set, since the line would not mark a single x value.
+   */
+  nearestPointHover?: boolean;
 }
 
 /**
@@ -288,6 +295,7 @@ export function ChartProvider({
       composedStacked: value.composedStacked,
       composedStackOffsets: value.composedStackOffsets,
       composedStackGap: value.composedStackGap,
+      nearestPointHover: value.nearestPointHover,
     }),
     [
       value.data,
@@ -333,6 +341,7 @@ export function ChartProvider({
       value.composedStacked,
       value.composedStackOffsets,
       value.composedStackGap,
+      value.nearestPointHover,
     ]
   );
 

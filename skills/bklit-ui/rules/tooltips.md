@@ -16,7 +16,7 @@
 
 | Prop | Type | Default |
 |---|---|---|
-| `showCrosshair` | `boolean` | `true` (`false` inside `BarChart`, any orientation — pass `showCrosshair` to opt in) |
+| `showCrosshair` | `boolean` | `true` (`false` inside `BarChart`, any orientation, and inside `ScatterChart` with `jitter` — pass `showCrosshair` to opt in) |
 | `showDots` | `boolean` | `true` |
 | `showDatePill` | `boolean` | `true` (set `false` for categorical/live charts) |
 | `content` | `({ point, index }) => ReactNode` | built-in rows |

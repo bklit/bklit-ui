@@ -27,8 +27,9 @@ export interface ChartTooltipProps {
   showDatePill?: boolean;
   /**
    * Whether to show the crosshair indicator line. Default: `true` for
-   * line / area / composed charts, `false` inside `BarChart` (vertical and
-   * horizontal) — pass `showCrosshair` to opt in on bar charts.
+   * line / area / composed / scatter charts, `false` inside `BarChart`
+   * (vertical and horizontal) and `ScatterChart` with `jitter` (hover snaps to
+   * the nearest point, not a date) — pass `showCrosshair` to opt in.
    */
   showCrosshair?: boolean;
   /** Whether to show dots on the lines. Default: true */
@@ -158,12 +159,15 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
     barXAccessor,
     bandWidth,
     squareSnap,
+    nearestPointHover,
   } = useChart();
   const { tooltipSpring } = useChartConfig();
 
   const isHorizontal = orientation === "horizontal";
-  // Bar charts (any orientation) hide the crosshair line by default.
-  const showCrosshair = showCrosshairProp ?? !barXAccessor;
+  // Bar charts (any orientation) and nearest-point hover (jittered scatter)
+  // hide the crosshair line by default.
+  const showCrosshair =
+    showCrosshairProp ?? !(barXAccessor || nearestPointHover);
   const discreteInteraction = dateLabels.length > 60;
 
   const resolvedDotSize = useMemo(() => {
@@ -225,13 +229,19 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
       return rowsRenderer(tooltipData.point);
     }
 
-    // Default: generate rows from registered lines
-    return lines.map((line) => ({
+    // Default: generate rows from registered lines. With nearest-point hover
+    // (jittered scatter) a row may hold only some series — skip the rest.
+    const rowLines = nearestPointHover
+      ? lines.filter(
+          (line) => typeof tooltipData.point[line.dataKey] === "number"
+        )
+      : lines;
+    return rowLines.map((line) => ({
       color: line.stroke,
       label: line.dataKey,
       value: (tooltipData.point[line.dataKey] as number) ?? 0,
     }));
-  }, [tooltipData, lines, rowsRenderer]);
+  }, [tooltipData, lines, rowsRenderer, nearestPointHover]);
 
   const resolveDotColor = useMemo(() => {
     return (line: LineConfig, index: number): string => {
@@ -330,7 +340,13 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
                 strokeColor={chartCssVars.background}
                 strokeWidth={dotStrokeWidth}
                 variant={dotVariant}
-                visible={visible}
+                visible={
+                  visible &&
+                  !(
+                    nearestPointHover &&
+                    tooltipData?.yPositions[line.dataKey] === undefined
+                  )
+                }
                 x={tooltipData?.xPositions?.[line.dataKey] ?? x}
                 y={tooltipData?.yPositions[line.dataKey] ?? 0}
               />

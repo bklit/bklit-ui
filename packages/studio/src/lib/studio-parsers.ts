@@ -264,6 +264,8 @@ export const studioSearchParams = {
   scatterJitter: parseAsBoolean.withDefault(false),
   scatterJitterX: parseAsFloat.withDefault(0.35),
   scatterJitterY: parseAsFloat.withDefault(0),
+  /** Jittered scatter hides the tooltip crosshair line by default. */
+  scatterJitterShowCrosshair: parseAsBoolean.withDefault(false),
   seriesShowMarkers: parseAsBoolean.withDefault(false),
   seriesMarkerRadius: parseAsFloat.withDefault(5),
   seriesMarkerRingGap: parseAsFloat.withDefault(2),
@@ -787,6 +789,7 @@ export interface StudioUrlState {
   scatterJitter: boolean;
   scatterJitterX: number;
   scatterJitterY: number;
+  scatterJitterShowCrosshair: boolean;
   seriesShowMarkers: boolean;
   seriesMarkerRadius: number;
   seriesMarkerRingGap: number;
@@ -1212,6 +1215,7 @@ export function defaultStudioState(
     scatterJitter: false,
     scatterJitterX: 0.35,
     scatterJitterY: 0,
+    scatterJitterShowCrosshair: false,
     seriesShowMarkers: false,
     seriesMarkerRadius: 5,
     seriesMarkerRingGap: 2,
