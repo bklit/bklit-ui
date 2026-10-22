@@ -93,7 +93,8 @@ export function SessionsChart({ data }: { data: { date: Date; sessions: number }
 ## 3. Squircle ring bars [Bar Chart - Shape Squircle Ring]
 
 Rounded-square column segments over a hatched ghost track, with a squircle ring
-hover indicator snapped to each column top.
+hover indicator snapped to each column top. The headline series is a plain solid
+`--chart-1` fill (no gradient); the comparison series is hatched.
 
 ```bash
 npx shadcn@latest add @bklit/bar-chart @bklit/chart-tooltip
@@ -107,14 +108,6 @@ import { BarSquares, BarColumnTrack } from "@/components/charts/bar-squares";
 import { BarXAxis } from "@/components/charts/bar-x-axis";
 import { PatternLines } from "@/components/charts/patterns";
 import { ChartTooltip } from "@/components/charts/tooltip";
-
-const gradientStops = [
-  { offset: 0, color: "var(--chart-1)" },
-  { offset: 25, color: "var(--chart-2)" },
-  { offset: 50, color: "var(--chart-3)" },
-  { offset: 75, color: "var(--chart-4)" },
-  { offset: 100, color: "var(--chart-5)" },
-];
 
 export function SquircleBars({
   data,
@@ -162,12 +155,9 @@ export function SquircleBars({
       <BarSquares
         dataKey="mobile"
         fill="var(--chart-1)"
-        gradientStops={gradientStops}
         groupGap={4}
         squareGap={3}
         squareRadius={0.5}
-        stroke="var(--chart-5)"
-        useGradient
       />
       <BarXAxis />
       <ChartTooltip
@@ -196,8 +186,33 @@ than once on a page.
 
 Same as recipe 3 with `squareRadius={0.25}` everywhere (the default) and
 `<ChartTooltip dotVariant="ring" dotScale={1.05} showCrosshair={false} />` (no
-`dotRadiusFraction`). Use for "pixel", "LED", "segmented" or "blocky" requests;
-use 0 for hard squares.
+`dotRadiusFraction`), but the headline series is a gradient instead of a solid
+fill:
+
+```tsx
+const gradientStops = [
+  { offset: 0, color: "var(--chart-1)" },
+  { offset: 25, color: "var(--chart-2)" },
+  { offset: 50, color: "var(--chart-3)" },
+  { offset: 75, color: "var(--chart-4)" },
+  { offset: 100, color: "var(--chart-5)" },
+];
+
+<BarSquares
+  dataKey="mobile"
+  fill="var(--chart-1)"
+  gradientStops={gradientStops}
+  groupGap={4}
+  squareGap={3}
+  squareRadius={0.25}
+  stroke="var(--chart-5)"
+  useGradient
+/>
+```
+
+`stroke` is needed here because the fill is a gradient — the tooltip dot reads
+it. Use for "pixel", "LED", "segmented" or "blocky" requests; use 0 for hard
+squares.
 
 ## 5. 3D glass bars [Bar Chart - 3D Depth]
 

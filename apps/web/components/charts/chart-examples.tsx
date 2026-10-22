@@ -2490,18 +2490,9 @@ function makeBarExamples(): ChartExample[] {
   <BarSquares
     dataKey="mobile"
     fill="var(--chart-1)"
-    useGradient
-    gradientStops={[
-      { offset: 0, color: "var(--chart-1)" },
-      { offset: 25, color: "var(--chart-2)" },
-      { offset: 50, color: "var(--chart-3)" },
-      { offset: 75, color: "var(--chart-4)" },
-      { offset: 100, color: "var(--chart-5)" },
-    ]}
     squareGap={3}
     squareRadius={0.5}
     groupGap={4}
-    stroke="var(--chart-5)"
   />
   <BarXAxis />
   <ChartTooltip
@@ -2542,12 +2533,9 @@ function makeBarExamples(): ChartExample[] {
           <BarSquares
             dataKey="mobile"
             fill="var(--chart-1)"
-            gradientStops={barShapeGradientStops}
             groupGap={4}
             squareGap={3}
             squareRadius={0.5}
-            stroke="var(--chart-5)"
-            useGradient
           />
           <BarXAxis />
           <ChartTooltip

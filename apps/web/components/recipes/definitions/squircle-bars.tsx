@@ -18,14 +18,6 @@ import { recipeMonthlyData } from "../recipe-data";
 import { VerticalFade } from "../vertical-fade";
 import { BAR_MARGIN } from "./shared";
 
-const GRADIENT_STOPS = [
-  { offset: 0, color: "var(--chart-1)" },
-  { offset: 25, color: "var(--chart-2)" },
-  { offset: 50, color: "var(--chart-3)" },
-  { offset: 75, color: "var(--chart-4)" },
-  { offset: 100, color: "var(--chart-5)" },
-];
-
 const SQUARE_GAP = 3;
 const GROUP_GAP = 4;
 const SQUARE_RADIUS = 0.5;
@@ -75,12 +67,9 @@ function SquircleBarsPreview() {
       <BarSquares
         dataKey="revenue"
         fill="var(--chart-1)"
-        gradientStops={GRADIENT_STOPS}
         groupGap={GROUP_GAP}
         squareGap={SQUARE_GAP}
         squareRadius={SQUARE_RADIUS}
-        stroke="var(--chart-5)"
-        useGradient
       />
       <BarXAxis />
       <ChartTooltip
@@ -100,7 +89,7 @@ export const squircleBars: Recipe = {
   category: "color-shape",
   description:
     "Columns built from rounded squares over a faded hatch track, with a ring that hugs the top square.",
-  look: "each bar is a stack of evenly spaced rounded squares (squircles, `squareRadius={0.5}`) instead of a solid column. The headline series uses a `--chart-1` → `--chart-5` gradient up the stack, comparison series use a diagonal hatch in `--chart-5`, and every column sits on a ghost track of hatched squircles in the grid colour that fades out over the top and bottom thirds of the plot. On hover there is no crosshair — a ring the same squircle shape snaps around the top square of each bar.",
+  look: "each bar is a stack of evenly spaced rounded squares (squircles, `squareRadius={0.5}`) instead of a solid column. The headline series is a solid `--chart-1` fill, comparison series use a diagonal hatch in `--chart-5`, and every column sits on a ghost track of hatched squircles in the grid colour that fades out over the top and bottom thirds of the plot. On hover there is no crosshair — a ring the same squircle shape snaps around the top square of each bar.",
   charts: [
     {
       id: "bar",
@@ -112,7 +101,7 @@ export const squircleBars: Recipe = {
         'Only convert vertical `BarChart`s (not `orientation="horizontal"`, not stacked). Remove `<Grid />` and any `<Background />`.',
         "On `<BarChart>` add `squareSnap={{ squareGap: 3, groupGap: 4 }}` so tooltip rings align with the square columns.",
         "Replace every `<Bar dataKey=… />` with `<BarSquares dataKey=… squareGap={3} groupGap={4} squareRadius={0.5} />` (from `@/components/charts/bar-squares`). Keep `squareGap` / `groupGap` identical on `squareSnap`, every `BarSquares` and the track.",
-        'Headline series: `fill="var(--chart-1)" useGradient gradientStops={[{ offset: 0, color: "var(--chart-1)" }, … { offset: 100, color: "var(--chart-5)" }]} stroke="var(--chart-5)"`. Comparison series: a `<PatternLines>` diagonal hatch in `var(--chart-5)` as `fill="url(#…)"` with `stroke="var(--chart-5)"`.',
+        'Headline series: a solid `fill="var(--chart-1)"` (no gradient). Comparison series: a `<PatternLines>` diagonal hatch in `var(--chart-5)` as `fill="url(#…)"` with `stroke="var(--chart-5)"`.',
         VERTICAL_FADE_STEP,
         'Add a hatched ghost track before the first `BarSquares`: a `<PatternLines>` in `var(--chart-grid)` and `<VerticalFade><BarColumnTrack fill="url(#…)" opacity={0.65} squareGap={3} groupGap={4} squareRadius={0.5} /></VerticalFade>`. Make every pattern `id` unique with `useId()`.',
         'Replace the tooltip with `<ChartTooltip showCrosshair={false} dotVariant="ring" dotRadiusFraction={0.5} dotStrokeWidth={1} dotColor="color-mix(in oklch, var(--chart-tooltip-foreground) 70%, transparent)" />` — keep `dotRadiusFraction` equal to `squareRadius` so the ring hugs the squares.',
@@ -126,14 +115,6 @@ import { BarXAxis } from "@/components/charts/bar-x-axis";
 import { useChartStable } from "@/components/charts/chart-context";
 import { PatternLines } from "@/components/charts/patterns";
 import { ChartTooltip } from "@/components/charts/tooltip";
-
-const gradientStops = [
-  { offset: 0, color: "var(--chart-1)" },
-  { offset: 25, color: "var(--chart-2)" },
-  { offset: 50, color: "var(--chart-3)" },
-  { offset: 75, color: "var(--chart-4)" },
-  { offset: 100, color: "var(--chart-5)" },
-];
 
 ${VERTICAL_FADE_SOURCE}
 
@@ -187,12 +168,9 @@ export function RevenueChart({
       <BarSquares
         dataKey="revenue"
         fill="var(--chart-1)"
-        gradientStops={gradientStops}
         groupGap={4}
         squareGap={3}
         squareRadius={0.5}
-        stroke="var(--chart-5)"
-        useGradient
       />
       <BarXAxis />
       <ChartTooltip

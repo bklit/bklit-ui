@@ -58,7 +58,7 @@ background is busy (e.g. a tinted card) and the default disappears.
 ## 3. Don't stack effects on one mark
 
 Gradient + pattern + glow + 3D on the same series reads as noise. One fill
-treatment per series; the second series may contrast (e.g. recipe 3: one hatched
+treatment per series; the second series may contrast (e.g. recipe 4: one hatched
 series, one gradient series — never both on one).
 
 Incorrect:
