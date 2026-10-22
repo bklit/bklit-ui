@@ -3,6 +3,9 @@
  * Verifies every installable registry item ships all local `./` imports in its
  * transitive file closure (item files + registryDependencies).
  *
+ * Also checks each relative import still resolves after install, when files are
+ * written to their `target` paths (source and target layouts can differ).
+ *
  * Also rejects CommonJS `require("react-dom")` in registry source files — it
  * breaks Vite/ESM consumers even though Next.js/webpack may tolerate it.
  */
@@ -42,6 +45,31 @@ function resolveRelativeImport(fromFilePath, spec) {
   }
 
   return null;
+}
+
+/** Registry source path -> install target path. */
+const targetByPath = new Map();
+for (const item of registry.items) {
+  for (const file of item.files ?? []) {
+    if (file.target && !targetByPath.has(file.path)) {
+      targetByPath.set(file.path, file.target);
+    }
+  }
+}
+
+/** True when `spec` from `fromPath` reaches `resolvedPath` in the target layout too. */
+function resolvesAfterInstall(fromPath, spec, resolvedPath) {
+  const fromTarget = targetByPath.get(fromPath);
+  const resolvedTarget = targetByPath.get(resolvedPath);
+  if (!(fromTarget && resolvedTarget)) {
+    return true;
+  }
+  const base = path.normalize(path.join(path.dirname(fromTarget), spec));
+  return [
+    base,
+    ...RESOLVE_EXTENSIONS.map((ext) => base + ext),
+    ...RESOLVE_EXTENSIONS.map((ext) => path.join(base, `index${ext}`)),
+  ].includes(resolvedTarget);
 }
 
 function collectItemFiles(itemName, visited = new Set()) {
@@ -132,6 +160,14 @@ for (const item of installableItems) {
         if (!missing.has(key)) {
           missing.set(key, "not in install closure");
         }
+      } else if (!resolvesAfterInstall(filePath, spec, resolved)) {
+        const key = `${filePath} -> ${spec} (${resolved})`;
+        if (!missing.has(key)) {
+          missing.set(
+            key,
+            `breaks after install: ${targetByPath.get(filePath)} cannot reach ${targetByPath.get(resolved)}`
+          );
+        }
       }
     }
   }
@@ -154,7 +190,7 @@ if (closureFailures.length > 0) {
     console.error("");
   }
   console.error(
-    "Add missing files to packages/ui/registry.json (on the item or a registryDependency)."
+    "Add missing files to packages/ui/registry.json (on the item or a registryDependency),\nor fix relative imports whose source and `target` layouts disagree."
   );
 }
 

@@ -33,7 +33,7 @@
       ],
       "files": [
         {
-          "path": "src/components/shimmering-text.tsx",
+          "path": "src/shimmering-text.tsx",
           "type": "registry:component",
           "target": "components/shimmering-text.tsx"
         }
@@ -1271,7 +1271,7 @@
         {
           "path": "src/charts/profit-loss-segments.ts",
           "type": "registry:lib",
-          "target": "lib/profit-loss-segments.ts"
+          "target": "components/charts/profit-loss-segments.ts"
         },
         {
           "path": "src/charts/profit-loss-legend-hover.tsx",
