@@ -1,16 +1,24 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { HeatmapTooltipData } from "./heatmap-context";
 
-export function useDelayedTooltipData(
-  tooltipData: HeatmapTooltipData | null,
-  showDelay: number,
-  hideDelay: number
-): HeatmapTooltipData | null {
-  const [displayData, setDisplayData] = useState<HeatmapTooltipData | null>(
-    null
-  );
+/**
+ * Default grace period (ms) before a tooltip hides after hover ends. Bridges
+ * gaps between adjacent targets (heatmap cells, choropleth features) so the
+ * panel springs to the next target instead of fading out and back in.
+ */
+export const TOOLTIP_HIDE_DELAY_MS = 120;
+
+/**
+ * Delays showing (`showDelay`) and hiding (`hideDelay`) hover tooltip data.
+ * Once visible, changes to another target apply immediately.
+ */
+export function useDelayedTooltipData<T>(
+  tooltipData: T | null,
+  showDelay = 0,
+  hideDelay = TOOLTIP_HIDE_DELAY_MS
+): T | null {
+  const [displayData, setDisplayData] = useState<T | null>(null);
   const isShowingRef = useRef(false);
   const showTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
     undefined

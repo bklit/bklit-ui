@@ -768,6 +768,11 @@
           "target": "components/charts/tooltip/tooltip-indicator.tsx"
         },
         {
+          "path": "src/charts/tooltip/use-delayed-tooltip-data.ts",
+          "type": "registry:component",
+          "target": "components/charts/tooltip/use-delayed-tooltip-data.ts"
+        },
+        {
           "path": "src/charts/tooltip/date-ticker.tsx",
           "type": "registry:component",
           "target": "components/charts/tooltip/date-ticker.tsx"
@@ -1784,11 +1789,6 @@
           "path": "src/charts/heatmap/heatmap-tooltip.tsx",
           "type": "registry:component",
           "target": "components/charts/heatmap/heatmap-tooltip.tsx"
-        },
-        {
-          "path": "src/charts/heatmap/use-delayed-tooltip-data.ts",
-          "type": "registry:component",
-          "target": "components/charts/heatmap/use-delayed-tooltip-data.ts"
         },
         {
           "path": "src/charts/heatmap/heatmap-separator.tsx",

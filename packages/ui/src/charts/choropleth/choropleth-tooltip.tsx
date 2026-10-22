@@ -4,6 +4,10 @@ import { intFmt } from "../chart-formatters";
 import { TooltipBox } from "../tooltip/tooltip-box";
 import { TooltipContent, type TooltipRow } from "../tooltip/tooltip-content";
 import {
+  TOOLTIP_HIDE_DELAY_MS,
+  useDelayedTooltipData,
+} from "../tooltip/use-delayed-tooltip-data";
+import {
   type ChoroplethFeature,
   useChoroplethInteraction,
   useChoroplethStable,
@@ -38,6 +42,12 @@ export interface ChoroplethTooltipProps {
   backgroundColor?: string;
   /** Fade the panel out when hover ends. Default: true */
   exit?: boolean;
+  /**
+   * Grace period before hiding when the pointer leaves a feature (ms).
+   * Bridges border gaps so the panel springs to the next feature instead of
+   * fading out and back in. Default: `120`.
+   */
+  hideDelay?: number;
 }
 
 export function ChoroplethTooltip({
@@ -50,9 +60,11 @@ export function ChoroplethTooltip({
   panelStyle,
   backgroundColor,
   exit = true,
+  hideDelay = TOOLTIP_HIDE_DELAY_MS,
 }: ChoroplethTooltipProps) {
   const { containerRef, width, height, features } = useChoroplethStable();
-  const { tooltipData } = useChoroplethInteraction();
+  const { tooltipData: hoverData } = useChoroplethInteraction();
+  const tooltipData = useDelayedTooltipData(hoverData, 0, hideDelay);
   const { zoom } = useChoroplethZoom();
 
   const feature = tooltipData ? features[tooltipData.featureIndex] : undefined;

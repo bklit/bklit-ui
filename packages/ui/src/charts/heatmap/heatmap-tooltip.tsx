@@ -7,13 +7,16 @@ import {
 } from "../chart-config-context";
 import { TooltipBox } from "../tooltip/tooltip-box";
 import { TooltipHeader } from "../tooltip/tooltip-content";
+import {
+  TOOLTIP_HIDE_DELAY_MS,
+  useDelayedTooltipData,
+} from "../tooltip/use-delayed-tooltip-data";
 import { useHeatmap, useHeatmapInteraction } from "./heatmap-context";
 import {
   formatHeatmapContributionLabel,
   formatHeatmapTooltipDate,
   formatHeatmapTooltipWeekday,
 } from "./heatmap-utils";
-import { useDelayedTooltipData } from "./use-delayed-tooltip-data";
 
 export interface HeatmapTooltipProps {
   /** Custom contribution line (bottom section). Default: `N contribution(s)`. */
@@ -56,7 +59,7 @@ export const HeatmapTooltip = memo(function HeatmapTooltip({
   panelStyle,
   backgroundColor,
   showDelay = 0,
-  hideDelay = 120,
+  hideDelay = TOOLTIP_HIDE_DELAY_MS,
   instant = false,
   damping,
   springConfig,
