@@ -89,12 +89,14 @@ Displays tooltips for features on hover, following the mouse position.
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `content` | `(props) => ReactNode` | - | Custom tooltip renderer |
+| `content` | `(props) => ReactNode` | - | Custom tooltip renderer (`{ feature, index }`). Render `TooltipContent` (or `TooltipHeader`) inside it to keep the default popover header and rows |
 | `formatValue` | `(value) => string` | `toLocaleString` | Value formatter |
 | `getFeatureName` | `(feature, index) => string` | - | Custom name getter |
 | `getFeatureValue` | `(feature, index) => number` | - | Value getter for display |
 | `valueLabel` | `string` | `"Value"` | Label for the value row |
 | `className` | `string` | `""` | Additional CSS class |
+| `backgroundColor` | `string` | `var(--chart-tooltip-background)` | Tooltip panel background color |
+| `panelStyle` | `CSSProperties` | - | Inline styles for the tooltip panel (background, blur, etc.) |
 
 ## Data Format
 

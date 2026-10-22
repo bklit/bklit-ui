@@ -46,7 +46,7 @@ const showcaseRows: {
   [
     {
       id: "choropleth",
-      chart: "sankey-chart",
+      chart: "choropleth-chart",
       span: 7,
       panelClassName: "min-h-[380px] md:min-h-[380px]",
     },

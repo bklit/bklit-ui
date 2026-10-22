@@ -386,7 +386,6 @@ function HomeChoropleth({
         content={({ feature }) => (
           <HomeChoroplethTooltipContent feature={feature} />
         )}
-        panelStyle={homeTooltipPanelStyle}
       />
     </ChoroplethChart>
   );
@@ -680,7 +679,7 @@ export function HomeComponents() {
       </ShowcaseCard>
 
       <ShowcaseCard
-        chart="sankey-chart"
+        chart="choropleth-chart"
         className="col-span-full min-h-[200px] flex-1 sm:col-span-7"
       >
         <HomeShowcaseChart id="choropleth" />
