@@ -20,7 +20,6 @@ export interface ChangelogEntry {
 }
 
 const mdxExtensionPattern = /\.mdx?$/;
-const frontmatterPattern = /^---[\s\S]*?---/;
 const markdownSyntaxPattern = /[`*_#>[\]()!|~-]+/g;
 const whitespacePattern = /\s+/g;
 
@@ -37,7 +36,6 @@ function toSearchText(parts: (string | undefined)[]): string {
 const entries: ChangelogEntry[] = changelog
   .map((doc) => {
     const slug = doc._file.path.replace(mdxExtensionPattern, "");
-    const markdown = doc.content.replace(frontmatterPattern, "");
     return {
       slug,
       url: `/changelog/${slug}`,
@@ -53,7 +51,10 @@ const entries: ChangelogEntry[] = changelog
         doc.title,
         doc.description,
         doc.tags.join(" "),
-        markdown,
+        // Compiled text, not `doc.content`: that getter reads the .mdx from
+        // disk at request time, and source files aren't deployed on Vercel.
+        ...doc.structuredData.headings.map((heading) => heading.content),
+        ...doc.structuredData.contents.map((block) => block.content),
       ]),
     };
   })
