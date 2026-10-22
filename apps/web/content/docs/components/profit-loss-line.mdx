@@ -72,7 +72,7 @@ export default function ProfitLossChart() {
 
 ### ProfitLossLine
 
-Renders linear segments colored by sign. Values ≥ 0 use emerald; values &lt; 0 use red (Tailwind CSS variables by default).
+Renders linear segments colored by sign. Values ≥ 0 use `--chart-positive`; values &lt; 0 use `--chart-negative` (falling back to Tailwind emerald / red when those tokens are not defined).
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
@@ -81,8 +81,8 @@ Renders linear segments colored by sign. Values ≥ 0 use emerald; values &lt; 0
 | `strokeWidth` | `number` | `2.5` | Line width |
 | `curve` | `CurveFactory` | `curveLinear` | Interpolation curve (same as `Line`) |
 | `fadeEdges` | `FadeEdges` | `false` | Fade stroke toward transparent at chart edges |
-| `positiveColor` | `string` | `var(--color-emerald-500)` | Color for profit segments |
-| `negativeColor` | `string` | `var(--color-red-500)` | Color for loss segments |
+| `positiveColor` | `string` | `var(--chart-positive, var(--color-emerald-500))` | Color for profit segments |
+| `negativeColor` | `string` | `var(--chart-negative, var(--color-red-500))` | Color for loss segments |
 
 ### ProfitLossLegend
 

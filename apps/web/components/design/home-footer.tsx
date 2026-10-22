@@ -4,7 +4,12 @@ import Link from "fumadocs-core/link";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { FooterNavLink } from "@/components/design/footer-nav-link";
+import {
+  SiteDivider,
+  siteContainerClassName,
+} from "@/components/design/site-chrome";
 import { BklitLogo } from "@/components/icons/bklit";
+import { cn } from "@/lib/utils";
 
 const chartLinks = [
   { text: "Area Chart", href: "/docs/components/area-chart" },
@@ -68,8 +73,9 @@ export function HomeFooter() {
   const logoTheme = mounted && resolvedTheme === "dark" ? "dark" : "light";
 
   return (
-    <footer className="relative w-full pt-16 pb-8 md:pt-24">
-      <div className="container mx-auto w-full px-4">
+    <footer className="relative mt-16 w-full md:mt-24">
+      <SiteDivider />
+      <div className={cn(siteContainerClassName, "pt-12 pb-4 md:pt-16")}>
         <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
           <div className="flex flex-col gap-4">
             <Link
@@ -77,7 +83,7 @@ export function HomeFooter() {
               href="/"
             >
               <BklitLogo size={28} theme={logoTheme} />
-              <span className="font-semibold text-foreground text-lg tracking-tight">
+              <span className="font-bold font-heading text-foreground text-lg">
                 Bklit UI
               </span>
             </Link>
@@ -85,10 +91,10 @@ export function HomeFooter() {
 
           {footerColumns.map((column) => (
             <div className="flex flex-col gap-4" key={column.title}>
-              <p className="font-medium font-mono text-muted-foreground/50 text-xs uppercase tracking-widest">
+              <p className="font-medium text-foreground text-sm">
                 {column.title}
               </p>
-              <ul className="m-0 flex list-none flex-col gap-3 p-0">
+              <ul className="m-0 flex list-none flex-col gap-2 p-0">
                 {column.links.map((link) => (
                   <li key={link.href}>
                     <FooterNavLink

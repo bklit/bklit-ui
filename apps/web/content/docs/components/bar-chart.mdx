@@ -11,6 +11,8 @@ import {
   ChartTooltip,
 } from "@bklitui/ui/charts";
 import { BarChartLoadingDemo } from "@/components/docs/bar-chart-loading-demo";
+import { BarChartProfitLossDemo } from "@/components/docs/bar-chart-profit-loss-demo";
+import { DateHighlightsBarDemo } from "@/components/docs/date-highlights-demo";
 import { Icon } from "@bklitui/icons";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
@@ -43,7 +45,7 @@ export const chartData = [
 
 <InstallationTabs
   name="bar-chart"
-  dependencies={["@visx/gradient", "@visx/pattern", "@visx/shape", "motion"]}
+  dependencies={["@visx/gradient", "@visx/shape", "motion"]}
 />
 
 ## Usage
@@ -221,9 +223,49 @@ The Grid component now supports `fadeVertical` for vertical grid lines.
 | `fadeHorizontal` | `boolean` | `true`  | Fade horizontal lines at left/right edges |
 | `fadeVertical`   | `boolean` | `false` | Fade vertical lines at top/bottom edges   |
 
+### ChartTooltip
+
+Inside `BarChart` the tooltip shows the hover dots and panel but **no crosshair line** by default (vertical and horizontal orientation). Opt in with `showCrosshair`. See the [Tooltip utility](/docs/utility/tooltip) for all props.
+
+| Prop            | Type      | Default | Description                                   |
+| --------------- | --------- | ------- | --------------------------------------------- |
+| `showCrosshair` | `boolean` | `false` | Show the crosshair indicator line on hover    |
+| `showDots`      | `boolean` | `true`  | Show hover dots on the bars (vertical only)   |
+| `showDatePill`  | `boolean` | `true`  | Show the category pill (vertical only)        |
+
+```tsx
+<ChartTooltip showCrosshair />
+```
+
 ### Background
 
 Pattern fill for the plot area when you omit `Grid`. See the [Background utility](/docs/utility/background) and **Pattern Background** examples on the [bar chart gallery](/charts/bar-chart).
+
+### TrendLine
+
+Least-squares regression line through the bar centers of one series (vertical or horizontal). Place it after the `Bar` so it draws on top; it fades in once the bars have landed. See the [Trend Line utility](/docs/utility/trend-line) and the **Trend Line** examples on the [bar chart gallery](/charts/bar-chart).
+
+```tsx
+<Bar dataKey="revenue" />
+<TrendLine dataKey="revenue" strokeStyle="gradient" />
+```
+
+### Weekends / Deadline
+
+With daily rows whose x value is a `Date` (or a `"YYYY-MM-DD"` string), [`Weekends`](/docs/utility/weekends) shades the weekend columns and [`Deadline`](/docs/utility/deadline) marks a due date at the left edge of its column. Pass `dateKey` if the date lives in a different field than the x key.
+
+<ComponentShowcase
+  code={`<BarChart data={data} xDataKey="date">
+  <Grid horizontal />
+  <Weekends />
+  <Deadline date={new Date(2026, 9, 15)} label="Due" />
+  <Bar dataKey="issues" lineCap={2} />
+  <BarXAxis maxLabels={7} />
+  <ChartTooltip />
+</BarChart>`}
+>
+  <DateHighlightsBarDemo />
+</ComponentShowcase>
 
 ### BarDepthBack
 
@@ -353,7 +395,40 @@ To keep **zero or very short** bars visible as a tiny bar instead of vanishing, 
 </BarDepthProvider>
 ```
 
-Negative values are supported (bars grow downward from the baseline) as long as the chart's value scale includes negatives. See the [charts gallery](/charts/bar-chart) for a live 3D depth example.
+Negative values are supported (bars grow downward from the zero line — see [Negative values](#negative-values)). See the [charts gallery](/charts/bar-chart) for a live 3D depth example.
+
+## Negative values
+
+`BarChart` handles positive and negative values. While every value is zero or above, the value axis starts at `0`; once any value is negative, the domain stretches to include it and bars grow up or down from the zero line (or left / right for `orientation="horizontal"`). Use `Grid highlightRowValues={[0]}` to draw a visible zero line.
+
+<div className="not-prose mb-3 flex items-center justify-between gap-4">
+  <h3 className="m-0 font-semibold text-foreground text-base tracking-tight">
+    Preview
+  </h3>
+</div>
+
+<ComponentShowcase
+  code={`const data = [
+  { month: "Jan", profit: 4200 },
+  { month: "Feb", profit: -1800 },
+  { month: "Mar", profit: 2600 },
+  { month: "Apr", profit: -3400 },
+  // ...
+];
+
+<BarChart data={data} xDataKey="month">
+  <Grid horizontal highlightRowValues={[0]} />
+  <Bar dataKey="profit" lineCap={4} />
+  <BarXAxis />
+  <ChartTooltip />
+</BarChart>`}
+  liveChartPreview
+  previewMinHeight={320}
+>
+  <BarChartProfitLossDemo />
+</ComponentShowcase>
+
+Negative values in **stacked** charts (diverging stacks) are not supported yet.
 
 ## Loading state
 

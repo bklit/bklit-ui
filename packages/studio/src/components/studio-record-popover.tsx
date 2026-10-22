@@ -99,9 +99,10 @@ export function StudioRecordPopover({
       </Tooltip>
       <PopoverContent
         align="end"
-        className="w-72 p-4"
+        className="w-72"
         side="bottom"
         sideOffset={8}
+        viewportClassName="p-4"
       >
         <p className="font-medium text-sm">Record chart</p>
         <p className="mt-1 text-muted-foreground text-xs leading-relaxed">
@@ -177,7 +178,7 @@ export function StudioRecordPopover({
                   value={opt.value}
                 />
                 <Label
-                  className="cursor-pointer font-normal text-xs"
+                  className="cursor-pointer font-normal text-xs sm:text-xs"
                   htmlFor={`studio-format-${opt.value}`}
                 >
                   {opt.label}

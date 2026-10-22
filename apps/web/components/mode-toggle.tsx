@@ -62,8 +62,13 @@ export function ModeToggle() {
 
   if (!mounted) {
     return (
-      <Button aria-label="Toggle theme" size="default" variant="ghost">
-        <div className="size-5" />
+      <Button
+        aria-label="Toggle theme"
+        className="relative size-8"
+        size="icon"
+        variant="ghost"
+      >
+        <div className="size-4" />
       </Button>
     );
   }
@@ -74,15 +79,16 @@ export function ModeToggle() {
     <Button
       aria-keyshortcuts="D"
       aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
+      className="relative size-8"
       onClick={toggleTheme}
-      size="default"
+      size="icon"
       title={`Switch to ${isDark ? "light" : "dark"} mode (D)`}
       variant="ghost"
     >
       {isDark ? (
-        <Icon className="size-5" name="IconSun" />
+        <Icon className="size-4" name="IconSun" />
       ) : (
-        <Icon className="size-5" name="IconMoon" />
+        <Icon className="size-4" name="IconMoon" />
       )}
     </Button>
   );

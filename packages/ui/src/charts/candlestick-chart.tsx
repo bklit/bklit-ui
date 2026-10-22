@@ -1,6 +1,5 @@
 "use client";
 
-import { ParentSize } from "@visx/responsive";
 import { scaleLinear, scaleTime } from "@visx/scale";
 import { bisector } from "d3-array";
 import type { Transition } from "motion/react";
@@ -21,9 +20,11 @@ import {
   isClipExcludedComponent,
   isPostOverlayComponent,
   isUnderlayComponent,
+  resolveLazyChartChild,
 } from "./chart-child-passthrough";
 import { ChartProvider, type LineConfig, type Margin } from "./chart-context";
 import { shortDateFmt } from "./chart-formatters";
+import { ParentSize } from "./chart-parent-size";
 import { DEFAULT_CHART_LIFECYCLE } from "./chart-phase";
 import {
   decimateOhlcData,
@@ -116,7 +117,7 @@ const ChartCore = memo(function ChartCore({
   containerRef,
 }: ChartInnerProps) {
   const [isLoaded, setIsLoaded] = useState(false);
-  const [revealEpoch, setRevealEpoch] = useState(0);
+  const [revealEpoch, setRevealEpoch] = useState(1);
 
   const innerWidth = width - margin.left - margin.right;
   const innerHeight = height - margin.top - margin.bottom;
@@ -198,10 +199,24 @@ const ChartCore = memo(function ChartCore({
     [data, xAccessor]
   );
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: revealSignature
-  useEffect(() => {
+  // Replay the reveal when motion settings change. Adjusted during render
+  // ("store previous props in state") instead of setState in an effect, so a
+  // replay costs one render rather than a commit plus a cascading re-render.
+  const [revealKey, setRevealKey] = useState({
+    animationDuration,
+    revealSignature,
+  });
+  if (
+    revealKey.animationDuration !== animationDuration ||
+    revealKey.revealSignature !== revealSignature
+  ) {
+    setRevealKey({ animationDuration, revealSignature });
     setRevealEpoch((n) => n + 1);
     setIsLoaded(false);
+  }
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: revealSignature
+  useEffect(() => {
     const timer = setTimeout(() => setIsLoaded(true), animationDuration);
     return () => clearTimeout(timer);
   }, [animationDuration, revealSignature]);
@@ -247,10 +262,11 @@ const ChartCore = memo(function ChartCore({
   const underlayChildren: ReactElement[] = [];
   const preOverlayChildren: ReactElement[] = [];
   const postOverlayChildren: ReactElement[] = [];
-  Children.forEach(children, (child) => {
-    if (!isValidElement(child)) {
+  Children.forEach(children, (rawChild) => {
+    if (!isValidElement(rawChild)) {
       return;
     }
+    const child = resolveLazyChartChild(rawChild);
     if (isDefsComponent(child)) {
       defsChildren.push(child);
     } else if (isPostOverlayComponent(child)) {
@@ -333,16 +349,33 @@ const ChartCore = memo(function ChartCore({
 
   return (
     <ChartProvider value={contextValue}>
-      <svg aria-hidden="true" height={height} width={width}>
+      <svg
+        aria-hidden="true"
+        className="overflow-visible"
+        height={height}
+        width={width}
+      >
         <defs>
-          {/* Default vertical gradients for positive/negative candles (emerald / red) */}
+          {/* Default vertical gradients for positive/negative candles (--chart-positive / --chart-negative) */}
           <linearGradient id="candlestick-positive" x1="0" x2="0" y1="1" y2="0">
-            <stop offset="0%" stopColor="var(--color-emerald-500)" />
-            <stop offset="100%" stopColor="var(--color-emerald-500)" />
+            <stop
+              offset="0%"
+              stopColor="var(--chart-positive, var(--color-emerald-500))"
+            />
+            <stop
+              offset="100%"
+              stopColor="var(--chart-positive, var(--color-emerald-500))"
+            />
           </linearGradient>
           <linearGradient id="candlestick-negative" x1="0" x2="0" y1="1" y2="0">
-            <stop offset="0%" stopColor="var(--color-red-500)" />
-            <stop offset="100%" stopColor="var(--color-red-500)" />
+            <stop
+              offset="0%"
+              stopColor="var(--chart-negative, var(--color-red-500))"
+            />
+            <stop
+              offset="100%"
+              stopColor="var(--chart-negative, var(--color-red-500))"
+            />
           </linearGradient>
           {defsChildren}
         </defs>

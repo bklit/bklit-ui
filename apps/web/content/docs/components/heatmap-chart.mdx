@@ -219,14 +219,16 @@ Vertical column separators with optional quarter labels.
 
 ### HeatmapTooltip
 
-Shows the contribution count and date for the hovered cell.
+Shows the contribution count and date for the hovered cell. Fades in on first hover, springs between cells, and fades out on leave (position jumps and scale is skipped under `prefers-reduced-motion`).
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `formatLabel` | `(count, date) => string` | default formatter | Custom contribution line (bottom section) |
 | `showDelay` | `number` | `0` | Delay before first show (ms). Cell-to-cell updates are immediate once visible. |
 | `hideDelay` | `number` | `120` | Grace period before hiding when leaving a cell (ms). Reduces flicker between adjacent cells. |
-| `instant` | `boolean` | `false` | No fade/scale motion — tooltip appears and disappears immediately |
+| `instant` | `boolean` | `false` | No fade/scale/spring motion — tooltip appears, moves and disappears immediately |
+| `damping` | `number` | `20` | Spring damping for the panel following the hovered cell (same scale as `ChartTooltip`). `0` snaps between cells |
+| `springConfig` | `SpringConfig` | - | Explicit follow spring (overrides `damping`); defaults to `ChartConfigProvider`'s `tooltipBoxSpring` |
 | `backgroundColor` | `string` | `var(--chart-tooltip-background)` | Panel background (CSS variable or color value) |
 | `panelStyle` | `CSSProperties` | - | Inline styles for the tooltip panel |
 | `className` | `string` | `""` | Additional CSS class |

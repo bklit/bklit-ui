@@ -1,9 +1,11 @@
 "use client";
 
+import { Icon } from "@bklitui/icons";
 import Link from "fumadocs-core/link";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Frame, FramePanel } from "@/components/ui/frame";
 import type { ShowcaseProject } from "@/lib/showcase/projects";
 import { getShowcaseImageTransform } from "@/lib/showcase/transform";
 import { cn } from "@/lib/utils";
@@ -59,13 +61,7 @@ function ViewProjectAction({
   );
 }
 
-export function ShowcaseCard({
-  project,
-  embedded = false,
-}: {
-  project: ShowcaseProject;
-  embedded?: boolean;
-}) {
+export function ShowcaseCard({ project }: { project: ShowcaseProject }) {
   const reducedMotion = useReducedMotion();
   const [hoverFine, setHoverFine] = useState(false);
   const [focused, setFocused] = useState(false);
@@ -88,10 +84,7 @@ export function ShowcaseCard({
   return (
     <Link
       aria-label={`View ${project.title}`}
-      className={cn(
-        "group block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-        embedded ? "size-full min-h-[inherit]" : "rounded-xl"
-      )}
+      className="group block rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
       external
       href={project.url}
       onBlurCapture={(e) => {
@@ -103,20 +96,8 @@ export function ShowcaseCard({
       onPointerEnter={() => setHoverFine(true)}
       onPointerLeave={() => setHoverFine(false)}
     >
-      <div
-        className={cn(
-          "relative overflow-hidden bg-card",
-          embedded
-            ? "size-full min-h-[inherit]"
-            : "rounded-xl border border-border"
-        )}
-      >
-        <div
-          className={cn(
-            "overflow-hidden [perspective:1400px]",
-            embedded ? "absolute inset-0" : "relative aspect-4/3 w-full"
-          )}
-        >
+      <Frame>
+        <FramePanel className="relative aspect-4/3 w-full overflow-hidden p-0 [perspective:1400px]">
           {/* biome-ignore lint/performance/noImgElement: external showcase thumbnail */}
           <img
             alt={project.imageAlt}
@@ -135,20 +116,19 @@ export function ShowcaseCard({
             width={1200}
           />
 
-          <div className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-t from-black/50 via-transparent to-black/20" />
-
-          <div className="pointer-events-none absolute inset-x-0 top-0 z-[1] p-4">
-            <p className="font-medium text-sm text-white drop-shadow-sm">
-              {project.title}
-            </p>
-          </div>
-
           <ViewProjectAction
             reducedMotion={reducedMotion}
             visible={showAction}
           />
+        </FramePanel>
+        <div className="flex items-center justify-between gap-3 px-4 py-3">
+          <p className="truncate font-semibold text-sm">{project.title}</p>
+          <Icon
+            className="size-3.5 shrink-0 text-muted-foreground transition-colors group-hover:text-foreground"
+            name="IconArrowUpRight"
+          />
         </div>
-      </div>
+      </Frame>
     </Link>
   );
 }

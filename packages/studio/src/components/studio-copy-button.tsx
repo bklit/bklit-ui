@@ -3,7 +3,7 @@
 import { Icon } from "@bklitui/icons";
 import { useCallback, useState } from "react";
 import { cn } from "@/lib/utils";
-import { InputGroupButton } from "@/ui/input-group";
+import { Button } from "@/ui/button";
 
 export function StudioCopyButton({
   text,
@@ -26,13 +26,14 @@ export function StudioCopyButton({
   }, [onCopied, text]);
 
   return (
-    <InputGroupButton
+    <Button
       aria-label={ariaLabel ?? (copied ? "Copied" : "Copy")}
       className={className}
       onClick={copy}
       size="icon-xs"
       title={copied ? "Copied" : "Copy"}
       type="button"
+      variant="ghost"
     >
       <span className="relative block size-3.5">
         <Icon
@@ -56,6 +57,6 @@ export function StudioCopyButton({
           }}
         />
       </span>
-    </InputGroupButton>
+    </Button>
   );
 }

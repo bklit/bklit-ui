@@ -6,7 +6,6 @@ import { useMemo, useState } from "react";
 import { studioFieldLabelClass } from "@/components/controls/control-field-helpers";
 import { StudioColorPicker } from "@/components/controls/studio-color-picker";
 import { resolveCssColor } from "@/lib/chart-theme-color";
-import { studioScrubSurfaceClass } from "@/lib/studio-chrome-classes";
 import {
   pickerStatePreviewCss,
   studioColorToOklchField,
@@ -100,11 +99,12 @@ function StopColorSwatch({
       </PopoverTrigger>
       <PopoverContent
         align="start"
-        className="w-[min(calc(100vw-2rem),18rem)] gap-3 p-3"
+        className="w-[min(calc(100vw-2rem),18rem)]"
         collisionAvoidance={studioSidebarPopoverCollisionAvoidance}
         positionMethod="fixed"
         side="left"
         sideOffset={studioSidebarPopoverSideOffset}
+        viewportClassName="flex flex-col gap-3 p-3"
       >
         <StudioColorPicker
           color={color}
@@ -195,10 +195,7 @@ export function FillGradientEditor({
             key={`${index}-${stop.offset}`}
           >
             <Input
-              className={cn(
-                "h-8 w-12 shrink-0 px-1.5 text-xs tabular-nums",
-                studioScrubSurfaceClass
-              )}
+              className="w-12 shrink-0 text-xs tabular-nums sm:text-xs"
               disabled={disabled}
               max={100}
               min={0}
@@ -207,6 +204,7 @@ export function FillGradientEditor({
                   offset: Number.parseFloat(event.target.value) || 0,
                 })
               }
+              size="sm"
               step={1}
               type="number"
               value={stop.offset}

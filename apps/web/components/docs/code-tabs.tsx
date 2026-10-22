@@ -1,6 +1,7 @@
 "use client";
 
 import { type ReactNode, useEffect, useState } from "react";
+import { commandTabsListClassName } from "@/components/docs/package-manager-tabs";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const STORAGE_KEY = "bklit-install-type";
@@ -36,9 +37,13 @@ export function CodeTabs({
 
   return (
     <Tabs className="mt-6" onValueChange={handleValueChange} value={value}>
-      <TabsList variant="line">
-        <TabsTrigger value="cli">Command</TabsTrigger>
-        <TabsTrigger value="manual">Manual</TabsTrigger>
+      <TabsList className={commandTabsListClassName}>
+        <TabsTrigger className="rounded-lg" value="cli">
+          Command
+        </TabsTrigger>
+        <TabsTrigger className="rounded-lg" value="manual">
+          Manual
+        </TabsTrigger>
       </TabsList>
       {children}
     </Tabs>

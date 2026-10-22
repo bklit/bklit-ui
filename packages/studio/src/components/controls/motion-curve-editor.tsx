@@ -510,10 +510,10 @@ function MotionCurveEditorContent({
         </div>
         <Input
           className={cn(
-            "h-10 min-w-0 flex-1 rounded-none border-0 px-2.5 font-mono text-xs shadow-none focus-visible:ring-0",
-            "bg-transparent",
+            "flex min-w-0 flex-1 items-center font-mono text-xs [&_input]:h-full [&_input]:px-2.5",
             "selection:bg-primary/25 selection:text-foreground",
-            !isEase && "cursor-default text-muted-foreground"
+            !isEase &&
+              "[&_input]:cursor-default [&_input]:text-muted-foreground"
           )}
           id="motion-bezier-input"
           onChange={
@@ -541,6 +541,7 @@ function MotionCurveEditorContent({
           placeholder={formatMotionBezier(DEFAULT_MOTION_BEZIER)}
           readOnly={!isEase}
           spellCheck={false}
+          unstyled
           value={
             state.motionEase === "custom"
               ? state.motionBezier
@@ -627,11 +628,12 @@ export function MotionCurveEditor({
 
       <PopoverContent
         align="start"
-        className="w-[min(calc(100vw-2rem),18rem)] gap-0 p-3"
+        className="w-[min(calc(100vw-2rem),18rem)]"
         collisionAvoidance={studioSidebarPopoverCollisionAvoidance}
         positionMethod="fixed"
         side="right"
         sideOffset={studioSidebarPopoverSideOffset}
+        viewportClassName="p-3"
       >
         <MotionCurveEditorContent
           onCommit={onCommit}

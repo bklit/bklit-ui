@@ -5,7 +5,7 @@ import type * as React from "react";
 import { useState } from "react";
 import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
-import { chartCssVars } from "../chart-context";
+import { chartCssVars, useChartPortalContainer } from "../chart-context";
 
 // Fan configuration
 const FAN_RADIUS = 50;
@@ -143,6 +143,7 @@ export function MarkerGroup({
   isMuted = false,
 }: MarkerGroupProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const portalContainer = useChartPortalContainer(containerRef);
   const shouldFan = (isHovered || forceOpen) && markers.length > 1;
   const hasMultiple = markers.length > 1;
   const fannedMarkers =
@@ -289,7 +290,7 @@ export function MarkerGroup({
       </g>
 
       {/* Portal for fanned circles */}
-      {containerRef?.current &&
+      {portalContainer &&
         createPortal(
           // biome-ignore lint/a11y/noStaticElementInteractions: Marker hover portal
           // biome-ignore lint/a11y/noNoninteractiveElementInteractions: Marker hover portal
@@ -390,7 +391,7 @@ export function MarkerGroup({
               </AnimatePresence>
             </div>
           </div>,
-          containerRef.current
+          portalContainer
         )}
     </>
   );

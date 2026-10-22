@@ -62,6 +62,7 @@ export const lineChartProfitLossDefaults: Partial<StudioUrlState> = {
 
 export const lineChartStandardDefaults: Partial<StudioUrlState> = {
   lineChartMode: "standard",
+  bandEnabled: false,
   dataSeries: 2,
   curve: "natural",
   fadeEdges: "both",

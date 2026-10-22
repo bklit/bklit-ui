@@ -2,8 +2,6 @@
 
 import { Icon } from "@bklitui/icons";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { toast } from "sonner";
-import { ParticleBadge } from "@/components/onboarding/particle-badge";
 import { StudioShareCopyField } from "@/components/studio-share-copy-field";
 import {
   useStudioToolbarMounted,
@@ -16,9 +14,9 @@ import {
 } from "@/lib/chart-links";
 import { studioRelativeStateHref } from "@/lib/studio-url-codec";
 import { studioSerializedParam } from "@/lib/studio-url-loader";
-import { cn } from "@/lib/utils";
 import { Button } from "@/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/ui/popover";
+import { toastManager } from "@/ui/toast";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/ui/tooltip";
 
 export function StudioSharePopover({
@@ -62,20 +60,18 @@ export function StudioSharePopover({
   }, [pageOrigin, state]);
 
   const notifyCopied = useCallback((message: string) => {
-    toast.success(message);
+    toastManager.add({ title: message, type: "success" });
   }, []);
 
   const shareButton = (
     <Button
       aria-label="Share chart"
-      className={cn("size-8", className)}
-      size="icon-sm"
+      className={className}
+      size="icon"
       type="button"
       variant="ghost"
     >
-      <ParticleBadge>
-        <Icon className="size-4" name="IconShareOs" />
-      </ParticleBadge>
+      <Icon className="size-4" name="IconShareOs" />
     </Button>
   );
 
@@ -98,25 +94,24 @@ export function StudioSharePopover({
               <Button
                 aria-expanded={open}
                 aria-label="Share chart"
-                className={cn("size-8", className)}
-                size="icon-sm"
+                className={className}
+                size="icon"
                 type="button"
                 variant="ghost"
               />
             }
           >
-            <ParticleBadge>
-              <Icon className="size-4" name="IconShareOs" />
-            </ParticleBadge>
+            <Icon className="size-4" name="IconShareOs" />
           </PopoverTrigger>
         </TooltipTrigger>
         <TooltipContent side={tooltipSide}>Share</TooltipContent>
       </Tooltip>
       <PopoverContent
         align="center"
-        className="w-[min(24rem,calc(100vw-2rem))] space-y-4 p-4"
+        className="w-[min(24rem,calc(100vw-2rem))]"
         side="top"
         sideOffset={10}
+        viewportClassName="flex flex-col gap-4 p-4"
       >
         <p className="font-medium text-sm">Share chart</p>
 

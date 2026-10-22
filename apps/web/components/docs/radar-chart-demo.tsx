@@ -86,14 +86,14 @@ export function RadarChartDemo() {
   }));
 
   return (
-    <div className="flex flex-col items-center justify-center gap-8 lg:flex-row lg:gap-12">
+    <div className="flex w-full min-w-0 max-w-full flex-col items-center justify-center gap-8 lg:w-auto lg:flex-row lg:gap-12">
       {/* Chart */}
       <RadarChart
+        className="w-full max-w-[400px] lg:w-[400px] lg:shrink-0"
         data={campaignData}
         hoveredIndex={hoveredIndex}
         metrics={metrics}
         onHoverChange={setHoveredIndex}
-        size={400}
       >
         <RadarGrid />
         <RadarAxis />

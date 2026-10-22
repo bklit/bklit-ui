@@ -1,9 +1,12 @@
 ---
 title: Scatter Chart
-description: A composable time-series scatter chart with offset rings, hover dimming, and animated enter
+description: A composable time-series scatter chart with hover dimming, optional offset rings, jitter, and animated enter
 ---
 
-import { ScatterChartDemo } from "@/components/docs/scatter-chart-demo";
+import {
+  ScatterChartDemo,
+  ScatterJitterDemo,
+} from "@/components/docs/scatter-chart-demo";
 
 <ComponentPreview registryName="scatter-chart">
   <ScatterChartDemo />
@@ -59,7 +62,7 @@ Series colors default to the chart palette (`--chart-1` … `--chart-5`) in chil
 
 ### Offset Ring
 
-Each dot is an inner fill plus an outer ring separated by a gap (`ringGap`):
+Points render as solid dots by default. Rings are opt-in — set `strokeWidth` to draw an outer ring separated from the fill by `ringGap`:
 
 ```tsx
 <Scatter dataKey="users" radius={6} strokeWidth={2} ringGap={2} />
@@ -67,21 +70,118 @@ Each dot is an inner fill plus an outer ring separated by a gap (`ringGap`):
 
 ### Hover Interaction
 
-Non-active points can fade and blur while the crosshair is active:
+While the crosshair is active, non-active points fade to `inactiveOpacity` (default `0.3`, matching other charts' faded state) and the active point scales up. Blur is opt-in via `inactiveMode="blur"`:
 
 ```tsx
-<Scatter
-  dataKey="users"
-  fadeOnHover
-  inactiveOpacity={0.5}
-  inactiveBlur={2}
-  showActiveHighlight
-/>
+// Default — opacity only
+<Scatter dataKey="users" />
+
+// Opacity + blur
+<Scatter dataKey="users" inactiveMode="blur" inactiveBlur={2} />
+
+// No dimming
+<Scatter dataKey="users" fadeOnHover={false} />
 ```
+
+### Scatter with Jitter
+
+When many rows share the same date (a strip plot), points stack on top of each other. Pass `jitter` to `ScatterChart` to spread them horizontally (and optionally vertically). Offsets are seeded and deterministic — no `Math.random` — so points never jump between renders or SSR/hydration. Hover snaps to the nearest jittered point, the tooltip shows the original values, and `ChartTooltip` hides its crosshair line by default (it would mark a date, not the hovered point — pass `showCrosshair` to opt back in).
+
+The example below plots lines changed per merged PR, month by month: **Fastlane** PRs are auto-merged and always stay under 500 LOC (dashed line), while **human-reviewed** PRs spread much wider with a few large outliers. `formatXLabel` turns the axis into short month names and `YAxis formatValue` keeps LOC ticks compact.
+
+<ComponentPreview>
+  <ScatterJitterDemo />
+</ComponentPreview>
+
+```tsx
+import {
+  ChartTooltip,
+  Grid,
+  Scatter,
+  ScatterChart,
+  TooltipContent,
+  XAxis,
+  YAxis,
+} from "@bklitui/ui/charts";
+
+// Seeded Park–Miller PRNG — identical on server and client (no Math.random)
+function seededRandom(seed: number) {
+  let state = seed;
+  return () => {
+    state = (state * 48_271) % 2_147_483_647;
+    return state / 2_147_483_647;
+  };
+}
+
+const random = seededRandom(42);
+const chartData: { date: Date; fastlane?: number; human?: number }[] = [];
+for (let month = 0; month < 12; month++) {
+  const date = new Date(2025, month, 1);
+  // Fastlane: auto-merged PRs, always < 500 LOC, skewed small
+  const fastlaneCount = 15 + Math.floor(random() * 16);
+  for (let i = 0; i < fastlaneCount; i++) {
+    const r = random();
+    chartData.push({ date, fastlane: Math.round(10 + r * r * 480) });
+  }
+  // Human reviewed: broader spread with a few large outliers
+  const humanCount = 15 + Math.floor(random() * 16);
+  for (let i = 0; i < humanCount; i++) {
+    const r = random();
+    const isOutlier = random() < 0.06;
+    chartData.push({
+      date,
+      human: Math.round(isOutlier ? 1500 + r * 1000 : 40 + r * Math.sqrt(r) * 1160),
+    });
+  }
+}
+
+const series = {
+  fastlane: { label: "Fastlane (auto-merged)", color: "var(--chart-1)" },
+  human: { label: "Human reviewed", color: "var(--chart-2)" },
+} as const;
+
+const shortMonthFmt = new Intl.DateTimeFormat("en-US", { month: "short" });
+const monthYearFmt = new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric" });
+const locFmt = new Intl.NumberFormat("en-US");
+const formatMonth = (date: Date) => shortMonthFmt.format(date);
+const formatLoc = (value: number) => (value >= 1000 ? `${value / 1000}k` : String(value));
+
+function PrTooltip({ point }: { point: Record<string, unknown> }) {
+  const rows = (["fastlane", "human"] as const).flatMap((key) => {
+    const value = point[key];
+    return typeof value === "number"
+      ? [{ color: series[key].color, label: series[key].label, value: `${locFmt.format(value)} LOC` }]
+      : [];
+  });
+  return <TooltipContent rows={rows} title={monthYearFmt.format(point.date as Date)} />;
+}
+
+<ScatterChart
+  data={chartData}
+  formatXLabel={formatMonth}
+  jitter={{ x: 0.6 }}
+  margin={{ top: 8, right: 8, bottom: 40, left: 56 }}
+>
+  <Grid horizontal highlightRowValues={[500]} highlightRowStrokeDasharray="4,4" />
+  <Scatter dataKey="fastlane" fill={series.fastlane.color} radius={3} />
+  <Scatter dataKey="human" fill={series.human.color} radius={3} />
+  <YAxis formatValue={formatLoc} />
+  <XAxis numTicks={12} />
+  <ChartTooltip content={({ point }) => <PrTooltip point={point} />} />
+</ScatterChart>
+```
+
+`jitter` accepts:
+
+- `true` — spread across `0.35` of the band step horizontally
+- a number — horizontal spread as a fraction of the band step (`0`–`1`)
+- `{ x?: number; y?: number; seed?: number }` — `x` as a band-step fraction, `y` as a maximum vertical offset in px (±), `seed` to pick a different (still deterministic) pattern
+
+The band step is the smallest gap between adjacent distinct x values; the plot pads its edges so jittered points stay inside.
 
 ### Y Gradient
 
-Color dots by vertical position with a chart-space gradient — lower values toward red, higher toward green. Set `strokeWidth={0}` for solid fills without rings:
+Color dots by vertical position with a chart-space gradient — lower values toward red, higher toward green. Works best with the default solid fills (no rings):
 
 ```tsx
 <Scatter dataKey="users" strokeWidth={0} yGradient />
@@ -106,6 +206,8 @@ Color dots by vertical position with a chart-space gradient — lower values tow
 | `animationDuration` | `number` | `1100` | Enter animation duration (ms) |
 | `enterTransition` | `Transition` | line-chart default | Motion tween for enter |
 | `aspectRatio` | `string` | `"2 / 1"` | Container aspect ratio |
+| `jitter` | `boolean \| number \| { x?: number; y?: number; seed?: number }` | — | Deterministic spread for overlapping points (strip plot). `x` = fraction of band step, `y` = px. Hover snaps to the nearest point and `ChartTooltip` hides its crosshair by default |
+| `formatXLabel` | `(date: Date) => string` | `"Jan 1"` style | X-axis tick and date-pill labels (e.g. short month names) |
 
 ### Scatter
 
@@ -115,12 +217,13 @@ Color dots by vertical position with a chart-space gradient — lower values tow
 | `yAxisId` | `string \| number` | `"left"` | Y-scale group for biaxial charts (pair with `YAxis`) |
 | `fill` | `string` | series palette | Inner dot fill |
 | `stroke` | `string` | same as `fill` | Outer ring color |
-| `strokeWidth` | `number` | `2` | Outer ring width (0 disables) |
+| `strokeWidth` | `number` | `0` | Outer ring width — rings are opt-in (e.g. `2`) |
 | `ringGap` | `number` | `2` | Gap between fill and ring (px) |
 | `radius` | `number` | `5` | Inner dot radius (px) |
-| `fadeOnHover` | `boolean` | `true` | Dim/blur non-active points on hover |
-| `inactiveOpacity` | `number` | `0.5` | Opacity for dimmed points |
-| `inactiveBlur` | `number` | `2` | Blur (px) for dimmed points |
+| `fadeOnHover` | `boolean` | `true` | Dim non-active points on hover |
+| `inactiveOpacity` | `number` | `0.3` | Opacity for dimmed points |
+| `inactiveMode` | `"opacity" \| "blur"` | `"opacity"` | De-emphasis style; `"blur"` adds `inactiveBlur` on top of opacity |
+| `inactiveBlur` | `number` | `2` | Blur (px) for dimmed points when `inactiveMode="blur"` |
 | `showActiveHighlight` | `boolean` | `true` | Scale up the active point |
 | `yGradient` | `boolean \| { from?: string; to?: string }` | — | Color dots by y-position (default red → green) |
 

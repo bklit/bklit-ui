@@ -189,9 +189,8 @@ export function StudioRecordingTimeline({
             {canPause ? (
               <Button
                 aria-label={isPaused ? "Resume recording" : "Pause recording"}
-                className="size-7"
                 onClick={isPaused ? onResume : onPause}
-                size="icon"
+                size="icon-sm"
                 title={isPaused ? "Resume recording" : "Pause recording"}
                 type="button"
                 variant="outline"

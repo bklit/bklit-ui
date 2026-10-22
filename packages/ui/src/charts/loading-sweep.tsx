@@ -1,7 +1,7 @@
 "use client";
 
 import { scaleLinear } from "@visx/scale";
-import { AreaClosed, LinePath } from "@visx/shape";
+import { AreaClosed, type AreaClosedProps, LinePath } from "@visx/shape";
 import { motion, useReducedMotion } from "motion/react";
 import {
   useCallback,
@@ -27,9 +27,9 @@ import {
  * `<BarChart status="loading">`.
  */
 
-// CurveFactory type - simplified version compatible with visx
-// biome-ignore lint/suspicious/noExplicitAny: d3 curve factory type
-type CurveFactory = any;
+// Curve factory type via @visx/shape (already a dependency) rather than
+// importing from d3-shape, which this registry item does not install.
+type CurveFactory = NonNullable<AreaClosedProps<unknown>["curve"]>;
 
 /** One shimmer sweep, in seconds. */
 const DEFAULT_SWEEP_DURATION_S = 2;

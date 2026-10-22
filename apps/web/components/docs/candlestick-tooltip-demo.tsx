@@ -31,11 +31,11 @@ export function CandlestickTooltipDemo({
           {formatUsd(open)}
         </span>
         <span className="text-chart-tooltip-muted">High</span>
-        <span className="text-emerald-600 tabular-nums dark:text-emerald-400">
+        <span className="text-chart-positive tabular-nums">
           {formatUsd(high)}
         </span>
         <span className="text-chart-tooltip-muted">Low</span>
-        <span className="text-red-600 tabular-nums dark:text-red-400">
+        <span className="text-chart-negative tabular-nums">
           {formatUsd(low)}
         </span>
         <span className="text-chart-tooltip-muted">Close</span>

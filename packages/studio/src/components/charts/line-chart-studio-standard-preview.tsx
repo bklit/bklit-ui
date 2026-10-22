@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Band,
   ChartBrush,
   ChartBrushLayout,
   ChartTooltip,
@@ -11,7 +12,7 @@ import {
   ProjectionLineEndMarker,
   XAxis,
 } from "@bklitui/ui/charts";
-import { useMemo } from "react";
+import { Fragment, useMemo } from "react";
 import { StudioCartesianFill } from "@/components/charts/studio-chart-layout";
 import {
   StudioChartShell,
@@ -21,7 +22,12 @@ import {
   StudioChartYAxisLayers,
   timeSeriesChartMargin,
 } from "@/components/charts/studio-chart-y-axis";
+import {
+  studioDeadlineLayer,
+  studioWeekendsLayer,
+} from "@/components/charts/studio-date-highlight-layers";
 import { StudioReferenceAreaLayer } from "@/components/charts/studio-reference-area-layer";
+import { StudioTrendLineLayer } from "@/components/charts/studio-trend-line-layer";
 import { fadeEdgesPropValue } from "@/components/controls/fade-edges-picker";
 import { getStudioCssRevealPropsForPreview } from "@/lib/chart-animation";
 import { resolveCurve } from "@/lib/curves";
@@ -34,6 +40,13 @@ import {
 import { getLineSeriesYAxisId } from "@/lib/line-series-y-axis";
 import type { StudioRenderContext } from "@/lib/render-context";
 import { seriesStrokePropsFromState } from "@/lib/series-stroke-props";
+import {
+  isStudioBandVisible,
+  studioBandMiddleProps,
+  studioBandProps,
+  studioBandSeriesIndices,
+  withStudioBandData,
+} from "@/lib/studio-band";
 import { studioChartBrushProps } from "@/lib/studio-brush-props";
 import {
   studioCartesianBackgroundLayer,
@@ -139,6 +152,23 @@ function renderBrushStripLines(
         yAxisId={getLineSeriesYAxisId(state, idx)}
         {...seriesStrokePropsFromState(state, options.dataLength, idx)}
       />
+    );
+  });
+}
+
+function renderBand(state: StudioUrlState) {
+  if (!isStudioBandVisible(state)) {
+    return null;
+  }
+  return studioBandSeriesIndices(state).map((seriesIndex) => {
+    const yAxisId = getLineSeriesYAxisId(state, seriesIndex);
+    const curve = resolveCurve(getSeriesCurve(state, seriesIndex));
+    const middle = studioBandMiddleProps(state, yAxisId, seriesIndex);
+    return (
+      <Fragment key={`band-${seriesIndex}`}>
+        <Band curve={curve} {...studioBandProps(state, yAxisId, seriesIndex)} />
+        {middle ? <Band curve={curve} {...middle} /> : null}
+      </Fragment>
     );
   });
 }
@@ -282,7 +312,7 @@ export function LineChartStudioStandardPreview({
   const isLoading = state.lineChartState === "loading";
   const seriesCount = clampStudioSeriesCount(state.dataSeries);
   const projectionCount = getProjectionCount(state);
-  const data = useMemo(
+  const baseData = useMemo(
     () =>
       projectionCount > 0
         ? generateStudioTrendingData({
@@ -303,6 +333,41 @@ export function LineChartStudioStandardPreview({
       seriesCount,
       state.dataPoints,
       state.lineDataTrend,
+    ]
+  );
+  const bandVisible = isStudioBandVisible(state);
+  const {
+    bandMode,
+    bandMultiplier,
+    bandPeriod,
+    bandSeries,
+    bandSpread,
+    bandWarmup,
+    dataSeries,
+  } = state;
+  const data = useMemo(
+    () =>
+      bandVisible
+        ? withStudioBandData(baseData, {
+            bandMode,
+            bandMultiplier,
+            bandPeriod,
+            bandSeries,
+            bandSpread,
+            bandWarmup,
+            dataSeries,
+          })
+        : baseData,
+    [
+      baseData,
+      bandVisible,
+      bandMode,
+      bandMultiplier,
+      bandPeriod,
+      bandSeries,
+      bandSpread,
+      bandWarmup,
+      dataSeries,
     ]
   );
   const brushXExtentMax = useMemo(
@@ -347,6 +412,7 @@ export function LineChartStudioStandardPreview({
               status="ready"
               style={{ aspectRatio: "unset", height: "100%" }}
             >
+              {renderBand(state)}
               {renderBrushStripLines(state, {
                 dataLength: data.length,
                 seriesCount,
@@ -389,10 +455,19 @@ export function LineChartStudioStandardPreview({
                 componentId="line.reference-area"
                 state={state}
               />
+              {studioWeekendsLayer(state, "line")}
+              {studioDeadlineLayer(state, "line", data)}
+              {renderBand(state)}
               {renderMainLines(state, {
                 dataLength: data.length,
                 seriesCount,
               })}
+              {isLoading ? null : (
+                <StudioTrendLineLayer
+                  componentId="line.trend-line"
+                  state={state}
+                />
+              )}
               {isLoading
                 ? null
                 : renderProjectionLayers(state, data, projectionCount)}

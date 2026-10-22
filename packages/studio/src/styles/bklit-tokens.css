@@ -4,38 +4,59 @@
  */
 :root,
 .studio-shell {
-  --background: oklch(0.969998 0.0000246537 112.908);
-  --foreground: oklch(0.147999 0.0039982 228.752);
-  --card: oklch(0.999998 0.0000253939 112.713);
-  --card-foreground: oklch(0.147999 0.0039982 228.752);
-  --popover: oklch(0.999998 0.0000253939 112.713);
-  --popover-foreground: oklch(0.147999 0.0039982 228.752);
-  --primary: oklch(0.363999 0.00000926656 113.102);
-  --primary-foreground: oklch(0.944 0 272.286);
-  --secondary: oklch(0.978998 0.00297504 286.319);
-  --secondary-foreground: oklch(0.209999 0.00599428 285.877);
-  --muted: oklch(0.937998 0.0000237458 112.896);
-  --muted-foreground: oklch(0.564 0 78.958);
-  --accent: oklch(0.941 0 87.651);
-  --accent-foreground: oklch(0.245998 0.0409927 266.597);
-  --destructive: oklch(0.616007 0.199981 17.27);
-  --border: oklch(0.919998 0.0000232344 112.552);
-  --input: oklch(0.958998 0.0000244577 113.254);
-  --ring: oklch(0 0 0);
-  --chart-1: var(--color-stone-700);
-  --chart-2: var(--color-stone-500);
-  --chart-3: var(--color-stone-400);
-  --chart-4: var(--color-stone-300);
-  --chart-5: var(--color-stone-100);
-  --radius: 0;
-  --sidebar: oklch(0.986998 0.00200245 196.389);
-  --sidebar-foreground: oklch(0.147999 0.0039982 228.752);
-  --sidebar-primary: oklch(0.19 0.00000481538 112.756);
-  --sidebar-primary-foreground: oklch(0.803998 0.0000204702 113.056);
-  --sidebar-accent: oklch(0.962998 0.00200258 196.402);
-  --sidebar-accent-foreground: oklch(0.217999 0.00799762 223.864);
-  --sidebar-border: oklch(0.924998 0.00499493 214.039);
-  --sidebar-ring: oklch(0 0 0);
+  /* coss ui palette (https://coss.com/ui/docs/styling). `--alpha()` written as color-mix so this file works without Tailwind processing. */
+  --background: var(--color-white);
+  --foreground: var(--color-neutral-800);
+  --card: var(--color-white);
+  --card-foreground: var(--color-neutral-800);
+  --popover: var(--color-white);
+  --popover-foreground: var(--color-neutral-800);
+  --primary: var(--color-neutral-800);
+  --primary-foreground: var(--color-neutral-50);
+  --secondary: color-mix(in oklab, var(--color-black) 4%, transparent);
+  --secondary-foreground: var(--color-neutral-800);
+  --muted: color-mix(in oklab, var(--color-black) 4%, transparent);
+  --muted-foreground: color-mix(
+    in srgb,
+    var(--color-neutral-500) 90%,
+    var(--color-black)
+  );
+  --accent: color-mix(in oklab, var(--color-black) 4%, transparent);
+  --accent-foreground: var(--color-neutral-800);
+  --destructive: var(--color-red-500);
+  --destructive-foreground: var(--color-red-700);
+  --info: var(--color-blue-500);
+  --info-foreground: var(--color-blue-700);
+  --success: var(--color-emerald-500);
+  --success-foreground: var(--color-emerald-700);
+  --warning: var(--color-amber-500);
+  --warning-foreground: var(--color-amber-700);
+  --border: color-mix(in oklab, var(--color-black) 8%, transparent);
+  --input: color-mix(in oklab, var(--color-black) 10%, transparent);
+  --ring: var(--color-neutral-400);
+  /* Chart palette "Primary" — keep in sync with lib/chart-palettes.ts */
+  --chart-1: var(--color-indigo-500);
+  --chart-2: var(--color-yellow-400);
+  --chart-3: var(--color-fuchsia-500);
+  /* Tailwind v4.2 mist-500 (not in the installed Tailwind theme yet) */
+  --chart-4: oklch(0.56 0.021 213.5);
+  --chart-5: var(--color-black);
+  /* Semantic trend colors (profit/loss, candlesticks, up/down) */
+  --chart-positive: var(--color-emerald-500);
+  --chart-negative: var(--color-red-500);
+  --radius: 0.625rem;
+  --sidebar: var(--color-neutral-50);
+  --sidebar-foreground: color-mix(
+    in srgb,
+    var(--color-neutral-800) 64%,
+    var(--sidebar)
+  );
+  --sidebar-primary: var(--color-neutral-800);
+  --sidebar-primary-foreground: var(--color-neutral-50);
+  --sidebar-accent: color-mix(in oklab, var(--color-black) 4%, transparent);
+  --sidebar-accent-foreground: var(--color-neutral-800);
+  --sidebar-border: color-mix(in oklab, var(--color-black) 6%, transparent);
+  --sidebar-ring: var(--color-neutral-400);
 
   /* Chart component semantic colors */
   --chart-background: oklch(0.915 0 0);
@@ -65,52 +86,101 @@
   --legend-muted-foreground: oklch(0.552 0.016 285.938);
   --legend-track: oklch(0.92 0.004 286.32);
 
-  /* Sequential scale for heatmaps, choropleths, and binned data (01 = lowest) */
-  --chart-scale-01: var(--color-stone-50);
-  --chart-scale-02: var(--color-stone-200);
-  --chart-scale-03: var(--color-stone-300);
-  --chart-scale-04: var(--color-stone-400);
-  --chart-scale-05: var(--color-stone-500);
-  --chart-scale-pattern-color: var(--color-stone-100);
+  /*
+   * Sequential scale for heatmaps, choropleths, and binned data (01 = lowest).
+   * 01 is a neutral "empty / zero" tone. 02–05 are a single-hue ramp derived
+   * from the active palette's --chart-1 (05 = --chart-1 itself), mixed toward
+   * --chart-scale-mix (white in light mode, near-black in dark mode), so every
+   * palette — including custom ones — gets a matching ramp. Mixing in oklab
+   * keeps chart-1's hue exactly (the mix target is achromatic).
+   * The 02–05 formulas live in the shared rule below (re-declared on .dark so
+   * nested dark scopes resolve against their own --chart-scale-mix).
+   */
+  --chart-scale-mix: oklch(1 0 0);
+  --chart-scale-01: var(--color-neutral-200);
+  --chart-scale-pattern-color: var(--background);
 
   /* Studio editor canvas dot grid */
   --studio-canvas-grid-gap: 32px;
 }
 
+/* Studio keeps its square chrome; the site and docs use coss's rounded radius. */
+.studio-shell {
+  --radius: 0;
+}
+
+/*
+ * Chart previews render as they ship, so restore the site radius (matches
+ * :root above). Unitless `--radius: 0` also makes `calc(var(--radius) + 4px)`
+ * invalid, which dropped chart tooltip panels to square corners.
+ */
+.studio-shell [data-studio-chart-content] {
+  --radius: 0.625rem;
+}
+
 .dark,
 .studio-shell.dark {
-  --background: oklch(0.14 0.0047 263.79);
-  --foreground: oklch(0.987 0.002 197.1);
-  --card: oklch(0.17 0.0065 271.01);
-  --card-foreground: oklch(0.987 0.002 197.1);
-  --popover: oklch(0.21 0.0058 285.9);
-  --popover-foreground: oklch(0.987 0.002 197.1);
-  --primary: oklch(0.925 0.005 214.3);
-  --primary-foreground: oklch(0.218 0.008 223.9);
-  --secondary: oklch(0.26 0.0134 272.84);
-  --secondary-foreground: oklch(0.987 0.002 197.1);
-  --muted: oklch(0.3 0.0182 276.35);
-  --muted-foreground: oklch(0.62 0.0218 270.07);
-  --accent: oklch(0.29 0.0167 275.43);
-  --accent-foreground: oklch(0.987 0.002 197.1);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(0.56 0.0195 267.65 / 0.2);
-  --input: oklch(0.47 0.0258 265.55 / 0.2);
-  --ring: oklch(0.56 0.021 213.5);
-  --chart-1: var(--color-zinc-800);
-  --chart-2: var(--color-zinc-600);
-  --chart-3: var(--color-zinc-500);
-  --chart-4: var(--color-zinc-400);
-  --chart-5: var(--color-zinc-300);
+  --background: color-mix(
+    in srgb,
+    var(--color-neutral-950) 95%,
+    var(--color-white)
+  );
+  --foreground: var(--color-neutral-100);
+  --card: color-mix(in srgb, var(--background) 98%, var(--color-white));
+  --card-foreground: var(--color-neutral-100);
+  --popover: color-mix(in srgb, var(--background) 98%, var(--color-white));
+  --popover-foreground: var(--color-neutral-100);
+  --primary: var(--color-neutral-100);
+  --primary-foreground: var(--color-neutral-800);
+  --secondary: color-mix(in oklab, var(--color-white) 4%, transparent);
+  --secondary-foreground: var(--color-neutral-100);
+  --muted: color-mix(in oklab, var(--color-white) 4%, transparent);
+  --muted-foreground: color-mix(
+    in srgb,
+    var(--color-neutral-500) 90%,
+    var(--color-white)
+  );
+  --accent: color-mix(in oklab, var(--color-white) 4%, transparent);
+  --accent-foreground: var(--color-neutral-100);
+  --destructive: color-mix(
+    in srgb,
+    var(--color-red-500) 90%,
+    var(--color-white)
+  );
+  --destructive-foreground: var(--color-red-400);
+  --info: var(--color-blue-500);
+  --info-foreground: var(--color-blue-400);
+  --success: var(--color-emerald-500);
+  --success-foreground: var(--color-emerald-400);
+  --warning: var(--color-amber-500);
+  --warning-foreground: var(--color-amber-400);
+  --border: color-mix(in oklab, var(--color-white) 6%, transparent);
+  --input: color-mix(in oklab, var(--color-white) 8%, transparent);
+  --ring: var(--color-neutral-500);
+  --chart-1: var(--color-indigo-500);
+  --chart-2: var(--color-yellow-400);
+  --chart-3: var(--color-fuchsia-500);
+  --chart-4: oklch(0.56 0.021 213.5);
+  --chart-5: var(--color-white);
+  --chart-positive: var(--color-emerald-400);
+  --chart-negative: var(--color-red-400);
   --shadow: oklch(0 0 none);
-  --sidebar: oklch(0.218 0.008 223.9);
-  --sidebar-foreground: oklch(0.987 0.002 197.1);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.987 0.002 197.1);
-  --sidebar-accent: oklch(0.275 0.011 216.9);
-  --sidebar-accent-foreground: oklch(0.987 0.002 197.1);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.56 0.021 213.5);
+  --sidebar: color-mix(
+    in srgb,
+    var(--color-neutral-950) 97%,
+    var(--color-white)
+  );
+  --sidebar-foreground: color-mix(
+    in srgb,
+    var(--color-neutral-100) 64%,
+    var(--sidebar)
+  );
+  --sidebar-primary: var(--color-neutral-100);
+  --sidebar-primary-foreground: var(--color-neutral-800);
+  --sidebar-accent: color-mix(in oklab, var(--color-white) 4%, transparent);
+  --sidebar-accent-foreground: var(--color-neutral-100);
+  --sidebar-border: color-mix(in oklab, var(--color-white) 5%, transparent);
+  --sidebar-ring: var(--color-neutral-400);
 
   /* Chart component dark variables */
   --chart-background: oklch(0.145 0 0);
@@ -138,11 +208,33 @@
   --legend-muted-foreground: oklch(0.705 0.015 286.067);
   --legend-track: oklch(0.274 0.006 286.033);
 
-  /* Sequential scale (dark) */
-  --chart-scale-01: var(--color-zinc-900);
-  --chart-scale-02: var(--color-zinc-700);
-  --chart-scale-03: var(--color-zinc-500);
-  --chart-scale-04: var(--color-zinc-300);
-  --chart-scale-05: var(--color-zinc-200);
+  /* Sequential scale (dark): 02–05 are darker shades of --chart-1 (see shared rule below) */
+  --chart-scale-mix: oklch(0.25 0 0);
+  --chart-scale-01: oklch(0.3 0 0);
   --chart-scale-pattern-color: var(--background);
+}
+
+/*
+ * Palette-derived sequential ramp (light + dark). Keep in sync with
+ * CHART_PALETTE_DERIVED_VARS in packages/studio/src/lib/svg-export/chart-var-aliases.ts.
+ */
+:root,
+.studio-shell,
+.dark {
+  --chart-scale-02: color-mix(
+    in oklab,
+    var(--chart-1) 35%,
+    var(--chart-scale-mix)
+  );
+  --chart-scale-03: color-mix(
+    in oklab,
+    var(--chart-1) 55%,
+    var(--chart-scale-mix)
+  );
+  --chart-scale-04: color-mix(
+    in oklab,
+    var(--chart-1) 78%,
+    var(--chart-scale-mix)
+  );
+  --chart-scale-05: var(--chart-1);
 }

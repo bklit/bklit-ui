@@ -125,7 +125,10 @@ const HeatmapChartBody = memo(function HeatmapChartBody({
         </StudioVisibleLayer>
       )}
       <StudioVisibleLayer componentId="heatmap.tooltip" state={state}>
-        <HeatmapTooltip panelStyle={studioTooltipPanelStyle(state)} />
+        <HeatmapTooltip
+          damping={state.tooltipDamping}
+          panelStyle={studioTooltipPanelStyle(state)}
+        />
       </StudioVisibleLayer>
     </HeatmapChart>
   );

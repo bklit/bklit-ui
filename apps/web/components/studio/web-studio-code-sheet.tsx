@@ -19,7 +19,6 @@ export function WebStudioCodeSheet({ state }: { state: StudioUrlState }) {
         <>
           <Button
             className="h-8 text-xs"
-            nativeButton={false}
             render={<Link href={studioChartDocsHref(state.chart)} />}
             size="sm"
             variant="outline"
@@ -42,7 +41,7 @@ export function WebStudioCodeSheet({ state }: { state: StudioUrlState }) {
       )}
       renderUsageCode={(code) => <DocsCodeBlock code={code} lang="tsx" />}
       state={state}
-      triggerClassName="font-mono text-xs"
+      triggerClassName="w-full font-mono text-xs"
       triggerSize="sm"
     />
   );

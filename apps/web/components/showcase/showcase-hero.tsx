@@ -10,10 +10,9 @@ export function ShowcaseHero() {
     <GridPageHero
       action={
         <Button
-          nativeButton={false}
           render={<Link external href={showcaseSubmitUrl} />}
           size="lg"
-          variant="white"
+          variant="default"
         >
           Submit yours
         </Button>

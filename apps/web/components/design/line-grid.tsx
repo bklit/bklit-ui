@@ -404,6 +404,7 @@ export function LineGrid({
   pulseMaxActiveMd,
   pulseMaxActiveLg,
   pulseStaticCells,
+  framed = false,
   className,
   children,
 }: {
@@ -434,6 +435,11 @@ export function LineGrid({
   pulseMaxActiveLg?: number;
   /** Cells that always show the diagonal pattern (no random pulse). */
   pulseStaticCells?: GridCellPulseCell[];
+  /**
+   * Render inside a Frame panel: hides outer rulers + intersection dots and
+   * pushes the outermost grid lines under the panel border.
+   */
+  framed?: boolean;
   className?: string;
   children?: ReactNode;
 }) {
@@ -451,7 +457,11 @@ export function LineGrid({
       <div
         className={lineGridClass(
           { columns: desktopColumns, rows: desktopRows, variant },
-          cn(isResponsive && "w-full", className)
+          cn(
+            isResponsive && "w-full",
+            framed && "[&>[data-grid-lines]]:-inset-px",
+            className
+          )
         )}
         style={lineGridVars(columns, rows, { responsiveLayout: isResponsive })}
       >
@@ -492,21 +502,26 @@ export function LineGrid({
           />
         ) : null}
         {children}
-        <ResponsiveGridCornerDots
-          columns={columns}
-          desktopColumns={desktopColumns}
-          desktopRows={desktopRows}
-          isResponsive={isResponsive}
-          isThreeTier={isThreeTier}
-          rows={rows}
-          tabletColumns={tabletColumns}
-          tabletRows={tabletRows}
-        />
+        {framed ? null : (
+          <ResponsiveGridCornerDots
+            columns={columns}
+            desktopColumns={desktopColumns}
+            desktopRows={desktopRows}
+            isResponsive={isResponsive}
+            isThreeTier={isThreeTier}
+            rows={rows}
+            tabletColumns={tabletColumns}
+            tabletRows={tabletRows}
+          />
+        )}
       </div>
 
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10"
+        className={cn(
+          "pointer-events-none absolute inset-0 -z-10",
+          framed && "hidden"
+        )}
         data-grid-rulers
       >
         <div className="absolute -top-8 left-0 block h-10 w-px bg-muted-foreground/40" />

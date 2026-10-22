@@ -72,7 +72,7 @@ const CATALOG_CHART_LAYOUT: Partial<
   "pie-chart": { tileHeight: 280, frameH: 280 },
   "ring-chart": { tileHeight: 280, frameH: 280 },
   "scatter-chart": {
-    overrides: { scatterRadius: 2.5, scatterRingWidth: 1, scatterRingGap: 1 },
+    overrides: { scatterRadius: 2.5 },
   },
 };
 
@@ -137,7 +137,7 @@ function CatalogChartPreview({ slug }: { slug: ChartSlug }) {
   return (
     <StaticChartPreviewProvider>
       <div
-        className="relative size-full min-h-0 overflow-hidden rounded-md border border-border/60 bg-card"
+        className="relative size-full min-h-0 rounded-md border border-border/60 bg-card"
         style={themeStyle}
       >
         <StudioChartViewport>

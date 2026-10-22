@@ -4,6 +4,8 @@ description: >
   DEPRECATED — use bklit-studio instead. Local /playground is no longer the
   chart development workflow for bklit-ui contributors.
 disable-model-invocation: true
+metadata:
+  internal: "true"
 ---
 
 # Deprecated: bklit-playground

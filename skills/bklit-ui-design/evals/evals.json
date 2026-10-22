@@ -1,0 +1,144 @@
+{
+  "skill_name": "bklit-ui-design",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Add a revenue area chart to my dashboard with a diagonal pattern background that fades out on all sides.",
+      "expected_output": "Installs @bklit/area-chart and @bklit/background, renders <Background /> as the first child of <AreaChart> with no fade props (fade on all four sides is the default), imports from the project alias, and does not also add <Grid>.",
+      "files": [
+        "evals/files/tw4-oklch/components.json",
+        "evals/files/tw4-oklch/app/globals.css"
+      ],
+      "expectations": [
+        "Runs or instructs running scripts/detect-design.mjs (or reads components.json + globals.css) before writing code",
+        "Install command includes @bklit/area-chart and @bklit/background",
+        "Uses <Background /> (optionally pattern=\"diagonal\") without setting fadeHorizontal/fadeVertical to false",
+        "States or implies that the four-side fade is Background's default rather than inventing a fade prop",
+        "Imports from @/components/charts/... paths, never from @bklitui/ui/charts",
+        "Does not render <Grid> alongside <Background>",
+        "Uses theme tokens (var(--chart-N) / --chart-grid default) with no hardcoded hex colours"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I want squircle bars for monthly signups — like rounded square blocks stacked up, with a ring when you hover.",
+      "expected_output": "BarChart with squareSnap, BarSquares squareRadius={0.5}, optional BarColumnTrack ghost track with matching squareRadius/squareGap, and ChartTooltip dotVariant=\"ring\" dotRadiusFraction={0.5} showCrosshair={false} (gallery 'Bar Chart - Shape Squircle Ring').",
+      "files": [
+        "evals/files/tw4-oklch/components.json",
+        "evals/files/tw4-oklch/app/globals.css"
+      ],
+      "expectations": [
+        "Uses BarSquares (imported from @/components/charts/bar-squares) with squareRadius={0.5}",
+        "Sets squareSnap on BarChart with the same squareGap used on BarSquares",
+        "ChartTooltip uses dotVariant=\"ring\" with dotRadiusFraction matching squareRadius (0.5)",
+        "Hides the crosshair (showCrosshair={false})",
+        "Installs @bklit/bar-chart (BarSquares ships inside it) and @bklit/chart-tooltip",
+        "Does not invent props such as shape=\"squircle\" or variant=\"squircle\""
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Make our quarterly sales bars look 3D, like glass blocks.",
+      "expected_output": "Installs @bklit/bar-depth; renders BarDepthBack before Bar, Bar with perspective, BarDepthFront after Bar, all sharing the same dataKey and a token colour; tooltip without crosshair/dots.",
+      "files": [
+        "evals/files/tw4-oklch/components.json",
+        "evals/files/tw4-oklch/app/globals.css"
+      ],
+      "expectations": [
+        "Install command includes @bklit/bar-depth (and @bklit/bar-chart)",
+        "BarDepthBack appears before <Bar> and BarDepthFront after <Bar> in the children",
+        "<Bar> has the perspective prop",
+        "BarDepthBack color and Bar fill use the same token (e.g. var(--chart-1))",
+        "If stacked bars are requested or used, BarDepthProvider wraps the BarChart (not inside it) with segmentsAccessor",
+        "Does not add pattern or gradient fills on top of the 3D bars"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Can the area under the traffic line be hatched instead of a gradient? Keep it subtle.",
+      "expected_output": "PatternLines definition (diagonal, chart colour, strokeWidth 1, 6x6) + PatternArea fill=\"url(#id)\" + Area fillOpacity={0} for the stroke, with a unique pattern id; @bklit/patterns installed.",
+      "files": [
+        "evals/files/tw4-oklch/components.json",
+        "evals/files/tw4-oklch/app/globals.css"
+      ],
+      "expectations": [
+        "Defines a PatternLines pattern imported from @/components/charts/patterns with orientation={[\"diagonal\"]}",
+        "Fills via PatternArea fill=\"url(#...)\" (or Area fill=\"url(#...)\") referencing that pattern id",
+        "Keeps an Area for the stroke with fillOpacity={0} when PatternArea is used",
+        "Pattern stroke uses a theme token (var(--chart-1) or similar), not a hex colour",
+        "Uses a unique or prefixed pattern id (e.g. via useId) rather than a generic id",
+        "Does not also add a Background pattern behind the hatched area"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "While the data loads I want a skeleton state for the line chart, with a shimmer, then animate into the real data.",
+      "expected_output": "Single LineChart with status={isLoading ? \"loading\" : \"ready\"} and loadingLabel; Line loadingStyle=\"sweep\" or Grid shimmer (not both); mentions LineChartLoading as a standalone alternative.",
+      "files": [
+        "evals/files/tw4-oklch/components.json",
+        "evals/files/tw4-oklch/app/globals.css"
+      ],
+      "expectations": [
+        "Uses the status prop on LineChart toggled by the loading state (\"loading\" | \"ready\")",
+        "Uses loadingStyle=\"sweep\" on Line or Grid shimmer for the shimmer effect",
+        "Does not combine loadingStyle=\"sweep\" with Grid shimmer",
+        "Does not build a custom animate-pulse div skeleton instead of the chart's loading state",
+        "May mention LineChartLoading / BarChartLoading as shortcuts with correct import paths"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Install bklit charts and make them match my brand colours and dark mode.",
+      "expected_output": "Detects Tailwind v4 + oklch + class dark mode + --radius 1rem; keeps or re-seeds --chart-1..5 from the violet --primary in oklch for both :root and .dark; maps --chart-grid/--chart-label/tooltip tokens to host tokens; confirms @theme inline mappings; picks round bar caps for the 1rem radius.",
+      "files": [
+        "evals/files/tw4-oklch/components.json",
+        "evals/files/tw4-oklch/app/globals.css",
+        "evals/files/tw4-oklch/package.json"
+      ],
+      "expectations": [
+        "Reports Tailwind v4, oklch colour format and class-based dark mode from the fixture",
+        "Writes any new chart colours in oklch() (matching the host), not hex or hsl",
+        "Provides both light (:root) and dark (.dark) values for every changed --chart-N token",
+        "Derives the palette from --primary (violet, hue ~293) or explicitly keeps the host's existing --chart-1..5",
+        "Notes that shadcn add will not overwrite existing --chart-* variables",
+        "Mentions @theme inline mappings for --color-chart-label / --color-chart-tooltip-* (Tailwind v4)",
+        "Maps the 1rem --radius to rounded bar caps (lineCap=\"round\" or squareRadius 0.5)"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Our app is on Tailwind v3 with shadcn. Add a bklit line chart that uses our existing chart colours.",
+      "expected_output": "Detects Tailwind v3 with bare HSL channel tokens and recharts; explains bklit reads var(--chart-N) as a full colour; scopes a .bklit-chart wrapper with hsl() values plus re-declared --chart-line-primary/secondary and --foreground/--border; adds chart-label/tooltip/legend colours to tailwind.config theme.extend.colors; mentions --color-red-500/emerald-500 only if relevant.",
+      "files": [
+        "evals/files/tw3-hsl/components.json",
+        "evals/files/tw3-hsl/app/globals.css",
+        "evals/files/tw3-hsl/tailwind.config.ts",
+        "evals/files/tw3-hsl/package.json"
+      ],
+      "expectations": [
+        "Identifies that --chart-1..5 are bare HSL channels and would be invalid as var(--chart-N)",
+        "Does not rewrite the global --chart-N values (recharts / hsl(var(--chart-N)) usage must keep working)",
+        "Uses a scoped wrapper class that sets hsl(...) chart colours for light and dark",
+        "Re-declares --chart-line-primary (and secondary) inside the wrapper",
+        "Adds chart-label and chart-tooltip-* colours to tailwind.config theme.extend.colors",
+        "Does not claim shadcn writes @theme inline mappings on Tailwind v3"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Give the conversion chart a honeycomb background that fades at the edges.",
+      "expected_output": "States that Background only supports none/diagonal/horizontal/vertical/cross/dots/circles/accent (no hexagons) and that PatternHexagons does not tile cleanly beyond height 1; offers the nearest preset (cross or dots) and/or a small custom HoneycombBackground built from Pattern + a two-gradient fade mask; does not invent pattern=\"hexagons\".",
+      "files": [
+        "evals/files/tw4-oklch/components.json",
+        "evals/files/tw4-oklch/app/globals.css"
+      ],
+      "expectations": [
+        "Explicitly says Background has no hexagon/honeycomb preset",
+        "Does not use pattern=\"hexagons\", pattern=\"honeycomb\" or any other non-existent preset",
+        "Offers an alternative: a supported preset (e.g. cross or dots) with Background's default fade, and/or a custom composition",
+        "If composing manually, uses Pattern/PatternPath (or a correct hex path) from @/components/charts/patterns and a fade mask, reading size from useChart/useChartStable",
+        "Keeps the hexagon stroke on var(--chart-grid) or another theme token"
+      ]
+    }
+  ]
+}

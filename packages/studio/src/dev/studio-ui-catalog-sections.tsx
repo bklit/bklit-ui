@@ -471,7 +471,9 @@ export function FieldsDemo() {
         value={opacity}
       />
       <div className="flex min-w-0 items-center gap-2.5">
-        <Label className="w-28 shrink-0 font-medium text-xs">Stroke</Label>
+        <Label className="w-28 shrink-0 font-medium text-xs sm:text-xs">
+          Stroke
+        </Label>
         <ScrubNumberField
           max={8}
           min={0}
@@ -521,7 +523,9 @@ export function CustomComponentsDemo() {
     <DemoPanel>
       <div className="flex flex-col gap-1.5">
         <div className="flex min-w-0 items-center gap-2.5">
-          <Label className="w-28 shrink-0 font-medium text-xs">Visible</Label>
+          <Label className="w-28 shrink-0 font-medium text-xs sm:text-xs">
+            Visible
+          </Label>
           <YesNoSwitch
             className="min-w-0 flex-1"
             onValueChange={setVisible}
@@ -529,7 +533,9 @@ export function CustomComponentsDemo() {
           />
         </div>
         <div className="flex min-w-0 items-center gap-2.5">
-          <Label className="w-28 shrink-0 font-medium text-xs">Animated</Label>
+          <Label className="w-28 shrink-0 font-medium text-xs sm:text-xs">
+            Animated
+          </Label>
           <YesNoSwitch
             className="min-w-0 flex-1"
             onValueChange={setAnimated}
@@ -538,7 +544,9 @@ export function CustomComponentsDemo() {
         </div>
       </div>
       <div className="flex min-w-0 items-center gap-2.5">
-        <Label className="w-28 shrink-0 font-medium text-xs">Duration</Label>
+        <Label className="w-28 shrink-0 font-medium text-xs sm:text-xs">
+          Duration
+        </Label>
         <ScrubNumberField
           max={5}
           min={0}
@@ -733,10 +741,10 @@ export function FeedbackDemo() {
         </AlertDescription>
       </Alert>
       <div className="flex items-center gap-3">
-        <Spinner />
+        <Spinner className="size-4" />
         <span className="text-muted-foreground text-sm">Loading</span>
       </div>
-      <TooltipProvider>
+      <TooltipProvider delay={0}>
         <Tooltip>
           <TooltipTrigger render={<Button size="sm" variant="outline" />}>
             Hover me
@@ -883,7 +891,11 @@ export function OverlaysDemo() {
         <PopoverTrigger render={<Button size="sm" variant="outline" />}>
           Popover
         </PopoverTrigger>
-        <PopoverContent align="start" className="w-56">
+        <PopoverContent
+          align="start"
+          className="w-56"
+          viewportClassName="p-2.5"
+        >
           <p className="text-sm">Floating panel anchored to a trigger.</p>
         </PopoverContent>
       </Popover>

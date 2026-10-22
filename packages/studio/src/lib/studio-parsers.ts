@@ -106,6 +106,8 @@ export const studioSearchParams = {
   barOrientation: parseAsStringLiteral(["vertical", "horizontal"]).withDefault(
     "vertical"
   ),
+  /** Bar charts hide the tooltip crosshair line by default. */
+  barShowCrosshair: parseAsBoolean.withDefault(false),
   barVariant: parseAsStringLiteral(["classic", "shape", "squares"]).withDefault(
     "classic"
   ),
@@ -251,9 +253,19 @@ export const studioSearchParams = {
   scatterRingGap: parseAsFloat.withDefault(2),
   scatterRingWidth: parseAsFloat.withDefault(2),
   scatterFadeOnHover: parseAsBoolean.withDefault(true),
-  scatterInactiveOpacity: parseAsFloat.withDefault(0.5),
+  scatterInactiveOpacity: parseAsFloat.withDefault(0.3),
   scatterSecondSeries: parseAsBoolean.withDefault(true),
   scatterShowActiveHighlight: parseAsBoolean.withDefault(true),
+  scatterShowRings: parseAsBoolean.withDefault(false),
+  scatterInactiveMode: parseAsStringLiteral(["opacity", "blur"]).withDefault(
+    "opacity"
+  ),
+  scatterInactiveBlur: parseAsFloat.withDefault(2),
+  scatterJitter: parseAsBoolean.withDefault(false),
+  scatterJitterX: parseAsFloat.withDefault(0.35),
+  scatterJitterY: parseAsFloat.withDefault(0),
+  /** Jittered scatter hides the tooltip crosshair line by default. */
+  scatterJitterShowCrosshair: parseAsBoolean.withDefault(false),
   seriesShowMarkers: parseAsBoolean.withDefault(false),
   seriesMarkerRadius: parseAsFloat.withDefault(5),
   seriesMarkerRingGap: parseAsFloat.withDefault(2),
@@ -397,6 +409,79 @@ export const studioSearchParams = {
     "match"
   ),
   tooltipDotColor: parseAsString.withDefault(""),
+  tooltipDotHaloScale: parseAsFloat.withDefault(2.6),
+  tooltipDotHaloOpacity: parseAsFloat.withDefault(0.3),
+  bandEnabled: parseAsBoolean.withDefault(false),
+  bandMode: parseAsStringLiteral(["range", "bollinger"]).withDefault("range"),
+  bandSpread: parseAsFloat.withDefault(0.15),
+  bandPeriod: parseAsInteger.withDefault(5),
+  bandMultiplier: parseAsFloat.withDefault(2),
+  bandWarmup: parseAsStringLiteral(["gap", "partial"]).withDefault("gap"),
+  bandShowMiddle: parseAsBoolean.withDefault(false),
+  bandFillType: parseAsStringLiteral([
+    "solid",
+    "gradient",
+    "pattern",
+  ]).withDefault("solid"),
+  bandFill: parseAsString.withDefault("var(--chart-1)"),
+  bandFillOpacity: parseAsFloat.withDefault(0.15),
+  bandGradientToOpacity: parseAsFloat.withDefault(0),
+  bandPattern: parseAsStringLiteral(PATTERN_PRESET_IDS).withDefault("diagonal"),
+  bandPatternColor: parseAsString.withDefault("var(--chart-1)"),
+  bandPatternScale: parseAsFloat.withDefault(1),
+  bandPatternStrokeWidth: parseAsFloat.withDefault(1),
+  bandPatternOpacity: parseAsFloat.withDefault(0.5),
+  bandStroke: parseAsString.withDefault("var(--chart-1)"),
+  bandStrokeWidth: parseAsFloat.withDefault(1),
+  bandStrokeStyle: parseAsStringLiteral([
+    "solid",
+    "dashed",
+    "dotted",
+  ]).withDefault("solid"),
+  bandStrokeDasharray: parseAsString.withDefault("4,4"),
+  bandStrokeOpacity: parseAsFloat.withDefault(0.5),
+  bandShowUpperStroke: parseAsBoolean.withDefault(true),
+  bandShowLowerStroke: parseAsBoolean.withDefault(true),
+  bandFadeTop: parseAsBoolean.withDefault(false),
+  bandFadeRight: parseAsBoolean.withDefault(false),
+  bandFadeBottom: parseAsBoolean.withDefault(false),
+  bandFadeLeft: parseAsBoolean.withDefault(false),
+  bandFadeSize: parseAsFloat.withDefault(0.15),
+  bandSeries: parseAsStringLiteral(["first", "all"]).withDefault("first"),
+  bandShowInTooltip: parseAsBoolean.withDefault(true),
+  weekendsDays: parseAsStringLiteral(["sat-sun", "fri-sat", "sun"]).withDefault(
+    "sat-sun"
+  ),
+  weekendsFillType: parseAsStringLiteral(["pattern", "solid"]).withDefault(
+    "pattern"
+  ),
+  weekendsColor: parseAsString.withDefault("var(--chart-foreground-muted)"),
+  weekendsOpacity: parseAsFloat.withDefault(0.45),
+  weekendsPatternScale: parseAsFloat.withDefault(1.5),
+  weekendsAlign: parseAsStringLiteral([
+    "auto",
+    "calendar",
+    "centered",
+  ]).withDefault("auto"),
+  /** Deadline position as a fraction (0–1) of the data's date range, snapped to a row. */
+  deadlinePosition: parseAsFloat.withDefault(0.65),
+  deadlineFillType: parseAsStringLiteral([
+    "pattern",
+    "gradient",
+    "solid",
+    "none",
+  ]).withDefault("pattern"),
+  deadlineColor: parseAsString.withDefault("var(--chart-negative)"),
+  deadlineOpacity: parseAsFloat.withDefault(0.6),
+  deadlinePatternScale: parseAsFloat.withDefault(1.5),
+  deadlineFade: parseAsBoolean.withDefault(true),
+  deadlineFadeLength: parseAsFloat.withDefault(0.5),
+  deadlineShowLine: parseAsBoolean.withDefault(true),
+  deadlineStrokeWidth: parseAsFloat.withDefault(1),
+  deadlineStrokeStyle: parseAsStringLiteral(["solid", "dashed"]).withDefault(
+    "solid"
+  ),
+  deadlineLabel: parseAsString.withDefault("Due"),
   showTooltipDatePill: parseAsBoolean.withDefault(true),
   showCrosshair: parseAsBoolean.withDefault(true),
   crosshairFollowsValue: parseAsBoolean.withDefault(true),
@@ -449,7 +534,7 @@ export const studioSearchParams = {
   tooltipBackgroundColor: parseAsString.withDefault(
     "var(--chart-tooltip-background)"
   ),
-  tooltipBackgroundOpacity: parseAsFloat.withDefault(0.8),
+  tooltipBackgroundOpacity: parseAsFloat.withDefault(1),
   tooltipBlur: parseAsInteger.withDefault(12),
   hiddenComponents: parseAsString.withDefault(""),
   lineDataTrend: parseAsStringLiteral(["up", "down"]).withDefault("up"),
@@ -508,6 +593,27 @@ export const studioSearchParams = {
   gaugeLabelAlign: parseAsStringLiteral(["start", "center", "end"]).withDefault(
     "start"
   ),
+  /** Index of the series the trend line fits (clamped to the series count). */
+  trendLineSeries: parseAsInteger.withDefault(0),
+  trendLineStrokeStyle: parseAsStringLiteral([
+    "solid",
+    "gradient",
+    "dashed",
+  ] as const).withDefault("dashed"),
+  trendLineDashArray: parseAsString.withDefault("6,4"),
+  trendLineStrokeWidth: parseAsFloat.withDefault(2),
+  /** Empty = use the fitted series' colour. */
+  trendLineColor: parseAsString.withDefault(""),
+  trendLineGradientStart: parseAsString.withDefault(""),
+  trendLineGradientEnd: parseAsString.withDefault("var(--chart-5)"),
+  trendLineFadeEdges: parseAsStringLiteral([
+    "both",
+    "none",
+    "left",
+    "right",
+  ] as const).withDefault("none"),
+  trendLineFadeEdgesLength: parseAsFloat.withDefault(15),
+  trendLineOpacity: parseAsFloat.withDefault(1),
 };
 
 export interface StudioUrlState {
@@ -577,6 +683,7 @@ export interface StudioUrlState {
   barSeriesMode: "grouped" | "stacked";
   barLineCap: "round" | "butt";
   barOrientation: "vertical" | "horizontal";
+  barShowCrosshair: boolean;
   barVariant: "classic" | "shape" | "squares";
   barSquareGap: number;
   barSquareRadius: number;
@@ -678,6 +785,13 @@ export interface StudioUrlState {
   scatterInactiveOpacity: number;
   scatterSecondSeries: boolean;
   scatterShowActiveHighlight: boolean;
+  scatterShowRings: boolean;
+  scatterInactiveMode: "opacity" | "blur";
+  scatterInactiveBlur: number;
+  scatterJitter: boolean;
+  scatterJitterX: number;
+  scatterJitterY: number;
+  scatterJitterShowCrosshair: boolean;
   seriesShowMarkers: boolean;
   seriesMarkerRadius: number;
   seriesMarkerRingGap: number;
@@ -785,6 +899,57 @@ export interface StudioUrlState {
   tooltipDotStrokeWidth: number;
   tooltipDotColorMode: "match" | "custom";
   tooltipDotColor: string;
+  tooltipDotHaloScale: number;
+  tooltipDotHaloOpacity: number;
+  bandEnabled: boolean;
+  bandMode: "range" | "bollinger";
+  bandSpread: number;
+  bandPeriod: number;
+  bandMultiplier: number;
+  /** Bollinger warm-up: `gap` (minPeriods = period) or `partial` (minPeriods = 1). */
+  bandWarmup: "gap" | "partial";
+  bandShowMiddle: boolean;
+  bandFillType: "solid" | "gradient" | "pattern";
+  bandFill: string;
+  bandFillOpacity: number;
+  bandGradientToOpacity: number;
+  bandPattern: PatternPresetId;
+  bandPatternColor: string;
+  bandPatternScale: number;
+  bandPatternStrokeWidth: number;
+  bandPatternOpacity: number;
+  bandStroke: string;
+  bandStrokeWidth: number;
+  bandStrokeStyle: "solid" | "dashed" | "dotted";
+  bandStrokeDasharray: string;
+  bandStrokeOpacity: number;
+  bandShowUpperStroke: boolean;
+  bandShowLowerStroke: boolean;
+  bandFadeTop: boolean;
+  bandFadeRight: boolean;
+  bandFadeBottom: boolean;
+  bandFadeLeft: boolean;
+  bandFadeSize: number;
+  /** `"first"`: one band on series 0. `"all"`: one band per series, in its color. */
+  bandSeries: "first" | "all";
+  bandShowInTooltip: boolean;
+  weekendsDays: "sat-sun" | "fri-sat" | "sun";
+  weekendsFillType: "pattern" | "solid";
+  weekendsColor: string;
+  weekendsOpacity: number;
+  weekendsPatternScale: number;
+  weekendsAlign: "auto" | "calendar" | "centered";
+  deadlinePosition: number;
+  deadlineFillType: "pattern" | "gradient" | "solid" | "none";
+  deadlineColor: string;
+  deadlineOpacity: number;
+  deadlinePatternScale: number;
+  deadlineFade: boolean;
+  deadlineFadeLength: number;
+  deadlineShowLine: boolean;
+  deadlineStrokeWidth: number;
+  deadlineStrokeStyle: "solid" | "dashed";
+  deadlineLabel: string;
   showTooltipDatePill: boolean;
   showCrosshair: boolean;
   crosshairFollowsValue: boolean;
@@ -860,6 +1025,16 @@ export interface StudioUrlState {
   gaugeShowLabel: boolean;
   gaugeLabelPlacement: "top" | "bottom";
   gaugeLabelAlign: "start" | "center" | "end";
+  trendLineSeries: number;
+  trendLineStrokeStyle: "solid" | "gradient" | "dashed";
+  trendLineDashArray: string;
+  trendLineStrokeWidth: number;
+  trendLineColor: string;
+  trendLineGradientStart: string;
+  trendLineGradientEnd: string;
+  trendLineFadeEdges: "both" | "none" | "left" | "right";
+  trendLineFadeEdgesLength: number;
+  trendLineOpacity: number;
 }
 
 /** Full default state for chart switches (nuqs used `null` to clear keys; in-memory state needs real defaults). */
@@ -938,6 +1113,7 @@ export function defaultStudioState(
     barSeriesMode: "grouped",
     barLineCap: "round",
     barOrientation: "vertical",
+    barShowCrosshair: false,
     barVariant: "classic",
     barSquareGap: 3,
     barSquareRadius: 0.25,
@@ -1035,9 +1211,16 @@ export function defaultStudioState(
     scatterRingGap: 2,
     scatterRingWidth: 2,
     scatterFadeOnHover: true,
-    scatterInactiveOpacity: 0.5,
+    scatterInactiveOpacity: 0.3,
     scatterSecondSeries: true,
     scatterShowActiveHighlight: true,
+    scatterShowRings: false,
+    scatterInactiveMode: "opacity",
+    scatterInactiveBlur: 2,
+    scatterJitter: false,
+    scatterJitterX: 0.35,
+    scatterJitterY: 0,
+    scatterJitterShowCrosshair: false,
     seriesShowMarkers: false,
     seriesMarkerRadius: 5,
     seriesMarkerRingGap: 2,
@@ -1148,6 +1331,55 @@ export function defaultStudioState(
     tooltipDotStrokeWidth: 1.5,
     tooltipDotColorMode: "match",
     tooltipDotColor: "",
+    tooltipDotHaloScale: 2.6,
+    tooltipDotHaloOpacity: 0.3,
+    bandEnabled: false,
+    bandMode: "range",
+    bandSpread: 0.15,
+    bandPeriod: 5,
+    bandMultiplier: 2,
+    bandWarmup: "gap",
+    bandShowMiddle: false,
+    bandFillType: "solid",
+    bandFill: "var(--chart-1)",
+    bandFillOpacity: 0.15,
+    bandGradientToOpacity: 0,
+    bandPattern: "diagonal",
+    bandPatternColor: "var(--chart-1)",
+    bandPatternScale: 1,
+    bandPatternStrokeWidth: 1,
+    bandPatternOpacity: 0.5,
+    bandStroke: "var(--chart-1)",
+    bandStrokeWidth: 1,
+    bandStrokeStyle: "solid",
+    bandStrokeDasharray: "4,4",
+    bandStrokeOpacity: 0.5,
+    bandShowUpperStroke: true,
+    bandShowLowerStroke: true,
+    bandFadeTop: false,
+    bandFadeRight: false,
+    bandFadeBottom: false,
+    bandFadeLeft: false,
+    bandFadeSize: 0.15,
+    bandSeries: "first",
+    bandShowInTooltip: true,
+    weekendsDays: "sat-sun",
+    weekendsFillType: "pattern",
+    weekendsColor: "var(--chart-foreground-muted)",
+    weekendsOpacity: 0.45,
+    weekendsPatternScale: 1.5,
+    weekendsAlign: "auto",
+    deadlinePosition: 0.65,
+    deadlineFillType: "pattern",
+    deadlineColor: "var(--chart-negative)",
+    deadlineOpacity: 0.6,
+    deadlinePatternScale: 1.5,
+    deadlineFade: true,
+    deadlineFadeLength: 0.5,
+    deadlineShowLine: true,
+    deadlineStrokeWidth: 1,
+    deadlineStrokeStyle: "solid",
+    deadlineLabel: "Due",
     showTooltipDatePill: true,
     showCrosshair: true,
     crosshairFollowsValue: true,
@@ -1184,7 +1416,7 @@ export function defaultStudioState(
     legendShowMarker: true,
     legendShowValue: true,
     tooltipBackgroundColor: "var(--chart-tooltip-background)",
-    tooltipBackgroundOpacity: 0.8,
+    tooltipBackgroundOpacity: 1,
     tooltipBlur: 12,
     hiddenComponents: "",
     lineDataTrend: "up",
@@ -1223,6 +1455,16 @@ export function defaultStudioState(
     gaugeShowLabel: true,
     gaugeLabelPlacement: "top",
     gaugeLabelAlign: "start",
+    trendLineSeries: 0,
+    trendLineStrokeStyle: "dashed",
+    trendLineDashArray: "6,4",
+    trendLineStrokeWidth: 2,
+    trendLineColor: "",
+    trendLineGradientStart: "",
+    trendLineGradientEnd: "var(--chart-5)",
+    trendLineFadeEdges: "none",
+    trendLineFadeEdgesLength: 15,
+    trendLineOpacity: 1,
     ...overrides,
   };
 }

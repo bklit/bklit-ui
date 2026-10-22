@@ -116,7 +116,11 @@ export function SegmentDemo() {
           <span className="text-muted-foreground text-sm">users</span>
         </div>
         <div className="flex items-baseline gap-2 text-sm">
-          <span className={isPositive ? "text-emerald-500" : "text-red-500"}>
+          <span
+            className={
+              isPositive ? "text-chart-positive" : "text-chart-negative"
+            }
+          >
             {isPositive ? "+" : ""}
             {displayChange.toLocaleString()} ({isPositive ? "+" : ""}
             {displayPct.toFixed(1)}%)

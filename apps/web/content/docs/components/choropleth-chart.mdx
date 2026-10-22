@@ -70,7 +70,7 @@ Renders the geographic feature paths with hover states and optional patterns.
 | `strokeWidth` | `number` | `0.5` | Border stroke width |
 | `fadedOpacity` | `number` | `0.4` | Opacity when another feature is hovered |
 | `getFeatureColor` | `(feature, index) => string` | - | Custom color function |
-| `patterns` | `ReactNode` | - | Pattern definitions using `@visx/pattern` components |
+| `patterns` | `ReactNode` | - | Pattern definitions, e.g. `PatternLines` from the `@bklit/patterns` registry item |
 | `getFeaturePattern` | `(feature, index) => string \| null` | - | Return pattern ID for a feature |
 
 ### ChoroplethGraticule
@@ -89,12 +89,16 @@ Displays tooltips for features on hover, following the mouse position.
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `content` | `(props) => ReactNode` | - | Custom tooltip renderer |
+| `content` | `(props) => ReactNode` | - | Custom tooltip renderer (`{ feature, index }`). Render `TooltipContent` (or `TooltipHeader`) inside it to keep the default popover header and rows |
 | `formatValue` | `(value) => string` | `toLocaleString` | Value formatter |
 | `getFeatureName` | `(feature, index) => string` | - | Custom name getter |
 | `getFeatureValue` | `(feature, index) => number` | - | Value getter for display |
 | `valueLabel` | `string` | `"Value"` | Label for the value row |
+| `hideDelay` | `number` | `120` | Grace period before hiding when leaving a feature (ms). Bridges border gaps so the panel springs to the next feature |
+| `exit` | `boolean` | `true` | Fade the panel out when hover ends. `false` hides it immediately |
 | `className` | `string` | `""` | Additional CSS class |
+| `backgroundColor` | `string` | `var(--chart-tooltip-background)` | Tooltip panel background color |
+| `panelStyle` | `CSSProperties` | - | Inline styles for the tooltip panel (background, blur, etc.) |
 
 ## Data Format
 
@@ -127,7 +131,7 @@ See the [charts gallery](/charts/choropleth-chart) for analytics color scales, z
 
 ## Theming
 
-For categorical maps, `defaultChoroplethColors` cycles through **`--chart-scale-01`** … **`--chart-scale-05`**. Pass `getFeatureColor` for custom bins (see gallery analytics demo). Empty / no-data regions typically use `var(--muted)`.
+For categorical maps, `defaultChoroplethColors` cycles through **`--chart-scale-01`** … **`--chart-scale-05`**. Pass `getFeatureColor` for custom bins (see gallery analytics demo). Use `var(--chart-scale-01)` (a neutral empty tone) for zero / no-data regions so they stay visible in light and dark.
 
 See [Theming](/docs/theming) for the full sequential scale reference.
 
@@ -136,5 +140,5 @@ See [Theming](/docs/theming) for the full sequential scale reference.
 This component requires:
 
 ```bash
-pnpm add @visx/geo @visx/responsive @visx/pattern @visx/zoom topojson-client motion react-use-measure
+pnpm add @visx/geo @visx/responsive @visx/zoom topojson-client motion react-use-measure
 ```

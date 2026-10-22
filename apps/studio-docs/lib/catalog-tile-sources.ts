@@ -93,6 +93,6 @@ export const CATALOG_TILE_SOURCES: Record<string, RepoRelativePath[]> = {
     `${UI}/switch.tsx`,
   ],
   overlays: [`${UI}/dialog.tsx`, `${UI}/sheet.tsx`, `${UI}/popover.tsx`],
-  "shimmer-text": ["packages/ui/src/components/shimmering-text.tsx"],
+  "shimmer-text": ["packages/ui/src/shimmering-text.tsx"],
   feedback: [`${UI}/alert.tsx`, `${UI}/spinner.tsx`, `${UI}/tooltip.tsx`],
 };

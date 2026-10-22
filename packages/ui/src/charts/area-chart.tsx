@@ -1,6 +1,5 @@
 "use client";
 
-import { ParentSize } from "@visx/responsive";
 import type { Transition } from "motion/react";
 import {
   Children,
@@ -16,6 +15,7 @@ import { cn } from "@/lib/utils";
 import { Area, type AreaProps } from "./area";
 import type { LineConfig, Margin } from "./chart-context";
 import { ChartLoadingLabel } from "./chart-loading-label";
+import { ParentSize } from "./chart-parent-size";
 import {
   type ChartPhase,
   type ChartStatus,
@@ -89,13 +89,16 @@ function extractAreaConfigs(children: ReactNode): LineConfig[] {
     const props = child.props as AreaProps | undefined;
     const isPatternArea =
       componentName === "PatternArea" || child.type === PatternArea;
+    // Overlays that carry a dataKey but are not series of their own.
+    const isSeriesOverlay = componentName === "TrendLine";
     const isAreaComponent =
       componentName === "Area" ||
       child.type === Area ||
       (props &&
         typeof props.dataKey === "string" &&
         props.dataKey.length > 0 &&
-        !isPatternArea);
+        !isPatternArea &&
+        !isSeriesOverlay);
 
     if (isAreaComponent && props?.dataKey) {
       configs.push({

@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
-import { useMemo } from "react";
+import { useId } from "react";
 import { chartCssVars, useChart } from "./chart-context";
 
 function useSegmentVisibility() {
@@ -58,8 +58,6 @@ export interface SegmentLineProps {
   variant?: SegmentLineVariant;
 }
 
-const gradientIdCounter = { current: 0 };
-
 function SegmentLine({
   x,
   stroke = chartCssVars.segmentLine,
@@ -72,10 +70,9 @@ function SegmentLine({
   visible: boolean;
   innerHeight: number;
 }) {
-  const gradientId = useMemo(() => {
-    gradientIdCounter.current += 1;
-    return `segment-line-grad-${gradientIdCounter.current}`;
-  }, []);
+  // useId instead of a module counter: stable across SSR/hydration and no
+  // mutation of module state during render.
+  const gradientId = `segment-line-grad-${useId().replace(/:/g, "")}`;
 
   if (!visible) {
     return null;

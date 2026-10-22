@@ -1,5 +1,6 @@
 import type { ChartSlug } from "@/chart-slugs";
 import {
+  LINE_BAND_COMPONENT_ID,
   parseHiddenStudioComponents,
   serializeHiddenStudioComponents,
 } from "@/lib/studio-component-visibility";
@@ -85,6 +86,14 @@ function syncFlagFromHiddenChange(
       }
       continue;
     }
+    if (componentId === LINE_BAND_COMPONENT_ID) {
+      const wasHidden = prevHidden.has(componentId);
+      const isHidden = nextHidden.has(componentId);
+      if (wasHidden !== isHidden) {
+        updates.bandEnabled = !isHidden;
+      }
+      continue;
+    }
     if (componentId.endsWith(".brush")) {
       const wasHidden = prevHidden.has(componentId);
       const isHidden = nextHidden.has(componentId);
@@ -95,18 +104,18 @@ function syncFlagFromHiddenChange(
   }
 }
 
-function syncLegendHidden(
+function syncShowFlagHidden(
   hidden: Set<string>,
-  legendId: string,
-  showLegend: boolean
+  componentId: string,
+  show: boolean
 ): boolean {
-  const shouldHide = !showLegend;
-  if (shouldHide && !hidden.has(legendId)) {
-    hidden.add(legendId);
+  const shouldHide = !show;
+  if (shouldHide && !hidden.has(componentId)) {
+    hidden.add(componentId);
     return true;
   }
-  if (!shouldHide && hidden.has(legendId)) {
-    hidden.delete(legendId);
+  if (!shouldHide && hidden.has(componentId)) {
+    hidden.delete(componentId);
     return true;
   }
   return false;
@@ -171,8 +180,14 @@ export function reconcileOverlayVisibility(
   const hidden = parseHiddenStudioComponents(state.hiddenComponents);
   let changed = false;
 
+  if (state.chart === "line-chart") {
+    changed =
+      syncShowFlagHidden(hidden, LINE_BAND_COMPONENT_ID, state.bandEnabled) ||
+      changed;
+  }
+
   if (legendId) {
-    changed = syncLegendHidden(hidden, legendId, state.showLegend) || changed;
+    changed = syncShowFlagHidden(hidden, legendId, state.showLegend) || changed;
   }
 
   if (brushId) {
@@ -248,6 +263,18 @@ export function expandStudioParamUpdate(
 
   if ("showBrush" in update && update.showBrush !== undefined) {
     applyShowBrushUpdate(prev, merged, update.showBrush);
+  }
+
+  if (
+    "bandEnabled" in update &&
+    update.bandEnabled !== undefined &&
+    prev.chart === "line-chart"
+  ) {
+    const hidden = parseHiddenStudioComponents(
+      (merged.hiddenComponents as string | undefined) ?? prev.hiddenComponents
+    );
+    setComponentHidden(hidden, LINE_BAND_COMPONENT_ID, !update.bandEnabled);
+    merged.hiddenComponents = serializeHiddenStudioComponents(hidden);
   }
 
   if ("projectionCount" in update && update.projectionCount !== undefined) {

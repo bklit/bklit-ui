@@ -33,7 +33,7 @@
       ],
       "files": [
         {
-          "path": "src/components/shimmering-text.tsx",
+          "path": "src/shimmering-text.tsx",
           "type": "registry:component",
           "target": "components/shimmering-text.tsx"
         }
@@ -79,56 +79,86 @@
         "motion"
       ],
       "cssVars": {
+        "theme": {
+          "color-chart-line-primary": "var(--chart-line-primary)",
+          "color-chart-line-secondary": "var(--chart-line-secondary)",
+          "color-chart-brush-border": "var(--chart-brush-border)",
+          "color-chart-tooltip-background": "var(--chart-tooltip-background)",
+          "color-chart-tooltip-foreground": "var(--chart-tooltip-foreground)",
+          "color-chart-tooltip-muted": "var(--chart-tooltip-muted)",
+          "color-chart-scale-02": "var(--chart-scale-02)",
+          "color-chart-scale-03": "var(--chart-scale-03)",
+          "color-chart-scale-04": "var(--chart-scale-04)",
+          "color-chart-scale-05": "var(--chart-scale-05)"
+        },
         "light": {
-          "--chart-1": "oklch(0.32 0 none)",
-          "--chart-2": "oklch(0.41 0 none)",
-          "--chart-3": "oklch(0.54 0 none)",
-          "--chart-4": "oklch(0.71 0 none)",
-          "--chart-5": "oklch(0.89 0 none)",
-          "--chart-background": "oklch(1 0 0)",
-          "--chart-foreground": "oklch(0.145 0.004 285)",
-          "--chart-foreground-muted": "oklch(0.55 0.014 260)",
-          "--chart-line-primary": "var(--chart-1)",
-          "--chart-line-secondary": "var(--chart-2)",
-          "--chart-crosshair": "oklch(0.4 0.1828 274.34)",
-          "--chart-grid": "oklch(0.9 0 0)",
-          "--chart-brush-border": "var(--chart-grid)",
-          "--chart-tooltip-background": "oklch(0.21 0.006 285 / 0.8)",
-          "--chart-tooltip-foreground": "oklch(0.985 0 0)",
-          "--chart-tooltip-muted": "oklch(0.65 0.01 260)",
-          "--chart-marker-background": "oklch(0.97 0.005 260)",
-          "--chart-marker-border": "oklch(0.85 0.01 260)",
-          "--chart-marker-foreground": "oklch(0.3 0.01 260)",
-          "--chart-label": "oklch(0.45 0.01 260)",
-          "--chart-scale-01": "oklch(0.98 0.003 106)",
-          "--chart-scale-02": "oklch(0.92 0.008 106)",
-          "--chart-scale-03": "oklch(0.82 0.015 106)",
-          "--chart-scale-04": "oklch(0.68 0.02 106)",
-          "--chart-scale-05": "oklch(0.55 0.025 106)",
-          "--chart-scale-pattern-color": "oklch(0.96 0.005 106)"
+          "chart-1": "oklch(0.585 0.233 277.117)",
+          "chart-2": "oklch(0.852 0.199 91.936)",
+          "chart-3": "oklch(0.667 0.295 322.15)",
+          "chart-4": "oklch(0.56 0.021 213.5)",
+          "chart-5": "oklch(0 0 0)",
+          "chart-positive": "oklch(0.696 0.17 162.48)",
+          "chart-negative": "oklch(0.637 0.237 25.331)",
+          "chart-background": "oklch(1 0 0)",
+          "chart-foreground": "oklch(0.145 0.004 285)",
+          "chart-foreground-muted": "oklch(0.55 0.014 260)",
+          "chart-line-primary": "var(--chart-1)",
+          "chart-line-secondary": "var(--chart-2)",
+          "chart-crosshair": "oklch(0.4 0.1828 274.34)",
+          "chart-grid": "oklch(0.9 0 0)",
+          "chart-brush-border": "var(--chart-grid)",
+          "chart-tooltip-background": "var(--popover)",
+          "chart-tooltip-foreground": "var(--popover-foreground)",
+          "chart-tooltip-muted": "var(--muted-foreground)",
+          "chart-marker-background": "oklch(0.97 0.005 260)",
+          "chart-marker-border": "oklch(0.85 0.01 260)",
+          "chart-marker-foreground": "oklch(0.3 0.01 260)",
+          "chart-label": "oklch(0.45 0.01 260)",
+          "chart-scale-mix": "oklch(1 0 0)",
+          "chart-scale-01": "oklch(0.922 0 0)",
+          "chart-scale-02": "color-mix(in oklab, var(--chart-1) 35%, var(--chart-scale-mix))",
+          "chart-scale-03": "color-mix(in oklab, var(--chart-1) 55%, var(--chart-scale-mix))",
+          "chart-scale-04": "color-mix(in oklab, var(--chart-1) 78%, var(--chart-scale-mix))",
+          "chart-scale-05": "var(--chart-1)",
+          "chart-scale-pattern-color": "oklch(1 0 0)",
+          "chart-indicator-color": "oklch(0.21 0.006 285)",
+          "chart-indicator-secondary-color": "oklch(0.913 0 0)",
+          "chart-marker-badge-background": "oklch(0 0 0)",
+          "chart-marker-badge-foreground": "oklch(0.84 0 0)",
+          "chart-segment-background": "oklch(0.756 0 0 / 0.06)",
+          "chart-segment-line": "oklch(0.5 0 0 / 0.25)"
         },
         "dark": {
-          "--chart-1": "oklch(1 0 none)",
-          "--chart-2": "oklch(0.73 0 none)",
-          "--chart-3": "oklch(0.51 0 none)",
-          "--chart-4": "oklch(0.39 0 none)",
-          "--chart-5": "oklch(0.32 0 none)",
-          "--chart-background": "oklch(0.145 0 0)",
-          "--chart-foreground": "oklch(0.45 0 0)",
-          "--chart-foreground-muted": "oklch(0.65 0.01 260)",
-          "--chart-crosshair": "oklch(0.45 0 0)",
-          "--chart-grid": "oklch(0.25 0 0)",
-          "--chart-brush-border": "var(--chart-grid)",
-          "--chart-marker-background": "oklch(0.25 0.01 260)",
-          "--chart-marker-border": "oklch(0.4 0.01 260)",
-          "--chart-marker-foreground": "oklch(0.9 0 0)",
-          "--chart-label": "oklch(0.75 0.01 260)",
-          "--chart-scale-01": "oklch(0.28 0.03 270)",
-          "--chart-scale-02": "oklch(0.38 0.04 270)",
-          "--chart-scale-03": "oklch(0.48 0.05 270)",
-          "--chart-scale-04": "oklch(0.58 0.06 270)",
-          "--chart-scale-05": "oklch(0.68 0.07 270)",
-          "--chart-scale-pattern-color": "oklch(0.145 0 0)"
+          "chart-1": "oklch(0.585 0.233 277.117)",
+          "chart-2": "oklch(0.852 0.199 91.936)",
+          "chart-3": "oklch(0.667 0.295 322.15)",
+          "chart-4": "oklch(0.56 0.021 213.5)",
+          "chart-5": "oklch(1 0 0)",
+          "chart-positive": "oklch(0.765 0.177 163.223)",
+          "chart-negative": "oklch(0.704 0.191 22.216)",
+          "chart-background": "oklch(0.145 0 0)",
+          "chart-foreground": "oklch(0.45 0 0)",
+          "chart-foreground-muted": "oklch(0.65 0.01 260)",
+          "chart-crosshair": "oklch(0.45 0 0)",
+          "chart-grid": "oklch(0.25 0 0)",
+          "chart-brush-border": "var(--chart-grid)",
+          "chart-marker-background": "oklch(0.25 0.01 260)",
+          "chart-marker-border": "oklch(0.4 0.01 260)",
+          "chart-marker-foreground": "oklch(0.9 0 0)",
+          "chart-label": "oklch(0.75 0.01 260)",
+          "chart-scale-mix": "oklch(0.25 0 0)",
+          "chart-scale-01": "oklch(0.3 0 0)",
+          "chart-scale-02": "color-mix(in oklab, var(--chart-1) 35%, var(--chart-scale-mix))",
+          "chart-scale-03": "color-mix(in oklab, var(--chart-1) 55%, var(--chart-scale-mix))",
+          "chart-scale-04": "color-mix(in oklab, var(--chart-1) 78%, var(--chart-scale-mix))",
+          "chart-scale-05": "var(--chart-1)",
+          "chart-scale-pattern-color": "oklch(0.145 0 0)",
+          "chart-indicator-color": "oklch(1 0 0)",
+          "chart-indicator-secondary-color": "oklch(0.145 0 0)",
+          "chart-marker-badge-background": "oklch(1 0 0)",
+          "chart-marker-badge-foreground": "oklch(0.15 0 0)",
+          "chart-segment-background": "oklch(0.41 0.0127 248.14 / 0.25)",
+          "chart-segment-line": "oklch(1 0 0 / 0.25)"
         }
       },
       "files": [
@@ -191,6 +221,22 @@
           "path": "src/charts/line-loading-timing.ts",
           "type": "registry:lib",
           "target": "components/charts/line-loading-timing.ts"
+        }
+      ]
+    },
+    {
+      "name": "chart-parent-size",
+      "type": "registry:component",
+      "title": "Chart Parent Size",
+      "description": "Responsive size wrapper for charts (visx useParentSize without overflow clipping).",
+      "dependencies": [
+        "@visx/responsive@4.0.0"
+      ],
+      "files": [
+        {
+          "path": "src/charts/chart-parent-size.tsx",
+          "type": "registry:component",
+          "target": "components/charts/chart-parent-size.tsx"
         }
       ]
     },
@@ -424,15 +470,195 @@
       ]
     },
     {
+      "name": "band",
+      "type": "registry:component",
+      "title": "Band",
+      "description": "Shaded range between per-row upper and lower values on a line chart, with a Bollinger bands helper",
+      "registryDependencies": [
+        "@bklit/chart-context",
+        "@bklit/line-chart",
+        "@bklit/background"
+      ],
+      "dependencies": [
+        "@visx/curve@4.0.0",
+        "d3-shape",
+        "motion"
+      ],
+      "files": [
+        {
+          "path": "src/charts/band.tsx",
+          "type": "registry:component",
+          "target": "components/charts/band.tsx"
+        },
+        {
+          "path": "src/charts/band-geometry.ts",
+          "type": "registry:component",
+          "target": "components/charts/band-geometry.ts"
+        },
+        {
+          "path": "src/charts/use-animated-band.ts",
+          "type": "registry:component",
+          "target": "components/charts/use-animated-band.ts"
+        },
+        {
+          "path": "src/charts/bollinger.ts",
+          "type": "registry:component",
+          "target": "components/charts/bollinger.ts"
+        }
+      ]
+    },
+    {
+      "name": "weekends",
+      "type": "registry:component",
+      "title": "Weekends",
+      "description": "Diagonal-stripe or solid weekend shading behind series on date x axes (line, area, composed, bar)",
+      "registryDependencies": [
+        "@bklit/chart-context",
+        "@bklit/background"
+      ],
+      "dependencies": [
+        "motion"
+      ],
+      "files": [
+        {
+          "path": "src/charts/weekends.tsx",
+          "type": "registry:component",
+          "target": "components/charts/weekends.tsx"
+        },
+        {
+          "path": "src/charts/date-ranges.ts",
+          "type": "registry:component",
+          "target": "components/charts/date-ranges.ts"
+        },
+        {
+          "path": "src/charts/use-category-slots.ts",
+          "type": "registry:component",
+          "target": "components/charts/use-category-slots.ts"
+        }
+      ]
+    },
+    {
+      "name": "deadline",
+      "type": "registry:component",
+      "title": "Deadline",
+      "description": "Due-date marker line with a fading solid, gradient, or striped region to its right on date x axes",
+      "registryDependencies": [
+        "@bklit/chart-context",
+        "@bklit/background"
+      ],
+      "dependencies": [
+        "motion"
+      ],
+      "files": [
+        {
+          "path": "src/charts/deadline.tsx",
+          "type": "registry:component",
+          "target": "components/charts/deadline.tsx"
+        },
+        {
+          "path": "src/charts/date-ranges.ts",
+          "type": "registry:component",
+          "target": "components/charts/date-ranges.ts"
+        },
+        {
+          "path": "src/charts/use-category-slots.ts",
+          "type": "registry:component",
+          "target": "components/charts/use-category-slots.ts"
+        }
+      ]
+    },
+    {
+      "name": "trend-line",
+      "type": "registry:component",
+      "title": "Trend Line",
+      "description": "Linear least-squares trend line for a series on line, area, bar, and composed charts",
+      "registryDependencies": [
+        "@bklit/chart-context",
+        "@bklit/chart-series"
+      ],
+      "dependencies": [
+        "motion"
+      ],
+      "files": [
+        {
+          "path": "src/charts/trend-line.tsx",
+          "type": "registry:component",
+          "target": "components/charts/trend-line.tsx"
+        },
+        {
+          "path": "src/charts/trend-line-utils.ts",
+          "type": "registry:component",
+          "target": "components/charts/trend-line-utils.ts"
+        }
+      ]
+    },
+    {
+      "name": "patterns",
+      "type": "registry:component",
+      "title": "Patterns",
+      "description": "SVG pattern primitives (lines, circles, waves, hexagons, path) vendored from @visx/pattern (MIT).",
+      "registryDependencies": [
+        "@bklit/utils"
+      ],
+      "dependencies": [],
+      "files": [
+        {
+          "path": "src/charts/patterns/index.ts",
+          "type": "registry:component",
+          "target": "components/charts/patterns/index.ts"
+        },
+        {
+          "path": "src/charts/patterns/pattern.tsx",
+          "type": "registry:component",
+          "target": "components/charts/patterns/pattern.tsx"
+        },
+        {
+          "path": "src/charts/patterns/constants.ts",
+          "type": "registry:component",
+          "target": "components/charts/patterns/constants.ts"
+        },
+        {
+          "path": "src/charts/patterns/lines.tsx",
+          "type": "registry:component",
+          "target": "components/charts/patterns/lines.tsx"
+        },
+        {
+          "path": "src/charts/patterns/circles.tsx",
+          "type": "registry:component",
+          "target": "components/charts/patterns/circles.tsx"
+        },
+        {
+          "path": "src/charts/patterns/waves.tsx",
+          "type": "registry:component",
+          "target": "components/charts/patterns/waves.tsx"
+        },
+        {
+          "path": "src/charts/patterns/hexagons.tsx",
+          "type": "registry:component",
+          "target": "components/charts/patterns/hexagons.tsx"
+        },
+        {
+          "path": "src/charts/patterns/path.tsx",
+          "type": "registry:component",
+          "target": "components/charts/patterns/path.tsx"
+        },
+        {
+          "path": "src/charts/patterns/LICENSE-visx-pattern",
+          "type": "registry:file",
+          "target": "components/charts/patterns/LICENSE-visx-pattern"
+        }
+      ]
+    },
+    {
       "name": "background",
       "type": "registry:component",
       "title": "Chart Background",
       "description": "Pattern fill for the plot area when grid lines are hidden",
       "registryDependencies": [
-        "@bklit/chart-context"
+        "@bklit/chart-context",
+        "@bklit/patterns"
       ],
       "dependencies": [
-        "@visx/pattern@4.0.0",
         "motion"
       ],
       "files": [
@@ -542,6 +768,11 @@
           "target": "components/charts/tooltip/tooltip-indicator.tsx"
         },
         {
+          "path": "src/charts/tooltip/use-delayed-tooltip-data.ts",
+          "type": "registry:component",
+          "target": "components/charts/tooltip/use-delayed-tooltip-data.ts"
+        },
+        {
           "path": "src/charts/tooltip/date-ticker.tsx",
           "type": "registry:component",
           "target": "components/charts/tooltip/date-ticker.tsx"
@@ -568,18 +799,18 @@
       ],
       "cssVars": {
         "light": {
-          "--legend": "oklch(1 0 0)",
-          "--legend-foreground": "oklch(0.141 0.005 285.823)",
-          "--legend-muted": "oklch(0.967 0.001 286.375)",
-          "--legend-muted-foreground": "oklch(0.552 0.016 285.938)",
-          "--legend-track": "oklch(0.92 0.004 286.32)"
+          "legend": "oklch(1 0 0)",
+          "legend-foreground": "oklch(0.141 0.005 285.823)",
+          "legend-muted": "oklch(0.967 0.001 286.375)",
+          "legend-muted-foreground": "oklch(0.552 0.016 285.938)",
+          "legend-track": "oklch(0.92 0.004 286.32)"
         },
         "dark": {
-          "--legend": "oklch(0.21 0.006 285.885)",
-          "--legend-foreground": "oklch(0.985 0 0)",
-          "--legend-muted": "oklch(0.274 0.006 286.033)",
-          "--legend-muted-foreground": "oklch(0.705 0.015 286.067)",
-          "--legend-track": "oklch(0.274 0.006 286.033)"
+          "legend": "oklch(0.21 0.006 285.885)",
+          "legend-foreground": "oklch(0.985 0 0)",
+          "legend-muted": "oklch(0.274 0.006 286.033)",
+          "legend-muted-foreground": "oklch(0.705 0.015 286.067)",
+          "legend-track": "oklch(0.274 0.006 286.033)"
         }
       },
       "files": [
@@ -666,7 +897,8 @@
         "@bklit/x-axis",
         "@bklit/chart-tooltip",
         "@bklit/shimmering-text",
-        "@bklit/utils"
+        "@bklit/utils",
+        "@bklit/chart-parent-size"
       ],
       "dependencies": [
         "@visx/curve@4.0.0",
@@ -694,6 +926,11 @@
           "path": "src/charts/projection-config.ts",
           "type": "registry:component",
           "target": "components/charts/projection-config.ts"
+        },
+        {
+          "path": "src/charts/band-config.ts",
+          "type": "registry:component",
+          "target": "components/charts/band-config.ts"
         },
         {
           "path": "src/charts/projection-utils.ts",
@@ -760,7 +997,8 @@
         "@bklit/chart-tooltip",
         "@bklit/utils",
         "@bklit/line-chart",
-        "@bklit/area-chart"
+        "@bklit/area-chart",
+        "@bklit/chart-parent-size"
       ],
       "dependencies": [
         "@visx/curve@4.0.0",
@@ -802,6 +1040,11 @@
           "target": "components/charts/projection-config.ts"
         },
         {
+          "path": "src/charts/band-config.ts",
+          "type": "registry:component",
+          "target": "components/charts/band-config.ts"
+        },
+        {
           "path": "src/charts/projection-utils.ts",
           "type": "registry:component",
           "target": "components/charts/projection-utils.ts"
@@ -823,11 +1066,12 @@
         "@bklit/chart-animation",
         "@bklit/grid",
         "@bklit/chart-tooltip",
-        "@bklit/utils"
+        "@bklit/utils",
+        "@bklit/patterns",
+        "@bklit/chart-parent-size"
       ],
       "dependencies": [
         "@visx/gradient@4.0.0",
-        "@visx/pattern@4.0.0",
         "@visx/shape@4.0.0",
         "motion"
       ],
@@ -912,11 +1156,14 @@
         "@bklit/x-axis",
         "@bklit/chart-tooltip",
         "@bklit/shimmering-text",
-        "@bklit/utils"
+        "@bklit/utils",
+        "@bklit/chart-parent-size",
+        "@bklit/background"
       ],
       "dependencies": [
         "@visx/curve@4.0.0",
         "@visx/shape@4.0.0",
+        "d3-shape",
         "motion"
       ],
       "files": [
@@ -939,6 +1186,11 @@
           "path": "src/charts/projection-config.ts",
           "type": "registry:component",
           "target": "components/charts/projection-config.ts"
+        },
+        {
+          "path": "src/charts/band-config.ts",
+          "type": "registry:component",
+          "target": "components/charts/band-config.ts"
         },
         {
           "path": "src/charts/projection-utils.ts",
@@ -974,6 +1226,26 @@
           "path": "src/charts/line.tsx",
           "type": "registry:component",
           "target": "components/charts/line.tsx"
+        },
+        {
+          "path": "src/charts/band.tsx",
+          "type": "registry:component",
+          "target": "components/charts/band.tsx"
+        },
+        {
+          "path": "src/charts/band-geometry.ts",
+          "type": "registry:component",
+          "target": "components/charts/band-geometry.ts"
+        },
+        {
+          "path": "src/charts/use-animated-band.ts",
+          "type": "registry:component",
+          "target": "components/charts/use-animated-band.ts"
+        },
+        {
+          "path": "src/charts/bollinger.ts",
+          "type": "registry:component",
+          "target": "components/charts/bollinger.ts"
         },
         {
           "path": "src/charts/line-chart-loading.tsx",
@@ -1028,7 +1300,7 @@
         {
           "path": "src/charts/profit-loss-segments.ts",
           "type": "registry:lib",
-          "target": "lib/profit-loss-segments.ts"
+          "target": "components/charts/profit-loss-segments.ts"
         },
         {
           "path": "src/charts/profit-loss-legend-hover.tsx",
@@ -1065,7 +1337,7 @@
       "name": "scatter-chart",
       "type": "registry:component",
       "title": "Scatter Chart",
-      "description": "A composable time-series scatter chart with offset rings, hover dimming, and animated enter",
+      "description": "A composable time-series scatter chart with hover dimming, optional offset rings, jitter, and animated enter",
       "registryDependencies": [
         "@bklit/chart-context",
         "@bklit/chart-animation",
@@ -1108,6 +1380,11 @@
           "target": "components/charts/projection-config.ts"
         },
         {
+          "path": "src/charts/band-config.ts",
+          "type": "registry:component",
+          "target": "components/charts/band-config.ts"
+        },
+        {
           "path": "src/charts/projection-utils.ts",
           "type": "registry:component",
           "target": "components/charts/projection-utils.ts"
@@ -1136,6 +1413,11 @@
           "path": "src/charts/scatter-svg.ts",
           "type": "registry:component",
           "target": "components/charts/scatter-svg.ts"
+        },
+        {
+          "path": "src/charts/scatter-jitter.ts",
+          "type": "registry:component",
+          "target": "components/charts/scatter-jitter.ts"
         }
       ]
     },
@@ -1147,7 +1429,8 @@
       "registryDependencies": [
         "@bklit/chart-context",
         "@bklit/chart-tooltip",
-        "@bklit/utils"
+        "@bklit/utils",
+        "@bklit/chart-parent-size"
       ],
       "dependencies": [
         "@visx/curve@4.0.0",
@@ -1198,7 +1481,8 @@
         "@bklit/x-axis",
         "@bklit/y-axis",
         "@bklit/chart-tooltip",
-        "@bklit/utils"
+        "@bklit/utils",
+        "@bklit/chart-parent-size"
       ],
       "dependencies": [
         "@visx/scale@4.0.0",
@@ -1236,7 +1520,8 @@
       "description": "A composable pie chart with animations and customizable slices",
       "registryDependencies": [
         "@bklit/chart-animation",
-        "@bklit/utils"
+        "@bklit/utils",
+        "@bklit/chart-parent-size"
       ],
       "dependencies": [
         "@number-flow/react",
@@ -1291,7 +1576,8 @@
       "description": "A composable radar/spider chart with multiple data series",
       "registryDependencies": [
         "@bklit/chart-animation",
-        "@bklit/utils"
+        "@bklit/utils",
+        "@bklit/chart-parent-size"
       ],
       "dependencies": [
         "@visx/group@4.0.0",
@@ -1341,7 +1627,8 @@
       "description": "A composable donut/ring chart with progress indicators",
       "registryDependencies": [
         "@bklit/chart-animation",
-        "@bklit/utils"
+        "@bklit/utils",
+        "@bklit/chart-parent-size"
       ],
       "dependencies": [
         "@visx/group@4.0.0",
@@ -1389,11 +1676,11 @@
       "title": "Gauge",
       "description": "Notch-based radial or linear gauge with optional center label, patterns, and optional gradients",
       "registryDependencies": [
-        "@bklit/utils"
+        "@bklit/utils",
+        "@bklit/chart-parent-size"
       ],
       "dependencies": [
         "@visx/responsive@4.0.0",
-        "@visx/pattern@4.0.0",
         "@number-flow/react",
         "motion",
         "d3-shape"
@@ -1458,7 +1745,6 @@
       "dependencies": [
         "@visx/group@4.0.0",
         "@visx/heatmap@4.0.0",
-        "@visx/pattern@4.0.0",
         "@visx/responsive@4.0.0",
         "@visx/scale@4.0.0",
         "motion"
@@ -1508,11 +1794,6 @@
           "path": "src/charts/heatmap/heatmap-tooltip.tsx",
           "type": "registry:component",
           "target": "components/charts/heatmap/heatmap-tooltip.tsx"
-        },
-        {
-          "path": "src/charts/heatmap/use-delayed-tooltip-data.ts",
-          "type": "registry:component",
-          "target": "components/charts/heatmap/use-delayed-tooltip-data.ts"
         },
         {
           "path": "src/charts/heatmap/heatmap-separator.tsx",
@@ -1585,7 +1866,8 @@
         "@bklit/chart-animation",
         "@bklit/utils",
         "@bklit/chart-utils",
-        "@bklit/chart-tooltip"
+        "@bklit/chart-tooltip",
+        "@bklit/chart-parent-size"
       ],
       "dependencies": [
         "@types/geojson",
@@ -1664,12 +1946,12 @@
         "@bklit/chart-animation",
         "@bklit/utils",
         "@bklit/chart-utils",
-        "@bklit/chart-tooltip"
+        "@bklit/chart-tooltip",
+        "@bklit/chart-parent-size"
       ],
       "dependencies": [
         "@visx/event@4.0.0",
         "@visx/gradient@4.0.0",
-        "@visx/pattern@4.0.0",
         "@visx/responsive@4.0.0",
         "@visx/sankey@4.0.0",
         "d3-sankey",
@@ -1809,7 +2091,6 @@
       ],
       "dependencies": [
         "@visx/gradient@4.0.0",
-        "@visx/pattern@4.0.0",
         "@visx/shape@4.0.0",
         "motion"
       ],

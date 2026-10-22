@@ -44,6 +44,28 @@ export interface RingData {
   color?: string;
 }
 
+/**
+ * Stable pointer hit area for ring `index`.
+ *
+ * The visible ring scales on hover, so using it as the hit target creates a
+ * feedback loop at its edges (hover → grow → pointer leaves → shrink → hover).
+ * The hit band is static and extends half the ring gap on each side, so
+ * neighbouring bands share an edge: no overlap and no dead gap between rings.
+ */
+export function getRingHitRadii(
+  index: number,
+  baseInnerRadius: number,
+  strokeWidth: number,
+  ringGap: number
+): { innerRadius: number; outerRadius: number } {
+  const halfGap = Math.max(0, ringGap) / 2;
+  const bandInner = baseInnerRadius + index * (strokeWidth + ringGap);
+  return {
+    innerRadius: Math.max(0, bandInner - halfGap),
+    outerRadius: bandInner + strokeWidth + halfGap,
+  };
+}
+
 export interface RingHoverContextValue {
   hoveredIndex: number | null;
   setHoveredIndex: (index: number | null) => void;

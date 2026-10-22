@@ -69,7 +69,7 @@ interface OHLCDataPoint {
 
 ### Styling candles
 
-The default fill uses the chart palette: `--chart-1` (positive) and `--chart-5` (negative). Override with `positiveFill` and `negativeFill` for gradients or solid colors (e.g. `var(--color-emerald-500)` for up, `var(--color-red-500)` for down). Use `bodyPatternPositive` and `bodyPatternNegative` with `url(#pattern-id)` for pattern fills. Control spacing with `candleGap` (0–1) or fixed `candleWidth` in pixels.
+The default fill uses the semantic trend tokens `--chart-positive` (up) and `--chart-negative` (down), falling back to Tailwind emerald / red. Override with `positiveFill` and `negativeFill` for gradients or solid colors. Use `bodyPatternPositive` and `bodyPatternNegative` with `url(#pattern-id)` for pattern fills. Control spacing with `candleGap` (0–1) or fixed `candleWidth` in pixels.
 
 ### Tooltip
 

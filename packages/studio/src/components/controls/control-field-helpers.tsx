@@ -12,19 +12,20 @@ import { Label } from "@/ui/label";
 
 export const studioControlLabelClass = cn(
   studioLabelClass,
-  "w-28 shrink-0 font-medium text-xs leading-tight"
+  "w-28 shrink-0 font-medium text-xs leading-tight sm:text-xs"
 );
 
 /** Stacked label above a control (Fill, Presets, etc.) — same size as row labels. */
 export const studioFieldLabelClass = cn(
   studioLabelClass,
-  "font-medium text-xs leading-tight"
+  "font-medium text-xs leading-tight sm:text-xs"
 );
 
 export const studioControlRowClass = "flex min-w-0 items-center gap-2.5";
 
 /** Compact font size for sidebar inputs — overrides the Input default `text-sm`. */
-export const studioControlInputClass = "text-xs";
+/** `sm:` repeat overrides the coss input/select responsive `sm:text-sm`. */
+export const studioControlInputClass = "text-xs sm:text-xs";
 
 /**
  * Borderless field row (scrub inputs, fill color row, text inputs).

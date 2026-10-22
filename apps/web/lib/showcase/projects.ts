@@ -47,4 +47,16 @@ export const showcaseProjects: ShowcaseProject[] = [
       "https://github.com/user-attachments/assets/1139c9a5-75c5-44f9-acb0-12aeb883d76c",
     imageAlt: "Better-T-Stack starter website",
   },
+  {
+    title: "BuzzyPod",
+    url: "https://buzzypod.com",
+    image: "/img/showcase/buzzypod.png",
+    imageAlt: "BuzzyPod podcast stats episode detail",
+  },
+  {
+    title: "Cal.com",
+    url: "https://cal.com",
+    image: "/img/showcase/calcom.png",
+    imageAlt: "Cal.com booking insights dashboard",
+  },
 ];

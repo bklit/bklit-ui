@@ -43,7 +43,7 @@ export function GridBothDemo() {
   return (
     <div className="w-full">
       <LineChart data={chartData}>
-        <Grid horizontal vertical />
+        <Grid fadeHorizontal={false} horizontal vertical />
         <Line dataKey="value" />
         <XAxis />
         <ChartTooltip />
@@ -95,7 +95,13 @@ export function GridDenseDemo() {
   return (
     <div className="w-full">
       <LineChart data={chartData}>
-        <Grid horizontal numTicksColumns={15} numTicksRows={10} vertical />
+        <Grid
+          fadeHorizontal={false}
+          horizontal
+          numTicksColumns={15}
+          numTicksRows={10}
+          vertical
+        />
         <Line dataKey="value" />
         <XAxis />
         <ChartTooltip />

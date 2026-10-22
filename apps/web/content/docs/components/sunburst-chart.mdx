@@ -12,7 +12,7 @@ import { SunburstChartDemo } from "@/components/docs/sunburst-chart-demo";
 
 ## Installation
 
-<InstallationTabs name="sunburst-chart" dependencies={["@visx/pattern", "motion"]} />
+<InstallationTabs name="sunburst-chart" dependencies={["motion"]} />
 
 ## Usage
 
@@ -258,4 +258,4 @@ All animations respect `prefers-reduced-motion`.
 pnpm add motion
 ```
 
-Add `@visx/pattern` when using `PatternLines` or other pattern fills.
+For `PatternLines` or other pattern fills, add the `@bklit/patterns` registry item (`npx shadcn@latest add @bklit/patterns`). It is vendored from `@visx/pattern`, so no extra package is needed.

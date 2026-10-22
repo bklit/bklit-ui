@@ -2,11 +2,17 @@
 
 > Bklit UI is an open-source React chart and data-viz component library (Visx, Motion, Tailwind 4) shipped from `packages/ui`, with a Next.js 15 + Fumadocs docs site at `apps/web`. Components install via the shadcn registry (`ui.bklit.com/r/*.json`). The interactive Studio (`/studio`) tunes chart props and records animations; it targets desktop browsers.
 
-Documentation source files live under `apps/web/content/docs/` (MDX, Fumadocs). The monorepo uses pnpm and Turborepo. Chart demos are at `/charts/[slug]`; registry JSON is served from `apps/web/public/r/`.
+Documentation source files live under `apps/web/content/docs/` (MDX, Fumadocs). The monorepo uses pnpm and Turborepo. Chart demos are at `/charts/[slug]`; registry JSON is served from `apps/web/public/r/`. The live site serves its own `/llms.txt` (generated from the docs page tree by `apps/web/app/llms.txt/route.ts`); this file links to the MDX sources and is regenerated with `node scripts/generate-llms.mjs`.
 
 ## Getting Started
 
 - [Introduction](./apps/web/content/docs/index.mdx): Beautiful, modern UI components for React applications
+- [Installation](./apps/web/content/docs/installation.mdx): How to install and configure Bklit UI in your project
+
+## Guides
+
+- [Skills](./apps/web/content/docs/skills.mdx): Give AI agents project-aware context for Bklit charts in your application.
+- [Theming](./apps/web/content/docs/theming.mdx): Theme your charts with CSS custom properties — multi-hue palettes, trend colors, sequential scales, and custom palette export.
 
 ## Chart Components
 
@@ -16,31 +22,39 @@ Documentation source files live under `apps/web/content/docs/` (MDX, Fumadocs). 
 - [Choropleth Chart](./apps/web/content/docs/components/choropleth-chart.mdx): A composable geographic map chart for visualizing data across regions with interactive tooltips, zoom controls, and pattern support
 - [Composed Chart](./apps/web/content/docs/components/composed-chart.mdx): Mix SeriesBar, Line, and Area on one shared time axis (Recharts ComposedChart–style)
 - [Funnel Chart](./apps/web/content/docs/components/funnel-chart.mdx): An animated funnel chart with multi-layer halo rings, hover interactions, and staggered entrance animations
-- [Gauge](./apps/web/content/docs/components/gauge-chart.mdx): Notch-based radial gauge with PieCenter-style NumberFlow, theme fills, optional patterns and arc gradients, and responsive sizing
+- [Gauge](./apps/web/content/docs/components/gauge-chart.mdx): Notch-based radial or linear gauge with optional center label, theme fills, patterns, arc gradients, and responsive sizing
+- [Heatmap Chart](./apps/web/content/docs/components/heatmap-chart.mdx): A contribution heatmap with animated cells, configurable level colors and patterns, and an interactive legend
 - [Components](./apps/web/content/docs/components/index.mdx): A collection of chart components for your applications.
 - [Line Chart](./apps/web/content/docs/components/line-chart.mdx): A composable line chart with tooltips, markers, and hover interactions
 - [Live Line Chart](./apps/web/content/docs/components/live-line-chart.mdx): Real-time streaming line chart with smooth scrolling, crosshair, and animated axes
 - [Pie Chart](./apps/web/content/docs/components/pie-chart.mdx): A composable pie and donut chart with animated slices, hover interactions, patterns, gradients, and an interactive legend
+- [Profit/Loss Line](./apps/web/content/docs/components/profit-loss-line.mdx): Sign-colored line segments for profit and loss on a shared zero baseline
 - [Radar Chart](./apps/web/content/docs/components/radar-chart.mdx): A composable multi-series radar chart with animated polygons, hover interactions, and customizable metrics
 - [Ring Chart](./apps/web/content/docs/components/ring-chart.mdx): A composable multi-ring progress chart with animated arcs, hover interactions, and a reusable legend component
 - [Sankey Chart](./apps/web/content/docs/components/sankey-chart.mdx): A composable sankey diagram for visualizing flow between nodes with animated links and interactive tooltips
+- [Scatter Chart](./apps/web/content/docs/components/scatter-chart.mdx): A composable time-series scatter chart with hover dimming, optional offset rings, jitter, and animated enter
+- [Sunburst Chart](./apps/web/content/docs/components/sunburst-chart.mdx): A composable hierarchical sunburst chart with drill-down zoom, animated segments, breadcrumb navigation, and legend sync
 
 ## Utilities
 
 - [Axis](./apps/web/content/docs/utility/axis/index.mdx): X and Y axis components for line and area charts
 - [X Axis](./apps/web/content/docs/utility/axis/x-axis.mdx): Date labels for the horizontal axis in line and area charts
 - [Y Axis](./apps/web/content/docs/utility/axis/y-axis.mdx): Value labels for the vertical axis in line and area charts
+- [Background](./apps/web/content/docs/utility/background.mdx): Pattern fill for the plot area when grid lines are hidden — presets, edge fade, and enter animation
+- [Band](./apps/web/content/docs/utility/band.mdx): Shaded range between per-row upper and lower values on a line chart — range area charts, min/max ranges, confidence intervals, and Bollinger bands
+- [Brush](./apps/web/content/docs/utility/brush.mdx): Time-range brush for zooming area and line charts with a mini-chart strip and draggable selection handles
 - [Custom Indicator](./apps/web/content/docs/utility/custom-indicator.mdx): Create custom tooltip indicators for charts using the useChart hook
-- [Grid](./apps/web/content/docs/utility/grid.mdx): A customizable grid component for charts with horizontal and vertical lines, fade effects, and dashed styling
+- [Deadline](./apps/web/content/docs/utility/deadline.mdx): Due-date marker for date x axes — a vertical line with a striped, gradient, or solid region to its right that fades out
+- [Grid](./apps/web/content/docs/utility/grid.mdx): A customizable grid component for charts with horizontal and vertical lines, edge fade, edge line hiding, and dashed styling
 - [Legend](./apps/web/content/docs/utility/legend.mdx): A composable legend component for charts with progress bars, markers, and customizable layouts
+- [Markers](./apps/web/content/docs/utility/markers.mdx): Annotate dates on time-series charts — rich icon badges with a radial fan-out and tooltip, or your own minimal glyphs built on useChart
+- [Projection Line](./apps/web/content/docs/utility/projection-line.mdx): Forecast segment extending a line series past the last data point — dashed stroke, gradient, and horizon marker
+- [Reference Area](./apps/web/content/docs/utility/reference-area.mdx): Shaded Y band for target ranges and thresholds on cartesian charts — solid or pattern fill, dashed edges, and Y-axis tick coloring
 - [Tooltip](./apps/web/content/docs/utility/tooltip.mdx): An interactive tooltip component for charts with crosshair, dots, date picker, and customizable content
+- [Trend Line](./apps/web/content/docs/utility/trend-line.mdx): Least-squares regression line over a series on line, area, bar, and composed charts — dashed, solid, or gradient stroke with optional edge fade
 - [useChart Hook](./apps/web/content/docs/utility/use-chart.mdx): Access chart state and context for building custom chart components
-
-## Documentation
-
-- [Installation](./apps/web/content/docs/installation.mdx): How to install and configure Bklit UI in your project
-- [Theming](./apps/web/content/docs/theming.mdx): Theme your charts using CSS custom properties for consistent, customizable styling.
+- [Weekends](./apps/web/content/docs/utility/weekends.mdx): Shade weekend days behind the series on date x axes — diagonal stripes or a solid fill, configurable weekend days, and zoom-aware rendering
 
 ## Optional
 
-- [Repository README](../README.md): Monorepo setup, scripts, and license.
+- [Repository README](./README.md): Monorepo setup, scripts, and license.

@@ -41,6 +41,10 @@ function getSliceOffset(
   };
 }
 
+// Every `motion.path` below uses `initial={false}`: Motion can't read `opacity`
+// or `d` back from an SVG path, so without it the first frame animates from
+// `undefined` (console warning + an invalid `d="undefined"` attribute).
+
 /** Hover effect types */
 export type PieSliceHoverEffect = "translate" | "grow" | "none";
 
@@ -151,6 +155,7 @@ function AnimatedSliceTranslate({
         }}
         d={hitboxPath}
         fill={fill}
+        initial={false}
         pointerEvents="none"
         style={{
           filter:
@@ -176,6 +181,7 @@ function AnimatedSliceTranslate({
       }}
       d={animatedPath}
       fill={fill}
+      initial={false}
       key={`slice-${animationKey}-${index}`}
       pointerEvents="none"
       style={{
@@ -285,6 +291,7 @@ function AnimatedSliceGrow({
         }}
         d={grownPath}
         fill={fill}
+        initial={false}
         pointerEvents="none"
         style={{
           filter:
@@ -307,6 +314,7 @@ function AnimatedSliceGrow({
       }}
       d={animatedPath}
       fill={fill}
+      initial={false}
       key={`slice-${animationKey}-${index}`}
       pointerEvents="none"
       style={{
@@ -448,6 +456,7 @@ export const PieSlice = memo(function PieSlice({
           }}
           d={hitboxPath}
           fill={fill}
+          initial={false}
           pointerEvents="none"
           style={{
             filter:
@@ -475,6 +484,7 @@ export const PieSlice = memo(function PieSlice({
         }}
         d={hitboxPath}
         fill={fill}
+        initial={false}
         pointerEvents="none"
         style={{
           filter:

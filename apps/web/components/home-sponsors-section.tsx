@@ -7,7 +7,7 @@ import { useGithubStats } from "@/components/providers/github-stats-provider";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
-  TooltipContent,
+  TooltipPopup,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
@@ -131,7 +131,7 @@ function ContributorAvatar({
           width={36}
         />
       </TooltipTrigger>
-      <TooltipContent>{login}</TooltipContent>
+      <TooltipPopup>{login}</TooltipPopup>
     </Tooltip>
   );
 }
@@ -226,7 +226,6 @@ export function HomeSponsorsSection() {
           variants={fadeUp}
         >
           <Button
-            nativeButton={false}
             render={
               <Link
                 external

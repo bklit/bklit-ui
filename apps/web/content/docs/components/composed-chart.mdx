@@ -4,6 +4,7 @@ description: Mix SeriesBar, Line, and Area on one shared time axis (Recharts Com
 ---
 
 import { ComposedChartDocsPreview } from "@/components/docs/composed-chart-docs-preview";
+import { DateHighlightsComposedDemo } from "@/components/docs/date-highlights-demo";
 
 <ComponentPreview registryName="composed-chart">
   <ComposedChartDocsPreview />
@@ -88,6 +89,34 @@ See the [charts gallery](/charts/composed-chart) for stacked bars, pattern fills
 ### Background
 
 Use [`Background`](/docs/utility/background) instead of `Grid` for a pattern fill behind bars and lines. See **Pattern Background** examples on the [composed chart gallery](/charts/composed-chart).
+
+### Trend line
+
+Add a [`TrendLine`](/docs/utility/trend-line) per series you want to fit (bars or lines), after the series children so it draws on top. See the **Trend Line** examples on the [composed chart gallery](/charts/composed-chart).
+
+```tsx
+<SeriesBar dataKey="units" fill="var(--chart-3)" />
+<Line dataKey="revenue" stroke="var(--chart-1)" />
+<TrendLine dataKey="revenue" stroke="var(--chart-1)" />
+```
+
+### Weekends and deadlines
+
+[`Weekends`](/docs/utility/weekends) shades the weekend columns and [`Deadline`](/docs/utility/deadline) marks a due date. With `SeriesBar` columns at midnight, `Weekends` centres each band on its column automatically; pass `utc` when your dates are UTC-anchored (like `composedDemoData`).
+
+<ComponentShowcase
+  code={`<ComposedChart data={composedDemoData} barGap={0} maxBarSize={24}>
+  <Grid horizontal />
+  <Weekends utc />
+  <Deadline date={composedDemoData[21].date} label="Quarter close" />
+  <SeriesBar dataKey="units" fill="var(--chart-3)" radius={3} />
+  <Line dataKey="revenue" stroke="var(--chart-1)" />
+  <ChartTooltip showCrosshair={false} />
+  <XAxis numTicks={8} />
+</ComposedChart>`}
+>
+  <DateHighlightsComposedDemo />
+</ComponentShowcase>
 
 ## See also
 

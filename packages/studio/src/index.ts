@@ -1,5 +1,9 @@
 // biome-ignore-all lint/performance/noBarrelFile: package public API for @bklitui/studio consumers
 export { type ChartSlug, isChartSlug, validChartSlugs } from "./chart-slugs";
+export {
+  ChartPaletteEditor,
+  ChartPaletteStrip,
+} from "./components/chart-palette/chart-palette-editor";
 export { LineProfitLossStudioChart } from "./components/charts/line-profit-loss-studio";
 export {
   StudioCartesianFill,
@@ -17,6 +21,7 @@ export {
 } from "./components/controls/fade-edges-picker";
 export { MotionControl } from "./components/controls/motion-control";
 export { MotionResetButton } from "./components/controls/motion-reset-button";
+export { StudioColorPicker } from "./components/controls/studio-color-picker";
 export {
   EditorChartFrame,
   STUDIO_EXPORT_ROOT_ATTR,
@@ -74,6 +79,22 @@ export {
   studioShareStudioUrl,
   studioStateHref,
 } from "./lib/chart-links";
+export {
+  CHART_PALETTE_VAR_LABELS,
+  CHART_PALETTE_VAR_NAMES,
+  CHART_PALETTES,
+  type ChartPalette,
+  type ChartPaletteColors,
+  type ChartPaletteMode,
+  type ChartPaletteVarName,
+  CUSTOM_CHART_PALETTE_ID,
+  chartPaletteColors,
+  chartPaletteToCss,
+  DEFAULT_CHART_PALETTE_ID,
+  getChartPalette,
+  isChartPaletteId,
+  parseChartPaletteColors,
+} from "./lib/chart-palettes";
 export { generateStudioCode } from "./lib/codegen";
 export { resolveCurve } from "./lib/curves";
 export {
@@ -155,3 +176,12 @@ export type {
 export { chartLabels } from "./lib/types";
 export type { StudioAnalytics } from "./providers/studio-analytics-context";
 export { StudioAnalyticsProvider } from "./providers/studio-analytics-context";
+export {
+  Dialog,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogPanel,
+  DialogPopup,
+  DialogTitle,
+} from "./ui/dialog";

@@ -199,11 +199,12 @@ export function FillPicker({
 
         <PopoverContent
           align="start"
-          className="w-[min(calc(100vw-2rem),18rem)] gap-3 p-3"
+          className="w-[min(calc(100vw-2rem),18rem)]"
           collisionAvoidance={studioSidebarPopoverCollisionAvoidance}
           positionMethod="fixed"
           side="left"
           sideOffset={studioSidebarPopoverSideOffset}
+          viewportClassName="flex flex-col gap-3 p-3"
         >
           {supportsGradient ? (
             <StudioToggleGroup

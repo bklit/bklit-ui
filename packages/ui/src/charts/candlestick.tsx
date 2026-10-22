@@ -10,16 +10,16 @@ import { transitionWithDelay } from "./motion-utils";
 const DEFAULT_POSITIVE = "url(#candlestick-positive)";
 const DEFAULT_NEGATIVE = "url(#candlestick-negative)";
 
-const SOLID_POSITIVE = "var(--color-emerald-500)";
-const SOLID_NEGATIVE = "var(--color-red-500)";
+const SOLID_POSITIVE = "var(--chart-positive, var(--color-emerald-500))";
+const SOLID_NEGATIVE = "var(--chart-negative, var(--color-red-500))";
 const WICK_WIDTH = 1.5;
 
 export interface CandlestickProps {
   /** Whether to animate the candlesticks. Default: true */
   animate?: boolean;
-  /** Fill for positive (close >= open) candles. Color or url(#gradient). Default: emerald */
+  /** Fill for positive (close >= open) candles. Color or url(#gradient). Default: --chart-positive (emerald) */
   positiveFill?: string;
-  /** Fill for negative candles. Color or url(#gradient). Default: red */
+  /** Fill for negative candles. Color or url(#gradient). Default: --chart-negative (red) */
   negativeFill?: string;
   /** Optional pattern URL for body only (e.g. url(#pattern)). When set, body is drawn solid first, then pattern overlaid and masked to the body rect. */
   bodyPatternPositive?: string;
@@ -178,12 +178,12 @@ const CandlestickBody = memo(function CandlestickBody({
       {insideStrokeWidth > 0 ? (
         <rect
           fill="none"
-          height={bodyHeight - insideStrokeWidth}
+          height={Math.max(0, bodyHeight - insideStrokeWidth)}
           rx={1}
           ry={1}
           stroke={bodySolidFill}
           strokeWidth={insideStrokeWidth}
-          width={candleWidth - insideStrokeWidth}
+          width={Math.max(0, candleWidth - insideStrokeWidth)}
           x={bodyLeft + insideStrokeWidth / 2}
           y={bodyTop + insideStrokeWidth / 2}
         />

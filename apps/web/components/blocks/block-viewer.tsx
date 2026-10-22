@@ -8,10 +8,11 @@ import { BlockFileTree } from "@/components/blocks/block-file-tree";
 import { CopyButton } from "@/components/copy-button";
 import { V0Icon } from "@/components/icons/v0";
 import { Button } from "@/components/ui/button";
+import { Frame, FramePanel } from "@/components/ui/frame";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Tooltip,
-  TooltipContent,
+  TooltipPopup,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
@@ -71,7 +72,7 @@ function DeviceToggle({
           {children}
         </Button>
       </TooltipTrigger>
-      <TooltipContent>{label}</TooltipContent>
+      <TooltipPopup>{label}</TooltipPopup>
     </Tooltip>
   );
 }
@@ -100,15 +101,8 @@ export function BlockViewer({
 
   return (
     <TooltipProvider>
-      <div
-        className={cn(
-          "overflow-hidden",
-          embedded
-            ? "bg-transparent"
-            : "rounded-xl border border-border bg-card/70"
-        )}
-      >
-        <div className="flex flex-col gap-3 px-4 py-3 lg:flex-row lg:items-center lg:gap-4">
+      <Frame className={cn("min-w-0", embedded && "w-full")}>
+        <div className="flex flex-col gap-3 px-3 py-2 lg:flex-row lg:items-center lg:gap-4">
           <div className="flex min-w-0 flex-1 items-center gap-3">
             <Tabs
               className="shrink-0"
@@ -128,7 +122,7 @@ export function BlockViewer({
 
           <div className="flex shrink-0 flex-wrap items-center gap-2 lg:flex-nowrap">
             {view === "preview" ? (
-              <div className="flex items-center gap-0.5 rounded-md border border-border/60 bg-muted/20 p-0.5">
+              <div className="flex items-center gap-0.5 rounded-lg border bg-background p-0.5 shadow-xs/5">
                 <DeviceToggle
                   active={viewport === "desktop"}
                   label="Desktop"
@@ -159,10 +153,10 @@ export function BlockViewer({
                   <Icon className="size-4" name="IconArrowRotateClockwise" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>Restart animation</TooltipContent>
+              <TooltipPopup>Restart animation</TooltipPopup>
             </Tooltip>
 
-            <div className="hidden h-9 min-w-0 max-w-[300px] items-center gap-2 rounded-md border border-border/60 bg-muted/20 px-2.5 font-mono text-[11px] text-muted-foreground lg:flex">
+            <div className="hidden h-8 min-w-0 max-w-[300px] items-center gap-2 rounded-lg border bg-background px-2.5 font-mono text-[11px] text-muted-foreground shadow-xs/5 lg:flex">
               <Icon className="size-3.5 shrink-0" name="IconConsole" />
               <span className="min-w-0 flex-1 truncate">{installCommand}</span>
               <CopyButton
@@ -174,7 +168,6 @@ export function BlockViewer({
 
             <Button
               className="gap-1.5 px-3 text-xs"
-              nativeButton={false}
               render={
                 // biome-ignore lint/a11y/useAnchorContent: Base UI merges Button children into this anchor
                 <a
@@ -195,79 +188,82 @@ export function BlockViewer({
                   target="_blank"
                 />
               }
-              variant="white"
+              size="sm"
+              variant="default"
             >
               Open in <V0Icon className="size-4" />
             </Button>
           </div>
         </div>
 
-        {view === "preview" ? (
-          <div
-            className="studio-preview-canvas flex items-center justify-center overflow-auto border-t px-6 py-[90px]"
-            style={{ height: previewHeight }}
-          >
+        <FramePanel className="overflow-hidden p-0">
+          {view === "preview" ? (
             <div
-              className={cn(
-                "flex w-full items-center justify-center transition-[max-width] duration-300 ease-out",
-                viewport === "mobile" && "mx-auto"
-              )}
-              key={previewKey}
-              style={{
-                maxWidth:
-                  viewport === "mobile" ? mobilePreviewWidth : undefined,
-              }}
+              className="studio-preview-canvas flex items-center justify-center overflow-auto rounded-[calc(var(--radius-xl)-1px)] px-6 py-[90px]"
+              style={{ height: previewHeight }}
             >
-              {preview}
+              <div
+                className={cn(
+                  "flex w-full items-center justify-center transition-[max-width] duration-300 ease-out",
+                  viewport === "mobile" && "mx-auto"
+                )}
+                key={previewKey}
+                style={{
+                  maxWidth:
+                    viewport === "mobile" ? mobilePreviewWidth : undefined,
+                }}
+              >
+                {preview}
+              </div>
             </div>
-          </div>
-        ) : (
-          <div
-            className="grid min-h-0 grid-cols-1 overflow-hidden border-t lg:grid-cols-[240px_minmax(0,1fr)]"
-            style={{ height: previewHeight }}
-          >
-            <BlockFileTree
-              files={files}
-              onSelect={setSelectedPath}
-              selectedPath={selectedPath}
-            />
+          ) : (
+            <div
+              className="grid min-h-0 grid-cols-1 overflow-hidden lg:grid-cols-[240px_minmax(0,1fr)]"
+              style={{ height: previewHeight }}
+            >
+              <BlockFileTree
+                files={files}
+                onSelect={setSelectedPath}
+                selectedPath={selectedPath}
+              />
 
-            <div className="flex h-full min-h-0 min-w-0 flex-col">
-              {selectedFile ? (
-                <>
-                  <div
-                    className={cn(
-                      CODE_PANEL_HEADER_CLASS,
-                      "justify-between gap-3"
-                    )}
-                  >
-                    <p className="truncate font-mono text-muted-foreground text-xs">
-                      {selectedFile.path}
-                    </p>
-                    <CopyButton
-                      aria-label="Copy file"
-                      text={selectedFile.content}
-                    />
-                  </div>
+              <div className="flex h-full min-h-0 min-w-0 flex-col">
+                {selectedFile ? (
+                  <>
+                    <div
+                      className={cn(
+                        CODE_PANEL_HEADER_CLASS,
+                        "justify-between gap-3"
+                      )}
+                    >
+                      <p className="truncate font-mono text-muted-foreground text-xs">
+                        {selectedFile.path}
+                      </p>
+                      <CopyButton
+                        aria-label="Copy file"
+                        text={selectedFile.content}
+                      />
+                    </div>
 
-                  <div className="min-h-0 flex-1 overflow-auto">
-                    <BlockCodeBlock
-                      code={selectedFile.content}
-                      lang={selectedFile.language ?? "tsx"}
-                    />
+                    <div className="min-h-0 flex-1 overflow-auto">
+                      <BlockCodeBlock
+                        code={selectedFile.content}
+                        lang={selectedFile.language ?? "tsx"}
+                      />
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex flex-1 items-center justify-center text-muted-foreground text-sm">
+                    No files available.
                   </div>
-                </>
-              ) : (
-                <div className="flex flex-1 items-center justify-center text-muted-foreground text-sm">
-                  No files available.
-                </div>
-              )}
+                )}
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </FramePanel>
 
         <span className="sr-only">{name}</span>
-      </div>
+      </Frame>
     </TooltipProvider>
   );
 }

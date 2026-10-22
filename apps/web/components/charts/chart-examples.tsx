@@ -109,6 +109,7 @@ import {
   type SunburstNode,
   SunburstSegment,
   sumValues,
+  TrendLine,
   useChart,
   XAxis,
   YAxis,
@@ -121,7 +122,6 @@ import {
   curveNatural,
   curveStep,
 } from "@visx/curve";
-import { DynamicCodeBlock } from "fumadocs-ui/components/dynamic-codeblock";
 import { motion, useSpring } from "motion/react";
 import {
   type ComponentProps,
@@ -132,19 +132,24 @@ import {
   useRef,
   useState,
 } from "react";
+import { ChartExampleFrame } from "@/components/charts/chart-example-frame";
 import {
-  ChartExamplePreviewFrame,
   type ChartExamplePreviewLayout,
-  chartExampleCardClassName,
   chartExampleGaugeClassName,
   chartExampleGaugeShellClassName,
   chartExampleRadialShellClassName,
   chartExampleSunburstHeroShellClassName,
-  getChartExampleContentPaddingClassName,
 } from "@/components/charts/chart-example-preview";
+import {
+  type ChartGalleryAnchor,
+  ChartGallerySidebar,
+  chartGalleryAnchorLabel,
+  createChartGalleryAnchorIds,
+} from "@/components/charts/chart-gallery-sidebar";
+import { useChartPreviewOffscreen } from "@/components/charts/chart-preview-gate";
 import { FeaturedChartHero } from "@/components/charts/featured-chart-hero";
 import { LineChartStudioTrioDemo } from "@/components/charts/line-chart-studio-trio-demo";
-import { CopyButton } from "@/components/copy-button";
+import { siteContainerClassName } from "@/components/design/site-chrome";
 import {
   buildLineChartDemoData,
   REFERENCE_AREA_DEMO,
@@ -158,36 +163,28 @@ import { sunburstDemoData } from "@/components/docs/sunburst-chart-demo-data";
 import { SunburstDrillBreadcrumb } from "@/components/docs/sunburst-drill-breadcrumb";
 import { useWorldDataStandalone } from "@/components/docs/use-world-data";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
   Select,
-  SelectContent,
   SelectItem,
+  SelectPopup,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
 import { createChartExamplePreview } from "@/lib/chart-example-preview";
-import { codeThemes } from "@/lib/code-theme";
 import {
   composedDemoData,
   composedStackedData,
   composedTriSeriesData,
 } from "@/lib/composed-demo-data";
 import { getHeatmapDemoData } from "@/lib/heatmap-demo-data";
+import {
+  formatLoc,
+  formatPrMonth,
+  PrLocTooltip,
+  prLocChartSnippet,
+  prLocData,
+  prLocDataSnippet,
+  prLocSeries,
+} from "@/lib/scatter-pr-demo-data";
 import { cn } from "@/lib/utils";
 import {
   weeklyVisitorsDashFromIndex,
@@ -331,13 +328,9 @@ function CandlestickTooltipContent({
           {fmt(open)}
         </span>
         <span className="text-chart-tooltip-muted">High</span>
-        <span className="text-emerald-600 tabular-nums dark:text-emerald-400">
-          {fmt(high)}
-        </span>
+        <span className="text-chart-positive tabular-nums">{fmt(high)}</span>
         <span className="text-chart-tooltip-muted">Low</span>
-        <span className="text-red-600 tabular-nums dark:text-red-400">
-          {fmt(low)}
-        </span>
+        <span className="text-chart-negative tabular-nums">{fmt(low)}</span>
         <span className="text-chart-tooltip-muted">Close</span>
         <span className="text-chart-tooltip-foreground tabular-nums">
           {fmt(close)}
@@ -357,11 +350,13 @@ function useLiveData(
   const [value, setValue] = useState(initialPrice);
   const priceRef = useRef(initialPrice);
   const momentumRef = useRef(0);
-  const pausedRef = useRef(paused);
+  const offscreen = useChartPreviewOffscreen();
+  const isPaused = paused || offscreen;
+  const pausedRef = useRef(isPaused);
 
   useEffect(() => {
-    pausedRef.current = paused;
-  }, [paused]);
+    pausedRef.current = isPaused;
+  }, [isPaused]);
 
   useEffect(() => {
     const nowSec = Date.now() / 1000;
@@ -446,6 +441,28 @@ const barHorizontalData = [
   { browser: "Edge", users: 173 },
   { browser: "Other", users: 90 },
 ];
+
+const barProfitLossData = [
+  { month: "Jan", profit: 4200 },
+  { month: "Feb", profit: -1800 },
+  { month: "Mar", profit: 2600 },
+  { month: "Apr", profit: -3400 },
+  { month: "May", profit: 5100 },
+  { month: "Jun", profit: -900 },
+  { month: "Jul", profit: 3800 },
+  { month: "Aug", profit: 6200 },
+];
+
+const barProfitLossDataSnippet = `const chartData = [
+  { month: "Jan", profit: 4200 },
+  { month: "Feb", profit: -1800 },
+  { month: "Mar", profit: 2600 },
+  { month: "Apr", profit: -3400 },
+  { month: "May", profit: 5100 },
+  { month: "Jun", profit: -900 },
+  { month: "Jul", profit: 3800 },
+  { month: "Aug", profit: 6200 },
+];`;
 
 const barDailyData = Array.from({ length: 60 }, (_, i) => {
   const date = new Date(2024, 0, 1);
@@ -650,90 +667,22 @@ const sankeyAnalytics = {
 // ---------------------------------------------------------------------------
 
 interface ChartExampleCardProps {
+  anchorId?: string;
+  chartSlug: string;
   title: string;
   description: string;
   code: string;
   data?: string;
   footer?: string;
   previewLayout?: ChartExamplePreviewLayout;
-  previewRole?: "hero" | "example";
   children: ReactNode;
 }
 
 function ChartExampleCard({
-  title,
-  description,
-  code,
-  data,
   footer = "Trending up by 5.2% this month",
-  previewLayout = "cartesian",
-  previewRole = "example",
-  children,
+  ...props
 }: ChartExampleCardProps) {
-  const fullCode = data ? `${data}\n\n${code}` : code;
-  const contentPaddingClassName =
-    getChartExampleContentPaddingClassName(previewLayout);
-
-  return (
-    <Card className={chartExampleCardClassName}>
-      <CardHeader>
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex flex-col gap-1.5">
-            <CardTitle className="text-base">{title}</CardTitle>
-            <CardDescription>{description}</CardDescription>
-          </div>
-          <div className="flex shrink-0 items-center gap-1">
-            <CopyButton text={fullCode} />
-            <Sheet>
-              <SheetTrigger className="shrink-0 rounded-md border px-2.5 py-1 font-medium text-muted-foreground text-xs transition-colors hover:bg-muted hover:text-foreground">
-                View Code
-              </SheetTrigger>
-              <SheetContent className="overflow-y-auto">
-                <SheetHeader>
-                  <SheetTitle>{title}</SheetTitle>
-                  <SheetDescription>{description}</SheetDescription>
-                </SheetHeader>
-                <div className="space-y-4 px-6 pb-6">
-                  <div className="overflow-hidden rounded-lg border [&_figure]:my-0! [&_pre]:my-0!">
-                    <DynamicCodeBlock
-                      code={code}
-                      lang="tsx"
-                      options={{ themes: codeThemes }}
-                    />
-                  </div>
-                  {data && (
-                    <>
-                      <p className="font-medium text-muted-foreground text-xs uppercase tracking-wider">
-                        Data
-                      </p>
-                      <div className="overflow-hidden rounded-lg border [&_figure]:my-0! [&_pre]:my-0!">
-                        <DynamicCodeBlock
-                          code={data}
-                          lang="tsx"
-                          options={{ themes: codeThemes }}
-                        />
-                      </div>
-                    </>
-                  )}
-                </div>
-              </SheetContent>
-            </Sheet>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className={cn(contentPaddingClassName, "overflow-visible")}>
-        <ChartExamplePreviewFrame
-          layout={previewLayout}
-          previewRole={previewRole}
-        >
-          {children}
-        </ChartExamplePreviewFrame>
-      </CardContent>
-      <CardFooter>
-        <p className="text-muted-foreground text-xs">{footer}</p>
-      </CardFooter>
-    </Card>
-  );
+  return <ChartExampleFrame footer={footer} {...props} />;
 }
 
 // ---------------------------------------------------------------------------
@@ -876,6 +825,8 @@ function BarLineIndicator({
 // ---------------------------------------------------------------------------
 
 interface ChartExample {
+  /** Overrides the chart type's preview layout (e.g. horizontal bars). */
+  previewLayout?: ChartExamplePreviewLayout;
   title: string;
   description: string;
   code: string;
@@ -975,6 +926,71 @@ ${chartClose}`,
   ];
 }
 
+function makeCartesianTrendLineExamples(options: {
+  titlePrefix: string;
+  chartOpen: string;
+  chartClose: string;
+  seriesSnippet: string;
+  chromeSnippet: string;
+  dataKey: string;
+  render: (trendLine: ReactNode) => ReactNode;
+}): ChartExample[] {
+  const {
+    titlePrefix,
+    chartOpen,
+    chartClose,
+    seriesSnippet,
+    chromeSnippet,
+    dataKey,
+    render,
+  } = options;
+
+  return [
+    {
+      title: `${titlePrefix} - Trend Line`,
+      description: "Dashed least-squares trend line drawn over the series",
+      code: `${chartOpen}
+  <Grid horizontal />
+  ${seriesSnippet}
+  <TrendLine dataKey="${dataKey}" stroke="var(--chart-1)" />
+  ${chromeSnippet}
+${chartClose}`,
+      footer:
+        "See /docs/utility/trend-line — place TrendLine after the series so it draws on top",
+      render: () =>
+        render(<TrendLine dataKey={dataKey} stroke="var(--chart-1)" />),
+    },
+    {
+      title: `${titlePrefix} - Gradient Trend Line`,
+      description: "Gradient stroke along the fit with faded ends",
+      code: `${chartOpen}
+  <Grid horizontal />
+  ${seriesSnippet}
+  <TrendLine
+    dataKey="${dataKey}"
+    strokeStyle="gradient"
+    gradientStart="var(--chart-3)"
+    gradientEnd="var(--chart-1)"
+    strokeWidth={2.5}
+    fadeEdges
+  />
+  ${chromeSnippet}
+${chartClose}`,
+      render: () =>
+        render(
+          <TrendLine
+            dataKey={dataKey}
+            fadeEdges
+            gradientEnd="var(--chart-1)"
+            gradientStart="var(--chart-3)"
+            strokeStyle="gradient"
+            strokeWidth={2.5}
+          />
+        ),
+    },
+  ];
+}
+
 const AreaExampleChart = createChartExamplePreview(AreaChart);
 const AreaChartLoadingExample = createChartExamplePreview(AreaChartLoading);
 const BarExampleChart = createChartExamplePreview(BarChart);
@@ -983,7 +999,17 @@ const LineExampleChart = createChartExamplePreview(LineChart);
 const LineChartLoadingExample = createChartExamplePreview(LineChartLoading);
 const ComposedExampleChart = createChartExamplePreview(ComposedChart);
 const CandlestickExampleChart = createChartExamplePreview(CandlestickChart);
-const LiveLineExampleChart = createChartExamplePreview(LiveLineChart);
+const LiveLinePreviewChart = createChartExamplePreview(LiveLineChart);
+
+/** Freezes the live ticker while its gallery card is scrolled offscreen. */
+function LiveLineExampleChart({
+  paused,
+  ...props
+}: ComponentProps<typeof LiveLineChart>) {
+  const offscreen = useChartPreviewOffscreen();
+
+  return <LiveLinePreviewChart {...props} paused={paused || offscreen} />;
+}
 const ChoroplethExampleChart = createChartExamplePreview(ChoroplethChart);
 const SankeyExampleChart = createChartExamplePreview(SankeyChart);
 
@@ -1163,10 +1189,17 @@ function HeatmapGalleryExample({
   );
 }
 
+/**
+ * Quarter separator labels paint above the plot (outside the chart box), so
+ * reserve that space on top to keep the chart + legend vertically centered.
+ */
+const HEATMAP_SEPARATOR_LABELS_WRAPPER_CLASS =
+  "flex w-full max-w-full flex-col items-stretch gap-2 pt-5";
+
 function HeatmapCompactYAxisGalleryExample() {
   return (
     <HeatmapExampleShell>
-      <div className="flex w-full max-w-full flex-col items-stretch gap-2">
+      <div className={HEATMAP_SEPARATOR_LABELS_WRAPPER_CLASS}>
         <HeatmapExampleChart
           className="w-full min-w-0"
           data={heatmapContributionDataSixMonths}
@@ -1199,7 +1232,7 @@ function HeatmapCompactYAxisGalleryExample() {
 function HeatmapSolidSeparatorGalleryExample() {
   return (
     <HeatmapExampleShell>
-      <div className="flex w-full max-w-full flex-col items-stretch gap-2">
+      <div className={HEATMAP_SEPARATOR_LABELS_WRAPPER_CLASS}>
         <HeatmapExampleChart
           className="w-full min-w-0"
           data={heatmapContributionDataSixMonths}
@@ -1231,7 +1264,7 @@ function HeatmapSolidSeparatorGalleryExample() {
 function HeatmapDashedSeparatorGalleryExample() {
   return (
     <HeatmapExampleShell>
-      <div className="flex w-full max-w-full flex-col items-stretch gap-2">
+      <div className={HEATMAP_SEPARATOR_LABELS_WRAPPER_CLASS}>
         <HeatmapExampleChart
           className="w-full min-w-0"
           data={heatmapContributionDataSixMonths}
@@ -1263,7 +1296,7 @@ function HeatmapDashedSeparatorGalleryExample() {
 function HeatmapHeroExample() {
   return (
     <HeatmapExampleShell>
-      <div className="flex w-full max-w-full flex-col items-stretch gap-2">
+      <div className={HEATMAP_SEPARATOR_LABELS_WRAPPER_CLASS}>
         <HeatmapExampleChart
           className="w-full min-w-0"
           data={heatmapContributionData}
@@ -1348,7 +1381,7 @@ function HeatmapHorizontalScrollGalleryExample() {
   return (
     <HeatmapExampleShell>
       <div className="flex w-full flex-col gap-2">
-        <div className="flex w-full min-w-0 overflow-hidden">
+        <div className="flex w-full min-w-0">
           <div
             className="relative shrink-0"
             style={{ width: HEATMAP_GALLERY_MARGIN.left }}
@@ -1954,6 +1987,26 @@ function makeAreaExamples(): ChartExample[] {
         </AreaExampleChart>
       ),
     }),
+    ...makeCartesianTrendLineExamples({
+      titlePrefix: "Area Chart",
+      chartOpen:
+        "<AreaChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={chartData}>",
+      chartClose: "</AreaChart>",
+      seriesSnippet:
+        '<Area dataKey="desktop" fillOpacity={0.3} strokeWidth={2} />',
+      chromeSnippet: `<XAxis />
+  <ChartTooltip />`,
+      dataKey: "desktop",
+      render: (trendLine) => (
+        <AreaExampleChart data={areaData}>
+          <Grid horizontal />
+          <Area dataKey="desktop" fillOpacity={0.3} strokeWidth={2} />
+          {trendLine}
+          <XAxis />
+          <ChartTooltip />
+        </AreaExampleChart>
+      ),
+    }),
   ];
 }
 
@@ -2107,6 +2160,7 @@ function makeBarExamples(): ChartExample[] {
       ),
     },
     {
+      previewLayout: "cartesian",
       title: "Bar Chart - Horizontal",
       description: "Horizontal orientation with y-axis labels",
       code: `<BarChart
@@ -2133,6 +2187,26 @@ function makeBarExamples(): ChartExample[] {
           <Bar dataKey="users" lineCap={4} />
           <BarYAxis />
           <ChartTooltip showCrosshair={false} />
+        </BarExampleChart>
+      ),
+    },
+    {
+      title: "Bar Chart - Positive & Negative",
+      description:
+        "Monthly profit and loss — bars grow up or down from a highlighted zero line",
+      code: `<BarChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={chartData} xDataKey="month">
+  <Grid horizontal highlightRowValues={[0]} />
+  <Bar dataKey="profit" lineCap={4} />
+  <BarXAxis />
+  <ChartTooltip />
+</BarChart>`,
+      data: barProfitLossDataSnippet,
+      render: () => (
+        <BarExampleChart data={barProfitLossData} xDataKey="month">
+          <Grid highlightRowValues={[0]} horizontal />
+          <Bar dataKey="profit" lineCap={4} />
+          <BarXAxis />
+          <ChartTooltip />
         </BarExampleChart>
       ),
     },
@@ -2639,6 +2713,59 @@ function makeBarExamples(): ChartExample[] {
         </BarExampleChart>
       ),
     }),
+    ...makeCartesianTrendLineExamples({
+      titlePrefix: "Bar Chart",
+      chartOpen:
+        '<BarChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={chartData} xDataKey="month">',
+      chartClose: "</BarChart>",
+      seriesSnippet: '<Bar dataKey="desktop" lineCap="round" />',
+      chromeSnippet: `<BarXAxis />
+  <ChartTooltip showCrosshair={false} />`,
+      dataKey: "desktop",
+      render: (trendLine) => (
+        <BarExampleChart data={barStackedData} xDataKey="month">
+          <Grid horizontal />
+          <Bar dataKey="desktop" lineCap="round" />
+          {trendLine}
+          <BarXAxis />
+          <ChartTooltip showCrosshair={false} />
+        </BarExampleChart>
+      ),
+    }),
+    {
+      previewLayout: "cartesian",
+      title: "Bar Chart - Horizontal Trend Line",
+      description: "Trend line through horizontal bar centers",
+      code: `<BarChart
+  data={chartData}
+  xDataKey="browser"
+  orientation="horizontal"
+  margin={{ top: 8, right: 8, bottom: 40, left: 80 }}
+  aspectRatio="4 / 3"
+>
+  <Grid horizontal={false} vertical fadeVertical />
+  <Bar dataKey="users" lineCap={4} />
+  <TrendLine dataKey="users" stroke="var(--chart-1)" />
+  <BarYAxis />
+  <ChartTooltip showCrosshair={false} />
+</BarChart>`,
+      footer: "See /docs/utility/trend-line",
+      render: () => (
+        <BarExampleChart
+          aspectRatio="4 / 3"
+          data={barHorizontalData}
+          margin={{ left: 80 }}
+          orientation="horizontal"
+          xDataKey="browser"
+        >
+          <Grid fadeVertical horizontal={false} vertical />
+          <Bar dataKey="users" lineCap={4} />
+          <TrendLine dataKey="users" stroke="var(--chart-1)" />
+          <BarYAxis />
+          <ChartTooltip showCrosshair={false} />
+        </BarExampleChart>
+      ),
+    },
   ];
 }
 
@@ -3014,6 +3141,27 @@ function makeComposedExamples(): ChartExample[] {
         </ComposedExampleChart>
       ),
     }),
+    ...makeCartesianTrendLineExamples({
+      titlePrefix: "Composed Chart",
+      chartOpen:
+        '<ComposedChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={data} xDataKey="date">',
+      chartClose: "</ComposedChart>",
+      seriesSnippet: `<SeriesBar dataKey="units" fill="var(--chart-3)" radius={4} />
+  <Line dataKey="revenue" stroke="var(--chart-2)" />`,
+      chromeSnippet: `<ChartTooltip showCrosshair={false} />
+  <XAxis numTicks={8} />`,
+      dataKey: "revenue",
+      render: (trendLine) => (
+        <ComposedExampleChart data={dataCast} xDataKey="date">
+          <Grid horizontal />
+          <SeriesBar dataKey="units" fill="var(--chart-3)" radius={4} />
+          <Line dataKey="revenue" stroke="var(--chart-2)" />
+          {trendLine}
+          <ChartTooltip showCrosshair={false} />
+          <XAxis numTicks={8} />
+        </ComposedExampleChart>
+      ),
+    }),
   ];
 }
 
@@ -3197,7 +3345,7 @@ const autoProjectionPath = buildProjectionPath({
       title: "Line Chart - X & Y Axis",
       description: "With both horizontal grid and x-axis labels",
       code: `<LineChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={chartData}>
-  <Grid horizontal vertical />
+  <Grid fadeHorizontal={false} horizontal vertical />
   <Line dataKey="desktop" strokeWidth={2} />
   <XAxis />
   <ChartTooltip />
@@ -3205,7 +3353,7 @@ const autoProjectionPath = buildProjectionPath({
       footer: "Horizontal grid lines serve as the y-axis reference",
       render: () => (
         <LineExampleChart data={lineData}>
-          <Grid horizontal vertical />
+          <Grid fadeHorizontal={false} horizontal vertical />
           <Line dataKey="desktop" strokeWidth={2} />
           <XAxis />
           <ChartTooltip />
@@ -3416,6 +3564,25 @@ const autoProjectionPath = buildProjectionPath({
         </LineExampleChart>
       ),
     }),
+    ...makeCartesianTrendLineExamples({
+      titlePrefix: "Line Chart",
+      chartOpen:
+        "<LineChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={chartData}>",
+      chartClose: "</LineChart>",
+      seriesSnippet: '<Line dataKey="value" strokeWidth={2} />',
+      chromeSnippet: `<XAxis />
+  <ChartTooltip />`,
+      dataKey: "value",
+      render: (trendLine) => (
+        <LineExampleChart data={buildLineChartDemoData()}>
+          <Grid horizontal />
+          <Line dataKey="value" strokeWidth={2} />
+          {trendLine}
+          <XAxis />
+          <ChartTooltip />
+        </LineExampleChart>
+      ),
+    }),
   ];
 }
 
@@ -3489,8 +3656,8 @@ function LiveLineOffsetDemo() {
 }
 
 const momentumColors: MomentumColors = {
-  up: "var(--color-emerald-500)",
-  down: "var(--color-red-500)",
+  up: "var(--chart-positive)",
+  down: "var(--chart-negative)",
   flat: "var(--muted-foreground)",
 };
 
@@ -3582,7 +3749,7 @@ function makeLiveLineExamples(): ChartExample[] {
     {
       title: "Live Line - Momentum Colors",
       description: "Green for increase, red for decrease",
-      code: `const momentumColors = { up: "var(--color-emerald-500)", down: "var(--color-red-500)", flat: "var(--muted-foreground)" };
+      code: `const momentumColors = { up: "var(--chart-positive)", down: "var(--chart-negative)", flat: "var(--muted-foreground)" };
 
 <LiveLineChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={data} value={value} window={25}>
   <LiveLine dataKey="value" momentumColors={momentumColors} formatValue={formatUsd} dotSize={5} />
@@ -3800,7 +3967,7 @@ const visitorsByCountry: Record<string, number> = {
 function getVisitorColor(feat: ChoroplethFeature): string {
   const visitors = visitorsByCountry[feat.properties?.name as string];
   if (!visitors) {
-    return "var(--muted)";
+    return "var(--chart-scale-01)";
   }
   if (visitors >= 17) {
     return "var(--chart-1)";
@@ -5567,7 +5734,7 @@ function makeChoroplethExamples(): ChartExample[] {
 function candlestickIndicatorColor(point: Record<string, unknown>): string {
   const close = (point.close as number) ?? 0;
   const open = (point.open as number) ?? 0;
-  return close >= open ? "var(--color-emerald-500)" : "var(--color-red-500)";
+  return close >= open ? "var(--chart-positive)" : "var(--chart-negative)";
 }
 
 function makeCandlestickExamples(): ChartExample[] {
@@ -5586,7 +5753,7 @@ function makeCandlestickExamples(): ChartExample[] {
   />
   <ChartTooltip
     content={OHLCTooltipContent}
-    indicatorColor={(p) => (p.close >= p.open) ? "var(--color-emerald-500)" : "var(--color-red-500)"}
+    indicatorColor={(p) => (p.close >= p.open) ? "var(--chart-positive)" : "var(--chart-negative)"}
     showDots={false}
   />
   <XAxis />
@@ -5910,7 +6077,8 @@ function ChartHeroCurveToolbar({
   onValueChange: (v: string) => void;
 }) {
   return (
-    <div className="flex flex-wrap items-center justify-end gap-2">
+    // Right inset clears the frame's top-right Replay overlay.
+    <div className="flex flex-wrap items-center justify-end gap-2 pr-6 sm:pr-4">
       <span className="text-muted-foreground text-xs">Curve</span>
       <Select
         onValueChange={(v) => {
@@ -5922,17 +6090,18 @@ function ChartHeroCurveToolbar({
       >
         <SelectTrigger
           aria-label="Chart curve"
-          className="h-8 w-[min(100%,11rem)] text-xs"
+          className="w-[min(100%,11rem)] text-xs"
+          size="sm"
         >
           <SelectValue placeholder="Curve" />
         </SelectTrigger>
-        <SelectContent alignItemWithTrigger={false}>
+        <SelectPopup alignItemWithTrigger={false}>
           {HERO_CURVE_OPTIONS.map((opt) => (
             <SelectItem key={opt.value} value={opt.value}>
               {opt.label}
             </SelectItem>
           ))}
-        </SelectContent>
+        </SelectPopup>
       </Select>
     </div>
   );
@@ -6193,9 +6362,9 @@ import {
   {(brushLayout) => (
     <LineChart data={chartData} xDomain={brushLayout.xDomain} tweenYDomainOnXDomainChange>
       <Background pattern="dots" opacity={0.85} />
-      <Line dataKey="desktop" curve={curveCatmullRom} fadeEdges strokeWidth={2} />
-      <Line dataKey="mobile" curve={curveCatmullRom} fadeEdges strokeWidth={2} />
-      <Line dataKey="tablet" curve={curveCatmullRom} fadeEdges strokeWidth={2} />
+      <Line dataKey="desktop" curve={curveCatmullRom} fadeEdges stroke="var(--chart-1)" strokeWidth={2} />
+      <Line dataKey="mobile" curve={curveCatmullRom} fadeEdges stroke="var(--chart-2)" strokeWidth={2} />
+      <Line dataKey="tablet" curve={curveCatmullRom} fadeEdges stroke="var(--chart-3)" strokeWidth={2} />
       <XAxis />
       <ChartTooltip />
     </LineChart>
@@ -6686,21 +6855,74 @@ function makeFunnelExamples(): ChartExample[] {
 function makeScatterExamples(): ChartExample[] {
   return [
     {
-      title: "Scatter Chart - No Rings",
+      title: "Scatter Chart - With Jitter",
       description:
-        "Solid fills only — set `strokeWidth={0}` to hide the outer ring",
+        "Lines changed per merged PR by month — `jitter` spreads overlapping PRs with a deterministic offset. Fastlane auto-merges stay under 500 LOC; human-reviewed PRs spread wider. No crosshair by default; tooltips keep the original values",
+      code: prLocChartSnippet,
+      data: prLocDataSnippet,
+      render: () => (
+        <ScatterExampleChart
+          data={prLocData}
+          formatXLabel={formatPrMonth}
+          jitter={{ x: 0.6 }}
+          margin={chartMarginLeftYAxis}
+        >
+          <Grid
+            highlightRowStrokeDasharray="4,4"
+            highlightRowValues={[500]}
+            horizontal
+          />
+          <Scatter
+            dataKey="fastlane"
+            fill={prLocSeries.fastlane.color}
+            radius={3}
+          />
+          <Scatter dataKey="human" fill={prLocSeries.human.color} radius={3} />
+          <YAxis formatValue={formatLoc} />
+          <XAxis numTicks={12} />
+          <ChartTooltip
+            content={({ point }) => <PrLocTooltip point={point} />}
+          />
+        </ScatterExampleChart>
+      ),
+    },
+    {
+      title: "Scatter Chart - Rings",
+      description:
+        "Offset rings are opt-in — set `strokeWidth` (and optionally `ringGap`) to draw one",
       code: `<ScatterChart data={chartData} margin={{ top: 8, right: 8, bottom: 40, left: 8 }}>
   <Grid horizontal />
-  <Scatter dataKey="desktop" strokeWidth={0} />
-  <Scatter dataKey="mobile" strokeWidth={0} />
+  <Scatter dataKey="desktop" ringGap={2} strokeWidth={2} />
+  <Scatter dataKey="mobile" ringGap={2} strokeWidth={2} />
   <XAxis />
   <ChartTooltip />
 </ScatterChart>`,
       render: () => (
         <ScatterExampleChart data={multiLineData}>
           <Grid horizontal />
-          <Scatter dataKey="desktop" strokeWidth={0} />
-          <Scatter dataKey="mobile" strokeWidth={0} />
+          <Scatter dataKey="desktop" ringGap={2} strokeWidth={2} />
+          <Scatter dataKey="mobile" ringGap={2} strokeWidth={2} />
+          <XAxis />
+          <ChartTooltip />
+        </ScatterExampleChart>
+      ),
+    },
+    {
+      title: "Scatter Chart - Blur Inactive",
+      description:
+        'Opt into blur on non-active points while hovering with `inactiveMode="blur"`',
+      code: `<ScatterChart data={chartData} margin={{ top: 8, right: 8, bottom: 40, left: 8 }}>
+  <Grid horizontal />
+  <Scatter dataKey="desktop" inactiveMode="blur" />
+  <Scatter dataKey="mobile" inactiveMode="blur" />
+  <XAxis />
+  <ChartTooltip />
+</ScatterChart>`,
+      render: () => (
+        <ScatterExampleChart data={multiLineData}>
+          <Grid horizontal />
+          <Scatter dataKey="desktop" inactiveMode="blur" />
+          <Scatter dataKey="mobile" inactiveMode="blur" />
           <XAxis />
           <ChartTooltip />
         </ScatterExampleChart>
@@ -6863,7 +7085,7 @@ function makeScatterHero(): ChartExample {
   return {
     title: "Scatter Chart",
     description:
-      "Desktop vs mobile over 24 months with default offset rings and crosshair tooltip",
+      "Desktop vs mobile over 24 months with hover dimming and crosshair tooltip",
     code: `<ScatterChart data={chartData} margin={{ top: 8, right: 8, bottom: 40, left: 8 }}>
   <Grid horizontal />
   <Scatter dataKey="desktop" />
@@ -7161,35 +7383,41 @@ function makeSunburstExamples(): ChartExample[] {
 
 interface RegistryEntry {
   factory: () => ChartExample[];
-  columns?: 2 | 3;
   hero?: () => ChartExample;
   notice?: string;
   previewLayout?: ChartExamplePreviewLayout;
 }
 
 const chartExamplesRegistry: Record<string, RegistryEntry> = {
-  "area-chart": { factory: makeAreaExamples, hero: makeAreaHero },
-  "bar-chart": { factory: makeBarExamples, hero: makeBarHero },
+  "area-chart": {
+    factory: makeAreaExamples,
+    hero: makeAreaHero,
+    previewLayout: "time-series",
+  },
+  "bar-chart": {
+    factory: makeBarExamples,
+    hero: makeBarHero,
+    previewLayout: "time-series",
+  },
   "candlestick-chart": {
     factory: makeCandlestickExamples,
     hero: makeCandlestickHero,
+    previewLayout: "time-series",
   },
   "choropleth-chart": {
     factory: makeChoroplethExamples,
-    columns: 2,
     hero: makeChoroplethHero,
     previewLayout: "wide",
   },
   "composed-chart": {
     factory: makeComposedExamples,
-    columns: 2,
     hero: makeComposedHero,
+    previewLayout: "time-series",
   },
   "funnel-chart": {
     factory: makeFunnelExamples,
-    columns: 2,
     hero: makeFunnelHero,
-    previewLayout: "compact",
+    previewLayout: "funnel",
   },
   "gauge-chart": {
     factory: makeGaugeExamples,
@@ -7198,16 +7426,22 @@ const chartExamplesRegistry: Record<string, RegistryEntry> = {
   },
   "heatmap-chart": {
     factory: makeHeatmapExamples,
-    columns: 2,
     hero: makeHeatmapHero,
     previewLayout: "heatmap",
   },
-  "line-chart": { factory: makeLineExamples, hero: makeLineHero },
-  "profit-loss-line": { factory: makeProfitLossLineExamples },
+  "line-chart": {
+    factory: makeLineExamples,
+    hero: makeLineHero,
+    previewLayout: "time-series",
+  },
+  "profit-loss-line": {
+    factory: makeProfitLossLineExamples,
+    previewLayout: "time-series",
+  },
   "live-line-chart": {
-    columns: 2,
     factory: makeLiveLineExamples,
     hero: makeLiveLineHero,
+    previewLayout: "time-series",
   },
   "pie-chart": { factory: makePieExamples, previewLayout: "compact" },
   "radar-chart": { factory: makeRadarExamples, previewLayout: "compact" },
@@ -7215,7 +7449,6 @@ const chartExamplesRegistry: Record<string, RegistryEntry> = {
   "scatter-chart": { factory: makeScatterExamples, hero: makeScatterHero },
   "sankey-chart": {
     factory: makeSankeyExamples,
-    columns: 2,
     hero: makeSankeyHero,
     previewLayout: "wide",
     notice:
@@ -7223,7 +7456,6 @@ const chartExamplesRegistry: Record<string, RegistryEntry> = {
   },
   "sunburst-chart": {
     factory: makeSunburstExamples,
-    columns: 2,
     hero: makeSunburstHero,
     previewLayout: "compact",
   },
@@ -7233,7 +7465,15 @@ const chartExamplesRegistry: Record<string, RegistryEntry> = {
 // Public component
 // ---------------------------------------------------------------------------
 
-const chartsPageContentClassName = "container mx-auto w-full overflow-visible";
+const chartsPageContentClassName = siteContainerClassName;
+
+/** Every gallery variation: each chart type's hero plus its example cards. */
+export function chartExampleVariationCount(): number {
+  return Object.values(chartExamplesRegistry).reduce(
+    (total, entry) => total + entry.factory().length + (entry.hero ? 1 : 0),
+    0
+  );
+}
 
 export function ChartExamplesGrid({ chartSlug }: { chartSlug: string }) {
   const entry = chartExamplesRegistry[chartSlug];
@@ -7248,17 +7488,49 @@ export function ChartExamplesGrid({ chartSlug }: { chartSlug: string }) {
 
   const examples = entry.factory();
   const hero = entry.hero?.();
-  const gridCols =
-    entry.columns === 2
-      ? "grid grid-cols-1 gap-6 md:grid-cols-2"
-      : "grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3";
+  const anchorIds = createChartGalleryAnchorIds([
+    ...(hero ? [hero.title] : []),
+    ...examples.map((example) => example.title),
+  ]);
+  const heroAnchorId = hero ? anchorIds[0] : undefined;
+  const exampleAnchorIds = hero ? anchorIds.slice(1) : anchorIds;
+  const anchors: ChartGalleryAnchor[] = [
+    ...(hero && heroAnchorId
+      ? [
+          {
+            id: heroAnchorId,
+            label: chartGalleryAnchorLabel(hero.title),
+            featured: true,
+          },
+        ]
+      : []),
+    ...examples.map((example, index) => ({
+      id: exampleAnchorIds[index] ?? "",
+      label: chartGalleryAnchorLabel(example.title),
+    })),
+  ];
 
   return (
-    <>
-      {hero ? (
-        <section className="relative w-full">
-          <div className={chartsPageContentClassName}>
+    <section className="relative w-full">
+      <div
+        className={cn(
+          chartsPageContentClassName,
+          "grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,4fr)] lg:gap-10"
+        )}
+      >
+        <ChartGallerySidebar anchors={anchors} />
+
+        <div className="flex min-w-0 flex-col gap-6 lg:gap-8">
+          {entry.notice ? (
+            <div className="rounded-xl border bg-card px-4 py-3 text-muted-foreground text-sm shadow-xs/5">
+              {entry.notice}
+            </div>
+          ) : null}
+
+          {hero ? (
             <FeaturedChartHero
+              anchorId={heroAnchorId}
+              chartSlug={chartSlug}
               code={hero.code}
               data={hero.data}
               description={hero.description}
@@ -7268,35 +7540,25 @@ export function ChartExamplesGrid({ chartSlug }: { chartSlug: string }) {
             >
               {hero.render()}
             </FeaturedChartHero>
-          </div>
-        </section>
-      ) : null}
-
-      <section className="relative w-full">
-        <div className={chartsPageContentClassName}>
-          {entry.notice ? (
-            <div className="mb-6 rounded-lg border border-border/50 bg-muted/30 px-3 py-3 text-muted-foreground text-sm">
-              {entry.notice}
-            </div>
           ) : null}
 
-          <div className={gridCols}>
-            {examples.map((example) => (
-              <ChartExampleCard
-                code={example.code}
-                data={example.data}
-                description={example.description}
-                footer={example.footer}
-                key={example.title}
-                previewLayout={entry.previewLayout}
-                title={example.title}
-              >
-                {example.render()}
-              </ChartExampleCard>
-            ))}
-          </div>
+          {examples.map((example, index) => (
+            <ChartExampleCard
+              anchorId={exampleAnchorIds[index]}
+              chartSlug={chartSlug}
+              code={example.code}
+              data={example.data}
+              description={example.description}
+              footer={example.footer}
+              key={example.title}
+              previewLayout={example.previewLayout ?? entry.previewLayout}
+              title={example.title}
+            >
+              {example.render()}
+            </ChartExampleCard>
+          ))}
         </div>
-      </section>
-    </>
+      </div>
+    </section>
   );
 }

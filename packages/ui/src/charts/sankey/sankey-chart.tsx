@@ -1,8 +1,8 @@
 "use client";
 
 import { localPoint } from "@visx/event";
-import { ParentSize } from "@visx/responsive";
 import { sankey, sankeyCenter, sankeyLinkHorizontal } from "@visx/sankey";
+import type { SankeyLink } from "d3-sankey";
 import type { Transition } from "motion/react";
 import {
   memo,
@@ -14,6 +14,7 @@ import {
   useState,
 } from "react";
 import { cn } from "@/lib/utils";
+import { ParentSize } from "../chart-parent-size";
 import {
   type Margin,
   type SankeyLinkDatum,
@@ -97,7 +98,7 @@ const SankeyChartCore = memo(function SankeyChartCore({
 }: SankeyChartInnerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [revealEpoch, setRevealEpoch] = useState(0);
+  const [revealEpoch, setRevealEpoch] = useState(1);
   const [internalHoveredNodeIndex, setInternalHoveredNodeIndex] = useState<
     number | null
   >(null);
@@ -126,10 +127,24 @@ const SankeyChartCore = memo(function SankeyChartCore({
   const innerWidth = width - margin.left - margin.right;
   const innerHeight = height - margin.top - margin.bottom;
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: revealSignature
-  useEffect(() => {
+  // Replay the reveal when motion settings change. Adjusted during render
+  // ("store previous props in state") instead of setState in an effect, so a
+  // replay costs one render rather than a commit plus a cascading re-render.
+  const [revealKey, setRevealKey] = useState({
+    animationDuration,
+    revealSignature,
+  });
+  if (
+    revealKey.animationDuration !== animationDuration ||
+    revealKey.revealSignature !== revealSignature
+  ) {
+    setRevealKey({ animationDuration, revealSignature });
     setRevealEpoch((n) => n + 1);
     setIsLoaded(false);
+  }
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: revealSignature
+  useEffect(() => {
     const timeout = setTimeout(() => {
       setIsLoaded(true);
     }, animationDuration);
@@ -156,8 +171,7 @@ const SankeyChartCore = memo(function SankeyChartCore({
   }, [data, sankeyGenerator]);
 
   const createPath = useCallback(
-    // biome-ignore lint/suspicious/noExplicitAny: d3-sankey types are complex
-    (link: any) => {
+    (link: SankeyLink<SankeyNodeDatum, SankeyLinkDatum>) => {
       try {
         const pathGenerator = sankeyLinkHorizontal();
         return pathGenerator(link) || "";
@@ -211,6 +225,7 @@ const SankeyChartCore = memo(function SankeyChartCore({
       <div className="relative h-full w-full" ref={containerRef}>
         <svg
           aria-hidden="true"
+          className="overflow-visible"
           height={height}
           onMouseLeave={handleMouseLeave}
           onMouseMove={handleMouseMove}

@@ -16,6 +16,11 @@ const DEFAULT_LABEL_REVENUE_RE = /defaultLabel="Revenue"/;
 const START_ANGLE_90_RE = /startAngle=\{90\}/;
 const DATA_KEY_MOBILE_RE = /dataKey="mobile"/;
 const INTERVAL_750_RE = /750/;
+const TREND_LINE_RE = /TrendLine/;
+const TREND_LINE_IMPORT_RE =
+  /import \{[^}]*TrendLine[^}]*\} from "@bklitui\/ui\/charts"/;
+const TREND_LINE_JSX_RE =
+  /<TrendLine dataKey="mobile" stroke="var\(--chart-2\)" strokeStyle="solid" yAxisId="right" \/>/;
 
 describe("generateStudioCode", () => {
   for (const slug of validChartSlugs) {
@@ -79,6 +84,32 @@ describe("generateStudioCode", () => {
     const { code } = generateStudioCode("gauge-chart", state);
     assert.match(code, DEFAULT_LABEL_REVENUE_RE);
     assert.match(code, START_ANGLE_90_RE);
+  });
+});
+
+describe("trend line codegen", () => {
+  it("is omitted while the layer is hidden (default)", () => {
+    const { code } = generateStudioCode(
+      "line-chart",
+      defaultStudioState({ chart: "line-chart", dataSeries: 2 })
+    );
+    assert.doesNotMatch(code, TREND_LINE_RE);
+  });
+
+  it("emits non-default props and import when shown", () => {
+    const { code } = generateStudioCode(
+      "line-chart",
+      defaultStudioState({
+        chart: "line-chart",
+        dataSeries: 2,
+        hiddenComponents: "+line.trend-line",
+        lineSeriesYAxes: "left|right",
+        trendLineSeries: 1,
+        trendLineStrokeStyle: "solid",
+      })
+    );
+    assert.match(code, TREND_LINE_JSX_RE);
+    assert.match(code, TREND_LINE_IMPORT_RE);
   });
 });
 

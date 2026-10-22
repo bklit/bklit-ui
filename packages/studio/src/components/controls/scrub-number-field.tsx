@@ -1,6 +1,5 @@
 "use client";
 
-import type { NumberField as NumberFieldPrimitive } from "@base-ui/react/number-field";
 import { Icon } from "@bklitui/icons";
 import { cn } from "@bklitui/ui/lib/utils";
 import {
@@ -14,13 +13,7 @@ import { studioControlInputClass } from "@/components/controls/control-field-hel
 import { useStudioNumberScrubbing } from "@/components/use-studio-state";
 import { useRafPreview } from "@/hooks/use-raf-preview";
 import { studioScrubSurfaceClass } from "@/lib/studio-chrome-classes";
-import {
-  NumberFieldGroup,
-  NumberFieldInput,
-  NumberFieldRoot,
-  NumberFieldScrubArea,
-  NumberFieldScrubAreaCursor,
-} from "@/ui/number-field";
+import { NumberField, NumberFieldPrimitive } from "@/ui/number-field";
 
 function clamp(n: number, min: number, max: number) {
   return Math.min(max, Math.max(min, n));
@@ -194,7 +187,7 @@ export function ScrubNumberField({
   };
 
   return (
-    <NumberFieldRoot
+    <NumberField
       className={cn("min-w-0 flex-1", className)}
       disabled={disabled}
       format={format}
@@ -225,13 +218,13 @@ export function ScrubNumberField({
       step={step}
       value={localValue}
     >
-      <NumberFieldGroup
+      <NumberFieldPrimitive.Group
         className={cn(
           "flex h-10 w-full min-w-0 items-center overflow-hidden focus-within:ring-3 focus-within:ring-ring/50",
           studioScrubSurfaceClass
         )}
       >
-        <NumberFieldScrubArea
+        <NumberFieldPrimitive.ScrubArea
           className="flex shrink-0 cursor-ew-resize select-none items-center self-stretch px-2 text-muted-foreground hover:text-foreground data-scrubbing:text-foreground"
           direction="horizontal"
           onPointerEnter={() => {
@@ -246,13 +239,13 @@ export function ScrubNumberField({
           {scrubIcon ?? (
             <Icon aria-hidden className="size-4" name="IconArrowTopBottom" />
           )}
-          <NumberFieldScrubAreaCursor className="pointer-events-none rounded-sm bg-foreground px-1 py-0.5 text-background shadow-md">
+          <NumberFieldPrimitive.ScrubAreaCursor className="pointer-events-none rounded-sm bg-foreground px-1 py-0.5 text-background shadow-md">
             <Icon aria-hidden className="size-3" name="IconArrowLeftRight" />
-          </NumberFieldScrubAreaCursor>
-        </NumberFieldScrubArea>
-        <NumberFieldInput
+          </NumberFieldPrimitive.ScrubAreaCursor>
+        </NumberFieldPrimitive.ScrubArea>
+        <NumberFieldPrimitive.Input
           className={cn(
-            "h-full min-w-0 flex-1 rounded-none border-0 bg-transparent px-1.5 shadow-none ring-0 focus-visible:border-transparent focus-visible:ring-0",
+            "h-full w-full min-w-0 flex-1 bg-transparent px-1.5 py-1 outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed",
             studioControlInputClass,
             "tabular-nums [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
           )}
@@ -262,7 +255,7 @@ export function ScrubNumberField({
             {unit}
           </span>
         ) : null}
-      </NumberFieldGroup>
-    </NumberFieldRoot>
+      </NumberFieldPrimitive.Group>
+    </NumberField>
   );
 }

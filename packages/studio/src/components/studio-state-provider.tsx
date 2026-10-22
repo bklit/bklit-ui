@@ -200,9 +200,11 @@ export function StudioStateProvider({
       hiddenComponents: chartDefaultHiddenComponents(yAxisChartPrefix, {
         showLegend: params.showLegend,
         showBrush: params.showBrush,
+        showBand: params.bandEnabled,
       }),
     });
   }, [
+    params.bandEnabled,
     params.hiddenComponents,
     params.showBrush,
     params.showLegend,
@@ -491,6 +493,7 @@ function buildMemoryStudioState(
       hiddenComponents: chartDefaultHiddenComponents(prefix, {
         showLegend: loaded.showLegend,
         showBrush: loaded.showBrush,
+        showBand: loaded.bandEnabled,
       }),
     };
   }

@@ -18,10 +18,11 @@ import { useMemo, useState } from "react";
 export const LINE_CHART_STUDIO_TRIO_SHARE_PATH =
   "/studio?s=v1.NrAMBoCIBsEsDsCmBaAxgCwIYCcAukBdcYAJigHsBraDAClADoAOJkgAkYEYBmTt3kgwCcoAOwBKQsW4VqdRixIBSEqC68VoAcLHiAPlRrpanTaE0lOAVgaWr%2Bw-OZWzDMUM0AWJsKGSiwFbgnGKcAQBs4OHeASRCUKiYuAC2AK7Q0ABK5MlSwDxMUCR6xSR5PPGQAEbkuOh6NXUNtejlnmSQoHpdoG0ykNx6VkNtnlBdpW1BnQzDkwGcnpGd3d1tlYkp6Vk5eptpGdnJe0kHO7kLVhDcl5zgolYLD1AAJrUAzuWiosG2j8ScUTxRgPBZMO6QRzGRjhKxWDhsJhCZiicJsAD0HAYngk5SY-Sh9AY3HxWM4nHYJFEngYnFhGKxoCY-gBLGC-3ySPA3HCsRC4Fw2FSiD5P0Fwr5hUgb1wnz5lUJCnCaMY3DVbDiglAJHCLNIqnAjA5JBNhr%2BsRI00V2KE8MYJG48KRKLRmNAepNkSNFrFQpFxBNUtw5AADnkHRBIOhyNhYAAvcjwXCYaDh7hjABmKfe-tIjrNJFi3B%2BMAQiAYAE9MAAPWDvBjQRAZ3B6OBISs1usMWMAc3QLbb5Z7sZehAIQA";
 
+/** Palette tokens so the trio follows the selected chart theme. */
 const TRIO_STROKES = {
-  desktop: "oklch(0.882 0.131 312.907)",
-  mobile: "oklch(1 0 215.215)",
-  tablet: "oklch(0.85 0.079 48.99)",
+  desktop: "var(--chart-1)",
+  mobile: "var(--chart-2)",
+  tablet: "var(--chart-3)",
 } as const;
 
 const TRIO_KEYS = ["desktop", "mobile", "tablet"] as const;

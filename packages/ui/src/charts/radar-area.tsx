@@ -185,6 +185,7 @@ export const RadarArea = memo(function RadarArea({
           }}
           d={pathD}
           fill={color}
+          initial={false}
           stroke={showStroke ? color : "none"}
           strokeLinejoin="round"
           style={{

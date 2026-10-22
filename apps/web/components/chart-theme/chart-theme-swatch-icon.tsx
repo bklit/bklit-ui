@@ -1,4 +1,3 @@
-import type { ChartThemeSwatch } from "@/lib/chart-themes/types";
 import { cn } from "@/lib/utils";
 
 const circleSizeClass = {
@@ -17,13 +16,14 @@ const cutoutShadowClass = {
   menu: "shadow-[0_0_0_2px_var(--popover)]",
 } as const;
 
+/** Overlapping dots for the first palette colors (chart-1 on top). */
 export function ChartThemeSwatchIcon({
-  swatch,
+  colors,
   className,
   size = "md",
   context = "menu",
 }: {
-  swatch: ChartThemeSwatch;
+  colors: readonly string[];
   className?: string;
   size?: "sm" | "md";
   context?: "trigger" | "menu";
@@ -36,19 +36,18 @@ export function ChartThemeSwatchIcon({
       aria-hidden
       className={cn("inline-flex shrink-0 items-center", className)}
     >
-      <span
-        className={cn("rounded-full", circleClass)}
-        style={{ backgroundColor: swatch.background }}
-      />
-      <span
-        className={cn(
-          "relative z-10 rounded-full",
-          cutoutShadowClass[context],
-          overlap,
-          circleClass
-        )}
-        style={{ backgroundColor: swatch.foreground }}
-      />
+      {colors.map((color, index) => (
+        <span
+          className={cn(
+            "relative rounded-full",
+            circleClass,
+            index > 0 && overlap,
+            cutoutShadowClass[context]
+          )}
+          key={index}
+          style={{ backgroundColor: color, zIndex: colors.length - index }}
+        />
+      ))}
     </span>
   );
 }

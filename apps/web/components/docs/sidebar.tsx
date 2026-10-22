@@ -5,38 +5,35 @@ import type * as PageTree from "fumadocs-core/page-tree";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { DocsScrollArea } from "@/components/docs/docs-scroll-area";
-import { NavLinkLabel } from "@/components/docs/nav-link-label";
+import { NavBadge } from "@/components/nav-badge";
+import { getNavBadge } from "@/lib/nav-badges";
+import { isFileUrl, type SiteNavLink } from "@/lib/site-nav-links";
 import { cn } from "@/lib/utils";
 
+/** coss ui docs sidebar styling (https://coss.com/ui, MIT). */
 const linkStyles = {
-  base: "flex w-fit items-center gap-2 rounded-md px-3 py-1.5 font-medium text-xs no-underline",
-  active: "bg-muted text-card-foreground",
-  inactive: "text-foreground dark:text-accent-foreground",
+  base: "flex h-8 w-full min-w-0 items-center gap-2 rounded-lg ps-3.5 pe-2 text-sm no-underline outline-hidden ring-sidebar-ring transition-colors focus-visible:ring-2 focus-visible:ring-inset [&>svg]:size-4 [&>svg]:shrink-0 [&>span]:truncate",
+  active: "bg-sidebar-accent font-medium text-sidebar-accent-foreground",
+  inactive: "text-sidebar-foreground hover:text-sidebar-accent-foreground",
   heading:
-    "ring-sidebar-ring flex h-8 shrink-0 items-center rounded-md px-2 text-xs outline-hidden transition-[margin,opacity] duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0 group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0 text-muted-foreground font-medium",
+    "flex h-7 shrink-0 items-center gap-2 font-medium text-sidebar-accent-foreground text-xs [&>svg]:size-4 [&>svg]:shrink-0",
 };
-
-interface NavLink {
-  text: string;
-  url: string;
-  active?: "url" | "nested-url";
-}
 
 interface SidebarProps {
   tree: PageTree.Root;
-  links?: NavLink[];
+  links?: SiteNavLink[];
 }
 
 export function Sidebar({ tree, links = [] }: SidebarProps) {
   const pathname = usePathname();
 
   return (
-    <aside className="fixed top-(--site-header-height) left-0 hidden h-[calc(100vh-var(--site-header-height))] w-80 overflow-hidden bg-background lg:block">
-      <DocsScrollArea className="h-full py-4 pt-16" showEdgeGradient>
-        <nav className="p-10 pl-16">
+    <aside className="sticky top-(--site-header-height) z-30 hidden h-[calc(100svh-var(--site-header-height))] w-[13.5rem] min-w-0 max-w-full overflow-hidden [--docs-scroll-fade:var(--sidebar)] lg:col-start-1 lg:row-start-1 lg:block xl:w-[14.5rem]">
+      <DocsScrollArea className="h-full">
+        <nav className="pe-4 pt-8 pb-10">
           {/* Top-level navigation links */}
           {links.length > 0 && (
-            <ul className="m-0 mb-4 list-none space-y-0.5 p-0">
+            <ul className="m-0 mb-6 flex list-none flex-col gap-0.5 p-0">
               <li className={linkStyles.heading}>Getting Started</li>
               {links.map((link) => {
                 // Only exact match for sidebar top-level links
@@ -50,7 +47,8 @@ export function Sidebar({ tree, links = [] }: SidebarProps) {
                       )}
                       href={link.url}
                     >
-                      <NavLinkLabel text={link.text} url={link.url} />
+                      <span>{link.text}</span>
+                      <NavBadge kind={getNavBadge(link.url)} />
                     </Link>
                   </li>
                 );
@@ -66,7 +64,7 @@ export function Sidebar({ tree, links = [] }: SidebarProps) {
 
 function SidebarNodes({ nodes }: { nodes: PageTree.Node[] }) {
   return (
-    <ul className="m-0 list-none p-0">
+    <ul className="m-0 flex list-none flex-col gap-0.5 p-0">
       {nodes.map((node, index) => (
         <SidebarNode key={node.$id ?? index} node={node} />
       ))}
@@ -79,7 +77,7 @@ function SidebarNode({ node }: { node: PageTree.Node }) {
 
   if (node.type === "separator") {
     return (
-      <li className={cn(linkStyles.heading, "mt-4 pt-3 first:mt-0 first:pt-0")}>
+      <li className={cn(linkStyles.heading, "mt-6 mb-1 first:mt-0")}>
         {node.icon}
         <span>{node.name}</span>
       </li>
@@ -99,10 +97,12 @@ function SidebarNode({ node }: { node: PageTree.Node }) {
             linkStyles.base,
             isActive ? linkStyles.active : linkStyles.inactive
           )}
+          external={node.external || isFileUrl(node.url)}
           href={node.url}
         >
           {node.icon}
           <span>{node.name}</span>
+          <NavBadge kind={getNavBadge(node.url)} />
         </Link>
       </li>
     );
@@ -126,7 +126,7 @@ function SidebarFolder({
 
   return (
     <li className="list-none">
-      <div className="flex items-center">
+      <div className="flex items-center gap-0.5">
         {indexPage ? (
           <Link
             className={cn(
@@ -137,6 +137,7 @@ function SidebarFolder({
           >
             {node.icon}
             <span>{node.name}</span>
+            <NavBadge kind={getNavBadge(indexPage.url)} />
           </Link>
         ) : (
           <button
@@ -152,7 +153,7 @@ function SidebarFolder({
           <button
             aria-expanded={isOpen}
             aria-label={isOpen ? "Collapse" : "Expand"}
-            className="flex size-7 cursor-pointer items-center justify-center rounded-md border-none bg-transparent text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
+            className="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-lg border-none bg-transparent text-sidebar-foreground outline-hidden ring-sidebar-ring transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 focus-visible:ring-inset"
             onClick={() => setIsOpen(!isOpen)}
             type="button"
           >
@@ -170,7 +171,7 @@ function SidebarFolder({
         )}
       </div>
       {isOpen && node.children.length > 0 && (
-        <div className="ml-3 border-border border-l pl-3">
+        <div className="relative ms-3.5 mt-0.5 ps-2 before:absolute before:inset-y-0 before:start-0 before:w-px before:bg-sidebar-border">
           <SidebarNodes nodes={node.children} />
         </div>
       )}

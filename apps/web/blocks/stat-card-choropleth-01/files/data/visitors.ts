@@ -48,7 +48,7 @@ export function getVisitorColor(feature: ChoroplethFeature): string {
   const visitors = visitorsByCountry[name];
 
   if (!visitors) {
-    return "var(--muted)";
+    return "var(--chart-scale-01)";
   }
   if (visitors >= 17) {
     return "var(--chart-1)";

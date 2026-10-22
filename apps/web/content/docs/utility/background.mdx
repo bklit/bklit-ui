@@ -19,7 +19,7 @@ import { OpenInStudioButton } from "@/components/docs/open-in-studio-button";
 
 ## Installation
 
-<InstallationTabs name="background" dependencies={["@visx/pattern", "motion"]} />
+<InstallationTabs name="background" dependencies={["motion"]} />
 
 ## Usage
 
@@ -58,7 +58,7 @@ import { LineChart, Line, Background, ChartTooltip, XAxis } from "@bklitui/ui/ch
 | `fadeHorizontalLength` | `number` | `10` | Horizontal fade zone as % of plot width per edge (0–45) |
 | `fadeVerticalLength` | `number` | `10` | Vertical fade zone as % of plot height per edge (0–45) |
 
-Patterns use [@visx/pattern](https://visx.airbnb.tech/docs/pattern) under the hood (`PatternLines` and `PatternCircles`).
+Patterns use `PatternLines` and `PatternCircles` from the bundled `@bklit/patterns` registry item, vendored from [@visx/pattern](https://visx.airbnb.tech/docs/pattern) (MIT), so there is no package dependency.
 
 ## Studio
 

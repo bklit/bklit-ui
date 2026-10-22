@@ -28,6 +28,14 @@ export {
 } from "./area-chart-loading";
 // Shared chart elements
 export { Background, type BackgroundProps } from "./background";
+export {
+  Band,
+  type BandFadeEdges,
+  type BandFillType,
+  type BandProps,
+  type BandStrokeProps,
+} from "./band";
+export { type BandConfig, extractBandConfigs } from "./band-config";
 // Bar chart components
 export {
   Bar,
@@ -69,6 +77,10 @@ export {
 } from "./bar-squares-layout";
 export { BarXAxis, type BarXAxisProps } from "./bar-x-axis";
 export { BarYAxis, type BarYAxisProps } from "./bar-y-axis";
+export {
+  type BollingerBandsOptions,
+  withBollingerBands,
+} from "./bollinger";
 export { Candlestick, type CandlestickProps } from "./candlestick";
 export {
   CandlestickChart,
@@ -191,6 +203,22 @@ export {
   ComposedChart,
   type ComposedChartProps,
 } from "./composed-chart";
+// Date-axis utilities (weekend shading, deadline marker)
+export {
+  computeWeekendIndexRuns,
+  computeWeekendRanges,
+  type DateRange,
+  type DateRangeAlign,
+  DEFAULT_WEEKEND_DAYS,
+  isWeekendDate,
+  type WeekdayIndex,
+} from "./date-ranges";
+export {
+  Deadline,
+  type DeadlineDate,
+  type DeadlineFillType,
+  type DeadlineProps,
+} from "./deadline";
 // Funnel chart components
 export {
   FunnelChart,
@@ -509,8 +537,13 @@ export {
   useSankey,
 } from "./sankey";
 // Scatter chart components
-export { Scatter, type ScatterProps } from "./scatter";
+export {
+  Scatter,
+  type ScatterInactiveMode,
+  type ScatterProps,
+} from "./scatter";
 export { ScatterChart, type ScatterChartProps } from "./scatter-chart";
+export type { ScatterJitter } from "./scatter-jitter";
 // Segment selection components
 export {
   SegmentBackground,
@@ -598,10 +631,25 @@ export {
   type TooltipContentProps,
   TooltipDot,
   type TooltipDotProps,
+  TooltipHeader,
+  type TooltipHeaderProps,
   TooltipIndicator,
   type TooltipIndicatorProps,
   type TooltipRow,
 } from "./tooltip";
+export {
+  TrendLine,
+  type TrendLineProps,
+  type TrendLineStrokeStyle,
+} from "./trend-line";
+export {
+  computeLinearRegression,
+  computeTrendSegment,
+  interpolateTrendSegment,
+  type LinearRegression,
+  type TrendPoint,
+  type TrendSegment,
+} from "./trend-line-utils";
 export { useAnimatedYDomains } from "./use-animated-y-domains";
 // Chart interaction hook
 export {
@@ -614,6 +662,11 @@ export {
   PatternLines,
   PatternWaves,
 } from "./visx-pattern";
+export {
+  Weekends,
+  type WeekendsFillType,
+  type WeekendsProps,
+} from "./weekends";
 export { XAxis, type XAxisProps } from "./x-axis";
 export { YAxis, type YAxisProps } from "./y-axis";
 export {

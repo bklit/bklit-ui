@@ -5,7 +5,7 @@ import { cn } from "@bklitui/ui/lib/utils";
 import type { CurveId } from "@/lib/curves";
 import type { PatternPresetId } from "@/lib/patterns";
 import type { StudioUrlState } from "@/lib/studio-parsers";
-import type { StudioControl } from "@/lib/types";
+import type { StrokeStyleOption, StudioControl } from "@/lib/types";
 import { Input } from "@/ui/input";
 import {
   Select,
@@ -71,12 +71,16 @@ export function ControlFieldInputs({
     case "select":
       return (
         <Select
+          items={control.options}
           onValueChange={(v) =>
             onChange(control.key, v as StudioUrlState[typeof control.key])
           }
           value={String(value)}
         >
-          <SelectTrigger className="w-full text-xs" id={String(control.key)}>
+          <SelectTrigger
+            className="w-full text-xs sm:text-xs"
+            id={String(control.key)}
+          >
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -178,7 +182,7 @@ export function ControlFieldInputs({
     case "fadeEdges":
       return (
         <FadeEdgesPicker
-          onChange={(v) => onChange("fadeEdges", v)}
+          onChange={(v) => onChange(control.key, v)}
           value={value as FadeEdgesOption}
         />
       );
@@ -195,7 +199,8 @@ export function ControlFieldInputs({
           onChange={(v) =>
             onChange(control.key, v as StudioUrlState[typeof control.key])
           }
-          value={value as "solid" | "dashed"}
+          options={control.options}
+          value={value as StrokeStyleOption}
         />
       );
     case "crosshairFade":

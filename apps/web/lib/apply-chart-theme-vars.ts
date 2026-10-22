@@ -1,61 +1,58 @@
 import type {
-  ChartColorTheme,
-  ChartThemeVarName,
-} from "@/lib/chart-themes/types";
-import { CHART_THEME_VAR_NAMES } from "@/lib/chart-themes/types";
+  ChartPalette,
+  ChartPaletteColors,
+  ChartPaletteMode,
+  ChartPaletteVarName,
+} from "@bklitui/studio/chart-palettes";
+import { CHART_THEME_VAR_NAMES } from "@/lib/chart-themes";
 
-export type ChartThemeMode = "light" | "dark";
+export type ChartThemeMode = ChartPaletteMode;
 
-function getThemeVars(theme: ChartColorTheme, mode: ChartThemeMode) {
-  return mode === "dark" ? theme.dark : theme.light;
-}
+/** Live (uncommitted) color edits for one mode, merged over the palette. */
+export type ChartThemePreview = {
+  mode: ChartThemeMode;
+  vars: Partial<Record<ChartPaletteVarName, string>>;
+} | null;
 
-function hasThemeOverrides(vars: Partial<Record<ChartThemeVarName, string>>) {
-  return Object.keys(vars).length > 0;
-}
-
-function applyVarsToElement(
-  element: HTMLElement,
-  vars: Partial<Record<ChartThemeVarName, string>>,
-  clearOverrides: boolean
-) {
-  for (const name of CHART_THEME_VAR_NAMES) {
-    const value = vars[name];
-
-    if (clearOverrides || value === undefined) {
-      element.style.removeProperty(`--${name}`);
-      continue;
-    }
-
-    element.style.setProperty(`--${name}`, value);
+function resolveVars(
+  theme: ChartPalette,
+  mode: ChartThemeMode,
+  preview: ChartThemePreview
+): ChartPaletteColors {
+  const base = mode === "dark" ? theme.dark : theme.light;
+  if (!preview || preview.mode !== mode) {
+    return base;
   }
+  return { ...base, ...preview.vars };
 }
 
 export function applyChartThemeVarsToElement(
   element: HTMLElement,
-  theme: ChartColorTheme,
-  mode: ChartThemeMode
+  theme: ChartPalette,
+  mode: ChartThemeMode,
+  preview: ChartThemePreview = null
 ) {
-  const vars = getThemeVars(theme, mode);
-  const clearOverrides = !(
-    hasThemeOverrides(theme.light) || hasThemeOverrides(theme.dark)
-  );
-
-  applyVarsToElement(element, vars, clearOverrides);
+  const vars = resolveVars(theme, mode, preview);
+  for (const name of CHART_THEME_VAR_NAMES) {
+    element.style.setProperty(`--${name}`, vars[name]);
+  }
 }
 
 export function applyChartThemeVars(
-  theme: ChartColorTheme,
+  theme: ChartPalette,
   options: {
     rootMode: ChartThemeMode;
     studioMode?: ChartThemeMode;
     studioElement?: HTMLElement | null;
+    preview?: ChartThemePreview;
   }
 ) {
+  const preview = options.preview ?? null;
   applyChartThemeVarsToElement(
     document.documentElement,
     theme,
-    options.rootMode
+    options.rootMode,
+    preview
   );
 
   const studioShell =
@@ -66,7 +63,8 @@ export function applyChartThemeVars(
     applyChartThemeVarsToElement(
       studioShell,
       theme,
-      options.studioMode ?? options.rootMode
+      options.studioMode ?? options.rootMode,
+      preview
     );
   }
 }
@@ -75,40 +73,4 @@ export function resolveChartThemeModeFromElement(
   element: HTMLElement
 ): ChartThemeMode {
   return element.classList.contains("dark") ? "dark" : "light";
-}
-
-export function resolveRootChartThemeMode(): ChartThemeMode {
-  return resolveChartThemeModeFromElement(document.documentElement);
-}
-
-/** Detect dark mode before React hydrates (matches next-themes class strategy). */
-export function resolveChartThemeModeForScript(): ChartThemeMode {
-  const root = document.documentElement;
-
-  if (root.classList.contains("dark")) {
-    return "dark";
-  }
-
-  try {
-    const storedTheme = localStorage.getItem("theme");
-
-    if (storedTheme === "dark") {
-      return "dark";
-    }
-
-    if (storedTheme === "light") {
-      return "light";
-    }
-
-    if (
-      storedTheme === "system" &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches
-    ) {
-      return "dark";
-    }
-  } catch {
-    // localStorage may be unavailable
-  }
-
-  return "light";
 }

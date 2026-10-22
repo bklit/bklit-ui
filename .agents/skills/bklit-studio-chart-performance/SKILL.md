@@ -4,6 +4,8 @@ description: >
   Reusable Studio chart performance audit and fix workflow. Use when a chart
   feels sluggish in /studio (pan, slider ticks, legend hover) but siblings
   like pie-chart feel fine.
+metadata:
+  internal: "true"
 ---
 
 # Studio chart performance

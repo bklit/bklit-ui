@@ -1,6 +1,8 @@
 ---
 name: add-x-tweet
 description: Add X (Twitter) testimonials to the bklit homepage. Fetches username, avatar, and tweet text from a status URL and appends an entry to apps/web/lib/testimonials.ts. Use when the user shares an x.com/twitter.com tweet URL to add or replace a testimonial.
+metadata:
+  internal: "true"
 ---
 
 # Add X Tweet Testimonial

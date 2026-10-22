@@ -20,7 +20,9 @@ import {
   type RefObject,
   type SetStateAction,
   useContext,
+  useEffect,
   useMemo,
+  useState,
 } from "react";
 import type { ChartPhase, ChartStatus } from "./chart-phase";
 import type { ReferenceAreaConfig } from "./reference-area-config";
@@ -88,6 +90,19 @@ export interface LineConfig {
   yAxisId?: string | number;
 }
 
+/** Y-domain and tooltip inputs collected from a `<Band>` child. */
+export interface BandConfig {
+  yAxisId: string;
+  upperKey: string;
+  lowerKey: string;
+  /** Tooltip swatch / edge-dot colour (the band's `fill`). */
+  color: string;
+  /** Tooltip row label. */
+  label: string;
+  /** Whether the band adds a range row and edge dots to `ChartTooltip`. */
+  showInTooltip: boolean;
+}
+
 /**
  * Hover/selection state — every field here changes on mouse movement.
  * Lives in its own context so cold consumers (Grid, YAxis, PatternArea, …)
@@ -145,6 +160,9 @@ export interface ChartContextValue extends ChartHoverContextValue {
 
   // Line configurations (extracted from children)
   lines: LineConfig[];
+
+  /** `<Band>` configs (time-series charts) — tooltip range rows and edge dots. */
+  bands?: BandConfig[];
 
   /** {@link ReferenceArea} bands — drives y-axis label colors in range. */
   referenceAreas: ReferenceAreaConfig[];
@@ -215,6 +233,13 @@ export interface ChartContextValue extends ChartHoverContextValue {
   composedStackOffsets?: Map<number, Map<string, number>>;
   /** Vertical gap in px between stacked `SeriesBar` segments. Default: 0 */
   composedStackGap?: number;
+
+  /**
+   * Hover resolves to the nearest point in 2D rather than the nearest x column
+   * (e.g. `ScatterChart` with `jitter`). `ChartTooltip` hides its crosshair
+   * line by default when set, since the line would not mark a single x value.
+   */
+  nearestPointHover?: boolean;
 }
 
 /**
@@ -258,6 +283,7 @@ export function ChartProvider({
       columnWidth: value.columnWidth,
       containerRef: value.containerRef,
       lines: value.lines,
+      bands: value.bands,
       referenceAreas: value.referenceAreas,
       chartPhase: value.chartPhase,
       chartStatus: value.chartStatus,
@@ -288,6 +314,7 @@ export function ChartProvider({
       composedStacked: value.composedStacked,
       composedStackOffsets: value.composedStackOffsets,
       composedStackGap: value.composedStackGap,
+      nearestPointHover: value.nearestPointHover,
     }),
     [
       value.data,
@@ -303,6 +330,7 @@ export function ChartProvider({
       value.columnWidth,
       value.containerRef,
       value.lines,
+      value.bands,
       value.referenceAreas,
       value.chartPhase,
       value.chartStatus,
@@ -333,6 +361,7 @@ export function ChartProvider({
       value.composedStacked,
       value.composedStackOffsets,
       value.composedStackGap,
+      value.nearestPointHover,
     ]
   );
 
@@ -382,6 +411,24 @@ export function useChartStable(): ChartStableContextValue {
     );
   }
   return context;
+}
+
+/**
+ * Resolves a chart container element to use as a `createPortal` target.
+ *
+ * The element is captured from the ref in an effect (after mount) and kept in
+ * state, so nothing reads `ref.current` during render (React Compiler
+ * `react-hooks/refs`). Costs the same single post-mount render as the previous
+ * `mounted` flag pattern and returns `null` during SSR / the first render.
+ */
+export function useChartPortalContainer<T extends HTMLElement>(
+  containerRef: RefObject<T | null> | undefined
+): T | null {
+  const [container, setContainer] = useState<T | null>(null);
+  useEffect(() => {
+    setContainer(containerRef?.current ?? null);
+  }, [containerRef]);
+  return container;
 }
 
 /** Y-scale for a series axis (`yAxisId` on Line / Area / YAxis). */

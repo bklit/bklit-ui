@@ -17,8 +17,7 @@ export function StudioOpenInStudioButton({ href }: { href: string }) {
 
   return (
     <Button
-      className="h-8 gap-1.5 rounded-full px-3 font-semibold text-xs"
-      nativeButton={false}
+      className="h-8 gap-1.5 rounded-full px-3 font-semibold text-xs before:rounded-full sm:h-8 sm:text-xs"
       render={
         <a href={href} rel="noopener noreferrer" target="_blank">
           <BklitLogo size={14} theme={logoTheme} />

@@ -1,7 +1,6 @@
 "use client";
 
 import { Group } from "@visx/group";
-import { ParentSize } from "@visx/responsive";
 import { arc as arcGenerator } from "@visx/shape";
 import type { Transition } from "motion/react";
 import {
@@ -16,6 +15,7 @@ import {
   useState,
 } from "react";
 import { cn } from "@/lib/utils";
+import { ParentSize } from "./chart-parent-size";
 import {
   defaultRingColors,
   type RingContextValue,
@@ -260,12 +260,29 @@ const RingChartCore = memo(function RingChartCore({
 
   const effectiveIsLoaded = geometryScrubbing || isLoaded;
 
+  // Replay enter when motion settings change. The reset is adjusted during
+  // render ("store previous props in state") instead of setState in an effect.
+  const [enterKey, setEnterKey] = useState({
+    enterTransition,
+    enterStaggerScale,
+    geometryScrubbing,
+  });
+  if (
+    enterKey.enterTransition !== enterTransition ||
+    enterKey.enterStaggerScale !== enterStaggerScale ||
+    enterKey.geometryScrubbing !== geometryScrubbing
+  ) {
+    setEnterKey({ enterTransition, enterStaggerScale, geometryScrubbing });
+    if (!geometryScrubbing) {
+      setIsLoaded(false);
+    }
+  }
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: enterTransition
   useEffect(() => {
     if (geometryScrubbing) {
       return;
     }
-    setIsLoaded(false);
     const timer = setTimeout(() => {
       setIsLoaded(true);
     }, 100);
@@ -354,7 +371,12 @@ const RingChartCore = memo(function RingChartCore({
         <svg
           aria-hidden="true"
           height={size}
-          style={{ gridArea: "1 / 1", contain: "layout style paint" }}
+          style={{
+            gridArea: "1 / 1",
+            // No `paint` containment: it clips hover glow at the svg box.
+            contain: "layout style",
+            overflow: "visible",
+          }}
           width={size}
         >
           <Group left={center} top={center}>

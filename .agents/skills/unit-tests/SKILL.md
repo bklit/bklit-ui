@@ -4,6 +4,8 @@ description: |
   Guardrails for adding unit tests in bklit-ui without over-testing. Use when the
   user mentions unit test, unit tests, tests, test coverage, add tests, write tests,
   vitest, jest, or asks whether something should be tested.
+metadata:
+  internal: "true"
 ---
 
 # Unit Tests (bklit-ui)

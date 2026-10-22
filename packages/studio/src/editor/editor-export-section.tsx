@@ -159,7 +159,7 @@ export function EditorExportSection({
                         value={opt.value}
                       />
                       <Label
-                        className="cursor-pointer font-normal text-xs"
+                        className="cursor-pointer font-normal text-xs sm:text-xs"
                         htmlFor={`studio-export-format-${opt.value}`}
                       >
                         {opt.label}

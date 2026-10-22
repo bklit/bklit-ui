@@ -5,7 +5,7 @@ import type { StudioAnalytics } from "@/providers/studio-analytics-context";
 import { StudioAnalyticsProvider } from "@/providers/studio-analytics-context";
 import { StudioNuqsAdapter } from "@/providers/studio-nuqs-adapter";
 import { StudioThemeProvider } from "@/providers/studio-theme-provider";
-import { Toaster } from "@/ui/sonner";
+import { ToastProvider } from "@/ui/toast";
 import { StudioStateProvider } from "./studio-state-provider";
 
 export function StudioEmbedShell({
@@ -20,7 +20,7 @@ export function StudioEmbedShell({
           <StudioThemeProvider>
             <div className="relative flex h-full min-h-0 flex-1 flex-col overflow-hidden">
               <StudioEmbedLayout />
-              <Toaster position="top-center" />
+              <ToastProvider position="top-center" />
             </div>
           </StudioThemeProvider>
         </StudioStateProvider>

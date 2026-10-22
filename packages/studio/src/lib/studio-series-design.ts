@@ -1,7 +1,12 @@
 import { buildArcs } from "@bklitui/ui/charts";
 import type { CSSProperties } from "react";
 import type { ChartSlug } from "@/chart-slugs";
-import { type ColorPresetId, presetStyle } from "@/lib/color-presets";
+import type { ChartPaletteMode } from "@/lib/chart-palettes";
+import {
+  type ColorPresetId,
+  presetStyle,
+  presetVars,
+} from "@/lib/color-presets";
 import {
   clampStudioSeriesCount,
   STUDIO_SERIES_KEYS,
@@ -155,18 +160,21 @@ export function defaultSeriesColor(
   seriesIndex: number
 ): string {
   const varName = chartCssVarForSeriesIndex(seriesIndex);
-  const presetVars = presetStyle(preset) as Record<string, string>;
-  if (presetVars[varName]) {
-    return presetVars[varName];
+  const vars = presetVars(preset);
+  if (vars[varName]) {
+    return vars[varName];
   }
   return `var(${varName})`;
 }
 
-export function resolveChartThemeStyle(state: StudioUrlState): CSSProperties {
+export function resolveChartThemeStyle(
+  state: StudioUrlState,
+  mode?: ChartPaletteMode
+): CSSProperties {
   const preset = state.preset;
   const colors = parseSeriesColors(state);
   const vars: Record<string, string> = {
-    ...(presetStyle(preset) as Record<string, string>),
+    ...(presetStyle(preset, undefined, mode) as Record<string, string>),
   };
 
   for (let index = 0; index < 5; index += 1) {

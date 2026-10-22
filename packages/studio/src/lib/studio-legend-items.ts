@@ -17,6 +17,10 @@ import {
   ringData,
   STUDIO_SERIES_KEYS,
 } from "@/lib/demo-data";
+import {
+  isStudioBandVisible,
+  studioBandSeriesIndices,
+} from "@/lib/studio-band";
 import { isStudioComponentVisible } from "@/lib/studio-component-visibility";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import { getEffectiveSeriesColor } from "@/lib/studio-series-design";
@@ -27,13 +31,20 @@ export function studioCartesianLegendItems(
   values?: number[],
   chartPrefix?: string
 ): LegendItem[] {
+  // A series with a hidden line still gets an entry while its `<Band>` shows
+  // (standalone range area).
+  const bandIndices =
+    chartPrefix === "line" && isStudioBandVisible(state)
+      ? new Set(studioBandSeriesIndices(state))
+      : null;
   const visibleIndices = Array.from(
     { length: seriesCount },
     (_, index) => index
   ).filter(
     (index) =>
       chartPrefix == null ||
-      isStudioComponentVisible(state, `${chartPrefix}.series.${index}`)
+      isStudioComponentVisible(state, `${chartPrefix}.series.${index}`) ||
+      bandIndices?.has(index) === true
   );
   const items = visibleIndices.map((index) => ({
     label: STUDIO_SERIES_KEYS[index] ?? `Series ${index + 1}`,

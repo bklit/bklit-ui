@@ -1,9 +1,9 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
-import { memo, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
-import { useChartStable } from "./chart-context";
+import { useChartPortalContainer, useChartStable } from "./chart-context";
 
 // ---------------------------------------------------------------------------
 // Interval picker (inspired by liveline's pickInterval)
@@ -90,14 +90,9 @@ const tickSpring = { type: "spring" as const, stiffness: 180, damping: 24 };
 
 export function LiveYAxis(props: LiveYAxisProps) {
   const { containerRef } = useChartStable();
-  const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const container = containerRef.current;
-  if (!(mounted && container)) {
+  const container = useChartPortalContainer(containerRef);
+  if (!container) {
     return null;
   }
 
@@ -112,7 +107,9 @@ const LiveYAxisInner = memo(function LiveYAxisInner({
   container,
 }: LiveYAxisProps & { container: HTMLDivElement }) {
   const { yScale, margin, innerHeight } = useChartStable();
-  const intervalRef = useRef(0);
+  // Last picked interval, kept in state for hysteresis (not a ref read during
+  // render). Only re-renders when the picked interval actually changes.
+  const [prevInterval, setPrevInterval] = useState(0);
 
   const domain = yScale.domain() as [number, number];
   const minVal = domain[0];
@@ -120,16 +117,14 @@ const LiveYAxisInner = memo(function LiveYAxisInner({
   const valRange = maxVal - minVal;
 
   // Pick a nice interval with hysteresis
-  const interval = useMemo(() => {
-    const next = pickNiceInterval(
-      valRange,
-      innerHeight,
-      minGap,
-      intervalRef.current
-    );
-    intervalRef.current = next;
-    return next;
-  }, [valRange, innerHeight, minGap]);
+  const interval = useMemo(
+    () => pickNiceInterval(valRange, innerHeight, minGap, prevInterval),
+    [valRange, innerHeight, minGap, prevInterval]
+  );
+  // Converges in one pass: a picked interval always "still fits" itself.
+  if (!Object.is(interval, prevInterval)) {
+    setPrevInterval(interval);
+  }
 
   // Stabilize the tick VALUE set: only recompute which ticks exist when the
   // domain crosses an interval boundary. We quantize min/max to interval

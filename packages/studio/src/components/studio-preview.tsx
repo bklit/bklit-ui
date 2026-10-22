@@ -43,6 +43,7 @@ import {
 } from "@/lib/studio-series-design";
 import { exportStudioChartSvg } from "@/lib/svg-export/export-studio-chart-svg";
 import { useStudioAnalytics } from "@/providers/studio-analytics-context";
+import { useOptionalStudioThemeMode } from "@/providers/studio-theme-provider";
 import { Button } from "@/ui/button";
 import {
   Tooltip,
@@ -66,6 +67,7 @@ export function StudioPreview({
     numberScrubbing,
   } = useStudioState();
   const { track, getUrl } = useStudioAnalytics();
+  const paletteMode = useOptionalStudioThemeMode();
   const [animationKey, setAnimationKey] = useState(0);
   const [dataSeed, setDataSeed] = useState(0);
   const motionRemountKey = useStudioMotionRemountKey(displayState);
@@ -273,17 +275,16 @@ export function StudioPreview({
   ]);
 
   return (
-    <TooltipProvider>
+    <TooltipProvider delay={0}>
       <StudioPanel className="relative flex h-full min-h-0 min-w-0 flex-col overflow-hidden">
         <div className="absolute top-6 right-6 z-30 flex items-center gap-2.5">
           <Tooltip>
             <TooltipTrigger render={<span className="inline-flex" />}>
               <Button
                 aria-label="Replay animation"
-                className="size-10"
                 disabled={controlsDisabled}
                 onClick={replay}
-                size="icon"
+                size="icon-xl"
                 type="button"
                 variant="outline"
               >
@@ -296,10 +297,9 @@ export function StudioPreview({
             <TooltipTrigger render={<span className="inline-flex" />}>
               <Button
                 aria-label="Scramble data"
-                className="size-10"
                 disabled={controlsDisabled}
                 onClick={scrambleData}
-                size="icon"
+                size="icon-xl"
                 type="button"
                 variant="outline"
               >
@@ -423,7 +423,7 @@ export function StudioPreview({
                     isRecording={isRecording}
                     onResize={handleFrameResize}
                     ref={frameRef}
-                    style={resolveChartThemeStyle(displayState)}
+                    style={resolveChartThemeStyle(displayState, paletteMode)}
                     width={state.frameW}
                   >
                     <div className="flex size-full min-h-0 items-center justify-center">

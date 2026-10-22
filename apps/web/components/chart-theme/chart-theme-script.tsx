@@ -1,7 +1,10 @@
 import Script from "next/script";
 import { CHART_THEME_COOKIE_NAME } from "@/lib/chart-theme-cookie.constants";
 import {
+  CHART_THEME_VAR_NAMES,
   CHART_THEMES_SCRIPT_DATA,
+  CUSTOM_CHART_THEME_ID,
+  CUSTOM_CHART_THEME_STORAGE_KEY,
   DEFAULT_CHART_THEME_ID,
 } from "@/lib/chart-themes";
 
@@ -9,11 +12,17 @@ function buildChartThemeScript() {
   const themesJson = JSON.stringify(CHART_THEMES_SCRIPT_DATA);
   const defaultId = JSON.stringify(DEFAULT_CHART_THEME_ID);
   const cookieName = JSON.stringify(CHART_THEME_COOKIE_NAME);
+  const customId = JSON.stringify(CUSTOM_CHART_THEME_ID);
+  const customStorageKey = JSON.stringify(CUSTOM_CHART_THEME_STORAGE_KEY);
+  const varNames = JSON.stringify(CHART_THEME_VAR_NAMES);
 
   return `(function () {
   var themes = ${themesJson};
   var defaultId = ${defaultId};
   var cookieName = ${cookieName};
+  var customId = ${customId};
+  var customStorageKey = ${customStorageKey};
+  var names = ${varNames};
 
   function readCookieThemeId() {
     var match = document.cookie.match(new RegExp("(?:^|; )" + cookieName + "=([^;]*)"));
@@ -32,8 +41,9 @@ function buildChartThemeScript() {
       var storedTheme = localStorage.getItem("theme");
       if (storedTheme === "dark") return "dark";
       if (storedTheme === "light") return "light";
+      // next-themes defaultTheme is "system" (no stored value).
       if (
-        storedTheme === "system" &&
+        (storedTheme === "system" || !storedTheme) &&
         window.matchMedia("(prefers-color-scheme: dark)").matches
       ) {
         return "dark";
@@ -42,40 +52,40 @@ function buildChartThemeScript() {
     return "light";
   }
 
-  function applyVars(element, vars, clearOverrides) {
-    var names = [
-      "chart-1",
-      "chart-2",
-      "chart-3",
-      "chart-4",
-      "chart-5",
-      "chart-scale-01",
-      "chart-scale-02",
-      "chart-scale-03",
-      "chart-scale-04",
-      "chart-scale-05",
-    ];
+  function applyVars(element, vars) {
     for (var i = 0; i < names.length; i++) {
-      var name = names[i];
-      var value = vars[name];
-      if (clearOverrides || value === undefined) {
-        element.style.removeProperty("--" + name);
-      } else {
-        element.style.setProperty("--" + name, value);
+      var value = vars[names[i]];
+      if (typeof value === "string" && value) {
+        element.style.setProperty("--" + names[i], value);
       }
     }
   }
 
+  function readCustomTheme() {
+    try {
+      var parsed = JSON.parse(localStorage.getItem(customStorageKey) || "null");
+      if (parsed && parsed.light && parsed.dark) {
+        return { id: customId, light: parsed.light, dark: parsed.dark };
+      }
+    } catch (e) {}
+    return null;
+  }
+
+  function findTheme(id) {
+    for (var i = 0; i < themes.length; i++) {
+      if (themes[i].id === id) return themes[i];
+    }
+    return null;
+  }
+
   var themeId = readCookieThemeId() || defaultId;
-  var theme = themes.find(function (t) { return t.id === themeId; }) || themes[0];
+  var theme =
+    (themeId === customId ? readCustomTheme() : findTheme(themeId)) ||
+    findTheme(defaultId);
   if (!theme) return;
 
   var mode = resolveMode();
-  var vars = mode === "dark" ? theme.dark : theme.light;
-  var clearOverrides =
-    Object.keys(theme.light).length === 0 && Object.keys(theme.dark).length === 0;
-
-  applyVars(document.documentElement, vars, clearOverrides);
+  applyVars(document.documentElement, mode === "dark" ? theme.dark : theme.light);
 })();`;
 }
 

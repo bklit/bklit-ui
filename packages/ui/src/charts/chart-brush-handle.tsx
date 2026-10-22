@@ -1,10 +1,9 @@
 "use client";
 
 import type { BrushHandleRenderProps } from "@visx/brush";
-import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import type { ChartBrushOverlayHost } from "./chart-brush-track-overlay";
-import { useChartStable } from "./chart-context";
+import { useChartPortalContainer, useChartStable } from "./chart-context";
 
 /** Matches shadcn `ResizableHandle` withHandle pill (`h-6 w-1 rounded-lg`). */
 const HANDLE_HEIGHT_PX = 24;
@@ -58,14 +57,8 @@ export function ChartBrushHandleOverlayContent({
   selectionX0,
   selectionX1,
 }: ChartBrushHandleOverlayProps & ChartBrushOverlayHost) {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const container = containerRef.current;
-  if (!(mounted && container)) {
+  const container = useChartPortalContainer(containerRef);
+  if (!container) {
     return null;
   }
 

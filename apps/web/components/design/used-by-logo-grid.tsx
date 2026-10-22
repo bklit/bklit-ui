@@ -1,13 +1,14 @@
 "use client";
 
 import { useReducedMotion } from "motion/react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   type UsedByLogo,
   usedByLogoClassName,
   usedByLogos,
 } from "@/components/brands/used-by-logos";
 import { GlitchSwapLogo } from "@/components/design/glitch-swap-logo";
+import { pickNextSlots } from "@/components/design/used-by-slots";
 import { usePauseWhenOffscreen } from "@/lib/use-pause-when-offscreen";
 
 const MOBILE_VISIBLE_SLOT_COUNT = 6;
@@ -29,38 +30,27 @@ function randomBetween(min: number, max: number) {
   return min + Math.random() * (max - min);
 }
 
-function pickNextSlots(current: UsedByLogo[], visibleSlotCount: number) {
-  const visibleIds = new Set(
-    current.slice(0, visibleSlotCount).map((logo) => logo.id)
-  );
-  const hidden = usedByLogos.filter((logo) => !visibleIds.has(logo.id));
-
-  if (hidden.length === 0) {
-    return current;
-  }
-
-  const slotIndex = Math.floor(Math.random() * visibleSlotCount);
-  const nextLogo = hidden[Math.floor(Math.random() * hidden.length)];
-
-  if (!nextLogo) {
-    return current;
-  }
-
-  const next = [...current];
-  next[slotIndex] = nextLogo;
-  return next;
-}
-
 function UsedByGlitchLogo({
+  index,
   logo,
+  onDisplayChange,
   paused,
   reducedMotion,
 }: {
+  index: number;
   logo: UsedByLogo;
+  onDisplayChange: (index: number, logo: UsedByLogo) => void;
   paused: boolean;
   reducedMotion: boolean;
 }) {
   const [linkLogo, setLinkLogo] = useState(logo);
+  const handleDisplayChange = useCallback(
+    (displayed: UsedByLogo) => {
+      setLinkLogo(displayed);
+      onDisplayChange(index, displayed);
+    },
+    [index, onDisplayChange]
+  );
 
   return (
     <li className="w-full">
@@ -74,7 +64,7 @@ function UsedByGlitchLogo({
           <GlitchSwapLogo
             className={usedByLogoClassName}
             logo={logo}
-            onDisplayChange={setLinkLogo}
+            onDisplayChange={handleDisplayChange}
             paused={paused}
             reducedMotion={reducedMotion}
           />
@@ -91,9 +81,17 @@ export function UsedByLogoGrid() {
   const [visibleSlotCount, setVisibleSlotCount] = useState(
     MOBILE_VISIBLE_SLOT_COUNT
   );
-  const [slots, setSlots] = useState(() =>
+  // Deterministic initial slots (no randomness during render) so SSR and
+  // hydration agree; rotation only starts in effects.
+  const [slots, setSlots] = useState<readonly UsedByLogo[]>(() =>
     usedByLogos.slice(0, DESKTOP_VISIBLE_SLOT_COUNT)
   );
+  // Logo id each slot is actually rendering. Lags `slots` until the glitch
+  // reaches its midpoint, so it is reserved too when picking the next logo.
+  const displayedIdsRef = useRef<(string | undefined)[]>([]);
+  const handleDisplayChange = useCallback((index: number, logo: UsedByLogo) => {
+    displayedIdsRef.current[index] = logo.id;
+  }, []);
 
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 768px)");
@@ -122,7 +120,14 @@ export function UsedByLogoGrid() {
             return;
           }
 
-          setSlots((current) => pickNextSlots(current, visibleSlotCount));
+          setSlots((current) =>
+            pickNextSlots(
+              usedByLogos,
+              current,
+              visibleSlotCount,
+              displayedIdsRef.current
+            )
+          );
           scheduleFlip();
         },
         randomBetween(FLIP_MIN_DELAY_MS, FLIP_MAX_DELAY_MS)
@@ -152,8 +157,10 @@ export function UsedByLogoGrid() {
 
         return (
           <UsedByGlitchLogo
+            index={index}
             key={slotKey}
             logo={logo}
+            onDisplayChange={handleDisplayChange}
             paused={offscreen}
             reducedMotion={Boolean(reducedMotion)}
           />

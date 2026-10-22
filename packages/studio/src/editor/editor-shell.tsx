@@ -45,7 +45,7 @@ export const EditorShell = memo(function EditorShell({
   config,
   showMotionControls = false,
   chartSelector,
-  propertiesHeaderActions,
+  propertiesFooterActions,
   showFpsCounter = false,
   controlsDisabled = false,
   fillHeight = false,
@@ -65,7 +65,7 @@ export const EditorShell = memo(function EditorShell({
   showMotionControls?: boolean;
   config: StudioChartConfig;
   chartSelector?: ReactNode;
-  propertiesHeaderActions?: ReactNode;
+  propertiesFooterActions?: ReactNode;
   showFpsCounter?: boolean;
   controlsDisabled?: boolean;
   /** Fill a fixed-height parent instead of using `h-dvh`. */
@@ -163,7 +163,7 @@ export const EditorShell = memo(function EditorShell({
         <EditorRightPanel
           config={config}
           controlsDisabled={controlsDisabled}
-          headerActions={propertiesHeaderActions}
+          footerActions={propertiesFooterActions}
           isRecording={isRecording}
           onBatchChange={chartState.setStudioParams}
           onBatchPreview={chartState.setPreviewParams}
@@ -183,7 +183,7 @@ export const EditorShell = memo(function EditorShell({
           chartSelector={chartSelector}
           config={config}
           controlsDisabled={controlsDisabled}
-          headerActions={propertiesHeaderActions}
+          footerActions={propertiesFooterActions}
           isRecording={isRecording}
           leftOpen={leftSheetOpen}
           onBatchChange={chartState.setStudioParams}

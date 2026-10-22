@@ -41,6 +41,7 @@ import { exportStudioChartSvg } from "@/lib/svg-export/export-studio-chart-svg";
 import type { StudioChartConfig } from "@/lib/types";
 import { useStudioAnalytics } from "@/providers/studio-analytics-context";
 import { useStudioChartPhaseReporter } from "@/providers/studio-chart-phase-reporter-context";
+import { useOptionalStudioThemeMode } from "@/providers/studio-theme-provider";
 
 const StudioEditorCanvas = memo(function StudioEditorCanvas({
   animationKey,
@@ -104,6 +105,7 @@ const StudioEditorCanvas = memo(function StudioEditorCanvas({
   canvasScaleRef: RefObject<number>;
 }) {
   const reportOgPhaseFromContext = useStudioChartPhaseReporter();
+  const paletteMode = useOptionalStudioThemeMode();
 
   return (
     <div
@@ -179,7 +181,7 @@ const StudioEditorCanvas = memo(function StudioEditorCanvas({
                 onResize={onResize}
                 ref={frameRef}
                 resizable={!(mobileViewport || showCaptureLayout)}
-                style={resolveChartThemeStyle(themeState)}
+                style={resolveChartThemeStyle(themeState, paletteMode)}
                 width={size.width}
               >
                 <div className="flex size-full min-h-0 items-center justify-center">
@@ -450,7 +452,7 @@ export function StudioEditorLayout({
               onScramble={scrambleData}
               onStartRecording={recording.handleStartRecording}
               onStopRecording={recording.stopRecording}
-              propertiesHeaderActions={
+              propertiesFooterActions={
                 <StudioEditorSidebarActions
                   renderCodeSheet={renderCodeSheet}
                   state={state}

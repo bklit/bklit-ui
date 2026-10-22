@@ -1,4 +1,5 @@
 import type { ComponentType } from "react";
+import { OpenPanel } from "@/components/brands/openpanel";
 import { ShadcnStudio } from "@/components/brands/shadcn-studio";
 import { UiRules } from "@/components/brands/ui-rules";
 import { Vercel } from "@/components/brands/vercel";
@@ -38,7 +39,12 @@ export const premiumSponsorSlots: SponsorSlot[] = [
     href: sponsorHref("https://vercel.com", "premium-vercel"),
     Logo: Vercel,
   },
-  "placeholder",
+  {
+    id: "openpanel",
+    name: "OpenPanel",
+    href: sponsorHref("https://openpanel.dev", "premium-openpanel"),
+    Logo: OpenPanel,
+  },
   "placeholder",
 ];
 
@@ -71,11 +77,6 @@ export const pastSponsors: PastSponsor[] = [
     id: "chanhdai",
     name: "Chánh Đại",
     href: sponsorHref("https://chanhdai.com", "past-chanhdai"),
-  },
-  {
-    id: "openpanel",
-    name: "OpenPanel",
-    href: sponsorHref("https://openpanel.dev", "past-openpanel"),
   },
 ];
 

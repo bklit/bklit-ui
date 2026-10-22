@@ -1,25 +1,17 @@
 import { Children, isValidElement, type ReactNode } from "react";
-import { BlockPanel } from "@/components/blocks/block-panel";
-import { DesignSectionRulers } from "@/components/design/design-section-rulers";
-import { GridCornerDots } from "@/components/design/line-grid";
 
 export function FeaturedBlocks({ blocks }: { blocks: ReactNode[] }) {
   return (
     <section aria-label="Blocks" className="w-full">
-      <div className="flex w-full flex-col space-y-24">
+      <div className="flex w-full flex-col gap-8 md:gap-12">
         {Children.toArray(blocks).map((block, index) => {
           if (!isValidElement(block)) {
             return null;
           }
 
           return (
-            <div
-              className="relative w-full overflow-visible border-border border-t border-l"
-              key={block.key ?? index}
-            >
-              <BlockPanel>{block}</BlockPanel>
-              <GridCornerDots className="z-3" columns={1} rows={1} />
-              <DesignSectionRulers />
+            <div className="w-full min-w-0" key={block.key ?? index}>
+              {block}
             </div>
           );
         })}

@@ -1,66 +1,76 @@
-import type { ReactNode } from "react";
+import type { ReactNode, Ref } from "react";
 import { cn } from "@/lib/utils";
 
 export type ChartExamplePreviewLayout =
   | "cartesian"
+  | "time-series"
   | "compact"
+  | "funnel"
   | "wide"
   | "heatmap";
-
-/** Preview area padding — compact charts can bleed slightly on mobile. */
-export function getChartExampleContentPaddingClassName(
-  layout: ChartExamplePreviewLayout = "cartesian"
-) {
-  if (layout === "compact") {
-    return "px-2 py-0 sm:px-4";
-  }
-
-  if (layout === "heatmap") {
-    return "px-3 py-4 sm:px-6 sm:py-5";
-  }
-
-  return "py-3 sm:py-4";
-}
 
 /** Override inline chart aspect on narrow viewports so demos aren't paper-thin. */
 const cartesianChartMobileAspectClassName =
   "max-lg:[&_.relative.w-full]:!aspect-[3/2]";
 
+/**
+ * One height for every time-series gallery preview (area, bar, line,
+ * candlestick, composed, live line…): the featured area/bar charts' 4:1 on
+ * desktop. Demos with a fixed inline height (candlestick, live line) drop it
+ * so the shared aspect wins.
+ */
+const timeSeriesChartAspectClassName =
+  "lg:[&_.relative.w-full]:!aspect-[4/1] [&_.relative.w-full[style*=height]]:!h-auto";
+
 export function getChartExamplePreviewFrameClassName(
   layout: ChartExamplePreviewLayout = "cartesian",
   previewRole: "hero" | "example" = "example"
-) {
+): string {
   switch (layout) {
     case "compact":
+      // No min-height: the square / gauge shell sets the height, so the frame
+      // hugs the chart instead of leaving dead space under short charts
+      // (funnel, gauge).
       return cn(
-        previewRole === "hero"
-          ? "flex min-h-[320px] w-full items-center justify-center sm:min-h-[380px]"
-          : "flex min-h-[240px] w-full items-center justify-center sm:min-h-[280px]",
+        "flex w-full items-center justify-center",
         "[&_.relative.aspect-square]:mx-auto [&_.relative.aspect-square]:w-full",
         previewRole === "hero"
           ? "[&_.relative.aspect-square]:max-w-[min(100%,480px)] sm:[&_.relative.aspect-square]:max-w-[440px]"
           : "[&_.relative.aspect-square]:max-w-[min(100%,300px)] sm:[&_.relative.aspect-square]:max-w-[260px]"
       );
+    case "funnel":
+      // Phone: value labels reach the top-right corner, so clear the Replay
+      // overlay with symmetric padding (keeps the funnel centered).
+      return cn(
+        getChartExamplePreviewFrameClassName("compact", previewRole),
+        "max-sm:py-6"
+      );
     case "wide":
-      return previewRole === "hero"
-        ? "w-full min-h-[240px] aspect-video sm:min-h-[320px] sm:aspect-auto"
-        : "w-full min-h-[200px] aspect-video sm:min-h-[240px] sm:aspect-auto";
+      // Sankey / choropleth demos set their own aspect ratio, so the frame
+      // hugs them (a fixed min-height left dead space under short charts).
+      return "flex w-full flex-col justify-center";
     case "heatmap":
       return cn(
         "flex min-h-0 w-full items-center justify-center",
-        previewRole === "hero" ? "py-2 sm:py-3" : "py-1 sm:py-2"
+        // Month / quarter labels run to the top-right corner (scrolled grids
+        // end at the latest month): symmetric padding clears the Replay
+        // overlay while keeping the grid centered.
+        "py-6 sm:py-3"
       );
     default:
-      if (previewRole === "hero") {
-        return cn(
-          "min-h-[220px] w-full sm:min-h-[260px] lg:min-h-[300px]",
-          cartesianChartMobileAspectClassName
-        );
-      }
-
       return cn(
-        "min-h-[200px] w-full sm:min-h-[220px] lg:min-h-0",
-        cartesianChartMobileAspectClassName
+        // Column flex centers the chart if a min-height ever exceeds it.
+        "flex w-full flex-col justify-center",
+        // Time-series height comes from the shared aspect alone; a min-height
+        // would leave a gap under the 4:1 / 3:2 chart.
+        layout !== "time-series" &&
+          previewRole === "hero" &&
+          "min-h-[220px] sm:min-h-[260px] lg:min-h-[300px]",
+        layout !== "time-series" &&
+          previewRole === "example" &&
+          "min-h-[200px] sm:min-h-[220px] lg:min-h-0",
+        cartesianChartMobileAspectClassName,
+        layout === "time-series" && timeSeriesChartAspectClassName
       );
   }
 }
@@ -91,11 +101,13 @@ export function ChartExamplePreviewFrame({
   previewRole = "example",
   children,
   className,
+  ref,
 }: {
   layout?: ChartExamplePreviewLayout;
   previewRole?: "hero" | "example";
   children: ReactNode;
   className?: string;
+  ref?: Ref<HTMLDivElement>;
 }) {
   return (
     <div
@@ -104,6 +116,7 @@ export function ChartExamplePreviewFrame({
         chartExamplePreviewOverflowClassName,
         className
       )}
+      ref={ref}
     >
       {children}
     </div>

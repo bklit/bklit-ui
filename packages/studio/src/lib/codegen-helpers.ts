@@ -32,6 +32,12 @@ import {
 } from "./motion-codegen";
 import { patternCodegenBlock } from "./patterns";
 import { seriesStrokePropsCodegen } from "./series-stroke-props";
+import {
+  bandCodegenParts,
+  bandDataCodegenImport,
+  bandDataCodegenSnippet,
+  EMPTY_BAND_CODEGEN_PARTS,
+} from "./studio-band";
 import { isStudioComponentVisible } from "./studio-component-visibility";
 import type { StudioUrlState } from "./studio-parsers";
 import {
@@ -54,6 +60,12 @@ import {
   getSeriesShowLine,
   getSeriesStrokeWidth,
 } from "./studio-series-line-props";
+import {
+  getTrendLineDataKey,
+  getTrendLineSeriesIndex,
+  getTrendLineYAxisId,
+  HORIZONTAL_BAR_TREND_LINE_DATA_KEY,
+} from "./studio-trend-line-props";
 
 function visxCurveImportLines(
   state: StudioUrlState,
@@ -389,6 +401,152 @@ function referenceAreaCodegenImport(
   }
 }
 
+const WEEKEND_DAYS_CODEGEN: Record<StudioUrlState["weekendsDays"], string> = {
+  "sat-sun": "",
+  "fri-sat": " weekendDays={[5, 6]}",
+  sun: " weekendDays={[0]}",
+};
+
+function weekendsCodegenBlock(state: StudioUrlState, chartPrefix: string) {
+  if (!isStudioComponentVisible(state, `${chartPrefix}.weekends`)) {
+    return "";
+  }
+  const parts = [WEEKEND_DAYS_CODEGEN[state.weekendsDays] ?? ""];
+  if (state.weekendsFillType !== "pattern") {
+    parts.push(` fillType="${state.weekendsFillType}"`);
+  }
+  if (state.weekendsColor !== "var(--chart-foreground-muted)") {
+    parts.push(` fill="${state.weekendsColor}"`);
+  }
+  parts.push(` fillOpacity={${state.weekendsOpacity}}`);
+  if (
+    state.weekendsFillType === "pattern" &&
+    state.weekendsPatternScale !== 1.5
+  ) {
+    parts.push(` patternScale={${state.weekendsPatternScale}}`);
+  }
+  if (state.weekendsAlign !== "auto") {
+    parts.push(` align="${state.weekendsAlign}"`);
+  }
+  return `\n  <Weekends${parts.join("")} />`;
+}
+
+function deadlineCodegenBlock(state: StudioUrlState, chartPrefix: string) {
+  if (!isStudioComponentVisible(state, `${chartPrefix}.deadline`)) {
+    return "";
+  }
+  const points = clampStudioPointCount(state.dataPoints);
+  const position = Math.min(1, Math.max(0, state.deadlinePosition));
+  const day = Math.round(position * (points - 1)) + 1;
+  const parts = [` date={new Date(2024, 0, ${day})}`];
+  if (state.deadlineLabel) {
+    parts.push(` label="${state.deadlineLabel.replace(/"/g, '\\"')}"`);
+  }
+  if (state.deadlineFillType !== "pattern") {
+    parts.push(` fillType="${state.deadlineFillType}"`);
+  }
+  if (state.deadlineColor !== "var(--chart-negative)") {
+    parts.push(` color="${state.deadlineColor}"`);
+  }
+  if (state.deadlineFillType !== "none") {
+    parts.push(` fillOpacity={${state.deadlineOpacity}}`);
+    if (
+      state.deadlineFillType === "pattern" &&
+      state.deadlinePatternScale !== 1.5
+    ) {
+      parts.push(` patternScale={${state.deadlinePatternScale}}`);
+    }
+    if (!state.deadlineFade) {
+      parts.push(" fade={false}");
+    } else if (state.deadlineFadeLength !== 0.5) {
+      parts.push(` fadeLength={${state.deadlineFadeLength}}`);
+    }
+  }
+  if (state.deadlineShowLine) {
+    if (state.deadlineStrokeWidth !== 1) {
+      parts.push(` strokeWidth={${state.deadlineStrokeWidth}}`);
+    }
+    if (state.deadlineStrokeStyle === "dashed") {
+      parts.push(' strokeDasharray="4,4"');
+    }
+  } else {
+    parts.push(" showLine={false}");
+  }
+  return `\n  <Deadline${parts.join("")} />`;
+}
+
+/** `<Weekends />` + `<Deadline />` blocks and their imports for date-axis charts. */
+export function dateHighlightsCodegen(
+  state: StudioUrlState,
+  chartPrefix: string
+): { block: string; imports: string[] } {
+  const weekends = weekendsCodegenBlock(state, chartPrefix);
+  const deadline = deadlineCodegenBlock(state, chartPrefix);
+  return {
+    block: `${weekends}${deadline}`,
+    imports: [
+      ...(weekends ? ["Weekends"] : []),
+      ...(deadline ? ["Deadline"] : []),
+    ],
+  };
+}
+
+function trendLinePropsCodegen(
+  state: StudioUrlState,
+  ignoreYAxis: boolean,
+  dataKey: string | undefined
+): string {
+  const seriesIndex = getTrendLineSeriesIndex(state);
+  const style = state.trendLineStrokeStyle;
+  const parts: string[] = [
+    `dataKey="${dataKey ?? getTrendLineDataKey(state)}"`,
+    `stroke="${state.trendLineColor || SERIES_COLOR_BY_INDEX[seriesIndex]}"`,
+  ];
+  if (state.trendLineStrokeWidth !== 2) {
+    parts.push(`strokeWidth={${state.trendLineStrokeWidth}}`);
+  }
+  if (style !== "dashed") {
+    parts.push(`strokeStyle="${style}"`);
+  }
+  if (style === "dashed" && state.trendLineDashArray !== "6,4") {
+    parts.push(`strokeDasharray="${state.trendLineDashArray}"`);
+  }
+  if (style === "gradient" && state.trendLineGradientStart) {
+    parts.push(`gradientStart="${state.trendLineGradientStart}"`);
+  }
+  if (style === "gradient" && state.trendLineGradientEnd !== "var(--chart-5)") {
+    parts.push(`gradientEnd="${state.trendLineGradientEnd}"`);
+  }
+  if (state.trendLineFadeEdges !== "none") {
+    parts.push(fadeEdgesCodegen(state.trendLineFadeEdges));
+    if (state.trendLineFadeEdgesLength !== 15) {
+      parts.push(`fadeEdgesLength={${state.trendLineFadeEdgesLength}}`);
+    }
+  }
+  if (state.trendLineOpacity !== 1) {
+    parts.push(`opacity={${state.trendLineOpacity}}`);
+  }
+  if (!ignoreYAxis && getTrendLineYAxisId(state) === "right") {
+    parts.push('yAxisId="right"');
+  }
+  return parts.join(" ");
+}
+
+/** `<TrendLine />` JSX when the `<prefix>.trend-line` layer is visible. */
+export function trendLineCodegenBlock(
+  state: StudioUrlState,
+  chartPrefix: string,
+  {
+    dataKey,
+    ignoreYAxis = false,
+  }: { dataKey?: string; ignoreYAxis?: boolean } = {}
+): string {
+  if (!isStudioComponentVisible(state, `${chartPrefix}.trend-line`)) {
+    return "";
+  }
+  return `\n  <TrendLine ${trendLinePropsCodegen(state, ignoreYAxis, dataKey)} />`;
+}
+
 function loadingGridPropsCodegen(state: StudioUrlState): string {
   const props = [`loadingStroke="${state.lineLoadingGridStroke}"`];
   const useShimmer =
@@ -472,6 +630,48 @@ ${curveImports}
   };
 }
 
+/** `<Line>`s for visible series (hidden lines are omitted, e.g. a standalone range area). */
+function lineSeriesCodegen(state: StudioUrlState, keys: string[]): string {
+  return keys
+    .map((key, idx) => {
+      if (!isStudioComponentVisible(state, `line.series.${idx}`)) {
+        return "";
+      }
+      const strokeAttr =
+        idx === 0 ? "" : ` stroke="${SERIES_COLOR_BY_INDEX[idx]}"`;
+      const seriesProps = seriesStrokePropsCodegen(state, idx);
+      const curveName = curveImportName(getSeriesCurve(state, idx));
+      return `\n  <Line dataKey="${key}"${strokeAttr} curve={${curveName}} strokeWidth={${getSeriesStrokeWidth(state, idx)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, idx))} showHighlight={${getSeriesShowHighlight(state, idx)}}${seriesProps} />`;
+    })
+    .join("");
+}
+
+/** Series component imports for `cartesianCodegen` (`Line` only when one is emitted). */
+function cartesianSeriesImports(
+  chartType: "AreaChart" | "LineChart",
+  state: StudioUrlState,
+  seriesBlock: string
+): string[] {
+  if (chartType === "LineChart") {
+    return [
+      ...(seriesBlock ? ["Line"] : []),
+      ...(getProjectionCount(state) > 0
+        ? ["ProjectionLine", "ProjectionLineEndMarker"]
+        : []),
+    ];
+  }
+  if (state.pattern === "none") {
+    return ["Area"];
+  }
+  return [
+    state.pattern === "circles" || state.pattern === "dots"
+      ? "PatternCircles"
+      : "PatternLines",
+    "PatternArea",
+    "Area",
+  ];
+}
+
 export function cartesianCodegen(
   chartType: "AreaChart" | "LineChart",
   state: StudioUrlState
@@ -483,15 +683,7 @@ export function cartesianCodegen(
 
   let child = "";
   if (chartType === "LineChart") {
-    child = keys
-      .map((key, idx) => {
-        const strokeAttr =
-          idx === 0 ? "" : ` stroke="${SERIES_COLOR_BY_INDEX[idx]}"`;
-        const seriesProps = seriesStrokePropsCodegen(state, idx);
-        const curveName = curveImportName(getSeriesCurve(state, idx));
-        return `\n  <Line dataKey="${key}"${strokeAttr} curve={${curveName}} strokeWidth={${getSeriesStrokeWidth(state, idx)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, idx))} showHighlight={${getSeriesShowHighlight(state, idx)}}${seriesProps} />`;
-      })
-      .join("");
+    child = lineSeriesCodegen(state, keys);
   } else if (state.pattern === "none") {
     child = keys
       .map((key, idx) => {
@@ -527,31 +719,31 @@ export function cartesianCodegen(
   const gridVisible = isStudioComponentVisible(state, `${chartPrefix}.grid`);
   const gridBlock = gridVisible ? `\n  <Grid${gridPropsCodegen(state)} />` : "";
   const referenceAreaBlock = referenceAreaCodegenBlock(state, chartPrefix);
+  const trendLineBlock = trendLineCodegenBlock(state, chartPrefix);
+  const dateHighlights = dateHighlightsCodegen(state, chartPrefix);
 
   const chartImports = [chartType, "XAxis", "ChartTooltip"];
   if (gridVisible) {
     chartImports.push("Grid");
   }
   referenceAreaCodegenImport(state, chartPrefix, chartImports);
+  chartImports.push(...dateHighlights.imports);
+  if (trendLineBlock) {
+    chartImports.push("TrendLine");
+  }
   if (usesBackground) {
     chartImports.push("Background");
   }
-  if (chartType === "LineChart") {
-    chartImports.push("Line");
-    if (getProjectionCount(state) > 0) {
-      chartImports.push("ProjectionLine", "ProjectionLineEndMarker");
-    }
-  } else if (state.pattern === "none") {
-    chartImports.push("Area");
-  } else {
-    chartImports.push(
-      state.pattern === "circles" || state.pattern === "dots"
-        ? "PatternCircles"
-        : "PatternLines",
-      "PatternArea",
-      "Area"
-    );
-  }
+  const band =
+    chartType === "LineChart"
+      ? bandCodegenParts(state, (seriesIndex) =>
+          curveImportName(getSeriesCurve(state, seriesIndex))
+        )
+      : EMPTY_BAND_CODEGEN_PARTS;
+  chartImports.push(
+    ...band.imports,
+    ...cartesianSeriesImports(chartType, state, child)
+  );
 
   const curveImports = visxCurveImportLines(
     state,
@@ -564,7 +756,7 @@ export function cartesianCodegen(
   return `import { ${chartImports.join(", ")} } from "@bklitui/ui/charts";
 ${curveImports}
 
-<${chartType} data={chartData}${anim}>${backgroundBlock}${gridBlock}${referenceAreaBlock}${child}${projectionBlock}
+<${chartType} data={${band.dataVar}}${anim}>${backgroundBlock}${gridBlock}${referenceAreaBlock}${dateHighlights.block}${band.block}${child}${trendLineBlock}${projectionBlock}
   <XAxis />
   <ChartTooltip />
 </${chartType}>`;
@@ -745,6 +937,10 @@ function barReadyCodegen(
   const gridVisible = isStudioComponentVisible(state, "bar.grid");
   const gridBlock = gridVisible ? `\n  <Grid${gridPropsCodegen(state)} />` : "";
   const referenceAreaBlock = referenceAreaCodegenBlock(state, "bar");
+  const trendLineBlock = trendLineCodegenBlock(state, "bar", {
+    dataKey: horizontal ? HORIZONTAL_BAR_TREND_LINE_DATA_KEY : undefined,
+    ignoreYAxis: horizontal,
+  });
   const gridImport = gridVisible ? ", Grid" : "";
   const backgroundImport = backgroundBlock ? ", Background" : "";
   const referenceAreaImport = isStudioComponentVisible(
@@ -753,13 +949,14 @@ function barReadyCodegen(
   )
     ? ", ReferenceArea"
     : "";
+  const trendLineImport = trendLineBlock ? ", TrendLine" : "";
 
   return {
-    code: `import { BarChart, Bar, BarXAxis, ChartTooltip${gridImport}${backgroundImport}${referenceAreaImport}${state.pattern === "none" ? "" : ", PatternLines"} } from "@bklitui/ui/charts";
+    code: `import { BarChart, Bar, BarXAxis, ChartTooltip${gridImport}${backgroundImport}${referenceAreaImport}${trendLineImport}${state.pattern === "none" ? "" : ", PatternLines"} } from "@bklitui/ui/charts";
 
-<BarChart ${chartProps}>${backgroundBlock}${gridBlock}${referenceAreaBlock}${patternBlock}${bars}
+<BarChart ${chartProps}>${backgroundBlock}${gridBlock}${referenceAreaBlock}${patternBlock}${bars}${trendLineBlock}
   <BarXAxis />
-  <ChartTooltip showCrosshair={false} />
+  <ChartTooltip${state.barShowCrosshair ? " showCrosshair" : ""} />
 </BarChart>`,
     data: dataSnippet,
   };
@@ -789,6 +986,11 @@ export function composedCodegen(state: StudioUrlState) {
   const gridVisible = isStudioComponentVisible(state, "composed.grid");
   const gridBlock = gridVisible ? "\n  <Grid horizontal />" : "";
   const referenceAreaBlock = referenceAreaCodegenBlock(state, "composed");
+  const trendLineBlock = trendLineCodegenBlock(state, "composed");
+  const dateHighlights = dateHighlightsCodegen(state, "composed");
+  const dateHighlightsImport = dateHighlights.imports
+    .map((name) => `, ${name}`)
+    .join("");
   const gridImport = gridVisible ? ", Grid" : "";
   const backgroundImport = backgroundBlock ? ", Background" : "";
   const referenceAreaImport = isStudioComponentVisible(
@@ -797,6 +999,7 @@ export function composedCodegen(state: StudioUrlState) {
   )
     ? ", ReferenceArea"
     : "";
+  const trendLineImport = trendLineBlock ? ", TrendLine" : "";
 
   const curveImports = visxCurveImportLines(
     state,
@@ -804,11 +1007,11 @@ export function composedCodegen(state: StudioUrlState) {
   );
 
   return {
-    code: `import { ComposedChart, SeriesBar, Area, Line, XAxis, ChartTooltip${gridImport}${backgroundImport}${referenceAreaImport}${state.pattern === "none" ? "" : ", PatternLines"} } from "@bklitui/ui/charts";
+    code: `import { ComposedChart, SeriesBar, Area, Line, XAxis, ChartTooltip${gridImport}${backgroundImport}${referenceAreaImport}${dateHighlightsImport}${trendLineImport}${state.pattern === "none" ? "" : ", PatternLines"} } from "@bklitui/ui/charts";
 ${curveImports}
 
 <ComposedChart data={chartData}
-  ${cssRevealAnimationCodegen(state.animationDuration, motionSliceFromState(state))}>${backgroundBlock}${gridBlock}${referenceAreaBlock}${barPattern}${barLine}${overlays}
+  ${cssRevealAnimationCodegen(state.animationDuration, motionSliceFromState(state))}>${backgroundBlock}${gridBlock}${referenceAreaBlock}${dateHighlights.block}${barPattern}${barLine}${overlays}${trendLineBlock}
   <XAxis />
   <ChartTooltip />
 </ComposedChart>`,
@@ -1097,11 +1300,15 @@ export function heatmapCodegen(state: StudioUrlState) {
   const { separatorImport, separatorBlock } =
     heatmapSeparatorCodegenBlock(state);
   const legendBlock = `<HeatmapLegend ${legendProps} />`;
+  const heatmapTooltipBlock =
+    state.tooltipDamping === 20
+      ? "<HeatmapTooltip />"
+      : `<HeatmapTooltip damping={${state.tooltipDamping}} />`;
   const chartBlock = `<HeatmapChart data={contributionData} ${chartProps}>
       <HeatmapCells ${cellProps} />
       <HeatmapXAxis />
       ${yAxisBlock}
-      <HeatmapTooltip />${separatorBlock}
+      ${heatmapTooltipBlock}${separatorBlock}
     </HeatmapChart>`;
   const layoutBlock =
     state.legendPlacement === "top"
@@ -1189,10 +1396,54 @@ export function sankeyCodegen(state: StudioUrlState) {
   };
 }
 
+function scatterSeriesPropsCodegen(state: StudioUrlState): string {
+  const parts = [`radius={${state.scatterRadius}}`];
+  if (state.scatterShowRings) {
+    parts.push(
+      `strokeWidth={${state.scatterRingWidth}}`,
+      `ringGap={${state.scatterRingGap}}`
+    );
+  }
+  if (state.scatterFadeOnHover) {
+    if (state.scatterInactiveOpacity !== 0.3) {
+      parts.push(`inactiveOpacity={${state.scatterInactiveOpacity}}`);
+    }
+    if (state.scatterInactiveMode === "blur") {
+      parts.push('inactiveMode="blur"');
+      if (state.scatterInactiveBlur !== 2) {
+        parts.push(`inactiveBlur={${state.scatterInactiveBlur}}`);
+      }
+    }
+  } else {
+    parts.push("fadeOnHover={false}");
+  }
+  if (!state.scatterShowActiveHighlight) {
+    parts.push("showActiveHighlight={false}");
+  }
+  return parts.join(" ");
+}
+
+function scatterJitterCodegen(state: StudioUrlState): string {
+  if (!state.scatterJitter) {
+    return "";
+  }
+  const parts = [`x: ${state.scatterJitterX}`];
+  if (state.scatterJitterY > 0) {
+    parts.push(`y: ${state.scatterJitterY}`);
+  }
+  return `\n  jitter={{ ${parts.join(", ")} }}`;
+}
+
 export function scatterCodegen(state: StudioUrlState) {
   const anim = `\n  ${cssRevealAnimationCodegen(state.animationDuration, motionSliceFromState(state))}`;
+  const isJitter = state.scatterJitter;
+  const jitter = scatterJitterCodegen(state);
+  const seriesProps = scatterSeriesPropsCodegen(state);
+  const [firstKey, secondKey] = isJitter
+    ? ["fastlane", "human"]
+    : ["desktop", "mobile"];
   const secondSeries = state.scatterSecondSeries
-    ? `\n  <Scatter dataKey="mobile" radius={${state.scatterRadius}} ringGap={${state.scatterRingGap}} strokeWidth={${state.scatterRingWidth}} fadeOnHover={${state.scatterFadeOnHover}} inactiveOpacity={${state.scatterInactiveOpacity}} showActiveHighlight={${state.scatterShowActiveHighlight}} />`
+    ? `\n  <Scatter dataKey="${secondKey}" ${seriesProps} />`
     : "";
 
   const backgroundBlock = backgroundCodegenBlock(state, "scatter");
@@ -1207,16 +1458,31 @@ export function scatterCodegen(state: StudioUrlState) {
   )
     ? ", ReferenceArea"
     : "";
+  const yAxisBlock =
+    isJitter && isStudioComponentVisible(state, "scatter.yaxis.left")
+      ? "\n  <YAxis formatValue={formatLoc} />"
+      : "";
+  const jitterImports = isJitter
+    ? `${yAxisBlock ? ", YAxis" : ""}, TooltipContent`
+    : "";
+  const chartLabelProp = isJitter ? "\n  formatXLabel={formatMonth}" : "";
+  const xAxisBlock = isJitter ? "<XAxis numTicks={12} />" : "<XAxis />";
+  // Jittered scatter hides the crosshair by default — emit only the opt-in.
+  const tooltipBlock = isJitter
+    ? `<ChartTooltip${state.scatterJitterShowCrosshair ? " showCrosshair" : ""} content={({ point }) => <PrTooltip point={point} />} />`
+    : "<ChartTooltip />";
 
   return {
-    code: `import { ScatterChart, Scatter, XAxis, ChartTooltip${gridImport}${backgroundImport}${referenceAreaImport} } from "@bklitui/ui/charts";
+    code: `import { ScatterChart, Scatter, XAxis, ChartTooltip${gridImport}${backgroundImport}${referenceAreaImport}${jitterImports} } from "@bklitui/ui/charts";
 
-<ScatterChart data={chartData}${anim}>${backgroundBlock}${gridBlock}${referenceAreaBlock}
-  <Scatter dataKey="desktop" radius={${state.scatterRadius}} ringGap={${state.scatterRingGap}} strokeWidth={${state.scatterRingWidth}} fadeOnHover={${state.scatterFadeOnHover}} inactiveOpacity={${state.scatterInactiveOpacity}} showActiveHighlight={${state.scatterShowActiveHighlight}} />${secondSeries}
-  <XAxis />
-  <ChartTooltip />
+<ScatterChart data={chartData}${anim}${jitter}${chartLabelProp}>${backgroundBlock}${gridBlock}${referenceAreaBlock}
+  <Scatter dataKey="${firstKey}" ${seriesProps} />${secondSeries}${yAxisBlock}
+  ${xAxisBlock}
+  ${tooltipBlock}
 </ScatterChart>`,
-    data: scatterChartDataSnippet(),
+    data: isJitter
+      ? scatterJitterChartDataSnippet()
+      : scatterChartDataSnippet(),
   };
 }
 
@@ -1224,12 +1490,70 @@ export function scatterChartDataSnippet() {
   return `const chartData = ${JSON.stringify(scatterStudioData.slice(0, 12), null, 2)};`;
 }
 
+/** Monthly PR-size sample + helpers used by the jittered scatter codegen. */
+export function scatterJitterChartDataSnippet() {
+  return `// Lines changed per merged PR, month by month. Seeded Park–Miller PRNG —
+// identical on server and client (no Math.random).
+let state = 42;
+const random = () => {
+  state = (state * 48_271) % 2_147_483_647;
+  return state / 2_147_483_647;
+};
+
+const chartData: { date: Date; fastlane?: number; human?: number }[] = [];
+for (let month = 0; month < 12; month++) {
+  const date = new Date(2025, month, 1);
+  // Fastlane: auto-merged PRs, always < 500 LOC, skewed small
+  const fastlaneCount = 15 + Math.floor(random() * 16);
+  for (let i = 0; i < fastlaneCount; i++) {
+    const r = random();
+    chartData.push({ date, fastlane: Math.round(10 + r * r * 480) });
+  }
+  // Human reviewed: broader spread with a few large outliers
+  const humanCount = 15 + Math.floor(random() * 16);
+  for (let i = 0; i < humanCount; i++) {
+    const r = random();
+    const isOutlier = random() < 0.06;
+    chartData.push({
+      date,
+      human: Math.round(isOutlier ? 1500 + r * 1000 : 40 + r * Math.sqrt(r) * 1160),
+    });
+  }
+}
+
+const series = [
+  { key: "fastlane", label: "Fastlane (auto-merged)", color: "var(--chart-1)" },
+  { key: "human", label: "Human reviewed", color: "var(--chart-2)" },
+] as const;
+
+const shortMonthFmt = new Intl.DateTimeFormat("en-US", { month: "short" });
+const monthYearFmt = new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric" });
+const locFmt = new Intl.NumberFormat("en-US");
+const formatMonth = (date: Date) => shortMonthFmt.format(date);
+const formatLoc = (value: number) => (value >= 1000 ? \`\${value / 1000}k\` : String(value));
+
+function PrTooltip({ point }: { point: Record<string, unknown> }) {
+  const rows = series.flatMap(({ key, label, color }) => {
+    const value = point[key];
+    return typeof value === "number"
+      ? [{ color, label, value: \`\${locFmt.format(value)} LOC\` }]
+      : [];
+  });
+  return <TooltipContent rows={rows} title={monthYearFmt.format(point.date as Date)} />;
+}`;
+}
+
 export function lineChartDataSnippet(state: StudioUrlState) {
   const dataSnippet =
     getProjectionCount(state) > 0
       ? studioTrendingDataSnippet(state, "date")
       : studioCartesianDataSnippet(state, "date");
-  return dataSnippet + projectionCodegenDataSnippets(state);
+  return (
+    bandDataCodegenImport(state) +
+    dataSnippet +
+    bandDataCodegenSnippet(state) +
+    projectionCodegenDataSnippets(state)
+  );
 }
 
 export function areaChartDataSnippet(state: StudioUrlState) {

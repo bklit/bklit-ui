@@ -7,17 +7,15 @@ export function HomePastSponsors() {
   }
 
   return (
-    <div className="flex flex-col items-center gap-4 pt-10 pb-2">
-      <p className="font-mono text-muted-foreground text-xs uppercase tracking-widest">
-        Past sponsors
-      </p>
+    <div className="flex flex-col items-center gap-3 pt-8 pb-2">
+      <p className="text-muted-foreground text-sm">Past sponsors</p>
       <nav
         aria-label="Past sponsors"
         className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2"
       >
         {pastSponsors.map((sponsor) => (
           <Link
-            className="font-mono text-muted-foreground text-xs uppercase tracking-widest no-underline transition-colors hover:text-foreground"
+            className="font-medium text-muted-foreground text-sm no-underline transition-colors hover:text-foreground"
             external
             href={sponsor.href}
             key={sponsor.id}

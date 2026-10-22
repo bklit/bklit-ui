@@ -12,11 +12,13 @@ import { cn } from "@/lib/utils";
 
 const SCROLL_FADE_THRESHOLD_PX = 4;
 
-const topFadeClass =
-  "pointer-events-none absolute inset-x-0 top-0 z-10 h-16 bg-linear-to-b from-background via-background/90 to-transparent transition-opacity duration-200";
+/** Fade color follows `--docs-scroll-fade` (set by the parent surface), else `--background`. */
+const fadeColorClass =
+  "from-[var(--docs-scroll-fade,var(--background))] via-[color-mix(in_oklab,var(--docs-scroll-fade,var(--background))_90%,transparent)] to-transparent";
 
-const bottomFadeClass =
-  "pointer-events-none absolute inset-x-0 bottom-0 z-10 h-16 bg-linear-to-t from-background via-background/90 to-transparent transition-opacity duration-200";
+const topFadeClass = `pointer-events-none absolute inset-x-0 top-0 z-10 h-12 bg-linear-to-b ${fadeColorClass} transition-opacity duration-200`;
+
+const bottomFadeClass = `pointer-events-none absolute inset-x-0 bottom-0 z-10 h-12 bg-linear-to-t ${fadeColorClass} transition-opacity duration-200`;
 
 export function DocsScrollArea({
   children,
@@ -91,7 +93,7 @@ export function DocsScrollArea({
       {showEdgeGradient ? (
         <div
           aria-hidden
-          className="pointer-events-none absolute top-0 right-0 z-10 h-full w-px bg-linear-to-b from-transparent via-card-foreground/20 to-background"
+          className="pointer-events-none absolute top-0 right-0 z-10 h-full w-px bg-linear-to-b from-transparent via-border to-transparent"
         />
       ) : null}
     </div>

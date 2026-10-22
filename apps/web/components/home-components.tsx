@@ -1,6 +1,5 @@
 "use client";
 
-import { Icon } from "@bklitui/icons";
 import { studioChartDocsHref, studioChartHref } from "@bklitui/studio";
 import {
   Bar,
@@ -46,6 +45,13 @@ import { useCallback, useEffect, useState } from "react";
 import type { ChartSlug } from "@/components/charts/chart-slugs";
 import { useWorldDataStandalone } from "@/components/docs/use-world-data";
 import { HomeAreaChart } from "@/components/home-area-chart";
+import {
+  ShowcaseReplayAction,
+  showcaseActionEase,
+  showcaseActionEnterDuration,
+  showcaseActionExitDuration,
+  showcaseActionStagger,
+} from "@/components/showcase-replay-action";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -64,10 +70,10 @@ import {
 import { homeTooltipPanelStyle } from "@/lib/home-tooltip-style";
 import { cn } from "@/lib/utils";
 
-const easeOutQuint = [0.23, 1, 0.32, 1] as const;
-const actionEnterDuration = 0.2;
-const actionExitDuration = 0.16;
-const actionStagger = 0.04;
+const easeOutQuint = showcaseActionEase;
+const actionEnterDuration = showcaseActionEnterDuration;
+const actionExitDuration = showcaseActionExitDuration;
+const actionStagger = showcaseActionStagger;
 
 const heatmapLevelStyles = [
   {
@@ -138,65 +144,6 @@ function getHomeHeatmapLevelColor(level: number): string {
   return heatmapLevelStyles[level]?.color ?? heatmapLevelStyles[0].color;
 }
 
-function ShowcaseReplayAction({
-  index,
-  visible,
-  reducedMotion,
-  onReplay,
-}: {
-  index: number;
-  visible: boolean;
-  reducedMotion: boolean | null;
-  onReplay: () => void;
-}) {
-  return (
-    <AnimatePresence>
-      {visible && (
-        <motion.div
-          animate={
-            reducedMotion
-              ? { opacity: 1, y: 0 }
-              : {
-                  opacity: 1,
-                  y: 0,
-                  transition: {
-                    duration: actionEnterDuration,
-                    ease: easeOutQuint,
-                    delay: index * actionStagger,
-                  },
-                }
-          }
-          exit={
-            reducedMotion
-              ? undefined
-              : {
-                  opacity: 0,
-                  y: 4,
-                  transition: {
-                    duration: actionExitDuration,
-                    ease: easeOutQuint,
-                  },
-                }
-          }
-          initial={reducedMotion ? false : { opacity: 0, y: 6 }}
-        >
-          <Button
-            aria-label="Replay animation"
-            className="size-7 [&_svg]:size-4"
-            onClick={onReplay}
-            size="icon"
-            title="Replay animation"
-            type="button"
-            variant="outline"
-          >
-            <Icon className="size-4" name="IconArrowRotateClockwise" />
-          </Button>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
-}
-
 function CardAction({
   href,
   label,
@@ -243,12 +190,7 @@ function CardAction({
           }
           initial={reducedMotion ? false : { opacity: 0, y: 6 }}
         >
-          <Button
-            nativeButton={false}
-            render={<Link href={href} />}
-            size="sm"
-            variant={variant}
-          >
+          <Button render={<Link href={href} />} size="sm" variant={variant}>
             {label}
           </Button>
         </motion.div>
@@ -444,7 +386,6 @@ function HomeChoropleth({
         content={({ feature }) => (
           <HomeChoroplethTooltipContent feature={feature} />
         )}
-        panelStyle={homeTooltipPanelStyle}
       />
     </ChoroplethChart>
   );
@@ -711,7 +652,7 @@ export function HomeComponents() {
   return (
     <>
       <ShowcaseCard
-        chart="line-chart"
+        chart="area-chart"
         className="col-span-full flex-1 sm:col-span-7"
       >
         <HomeShowcaseChart id="line" />
@@ -725,20 +666,20 @@ export function HomeComponents() {
       </ShowcaseCard>
 
       <ShowcaseCard
-        chart="sankey-chart"
+        chart="ring-chart"
         className="col-span-full min-h-[200px] flex-1 sm:col-span-5"
       >
         <HomeShowcaseChart id="ring" />
       </ShowcaseCard>
       <ShowcaseCard
-        chart="funnel-chart"
+        chart="bar-chart"
         className="col-span-full flex min-h-[300px] flex-col gap-4 sm:col-span-7"
       >
         <HomeShowcaseChart id="bar" />
       </ShowcaseCard>
 
       <ShowcaseCard
-        chart="sankey-chart"
+        chart="choropleth-chart"
         className="col-span-full min-h-[200px] flex-1 sm:col-span-7"
       >
         <HomeShowcaseChart id="choropleth" />
@@ -751,7 +692,7 @@ export function HomeComponents() {
       </ShowcaseCard>
 
       <ShowcaseCard
-        chart="bar-chart"
+        chart="gauge-chart"
         className="col-span-full min-h-[200px] sm:col-span-5"
       >
         <HomeShowcaseChart id="gauge" />

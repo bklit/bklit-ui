@@ -8,6 +8,7 @@ import { AreaChart, Area, Grid, XAxis, ChartTooltip, ChartBrush, ChartBrushLayou
 import { AreaChartBrushDemo } from "@/components/docs/area-chart-brush-demo";
 import { AreaChartYDomainDemo } from "@/components/docs/area-chart-y-domain-demo";
 import { AreaTooltipDemo } from "@/components/docs/area-tooltip-demo";
+import { DateHighlightsAreaDemo } from "@/components/docs/date-highlights-demo";
 import { OpenInStudioButton } from "@/components/docs/open-in-studio-button";
 
 export const chartData = [
@@ -57,7 +58,7 @@ export const chartData = [
 
 ## Installation
 
-<InstallationTabs name="area-chart" dependencies={["@visx/curve", "@visx/gradient", "@visx/pattern", "@visx/shape", "motion"]} />
+<InstallationTabs name="area-chart" dependencies={["@visx/curve", "@visx/gradient", "@visx/shape", "motion"]} />
 
 ## Usage
 
@@ -164,6 +165,15 @@ Renders grid lines.
 
 Pattern fill for the plot area when you omit `Grid`. See the [Background utility](/docs/utility/background) and **Pattern Background** examples on the [area chart gallery](/charts/area-chart).
 
+### TrendLine
+
+Least-squares regression line over one series. Place it after the `Area` so it draws on top. See the [Trend Line utility](/docs/utility/trend-line) for stroke styles and edge fade, and the **Trend Line** examples on the [area chart gallery](/charts/area-chart).
+
+```tsx
+<Area dataKey="desktop" />
+<TrendLine dataKey="desktop" fadeEdges />
+```
+
 ### YAxis
 
 Value labels on the left or right. See [Y Axis](/docs/utility/axis/y-axis) for `yAxisId`, `orientation`, and biaxial usage.
@@ -195,6 +205,25 @@ Renders the tooltip with crosshair, dots, and content box.
 | `damping` | `number` | `20` | Panel follow when `matchCrosshair={false}`; `0` = instant |
 | `content` | `(props) => ReactNode` | - | Custom content renderer |
 | `rows` | `(point) => TooltipRow[]` | - | Custom row generator |
+
+## Weekends and deadlines
+
+Add [`Weekends`](/docs/utility/weekends) to shade Saturday and Sunday, and [`Deadline`](/docs/utility/deadline) to mark a due date with a fading region. Both sit behind the areas and follow brush zoom.
+
+<ComponentShowcase
+  code={`import { Deadline, Weekends } from "@bklitui/ui/charts";
+
+<AreaChart data={data}>
+  <Grid horizontal />
+  <Weekends />
+  <Deadline date={new Date(2026, 9, 15)} fillType="gradient" />
+  <Area dataKey="completed" fill="var(--chart-1)" />
+  <XAxis />
+  <ChartTooltip />
+</AreaChart>`}
+>
+  <DateHighlightsAreaDemo />
+</ComponentShowcase>
 
 ## Brush zoom
 
@@ -509,8 +538,9 @@ The Area Chart uses the same CSS variables as the Line Chart:
   --chart-line-secondary: oklch(0.705 0.015 265);
   --chart-crosshair: oklch(0.4 0.1828 274.34);
   --chart-grid: oklch(0.9 0 0);
-  --chart-tooltip-foreground: oklch(0.985 0 0);
-  --chart-tooltip-muted: oklch(0.65 0.01 260);
+  --chart-tooltip-background: var(--popover);
+  --chart-tooltip-foreground: var(--popover-foreground);
+  --chart-tooltip-muted: var(--muted-foreground);
   --chart-marker-background: oklch(0.97 0.005 260);
   --chart-marker-border: oklch(0.85 0.01 260);
   --chart-marker-foreground: oklch(0.3 0.01 260);

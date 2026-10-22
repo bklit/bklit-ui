@@ -3,18 +3,21 @@
 @import "shadcn/tailwind.css";
 @import "./studio-theme.css";
 @import "./studio-chrome.css";
+@import "./coss-animations.css";
 
 @source "../**/*.{ts,tsx}";
 
-/* Studio owns dark mode inside `.studio-shell`; site `html.dark` must not leak in. */
-@custom-variant dark {
-  &:is(.studio-shell.dark, .studio-shell.dark *) {
-    @slot;
-  }
-  &:is(.dark *):not(:is(.studio-shell, .studio-shell *)) {
-    @slot;
-  }
-}
+/*
+ * Studio owns dark mode inside `.studio-shell`; site `html.dark` must not leak in.
+ * Single selector (not a block of rules) so Tailwind can negate it — coss uses `not-dark:`.
+ */
+@custom-variant dark (
+  &:is(
+    .studio-shell.dark,
+    .studio-shell.dark *,
+    .dark *:not(.studio-shell, .studio-shell *)
+  )
+);
 
 @theme inline {
   --color-background: var(--background);
@@ -32,10 +35,19 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-chart-1: var(--chart-1);
+  --color-chart-positive: var(--chart-positive);
+  --color-chart-negative: var(--chart-negative);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);

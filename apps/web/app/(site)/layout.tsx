@@ -1,20 +1,21 @@
 import type { ReactNode } from "react";
-import { PageCanvasShell } from "@/components/design/page-canvas-shell";
 import { ScrollToTopOnNavigate } from "@/components/docs/scroll-to-top-on-navigate";
 import { SiteHeader } from "@/components/docs/site-header";
-import { siteNavLinks } from "@/lib/site-nav-links";
+import { siteHeaderNavLinks } from "@/lib/site-nav-links";
+import { source } from "@/lib/source";
 
 export default function SiteLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="relative isolate z-1 flex min-h-screen flex-col overflow-x-clip bg-sidebar">
       <ScrollToTopOnNavigate />
       <SiteHeader
         discordUrl="https://discord.gg/75s4frfE8X"
+        docsTree={source.pageTree}
         githubUrl="https://github.com/bklit/bklit-ui"
-        links={[...siteNavLinks]}
+        links={[...siteHeaderNavLinks]}
       />
-      <div className="flex-1 pt-(--site-header-height)">
-        <PageCanvasShell>{children}</PageCanvasShell>
+      <div className="flex flex-1 flex-col pt-(--site-header-height)">
+        {children}
       </div>
     </div>
   );

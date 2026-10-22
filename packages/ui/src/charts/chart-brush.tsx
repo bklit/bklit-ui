@@ -3,7 +3,7 @@
 import type { Bounds } from "@visx/brush";
 import { Brush } from "@visx/brush";
 import type React from "react";
-import { memo, useCallback, useEffect, useMemo, useState } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import {
   ChartBrushHandleOverlay,
   renderChartBrushHandle,
@@ -167,12 +167,22 @@ const ChartBrushInner = memo(function ChartBrushInner({
     x1: initialBrushPosition?.end.x ?? innerWidth,
   }));
 
-  useEffect(() => {
+  // Reset the extent when the initial selection / width change — adjusted
+  // during render ("store previous props in state"), not setState in an effect.
+  const [extentSource, setExtentSource] = useState({
+    initialBrushPosition,
+    innerWidth,
+  });
+  if (
+    extentSource.initialBrushPosition !== initialBrushPosition ||
+    extentSource.innerWidth !== innerWidth
+  ) {
+    setExtentSource({ initialBrushPosition, innerWidth });
     setPixelExtent({
       x0: initialBrushPosition?.start.x ?? 0,
       x1: initialBrushPosition?.end.x ?? innerWidth,
     });
-  }, [initialBrushPosition, innerWidth]);
+  }
 
   const updatePixelExtent = useCallback(
     (bounds: Bounds | null) => {

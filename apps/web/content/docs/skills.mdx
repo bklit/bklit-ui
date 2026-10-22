@@ -3,16 +3,17 @@ title: Skills
 description: Give AI agents project-aware context for Bklit charts in your application.
 ---
 
-Skills give AI assistants project-aware context about Bklit UI. When installed, your agent knows how to install, compose, theme, and animate charts using the correct APIs and patterns for your project.
+Skills give AI coding agents project-aware context about Bklit UI. Once installed, your agent knows how to install charts from the `@bklit` registry, import them from the files the CLI wrote, compose and theme them, style them with Bklit's design vocabulary, and migrate existing charts.
 
-For example, you can ask your AI assistant to:
+For example, you can ask your agent to:
 
 - "Add an area chart with tooltips to my dashboard."
-- "Install and theme a gauge chart for this KPI card."
-- "Build a stats page with bar and line charts using the @bklit registry."
+- "Build a KPI stat card with a revenue sparkline."
+- "Give the bar chart rounded tops and a diagonal pattern that matches our theme."
+- "Use a diagonal pattern background that fades out on all sides."
+- "Replace our Recharts line chart with the Bklit one."
+- "Migrate all our shadcn charts to Bklit."
 - "Fix the crosshair color on my candlestick chart tooltip."
-
-The skill reads your project's `components.json` and provides the assistant with your framework, aliases, installed components, and resolved paths so it can generate correct chart code on the first try.
 
 ## Install
 
@@ -20,61 +21,120 @@ The skill reads your project's `components.json` and provides the assistant with
 npx skills add bklit/bklit-ui
 ```
 
-This installs the **bklit-ui** skill into your project. Once installed, your AI assistant automatically loads it when working with Bklit charts and data visualization.
+This installs all three public skills. To install just one, pass `--skill`:
 
-Learn more about skills at [skills.sh](https://skills.sh/docs/).
+```bash
+npx skills add bklit/bklit-ui --skill bklit-ui
+npx skills add bklit/bklit-ui --skill bklit-ui-design
+npx skills add bklit/bklit-ui --skill bklit-ui-migrate
+```
 
-## What's Included
+Your agent loads each skill automatically when a request matches it. Learn more about skills at [skills.sh](https://skills.sh/docs/).
 
-The skill provides your AI assistant with the following knowledge:
+## Public skills
 
-### Project Context
+| Skill | Use it for |
+|-------|-----------|
+| **bklit-ui** | Installing, importing, composing, theming, and animating charts — the core skill |
+| **bklit-ui-design** | How charts look: patterns and textures, rounded / squircle / 3D bars, edge fades, gradients, loading looks, and matching your app's theme |
+| **bklit-ui-migrate** | Moving from Recharts or shadcn `ChartContainer` charts to Bklit equivalents |
 
-On every interaction, the skill runs `shadcn info --json` to get your project's configuration: framework, Tailwind version, aliases, installed components, and resolved file paths — including which `@bklit` charts are already installed.
+## What bklit-ui covers
 
-### Registry Installation
+### Project context
 
-How to configure the `@bklit` namespace and install charts with the shadcn CLI:
+The skill runs `shadcn info --json` to read your project's framework, Tailwind version, aliases, and installed components (agents that don't run the injection are told to run it themselves). If the `@bklit` registry isn't configured, it falls back to adding the namespace or installing by URL.
+
+### Installation and imports
+
+Charts install as source with the shadcn CLI:
 
 ```bash
 npx shadcn@latest add @bklit/line-chart
 ```
 
-### Composition and Theming
+Files land in `components/charts/`, so imports use your project's alias — for example `@/components/charts/line-chart`, `@/components/charts/tooltip`, and `@/components/charts/chart-context` for `chartCssVars`. After installing, the agent reads the installed source to confirm props, since you own that code.
 
-How to compose charts (`LineChart` → `Grid` → `Line` → `XAxis` → `ChartTooltip`), use `chartCssVars` for type-safe theming, and apply series palette tokens (`--chart-1` … `--chart-5`) plus sequential scale tokens (`--chart-scale-01` … `--chart-scale-05`) for heatmaps and choropleths.
+### Composition and theming
 
-### Animation and Tooltips
+Root chart → `Grid` → series → axes → overlays → `ChartTooltip`; `chartCssVars` for typed tokens; series colors from `--chart-1` … `--chart-5`, which `shadcn add` leaves untouched if your theme already defines them; sequential `--chart-scale-01` … `--chart-scale-05` for heatmaps and choropleths.
 
-Enter animation defaults, replay patterns via `revealSignature`, custom tooltip content, `indicatorColor` for candlesticks, and the `useChart` hook for custom indicators.
+### Tooltips, overlays, animation, and loading
 
-### Chart Catalog
+`ChartTooltip` props (`content`, `rows`, `indicatorColor`, `dotVariant`, …), legends, markers, reference areas, projection lines, range bands, backgrounds, enter-animation defaults and replay, and the `status="loading"` hand-off.
 
-A decision guide for all 15 chart types with doc URLs, gallery links, and install commands — area, bar, line, live line, composed, scatter, candlestick, pie, ring, radar, gauge, heatmap, funnel, sankey, and choropleth.
+### Catalog
 
-## How It Works
+17 chart items — area, bar, line, live line, composed, scatter, candlestick, profit/loss line, pie, ring, radar, gauge, heatmap, funnel, sankey, sunburst, and choropleth — plus add-ons (axes, grid, tooltip, legend, markers, background, patterns, reference area, projection line, band, bar depth, stat flow) and stat-card blocks, each with install commands and links to [docs](/docs/components), the [charts gallery](/charts/area-chart), and [Studio](/studio).
 
-1. **Project detection** — The skill activates when working with `@bklit` registry components, `@bklitui/ui/charts`, or chart/data-visualization tasks.
-2. **Context injection** — It runs `shadcn info --json` to read your project configuration and injects the result into the assistant's context.
-3. **Pattern enforcement** — The assistant follows Bklit composition rules: root chart + children, semantic chart CSS variables, and correct tooltip/crosshair patterns.
-4. **Doc discovery** — The assistant references [ui.bklit.com](https://ui.bklit.com/docs/components) documentation and the [charts gallery](https://ui.bklit.com/charts/area-chart) before generating code.
+## What bklit-ui-design covers
 
-## Learn More
+### Reading your app's design
+
+Before styling, the skill runs a small dependency-free script, `detect-design.mjs`, that reports your Tailwind version, color format (oklch or hsl), dark-mode strategy, `--radius`, existing `--chart-*` palette, `components.json` style, and UI primitives. Charts are styled to fit what it finds, using your tokens rather than hardcoded colors.
+
+### Design vocabulary
+
+Plain-English requests map to exact components and props. For example:
+
+| You say | The agent writes |
+|---------|------------------|
+| "Diagonal pattern background that fades out on all sides" | `<Background />` (diagonal with a four-sided fade is the default) |
+| "Squircle bars" | `BarSquares` with `squareRadius={0.5}`, plus a ring tooltip |
+| "Pill bars" / "square bars" | `Bar` with `lineCap="round"` / `lineCap="butt"` |
+| "3D glass bars" | `BarDepthBack` → `Bar perspective` → `BarDepthFront` |
+| "Hatched area" | `PatternLines` with `PatternArea` |
+| "Dashed last few days" / "forecast" | `dashFromIndex` / `ProjectionLine` |
+| "Target band" | `ReferenceArea` |
+| "Min/max range" / "Range area" / "Bollinger bands" | `Band` (+ `withBollingerBands`) |
+| "Shade weekends" | `Weekends` |
+| "Due date" / "deadline marker" | `Deadline` |
+| "Line of best fit" / "trend line" | `TrendLine` |
+| "Skeleton while loading" | `status="loading"` with a `pulse` or `sweep` style |
+
+### Recipes, taste, and theming
+
+Fifteen ready-made compositions from the [charts gallery](/charts/area-chart), opinionated taste rules (one decorative layer, subtle patterns, faded backgrounds, corner style that matches your `--radius`), and theming guidance for light and dark mode, including fixes for Tailwind v3 projects.
+
+When you ask for something Bklit doesn't support, such as a wave or hexagon background preset, the skill says so and offers the closest composition instead of inventing props.
+
+## What bklit-ui-migrate covers
+
+### Finding your charts
+
+A dependency-free script, `detect-recharts.mjs`, lists every chart that uses Recharts directly or through shadcn's `components/ui/chart.tsx` (`ChartContainer`, `ChartConfig`, `ChartTooltipContent`).
+
+### Planning the migration
+
+Each chart is classified as:
+
+- **Clean**: a direct Bklit equivalent, such as line, area, bar, pie, radar, funnel, or sankey charts.
+- **Needs a workaround**: for example numeric x values on a line chart, stacked areas, or a fixed y domain. The agent asks before converting these.
+- **Keep on Recharts**: no Bklit equivalent yet, such as `Treemap`, `syncId`, or `ErrorBar`.
+
+### Converting
+
+Files are converted one at a time: data is reshaped where needed (for example, x values to dates), components and props are mapped, and `ChartConfig` colors and labels carry over to series and tooltip rows. `components/ui/chart.tsx` and the `recharts` dependency are removed only once nothing imports them, then the project is typechecked and built.
+
+## Learn more
 
 - [Installation](/docs/installation) — Set up the `@bklit` registry in your project
 - [Theming](/docs/theming) — CSS variables and `chartCssVars`
 - [Components](/docs/components) — Chart API reference
 - [Charts gallery](/charts/area-chart) — Interactive examples
 - [Studio](/studio) — Tune props and copy generated code
-- [skills.sh](https://skills.sh/docs/) — Learn more about AI skills
+- [skills.sh](https://skills.sh/docs/) — Learn more about agent skills
 
 ## Contributing to bklit-ui
 
-If you cloned the [bklit-ui repository](https://github.com/bklit/bklit-ui) to contribute new charts, additional contributor-only skills live in `.agents/skills/`:
+If you cloned the [bklit-ui repository](https://github.com/bklit/bklit-ui) to contribute, contributor-only skills live in `.agents/skills/` (see `AGENTS.md`):
 
 | Skill | Purpose |
 |-------|---------|
-| **bklit-studio** | Auto-trigger when building/editing charts. Prototype in `/studio`; edit `packages/studio` + `packages/ui`. See `AGENTS.md`. |
-| **bklit-ship** | Ship a chart from Studio prototype to docs, gallery, and shadcn registry |
+| **bklit-studio** | Build or edit charts: prototype in `/studio`, edit `packages/studio` and `packages/ui` |
+| **bklit-ship** | Ship a chart from Studio to docs, gallery, and the shadcn registry |
+| **bklit-studio-chart-performance** | Audit and fix Studio chart FPS, pan/zoom jank, and Motion subscriptions |
+| **pr-open** | Commit, push, and open a PR with the bklit-ui checklist |
+| **unit-tests** | Add tests without over-testing |
 
-These skills are **not** published to skills.sh — they are for monorepo development only.
+These skills are marked `internal` in their frontmatter, so `npx skills add bklit/bklit-ui` does not install them — they are for monorepo development only.

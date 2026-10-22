@@ -1,7 +1,7 @@
 "use client";
 
 import type { ProvidedZoom, TransformMatrix } from "@visx/zoom";
-import type { Feature, FeatureCollection, Geometry } from "geojson";
+import type { Feature, FeatureCollection, GeoJSON, Geometry } from "geojson";
 import type { Transition } from "motion/react";
 import {
   createContext,
@@ -77,8 +77,7 @@ export interface ChoroplethStableContextValue {
   pathGenerator: (feature: ChoroplethFeature) => string | undefined;
 
   // Raw path function for graticule (accepts any geo object)
-  // biome-ignore lint/suspicious/noExplicitAny: GeoJSON types are complex
-  rawPathGenerator: (geo: any) => string | null;
+  rawPathGenerator: (geo: GeoJSON) => string | null;
 
   // Project geo coordinates to screen coordinates
   projectPoint: (coords: [number, number]) => [number, number] | null;

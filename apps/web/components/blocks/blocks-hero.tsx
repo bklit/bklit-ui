@@ -14,7 +14,7 @@ export function BlocksHero() {
               ?.scrollIntoView({ behavior: "smooth" });
           }}
           size="lg"
-          variant="white"
+          variant="default"
         >
           Browse blocks
         </Button>

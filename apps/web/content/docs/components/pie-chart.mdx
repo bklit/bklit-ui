@@ -81,7 +81,7 @@ Displays content in the center of a donut chart. Only renders when `innerRadius 
 | `formatOptions` | `NumberFlowFormat` | - | Number formatting options |
 | `prefix` | `string` | - | Prefix before the value (e.g., "$") |
 | `suffix` | `string` | - | Suffix after the value (e.g., "%") |
-| `children` | `function` | - | Custom render function |
+| `children` | `function` | - | Custom render function `({ value, label, isHovered, data }) => ReactNode`. Called at rest (total + `defaultLabel`, `isHovered: false`) and on hover (the hovered slice) |
 | `className` | `string` | `""` | Additional CSS class |
 
 ### Legend
@@ -143,5 +143,5 @@ All animations use spring physics for natural motion.
 ## Dependencies
 
 ```bash
-pnpm add @visx/shape @visx/group @visx/responsive @visx/pattern @visx/gradient d3-shape motion
+pnpm add @visx/shape @visx/group @visx/responsive @visx/gradient d3-shape motion
 ```

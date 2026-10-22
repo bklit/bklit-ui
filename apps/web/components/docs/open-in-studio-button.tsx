@@ -27,7 +27,6 @@ export function OpenInStudioButton({
   return (
     <Button
       className="h-8 gap-1 px-3 text-xs"
-      nativeButton={false}
       render={<Link href={studioUrl} onClick={handleClick} />}
       variant="outline"
     >

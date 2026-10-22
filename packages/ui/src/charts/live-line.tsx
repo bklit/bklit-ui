@@ -1,11 +1,12 @@
 "use client";
 
 import { curveMonotoneX } from "@visx/curve";
+import { AreaClosed, type AreaClosedProps, LinePath } from "@visx/shape";
 
-// biome-ignore lint/suspicious/noExplicitAny: d3 curve factory type
-type CurveFactory = any;
+// Curve factory type via @visx/shape (already a dependency) rather than
+// importing from d3-shape, which this registry item does not install.
+type CurveFactory = NonNullable<AreaClosedProps<unknown>["curve"]>;
 
-import { AreaClosed, LinePath } from "@visx/shape";
 import { motion } from "motion/react";
 import { useCallback, useId, useMemo } from "react";
 import { chartCssVars, useChart } from "./chart-context";
@@ -243,6 +244,9 @@ export function LiveLine({
       {/* Live indicator (dot + badge) — dims when crosshair is active */}
       <motion.g
         animate={{ opacity: isScrubbing ? 0.25 : 1 }}
+        // Start at the target: an SVG <g> has no readable opacity, so without
+        // this Motion tries to animate from `undefined` on mount.
+        initial={false}
         transition={{ duration: 0.3, ease: "easeInOut" }}
       >
         {/* Pulsing dot */}

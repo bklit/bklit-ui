@@ -92,8 +92,9 @@ function ThemeTokenRow({
           {formatTokenLabel(name)}
         </span>
         <Input
-          className={cn(studioControlInputClass, "h-8 font-mono text-xs")}
+          className={cn(studioControlInputClass, "font-mono")}
           onChange={(event) => onChange(event.target.value)}
+          size="sm"
           value={value}
         />
       </div>
@@ -127,11 +128,12 @@ function ThemeTokenRow({
         </PopoverTrigger>
         <PopoverContent
           align="start"
-          className="w-[min(calc(100vw-2rem),18rem)] gap-3 p-3"
+          className="w-[min(calc(100vw-2rem),18rem)]"
           collisionAvoidance={studioSidebarPopoverCollisionAvoidance}
           positionMethod="fixed"
           side="right"
           sideOffset={studioSidebarPopoverSideOffset}
+          viewportClassName="flex flex-col gap-3 p-3"
         >
           <StudioColorPicker
             color={pickerColor}
@@ -300,7 +302,7 @@ export function CatalogThemePanel({
 
             <div className="border-border border-t p-3">
               <Button
-                className="w-full font-mono text-[11px]"
+                className="w-full font-mono text-[11px] sm:text-[11px]"
                 onClick={() => setCodeOpen(true)}
                 type="button"
               >

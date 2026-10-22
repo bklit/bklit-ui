@@ -35,12 +35,14 @@ import {
 import {
   areaChartControlGroups,
   areaSeriesLineControlGroups,
+  bandControlGroups,
   barChartControlGroups,
   barChartTooltipControlGroups,
   candlestickChartControlGroups,
   choroplethChartControlGroups,
   composedChartControlGroups,
   composedOverlayLineControlGroups,
+  deadlineControlGroups,
   funnelChartControlGroups,
   gaugeControlGroups,
   getLineChartControlGroups,
@@ -49,6 +51,7 @@ import {
   heatmapChartControlGroups,
   heatmapLegendControlGroups,
   heatmapSeparatorControlGroups,
+  heatmapTooltipControlGroups,
   heatmapYAxisControlGroups,
   liveLineChartControlGroups,
   pieCenterControlGroup,
@@ -59,7 +62,10 @@ import {
   ringCenterControlGroup,
   ringChartControlGroups,
   sankeyChartControlGroups,
-  scatterChartControlGroups,
+  scatterInteractionControlGroup,
+  scatterJitterChartTooltipControlGroups,
+  scatterJitterControlGroup,
+  scatterPointsControlGroup,
   standardBrushControlGroups,
   standardBrushStripControlGroups,
   standardChartTooltipControlGroups,
@@ -67,6 +73,8 @@ import {
   sunburstChartControlGroups,
   sunburstLabelsControlGroups,
   tooltipAppearanceControlGroup,
+  trendLineControlGroups,
+  weekendsControlGroups,
 } from "./registry-control-groups";
 import {
   barCollapsibleGroup,
@@ -81,6 +89,7 @@ import {
   PER_PROJECTION_CONTROL_KEYS,
   PROJECTION_PRESET_LABELS,
 } from "./studio-projection-props";
+import { trendLineSeriesOptions } from "./studio-trend-line-props";
 
 const DESIGN_SERIES_LABEL_PREFIX = /^Series \d+ · /;
 
@@ -222,6 +231,51 @@ function referenceAreaNode(chartPrefix: string): StudioComponentDefinition {
     parentId: `${chartPrefix}.chart`,
     kind: "chart",
     controlGroups: referenceAreaControlGroups,
+  };
+}
+
+function weekendsNode(chartPrefix: string): StudioComponentDefinition {
+  return {
+    id: `${chartPrefix}.weekends`,
+    label: "Weekends",
+    parentId: `${chartPrefix}.chart`,
+    kind: "chart",
+    controlGroups: weekendsControlGroups,
+  };
+}
+
+function deadlineNode(chartPrefix: string): StudioComponentDefinition {
+  return {
+    id: `${chartPrefix}.deadline`,
+    label: "Deadline",
+    parentId: `${chartPrefix}.chart`,
+    kind: "chart",
+    controlGroups: deadlineControlGroups,
+  };
+}
+
+function bandNode(chartPrefix: string): StudioComponentDefinition {
+  return {
+    id: `${chartPrefix}.band`,
+    label: "Band",
+    parentId: `${chartPrefix}.chart`,
+    kind: "geometry",
+    controlGroups: bandControlGroups,
+  };
+}
+
+function trendLineNode(
+  chartPrefix: string,
+  state: StudioUrlState
+): StudioComponentDefinition {
+  return {
+    id: `${chartPrefix}.trend-line`,
+    label: "Trend line",
+    parentId: `${chartPrefix}.chart`,
+    kind: "line",
+    controlGroups: trendLineControlGroups(
+      trendLineSeriesOptions(state, chartPrefix)
+    ),
   };
 }
 
@@ -591,6 +645,9 @@ export function resolveAreaComponents(
     gridNode("area"),
     backgroundNode("area"),
     referenceAreaNode("area"),
+    weekendsNode("area"),
+    deadlineNode("area"),
+    trendLineNode("area", state),
   ];
 
   for (let index = 0; index < seriesCount; index += 1) {
@@ -684,6 +741,7 @@ export function resolveBarComponents(
     gridNode("bar"),
     backgroundNode("bar"),
     referenceAreaNode("bar"),
+    trendLineNode("bar", state),
   ];
 
   const horizontal = state.barOrientation === "horizontal";
@@ -780,6 +838,9 @@ export function resolveComposedComponents(
     passiveNode("composed", "grid", "Grid"),
     backgroundNode("composed"),
     referenceAreaNode("composed"),
+    weekendsNode("composed"),
+    deadlineNode("composed"),
+    trendLineNode("composed", state),
   ];
 
   for (let index = 0; index < seriesCount; index += 1) {
@@ -1178,6 +1239,10 @@ export function resolveLineComponents(
     gridNode("line"),
     backgroundNode("line"),
     referenceAreaNode("line"),
+    weekendsNode("line"),
+    deadlineNode("line"),
+    bandNode("line"),
+    trendLineNode("line", state),
   ];
 
   appendLineSeriesComponents(
@@ -1285,7 +1350,6 @@ export function resolveRadarComponents(
 export function resolveScatterComponents(
   state: StudioUrlState
 ): StudioComponentDefinition[] {
-  const [points, interaction] = scatterChartControlGroups;
   const chartId = "scatter.chart";
 
   const components: StudioComponentDefinition[] = [
@@ -1294,7 +1358,7 @@ export function resolveScatterComponents(
       label: "ScatterChart",
       kind: "chart",
       treeIcon: "layers",
-      controlGroups: [],
+      controlGroups: [scatterJitterControlGroup],
       design: rootPaletteDesign(false),
     },
     gridNode("scatter"),
@@ -1302,15 +1366,15 @@ export function resolveScatterComponents(
     referenceAreaNode("scatter"),
     {
       id: "scatter.desktop",
-      label: "Scatter · desktop",
+      label: state.scatterJitter ? "Scatter · fastlane" : "Scatter · desktop",
       parentId: chartId,
       kind: "series",
       listMarker: "color-dot",
       swatchColor: getEffectiveSeriesColor(state, 0),
       controlGroups: [
         seriesYAxisControlGroup(0),
-        ...(points ? [points] : []),
-        ...(interaction ? [interaction] : []),
+        scatterPointsControlGroup,
+        scatterInteractionControlGroup,
       ],
       design: { seriesIndex: 0, supportsPattern: false },
     },
@@ -1319,7 +1383,7 @@ export function resolveScatterComponents(
   if (state.scatterSecondSeries) {
     components.push({
       id: "scatter.mobile",
-      label: "Scatter · mobile",
+      label: state.scatterJitter ? "Scatter · human" : "Scatter · mobile",
       parentId: chartId,
       kind: "series",
       listMarker: "color-dot",
@@ -1333,7 +1397,10 @@ export function resolveScatterComponents(
     chartYAxisNode("scatter", "left", "YAxis · left"),
     chartYAxisNode("scatter", "right", "YAxis · right"),
     passiveNode("scatter", "xaxis", "XAxis"),
-    chartTooltipNode("scatter"),
+    chartTooltipNode(
+      "scatter",
+      state.scatterJitter ? scatterJitterChartTooltipControlGroups : undefined
+    ),
     legendNode("scatter")
   );
 
@@ -1561,7 +1628,7 @@ export function resolveHeatmapComponents(
       label: "HeatmapTooltip",
       parentId: chartId,
       kind: "chart",
-      controlGroups: [tooltipAppearanceControlGroup],
+      controlGroups: heatmapTooltipControlGroups,
     },
     {
       id: "heatmap.legend",
