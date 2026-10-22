@@ -1,6 +1,7 @@
 "use client";
 
 import { StudioShell } from "@bklitui/studio";
+import type * as PageTree from "fumadocs-core/page-tree";
 import { useTheme } from "next-themes";
 import { Suspense } from "react";
 import { SiteHeader } from "@/components/docs/site-header";
@@ -12,13 +13,14 @@ function StudioFallback() {
   return <div aria-hidden className="flex-1 bg-background" />;
 }
 
-export function StudioPageClient() {
+export function StudioPageClient({ docsTree }: { docsTree: PageTree.Root }) {
   const { setTheme } = useTheme();
 
   return (
     <div className="flex h-dvh flex-col overflow-hidden bg-background">
       <SiteHeader
         discordUrl="https://discord.gg/75s4frfE8X"
+        docsTree={docsTree}
         githubUrl="https://github.com/bklit/bklit-ui"
         links={[...siteHeaderNavLinks]}
       />

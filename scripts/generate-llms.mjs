@@ -13,7 +13,7 @@ const SUMMARY =
   "> Bklit UI is an open-source React chart and data-viz component library (Visx, Motion, Tailwind 4) shipped from `packages/ui`, with a Next.js 15 + Fumadocs docs site at `apps/web`. Components install via the shadcn registry (`ui.bklit.com/r/*.json`). The interactive Studio (`/studio`) tunes chart props and records animations; it targets desktop browsers.";
 
 const CONTEXT =
-  "Documentation source files live under `apps/web/content/docs/` (MDX, Fumadocs). The monorepo uses pnpm and Turborepo. Chart demos are at `/charts/[slug]`; registry JSON is served from `apps/web/public/r/`.";
+  "Documentation source files live under `apps/web/content/docs/` (MDX, Fumadocs). The monorepo uses pnpm and Turborepo. Chart demos are at `/charts/[slug]`; registry JSON is served from `apps/web/public/r/`. The live site serves its own `/llms.txt` (generated from the docs page tree by `apps/web/app/llms.txt/route.ts`); this file links to the MDX sources and is regenerated with `node scripts/generate-llms.mjs`.";
 
 function walkMdx(dir, base = dir) {
   const entries = [];
@@ -42,7 +42,7 @@ function parseFrontmatter(raw) {
 }
 
 function sectionFor(relPath) {
-  if (relPath === "index.mdx") {
+  if (relPath === "index.mdx" || relPath === "installation.mdx") {
     return "Getting Started";
   }
   if (relPath.startsWith("components/")) {
@@ -51,7 +51,7 @@ function sectionFor(relPath) {
   if (relPath.startsWith("utility/")) {
     return "Utilities";
   }
-  return "Documentation";
+  return "Guides";
 }
 
 const files = walkMdx(DOCS_DIR);
@@ -70,12 +70,12 @@ for (const rel of files) {
 
 const sectionOrder = [
   "Getting Started",
+  "Guides",
   "Chart Components",
   "Utilities",
-  "Documentation",
 ];
 
-function buildIndex(linkPrefix) {
+function buildIndex(linkPrefix, readmePath) {
   const lines = ["# Bklit UI", "", SUMMARY, "", CONTEXT, ""];
   for (const section of sectionOrder) {
     const items = bySection.get(section);
@@ -93,7 +93,7 @@ function buildIndex(linkPrefix) {
   }
   lines.push("## Optional", "");
   lines.push(
-    "- [Repository README](../README.md): Monorepo setup, scripts, and license."
+    `- [Repository README](${readmePath}): Monorepo setup, scripts, and license.`
   );
   lines.push("");
   return lines.join("\n");
@@ -124,8 +124,8 @@ function buildFull(linkPrefix) {
 
 fs.mkdirSync(WIKI_DIR, { recursive: true });
 
-const rootIndex = buildIndex("./apps/web/content/docs/");
-const wikiIndex = buildIndex("../apps/web/content/docs/");
+const rootIndex = buildIndex("./apps/web/content/docs/", "./README.md");
+const wikiIndex = buildIndex("../apps/web/content/docs/", "../README.md");
 const wikiFull = buildFull("../apps/web/content/docs/");
 
 fs.writeFileSync(path.join(ROOT, "llms.txt"), rootIndex);

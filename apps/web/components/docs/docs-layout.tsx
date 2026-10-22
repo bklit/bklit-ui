@@ -5,20 +5,15 @@ import {
   SiteHeaderRivets,
   siteContainerClassName,
 } from "@/components/design/site-chrome";
+import type { SiteNavLink } from "@/lib/site-nav-links";
 import { cn } from "@/lib/utils";
 import { Sidebar } from "./sidebar";
-
-interface NavLink {
-  text: string;
-  url: string;
-  active?: "url" | "nested-url";
-}
 
 interface DocsLayoutProps {
   children: ReactNode;
   tree: PageTree.Root;
   nav?: {
-    links?: NavLink[];
+    links?: SiteNavLink[];
   };
 }
 

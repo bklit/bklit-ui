@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-import { findNeighbour } from "fumadocs-core/server";
+import { flattenTree } from "fumadocs-core/server";
 import type { TOCItemType } from "fumadocs-core/toc";
 import defaultMdxComponents from "fumadocs-ui/mdx";
 import { notFound } from "next/navigation";
@@ -16,6 +16,7 @@ import { SocialLinks } from "@/components/docs/social-links";
 import { StudioEmbedPreview } from "@/components/docs/studio-embed-preview";
 import { TableOfContents } from "@/components/docs/toc";
 import { Frame, FramePanel } from "@/components/ui/frame";
+import { isFileUrl } from "@/lib/site-nav-links";
 import { source } from "@/lib/source";
 
 // Extended page data types from fumadocs-mdx
@@ -38,7 +39,15 @@ export default async function Page(props: {
 
   const data = page.data as PageData;
   const MDX = data.body;
-  const neighbours = findNeighbour(source.pageTree, page.url);
+  // Prev/next walk docs pages only — skip sidebar file links like /llms.txt.
+  const docPages = flattenTree(source.pageTree.children).filter(
+    (node) => !(node.external || isFileUrl(node.url))
+  );
+  const pageIndex = docPages.findIndex((node) => node.url === page.url);
+  const neighbours =
+    pageIndex === -1
+      ? {}
+      : { previous: docPages[pageIndex - 1], next: docPages[pageIndex + 1] };
 
   // Read raw MDX content for copy functionality
   const slugPath = params.slug?.join("/") || "index";

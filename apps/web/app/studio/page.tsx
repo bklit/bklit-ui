@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { source } from "@/lib/source";
 import {
   studioOgImagePath,
   studioPageMetadata,
@@ -25,7 +26,7 @@ export default async function StudioPage({
   return (
     <>
       <link as="image" href={ogImagePath} rel="prefetch" />
-      <StudioPageClient />
+      <StudioPageClient docsTree={source.pageTree} />
     </>
   );
 }

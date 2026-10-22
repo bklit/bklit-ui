@@ -1,6 +1,7 @@
 "use client";
 
 import { type MouseEvent, useEffect, useMemo, useRef, useState } from "react";
+import { NavBadge } from "@/components/nav-badge";
 
 export interface ChartGalleryAnchor {
   id: string;
@@ -232,11 +233,7 @@ export function ChartGallerySidebar({
                   onClick={(event) => handleClick(event, anchor.id)}
                 >
                   <span className="min-w-0 truncate">{anchor.label}</span>
-                  {anchor.featured ? (
-                    <span className="shrink-0 rounded-sm border px-1 py-px font-medium text-[0.625rem] text-muted-foreground uppercase leading-none tracking-wide">
-                      Featured
-                    </span>
-                  ) : null}
+                  <NavBadge kind={anchor.featured ? "featured" : undefined} />
                 </a>
               </li>
             );
