@@ -3,7 +3,7 @@ import "./globals.css";
 import { OpenPanelComponent } from "@openpanel/nextjs";
 import { RootProvider } from "fumadocs-ui/provider";
 import { GeistMono } from "geist/font/mono";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Source_Serif_4 } from "next/font/google";
 import localFont from "next/font/local";
 import type { ReactNode } from "react";
@@ -13,6 +13,12 @@ import { SiteLeftDotGrid } from "@/components/design/site-left-dot-grid";
 import { DocsSearchDialog } from "@/components/docs/docs-search-dialog";
 import { getChartThemeIdFromCookie } from "@/lib/chart-theme-cookie.server";
 import { getOpenPanelClientId } from "@/lib/openpanel-env";
+import {
+  DEFAULT_OG_IMAGE,
+  SITE_DESCRIPTION,
+  SITE_NAME,
+  SITE_TITLE,
+} from "@/lib/seo";
 import { SITE_URL } from "@/lib/site-url";
 import { cn } from "@/lib/utils";
 
@@ -40,24 +46,58 @@ const geistSerif = Source_Serif_4({
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Bklit UI - Charts & Data Visualization Components",
-    template: "%s | Bklit UI",
+    default: SITE_TITLE,
+    template: `%s | ${SITE_NAME}`,
   },
-  description:
-    "Bklit UI is a component library built on top of shadcn/ui to help you build charts and data visualizations more easily.",
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  keywords: [
+    "React charts",
+    "shadcn/ui charts",
+    "data visualization",
+    "chart components",
+    "visx",
+    "Tailwind CSS",
+    "dashboard charts",
+  ],
+  authors: [{ name: "Bklit", url: SITE_URL }],
+  creator: "Bklit",
+  publisher: "Bklit",
+  // No root `alternates.canonical` / `openGraph.url`: they would be inherited
+  // by every route that forgets to set its own. Pages set them via `pageMetadata`.
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
   openGraph: {
-    title: "Bklit UI - Charts & Data Visualization Components",
-    description:
-      "Bklit UI is a component library built on top of shadcn/ui to help you build charts and data visualizations more easily.",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    siteName: SITE_NAME,
+    locale: "en_US",
     type: "website",
-    url: SITE_URL,
+    images: [DEFAULT_OG_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Bklit UI - Charts & Data Visualization Components",
-    description:
-      "Bklit UI is a component library built on top of shadcn/ui to help you build charts and data visualizations more easily.",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    images: [{ url: DEFAULT_OG_IMAGE.url, alt: DEFAULT_OG_IMAGE.alt }],
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#141414" },
+  ],
+  colorScheme: "light dark",
 };
 
 export default async function RootLayout({

@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import { BenchmarkPageClient } from "@/components/benchmarks/benchmark-page-client";
 import { SiteDivider, SitePageHeader } from "@/components/design/site-chrome";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Benchmarks",
+export const metadata: Metadata = pageMetadata({
+  title: "Chart Performance Benchmarks",
   description:
     "Run live, in-browser performance benchmarks of Bklit UI charts against Recharts and TanStack Charts: mount, update, hover, and DOM size.",
-};
+  path: "/benchmarks",
+});
 
 export default function BenchmarksPage() {
   return (

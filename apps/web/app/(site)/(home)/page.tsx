@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { DesignHeroCanvas } from "@/components/design/design-hero-canvas";
 import { HomeFooter } from "@/components/design/home-footer";
 import { HomeHeroSection } from "@/components/design/home-hero-section";
@@ -9,10 +10,53 @@ import {
   siteContainerClassName,
 } from "@/components/design/site-chrome";
 import { UsedBySection } from "@/components/design/used-by-section";
+import { JsonLd } from "@/components/seo/json-ld";
+import {
+  absoluteUrl,
+  GITHUB_URL,
+  pageMetadata,
+  SITE_DESCRIPTION,
+  SITE_NAME,
+  SITE_TITLE,
+} from "@/lib/seo";
+import { SITE_URL } from "@/lib/site-url";
+
+export const metadata: Metadata = pageMetadata({
+  title: SITE_TITLE,
+  absoluteTitle: true,
+  description: SITE_DESCRIPTION,
+  path: "/",
+});
+
+const homeJsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "@id": `${SITE_URL}/#website`,
+    name: SITE_NAME,
+    url: SITE_URL,
+    description: SITE_DESCRIPTION,
+    inLanguage: "en",
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareSourceCode",
+    name: SITE_NAME,
+    description: SITE_DESCRIPTION,
+    url: SITE_URL,
+    codeRepository: GITHUB_URL,
+    programmingLanguage: ["TypeScript", "React"],
+    runtimePlatform: "React",
+    license: "https://opensource.org/licenses/MIT",
+    isAccessibleForFree: true,
+    image: absoluteUrl("/opengraph-image.png"),
+  },
+];
 
 export default function HomePage() {
   return (
     <main className="flex flex-1 flex-col">
+      <JsonLd data={homeJsonLd} />
       <HomeHeroSection>
         <div
           className={`${siteContainerClassName} pt-6 pb-8 md:pt-10 md:pb-12`}
