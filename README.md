@@ -39,7 +39,10 @@ Bklit UI is supported by our sponsors. [Become a sponsor](https://github.com/spo
   <tr>
     <td align="center" valign="top" width="33%">
       <a href="https://ui.bklit.com/docs/components/area-chart">
-        <img src="https://github.com/bklit/bklit-ui/raw/main/apps/web/public/svgs/area-chart.svg" alt="Area Chart" width="280" />
+        <picture>
+          <source media="(prefers-color-scheme: dark)" srcset="apps/web/public/readme/area-chart-dark.svg" />
+          <img src="apps/web/public/readme/area-chart-light.svg" alt="Area Chart" width="280" />
+        </picture>
       </a>
       <br />
       <strong>Area Chart</strong><br />
@@ -47,7 +50,10 @@ Bklit UI is supported by our sponsors. [Become a sponsor](https://github.com/spo
     </td>
     <td align="center" valign="top" width="33%">
       <a href="https://ui.bklit.com/docs/components/bar-chart">
-        <img src="https://github.com/bklit/bklit-ui/raw/main/apps/web/public/svgs/bar-chart.svg" alt="Bar Chart" width="280" />
+        <picture>
+          <source media="(prefers-color-scheme: dark)" srcset="apps/web/public/readme/bar-chart-dark.svg" />
+          <img src="apps/web/public/readme/bar-chart-light.svg" alt="Bar Chart" width="280" />
+        </picture>
       </a>
       <br />
       <strong>Bar Chart</strong><br />
@@ -55,7 +61,10 @@ Bklit UI is supported by our sponsors. [Become a sponsor](https://github.com/spo
     </td>
     <td align="center" valign="top" width="33%">
       <a href="https://ui.bklit.com/docs/components/candlestick-chart">
-        <img src="https://github.com/bklit/bklit-ui/raw/main/apps/web/public/svgs/candlestick-chart.svg" alt="Candlestick Chart" width="280" />
+        <picture>
+          <source media="(prefers-color-scheme: dark)" srcset="apps/web/public/readme/candlestick-chart-dark.svg" />
+          <img src="apps/web/public/readme/candlestick-chart-light.svg" alt="Candlestick Chart" width="280" />
+        </picture>
       </a>
       <br />
       <strong>Candlestick Chart</strong><br />
@@ -65,7 +74,10 @@ Bklit UI is supported by our sponsors. [Become a sponsor](https://github.com/spo
   <tr>
     <td align="center" valign="top" width="33%">
       <a href="https://ui.bklit.com/docs/components/choropleth-chart">
-        <img src="https://github.com/bklit/bklit-ui/raw/main/apps/web/public/svgs/choropleth-chart.svg" alt="Choropleth Chart" width="280" />
+        <picture>
+          <source media="(prefers-color-scheme: dark)" srcset="apps/web/public/readme/choropleth-chart-dark.svg" />
+          <img src="apps/web/public/readme/choropleth-chart-light.svg" alt="Choropleth Chart" width="280" />
+        </picture>
       </a>
       <br />
       <strong>Choropleth Chart</strong><br />
@@ -73,7 +85,10 @@ Bklit UI is supported by our sponsors. [Become a sponsor](https://github.com/spo
     </td>
     <td align="center" valign="top" width="33%">
       <a href="https://ui.bklit.com/docs/components/composed-chart">
-        <img src="https://github.com/bklit/bklit-ui/raw/main/apps/web/public/svgs/composed-chart.svg" alt="Composed Chart" width="280" />
+        <picture>
+          <source media="(prefers-color-scheme: dark)" srcset="apps/web/public/readme/composed-chart-dark.svg" />
+          <img src="apps/web/public/readme/composed-chart-light.svg" alt="Composed Chart" width="280" />
+        </picture>
       </a>
       <br />
       <strong>Composed Chart</strong><br />
@@ -81,7 +96,10 @@ Bklit UI is supported by our sponsors. [Become a sponsor](https://github.com/spo
     </td>
     <td align="center" valign="top" width="33%">
       <a href="https://ui.bklit.com/docs/components/funnel-chart">
-        <img src="https://github.com/bklit/bklit-ui/raw/main/apps/web/public/svgs/funnel-chart.svg" alt="Funnel Chart" width="280" />
+        <picture>
+          <source media="(prefers-color-scheme: dark)" srcset="apps/web/public/readme/funnel-chart-dark.svg" />
+          <img src="apps/web/public/readme/funnel-chart-light.svg" alt="Funnel Chart" width="280" />
+        </picture>
       </a>
       <br />
       <strong>Funnel Chart</strong><br />
@@ -91,41 +109,80 @@ Bklit UI is supported by our sponsors. [Become a sponsor](https://github.com/spo
   <tr>
     <td align="center" valign="top" width="33%">
       <a href="https://ui.bklit.com/docs/components/gauge-chart">
-        <img src="https://github.com/bklit/bklit-ui/raw/main/apps/web/public/svgs/gauge-chart.svg" alt="Gauge" width="280" />
+        <picture>
+          <source media="(prefers-color-scheme: dark)" srcset="apps/web/public/readme/gauge-chart-dark.svg" />
+          <img src="apps/web/public/readme/gauge-chart-light.svg" alt="Gauge" width="280" />
+        </picture>
       </a>
       <br />
       <strong>Gauge</strong><br />
       <a href="https://ui.bklit.com/docs/components/gauge-chart">Docs</a> · <a href="https://ui.bklit.com/studio?chart=gauge-chart">Studio</a>
     </td>
     <td align="center" valign="top" width="33%">
+      <a href="https://ui.bklit.com/docs/components/heatmap-chart">
+        <picture>
+          <source media="(prefers-color-scheme: dark)" srcset="apps/web/public/readme/heatmap-chart-dark.svg" />
+          <img src="apps/web/public/readme/heatmap-chart-light.svg" alt="Heatmap Chart" width="280" />
+        </picture>
+      </a>
+      <br />
+      <strong>Heatmap Chart</strong><br />
+      <a href="https://ui.bklit.com/docs/components/heatmap-chart">Docs</a> · <a href="https://ui.bklit.com/studio?chart=heatmap-chart">Studio</a>
+    </td>
+    <td align="center" valign="top" width="33%">
       <a href="https://ui.bklit.com/docs/components/line-chart">
-        <img src="https://github.com/bklit/bklit-ui/raw/main/apps/web/public/svgs/line-chart.svg" alt="Line Chart" width="280" />
+        <picture>
+          <source media="(prefers-color-scheme: dark)" srcset="apps/web/public/readme/line-chart-dark.svg" />
+          <img src="apps/web/public/readme/line-chart-light.svg" alt="Line Chart" width="280" />
+        </picture>
       </a>
       <br />
       <strong>Line Chart</strong><br />
       <a href="https://ui.bklit.com/docs/components/line-chart">Docs</a> · <a href="https://ui.bklit.com/studio?chart=line-chart">Studio</a>
     </td>
+  </tr>
+  <tr>
     <td align="center" valign="top" width="33%">
       <a href="https://ui.bklit.com/docs/components/live-line-chart">
-        <img src="https://github.com/bklit/bklit-ui/raw/main/apps/web/public/svgs/live-line-chart.svg" alt="Live Line Chart" width="280" />
+        <picture>
+          <source media="(prefers-color-scheme: dark)" srcset="apps/web/public/readme/live-line-chart-dark.svg" />
+          <img src="apps/web/public/readme/live-line-chart-light.svg" alt="Live Line Chart" width="280" />
+        </picture>
       </a>
       <br />
       <strong>Live Line Chart</strong><br />
       <a href="https://ui.bklit.com/docs/components/live-line-chart">Docs</a> · <a href="https://ui.bklit.com/studio?chart=live-line-chart">Studio</a>
     </td>
-  </tr>
-  <tr>
     <td align="center" valign="top" width="33%">
       <a href="https://ui.bklit.com/docs/components/pie-chart">
-        <img src="https://github.com/bklit/bklit-ui/raw/main/apps/web/public/svgs/pie-chart.svg" alt="Pie Chart" width="280" />
+        <picture>
+          <source media="(prefers-color-scheme: dark)" srcset="apps/web/public/readme/pie-chart-dark.svg" />
+          <img src="apps/web/public/readme/pie-chart-light.svg" alt="Pie Chart" width="280" />
+        </picture>
       </a>
       <br />
       <strong>Pie Chart</strong><br />
       <a href="https://ui.bklit.com/docs/components/pie-chart">Docs</a> · <a href="https://ui.bklit.com/studio?chart=pie-chart">Studio</a>
     </td>
     <td align="center" valign="top" width="33%">
+      <a href="https://ui.bklit.com/docs/components/profit-loss-line">
+        <picture>
+          <source media="(prefers-color-scheme: dark)" srcset="apps/web/public/readme/profit-loss-line-dark.svg" />
+          <img src="apps/web/public/readme/profit-loss-line-light.svg" alt="Profit/Loss Line" width="280" />
+        </picture>
+      </a>
+      <br />
+      <strong>Profit/Loss Line</strong><br />
+      <a href="https://ui.bklit.com/docs/components/profit-loss-line">Docs</a> · <a href="https://ui.bklit.com/studio?chart=profit-loss-line">Studio</a>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" valign="top" width="33%">
       <a href="https://ui.bklit.com/docs/components/radar-chart">
-        <img src="https://github.com/bklit/bklit-ui/raw/main/apps/web/public/svgs/radar-chart.svg" alt="Radar Chart" width="280" />
+        <picture>
+          <source media="(prefers-color-scheme: dark)" srcset="apps/web/public/readme/radar-chart-dark.svg" />
+          <img src="apps/web/public/readme/radar-chart-light.svg" alt="Radar Chart" width="280" />
+        </picture>
       </a>
       <br />
       <strong>Radar Chart</strong><br />
@@ -133,31 +190,51 @@ Bklit UI is supported by our sponsors. [Become a sponsor](https://github.com/spo
     </td>
     <td align="center" valign="top" width="33%">
       <a href="https://ui.bklit.com/docs/components/ring-chart">
-        <img src="https://github.com/bklit/bklit-ui/raw/main/apps/web/public/svgs/ring-chart.svg" alt="Ring Chart" width="280" />
+        <picture>
+          <source media="(prefers-color-scheme: dark)" srcset="apps/web/public/readme/ring-chart-dark.svg" />
+          <img src="apps/web/public/readme/ring-chart-light.svg" alt="Ring Chart" width="280" />
+        </picture>
       </a>
       <br />
       <strong>Ring Chart</strong><br />
       <a href="https://ui.bklit.com/docs/components/ring-chart">Docs</a> · <a href="https://ui.bklit.com/studio?chart=ring-chart">Studio</a>
     </td>
+    <td align="center" valign="top" width="33%">
+      <a href="https://ui.bklit.com/docs/components/sankey-chart">
+        <picture>
+          <source media="(prefers-color-scheme: dark)" srcset="apps/web/public/readme/sankey-chart-dark.svg" />
+          <img src="apps/web/public/readme/sankey-chart-light.svg" alt="Sankey Chart" width="280" />
+        </picture>
+      </a>
+      <br />
+      <strong>Sankey Chart</strong><br />
+      <a href="https://ui.bklit.com/docs/components/sankey-chart">Docs</a> · <a href="https://ui.bklit.com/studio?chart=sankey-chart">Studio</a>
+    </td>
   </tr>
   <tr>
     <td align="center" valign="top" width="33%">
       <a href="https://ui.bklit.com/docs/components/scatter-chart">
-        <img src="https://github.com/bklit/bklit-ui/raw/main/apps/web/public/svgs/scatter-chart.svg" alt="Scatter Chart" width="280" />
+        <picture>
+          <source media="(prefers-color-scheme: dark)" srcset="apps/web/public/readme/scatter-chart-dark.svg" />
+          <img src="apps/web/public/readme/scatter-chart-light.svg" alt="Scatter Chart" width="280" />
+        </picture>
       </a>
       <br />
       <strong>Scatter Chart</strong><br />
       <a href="https://ui.bklit.com/docs/components/scatter-chart">Docs</a> · <a href="https://ui.bklit.com/studio?chart=scatter-chart">Studio</a>
     </td>
     <td align="center" valign="top" width="33%">
-      <a href="https://ui.bklit.com/docs/components/sankey-chart">
-        <img src="https://github.com/bklit/bklit-ui/raw/main/apps/web/public/svgs/sankey-chart.svg" alt="Sankey Chart" width="280" />
+      <a href="https://ui.bklit.com/docs/components/sunburst-chart">
+        <picture>
+          <source media="(prefers-color-scheme: dark)" srcset="apps/web/public/readme/sunburst-chart-dark.svg" />
+          <img src="apps/web/public/readme/sunburst-chart-light.svg" alt="Sunburst Chart" width="280" />
+        </picture>
       </a>
       <br />
-      <strong>Sankey Chart</strong><br />
-      <a href="https://ui.bklit.com/docs/components/sankey-chart">Docs</a> · <a href="https://ui.bklit.com/studio?chart=sankey-chart">Studio</a>
+      <strong>Sunburst Chart</strong><br />
+      <a href="https://ui.bklit.com/docs/components/sunburst-chart">Docs</a> · <a href="https://ui.bklit.com/studio?chart=sunburst-chart">Studio</a>
     </td>
-    <td></td>
+    <td width="33%"></td>
   </tr>
 </table>
 
