@@ -1,5 +1,5 @@
 import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { basename, join } from "node:path";
 import { ImageResponse } from "next/og";
 import type { ChangelogEntry } from "@/lib/changelog";
 import { formatChangelogDate } from "@/lib/changelog-format";
@@ -16,19 +16,26 @@ const size = { width: 1200, height: 630 };
 const ART_INK = "#d4d4d8";
 const blackInkPattern = /#000(?:000)?\b/g;
 
-const PUBLIC_DIR_CANDIDATES = [
-  join(process.cwd(), "public"),
-  join(process.cwd(), "apps/web/public"),
-];
+/** First existing file — the app runs from `apps/web` or the repo root. */
+function readFirst(paths: string[]): string | undefined {
+  const file = paths.find((candidate) => existsSync(candidate));
+  return file ? readFileSync(file, "utf8") : undefined;
+}
 
-function readPublicFile(path: string): string | undefined {
-  for (const dir of PUBLIC_DIR_CANDIDATES) {
-    const file = join(dir, path);
-    if (existsSync(file)) {
-      return readFileSync(file, "utf8");
-    }
-  }
-  return undefined;
+/** A cover under `public/changelog/` (statically scoped for output tracing). */
+function readCover(imagePath: string): string | undefined {
+  const name = basename(imagePath);
+  return readFirst([
+    join(process.cwd(), "public/changelog", name),
+    join(process.cwd(), "apps/web/public/changelog", name),
+  ]);
+}
+
+function readLogo(): string | undefined {
+  return readFirst([
+    join(process.cwd(), "public/img/bklit-mark.svg"),
+    join(process.cwd(), "apps/web/public/img/bklit-mark.svg"),
+  ]);
 }
 
 function svgDataUri(svg: string): string {
@@ -37,7 +44,7 @@ function svgDataUri(svg: string): string {
 
 /** Cover SVGs are black-on-transparent masks; recolour them for the dark card. */
 function darkArtwork(imagePath: string | undefined): string | undefined {
-  const svg = imagePath ? readPublicFile(imagePath) : undefined;
+  const svg = imagePath ? readCover(imagePath) : undefined;
   return svg ? svgDataUri(svg.replace(blackInkPattern, ART_INK)) : undefined;
 }
 
@@ -53,7 +60,7 @@ export function changelogOgImage({
   eyebrow: string;
 }) {
   const artwork = darkArtwork(entry?.image);
-  const logo = readPublicFile("img/bklit-mark.svg");
+  const logo = readLogo();
   const date = entry && title === entry.title ? entry.date : undefined;
 
   return new ImageResponse(
