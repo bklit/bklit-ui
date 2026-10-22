@@ -13,7 +13,6 @@
     "./code": "./src/code.tsx",
     "./chart-grid": "./src/chart-grid.tsx",
     "./chart-marker": "./src/chart-marker.tsx",
-    "./line-chart": "./src/line-chart.tsx",
     "./tooltip": "./src/tooltip.tsx",
     "./*": "./src/*.tsx"
   },
