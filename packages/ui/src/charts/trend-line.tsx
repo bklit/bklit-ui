@@ -194,7 +194,10 @@ function useAnimatedTrendPixels({
   const animatingRef = useRef(false);
   const prevSignatureRef = useRef(dataSignature);
   const latestTargetRef = useRef(targetPixels);
-  latestTargetRef.current = targetPixels;
+  // Synced before the tween layout effect below (not during render).
+  useLayoutEffect(() => {
+    latestTargetRef.current = targetPixels;
+  });
 
   const shouldAnimate = enabled && !reducedMotion && durationMs > 0;
 

@@ -12,7 +12,11 @@ export function useMountProgress(
 ) {
   const progress = useMotionValue(0);
   const transitionRef = useRef(enterTransition);
-  transitionRef.current = enterTransition;
+  // Latest transition without restarting the enter tween on every new object
+  // identity. Declared before the tween effect so it runs first.
+  useEffect(() => {
+    transitionRef.current = enterTransition;
+  });
 
   // replayKey intentionally retriggers enter when motion settings change
   // biome-ignore lint/correctness/useExhaustiveDependencies: replayKey
