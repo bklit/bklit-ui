@@ -2,6 +2,7 @@
 
 import { curveLinear } from "@visx/curve";
 import { LinePath } from "@visx/shape";
+import type { CurveFactory } from "d3-shape";
 import { useCallback, useId, useMemo } from "react";
 import { useChartStable, useYScale } from "./chart-context";
 import {
@@ -9,9 +10,6 @@ import {
   type ProjectionCurveKind,
   type ProjectionPoint,
 } from "./projection-utils";
-
-// biome-ignore lint/suspicious/noExplicitAny: d3 curve factory type
-type CurveFactory = any;
 
 export type ProjectionStrokeStyle = "solid" | "gradient";
 
