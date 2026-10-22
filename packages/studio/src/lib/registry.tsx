@@ -493,7 +493,7 @@ const barConfig: StudioChartConfig = {
               <StudioVisibleLayer componentId="bar.tooltip" state={state}>
                 <ChartTooltip
                   {...chartTooltipPropsFromState(state, {
-                    showCrosshair: false,
+                    showCrosshair: state.barShowCrosshair,
                   })}
                 />
               </StudioVisibleLayer>

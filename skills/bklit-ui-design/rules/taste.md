@@ -124,8 +124,9 @@ Correct:
 ```
 
 Without `squareSnap` on `BarChart` the ring lands on the raw value, not on the
-top square. For plain `Bar`s and 3D bars, use `showCrosshair={false} showDots={false}`
-— the bar's own hover dimming is the indicator.
+top square. Bar charts hide the crosshair line by default (`showCrosshair` opts in).
+For plain `Bar`s and 3D bars, add `showDots={false}` — the bar's own hover dimming
+is the indicator.
 
 ## 6. Never hardcode colours — use tokens
 

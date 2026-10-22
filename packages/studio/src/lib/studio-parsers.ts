@@ -106,6 +106,8 @@ export const studioSearchParams = {
   barOrientation: parseAsStringLiteral(["vertical", "horizontal"]).withDefault(
     "vertical"
   ),
+  /** Bar charts hide the tooltip crosshair line by default. */
+  barShowCrosshair: parseAsBoolean.withDefault(false),
   barVariant: parseAsStringLiteral(["classic", "shape", "squares"]).withDefault(
     "classic"
   ),
@@ -669,6 +671,7 @@ export interface StudioUrlState {
   barSeriesMode: "grouped" | "stacked";
   barLineCap: "round" | "butt";
   barOrientation: "vertical" | "horizontal";
+  barShowCrosshair: boolean;
   barVariant: "classic" | "shape" | "squares";
   barSquareGap: number;
   barSquareRadius: number;
@@ -1088,6 +1091,7 @@ export function defaultStudioState(
     barSeriesMode: "grouped",
     barLineCap: "round",
     barOrientation: "vertical",
+    barShowCrosshair: false,
     barVariant: "classic",
     barSquareGap: 3,
     barSquareRadius: 0.25,

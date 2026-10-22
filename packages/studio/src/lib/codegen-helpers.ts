@@ -933,7 +933,7 @@ function barReadyCodegen(
 
 <BarChart ${chartProps}>${backgroundBlock}${gridBlock}${referenceAreaBlock}${patternBlock}${bars}${trendLineBlock}
   <BarXAxis />
-  <ChartTooltip showCrosshair={false} />
+  <ChartTooltip${state.barShowCrosshair ? " showCrosshair" : ""} />
 </BarChart>`,
     data: dataSnippet,
   };

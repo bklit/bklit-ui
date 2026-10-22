@@ -1087,6 +1087,16 @@ export const standardCrosshairControlGroup = barCollapsibleGroup("Crosshair", [
   },
 ]);
 
+/** Bar charts hide the crosshair line by default (`barShowCrosshair`). */
+export const barCrosshairControlGroup: StudioControlGroup = {
+  ...standardCrosshairControlGroup,
+  controls: standardCrosshairControlGroup.controls.map((control) =>
+    control.key === "showCrosshair"
+      ? { ...control, key: "barShowCrosshair" }
+      : control
+  ),
+};
+
 export const barChartTooltipControlGroups: StudioControlGroup[] = [
   barCollapsibleGroup("Tooltip", [
     { type: "boolean", key: "showTooltipDatePill", label: "Date pill" },
@@ -1106,7 +1116,7 @@ export const barChartTooltipControlGroups: StudioControlGroup[] = [
     },
   ]),
   barCollapsibleGroup("Appearance", tooltipAppearanceControlGroup.controls),
-  standardCrosshairControlGroup,
+  barCrosshairControlGroup,
 ];
 
 export const standardChartTooltipControlGroups: StudioControlGroup[] = [

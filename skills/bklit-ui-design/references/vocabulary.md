@@ -183,14 +183,16 @@ returns the matching pattern node (same presets as `Background`).
 
 ## Tooltips & crosshair
 
-`ChartTooltip` defaults: `showDatePill` true, `showCrosshair` true, `showDots` true,
+`ChartTooltip` defaults: `showDatePill` true, `showCrosshair` true (false inside
+`BarChart`), `showDots` true,
 `dotVariant="dot"`, `dotSize={5}`, `dotScale={1}`.
 
 | People say | JSX |
 |---|---|
 | "ring indicator", "hollow dot", "outlined hover dot" | `dotVariant="ring"` (ring stroke default 1.5 → `dotStrokeWidth`) |
 | "squircle / rounded-square hover ring" | `dotVariant="ring" dotRadiusFraction={0.5}` (0 = square, 0.5 = circle) |
-| "no crosshair line" (bars, squares) | `showCrosshair={false}` |
+| "no crosshair line" | `showCrosshair={false}` (already the default on `BarChart`) |
+| "crosshair line on bars" | `showCrosshair` (opt in on `BarChart`) |
 | "dashed crosshair" | `indicatorDasharray="4,4"` |
 | "no date pill" | `showDatePill={false}` |
 | "no dots" | `showDots={false}` |

@@ -25,7 +25,11 @@ import { TooltipIndicator } from "./tooltip-indicator";
 export interface ChartTooltipProps {
   /** Whether to show the date pill at bottom. Default: true */
   showDatePill?: boolean;
-  /** Whether to show the vertical crosshair line. Default: true */
+  /**
+   * Whether to show the crosshair indicator line. Default: `true` for
+   * line / area / composed charts, `false` inside `BarChart` (vertical and
+   * horizontal) — pass `showCrosshair` to opt in on bar charts.
+   */
   showCrosshair?: boolean;
   /** Whether to show dots on the lines. Default: true */
   showDots?: boolean;
@@ -112,7 +116,7 @@ interface ChartTooltipInnerProps extends ChartTooltipProps {
 
 const ChartTooltipInner = memo(function ChartTooltipInner({
   showDatePill = true,
-  showCrosshair = true,
+  showCrosshair: showCrosshairProp,
   showDots = true,
   dotVariant = "dot",
   dotSize = 5,
@@ -158,6 +162,8 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
   const { tooltipSpring } = useChartConfig();
 
   const isHorizontal = orientation === "horizontal";
+  // Bar charts (any orientation) hide the crosshair line by default.
+  const showCrosshair = showCrosshairProp ?? !barXAccessor;
   const discreteInteraction = dateLabels.length > 60;
 
   const resolvedDotSize = useMemo(() => {

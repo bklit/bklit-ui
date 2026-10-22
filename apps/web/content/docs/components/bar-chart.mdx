@@ -223,6 +223,20 @@ The Grid component now supports `fadeVertical` for vertical grid lines.
 | `fadeHorizontal` | `boolean` | `true`  | Fade horizontal lines at left/right edges |
 | `fadeVertical`   | `boolean` | `false` | Fade vertical lines at top/bottom edges   |
 
+### ChartTooltip
+
+Inside `BarChart` the tooltip shows the hover dots and panel but **no crosshair line** by default (vertical and horizontal orientation). Opt in with `showCrosshair`. See the [Tooltip utility](/docs/utility/tooltip) for all props.
+
+| Prop            | Type      | Default | Description                                   |
+| --------------- | --------- | ------- | --------------------------------------------- |
+| `showCrosshair` | `boolean` | `false` | Show the crosshair indicator line on hover    |
+| `showDots`      | `boolean` | `true`  | Show hover dots on the bars (vertical only)   |
+| `showDatePill`  | `boolean` | `true`  | Show the category pill (vertical only)        |
+
+```tsx
+<ChartTooltip showCrosshair />
+```
+
 ### Background
 
 Pattern fill for the plot area when you omit `Grid`. See the [Background utility](/docs/utility/background) and **Pattern Background** examples on the [bar chart gallery](/charts/bar-chart).

@@ -33,7 +33,7 @@ import { LineChart, Line, Grid, ChartTooltip } from "@bklitui/ui/charts";
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `showDatePill` | `boolean` | `true` | Show animated date ticker at bottom |
-| `showCrosshair` | `boolean` | `true` | Show vertical crosshair line |
+| `showCrosshair` | `boolean` | `true` (`false` in `BarChart`) | Show the crosshair indicator line. Bar charts (vertical and horizontal) hide it by default — pass `showCrosshair` to opt in |
 | `showDots` | `boolean` | `true` | Show dots on data points |
 | `indicatorColor` | `string \| (point) => string` | — | Crosshair and dot color; pass a function for dynamic colors |
 | `indicatorDasharray` | `string` | — | SVG dash pattern for the crosshair (e.g. `"4,4"`). Omit for solid |
@@ -239,7 +239,7 @@ Use the `rows` prop to customize row labels and value formatting.
 
 ### With Bar Chart
 
-The tooltip adapts to bar charts, showing category names instead of dates.
+The tooltip adapts to bar charts, showing category names instead of dates. Inside `BarChart` the crosshair line is hidden by default (only the hover dots and panel show); pass `showCrosshair` to bring it back.
 
 <ComponentShowcase code={`<BarChart data={data} xDataKey="month">
   <Grid horizontal />
