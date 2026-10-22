@@ -91,7 +91,9 @@ function extractAreaConfigs(children: ReactNode): (LineConfig & AreaProps)[] {
     const isPatternArea =
       componentName === "PatternArea" || child.type === PatternArea;
     // Overlays that carry a dataKey but are not series of their own.
-    const isSeriesOverlay = componentName === "TrendLine";
+    const isSeriesOverlay =
+      componentName === "TrendLine" ||
+      componentName === "LineSeriesTerminalMarker";
     const isAreaComponent =
       componentName === "Area" ||
       child.type === Area ||
