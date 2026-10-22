@@ -95,16 +95,19 @@ export function WorldDataProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(!globalWorldDataCache);
 
   useEffect(() => {
-    if (globalWorldDataCache) {
-      setWorldData(globalWorldDataCache);
-      setIsLoading(false);
-      return;
-    }
-
+    // Resolves on the next microtask when the cache is already warm, so no
+    // state is set synchronously inside the effect.
+    let cancelled = false;
     fetchWorldData().then((data) => {
+      if (cancelled) {
+        return;
+      }
       setWorldData(data);
       setIsLoading(false);
     });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return (
@@ -127,16 +130,19 @@ export function useWorldDataStandalone() {
   const [isLoading, setIsLoading] = useState(!globalWorldDataCache);
 
   useEffect(() => {
-    if (globalWorldDataCache) {
-      setWorldData(globalWorldDataCache);
-      setIsLoading(false);
-      return;
-    }
-
+    // Resolves on the next microtask when the cache is already warm, so no
+    // state is set synchronously inside the effect.
+    let cancelled = false;
     fetchWorldData().then((data) => {
+      if (cancelled) {
+        return;
+      }
       setWorldData(data);
       setIsLoading(false);
     });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return { worldData, isLoading };

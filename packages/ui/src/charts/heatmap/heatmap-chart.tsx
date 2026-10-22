@@ -8,7 +8,6 @@ import {
   type ReactNode,
   useCallback,
   useEffect,
-  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -516,57 +515,74 @@ function useHeatmapChartLifecycle({
   animate: boolean;
 }) {
   const reducedMotion = useReducedMotion();
-  const [chartPhase, setChartPhase] = useState<ChartPhase>(() =>
-    resolveRestingChartPhase(chartStatus)
-  );
-  const [isLoaded, setIsLoaded] = useState(
-    () => chartStatus === "ready" && (!animate || animationDuration <= 0)
-  );
-  const [revealEpoch, setRevealEpoch] = useState(0);
-  const [revealMode, setRevealMode] = useState<HeatmapRevealMode>(null);
-  const prevStatusRef = useRef(chartStatus);
-  const phaseRef = useRef(chartPhase);
-  phaseRef.current = chartPhase;
-
   const animateCells = animate && !reducedMotion;
   const animateEnter = animateCells && animationDuration > 0;
+
+  // Mount state already reflects the enter reveal (previously applied by a
+  // mount effect one commit later).
+  const [chartPhase, setChartPhase] = useState<ChartPhase>(() => {
+    if (animateEnter && chartStatus === "ready") {
+      return "revealing";
+    }
+    return resolveRestingChartPhase(chartStatus);
+  });
+  const [isLoaded, setIsLoaded] = useState(() => !animateEnter);
+  const [revealEpoch, setRevealEpoch] = useState(() =>
+    animateEnter && chartStatus === "ready" ? 1 : 0
+  );
+  const [revealMode, setRevealMode] = useState<HeatmapRevealMode>(() =>
+    animateEnter && chartStatus === "ready" ? "enter" : null
+  );
+
+  // Prop-driven transitions are applied during render ("store previous props
+  // in state") instead of setState in effects — one render per transition and
+  // no ref mirror of the phase read during render.
+  const [prev, setPrev] = useState({
+    chartStatus,
+    animateEnter,
+    animationDuration,
+    revealSignature,
+  });
+
+  if (
+    prev.chartStatus !== chartStatus ||
+    prev.animateEnter !== animateEnter ||
+    prev.animationDuration !== animationDuration ||
+    prev.revealSignature !== revealSignature
+  ) {
+    setPrev({ chartStatus, animateEnter, animationDuration, revealSignature });
+
+    // Status transitions (loading ↔ ready).
+    if (prev.chartStatus !== chartStatus) {
+      if (chartStatus === "ready" && prev.chartStatus === "loading") {
+        setRevealMode("fromLoading");
+        setIsLoaded(false);
+        setChartPhase("revealing");
+      } else if (chartStatus === "loading" && prev.chartStatus === "ready") {
+        setRevealMode(null);
+        setIsLoaded(false);
+        setChartPhase("exitingReady");
+      }
+    }
+
+    if (!animateEnter) {
+      // No enter animation: settle straight into the resting phase.
+      setIsLoaded(true);
+      setChartPhase(resolveRestingChartPhase(chartStatus));
+    } else if (chartStatus === "ready" && chartPhase === "ready") {
+      // Motion replay (revealSignature / duration) while resting.
+      setRevealMode("enter");
+      setRevealEpoch((epoch) => epoch + 1);
+      setIsLoaded(false);
+      setChartPhase("revealing");
+    }
+  }
 
   const finishReveal = useCallback(() => {
     setIsLoaded(true);
     setChartPhase("ready");
     setRevealMode(null);
   }, []);
-
-  const beginReveal = useCallback(() => {
-    setRevealMode("enter");
-    setRevealEpoch((epoch) => epoch + 1);
-    setIsLoaded(false);
-    setChartPhase("revealing");
-    if (!animateEnter) {
-      finishReveal();
-    }
-  }, [animateEnter, finishReveal]);
-
-  useLayoutEffect(() => {
-    const prevStatus = prevStatusRef.current;
-    if (prevStatus === chartStatus) {
-      return;
-    }
-    prevStatusRef.current = chartStatus;
-
-    if (chartStatus === "ready" && prevStatus === "loading") {
-      setRevealMode("fromLoading");
-      setIsLoaded(false);
-      setChartPhase("revealing");
-      return;
-    }
-
-    if (chartStatus === "loading" && prevStatus === "ready") {
-      setRevealMode(null);
-      setIsLoaded(false);
-      setChartPhase("exitingReady");
-    }
-  }, [chartStatus]);
 
   useEffect(() => {
     if (chartPhase !== "exitingReady") {
@@ -579,29 +595,6 @@ function useHeatmapChartLifecycle({
 
     return () => window.clearTimeout(timer);
   }, [chartPhase]);
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: revealSignature replays enter
-  useEffect(() => {
-    if (!animateEnter) {
-      setIsLoaded(true);
-      setChartPhase(resolveRestingChartPhase(chartStatus));
-      return;
-    }
-    if (chartStatus !== "ready") {
-      return;
-    }
-    if (phaseRef.current !== "ready") {
-      return;
-    }
-
-    beginReveal();
-  }, [
-    animateEnter,
-    animationDuration,
-    beginReveal,
-    chartStatus,
-    revealSignature,
-  ]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: revealEpoch replays finish timer
   useEffect(() => {

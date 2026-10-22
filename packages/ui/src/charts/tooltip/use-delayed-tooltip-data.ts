@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 /**
  * Default grace period (ms) before a tooltip hides after hover ends. Bridges
@@ -12,6 +12,10 @@ export const TOOLTIP_HIDE_DELAY_MS = 120;
 /**
  * Delays showing (`showDelay`) and hiding (`hideDelay`) hover tooltip data.
  * Once visible, changes to another target apply immediately.
+ *
+ * Immediate updates are applied during render ("adjust state when props
+ * change") and delayed ones from timers, so no state is set synchronously in
+ * an effect (React Compiler `react-hooks/set-state-in-effect`).
  */
 export function useDelayedTooltipData<T>(
   tooltipData: T | null,
@@ -19,66 +23,42 @@ export function useDelayedTooltipData<T>(
   hideDelay = TOOLTIP_HIDE_DELAY_MS
 ): T | null {
   const [displayData, setDisplayData] = useState<T | null>(null);
-  const isShowingRef = useRef(false);
-  const showTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
-    undefined
-  );
-  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
-    undefined
-  );
+  const [prevTooltipData, setPrevTooltipData] = useState<T | null>(null);
+
+  // The tooltip counts as showing while it has data on screen (including
+  // while a hide is pending).
+  const isShowing = displayData !== null;
+
+  if (prevTooltipData !== tooltipData) {
+    setPrevTooltipData(tooltipData);
+    if (tooltipData) {
+      if (isShowing || showDelay === 0) {
+        setDisplayData(tooltipData);
+      }
+    } else if (hideDelay === 0) {
+      setDisplayData(null);
+    }
+  }
 
   useEffect(() => {
-    if (showTimerRef.current) {
-      clearTimeout(showTimerRef.current);
-      showTimerRef.current = undefined;
-    }
-    if (hideTimerRef.current) {
-      clearTimeout(hideTimerRef.current);
-      hideTimerRef.current = undefined;
-    }
-
     if (tooltipData) {
-      if (isShowingRef.current) {
-        setDisplayData(tooltipData);
+      if (displayData === tooltipData) {
         return;
       }
-
-      if (showDelay === 0) {
-        isShowingRef.current = true;
-        setDisplayData(tooltipData);
-        return;
-      }
-
-      showTimerRef.current = setTimeout(() => {
-        isShowingRef.current = true;
+      const showTimer = setTimeout(() => {
         setDisplayData(tooltipData);
       }, showDelay);
-      return;
+      return () => clearTimeout(showTimer);
     }
 
-    if (hideDelay === 0) {
-      isShowingRef.current = false;
-      setDisplayData(null);
+    if (displayData === null) {
       return;
     }
-
-    hideTimerRef.current = setTimeout(() => {
-      isShowingRef.current = false;
+    const hideTimer = setTimeout(() => {
       setDisplayData(null);
     }, hideDelay);
-  }, [tooltipData, showDelay, hideDelay]);
-
-  useEffect(
-    () => () => {
-      if (showTimerRef.current) {
-        clearTimeout(showTimerRef.current);
-      }
-      if (hideTimerRef.current) {
-        clearTimeout(hideTimerRef.current);
-      }
-    },
-    []
-  );
+    return () => clearTimeout(hideTimer);
+  }, [tooltipData, displayData, showDelay, hideDelay]);
 
   return displayData;
 }

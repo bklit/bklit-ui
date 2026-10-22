@@ -78,7 +78,7 @@ export function ScatterChartInner({
   onPhaseChange,
 }: ScatterChartInnerProps) {
   const [isLoaded, setIsLoaded] = useState(false);
-  const [revealEpoch, setRevealEpoch] = useState(0);
+  const [revealEpoch, setRevealEpoch] = useState(1);
 
   const innerWidth = width - margin.left - margin.right;
   const innerHeight = height - margin.top - margin.bottom;
@@ -189,10 +189,24 @@ export function ScatterChartInner({
     [data, xAccessor, formatXLabel]
   );
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: revealSignature
-  useEffect(() => {
+  // Replay the reveal when motion settings change. Adjusted during render
+  // ("store previous props in state") instead of setState in an effect, so a
+  // replay costs one render rather than a commit plus a cascading re-render.
+  const [revealKey, setRevealKey] = useState({
+    animationDuration,
+    revealSignature,
+  });
+  if (
+    revealKey.animationDuration !== animationDuration ||
+    revealKey.revealSignature !== revealSignature
+  ) {
+    setRevealKey({ animationDuration, revealSignature });
     setRevealEpoch((n) => n + 1);
     setIsLoaded(false);
+  }
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: revealSignature
+  useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoaded(true);
     }, animationDuration);

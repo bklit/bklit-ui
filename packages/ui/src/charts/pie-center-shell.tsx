@@ -40,34 +40,31 @@ export function PieCenterShell({
   ...pieCenterProps
 }: PieCenterShellProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const introStartedRef = useRef(false);
-
-  const [flowTotal, setFlowTotal] = useState(() =>
-    animateEntrance ? 0 : centerValue
-  );
+  // Value the entrance has counted up to. `null` until the intro frame has
+  // painted at 0, so NumberFlow animates 0 → value; any change to
+  // `centerValue` replays the count-up from 0 (as before). `flowTotal` is
+  // derived instead of being synced with setState in an effect.
+  const [introValue, setIntroValue] = useState<number | null>(null);
 
   useEffect(() => {
     if (!animateEntrance) {
-      setFlowTotal(centerValue);
       return;
     }
-
-    if (!introStartedRef.current) {
-      introStartedRef.current = true;
-      setFlowTotal(0);
-      let innerRaf = 0;
-      const outerRaf = requestAnimationFrame(() => {
-        innerRaf = requestAnimationFrame(() => setFlowTotal(centerValue));
-      });
-      return () => {
-        cancelAnimationFrame(outerRaf);
-        cancelAnimationFrame(innerRaf);
-        introStartedRef.current = false;
-      };
-    }
-
-    setFlowTotal(centerValue);
+    let innerRaf = 0;
+    const outerRaf = requestAnimationFrame(() => {
+      innerRaf = requestAnimationFrame(() => setIntroValue(centerValue));
+    });
+    return () => {
+      cancelAnimationFrame(outerRaf);
+      cancelAnimationFrame(innerRaf);
+      setIntroValue(null);
+    };
   }, [animateEntrance, centerValue]);
+
+  let flowTotal = centerValue;
+  if (animateEntrance && introValue !== centerValue) {
+    flowTotal = 0;
+  }
 
   const data: PieData[] = useMemo(
     () => [{ label: "_pieCenterShell", value: Math.max(flowTotal, 0) }],
