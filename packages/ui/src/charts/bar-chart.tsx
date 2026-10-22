@@ -99,7 +99,8 @@ export interface BarChartProps {
   /** Fetch / display status. When `"loading"`, a shimmer skeleton replaces the
    * bars (no chart data required). Default: `"ready"`. */
   status?: ChartStatus;
-  /** Fill color for the loading skeleton. Defaults to `var(--foreground)`. */
+  /** Fill color for the loading skeleton. Defaults to the first `<Bar>`'s
+   * `stroke`, falling back to `var(--foreground)`. */
   loadingFill?: string;
 }
 
