@@ -12,6 +12,7 @@ const navBadgesByUrl: Record<string, NavBadgeKind> = {
   "/docs/utility/deadline": "new",
   "/docs/utility/trend-line": "new",
   "/docs/utility/weekends": "new",
+  "/recipes": "new",
 };
 
 export function getNavBadge(url: string | undefined): NavBadgeKind | undefined {

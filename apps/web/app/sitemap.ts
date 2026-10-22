@@ -71,6 +71,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.6,
     },
     {
+      url: `${SITE_URL}/recipes`,
+      lastModified: gitLastModified([
+        "app/(site)/(home)/recipes",
+        "components/recipes",
+        "lib/recipes",
+      ]),
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
+    {
       url: `${SITE_URL}/benchmarks`,
       lastModified: gitLastModified([
         "app/(site)/(home)/benchmarks",

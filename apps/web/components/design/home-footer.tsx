@@ -36,6 +36,7 @@ const footerColumns = [
     links: [
       { text: "Docs", href: "/docs/installation" },
       { text: "Components", href: "/docs/components" },
+      { text: "Recipes", href: "/recipes" },
       { text: "Blocks", href: "/blocks" },
       { text: "Studio", href: "/studio" },
     ],
