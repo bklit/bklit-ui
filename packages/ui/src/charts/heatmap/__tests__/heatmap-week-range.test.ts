@@ -30,7 +30,7 @@ describe("heatmap week range alignment", () => {
 
 describe("heatmap month label columns", () => {
   it("snaps month ticks to separator group starts", () => {
-    const layout = { spacing: 12, atColumns: [4, 8], groups: [] };
+    const layout = { atColumns: [4, 8] };
 
     assert.equal(getHeatmapMonthLabelColumnIndex(5, layout), 4);
     assert.equal(getHeatmapMonthLabelColumnIndex(0, layout), 0);
@@ -39,14 +39,7 @@ describe("heatmap month label columns", () => {
 
   it("uses the raw column when separators are disabled", () => {
     assert.equal(getHeatmapMonthLabelColumnIndex(5, null), 5);
-    assert.equal(
-      getHeatmapMonthLabelColumnIndex(5, {
-        spacing: 0,
-        atColumns: [],
-        groups: [],
-      }),
-      5
-    );
+    assert.equal(getHeatmapMonthLabelColumnIndex(5, { atColumns: [] }), 5);
   });
 });
 
