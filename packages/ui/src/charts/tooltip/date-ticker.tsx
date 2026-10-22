@@ -21,7 +21,10 @@ function useActiveItemWidth(
 ) {
   const widthsRef = useRef<number[]>([]);
   const activeIndexRef = useRef(activeIndex);
-  activeIndexRef.current = activeIndex;
+  // Synced before the measure effect below (layout effects run in order).
+  useLayoutEffect(() => {
+    activeIndexRef.current = activeIndex;
+  });
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: items change the rendered stack, so re-measure
   useLayoutEffect(() => {
@@ -53,10 +56,14 @@ function useActiveItemWidth(
     };
   }, [stackRef, items, width]);
 
-  const target = widthsRef.current[activeIndex];
-  if (target !== undefined) {
-    width.set(target);
-  }
+  // Follow the active item. A layout effect (not render) so the spring
+  // retargets before paint without reading refs / mutating during render.
+  useLayoutEffect(() => {
+    const target = widthsRef.current[activeIndex];
+    if (target !== undefined) {
+      width.set(target);
+    }
+  }, [activeIndex, width]);
 }
 
 export interface DateTickerProps {
@@ -141,9 +148,6 @@ const DateTickerInner = memo(function DateTickerInner({
     return 0;
   }, [currentIndex, parsedLabels.length, monthSegments]);
 
-  // Track previous month index
-  const prevMonthIndexRef = useRef(-1);
-
   // Animated Y offsets
   const dayY = useSpring(0, TICKER_SPRING);
   const monthY = useSpring(0, TICKER_SPRING);
@@ -161,16 +165,14 @@ const DateTickerInner = memo(function DateTickerInner({
   );
   useActiveItemWidth(dayStackRef, parsedLabels, currentIndex, dayWidth);
 
-  dayY.set(-currentIndex * TICKER_ITEM_HEIGHT);
+  // Scroll the stacks to the active day / month before paint.
+  useLayoutEffect(() => {
+    dayY.set(-currentIndex * TICKER_ITEM_HEIGHT);
+  }, [currentIndex, dayY]);
 
-  if (currentMonthIndex >= 0) {
-    const isFirstRender = prevMonthIndexRef.current === -1;
-    const monthChanged = prevMonthIndexRef.current !== currentMonthIndex;
-    if (isFirstRender || monthChanged) {
-      monthY.set(-currentMonthIndex * TICKER_ITEM_HEIGHT);
-      prevMonthIndexRef.current = currentMonthIndex;
-    }
-  }
+  useLayoutEffect(() => {
+    monthY.set(-currentMonthIndex * TICKER_ITEM_HEIGHT);
+  }, [currentMonthIndex, monthY]);
 
   return (
     <div className="overflow-hidden rounded-full bg-zinc-900 px-4 py-1 text-white shadow-lg dark:bg-zinc-100 dark:text-zinc-900">

@@ -20,7 +20,9 @@ import {
   type RefObject,
   type SetStateAction,
   useContext,
+  useEffect,
   useMemo,
+  useState,
 } from "react";
 import type { ChartPhase, ChartStatus } from "./chart-phase";
 import type { ReferenceAreaConfig } from "./reference-area-config";
@@ -409,6 +411,24 @@ export function useChartStable(): ChartStableContextValue {
     );
   }
   return context;
+}
+
+/**
+ * Resolves a chart container element to use as a `createPortal` target.
+ *
+ * The element is captured from the ref in an effect (after mount) and kept in
+ * state, so nothing reads `ref.current` during render (React Compiler
+ * `react-hooks/refs`). Costs the same single post-mount render as the previous
+ * `mounted` flag pattern and returns `null` during SSR / the first render.
+ */
+export function useChartPortalContainer<T extends HTMLElement>(
+  containerRef: RefObject<T | null> | undefined
+): T | null {
+  const [container, setContainer] = useState<T | null>(null);
+  useEffect(() => {
+    setContainer(containerRef?.current ?? null);
+  }, [containerRef]);
+  return container;
 }
 
 /** Y-scale for a series axis (`yAxisId` on Line / Area / YAxis). */
