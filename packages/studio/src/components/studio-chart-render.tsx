@@ -4,6 +4,7 @@ import type { ChartPhase } from "@bklitui/ui/charts";
 import { memo, type ReactNode, useMemo } from "react";
 import type { StudioFrameSize } from "@/components/studio-chart-viewport";
 import type { StudioRenderContext } from "@/lib/render-context";
+import { isStudioChartRootVisible } from "@/lib/studio-component-visibility";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import { studioPatternChromeState } from "@/lib/studio-pattern-chrome";
 import type { StudioChartConfig } from "@/lib/types";
@@ -114,5 +115,8 @@ export const StudioChartRender = memo(function StudioChartRender(
 
   const chartState = motionCurveDragging ? committedState : displayState;
 
+  if (!isStudioChartRootVisible(chartState)) {
+    return null;
+  }
   return config.render(chartState, renderCtx);
 }, studioChartRenderPropsEqual);

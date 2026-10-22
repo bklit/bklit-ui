@@ -8,6 +8,7 @@ import {
 } from "@/lib/chart-animation";
 import { scrambleGaugeValue } from "@/lib/demo-data";
 import type { StudioRenderContext } from "@/lib/render-context";
+import { isStudioComponentVisible } from "@/lib/studio-component-visibility";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 
 const gaugeFormat = {
@@ -29,11 +30,20 @@ export function GaugeStudioPreview({
     linear: ctx.isRecording,
   });
   const trackFill = state.progressBarTrackFill.trim();
-  const centerValue = state.gaugeShowLabel ? state.centerValue : undefined;
+  const visible = (id: string) => isStudioComponentVisible(state, id);
+  // Notches (and the arc they sit on) carry both the track and the fill.
+  const notchesVisible =
+    visible("gauge.notches") && (isLinear || visible("gauge.arc"));
+  const trackVisible = notchesVisible && visible("gauge.track");
+  const fillVisible = notchesVisible && visible("gauge.arc-fill");
+  const centerValue =
+    state.gaugeShowLabel && visible("gauge.center")
+      ? state.centerValue
+      : undefined;
 
   const sharedProps = {
     activeFill: ctx.patternFillAt(0),
-    activeFillOpacity: state.activeFillOpacity,
+    activeFillOpacity: fillVisible ? state.activeFillOpacity : 0,
     centerValue,
     defaultLabel: state.gaugeLabel,
     enterStaggerScale: motionEnter.enterStaggerScale,
@@ -41,7 +51,7 @@ export function GaugeStudioPreview({
     formatOptions: gaugeFormat,
     geometryScrubbing: isLinear ? ctx.numberScrubbing : undefined,
     inactiveFill: trackFill.length > 0 ? trackFill : undefined,
-    inactiveFillOpacity: state.inactiveFillOpacity,
+    inactiveFillOpacity: trackVisible ? state.inactiveFillOpacity : 0,
     key: studioPreviewChartKey(ctx),
     labelAlign: state.gaugeLabelAlign,
     labelPlacement: state.gaugeLabelPlacement,

@@ -27,6 +27,7 @@ import {
   studioRecordingCaptureClass,
   studioSidebarScrollClass,
 } from "@/lib/studio-chrome-classes";
+import { isStudioChartRootVisible } from "@/lib/studio-component-visibility";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import {
   getRecordingCaptureDimensions,
@@ -445,7 +446,9 @@ export function StudioPreview({
                               patternFillAt,
                               frame,
                             };
-                            return config.render(displayState, renderCtx);
+                            return isStudioChartRootVisible(displayState)
+                              ? config.render(displayState, renderCtx)
+                              : null;
                           }}
                         </StudioChartViewport>
                       )}

@@ -11,6 +11,7 @@ import {
 } from "@/lib/chart-animation";
 import { getFunnelData } from "@/lib/demo-data";
 import type { StudioRenderContext } from "@/lib/render-context";
+import { isStudioComponentVisible } from "@/lib/studio-component-visibility";
 import { studioFunnelLegendItems } from "@/lib/studio-legend-items";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import { getEffectiveSeriesColor } from "@/lib/studio-series-design";
@@ -68,10 +69,14 @@ export function FunnelStudioPreview({
 
   const stages = useMemo(
     () =>
-      getFunnelData(ctx.dataSeed).map((stage, index) => ({
-        ...stage,
-        color: getEffectiveSeriesColor(state, index),
-      })),
+      getFunnelData(ctx.dataSeed)
+        .map((stage, index) => ({
+          ...stage,
+          color: getEffectiveSeriesColor(state, index),
+        }))
+        .filter((_, index) =>
+          isStudioComponentVisible(state, `funnel.stage.${index}`)
+        ),
     [ctx.dataSeed, state]
   );
 

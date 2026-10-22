@@ -7,12 +7,15 @@ export function studioFitDiameter(frame: StudioFrameSize, ratio = 0.9) {
   return Math.round(Math.min(frame.width, frame.height) * ratio);
 }
 
-/** Radial chart diameter from frame size and scale percent (50–100). */
+/**
+ * Radial chart diameter from frame size and scale percent (50–100).
+ * Scales the fitted diameter directly — a fixed pixel floor used to swallow the
+ * Size slider whenever the frame was smaller than ~2× that floor.
+ */
 export function studioRadialSize(
   frame: StudioFrameSize,
   scalePercent: number,
   padding = 32,
-  minDiameter = 320,
   fitRatio = 0.92
 ) {
   const fit = studioFitDiameter(
@@ -23,7 +26,7 @@ export function studioRadialSize(
     fitRatio
   );
   const scale = Math.max(0.5, Math.min(1, scalePercent / 100));
-  return Math.round(Math.min(fit, Math.max(minDiameter, fit * scale)));
+  return Math.round(fit * scale);
 }
 
 /** Sunburst uses tighter padding and a higher fit ratio (multi-ring layout). */
@@ -31,7 +34,7 @@ export function studioSunburstSize(
   frame: StudioFrameSize,
   scalePercent: number
 ) {
-  return studioRadialSize(frame, scalePercent, 8, 360, 0.98);
+  return studioRadialSize(frame, scalePercent, 8, 0.98);
 }
 
 /** Largest width/height that fits in the frame while preserving aspect (width ÷ height). */

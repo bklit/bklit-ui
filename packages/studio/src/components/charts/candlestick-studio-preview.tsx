@@ -9,7 +9,10 @@ import {
 } from "@bklitui/ui/charts";
 import { memo, useMemo } from "react";
 import { StudioCartesianFill } from "@/components/charts/studio-chart-layout";
-import { StudioChartShell } from "@/components/charts/studio-chart-shell";
+import {
+  StudioChartShell,
+  StudioVisibleLayer,
+} from "@/components/charts/studio-chart-shell";
 import {
   StudioChartYAxisLayers,
   timeSeriesChartMargin,
@@ -28,6 +31,7 @@ import {
   studioCartesianBackgroundLayer,
   studioCartesianGridLayer,
 } from "@/lib/studio-cartesian-layers";
+import { chartTooltipPropsFromState } from "@/lib/studio-chart-overlays";
 import { studioCandlestickLegendItems } from "@/lib/studio-legend-items";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import { getSeriesFillMode } from "@/lib/studio-series-design";
@@ -97,16 +101,26 @@ const CandlestickChartBody = memo(function CandlestickChartBody({
           componentId="candlestick.reference-area"
           state={referenceAreaState}
         />
-        <Candlestick
-          bodyPatternNegative={patternUp}
-          bodyPatternPositive={patternUp}
-          fadedOpacity={state.candleFadedOpacity}
-          negativeFill={negativeFill}
-          positiveFill={positiveFill}
-        />
-        <ChartTooltip showDots={state.candleShowDots} />
+        <StudioVisibleLayer componentId="candlestick.candles" state={state}>
+          <Candlestick
+            bodyPatternNegative={patternUp}
+            bodyPatternPositive={patternUp}
+            fadedOpacity={state.candleFadedOpacity}
+            negativeFill={negativeFill}
+            positiveFill={positiveFill}
+          />
+        </StudioVisibleLayer>
+        <StudioVisibleLayer componentId="candlestick.tooltip" state={state}>
+          <ChartTooltip
+            {...chartTooltipPropsFromState(state, {
+              showDots: state.candleShowDots,
+            })}
+          />
+        </StudioVisibleLayer>
         <StudioChartYAxisLayers chartPrefix="candlestick" state={state} />
-        <XAxis />
+        <StudioVisibleLayer componentId="candlestick.xaxis" state={state}>
+          <XAxis />
+        </StudioVisibleLayer>
       </CandlestickChart>
     </StudioCartesianFill>
   );

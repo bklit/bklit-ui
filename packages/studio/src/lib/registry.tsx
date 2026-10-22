@@ -145,6 +145,7 @@ import { studioCartesianLegendItems } from "./studio-legend-items";
 import type { StudioUrlState } from "./studio-parsers";
 import {
   getEffectiveSeriesColor,
+  getSeriesColorOverride,
   getSeriesGradientEnabled,
   getSeriesGradientStops,
   getSeriesPattern,
@@ -408,46 +409,55 @@ const barConfig: StudioChartConfig = {
       ? studioBarTrackPatternDef(state)
       : null;
 
+    const seriesVisible = (idx: number) =>
+      isStudioComponentVisible(state, `bar.series.${idx}`);
+
     let barSeriesLayers: ReactNode = null;
     if (!isLoading) {
       if (isShapeVariant && !stacked) {
-        barSeriesLayers = seriesKeys.map((key, idx) => (
-          <BarSquares
-            dataKey={key}
-            fadedOpacity={state.barFadedOpacity}
-            fill={seriesFillAt(idx)}
-            gradientStops={getSeriesGradientStops(state, idx).map((stop) => ({
-              offset: stop.offset,
-              color: stop.color,
-            }))}
-            groupGap={state.groupGap}
-            key={key}
-            patternPreset={getSeriesPattern(state, idx)}
-            squareFit={state.barSquareFit}
-            squareGap={state.barSquareGap}
-            squareRadius={state.barSquareRadius}
-            stroke={seriesStrokeAt(idx)}
-            useGradient={getSeriesGradientEnabled(state, idx)}
-            yAxisId={getLineSeriesYAxisId(state, idx)}
-          />
-        ));
+        barSeriesLayers = seriesKeys.map((key, idx) =>
+          seriesVisible(idx) ? (
+            <BarSquares
+              dataKey={key}
+              fadedOpacity={state.barFadedOpacity}
+              fill={seriesFillAt(idx)}
+              gradientStops={getSeriesGradientStops(state, idx).map((stop) => ({
+                offset: stop.offset,
+                color: stop.color,
+              }))}
+              groupGap={state.groupGap}
+              key={key}
+              patternPreset={getSeriesPattern(state, idx)}
+              squareFit={state.barSquareFit}
+              squareGap={state.barSquareGap}
+              squareRadius={state.barSquareRadius}
+              stroke={seriesStrokeAt(idx)}
+              useGradient={getSeriesGradientEnabled(state, idx)}
+              yAxisId={getLineSeriesYAxisId(state, idx)}
+            />
+          ) : null
+        );
       } else {
-        barSeriesLayers = seriesKeys.map((key, idx) => (
-          <Bar
-            dataKey={key}
-            fadedOpacity={state.barFadedOpacity}
-            fill={seriesFillAt(idx)}
-            groupGap={state.groupGap}
-            key={key}
-            lineCap={lineCap}
-            showValue={state.barShowValue}
-            stackGap={stacked ? 3 : 0}
-            valueLabelColor={state.barValueLabelColor}
-            valueLabelOrientation={state.barValueLabelOrientation}
-            valueLabelPosition={state.barValueLabelPosition}
-            yAxisId={horizontal ? undefined : getLineSeriesYAxisId(state, idx)}
-          />
-        ));
+        barSeriesLayers = seriesKeys.map((key, idx) =>
+          seriesVisible(idx) ? (
+            <Bar
+              dataKey={key}
+              fadedOpacity={state.barFadedOpacity}
+              fill={seriesFillAt(idx)}
+              groupGap={state.groupGap}
+              key={key}
+              lineCap={lineCap}
+              showValue={state.barShowValue}
+              stackGap={stacked ? 3 : 0}
+              valueLabelColor={state.barValueLabelColor}
+              valueLabelOrientation={state.barValueLabelOrientation}
+              valueLabelPosition={state.barValueLabelPosition}
+              yAxisId={
+                horizontal ? undefined : getLineSeriesYAxisId(state, idx)
+              }
+            />
+          ) : null
+        );
       }
     }
 
@@ -608,7 +618,7 @@ const composedConfig: StudioChartConfig = {
             {studioWeekendsLayer(state, "composed")}
             {studioDeadlineLayer(state, "composed", data)}
             {ctx.patternDefs}
-            {barKey ? (
+            {barKey && isStudioComponentVisible(state, "composed.series.0") ? (
               <SeriesBar
                 dataKey={barKey}
                 fill={ctx.patternFillAt(0) ?? "var(--chart-1)"}
@@ -618,6 +628,14 @@ const composedConfig: StudioChartConfig = {
             {STUDIO_SERIES_KEYS.slice(1, seriesCount).flatMap(
               (key, secondaryIdx) => {
                 const seriesIndex = secondaryIdx + 1;
+                if (
+                  !isStudioComponentVisible(
+                    state,
+                    `composed.series.${seriesIndex}`
+                  )
+                ) {
+                  return [];
+                }
                 const colorIdx = seriesIndex;
                 const color = `var(--chart-${(colorIdx % 5) + 1})`;
                 const yAxisId = getLineSeriesYAxisId(state, seriesIndex);
@@ -849,7 +867,7 @@ const choroplethConfig: StudioChartConfig = {
       state.choroplethAnalytics ||
       (state.choroplethBgPattern === "none" &&
         state.choroplethFgPattern === "none")
-        ? `\n  <ChoroplethFeatureComponent${state.choroplethAnalytics ? " getFeatureColor={getVisitorColor}" : ' fill="var(--chart-3)"'} />`
+        ? `\n  <ChoroplethFeatureComponent${state.choroplethAnalytics ? " getFeatureColor={getVisitorColor}" : ` fill="${getSeriesColorOverride(state, 0) || "var(--chart-3)"}"`} />`
         : "";
 
     return {

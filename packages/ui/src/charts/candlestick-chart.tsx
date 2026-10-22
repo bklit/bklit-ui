@@ -20,7 +20,8 @@ import {
   isClipExcludedComponent,
   isPostOverlayComponent,
   isUnderlayComponent,
-  resolveLazyChartChild,
+  renderableChartChild,
+  resolveChartChildElement,
 } from "./chart-child-passthrough";
 import { ChartProvider, type LineConfig, type Margin } from "./chart-context";
 import { shortDateFmt } from "./chart-formatters";
@@ -266,14 +267,15 @@ const ChartCore = memo(function ChartCore({
     if (!isValidElement(rawChild)) {
       return;
     }
-    const child = resolveLazyChartChild(rawChild);
-    if (isDefsComponent(child)) {
+    const child = renderableChartChild(rawChild);
+    const resolvedChild = resolveChartChildElement(rawChild);
+    if (isDefsComponent(resolvedChild)) {
       defsChildren.push(child);
-    } else if (isPostOverlayComponent(child)) {
+    } else if (isPostOverlayComponent(resolvedChild)) {
       postOverlayChildren.push(child);
-    } else if (isClipExcludedComponent(child)) {
+    } else if (isClipExcludedComponent(resolvedChild)) {
       clipExcludedChildren.push(child);
-    } else if (isUnderlayComponent(child)) {
+    } else if (isUnderlayComponent(resolvedChild)) {
       underlayChildren.push(child);
     } else {
       preOverlayChildren.push(child);

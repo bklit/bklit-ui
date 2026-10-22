@@ -29,6 +29,7 @@ import {
   isClipExcludedComponent,
   isPostOverlayComponent,
   isUnderlayComponent,
+  renderableChartChild,
   resolveChartChildElement,
 } from "./chart-child-passthrough";
 import { ChartProvider, type LineConfig, type Margin } from "./chart-context";
@@ -436,19 +437,20 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
 
     const keyedChild = ensureChildKey(child, index);
     const resolvedChild = resolveChartChildElement(keyedChild);
+    const renderChild = renderableChartChild(keyedChild);
 
     if (isGradientDefComponent(resolvedChild)) {
-      defsChildren.push(resolvedChild);
+      defsChildren.push(renderChild);
     } else if (isPatternDefComponent(resolvedChild)) {
-      preOverlayChildren.push(resolvedChild);
+      preOverlayChildren.push(renderChild);
     } else if (isPostOverlayComponent(resolvedChild)) {
-      postOverlayChildren.push(resolvedChild);
+      postOverlayChildren.push(renderChild);
     } else if (isClipExcludedComponent(resolvedChild)) {
-      clipExcludedChildren.push(resolvedChild);
+      clipExcludedChildren.push(renderChild);
     } else if (isUnderlayComponent(resolvedChild)) {
-      underlayChildren.push(resolvedChild);
+      underlayChildren.push(renderChild);
     } else {
-      preOverlayChildren.push(resolvedChild);
+      preOverlayChildren.push(renderChild);
     }
   });
 

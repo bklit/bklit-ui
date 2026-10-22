@@ -17,6 +17,8 @@ import {
 } from "@/lib/chart-animation";
 import { getSankeyData } from "@/lib/demo-data";
 import type { StudioRenderContext } from "@/lib/render-context";
+import { studioTooltipPanelStyle } from "@/lib/studio-chart-overlays";
+import { isStudioComponentVisible } from "@/lib/studio-component-visibility";
 import { studioSankeyLegendItems } from "@/lib/studio-legend-items";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 
@@ -78,9 +80,18 @@ const SankeyChartBody = memo(function SankeyChartBody({
         nodeWidth={state.sankeyNodeWidth}
         onNodeHoverChange={setHoveredIndex}
       >
-        <SankeyNode key="nodes" showValueLabels={showValueLabels} />
-        <SankeyLink key="links" strokeOpacity={state.linkOpacity} />
-        <SankeyTooltip key="tooltip" />
+        {isStudioComponentVisible(state, "sankey.node") ? (
+          <SankeyNode key="nodes" showValueLabels={showValueLabels} />
+        ) : null}
+        {isStudioComponentVisible(state, "sankey.link") ? (
+          <SankeyLink key="links" strokeOpacity={state.linkOpacity} />
+        ) : null}
+        {isStudioComponentVisible(state, "sankey.tooltip") ? (
+          <SankeyTooltip
+            key="tooltip"
+            panelStyle={studioTooltipPanelStyle(state)}
+          />
+        ) : null}
       </SankeyChart>
     </StudioCartesianFill>
   );

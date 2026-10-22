@@ -8,7 +8,7 @@ import {
   ChoroplethTooltip,
 } from "@bklitui/ui/charts";
 import type { Transition } from "motion/react";
-import { memo, useCallback, useMemo } from "react";
+import { type CSSProperties, memo, useCallback, useMemo } from "react";
 import { useWorldDataStandalone } from "@/hooks/use-world-data";
 import { getStudioCssRevealPropsForPreview } from "@/lib/chart-animation";
 import { visitorsByCountry } from "@/lib/demo-data";
@@ -19,7 +19,10 @@ import {
   studioChoroplethFgPatternId,
 } from "@/lib/patterns";
 import type { StudioRenderContext } from "@/lib/render-context";
+import { studioTooltipPanelStyle } from "@/lib/studio-chart-overlays";
+import { isStudioComponentVisible } from "@/lib/studio-component-visibility";
 import type { StudioUrlState } from "@/lib/studio-parsers";
+import { getSeriesColorOverride } from "@/lib/studio-series-design";
 
 const ChoroplethChartBody = memo(function ChoroplethChartBody({
   worldData,
@@ -31,6 +34,10 @@ const ChoroplethChartBody = memo(function ChoroplethChartBody({
   enterTransition,
   revealSignature,
   visitorCounts,
+  showFeatures,
+  showTooltip,
+  solidFill,
+  tooltipPanelStyle,
 }: {
   worldData: NonNullable<
     ReturnType<typeof useWorldDataStandalone>["worldData"]
@@ -43,6 +50,10 @@ const ChoroplethChartBody = memo(function ChoroplethChartBody({
   enterTransition?: Transition;
   revealSignature?: string;
   visitorCounts: Record<string, number>;
+  showFeatures: boolean;
+  showTooltip: boolean;
+  solidFill: string;
+  tooltipPanelStyle?: CSSProperties;
 }) {
   const getVisitorColor = useCallback(
     (feat: ChoroplethFeature): string => {
@@ -74,9 +85,11 @@ const ChoroplethChartBody = memo(function ChoroplethChartBody({
     [visitorCounts]
   );
 
-  const bgActive = bgPattern !== "none";
-  const fgActive = fgPattern !== "none";
-  const showSolidLayer = analytics || !(fgActive || bgActive);
+  const bgActive = showFeatures && bgPattern !== "none";
+  const fgActive = showFeatures && fgPattern !== "none";
+  const showSolidLayer =
+    showFeatures &&
+    (analytics || !(bgPattern !== "none" || fgPattern !== "none"));
 
   return (
     <ChoroplethChart
@@ -98,7 +111,7 @@ const ChoroplethChartBody = memo(function ChoroplethChartBody({
 
       {showSolidLayer ? (
         <ChoroplethFeatureComponent
-          fill={analytics ? undefined : "var(--chart-3)"}
+          fill={analytics ? undefined : solidFill}
           getFeatureColor={analytics ? getVisitorColor : undefined}
           key="solid"
         />
@@ -114,11 +127,14 @@ const ChoroplethChartBody = memo(function ChoroplethChartBody({
         />
       ) : null}
 
-      <ChoroplethTooltip
-        getFeatureValue={analytics ? getVisitorValue : undefined}
-        key="tooltip"
-        valueLabel={analytics ? "Visitors" : undefined}
-      />
+      {showTooltip ? (
+        <ChoroplethTooltip
+          getFeatureValue={analytics ? getVisitorValue : undefined}
+          key="tooltip"
+          panelStyle={tooltipPanelStyle}
+          valueLabel={analytics ? "Visitors" : undefined}
+        />
+      ) : null}
     </ChoroplethChart>
   );
 });
@@ -182,7 +198,13 @@ export function ChoroplethStudioPreview({
       enterTransition={motionReveal.enterTransition}
       fgPattern={fgPattern}
       revealSignature={motionReveal.revealSignature}
-      showGraticule={showGraticule}
+      showFeatures={isStudioComponentVisible(state, "choropleth.features")}
+      showGraticule={
+        showGraticule && isStudioComponentVisible(state, "choropleth.graticule")
+      }
+      showTooltip={isStudioComponentVisible(state, "choropleth.tooltip")}
+      solidFill={getSeriesColorOverride(state, 0) || "var(--chart-3)"}
+      tooltipPanelStyle={studioTooltipPanelStyle(state)}
       visitorCounts={visitorCounts}
       worldData={worldData}
     />

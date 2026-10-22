@@ -19,7 +19,6 @@ import type { BarProps } from "./bar";
 import { topSquareCenterY } from "./bar-squares-layout";
 import {
   forEachChartChild,
-  isChartClipPassthrough,
   isClipExcludedComponent,
   isPostOverlayComponent,
   isUnderlayComponent,
@@ -574,13 +573,11 @@ const ChartCore = memo(function ChartCore({
     } else if (isPatternDefComponent(child)) {
       preOverlayChildren.push(child);
     } else if (isPostOverlayComponent(resolvedChild)) {
-      postOverlayChildren.push(resolvedChild);
+      postOverlayChildren.push(child);
     } else if (isClipExcludedComponent(resolvedChild)) {
-      clipExcludedChildren.push(
-        isChartClipPassthrough(child.type) ? resolvedChild : child
-      );
+      clipExcludedChildren.push(child);
     } else if (isUnderlayComponent(resolvedChild)) {
-      underlayChildren.push(resolvedChild);
+      underlayChildren.push(child);
     } else if (isSeriesOverlayComponent(resolvedChild)) {
       seriesOverlayChildren.push(child);
     } else {

@@ -2,6 +2,7 @@ import type { StudioUrlState } from "@/lib/studio-parsers";
 import type { StudioComponentDefinition } from "@/lib/types";
 
 const HIDDEN_SEP = "|";
+const CHART_SLUG_SUFFIX = /-chart$/;
 
 export function parseHiddenStudioComponents(raw: string): Set<string> {
   if (!raw.trim()) {
@@ -79,7 +80,23 @@ function isOptInStudioComponent(componentId: string): boolean {
   );
 }
 
+/**
+ * `<Background>` is an alternative to `<Grid>` (#167): it only renders while the
+ * sibling grid layer is hidden, so its eye reflects that and showing it hides the grid.
+ */
+const BACKGROUND_SUFFIX = ".background";
+
+function gridIdForBackground(componentId: string): string | null {
+  return componentId.endsWith(BACKGROUND_SUFFIX)
+    ? `${componentId.slice(0, -BACKGROUND_SUFFIX.length)}.grid`
+    : null;
+}
+
 function isHiddenInSet(hidden: Set<string>, componentId: string): boolean {
+  const gridId = gridIdForBackground(componentId);
+  if (gridId && !hidden.has(gridId)) {
+    return true;
+  }
   if (isOptInStudioComponent(componentId)) {
     return !hidden.has(`${SHOWN_TOKEN_PREFIX}${componentId}`);
   }
@@ -101,6 +118,10 @@ export function setStudioComponentHidden(
   } else {
     hidden.delete(token);
   }
+  const gridId = gridIdForBackground(componentId);
+  if (gridId && !hide) {
+    hidden.add(gridId);
+  }
 }
 
 export function isStudioComponentVisible(
@@ -110,6 +131,19 @@ export function isStudioComponentVisible(
   return !isHiddenInSet(
     parseHiddenStudioComponents(state.hiddenComponents),
     componentId
+  );
+}
+
+/** Root layer id in the components tree (`line.chart`, `gauge.chart`, …). */
+export function studioChartRootComponentId(chart: string): string {
+  return `${chart.replace(CHART_SLUG_SUFFIX, "")}.chart`;
+}
+
+/** Hiding the root layer hides the whole chart preview. */
+export function isStudioChartRootVisible(state: StudioUrlState): boolean {
+  return isStudioComponentVisible(
+    state,
+    studioChartRootComponentId(state.chart)
   );
 }
 

@@ -177,6 +177,7 @@ export const gridControlGroups: StudioControlGroup[] = [
       min: 2,
       max: 12,
       step: 1,
+      visibleWhen: { key: "gridHorizontal", truthy: true },
     },
     {
       type: "number",
@@ -185,6 +186,7 @@ export const gridControlGroups: StudioControlGroup[] = [
       min: 2,
       max: 20,
       step: 1,
+      visibleWhen: { key: "gridVertical", truthy: true },
     },
   ]),
   controlGroup("Stroke", [
@@ -213,17 +215,25 @@ export const gridControlGroups: StudioControlGroup[] = [
       type: "boolean",
       key: "gridFadeHorizontal",
       label: "Fade Horizontally",
+      visibleWhen: { key: "gridHorizontal", truthy: true },
     },
-    { type: "boolean", key: "gridFadeVertical", label: "Fade Vertically" },
+    {
+      type: "boolean",
+      key: "gridFadeVertical",
+      label: "Fade Vertically",
+      visibleWhen: { key: "gridVertical", truthy: true },
+    },
     {
       type: "boolean",
       key: "gridHideHorizontalEdgeLines",
       label: "Hide horizontal edge lines",
+      visibleWhen: { key: "gridHorizontal", truthy: true },
     },
     {
       type: "boolean",
       key: "gridHideVerticalEdgeLines",
       label: "Hide vertical edge lines",
+      visibleWhen: { key: "gridVertical", truthy: true },
     },
   ]),
 ];
@@ -726,6 +736,7 @@ export const seriesMarkersControlGroup = controlGroup("Markers", [
     min: 3,
     max: 12,
     step: 1,
+    visibleWhen: { key: "seriesShowMarkers", truthy: true },
   },
   {
     type: "number",
@@ -734,6 +745,7 @@ export const seriesMarkersControlGroup = controlGroup("Markers", [
     min: 0,
     max: 8,
     step: 1,
+    visibleWhen: { key: "seriesShowMarkers", truthy: true },
   },
   {
     type: "number",
@@ -742,6 +754,7 @@ export const seriesMarkersControlGroup = controlGroup("Markers", [
     min: 0,
     max: 6,
     step: 0.5,
+    visibleWhen: { key: "seriesShowMarkers", truthy: true },
   },
 ]);
 
@@ -774,8 +787,14 @@ export const seriesDashTailControlGroup = controlGroup("Dash tail", [
     max: 48,
     step: 1,
     input: "studio",
+    visibleWhen: { key: "seriesDashTail", truthy: true },
   },
-  { type: "text", key: "seriesDashArray", label: "Dash array" },
+  {
+    type: "text",
+    key: "seriesDashArray",
+    label: "Dash array",
+    visibleWhen: { key: "seriesDashTail", truthy: true },
+  },
 ]);
 
 /** Line, marker, and dash controls for each area-chart series layer. */
@@ -845,6 +864,7 @@ export const areaChartControlGroups: StudioControlGroup[] = [
       min: 0,
       max: 30,
       step: 1,
+      visibleWhen: { key: "areaShowValue", truthy: true },
     },
     {
       type: "number",
@@ -853,11 +873,13 @@ export const areaChartControlGroups: StudioControlGroup[] = [
       min: 0,
       max: 30,
       step: 1,
+      visibleWhen: { key: "areaShowValue", truthy: true },
     },
     {
       type: "boolean",
       key: "areaFadeValueLabels",
       label: "Fade values at edges",
+      visibleWhen: { key: "areaShowValue", truthy: true },
     },
     {
       ...loadingStyleControl,
@@ -962,6 +984,8 @@ export function lineChartDataGroup(): StudioControlGroup {
       type: "select",
       key: "lineDataTrend",
       label: "Trend",
+      // Trending data only feeds projection previews.
+      visibleWhen: { key: "projectionCount", truthy: true },
       options: [
         { value: "up", label: "Trend up" },
         { value: "down", label: "Trend down" },
@@ -1773,9 +1797,23 @@ export const candlestickChartControlGroups: StudioControlGroup[] = [
       max: 0.5,
       step: 0.05,
     },
-    { type: "boolean", key: "candleShowDots", label: "Dots" },
   ]),
 ];
+
+/** Candlestick tooltip dots use `candleShowDots` (off by default). */
+export const candlestickChartTooltipControlGroups: StudioControlGroup[] =
+  standardChartTooltipControlGroups.map((group) =>
+    group === standardCrosshairControlGroup
+      ? {
+          ...group,
+          controls: group.controls.map((control) =>
+            control.key === "showTooltipDots"
+              ? { ...control, key: "candleShowDots" }
+              : control
+          ),
+        }
+      : group
+  );
 
 export const funnelChartControlGroups: StudioControlGroup[] = [
   controlGroup("Layout", [

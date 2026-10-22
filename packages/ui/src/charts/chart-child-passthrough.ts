@@ -73,7 +73,12 @@ export function resolveLazyChartChild(child: ReactElement): ReactElement {
   });
 }
 
-/** Unwrap visibility wrappers so `Grid` / axes stay outside the series clip. */
+/**
+ * Unwrap visibility wrappers so `Grid` / axes stay outside the series clip.
+ *
+ * Use the result to classify a child only — render {@link renderableChartChild}
+ * instead, or a wrapper that hides its child (Studio layer toggles) is bypassed.
+ */
 export function resolveChartChildElement(child: ReactElement): ReactElement {
   const element = resolveLazyChartChild(child);
   if (isChartClipPassthrough(element.type)) {
@@ -83,6 +88,14 @@ export function resolveChartChildElement(child: ReactElement): ReactElement {
     }
   }
   return element;
+}
+
+/**
+ * Element to render for a classified chart child: lazy references resolved,
+ * passthrough wrappers kept so they can still render `null` when hidden.
+ */
+export function renderableChartChild(child: ReactElement): ReactElement {
+  return resolveLazyChartChild(child);
 }
 
 /** Walk chart children, flattening React fragments (studio often groups layers in `<>...</>`). */

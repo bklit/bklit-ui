@@ -39,6 +39,7 @@ import {
   barChartControlGroups,
   barChartTooltipControlGroups,
   candlestickChartControlGroups,
+  candlestickChartTooltipControlGroups,
   choroplethChartControlGroups,
   composedChartControlGroups,
   composedOverlayLineControlGroups,
@@ -145,6 +146,14 @@ function projectionScopedControlGroups(
   }));
 }
 
+/** Pick a chart control group by title — positional destructuring drifts when groups are added. */
+function groupByTitle(
+  groups: StudioControlGroup[],
+  title: string
+): StudioControlGroup | undefined {
+  return groups.find((group) => group.title === title);
+}
+
 function rootPaletteDesign(
   supportsPattern = false
 ): StudioComponentDefinition["design"] {
@@ -211,6 +220,27 @@ function gridNode(
     parentId: `${chartPrefix}.chart`,
     kind: "chart",
     controlGroups: [...gridControlGroups, ...extraControlGroups],
+  };
+}
+
+/** Vertical bar charts draw no grid columns (category x scale) — omit column controls. */
+const GRID_COLUMN_CONTROL_KEYS = new Set<string>([
+  "gridVertical",
+  "gridNumTicksColumns",
+  "gridFadeVertical",
+  "gridHideVerticalEdgeLines",
+]);
+
+function verticalBarGridNode(): StudioComponentDefinition {
+  const node = gridNode("bar");
+  return {
+    ...node,
+    controlGroups: node.controlGroups.map((group) => ({
+      ...group,
+      controls: group.controls.filter(
+        (control) => !GRID_COLUMN_CONTROL_KEYS.has(String(control.key))
+      ),
+    })),
   };
 }
 
@@ -703,9 +733,6 @@ export function resolveBarComponents(
   const designSettings = barChartControlGroups.find(
     (group) => group.title === "Design"
   );
-  const referenceAreaBounds = barChartControlGroups.find(
-    (group) => group.title === "Reference range"
-  );
   const chartId = "bar.chart";
   const isShapeVariant =
     isBarShapeVariant(state) && state.barOrientation === "vertical";
@@ -732,6 +759,7 @@ export function resolveBarComponents(
   }
 
   const seriesCount = clampStudioSeriesCount(state.dataSeries);
+  const horizontal = state.barOrientation === "horizontal";
 
   const components: StudioComponentDefinition[] = [
     {
@@ -745,13 +773,11 @@ export function resolveBarComponents(
       design: rootPaletteDesign(true),
       designPlacement: "after",
     },
-    gridNode("bar"),
+    horizontal ? gridNode("bar") : verticalBarGridNode(),
     backgroundNode("bar"),
     referenceAreaNode("bar"),
     trendLineNode("bar", state),
   ];
-
-  const horizontal = state.barOrientation === "horizontal";
 
   if (isShapeVariant) {
     components.push({
@@ -765,9 +791,6 @@ export function resolveBarComponents(
 
   for (let index = 0; index < seriesCount; index += 1) {
     const controlGroups: StudioControlGroup[] = [];
-    if (index === 0 && referenceAreaBounds) {
-      controlGroups.push(referenceAreaBounds);
-    }
     if (index === 0 && seriesSettings && !isShapeVariant) {
       controlGroups.push(seriesSettings);
     }
@@ -830,7 +853,14 @@ export function resolveComposedComponents(
   state: StudioUrlState
 ): StudioComponentDefinition[] {
   const seriesCount = clampStudioSeriesCount(state.dataSeries);
-  const [, design] = composedChartControlGroups;
+  const designGroup = groupByTitle(composedChartControlGroups, "Design");
+  // Area opacity has its own group on the first area series below.
+  const design = designGroup && {
+    ...designGroup,
+    controls: designGroup.controls.filter(
+      (control) => control.key !== "fillOpacity"
+    ),
+  };
   const chartId = "composed.chart";
 
   const components: StudioComponentDefinition[] = [
@@ -892,7 +922,8 @@ export function resolveComposedComponents(
       controlGroups,
       design: {
         seriesIndex: index,
-        supportsPattern: true,
+        // Only the SeriesBar reads Studio pattern fills; areas stay solid.
+        supportsPattern: isBarSeries,
       },
     });
   }
@@ -921,7 +952,8 @@ export function resolveFunnelComponents(
       kind: "chart",
       treeIcon: "funnel",
       controlGroups: [...(layout ? [layout] : []), ...(labels ? [labels] : [])],
-      design: { seriesIndex: 0, supportsPattern: true },
+      // FunnelChart stages take solid colors only (no Studio pattern defs).
+      design: { seriesIndex: 0, supportsPattern: false },
     },
     ...funnelData.map((stage, index) => ({
       id: `funnel.stage.${index}`,
@@ -933,7 +965,7 @@ export function resolveFunnelComponents(
       controlGroups: [] as StudioControlGroup[],
       design: {
         seriesIndex: index,
-        supportsPattern: true,
+        supportsPattern: false,
       },
     })),
     legendNode("funnel"),
@@ -1039,7 +1071,8 @@ export function resolveSunburstComponents(
 }
 
 export function resolveLiveLineComponents(): StudioComponentDefinition[] {
-  const [stream, line] = liveLineChartControlGroups;
+  const stream = groupByTitle(liveLineChartControlGroups, "Stream");
+  const line = groupByTitle(liveLineChartControlGroups, "Line");
   const chartId = "live-line.chart";
 
   return [
@@ -1048,7 +1081,8 @@ export function resolveLiveLineComponents(): StudioComponentDefinition[] {
       label: "LiveLineChart",
       kind: "chart",
       treeIcon: "line-chart",
-      controlGroups: [],
+      // Stream timing is chart-level state, not a visual layer.
+      controlGroups: stream ? [stream] : [],
       design: rootPaletteDesign(true),
     },
     gridNode("live-line"),
@@ -1075,14 +1109,6 @@ export function resolveLiveLineComponents(): StudioComponentDefinition[] {
       kind: "chart",
       controlGroups: [],
     },
-    {
-      id: "live-line.stream",
-      label: "Stream",
-      parentId: chartId,
-      kind: "chart",
-      controlGroups: stream ? [stream] : [],
-    },
-    legendNode("live-line"),
   ];
 }
 
@@ -1417,7 +1443,8 @@ export function resolveScatterComponents(
 export function resolveCandlestickComponents(
   _state: StudioUrlState
 ): StudioComponentDefinition[] {
-  const [design, candles] = candlestickChartControlGroups;
+  const design = groupByTitle(candlestickChartControlGroups, "Design");
+  const candles = groupByTitle(candlestickChartControlGroups, "Candles");
   const chartId = "candlestick.chart";
 
   return [
@@ -1439,7 +1466,7 @@ export function resolveCandlestickComponents(
       kind: "series",
       controlGroups: candles ? [candles] : [],
     },
-    chartTooltipNode("candlestick"),
+    chartTooltipNode("candlestick", candlestickChartTooltipControlGroups),
     chartYAxisNode("candlestick", "left", "YAxis · left"),
     chartYAxisNode("candlestick", "right", "YAxis · right"),
     passiveNode("candlestick", "xaxis", "XAxis"),
@@ -1460,7 +1487,8 @@ export function resolveChoroplethComponents(
       kind: "chart",
       treeIcon: "layers",
       controlGroups: design ? [design] : [],
-      design: { seriesIndex: 0, supportsPattern: true },
+      // Background / foreground patterns live in the Design group above.
+      design: { seriesIndex: 0, supportsPattern: false },
     },
     ...(state.showGraticule
       ? [
@@ -1487,7 +1515,6 @@ export function resolveChoroplethComponents(
       kind: "chart",
       controlGroups: [tooltipAppearanceControlGroup],
     },
-    legendNode("choropleth"),
   ];
 }
 

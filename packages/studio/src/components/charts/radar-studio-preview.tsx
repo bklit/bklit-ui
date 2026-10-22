@@ -22,6 +22,7 @@ import {
 import { getRadarData, radarMetrics5 } from "@/lib/demo-data";
 import type { StudioRenderContext } from "@/lib/render-context";
 import { useStudioChartContentFrame } from "@/lib/studio-chart-content-frame";
+import { isStudioComponentVisible } from "@/lib/studio-component-visibility";
 import { studioRadarLegendItems } from "@/lib/studio-legend-items";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 
@@ -57,18 +58,24 @@ const RadarChartBody = memo(function RadarChartBody({
         size={studioRadialSize(contentFrame, state.radarSize)}
         staggerScale={motionEnter.enterStaggerScale}
       >
-        {state.showRadarGrid ? <RadarGrid /> : <RadarGrid showLabels={false} />}
-        <RadarAxis />
-        <RadarLabels fontSize={10} offset={16} />
-        {radarData.map((item, index) => (
-          <RadarArea
-            index={index}
-            key={item.label}
-            showGlow={false}
-            showPoints={state.radarShowPoints}
-            showStroke={state.radarShowStroke}
-          />
-        ))}
+        {isStudioComponentVisible(state, "radar.grid") ? (
+          <RadarGrid showLabels={state.showRadarGrid} />
+        ) : null}
+        {isStudioComponentVisible(state, "radar.axis") ? <RadarAxis /> : null}
+        {isStudioComponentVisible(state, "radar.labels") ? (
+          <RadarLabels fontSize={10} offset={16} />
+        ) : null}
+        {radarData.map((item, index) =>
+          isStudioComponentVisible(state, `radar.area.${index}`) ? (
+            <RadarArea
+              index={index}
+              key={item.label}
+              showGlow={false}
+              showPoints={state.radarShowPoints}
+              showStroke={state.radarShowStroke}
+            />
+          ) : null
+        )}
       </RadarChart>
     </StudioRadialCenter>
   );

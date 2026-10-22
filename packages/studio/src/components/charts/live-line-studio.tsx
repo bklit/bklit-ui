@@ -16,6 +16,7 @@ import {
   studioCartesianBackgroundLayer,
   studioCartesianGridLayer,
 } from "@/lib/studio-cartesian-layers";
+import { isStudioComponentVisible } from "@/lib/studio-component-visibility";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 
 const LIVE_LINE_MARGIN = { top: 24, right: 16, bottom: 32, left: 52 };
@@ -135,17 +136,23 @@ export function LiveLineStudioPreview({
         componentId="live-line.reference-area"
         state={state}
       />
-      <LiveLine
-        badge={badge}
-        curve={resolveCurve(curve)}
-        dataKey="value"
-        fill={fill}
-        pulse={pulse}
-        stroke={stroke}
-        strokeWidth={strokeWidth}
-      />
-      <LiveXAxis />
-      <LiveYAxis />
+      {isStudioComponentVisible(state, "live-line.line") ? (
+        <LiveLine
+          badge={badge}
+          curve={resolveCurve(curve)}
+          dataKey="value"
+          fill={fill}
+          pulse={pulse}
+          stroke={stroke}
+          strokeWidth={strokeWidth}
+        />
+      ) : null}
+      {isStudioComponentVisible(state, "live-line.xaxis") ? (
+        <LiveXAxis />
+      ) : null}
+      {isStudioComponentVisible(state, "live-line.yaxis") ? (
+        <LiveYAxis />
+      ) : null}
     </LiveLineChart>
   );
 }

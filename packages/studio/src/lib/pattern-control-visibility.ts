@@ -3,15 +3,27 @@ import {
   getProjectionScopedControlValue,
   isPerProjectionControlKey,
 } from "@/lib/studio-projection-props";
+import {
+  getSeriesScopedControlValue,
+  isPerSeriesLineControlKey,
+} from "@/lib/studio-series-line-props";
 import type { StudioControl, StudioControlVisibilityRule } from "@/lib/types";
+
+interface ControlScope {
+  projectionIndex?: number;
+  seriesIndex?: number;
+}
 
 function resolveVisibilityStateValue(
   state: StudioUrlState,
   key: keyof StudioUrlState,
-  projectionIndex?: number
+  { projectionIndex, seriesIndex }: ControlScope
 ): unknown {
   if (projectionIndex !== undefined && isPerProjectionControlKey(key)) {
     return getProjectionScopedControlValue(state, key, projectionIndex);
+  }
+  if (seriesIndex !== undefined && isPerSeriesLineControlKey(key)) {
+    return getSeriesScopedControlValue(state, key, seriesIndex);
   }
   return state[key];
 }
@@ -32,9 +44,9 @@ function matchesValue(
 function matchesRule(
   state: StudioUrlState,
   rule: StudioControlVisibilityRule,
-  projectionIndex?: number
+  scope: ControlScope
 ): boolean {
-  const value = resolveVisibilityStateValue(state, rule.key, projectionIndex);
+  const value = resolveVisibilityStateValue(state, rule.key, scope);
   if (rule.truthy === true && !value) {
     return false;
   }
@@ -60,7 +72,10 @@ export function isStudioControlVisible(
   }
 
   const rules = Array.isArray(rule) ? rule : [rule];
-  const projectionIndex =
-    "projectionIndex" in control ? control.projectionIndex : undefined;
-  return rules.every((entry) => matchesRule(state, entry, projectionIndex));
+  const scope: ControlScope = {
+    projectionIndex:
+      "projectionIndex" in control ? control.projectionIndex : undefined,
+    seriesIndex: "seriesIndex" in control ? control.seriesIndex : undefined,
+  };
+  return rules.every((entry) => matchesRule(state, entry, scope));
 }
