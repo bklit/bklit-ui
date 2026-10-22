@@ -53,9 +53,15 @@ const KINDS: BenchChartKind[] = ["line", "area", "bar", "scatter"];
 const LIBRARIES: BenchLibraryId[] = ["bklit", "recharts", "tanstack"];
 const SERIES_COUNTS = [1, 2, 3] as const;
 const ITERATION_OPTIONS = [5, 10, 20] as const;
-/** Fixed stage size: every library renders at exactly these pixels. */
-const STAGE_WIDTH = 720;
-const STAGE_HEIGHT = 320;
+/**
+ * Stage size. Width fills the run area up to {@link STAGE_MAX_WIDTH}; height
+ * follows it on narrow screens so phones get a landscape-ish chart. Locked
+ * for the whole run, so every library renders at exactly the same pixels.
+ */
+const STAGE_MAX_WIDTH = 720;
+const STAGE_MAX_HEIGHT = 320;
+const STAGE_MIN_HEIGHT = 220;
+const STAGE_ASPECT = 0.75;
 const HOVER_MOVES = 40;
 
 interface RunState {
@@ -81,7 +87,7 @@ function ControlGroup({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-w-0 flex-col gap-2">
+    <div className="flex min-w-0 flex-col gap-2 max-sm:w-full">
       <span className="font-medium text-muted-foreground text-xs uppercase tracking-wide">
         {label}
       </span>
@@ -108,6 +114,8 @@ function BenchOptionControl<T extends string | number>({
   return (
     <SegmentedControl
       aria-label={label}
+      // Phones: full width, options share it evenly instead of overflowing.
+      className="max-sm:w-full"
       render={
         <RadioGroupPrimitive
           disabled={disabled}
@@ -118,6 +126,7 @@ function BenchOptionControl<T extends string | number>({
     >
       {options.map((option) => (
         <SegmentedControlItem
+          className="max-sm:min-w-0 max-sm:flex-1 max-sm:px-1"
           key={option}
           render={<RadioPrimitive.Root value={option} />}
         >
@@ -139,6 +148,46 @@ function progressLabel(event: Extract<BenchProgress, { type: "start" }>) {
   return `${name}: iteration ${event.iteration}`;
 }
 
+function formatRunSummary(config: BenchRunConfig) {
+  const unit = config.kind === "bar" ? "bars" : "points";
+  return `${BENCH_KIND_LABELS[config.kind]} chart · ${config.size.toLocaleString("en-US")} ${unit} · ${config.seriesCount} series · ${config.iterations} iterations · ${config.width}×${config.height}px`;
+}
+
+interface StageSize {
+  width: number;
+  height: number;
+}
+
+function fitStageSize(availableWidth: number): StageSize {
+  const width = Math.max(1, Math.min(STAGE_MAX_WIDTH, availableWidth));
+  const height = Math.round(
+    Math.min(STAGE_MAX_HEIGHT, Math.max(STAGE_MIN_HEIGHT, width * STAGE_ASPECT))
+  );
+  return { width, height };
+}
+
+/** Stage size that fills the observed run area. */
+function useStageFitSize() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [size, setSize] = useState<StageSize>(() =>
+    fitStageSize(STAGE_MAX_WIDTH)
+  );
+  useEffect(() => {
+    const node = ref.current;
+    if (!node) {
+      return;
+    }
+    const observer = new ResizeObserver(([entry]) => {
+      if (entry) {
+        setSize(fitStageSize(Math.floor(entry.contentRect.width)));
+      }
+    });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+  return [ref, size] as const;
+}
+
 export function BenchmarkPageClient() {
   const [kind, setKind] = useState<BenchChartKind>("line");
   const [size, setSize] = useState<number>(BENCH_SIZES.line[1] ?? 1000);
@@ -152,8 +201,11 @@ export function BenchmarkPageClient() {
   );
   const [copied, setCopied] = useState(false);
   const stageRef = useRef<HTMLElement>(null);
+  const [stageAreaRef, fitSize] = useStageFitSize();
   const abortRef = useRef<AbortController | null>(null);
   const isRunning = run.status === "running";
+  // Freeze the stage at the run's size so a resize mid-run can't change it.
+  const stage: StageSize = isRunning && resultsConfig ? resultsConfig : fitSize;
 
   useEffect(() => () => abortRef.current?.abort(), []);
 
@@ -189,8 +241,8 @@ export function BenchmarkPageClient() {
       libraries: runLibraries,
       iterations,
       hoverMoves: HOVER_MOVES,
-      width: STAGE_WIDTH,
-      height: STAGE_HEIGHT,
+      width: fitSize.width,
+      height: fitSize.height,
     };
     const controller = new AbortController();
     abortRef.current = controller;
@@ -271,7 +323,7 @@ export function BenchmarkPageClient() {
         abortRef.current = null;
       }
     }
-  }, [iterations, kind, libraries, seriesCount, size]);
+  }, [fitSize, iterations, kind, libraries, seriesCount, size]);
 
   const cancel = () => abortRef.current?.abort();
 
@@ -321,9 +373,10 @@ export function BenchmarkPageClient() {
   const runFooter =
     run.status === "idle" ? (
       <p>
-        Charts mount in the live run area at a fixed {STAGE_WIDTH}×
-        {STAGE_HEIGHT}px. Keep this tab visible and the area on screen until the
-        run finishes; a quiet machine gives steadier numbers.
+        Charts mount in the live run area at {stage.width}×{stage.height}px
+        (fitted to your screen, up to {STAGE_MAX_WIDTH}px wide). Keep this tab
+        visible and the area on screen until the run finishes; a quiet machine
+        gives steadier numbers.
       </p>
     ) : (
       <div aria-live="polite" className="flex min-w-0 items-center gap-3">
@@ -332,7 +385,7 @@ export function BenchmarkPageClient() {
           aria-valuemax={100}
           aria-valuemin={0}
           aria-valuenow={percent}
-          className="h-1.5 w-40 shrink-0 overflow-hidden rounded-full bg-muted"
+          className="h-1.5 w-20 shrink-0 overflow-hidden rounded-full bg-muted sm:w-40"
           role="progressbar"
         >
           <div
@@ -347,9 +400,7 @@ export function BenchmarkPageClient() {
       </div>
     );
 
-  const resultsSummary = resultsConfig
-    ? `${BENCH_KIND_LABELS[resultsConfig.kind]} chart · ${resultsConfig.size.toLocaleString("en-US")} ${resultsConfig.kind === "bar" ? "bars" : "points"} · ${resultsConfig.seriesCount} series · ${resultsConfig.iterations} iterations`
-    : "";
+  const resultsSummary = resultsConfig ? formatRunSummary(resultsConfig) : "";
 
   return (
     <>
@@ -452,45 +503,46 @@ export function BenchmarkPageClient() {
                 Live run area
               </p>
               <p className="font-mono text-muted-foreground text-xs">
-                {STAGE_WIDTH}×{STAGE_HEIGHT}px
+                {stage.width}×{stage.height}px
               </p>
             </div>
-            {/* Scrolls (never scales) on narrow screens: a CSS transform would
-                change what the browser paints and rasterises per frame, which
-                skews paint timing. */}
-            <div className="overflow-x-auto rounded-lg border border-border border-dashed">
-              <div className="flex w-max min-w-full justify-center py-6">
-                <div
-                  className="relative shrink-0"
-                  style={{ width: STAGE_WIDTH, height: STAGE_HEIGHT }}
-                >
-                  <section
-                    aria-label="Benchmark stage"
-                    className="absolute inset-0"
-                    ref={stageRef}
-                  />
-                  {/* Idle placeholder: a sibling of the stage, unmounted for
+            {/* Narrow screens get a smaller stage at real pixels (never a CSS
+                transform, which would change what the browser paints and
+                rasterises per frame and skew paint timing). */}
+            <div
+              className="flex justify-center overflow-hidden rounded-lg border border-border border-dashed p-3 sm:px-6 sm:py-6"
+              ref={stageAreaRef}
+            >
+              <div
+                className="relative shrink-0"
+                style={{ width: stage.width, height: stage.height }}
+              >
+                <section
+                  aria-label="Benchmark stage"
+                  className="absolute inset-0"
+                  ref={stageRef}
+                />
+                {/* Idle placeholder: a sibling of the stage, unmounted for
                       the whole run so it adds no DOM, animation or main-thread
                       work to the measurements. */}
-                  {isRunning ? null : (
-                    <Empty className="pointer-events-none absolute inset-0 py-0 md:py-0">
-                      <EmptyHeader>
-                        <EmptyMedia variant="icon">
-                          <Icon name="IconDashboardFast" />
-                        </EmptyMedia>
-                        <EmptyTitle>
-                          {run.status === "idle"
-                            ? "Ready to benchmark"
-                            : "Run again to remeasure"}
-                        </EmptyTitle>
-                        <EmptyDescription>
-                          Charts mount here one library at a time. Keep this
-                          area on screen while the run is in progress.
-                        </EmptyDescription>
-                      </EmptyHeader>
-                    </Empty>
-                  )}
-                </div>
+                {isRunning ? null : (
+                  <Empty className="pointer-events-none absolute inset-0 px-2 py-0 sm:px-6 md:py-0">
+                    <EmptyHeader>
+                      <EmptyMedia className="mb-4 sm:mb-6" variant="icon">
+                        <Icon name="IconDashboardFast" />
+                      </EmptyMedia>
+                      <EmptyTitle className="text-lg sm:text-xl">
+                        {run.status === "idle"
+                          ? "Ready to benchmark"
+                          : "Run again to remeasure"}
+                      </EmptyTitle>
+                      <EmptyDescription>
+                        Charts mount here one library at a time. Keep this area
+                        on screen while the run is in progress.
+                      </EmptyDescription>
+                    </EmptyHeader>
+                  </Empty>
+                )}
               </div>
             </div>
           </BenchPanel>

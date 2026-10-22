@@ -44,8 +44,10 @@ export function BenchFrame({
 }) {
   return (
     <Frame className={cn("min-w-0", className)}>
-      <FrameHeader className="flex-row items-start justify-between gap-4 px-4 py-3">
-        <div className="flex min-w-0 flex-col gap-0.5">
+      {/* Wraps the action under the text on narrow screens instead of
+          squeezing the description into a thin column beside it. */}
+      <FrameHeader className="flex-row flex-wrap items-start justify-between gap-x-4 gap-y-3 px-4 py-3">
+        <div className="flex min-w-0 flex-1 basis-64 flex-col gap-0.5">
           <FrameTitle className="flex flex-wrap items-center gap-2 text-sm">
             <h3>{title}</h3>
             {badge}

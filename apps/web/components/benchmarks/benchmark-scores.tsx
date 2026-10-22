@@ -66,7 +66,7 @@ function ScoreCard({ entry }: { entry: BenchLibraryScore }) {
   const rankIcon = entry.rank == null ? undefined : RANK_ICONS[entry.rank];
 
   return (
-    <BenchPanel className="flex flex-col gap-4">
+    <BenchPanel className="flex flex-col gap-4 lg:p-5 xl:p-6">
       <div className="flex items-start justify-between gap-3">
         <span className="flex items-center gap-2 font-medium text-sm">
           <span
@@ -232,7 +232,7 @@ export function BenchmarkScores({ results }: { results: BenchResult[] }) {
       }
       title="Score"
     >
-      <div className="grid grid-cols-1 gap-1 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-1 lg:grid-cols-3">
         {scores.map((entry) => (
           <ScoreCard entry={entry} key={entry.library} />
         ))}
