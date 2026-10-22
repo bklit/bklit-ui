@@ -1143,7 +1143,6 @@ function HeatmapGalleryExample({
   inactiveOpacity,
   inactiveScale,
   activeScale,
-  tooltipInstant,
 }: {
   data?: HeatmapColumn[];
   levelStyles?: HeatmapLevelStyles;
@@ -1152,7 +1151,6 @@ function HeatmapGalleryExample({
   inactiveOpacity?: number;
   inactiveScale?: number;
   activeScale?: number;
-  tooltipInstant?: boolean;
 }) {
   return (
     <HeatmapExampleShell>
@@ -1173,7 +1171,7 @@ function HeatmapGalleryExample({
           />
           <HeatmapXAxis />
           <HeatmapYAxis />
-          <HeatmapTooltip instant={tooltipInstant} />
+          <HeatmapTooltip />
         </HeatmapExampleChart>
         <HeatmapLegend
           activeScale={activeScale}
@@ -5449,7 +5447,7 @@ function makeHeatmapExamples(): ChartExample[] {
   <HeatmapCells inactiveOpacity={1} inactiveScale={1} />
   <HeatmapXAxis />
   <HeatmapYAxis />
-  <HeatmapTooltip instant />
+  <HeatmapTooltip />
 </HeatmapChart>
 <HeatmapLegend align="center" gap={3} inactiveOpacity={1} inactiveScale={1} />`,
       render: () => (
@@ -5457,7 +5455,6 @@ function makeHeatmapExamples(): ChartExample[] {
           activeScale={1}
           inactiveOpacity={1}
           inactiveScale={1}
-          tooltipInstant
         />
       ),
     },
