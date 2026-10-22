@@ -1277,11 +1277,15 @@ export function heatmapCodegen(state: StudioUrlState) {
   const { separatorImport, separatorBlock } =
     heatmapSeparatorCodegenBlock(state);
   const legendBlock = `<HeatmapLegend ${legendProps} />`;
+  const heatmapTooltipBlock =
+    state.tooltipDamping === 20
+      ? "<HeatmapTooltip />"
+      : `<HeatmapTooltip damping={${state.tooltipDamping}} />`;
   const chartBlock = `<HeatmapChart data={contributionData} ${chartProps}>
       <HeatmapCells ${cellProps} />
       <HeatmapXAxis />
       ${yAxisBlock}
-      <HeatmapTooltip />${separatorBlock}
+      ${heatmapTooltipBlock}${separatorBlock}
     </HeatmapChart>`;
   const layoutBlock =
     state.legendPlacement === "top"

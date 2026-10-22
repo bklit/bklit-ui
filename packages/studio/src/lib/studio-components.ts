@@ -51,6 +51,7 @@ import {
   heatmapChartControlGroups,
   heatmapLegendControlGroups,
   heatmapSeparatorControlGroups,
+  heatmapTooltipControlGroups,
   heatmapYAxisControlGroups,
   liveLineChartControlGroups,
   pieCenterControlGroup,
@@ -1622,7 +1623,7 @@ export function resolveHeatmapComponents(
       label: "HeatmapTooltip",
       parentId: chartId,
       kind: "chart",
-      controlGroups: [tooltipAppearanceControlGroup],
+      controlGroups: heatmapTooltipControlGroups,
     },
     {
       id: "heatmap.legend",

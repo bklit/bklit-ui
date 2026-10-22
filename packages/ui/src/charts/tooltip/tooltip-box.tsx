@@ -1,6 +1,12 @@
 "use client";
 
-import { motion, useSpring } from "motion/react";
+import {
+  AnimatePresence,
+  type MotionValue,
+  motion,
+  useReducedMotion,
+  useSpring,
+} from "motion/react";
 import type { RefObject } from "react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -39,6 +45,11 @@ export interface TooltipBoxProps {
   animate?: boolean;
   /** Fade/scale the panel on show. Default: true */
   entrance?: boolean;
+  /**
+   * Fade the panel out when `visible` turns false (via `AnimatePresence`).
+   * Requires `entrance`. Default: false
+   */
+  exit?: boolean;
   /** Inline styles for the inner tooltip panel. */
   panelStyle?: React.CSSProperties;
   /**
@@ -60,6 +71,19 @@ const TOOLTIP_PANEL_CLASS_NAME =
 const TOOLTIP_PANEL_INNER_CLASS_NAME =
   "overflow-hidden rounded-[calc(var(--radius-xl)-1px)]";
 
+/** Spring to `value`, or jump there (no animation) when `snap`. */
+function moveTo(
+  spring: MotionValue<number>,
+  value: number,
+  snap: boolean
+): void {
+  if (snap) {
+    spring.jump(value);
+  } else {
+    spring.set(value);
+  }
+}
+
 // Inner-only-on-visible so `useSpring` initializes at the cursor's actual x/y
 // instead of (0, 0) on first hover.
 export function TooltipBox(props: TooltipBoxProps) {
@@ -73,10 +97,13 @@ export function TooltipBox(props: TooltipBoxProps) {
   if (!(mounted && container)) {
     return null;
   }
-  if (!props.visible) {
-    return null;
+  const inner = props.visible ? (
+    <TooltipBoxInner {...props} container={container} key="tooltip-box" />
+  ) : null;
+  if (props.exit && props.entrance !== false) {
+    return <AnimatePresence>{inner}</AnimatePresence>;
   }
-  return <TooltipBoxInner {...props} container={container} />;
+  return inner;
 }
 
 function TooltipBoxInner({
@@ -93,6 +120,7 @@ function TooltipBoxInner({
   springConfig,
   animate = true,
   entrance = true,
+  exit: _exit,
   panelStyle,
   backgroundColor = chartCssVars.tooltipBackground,
   container,
@@ -100,12 +128,17 @@ function TooltipBoxInner({
   container: HTMLElement;
 }) {
   const { tooltipBoxSpring } = useChartConfig();
+  // Reduced motion: position jumps instead of springing and the panel skips
+  // its scale/slide; opacity fades are kept.
+  const reducedMotion = useReducedMotion() === true;
   const effectiveSpring = springConfig ?? tooltipBoxSpring;
 
   const tooltipRef = useRef<HTMLDivElement>(null);
   const tooltipWidthRef = useRef(180);
   const tooltipHeightRef = useRef(80);
   const [staticPosition, setStaticPosition] = useState({ left: x, top: y });
+  // First measured position jumps (no spring from the estimated size).
+  const hasPositionedRef = useRef(false);
 
   const tw = tooltipWidthRef.current;
   const th = tooltipHeightRef.current;
@@ -120,10 +153,10 @@ function TooltipBoxInner({
   const animatedTop = useSpring(targetY, effectiveSpring);
 
   if (animate && leftOverride === undefined) {
-    animatedLeft.set(targetX);
+    moveTo(animatedLeft, targetX, reducedMotion);
   }
   if (animate && topOverride === undefined) {
-    animatedTop.set(targetY);
+    moveTo(animatedTop, targetY, reducedMotion);
   }
 
   useLayoutEffect(() => {
@@ -151,11 +184,13 @@ function TooltipBoxInner({
       setStaticPosition({ left: tx, top: ty });
       return;
     }
+    const snap = reducedMotion || !hasPositionedRef.current;
+    hasPositionedRef.current = true;
     if (leftOverride === undefined) {
-      animatedLeft.set(tx);
+      moveTo(animatedLeft, tx, snap);
     }
     if (topOverride === undefined) {
-      animatedTop.set(ty);
+      moveTo(animatedTop, ty, snap);
     }
   }, [
     x,
@@ -168,6 +203,7 @@ function TooltipBoxInner({
     animate,
     animatedLeft,
     animatedTop,
+    reducedMotion,
   ]);
 
   const prevFlipRef = useRef(shouldFlipX);
@@ -230,7 +266,11 @@ function TooltipBoxInner({
       <motion.div
         animate={{ scale: 1, opacity: 1, x: 0 }}
         className={panelClassName}
-        initial={{ scale: 0.85, opacity: 0, x: isFlipped ? 20 : -20 }}
+        initial={
+          reducedMotion
+            ? { opacity: 0 }
+            : { scale: 0.85, opacity: 0, x: isFlipped ? 20 : -20 }
+        }
         key={flipKey}
         style={panelStyleResolved}
         transition={{ type: "spring", stiffness: 300, damping: 25 }}

@@ -988,6 +988,20 @@ export const tooltipAppearanceControlGroup = controlGroup("Appearance", [
   },
 ]);
 
+export const heatmapTooltipControlGroups: StudioControlGroup[] = [
+  controlGroup("Tooltip", [
+    {
+      type: "number",
+      key: "tooltipDamping",
+      label: "Panel damping",
+      min: 0,
+      max: 100,
+      step: 1,
+    },
+  ]),
+  tooltipAppearanceControlGroup,
+];
+
 export const standardCrosshairControlGroup = barCollapsibleGroup("Crosshair", [
   { type: "boolean", key: "showCrosshair", label: "Show" },
   { type: "boolean", key: "showTooltipDots", label: "Dots" },
