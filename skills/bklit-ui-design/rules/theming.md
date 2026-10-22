@@ -11,22 +11,26 @@ Verified against the shadcn CLI source (v4.x):
 - `@bklit/chart-context` carries `cssVars.light` / `cssVars.dark` (`--chart-1..5`,
   `--chart-background`, `--chart-foreground(-muted)`, `--chart-line-primary/secondary`,
   `--chart-crosshair`, `--chart-grid`, `--chart-brush-border`, `--chart-tooltip-*`,
-  `--chart-marker-*`, `--chart-label`, `--chart-scale-01..05`,
+  `--chart-marker-*`, `--chart-marker-badge-*`, `--chart-indicator-color`,
+  `--chart-indicator-secondary-color`, `--chart-segment-*`, `--chart-label`,
+  `--chart-positive/negative`, `--chart-scale-mix`, `--chart-scale-01..05`,
   `--chart-scale-pattern-color`). `@bklit/legend` carries `--legend`,
   `--legend-foreground`, `--legend-muted`, `--legend-muted-foreground`, `--legend-track`.
 - Variables the host **already defines are left alone**; only missing ones are
   appended to `:root` / `.dark`. So a host with its own `--chart-1..5` keeps them.
-- Tailwind v4 only: each var whose value is a **literal colour** also gets an
-  `@theme inline` entry (`--color-chart-label: var(--chart-label)` etc.), which
-  is what makes classes like `text-chart-label` and `text-legend-foreground`
-  work. Two gaps to check after install:
-  - Vars whose value is a `var()` reference (`--chart-tooltip-*`,
-    `--chart-line-*`, `--chart-brush-border`) get **no** `--color-*` entry, so
-    `bg-chart-tooltip-background` / `text-chart-tooltip-*` need adding by hand.
-  - Some installs write the mapping with four dashes
-    (`--color-chart-label: var(----chart-label)`), which resolves empty
-    (bklit-ui#235). Replace every `var(----` with `var(--`. The detect script
-    warns about this.
+- Tailwind v4 only: every token also gets an `@theme inline` entry
+  (`--color-chart-label: var(--chart-label)` etc.), which is what makes classes
+  like `text-chart-label`, `bg-chart-tooltip-background` and
+  `text-legend-foreground` work. Literal-colour tokens are mapped by the CLI;
+  `var()`-valued ones (`--chart-tooltip-*`, `--chart-line-*`,
+  `--chart-brush-border`, `--chart-scale-02..05`) come from the item's
+  `cssVars.theme`.
+- Hosts that installed before the bklit-ui#235 fix may have
+  `--color-chart-label: var(----chart-label)` (four dashes), which resolves
+  empty, and no `--color-chart-tooltip-*` lines. Re-running `shadcn add` does
+  not rewrite existing `@theme` lines: replace every `var(----` with `var(--`,
+  then re-add `@bklit/chart-context` to fill gaps. The detect script warns
+  about four-dash entries.
 - Tailwind v3: nothing is written to `tailwind.config` (bklit items have no
   `tailwind` key) — see "Tailwind v3" below.
 - bklit's defaults are the **Primary** palette: indigo, yellow, fuchsia, mist and
@@ -58,10 +62,9 @@ Verified against the shadcn CLI source (v4.x):
 | `--popover`, `--popover-foreground` | Live-line value badge |
 | `--muted-foreground` | Loading label |
 
-`--chart-indicator-color`, `--chart-indicator-secondary-color`,
-`--chart-segment-*` and `--chart-marker-badge-*` are referenced by
-`chartCssVars` but not shipped in registry cssVars — define them only if you use
-those features.
+`--chart-indicator-color` / `--chart-indicator-secondary-color` (custom
+indicators) and `--chart-segment-*` (`SegmentBackground`, `SegmentLine*`) are
+also installed by `chart-context`.
 
 ## Decision table
 
@@ -143,8 +146,9 @@ Whenever you override `--chart-N` on a non-root selector, also re-declare:
    `--color-chart-label`, `--color-chart-tooltip-background`,
    `--color-chart-tooltip-foreground`, `--color-chart-tooltip-muted`
    (and `--color-legend*` when using `@bklit/legend`), each pointing at the
-   **two-dash** var. The detect script warns when bklit is installed and they
-   are missing or four-dashed. Add or fix them by hand:
+   **two-dash** var. Current installs write these automatically; the detect
+   script warns when bklit is installed and they are missing or four-dashed
+   (older installs). Add or fix them by hand:
 
    ```css
    @theme inline {

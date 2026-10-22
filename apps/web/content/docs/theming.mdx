@@ -82,7 +82,7 @@ Chart-specific objects follow the same pattern: `chartScaleCssVars`, `heatmapCss
 
 ## Available Variables
 
-Defaults are the values `@bklit/chart-context` installs. A dash means the light value is inherited, or the token is not installed (see [Optional tokens](#optional-tokens)).
+Defaults are the values `@bklit/chart-context` installs. A dash in the Dark column means the light value is inherited.
 
 ### Core Colors
 
@@ -120,17 +120,15 @@ The tooltip tokens reference your shadcn `--popover` tokens, so they follow dark
 | `markerBackground` | `--chart-marker-background` | `oklch(0.97 0.005 260)` | `oklch(0.25 0.01 260)` | Marker circle background |
 | `markerBorder` | `--chart-marker-border` | `oklch(0.85 0.01 260)` | `oklch(0.4 0.01 260)` | Marker circle border |
 | `markerForeground` | `--chart-marker-foreground` | `oklch(0.3 0.01 260)` | `oklch(0.9 0 0)` | Marker icon color |
-
-### Optional tokens
-
-These are referenced by `chartCssVars` but **not installed** by the registry. Define them yourself if you use the features that read them. The values below are the ones used on this site.
-
-| Variable | CSS Property | Light | Dark | Used by |
-|----------|-------------|-------|------|---------|
-| `indicatorColor` | `--chart-indicator-color` | `oklch(0.21 0.006 285)` | `oklch(1 0 0)` | [Custom indicators](/docs/utility/custom-indicator) |
-| `indicatorSecondaryColor` | `--chart-indicator-secondary-color` | `oklch(0.913 0 0)` | `oklch(0.145 0 0)` | Custom indicators |
 | `badgeBackground` | `--chart-marker-badge-background` | `oklch(0 0 0)` | `oklch(1 0 0)` | Marker count badge background |
 | `badgeForeground` | `--chart-marker-badge-foreground` | `oklch(0.84 0 0)` | `oklch(0.15 0 0)` | Marker count badge text |
+
+### Indicators & Segments
+
+| Variable | CSS Property | Light | Dark | Description |
+|----------|-------------|-------|------|-------------|
+| `indicatorColor` | `--chart-indicator-color` | `oklch(0.21 0.006 285)` | `oklch(1 0 0)` | Primary indicator color for [custom indicators](/docs/utility/custom-indicator) |
+| `indicatorSecondaryColor` | `--chart-indicator-secondary-color` | `oklch(0.913 0 0)` | `oklch(0.145 0 0)` | Secondary indicator color |
 | `segmentBackground` | `--chart-segment-background` | `oklch(0.756 0 0 / 0.06)` | `oklch(0.41 0.0127 248.14 / 0.25)` | `SegmentBackground` fill |
 | `segmentLine` | `--chart-segment-line` | `oklch(0.5 0 0 / 0.25)` | `oklch(1 0 0 / 0.25)` | `SegmentLineFrom` / `SegmentLineTo` stroke |
 
@@ -212,10 +210,11 @@ import { ringCssVars, radarCssVars } from "@bklitui/ui/charts";
 
 ## Tailwind v4 mapping
 
-Axis labels, tooltips, and legends style text with Tailwind utilities such as `text-chart-label`, `bg-chart-tooltip-background`, `text-chart-tooltip-foreground`, `text-chart-tooltip-muted`, and `text-legend-foreground`. These only work when the variables are mapped to Tailwind colors in `@theme inline`:
+Axis labels, tooltips, and legends style text with Tailwind utilities such as `text-chart-label`, `bg-chart-tooltip-background`, `text-chart-tooltip-foreground`, `text-chart-tooltip-muted`, and `text-legend-foreground`. On Tailwind v4, `shadcn add` maps every token to a Tailwind color in `@theme inline` for you:
 
 ```css
 @theme inline {
+  /* @bklit/chart-context */
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
@@ -223,10 +222,36 @@ Axis labels, tooltips, and legends style text with Tailwind utilities such as `t
   --color-chart-5: var(--chart-5);
   --color-chart-positive: var(--chart-positive);
   --color-chart-negative: var(--chart-negative);
+  --color-chart-background: var(--chart-background);
+  --color-chart-foreground: var(--chart-foreground);
+  --color-chart-foreground-muted: var(--chart-foreground-muted);
   --color-chart-label: var(--chart-label);
+  --color-chart-line-primary: var(--chart-line-primary);
+  --color-chart-line-secondary: var(--chart-line-secondary);
+  --color-chart-crosshair: var(--chart-crosshair);
+  --color-chart-grid: var(--chart-grid);
+  --color-chart-brush-border: var(--chart-brush-border);
   --color-chart-tooltip-background: var(--chart-tooltip-background);
   --color-chart-tooltip-foreground: var(--chart-tooltip-foreground);
   --color-chart-tooltip-muted: var(--chart-tooltip-muted);
+  --color-chart-marker-background: var(--chart-marker-background);
+  --color-chart-marker-border: var(--chart-marker-border);
+  --color-chart-marker-foreground: var(--chart-marker-foreground);
+  --color-chart-marker-badge-background: var(--chart-marker-badge-background);
+  --color-chart-marker-badge-foreground: var(--chart-marker-badge-foreground);
+  --color-chart-indicator-color: var(--chart-indicator-color);
+  --color-chart-indicator-secondary-color: var(--chart-indicator-secondary-color);
+  --color-chart-segment-background: var(--chart-segment-background);
+  --color-chart-segment-line: var(--chart-segment-line);
+  --color-chart-scale-mix: var(--chart-scale-mix);
+  --color-chart-scale-01: var(--chart-scale-01);
+  --color-chart-scale-02: var(--chart-scale-02);
+  --color-chart-scale-03: var(--chart-scale-03);
+  --color-chart-scale-04: var(--chart-scale-04);
+  --color-chart-scale-05: var(--chart-scale-05);
+  --color-chart-scale-pattern-color: var(--chart-scale-pattern-color);
+
+  /* @bklit/legend */
   --color-legend: var(--legend);
   --color-legend-foreground: var(--legend-foreground);
   --color-legend-muted: var(--legend-muted);
@@ -235,12 +260,9 @@ Axis labels, tooltips, and legends style text with Tailwind utilities such as `t
 }
 ```
 
-Each mapping points at the two-dash variable: `--color-chart-label: var(--chart-label)`. After installing, check your global CSS:
+If you manage CSS by hand, the lines the components need are `--color-chart-label`, the three `--color-chart-tooltip-*` lines, and the `--color-legend*` lines. Every value points at the two-dash variable (`var(--chart-label)`). The `--chart-*` variables themselves are read directly by the SVG, so series, grids, and crosshairs render even without this block.
 
-- **Four dashes.** Some registry installs write `var(----chart-label)`. No variable has that name, so the utility resolves to nothing and labels and tooltip text lose their color. Replace every `var(----` with `var(--` ([#235](https://github.com/bklit/bklit-ui/issues/235)).
-- **Missing tooltip mappings.** The shadcn CLI only adds a `--color-*` mapping for tokens whose value is a literal color. The tooltip tokens default to `var(--popover)` etc., so add `--color-chart-tooltip-*` by hand if they are missing.
-
-The `--chart-*` variables themselves are read directly by the SVG, so series, grids, and crosshairs render even without this block.
+**Installed before the registry fix?** Older installs wrote `var(----chart-label)` (four dashes), which resolves to nothing, so labels and tooltip text lose their color ([#235](https://github.com/bklit/bklit-ui/issues/235)). Re-running `shadcn add` does not rewrite lines that already exist, so replace every `var(----` with `var(--` in your global CSS, then run `npx shadcn@latest add @bklit/chart-context` to add any tokens and mappings you are missing.
 
 ## Customizing Variables
 
@@ -271,7 +293,7 @@ Override CSS variables in your stylesheet to customize chart appearance. You onl
   --chart-tooltip-foreground: var(--popover-foreground);
   --chart-tooltip-muted: var(--muted-foreground);
 
-  /* Optional: only if you use custom indicators */
+  /* Custom indicators */
   --chart-indicator-color: oklch(0.21 0.006 285);
 }
 
@@ -314,7 +336,7 @@ Variables that reference other variables resolve where they are declared. If you
 
 ## Example: Custom Indicator Theming
 
-The [Custom Indicator](/docs/utility/custom-indicator) pattern uses `--chart-indicator-color` (define it first, see [Optional tokens](#optional-tokens)):
+The [Custom Indicator](/docs/utility/custom-indicator) pattern uses `--chart-indicator-color`:
 
 ```tsx
 <motion.rect

@@ -33,7 +33,7 @@ import { chartCssVars } from "@/components/charts/chart-context";
 
 Keys: `background`, `foreground`, `foregroundMuted`, `label`, `linePrimary`, `lineSecondary`, `crosshair`, `grid`, `indicatorColor`, `indicatorSecondaryColor`, `markerBackground`, `markerBorder`, `markerForeground`, `badgeBackground`, `badgeForeground`, `segmentBackground`, `segmentLine`, `brushBorder`, `tooltipBackground`.
 
-`--chart-indicator-color`, `--chart-indicator-secondary-color`, `--chart-marker-badge-*` and `--chart-segment-*` are **not** declared by the registry — define them in your CSS before relying on them.
+All of these, including `--chart-indicator-*`, `--chart-marker-badge-*` and `--chart-segment-*`, are declared by `chart-context`'s registry `cssVars` (light + dark).
 
 ## Series palette
 
@@ -67,7 +67,7 @@ The default tooltip panel uses `--chart-tooltip-background` / `--chart-tooltip-f
 
 ## Tailwind v4 `@theme` mapping
 
-Axis labels, tooltips, and legends use classes (`text-chart-label`, `bg-chart-tooltip-background`, `text-chart-tooltip-foreground`, `text-chart-tooltip-muted`, `text-legend-foreground`, …). They need `@theme inline` entries that point at the **two-dash** variable:
+Axis labels, tooltips, and legends use classes (`text-chart-label`, `bg-chart-tooltip-background`, `text-chart-tooltip-foreground`, `text-chart-tooltip-muted`, `text-legend-foreground`, …). On Tailwind v4, `shadcn add` writes `@theme inline` entries for every token, each pointing at the **two-dash** variable:
 
 ```css
 @theme inline {
@@ -80,7 +80,7 @@ Axis labels, tooltips, and legends use classes (`text-chart-label`, `bg-chart-to
 }
 ```
 
-If labels or tooltip text have no color after install, look for `var(----chart-…)` (four dashes) in `@theme` and replace with `var(--chart-…)`, and add the `--color-chart-tooltip-*` lines if missing.
+Apps installed before bklit-ui#235 was fixed may have `var(----chart-…)` (four dashes) in `@theme`, so labels and tooltip text have no color. `shadcn add` won't rewrite existing lines: replace `var(----` with `var(--`, then re-add `@bklit/chart-context` to fill in missing tokens and `--color-chart-tooltip-*` lines.
 
 For matching charts to a brand or app theme in depth, see the **bklit-ui-design** skill.
 
