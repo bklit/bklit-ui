@@ -1611,49 +1611,36 @@ function ProfitLossLineExampleWithState() {
 function makeAreaExamples(): ChartExample[] {
   return [
     {
-      title: "Area Chart - Value Labels Before and After",
+      title: "Area Chart - Value Labels",
       description:
-        "The same dense 24-month, two-series area chart with labels off and on",
-      code: `<div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-  <AreaChart data={chartData}>
-    <Grid horizontal />
-    <Area dataKey="desktop" />
-    <Area dataKey="mobile" fill="var(--chart-line-secondary)" />
-    <XAxis />
-    <ChartTooltip />
-  </AreaChart>
-  <AreaChart data={chartData}>
-    <Grid horizontal />
-    <Area dataKey="desktop" showValue valueLabelMaxCount={5} />
-    <Area dataKey="mobile" showValue valueLabelMaxCount={5} />
-    <XAxis />
-    <ChartTooltip />
-  </AreaChart>
-</div>`,
+        "Dense 24-month, two-series area with shared, collision-aware value labels",
+      code: `<AreaChart data={chartData}>
+  <Grid horizontal />
+  <Area dataKey="desktop" showValue valueLabelMaxCount={5} />
+  <Area
+    dataKey="mobile"
+    fill="var(--chart-line-secondary)"
+    showValue
+    valueLabelMaxCount={5}
+  />
+  <XAxis />
+  <ChartTooltip />
+</AreaChart>`,
       footer:
-        "Both previews share the same data. Resize them to see the enabled labels adapt to width and skip collisions.",
+        "Both series share one label count. Resize to see labels adapt to the width and skip collisions.",
       render: () => (
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          <AreaExampleChart data={scatterMultiSeriesData}>
-            <Grid horizontal />
-            <Area dataKey="desktop" />
-            <Area dataKey="mobile" fill="var(--chart-line-secondary)" />
-            <XAxis />
-            <ChartTooltip />
-          </AreaExampleChart>
-          <AreaExampleChart data={scatterMultiSeriesData}>
-            <Grid horizontal />
-            <Area dataKey="desktop" showValue valueLabelMaxCount={5} />
-            <Area
-              dataKey="mobile"
-              fill="var(--chart-line-secondary)"
-              showValue
-              valueLabelMaxCount={5}
-            />
-            <XAxis />
-            <ChartTooltip />
-          </AreaExampleChart>
-        </div>
+        <AreaExampleChart data={scatterMultiSeriesData}>
+          <Grid horizontal />
+          <Area dataKey="desktop" showValue valueLabelMaxCount={5} />
+          <Area
+            dataKey="mobile"
+            fill="var(--chart-line-secondary)"
+            showValue
+            valueLabelMaxCount={5}
+          />
+          <XAxis />
+          <ChartTooltip />
+        </AreaExampleChart>
       ),
     },
     {
@@ -2074,50 +2061,23 @@ function makeAreaExamples(): ChartExample[] {
 function makeBarExamples(): ChartExample[] {
   return [
     {
-      title: "Bar Chart - Value Labels Before and After",
-      description:
-        "The same 12 months of order totals with labels off and automatic labels on",
-      code: `<div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-  <BarChart data={chartData} xDataKey="month">
-    <Grid horizontal />
-    <Bar dataKey="orders" />
-    <BarXAxis />
-    <ChartTooltip />
-  </BarChart>
-  <BarChart data={chartData} xDataKey="month">
-    <Grid horizontal />
-    <Bar
-      dataKey="orders"
-      showValue
-      valueLabelOrientation="auto"
-      valueLabelPosition="center"
-    />
-    <BarXAxis />
-    <ChartTooltip />
-  </BarChart>
-</div>`,
+      title: "Bar Chart - Value Labels",
+      description: "Order totals with automatic in-bar value labels",
+      code: `<BarChart data={chartData} xDataKey="month">
+  <Grid horizontal />
+  <Bar dataKey="orders" showValue />
+  <BarXAxis />
+  <ChartTooltip />
+</BarChart>`,
       footer:
-        "Both previews use the same values. Auto rotates labels when vertical text fits better and hides values that do not fit.",
+        "Auto orientation keeps labels horizontal when they fit, rotates them in narrow bars and hides values that fit neither way.",
       render: () => (
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          <BarExampleChart data={barValueLabelData} xDataKey="month">
-            <Grid horizontal />
-            <Bar dataKey="orders" />
-            <BarXAxis />
-            <ChartTooltip />
-          </BarExampleChart>
-          <BarExampleChart data={barValueLabelData} xDataKey="month">
-            <Grid horizontal />
-            <Bar
-              dataKey="orders"
-              showValue
-              valueLabelOrientation="auto"
-              valueLabelPosition="center"
-            />
-            <BarXAxis />
-            <ChartTooltip />
-          </BarExampleChart>
-        </div>
+        <BarExampleChart data={barValueLabelData} xDataKey="month">
+          <Grid horizontal />
+          <Bar dataKey="orders" showValue />
+          <BarXAxis />
+          <ChartTooltip />
+        </BarExampleChart>
       ),
     },
     {

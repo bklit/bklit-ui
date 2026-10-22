@@ -22,9 +22,13 @@ const TREND_LINE_IMPORT_RE =
 const TREND_LINE_JSX_RE =
   /<TrendLine dataKey="mobile" stroke="var\(--chart-2\)" strokeStyle="solid" yAxisId="right" \/>/;
 const BAR_SHOW_VALUE_RE = /showValue/;
-const BAR_LABEL_COLOR_RE = /valueLabelColor=\{"#fff"\}/;
+const BAR_LABEL_COLOR_RE = /valueLabelColor="#fff"/;
 const BAR_LABEL_ORIENTATION_RE = /valueLabelOrientation="vertical"/;
 const BAR_LABEL_POSITION_RE = /valueLabelPosition="top"/;
+const VALUE_LABEL_PROP_RE = /showValue|valueLabel|fadeValueLabels/;
+const AREA_JSX_RE = /<Area dataKey=[^>]*\/>/g;
+const AREA_LABEL_PROPS_RE =
+  /showValue valueLabelMinCount=\{2\} valueLabelMaxCount=\{4\} fadeValueLabels/;
 
 describe("generateStudioCode", () => {
   for (const slug of validChartSlugs) {
@@ -91,6 +95,34 @@ describe("generateStudioCode", () => {
     assert.match(code, BAR_LABEL_COLOR_RE);
     assert.match(code, BAR_LABEL_ORIENTATION_RE);
     assert.match(code, BAR_LABEL_POSITION_RE);
+  });
+
+  it("omits value-label props while labels are off", () => {
+    const bar = generateStudioCode(
+      "bar-chart",
+      defaultStudioState({ chart: "bar-chart", barValueLabelColor: "#fff" })
+    ).code;
+    const area = generateStudioCode(
+      "area-chart",
+      defaultStudioState({ chart: "area-chart" })
+    ).code;
+    assert.doesNotMatch(bar, VALUE_LABEL_PROP_RE);
+    assert.doesNotMatch(area, VALUE_LABEL_PROP_RE);
+  });
+
+  it("area emits value-label counts on every series", () => {
+    const state = defaultStudioState({
+      chart: "area-chart",
+      areaShowValue: true,
+      areaValueLabelMaxCount: 4,
+      areaFadeValueLabels: true,
+    });
+    const { code } = generateStudioCode("area-chart", state);
+    const areas = code.match(AREA_JSX_RE) ?? [];
+    assert.ok(areas.length > 0);
+    for (const area of areas) {
+      assert.match(area, AREA_LABEL_PROPS_RE);
+    }
   });
 
   it("gauge uses dynamic label and angles", () => {

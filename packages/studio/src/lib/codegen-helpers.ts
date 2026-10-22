@@ -672,6 +672,33 @@ function cartesianSeriesImports(
   ];
 }
 
+/** `<Area>` value-label props — only emitted when labels are enabled. */
+function areaValueLabelCodegen(state: StudioUrlState): string {
+  if (!state.areaShowValue) {
+    return "";
+  }
+  const fade = state.areaFadeValueLabels ? " fadeValueLabels" : "";
+  return ` showValue valueLabelMinCount={${state.areaValueLabelMinCount}} valueLabelMaxCount={${state.areaValueLabelMaxCount}}${fade}`;
+}
+
+/** `<Bar>` value-label props — only emitted when labels are enabled; defaults omitted. */
+function barValueLabelCodegen(state: StudioUrlState): string {
+  if (!state.barShowValue) {
+    return "";
+  }
+  const props = [" showValue"];
+  if (state.barValueLabelColor !== "white") {
+    props.push(` valueLabelColor=${JSON.stringify(state.barValueLabelColor)}`);
+  }
+  if (state.barValueLabelOrientation !== "auto") {
+    props.push(` valueLabelOrientation="${state.barValueLabelOrientation}"`);
+  }
+  if (state.barValueLabelPosition !== "center") {
+    props.push(` valueLabelPosition="${state.barValueLabelPosition}"`);
+  }
+  return props.join("");
+}
+
 export function cartesianCodegen(
   chartType: "AreaChart" | "LineChart",
   state: StudioUrlState
@@ -681,9 +708,7 @@ export function cartesianCodegen(
 
   const keys = seriesKeysForState(state);
 
-  const valueLabels = state.areaShowValue
-    ? ` showValue valueLabelMinCount={${state.areaValueLabelMinCount}} valueLabelMaxCount={${state.areaValueLabelMaxCount}} fadeValueLabels={${state.areaFadeValueLabels}}`
-    : "";
+  const valueLabels = areaValueLabelCodegen(state);
   let child = "";
   if (chartType === "LineChart") {
     child = lineSeriesCodegen(state, keys);
@@ -694,7 +719,7 @@ export function cartesianCodegen(
           idx === 0 ? "" : ` fill="${SERIES_COLOR_BY_INDEX[idx]}"`;
         const seriesProps = seriesStrokePropsCodegen(state, idx);
         const curveName = curveImportName(getSeriesCurve(state, idx));
-        return `\n  <Area${valueLabels} dataKey="${key}"${fillAttr} curve={${curveName}} fillOpacity={${state.fillOpacity}} strokeWidth={${getSeriesStrokeWidth(state, idx)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, idx))} gradientToOpacity={${state.gradientToOpacity}} showLine={${getSeriesShowLine(state, idx)}} showHighlight={${getSeriesShowHighlight(state, idx)}}${seriesProps} />`;
+        return `\n  <Area dataKey="${key}"${fillAttr} curve={${curveName}} fillOpacity={${state.fillOpacity}} strokeWidth={${getSeriesStrokeWidth(state, idx)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, idx))} gradientToOpacity={${state.gradientToOpacity}} showLine={${getSeriesShowLine(state, idx)}} showHighlight={${getSeriesShowHighlight(state, idx)}}${seriesProps}${valueLabels} />`;
       })
       .join("");
   } else {
@@ -703,14 +728,14 @@ export function cartesianCodegen(
     const primarySeriesProps = seriesStrokePropsCodegen(state, 0);
     const primaryCurveName = curveImportName(getSeriesCurve(state, 0));
     const primary = primaryKey
-      ? `\n  ${patternCodegenBlock(state.pattern)}\n  <PatternArea dataKey="${primaryKey}" fill="${fill}" curve={${primaryCurveName}} />\n  <Area${valueLabels} dataKey="${primaryKey}" fillOpacity={0} curve={${primaryCurveName}} strokeWidth={${getSeriesStrokeWidth(state, 0)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, 0))} gradientToOpacity={${state.gradientToOpacity}} showLine={${getSeriesShowLine(state, 0)}} showHighlight={${getSeriesShowHighlight(state, 0)}}${primarySeriesProps} />`
+      ? `\n  ${patternCodegenBlock(state.pattern)}\n  <PatternArea dataKey="${primaryKey}" fill="${fill}" curve={${primaryCurveName}} />\n  <Area dataKey="${primaryKey}" fillOpacity={0} curve={${primaryCurveName}} strokeWidth={${getSeriesStrokeWidth(state, 0)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, 0))} gradientToOpacity={${state.gradientToOpacity}} showLine={${getSeriesShowLine(state, 0)}} showHighlight={${getSeriesShowHighlight(state, 0)}}${primarySeriesProps}${valueLabels} />`
       : "";
     const others = rest
       .map((key, idx) => {
         const seriesIndex = idx + 1;
         const seriesProps = seriesStrokePropsCodegen(state, seriesIndex);
         const curveName = curveImportName(getSeriesCurve(state, seriesIndex));
-        return `\n  <Area${valueLabels} dataKey="${key}" fill="${SERIES_COLOR_BY_INDEX[seriesIndex]}" curve={${curveName}} fillOpacity={${state.fillOpacity}} strokeWidth={${getSeriesStrokeWidth(state, seriesIndex)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, seriesIndex))} gradientToOpacity={${state.gradientToOpacity}} showLine={${getSeriesShowLine(state, seriesIndex)}} showHighlight={${getSeriesShowHighlight(state, seriesIndex)}}${seriesProps} />`;
+        return `\n  <Area dataKey="${key}" fill="${SERIES_COLOR_BY_INDEX[seriesIndex]}" curve={${curveName}} fillOpacity={${state.fillOpacity}} strokeWidth={${getSeriesStrokeWidth(state, seriesIndex)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, seriesIndex))} gradientToOpacity={${state.gradientToOpacity}} showLine={${getSeriesShowLine(state, seriesIndex)}} showHighlight={${getSeriesShowHighlight(state, seriesIndex)}}${seriesProps}${valueLabels} />`;
       })
       .join("");
     child = `${primary}${others}`;
@@ -932,21 +957,7 @@ function barReadyCodegen(
   const bars = keys
     .map((key, idx) => {
       const fill = idx === 0 ? primaryFill : SERIES_COLOR_BY_INDEX[idx];
-      const labelProps = [
-        state.barShowValue ? "showValue" : "",
-        state.barValueLabelColor !== "white"
-          ? `valueLabelColor={${JSON.stringify(state.barValueLabelColor)}}`
-          : "",
-        state.barValueLabelOrientation !== "auto"
-          ? `valueLabelOrientation="${state.barValueLabelOrientation}"`
-          : "",
-        state.barValueLabelPosition !== "center"
-          ? `valueLabelPosition="${state.barValueLabelPosition}"`
-          : "",
-      ]
-        .filter(Boolean)
-        .join(" ");
-      return `\n  <Bar dataKey="${key}" lineCap="${state.barLineCap}" fill="${fill}" fadedOpacity={${state.barFadedOpacity}} groupGap={${state.groupGap}}${stacked ? " stackGap={3}" : ""}${labelProps ? ` ${labelProps}` : ""} />`;
+      return `\n  <Bar dataKey="${key}" lineCap="${state.barLineCap}" fill="${fill}" fadedOpacity={${state.barFadedOpacity}} groupGap={${state.groupGap}}${stacked ? " stackGap={3}" : ""}${barValueLabelCodegen(state)} />`;
     })
     .join("");
 

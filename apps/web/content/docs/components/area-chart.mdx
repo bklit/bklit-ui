@@ -131,6 +131,12 @@ Renders a filled area on the chart with a gradient fill.
 | `loadingStroke` | `string` | `var(--foreground)` | Pulse stroke color while chart is loading |
 | `loadingStrokeOpacity` | `number` | `0.5` | Pulse stroke opacity while chart is loading |
 | `markers` | `SeriesPointMarkerStyle` | — | Marker styling (same options as [`Scatter`](/docs/components/scatter-chart)) |
+| `showValue` | `boolean` | `false` | Show value labels above sampled points (see [Value labels](#value-labels)) |
+| `valueLabelMinCount` | `number` | `2` | Preferred minimum labels per series |
+| `valueLabelMaxCount` | `number` | automatic | Maximum labels per series |
+| `valueLabelFormatter` | `(value: number) => string` | English integers | Label text |
+| `valueLabelColor` | `string` | series stroke | Label color |
+| `fadeValueLabels` | `boolean` | `false` | Apply this series' `fadeEdges` to its labels |
 
 ### PatternArea
 
@@ -184,9 +190,10 @@ Renders x-axis labels that fade when the crosshair passes.
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `numTicks` | `number` | `5` | Number of tick labels to show |
+| `numTicks` | `number \| ResponsiveChartLabelCount` | `5` | Number of tick labels to show. Pass `{ base, sm, md, lg, xl }` to vary it by chart width (640 / 768 / 1024 / 1280 px) |
 | `tickerHalfWidth` | `number` | `50` | Fade radius for labels |
 | `tickMode` | `"data" \| "domain"` | `"data"` | `"data"` snaps labels to data rows (crosshair-aligned); `"domain"` for calendar-even spacing |
+| `labels` | `string[]` | — | Tick text per data row (overrides the default date formatting) |
 
 ### ChartTooltip
 
@@ -205,6 +212,7 @@ Renders the tooltip with crosshair, dots, and content box.
 | `damping` | `number` | `20` | Panel follow when `matchCrosshair={false}`; `0` = instant |
 | `content` | `(props) => ReactNode` | - | Custom content renderer |
 | `rows` | `(point) => TooltipRow[]` | - | Custom row generator |
+| `dateLabels` | `string[]` | — | Date-pill text per data row (pair with `XAxis` `labels`) |
 
 ## Weekends and deadlines
 
@@ -525,6 +533,44 @@ function SelectionStats({ onSelectionChange }) {
 | `strokeWidth` | `number` | `1` | Line width |
 | `variant` | `"dashed" \| "solid" \| "gradient"` | `"dashed"` | Line style |
 
+## Value labels
+
+Enable labels on each `Area` independently. Labels use measured text bounds, stay
+inside the plot, and share collision detection across series. Crowded labels are
+hidden; full values remain available in the tooltip. Labels render above all area
+fills and do not inherit `fadeEdges` unless `fadeValueLabels` is enabled.
+The renderer samples labels from the visible data and adjusts the count to the
+plot width. `valueLabelMinCount` is a preference; available space and collisions
+can reduce it. `valueLabelMaxCount` is a strict per-series ceiling. All enabled
+series use the same final label count so comparisons stay aligned.
+
+```tsx
+<AreaChart data={data}>
+  <Area dataKey="net" showValue valueLabelMinCount={2} valueLabelMaxCount={5} />
+  <Area dataKey="gross" showValue valueLabelMinCount={2} valueLabelMaxCount={5} />
+  <ChartTooltip />
+</AreaChart>
+```
+
+| Prop on `Area` | Type | Default | Description |
+|---|---|---|---|
+| `showValue` | `boolean` | `false` | Enable labels; set `false` to disable them |
+| `valueLabelMinCount` | `number` | `2` | Preferred minimum per series; space and collisions take priority |
+| `valueLabelMaxCount` | `number` | automatic | Strict maximum per series; `0` hides all labels and takes precedence over minimum |
+| `valueLabelFormatter` | `(value: number) => string` | English integer formatting | Custom complete label text |
+| `valueLabelColor` | `string` | series stroke | Label color |
+| `fadeValueLabels` | `boolean` | `false` | Explicitly apply the series edge fade to labels |
+
+Labels are opt-in, so charts without `showValue` keep their existing rendering.
+Value labels are drawn by `AreaChart`; `showValue` on an `Area` inside
+`ComposedChart` is currently ignored.
+Use `valueLabelFormatter` for currency, units, or localized digits. The SVG
+labels are visual annotations; provide a chart summary or accessible data table
+when people need the underlying values without relying on the visual plot.
+
+Open [Studio with value labels](/studio?chart=area-chart&areaShowValue=true)
+to adjust the label count and preview multiple series at different widths.
+
 ## Theming
 
 The Area Chart uses the same CSS variables as the Line Chart:
@@ -572,40 +618,3 @@ This component requires the same packages as the Line Chart:
 ```bash
 pnpm add @visx/shape @visx/curve @visx/scale @visx/gradient @visx/responsive @visx/event @visx/grid d3-array motion react-use-measure
 ```
-
-
-## Smart value labels
-
-Enable labels on each `Area` independently. Labels use measured text bounds, stay
-inside the plot, and share collision detection across series. Crowded labels are
-hidden; full values remain available in the tooltip. Labels render above all area
-fills and do not inherit `fadeEdges` unless `fadeValueLabels` is enabled.
-The renderer samples labels from the visible data and adjusts the count to the
-plot width. `valueLabelMinCount` is a preference; available space and collisions
-can reduce it. `valueLabelMaxCount` is a strict per-series ceiling. All enabled
-series use the same final label count so comparisons stay aligned.
-
-```tsx
-<AreaChart data={data}>
-  <Area dataKey="net" showValue valueLabelMinCount={2} valueLabelMaxCount={5} />
-  <Area dataKey="gross" showValue valueLabelMinCount={2} valueLabelMaxCount={5} />
-  <ChartTooltip />
-</AreaChart>
-```
-
-| Prop on `Area` | Type | Default | Description |
-|---|---|---|---|
-| `showValue` | `boolean` | `false` | Enable labels; set `false` to disable them |
-| `valueLabelMinCount` | `number` | `2` | Preferred minimum per series; space and collisions take priority |
-| `valueLabelMaxCount` | `number` | automatic | Strict maximum per series; `0` hides all labels and takes precedence over minimum |
-| `valueLabelFormatter` | `(value: number) => string` | English integer formatting | Custom complete label text |
-| `valueLabelColor` | `string` | series stroke | Label color |
-| `fadeValueLabels` | `boolean` | `false` | Explicitly apply the series edge fade to labels |
-
-Labels are opt-in, so charts without `showValue` keep their existing rendering.
-Use `valueLabelFormatter` for currency, units, or localized digits. The SVG
-labels are visual annotations; provide a chart summary or accessible data table
-when people need the underlying values without relying on the visual plot.
-
-Open [Studio with value labels](/studio?chart=area-chart&areaShowValue=true)
-to adjust the label count and preview multiple series at different widths.

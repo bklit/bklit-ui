@@ -87,3 +87,21 @@ export function resolveSharedAreaValueLabelCount(counts: number[]) {
   const enabledCounts = counts.filter((count) => count > 0);
   return enabledCounts.length ? Math.min(...enabledCounts) : 0;
 }
+
+/**
+ * Exactly `count` indices (fewer only when `length < count`), spread evenly
+ * across `[0, length - 1]` with both endpoints included.
+ */
+export function evenlySpacedLabelIndices(length: number, count: number) {
+  const visibleCount = Math.min(Math.max(0, Math.floor(count)), length);
+  if (visibleCount === 0) {
+    return [];
+  }
+  if (visibleCount === 1) {
+    return [0];
+  }
+  const lastIndex = length - 1;
+  return Array.from({ length: visibleCount }, (_, index) =>
+    Math.round((index * lastIndex) / (visibleCount - 1))
+  );
+}

@@ -3,6 +3,7 @@
 import { useId, useLayoutEffect, useMemo, useRef } from "react";
 import type { AreaProps } from "./area";
 import {
+  evenlySpacedLabelIndices,
   layoutAreaValueLabels,
   resolveAreaValueLabelCount,
   resolveSharedAreaValueLabelCount,
@@ -14,7 +15,6 @@ import {
   resolveFadeSides,
   viewportFadeGradientAttrs,
 } from "./fade-edges";
-import { selectEvenlySpacedIndices } from "./x-axis";
 
 /** One final layer keeps later area fills from painting over earlier labels. */
 export function AreaValueLabels({ series }: { series: AreaProps[] }) {
@@ -57,22 +57,14 @@ export function AreaValueLabels({ series }: { series: AreaProps[] }) {
       )
     );
     const sharedCount = resolveSharedAreaValueLabelCount(counts);
-    return visibleSeries.flatMap(({ area, seriesIndex, points }) => {
-      const count = sharedCount;
+    return visibleSeries.flatMap(({ area, seriesIndex, points }, i) => {
+      // Series that resolve to 0 (e.g. `valueLabelMaxCount={0}`) stay hidden;
+      // the rest share the smallest non-zero count so labels line up.
+      const count = Math.min(sharedCount, counts[i] ?? 0);
       if (count === 0) {
         return [];
       }
-      const sampled =
-        count === 1 ? [0] : selectEvenlySpacedIndices(points.length, count);
-      // Axis sampling may return one extra tick; keep the explicit maximum strict.
-      const indices =
-        sampled.length > count
-          ? Array.from(
-              { length: count },
-              (_, i) =>
-                sampled[Math.round((i * (sampled.length - 1)) / (count - 1))]
-            )
-          : sampled;
+      const indices = evenlySpacedLabelIndices(points.length, count);
       return indices.flatMap((position) => {
         const point = position == null ? undefined : points[position];
         if (!point) {
@@ -152,6 +144,11 @@ export function AreaValueLabels({ series }: { series: AreaProps[] }) {
       document.fonts.removeEventListener("loadingdone", arrange);
     };
   }, [labels, innerWidth, innerHeight]);
+
+  // Labels are opt-in: charts without `showValue` render no extra layer.
+  if (!series.some((area) => area.showValue)) {
+    return null;
+  }
 
   return (
     <g pointerEvents="none" ref={layerRef}>

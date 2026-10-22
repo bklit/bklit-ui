@@ -129,17 +129,18 @@ Renders a bar for each data point with configurable styling and animations.
 | `valueLabelFormatter` | `(value: number) => string` | English integer format | Customize the value text shown inside bars |
 | `valueLabelColor` | `string`                    | `white`                     | Text color for values shown inside bars |
 | `valueLabelOrientation` | `"auto" \| "horizontal" \| "vertical"` | `"auto"` | Choose horizontal text, rotated text, or let the layout choose the orientation |
-| `valueLabelPosition` | `"top" \| "center" \| "bottom"` | `"center"` | Place the label within the bar |
+| `valueLabelPosition` | `"top" \| "center" \| "bottom"` | `"center"` | Place the label within the bar (on horizontal bars `"top"` is the value end, `"bottom"` the base) |
 | `valueLabelClassName` | `string` | — | Add a class to the SVG value label |
 
-### Smart value labels
+### Value labels
 
 Labels are opt-in. When enabled, each value appears only if the selected
 orientation fits inside its bar. `"auto"` prefers horizontal text, rotates it
 when vertical text fits and hides the label if neither orientation fits. Use
 `"horizontal"` or `"vertical"` to require one orientation; labels that do not
-fit that orientation stay hidden. `valueLabelPosition` controls vertical
-placement within the bar. These fit checks run again as the chart resizes, so
+fit that orientation stay hidden. `valueLabelPosition` controls placement
+along the bar: on horizontal bars `"top"` is the value end and `"bottom"`
+the base. These fit checks run again as the chart resizes, so
 dense data can show fewer labels at narrow widths without clipping or overlap.
 
 ```tsx
@@ -239,7 +240,7 @@ Displays categorical labels along the x-axis (for vertical bar charts).
 | ----------------- | --------- | ------- | ------------------------------------ |
 | `tickerHalfWidth` | `number`  | `50`    | Width of ticker for fade calculation |
 | `showAllLabels`   | `boolean` | `false` | Show all labels (may crowd)          |
-| `maxLabels`       | `number`  | `12`    | Maximum labels to show               |
+| `maxLabels`       | `number \| ResponsiveChartLabelCount` | `12` | Maximum labels to show. Pass `{ base, sm, md, lg, xl }` to vary it by chart width (640 / 768 / 1024 / 1280 px) |
 
 ### BarYAxis
 

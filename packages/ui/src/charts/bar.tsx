@@ -5,7 +5,11 @@ import type { Transition } from "motion/react";
 import { motion } from "motion/react";
 import { memo, useId, useMemo } from "react";
 import { barDepthAndRise, barDepthMaxDepth } from "./bar-depth-geometry";
-import { getBarValueLabelLayout } from "./bar-value-label-layout";
+import {
+  type BarValueLabelOrientation,
+  type BarValueLabelPosition,
+  getBarValueLabelLayout,
+} from "./bar-value-label-layout";
 import {
   chartCssVars,
   useChart,
@@ -92,9 +96,10 @@ export interface BarProps {
   /** Text color for values displayed inside bars. Default: white. */
   valueLabelColor?: string;
   /** Label text direction. `auto` uses horizontal text, then rotates if needed. */
-  valueLabelOrientation?: "auto" | "horizontal" | "vertical";
-  /** Position of the label inside the bar. Default: center. */
-  valueLabelPosition?: "top" | "center" | "bottom";
+  valueLabelOrientation?: BarValueLabelOrientation;
+  /** Position of the label inside the bar. On horizontal bars `"top"` is the
+   * value end (right) and `"bottom"` the base (left). Default: center. */
+  valueLabelPosition?: BarValueLabelPosition;
   /** Optional class for value labels. */
   valueLabelClassName?: string;
 }
@@ -159,7 +164,7 @@ function AnimatedBar({
   const enterAnim = transitionWithDelay(enterTransition, index * staggerDelay);
   const label = valueLabel ? (
     <motion.text
-      animate={{ opacity: 1 }}
+      animate={{ opacity: isFaded ? fadedOpacity : 1 }}
       className={valueLabelClassName}
       dominantBaseline="middle"
       fill={valueLabelColor}
@@ -535,6 +540,8 @@ const BarInner = memo(function BarInner({
                 fill={valueLabelColor}
                 fontSize={12}
                 fontWeight={600}
+                opacity={isFaded ? fadedOpacity : 1}
+                style={{ transition: "opacity 0.15s ease-in-out" }}
                 textAnchor="middle"
                 transform={labelTransform}
                 x={labelLayout.x}

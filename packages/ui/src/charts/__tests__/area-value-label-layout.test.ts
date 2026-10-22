@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
+  evenlySpacedLabelIndices,
   layoutAreaValueLabels,
   resolveAreaValueLabelCount,
   resolveSharedAreaValueLabelCount,
@@ -73,4 +74,12 @@ test("keeps measured labels inside the plot, collision-free and within count lim
   assert.equal(resolveSharedAreaValueLabelCount([5, 4]), 4);
   assert.equal(resolveSharedAreaValueLabelCount([5, 0]), 5);
   assert.equal(resolveSharedAreaValueLabelCount([0, 0]), 0);
+});
+
+test("samples exactly the requested label count, endpoints included", () => {
+  assert.deepEqual(evenlySpacedLabelIndices(24, 5), [0, 6, 12, 17, 23]);
+  assert.deepEqual(evenlySpacedLabelIndices(6, 5), [0, 1, 3, 4, 5]);
+  assert.deepEqual(evenlySpacedLabelIndices(3, 5), [0, 1, 2]);
+  assert.deepEqual(evenlySpacedLabelIndices(10, 1), [0]);
+  assert.deepEqual(evenlySpacedLabelIndices(10, 0), []);
 });

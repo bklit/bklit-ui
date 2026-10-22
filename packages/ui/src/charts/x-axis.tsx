@@ -297,16 +297,16 @@ function isBetterTickLayout(
   nextCountDistance: number,
   bestCountDistance: number
 ): boolean {
-  if (nextCountDistance < bestCountDistance) {
-    return true;
-  }
-  if (nextCountDistance > bestCountDistance) {
-    return false;
-  }
   if (next.score < best.score - 1e-6) {
     return true;
   }
   if (Math.abs(next.score - best.score) > 1e-6) {
+    return false;
+  }
+  if (nextCountDistance < bestCountDistance) {
+    return true;
+  }
+  if (nextCountDistance > bestCountDistance) {
     return false;
   }
   if (next.symmetryPenalty < best.symmetryPenalty - 1e-6) {
@@ -613,11 +613,7 @@ const XAxisInner = memo(function XAxisInner({
     }
 
     // No brush: evenly spaced ticks across the full domain (data + projection).
-    if (
-      projectionExtendsScale &&
-      xDomain == null &&
-      data.length > resolvedNumTicks
-    ) {
+    if (projectionExtendsScale && xDomain == null) {
       return buildDomainTicks({
         marginLeft: margin.left,
         numTicks: resolvedNumTicks,

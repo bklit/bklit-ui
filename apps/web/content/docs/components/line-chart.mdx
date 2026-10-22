@@ -175,7 +175,7 @@ Renders x-axis labels that fade when the crosshair passes.
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `numTicks` | `number` | `6` | Number of tick labels |
+| `numTicks` | `number \| ResponsiveChartLabelCount` | `6` | Number of tick labels. Pass `{ base, sm, md, lg, xl }` to vary it by chart width (640 / 768 / 1024 / 1280 px) |
 | `tickerHalfWidth` | `number` | `50` | Fade radius for labels |
 | `tickMode` | `"data" \| "domain"` | `"data"` | `"data"` snaps labels to data rows (crosshair-aligned); `"domain"` for calendar-even spacing |
 
