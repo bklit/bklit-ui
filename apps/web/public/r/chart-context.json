@@ -90,6 +90,18 @@
     }
   ],
   "cssVars": {
+    "theme": {
+      "color-chart-line-primary": "var(--chart-line-primary)",
+      "color-chart-line-secondary": "var(--chart-line-secondary)",
+      "color-chart-brush-border": "var(--chart-brush-border)",
+      "color-chart-tooltip-background": "var(--chart-tooltip-background)",
+      "color-chart-tooltip-foreground": "var(--chart-tooltip-foreground)",
+      "color-chart-tooltip-muted": "var(--chart-tooltip-muted)",
+      "color-chart-scale-02": "var(--chart-scale-02)",
+      "color-chart-scale-03": "var(--chart-scale-03)",
+      "color-chart-scale-04": "var(--chart-scale-04)",
+      "color-chart-scale-05": "var(--chart-scale-05)"
+    },
     "light": {
       "chart-1": "oklch(0.585 0.233 277.117)",
       "chart-2": "oklch(0.852 0.199 91.936)",
@@ -119,7 +131,13 @@
       "chart-scale-03": "color-mix(in oklab, var(--chart-1) 55%, var(--chart-scale-mix))",
       "chart-scale-04": "color-mix(in oklab, var(--chart-1) 78%, var(--chart-scale-mix))",
       "chart-scale-05": "var(--chart-1)",
-      "chart-scale-pattern-color": "oklch(1 0 0)"
+      "chart-scale-pattern-color": "oklch(1 0 0)",
+      "chart-indicator-color": "oklch(0.21 0.006 285)",
+      "chart-indicator-secondary-color": "oklch(0.913 0 0)",
+      "chart-marker-badge-background": "oklch(0 0 0)",
+      "chart-marker-badge-foreground": "oklch(0.84 0 0)",
+      "chart-segment-background": "oklch(0.756 0 0 / 0.06)",
+      "chart-segment-line": "oklch(0.5 0 0 / 0.25)"
     },
     "dark": {
       "chart-1": "oklch(0.585 0.233 277.117)",
@@ -145,7 +163,13 @@
       "chart-scale-03": "color-mix(in oklab, var(--chart-1) 55%, var(--chart-scale-mix))",
       "chart-scale-04": "color-mix(in oklab, var(--chart-1) 78%, var(--chart-scale-mix))",
       "chart-scale-05": "var(--chart-1)",
-      "chart-scale-pattern-color": "oklch(0.145 0 0)"
+      "chart-scale-pattern-color": "oklch(0.145 0 0)",
+      "chart-indicator-color": "oklch(1 0 0)",
+      "chart-indicator-secondary-color": "oklch(0.145 0 0)",
+      "chart-marker-badge-background": "oklch(1 0 0)",
+      "chart-marker-badge-foreground": "oklch(0.15 0 0)",
+      "chart-segment-background": "oklch(0.41 0.0127 248.14 / 0.25)",
+      "chart-segment-line": "oklch(1 0 0 / 0.25)"
     }
   }
 }

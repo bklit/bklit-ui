@@ -8,6 +8,9 @@
  *
  * Also rejects `cssVars` keys written with a leading `--`: the shadcn CLI adds
  * the dashes itself, so `--chart-grid` becomes `var(----chart-grid)` in @theme.
+ * And requires a `cssVars.theme` `color-*` mapping for any var whose value is
+ * not a literal colour: shadcn only auto-maps hsl/rgb/#/oklch values, so e.g.
+ * `chart-tooltip-background: var(--popover)` would get no `bg-*` utility.
  *
  * Also rejects CommonJS `require("react-dom")` in registry source files — it
  * breaks Vite/ESM consumers even though Next.js/webpack may tolerate it.
@@ -180,12 +183,26 @@ for (const item of installableItems) {
   }
 }
 
+/** shadcn writes a `--color-*` @theme mapping only for these value prefixes. */
+const LITERAL_COLOR_RE = /^(hsl|rgb|#|oklch)/;
+
 const cssVarFailures = [];
 for (const item of registry.items) {
+  const theme = item.cssVars?.theme ?? {};
   for (const [scope, vars] of Object.entries(item.cssVars ?? {})) {
-    for (const key of Object.keys(vars ?? {})) {
+    for (const [key, value] of Object.entries(vars ?? {})) {
       if (key.startsWith("--")) {
-        cssVarFailures.push(`${item.name}: cssVars.${scope}["${key}"]`);
+        cssVarFailures.push(
+          `${item.name}: cssVars.${scope}["${key}"] starts with \`--\` (shadcn adds the dashes; it installs as var(----…))`
+        );
+      } else if (
+        scope !== "theme" &&
+        !LITERAL_COLOR_RE.test(value) &&
+        !theme[`color-${key}`]
+      ) {
+        cssVarFailures.push(
+          `${item.name}: cssVars.${scope}["${key}"] = ${value} needs cssVars.theme["color-${key}"]: "var(--${key})"`
+        );
       }
     }
   }
@@ -195,13 +212,11 @@ let failed = false;
 
 if (cssVarFailures.length > 0) {
   failed = true;
-  console.error("Registry cssVars keys must not start with `--`:\n");
+  console.error("Registry cssVars check failed:\n");
   for (const failure of cssVarFailures) {
     console.error(`  ${failure}`);
   }
-  console.error(
-    '\nWrite "chart-grid", not "--chart-grid" (shadcn adds the dashes; a prefixed key installs as var(----chart-grid)).\n'
-  );
+  console.error("");
 }
 
 if (closureFailures.length > 0) {
