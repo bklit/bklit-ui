@@ -47,7 +47,8 @@ export interface TooltipBoxProps {
   entrance?: boolean;
   /**
    * Fade the panel out when `visible` turns false (via `AnimatePresence`).
-   * Requires `entrance`. Default: false
+   * Requires `entrance`. Keep the box mounted and toggle `visible` (rather
+   * than unmounting it) so the exit can play. Default: true
    */
   exit?: boolean;
   /** Inline styles for the inner tooltip panel. */
@@ -100,7 +101,7 @@ export function TooltipBox(props: TooltipBoxProps) {
   const inner = props.visible ? (
     <TooltipBoxInner {...props} container={container} key="tooltip-box" />
   ) : null;
-  if (props.exit && props.entrance !== false) {
+  if (props.exit !== false && props.entrance !== false) {
     return <AnimatePresence>{inner}</AnimatePresence>;
   }
   return inner;

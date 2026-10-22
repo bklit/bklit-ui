@@ -32,6 +32,7 @@
 | `matchCrosshair` | `boolean` | `false` |
 | `damping` | `number` (`0` = instant) | `20` |
 | `springConfig`, `boxSpringConfig` | `{ stiffness, damping }` | chart config |
+| `exit` | `boolean` (fade out on leave) | `true` |
 | `backgroundColor` | `string` | `var(--chart-tooltip-background)` |
 | `panelStyle`, `className` | `CSSProperties`, `string` | — |
 | `children` | `ReactNode` | rendered below rows (e.g. marker content) |

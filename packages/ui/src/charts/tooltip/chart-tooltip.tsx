@@ -102,6 +102,8 @@ export interface ChartTooltipProps {
    * Default: `var(--chart-tooltip-background)`.
    */
   backgroundColor?: string;
+  /** Fade the panel out when hover ends. Default: true */
+  exit?: boolean;
 }
 
 interface ChartTooltipInnerProps extends ChartTooltipProps {
@@ -135,6 +137,7 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
   boxSpringConfig,
   panelStyle,
   backgroundColor,
+  exit = true,
 }: ChartTooltipInnerProps) {
   const {
     tooltipData,
@@ -338,6 +341,7 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
         containerHeight={height}
         containerRef={containerRef}
         containerWidth={width}
+        exit={exit}
         panelStyle={panelStyle}
         springConfig={boxMotion.springConfig}
         top={isHorizontal ? undefined : margin.top}
