@@ -11,6 +11,8 @@ import {
 import {
   chartCssVars,
   type LineConfig,
+  type Margin,
+  type TooltipData,
   useChart,
   useChartPortalContainer,
   useChartStable,
@@ -18,7 +20,7 @@ import {
 import { formatBandRange, weekdayDateFmt } from "../chart-formatters";
 import type { IndicatorFadeEdges } from "../indicator-fade";
 import { DateTicker } from "./date-ticker";
-import { TooltipBox } from "./tooltip-box";
+import { TooltipBox, type TooltipBoxProps } from "./tooltip-box";
 import { TooltipContent, type TooltipRow } from "./tooltip-content";
 import { TooltipDot } from "./tooltip-dot";
 import { TooltipIndicator } from "./tooltip-indicator";
@@ -116,6 +118,72 @@ export interface ChartTooltipProps {
 
 interface ChartTooltipInnerProps extends ChartTooltipProps {
   container: HTMLElement;
+}
+
+/**
+ * Hovered point for nearest-point hover: `activeDataKey`'s point, else the
+ * first series with a value in the row. Positions are plot-relative.
+ */
+function resolveActivePoint(
+  tooltipData: TooltipData | null,
+  lines: LineConfig[]
+): { line: LineConfig; index: number; x: number; y: number } | null {
+  if (!tooltipData) {
+    return null;
+  }
+  const { activeDataKey, xPositions, yPositions } = tooltipData;
+  const hasY = (line: LineConfig) => yPositions[line.dataKey] !== undefined;
+  const line =
+    lines.find((l) => l.dataKey === activeDataKey && hasY(l)) ??
+    lines.find(hasY);
+  const y = line ? yPositions[line.dataKey] : undefined;
+  if (!line || y === undefined) {
+    return null;
+  }
+  return {
+    line,
+    index: lines.indexOf(line),
+    x: xPositions?.[line.dataKey] ?? tooltipData.x,
+    y,
+  };
+}
+
+/** TooltipBox position props for the hovered row / point. */
+function resolveBoxPlacement({
+  activePoint,
+  tooltipData,
+  lines,
+  margin,
+  isHorizontal,
+  xWithMargin,
+}: {
+  activePoint: ReturnType<typeof resolveActivePoint>;
+  tooltipData: TooltipData | null;
+  lines: LineConfig[];
+  margin: Margin;
+  isHorizontal: boolean;
+  xWithMargin: number;
+}): Pick<TooltipBoxProps, "x" | "y" | "top" | "flipX" | "replayOnFlip"> {
+  if (activePoint) {
+    // Beside the hovered point, vertically centred + clamped. The side is
+    // picked from the column so a column's points share it, and a flip springs
+    // across rather than replaying the entrance.
+    return {
+      flipX: xWithMargin,
+      replayOnFlip: false,
+      x: activePoint.x + margin.left,
+      y: activePoint.y + margin.top,
+    };
+  }
+  if (isHorizontal) {
+    // Horizontal charts: centre on the first line's y (middle of the bar).
+    const firstLineDataKey = lines[0]?.dataKey;
+    const firstLineY = firstLineDataKey
+      ? (tooltipData?.yPositions[firstLineDataKey] ?? 0)
+      : 0;
+    return { x: xWithMargin, y: firstLineY + margin.top };
+  }
+  return { top: margin.top, x: xWithMargin, y: margin.top };
 }
 
 const ChartTooltipInner = memo(function ChartTooltipInner({
@@ -223,12 +291,19 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
   const x = tooltipData?.x ?? 0;
   const xWithMargin = x + margin.left;
 
-  // For horizontal charts, get the y position from the first line's yPosition (center of bar)
-  const firstLineDataKey = lines[0]?.dataKey;
-  const firstLineY = firstLineDataKey
-    ? (tooltipData?.yPositions[firstLineDataKey] ?? 0)
-    : 0;
-  const yWithMargin = firstLineY + margin.top;
+  // Nearest-point hover (jittered scatter): the dot and panel follow the
+  // hovered point, not the column / first series.
+  const activePoint = nearestPointHover
+    ? resolveActivePoint(tooltipData, lines)
+    : null;
+  const boxPlacement = resolveBoxPlacement({
+    activePoint,
+    tooltipData,
+    lines,
+    margin,
+    isHorizontal,
+    xWithMargin,
+  });
 
   const tooltipRows = useMemo(() => {
     if (!tooltipData) {
@@ -365,31 +440,46 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
           width="100%"
         >
           <g transform={`translate(${margin.left},${margin.top})`}>
-            {lines.map((line, index) => (
-              <TooltipDot
-                color={resolveDotColor(line, index)}
-                cornerRadiusFraction={
-                  dotVariant === "ring" ? dotRadiusFraction : undefined
-                }
-                haloOpacity={dotHaloOpacity}
-                haloScale={dotHaloScale}
-                key={line.dataKey}
-                size={resolvedDotSize}
-                springConfig={springConfig}
-                strokeColor={chartCssVars.background}
-                strokeWidth={dotStrokeWidth}
-                variant={dotVariant}
-                visible={
-                  visible &&
-                  !(
-                    nearestPointHover &&
-                    tooltipData?.yPositions[line.dataKey] === undefined
-                  )
-                }
-                x={tooltipData?.xPositions?.[line.dataKey] ?? x}
-                y={tooltipData?.yPositions[line.dataKey] ?? 0}
-              />
-            ))}
+            {nearestPointHover
+              ? // One dot that springs between points (any series) instead of
+                // one per series mounting / unmounting as rows change.
+                activePoint && (
+                  <TooltipDot
+                    color={resolveDotColor(activePoint.line, activePoint.index)}
+                    cornerRadiusFraction={
+                      dotVariant === "ring" ? dotRadiusFraction : undefined
+                    }
+                    haloOpacity={dotHaloOpacity}
+                    haloScale={dotHaloScale}
+                    size={resolvedDotSize}
+                    springConfig={springConfig}
+                    strokeColor={chartCssVars.background}
+                    strokeWidth={dotStrokeWidth}
+                    variant={dotVariant}
+                    visible={visible}
+                    x={activePoint.x}
+                    y={activePoint.y}
+                  />
+                )
+              : lines.map((line, index) => (
+                  <TooltipDot
+                    color={resolveDotColor(line, index)}
+                    cornerRadiusFraction={
+                      dotVariant === "ring" ? dotRadiusFraction : undefined
+                    }
+                    haloOpacity={dotHaloOpacity}
+                    haloScale={dotHaloScale}
+                    key={line.dataKey}
+                    size={resolvedDotSize}
+                    springConfig={springConfig}
+                    strokeColor={chartCssVars.background}
+                    strokeWidth={dotStrokeWidth}
+                    variant={dotVariant}
+                    visible={visible}
+                    x={tooltipData?.xPositions?.[line.dataKey] ?? x}
+                    y={tooltipData?.yPositions[line.dataKey] ?? 0}
+                  />
+                ))}
             {bandDots.map((dot) => {
               const y = tooltipData?.yPositions[dot.key];
               if (y == null) {
@@ -432,10 +522,8 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
         exit={exit}
         panelStyle={panelStyle}
         springConfig={boxMotion.springConfig}
-        top={isHorizontal ? undefined : margin.top}
+        {...boxPlacement}
         visible={visible}
-        x={xWithMargin}
-        y={isHorizontal ? yWithMargin : margin.top}
       >
         {content && tooltipData
           ? content({

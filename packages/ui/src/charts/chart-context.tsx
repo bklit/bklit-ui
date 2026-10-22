@@ -80,6 +80,12 @@ export interface TooltipData {
   yPositions: Record<string, number>;
   /** X positions for each series (for grouped bars), keyed by dataKey */
   xPositions?: Record<string, number>;
+  /**
+   * Series whose point is hovered when hover snaps to the nearest point
+   * (`ScatterChart` with `jitter`). The tooltip dot and panel follow this
+   * point.
+   */
+  activeDataKey?: string;
 }
 
 export interface LineConfig {

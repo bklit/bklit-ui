@@ -219,6 +219,7 @@ export function SeriesMarkers({
       </SeriesMarkersDimWrapper>
       <SeriesMarkersActiveHighlight
         activeScale={activeScale}
+        dataKey={dataKey}
         enabled={fadeOnHover}
         markerStyle={markerStyle}
         points={points}
@@ -269,6 +270,7 @@ function SeriesMarkersDimWrapper({
 }
 
 interface SeriesMarkersActiveHighlightProps {
+  dataKey: string;
   enabled: boolean;
   points: PointAt[];
   markerStyle: MarkerStyle;
@@ -280,6 +282,7 @@ interface SeriesMarkersActiveHighlightProps {
  * hover internally; the parent doesn't re-render on cursor motion.
  */
 function SeriesMarkersActiveHighlight({
+  dataKey,
   enabled,
   points,
   markerStyle,
@@ -287,6 +290,13 @@ function SeriesMarkersActiveHighlight({
 }: SeriesMarkersActiveHighlightProps) {
   const { tooltipData } = useChartHover();
   if (!enabled || tooltipData === null) {
+    return null;
+  }
+  // Nearest-point hover (jittered scatter): only the hovered series' point.
+  if (
+    tooltipData.activeDataKey !== undefined &&
+    tooltipData.activeDataKey !== dataKey
+  ) {
     return null;
   }
   const activePoint = points.find((point) => point.index === tooltipData.index);

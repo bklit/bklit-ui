@@ -39,6 +39,12 @@ export interface TooltipBoxProps {
   top?: number | ReturnType<typeof useSpring>;
   /** Force flip direction (for custom positioning) */
   flipped?: boolean;
+  /**
+   * X (container px) that decides which side the panel opens on. Default: `x`.
+   * Nearest-point hover passes the column x so every point in a column opens
+   * on the same side (no flip — and entrance replay — between nearby points).
+   */
+  flipX?: number;
   /** Per-chart override; falls back to `ChartConfigProvider.tooltipBoxSpring`. */
   springConfig?: SpringConfig;
   /** Animate panel position with a spring. Default: true */
@@ -51,6 +57,12 @@ export interface TooltipBoxProps {
    * than unmounting it) so the exit can play. Default: true
    */
   exit?: boolean;
+  /**
+   * Replay the panel entrance when it flips sides. `false` springs the panel
+   * across instead (used by nearest-point hover, where neighbouring points
+   * can sit on either side of the flip line). Default: true
+   */
+  replayOnFlip?: boolean;
   /** Inline styles for the inner tooltip panel. */
   panelStyle?: React.CSSProperties;
   /**
@@ -92,6 +104,7 @@ const DEFAULT_TOOLTIP_HEIGHT = 80;
  * clamped vertically inside the container. */
 function resolveTooltipTarget({
   x,
+  flipX = x,
   y,
   width,
   height,
@@ -100,6 +113,7 @@ function resolveTooltipTarget({
   containerHeight,
 }: {
   x: number;
+  flipX?: number;
   y: number;
   width: number;
   height: number;
@@ -107,7 +121,7 @@ function resolveTooltipTarget({
   containerWidth: number;
   containerHeight: number;
 }) {
-  const flipped = x + width + offset > containerWidth;
+  const flipped = flipX + width + offset > containerWidth;
   return {
     flipped,
     left: flipped ? x - offset - width : x + offset,
@@ -145,10 +159,12 @@ function TooltipBoxInner({
   left: leftOverride,
   top: topOverride,
   flipped: flippedOverride,
+  flipX,
   springConfig,
   animate = true,
   entrance = true,
   exit: _exit,
+  replayOnFlip = true,
   panelStyle,
   backgroundColor = chartCssVars.tooltipBackground,
   container,
@@ -173,7 +189,7 @@ function TooltipBoxInner({
   // size (the inner box mounts fresh on every show); refined from the measured
   // width in the layout effect, which only re-renders when the side changes.
   const [flip, setFlip] = useState(() => ({
-    flipped: x + DEFAULT_TOOLTIP_WIDTH + offset > containerWidth,
+    flipped: (flipX ?? x) + DEFAULT_TOOLTIP_WIDTH + offset > containerWidth,
     key: 0,
   }));
   const shouldFlipX = flip.flipped;
@@ -181,6 +197,7 @@ function TooltipBoxInner({
   const [initialTarget] = useState(() =>
     resolveTooltipTarget({
       x,
+      flipX,
       y,
       width: DEFAULT_TOOLTIP_WIDTH,
       height: DEFAULT_TOOLTIP_HEIGHT,
@@ -207,6 +224,7 @@ function TooltipBoxInner({
     }
     const target = resolveTooltipTarget({
       x,
+      flipX,
       y,
       width: tooltipWidthRef.current,
       height: tooltipHeightRef.current,
@@ -235,6 +253,7 @@ function TooltipBoxInner({
     }
   }, [
     x,
+    flipX,
     y,
     containerWidth,
     containerHeight,
@@ -247,7 +266,7 @@ function TooltipBoxInner({
     reducedMotion,
   ]);
 
-  const flipKey = flip.key;
+  const flipKey = replayOnFlip ? flip.key : 0;
 
   const finalLeft = animate
     ? (leftOverride ?? animatedLeft)

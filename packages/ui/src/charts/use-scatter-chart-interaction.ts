@@ -35,6 +35,7 @@ interface UseScatterChartInteractionParams {
 
 interface JitteredPoint {
   index: number;
+  dataKey: string;
   x: number;
   y: number;
 }
@@ -137,6 +138,7 @@ export function useScatterChartInteraction({
         const offset = scatterJitterOffset(jitter, index, seriesIndex);
         points.push({
           index,
+          dataKey: line.dataKey,
           x: (xScale(xAccessor(d)) ?? 0) + offset.x,
           y: (axisScale(value) ?? 0) + offset.y,
         });
@@ -187,6 +189,7 @@ export function useScatterChartInteraction({
         x: baseX,
         xPositions,
         yPositions,
+        activeDataKey: nearest.dataKey,
       };
     },
     [

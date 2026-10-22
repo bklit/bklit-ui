@@ -17,11 +17,17 @@ function defaultDedupeKey<T>(tooltip: T): string {
     "index" in tooltip &&
     typeof (tooltip as { index: unknown }).index === "number"
   ) {
-    const { index, x } = tooltip as { index: number; x?: number };
+    const { index, x, activeDataKey } = tooltip as {
+      index: number;
+      x?: number;
+      activeDataKey?: string;
+    };
+    // Nearest-point hover: several series can share a row — key on the series too.
+    const suffix = activeDataKey === undefined ? "" : `:${activeDataKey}`;
     if (typeof x === "number") {
-      return `${index}:${Math.round(x)}`;
+      return `${index}:${Math.round(x)}${suffix}`;
     }
-    return String(index);
+    return `${index}${suffix}`;
   }
   return JSON.stringify(tooltip);
 }
