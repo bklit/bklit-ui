@@ -610,6 +610,14 @@ if (tailwindVersion === "v4" && chartKeys.length > 0) {
       `@theme inline is missing ${missing.join(", ")} — tooltip/axis label classes will not resolve.`
     );
   }
+  const fourDash = themeInline.filter((n) =>
+    String(byMode.theme[n]).includes("var(----")
+  );
+  if (fourDash.length > 0) {
+    warnings.push(
+      `@theme maps ${fourDash.join(", ")} to var(----…) (four dashes), which resolves empty — replace "var(----" with "var(--" (bklit-ui#235).`
+    );
+  }
 }
 if (
   darkStrategy === "class" &&

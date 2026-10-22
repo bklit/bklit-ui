@@ -16,15 +16,28 @@ Verified against the shadcn CLI source (v4.x):
   `--legend-foreground`, `--legend-muted`, `--legend-muted-foreground`, `--legend-track`.
 - Variables the host **already defines are left alone**; only missing ones are
   appended to `:root` / `.dark`. So a host with its own `--chart-1..5` keeps them.
-- Tailwind v4 only: each colour-valued var also gets an `@theme inline` entry
-  (`--color-chart-label: var(--chart-label)` etc.), which is what makes classes
-  like `text-chart-label` and `bg-chart-tooltip-background` work.
+- Tailwind v4 only: each var whose value is a **literal colour** also gets an
+  `@theme inline` entry (`--color-chart-label: var(--chart-label)` etc.), which
+  is what makes classes like `text-chart-label` and `text-legend-foreground`
+  work. Two gaps to check after install:
+  - Vars whose value is a `var()` reference (`--chart-tooltip-*`,
+    `--chart-line-*`, `--chart-brush-border`) get **no** `--color-*` entry, so
+    `bg-chart-tooltip-background` / `text-chart-tooltip-*` need adding by hand.
+  - Some installs write the mapping with four dashes
+    (`--color-chart-label: var(----chart-label)`), which resolves empty
+    (bklit-ui#235). Replace every `var(----` with `var(--`. The detect script
+    warns about this.
 - Tailwind v3: nothing is written to `tailwind.config` (bklit items have no
   `tailwind` key) — see "Tailwind v3" below.
 - bklit's defaults are the **Primary** palette: indigo, yellow, fuchsia, mist and
   black (`--chart-1: oklch(0.585 0.233 277.117)` …; `--chart-5` is white in dark
   mode). If the host had no chart palette, the charts get these colours until you
   seed one that matches the brand.
+- Other built-in multi-hue palettes (Monochrome, Ocean, Sunset, Grove, Vivid)
+  can be exported as `:root` / `.dark` CSS (`--chart-1..5`,
+  `--chart-positive`, `--chart-negative`) from the palette menu on
+  https://bklit.com/docs/theming. Offer one when the user wants "nicer colours"
+  but has no brand constraint.
 
 ## Tokens bklit actually reads
 
@@ -129,9 +142,9 @@ Whenever you override `--chart-N` on a non-root selector, also re-declare:
 1. After install, confirm `@theme inline` contains at least
    `--color-chart-label`, `--color-chart-tooltip-background`,
    `--color-chart-tooltip-foreground`, `--color-chart-tooltip-muted`
-   (and `--color-legend*` when using `@bklit/legend`). The detect script warns
-   when bklit is installed and they are missing. Add them by hand if the CSS file
-   is not where `components.json` points:
+   (and `--color-legend*` when using `@bklit/legend`), each pointing at the
+   **two-dash** var. The detect script warns when bklit is installed and they
+   are missing or four-dashed. Add or fix them by hand:
 
    ```css
    @theme inline {
