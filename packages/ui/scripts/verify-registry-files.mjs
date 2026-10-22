@@ -6,6 +6,9 @@
  * Also checks each relative import still resolves after install, when files are
  * written to their `target` paths (source and target layouts can differ).
  *
+ * Also rejects `cssVars` keys written with a leading `--`: the shadcn CLI adds
+ * the dashes itself, so `--chart-grid` becomes `var(----chart-grid)` in @theme.
+ *
  * Also rejects CommonJS `require("react-dom")` in registry source files — it
  * breaks Vite/ESM consumers even though Next.js/webpack may tolerate it.
  */
@@ -177,7 +180,29 @@ for (const item of installableItems) {
   }
 }
 
+const cssVarFailures = [];
+for (const item of registry.items) {
+  for (const [scope, vars] of Object.entries(item.cssVars ?? {})) {
+    for (const key of Object.keys(vars ?? {})) {
+      if (key.startsWith("--")) {
+        cssVarFailures.push(`${item.name}: cssVars.${scope}["${key}"]`);
+      }
+    }
+  }
+}
+
 let failed = false;
+
+if (cssVarFailures.length > 0) {
+  failed = true;
+  console.error("Registry cssVars keys must not start with `--`:\n");
+  for (const failure of cssVarFailures) {
+    console.error(`  ${failure}`);
+  }
+  console.error(
+    '\nWrite "chart-grid", not "--chart-grid" (shadcn adds the dashes; a prefixed key installs as var(----chart-grid)).\n'
+  );
+}
 
 if (closureFailures.length > 0) {
   failed = true;
