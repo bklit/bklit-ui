@@ -5,6 +5,10 @@ import {
   type BandFillType,
   ChartTooltip,
   Grid,
+  Legend,
+  LegendItemComponent,
+  LegendLabel,
+  LegendMarker,
   Line,
   LineChart,
   withBollingerBands,
@@ -73,6 +77,104 @@ const bollingerData = withBollingerBands(priceData, {
   multiplier: 2,
 });
 
+const RANGE_AREA_DEMO_DAY_COUNT = 30;
+
+/** Daily low / high temperatures (°C) — a standalone range area, no centre line. */
+const temperatureData = Array.from(
+  { length: RANGE_AREA_DEMO_DAY_COUNT },
+  (_, i) => {
+    const mid = 18 + Math.sin(i / 5.2) * 5 + Math.cos(i / 2.3) * 1.5;
+    const spread = 4.5 + Math.sin(i / 3.1 + 1) * 1.8;
+    return {
+      date: new Date(2024, 5, i + 1),
+      low: Math.round(mid - spread),
+      high: Math.round(mid + spread),
+    };
+  }
+);
+
+/** Two teams: per-day min / max and the average inside it. */
+const teamData = Array.from({ length: BAND_DEMO_POINT_COUNT }, (_, i) => {
+  const teamA = 34 + Math.sin(i / 3.4) * 9 + i * 0.6;
+  const teamB = 62 + Math.cos(i / 4.1) * 10 - i * 0.4;
+  const spreadA = 6 + Math.sin(i / 2.2) * 2;
+  const spreadB = 8 + Math.cos(i / 2.7) * 3;
+  return {
+    date: new Date(2024, 0, i + 1),
+    teamA: Math.round(teamA),
+    teamAMin: Math.round(teamA - spreadA),
+    teamAMax: Math.round(teamA + spreadA * 1.2),
+    teamB: Math.round(teamB),
+    teamBMin: Math.round(teamB - spreadB * 1.1),
+    teamBMax: Math.round(teamB + spreadB),
+  };
+});
+
+/** One legend entry per series — each band shares its line's colour. */
+const TEAM_LEGEND_ITEMS = [
+  { label: "Team A", value: 0, color: "var(--chart-1)" },
+  { label: "Team B", value: 0, color: "var(--chart-3)" },
+];
+
+export function BandRangeAreaDemo() {
+  return (
+    <div className="w-full">
+      <LineChart data={temperatureData}>
+        <Grid horizontal />
+        <Band
+          fill="var(--chart-1)"
+          fillOpacity={0.3}
+          label="Temperature"
+          lowerKey="low"
+          strokeWidth={1.5}
+          upperKey="high"
+        />
+        <XAxis />
+        <ChartTooltip />
+      </LineChart>
+    </div>
+  );
+}
+
+export function BandRangeComboDemo() {
+  return (
+    <div className="w-full">
+      <LineChart data={teamData}>
+        <Grid horizontal />
+        <Band
+          fill="var(--chart-1)"
+          fillOpacity={0.18}
+          label="Team A range"
+          lowerKey="teamAMin"
+          strokeWidth={0}
+          upperKey="teamAMax"
+        />
+        <Band
+          fill="var(--chart-3)"
+          fillOpacity={0.18}
+          label="Team B range"
+          lowerKey="teamBMin"
+          strokeWidth={0}
+          upperKey="teamBMax"
+        />
+        <Line dataKey="teamA" stroke="var(--chart-1)" strokeWidth={2} />
+        <Line dataKey="teamB" stroke="var(--chart-3)" strokeWidth={2} />
+        <XAxis />
+        <ChartTooltip />
+      </LineChart>
+      <Legend
+        className="flex-row justify-center gap-6"
+        items={TEAM_LEGEND_ITEMS}
+      >
+        <LegendItemComponent className="flex items-center gap-2">
+          <LegendMarker />
+          <LegendLabel />
+        </LegendItemComponent>
+      </Legend>
+    </div>
+  );
+}
+
 export function BandRangeDemo() {
   return (
     <div className="w-full">
@@ -80,6 +182,7 @@ export function BandRangeDemo() {
         <Grid horizontal />
         <Band
           fill="var(--chart-line-primary)"
+          label="range"
           lowerKey="valueLower"
           strokeOpacity={0.4}
           upperKey="valueUpper"
@@ -100,13 +203,16 @@ export function BandBollingerDemo() {
         <Band
           fill="var(--chart-1)"
           fillOpacity={0.12}
+          label="Bollinger"
           lowerKey="priceLower"
           strokeOpacity={0.5}
           upperKey="priceUpper"
         />
         {/* SMA: a zero-height band so the warm-up nulls render as a gap */}
         <Band
+          fill="var(--chart-1)"
           fillOpacity={0}
+          label="SMA"
           lowerKey="priceSma"
           lowerStroke={false}
           stroke="var(--chart-1)"

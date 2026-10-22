@@ -20,7 +20,11 @@ import {
   DEFAULT_ANIMATION_EASING,
   DEFAULT_CHART_ENTER_TRANSITION,
 } from "./animation";
-import { bandKeysByAxis, extractBandConfigs } from "./band-config";
+import {
+  type BandConfig,
+  bandKeysByAxis,
+  extractBandConfigs,
+} from "./band-config";
 import {
   isClipExcludedComponent,
   isPostOverlayComponent,
@@ -253,14 +257,17 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
   );
 
   // `<Band>` edges extend the y-domain and survive decimation, but are not
-  // series: they never enter `lines` (tooltip rows / hover dots). Keyed by a
-  // string signature so new `children` identities don't redo decimation.
-  const bandKeysSignature = JSON.stringify(
-    bandKeysByAxis(extractBandConfigs(children))
+  // series: they never enter `lines`. The tooltip reads `bands` separately for
+  // range rows / edge dots. Keyed by a string signature so new `children`
+  // identities don't redo decimation.
+  const bandConfigsSignature = JSON.stringify(extractBandConfigs(children));
+  const bandConfigs = useMemo(
+    () => JSON.parse(bandConfigsSignature) as BandConfig[],
+    [bandConfigsSignature]
   );
   const bandKeysByAxisId = useMemo(
-    () => JSON.parse(bandKeysSignature) as Record<string, string[]>,
-    [bandKeysSignature]
+    () => bandKeysByAxis(bandConfigs),
+    [bandConfigs]
   );
 
   const xScale = useMemo(() => {
@@ -406,6 +413,7 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
   } = useChartInteraction({
     bisectDate,
     canInteract,
+    bands: bandConfigs,
     data: visiblePlotData,
     lines,
     margin,
@@ -514,6 +522,7 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
       setTooltipData,
       containerRef,
       lines,
+      bands: bandConfigs,
       referenceAreas,
       chartPhase,
       chartStatus,
@@ -557,6 +566,7 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
       setTooltipData,
       containerRef,
       lines,
+      bandConfigs,
       referenceAreas,
       chartPhase,
       chartStatus,

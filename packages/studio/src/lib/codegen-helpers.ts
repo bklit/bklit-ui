@@ -630,6 +630,48 @@ ${curveImports}
   };
 }
 
+/** `<Line>`s for visible series (hidden lines are omitted, e.g. a standalone range area). */
+function lineSeriesCodegen(state: StudioUrlState, keys: string[]): string {
+  return keys
+    .map((key, idx) => {
+      if (!isStudioComponentVisible(state, `line.series.${idx}`)) {
+        return "";
+      }
+      const strokeAttr =
+        idx === 0 ? "" : ` stroke="${SERIES_COLOR_BY_INDEX[idx]}"`;
+      const seriesProps = seriesStrokePropsCodegen(state, idx);
+      const curveName = curveImportName(getSeriesCurve(state, idx));
+      return `\n  <Line dataKey="${key}"${strokeAttr} curve={${curveName}} strokeWidth={${getSeriesStrokeWidth(state, idx)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, idx))} showHighlight={${getSeriesShowHighlight(state, idx)}}${seriesProps} />`;
+    })
+    .join("");
+}
+
+/** Series component imports for `cartesianCodegen` (`Line` only when one is emitted). */
+function cartesianSeriesImports(
+  chartType: "AreaChart" | "LineChart",
+  state: StudioUrlState,
+  seriesBlock: string
+): string[] {
+  if (chartType === "LineChart") {
+    return [
+      ...(seriesBlock ? ["Line"] : []),
+      ...(getProjectionCount(state) > 0
+        ? ["ProjectionLine", "ProjectionLineEndMarker"]
+        : []),
+    ];
+  }
+  if (state.pattern === "none") {
+    return ["Area"];
+  }
+  return [
+    state.pattern === "circles" || state.pattern === "dots"
+      ? "PatternCircles"
+      : "PatternLines",
+    "PatternArea",
+    "Area",
+  ];
+}
+
 export function cartesianCodegen(
   chartType: "AreaChart" | "LineChart",
   state: StudioUrlState
@@ -641,15 +683,7 @@ export function cartesianCodegen(
 
   let child = "";
   if (chartType === "LineChart") {
-    child = keys
-      .map((key, idx) => {
-        const strokeAttr =
-          idx === 0 ? "" : ` stroke="${SERIES_COLOR_BY_INDEX[idx]}"`;
-        const seriesProps = seriesStrokePropsCodegen(state, idx);
-        const curveName = curveImportName(getSeriesCurve(state, idx));
-        return `\n  <Line dataKey="${key}"${strokeAttr} curve={${curveName}} strokeWidth={${getSeriesStrokeWidth(state, idx)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, idx))} showHighlight={${getSeriesShowHighlight(state, idx)}}${seriesProps} />`;
-      })
-      .join("");
+    child = lineSeriesCodegen(state, keys);
   } else if (state.pattern === "none") {
     child = keys
       .map((key, idx) => {
@@ -702,25 +736,14 @@ export function cartesianCodegen(
   }
   const band =
     chartType === "LineChart"
-      ? bandCodegenParts(state, curveImportName(getSeriesCurve(state, 0)))
+      ? bandCodegenParts(state, (seriesIndex) =>
+          curveImportName(getSeriesCurve(state, seriesIndex))
+        )
       : EMPTY_BAND_CODEGEN_PARTS;
-  chartImports.push(...band.imports);
-  if (chartType === "LineChart") {
-    chartImports.push("Line");
-    if (getProjectionCount(state) > 0) {
-      chartImports.push("ProjectionLine", "ProjectionLineEndMarker");
-    }
-  } else if (state.pattern === "none") {
-    chartImports.push("Area");
-  } else {
-    chartImports.push(
-      state.pattern === "circles" || state.pattern === "dots"
-        ? "PatternCircles"
-        : "PatternLines",
-      "PatternArea",
-      "Area"
-    );
-  }
+  chartImports.push(
+    ...band.imports,
+    ...cartesianSeriesImports(chartType, state, child)
+  );
 
   const curveImports = visxCurveImportLines(
     state,

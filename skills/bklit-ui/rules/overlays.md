@@ -95,7 +95,10 @@ For a dashed tail on **existing** data (incomplete period) use `Line` `dashFromI
 
 ## Band — `@bklit/band` (ships with `@bklit/line-chart`)
 
-Shaded range between two per-row keys (min/max, confidence interval, Bollinger) inside `LineChart`. Place it **before** the `Line`s. It reveals and morphs with the lines and extends the y-domain; the tooltip ignores it. `null` edge values become gaps.
+Shaded range between two per-row keys (min/max, confidence interval, Bollinger) inside `LineChart` (also `AreaChart` / `ComposedChart`). Place it **before** the `Line`s. It reveals and morphs with the lines and extends the y-domain; `ChartTooltip` adds a `low – high` row (`label`) plus edge dots unless `showInTooltip={false}`. `null` edge values become gaps.
+
+- **Range area chart:** a `Band` with no `Line` — the y-axis fits the band.
+- **Range area + line combo:** one `Band` per series with the same `fill` as its `Line` (`strokeWidth={0}` to drop the edges); add matching `Legend` items yourself.
 
 ```tsx
 <LineChart data={data}> {/* rows: { date, value, valueUpper, valueLower } */}
@@ -106,7 +109,7 @@ Shaded range between two per-row keys (min/max, confidence interval, Bollinger) 
 </LineChart>
 ```
 
-Props: `fill` (default `var(--chart-line-primary)`), `fillType` (`"solid" | "gradient" | "pattern"`), `fillOpacity` (0.15), `gradientToOpacity`, `pattern`, `stroke`, `strokeWidth`, `strokeDasharray`, `strokeOpacity`, `upperStroke` / `lowerStroke` (override object or `false` to hide), `fadeEdges` (`true | "left" | "right" | { top, right, bottom, left }`), `fadeSize`, `curve`, `yAxisId`.
+Props: `fill` (default `var(--chart-line-primary)`), `fillType` (`"solid" | "gradient" | "pattern"`), `fillOpacity` (0.15), `gradientToOpacity`, `pattern`, `stroke`, `strokeWidth`, `strokeDasharray`, `strokeOpacity`, `upperStroke` / `lowerStroke` (override object or `false` to hide), `fadeEdges` (`true | "left" | "right" | { top, right, bottom, left }`), `fadeSize`, `curve`, `yAxisId`, `label` (tooltip row label, default `"lowerKey – upperKey"`), `showInTooltip` (default `true`).
 
 Bollinger: `withBollingerBands(data, { dataKey: "price", period: 20, multiplier: 2 })` (from `@/components/charts/bollinger`) adds `priceUpper` / `priceLower` / `priceSma` (`null` during warm-up; pass `minPeriods: 1` to start at the first row with a partial window). Draw the SMA as a zero-height `<Band upperKey="priceSma" lowerKey="priceSma" fillOpacity={0} strokeDasharray="4,4" lowerStroke={false} />` — `Line` does not skip `null`s.
 

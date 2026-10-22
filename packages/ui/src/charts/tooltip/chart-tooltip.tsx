@@ -14,7 +14,7 @@ import {
   useChart,
   useChartStable,
 } from "../chart-context";
-import { weekdayDateFmt } from "../chart-formatters";
+import { formatBandRange, weekdayDateFmt } from "../chart-formatters";
 import type { IndicatorFadeEdges } from "../indicator-fade";
 import { DateTicker } from "./date-ticker";
 import { TooltipBox } from "./tooltip-box";
@@ -152,6 +152,7 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
     margin,
     columnWidth,
     lines,
+    bands,
     xAccessor,
     dateLabels,
     containerRef,
@@ -161,6 +162,10 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
     squareSnap,
     nearestPointHover,
   } = useChart();
+  const tooltipBands = useMemo(
+    () => (bands ?? []).filter((band) => band.showInTooltip),
+    [bands]
+  );
   const { tooltipSpring } = useChartConfig();
 
   const isHorizontal = orientation === "horizontal";
@@ -229,19 +234,48 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
       return rowsRenderer(tooltipData.point);
     }
 
-    // Default: generate rows from registered lines. With nearest-point hover
-    // (jittered scatter) a row may hold only some series — skip the rest.
+    // Default: generate rows from registered lines, then `<Band>` ranges.
+    // With nearest-point hover (jittered scatter) a row may hold only some
+    // series — skip the rest.
     const rowLines = nearestPointHover
       ? lines.filter(
           (line) => typeof tooltipData.point[line.dataKey] === "number"
         )
       : lines;
-    return rowLines.map((line) => ({
+    const rows: TooltipRow[] = rowLines.map((line) => ({
       color: line.stroke,
       label: line.dataKey,
       value: (tooltipData.point[line.dataKey] as number) ?? 0,
     }));
-  }, [tooltipData, lines, rowsRenderer, nearestPointHover]);
+    for (const band of tooltipBands) {
+      const value = formatBandRange(
+        tooltipData.point,
+        band.upperKey,
+        band.lowerKey
+      );
+      if (value != null) {
+        rows.push({ color: band.color, label: band.label, value });
+      }
+    }
+    return rows;
+  }, [tooltipData, lines, tooltipBands, rowsRenderer, nearestPointHover]);
+
+  // One dot per band edge (deduped; edges shared with a `<Line>` use its dot).
+  const bandDots = useMemo(() => {
+    const lineKeys = new Set(lines.map((line) => line.dataKey));
+    const seen = new Set<string>();
+    const dots: { key: string; color: string }[] = [];
+    for (const band of tooltipBands) {
+      for (const key of [band.upperKey, band.lowerKey]) {
+        if (lineKeys.has(key) || seen.has(key)) {
+          continue;
+        }
+        seen.add(key);
+        dots.push({ key, color: band.color });
+      }
+    }
+    return dots;
+  }, [lines, tooltipBands]);
 
   const resolveDotColor = useMemo(() => {
     return (line: LineConfig, index: number): string => {
@@ -351,6 +385,33 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
                 y={tooltipData?.yPositions[line.dataKey] ?? 0}
               />
             ))}
+            {bandDots.map((dot) => {
+              const y = tooltipData?.yPositions[dot.key];
+              if (y == null) {
+                return null;
+              }
+              return (
+                <TooltipDot
+                  color={
+                    typeof dotColorProp === "string" ? dotColorProp : dot.color
+                  }
+                  cornerRadiusFraction={
+                    dotVariant === "ring" ? dotRadiusFraction : undefined
+                  }
+                  haloOpacity={dotHaloOpacity}
+                  haloScale={dotHaloScale}
+                  key={`band-${dot.key}`}
+                  size={resolvedDotSize}
+                  springConfig={springConfig}
+                  strokeColor={chartCssVars.background}
+                  strokeWidth={dotStrokeWidth}
+                  variant={dotVariant}
+                  visible={visible}
+                  x={x}
+                  y={y}
+                />
+              );
+            })}
           </g>
         </svg>
       )}

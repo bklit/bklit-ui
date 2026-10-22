@@ -38,6 +38,16 @@ export interface BandProps {
   lowerKey: string;
   /** Y-scale group id. Default: `"left"`. */
   yAxisId?: string;
+  /**
+   * Tooltip row label. Default: `"lowerKey – upperKey"` (or the key when both
+   * edges share one key).
+   */
+  label?: string;
+  /**
+   * Add a `low – high` row (and dots on both edges) to `ChartTooltip`.
+   * Default: true
+   */
+  showInTooltip?: boolean;
   /** Curve function. Default: curveNatural (same as Line). */
   curve?: CurveFactory;
   /** Band colour. Default: var(--chart-line-primary) */
@@ -121,6 +131,8 @@ export function Band({
   upperKey,
   lowerKey,
   yAxisId,
+  // `label` / `showInTooltip` are read from props by the chart shell
+  // (`extractBandConfigs`) for tooltip rows.
   curve = curveNatural,
   fill = chartCssVars.linePrimary,
   fillType = "solid",

@@ -88,6 +88,19 @@ export interface LineConfig {
   yAxisId?: string | number;
 }
 
+/** Y-domain and tooltip inputs collected from a `<Band>` child. */
+export interface BandConfig {
+  yAxisId: string;
+  upperKey: string;
+  lowerKey: string;
+  /** Tooltip swatch / edge-dot colour (the band's `fill`). */
+  color: string;
+  /** Tooltip row label. */
+  label: string;
+  /** Whether the band adds a range row and edge dots to `ChartTooltip`. */
+  showInTooltip: boolean;
+}
+
 /**
  * Hover/selection state — every field here changes on mouse movement.
  * Lives in its own context so cold consumers (Grid, YAxis, PatternArea, …)
@@ -145,6 +158,9 @@ export interface ChartContextValue extends ChartHoverContextValue {
 
   // Line configurations (extracted from children)
   lines: LineConfig[];
+
+  /** `<Band>` configs (time-series charts) — tooltip range rows and edge dots. */
+  bands?: BandConfig[];
 
   /** {@link ReferenceArea} bands — drives y-axis label colors in range. */
   referenceAreas: ReferenceAreaConfig[];
@@ -265,6 +281,7 @@ export function ChartProvider({
       columnWidth: value.columnWidth,
       containerRef: value.containerRef,
       lines: value.lines,
+      bands: value.bands,
       referenceAreas: value.referenceAreas,
       chartPhase: value.chartPhase,
       chartStatus: value.chartStatus,
@@ -311,6 +328,7 @@ export function ChartProvider({
       value.columnWidth,
       value.containerRef,
       value.lines,
+      value.bands,
       value.referenceAreas,
       value.chartPhase,
       value.chartStatus,

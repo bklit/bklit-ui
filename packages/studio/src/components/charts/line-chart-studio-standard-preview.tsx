@@ -12,7 +12,7 @@ import {
   ProjectionLineEndMarker,
   XAxis,
 } from "@bklitui/ui/charts";
-import { useMemo } from "react";
+import { Fragment, useMemo } from "react";
 import { StudioCartesianFill } from "@/components/charts/studio-chart-layout";
 import {
   StudioChartShell,
@@ -44,6 +44,7 @@ import {
   isStudioBandVisible,
   studioBandMiddleProps,
   studioBandProps,
+  studioBandSeriesIndices,
   withStudioBandData,
 } from "@/lib/studio-band";
 import { studioChartBrushProps } from "@/lib/studio-brush-props";
@@ -159,15 +160,17 @@ function renderBand(state: StudioUrlState) {
   if (!isStudioBandVisible(state)) {
     return null;
   }
-  const yAxisId = getLineSeriesYAxisId(state, 0);
-  const curve = resolveCurve(getSeriesCurve(state, 0));
-  const middle = studioBandMiddleProps(state, yAxisId);
-  return (
-    <>
-      <Band curve={curve} {...studioBandProps(state, yAxisId)} />
-      {middle ? <Band curve={curve} {...middle} /> : null}
-    </>
-  );
+  return studioBandSeriesIndices(state).map((seriesIndex) => {
+    const yAxisId = getLineSeriesYAxisId(state, seriesIndex);
+    const curve = resolveCurve(getSeriesCurve(state, seriesIndex));
+    const middle = studioBandMiddleProps(state, yAxisId, seriesIndex);
+    return (
+      <Fragment key={`band-${seriesIndex}`}>
+        <Band curve={curve} {...studioBandProps(state, yAxisId, seriesIndex)} />
+        {middle ? <Band curve={curve} {...middle} /> : null}
+      </Fragment>
+    );
+  });
 }
 
 function renderMainLines(
@@ -333,8 +336,15 @@ export function LineChartStudioStandardPreview({
     ]
   );
   const bandVisible = isStudioBandVisible(state);
-  const { bandMode, bandMultiplier, bandPeriod, bandSpread, bandWarmup } =
-    state;
+  const {
+    bandMode,
+    bandMultiplier,
+    bandPeriod,
+    bandSeries,
+    bandSpread,
+    bandWarmup,
+    dataSeries,
+  } = state;
   const data = useMemo(
     () =>
       bandVisible
@@ -342,8 +352,10 @@ export function LineChartStudioStandardPreview({
             bandMode,
             bandMultiplier,
             bandPeriod,
+            bandSeries,
             bandSpread,
             bandWarmup,
+            dataSeries,
           })
         : baseData,
     [
@@ -352,8 +364,10 @@ export function LineChartStudioStandardPreview({
       bandMode,
       bandMultiplier,
       bandPeriod,
+      bandSeries,
       bandSpread,
       bandWarmup,
+      dataSeries,
     ]
   );
   const brushXExtentMax = useMemo(

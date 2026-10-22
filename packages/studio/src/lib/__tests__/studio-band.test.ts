@@ -10,6 +10,10 @@ const BAND_RE = /<Band /;
 const BAND_DATA_RE = /data=\{bandData\}/;
 const BOLLINGER_IMPORT_RE = /import \{ withBollingerBands \}/;
 const MIN_PERIODS_RE = /minPeriods: 1,/;
+const BAND_GLOBAL_RE = /<Band /g;
+const DESKTOP_LINE_RE = /<Line dataKey="desktop"/;
+const MOBILE_LINE_RE = /<Line dataKey="mobile"/;
+const MOBILE_UPPER_RE = /mobileUpper:/;
 
 function lineState(overrides: Parameters<typeof defaultStudioState>[0] = {}) {
   return defaultStudioState({
@@ -60,6 +64,24 @@ describe("studio band", () => {
       })
     );
     assert.match(data ?? "", MIN_PERIODS_RE);
+  });
+
+  it("emits one Band per series and drops hidden lines (range area combo)", () => {
+    const { code, data } = generateStudioCode(
+      "line-chart",
+      lineState({
+        bandEnabled: true,
+        bandSeries: "all",
+        dataSeries: 2,
+        hiddenComponents: `${chartDefaultHiddenComponents("line", {
+          showBand: true,
+        })}|line.series.0`,
+      })
+    );
+    assert.equal(code.match(BAND_GLOBAL_RE)?.length, 2);
+    assert.doesNotMatch(code, DESKTOP_LINE_RE);
+    assert.match(code, MOBILE_LINE_RE);
+    assert.match(data ?? "", MOBILE_UPPER_RE);
   });
 
   it("hides the band for legacy URLs whose hidden list predates it", () => {

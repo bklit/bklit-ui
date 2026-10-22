@@ -1,14 +1,35 @@
 import type { BandFadeEdges, BandProps } from "@bklitui/ui/charts";
 import { withBollingerBands } from "@bklitui/ui/charts";
-import { STUDIO_SERIES_KEYS } from "./demo-data";
+import { clampStudioSeriesCount, STUDIO_SERIES_KEYS } from "./demo-data";
 import {
   isStudioComponentVisible,
   LINE_BAND_COMPONENT_ID,
 } from "./studio-component-visibility";
 import type { StudioUrlState } from "./studio-parsers";
+import { getEffectiveSeriesColor } from "./studio-series-design";
 
-/** Band is always derived from series 0 (`desktop`). */
+/** Default band source: series 0 (`desktop`). */
 export const STUDIO_BAND_SOURCE_KEY: string = STUDIO_SERIES_KEYS[0];
+
+/**
+ * Series indices that get a band: series 0, or every series when
+ * `bandSeries` is `"all"` (range area + line combo).
+ */
+export function studioBandSeriesIndices(
+  state: Pick<StudioUrlState, "bandSeries" | "dataSeries">
+): number[] {
+  if (state.bandSeries !== "all") {
+    return [0];
+  }
+  return Array.from(
+    { length: clampStudioSeriesCount(state.dataSeries) },
+    (_, index) => index
+  );
+}
+
+function bandSourceKey(seriesIndex: number): string {
+  return STUDIO_SERIES_KEYS[seriesIndex] ?? STUDIO_BAND_SOURCE_KEY;
+}
 
 const DOTTED_DASHARRAY = "1,3";
 
@@ -76,27 +97,34 @@ export function isStudioBandVisible(state: StudioUrlState): boolean {
 
 export type StudioBandDataOptions = Pick<
   StudioUrlState,
-  "bandMode" | "bandSpread" | "bandPeriod" | "bandMultiplier" | "bandWarmup"
+  | "bandMode"
+  | "bandSpread"
+  | "bandPeriod"
+  | "bandMultiplier"
+  | "bandWarmup"
+  | "bandSeries"
+  | "dataSeries"
 >;
 
-/** Adds band keys (series 0 upper / lower, plus SMA in bollinger mode). */
+/** Adds band keys (upper / lower, plus SMA in bollinger mode) per band series. */
 export function withStudioBandData<T extends Record<string, unknown>>(
   data: T[],
   options: StudioBandDataOptions
 ): T[] {
-  if (options.bandMode === "bollinger") {
-    return withBollingerBands(data, {
-      dataKey: STUDIO_BAND_SOURCE_KEY,
-      period: clampBandPeriod(options.bandPeriod),
-      multiplier: options.bandMultiplier,
-      ...(options.bandWarmup === "partial" ? { minPeriods: 1 } : {}),
-    }) as T[];
+  let rows = data;
+  for (const seriesIndex of studioBandSeriesIndices(options)) {
+    const sourceKey = bandSourceKey(seriesIndex);
+    rows =
+      options.bandMode === "bollinger"
+        ? (withBollingerBands(rows, {
+            dataKey: sourceKey,
+            period: clampBandPeriod(options.bandPeriod),
+            multiplier: options.bandMultiplier,
+            ...(options.bandWarmup === "partial" ? { minPeriods: 1 } : {}),
+          }) as T[])
+        : (withStudioBandRange(rows, sourceKey, options.bandSpread) as T[]);
   }
-  return withStudioBandRange(
-    data,
-    STUDIO_BAND_SOURCE_KEY,
-    options.bandSpread
-  ) as T[];
+  return rows;
 }
 
 export function bandFadeEdgesFromState(state: StudioUrlState): BandFadeEdges {
@@ -136,15 +164,27 @@ type StudioBandProps = Omit<BandProps, "curve" | "className">;
  */
 export function studioBandProps(
   state: StudioUrlState,
-  yAxisId?: string
+  yAxisId?: string,
+  seriesIndex = 0
 ): StudioBandProps {
-  const { upperKey, lowerKey } = studioBandKeys();
+  const sourceKey = bandSourceKey(seriesIndex);
+  const { upperKey, lowerKey } = studioBandKeys(sourceKey);
   const props: StudioBandProps = { upperKey, lowerKey };
   if (yAxisId && yAxisId !== "left") {
     props.yAxisId = yAxisId;
   }
+  props.label = `${sourceKey} range`;
+  if (!state.bandShowInTooltip) {
+    props.showInTooltip = false;
+  }
 
-  props.fill = state.bandFill;
+  // Per-series bands take their series color (fill, stroke, pattern).
+  const seriesColor =
+    state.bandSeries === "all"
+      ? getEffectiveSeriesColor(state, seriesIndex)
+      : null;
+
+  props.fill = seriesColor ?? state.bandFill;
   if (state.bandFillType !== "solid") {
     props.fillType = state.bandFillType;
   }
@@ -154,13 +194,13 @@ export function studioBandProps(
   }
   if (state.bandFillType === "pattern") {
     props.pattern = state.bandPattern;
-    props.patternColor = state.bandPatternColor;
+    props.patternColor = seriesColor ?? state.bandPatternColor;
     props.patternScale = state.bandPatternScale;
     props.patternStrokeWidth = state.bandPatternStrokeWidth;
     props.patternOpacity = state.bandPatternOpacity;
   }
 
-  props.stroke = state.bandStroke;
+  props.stroke = seriesColor ?? state.bandStroke;
   props.strokeWidth = state.bandStrokeWidth;
   const dash = bandStrokeDasharray(state);
   if (dash) {
@@ -188,18 +228,25 @@ export function studioBandProps(
  */
 export function studioBandMiddleProps(
   state: StudioUrlState,
-  yAxisId?: string
+  yAxisId?: string,
+  seriesIndex = 0
 ): StudioBandProps | null {
   if (state.bandMode !== "bollinger" || !state.bandShowMiddle) {
     return null;
   }
-  const { middleKey } = studioBandKeys();
+  const sourceKey = bandSourceKey(seriesIndex);
+  const { middleKey } = studioBandKeys(sourceKey);
   return {
     upperKey: middleKey,
     lowerKey: middleKey,
     ...(yAxisId && yAxisId !== "left" ? { yAxisId } : {}),
+    label: `${sourceKey} SMA`,
+    ...(state.bandShowInTooltip ? {} : { showInTooltip: false }),
     fillOpacity: 0,
-    stroke: state.bandStroke,
+    stroke:
+      state.bandSeries === "all"
+        ? getEffectiveSeriesColor(state, seriesIndex)
+        : state.bandStroke,
     strokeWidth: state.bandStrokeWidth,
     strokeDasharray: "4,4",
     strokeOpacity: Math.min(1, state.bandStrokeOpacity + 0.3),
@@ -230,17 +277,21 @@ export function bandPropsCodegen(props: object): string {
 /** `<Band>` JSX for `cartesianCodegen` (LineChart only, visible layer only). */
 export function bandCodegenBlock(
   state: StudioUrlState,
-  curveName: string
+  curveNameFor: (seriesIndex: number) => string
 ): string {
   if (!isStudioBandVisible(state)) {
     return "";
   }
-  const curveAttr = ` curve={${curveName}}`;
-  const main = `\n  <Band ${bandPropsCodegen(studioBandProps(state))}${curveAttr} />`;
-  const middle = studioBandMiddleProps(state);
-  return middle
-    ? `${main}\n  <Band ${bandPropsCodegen(middle)}${curveAttr} />`
-    : main;
+  return studioBandSeriesIndices(state)
+    .map((seriesIndex) => {
+      const curveAttr = ` curve={${curveNameFor(seriesIndex)}}`;
+      const main = `\n  <Band ${bandPropsCodegen(studioBandProps(state, undefined, seriesIndex))}${curveAttr} />`;
+      const middle = studioBandMiddleProps(state, undefined, seriesIndex);
+      return middle
+        ? `${main}\n  <Band ${bandPropsCodegen(middle)}${curveAttr} />`
+        : main;
+    })
+    .join("");
 }
 
 /** Variable the generated `<LineChart data={…}>` reads from. */
@@ -263,13 +314,13 @@ export const EMPTY_BAND_CODEGEN_PARTS: BandCodegenParts = {
 /** Everything `cartesianCodegen` needs for the LineChart band layer. */
 export function bandCodegenParts(
   state: StudioUrlState,
-  curveName: string
+  curveNameFor: (seriesIndex: number) => string
 ): BandCodegenParts {
   if (!isStudioBandVisible(state)) {
     return EMPTY_BAND_CODEGEN_PARTS;
   }
   return {
-    block: bandCodegenBlock(state, curveName),
+    block: bandCodegenBlock(state, curveNameFor),
     dataVar: bandCodegenDataVar(state),
     imports: ["Band"],
   };
@@ -280,27 +331,41 @@ export function bandDataCodegenSnippet(state: StudioUrlState): string {
   if (!isStudioBandVisible(state)) {
     return "";
   }
-  const key = STUDIO_BAND_SOURCE_KEY;
+  const keys = studioBandSeriesIndices(state).map(bandSourceKey);
   const dataVar = bandCodegenDataVar(state);
   if (state.bandMode === "bollinger") {
     const partial = state.bandWarmup === "partial";
-    return `
-
-// Adds ${key}Upper / ${key}Lower / ${key}Sma (${partial ? "partial window during warm-up" : "null during the warm-up window"})
-const ${dataVar} = withBollingerBands(chartData, {
+    const added = keys
+      .map((key) => `${key}Upper / ${key}Lower / ${key}Sma`)
+      .join(", ");
+    const call = keys.reduce(
+      (input, key) => `withBollingerBands(${input}, {
   dataKey: "${key}",
   period: ${clampBandPeriod(state.bandPeriod)},
   multiplier: ${state.bandMultiplier},${partial ? "\n  minPeriods: 1," : ""}
-});`;
+})`,
+      "chartData"
+    );
+    return `
+
+// Adds ${added} (${partial ? "partial window during warm-up" : "null during the warm-up window"})
+const ${dataVar} = ${call};`;
   }
   const spread = clampBandSpread(state.bandSpread);
+  const fields = keys
+    .map(
+      (
+        key
+      ) => `  ${key}Upper: Math.round(d.${key} + d.${key} * ${spread} * (0.75 + 0.25 * Math.sin(i / 1.9))),
+  ${key}Lower: Math.round(d.${key} - d.${key} * ${spread} * (0.75 + 0.25 * Math.cos(i / 2.6))),`
+    )
+    .join("\n");
   return `
 
 // Banded range: replace with your own min/max (or p10/p90) per point
 const ${dataVar} = chartData.map((d, i) => ({
   ...d,
-  ${key}Upper: Math.round(d.${key} + d.${key} * ${spread} * (0.75 + 0.25 * Math.sin(i / 1.9))),
-  ${key}Lower: Math.round(d.${key} - d.${key} * ${spread} * (0.75 + 0.25 * Math.cos(i / 2.6))),
+${fields}
 }));`;
 }
 

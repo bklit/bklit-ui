@@ -256,7 +256,7 @@ returns the matching pattern node (same presets as `Background`).
 | "target range", "goal band", "normal range" | `<ReferenceArea y1={160} y2={220} strokeStyle="dashed" showMarkers />` | Defaults: `strokeStyle="dashed"`, `fadeEdges` true, `pattern="none"`. |
 | "hatched target band" | `<ReferenceArea y1 y2 pattern="diagonal" patternColor="var(--chart-foreground-muted)" axisLabelColor="var(--chart-1)" fillOpacity={0.85} />` | Gallery "Pattern Reference Band". |
 | "highlight a time window" | `<ReferenceArea x1={startDate} x2={endDate} />` | |
-| "min/max range", "confidence band", "range around the line" | `<Band upperKey="valueUpper" lowerKey="valueLower" />` before the `<Line>` | Per-row edges (not fixed Y). Defaults: `fillOpacity` 0.15, solid edges at the band color. `fillType="gradient"` / `"pattern"`. |
+| "min/max range", "confidence band", "range around the line", "range area" | `<Band upperKey="valueUpper" lowerKey="valueLower" label="Range" />` before the `<Line>` (or alone for a range area chart) | Per-row edges (not fixed Y). Defaults: `fillOpacity` 0.15, solid edges at the band color. `fillType="gradient"` / `"pattern"`. |
 | "Bollinger bands" | `withBollingerBands(data, { dataKey: "price" })` → `<Band upperKey="priceUpper" lowerKey="priceLower" />` | Defaults: `period` 20, `multiplier` 2. Dashed SMA = zero-height `Band` on `priceSma` with `lowerStroke={false}`. |
 
 ## Pie, donut, ring

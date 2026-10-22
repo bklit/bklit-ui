@@ -510,6 +510,8 @@ export const deadlineControlGroups: StudioControlGroup[] = [
 ];
 
 const bandBollinger = { key: "bandMode", equals: "bollinger" } as const;
+/** Per-series bands take each series' color, so the color pickers hide. */
+const bandFirstSeries = { key: "bandSeries", equals: "first" } as const;
 
 /** Line chart `<Band>` layer (`line.band`). */
 export const bandControlGroups: StudioControlGroup[] = [
@@ -521,6 +523,15 @@ export const bandControlGroups: StudioControlGroup[] = [
       options: [
         { value: "range", label: "Range (upper / lower)" },
         { value: "bollinger", label: "Bollinger bands" },
+      ],
+    },
+    {
+      type: "select",
+      key: "bandSeries",
+      label: "Series",
+      options: [
+        { value: "first", label: "First series" },
+        { value: "all", label: "Every series (own color)" },
       ],
     },
     {
@@ -567,6 +578,7 @@ export const bandControlGroups: StudioControlGroup[] = [
       label: "Show SMA",
       visibleWhen: bandBollinger,
     },
+    { type: "boolean", key: "bandShowInTooltip", label: "Tooltip range" },
   ]),
   controlGroup("Fill", [
     {
@@ -579,7 +591,12 @@ export const bandControlGroups: StudioControlGroup[] = [
         { value: "pattern", label: "Pattern" },
       ],
     },
-    { type: "color", key: "bandFill", label: "Color" },
+    {
+      type: "color",
+      key: "bandFill",
+      label: "Color",
+      visibleWhen: bandFirstSeries,
+    },
     {
       type: "opacity",
       key: "bandFillOpacity",
@@ -643,7 +660,12 @@ export const bandControlGroups: StudioControlGroup[] = [
   controlGroup("Stroke", [
     { type: "boolean", key: "bandShowUpperStroke", label: "Upper edge" },
     { type: "boolean", key: "bandShowLowerStroke", label: "Lower edge" },
-    { type: "color", key: "bandStroke", label: "Color" },
+    {
+      type: "color",
+      key: "bandStroke",
+      label: "Color",
+      visibleWhen: bandFirstSeries,
+    },
     {
       type: "number",
       key: "bandStrokeWidth",

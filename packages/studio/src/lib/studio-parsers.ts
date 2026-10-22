@@ -447,6 +447,8 @@ export const studioSearchParams = {
   bandFadeBottom: parseAsBoolean.withDefault(false),
   bandFadeLeft: parseAsBoolean.withDefault(false),
   bandFadeSize: parseAsFloat.withDefault(0.15),
+  bandSeries: parseAsStringLiteral(["first", "all"]).withDefault("first"),
+  bandShowInTooltip: parseAsBoolean.withDefault(true),
   weekendsDays: parseAsStringLiteral(["sat-sun", "fri-sat", "sun"]).withDefault(
     "sat-sun"
   ),
@@ -928,6 +930,9 @@ export interface StudioUrlState {
   bandFadeBottom: boolean;
   bandFadeLeft: boolean;
   bandFadeSize: number;
+  /** `"first"`: one band on series 0. `"all"`: one band per series, in its color. */
+  bandSeries: "first" | "all";
+  bandShowInTooltip: boolean;
   weekendsDays: "sat-sun" | "fri-sat" | "sun";
   weekendsFillType: "pattern" | "solid";
   weekendsColor: string;
@@ -1356,6 +1361,8 @@ export function defaultStudioState(
     bandFadeBottom: false,
     bandFadeLeft: false,
     bandFadeSize: 0.15,
+    bandSeries: "first",
+    bandShowInTooltip: true,
     weekendsDays: "sat-sun",
     weekendsFillType: "pattern",
     weekendsColor: "var(--chart-foreground-muted)",
