@@ -1,9 +1,13 @@
 "use client";
 
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
-import { useChart, useChartStable } from "./chart-context";
+import {
+  useChart,
+  useChartPortalContainer,
+  useChartStable,
+} from "./chart-context";
 import { shortDateFmt } from "./chart-formatters";
 import { DEFAULT_Y_DOMAIN_TWEEN_MS } from "./chart-phase";
 import { LINE_LOADING_PULSE_EASE } from "./line-loading-timing";
@@ -564,14 +568,9 @@ function appendProjectionTailTicks(
 
 export function XAxis(props: XAxisProps) {
   const { containerRef } = useChartStable();
-  const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const container = containerRef.current;
-  if (!(mounted && container)) {
+  const container = useChartPortalContainer(containerRef);
+  if (!container) {
     return null;
   }
 
@@ -593,22 +592,13 @@ const XAxisInner = memo(function XAxisInner({
     xAccessor,
     dateLabels: contextDateLabels,
     xDomain,
+    width,
   } = useChart();
-  const [containerWidth, setContainerWidth] = useState(0);
   const dateLabels = labelsProp ?? contextDateLabels;
   const resolvedNumTicks = useMemo(
-    () => resolveResponsiveChartLabelCount(numTicks, containerWidth, 5),
-    [numTicks, containerWidth]
+    () => resolveResponsiveChartLabelCount(numTicks, width, 5),
+    [numTicks, width]
   );
-
-  useEffect(() => {
-    const updateWidth = () =>
-      setContainerWidth(container.getBoundingClientRect().width);
-    updateWidth();
-    const observer = new ResizeObserver(updateWidth);
-    observer.observe(container);
-    return () => observer.disconnect();
-  }, [container]);
 
   const labelsToShow = useMemo(() => {
     const projectionExtendsScale =

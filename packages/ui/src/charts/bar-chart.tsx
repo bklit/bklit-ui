@@ -214,7 +214,7 @@ const ChartCore = memo(function ChartCore({
   const { tooltipData, setTooltipData, scheduleTooltip, clearTooltip } =
     useScheduledTooltip<TooltipData>();
   const [isLoaded, setIsLoaded] = useState(false);
-  const [revealEpoch, setRevealEpoch] = useState(0);
+  const [revealEpoch, setRevealEpoch] = useState(1);
   const hoveredBarIndex = tooltipData?.index ?? null;
 
   const isHorizontal = orientation === "horizontal";
@@ -354,11 +354,26 @@ const ChartCore = memo(function ChartCore({
     return scale;
   }, [categoryScale, innerWidth, data.length]);
 
-  // Animation timing — replay when motion settings change
-  // biome-ignore lint/correctness/useExhaustiveDependencies: revealSignature
-  useEffect(() => {
+  // Animation timing — replay when motion settings / status change. The
+  // reset is adjusted during render ("store previous props in state") instead
+  // of setState in an effect, so a replay costs a single render.
+  const [revealKey, setRevealKey] = useState({
+    animationDuration,
+    revealSignature,
+    status,
+  });
+  if (
+    revealKey.animationDuration !== animationDuration ||
+    revealKey.revealSignature !== revealSignature ||
+    revealKey.status !== status
+  ) {
+    setRevealKey({ animationDuration, revealSignature, status });
     setRevealEpoch((n) => n + 1);
     setIsLoaded(false);
+  }
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: revealSignature
+  useEffect(() => {
     // While loading, hold the skeleton (no reveal, no interaction). When
     // status flips to "ready" this effect re-runs and plays the grow reveal.
     if (status === "loading") {

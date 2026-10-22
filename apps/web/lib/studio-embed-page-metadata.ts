@@ -4,6 +4,7 @@ import {
   studioSerializedParam,
 } from "@bklitui/studio";
 import type { Metadata } from "next";
+import { SITE_NAME } from "@/lib/seo";
 import { SITE_URL } from "@/lib/site-url";
 
 export function studioEmbedPageSearchParams(
@@ -43,6 +44,7 @@ export function studioEmbedPageMetadata(
       title,
       description,
       type: "website",
+      siteName: SITE_NAME,
       url: pageUrl,
     },
   };

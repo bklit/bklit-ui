@@ -510,6 +510,8 @@ export const deadlineControlGroups: StudioControlGroup[] = [
 ];
 
 const bandBollinger = { key: "bandMode", equals: "bollinger" } as const;
+/** Per-series bands take each series' color, so the color pickers hide. */
+const bandFirstSeries = { key: "bandSeries", equals: "first" } as const;
 
 /** Line chart `<Band>` layer (`line.band`). */
 export const bandControlGroups: StudioControlGroup[] = [
@@ -521,6 +523,15 @@ export const bandControlGroups: StudioControlGroup[] = [
       options: [
         { value: "range", label: "Range (upper / lower)" },
         { value: "bollinger", label: "Bollinger bands" },
+      ],
+    },
+    {
+      type: "select",
+      key: "bandSeries",
+      label: "Series",
+      options: [
+        { value: "first", label: "First series" },
+        { value: "all", label: "Every series (own color)" },
       ],
     },
     {
@@ -567,6 +578,7 @@ export const bandControlGroups: StudioControlGroup[] = [
       label: "Show SMA",
       visibleWhen: bandBollinger,
     },
+    { type: "boolean", key: "bandShowInTooltip", label: "Tooltip range" },
   ]),
   controlGroup("Fill", [
     {
@@ -579,7 +591,12 @@ export const bandControlGroups: StudioControlGroup[] = [
         { value: "pattern", label: "Pattern" },
       ],
     },
-    { type: "color", key: "bandFill", label: "Color" },
+    {
+      type: "color",
+      key: "bandFill",
+      label: "Color",
+      visibleWhen: bandFirstSeries,
+    },
     {
       type: "opacity",
       key: "bandFillOpacity",
@@ -643,7 +660,12 @@ export const bandControlGroups: StudioControlGroup[] = [
   controlGroup("Stroke", [
     { type: "boolean", key: "bandShowUpperStroke", label: "Upper edge" },
     { type: "boolean", key: "bandShowLowerStroke", label: "Lower edge" },
-    { type: "color", key: "bandStroke", label: "Color" },
+    {
+      type: "color",
+      key: "bandStroke",
+      label: "Color",
+      visibleWhen: bandFirstSeries,
+    },
     {
       type: "number",
       key: "bandStrokeWidth",
@@ -1010,6 +1032,20 @@ export const tooltipAppearanceControlGroup = controlGroup("Appearance", [
   },
 ]);
 
+export const heatmapTooltipControlGroups: StudioControlGroup[] = [
+  controlGroup("Tooltip", [
+    {
+      type: "number",
+      key: "tooltipDamping",
+      label: "Panel damping",
+      min: 0,
+      max: 100,
+      step: 1,
+    },
+  ]),
+  tooltipAppearanceControlGroup,
+];
+
 export const standardCrosshairControlGroup = barCollapsibleGroup("Crosshair", [
   { type: "boolean", key: "showCrosshair", label: "Show" },
   { type: "boolean", key: "showTooltipDots", label: "Dots" },
@@ -1095,6 +1131,16 @@ export const standardCrosshairControlGroup = barCollapsibleGroup("Crosshair", [
   },
 ]);
 
+/** Bar charts hide the crosshair line by default (`barShowCrosshair`). */
+export const barCrosshairControlGroup: StudioControlGroup = {
+  ...standardCrosshairControlGroup,
+  controls: standardCrosshairControlGroup.controls.map((control) =>
+    control.key === "showCrosshair"
+      ? { ...control, key: "barShowCrosshair" }
+      : control
+  ),
+};
+
 export const barChartTooltipControlGroups: StudioControlGroup[] = [
   barCollapsibleGroup("Tooltip", [
     { type: "boolean", key: "showTooltipDatePill", label: "Date pill" },
@@ -1114,7 +1160,7 @@ export const barChartTooltipControlGroups: StudioControlGroup[] = [
     },
   ]),
   barCollapsibleGroup("Appearance", tooltipAppearanceControlGroup.controls),
-  standardCrosshairControlGroup,
+  barCrosshairControlGroup,
 ];
 
 export const standardChartTooltipControlGroups: StudioControlGroup[] = [
@@ -1138,6 +1184,21 @@ export const standardChartTooltipControlGroups: StudioControlGroup[] = [
   tooltipAppearanceControlGroup,
   standardCrosshairControlGroup,
 ];
+
+/** Jittered scatter hides the crosshair line by default (`scatterJitterShowCrosshair`). */
+export const scatterJitterChartTooltipControlGroups: StudioControlGroup[] =
+  standardChartTooltipControlGroups.map((group) =>
+    group === standardCrosshairControlGroup
+      ? {
+          ...group,
+          controls: group.controls.map((control) =>
+            control.key === "showCrosshair"
+              ? { ...control, key: "scatterJitterShowCrosshair" }
+              : control
+          ),
+        }
+      : group
+  );
 
 export const standardBrushStripControlGroups: StudioControlGroup[] = [
   controlGroup("Brush", [
@@ -1784,52 +1845,107 @@ export const sunburstLabelsControlGroups: StudioControlGroup[] = [
   ]),
 ];
 
+export const scatterPointsControlGroup = controlGroup("Points", [
+  {
+    type: "number",
+    key: "scatterRadius",
+    label: "Radius",
+    min: 2,
+    max: 14,
+    step: 0.5,
+  },
+  { type: "boolean", key: "scatterShowRings", label: "Rings" },
+  {
+    type: "number",
+    key: "scatterRingGap",
+    label: "Ring gap",
+    min: 0,
+    max: 8,
+    step: 1,
+    visibleWhen: { key: "scatterShowRings", truthy: true },
+  },
+  {
+    type: "number",
+    key: "scatterRingWidth",
+    label: "Ring width",
+    min: 0.5,
+    max: 6,
+    step: 0.5,
+    visibleWhen: { key: "scatterShowRings", truthy: true },
+  },
+]);
+
+export const scatterInteractionControlGroup = controlGroup("Interaction", [
+  { type: "boolean", key: "scatterFadeOnHover", label: "Fade on hover" },
+  {
+    type: "select",
+    key: "scatterInactiveMode",
+    label: "Inactive",
+    options: [
+      { value: "opacity", label: "Opacity" },
+      { value: "blur", label: "Opacity + blur" },
+    ],
+    visibleWhen: { key: "scatterFadeOnHover", truthy: true },
+  },
+  {
+    type: "opacity",
+    key: "scatterInactiveOpacity",
+    label: "Inactive opacity",
+    min: 0.1,
+    max: 1,
+    step: 0.05,
+    color: "var(--chart-1)",
+    visibleWhen: { key: "scatterFadeOnHover", truthy: true },
+  },
+  {
+    type: "number",
+    key: "scatterInactiveBlur",
+    label: "Inactive blur",
+    min: 0.5,
+    max: 8,
+    step: 0.5,
+    unit: "px",
+    visibleWhen: [
+      { key: "scatterFadeOnHover", truthy: true },
+      { key: "scatterInactiveMode", equals: "blur" },
+    ],
+  },
+  { type: "boolean", key: "scatterSecondSeries", label: "Second series" },
+  {
+    type: "boolean",
+    key: "scatterShowActiveHighlight",
+    label: "Highlight active point",
+  },
+]);
+
+export const scatterJitterControlGroup = controlGroup("Jitter", [
+  { type: "boolean", key: "scatterJitter", label: "Jitter" },
+  {
+    type: "number",
+    key: "scatterJitterX",
+    label: "X spread (band)",
+    min: 0,
+    max: 1,
+    step: 0.05,
+    visibleWhen: { key: "scatterJitter", truthy: true },
+  },
+  {
+    type: "number",
+    key: "scatterJitterY",
+    label: "Y spread",
+    min: 0,
+    max: 24,
+    step: 1,
+    unit: "px",
+    visibleWhen: { key: "scatterJitter", truthy: true },
+  },
+]);
+
 export const scatterChartControlGroups: StudioControlGroup[] = [
   referenceAreaBoundsControlGroup,
-  controlGroup("Points", [
-    {
-      type: "number",
-      key: "scatterRadius",
-      label: "Radius",
-      min: 3,
-      max: 14,
-      step: 1,
-    },
-    {
-      type: "number",
-      key: "scatterRingGap",
-      label: "Gap",
-      min: 0,
-      max: 8,
-      step: 1,
-    },
-    {
-      type: "number",
-      key: "scatterRingWidth",
-      label: "Width",
-      min: 0,
-      max: 6,
-      step: 0.5,
-    },
-  ]),
-  controlGroup("Interaction", [
-    { type: "boolean", key: "scatterFadeOnHover", label: "Fade on hover" },
-    {
-      type: "opacity",
-      key: "scatterInactiveOpacity",
-      label: "Inactive",
-      min: 0.1,
-      max: 1,
-      step: 0.05,
-      color: "var(--chart-1)",
-    },
-    { type: "boolean", key: "scatterSecondSeries", label: "Second series" },
-    {
-      type: "boolean",
-      key: "scatterShowActiveHighlight",
-      label: "Highlight active point",
-    },
-  ]),
+  scatterPointsControlGroup,
+  scatterInteractionControlGroup,
+  scatterJitterControlGroup,
 ];
 
 export const liveLineChartControlGroups: StudioControlGroup[] = [

@@ -1,10 +1,9 @@
 "use client";
 
-import type { RefObject } from "react";
-import { type CSSProperties, useEffect, useState } from "react";
+import type { CSSProperties, RefObject } from "react";
 import { createPortal } from "react-dom";
 import type { Margin } from "./chart-context";
-import { useChartStable } from "./chart-context";
+import { useChartPortalContainer, useChartStable } from "./chart-context";
 
 /** Fade dimming panes at the outer track ends — matches series edge fade (15%). */
 const BRUSH_TRACK_OUTER_FADE = 0.15;
@@ -64,18 +63,13 @@ export function ChartBrushTrackOverlayContent({
   blurPx = 1.5,
   fadeOuterEdges = true,
 }: ChartBrushTrackOverlayProps & ChartBrushOverlayHost) {
-  const [mounted, setMounted] = useState(false);
   const overlayStyle: Required<ChartBrushTrackOverlayStyle> = {
     blurPx: Math.min(5, Math.max(0, blurPx)),
     fadeOuterEdges,
   };
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const container = containerRef.current;
-  if (!(mounted && container)) {
+  const container = useChartPortalContainer(containerRef);
+  if (!container) {
     return null;
   }
 

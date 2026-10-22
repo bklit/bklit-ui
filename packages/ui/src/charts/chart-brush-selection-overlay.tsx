@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
+import { useId } from "react";
 import { createPortal } from "react-dom";
 import type { ChartBrushOverlayHost } from "./chart-brush-track-overlay";
-import { useChartStable } from "./chart-context";
+import { useChartPortalContainer, useChartStable } from "./chart-context";
 import {
   type PatternPresetId,
   type PatternPresetOptions,
@@ -36,15 +36,10 @@ export function ChartBrushSelectionOverlayContent({
   selectionX1,
   pattern,
 }: ChartBrushSelectionOverlayProps & ChartBrushOverlayHost) {
-  const [mounted, setMounted] = useState(false);
   const patternId = useId().replace(/:/g, "");
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const container = containerRef.current;
-  if (!(mounted && container && pattern && pattern.preset !== "none")) {
+  const container = useChartPortalContainer(containerRef);
+  if (!(container && pattern && pattern.preset !== "none")) {
     return null;
   }
 

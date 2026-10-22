@@ -1,5 +1,6 @@
 "use client";
 
+import type * as PageTree from "fumadocs-core/page-tree";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
@@ -16,7 +17,14 @@ import {
   siteRailsClassName,
 } from "@/components/design/site-chrome";
 import { ModeToggle } from "@/components/mode-toggle";
+import { NavBadge } from "@/components/nav-badge";
 import { getAnalyticsUrl, trackEvent } from "@/lib/analytics/track-client";
+import { getNavBadge } from "@/lib/nav-badges";
+import {
+  isFileUrl,
+  type SiteNavLink,
+  siteNavLinks,
+} from "@/lib/site-nav-links";
 import { cn } from "@/lib/utils";
 import { GithubStarCount } from "../github-star-count";
 import { BklitLogo } from "../icons/bklit";
@@ -40,66 +48,13 @@ function trackDiscordClick(location: "header" | "mobile_menu") {
   });
 }
 
-interface NavLink {
-  text: string;
-  url: string;
-  active?: "url" | "nested-url";
-}
-
 interface SiteHeaderProps {
-  links?: NavLink[];
+  links?: SiteNavLink[];
+  /** Docs page tree — the mobile menu mirrors the docs sidebar from it. */
+  docsTree?: PageTree.Root;
   githubUrl?: string;
   discordUrl?: string;
 }
-
-const guides = [
-  { text: "Theming", url: "/docs/theming" },
-  { text: "Skills", url: "/docs/skills" },
-];
-
-const components = [
-  { text: "Area Chart", url: "/docs/components/area-chart" },
-  { text: "Bar Chart", url: "/docs/components/bar-chart" },
-  { text: "Candlestick Chart", url: "/docs/components/candlestick-chart" },
-  { text: "Choropleth Chart", url: "/docs/components/choropleth-chart" },
-  { text: "Composed Chart", url: "/docs/components/composed-chart" },
-  { text: "Funnel Chart", url: "/docs/components/funnel-chart" },
-  { text: "Gauge", url: "/docs/components/gauge-chart" },
-  { text: "Heatmap Chart", url: "/docs/components/heatmap-chart" },
-  { text: "Line Chart", url: "/docs/components/line-chart" },
-  { text: "Profit/Loss Line", url: "/docs/components/profit-loss-line" },
-  { text: "Live Line Chart", url: "/docs/components/live-line-chart" },
-  { text: "Pie Chart", url: "/docs/components/pie-chart" },
-  { text: "Radar Chart", url: "/docs/components/radar-chart" },
-  { text: "Ring Chart", url: "/docs/components/ring-chart" },
-  { text: "Scatter Chart", url: "/docs/components/scatter-chart" },
-  { text: "Sankey Chart", url: "/docs/components/sankey-chart" },
-  { text: "Sunburst Chart", url: "/docs/components/sunburst-chart" },
-];
-
-const utilities = [
-  { text: "Legend", url: "/docs/utility/legend" },
-  { text: "Grid", url: "/docs/utility/grid" },
-  { text: "Background", url: "/docs/utility/background" },
-  { text: "Reference Area", url: "/docs/utility/reference-area" },
-  { text: "Projection Line", url: "/docs/utility/projection-line" },
-  { text: "Band", url: "/docs/utility/band" },
-  { text: "Weekends", url: "/docs/utility/weekends" },
-  { text: "Deadline", url: "/docs/utility/deadline" },
-  { text: "Trend Line", url: "/docs/utility/trend-line" },
-  { text: "Markers", url: "/docs/utility/markers" },
-  { text: "Tooltip", url: "/docs/utility/tooltip" },
-  { text: "Brush", url: "/docs/utility/brush" },
-  {
-    text: "Axis",
-    children: [
-      { text: "X Axis", url: "/docs/utility/axis/x-axis" },
-      { text: "Y Axis", url: "/docs/utility/axis/y-axis" },
-    ],
-  },
-  { text: "Custom Indicator", url: "/docs/utility/custom-indicator" },
-  { text: "useChart", url: "/docs/utility/use-chart" },
-];
 
 function isNavLinkActive(pathname: string | null, url: string) {
   if (!pathname) {
@@ -139,14 +94,32 @@ function MobileLink({
   children,
   ...props
 }: ComponentProps<typeof Link> & { active?: boolean }) {
+  const classes = cn(
+    "flex items-center gap-2 rounded-sm py-1.5 text-muted-foreground outline-none transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring",
+    active && "text-foreground",
+    className
+  );
+
+  // Plain-file routes such as /llms.txt bypass the client router (same as
+  // the docs sidebar, which opens them in a new tab).
+  if (typeof href === "string" && isFileUrl(href)) {
+    return (
+      <a
+        className={classes}
+        href={href}
+        onClick={props.onClick}
+        rel="noreferrer noopener"
+        target="_blank"
+      >
+        {children}
+      </a>
+    );
+  }
+
   return (
     <Link
       aria-current={active ? "page" : undefined}
-      className={cn(
-        "flex items-center gap-2 rounded-sm py-1.5 text-muted-foreground outline-none transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring",
-        active && "text-foreground",
-        className
-      )}
+      className={classes}
       href={href}
       {...props}
     >
@@ -155,8 +128,85 @@ function MobileLink({
   );
 }
 
+/** Split the docs page tree into sections at each `---Separator---`. */
+function groupDocsTree(nodes: PageTree.Node[]) {
+  const sections: { title: string; nodes: PageTree.Node[] }[] = [];
+  for (const node of nodes) {
+    if (node.type === "separator") {
+      sections.push({ title: String(node.name ?? ""), nodes: [] });
+      continue;
+    }
+    if (sections.length === 0) {
+      sections.push({ title: "Docs", nodes: [] });
+    }
+    sections.at(-1)?.nodes.push(node);
+  }
+  return sections.filter((section) => section.nodes.length > 0);
+}
+
+function MobileDocsNode({
+  node,
+  pathname,
+  onClose,
+}: {
+  node: PageTree.Node;
+  pathname: string | null;
+  onClose: () => void;
+}) {
+  if (node.type === "page") {
+    return (
+      <MobileLink
+        active={pathname === node.url}
+        href={node.url}
+        onClick={onClose}
+      >
+        {node.name}
+        <NavBadge kind={getNavBadge(node.url)} />
+      </MobileLink>
+    );
+  }
+
+  if (node.type !== "folder") {
+    return null;
+  }
+
+  const indexUrl = node.index?.url;
+  const children = node.children.filter(
+    (child) => !(child.type === "page" && child.url === indexUrl)
+  );
+
+  return (
+    <div className="flex flex-col">
+      {indexUrl ? (
+        <MobileLink
+          active={pathname === indexUrl}
+          href={indexUrl}
+          onClick={onClose}
+        >
+          {node.name}
+          <NavBadge kind={getNavBadge(indexUrl)} />
+        </MobileLink>
+      ) : (
+        <span className="py-1.5 text-muted-foreground/72">{node.name}</span>
+      )}
+      {children.length > 0 ? (
+        <div className="ms-1 flex flex-col border-border/64 border-s ps-3">
+          {children.map((child, index) => (
+            <MobileDocsNode
+              key={child.$id ?? index}
+              node={child}
+              onClose={onClose}
+              pathname={pathname}
+            />
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 interface MobileMenuProps {
-  links: NavLink[];
+  docsTree?: PageTree.Root;
   githubUrl?: string;
   discordUrl?: string;
   open: boolean;
@@ -164,7 +214,7 @@ interface MobileMenuProps {
 }
 
 function MobileMenu({
-  links,
+  docsTree,
   githubUrl,
   discordUrl,
   open,
@@ -209,7 +259,7 @@ function MobileMenu({
               Menu
             </SheetTitle>
             <div className="flex flex-col gap-0.5">
-              {links.map((link) => (
+              {siteNavLinks.map((link) => (
                 <MobileLink
                   active={isNavLinkActive(pathname, link.url)}
                   href={link.url}
@@ -217,70 +267,25 @@ function MobileMenu({
                   onClick={onClose}
                 >
                   {link.text}
+                  <NavBadge kind={getNavBadge(link.url)} />
                 </MobileLink>
               ))}
             </div>
           </div>
 
           <div className="flex flex-col gap-8">
-            <MobileMenuSection title="Guides">
-              {guides.map((guide) => (
-                <MobileLink
-                  active={pathname === guide.url}
-                  href={guide.url}
-                  key={guide.url}
-                  onClick={onClose}
-                >
-                  {guide.text}
-                </MobileLink>
-              ))}
-            </MobileMenuSection>
-
-            <MobileMenuSection title="Components">
-              {components.map((component) => (
-                <MobileLink
-                  active={pathname === component.url}
-                  href={component.url}
-                  key={component.url}
-                  onClick={onClose}
-                >
-                  {component.text}
-                </MobileLink>
-              ))}
-            </MobileMenuSection>
-
-            <MobileMenuSection title="Utility">
-              {utilities.map((utility) =>
-                "children" in utility && utility.children ? (
-                  <div className="flex flex-col" key={utility.text}>
-                    <span className="py-1.5 text-muted-foreground/72">
-                      {utility.text}
-                    </span>
-                    <div className="ms-1 flex flex-col border-border/64 border-s ps-3">
-                      {utility.children.map((child) => (
-                        <MobileLink
-                          active={pathname === child.url}
-                          href={child.url}
-                          key={child.url}
-                          onClick={onClose}
-                        >
-                          {child.text}
-                        </MobileLink>
-                      ))}
-                    </div>
-                  </div>
-                ) : (
-                  <MobileLink
-                    active={pathname === utility.url}
-                    href={utility.url}
-                    key={utility.url}
-                    onClick={onClose}
-                  >
-                    {utility.text}
-                  </MobileLink>
-                )
-              )}
-            </MobileMenuSection>
+            {groupDocsTree(docsTree?.children ?? []).map((section) => (
+              <MobileMenuSection key={section.title} title={section.title}>
+                {section.nodes.map((node, index) => (
+                  <MobileDocsNode
+                    key={node.$id ?? index}
+                    node={node}
+                    onClose={onClose}
+                    pathname={pathname}
+                  />
+                ))}
+              </MobileMenuSection>
+            ))}
 
             {githubUrl || discordUrl ? (
               <MobileMenuSection title="Community">
@@ -325,6 +330,7 @@ function MobileMenu({
 
 export function SiteHeader({
   links = [],
+  docsTree,
   githubUrl,
   discordUrl,
 }: SiteHeaderProps) {
@@ -379,8 +385,8 @@ export function SiteHeader({
       >
         <MobileMenu
           discordUrl={discordUrl}
+          docsTree={docsTree}
           githubUrl={githubUrl}
-          links={links}
           onOpenChange={setMobileMenuOpen}
           open={mobileMenuOpen}
         />
@@ -414,6 +420,7 @@ export function SiteHeader({
                   variant="ghost"
                 >
                   {link.text}
+                  <NavBadge kind={getNavBadge(link.url)} />
                 </Button>
               );
             })}

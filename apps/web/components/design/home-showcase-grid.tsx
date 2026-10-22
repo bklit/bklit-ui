@@ -18,7 +18,7 @@ const showcaseRows: {
   [
     {
       id: "line",
-      chart: "line-chart",
+      chart: "area-chart",
       span: 7,
       panelClassName: "min-h-[260px] md:min-h-[340px]",
     },
@@ -32,13 +32,13 @@ const showcaseRows: {
   [
     {
       id: "ring",
-      chart: "sankey-chart",
+      chart: "ring-chart",
       span: 5,
       panelClassName: "min-h-[340px] md:min-h-[400px]",
     },
     {
       id: "bar",
-      chart: "funnel-chart",
+      chart: "bar-chart",
       span: 7,
       panelClassName: "min-h-[260px] md:min-h-[360px]",
     },
@@ -46,7 +46,7 @@ const showcaseRows: {
   [
     {
       id: "choropleth",
-      chart: "sankey-chart",
+      chart: "choropleth-chart",
       span: 7,
       panelClassName: "min-h-[380px] md:min-h-[380px]",
     },
@@ -60,7 +60,7 @@ const showcaseRows: {
   [
     {
       id: "gauge",
-      chart: "bar-chart",
+      chart: "gauge-chart",
       span: 5,
       panelClassName: "min-h-[340px] md:min-h-[380px]",
     },

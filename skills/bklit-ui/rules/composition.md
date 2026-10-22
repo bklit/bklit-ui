@@ -42,7 +42,7 @@ import { XAxis } from "@/components/charts/x-axis";
 | `AreaChart` | `Area` | `XAxis` | same as line |
 | `BarChart` | `Bar` | `BarXAxis` / `BarYAxis` | categorical band scale; `xDataKey` is a category key |
 | `ComposedChart` | `SeriesBar`, `Line`, `Area` | `XAxis` | `SeriesBar` aligns bars to dates — **not** `Bar` |
-| `ScatterChart` | `Scatter` | `XAxis` | colors default to `--chart-1…5` in child order |
+| `ScatterChart` | `Scatter` | `XAxis` | colors default to `--chart-1…5` in child order; solid dots + opacity hover dim by default (rings via `strokeWidth`, blur via `inactiveMode="blur"`); `jitter` on the root spreads points that share a date (hover snaps to the nearest point; crosshair off by default); `formatXLabel` formats axis labels |
 | `CandlestickChart` | `Candlestick` | `XAxis` | |
 | `LiveLineChart` | `LiveLine` | `LiveXAxis`, `LiveYAxis` | never `Line` / `XAxis` |
 | `PieChart` | `PieSlice` per item | — | `PieCenter` for a center stat |

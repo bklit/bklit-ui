@@ -494,6 +494,55 @@ export function getScatterData(seed = 0) {
   }));
 }
 
+/** Series metadata for the jittered scatter sample (PR size by merge path). */
+export const SCATTER_JITTER_SERIES = [
+  { dataKey: "fastlane", label: "Fastlane (auto-merged)" },
+  { dataKey: "human", label: "Human reviewed" },
+] as const;
+
+export interface ScatterJitterRow {
+  [key: string]: unknown;
+  date: Date;
+  fastlane?: number;
+  human?: number;
+}
+
+/**
+ * Jittered scatter sample: lines changed per merged PR, month by month.
+ * Fastlane PRs are auto-merged and always < 500 LOC (skewed small); human-
+ * reviewed PRs spread 40–2,500 LOC with a few large outliers. 15–30 PRs per
+ * month per series. Seeded Park–Miller with exact integer math, so server and
+ * client agree (matches the docs demo at `seed = 0`).
+ */
+export function getScatterJitterData(seed = 0): ScatterJitterRow[] {
+  let state = 42 + seed * 9973;
+  const random = () => {
+    state = (state * 48_271) % 2_147_483_647;
+    return state / 2_147_483_647;
+  };
+  const rows: ScatterJitterRow[] = [];
+  for (let month = 0; month < 12; month++) {
+    const date = new Date(2025, month, 1);
+    const fastlaneCount = 15 + Math.floor(random() * 16);
+    for (let i = 0; i < fastlaneCount; i++) {
+      const r = random();
+      rows.push({ date, fastlane: Math.round(10 + r * r * 480) });
+    }
+    const humanCount = 15 + Math.floor(random() * 16);
+    for (let i = 0; i < humanCount; i++) {
+      const r = random();
+      const isOutlier = random() < 0.06;
+      rows.push({
+        date,
+        human: Math.round(
+          isOutlier ? 1500 + r * 1000 : 40 + r * Math.sqrt(r) * 1160
+        ),
+      });
+    }
+  }
+  return rows;
+}
+
 const HEATMAP_DAYS = 7;
 
 export const HEATMAP_WEEKS_TWO_YEARS = HEATMAP_WEEKS_ONE_YEAR * 2;

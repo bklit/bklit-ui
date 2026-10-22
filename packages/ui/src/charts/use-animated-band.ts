@@ -118,32 +118,44 @@ export function useAnimatedBand({
     lowerKey,
     curve,
   });
-  latestRef.current = {
-    renderData,
-    xAccessor,
-    xScale,
-    yScale,
-    upperKey,
-    lowerKey,
-    curve,
-  };
+  // Synced in a layout effect declared before the tween effect (not during
+  // render) so `renderFrame(0)` and every animation frame see this commit's
+  // inputs.
+  useLayoutEffect(() => {
+    latestRef.current = {
+      renderData,
+      xAccessor,
+      xScale,
+      yScale,
+      upperKey,
+      lowerKey,
+      curve,
+    };
+  });
+
+  const shouldAnimate =
+    enabled &&
+    !reducedMotion &&
+    chartPhase === "ready" &&
+    durationMs > 0 &&
+    renderData.length > 0;
+
+  // Drop a stale tween frame as soon as animation is no longer allowed —
+  // adjusted during render rather than via setState in the effect below.
+  if (!shouldAnimate && animatedBand !== null) {
+    setAnimatedBand(null);
+  }
+
   // Scales / targets are read live via latestRef: only a new signature should
   // restart the tween (a dep on per-frame `yScale` would stop it each frame).
   useLayoutEffect(() => {
     const computeLatestTarget = () => segmentsFor(latestRef.current);
-    const shouldAnimate =
-      enabled &&
-      !reducedMotion &&
-      chartPhase === "ready" &&
-      durationMs > 0 &&
-      renderData.length > 0;
 
     const dataChanged = prevDataSignatureRef.current !== dataSignature;
     prevDataSignatureRef.current = dataSignature;
 
     if (!shouldAnimate) {
       animatingRef.current = false;
-      setAnimatedBand(null);
       displayedRef.current = {
         segments: computeLatestTarget(),
         polyline: false,
@@ -221,6 +233,7 @@ export function useAnimatedBand({
   }, [
     transitionSignature,
     dataSignature,
+    shouldAnimate,
     chartPhase,
     durationMs,
     enabled,

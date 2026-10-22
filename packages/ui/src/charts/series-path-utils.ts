@@ -1,7 +1,5 @@
+import type { CurveFactory } from "d3-shape";
 import { line as d3Line } from "d3-shape";
-
-// biome-ignore lint/suspicious/noExplicitAny: d3 curve factory type
-type CurveFactory = any;
 
 export interface SeriesPathPoint {
   x: number;
@@ -163,8 +161,8 @@ export function flattenSeriesPath(
     .x((point) => point.x)
     .y((point) => point.y)
     .curve(curve)
-    // biome-ignore lint/suspicious/noExplicitAny: minimal CanvasPath recorder
-    .context(recorder as any)(points);
+    // Minimal CanvasPath recorder — only implements the commands d3 curves emit.
+    .context(recorder as unknown as CanvasRenderingContext2D)(points);
   return recorder.points.sort((a, b) => a.x - b.x);
 }
 

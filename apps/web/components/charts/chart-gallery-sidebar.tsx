@@ -1,6 +1,25 @@
 "use client";
 
-import { type MouseEvent, useEffect, useMemo, useRef, useState } from "react";
+import { Icon } from "@bklitui/icons";
+import {
+  type MouseEvent,
+  type RefObject,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { NavBadge } from "@/components/nav-badge";
+import { Button } from "@/components/ui/button";
+import {
+  Menu,
+  MenuGroup,
+  MenuGroupLabel,
+  MenuLinkItem,
+  MenuPopup,
+  MenuTrigger,
+} from "@/components/ui/menu";
+import { cn } from "@/lib/utils";
 
 export interface ChartGalleryAnchor {
   id: string;
@@ -135,8 +154,9 @@ function useActiveChartAnchor(ids: string[]) {
 }
 
 /**
- * "On this page" rail for /charts/[chart]: lists every variation, follows the
- * one in view, and deep-links via `#id` (styled like the docs TOC rail).
+ * "On this page" navigation for /charts/[chart]: lists every variation, follows
+ * the one in view, and deep-links via `#id`. Desktop gets a sticky rail (styled
+ * like the docs TOC rail); below `lg` the same anchors render as a sticky menu.
  */
 export function ChartGallerySidebar({
   anchors,
@@ -182,7 +202,7 @@ export function ChartGallerySidebar({
     }
   }, [activeId]);
 
-  const handleClick = (event: MouseEvent<HTMLAnchorElement>, id: string) => {
+  const handleClick = (event: MouseEvent<HTMLElement>, id: string) => {
     if (
       event.defaultPrevented ||
       event.button !== 0 ||
@@ -205,6 +225,35 @@ export function ChartGallerySidebar({
     }
   };
 
+  return (
+    <>
+      <ChartGalleryMobileNav
+        activeId={activeId}
+        anchors={anchors}
+        onNavigate={handleClick}
+      />
+      <ChartGalleryRail
+        activeId={activeId}
+        anchors={anchors}
+        listRef={listRef}
+        onNavigate={handleClick}
+      />
+    </>
+  );
+}
+
+interface ChartGalleryNavProps {
+  anchors: ChartGalleryAnchor[];
+  activeId: string | undefined;
+  onNavigate: (event: MouseEvent<HTMLElement>, id: string) => void;
+}
+
+function ChartGalleryRail({
+  anchors,
+  activeId,
+  listRef,
+  onNavigate,
+}: ChartGalleryNavProps & { listRef: RefObject<HTMLDivElement | null> }) {
   return (
     <nav
       aria-label="Chart variations"
@@ -229,20 +278,84 @@ export function ChartGallerySidebar({
                   data-active={isActive}
                   data-anchor-id={anchor.id}
                   href={`#${anchor.id}`}
-                  onClick={(event) => handleClick(event, anchor.id)}
+                  onClick={(event) => onNavigate(event, anchor.id)}
                 >
                   <span className="min-w-0 truncate">{anchor.label}</span>
-                  {anchor.featured ? (
-                    <span className="shrink-0 rounded-sm border px-1 py-px font-medium text-[0.625rem] text-muted-foreground uppercase leading-none tracking-wide">
-                      Featured
-                    </span>
-                  ) : null}
+                  <NavBadge kind={anchor.featured ? "featured" : undefined} />
                 </a>
               </li>
             );
           })}
         </ul>
       </div>
+    </nav>
+  );
+}
+
+function ChartGalleryMobileNav({
+  anchors,
+  activeId,
+  onNavigate,
+}: ChartGalleryNavProps) {
+  const active = anchors.find((anchor) => anchor.id === activeId);
+
+  return (
+    <nav
+      aria-label="Chart variations"
+      className="sticky top-(--site-header-height) z-20 bg-sidebar/80 py-2 backdrop-blur-sm lg:hidden"
+    >
+      <Menu>
+        <MenuTrigger
+          render={
+            <Button
+              className="w-full justify-between font-normal"
+              variant="outline"
+            />
+          }
+        >
+          <span className="flex min-w-0 items-center gap-2">
+            <span className="shrink-0 font-medium">On this page</span>
+            {active ? (
+              <>
+                <span aria-hidden className="text-muted-foreground/64">
+                  /
+                </span>
+                <span className="min-w-0 truncate text-muted-foreground">
+                  {active.label}
+                </span>
+                <NavBadge kind={active.featured ? "featured" : undefined} />
+              </>
+            ) : null}
+          </span>
+          <Icon className="size-3.5" name="IconChevronDownSmall" />
+        </MenuTrigger>
+        <MenuPopup
+          align="start"
+          className="max-h-[min(var(--available-height),24rem)] w-(--anchor-width)"
+        >
+          <MenuGroup>
+            <MenuGroupLabel>On this page</MenuGroupLabel>
+            {anchors.map((anchor) => {
+              const isActive = anchor.id === activeId;
+              return (
+                <MenuLinkItem
+                  aria-current={isActive ? "location" : undefined}
+                  className={cn(
+                    "text-sm",
+                    isActive ? "font-medium" : "text-muted-foreground"
+                  )}
+                  href={`#${anchor.id}`}
+                  key={anchor.id}
+                  onClick={(event) => onNavigate(event, anchor.id)}
+                >
+                  <span className="min-w-0 truncate">{anchor.label}</span>
+                  <NavBadge kind={anchor.featured ? "featured" : undefined} />
+                </MenuLinkItem>
+              );
+            })}
+          </MenuGroup>
+        </MenuPopup>
+      </Menu>
     </nav>
   );
 }

@@ -2,6 +2,7 @@
 
 import { curveLinear } from "@visx/curve";
 import { LinePath } from "@visx/shape";
+import type { CurveFactory } from "d3-shape";
 import { useCallback, useId, useMemo } from "react";
 import { useChart, useChartStable } from "./chart-context";
 import {
@@ -11,10 +12,6 @@ import {
 } from "./fade-edges";
 import { useProfitLossLegendHover } from "./profit-loss-legend-hover";
 import { splitProfitLossSegments } from "./profit-loss-segments";
-
-// CurveFactory type - simplified version compatible with visx
-// biome-ignore lint/suspicious/noExplicitAny: d3 curve factory type
-type CurveFactory = any;
 
 /** Semantic trend tokens with Tailwind fallbacks for apps without `--chart-positive` / `--chart-negative`. */
 export const PROFIT_LOSS_POSITIVE_COLOR =

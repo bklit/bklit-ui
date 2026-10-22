@@ -89,12 +89,16 @@ Displays tooltips for features on hover, following the mouse position.
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `content` | `(props) => ReactNode` | - | Custom tooltip renderer |
+| `content` | `(props) => ReactNode` | - | Custom tooltip renderer (`{ feature, index }`). Render `TooltipContent` (or `TooltipHeader`) inside it to keep the default popover header and rows |
 | `formatValue` | `(value) => string` | `toLocaleString` | Value formatter |
 | `getFeatureName` | `(feature, index) => string` | - | Custom name getter |
 | `getFeatureValue` | `(feature, index) => number` | - | Value getter for display |
 | `valueLabel` | `string` | `"Value"` | Label for the value row |
+| `hideDelay` | `number` | `120` | Grace period before hiding when leaving a feature (ms). Bridges border gaps so the panel springs to the next feature |
+| `exit` | `boolean` | `true` | Fade the panel out when hover ends. `false` hides it immediately |
 | `className` | `string` | `""` | Additional CSS class |
+| `backgroundColor` | `string` | `var(--chart-tooltip-background)` | Tooltip panel background color |
+| `panelStyle` | `CSSProperties` | - | Inline styles for the tooltip panel (background, blur, etc.) |
 
 ## Data Format
 

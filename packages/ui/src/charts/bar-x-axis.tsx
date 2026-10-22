@@ -1,10 +1,14 @@
 "use client";
 
 import { motion } from "motion/react";
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
-import { useChart, useChartStable } from "./chart-context";
+import {
+  useChart,
+  useChartPortalContainer,
+  useChartStable,
+} from "./chart-context";
 import {
   type ChartLabelCount,
   resolveResponsiveChartLabelCount,
@@ -73,14 +77,8 @@ function BarXAxisLabel({
 
 export function BarXAxis(props: BarXAxisProps) {
   const { containerRef, barScale } = useChartStable();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const container = containerRef.current;
-  if (!(mounted && container)) {
+  const container = useChartPortalContainer(containerRef);
+  if (!container) {
     return null;
   }
 
@@ -97,22 +95,19 @@ const BarXAxisInner = memo(function BarXAxisInner({
   maxLabels = 12,
   container,
 }: BarXAxisProps & { container: HTMLDivElement }) {
-  const { margin, tooltipData, barScale, bandWidth, barXAccessor, data } =
-    useChart();
-  const [containerWidth, setContainerWidth] = useState(0);
-
-  useEffect(() => {
-    const updateWidth = () =>
-      setContainerWidth(container.getBoundingClientRect().width);
-    updateWidth();
-    const observer = new ResizeObserver(updateWidth);
-    observer.observe(container);
-    return () => observer.disconnect();
-  }, [container]);
+  const {
+    margin,
+    tooltipData,
+    barScale,
+    bandWidth,
+    barXAccessor,
+    data,
+    width,
+  } = useChart();
 
   const resolvedMaxLabels = useMemo(
-    () => resolveResponsiveChartLabelCount(maxLabels, containerWidth, 12),
-    [maxLabels, containerWidth]
+    () => resolveResponsiveChartLabelCount(maxLabels, width, 12),
+    [maxLabels, width]
   );
 
   // Generate labels for each bar

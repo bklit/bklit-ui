@@ -176,6 +176,15 @@ import {
   composedTriSeriesData,
 } from "@/lib/composed-demo-data";
 import { getHeatmapDemoData } from "@/lib/heatmap-demo-data";
+import {
+  formatLoc,
+  formatPrMonth,
+  PrLocTooltip,
+  prLocChartSnippet,
+  prLocData,
+  prLocDataSnippet,
+  prLocSeries,
+} from "@/lib/scatter-pr-demo-data";
 import { cn } from "@/lib/utils";
 import {
   weeklyVisitorsDashFromIndex,
@@ -6954,21 +6963,74 @@ function makeFunnelExamples(): ChartExample[] {
 function makeScatterExamples(): ChartExample[] {
   return [
     {
-      title: "Scatter Chart - No Rings",
+      title: "Scatter Chart - With Jitter",
       description:
-        "Solid fills only — set `strokeWidth={0}` to hide the outer ring",
+        "Lines changed per merged PR by month — `jitter` spreads overlapping PRs with a deterministic offset. Fastlane auto-merges stay under 500 LOC; human-reviewed PRs spread wider. No crosshair by default; tooltips keep the original values",
+      code: prLocChartSnippet,
+      data: prLocDataSnippet,
+      render: () => (
+        <ScatterExampleChart
+          data={prLocData}
+          formatXLabel={formatPrMonth}
+          jitter={{ x: 0.6 }}
+          margin={chartMarginLeftYAxis}
+        >
+          <Grid
+            highlightRowStrokeDasharray="4,4"
+            highlightRowValues={[500]}
+            horizontal
+          />
+          <Scatter
+            dataKey="fastlane"
+            fill={prLocSeries.fastlane.color}
+            radius={3}
+          />
+          <Scatter dataKey="human" fill={prLocSeries.human.color} radius={3} />
+          <YAxis formatValue={formatLoc} />
+          <XAxis numTicks={12} />
+          <ChartTooltip
+            content={({ point }) => <PrLocTooltip point={point} />}
+          />
+        </ScatterExampleChart>
+      ),
+    },
+    {
+      title: "Scatter Chart - Rings",
+      description:
+        "Offset rings are opt-in — set `strokeWidth` (and optionally `ringGap`) to draw one",
       code: `<ScatterChart data={chartData} margin={{ top: 8, right: 8, bottom: 40, left: 8 }}>
   <Grid horizontal />
-  <Scatter dataKey="desktop" strokeWidth={0} />
-  <Scatter dataKey="mobile" strokeWidth={0} />
+  <Scatter dataKey="desktop" ringGap={2} strokeWidth={2} />
+  <Scatter dataKey="mobile" ringGap={2} strokeWidth={2} />
   <XAxis />
   <ChartTooltip />
 </ScatterChart>`,
       render: () => (
         <ScatterExampleChart data={multiLineData}>
           <Grid horizontal />
-          <Scatter dataKey="desktop" strokeWidth={0} />
-          <Scatter dataKey="mobile" strokeWidth={0} />
+          <Scatter dataKey="desktop" ringGap={2} strokeWidth={2} />
+          <Scatter dataKey="mobile" ringGap={2} strokeWidth={2} />
+          <XAxis />
+          <ChartTooltip />
+        </ScatterExampleChart>
+      ),
+    },
+    {
+      title: "Scatter Chart - Blur Inactive",
+      description:
+        'Opt into blur on non-active points while hovering with `inactiveMode="blur"`',
+      code: `<ScatterChart data={chartData} margin={{ top: 8, right: 8, bottom: 40, left: 8 }}>
+  <Grid horizontal />
+  <Scatter dataKey="desktop" inactiveMode="blur" />
+  <Scatter dataKey="mobile" inactiveMode="blur" />
+  <XAxis />
+  <ChartTooltip />
+</ScatterChart>`,
+      render: () => (
+        <ScatterExampleChart data={multiLineData}>
+          <Grid horizontal />
+          <Scatter dataKey="desktop" inactiveMode="blur" />
+          <Scatter dataKey="mobile" inactiveMode="blur" />
           <XAxis />
           <ChartTooltip />
         </ScatterExampleChart>
@@ -7131,7 +7193,7 @@ function makeScatterHero(): ChartExample {
   return {
     title: "Scatter Chart",
     description:
-      "Desktop vs mobile over 24 months with default offset rings and crosshair tooltip",
+      "Desktop vs mobile over 24 months with hover dimming and crosshair tooltip",
     code: `<ScatterChart data={chartData} margin={{ top: 8, right: 8, bottom: 40, left: 8 }}>
   <Grid horizontal />
   <Scatter dataKey="desktop" />

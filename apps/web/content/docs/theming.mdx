@@ -1,9 +1,68 @@
 ---
 title: Theming
-description: Theme your charts using CSS custom properties for consistent, customizable styling.
+description: Theme your charts with CSS custom properties — multi-hue palettes, trend colors, sequential scales, and custom palette export.
 ---
 
 Charts use CSS custom properties (variables) for theming, allowing you to customize colors across light and dark modes without modifying component code.
+
+## How tokens are installed
+
+Installing a chart with `npx shadcn@latest add @bklit/...` merges the registry's CSS variables into your global stylesheet:
+
+- `@bklit/chart-context` (installed with every chart) adds the `--chart-*` tokens to `:root` and `.dark`.
+- `@bklit/legend` adds the `--legend*` tokens.
+- Variables your app **already defines are left alone**. If your shadcn theme already has `--chart-1` … `--chart-5`, the charts use your colors.
+
+To change colors later, edit the variables — there is no need to reinstall.
+
+## Palettes
+
+The series colors `--chart-1` … `--chart-5` plus the trend colors `--chart-positive` / `--chart-negative` make up a **palette**. Bklit ships with these multi-hue palettes:
+
+| Palette | Series colors (light mode) |
+|---------|-------------|
+| **Primary** (default) | Indigo, yellow, fuchsia, mist, black (white in dark mode) |
+| **Monochrome** | Stone ramp (zinc ramp in dark mode) |
+| **Ocean** | Blue, cyan, teal, indigo, sky |
+| **Sunset** | Orange, rose, amber, purple, pink |
+| **Grove** | Emerald, lime, teal, amber, stone |
+| **Vivid** | Violet, pink, cyan, lime, orange |
+
+Every palette has separate light and dark values and shares emerald / red trend colors. Primary is what the registry installs by default.
+
+To use another palette:
+
+1. Open the **Chart palette** menu in the site header and pick a palette. Every chart on the site updates live.
+2. Optionally choose **Customize** to edit each color with the color picker. Colors are edited for the current site theme, so switch between light and dark mode to edit both.
+3. Choose **Export** (or **Export CSS** while customizing) and paste the result into your global CSS.
+
+The export is plain CSS with a `:root` and a `.dark` block:
+
+```css
+:root {
+  --chart-1: oklch(0.546 0.245 262.881);
+  --chart-2: oklch(0.715 0.143 215.221);
+  --chart-3: oklch(0.777 0.152 181.912);
+  --chart-4: oklch(0.673 0.182 276.935);
+  --chart-5: oklch(0.828 0.111 230.318);
+  --chart-positive: oklch(0.696 0.17 162.48);
+  --chart-negative: oklch(0.637 0.237 25.331);
+}
+
+.dark {
+  --chart-1: oklch(0.623 0.214 259.815);
+  --chart-2: oklch(0.789 0.154 211.53);
+  --chart-3: oklch(0.855 0.138 181.071);
+  --chart-4: oklch(0.785 0.115 274.713);
+  --chart-5: oklch(0.901 0.058 230.902);
+  --chart-positive: oklch(0.765 0.177 163.223);
+  --chart-negative: oklch(0.704 0.191 22.216);
+}
+```
+
+In [Studio](/studio), the palette menu above the chart preview applies any of the same palettes to the chart you are editing. **Site palette** follows the palette picked in the site header.
+
+Derived tokens follow the palette automatically: `--chart-line-primary` and `--chart-line-secondary` point at `--chart-1` and `--chart-2`, and the [sequential scale](#sequential-scale) is mixed from `--chart-1`.
 
 ## Using chartCssVars
 
@@ -17,81 +76,96 @@ import { chartCssVars } from "@bklitui/ui/charts";
 <line stroke={chartCssVars.crosshair} />
 ```
 
-This is preferred over hardcoding CSS variable strings, as it provides autocomplete and prevents typos.
+This is preferred over hardcoding CSS variable strings, as it provides autocomplete and prevents typos. In a project installed from the registry, import it from `@/components/charts/chart-context` instead.
+
+Chart-specific objects follow the same pattern: `chartScaleCssVars`, `heatmapCssVars`, `choroplethCssVars`, `legendCssVars`, `pieCssVars`, `ringCssVars`, `radarCssVars`, `sankeyCssVars`, and `sunburstCssVars`.
 
 ## Available Variables
 
+Defaults are the values `@bklit/chart-context` installs. A dash in the Dark column means the light value is inherited.
+
 ### Core Colors
 
-| Variable | CSS Property | Description |
-|----------|-------------|-------------|
-| `background` | `--chart-background` | Chart container background |
-| `foreground` | `--chart-foreground` | Primary text/element color |
-| `foregroundMuted` | `--chart-foreground-muted` | Secondary/muted text color |
-| `label` | `--chart-label` | Axis label text color |
+| Variable | CSS Property | Light | Dark | Description |
+|----------|-------------|-------|------|-------------|
+| `background` | `--chart-background` | `oklch(1 0 0)` | `oklch(0.145 0 0)` | Chart container background |
+| `foreground` | `--chart-foreground` | `oklch(0.145 0.004 285)` | `oklch(0.45 0 0)` | Primary text/element color |
+| `foregroundMuted` | `--chart-foreground-muted` | `oklch(0.55 0.014 260)` | `oklch(0.65 0.01 260)` | Highlighted grid rows, reference-area stroke and pattern |
+| `label` | `--chart-label` | `oklch(0.45 0.01 260)` | `oklch(0.75 0.01 260)` | Axis label text color (`text-chart-label`) |
 
 ### Line & Grid
 
-| Variable | CSS Property | Description |
-|----------|-------------|-------------|
-| `linePrimary` | `--chart-line-primary` | Primary line stroke color |
-| `lineSecondary` | `--chart-line-secondary` | Secondary line stroke color |
-| `crosshair` | `--chart-crosshair` | Tooltip crosshair line color |
-| `grid` | `--chart-grid` | Grid line color |
+| Variable | CSS Property | Light | Dark | Description |
+|----------|-------------|-------|------|-------------|
+| `linePrimary` | `--chart-line-primary` | `var(--chart-1)` | — | Default `Line` / `Area` / `Bar` color |
+| `lineSecondary` | `--chart-line-secondary` | `var(--chart-2)` | — | Secondary series color |
+| `crosshair` | `--chart-crosshair` | `oklch(0.4 0.1828 274.34)` | `oklch(0.45 0 0)` | Tooltip crosshair line color |
+| `grid` | `--chart-grid` | `oklch(0.9 0 0)` | `oklch(0.25 0 0)` | Grid line color |
+| `brushBorder` | `--chart-brush-border` | `var(--chart-grid)` | `var(--chart-grid)` | Brush selection border |
 
-### Indicators
+### Tooltip
 
-| Variable | CSS Property | Description |
-|----------|-------------|-------------|
-| `indicatorColor` | `--chart-indicator-color` | Primary indicator color (e.g., hover lines) |
-| `indicatorSecondaryColor` | `--chart-indicator-secondary-color` | Secondary indicator color |
+| Variable | CSS Property | Light | Dark | Description |
+|----------|-------------|-------|------|-------------|
+| `tooltipBackground` | `--chart-tooltip-background` | `var(--popover)` | — | Tooltip panel background (`bg-chart-tooltip-background`) |
+| — | `--chart-tooltip-foreground` | `var(--popover-foreground)` | — | Tooltip text (`text-chart-tooltip-foreground`) |
+| — | `--chart-tooltip-muted` | `var(--muted-foreground)` | — | Secondary tooltip text (`text-chart-tooltip-muted`) |
+
+The tooltip tokens reference your shadcn `--popover` tokens, so they follow dark mode without a `.dark` override.
 
 ### Markers
 
-| Variable | CSS Property | Description |
-|----------|-------------|-------------|
-| `markerBackground` | `--chart-marker-background` | Marker circle background |
-| `markerBorder` | `--chart-marker-border` | Marker circle border |
-| `markerForeground` | `--chart-marker-foreground` | Marker icon color |
-| `badgeBackground` | `--chart-marker-badge-background` | Marker count badge background |
-| `badgeForeground` | `--chart-marker-badge-foreground` | Marker count badge text |
+| Variable | CSS Property | Light | Dark | Description |
+|----------|-------------|-------|------|-------------|
+| `markerBackground` | `--chart-marker-background` | `oklch(0.97 0.005 260)` | `oklch(0.25 0.01 260)` | Marker circle background |
+| `markerBorder` | `--chart-marker-border` | `oklch(0.85 0.01 260)` | `oklch(0.4 0.01 260)` | Marker circle border |
+| `markerForeground` | `--chart-marker-foreground` | `oklch(0.3 0.01 260)` | `oklch(0.9 0 0)` | Marker icon color |
+| `badgeBackground` | `--chart-marker-badge-background` | `oklch(0 0 0)` | `oklch(1 0 0)` | Marker count badge background |
+| `badgeForeground` | `--chart-marker-badge-foreground` | `oklch(0.84 0 0)` | `oklch(0.15 0 0)` | Marker count badge text |
+
+### Indicators & Segments
+
+| Variable | CSS Property | Light | Dark | Description |
+|----------|-------------|-------|------|-------------|
+| `indicatorColor` | `--chart-indicator-color` | `oklch(0.21 0.006 285)` | `oklch(1 0 0)` | Primary indicator color for [custom indicators](/docs/utility/custom-indicator) |
+| `indicatorSecondaryColor` | `--chart-indicator-secondary-color` | `oklch(0.913 0 0)` | `oklch(0.145 0 0)` | Secondary indicator color |
+| `segmentBackground` | `--chart-segment-background` | `oklch(0.756 0 0 / 0.06)` | `oklch(0.41 0.0127 248.14 / 0.25)` | `SegmentBackground` fill |
+| `segmentLine` | `--chart-segment-line` | `oklch(0.5 0 0 / 0.25)` | `oklch(1 0 0 / 0.25)` | `SegmentLineFrom` / `SegmentLineTo` stroke |
 
 ### Data Series Colors
 
-These are used for coloring different data series in multi-line charts:
+These are used for coloring different data series in multi-series charts, pie and ring slices, and gradients. Defaults are the [Primary palette](#palettes):
 
-| CSS Property | Description |
-|-------------|-------------|
-| `--chart-1` | First series color |
-| `--chart-2` | Second series color |
-| `--chart-3` | Third series color |
-| `--chart-4` | Fourth series color |
-| `--chart-5` | Fifth series color |
+| CSS Property | Light | Dark |
+|-------------|-------|------|
+| `--chart-1` | `oklch(0.585 0.233 277.117)` (indigo) | same |
+| `--chart-2` | `oklch(0.852 0.199 91.936)` (yellow) | same |
+| `--chart-3` | `oklch(0.667 0.295 322.15)` (fuchsia) | same |
+| `--chart-4` | `oklch(0.56 0.021 213.5)` (mist) | same |
+| `--chart-5` | `oklch(0 0 0)` (black) | `oklch(1 0 0)` (white) |
 
 ### Trend Colors
 
 Semantic up / down colors used by `ProfitLossLine`, `Candlestick`, and the `Scatter` y-gradient. Components fall back to Tailwind's emerald / red when these are not defined.
 
-| CSS Property | Description |
-|-------------|-------------|
-| `--chart-positive` | Profit, gain, and up candles (default emerald) |
-| `--chart-negative` | Loss, decline, and down candles (default red) |
-
-Pick a palette (or customize one and export its CSS) from the palette menu in the site header.
+| CSS Property | Light | Dark | Description |
+|-------------|-------|------|-------------|
+| `--chart-positive` | `oklch(0.696 0.17 162.48)` | `oklch(0.765 0.177 163.223)` | Profit, gain, and up candles (emerald) |
+| `--chart-negative` | `oklch(0.637 0.237 25.331)` | `oklch(0.704 0.191 22.216)` | Loss, decline, and down candles (red) |
 
 ### Sequential Scale
 
 For heatmaps, choropleths, and other binned or intensity-based charts, use the sequential scale tokens (`01` = lowest, `05` = highest):
 
-| CSS Property | Description |
-|-------------|-------------|
-| `--chart-scale-01` | Empty / zero (neutral muted tone) |
-| `--chart-scale-02` | Level 1 — `color-mix(in oklab, var(--chart-1) 35%, var(--chart-scale-mix))` |
-| `--chart-scale-03` | Level 2 — `--chart-1` at 55% |
-| `--chart-scale-04` | Level 3 — `--chart-1` at 78% |
-| `--chart-scale-05` | Highest intensity — `var(--chart-1)` |
-| `--chart-scale-mix` | Ramp mix target: white in light mode, near-black in dark mode |
-| `--chart-scale-pattern-color` | Pattern stroke for zero / empty cells |
+| CSS Property | Light | Dark | Description |
+|-------------|-------|------|-------------|
+| `--chart-scale-01` | `oklch(0.922 0 0)` | `oklch(0.3 0 0)` | Empty / zero (neutral muted tone) |
+| `--chart-scale-02` | `color-mix(in oklab, var(--chart-1) 35%, var(--chart-scale-mix))` | same | Level 1 |
+| `--chart-scale-03` | `--chart-1` at 55% | same | Level 2 |
+| `--chart-scale-04` | `--chart-1` at 78% | same | Level 3 |
+| `--chart-scale-05` | `var(--chart-1)` | same | Highest intensity |
+| `--chart-scale-mix` | `oklch(1 0 0)` | `oklch(0.25 0 0)` | Ramp mix target |
+| `--chart-scale-pattern-color` | `oklch(1 0 0)` | `oklch(0.145 0 0)` | Pattern stroke for zero / empty cells |
 
 Levels 02–05 derive from `--chart-1`, so the heatmap and choropleth ramp follows whichever palette is active (including custom palettes) with no extra variables. Override any `--chart-scale-*` to use a custom ramp.
 
@@ -103,13 +177,29 @@ import { chartScaleCssVars, CHART_SCALE_VARS } from "@bklitui/ui/charts";
 <ChoroplethFeatureComponent fill={chartScaleCssVars.scale03} />
 ```
 
-### Track & radial charts
+### Legend
 
-Ring tracks, gauge inactive notches, and radar grid lines share the shadcn **`--border`** token:
+Installed by `@bklit/legend`. See [Legend](/docs/utility/legend#theming).
+
+| Variable | CSS Property | Light | Dark |
+|----------|-------------|-------|------|
+| `background` | `--legend` | `oklch(1 0 0)` | `oklch(0.21 0.006 285.885)` |
+| `foreground` | `--legend-foreground` | `oklch(0.141 0.005 285.823)` | `oklch(0.985 0 0)` |
+| `muted` | `--legend-muted` | `oklch(0.967 0.001 286.375)` | `oklch(0.274 0.006 286.033)` |
+| `mutedForeground` | `--legend-muted-foreground` | `oklch(0.552 0.016 285.938)` | `oklch(0.705 0.015 286.067)` |
+| `track` | `--legend-track` | `oklch(0.92 0.004 286.32)` | `oklch(0.274 0.006 286.033)` |
+
+### shadcn tokens
+
+Some parts read your existing shadcn theme tokens instead of `--chart-*`:
 
 | CSS Property | Used by |
 |-------------|---------|
-| `--border` | Ring track background, gauge track notches, `RadarGrid` / `RadarAxis` strokes |
+| `--border` | Ring track background, gauge track notches, `RadarGrid` / `RadarAxis` strokes, heatmap separators |
+| `--foreground` | Loading pulse, loading sweep, grid shimmer |
+| `--background` | Choropleth background |
+| `--popover`, `--popover-foreground` | Tooltip surface (via `--chart-tooltip-*`), live-line value badge |
+| `--muted-foreground` | Loading label, secondary tooltip text |
 
 ```tsx
 import { ringCssVars, radarCssVars } from "@bklitui/ui/charts";
@@ -118,9 +208,65 @@ import { ringCssVars, radarCssVars } from "@bklitui/ui/charts";
 // radarCssVars.border → var(--border)
 ```
 
+## Tailwind v4 mapping
+
+Axis labels, tooltips, and legends style text with Tailwind utilities such as `text-chart-label`, `bg-chart-tooltip-background`, `text-chart-tooltip-foreground`, `text-chart-tooltip-muted`, and `text-legend-foreground`. On Tailwind v4, `shadcn add` maps every token to a Tailwind color in `@theme inline` for you:
+
+```css
+@theme inline {
+  /* @bklit/chart-context */
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-chart-positive: var(--chart-positive);
+  --color-chart-negative: var(--chart-negative);
+  --color-chart-background: var(--chart-background);
+  --color-chart-foreground: var(--chart-foreground);
+  --color-chart-foreground-muted: var(--chart-foreground-muted);
+  --color-chart-label: var(--chart-label);
+  --color-chart-line-primary: var(--chart-line-primary);
+  --color-chart-line-secondary: var(--chart-line-secondary);
+  --color-chart-crosshair: var(--chart-crosshair);
+  --color-chart-grid: var(--chart-grid);
+  --color-chart-brush-border: var(--chart-brush-border);
+  --color-chart-tooltip-background: var(--chart-tooltip-background);
+  --color-chart-tooltip-foreground: var(--chart-tooltip-foreground);
+  --color-chart-tooltip-muted: var(--chart-tooltip-muted);
+  --color-chart-marker-background: var(--chart-marker-background);
+  --color-chart-marker-border: var(--chart-marker-border);
+  --color-chart-marker-foreground: var(--chart-marker-foreground);
+  --color-chart-marker-badge-background: var(--chart-marker-badge-background);
+  --color-chart-marker-badge-foreground: var(--chart-marker-badge-foreground);
+  --color-chart-indicator-color: var(--chart-indicator-color);
+  --color-chart-indicator-secondary-color: var(--chart-indicator-secondary-color);
+  --color-chart-segment-background: var(--chart-segment-background);
+  --color-chart-segment-line: var(--chart-segment-line);
+  --color-chart-scale-mix: var(--chart-scale-mix);
+  --color-chart-scale-01: var(--chart-scale-01);
+  --color-chart-scale-02: var(--chart-scale-02);
+  --color-chart-scale-03: var(--chart-scale-03);
+  --color-chart-scale-04: var(--chart-scale-04);
+  --color-chart-scale-05: var(--chart-scale-05);
+  --color-chart-scale-pattern-color: var(--chart-scale-pattern-color);
+
+  /* @bklit/legend */
+  --color-legend: var(--legend);
+  --color-legend-foreground: var(--legend-foreground);
+  --color-legend-muted: var(--legend-muted);
+  --color-legend-muted-foreground: var(--legend-muted-foreground);
+  --color-legend-track: var(--legend-track);
+}
+```
+
+If you manage CSS by hand, the lines the components need are `--color-chart-label`, the three `--color-chart-tooltip-*` lines, and the `--color-legend*` lines. Every value points at the two-dash variable (`var(--chart-label)`). The `--chart-*` variables themselves are read directly by the SVG, so series, grids, and crosshairs render even without this block.
+
+**Installed before the registry fix?** Older installs wrote `var(----chart-label)` (four dashes), which resolves to nothing, so labels and tooltip text lose their color ([#235](https://github.com/bklit/bklit-ui/issues/235)). Re-running `shadcn add` does not rewrite lines that already exist, so replace every `var(----` with `var(--` in your global CSS, then run `npx shadcn@latest add @bklit/chart-context` to add any tokens and mappings you are missing.
+
 ## Customizing Variables
 
-Override CSS variables in your stylesheet to customize chart appearance:
+Override CSS variables in your stylesheet to customize chart appearance. You only need to set the tokens you want to change:
 
 ```css
 :root {
@@ -129,8 +275,8 @@ Override CSS variables in your stylesheet to customize chart appearance:
   --chart-foreground: oklch(0.145 0.004 285);
   --chart-grid: oklch(0.9 0 0);
   --chart-crosshair: oklch(0.4 0.18 274);
-  --chart-indicator-color: oklch(0.21 0.006 285);
-  
+  --chart-label: oklch(0.45 0.01 260);
+
   /* Series colors */
   --chart-1: oklch(0.585 0.233 277.117);
   --chart-2: oklch(0.852 0.199 91.936);
@@ -142,16 +288,13 @@ Override CSS variables in your stylesheet to customize chart appearance:
   --chart-positive: oklch(0.696 0.17 162.48);
   --chart-negative: oklch(0.637 0.237 25.331);
 
-  /* Sequential scale (heatmap / choropleth) */
-  --chart-scale-01: oklch(0.98 0.003 106);
-  --chart-scale-02: oklch(0.92 0.008 106);
-  --chart-scale-03: oklch(0.82 0.015 106);
-  --chart-scale-04: oklch(0.68 0.02 106);
-  --chart-scale-05: oklch(0.55 0.025 106);
-  --chart-scale-pattern-color: oklch(0.96 0.005 106);
+  /* Match tooltips and grid to your shadcn theme */
+  --chart-tooltip-background: var(--popover);
+  --chart-tooltip-foreground: var(--popover-foreground);
+  --chart-tooltip-muted: var(--muted-foreground);
 
-  /* Ring / gauge / radar tracks */
-  --border: oklch(0.92 0.004 286.32);
+  /* Custom indicators */
+  --chart-indicator-color: oklch(0.21 0.006 285);
 }
 
 .dark {
@@ -159,10 +302,35 @@ Override CSS variables in your stylesheet to customize chart appearance:
   --chart-background: oklch(0.145 0 0);
   --chart-foreground: oklch(0.45 0 0);
   --chart-grid: oklch(0.25 0 0);
-  --chart-indicator-color: oklch(1 0 0);
+  --chart-crosshair: oklch(0.45 0 0);
+  --chart-label: oklch(0.75 0.01 260);
   --chart-5: oklch(1 0 0);
   --chart-positive: oklch(0.765 0.177 163.223);
   --chart-negative: oklch(0.704 0.191 22.216);
+  --chart-indicator-color: oklch(1 0 0);
+}
+```
+
+## Dark Mode
+
+Charts have no `dark:` variants of their own — every color comes from a variable, so dark mode is a second set of values:
+
+- **Class strategy** (shadcn default, `next-themes` with `attribute="class"`): put overrides in `.dark { }`, as above. The class must be on an ancestor of the chart, usually `<html>`.
+- **Data attribute** (`attribute="data-theme"`): use your selector, e.g. `[data-theme="dark"] { }`.
+- **System preference only**: wrap the overrides in `@media (prefers-color-scheme: dark) { :root { } }`.
+
+Tokens whose default is a `var()` reference (`--chart-line-primary`, `--chart-brush-border`, `--chart-tooltip-*`, `--chart-scale-02` … `05`) do not need a dark value; they follow the tokens they point at.
+
+### Scoping a theme to one chart
+
+Variables that reference other variables resolve where they are declared. If you override `--chart-1` on a wrapper instead of `:root`, re-declare the tokens derived from it on the same wrapper:
+
+```css
+.revenue-chart {
+  --chart-1: oklch(0.596 0.145 163.225);
+  --chart-2: oklch(0.768 0.233 130.85);
+  --chart-line-primary: var(--chart-1);
+  --chart-line-secondary: var(--chart-2);
 }
 ```
 
@@ -195,4 +363,6 @@ import { chartCssVars } from "@bklitui/ui/charts";
 ## Related
 
 - [Custom Indicator](/docs/utility/custom-indicator) - Building animated indicators
+- [Legend](/docs/utility/legend) - Legend components and tokens
 - [useChart](/docs/utility/use-chart) - Accessing chart context
+- [Skills](/docs/skills) - The `bklit-ui-design` skill matches chart tokens to your app's theme

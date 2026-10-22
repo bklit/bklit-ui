@@ -122,6 +122,8 @@ export const studioSearchParams = {
   barOrientation: parseAsStringLiteral(["vertical", "horizontal"]).withDefault(
     "vertical"
   ),
+  /** Bar charts hide the tooltip crosshair line by default. */
+  barShowCrosshair: parseAsBoolean.withDefault(false),
   barVariant: parseAsStringLiteral(["classic", "shape", "squares"]).withDefault(
     "classic"
   ),
@@ -267,9 +269,19 @@ export const studioSearchParams = {
   scatterRingGap: parseAsFloat.withDefault(2),
   scatterRingWidth: parseAsFloat.withDefault(2),
   scatterFadeOnHover: parseAsBoolean.withDefault(true),
-  scatterInactiveOpacity: parseAsFloat.withDefault(0.5),
+  scatterInactiveOpacity: parseAsFloat.withDefault(0.3),
   scatterSecondSeries: parseAsBoolean.withDefault(true),
   scatterShowActiveHighlight: parseAsBoolean.withDefault(true),
+  scatterShowRings: parseAsBoolean.withDefault(false),
+  scatterInactiveMode: parseAsStringLiteral(["opacity", "blur"]).withDefault(
+    "opacity"
+  ),
+  scatterInactiveBlur: parseAsFloat.withDefault(2),
+  scatterJitter: parseAsBoolean.withDefault(false),
+  scatterJitterX: parseAsFloat.withDefault(0.35),
+  scatterJitterY: parseAsFloat.withDefault(0),
+  /** Jittered scatter hides the tooltip crosshair line by default. */
+  scatterJitterShowCrosshair: parseAsBoolean.withDefault(false),
   seriesShowMarkers: parseAsBoolean.withDefault(false),
   seriesMarkerRadius: parseAsFloat.withDefault(5),
   seriesMarkerRingGap: parseAsFloat.withDefault(2),
@@ -451,6 +463,8 @@ export const studioSearchParams = {
   bandFadeBottom: parseAsBoolean.withDefault(false),
   bandFadeLeft: parseAsBoolean.withDefault(false),
   bandFadeSize: parseAsFloat.withDefault(0.15),
+  bandSeries: parseAsStringLiteral(["first", "all"]).withDefault("first"),
+  bandShowInTooltip: parseAsBoolean.withDefault(true),
   weekendsDays: parseAsStringLiteral(["sat-sun", "fri-sat", "sun"]).withDefault(
     "sat-sun"
   ),
@@ -693,6 +707,7 @@ export interface StudioUrlState {
   barSeriesMode: "grouped" | "stacked";
   barLineCap: "round" | "butt";
   barOrientation: "vertical" | "horizontal";
+  barShowCrosshair: boolean;
   barVariant: "classic" | "shape" | "squares";
   barSquareGap: number;
   barSquareRadius: number;
@@ -794,6 +809,13 @@ export interface StudioUrlState {
   scatterInactiveOpacity: number;
   scatterSecondSeries: boolean;
   scatterShowActiveHighlight: boolean;
+  scatterShowRings: boolean;
+  scatterInactiveMode: "opacity" | "blur";
+  scatterInactiveBlur: number;
+  scatterJitter: boolean;
+  scatterJitterX: number;
+  scatterJitterY: number;
+  scatterJitterShowCrosshair: boolean;
   seriesShowMarkers: boolean;
   seriesMarkerRadius: number;
   seriesMarkerRingGap: number;
@@ -932,6 +954,9 @@ export interface StudioUrlState {
   bandFadeBottom: boolean;
   bandFadeLeft: boolean;
   bandFadeSize: number;
+  /** `"first"`: one band on series 0. `"all"`: one band per series, in its color. */
+  bandSeries: "first" | "all";
+  bandShowInTooltip: boolean;
   weekendsDays: "sat-sun" | "fri-sat" | "sun";
   weekendsFillType: "pattern" | "solid";
   weekendsColor: string;
@@ -1120,6 +1145,7 @@ export function defaultStudioState(
     barSeriesMode: "grouped",
     barLineCap: "round",
     barOrientation: "vertical",
+    barShowCrosshair: false,
     barVariant: "classic",
     barSquareGap: 3,
     barSquareRadius: 0.25,
@@ -1217,9 +1243,16 @@ export function defaultStudioState(
     scatterRingGap: 2,
     scatterRingWidth: 2,
     scatterFadeOnHover: true,
-    scatterInactiveOpacity: 0.5,
+    scatterInactiveOpacity: 0.3,
     scatterSecondSeries: true,
     scatterShowActiveHighlight: true,
+    scatterShowRings: false,
+    scatterInactiveMode: "opacity",
+    scatterInactiveBlur: 2,
+    scatterJitter: false,
+    scatterJitterX: 0.35,
+    scatterJitterY: 0,
+    scatterJitterShowCrosshair: false,
     seriesShowMarkers: false,
     seriesMarkerRadius: 5,
     seriesMarkerRingGap: 2,
@@ -1360,6 +1393,8 @@ export function defaultStudioState(
     bandFadeBottom: false,
     bandFadeLeft: false,
     bandFadeSize: 0.15,
+    bandSeries: "first",
+    bandShowInTooltip: true,
     weekendsDays: "sat-sun",
     weekendsFillType: "pattern",
     weekendsColor: "var(--chart-foreground-muted)",

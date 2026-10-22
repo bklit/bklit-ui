@@ -537,8 +537,13 @@ export {
   useSankey,
 } from "./sankey";
 // Scatter chart components
-export { Scatter, type ScatterProps } from "./scatter";
+export {
+  Scatter,
+  type ScatterInactiveMode,
+  type ScatterProps,
+} from "./scatter";
 export { ScatterChart, type ScatterChartProps } from "./scatter-chart";
+export type { ScatterJitter } from "./scatter-jitter";
 // Segment selection components
 export {
   SegmentBackground,

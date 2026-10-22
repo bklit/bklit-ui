@@ -35,7 +35,7 @@ The CLI resolves `registryDependencies` (`@bklit/chart-context`, `@bklit/grid`, 
 
 ## Where files land
 
-Every component item targets `components/charts/…` (inside `src/` for `src`-dir projects): e.g. `components/charts/line-chart.tsx`, `components/charts/line.tsx`, `components/charts/tooltip/index.ts`, `components/charts/legend/index.ts`. Exceptions: `shimmering-text` → `components/shimmering-text.tsx`, `utils` → `lib/utils.ts`, `profit-loss-line` also writes `lib/profit-loss-segments.ts`.
+Every component item targets `components/charts/…` (inside `src/` for `src`-dir projects): e.g. `components/charts/line-chart.tsx`, `components/charts/line.tsx`, `components/charts/tooltip/index.ts`, `components/charts/legend/index.ts`. Exceptions: `shimmering-text` → `components/shimmering-text.tsx`, `utils` → `lib/utils.ts`.
 
 ### Incorrect
 

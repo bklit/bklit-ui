@@ -72,7 +72,7 @@ const CATALOG_CHART_LAYOUT: Partial<
   "pie-chart": { tileHeight: 280, frameH: 280 },
   "ring-chart": { tileHeight: 280, frameH: 280 },
   "scatter-chart": {
-    overrides: { scatterRadius: 2.5, scatterRingWidth: 1, scatterRingGap: 1 },
+    overrides: { scatterRadius: 2.5 },
   },
 };
 

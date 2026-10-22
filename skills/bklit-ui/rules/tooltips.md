@@ -16,7 +16,7 @@
 
 | Prop | Type | Default |
 |---|---|---|
-| `showCrosshair` | `boolean` | `true` |
+| `showCrosshair` | `boolean` | `true` (`false` inside `BarChart`, any orientation, and inside `ScatterChart` with `jitter` — pass `showCrosshair` to opt in) |
 | `showDots` | `boolean` | `true` |
 | `showDatePill` | `boolean` | `true` (set `false` for categorical/live charts) |
 | `content` | `({ point, index }) => ReactNode` | built-in rows |
@@ -32,6 +32,7 @@
 | `matchCrosshair` | `boolean` | `false` |
 | `damping` | `number` (`0` = instant) | `20` |
 | `springConfig`, `boxSpringConfig` | `{ stiffness, damping }` | chart config |
+| `exit` | `boolean` (fade out on leave) | `true` |
 | `backgroundColor` | `string` | `var(--chart-tooltip-background)` |
 | `panelStyle`, `className` | `CSSProperties`, `string` | — |
 | `children` | `ReactNode` | rendered below rows (e.g. marker content) |

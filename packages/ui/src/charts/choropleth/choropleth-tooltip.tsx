@@ -4,6 +4,10 @@ import { intFmt } from "../chart-formatters";
 import { TooltipBox } from "../tooltip/tooltip-box";
 import { TooltipContent, type TooltipRow } from "../tooltip/tooltip-content";
 import {
+  TOOLTIP_HIDE_DELAY_MS,
+  useDelayedTooltipData,
+} from "../tooltip/use-delayed-tooltip-data";
+import {
   type ChoroplethFeature,
   useChoroplethInteraction,
   useChoroplethStable,
@@ -36,6 +40,14 @@ export interface ChoroplethTooltipProps {
    * Default: `var(--chart-tooltip-background)`.
    */
   backgroundColor?: string;
+  /** Fade the panel out when hover ends. Default: true */
+  exit?: boolean;
+  /**
+   * Grace period before hiding when the pointer leaves a feature (ms).
+   * Bridges border gaps so the panel springs to the next feature instead of
+   * fading out and back in. Default: `120`.
+   */
+  hideDelay?: number;
 }
 
 export function ChoroplethTooltip({
@@ -47,68 +59,50 @@ export function ChoroplethTooltip({
   className = "",
   panelStyle,
   backgroundColor,
+  exit = true,
+  hideDelay = TOOLTIP_HIDE_DELAY_MS,
 }: ChoroplethTooltipProps) {
   const { containerRef, width, height, features } = useChoroplethStable();
-  const { tooltipData } = useChoroplethInteraction();
+  const { tooltipData: hoverData } = useChoroplethInteraction();
+  const tooltipData = useDelayedTooltipData(hoverData, 0, hideDelay);
   const { zoom } = useChoroplethZoom();
 
-  if (!tooltipData) {
-    return null;
-  }
+  const feature = tooltipData ? features[tooltipData.featureIndex] : undefined;
 
   // Apply zoom transform to centroid position
-  let x = tooltipData.x;
-  let y = tooltipData.y;
-
-  if (zoom) {
-    // Apply the zoom transform matrix to the tooltip position
+  let x = tooltipData?.x ?? 0;
+  let y = tooltipData?.y ?? 0;
+  if (tooltipData && zoom) {
     const transformed = zoom.applyToPoint({ x, y });
     x = transformed.x;
     y = transformed.y;
   }
 
-  const feature = features[tooltipData.featureIndex];
-  if (!feature) {
-    return null;
+  let body: React.ReactNode = null;
+  if (tooltipData && feature) {
+    const index = tooltipData.featureIndex;
+    if (content) {
+      body = content({ feature, index });
+    } else {
+      const featureName = getFeatureName
+        ? getFeatureName(feature, index)
+        : (feature.properties?.name ?? `Feature ${index}`);
+      const value = getFeatureValue?.(feature, index);
+      const rows: TooltipRow[] =
+        value === undefined
+          ? []
+          : [
+              {
+                color: "var(--chart-1)",
+                label: valueLabel,
+                value: formatValue(value),
+              },
+            ];
+      body = <TooltipContent rows={rows} title={featureName} />;
+    }
   }
 
-  // Get feature name
-  const featureName = getFeatureName
-    ? getFeatureName(feature, tooltipData.featureIndex)
-    : (feature.properties?.name ?? `Feature ${tooltipData.featureIndex}`);
-
-  // Custom content
-  if (content) {
-    return (
-      <TooltipBox
-        backgroundColor={backgroundColor}
-        className={className}
-        containerHeight={height}
-        containerRef={containerRef}
-        containerWidth={width}
-        panelStyle={panelStyle}
-        visible
-        x={x}
-        y={y}
-      >
-        {content({ feature, index: tooltipData.featureIndex })}
-      </TooltipBox>
-    );
-  }
-
-  // Default tooltip with optional value
-  const value = getFeatureValue?.(feature, tooltipData.featureIndex);
-  const rows: TooltipRow[] =
-    value === undefined
-      ? []
-      : [
-          {
-            color: "var(--chart-1)",
-            label: valueLabel,
-            value: formatValue(value),
-          },
-        ];
-
+  // Always mounted so the panel can fade out; `visible` drives presence.
   return (
     <TooltipBox
       backgroundColor={backgroundColor}
@@ -116,12 +110,13 @@ export function ChoroplethTooltip({
       containerHeight={height}
       containerRef={containerRef}
       containerWidth={width}
+      exit={exit}
       panelStyle={panelStyle}
-      visible
+      visible={Boolean(tooltipData && feature)}
       x={x}
       y={y}
     >
-      <TooltipContent rows={rows} title={featureName} />
+      {body}
     </TooltipBox>
   );
 }

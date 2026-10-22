@@ -22,6 +22,14 @@ export interface SeriesMarkersProps extends SeriesPointMarkerStyle {
   fill?: string;
   /** Whether to animate markers with clip reveal. Default: true */
   animate?: boolean;
+  /**
+   * Optional per-point pixel offset (e.g. scatter jitter). Must be
+   * deterministic for a given `(index, seriesIndex)` pair.
+   */
+  getPointOffset?: (
+    index: number,
+    seriesIndex: number
+  ) => { x: number; y: number };
 }
 
 interface PointAt {
@@ -56,6 +64,7 @@ export function SeriesMarkers({
   inactiveBlur = 2,
   enterBlur = 2,
   showActiveHighlight = true,
+  getPointOffset,
 }: SeriesMarkersProps) {
   // Stable slice only. Hover-driven dim + active-highlight live in the inner
   // <SeriesMarkersDimWrapper> / <SeriesMarkersActiveHighlight> components, so
@@ -118,14 +127,15 @@ export function SeriesMarkers({
         if (cy === null) {
           return [];
         }
-        const cx = xScale(xAccessor(d)) ?? 0;
+        const offset = getPointOffset?.(index, seriesIndex);
+        const cx = (xScale(xAccessor(d)) ?? 0) + (offset?.x ?? 0);
         const leadingEdge = Math.max(0, cx - visualExtent);
         const revealDelay =
           innerWidth > 0 && isRevealing
             ? (leadingEdge / innerWidth) * revealDurationSec
             : 0;
 
-        return [{ index, cx, cy, revealDelay }];
+        return [{ index, cx, cy: cy + (offset?.y ?? 0), revealDelay }];
       }),
     [
       data,
@@ -136,6 +146,8 @@ export function SeriesMarkers({
       isRevealing,
       revealDurationSec,
       visualExtent,
+      getPointOffset,
+      seriesIndex,
     ]
   );
 

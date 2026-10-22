@@ -64,18 +64,18 @@
   ],
   "cssVars": {
     "light": {
-      "--legend": "oklch(1 0 0)",
-      "--legend-foreground": "oklch(0.141 0.005 285.823)",
-      "--legend-muted": "oklch(0.967 0.001 286.375)",
-      "--legend-muted-foreground": "oklch(0.552 0.016 285.938)",
-      "--legend-track": "oklch(0.92 0.004 286.32)"
+      "legend": "oklch(1 0 0)",
+      "legend-foreground": "oklch(0.141 0.005 285.823)",
+      "legend-muted": "oklch(0.967 0.001 286.375)",
+      "legend-muted-foreground": "oklch(0.552 0.016 285.938)",
+      "legend-track": "oklch(0.92 0.004 286.32)"
     },
     "dark": {
-      "--legend": "oklch(0.21 0.006 285.885)",
-      "--legend-foreground": "oklch(0.985 0 0)",
-      "--legend-muted": "oklch(0.274 0.006 286.033)",
-      "--legend-muted-foreground": "oklch(0.705 0.015 286.067)",
-      "--legend-track": "oklch(0.274 0.006 286.033)"
+      "legend": "oklch(0.21 0.006 285.885)",
+      "legend-foreground": "oklch(0.985 0 0)",
+      "legend-muted": "oklch(0.274 0.006 286.033)",
+      "legend-muted-foreground": "oklch(0.705 0.015 286.067)",
+      "legend-track": "oklch(0.274 0.006 286.033)"
     }
   }
 }

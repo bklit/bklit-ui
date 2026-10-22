@@ -33,7 +33,7 @@ import { LineChart, Line, Grid, ChartTooltip } from "@bklitui/ui/charts";
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `showDatePill` | `boolean` | `true` | Show animated date ticker at bottom |
-| `showCrosshair` | `boolean` | `true` | Show vertical crosshair line |
+| `showCrosshair` | `boolean` | `true` (`false` in `BarChart` and jittered `ScatterChart`) | Show the crosshair indicator line. Bar charts (vertical and horizontal) and `ScatterChart` with `jitter` (hover snaps to the nearest point, not a date) hide it by default — pass `showCrosshair` to opt in |
 | `showDots` | `boolean` | `true` | Show dots on data points |
 | `indicatorColor` | `string \| (point) => string` | — | Crosshair and dot color; pass a function for dynamic colors |
 | `indicatorDasharray` | `string` | — | SVG dash pattern for the crosshair (e.g. `"4,4"`). Omit for solid |
@@ -43,6 +43,7 @@ import { LineChart, Line, Grid, ChartTooltip } from "@bklitui/ui/charts";
 | `damping` | `number` | `20` | Panel follow damping (default). `0` = instant. Ignored when `matchCrosshair` is `true` |
 | `springConfig` | `{ stiffness: number; damping: number }` | chart config | Full spring override for crosshair, dots, and date pill |
 | `boxSpringConfig` | `{ stiffness: number; damping: number }` | chart config | Full spring override for the floating tooltip panel |
+| `exit` | `boolean` | `true` | Fade the panel out when hover ends. `false` hides it immediately |
 | `backgroundColor` | `string` | `var(--chart-tooltip-background)` | Panel background (CSS variable or color value) |
 | `panelStyle` | `CSSProperties` | — | Inline styles for tooltip background and blur |
 | `dotVariant` | `"dot" \| "ring"` | `"dot"` | Dot style on series markers. `dot` is a solid core with a soft same-color halo |
@@ -238,7 +239,7 @@ Use the `rows` prop to customize row labels and value formatting.
 
 ### With Bar Chart
 
-The tooltip adapts to bar charts, showing category names instead of dates.
+The tooltip adapts to bar charts, showing category names instead of dates. Inside `BarChart` the crosshair line is hidden by default (only the hover dots and panel show); pass `showCrosshair` to bring it back.
 
 <ComponentShowcase code={`<BarChart data={data} xDataKey="month">
   <Grid horizontal />
@@ -300,7 +301,7 @@ The tooltip features smooth animations:
 - **Tooltip panel** - By default the panel eases with `damping={20}`. Set `matchCrosshair` to share the crosshair spring, or tune lag with `damping` (`0`–`100`) or `boxSpringConfig`.
 - **Crosshair** - Spring physics for snappy following (`springConfig`)
 - **Crosshair style** - Solid by default; pass `indicatorDasharray="4,4"` (or any SVG dash pattern) for a dashed line.
-- **Tooltip Box** - Scale/fade animation with flip detection (`boxSpringConfig`)
+- **Tooltip Box** - Scale/fade in, fade out on leave (`exit`), flip detection (`boxSpringConfig`). Under `prefers-reduced-motion` the panel jumps to position and skips the scale; the opacity fade remains
 - **Date Pill** - Slot machine-style number animation
 - **Dots** - Follow the crosshair spring; the core and halo spring open on hover
 

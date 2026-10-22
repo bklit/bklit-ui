@@ -386,7 +386,6 @@ function HomeChoropleth({
         content={({ feature }) => (
           <HomeChoroplethTooltipContent feature={feature} />
         )}
-        panelStyle={homeTooltipPanelStyle}
       />
     </ChoroplethChart>
   );
@@ -653,7 +652,7 @@ export function HomeComponents() {
   return (
     <>
       <ShowcaseCard
-        chart="line-chart"
+        chart="area-chart"
         className="col-span-full flex-1 sm:col-span-7"
       >
         <HomeShowcaseChart id="line" />
@@ -667,20 +666,20 @@ export function HomeComponents() {
       </ShowcaseCard>
 
       <ShowcaseCard
-        chart="sankey-chart"
+        chart="ring-chart"
         className="col-span-full min-h-[200px] flex-1 sm:col-span-5"
       >
         <HomeShowcaseChart id="ring" />
       </ShowcaseCard>
       <ShowcaseCard
-        chart="funnel-chart"
+        chart="bar-chart"
         className="col-span-full flex min-h-[300px] flex-col gap-4 sm:col-span-7"
       >
         <HomeShowcaseChart id="bar" />
       </ShowcaseCard>
 
       <ShowcaseCard
-        chart="sankey-chart"
+        chart="choropleth-chart"
         className="col-span-full min-h-[200px] flex-1 sm:col-span-7"
       >
         <HomeShowcaseChart id="choropleth" />
@@ -693,7 +692,7 @@ export function HomeComponents() {
       </ShowcaseCard>
 
       <ShowcaseCard
-        chart="bar-chart"
+        chart="gauge-chart"
         className="col-span-full min-h-[200px] sm:col-span-5"
       >
         <HomeShowcaseChart id="gauge" />

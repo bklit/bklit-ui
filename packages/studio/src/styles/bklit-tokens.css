@@ -109,6 +109,15 @@
   --radius: 0;
 }
 
+/*
+ * Chart previews render as they ship, so restore the site radius (matches
+ * :root above). Unitless `--radius: 0` also makes `calc(var(--radius) + 4px)`
+ * invalid, which dropped chart tooltip panels to square corners.
+ */
+.studio-shell [data-studio-chart-content] {
+  --radius: 0.625rem;
+}
+
 .dark,
 .studio-shell.dark {
   --background: color-mix(

@@ -12,6 +12,7 @@ export interface SunburstBreadcrumbItem {
 
 export function useSunburstBreadcrumbItems() {
   const { data, focus, focusById, rootId, zoomTo } = useSunburstStable();
+  const rootName = data.name;
 
   const items = useMemo((): SunburstBreadcrumbItem[] => {
     const crumbs: Focus[] = [];
@@ -23,10 +24,10 @@ export function useSunburstBreadcrumbItems() {
 
     return crumbs.map((c, index) => ({
       id: c.id,
-      label: c.id === rootId ? data.name : c.name,
+      label: c.id === rootId ? rootName : c.name,
       isCurrent: index === crumbs.length - 1,
     }));
-  }, [data.name, focus, focusById, rootId]);
+  }, [rootName, focus, focusById, rootId]);
 
   return { items, zoomTo };
 }

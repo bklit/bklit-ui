@@ -1,7 +1,7 @@
 "use client";
 
 import { useSpring } from "motion/react";
-import { useMemo, useRef } from "react";
+import { useLayoutEffect, useMemo, useRef } from "react";
 import { useChartConfig } from "./chart-config-context";
 import { useChartHover, useChartStable } from "./chart-context";
 import {
@@ -46,16 +46,20 @@ export function useHighlightSegment({
   const widthSpring = useSpring(0, highlightSpring);
 
   // Jump on inactive→active so the band appears at the hovered point instead
-  // of sliding in from x=0; ease on subsequent moves.
+  // of sliding in from x=0; ease on subsequent moves. Driven from a layout
+  // effect (not render) so springs update before paint without mutating
+  // MotionValues / refs during render.
   const wasActive = useRef(false);
-  if (bounds.isActive && !wasActive.current) {
-    xSpring.jump(bounds.x);
-    widthSpring.jump(bounds.width);
-  } else {
-    xSpring.set(bounds.x);
-    widthSpring.set(bounds.width);
-  }
-  wasActive.current = bounds.isActive;
+  useLayoutEffect(() => {
+    if (bounds.isActive && !wasActive.current) {
+      xSpring.jump(bounds.x);
+      widthSpring.jump(bounds.width);
+    } else {
+      xSpring.set(bounds.x);
+      widthSpring.set(bounds.width);
+    }
+    wasActive.current = bounds.isActive;
+  }, [bounds, xSpring, widthSpring]);
 
   return { xSpring, widthSpring, isActive: bounds.isActive };
 }

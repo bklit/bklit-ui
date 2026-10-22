@@ -1,5 +1,6 @@
 "use client";
 
+import type { CurveFactory } from "d3-shape";
 import { curveLinear } from "d3-shape";
 import { animate, useReducedMotion } from "motion/react";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
@@ -14,9 +15,6 @@ import {
   seriesPathFromPoints,
   seriesPathTransitionSignature,
 } from "./series-path-utils";
-
-// biome-ignore lint/suspicious/noExplicitAny: d3 curve factory type
-type CurveFactory = any;
 
 export interface UseAnimatedSeriesPathOptions {
   renderData: Record<string, unknown>[];
@@ -102,7 +100,19 @@ export function useAnimatedSeriesPath({
     dataKey,
     curve,
   });
-  latestRef.current = { renderData, xAccessor, xScale, yScale, dataKey, curve };
+  // Synced in a layout effect declared before the tween effect (not during
+  // render) so `renderFrame(0)` and every animation frame see this commit's
+  // inputs.
+  useLayoutEffect(() => {
+    latestRef.current = {
+      renderData,
+      xAccessor,
+      xScale,
+      yScale,
+      dataKey,
+      curve,
+    };
+  });
   const computeLatestTarget = () => {
     const latest = latestRef.current;
     return computeSeriesPathPoints(
@@ -114,23 +124,28 @@ export function useAnimatedSeriesPath({
     );
   };
 
+  const shouldAnimate =
+    enabled &&
+    !reducedMotion &&
+    chartPhase === "ready" &&
+    durationMs > 0 &&
+    renderData.length > 0;
+
+  // Drop a stale tween frame as soon as animation is no longer allowed —
+  // adjusted during render rather than via setState in the effect below.
+  if (!shouldAnimate && animatedPath !== null) {
+    setAnimatedPath(null);
+  }
+
   // Layout effect so frame 0 (the previous shape) is committed before paint;
   // otherwise the new target flashes for a frame before the tween starts.
   // biome-ignore lint/correctness/useExhaustiveDependencies: scales/targets are read live via latestRef; only a new data signature should restart the tween
   useLayoutEffect(() => {
-    const shouldAnimate =
-      enabled &&
-      !reducedMotion &&
-      chartPhase === "ready" &&
-      durationMs > 0 &&
-      renderData.length > 0;
-
     const dataChanged = prevDataSignatureRef.current !== dataSignature;
     prevDataSignatureRef.current = dataSignature;
 
     if (!shouldAnimate) {
       animatingRef.current = false;
-      setAnimatedPath(null);
       displayedRef.current = { points: targetPoints, polyline: false };
       prevTransitionSignatureRef.current = transitionSignature;
       return;
@@ -204,6 +219,7 @@ export function useAnimatedSeriesPath({
   }, [
     transitionSignature,
     dataSignature,
+    shouldAnimate,
     chartPhase,
     durationMs,
     enabled,

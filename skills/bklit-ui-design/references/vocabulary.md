@@ -178,19 +178,24 @@ returns the matching pattern node (same presets as `Background`).
 | People say | JSX | Notes |
 |---|---|---|
 | "dots on every point", "markers", "beads" | `<Line showMarkers />` / `<Area showMarkers />` | `markers={{ radius: 5, ringGap: 2, strokeWidth: 2 }}` — `SeriesPointMarkerStyle`: `fill`, `stroke`, `strokeWidth` (2), `ringGap` (2), `outlineWidth` (0), `outlineColor`, `radius` (5), `fadeOnHover` (true), `inactiveOpacity` (0.5), `inactiveBlur` (2), `enterBlur` (2), `showActiveHighlight` (true). Pair with `fadeEdges={false}` on Line so end points are visible. |
+| "scatter rings", "halo dots" | `<Scatter dataKey="v" strokeWidth={2} ringGap={2} />` | Scatter is solid dots by default (`strokeWidth` 0); rings are opt-in. |
+| "blur the other dots", "frosted unfocused points" | `<Scatter dataKey="v" inactiveMode="blur" />` | Default `inactiveMode="opacity"` fades others to `inactiveOpacity` (0.3); `"blur"` adds `inactiveBlur` (2px). |
+| "jitter", "strip plot", "beeswarm-ish", "spread overlapping dots" | `<ScatterChart data={rows} jitter={{ x: 0.5 }}>` | Many rows per date. `x` = fraction of the band step, `y` = px; deterministic (`seed`), tooltips show original values. Hover snaps to the nearest point, so the crosshair is off by default. `formatXLabel` for month labels. |
 | "ring at the last point", "end dot" | `<LineSeriesTerminalMarker dataKey="v" />` | Defaults `fill="transparent"`, `stroke="var(--chart-1)"`, `radius={5}`, `strokeWidth={1.5}`. |
 | "event pins", "annotations", "launch markers" | `<ChartMarkers items={[{ date, icon, title, description?, color?, href? }]} />` | `size` default 28, `showLines` default true. |
 
 ## Tooltips & crosshair
 
-`ChartTooltip` defaults: `showDatePill` true, `showCrosshair` true, `showDots` true,
+`ChartTooltip` defaults: `showDatePill` true, `showCrosshair` true (false inside
+`BarChart` and `ScatterChart` with `jitter`), `showDots` true,
 `dotVariant="dot"`, `dotSize={5}`, `dotScale={1}`.
 
 | People say | JSX |
 |---|---|
 | "ring indicator", "hollow dot", "outlined hover dot" | `dotVariant="ring"` (ring stroke default 1.5 → `dotStrokeWidth`) |
 | "squircle / rounded-square hover ring" | `dotVariant="ring" dotRadiusFraction={0.5}` (0 = square, 0.5 = circle) |
-| "no crosshair line" (bars, squares) | `showCrosshair={false}` |
+| "no crosshair line" | `showCrosshair={false}` (already the default on `BarChart` and jittered `ScatterChart`) |
+| "crosshair line on bars" | `showCrosshair` (opt in on `BarChart`) |
 | "dashed crosshair" | `indicatorDasharray="4,4"` |
 | "no date pill" | `showDatePill={false}` |
 | "no dots" | `showDots={false}` |
@@ -251,7 +256,7 @@ returns the matching pattern node (same presets as `Background`).
 | "target range", "goal band", "normal range" | `<ReferenceArea y1={160} y2={220} strokeStyle="dashed" showMarkers />` | Defaults: `strokeStyle="dashed"`, `fadeEdges` true, `pattern="none"`. |
 | "hatched target band" | `<ReferenceArea y1 y2 pattern="diagonal" patternColor="var(--chart-foreground-muted)" axisLabelColor="var(--chart-1)" fillOpacity={0.85} />` | Gallery "Pattern Reference Band". |
 | "highlight a time window" | `<ReferenceArea x1={startDate} x2={endDate} />` | |
-| "min/max range", "confidence band", "range around the line" | `<Band upperKey="valueUpper" lowerKey="valueLower" />` before the `<Line>` | Per-row edges (not fixed Y). Defaults: `fillOpacity` 0.15, solid edges at the band color. `fillType="gradient"` / `"pattern"`. |
+| "min/max range", "confidence band", "range around the line", "range area" | `<Band upperKey="valueUpper" lowerKey="valueLower" label="Range" />` before the `<Line>` (or alone for a range area chart) | Per-row edges (not fixed Y). Defaults: `fillOpacity` 0.15, solid edges at the band color. `fillType="gradient"` / `"pattern"`. |
 | "Bollinger bands" | `withBollingerBands(data, { dataKey: "price" })` → `<Band upperKey="priceUpper" lowerKey="priceLower" />` | Defaults: `period` 20, `multiplier` 2. Dashed SMA = zero-height `Band` on `priceSma` with `lowerStroke={false}`. |
 
 ## Pie, donut, ring

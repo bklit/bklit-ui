@@ -31,7 +31,7 @@ Docs: `https://bklit.com/docs/components/<slug>`.
 | `Area` | `Area` | `@/components/charts/area-chart` (re-export) or `@/components/charts/area` | `fill`, `fillOpacity` (0.4), `gradientToOpacity` (0), `stroke`, `curve` (`curveMonotoneX`). |
 | `Bar` in `BarChart` | `Bar` | `@/components/charts/bar` | `fill`, `lineCap` (`"round"`), `groupGap` (4), `yAxisId`. |
 | `Bar` in `ComposedChart` | `SeriesBar` | `@/components/charts/series-bar` | `fill`, `radius` (0), `fadedOpacity` (0.3). |
-| `Scatter` | `Scatter` | `@/components/charts/scatter-chart` (re-export) or `@/components/charts/scatter` | `dataKey` is the **y** key; `fill`, `radius` (5). |
+| `Scatter` | `Scatter` | `@/components/charts/scatter-chart` (re-export) or `@/components/charts/scatter` | `dataKey` is the **y** key; `fill`, `radius` (5). Solid dots by default — rings opt-in via `strokeWidth` (0). Hover dims others to `inactiveOpacity` (0.3); `inactiveMode="blur"` adds blur. Overlapping points: root `jitter` (e.g. `jitter={{ x: 0.5 }}`). |
 | `Pie` | — (props move to `PieChart`) | — | `innerRadius`, `padAngle`, `cornerRadius`, `startAngle`, `endAngle` on `PieChart`. |
 | `Cell` | `PieSlice` | `@/components/charts/pie-slice` | One `<PieSlice index={i} />` per row; colour from `data[i].color` or `PieSlice color`. |
 | `Radar` | `RadarArea` | `@/components/charts/radar-area` | `index` into `data`; `color`, `showPoints`, `showStroke`, `showGlow`. |
@@ -54,7 +54,7 @@ Docs: `https://bklit.com/docs/components/<slug>`.
 | `Tooltip` (sankey) | `SankeyTooltip` | included | `@/components/charts/sankey` | |
 | `Legend` | `Legend` + `LegendItem` + `LegendMarker` + `LegendLabel` (+ `LegendValue`) | `@bklit/legend` | `@/components/charts/legend` | HTML, rendered **outside** the chart root. Exported as `LegendItem` here (the monorepo alias `LegendItemComponent` does not exist in the registry file). |
 | `ReferenceArea` | `ReferenceArea` | `@bklit/reference-area` | `@/components/charts/reference-area` | `x1`, `x2` (`Date \| number`), `y1`, `y2`, `fill`, `fillOpacity`, `stroke`, `strokeStyle`. |
-| `Area dataKey={[lo, hi]}` (range / BandedChart) | `Band` | `@bklit/line-chart` | `@/components/charts/band` | Split the range into two keys: `upperKey`, `lowerKey`. Inside `LineChart`, before the `Line`. Not in tooltip. |
+| `Area dataKey={[lo, hi]}` (range / BandedChart) | `Band` | `@bklit/line-chart` | `@/components/charts/band` | Split the range into two keys: `upperKey`, `lowerKey`. Inside `LineChart`, before the `Line` (no `Line` needed for a standalone range area). Tooltip shows `low – high` under `label`; `showInTooltip={false}` to hide. |
 | `ReferenceLine y={v}` | `Grid highlightRowValues={[v]}` | — | grid | Or a thin `ReferenceArea y1 y2`. |
 | `ReferenceDot` | `ChartMarkers` (approximation) | `@bklit/markers` | `@/components/charts/markers` | Date-anchored icon markers `{ date, icon, title }`, not an (x, y) dot. |
 | `Brush` | `ChartBrush` + `ChartBrushLayout` | **not in any registry item** | — | Source exists in bklit; not installable via shadcn. Treat as a gap. |

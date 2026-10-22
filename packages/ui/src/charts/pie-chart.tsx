@@ -266,12 +266,29 @@ const PieChartCore = memo(function PieChartCore({
 
   const effectiveIsLoaded = geometryScrubbing || isLoaded;
 
+  // Replay enter when motion settings change. The reset is adjusted during
+  // render ("store previous props in state") instead of setState in an effect.
+  const [enterKey, setEnterKey] = useState({
+    enterTransition,
+    enterStaggerScale,
+    geometryScrubbing,
+  });
+  if (
+    enterKey.enterTransition !== enterTransition ||
+    enterKey.enterStaggerScale !== enterStaggerScale ||
+    enterKey.geometryScrubbing !== geometryScrubbing
+  ) {
+    setEnterKey({ enterTransition, enterStaggerScale, geometryScrubbing });
+    if (!geometryScrubbing) {
+      setIsLoaded(false);
+    }
+  }
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: enterTransition
   useEffect(() => {
     if (geometryScrubbing) {
       return;
     }
-    setIsLoaded(false);
     const timer = setTimeout(() => {
       setIsLoaded(true);
     }, 100);

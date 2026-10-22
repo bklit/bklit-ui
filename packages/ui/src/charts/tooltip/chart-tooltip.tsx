@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useSpring } from "motion/react";
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
 import {
   resolveTooltipBoxMotion,
@@ -12,9 +12,10 @@ import {
   chartCssVars,
   type LineConfig,
   useChart,
+  useChartPortalContainer,
   useChartStable,
 } from "../chart-context";
-import { weekdayDateFmt } from "../chart-formatters";
+import { formatBandRange, weekdayDateFmt } from "../chart-formatters";
 import type { IndicatorFadeEdges } from "../indicator-fade";
 import { DateTicker } from "./date-ticker";
 import { TooltipBox } from "./tooltip-box";
@@ -25,7 +26,12 @@ import { TooltipIndicator } from "./tooltip-indicator";
 export interface ChartTooltipProps {
   /** Whether to show the date pill at bottom. Default: true */
   showDatePill?: boolean;
-  /** Whether to show the vertical crosshair line. Default: true */
+  /**
+   * Whether to show the crosshair indicator line. Default: `true` for
+   * line / area / composed / scatter charts, `false` inside `BarChart`
+   * (vertical and horizontal) and `ScatterChart` with `jitter` (hover snaps to
+   * the nearest point, not a date) — pass `showCrosshair` to opt in.
+   */
   showCrosshair?: boolean;
   /** Whether to show dots on the lines. Default: true */
   showDots?: boolean;
@@ -104,6 +110,8 @@ export interface ChartTooltipProps {
    * Default: `var(--chart-tooltip-background)`.
    */
   backgroundColor?: string;
+  /** Fade the panel out when hover ends. Default: true */
+  exit?: boolean;
 }
 
 interface ChartTooltipInnerProps extends ChartTooltipProps {
@@ -112,7 +120,7 @@ interface ChartTooltipInnerProps extends ChartTooltipProps {
 
 const ChartTooltipInner = memo(function ChartTooltipInner({
   showDatePill = true,
-  showCrosshair = true,
+  showCrosshair: showCrosshairProp,
   showDots = true,
   dotVariant = "dot",
   dotSize = 5,
@@ -138,6 +146,7 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
   panelStyle,
   backgroundColor,
   dateLabels: dateLabelsProp,
+  exit = true,
 }: ChartTooltipInnerProps) {
   const {
     tooltipData,
@@ -147,6 +156,7 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
     margin,
     columnWidth,
     lines,
+    bands,
     xAccessor,
     dateLabels: contextDateLabels,
     containerRef,
@@ -154,11 +164,20 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
     barXAccessor,
     bandWidth,
     squareSnap,
+    nearestPointHover,
   } = useChart();
+  const tooltipBands = useMemo(
+    () => (bands ?? []).filter((band) => band.showInTooltip),
+    [bands]
+  );
   const { tooltipSpring } = useChartConfig();
   const dateLabels = dateLabelsProp ?? contextDateLabels;
 
   const isHorizontal = orientation === "horizontal";
+  // Bar charts (any orientation) and nearest-point hover (jittered scatter)
+  // hide the crosshair line by default.
+  const showCrosshair =
+    showCrosshairProp ?? !(barXAccessor || nearestPointHover);
   const discreteInteraction = dateLabels.length > 60;
 
   const resolvedDotSize = useMemo(() => {
@@ -220,13 +239,48 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
       return rowsRenderer(tooltipData.point);
     }
 
-    // Default: generate rows from registered lines
-    return lines.map((line) => ({
+    // Default: generate rows from registered lines, then `<Band>` ranges.
+    // With nearest-point hover (jittered scatter) a row may hold only some
+    // series — skip the rest.
+    const rowLines = nearestPointHover
+      ? lines.filter(
+          (line) => typeof tooltipData.point[line.dataKey] === "number"
+        )
+      : lines;
+    const rows: TooltipRow[] = rowLines.map((line) => ({
       color: line.stroke,
       label: line.dataKey,
       value: (tooltipData.point[line.dataKey] as number) ?? 0,
     }));
-  }, [tooltipData, lines, rowsRenderer]);
+    for (const band of tooltipBands) {
+      const value = formatBandRange(
+        tooltipData.point,
+        band.upperKey,
+        band.lowerKey
+      );
+      if (value != null) {
+        rows.push({ color: band.color, label: band.label, value });
+      }
+    }
+    return rows;
+  }, [tooltipData, lines, tooltipBands, rowsRenderer, nearestPointHover]);
+
+  // One dot per band edge (deduped; edges shared with a `<Line>` use its dot).
+  const bandDots = useMemo(() => {
+    const lineKeys = new Set(lines.map((line) => line.dataKey));
+    const seen = new Set<string>();
+    const dots: { key: string; color: string }[] = [];
+    for (const band of tooltipBands) {
+      for (const key of [band.upperKey, band.lowerKey]) {
+        if (lineKeys.has(key) || seen.has(key)) {
+          continue;
+        }
+        seen.add(key);
+        dots.push({ key, color: band.color });
+      }
+    }
+    return dots;
+  }, [lines, tooltipBands]);
 
   const resolveDotColor = useMemo(() => {
     return (line: LineConfig, index: number): string => {
@@ -325,11 +379,44 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
                 strokeColor={chartCssVars.background}
                 strokeWidth={dotStrokeWidth}
                 variant={dotVariant}
-                visible={visible}
+                visible={
+                  visible &&
+                  !(
+                    nearestPointHover &&
+                    tooltipData?.yPositions[line.dataKey] === undefined
+                  )
+                }
                 x={tooltipData?.xPositions?.[line.dataKey] ?? x}
                 y={tooltipData?.yPositions[line.dataKey] ?? 0}
               />
             ))}
+            {bandDots.map((dot) => {
+              const y = tooltipData?.yPositions[dot.key];
+              if (y == null) {
+                return null;
+              }
+              return (
+                <TooltipDot
+                  color={
+                    typeof dotColorProp === "string" ? dotColorProp : dot.color
+                  }
+                  cornerRadiusFraction={
+                    dotVariant === "ring" ? dotRadiusFraction : undefined
+                  }
+                  haloOpacity={dotHaloOpacity}
+                  haloScale={dotHaloScale}
+                  key={`band-${dot.key}`}
+                  size={resolvedDotSize}
+                  springConfig={springConfig}
+                  strokeColor={chartCssVars.background}
+                  strokeWidth={dotStrokeWidth}
+                  variant={dotVariant}
+                  visible={visible}
+                  x={x}
+                  y={y}
+                />
+              );
+            })}
           </g>
         </svg>
       )}
@@ -342,6 +429,7 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
         containerHeight={height}
         containerRef={containerRef}
         containerWidth={width}
+        exit={exit}
         panelStyle={panelStyle}
         springConfig={boxMotion.springConfig}
         top={isHorizontal ? undefined : margin.top}
@@ -379,15 +467,9 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
 
 export function ChartTooltip(props: ChartTooltipProps) {
   const { containerRef } = useChartStable();
-  const [mounted, setMounted] = useState(false);
 
-  // Only render portals on client side after mount
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const container = containerRef.current;
-  if (!(mounted && container)) {
+  const container = useChartPortalContainer(containerRef);
+  if (!container) {
     return null;
   }
 

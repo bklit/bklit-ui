@@ -26,9 +26,12 @@ export function timeSeriesChartMargin(
 export function StudioChartYAxisLayers({
   chartPrefix,
   state,
+  formatValue,
 }: {
   chartPrefix: string;
   state: StudioUrlState;
+  /** Optional tick formatter for both axes (overrides large-number formatting). */
+  formatValue?: (value: number) => string;
 }) {
   return (
     <>
@@ -38,6 +41,7 @@ export function StudioChartYAxisLayers({
       >
         <YAxis
           formatLargeNumbers={getLineYAxisFormatLargeNumbers(state, "left")}
+          formatValue={formatValue}
           numTicks={getLineYAxisNumTicks(state, "left")}
           yAxisId="left"
         />
@@ -48,6 +52,7 @@ export function StudioChartYAxisLayers({
       >
         <YAxis
           formatLargeNumbers={getLineYAxisFormatLargeNumbers(state, "right")}
+          formatValue={formatValue}
           numTicks={getLineYAxisNumTicks(state, "right")}
           orientation="right"
           yAxisId="right"

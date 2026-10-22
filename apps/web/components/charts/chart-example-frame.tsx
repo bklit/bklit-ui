@@ -75,7 +75,7 @@ export function ChartExampleFrame({
       onPointerLeave={() => setHovered(false)}
     >
       <header
-        className="flex scroll-mt-[calc(var(--site-header-height)+1.5rem)] flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4"
+        className="flex scroll-mt-[calc(var(--site-header-height)+4.5rem)] flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4 lg:scroll-mt-[calc(var(--site-header-height)+1.5rem)]"
         id={anchorId}
       >
         <div className="flex min-w-0 flex-col gap-0.5">

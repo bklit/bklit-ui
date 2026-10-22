@@ -13,6 +13,7 @@ import {
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
 } from "react";
 import {
   type ArcDatum,
@@ -103,6 +104,28 @@ export interface SunburstChartProps {
   children: ReactNode;
 }
 
+const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
+
+function subscribeReducedMotion(onStoreChange: () => void) {
+  if (typeof window === "undefined" || !window.matchMedia) {
+    return () => undefined;
+  }
+  const query = window.matchMedia(REDUCED_MOTION_QUERY);
+  query.addEventListener?.("change", onStoreChange);
+  return () => query.removeEventListener?.("change", onStoreChange);
+}
+
+function getReducedMotionSnapshot() {
+  return (
+    typeof window !== "undefined" &&
+    window.matchMedia?.(REDUCED_MOTION_QUERY).matches === true
+  );
+}
+
+function getReducedMotionServerSnapshot() {
+  return false;
+}
+
 const SunburstChartCore = memo(function SunburstChartCore({
   data,
   size = 520,
@@ -131,15 +154,25 @@ const SunburstChartCore = memo(function SunburstChartCore({
   );
   const radius = Math.max(8, fullRadius - growPadding);
 
-  const [skipEnterAnimation, setSkipEnterAnimation] = useState(false);
+  // Reduced motion skips the enter animation and hover-grow tweens. Read via
+  // useSyncExternalStore (false on the server / during hydration, like the
+  // previous post-mount effect) instead of setState in an effect.
+  const prefersReducedMotion = useSyncExternalStore(
+    subscribeReducedMotion,
+    getReducedMotionSnapshot,
+    getReducedMotionServerSnapshot
+  );
+  const skipEnterAnimation = prefersReducedMotion;
   const [internalHoveredArc, setInternalHoveredArc] = useState<ArcDatum | null>(
     null
   );
   const [internalHoveredIndex, setInternalHoveredIndex] = useState<
     number | null
   >(null);
+  // Hover-grow amounts per arc. `growRef` is the tween's working copy (read
+  // only in effects / handlers); `grow` is what render reads.
   const growRef = useRef<Map<string, number>>(new Map());
-  const [growTick, setGrowTick] = useState(0);
+  const [grow, setGrow] = useState<Map<string, number>>(() => new Map());
 
   const [internalFocusId, setInternalFocusId] = useState(rootId);
   const [prevFocusId, setPrevFocusId] = useState(rootId);
@@ -193,36 +226,33 @@ const SunburstChartCore = memo(function SunburstChartCore({
   const focus = focusById.get(focusId) ?? rootFocus;
   const prevFocus = focusById.get(prevFocusId) ?? focus;
 
-  useEffect(() => {
+  // Reset focus / zoom when the hierarchy root or focus mode changes —
+  // adjusted during render ("store previous props in state"), not in an effect.
+  const [focusResetKey, setFocusResetKey] = useState({
+    rootId,
+    isFocusControlled,
+  });
+  if (
+    focusResetKey.rootId !== rootId ||
+    focusResetKey.isFocusControlled !== isFocusControlled
+  ) {
+    setFocusResetKey({ rootId, isFocusControlled });
     if (!isFocusControlled) {
       setInternalFocusId(rootId);
     }
     setPrevFocusId(rootId);
     setZoomT(1);
-  }, [rootId, isFocusControlled]);
+  }
 
   const enterTiming = useMemo(
     () => buildSunburstEnterTiming(arcs, enterStaggerScale),
     [arcs, enterStaggerScale]
   );
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: replay when data or playKey changes
-  useEffect(() => {
-    setSkipEnterAnimation(
-      typeof window !== "undefined" &&
-        window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true
-    );
-  }, [playKey, arcs]);
-
-  const prefersReduced = () =>
-    typeof window !== "undefined" &&
-    window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-
   const growControls = useRef<ReturnType<typeof animate> | null>(null);
   const zoomControls = useRef<ReturnType<typeof animate> | null>(null);
   const zoomGen = useRef(0);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: prefersReduced reads matchMedia at call time
   const zoomTo = useCallback(
     (nextId: string) => {
       if (nextId === focusId) {
@@ -231,12 +261,12 @@ const SunburstChartCore = memo(function SunburstChartCore({
       setHoveredArc(null);
       growControls.current?.stop();
       growRef.current = new Map();
-      setGrowTick((n) => n + 1);
+      setGrow(growRef.current);
       setPrevFocusId(focusId);
       setFocusId(nextId);
       zoomControls.current?.stop();
       const gen = ++zoomGen.current;
-      if (prefersReduced()) {
+      if (getReducedMotionSnapshot()) {
         setZoomT(1);
         return;
       }
@@ -284,9 +314,8 @@ const SunburstChartCore = memo(function SunburstChartCore({
     [hoveredArc, isDescendant]
   );
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: grow targets from visible hover path
-  useEffect(() => {
-    const targets =
+  const growTargets = useMemo(
+    () =>
       hoveredArc && focus
         ? buildHoverGrowTargets(
             arcs,
@@ -297,15 +326,20 @@ const SunburstChartCore = memo(function SunburstChartCore({
             hoverPop,
             isOnHoverPath
           )
-        : new Map<string, number>();
+        : new Map<string, number>(),
+    [hoveredArc, arcs, hoverPop, isOnHoverPath, focus, maxDepth, radius]
+  );
+
+  useEffect(() => {
+    const targets = growTargets;
     const starts = new Map(growRef.current);
     const ids = new Set<string>([...starts.keys(), ...targets.keys()]);
 
     growControls.current?.stop();
 
-    if (prefersReduced()) {
+    // Reduced motion: render reads `growTargets` directly (no tween state).
+    if (prefersReducedMotion) {
       growRef.current = targets;
-      setGrowTick((n) => n + 1);
       return;
     }
 
@@ -323,11 +357,13 @@ const SunburstChartCore = memo(function SunburstChartCore({
           }
         }
         growRef.current = next;
-        setGrowTick((n) => n + 1);
+        setGrow(next);
       },
     });
     return () => growControls.current?.stop();
-  }, [hoveredArc, arcs, hoverPop, isOnHoverPath, focus, maxDepth, radius]);
+  }, [growTargets, prefersReducedMotion]);
+
+  const displayedGrow = prefersReducedMotion ? growTargets : grow;
 
   const getColor = useCallback((categoryIndex: number, nodeColor?: string) => {
     if (nodeColor) {
@@ -360,10 +396,9 @@ const SunburstChartCore = memo(function SunburstChartCore({
     []
   );
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: growTick forces re-read from growRef
   const growAmountForArc = useCallback(
-    (arcId: string) => growRef.current.get(arcId) ?? 0,
-    [growTick]
+    (arcId: string) => displayedGrow.get(arcId) ?? 0,
+    [displayedGrow]
   );
 
   const maxExpandedThickness = useMemo(

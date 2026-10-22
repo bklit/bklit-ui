@@ -5,6 +5,9 @@ import type * as PageTree from "fumadocs-core/page-tree";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { DocsScrollArea } from "@/components/docs/docs-scroll-area";
+import { NavBadge } from "@/components/nav-badge";
+import { getNavBadge } from "@/lib/nav-badges";
+import { isFileUrl, type SiteNavLink } from "@/lib/site-nav-links";
 import { cn } from "@/lib/utils";
 
 /** coss ui docs sidebar styling (https://coss.com/ui, MIT). */
@@ -16,15 +19,9 @@ const linkStyles = {
     "flex h-7 shrink-0 items-center gap-2 font-medium text-sidebar-accent-foreground text-xs [&>svg]:size-4 [&>svg]:shrink-0",
 };
 
-interface NavLink {
-  text: string;
-  url: string;
-  active?: "url" | "nested-url";
-}
-
 interface SidebarProps {
   tree: PageTree.Root;
-  links?: NavLink[];
+  links?: SiteNavLink[];
 }
 
 export function Sidebar({ tree, links = [] }: SidebarProps) {
@@ -50,7 +47,8 @@ export function Sidebar({ tree, links = [] }: SidebarProps) {
                       )}
                       href={link.url}
                     >
-                      {link.text}
+                      <span>{link.text}</span>
+                      <NavBadge kind={getNavBadge(link.url)} />
                     </Link>
                   </li>
                 );
@@ -99,10 +97,12 @@ function SidebarNode({ node }: { node: PageTree.Node }) {
             linkStyles.base,
             isActive ? linkStyles.active : linkStyles.inactive
           )}
+          external={node.external || isFileUrl(node.url)}
           href={node.url}
         >
           {node.icon}
           <span>{node.name}</span>
+          <NavBadge kind={getNavBadge(node.url)} />
         </Link>
       </li>
     );
@@ -137,6 +137,7 @@ function SidebarFolder({
           >
             {node.icon}
             <span>{node.name}</span>
+            <NavBadge kind={getNavBadge(indexPage.url)} />
           </Link>
         ) : (
           <button

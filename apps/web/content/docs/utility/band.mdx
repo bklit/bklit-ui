@@ -1,6 +1,6 @@
 ---
 title: Band
-description: Shaded range between per-row upper and lower values on a line chart — min/max ranges, confidence intervals, and Bollinger bands
+description: Shaded range between per-row upper and lower values on a line chart — range area charts, min/max ranges, confidence intervals, and Bollinger bands
 ---
 
 import { studioChartHref } from "@bklitui/studio";
@@ -9,6 +9,8 @@ import {
   BandEdgeStrokesDemo,
   BandFadeEdgesDemo,
   BandFillTypeDemo,
+  BandRangeAreaDemo,
+  BandRangeComboDemo,
   BandRangeDemo,
 } from "@/components/docs/band-demo";
 import { OpenInStudioButton } from "@/components/docs/open-in-studio-button";
@@ -25,11 +27,11 @@ import { OpenInStudioButton } from "@/components/docs/open-in-studio-button";
 
 ## Usage
 
-`Band` fills the area between two data keys on every row — a min/max range, a forecast interval, or Bollinger bands. Use it inside `LineChart` and place it **before** your `<Line>`s so the lines paint on top.
+`Band` fills the area between two data keys on every row — a min/max range, a forecast interval, or Bollinger bands. Use it inside `LineChart` (or `AreaChart` / `ComposedChart`) and place it **before** your `<Line>`s so the lines paint on top.
 
 - It animates in left-to-right with the lines through the shared reveal clip, and morphs with them when `data` changes.
-- Both edges extend the y-domain, so the band is never clipped at the top or bottom of the plot.
-- It is decorative: the tooltip only reports `<Line>` series, not the band's edge values.
+- Both edges extend the y-domain, so the band is never clipped at the top or bottom of the plot — even with no `<Line>` at all.
+- `ChartTooltip` adds a `low – high` row per band (labelled with `label`) and a dot on each edge. Pass `showInTooltip={false}` for a purely decorative band.
 - `null` / non-numeric edge values break the band into separate segments.
 
 ```tsx
@@ -43,12 +45,68 @@ const data = [
 
 <LineChart data={data}>
   <Grid horizontal />
-  <Band upperKey="valueUpper" lowerKey="valueLower" />
+  <Band upperKey="valueUpper" lowerKey="valueLower" label="range" />
   <Line dataKey="value" />
   <XAxis />
   <ChartTooltip />
 </LineChart>
 ```
+
+## Range area
+
+A `Band` on its own is a range area chart: a filled area between a per-row low and high, with no centre line. The y-axis scales to the band, and the tooltip shows the range for the hovered date.
+
+<ComponentShowcase code={`const data = [
+  { date: new Date("2024-06-01"), low: 13, high: 22 },
+  { date: new Date("2024-06-02"), low: 14, high: 24 },
+  // ...
+];
+
+<LineChart data={data}>
+  <Grid horizontal />
+  <Band
+    upperKey="high"
+    lowerKey="low"
+    label="Temperature"
+    fill="var(--chart-1)"
+    fillOpacity={0.3}
+    strokeWidth={1.5}
+  />
+  <XAxis />
+  <ChartTooltip />
+</LineChart>`}>
+  <BandRangeAreaDemo />
+</ComponentShowcase>
+
+## Range area + line combo
+
+Use one `Band` per series and give each the same colour as its `Line` — for example each team's min / max around its average. The tooltip lists every line value and every band range for the hovered date. `strokeWidth={0}` drops the band edges so only the lines are stroked.
+
+`Legend` takes explicit items, so add one entry per series in the shared colour.
+
+<ComponentShowcase code={`<LineChart data={data}>
+  <Grid horizontal />
+  <Band upperKey="teamAMax" lowerKey="teamAMin" label="Team A range" fill="var(--chart-1)" fillOpacity={0.18} strokeWidth={0} />
+  <Band upperKey="teamBMax" lowerKey="teamBMin" label="Team B range" fill="var(--chart-3)" fillOpacity={0.18} strokeWidth={0} />
+  <Line dataKey="teamA" stroke="var(--chart-1)" strokeWidth={2} />
+  <Line dataKey="teamB" stroke="var(--chart-3)" strokeWidth={2} />
+  <XAxis />
+  <ChartTooltip />
+</LineChart>
+<Legend
+  className="flex-row justify-center gap-6"
+  items={[
+    { label: "Team A", value: 0, color: "var(--chart-1)" },
+    { label: "Team B", value: 0, color: "var(--chart-3)" },
+  ]}
+>
+  <LegendItemComponent className="flex items-center gap-2">
+    <LegendMarker />
+    <LegendLabel />
+  </LegendItemComponent>
+</Legend>`}>
+  <BandRangeComboDemo />
+</ComponentShowcase>
 
 ## Bollinger bands
 
@@ -70,6 +128,7 @@ const bollingerData = withBollingerBands(data, {
   <Band
     upperKey="priceUpper"
     lowerKey="priceLower"
+    label="Bollinger"
     fill="var(--chart-1)"
     fillOpacity={0.12}
     strokeOpacity={0.5}
@@ -77,6 +136,8 @@ const bollingerData = withBollingerBands(data, {
   <Band
     upperKey="priceSma"
     lowerKey="priceSma"
+    label="SMA"
+    fill="var(--chart-1)"
     fillOpacity={0}
     stroke="var(--chart-1)"
     strokeDasharray="4,4"
@@ -161,8 +222,10 @@ Both edges share `stroke`, `strokeWidth`, `strokeDasharray`, and `strokeOpacity`
 | `upperKey` | `string` | required | Data key for the upper edge |
 | `lowerKey` | `string` | required | Data key for the lower edge |
 | `yAxisId` | `string` | `"left"` | Y-scale group id |
+| `label` | `string` | `"lowerKey – upperKey"` | Tooltip row label (the key itself when both edges use one key) |
+| `showInTooltip` | `boolean` | `true` | Add a `low – high` row and edge dots to `ChartTooltip` |
 | `curve` | `CurveFactory` | `curveNatural` | D3 curve function (match your `Line`) |
-| `fill` | `string` | `var(--chart-line-primary)` | Band color |
+| `fill` | `string` | `var(--chart-line-primary)` | Band color (also the tooltip swatch and edge dots) |
 | `fillType` | `"solid" \| "gradient" \| "pattern"` | `"solid"` | Fill style |
 | `fillOpacity` | `number` | `0.15` | Solid opacity, or gradient opacity at the upper edge |
 | `gradientToOpacity` | `number` | `0` | Gradient opacity at the lower edge |
@@ -222,3 +285,7 @@ type BandFadeEdges =
 </div>
 
 Open [Studio with the line chart](/studio?chart=line-chart) and turn on the **Band** layer in the components panel. Set **Mode** to **Range (upper / lower)** or **Bollinger bands**, then tune fill, edges, and fades — the generated code includes the data shaping.
+
+- **Range area:** hide the series line with its eye toggle — the band stays, and the legend keeps its entry.
+- **Range area + line combo:** set **Series** to **Every series (own color)** to give each series its own band in its color.
+- **Tooltip range** toggles `showInTooltip`.

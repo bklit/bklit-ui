@@ -1,8 +1,10 @@
 {
   "title": "Documentation",
   "pages": [
+    "---Guides---",
     "theming",
     "skills",
+    "[llms.txt](/llms.txt)",
     "---Components---",
     "...components",
     "---Utility---",

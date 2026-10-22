@@ -3,7 +3,7 @@
 import { Mercator } from "@visx/geo";
 import type { TransformMatrix } from "@visx/zoom";
 import { Zoom } from "@visx/zoom";
-import type { FeatureCollection, Geometry } from "geojson";
+import type { FeatureCollection, GeoJSON, Geometry } from "geojson";
 import type { Transition } from "motion/react";
 import React, {
   memo,
@@ -168,8 +168,7 @@ const DEFAULT_INITIAL_ZOOM: TransformMatrix = {
 };
 
 interface MercatorRenderProps {
-  // biome-ignore lint/suspicious/noExplicitAny: visx geo projection bundle
-  path: (geo: any) => string | null;
+  path: (geo: GeoJSON) => string | null;
   projection: (coords: [number, number]) => [number, number] | null | undefined;
 }
 
@@ -261,8 +260,7 @@ const ChoroplethMercatorContent = memo(function ChoroplethMercatorContent({
   );
 
   const rawPathGenerator = useCallback(
-    // biome-ignore lint/suspicious/noExplicitAny: GeoJSON types are complex
-    (geo: any) => mercator.path(geo),
+    (geo: GeoJSON) => mercator.path(geo),
     [mercator]
   );
 
@@ -369,7 +367,7 @@ function ChoroplethChartInner({
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [revealEpoch, setRevealEpoch] = useState(0);
+  const [revealEpoch, setRevealEpoch] = useState(1);
 
   const innerWidth = width - margin.left - margin.right;
   const innerHeight = height - margin.top - margin.bottom;
@@ -386,10 +384,24 @@ function ChoroplethChartInner({
     [children]
   );
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: revealSignature
-  useEffect(() => {
+  // Replay the reveal when motion settings change. Adjusted during render
+  // ("store previous props in state") instead of setState in an effect, so a
+  // replay costs one render rather than a commit plus a cascading re-render.
+  const [revealKey, setRevealKey] = useState({
+    animationDuration,
+    revealSignature,
+  });
+  if (
+    revealKey.animationDuration !== animationDuration ||
+    revealKey.revealSignature !== revealSignature
+  ) {
+    setRevealKey({ animationDuration, revealSignature });
     setRevealEpoch((n) => n + 1);
     setIsLoaded(false);
+  }
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: revealSignature
+  useEffect(() => {
     const timeout = setTimeout(() => {
       setIsLoaded(true);
     }, animationDuration);

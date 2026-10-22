@@ -333,28 +333,26 @@ const LiveLineChartCore = memo(function LiveLineChartCore({
   const innerHeight = height - margin.top - margin.bottom;
 
   // ---- Animation state ----
-  const animRef = useRef<AnimFrame>({
+  // Lazy initializer: `Date.now()` runs once on mount, not on every render.
+  const [frame, setFrame] = useState<AnimFrame>(() => ({
     now: Date.now(),
     yMin: 0,
     yMax: 100,
     displayValue: value,
-  });
-  const [frame, setFrame] = useState<AnimFrame>({
-    now: Date.now(),
-    yMin: 0,
-    yMax: 100,
-    displayValue: value,
-  });
+  }));
+  // rAF-owned copy of the latest frame (replaced, never mutated).
+  const animRef = useRef<AnimFrame>(frame);
 
   const pausedRef = useRef(paused);
   const dataRef = useRef(data);
   const dataKeyRef = useRef(dataKey);
-  dataRef.current = data;
-  dataKeyRef.current = dataKey;
 
+  // Latest values for the rAF loop — synced after commit, not during render.
   useEffect(() => {
     pausedRef.current = paused;
-  }, [paused]);
+    dataRef.current = data;
+    dataKeyRef.current = dataKey;
+  }, [paused, data, dataKey]);
 
   const targetRange = useMemo(
     () => computeTargetRange(data, value, exaggerate),
