@@ -1,8 +1,12 @@
 "use client";
 
 import type { ScaleLinear, ScaleTime } from "d3-scale";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import type { LineConfig, Margin, TooltipData } from "./chart-context";
+import {
+  type ScatterJitterOffsets,
+  scatterJitterOffset,
+} from "./scatter-jitter";
 import { localPointFromSvg } from "./scatter-svg";
 import type { ChartSelection } from "./use-chart-interaction";
 import { useScheduledTooltip } from "./use-scheduled-tooltip";
@@ -25,6 +29,14 @@ interface UseScatterChartInteractionParams {
     lo: number
   ) => number;
   canInteract: boolean;
+  /** When set, hover resolves to the nearest jittered point (2D hit test). */
+  jitter?: ScatterJitterOffsets | null;
+}
+
+interface JitteredPoint {
+  index: number;
+  x: number;
+  y: number;
 }
 
 interface ScatterChartInteractionResult {
@@ -54,6 +66,7 @@ export function useScatterChartInteraction({
   xAccessor,
   bisectDate,
   canInteract,
+  jitter = null,
 }: UseScatterChartInteractionParams): ScatterChartInteractionResult {
   const [selection, setSelection] = useState<ChartSelection | null>(null);
   const {
@@ -108,6 +121,87 @@ export function useScatterChartInteraction({
     [xScale, yScale, yScales, data, lines, xAccessor, bisectDate]
   );
 
+  /** Jittered pixel positions for every rendered point (only when jitter is on). */
+  const jitteredPoints = useMemo<JitteredPoint[]>(() => {
+    if (!jitter) {
+      return [];
+    }
+    const points: JitteredPoint[] = [];
+    for (const [seriesIndex, line] of lines.entries()) {
+      const axisScale = yScales[normalizeYAxisId(line.yAxisId)] ?? yScale;
+      for (const [index, d] of data.entries()) {
+        const value = d[line.dataKey];
+        if (typeof value !== "number") {
+          continue;
+        }
+        const offset = scatterJitterOffset(jitter, index, seriesIndex);
+        points.push({
+          index,
+          x: (xScale(xAccessor(d)) ?? 0) + offset.x,
+          y: (axisScale(value) ?? 0) + offset.y,
+        });
+      }
+    }
+    return points;
+  }, [jitter, lines, data, xScale, xAccessor, yScale, yScales]);
+
+  const resolveTooltipFromPoint = useCallback(
+    (pixelX: number, pixelY: number): TooltipData | null => {
+      if (!jitter || jitteredPoints.length === 0) {
+        return resolveTooltipFromX(pixelX);
+      }
+      let nearest: JitteredPoint | null = null;
+      let nearestDistance = Number.POSITIVE_INFINITY;
+      for (const point of jitteredPoints) {
+        const dx = point.x - pixelX;
+        const dy = point.y - pixelY;
+        const distance = dx * dx + dy * dy;
+        if (distance < nearestDistance) {
+          nearestDistance = distance;
+          nearest = point;
+        }
+      }
+      if (!nearest) {
+        return null;
+      }
+      const d = data[nearest.index];
+      if (!d) {
+        return null;
+      }
+      const xPositions: Record<string, number> = {};
+      const yPositions: Record<string, number> = {};
+      const baseX = xScale(xAccessor(d)) ?? 0;
+      for (const [seriesIndex, line] of lines.entries()) {
+        const value = d[line.dataKey];
+        if (typeof value !== "number") {
+          continue;
+        }
+        const axisScale = yScales[normalizeYAxisId(line.yAxisId)] ?? yScale;
+        const offset = scatterJitterOffset(jitter, nearest.index, seriesIndex);
+        xPositions[line.dataKey] = baseX + offset.x;
+        yPositions[line.dataKey] = (axisScale(value) ?? 0) + offset.y;
+      }
+      return {
+        point: d,
+        index: nearest.index,
+        x: baseX,
+        xPositions,
+        yPositions,
+      };
+    },
+    [
+      jitter,
+      jitteredPoints,
+      resolveTooltipFromX,
+      data,
+      lines,
+      xScale,
+      xAccessor,
+      yScale,
+      yScales,
+    ]
+  );
+
   const resolveIndexFromX = useCallback(
     (pixelX: number): number => {
       const x0 = xScale.invert(pixelX);
@@ -129,11 +223,11 @@ export function useScatterChartInteraction({
     [xScale, data, xAccessor, bisectDate]
   );
 
-  const getChartX = useCallback(
+  const getChartPoint = useCallback(
     (
       event: React.MouseEvent<SVGGElement> | React.TouchEvent<SVGGElement>,
       touchIndex = 0
-    ): number | null => {
+    ): { x: number; y: number } | null => {
       const svg = event.currentTarget.ownerSVGElement;
       let clientX: number;
       let clientY: number;
@@ -154,9 +248,17 @@ export function useScatterChartInteraction({
       if (!point) {
         return null;
       }
-      return point.x - margin.left;
+      return { x: point.x - margin.left, y: point.y - margin.top };
     },
-    [margin.left]
+    [margin.left, margin.top]
+  );
+
+  const getChartX = useCallback(
+    (
+      event: React.MouseEvent<SVGGElement> | React.TouchEvent<SVGGElement>,
+      touchIndex = 0
+    ): number | null => getChartPoint(event, touchIndex)?.x ?? null,
+    [getChartPoint]
   );
 
   const handleMouseMove = useCallback(
@@ -179,12 +281,21 @@ export function useScatterChartInteraction({
         return;
       }
 
-      const tooltip = resolveTooltipFromX(chartX);
+      const chartPoint = getChartPoint(event);
+      const tooltip = chartPoint
+        ? resolveTooltipFromPoint(chartPoint.x, chartPoint.y)
+        : null;
       if (tooltip) {
         scheduleTooltip(tooltip);
       }
     },
-    [getChartX, resolveTooltipFromX, resolveIndexFromX, scheduleTooltip]
+    [
+      getChartX,
+      getChartPoint,
+      resolveTooltipFromPoint,
+      resolveIndexFromX,
+      scheduleTooltip,
+    ]
   );
 
   const handleMouseLeave = useCallback(() => {
@@ -220,11 +331,11 @@ export function useScatterChartInteraction({
     (event: React.TouchEvent<SVGGElement>) => {
       if (event.touches.length === 1) {
         event.preventDefault();
-        const chartX = getChartX(event, 0);
-        if (chartX === null) {
+        const chartPoint = getChartPoint(event, 0);
+        if (chartPoint === null) {
           return;
         }
-        const tooltip = resolveTooltipFromX(chartX);
+        const tooltip = resolveTooltipFromPoint(chartPoint.x, chartPoint.y);
         if (tooltip) {
           scheduleTooltip(tooltip);
         }
@@ -250,7 +361,8 @@ export function useScatterChartInteraction({
     },
     [
       getChartX,
-      resolveTooltipFromX,
+      getChartPoint,
+      resolveTooltipFromPoint,
       resolveIndexFromX,
       scheduleTooltip,
       resetTooltipDedupe,
@@ -262,11 +374,11 @@ export function useScatterChartInteraction({
     (event: React.TouchEvent<SVGGElement>) => {
       if (event.touches.length === 1) {
         event.preventDefault();
-        const chartX = getChartX(event, 0);
-        if (chartX === null) {
+        const chartPoint = getChartPoint(event, 0);
+        if (chartPoint === null) {
           return;
         }
-        const tooltip = resolveTooltipFromX(chartX);
+        const tooltip = resolveTooltipFromPoint(chartPoint.x, chartPoint.y);
         if (tooltip) {
           scheduleTooltip(tooltip);
         }
@@ -288,7 +400,13 @@ export function useScatterChartInteraction({
         });
       }
     },
-    [getChartX, resolveTooltipFromX, resolveIndexFromX, scheduleTooltip]
+    [
+      getChartX,
+      getChartPoint,
+      resolveTooltipFromPoint,
+      resolveIndexFromX,
+      scheduleTooltip,
+    ]
   );
 
   const handleTouchEnd = useCallback(() => {

@@ -62,7 +62,9 @@ import {
   ringCenterControlGroup,
   ringChartControlGroups,
   sankeyChartControlGroups,
-  scatterChartControlGroups,
+  scatterInteractionControlGroup,
+  scatterJitterControlGroup,
+  scatterPointsControlGroup,
   standardBrushControlGroups,
   standardBrushStripControlGroups,
   standardChartTooltipControlGroups,
@@ -1347,7 +1349,6 @@ export function resolveRadarComponents(
 export function resolveScatterComponents(
   state: StudioUrlState
 ): StudioComponentDefinition[] {
-  const [points, interaction] = scatterChartControlGroups;
   const chartId = "scatter.chart";
 
   const components: StudioComponentDefinition[] = [
@@ -1356,7 +1357,7 @@ export function resolveScatterComponents(
       label: "ScatterChart",
       kind: "chart",
       treeIcon: "layers",
-      controlGroups: [],
+      controlGroups: [scatterJitterControlGroup],
       design: rootPaletteDesign(false),
     },
     gridNode("scatter"),
@@ -1371,8 +1372,8 @@ export function resolveScatterComponents(
       swatchColor: getEffectiveSeriesColor(state, 0),
       controlGroups: [
         seriesYAxisControlGroup(0),
-        ...(points ? [points] : []),
-        ...(interaction ? [interaction] : []),
+        scatterPointsControlGroup,
+        scatterInteractionControlGroup,
       ],
       design: { seriesIndex: 0, supportsPattern: false },
     },

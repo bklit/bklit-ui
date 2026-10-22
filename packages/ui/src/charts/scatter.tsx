@@ -1,14 +1,34 @@
 "use client";
 
-import { useId } from "react";
+import { useCallback, useId } from "react";
 import { useChartStable } from "./chart-context";
+import { scatterJitterOffset, useScatterJitter } from "./scatter-jitter";
 import { SeriesMarkers, type SeriesMarkersProps } from "./series-markers";
 
-export interface ScatterProps extends Omit<SeriesMarkersProps, "animate"> {
+/**
+ * How non-active points are de-emphasised while hovering.
+ * - `"opacity"` — fade to `inactiveOpacity` (default)
+ * - `"blur"` — fade to `inactiveOpacity` and blur by `inactiveBlur` px
+ */
+export type ScatterInactiveMode = "opacity" | "blur";
+
+export interface ScatterProps
+  extends Omit<SeriesMarkersProps, "animate" | "getPointOffset"> {
   /** Y-scale group id (Recharts `yAxisId`). Default: `"left"`. */
   yAxisId?: string | number;
   /** Whether to animate points with clip reveal. Default: true */
   animate?: boolean;
+  /**
+   * Outer ring stroke width in px. Rings are opt-in — set e.g. `2` to draw an
+   * offset ring around each point (see `ringGap`). Default: 0 (no ring)
+   */
+  strokeWidth?: number;
+  /** Opacity for non-active points while hovering. Default: 0.3 */
+  inactiveOpacity?: number;
+  /** De-emphasis style for non-active points while hovering. Default: "opacity" */
+  inactiveMode?: ScatterInactiveMode;
+  /** Blur in px for non-active points when `inactiveMode="blur"`. Default: 2 */
+  inactiveBlur?: number;
   /**
    * Color each dot by its vertical position using a chart-space linear gradient.
    * Lower values use `from`; higher values use `to`. Default stops: red (bottom) → green (top).
@@ -23,20 +43,27 @@ export function Scatter({
   dataKey,
   fill,
   stroke,
-  strokeWidth = 2,
+  strokeWidth = 0,
   ringGap = 2,
   outlineWidth = 0,
   outlineColor,
   radius = 5,
   animate = true,
   fadeOnHover = true,
-  inactiveOpacity = 0.5,
+  inactiveOpacity = 0.3,
+  inactiveMode = "opacity",
   inactiveBlur = 2,
   enterBlur = 2,
   showActiveHighlight = true,
   yGradient,
 }: ScatterProps) {
   const { innerHeight } = useChartStable();
+  const jitter = useScatterJitter();
+  const getPointOffset = useCallback(
+    (index: number, seriesIndex: number) =>
+      jitter ? scatterJitterOffset(jitter, index, seriesIndex) : { x: 0, y: 0 },
+    [jitter]
+  );
 
   const yGradientConfig = (() => {
     if (!yGradient) {
@@ -80,7 +107,8 @@ export function Scatter({
         enterBlur={enterBlur}
         fadeOnHover={fadeOnHover}
         fill={resolvedFill}
-        inactiveBlur={inactiveBlur}
+        getPointOffset={jitter ? getPointOffset : undefined}
+        inactiveBlur={inactiveMode === "blur" ? inactiveBlur : 0}
         inactiveOpacity={inactiveOpacity}
         outlineColor={outlineColor}
         outlineWidth={outlineWidth}

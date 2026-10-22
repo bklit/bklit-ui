@@ -1337,7 +1337,7 @@
       "name": "scatter-chart",
       "type": "registry:component",
       "title": "Scatter Chart",
-      "description": "A composable time-series scatter chart with offset rings, hover dimming, and animated enter",
+      "description": "A composable time-series scatter chart with hover dimming, optional offset rings, jitter, and animated enter",
       "registryDependencies": [
         "@bklit/chart-context",
         "@bklit/chart-animation",
@@ -1413,6 +1413,11 @@
           "path": "src/charts/scatter-svg.ts",
           "type": "registry:component",
           "target": "components/charts/scatter-svg.ts"
+        },
+        {
+          "path": "src/charts/scatter-jitter.ts",
+          "type": "registry:component",
+          "target": "components/charts/scatter-jitter.ts"
         }
       ]
     },

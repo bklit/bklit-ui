@@ -494,6 +494,39 @@ export function getScatterData(seed = 0) {
   }));
 }
 
+const SCATTER_JITTER_DAYS = 7;
+const SCATTER_JITTER_SAMPLES_PER_DAY = 24;
+
+/**
+ * Strip-plot sample data for jitter: many rows share each date, so points
+ * overlap without `ScatterChart jitter`. Deterministic per `seed`.
+ */
+export function getScatterJitterData(seed = 0) {
+  const random = seededRandom(seed + 31);
+  const sample = (mean: number, spread: number) =>
+    // Sum of uniforms ≈ normal; floor keeps values readable in tooltips.
+    Math.max(
+      10,
+      Math.round(mean + (random() + random() + random() - 1.5) * (spread / 0.5))
+    );
+  const rows: { date: Date; desktop: number; mobile: number }[] = [];
+  for (let day = 0; day < SCATTER_JITTER_DAYS; day++) {
+    const isWeekend = day >= 5;
+    for (
+      let sampleIndex = 0;
+      sampleIndex < SCATTER_JITTER_SAMPLES_PER_DAY;
+      sampleIndex++
+    ) {
+      rows.push({
+        date: new Date(2024, 0, day + 1),
+        desktop: sample(isWeekend ? 120 : 200 + day * 8, 28),
+        mobile: sample(isWeekend ? 170 : 130 + day * 6, 24),
+      });
+    }
+  }
+  return rows;
+}
+
 const HEATMAP_DAYS = 7;
 
 export const HEATMAP_WEEKS_TWO_YEARS = HEATMAP_WEEKS_ONE_YEAR * 2;

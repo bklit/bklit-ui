@@ -1751,52 +1751,107 @@ export const sunburstLabelsControlGroups: StudioControlGroup[] = [
   ]),
 ];
 
+export const scatterPointsControlGroup = controlGroup("Points", [
+  {
+    type: "number",
+    key: "scatterRadius",
+    label: "Radius",
+    min: 2,
+    max: 14,
+    step: 0.5,
+  },
+  { type: "boolean", key: "scatterShowRings", label: "Rings" },
+  {
+    type: "number",
+    key: "scatterRingGap",
+    label: "Ring gap",
+    min: 0,
+    max: 8,
+    step: 1,
+    visibleWhen: { key: "scatterShowRings", truthy: true },
+  },
+  {
+    type: "number",
+    key: "scatterRingWidth",
+    label: "Ring width",
+    min: 0.5,
+    max: 6,
+    step: 0.5,
+    visibleWhen: { key: "scatterShowRings", truthy: true },
+  },
+]);
+
+export const scatterInteractionControlGroup = controlGroup("Interaction", [
+  { type: "boolean", key: "scatterFadeOnHover", label: "Fade on hover" },
+  {
+    type: "select",
+    key: "scatterInactiveMode",
+    label: "Inactive",
+    options: [
+      { value: "opacity", label: "Opacity" },
+      { value: "blur", label: "Opacity + blur" },
+    ],
+    visibleWhen: { key: "scatterFadeOnHover", truthy: true },
+  },
+  {
+    type: "opacity",
+    key: "scatterInactiveOpacity",
+    label: "Inactive opacity",
+    min: 0.1,
+    max: 1,
+    step: 0.05,
+    color: "var(--chart-1)",
+    visibleWhen: { key: "scatterFadeOnHover", truthy: true },
+  },
+  {
+    type: "number",
+    key: "scatterInactiveBlur",
+    label: "Inactive blur",
+    min: 0.5,
+    max: 8,
+    step: 0.5,
+    unit: "px",
+    visibleWhen: [
+      { key: "scatterFadeOnHover", truthy: true },
+      { key: "scatterInactiveMode", equals: "blur" },
+    ],
+  },
+  { type: "boolean", key: "scatterSecondSeries", label: "Second series" },
+  {
+    type: "boolean",
+    key: "scatterShowActiveHighlight",
+    label: "Highlight active point",
+  },
+]);
+
+export const scatterJitterControlGroup = controlGroup("Jitter", [
+  { type: "boolean", key: "scatterJitter", label: "Jitter" },
+  {
+    type: "number",
+    key: "scatterJitterX",
+    label: "X spread (band)",
+    min: 0,
+    max: 1,
+    step: 0.05,
+    visibleWhen: { key: "scatterJitter", truthy: true },
+  },
+  {
+    type: "number",
+    key: "scatterJitterY",
+    label: "Y spread",
+    min: 0,
+    max: 24,
+    step: 1,
+    unit: "px",
+    visibleWhen: { key: "scatterJitter", truthy: true },
+  },
+]);
+
 export const scatterChartControlGroups: StudioControlGroup[] = [
   referenceAreaBoundsControlGroup,
-  controlGroup("Points", [
-    {
-      type: "number",
-      key: "scatterRadius",
-      label: "Radius",
-      min: 3,
-      max: 14,
-      step: 1,
-    },
-    {
-      type: "number",
-      key: "scatterRingGap",
-      label: "Gap",
-      min: 0,
-      max: 8,
-      step: 1,
-    },
-    {
-      type: "number",
-      key: "scatterRingWidth",
-      label: "Width",
-      min: 0,
-      max: 6,
-      step: 0.5,
-    },
-  ]),
-  controlGroup("Interaction", [
-    { type: "boolean", key: "scatterFadeOnHover", label: "Fade on hover" },
-    {
-      type: "opacity",
-      key: "scatterInactiveOpacity",
-      label: "Inactive",
-      min: 0.1,
-      max: 1,
-      step: 0.05,
-      color: "var(--chart-1)",
-    },
-    { type: "boolean", key: "scatterSecondSeries", label: "Second series" },
-    {
-      type: "boolean",
-      key: "scatterShowActiveHighlight",
-      label: "Highlight active point",
-    },
-  ]),
+  scatterPointsControlGroup,
+  scatterInteractionControlGroup,
+  scatterJitterControlGroup,
 ];
 
 export const liveLineChartControlGroups: StudioControlGroup[] = [

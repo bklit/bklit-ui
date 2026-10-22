@@ -30,6 +30,13 @@ import { isGradientDefComponent, isPatternDefComponent } from "./chart-defs";
 import { shortDateFmt } from "./chart-formatters";
 import { type ChartPhase, DEFAULT_CHART_LIFECYCLE } from "./chart-phase";
 import { extractReferenceAreaConfigs } from "./reference-area-config";
+import {
+  minDistinctStepRatio,
+  type ResolvedScatterJitterConfig,
+  ScatterJitterContext,
+  type ScatterJitterOffsets,
+  scatterJitterRangePadding,
+} from "./scatter-jitter";
 import { useScatterChartInteraction } from "./use-scatter-chart-interaction";
 import { buildYScalesForLines, getPrimaryYScale } from "./y-axis-scales";
 
@@ -46,6 +53,8 @@ export interface ScatterChartInnerProps {
   children: ReactNode;
   containerRef: React.RefObject<HTMLDivElement | null>;
   lines: LineConfig[];
+  /** Resolved jitter config (see `ScatterChart` `jitter`). */
+  jitter?: ResolvedScatterJitterConfig | null;
   onPhaseChange?: (phase: ChartPhase) => void;
 }
 
@@ -62,6 +71,7 @@ export function ScatterChartInner({
   children,
   containerRef,
   lines,
+  jitter = null,
   onPhaseChange,
 }: ScatterChartInnerProps) {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -83,13 +93,28 @@ export function ScatterChartInner({
     [xAccessor]
   );
 
-  const xRangePadding = useMemo(() => {
+  const baseRangePadding = useMemo(() => {
     if (lines.length === 0) {
       return 12;
     }
     const maxRadius = Math.max(...lines.map((line) => line.strokeWidth ?? 5));
     return maxRadius + 10;
   }, [lines]);
+
+  const stepRatio = useMemo(
+    () =>
+      jitter && jitter.x > 0
+        ? minDistinctStepRatio(data.map((d) => xAccessor(d).getTime()))
+        : 0,
+    [data, jitter, xAccessor]
+  );
+
+  const xRangePadding = scatterJitterRangePadding(
+    baseRangePadding,
+    innerWidth,
+    stepRatio,
+    jitter?.x ?? 0
+  );
 
   const xScale = useMemo(() => {
     const dates = data.map((d) => xAccessor(d));
@@ -103,6 +128,18 @@ export function ScatterChartInner({
       ])
       .domain([minTime, maxTime]);
   }, [innerWidth, data, xAccessor, xRangePadding]);
+
+  const jitterOffsets = useMemo<ScatterJitterOffsets | null>(() => {
+    if (!jitter) {
+      return null;
+    }
+    const plotWidth = Math.max(0, innerWidth - 2 * xRangePadding);
+    return {
+      x: (jitter.x / 2) * plotWidth * stepRatio,
+      y: jitter.y,
+      seed: jitter.seed,
+    };
+  }, [jitter, innerWidth, xRangePadding, stepRatio]);
 
   const columnWidth = useMemo(() => {
     if (data.length < 2) {
@@ -177,6 +214,7 @@ export function ScatterChartInner({
     xAccessor,
     bisectDate,
     canInteract,
+    jitter: jitterOffsets,
   });
 
   const referenceAreas = useMemo(
@@ -246,35 +284,37 @@ export function ScatterChartInner({
 
   return (
     <ChartProvider value={contextValue}>
-      <svg
-        aria-hidden="true"
-        className="overflow-visible"
-        height={height}
-        width={width}
-      >
-        {defsChildren.length > 0 && <defs>{defsChildren}</defs>}
-
-        <rect fill="transparent" height={height} width={width} x={0} y={0} />
-
-        <g
-          {...interactionHandlers}
-          style={interactionStyle}
-          transform={`translate(${margin.left},${margin.top})`}
+      <ScatterJitterContext.Provider value={jitterOffsets}>
+        <svg
+          aria-hidden="true"
+          className="overflow-visible"
+          height={height}
+          width={width}
         >
-          <rect
-            fill="transparent"
-            height={innerHeight}
-            width={innerWidth}
-            x={0}
-            y={0}
-          />
+          {defsChildren.length > 0 && <defs>{defsChildren}</defs>}
 
-          {clipExcludedChildren}
-          {underlayChildren}
-          {preOverlayChildren}
-          {postOverlayChildren}
-        </g>
-      </svg>
+          <rect fill="transparent" height={height} width={width} x={0} y={0} />
+
+          <g
+            {...interactionHandlers}
+            style={interactionStyle}
+            transform={`translate(${margin.left},${margin.top})`}
+          >
+            <rect
+              fill="transparent"
+              height={innerHeight}
+              width={innerWidth}
+              x={0}
+              y={0}
+            />
+
+            {clipExcludedChildren}
+            {underlayChildren}
+            {preOverlayChildren}
+            {postOverlayChildren}
+          </g>
+        </svg>
+      </ScatterJitterContext.Provider>
     </ChartProvider>
   );
 }

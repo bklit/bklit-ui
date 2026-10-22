@@ -1373,10 +1373,50 @@ export function sankeyCodegen(state: StudioUrlState) {
   };
 }
 
+function scatterSeriesPropsCodegen(state: StudioUrlState): string {
+  const parts = [`radius={${state.scatterRadius}}`];
+  if (state.scatterShowRings) {
+    parts.push(
+      `strokeWidth={${state.scatterRingWidth}}`,
+      `ringGap={${state.scatterRingGap}}`
+    );
+  }
+  if (state.scatterFadeOnHover) {
+    if (state.scatterInactiveOpacity !== 0.3) {
+      parts.push(`inactiveOpacity={${state.scatterInactiveOpacity}}`);
+    }
+    if (state.scatterInactiveMode === "blur") {
+      parts.push('inactiveMode="blur"');
+      if (state.scatterInactiveBlur !== 2) {
+        parts.push(`inactiveBlur={${state.scatterInactiveBlur}}`);
+      }
+    }
+  } else {
+    parts.push("fadeOnHover={false}");
+  }
+  if (!state.scatterShowActiveHighlight) {
+    parts.push("showActiveHighlight={false}");
+  }
+  return parts.join(" ");
+}
+
+function scatterJitterCodegen(state: StudioUrlState): string {
+  if (!state.scatterJitter) {
+    return "";
+  }
+  const parts = [`x: ${state.scatterJitterX}`];
+  if (state.scatterJitterY > 0) {
+    parts.push(`y: ${state.scatterJitterY}`);
+  }
+  return `\n  jitter={{ ${parts.join(", ")} }}`;
+}
+
 export function scatterCodegen(state: StudioUrlState) {
   const anim = `\n  ${cssRevealAnimationCodegen(state.animationDuration, motionSliceFromState(state))}`;
+  const jitter = scatterJitterCodegen(state);
+  const seriesProps = scatterSeriesPropsCodegen(state);
   const secondSeries = state.scatterSecondSeries
-    ? `\n  <Scatter dataKey="mobile" radius={${state.scatterRadius}} ringGap={${state.scatterRingGap}} strokeWidth={${state.scatterRingWidth}} fadeOnHover={${state.scatterFadeOnHover}} inactiveOpacity={${state.scatterInactiveOpacity}} showActiveHighlight={${state.scatterShowActiveHighlight}} />`
+    ? `\n  <Scatter dataKey="mobile" ${seriesProps} />`
     : "";
 
   const backgroundBlock = backgroundCodegenBlock(state, "scatter");
@@ -1395,17 +1435,31 @@ export function scatterCodegen(state: StudioUrlState) {
   return {
     code: `import { ScatterChart, Scatter, XAxis, ChartTooltip${gridImport}${backgroundImport}${referenceAreaImport} } from "@bklitui/ui/charts";
 
-<ScatterChart data={chartData}${anim}>${backgroundBlock}${gridBlock}${referenceAreaBlock}
-  <Scatter dataKey="desktop" radius={${state.scatterRadius}} ringGap={${state.scatterRingGap}} strokeWidth={${state.scatterRingWidth}} fadeOnHover={${state.scatterFadeOnHover}} inactiveOpacity={${state.scatterInactiveOpacity}} showActiveHighlight={${state.scatterShowActiveHighlight}} />${secondSeries}
+<ScatterChart data={chartData}${anim}${jitter}>${backgroundBlock}${gridBlock}${referenceAreaBlock}
+  <Scatter dataKey="desktop" ${seriesProps} />${secondSeries}
   <XAxis />
   <ChartTooltip />
 </ScatterChart>`,
-    data: scatterChartDataSnippet(),
+    data: state.scatterJitter
+      ? scatterJitterChartDataSnippet()
+      : scatterChartDataSnippet(),
   };
 }
 
 export function scatterChartDataSnippet() {
   return `const chartData = ${JSON.stringify(scatterStudioData.slice(0, 12), null, 2)};`;
+}
+
+export function scatterJitterChartDataSnippet() {
+  return `// Many rows share each date — jitter spreads them into readable strips.
+const days = Array.from({ length: 7 }, (_, day) => new Date(2024, 0, day + 1));
+const chartData = days.flatMap((date, day) =>
+  Array.from({ length: 24 }, (_, i) => ({
+    date,
+    desktop: 160 + day * 8 + ((i * 37) % 60) - 30,
+    mobile: 130 + day * 6 + ((i * 53) % 50) - 25,
+  }))
+);`;
 }
 
 export function lineChartDataSnippet(state: StudioUrlState) {

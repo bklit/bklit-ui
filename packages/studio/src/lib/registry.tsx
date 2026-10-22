@@ -80,6 +80,7 @@ import {
   generateStudioCartesianData,
   getBarHorizontalData,
   getScatterData,
+  getScatterJitterData,
   getVisitorsByCountry,
   pieData,
   STUDIO_SERIES_KEYS,
@@ -135,6 +136,7 @@ import {
   resolveSunburstComponents,
 } from "./studio-components";
 import { studioCartesianLegendItems } from "./studio-legend-items";
+import type { StudioUrlState } from "./studio-parsers";
 import {
   getEffectiveSeriesColor,
   getSeriesGradientEnabled,
@@ -228,6 +230,25 @@ const lineConfig: StudioChartConfig = {
   },
 };
 
+function scatterSeriesPropsFromState(state: StudioUrlState) {
+  return {
+    fadeOnHover: state.scatterFadeOnHover,
+    inactiveBlur: state.scatterInactiveBlur,
+    inactiveMode: state.scatterInactiveMode,
+    inactiveOpacity: state.scatterInactiveOpacity,
+    radius: state.scatterRadius,
+    ringGap: state.scatterRingGap,
+    showActiveHighlight: state.scatterShowActiveHighlight,
+    strokeWidth: state.scatterShowRings ? state.scatterRingWidth : 0,
+  };
+}
+
+function scatterJitterPropFromState(state: StudioUrlState) {
+  return state.scatterJitter
+    ? { x: state.scatterJitterX, y: state.scatterJitterY }
+    : undefined;
+}
+
 const scatterConfig: StudioChartConfig = {
   slug: "scatter-chart",
   label: chartLabels["scatter-chart"],
@@ -260,7 +281,12 @@ const scatterConfig: StudioChartConfig = {
         <ScatterChart
           {...getStudioCssRevealPropsForPreview(state, ctx)}
           className="size-full"
-          data={getScatterData(ctx.dataSeed)}
+          data={
+            state.scatterJitter
+              ? getScatterJitterData(ctx.dataSeed)
+              : getScatterData(ctx.dataSeed)
+          }
+          jitter={scatterJitterPropFromState(state)}
           key={studioPreviewChartKey(ctx)}
           margin={timeSeriesChartMargin(state)}
           onPhaseChange={ctx.reportOgPhase}
@@ -278,12 +304,7 @@ const scatterConfig: StudioChartConfig = {
           {isStudioComponentVisible(state, "scatter.desktop") ? (
             <Scatter
               dataKey="desktop"
-              fadeOnHover={state.scatterFadeOnHover}
-              inactiveOpacity={state.scatterInactiveOpacity}
-              radius={state.scatterRadius}
-              ringGap={state.scatterRingGap}
-              showActiveHighlight={state.scatterShowActiveHighlight}
-              strokeWidth={state.scatterRingWidth}
+              {...scatterSeriesPropsFromState(state)}
               yAxisId={getLineSeriesYAxisId(state, 0)}
             />
           ) : null}
@@ -291,12 +312,7 @@ const scatterConfig: StudioChartConfig = {
           isStudioComponentVisible(state, "scatter.mobile") ? (
             <Scatter
               dataKey="mobile"
-              fadeOnHover={state.scatterFadeOnHover}
-              inactiveOpacity={state.scatterInactiveOpacity}
-              radius={state.scatterRadius}
-              ringGap={state.scatterRingGap}
-              showActiveHighlight={state.scatterShowActiveHighlight}
-              strokeWidth={state.scatterRingWidth}
+              {...scatterSeriesPropsFromState(state)}
               yAxisId={getLineSeriesYAxisId(state, 1)}
             />
           ) : null}

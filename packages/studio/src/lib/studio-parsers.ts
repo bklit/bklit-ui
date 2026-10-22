@@ -253,9 +253,17 @@ export const studioSearchParams = {
   scatterRingGap: parseAsFloat.withDefault(2),
   scatterRingWidth: parseAsFloat.withDefault(2),
   scatterFadeOnHover: parseAsBoolean.withDefault(true),
-  scatterInactiveOpacity: parseAsFloat.withDefault(0.5),
+  scatterInactiveOpacity: parseAsFloat.withDefault(0.3),
   scatterSecondSeries: parseAsBoolean.withDefault(true),
   scatterShowActiveHighlight: parseAsBoolean.withDefault(true),
+  scatterShowRings: parseAsBoolean.withDefault(false),
+  scatterInactiveMode: parseAsStringLiteral(["opacity", "blur"]).withDefault(
+    "opacity"
+  ),
+  scatterInactiveBlur: parseAsFloat.withDefault(2),
+  scatterJitter: parseAsBoolean.withDefault(false),
+  scatterJitterX: parseAsFloat.withDefault(0.35),
+  scatterJitterY: parseAsFloat.withDefault(0),
   seriesShowMarkers: parseAsBoolean.withDefault(false),
   seriesMarkerRadius: parseAsFloat.withDefault(5),
   seriesMarkerRingGap: parseAsFloat.withDefault(2),
@@ -773,6 +781,12 @@ export interface StudioUrlState {
   scatterInactiveOpacity: number;
   scatterSecondSeries: boolean;
   scatterShowActiveHighlight: boolean;
+  scatterShowRings: boolean;
+  scatterInactiveMode: "opacity" | "blur";
+  scatterInactiveBlur: number;
+  scatterJitter: boolean;
+  scatterJitterX: number;
+  scatterJitterY: number;
   seriesShowMarkers: boolean;
   seriesMarkerRadius: number;
   seriesMarkerRingGap: number;
@@ -1189,9 +1203,15 @@ export function defaultStudioState(
     scatterRingGap: 2,
     scatterRingWidth: 2,
     scatterFadeOnHover: true,
-    scatterInactiveOpacity: 0.5,
+    scatterInactiveOpacity: 0.3,
     scatterSecondSeries: true,
     scatterShowActiveHighlight: true,
+    scatterShowRings: false,
+    scatterInactiveMode: "opacity",
+    scatterInactiveBlur: 2,
+    scatterJitter: false,
+    scatterJitterX: 0.35,
+    scatterJitterY: 0,
     seriesShowMarkers: false,
     seriesMarkerRadius: 5,
     seriesMarkerRingGap: 2,

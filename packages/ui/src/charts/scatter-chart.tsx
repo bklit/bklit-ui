@@ -19,6 +19,11 @@ import {
 import type { ChartPhase } from "./chart-phase";
 import { Scatter, type ScatterProps } from "./scatter";
 import { ScatterChartInner } from "./scatter-chart-shell";
+import {
+  type ResolvedScatterJitterConfig,
+  resolveScatterJitterConfig,
+  type ScatterJitter,
+} from "./scatter-jitter";
 
 export interface ScatterChartProps {
   /** Data array — each item should have a date field and numeric values */
@@ -39,6 +44,12 @@ export interface ScatterChartProps {
   className?: string;
   /** Child components (Scatter, Grid, ChartTooltip, XAxis, etc.) */
   children: ReactNode;
+  /**
+   * Spread points that share an x value (strip plot). Offsets are deterministic
+   * (seeded), so points never jump between renders; tooltips show the original
+   * values. `true` = `0.35` band steps horizontally. Default: off
+   */
+  jitter?: ScatterJitter;
   onPhaseChange?: (phase: ChartPhase) => void;
 }
 
@@ -97,6 +108,7 @@ interface ChartInnerProps {
   revealSignature?: string;
   children: ReactNode;
   containerRef: React.RefObject<HTMLDivElement | null>;
+  jitter: ResolvedScatterJitterConfig | null;
   onPhaseChange?: (phase: ChartPhase) => void;
 }
 
@@ -112,6 +124,7 @@ function ChartInner({
   revealSignature,
   children,
   containerRef,
+  jitter,
   onPhaseChange,
 }: ChartInnerProps) {
   const lines = useMemo(() => extractScatterConfigs(children), [children]);
@@ -124,6 +137,7 @@ function ChartInner({
       data={data}
       enterTransition={enterTransition}
       height={height}
+      jitter={jitter}
       lines={lines}
       margin={margin}
       onPhaseChange={onPhaseChange}
@@ -147,11 +161,22 @@ export function ScatterChart({
   aspectRatio = "2 / 1",
   className = "",
   children,
+  jitter: jitterProp,
   onPhaseChange,
 }: ScatterChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const margin = { ...DEFAULT_MARGIN, ...marginProp };
   const [measureRef, bounds] = useMeasure({ debounce: 10 });
+  // Memo on primitives so inline `jitter={{ ... }}` objects stay stable.
+  const resolvedJitter = resolveScatterJitterConfig(jitterProp);
+  const hasJitter = resolvedJitter !== null;
+  const jitterX = resolvedJitter?.x ?? 0;
+  const jitterY = resolvedJitter?.y ?? 0;
+  const jitterSeed = resolvedJitter?.seed ?? 0;
+  const jitter = useMemo<ResolvedScatterJitterConfig | null>(
+    () => (hasJitter ? { x: jitterX, y: jitterY, seed: jitterSeed } : null),
+    [hasJitter, jitterX, jitterY, jitterSeed]
+  );
 
   const setContainerRef = (node: HTMLDivElement | null) => {
     containerRef.current = node;
@@ -175,6 +200,7 @@ export function ScatterChart({
           data={data}
           enterTransition={enterTransition}
           height={height}
+          jitter={jitter}
           margin={margin}
           onPhaseChange={onPhaseChange}
           revealSignature={revealSignature}
@@ -191,5 +217,6 @@ export function ScatterChart({
 ScatterChart.displayName = "ScatterChart";
 
 export { Scatter, type ScatterProps } from "./scatter";
+export type { ScatterJitter } from "./scatter-jitter";
 
 export default ScatterChart;
