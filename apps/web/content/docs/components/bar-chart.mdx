@@ -128,6 +128,41 @@ Renders a bar for each data point with configurable styling and animations.
 | `showValue`     | `boolean`                     | `false`                     | Show the formatted value inside a bar when the available space is sufficient |
 | `valueLabelFormatter` | `(value: number) => string` | English integer format | Customize the value text shown inside bars |
 | `valueLabelColor` | `string`                    | `white`                     | Text color for values shown inside bars |
+| `valueLabelOrientation` | `"auto" \| "horizontal" \| "vertical"` | `"auto"` | Choose horizontal text, rotated text, or let the layout choose the orientation |
+| `valueLabelPosition` | `"top" \| "center" \| "bottom"` | `"center"` | Place the label within the bar |
+| `valueLabelClassName` | `string` | — | Add a class to the SVG value label |
+
+### Smart value labels
+
+Labels are opt-in. When enabled, each value appears only if the selected
+orientation fits inside its bar. `"auto"` prefers horizontal text, rotates it
+when vertical text fits and hides the label if neither orientation fits. Use
+`"horizontal"` or `"vertical"` to require one orientation; labels that do not
+fit that orientation stay hidden. `valueLabelPosition` controls vertical
+placement within the bar. These fit checks run again as the chart resizes, so
+dense data can show fewer labels at narrow widths without clipping or overlap.
+
+```tsx
+<BarChart data={data} xDataKey="month">
+  <Grid horizontal />
+  <Bar
+    dataKey="revenue"
+    showValue
+    valueLabelFormatter={(value) => `$${value.toLocaleString("en-US")}`}
+    valueLabelOrientation="auto"
+    valueLabelPosition="center"
+  />
+  <BarXAxis />
+  <ChartTooltip />
+</BarChart>
+```
+
+The default formatter uses English integer digits. Supply `valueLabelFormatter`
+for other locales or precision. Since labels are visual SVG annotations, keep a
+chart summary or accessible data table for people who need the values without
+the visual plot. Existing charts remain unchanged while `showValue` is omitted
+or `false`. See the [live examples](/charts/bar-chart) for automatic orientation
+with dense data.
 
 ### BarSquares
 

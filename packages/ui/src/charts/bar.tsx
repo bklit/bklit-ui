@@ -121,7 +121,6 @@ interface AnimatedBarProps {
   enterTransition?: Transition;
   revealEpoch: number;
   isHorizontal: boolean;
-  innerHeight: number;
   /** Value-axis position the grow animation starts from (the zero line for
    * non-stacked bars, the segment start for horizontal stacked bars). */
   growOrigin: number;
@@ -149,7 +148,6 @@ function AnimatedBar({
   enterTransition,
   revealEpoch,
   isHorizontal,
-  innerHeight,
   growOrigin,
   valueLabel,
   valueLabelColor,

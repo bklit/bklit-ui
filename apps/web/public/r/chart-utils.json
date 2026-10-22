@@ -7,7 +7,7 @@
   "files": [
     {
       "path": "src/charts/chart-formatters.ts",
-      "content": "export const shortDateFmt = new Intl.DateTimeFormat(\"en-US\", {\n  month: \"short\",\n  day: \"numeric\",\n});\n\nexport const weekdayDateFmt = new Intl.DateTimeFormat(\"en-US\", {\n  weekday: \"short\",\n  month: \"short\",\n  day: \"numeric\",\n});\n\nexport const hmsTimeFmt = new Intl.DateTimeFormat(\"en-US\", {\n  hour: \"2-digit\",\n  minute: \"2-digit\",\n  second: \"2-digit\",\n  hour12: false,\n});\n\n// `Intl.NumberFormat.prototype.format` is a bound getter — safe to extract.\nexport const intFmt = new Intl.NumberFormat(\"en-US\").format;\n",
+      "content": "export const shortDateFmt = new Intl.DateTimeFormat(\"en-US\", {\n  month: \"short\",\n  day: \"numeric\",\n});\n\nexport const weekdayDateFmt = new Intl.DateTimeFormat(\"en-US\", {\n  weekday: \"short\",\n  month: \"short\",\n  day: \"numeric\",\n});\n\nexport const hmsTimeFmt = new Intl.DateTimeFormat(\"en-US\", {\n  hour: \"2-digit\",\n  minute: \"2-digit\",\n  second: \"2-digit\",\n  hour12: false,\n});\n\n// `Intl.NumberFormat.prototype.format` is a bound getter — safe to extract.\nexport const intFmt = new Intl.NumberFormat(\"en-US\").format;\nexport const valueLabelFmt = new Intl.NumberFormat(\"en-US\", {\n  maximumFractionDigits: 0,\n}).format;\n",
       "type": "registry:lib",
       "target": "components/charts/chart-formatters.ts"
     },

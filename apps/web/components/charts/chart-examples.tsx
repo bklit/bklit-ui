@@ -433,6 +433,21 @@ const barHorizontalData = [
   { browser: "Other", users: 90 },
 ];
 
+const barValueLabelData = [
+  { month: "Jan", orders: 720 },
+  { month: "Feb", orders: 640 },
+  { month: "Mar", orders: 810 },
+  { month: "Apr", orders: 580 },
+  { month: "May", orders: 930 },
+  { month: "Jun", orders: 700 },
+  { month: "Jul", orders: 880 },
+  { month: "Aug", orders: 760 },
+  { month: "Sep", orders: 1010 },
+  { month: "Oct", orders: 860 },
+  { month: "Nov", orders: 1120 },
+  { month: "Dec", orders: 970 },
+];
+
 const barProfitLossData = [
   { month: "Jan", profit: 4200 },
   { month: "Feb", profit: -1800 },
@@ -1587,6 +1602,52 @@ function ProfitLossLineExampleWithState() {
 function makeAreaExamples(): ChartExample[] {
   return [
     {
+      title: "Area Chart - Value Labels Before and After",
+      description:
+        "The same dense 24-month, two-series area chart with labels off and on",
+      code: `<div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+  <AreaChart data={chartData}>
+    <Grid horizontal />
+    <Area dataKey="desktop" />
+    <Area dataKey="mobile" fill="var(--chart-line-secondary)" />
+    <XAxis />
+    <ChartTooltip />
+  </AreaChart>
+  <AreaChart data={chartData}>
+    <Grid horizontal />
+    <Area dataKey="desktop" showValue valueLabelMaxCount={5} />
+    <Area dataKey="mobile" showValue valueLabelMaxCount={5} />
+    <XAxis />
+    <ChartTooltip />
+  </AreaChart>
+</div>`,
+      footer:
+        "Both previews share the same data. Resize them to see the enabled labels adapt to width and skip collisions.",
+      render: () => (
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <AreaExampleChart data={scatterMultiSeriesData}>
+            <Grid horizontal />
+            <Area dataKey="desktop" />
+            <Area dataKey="mobile" fill="var(--chart-line-secondary)" />
+            <XAxis />
+            <ChartTooltip />
+          </AreaExampleChart>
+          <AreaExampleChart data={scatterMultiSeriesData}>
+            <Grid horizontal />
+            <Area dataKey="desktop" showValue valueLabelMaxCount={5} />
+            <Area
+              dataKey="mobile"
+              fill="var(--chart-line-secondary)"
+              showValue
+              valueLabelMaxCount={5}
+            />
+            <XAxis />
+            <ChartTooltip />
+          </AreaExampleChart>
+        </div>
+      ),
+    },
+    {
       title: "Area Chart",
       description: "Default area with gradient fill and smooth curve",
       code: `<AreaChart data={chartData}>
@@ -2003,6 +2064,53 @@ function makeAreaExamples(): ChartExample[] {
 
 function makeBarExamples(): ChartExample[] {
   return [
+    {
+      title: "Bar Chart - Value Labels Before and After",
+      description:
+        "The same 12 months of order totals with labels off and automatic labels on",
+      code: `<div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+  <BarChart data={chartData} xDataKey="month">
+    <Grid horizontal />
+    <Bar dataKey="orders" />
+    <BarXAxis />
+    <ChartTooltip />
+  </BarChart>
+  <BarChart data={chartData} xDataKey="month">
+    <Grid horizontal />
+    <Bar
+      dataKey="orders"
+      showValue
+      valueLabelOrientation="auto"
+      valueLabelPosition="center"
+    />
+    <BarXAxis />
+    <ChartTooltip />
+  </BarChart>
+</div>`,
+      footer:
+        "Both previews use the same values. Auto rotates labels when vertical text fits better and hides values that do not fit.",
+      render: () => (
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <BarExampleChart data={barValueLabelData} xDataKey="month">
+            <Grid horizontal />
+            <Bar dataKey="orders" />
+            <BarXAxis />
+            <ChartTooltip />
+          </BarExampleChart>
+          <BarExampleChart data={barValueLabelData} xDataKey="month">
+            <Grid horizontal />
+            <Bar
+              dataKey="orders"
+              showValue
+              valueLabelOrientation="auto"
+              valueLabelPosition="center"
+            />
+            <BarXAxis />
+            <ChartTooltip />
+          </BarExampleChart>
+        </div>
+      ),
+    },
     {
       title: "Bar Chart",
       description: "Default vertical bar chart with rounded caps",

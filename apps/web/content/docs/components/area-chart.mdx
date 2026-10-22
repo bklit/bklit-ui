@@ -580,6 +580,10 @@ Enable labels on each `Area` independently. Labels use measured text bounds, sta
 inside the plot, and share collision detection across series. Crowded labels are
 hidden; full values remain available in the tooltip. Labels render above all area
 fills and do not inherit `fadeEdges` unless `fadeValueLabels` is enabled.
+The renderer samples labels from the visible data and adjusts the count to the
+plot width. `valueLabelMinCount` is a preference; available space and collisions
+can reduce it. `valueLabelMaxCount` is a strict per-series ceiling. All enabled
+series use the same final label count so comparisons stay aligned.
 
 ```tsx
 <AreaChart data={data}>
@@ -597,6 +601,11 @@ fills and do not inherit `fadeEdges` unless `fadeValueLabels` is enabled.
 | `valueLabelFormatter` | `(value: number) => string` | English integer formatting | Custom complete label text |
 | `valueLabelColor` | `string` | series stroke | Label color |
 | `fadeValueLabels` | `boolean` | `false` | Explicitly apply the series edge fade to labels |
+
+Labels are opt-in, so charts without `showValue` keep their existing rendering.
+Use `valueLabelFormatter` for currency, units, or localized digits. The SVG
+labels are visual annotations; provide a chart summary or accessible data table
+when people need the underlying values without relying on the visual plot.
 
 Open [Studio with value labels](/studio?chart=area-chart&areaShowValue=true)
 to adjust the label count and preview multiple series at different widths.
