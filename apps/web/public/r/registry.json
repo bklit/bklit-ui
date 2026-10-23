@@ -2076,6 +2076,33 @@
       ]
     },
     {
+      "name": "sparkline",
+      "type": "registry:component",
+      "title": "Sparkline",
+      "description": "Tiny inline line, area, and bar charts for tables, KPI cards, and dense dashboards, with hover sync and a shared resize observer",
+      "registryDependencies": [
+        "@bklit/chart-context",
+        "@bklit/chart-animation",
+        "@bklit/utils"
+      ],
+      "dependencies": [
+        "d3-shape",
+        "motion"
+      ],
+      "files": [
+        {
+          "path": "src/charts/sparkline.tsx",
+          "type": "registry:component",
+          "target": "components/charts/sparkline.tsx"
+        },
+        {
+          "path": "src/charts/sparkline-geometry.ts",
+          "type": "registry:component",
+          "target": "components/charts/sparkline-geometry.ts"
+        }
+      ]
+    },
+    {
       "name": "area-chart-example",
       "type": "registry:example",
       "title": "Area Chart Example",
@@ -2504,6 +2531,30 @@
       ]
     },
     {
+      "name": "sparkline-example",
+      "type": "registry:example",
+      "title": "Sparkline Example",
+      "description": "Composable sparkline demo for Open in v0",
+      "registryDependencies": [
+        "@bklit/sparkline"
+      ],
+      "dependencies": [
+        "d3-shape"
+      ],
+      "files": [
+        {
+          "path": "registry/examples/sparkline.tsx",
+          "type": "registry:page",
+          "target": "app/page.tsx"
+        },
+        {
+          "path": "registry/examples/sparkline-index.ts",
+          "type": "registry:lib",
+          "target": "components/charts/index.ts"
+        }
+      ]
+    },
+    {
       "name": "chart-stat-flow",
       "type": "registry:component",
       "title": "Chart Stat Flow",
@@ -2527,16 +2578,14 @@
       "name": "stat-card-area-01",
       "type": "registry:block",
       "title": "Stat Card Area",
-      "description": "Revenue stat card with gradient area sparkline, NumberFlow, and trend badge",
+      "description": "Revenue stat card with a gradient area sparkline, hover-to-read values, NumberFlow, and trend badge",
       "registryDependencies": [
-        "@bklit/area-chart",
+        "@bklit/sparkline",
         "@bklit/chart-stat-flow",
         "card",
         "badge"
       ],
       "dependencies": [
-        "@visx/curve@4.0.0",
-        "@visx/gradient@4.0.0",
         "@number-flow/react",
         "@central-icons-react/all"
       ],
@@ -2552,9 +2601,9 @@
           "target": "components/stat-card-chart.tsx"
         },
         {
-          "path": "registry/blocks/stat-card-area-01/components/stat-card-hover-bridge.tsx",
-          "type": "registry:component",
-          "target": "components/stat-card-hover-bridge.tsx"
+          "path": "registry/blocks/stat-card-area-01/components/stat-card-sparkline-hover.ts",
+          "type": "registry:lib",
+          "target": "components/stat-card-sparkline-hover.ts"
         },
         {
           "path": "registry/blocks/stat-card-area-01/components/trend-badge.tsx",
@@ -2577,13 +2626,11 @@
       "name": "stat-card-area-01-example",
       "type": "registry:example",
       "title": "Stat Card Area Example",
-      "description": "Revenue stat card with gradient area sparkline, NumberFlow, and trend badge — demo for Open in v0",
+      "description": "Revenue stat card with a gradient area sparkline, hover-to-read values, NumberFlow, and trend badge — demo for Open in v0",
       "registryDependencies": [
         "@bklit/stat-card-area-01"
       ],
       "dependencies": [
-        "@visx/curve@4.0.0",
-        "@visx/gradient@4.0.0",
         "@number-flow/react",
         "@central-icons-react/all"
       ],
@@ -2604,15 +2651,14 @@
       "name": "stat-card-line-01",
       "type": "registry:block",
       "title": "Stat Card Line",
-      "description": "Sessions stat card with line sparkline, overlaid NumberFlow, and trend badge",
+      "description": "Sessions stat card with a line sparkline, hover-to-read values, overlaid NumberFlow, and trend badge",
       "registryDependencies": [
-        "@bklit/line-chart",
+        "@bklit/sparkline",
         "@bklit/chart-stat-flow",
         "card",
         "badge"
       ],
       "dependencies": [
-        "@visx/curve@4.0.0",
         "@number-flow/react",
         "@central-icons-react/all"
       ],
@@ -2628,9 +2674,9 @@
           "target": "components/stat-card-chart.tsx"
         },
         {
-          "path": "registry/blocks/stat-card-line-01/components/stat-card-hover-bridge.tsx",
-          "type": "registry:component",
-          "target": "components/stat-card-hover-bridge.tsx"
+          "path": "registry/blocks/stat-card-line-01/components/stat-card-sparkline-hover.ts",
+          "type": "registry:lib",
+          "target": "components/stat-card-sparkline-hover.ts"
         },
         {
           "path": "registry/blocks/stat-card-line-01/components/trend-badge.tsx",
@@ -2653,12 +2699,11 @@
       "name": "stat-card-line-01-example",
       "type": "registry:example",
       "title": "Stat Card Line Example",
-      "description": "Sessions stat card with line sparkline, overlaid NumberFlow, and trend badge — demo for Open in v0",
+      "description": "Sessions stat card with a line sparkline, hover-to-read values, overlaid NumberFlow, and trend badge — demo for Open in v0",
       "registryDependencies": [
         "@bklit/stat-card-line-01"
       ],
       "dependencies": [
-        "@visx/curve@4.0.0",
         "@number-flow/react",
         "@central-icons-react/all"
       ],

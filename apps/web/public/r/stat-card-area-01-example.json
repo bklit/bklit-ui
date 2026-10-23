@@ -3,10 +3,8 @@
   "name": "stat-card-area-01-example",
   "type": "registry:example",
   "title": "Stat Card Area Example",
-  "description": "Revenue stat card with gradient area sparkline, NumberFlow, and trend badge — demo for Open in v0",
+  "description": "Revenue stat card with a gradient area sparkline, hover-to-read values, NumberFlow, and trend badge — demo for Open in v0",
   "dependencies": [
-    "@visx/curve@4.0.0",
-    "@visx/gradient@4.0.0",
     "@number-flow/react",
     "@central-icons-react/all"
   ],
@@ -22,7 +20,7 @@
     },
     {
       "path": "registry/examples/stat-card-area-01-index.ts",
-      "content": "/** biome-ignore-all lint/performance/noBarrelFile: v0 registry example barrel for shadcn install */\nexport { AreaChart } from \"./area-chart\";\nexport { Area } from \"./area\";\nexport { ChartStatFlow } from \"./chart-stat-flow\";\nexport { useChart } from \"./chart-context\";\nexport { LinearGradient } from \"@visx/gradient\";\n",
+      "content": "/** biome-ignore-all lint/performance/noBarrelFile: v0 registry example barrel for shadcn install */\nexport { AreaSparkline, useSparklineHover } from \"./sparkline\";\nexport { ChartStatFlow } from \"./chart-stat-flow\";\n",
       "type": "registry:lib",
       "target": "components/charts/index.ts"
     }
