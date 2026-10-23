@@ -1,6 +1,6 @@
 # Worked examples
 
-Six verified before → after pairs. Every "after" imports from the files `npx shadcn@latest add @bklit/<slug>` installs (default alias `@/components`). The shadcn `ChartContainer` walkthrough is in `shadcn-chart.md`.
+Ten before → after pairs. Every "after" imports from the files `npx shadcn@latest add @bklit/<slug>` installs (default alias `@/components`). The shadcn `ChartContainer` walkthrough is in `shadcn-chart.md`.
 
 1. [Line, multi-series, dual formatting](#1-line-multi-series)
 2. [Stacked bar (shadcn)](#2-stacked-bar-shadcn)
@@ -8,6 +8,10 @@ Six verified before → after pairs. Every "after" imports from the files `npx s
 4. [Donut with centre label](#4-donut-with-centre-label)
 5. [Radar (data pivot + normalisation)](#5-radar)
 6. [Area with gradient](#6-area-with-gradient)
+7. [Tiny line → `LineSparkline`](#7-tiny-line--linesparkline)
+8. [Tiny area with tooltip → `AreaSparkline` + `useSparklineHover`](#8-tiny-area-with-tooltip--areasparkline--usesparklinehover)
+9. [Tiny bar → `BarSparkline`](#9-tiny-bar--barsparkline)
+10. [TanStack Charts KPI sparkline → `AreaSparkline`](#10-tanstack-charts-kpi-sparkline--areasparkline)
 
 ---
 
@@ -493,3 +497,212 @@ import { LinearGradient } from "@visx/gradient";
 ```
 
 Notes: `Area` already draws a vertical gradient from `fill` at `fillOpacity` (top) to `gradientToOpacity` (bottom); `gradientSpan` (0–1) compresses it toward the top. `curveMonotoneX` is `Area`'s default, so `type="monotone"` needs no prop. With a `url(...)` fill, set `stroke` explicitly (it otherwise falls back to `var(--chart-line-primary)`). `@visx/gradient` is installed by `@bklit/area-chart`; `LinearGradient` children are hoisted into the chart's `<defs>`. A raw `<defs><linearGradient …/></defs>` child also works.
+
+---
+
+## 7. Tiny line → `LineSparkline`
+
+A Recharts chart with one series and no axes, grid or legend, rendered small, is a sparkline — use `@bklit/sparkline`, not `LineChart`.
+
+Before (Recharts 3 "Tiny Line Chart"):
+
+```tsx
+import { Line, LineChart } from "recharts";
+
+export function SignupsSparkline() {
+  return (
+    <LineChart
+      data={weeks}
+      responsive
+      style={{ width: "100%", maxWidth: 100, maxHeight: 50, aspectRatio: 1.618 }}
+    >
+      <Line dataKey="signups" dot={false} stroke="#2563eb" strokeWidth={2} />
+    </LineChart>
+  );
+}
+```
+
+Install: `npx shadcn@latest add @bklit/sparkline`
+
+After:
+
+```tsx
+"use client";
+
+import { LineSparkline } from "@/components/charts/sparkline";
+
+export function SignupsSparkline() {
+  return (
+    <div className="w-full max-w-[100px]">
+      <LineSparkline
+        color="#2563eb"
+        curve="linear"
+        data={weeks}
+        dataKey="signups"
+        height={50}
+        strokeWidth={2}
+      />
+    </div>
+  );
+}
+```
+
+Notes: `responsive` / `style.width: "100%"` → omit `width` (the sparkline fills its parent; the wrapper keeps the old `maxWidth`). `maxHeight` → `height`. Recharts' default curve is linear; sparklines default to `"monotone"`, so `curve="linear"` keeps parity (drop it if a smoother line is fine). `dot={false}` needs no prop — sparklines never draw per-point dots.
+
+---
+
+## 8. Tiny area with tooltip → `AreaSparkline` + `useSparklineHover`
+
+Before (Recharts 2 style):
+
+```tsx
+import { Area, AreaChart, ResponsiveContainer, Tooltip } from "recharts";
+
+export function RevenueSparkline() {
+  return (
+    <ResponsiveContainer height={48} width="100%">
+      <AreaChart data={weeks} margin={{ top: 5, right: 0, left: 0, bottom: 5 }}>
+        <Tooltip cursor={false} />
+        <Area
+          dataKey="revenue"
+          fill="#16a34a"
+          fillOpacity={0.2}
+          isAnimationActive={false}
+          stroke="#16a34a"
+          type="monotone"
+        />
+      </AreaChart>
+    </ResponsiveContainer>
+  );
+}
+```
+
+Install: `npx shadcn@latest add @bklit/sparkline`
+
+After (needs-workaround: sparklines have no tooltip, so show the hovered value next to the chart — ask the user first):
+
+```tsx
+"use client";
+
+import { AreaSparkline, useSparklineHover } from "@/components/charts/sparkline";
+
+type Week = (typeof weeks)[number];
+
+export function RevenueSparkline() {
+  const hover = useSparklineHover<Week>();
+  const shown = hover.datum ?? weeks.at(-1);
+
+  return (
+    <div className="flex items-center gap-3">
+      <span className="w-16 text-right font-medium text-sm tabular-nums">
+        {shown ? `$${shown.revenue.toLocaleString()}` : null}
+      </span>
+      <AreaSparkline
+        animate={false}
+        color="#16a34a"
+        crosshair={false}
+        data={weeks}
+        dataKey="revenue"
+        fill="solid"
+        fillOpacity={0.2}
+        height={48}
+        padding={{ top: 5, right: 0, bottom: 5, left: 0 }}
+        {...hover.sparklineProps}
+      />
+    </div>
+  );
+}
+```
+
+Notes: `margin` → `padding`. A flat Recharts `fillOpacity` → `fill="solid"` with the same opacity (the default `fill="gradient"` fades from 0.3 to 0, which usually looks better — offer it). `cursor={false}` → `crosshair={false}`. `isAnimationActive={false}` → `animate={false}`. To sync several sparklines' crosshairs (Recharts `syncId`), spread the same `hover.sparklineProps` onto each.
+
+---
+
+## 9. Tiny bar → `BarSparkline`
+
+Before:
+
+```tsx
+import { Bar, BarChart } from "recharts";
+
+<BarChart data={weeks} height={40} width={120}>
+  <Bar dataKey="orders" fill="var(--chart-3)" radius={2} />
+</BarChart>
+```
+
+After:
+
+```tsx
+import { BarSparkline } from "@/components/charts/sparkline";
+
+<BarSparkline
+  barRadius={2}
+  color="var(--chart-3)"
+  data={weeks}
+  dataKey="orders"
+  height={40}
+  width={120}
+/>
+```
+
+Notes: `radius` → `barRadius` (rounds the end away from the baseline; `[2, 2, 0, 0]` → `2`). Bars always include zero and support negative values. Hovering dims the other bars to `inactiveOpacity` (0.4).
+
+---
+
+## 10. TanStack Charts KPI sparkline → `AreaSparkline`
+
+Before (`@tanstack/charts`):
+
+```tsx
+import { areaY, defineChart, lineY } from "@tanstack/charts";
+import { Chart } from "@tanstack/charts/react";
+import { scaleLinear } from "@tanstack/charts/scales/linear";
+import { scalePoint } from "@tanstack/charts/scales/point";
+
+const revenueSparkline = defineChart({
+  marks: [
+    areaY(rows, { x: "period", y: "value", fill: "url(#revenue-fill)", curve: "monotoneX" }),
+    lineY(rows, { x: "period", y: "value", stroke: "var(--chart-1)", strokeWidth: 1.5, curve: "monotoneX" }),
+  ],
+  scales: {
+    x: { scale: () => scalePoint<string>(), axis: false },
+    y: { scale: () => scaleLinear().domain([10_000, 17_000]), axis: false },
+  },
+  gradients: [/* revenue-fill: var(--chart-1) 0.3 → 0 */],
+  margin: { top: 4, right: 0, bottom: 4, left: 0 },
+  guides: false,
+  svgAnimation: true,
+  tooltip: false,
+});
+
+<Chart
+  ariaLabel="Revenue over the last 7 days"
+  definition={revenueSparkline}
+  height={40}
+  idPrefix="revenue-kpi"
+  width={160}
+/>
+```
+
+Install: `npx shadcn@latest add @bklit/sparkline`
+
+After:
+
+```tsx
+"use client";
+
+import { AreaSparkline } from "@/components/charts/sparkline";
+
+<AreaSparkline
+  aria-label="Revenue over the last 7 days"
+  color="var(--chart-1)"
+  data={rows}
+  dataKey="value"
+  height={40}
+  padding={{ top: 4, right: 0, bottom: 4, left: 0 }}
+  width={160}
+  yDomain={[10_000, 17_000]}
+/>
+```
+
+Notes: the `areaY` + `lineY` pair is **one** `AreaSparkline` (it draws its own line). `y: "value"` → `dataKey`; the x channel is dropped (x is row order). `curve: "monotoneX"` → `curve="monotone"` (the default). The `gradients` entry → the default `fill="gradient"` (`fillOpacity` 0.3 → 0). `svgAnimation` / a `motion()` renderer → `animate` (default on, reduced motion handled). `idPrefix` is not needed (`useId`). `axis: false`, `guides: false` and `tooltip: false` need no props — sparklines have none. Full mapping: `tanstack-charts.md`.

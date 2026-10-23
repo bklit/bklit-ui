@@ -60,15 +60,10 @@ export function TrendBadge({
 `;
 
 const BLOCK_CHART_INDEX = {
-  "stat-card-area-01": `export { AreaChart } from "./area-chart";
-export { Area } from "./area";
-export { ChartStatFlow } from "./chart-stat-flow";
-export { useChart } from "./chart-context";
-export { LinearGradient } from "@visx/gradient";`,
-  "stat-card-line-01": `export { LineChart } from "./line-chart";
-export { Line } from "./line";
-export { ChartStatFlow } from "./chart-stat-flow";
-export { useChart } from "./chart-context";`,
+  "stat-card-area-01": `export { AreaSparkline, useSparklineHover } from "./sparkline";
+export { ChartStatFlow } from "./chart-stat-flow";`,
+  "stat-card-line-01": `export { LineSparkline, useSparklineHover } from "./sparkline";
+export { ChartStatFlow } from "./chart-stat-flow";`,
   "stat-card-choropleth-01": `export { type ChoroplethFeature, ChoroplethChart, ChoroplethFeatureComponent, ChoroplethTooltip, useChoropleth } from "./choropleth";
 export { ChartStatFlow } from "./chart-stat-flow";`,
 };
@@ -78,24 +73,19 @@ const BLOCKS = {
   "stat-card-area-01": {
     title: "Stat Card Area",
     description:
-      "Revenue stat card with gradient area sparkline, NumberFlow, and trend badge",
+      "Revenue stat card with a gradient area sparkline, hover-to-read values, NumberFlow, and trend badge",
     previewMaxWidth: "max-w-md",
     registryDependencies: [
-      "@bklit/area-chart",
+      "@bklit/sparkline",
       "@bklit/chart-stat-flow",
       "card",
       "badge",
     ],
-    dependencies: [
-      "@visx/curve@4.0.0",
-      "@visx/gradient@4.0.0",
-      "@number-flow/react",
-      "@central-icons-react/all",
-    ],
+    dependencies: ["@number-flow/react", "@central-icons-react/all"],
     files: [
       "components/stat-card-area.tsx",
       "components/stat-card-chart.tsx",
-      "components/stat-card-hover-bridge.tsx",
+      "components/stat-card-sparkline-hover.ts",
       "components/trend-badge.tsx",
       "data/revenue-series.ts",
     ],
@@ -103,23 +93,19 @@ const BLOCKS = {
   "stat-card-line-01": {
     title: "Stat Card Line",
     description:
-      "Sessions stat card with line sparkline, overlaid NumberFlow, and trend badge",
+      "Sessions stat card with a line sparkline, hover-to-read values, overlaid NumberFlow, and trend badge",
     previewMaxWidth: "max-w-md",
     registryDependencies: [
-      "@bklit/line-chart",
+      "@bklit/sparkline",
       "@bklit/chart-stat-flow",
       "card",
       "badge",
     ],
-    dependencies: [
-      "@visx/curve@4.0.0",
-      "@number-flow/react",
-      "@central-icons-react/all",
-    ],
+    dependencies: ["@number-flow/react", "@central-icons-react/all"],
     files: [
       "components/stat-card-line.tsx",
       "components/stat-card-chart.tsx",
-      "components/stat-card-hover-bridge.tsx",
+      "components/stat-card-sparkline-hover.ts",
       "components/trend-badge.tsx",
       "data/sessions-series.ts",
     ],

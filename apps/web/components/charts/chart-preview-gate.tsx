@@ -39,6 +39,8 @@ function ChartPreviewPlaceholder({
       return <div aria-hidden className="relative aspect-video w-full" />;
     case "heatmap":
       return <div aria-hidden className="relative h-40 w-full" />;
+    case "inline":
+      return <div aria-hidden className="relative h-28 w-full" />;
     default:
       return (
         <div

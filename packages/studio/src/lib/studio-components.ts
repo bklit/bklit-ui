@@ -67,6 +67,7 @@ import {
   scatterJitterChartTooltipControlGroups,
   scatterJitterControlGroup,
   scatterPointsControlGroup,
+  sparklineControlGroups,
   standardBrushControlGroups,
   standardBrushStripControlGroups,
   standardChartTooltipControlGroups,
@@ -463,6 +464,51 @@ export function resolveGaugeComponents(
   });
 
   return components;
+}
+
+const SPARKLINE_SERIES_LABELS = {
+  line: "LineSparkline",
+  area: "AreaSparkline",
+  bar: "BarSparkline",
+} as const;
+
+export function resolveSparklineComponents(
+  state: StudioUrlState
+): StudioComponentDefinition[] {
+  const [, settings, series, crosshair, dot] = sparklineControlGroups;
+  const chartId = "sparkline.chart";
+  return [
+    {
+      id: chartId,
+      label: "Sparkline",
+      kind: "chart",
+      treeIcon: "layers",
+      controlGroups: settings ? [settings] : [],
+    },
+    {
+      id: "sparkline.series",
+      label: SPARKLINE_SERIES_LABELS[state.sparklineVariant],
+      parentId: chartId,
+      kind: "series",
+      treeIcon: state.sparklineVariant === "bar" ? undefined : "line-chart",
+      controlGroups: series ? [series] : [],
+      design: { seriesIndex: 0, supportsPattern: false },
+    },
+    {
+      id: "sparkline.crosshair",
+      label: "Crosshair",
+      parentId: chartId,
+      kind: "line",
+      controlGroups: crosshair ? [crosshair] : [],
+    },
+    {
+      id: "sparkline.dot",
+      label: "Dot",
+      parentId: chartId,
+      kind: "geometry",
+      controlGroups: dot ? [dot] : [],
+    },
+  ];
 }
 
 export function isStudioDataComponent(

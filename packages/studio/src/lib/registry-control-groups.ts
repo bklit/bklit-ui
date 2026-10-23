@@ -8,7 +8,7 @@ import {
   lineGroup,
 } from "./sidebar-control-templates";
 import type { StudioUrlState } from "./studio-parsers";
-import type { StudioControlGroup } from "./types";
+import type { StudioControl, StudioControlGroup } from "./types";
 
 const chartAccentColorOptions = [
   { value: "var(--color-muted-foreground)", label: "Muted" },
@@ -2282,4 +2282,149 @@ export const heatmapLegendControlGroups: StudioControlGroup[] = [
       unit: "px",
     },
   ]),
+];
+
+const sparklineNotBar = { key: "sparklineVariant", not: "bar" } as const;
+const sparklineArea = { key: "sparklineVariant", equals: "area" } as const;
+const sparklineBar = { key: "sparklineVariant", equals: "bar" } as const;
+
+/** Order matters — `resolveSparklineComponents` destructures by position. */
+export const sparklineControlGroups: StudioControlGroup[] = [
+  controlGroup("Data", [
+    {
+      type: "number",
+      key: "sparklinePoints",
+      label: "Points",
+      min: 4,
+      max: 120,
+      step: 1,
+    },
+  ]),
+  controlGroup("Settings", [
+    {
+      type: "select",
+      key: "sparklineVariant",
+      label: "Variant",
+      options: [
+        { value: "line", label: "Line" },
+        { value: "area", label: "Area" },
+        { value: "bar", label: "Bar" },
+      ],
+    },
+    {
+      type: "number",
+      key: "sparklineHeight",
+      label: "Height",
+      min: 16,
+      max: 120,
+      step: 1,
+      unit: "px",
+    },
+  ]),
+  controlGroup("Series", [
+    {
+      type: "select",
+      key: "sparklineCurve",
+      label: "Curve",
+      options: [
+        { value: "linear", label: "Linear" },
+        { value: "monotone", label: "Monotone" },
+        { value: "natural", label: "Natural" },
+        { value: "step", label: "Step" },
+      ],
+      visibleWhen: sparklineNotBar,
+    },
+    {
+      type: "number",
+      key: "sparklineStrokeWidth",
+      label: "Stroke width",
+      min: 0.5,
+      max: 6,
+      step: 0.5,
+      visibleWhen: sparklineNotBar,
+    },
+    {
+      type: "select",
+      key: "sparklineFill",
+      label: "Fill",
+      options: [
+        { value: "gradient", label: "Gradient" },
+        { value: "solid", label: "Solid" },
+      ],
+      visibleWhen: sparklineArea,
+    },
+    {
+      type: "opacity",
+      key: "sparklineFillOpacity",
+      label: "Fill opacity",
+      min: 0,
+      max: 1,
+      step: 0.05,
+      color: "var(--chart-1)",
+      visibleWhen: sparklineArea,
+    },
+    {
+      type: "number",
+      key: "sparklineBarGap",
+      label: "Bar gap",
+      min: 0,
+      max: 12,
+      step: 0.5,
+      visibleWhen: sparklineBar,
+    },
+    {
+      type: "number",
+      key: "sparklineBarRadius",
+      label: "Bar radius",
+      min: 0,
+      max: 8,
+      step: 0.5,
+      visibleWhen: sparklineBar,
+    },
+    {
+      type: "opacity",
+      key: "sparklineInactiveOpacity",
+      label: "Inactive opacity",
+      min: 0,
+      max: 1,
+      step: 0.05,
+      color: "var(--chart-1)",
+      visibleWhen: sparklineBar,
+    },
+  ]),
+  controlGroup("Crosshair", [
+    {
+      type: "strokeStyle",
+      key: "sparklineCrosshair",
+      label: "Style",
+      options: ["dashed", "solid", "gradient"],
+    },
+    {
+      type: "boolean",
+      key: "sparklineHoverSpring",
+      label: "Spring",
+    },
+    {
+      type: "number",
+      key: "sparklineSpringDamping",
+      label: "Damping",
+      min: 5,
+      max: 80,
+      step: 1,
+      visibleWhen: { key: "sparklineHoverSpring", truthy: true },
+    },
+  ]),
+  controlGroup("Dot", [
+    {
+      type: "boolean",
+      key: "sparklineEndDot",
+      label: "End dot",
+      visibleWhen: sparklineNotBar,
+    },
+  ]),
+];
+
+/** Rendered above the motion curve in the left Animation section. */
+export const sparklineMotionControls: StudioControl[] = [
+  { type: "boolean", key: "sparklineAnimate", label: "Animate" },
 ];

@@ -149,6 +149,21 @@ import {
 import { useChartPreviewOffscreen } from "@/components/charts/chart-preview-gate";
 import { FeaturedChartHero } from "@/components/charts/featured-chart-hero";
 import { LineChartStudioTrioDemo } from "@/components/charts/line-chart-studio-trio-demo";
+import {
+  SparklineAreaExample,
+  SparklineBarExample,
+  SparklineCrosshairsExample,
+  SparklineDenseGridExample,
+  SparklineEndDotExample,
+  SparklineHoverFeelExample,
+  SparklineKpiCardsExample,
+  SparklineLineExample,
+  SparklineNegativeBarsExample,
+  SparklineNoSpringExample,
+  SparklineStepExample,
+  SparklineSyncedExample,
+  SparklineTableExample,
+} from "@/components/charts/sparkline-gallery-examples";
 import { siteContainerClassName } from "@/components/design/site-chrome";
 import {
   buildLineChartDemoData,
@@ -7430,6 +7445,232 @@ function makeSunburstExamples(): ChartExample[] {
   ];
 }
 
+const sparklineDataSnippet = `const data = Array.from({ length: 24 }, (_, i) => ({
+  day: \`Day \${i + 1}\`,
+  value: Math.round(4200 + 40 * i + Math.sin(i * 0.7) * 500),
+}));`;
+
+function makeSparklineHero(): ChartExample {
+  return {
+    title: "Sparkline - KPI cards",
+    description:
+      "useSparklineHover drives the headline number: hover a sparkline to read any point, leave to fall back to the latest value.",
+    code: `function KpiCard({ label, data }) {
+  const hover = useSparklineHover<Point>();
+  const shown = hover.datum ?? data.at(-1);
+  return (
+    <div className="rounded-xl border p-4">
+      <span>{label}</span>
+      <span>{formatter.format(shown.value)}</span>
+      <AreaSparkline data={data} dataKey="value" height={40} {...hover.sparklineProps} />
+    </div>
+  );
+}`,
+    data: sparklineDataSnippet,
+    footer: "Line, area, and bar sparklines with a shared hover hook",
+    render: () => <SparklineKpiCardsExample />,
+  };
+}
+
+function makeSparklineExamples(): ChartExample[] {
+  return [
+    {
+      title: "Sparkline - Line",
+      description:
+        "Fills its parent width; hover shows a dashed crosshair and dot.",
+      code: `<LineSparkline data={data} dataKey="value" height={56} />`,
+      data: sparklineDataSnippet,
+      render: () => <SparklineLineExample />,
+    },
+    {
+      title: "Sparkline - Area gradient",
+      description: "Area fill fades from the line to the baseline.",
+      code: `<AreaSparkline data={data} dataKey="value" height={56} />`,
+      data: sparklineDataSnippet,
+      render: () => <SparklineAreaExample fill="gradient" />,
+    },
+    {
+      title: "Sparkline - Area solid",
+      description: "Flat fill at a custom opacity.",
+      code: `<AreaSparkline
+  color="var(--chart-2)"
+  data={data}
+  dataKey="value"
+  fill="solid"
+  fillOpacity={0.2}
+  height={56}
+/>`,
+      data: sparklineDataSnippet,
+      render: () => <SparklineAreaExample fill="solid" />,
+    },
+    {
+      title: "Sparkline - Bar",
+      description:
+        "Rounded bars with a gap; non-hovered bars dim while hovering.",
+      code: `<BarSparkline
+  barGap={2}
+  barRadius={2}
+  color="var(--chart-3)"
+  data={data}
+  dataKey="value"
+  height={56}
+/>`,
+      data: sparklineDataSnippet,
+      render: () => <SparklineBarExample />,
+    },
+    {
+      title: "Sparkline - Negative bars",
+      description:
+        "Bars grow from zero, so profit and loss read above and below the baseline.",
+      code: `const hover = useSparklineHover<Point>();
+const shown = hover.datum ?? data.at(-1);
+
+<span>{shown.day} · {shown.value}</span>
+<BarSparkline data={data} dataKey="value" height={56} {...hover.sparklineProps} />`,
+      data: `const data = Array.from({ length: 20 }, (_, i) => ({
+  day: \`Day \${i + 1}\`,
+  value: Math.round(Math.sin(i * 0.9) * 420 + Math.cos(i * 2.3) * 180 + 40),
+}));`,
+      render: () => <SparklineNegativeBarsExample />,
+    },
+    {
+      title: "Sparkline - Crosshair styles",
+      description: "Dashed (default), solid, and gradient hover guides.",
+      code: `<LineSparkline crosshair="dashed" data={data} dataKey="value" height={48} />
+<LineSparkline crosshair="solid" data={data} dataKey="value" height={48} />
+<LineSparkline crosshair="gradient" data={data} dataKey="value" height={48} />`,
+      data: sparklineDataSnippet,
+      render: () => <SparklineCrosshairsExample />,
+    },
+    {
+      title: "Sparkline - Hover feel",
+      description:
+        "The crosshair and dot spring between points by default. Tune it with springConfig, or set hoverTransition={false} to snap.",
+      code: `<LineSparkline data={data} dataKey="value" height={48} />
+<LineSparkline
+  data={data}
+  dataKey="value"
+  height={48}
+  springConfig={{ stiffness: 600, damping: 45 }}
+/>
+<LineSparkline data={data} dataKey="value" height={48} hoverTransition={false} />`,
+      data: sparklineDataSnippet,
+      render: () => <SparklineHoverFeelExample />,
+    },
+    {
+      title: "Sparkline - No spring",
+      description:
+        "Synced area and bars with hoverTransition={false}: the crosshair and dot jump straight to each point, while the series fade and bar focus still animate.",
+      code: `const hover = useSparklineHover<Row>();
+
+<AreaSparkline
+  data={data}
+  dataKey="value"
+  hoverTransition={false}
+  {...hover.sparklineProps}
+/>
+<BarSparkline
+  data={data}
+  dataKey="value"
+  hoverTransition={false}
+  {...hover.sparklineProps}
+/>`,
+      data: sparklineDataSnippet,
+      render: () => <SparklineNoSpringExample />,
+    },
+    {
+      title: "Sparkline - End dot",
+      description:
+        "Static trend next to a stat: endDot marks the latest value and interactive={false} skips pointer tracking.",
+      code: `<LineSparkline
+  color="var(--chart-4)"
+  curve="natural"
+  data={data}
+  dataKey="value"
+  endDot
+  height={40}
+  interactive={false}
+/>`,
+      data: sparklineDataSnippet,
+      render: () => <SparklineEndDotExample />,
+    },
+    {
+      title: "Sparkline - Step",
+      description:
+        "Step curve for discrete levels (seats, plan tiers), anchored at zero with yDomain.",
+      code: `<AreaSparkline
+  color="var(--chart-5)"
+  curve="step"
+  data={data}
+  dataKey="value"
+  endDot
+  height={56}
+  yDomain={[0]}
+/>`,
+      data: `const data = [5, 5, 5, 8, 8, 8, 8, 12, 12, 10, 10, 15, 15, 15, 20, 20, 18, 25]
+  .map((value, i) => ({ day: \`Week \${i + 1}\`, value }));`,
+      render: () => <SparklineStepExample />,
+    },
+    {
+      title: "Sparkline - Synced hover",
+      description:
+        "One useSparklineHover shared by every row: hovering any sparkline moves them all.",
+      code: `const hover = useSparklineHover();
+
+{series.map((s) => (
+  <div key={s.label}>
+    <span>{s.label}</span>
+    <LineSparkline
+      color={s.color}
+      data={s.data}
+      dataKey="value"
+      height={28}
+      {...hover.sparklineProps}
+    />
+    <span>{s.data[hover.index ?? s.data.length - 1].value}</span>
+  </div>
+))}`,
+      data: sparklineDataSnippet,
+      render: () => <SparklineSyncedExample />,
+    },
+    {
+      title: "Sparkline - Table",
+      description:
+        "Fixed-width sparklines inline in a table, coloured by direction.",
+      code: `<td>
+  <LineSparkline
+    color={change >= 0 ? "var(--chart-positive)" : "var(--chart-negative)"}
+    data={row.data}
+    dataKey="value"
+    height={24}
+    strokeWidth={1.5}
+    width={120}
+  />
+</td>`,
+      data: sparklineDataSnippet,
+      render: () => <SparklineTableExample />,
+    },
+    {
+      title: "Sparkline - Dense grid",
+      description:
+        "64 sparklines sharing a single ResizeObserver, with no per-instance animation runtime.",
+      code: `{series.map((data, i) => {
+  const Component = [AreaSparkline, LineSparkline, BarSparkline][i % 3];
+  return (
+    <Component
+      color={\`var(--chart-\${(i % 5) + 1})\`}
+      data={data}
+      dataKey="value"
+      height={24}
+      key={i}
+    />
+  );
+})}`,
+      render: () => <SparklineDenseGridExample />,
+    },
+  ];
+}
+
 // ---------------------------------------------------------------------------
 // Registry
 // ---------------------------------------------------------------------------
@@ -7506,6 +7747,11 @@ const chartExamplesRegistry: Record<string, RegistryEntry> = {
     previewLayout: "wide",
     notice:
       "The Sankey chart is in pre-alpha and is being actively developed. APIs may change.",
+  },
+  sparkline: {
+    factory: makeSparklineExamples,
+    hero: makeSparklineHero,
+    previewLayout: "inline",
   },
   "sunburst-chart": {
     factory: makeSunburstExamples,

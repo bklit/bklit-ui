@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  Area,
-  AreaChart,
-  ChartStatFlow,
-  LinearGradient,
-} from "@/components/charts";
-import { curveCardinal } from "@visx/curve";
-import { useState } from "react";
+import { AreaSparkline, ChartStatFlow } from "@/components/charts";
 import {
   Card,
   CardAction,
@@ -23,17 +16,24 @@ import {
 } from "./stat-card-chart";
 import {
   formatStatCardMonth,
-  StatCardHoverBridge,
-  type StatCardHoverState,
-} from "./stat-card-hover-bridge";
+  useStatCardSparklineHover,
+} from "./stat-card-sparkline-hover";
 import { TrendBadge } from "./trend-badge";
 
+const revenueValues = revenueSeries.map((point) => point.value);
+const revenueMin = Math.min(...revenueValues);
+const revenueMax = Math.max(...revenueValues);
+// 5% headroom above and below so peaks and dips don't touch the card edges.
+const revenueDomain: [number, number] = [
+  revenueMin - (revenueMax - revenueMin) * 0.05,
+  revenueMax + (revenueMax - revenueMin) * 0.05,
+];
+
 export function StatCardArea() {
-  const [hover, setHover] = useState<StatCardHoverState>({
-    value: null,
-    label: null,
-    trend: null,
-  });
+  const { hover, sparklineProps } = useStatCardSparklineHover(
+    revenueSeries,
+    formatStatCardMonth
+  );
   const displayValue = hover.value ?? revenueStats.average;
   const displayLabel = hover.label ?? "Avg";
   const displayTrend = hover.trend ?? revenueStats.trend;
@@ -61,35 +61,18 @@ export function StatCardArea() {
         />
 
         <StatCardChart size="md">
-          <AreaChart
-            aspectRatio="2.5 / 1"
-            className="w-full"
+          <AreaSparkline
+            color="var(--chart-1)"
+            crosshair="gradient"
             data={revenueSeries}
-            margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
-          >
-            <StatCardHoverBridge
-              dataKey="value"
-              formatLabel={formatStatCardMonth}
-              onHoverChange={setHover}
-            />
-            <LinearGradient
-              from="var(--chart-1)"
-              fromOpacity={0.45}
-              id="stat-card-area-fill"
-              to="var(--chart-1)"
-              toOpacity={0}
-            />
-            <Area
-              curve={curveCardinal.tension(0.65)}
-              dataKey="value"
-              fill="url(#stat-card-area-fill)"
-              fillOpacity={1}
-              gradientToOpacity={0}
-              showHighlight
-              stroke="var(--chart-1)"
-              strokeWidth={2}
-            />
-          </AreaChart>
+            dataKey="value"
+            fillOpacity={0.45}
+            height={190}
+            padding={0}
+            strokeWidth={2}
+            yDomain={revenueDomain}
+            {...sparklineProps}
+          />
         </StatCardChart>
       </CardContent>
     </Card>

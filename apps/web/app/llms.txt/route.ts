@@ -12,7 +12,7 @@ import { source } from "@/lib/source";
 export const dynamic = "force-static";
 
 const SUMMARY =
-  "Bklit UI is an open-source React chart and data-viz component library (Visx, Motion, Tailwind 4). Charts are composable primitives (line, area, bar, pie, heatmap, sankey, and more, plus utilities like Band, Weekends, Deadline, Trend Line, markers, and tooltips) installed via the shadcn registry. Themes use CSS custom properties with multi-hue chart palettes. The interactive Studio tunes chart props and records animations.";
+  "Bklit UI is an open-source React chart and data-viz component library (Visx, Motion, Tailwind 4). Charts are composable primitives (line, area, bar, pie, heatmap, sankey, and more, plus tiny inline Line/Area/Bar sparklines for tables and KPI cards, and utilities like Band, Weekends, Deadline, Trend Line, markers, and tooltips) installed via the shadcn registry. Themes use CSS custom properties with multi-hue chart palettes. The interactive Studio tunes chart props and records animations.";
 
 interface DocEntry {
   title: string;

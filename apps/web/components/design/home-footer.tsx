@@ -28,6 +28,7 @@ const chartLinks = [
   { text: "Ring Chart", href: "/docs/components/ring-chart" },
   { text: "Scatter Chart", href: "/docs/components/scatter-chart" },
   { text: "Sankey Chart", href: "/docs/components/sankey-chart" },
+  { text: "Sparkline", href: "/docs/components/sparkline" },
 ] as const;
 
 const footerColumns = [

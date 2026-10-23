@@ -433,6 +433,21 @@ export const STUDIO_STATE_KEY_ORDER = [
   "barValueLabelColor",
   "barValueLabelOrientation",
   "barValueLabelPosition",
+  "sparklineVariant",
+  "sparklineHeight",
+  "sparklinePoints",
+  "sparklineCurve",
+  "sparklineStrokeWidth",
+  "sparklineFill",
+  "sparklineFillOpacity",
+  "sparklineBarGap",
+  "sparklineBarRadius",
+  "sparklineInactiveOpacity",
+  "sparklineCrosshair",
+  "sparklineEndDot",
+  "sparklineAnimate",
+  "sparklineHoverSpring",
+  "sparklineSpringDamping",
 ] as const satisfies readonly (keyof StudioUrlState)[];
 
 /** Frozen historical layout (cc7bc08 — first compressed-URL release). Decode-only. */

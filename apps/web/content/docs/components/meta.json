@@ -17,6 +17,7 @@
     "ring-chart",
     "scatter-chart",
     "sankey-chart",
+    "sparkline",
     "sunburst-chart"
   ]
 }

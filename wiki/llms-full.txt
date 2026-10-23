@@ -72,10 +72,12 @@ For example, you can ask your agent to:
 
 - "Add an area chart with tooltips to my dashboard."
 - "Build a KPI stat card with a revenue sparkline."
+- "Add a sparkline to each row of the pricing table that shows the hovered value."
 - "Give the bar chart rounded tops and a diagonal pattern that matches our theme."
 - "Use a diagonal pattern background that fades out on all sides."
 - "Replace our Recharts line chart with the Bklit one."
 - "Migrate all our shadcn charts to Bklit."
+- "Swap our TanStack Charts KPI sparklines for Bklit sparklines."
 - "Fix the crosshair color on my candlestick chart tooltip."
 
 ## Install
@@ -100,7 +102,7 @@ Your agent loads each skill automatically when a request matches it. Learn more 
 |-------|-----------|
 | **bklit-ui** | Installing, importing, composing, theming, and animating charts — the core skill |
 | **bklit-ui-design** | How charts look: patterns and textures, rounded / squircle / 3D bars, edge fades, gradients, loading looks, and matching your app's theme |
-| **bklit-ui-migrate** | Moving from Recharts or shadcn `ChartContainer` charts to Bklit equivalents |
+| **bklit-ui-migrate** | Moving from Recharts, shadcn `ChartContainer`, or TanStack Charts to Bklit equivalents, including tiny charts to sparklines |
 
 ## What bklit-ui covers
 
@@ -128,7 +130,7 @@ Root chart → `Grid` → series → axes → overlays → `ChartTooltip`; `char
 
 ### Catalog
 
-17 chart items — area, bar, line, live line, composed, scatter, candlestick, profit/loss line, pie, ring, radar, gauge, heatmap, funnel, sankey, sunburst, and choropleth — plus add-ons (axes, grid, tooltip, legend, markers, background, patterns, reference area, projection line, band, bar depth, stat flow) and stat-card blocks, each with install commands and links to [docs](/docs/components), the [charts gallery](/charts/area-chart), and [Studio](/studio).
+18 chart items — area, bar, line, sparkline (line, area and bar, with `useSparklineHover`), live line, composed, scatter, candlestick, profit/loss line, pie, ring, radar, gauge, heatmap, funnel, sankey, sunburst, and choropleth — plus add-ons (axes, grid, tooltip, legend, markers, background, patterns, reference area, projection line, band, bar depth, stat flow) and stat-card blocks, each with install commands and links to [docs](/docs/components), the [charts gallery](/charts/area-chart), and [Studio](/studio).
 
 ## What bklit-ui-design covers
 
@@ -165,19 +167,21 @@ When you ask for something Bklit doesn't support, such as a wave or hexagon back
 
 ### Finding your charts
 
-A dependency-free script, `detect-recharts.mjs`, lists every chart that uses Recharts directly or through shadcn's `components/ui/chart.tsx` (`ChartContainer`, `ChartConfig`, `ChartTooltipContent`).
+A dependency-free script, `detect-recharts.mjs`, lists every chart that uses Recharts directly or through shadcn's `components/ui/chart.tsx` (`ChartContainer`, `ChartConfig`, `ChartTooltipContent`), and every TanStack Charts (`@tanstack/charts`) `defineChart` definition. Tiny charts with one series and no axes, such as Recharts' "Tiny" line, area and bar charts or a TanStack KPI sparkline, are flagged as [sparklines](/docs/components/sparkline).
 
 ### Planning the migration
 
 Each chart is classified as:
 
-- **Clean**: a direct Bklit equivalent, such as line, area, bar, pie, radar, funnel, or sankey charts.
-- **Needs a workaround**: for example numeric x values on a line chart, stacked areas, or a fixed y domain. The agent asks before converting these.
-- **Keep on Recharts**: no Bklit equivalent yet, such as `Treemap`, `syncId`, or `ErrorBar`.
+- **Clean**: a direct Bklit equivalent, such as line, area, bar, pie, radar, funnel, or sankey charts, or a tiny chart that becomes a `LineSparkline`, `AreaSparkline`, or `BarSparkline`.
+- **Needs a workaround**: for example numeric x values on a line chart, stacked areas, a fixed y domain, or a tooltip on a sparkline (sparklines show the hovered value through `useSparklineHover` instead). The agent asks before converting these.
+- **Keep on Recharts or TanStack Charts**: no Bklit equivalent yet, such as `Treemap` or `ErrorBar`, or TanStack marks like `dot`, `cell`, or `text`.
+
+TanStack Charts coverage focuses on what Bklit supports: sparklines map closely, while full `lineY`, `areaY`, and `barY` charts map to line, area, and bar charts at a high level and need a manual check of scales and axes.
 
 ### Converting
 
-Files are converted one at a time: data is reshaped where needed (for example, x values to dates), components and props are mapped, and `ChartConfig` colors and labels carry over to series and tooltip rows. `components/ui/chart.tsx` and the `recharts` dependency are removed only once nothing imports them, then the project is typechecked and built.
+Files are converted one at a time: data is reshaped where needed (for example, x values to dates), components and props are mapped, and `ChartConfig` colors and labels carry over to series and tooltip rows. `components/ui/chart.tsx` and the `recharts` or `@tanstack/charts` dependency are removed only once nothing imports them, then the project is typechecked and built.
 
 ## Learn more
 
@@ -700,6 +704,12 @@ Renders a filled area on the chart with a gradient fill.
 | `loadingStroke` | `string` | `var(--foreground)` | Pulse stroke color while chart is loading |
 | `loadingStrokeOpacity` | `number` | `0.5` | Pulse stroke opacity while chart is loading |
 | `markers` | `SeriesPointMarkerStyle` | — | Marker styling (same options as [`Scatter`](/docs/components/scatter-chart)) |
+| `showValue` | `boolean` | `false` | Show value labels above sampled points (see [Value labels](#value-labels)) |
+| `valueLabelMinCount` | `number` | `2` | Preferred minimum labels per series |
+| `valueLabelMaxCount` | `number` | automatic | Maximum labels per series |
+| `valueLabelFormatter` | `(value: number) => string` | English integers | Label text |
+| `valueLabelColor` | `string` | series stroke | Label color |
+| `fadeValueLabels` | `boolean` | `false` | Apply this series' `fadeEdges` to its labels |
 
 ### PatternArea
 
@@ -753,9 +763,10 @@ Renders x-axis labels that fade when the crosshair passes.
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `numTicks` | `number` | `5` | Number of tick labels to show |
+| `numTicks` | `number \| ResponsiveChartLabelCount` | `5` | Number of tick labels to show. Pass `{ base, sm, md, lg, xl }` to vary it by chart width (640 / 768 / 1024 / 1280 px) |
 | `tickerHalfWidth` | `number` | `50` | Fade radius for labels |
 | `tickMode` | `"data" \| "domain"` | `"data"` | `"data"` snaps labels to data rows (crosshair-aligned); `"domain"` for calendar-even spacing |
+| `labels` | `string[]` | — | Tick text per data row (overrides the default date formatting) |
 
 ### ChartTooltip
 
@@ -774,6 +785,7 @@ Renders the tooltip with crosshair, dots, and content box.
 | `damping` | `number` | `20` | Panel follow when `matchCrosshair={false}`; `0` = instant |
 | `content` | `(props) => ReactNode` | - | Custom content renderer |
 | `rows` | `(point) => TooltipRow[]` | - | Custom row generator |
+| `dateLabels` | `string[]` | — | Date-pill text per data row (pair with `XAxis` `labels`) |
 
 ## Weekends and deadlines
 
@@ -1094,6 +1106,44 @@ function SelectionStats({ onSelectionChange }) {
 | `strokeWidth` | `number` | `1` | Line width |
 | `variant` | `"dashed" \| "solid" \| "gradient"` | `"dashed"` | Line style |
 
+## Value labels
+
+Enable labels on each `Area` independently. Labels use measured text bounds, stay
+inside the plot, and share collision detection across series. Crowded labels are
+hidden; full values remain available in the tooltip. Labels render above all area
+fills and do not inherit `fadeEdges` unless `fadeValueLabels` is enabled.
+The renderer samples labels from the visible data and adjusts the count to the
+plot width. `valueLabelMinCount` is a preference; available space and collisions
+can reduce it. `valueLabelMaxCount` is a strict per-series ceiling. All enabled
+series use the same final label count so comparisons stay aligned.
+
+```tsx
+<AreaChart data={data}>
+  <Area dataKey="net" showValue valueLabelMinCount={2} valueLabelMaxCount={5} />
+  <Area dataKey="gross" showValue valueLabelMinCount={2} valueLabelMaxCount={5} />
+  <ChartTooltip />
+</AreaChart>
+```
+
+| Prop on `Area` | Type | Default | Description |
+|---|---|---|---|
+| `showValue` | `boolean` | `false` | Enable labels; set `false` to disable them |
+| `valueLabelMinCount` | `number` | `2` | Preferred minimum per series; space and collisions take priority |
+| `valueLabelMaxCount` | `number` | automatic | Strict maximum per series; `0` hides all labels and takes precedence over minimum |
+| `valueLabelFormatter` | `(value: number) => string` | English integer formatting | Custom complete label text |
+| `valueLabelColor` | `string` | series stroke | Label color |
+| `fadeValueLabels` | `boolean` | `false` | Explicitly apply the series edge fade to labels |
+
+Labels are opt-in, so charts without `showValue` keep their existing rendering.
+Value labels are drawn by `AreaChart`; `showValue` on an `Area` inside
+`ComposedChart` is currently ignored.
+Use `valueLabelFormatter` for currency, units, or localized digits. The SVG
+labels are visual annotations; provide a chart summary or accessible data table
+when people need the underlying values without relying on the visual plot.
+
+Open [Studio with value labels](/studio?chart=area-chart&areaShowValue=true)
+to adjust the label count and preview multiple series at different widths.
+
 ## Theming
 
 The Area Chart uses the same CSS variables as the Line Chart:
@@ -1266,6 +1316,45 @@ Renders a bar for each data point with configurable styling and animations.
 | `stackGap`      | `number`                      | `0`                         | Gap between stacked bars in pixels                      |
 | `perspective` | `boolean`              | `false`                     | Make this a 3D depth bar: trims the front-face top to meet the lid and forces a flat top. Pass `true` when pairing with `BarDepthBack`/`BarDepthFront` (see [3D Depth](#3d-depth--glass-surfaces)) |
 | `minBarHeight`  | `number`                      | `0`                         | Minimum rendered height in px (non-stacked, vertical) — floors short/zero bars so they stay visible. Pair with `<BarDepthProvider minBarHeight>` |
+| `showValue`     | `boolean`                     | `false`                     | Show the formatted value inside a bar when the available space is sufficient |
+| `valueLabelFormatter` | `(value: number) => string` | English integer format | Customize the value text shown inside bars |
+| `valueLabelColor` | `string`                    | `white`                     | Text color for values shown inside bars |
+| `valueLabelOrientation` | `"auto" \| "horizontal" \| "vertical"` | `"auto"` | Choose horizontal text, rotated text, or let the layout choose the orientation |
+| `valueLabelPosition` | `"top" \| "center" \| "bottom"` | `"center"` | Place the label within the bar (on horizontal bars `"top"` is the value end, `"bottom"` the base) |
+| `valueLabelClassName` | `string` | — | Add a class to the SVG value label |
+
+### Value labels
+
+Labels are opt-in. When enabled, each value appears only if the selected
+orientation fits inside its bar. `"auto"` prefers horizontal text, rotates it
+when vertical text fits and hides the label if neither orientation fits. Use
+`"horizontal"` or `"vertical"` to require one orientation; labels that do not
+fit that orientation stay hidden. `valueLabelPosition` controls placement
+along the bar: on horizontal bars `"top"` is the value end and `"bottom"`
+the base. These fit checks run again as the chart resizes, so
+dense data can show fewer labels at narrow widths without clipping or overlap.
+
+```tsx
+<BarChart data={data} xDataKey="month">
+  <Grid horizontal />
+  <Bar
+    dataKey="revenue"
+    showValue
+    valueLabelFormatter={(value) => `$${value.toLocaleString("en-US")}`}
+    valueLabelOrientation="auto"
+    valueLabelPosition="center"
+  />
+  <BarXAxis />
+  <ChartTooltip />
+</BarChart>
+```
+
+The default formatter uses English integer digits. Supply `valueLabelFormatter`
+for other locales or precision. Since labels are visual SVG annotations, keep a
+chart summary or accessible data table for people who need the values without
+the visual plot. Existing charts remain unchanged while `showValue` is omitted
+or `false`. See the [live examples](/charts/bar-chart) for automatic orientation
+with dense data.
 
 ### BarSquares
 
@@ -1342,7 +1431,7 @@ Displays categorical labels along the x-axis (for vertical bar charts).
 | ----------------- | --------- | ------- | ------------------------------------ |
 | `tickerHalfWidth` | `number`  | `50`    | Width of ticker for fade calculation |
 | `showAllLabels`   | `boolean` | `false` | Show all labels (may crowd)          |
-| `maxLabels`       | `number`  | `12`    | Maximum labels to show               |
+| `maxLabels`       | `number \| ResponsiveChartLabelCount` | `12` | Maximum labels to show. Pass `{ base, sm, md, lg, xl }` to vary it by chart width (640 / 768 / 1024 / 1280 px) |
 
 ### BarYAxis
 
@@ -2313,7 +2402,7 @@ export const contributionData = getHeatmapDemoData();
           <HeatmapCells inactiveOpacity={1} inactiveScale={1} />
           <HeatmapXAxis />
           <HeatmapYAxis />
-          <HeatmapTooltip instant />
+          <HeatmapTooltip />
         </HeatmapChart>
         <HeatmapLegend
           inactiveOpacity={1}
@@ -2808,7 +2897,7 @@ Renders x-axis labels that fade when the crosshair passes.
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `numTicks` | `number` | `6` | Number of tick labels |
+| `numTicks` | `number \| ResponsiveChartLabelCount` | `6` | Number of tick labels. Pass `{ base, sm, md, lg, xl }` to vary it by chart width (640 / 768 / 1024 / 1280 px) |
 | `tickerHalfWidth` | `number` | `50` | Fade radius for labels |
 | `tickMode` | `"data" \| "domain"` | `"data"` | `"data"` snaps labels to data rows (crosshair-aligned); `"domain"` for calendar-even spacing |
 
@@ -4485,6 +4574,153 @@ Use the same cartesian building blocks as `LineChart`:
 - `YAxis` — value labels (single shared scale; see [Y Axis](/docs/utility/axis/y-axis))
 - `XAxis` — date labels with crosshair fade
 - `ChartTooltip` — crosshair, date pill, and series rows
+</doc>
+
+<doc title="Sparkline" path="../apps/web/content/docs/components/sparkline.mdx">
+import {
+  SparklineCrosshairDemo,
+  SparklineDemo,
+  SparklineGridDemo,
+  SparklineHoverFeelDemo,
+  SparklineSyncedDemo,
+} from "@/components/docs/sparkline-demo";
+
+<ComponentPreview registryName="sparkline">
+  <SparklineDemo />
+</ComponentPreview>
+
+## Installation
+
+<InstallationTabs name="sparkline" dependencies={["d3-shape", "motion"]} />
+
+## Usage
+
+Sparklines are single-element charts. Pass `data` and a `dataKey` — no axes, grid or tooltip to configure.
+
+```tsx
+import { AreaSparkline, BarSparkline, LineSparkline } from "@bklitui/ui/charts";
+
+<LineSparkline data={rows} dataKey="value" />
+<AreaSparkline data={rows} dataKey="value" fill="gradient" />
+<BarSparkline data={rows} dataKey="value" barRadius={2} />
+```
+
+- **Sizing:** omit `width` to fill the parent; `height` defaults to **32**. Every responsive sparkline on the page shares one `ResizeObserver`. Pass a fixed `width` to skip measuring entirely.
+- **Animation:** the enter animation is on by default (`animate`). Lines draw in along their stroke, areas wipe in, bars grow from the baseline. When `data` changes, the path morphs to the new values over 500ms (`dataTransitionDuration`), like the main charts — written straight to the DOM, so no React re-render per frame. With `prefers-reduced-motion: reduce` the enter becomes a short fade and data changes snap.
+- **Hover highlight:** like the main line and area charts, hovering fades the series to `inactiveOpacity` (0.5) and re-strokes the segment around the hovered point at full strength; the bright segment springs as you move. Bars fade every bar except the focused one (`inactiveOpacity`, 0.4). Turn the line/area highlight off with `showHighlight={false}`.
+- **Hover:** a crosshair (`"dashed"` by default) and a dot spring to the nearest point, with the same spring as the main charts' tooltip (`hoverTransition={false}` to snap; reduced motion always snaps). Springs only exist while a sparkline is hovered. There is deliberately no tooltip — read the hovered value with `useSparklineHover` and render it wherever you like.
+
+## Hovered values
+
+`useSparklineHover` lifts hover state out of the chart. Spread `sparklineProps` onto a sparkline and read `datum` or `index`:
+
+```tsx
+const hover = useSparklineHover<Row>();
+const shown = hover.datum ?? rows.at(-1);
+
+<span>{shown.value}</span>
+<AreaSparkline data={rows} dataKey="value" {...hover.sparklineProps} />
+```
+
+Spread the same props onto several sparklines to sync their crosshairs:
+
+<ComponentShowcase>
+  <SparklineSyncedDemo />
+</ComponentShowcase>
+
+## Crosshair styles
+
+<ComponentShowcase>
+  <SparklineCrosshairDemo />
+</ComponentShowcase>
+
+## Hover feel
+
+The crosshair and dot spring between points with the same spring as the main charts' tooltip. Pass only the values you want to change to `springConfig` — higher `stiffness` feels snappier, lower `damping` bouncier — or set `hoverTransition={false}` to snap straight to each point. The series fade and highlight still animate either way. Reduced motion always snaps.
+
+```tsx
+<LineSparkline data={rows} dataKey="value" />
+<LineSparkline data={rows} dataKey="value" springConfig={{ stiffness: 600, damping: 45 }} />
+<LineSparkline data={rows} dataKey="value" hoverTransition={false} />
+<BarSparkline data={rows} dataKey="value" hoverTransition={false} />
+```
+
+<ComponentShowcase>
+  <SparklineHoverFeelDemo />
+</ComponentShowcase>
+
+## Many on one page
+
+Each sparkline renders a single `<path>` (bars included), animates with the Web Animations API, and only the hovered instance re-renders. 200 instances:
+
+<ComponentShowcase>
+  <SparklineGridDemo />
+</ComponentShowcase>
+
+## Migrating
+
+| Recharts | TanStack Charts | bklit |
+| --- | --- | --- |
+| `<LineChart data><Line dataKey="v" dot={false} /></LineChart>` | `lineY(rows, { y: "v" })` | `<LineSparkline data dataKey="v" />` |
+| `<AreaChart data><Area dataKey="v" /></AreaChart>` | `areaY(rows, …)` + `lineY(rows, …)` | `<AreaSparkline data dataKey="v" />` |
+| `<BarChart data><Bar dataKey="v" /></BarChart>` | `barY(rows, { y: "v" })` | `<BarSparkline data dataKey="v" />` |
+| `isAnimationActive` | `svgAnimation` / `motion()` | `animate` |
+| `type="monotone"` | `curve` | `curve="monotone"` |
+| `ResponsiveContainer` / `responsive` | `width` / `height` | omit `width` |
+
+## Components
+
+### LineSparkline
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `data` | `T[]` | — | Rows to plot |
+| `dataKey` | `keyof T \| (d, i) => number` | — | Numeric field or accessor |
+| `width` | `number` | parent width | Fixed width in px |
+| `height` | `number` | `32` | Height in px |
+| `color` | `string` | `var(--chart-line-primary)` | Series colour |
+| `strokeWidth` | `number` | `1.5` | Line width |
+| `curve` | `"linear" \| "monotone" \| "natural" \| "step"` | `"monotone"` | Interpolation |
+| `endDot` | `boolean` | `false` | Dot on the last point when idle |
+| `showHighlight` | `boolean` | `true` | Fade the series and highlight the hovered segment |
+| `inactiveOpacity` | `number` | `0.5` | Series opacity while hovering |
+| `padding` | `number \| { top, right, bottom, left }` | `4` | Inner padding |
+| `yDomain` | `[min?, max?]` | data extent | Override the value domain |
+| `animate` | `boolean` | `true` | Play the enter animation |
+| `animationDuration` | `number` | `900` | Enter duration in ms |
+| `animationEasing` | `string` | `cubic-bezier(0.85, 0, 0.15, 1)` | CSS easing |
+| `dataTransitionDuration` | `number` | `500` | Morph to new data in ms; `0` snaps (requires `animate`) |
+| `crosshair` | `"dashed" \| "solid" \| "gradient" \| false` | `"dashed"` | Hover guide line |
+| `dot` | `boolean` | `true` | Dot on the hovered point |
+| `hoverTransition` | `boolean` | `true` | Spring the crosshair and dot between points |
+| `springConfig` | `{ stiffness?, damping? }` | `{ stiffness: 300, damping: 30 }` | Crosshair/dot spring — pass only what you change, e.g. `{ damping: 40 }` |
+| `interactive` | `boolean` | `true` | Attach pointer listeners |
+| `hoverIndex` | `number \| null` | — | Controlled hovered index |
+| `onHoverChange` | `(index, datum) => void` | — | Hover callback |
+| `aria-label` | `string` | generated summary | Accessible label |
+
+### AreaSparkline
+
+Everything on `LineSparkline`, plus:
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `fill` | `"gradient" \| "solid"` | `"gradient"` | Fill style |
+| `fillOpacity` | `number` | `0.3` | Peak fill opacity |
+
+### BarSparkline
+
+Shares the base props (no `curve`, `strokeWidth` or `endDot`; `padding` defaults to `2`). Bars always include zero and support negative values.
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `barGap` | `number` | `2` | Gap between bars in px |
+| `barRadius` | `number` | `1` | Corner radius away from the baseline |
+| `inactiveOpacity` | `number` | `0.4` | Opacity of other bars while hovering |
+
+### useSparklineHover
+
+Returns `{ index, datum, isHovering, sparklineProps }`.
 </doc>
 
 <doc title="Sunburst Chart" path="../apps/web/content/docs/components/sunburst-chart.mdx">

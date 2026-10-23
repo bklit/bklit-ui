@@ -156,6 +156,45 @@
         "Does not pass fill, fillOpacity or dataKey props to RadarArea",
         "Renders the legend with the bklit Legend outside the RadarChart"
       ]
+    },
+    {
+      "id": 9,
+      "prompt": "Swap the tiny Recharts charts in components/kpi-sparklines.tsx for bklit.",
+      "expected_output": "The detector reports three tiny charts (no axes/grid, one series, small footprint) targeting LineSparkline, AreaSparkline and BarSparkline from @bklit/sparkline — not LineChart/AreaChart/BarChart. The agent flags the AreaChart's Tooltip as needs-workaround (sparklines have no tooltip) and offers useSparklineHover to show the hovered revenue next to the sparkline. It installs only @bklit/sparkline, imports from @/components/charts/sparkline, maps stroke/fill to color, strokeWidth to strokeWidth, type=\"monotone\" to curve=\"monotone\", isAnimationActive={false} to animate={false}, Bar radius to barRadius, margin to padding, drops ResponsiveContainer/responsive (omit width, keep the height) and keeps width={120} height={40} on the bar.",
+      "files": [
+        "evals/files/recharts-tiny/package.json",
+        "evals/files/recharts-tiny/components/kpi-sparklines.tsx"
+      ],
+      "expectations": [
+        "Targets LineSparkline / AreaSparkline / BarSparkline, not the full LineChart / AreaChart / BarChart",
+        "Installs only `npx shadcn@latest add @bklit/sparkline`",
+        "Imports from @/components/charts/sparkline and never from @bklitui/ui/charts",
+        "Flags the Tooltip on the revenue chart and replaces it with useSparklineHover (hovered value rendered outside the chart) after asking",
+        "Maps type=\"monotone\" to curve=\"monotone\" (a string — not curveMonotoneX from @visx/curve)",
+        "Maps stroke / fill to color and isAnimationActive={false} to animate={false}",
+        "Maps Bar radius={2} to barRadius={2}",
+        "Removes ResponsiveContainer and the responsive/style sizing, omitting width and keeping the small height",
+        "Does not add Grid, XAxis, YAxis or ChartTooltip"
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "We're moving off TanStack Charts. Convert the revenue KPI in components/revenue-kpi.tsx to bklit.",
+      "expected_output": "The detector finds the @tanstack/charts defineChart (areaY + lineY, axes hidden, <Chart height={40}>) and targets one AreaSparkline from @bklit/sparkline. The agent installs @bklit/sparkline, replaces defineChart + <Chart> with <AreaSparkline data={rows} dataKey=\"value\" color=\"var(--chart-1)\" curve=\"monotone\" yDomain={[10_000, 17_000]} width={160} height={40} padding={{ top: 4, right: 0, bottom: 4, left: 0 }} aria-label=\"Revenue over the last 7 days\" />, drops the gradients definition (fill=\"gradient\" is the default, fillOpacity 0.3 matches the top stop), drops idPrefix, keeps the KPI number and card markup, and removes @tanstack/charts only when nothing else imports it.",
+      "files": [
+        "evals/files/tanstack-sparkline/package.json",
+        "evals/files/tanstack-sparkline/components/revenue-kpi.tsx"
+      ],
+      "expectations": [
+        "Runs scripts/detect-recharts.mjs (which also scans @tanstack/charts) and shows the inventory before editing",
+        "Renders a single AreaSparkline for the areaY + lineY pair (not an AreaSparkline plus a LineSparkline)",
+        "Uses dataKey=\"value\" from the marks' y channel",
+        "Maps curve \"monotoneX\" to curve=\"monotone\", the y scale domain to yDomain, margin to padding and ariaLabel to aria-label",
+        "Replaces the gradients definition with fill=\"gradient\" (default) and fillOpacity rather than a hand-written <linearGradient>",
+        "Drops idPrefix (the component scopes ids with useId)",
+        "Keeps the surrounding card, label and latest value unchanged",
+        "Removes @tanstack/charts from package.json only after confirming no other imports remain"
+      ]
     }
   ]
 }

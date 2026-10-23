@@ -1,8 +1,6 @@
 "use client";
 
-import { ChartStatFlow, Line, LineChart } from "@/components/charts";
-import { curveBasis } from "@visx/curve";
-import { useState } from "react";
+import { ChartStatFlow, LineSparkline } from "@/components/charts";
 import {
   Card,
   CardAction,
@@ -18,17 +16,24 @@ import {
 } from "./stat-card-chart";
 import {
   formatStatCardWeekday,
-  StatCardHoverBridge,
-  type StatCardHoverState,
-} from "./stat-card-hover-bridge";
+  useStatCardSparklineHover,
+} from "./stat-card-sparkline-hover";
 import { TrendBadge } from "./trend-badge";
 
+const sessionValues = sessionsSeries.map((point) => point.value);
+const sessionMin = Math.min(...sessionValues);
+const sessionMax = Math.max(...sessionValues);
+// 5% headroom above and below so the stroke doesn't clip at the card edges.
+const sessionDomain: [number, number] = [
+  sessionMin - (sessionMax - sessionMin) * 0.05,
+  sessionMax + (sessionMax - sessionMin) * 0.05,
+];
+
 export function StatCardLine() {
-  const [hover, setHover] = useState<StatCardHoverState>({
-    value: null,
-    label: null,
-    trend: null,
-  });
+  const { hover, sparklineProps } = useStatCardSparklineHover(
+    sessionsSeries,
+    formatStatCardWeekday
+  );
   const average = Math.round(sessionsStats.average);
   const displayValue = hover.value === null ? average : Math.round(hover.value);
   const displayLabel = hover.label ?? "Avg";
@@ -54,25 +59,18 @@ export function StatCardLine() {
             />
           </div>
 
-          <LineChart
-            aspectRatio="2.5 / 1"
-            className="w-full"
+          <LineSparkline
+            color="var(--chart-3)"
+            crosshair="gradient"
+            curve="monotone"
             data={sessionsSeries}
-            margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
-          >
-            <StatCardHoverBridge
-              dataKey="value"
-              formatLabel={formatStatCardWeekday}
-              onHoverChange={setHover}
-            />
-            <Line
-              curve={curveBasis}
-              dataKey="value"
-              showHighlight
-              stroke="var(--chart-3)"
-              strokeWidth={2.5}
-            />
-          </LineChart>
+            dataKey="value"
+            height={190}
+            padding={0}
+            strokeWidth={2.5}
+            yDomain={sessionDomain}
+            {...sparklineProps}
+          />
         </StatCardChart>
       </CardContent>
     </Card>

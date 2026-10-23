@@ -1,0 +1,31 @@
+---
+title: Sparklines
+description: Tiny line, area and bar charts built to fill a dashboard by the hundred.
+date: 2026-10-23
+image: /changelog/2026-10-23-sparklines.svg
+imageAlt: A grid of small wavy lines and thin bars, crossed by dashed vertical guides with a dot on each line
+tags: [sparkline, line-chart, area-chart, bar-chart, motion]
+---
+
+A KPI card needs a trend, not a chart: no axes, no grid, no tooltip, and it has to stay cheap when there are fifty of them on the page. `LineSparkline`, `AreaSparkline` and `BarSparkline` are built for exactly that. Pass `data` and a `dataKey` and they fill their parent at 32px tall.
+
+## Built for density
+
+Each sparkline renders a single `<path>`, bars included. Every responsive sparkline on the page shares one `ResizeObserver`, and passing a fixed `width` skips measuring entirely. Only the hovered instance re-renders, so a grid of 200 stays smooth.
+
+## Enter animations, on by default
+
+Animations run on the Web Animations API instead of React state. Lines draw in along their stroke, areas wipe in and bars grow from the baseline. Tune them with `animationDuration` and `animationEasing`, or pass `animate={false}`. With reduced motion turned on, each one becomes a short fade.
+
+## Hover without a tooltip
+
+A crosshair and a dot follow the nearest point. The crosshair is `"dashed"` by default; choose `"solid"`, `"gradient"` or `false`. There's no tooltip on purpose. Use `useSparklineHover` to read the hovered `datum` and show it wherever you like, such as the big number on the card. Spread its `sparklineProps` onto several sparklines and their crosshairs move together.
+
+## Everywhere you look
+
+- **Gallery and Studio:** browse them at [/charts/sparkline](/charts/sparkline) and try every prop in [Studio](/studio?chart=sparkline).
+- **Recipes and blocks:** a new KPI sparklines recipe joins the [recipes](/recipes), and the quiet-sparkline recipe and stat-card blocks now use the new components.
+- **Installing:** add them with the `sparkline` shadcn item.
+- **Migrating:** the migrate skill now maps Recharts Tiny charts and TanStack Charts sparklines to these components.
+
+See the [sparkline docs](/docs/components/sparkline) for every prop.

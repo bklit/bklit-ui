@@ -78,6 +78,12 @@ export { XAxis } from "./x-axis";
 export { YAxis } from "./y-axis";
 export { ChartTooltip } from "./tooltip";`,
   "choropleth-chart": `export { ChoroplethChart, ChoroplethFeatureComponent, ChoroplethTooltip } from "./choropleth";`,
+  sparkline: `export {
+  AreaSparkline,
+  BarSparkline,
+  LineSparkline,
+  useSparklineHover,
+} from "./sparkline";`,
   "live-line-chart": `export { LiveLineChart } from "./live-line-chart";
 export { LiveLine } from "./live-line";
 export { LiveXAxis } from "./live-x-axis";
@@ -469,6 +475,20 @@ const { arcs } = buildArcs(data);`,
   <ChartTooltip />
 </LiveLineChart>`,
     extraImports: `import { curveNatural } from "@visx/curve";`,
+  },
+  sparkline: {
+    registryDependencies: ["@bklit/sparkline"],
+    dependencies: ["d3-shape"],
+    importFrom: "AreaSparkline, BarSparkline, LineSparkline",
+    data: `const data = Array.from({ length: 24 }, (_, i) => ({
+  day: i + 1,
+  value: Math.round(4200 + 40 * i + Math.sin(i * 0.7) * 500),
+}));`,
+    body: `<div className="grid gap-6 sm:grid-cols-3">
+          <LineSparkline data={data} dataKey="value" height={48} endDot />
+          <AreaSparkline data={data} dataKey="value" height={48} />
+          <BarSparkline data={data} dataKey="value" height={48} />
+        </div>`,
   },
 };
 

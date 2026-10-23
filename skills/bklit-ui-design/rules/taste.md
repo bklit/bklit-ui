@@ -195,8 +195,10 @@ center hover colour.
 ## 10. Fades follow the content
 
 - `Line` fades by default — turn it off (`fadeEdges={false}`) when markers sit on
-  the first/last point, when the stroke is a gradient `url(...)`, or when the
-  chart is a tiny sparkline where the fade eats most of the line.
+  the first/last point, or when the stroke is a gradient `url(...)`.
+- A tiny inline trend is not a small `LineChart` — use `LineSparkline` /
+  `AreaSparkline` / `BarSparkline` (`@bklit/sparkline`). They have no edge fade,
+  axes or tooltip; `endDot` keeps the latest value visible.
 - `Area` does not fade by default — `fadeEdges` suits hero/marketing charts,
   not dashboards where the latest value matters (use `fadeEdges="left"` to keep
   the right edge crisp).
@@ -206,6 +208,9 @@ center hover colour.
 In a grid of small cards: no `Background`, `Grid` with `numTicksRows={3}` or none,
 `strokeWidth={2}`, `showDatePill={false}` if the card already shows the date,
 `animationDuration` ≤ 800. Save 3D, squircles and patterns for hero charts.
+For trends in table rows or KPI tiles, use `@bklit/sparkline` instead of a
+shrunken chart: one `color` token, `height` 24–40, the default `"dashed"`
+crosshair, and the value shown beside it with `useSparklineHover`.
 
 ## 12. Loading should look like the chart
 

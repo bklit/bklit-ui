@@ -90,6 +90,7 @@ export const EditorLeftPanel = memo(function EditorLeftPanel({
 
           <EditorAnimationSection
             defaultOpen={animationSectionDefaultOpen}
+            extraControls={config.motionControls}
             onChange={onChange}
             onCommit={onCommit}
             onMotionCurveDragActiveChange={onMotionCurveDragActiveChange}

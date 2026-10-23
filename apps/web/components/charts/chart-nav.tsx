@@ -22,6 +22,7 @@ const chartTypes = [
   { label: "Ring Chart", slug: "ring-chart" },
   { label: "Scatter Chart", slug: "scatter-chart" },
   { label: "Sankey Chart", slug: "sankey-chart" },
+  { label: "Sparkline", slug: "sparkline" },
   { label: "Sunburst Chart", slug: "sunburst-chart" },
 ] as const;
 

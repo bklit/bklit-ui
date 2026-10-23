@@ -187,6 +187,7 @@ export function EditorMobilePanelSheets({
               />
               <EditorAnimationSection
                 defaultOpen={animationSectionDefaultOpen}
+                extraControls={config.motionControls}
                 onChange={onChange}
                 onCommit={onCommit}
                 onMotionCurveDragActiveChange={onMotionCurveDragActiveChange}

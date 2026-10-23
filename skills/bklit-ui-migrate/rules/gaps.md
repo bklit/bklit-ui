@@ -194,3 +194,37 @@ Correct: leave the file untouched, keep `recharts` in `package.json`, and alias 
 ## Click handlers — needs-workaround
 
 No `onClick` on `Bar`/`Line`/`Area`/`Scatter`. Use `onHoverChange` + `hoveredIndex` on `PieChart`/`RingChart`/`RadarChart`/`FunnelChart`, `ChartMarkers` items (`onClick`, `href`), or keep Recharts for drill-down charts.
+
+## Sparklines: tooltip, axes, multiple series — needs-workaround
+
+`LineSparkline` / `AreaSparkline` / `BarSparkline` (`@bklit/sparkline`) are single-element charts with **no tooltip, axes, grid, legend, reference lines, data labels or second series** — by design. They take no children.
+
+Incorrect:
+
+```tsx
+<LineSparkline data={rows} dataKey="value">
+  <ChartTooltip />                                  {/* no children */}
+</LineSparkline>
+<AreaSparkline data={rows} dataKey={["a", "b"]} />  {/* one series only */}
+<BarSparkline data={rows} dataKey="v" showAxis />   {/* no axes */}
+```
+
+Correct — a Recharts / TanStack tooltip becomes a value you render yourself (ask the user first; it changes where the value appears):
+
+```tsx
+"use client";
+
+import { LineSparkline, useSparklineHover } from "@/components/charts/sparkline";
+
+const hover = useSparklineHover<Row>();
+const shown = hover.datum ?? rows.at(-1);
+
+<span className="tabular-nums">{shown?.value}</span>
+<LineSparkline data={rows} dataKey="value" {...hover.sparklineProps} />
+```
+
+- **Axes / grid / labels needed** → it is not a sparkline: use `LineChart` / `AreaChart` / `BarChart`.
+- **Two series** → two sparklines sharing one `useSparklineHover()` (synced crosshairs), or a full chart.
+- **Dots on every point** → no equivalent; `endDot` marks the last point, `dot` the hovered one.
+- **Per-bar colours (`Cell`) / custom `shape`** → no equivalent; keep Recharts or accept one `color`.
+- **Real x positions** (uneven dates, numeric x) → sparklines space rows evenly; use a full chart if spacing matters.

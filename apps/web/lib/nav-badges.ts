@@ -9,6 +9,8 @@ export type NavBadgeKind = "featured" | "new";
 const navBadgesByUrl: Record<string, NavBadgeKind> = {
   "/benchmarks": "new",
   "/changelog": "new",
+  "/charts/sparkline": "new",
+  "/docs/components/sparkline": "new",
   "/docs/utility/band": "new",
   "/docs/utility/deadline": "new",
   "/docs/utility/trend-line": "new",

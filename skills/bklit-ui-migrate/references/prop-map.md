@@ -138,3 +138,35 @@ Passing `rows`/`content` functions requires the file to be a client component (`
 | `LabelList` on funnel | built-in labels (`showLabels`, `labelLayout`) |
 | `<Sankey data nodePadding nodeWidth>` | `<SankeyChart data nodePadding nodeWidth>` + `<SankeyLink /> <SankeyNode /> <SankeyTooltip />` (defaults 24 / 16) |
 | `node` / `link` custom renderers | — keep Recharts |
+
+## Tiny charts → sparklines (`LineSparkline`, `AreaSparkline`, `BarSparkline` from `@/components/charts/sparkline`)
+
+Sparklines are single elements: no children, no `Grid`/axes/`ChartTooltip`. Props go on the one component. TanStack Charts equivalents: `tanstack-charts.md`.
+
+| Recharts | bklit sparkline | Notes |
+|---|---|---|
+| root `data` | `data` | Same rows. Any row shape; x is the row order (no x key, no dates needed). |
+| series `dataKey` | `dataKey` | A key or an accessor `(d, i) => number`. One series only. |
+| `ResponsiveContainer` / v3 `responsive` / `style={{ width: "100%" }}` | omit `width` | Fills the parent width (one shared `ResizeObserver` for every sparkline). |
+| `width` / `height` / `ResponsiveContainer height` / `style.maxHeight` | `width` / `height` (px) | `height` defaults to **32**. Fixed `width` skips measuring. |
+| `margin` | `padding` | Number or `{ top, right, bottom, left }`. Defaults 4 (line/area), 2 (bar) so strokes and the hover dot are not clipped. |
+| `stroke` (Line/Area) / `fill` (Bar) | `color` | Default `var(--chart-line-primary)`. Use `var(--chart-1)` … tokens. |
+| `strokeWidth` | `strokeWidth` (line/area) | Default 1.5. |
+| `type="monotone"` / `"natural"` / `"linear"` / `"step"` | `curve="monotone" \| "natural" \| "linear" \| "step"` | A **string** (not `@visx/curve`). Default `"monotone"`; Recharts defaults to linear — set `curve="linear"` for parity. Other types → closest of the four. |
+| `Area fill` + `fillOpacity` | `fill="gradient" \| "solid"` + `fillOpacity` | Default `"gradient"` at 0.3 fading to 0. A flat Recharts fill → `fill="solid"` with the same `fillOpacity`. Colour follows `color`. |
+| `<defs><linearGradient>` + `fill="url(#…)"` | `fill="gradient"` | Built in; drop the defs. |
+| `Bar radius={n}` / `[n, n, 0, 0]` | `barRadius={n}` | Rounds the end away from the baseline. Default 1. |
+| `barCategoryGap` / `barGap` | `barGap` (px) | Default 2. |
+| `dot={false}` (Line) | (default) | Sparklines never draw per-point dots. `endDot` keeps a dot on the last point. |
+| `activeDot={false}` | `dot={false}` | `dot` = the hovered-point dot (default true). |
+| `Tooltip cursor={false}` | `crosshair={false}` | `crosshair`: `"dashed"` (default), `"solid"`, `"gradient"`, `false`. |
+| `<Tooltip />` | — | No tooltip by design. `const hover = useSparklineHover<Row>()`, spread `hover.sparklineProps`, render `hover.datum` yourself. See `rules/gaps.md`. |
+| `syncId` | shared `useSparklineHover()` | Spread the same `sparklineProps` onto several sparklines to sync crosshairs. |
+| `Tooltip` `animationDuration` / cursor animation | `hoverTransition`, `springConfig` | Crosshair + dot spring by default (300/30); `hoverTransition={false}` snaps. |
+| `animationDuration` (data updates) | `dataTransitionDuration` | Data-change morph, default 500ms; enter animation is separate (`animationDuration`, 900ms). |
+| `onMouseMove` / `onMouseLeave` | `onHoverChange(index, datum)` / `hoverIndex` | Controlled hover. `interactive={false}` removes pointer listeners entirely. |
+| `isAnimationActive={false}` | `animate={false}` | Enter animation on by default (line draws, area wipes, bars grow); reduced motion becomes a short fade. |
+| `animationDuration` / `animationEasing` | `animationDuration` (ms, default 900) / `animationEasing` (CSS easing) | |
+| `YAxis domain` (hidden axis) | `yDomain={[min, max]}` | Either end may be `undefined` to use the data. Bars always include 0. |
+| `accessibilityLayer` / `aria-label` | `aria-label` | Generated from the data when omitted. |
+| `className` / `style` | `className` / `style` | On the wrapper `div`. |

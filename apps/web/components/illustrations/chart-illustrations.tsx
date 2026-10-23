@@ -867,6 +867,85 @@ function ChoroplethIllustration() {
 }
 
 // ---------------------------------------------------------------------------
+// Sparkline
+// ---------------------------------------------------------------------------
+
+const SPARK_LINE = "M0 11L6 9L12 10L18 6L24 8L30 4L36 6L42 3L48 2";
+const SPARK_AREA = "M0 4L6 6L12 5L18 8L24 7L30 10L36 9L42 11L48 10";
+const SPARK_BARS = [6, 9, 5, 11, 8, 12, 7, 10, 13] as const;
+
+function SparklineIllustration() {
+  return (
+    <ThumbCard>
+      <ThumbPanel className="flex flex-col gap-3">
+        <div className="flex items-center gap-2">
+          <Text className="w-5" />
+          <ThumbSvg className="flex-1" viewBox="0 0 48 14">
+            <path
+              className="text-primary"
+              d={SPARK_LINE}
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeOpacity={0.88}
+              strokeWidth={1.25}
+            />
+            <circle
+              className="fill-card text-primary"
+              cx="48"
+              cy="2"
+              r="1.75"
+              stroke="currentColor"
+              strokeWidth={1.25}
+            />
+          </ThumbSvg>
+          <Text className="w-4" variant="secondary" />
+        </div>
+        <div className="flex items-center gap-2">
+          <Text className="w-5" />
+          <ThumbSvg className="flex-1" viewBox="0 0 48 14">
+            <defs>
+              <FadeGradient id="bk-ill-sparkline-fill" />
+            </defs>
+            <path
+              d={`${SPARK_AREA}L48 14L0 14Z`}
+              fill="url(#bk-ill-sparkline-fill)"
+            />
+            <path
+              d={SPARK_AREA}
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeOpacity={0.48}
+              strokeWidth={1.25}
+            />
+          </ThumbSvg>
+          <Text className="w-4" variant="secondary" />
+        </div>
+        <div className="flex items-center gap-2">
+          <Text className="w-5" />
+          <ThumbSvg className="flex-1" viewBox="0 0 48 14">
+            {SPARK_BARS.map((h, i) => (
+              <rect
+                fill="currentColor"
+                fillOpacity={0.32}
+                height={h}
+                key={`spark-bar-${i}-${h}`}
+                rx="0.75"
+                width="3.5"
+                x={i * 5.5 + 0.25}
+                y={14 - h}
+              />
+            ))}
+          </ThumbSvg>
+          <Text className="w-4" variant="secondary" />
+        </div>
+      </ThumbPanel>
+    </ThumbCard>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Registry
 // ---------------------------------------------------------------------------
 
@@ -887,6 +966,7 @@ export const chartIllustrations: Record<string, () => ReactNode> = {
   "ring-chart": RingIllustration,
   "sankey-chart": SankeyIllustration,
   "scatter-chart": ScatterIllustration,
+  sparkline: SparklineIllustration,
   "sunburst-chart": SunburstIllustration,
 };
 

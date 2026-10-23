@@ -27,6 +27,13 @@ const BAR_LABEL_ORIENTATION_RE = /valueLabelOrientation="vertical"/;
 const BAR_LABEL_POSITION_RE = /valueLabelPosition="top"/;
 const VALUE_LABEL_PROP_RE = /showValue|valueLabel|fadeValueLabels/;
 const AREA_JSX_RE = /<Area dataKey=[^>]*\/>/g;
+const SPARKLINE_BAR_RE = /<BarSparkline[\s\S]*barGap=\{4\}/;
+const SPARKLINE_LINE_ONLY_PROPS_RE = /curve=|strokeWidth=|endDot/;
+const SPARKLINE_HIDDEN_LAYERS_RE = /crosshair=\{false\}[\s\S]*dot=\{false\}/;
+const SPARKLINE_DAMPING_RE = /springConfig=\{\{ damping: 45 \}\}/;
+const SPARKLINE_NO_SPRING_RE = /hoverTransition=\{false\}/;
+const SPARKLINE_ANIMATE_FALSE_RE = /animate=\{false\}/;
+const SPARKLINE_DURATION_RE = /animationDuration=/;
 const AREA_LABEL_PROPS_RE =
   /showValue valueLabelMinCount=\{2\} valueLabelMaxCount=\{4\} fadeValueLabels/;
 
@@ -123,6 +130,45 @@ describe("generateStudioCode", () => {
     for (const area of areas) {
       assert.match(area, AREA_LABEL_PROPS_RE);
     }
+  });
+
+  it("sparkline emits only non-default props for the chosen variant", () => {
+    const bar = generateStudioCode(
+      "sparkline",
+      defaultStudioState({
+        chart: "sparkline",
+        sparklineVariant: "bar",
+        sparklineBarGap: 4,
+        hiddenComponents: "sparkline.crosshair|sparkline.dot",
+      })
+    ).code;
+    assert.match(bar, SPARKLINE_BAR_RE);
+    assert.doesNotMatch(bar, SPARKLINE_LINE_ONLY_PROPS_RE);
+    assert.match(bar, SPARKLINE_HIDDEN_LAYERS_RE);
+
+    const still = generateStudioCode(
+      "sparkline",
+      defaultStudioState({ chart: "sparkline", sparklineAnimate: false })
+    ).code;
+    assert.match(still, SPARKLINE_ANIMATE_FALSE_RE);
+    assert.doesNotMatch(still, SPARKLINE_DURATION_RE);
+
+    const snappy = generateStudioCode(
+      "sparkline",
+      defaultStudioState({ chart: "sparkline", sparklineSpringDamping: 45 })
+    ).code;
+    assert.match(snappy, SPARKLINE_DAMPING_RE);
+
+    const noSpring = generateStudioCode(
+      "sparkline",
+      defaultStudioState({
+        chart: "sparkline",
+        sparklineHoverSpring: false,
+        sparklineSpringDamping: 45,
+      })
+    ).code;
+    assert.match(noSpring, SPARKLINE_NO_SPRING_RE);
+    assert.doesNotMatch(noSpring, SPARKLINE_DAMPING_RE);
   });
 
   it("gauge uses dynamic label and angles", () => {

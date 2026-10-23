@@ -46,8 +46,9 @@ Documentation lives under `apps/web/`. Do all of the following.
 
 - **Dedicated doc page** (when shipping a new composable or chart kind)
   - Add `apps/web/content/docs/components/<name>.mdx` with frontmatter, `<ComponentPreview>`, installation, usage, and props — consistent with existing component docs.
-  - Add the slug to `apps/web/content/docs/components/meta.json` (desktop sidebar).
-  - Add an entry to `apps/web/components/docs/site-header.tsx` (mobile nav).
+  - Add the slug to `apps/web/content/docs/components/meta.json`. This drives the desktop sidebar **and** the mobile menu — `apps/web/components/docs/site-header.tsx` renders the mobile nav from the docs page tree (`docsTree`), so there is no hand-maintained list to edit there.
+  - Optional "New" badge: add the docs and gallery URLs to `apps/web/lib/nav-badges.ts` (sidebar, mobile menu and site nav all read it).
+  - Top-level site links (Docs, Components, Recipes, …) live in `apps/web/lib/site-nav-links.ts`; chart pages do not go there.
 
 ### 3. Studio
 
@@ -58,6 +59,13 @@ Documentation lives under `apps/web/`. Do all of the following.
   - `packages/studio/src/lib/registry.tsx` — render preview + `generateCode`
   - `packages/studio/src/lib/studio-components.ts` — layer tree
   - Chart-type defaults in `packages/studio/src/components/studio-state-provider.tsx` when switching chart type
+- A **new studio slug** also needs (TypeScript catches the `Record<ChartSlug, …>` ones, not the rest):
+  - `packages/studio/src/chart-slugs.ts` — add the slug
+  - `packages/studio/src/lib/types.ts` — `chartLabels` entry (display name; `satisfies Record<ChartSlug, string>`)
+  - `packages/studio/src/components/chart-type-icons.tsx` — `CHART_TYPE_ICONS` entry (`Record<ChartSlug, IconName>`)
+  - `packages/studio/src/components/catalog/catalog-chart-preview-grid.tsx` — `CATALOG_CHART_LAYOUT` entry when the catalog tile needs a custom size or state overrides (and `STUDIO_Y_AXIS_CHART_PREFIX` if it has a y-axis)
+  - `packages/studio/src/lib/studio-url-key-orders.ts` — **append** every new URL state key to the end of `STUDIO_STATE_KEY_ORDER` (frozen, append-only; never insert or reorder — it would corrupt shared URLs; `studio-url-codec.test.ts` guards it)
+  - `packages/studio/src/lib/studio-visibility-sync.ts` — add cases to `legendComponentIdForChart` / `brushComponentIdForChart` when the chart has a legend or brush layer (default `null` otherwise)
 
 ### 4. Rebuild the shadcn registry
 
@@ -92,7 +100,7 @@ Fix all errors; repeat until hooks pass on commit.
 - [ ] **Existing docs updated** with new props/features (standard preview unchanged)
 - [ ] Gallery examples on the correct `/charts/**` route
 - [ ] Dedicated doc page + sidebar + mobile nav (if new composable/chart kind)
-- [ ] **Studio** chart updated or added with all props in control groups
+- [ ] **Studio** chart updated or added with all props in control groups (new slug: labels, icon, catalog layout, URL key order appended)
 - [ ] Registry rebuilt (`pnpm registry:build`)
 - [ ] `pnpm lint`, tests (if applicable), and `pnpm build` pass
 
@@ -107,11 +115,14 @@ Fix all errors; repeat until hooks pass on commit.
 | Chart examples (nav + registry) | `apps/web/components/charts/chart-examples.tsx` |
 | Component docs | `apps/web/content/docs/components/<name>.mdx` |
 | Utility docs (Grid, Tooltip, …) | `apps/web/content/docs/utility/*.mdx` |
-| Sidebar (desktop) | `apps/web/content/docs/components/meta.json` → `pages` |
-| Mobile nav | `apps/web/components/docs/site-header.tsx` → `components` array |
+| Sidebar + mobile nav | `apps/web/content/docs/components/meta.json` → `pages` (mobile menu in `site-header.tsx` is generated from the docs page tree) |
+| "New" badges | `apps/web/lib/nav-badges.ts` |
 | Studio registry | `packages/studio/src/lib/registry.tsx` |
 | Studio components tree | `packages/studio/src/lib/studio-components.ts` |
 | Studio controls | `packages/studio/src/lib/registry-control-groups.ts` |
-| Studio URL state | `packages/studio/src/lib/studio-parsers.ts` |
+| Studio URL state | `packages/studio/src/lib/studio-parsers.ts` + append keys in `packages/studio/src/lib/studio-url-key-orders.ts` |
+| Studio slug list / labels / icons | `packages/studio/src/chart-slugs.ts`, `packages/studio/src/lib/types.ts` (`chartLabels`), `packages/studio/src/components/chart-type-icons.tsx` |
+| Studio catalog tile | `packages/studio/src/components/catalog/catalog-chart-preview-grid.tsx` |
+| Studio layer visibility sync | `packages/studio/src/lib/studio-visibility-sync.ts` |
 | Registry (source) | `packages/ui/registry.json`; build output: `apps/web/public/r/` |
 | Registry build | From root: `pnpm registry:build` |

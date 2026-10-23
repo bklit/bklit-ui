@@ -74,6 +74,7 @@ const CATALOG_CHART_LAYOUT: Partial<
   "scatter-chart": {
     overrides: { scatterRadius: 2.5 },
   },
+  sparkline: { tileHeight: 280, frameH: 280 },
 };
 
 function catalogLayoutForChart(slug: ChartSlug) {

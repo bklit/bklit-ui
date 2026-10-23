@@ -32,6 +32,7 @@ import { PieStudioPreview } from "@/components/charts/pie-studio-preview";
 import { RadarStudioPreview } from "@/components/charts/radar-studio-preview";
 import { RingStudioPreview } from "@/components/charts/ring-studio-preview";
 import { SankeyStudioPreview } from "@/components/charts/sankey-studio-preview";
+import { SparklineStudioPreview } from "@/components/charts/sparkline-studio-preview";
 import { StudioCartesianFill } from "@/components/charts/studio-chart-layout";
 import {
   StudioChartShell,
@@ -107,6 +108,8 @@ import {
   ringChartControlGroups,
   sankeyChartControlGroups,
   scatterChartControlGroups,
+  sparklineControlGroups,
+  sparklineMotionControls,
   sunburstChartControlGroups,
 } from "./registry-control-groups";
 import {
@@ -115,6 +118,7 @@ import {
   ScatterJitterTooltipContent,
 } from "./scatter-jitter-studio";
 import { seriesStrokePropsFromState } from "./series-stroke-props";
+import { sparklineCodegen } from "./sparkline-codegen";
 import {
   barTrackFillFromState,
   studioBarTrackPatternDef,
@@ -139,6 +143,7 @@ import {
   resolveRingComponents,
   resolveSankeyComponents,
   resolveScatterComponents,
+  resolveSparklineComponents,
   resolveSunburstComponents,
 } from "./studio-components";
 import { studioCartesianLegendItems } from "./studio-legend-items";
@@ -902,6 +907,18 @@ const heatmapConfig: StudioChartConfig = {
   generateCode: (state) => heatmapCodegen(state),
 };
 
+const sparklineConfig: StudioChartConfig = {
+  slug: "sparkline",
+  label: chartLabels.sparkline,
+  motionPanel: true,
+  motionControls: sparklineMotionControls,
+  controls: [],
+  controlGroups: sparklineControlGroups,
+  resolveComponents: resolveSparklineComponents,
+  render: (state, ctx) => <SparklineStudioPreview ctx={ctx} state={state} />,
+  generateCode: (state) => sparklineCodegen(state),
+};
+
 export const studioRegistry: Record<ChartSlug, StudioChartConfig> = {
   "gauge-chart": gaugeConfig,
   "area-chart": areaConfig,
@@ -920,6 +937,7 @@ export const studioRegistry: Record<ChartSlug, StudioChartConfig> = {
   "choropleth-chart": choroplethConfig,
   "heatmap-chart": heatmapConfig,
   "sankey-chart": sankeyConfig,
+  sparkline: sparklineConfig,
 };
 
 export function getStudioConfig(slug: ChartSlug): StudioChartConfig {

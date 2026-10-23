@@ -9,10 +9,12 @@ For example, you can ask your agent to:
 
 - "Add an area chart with tooltips to my dashboard."
 - "Build a KPI stat card with a revenue sparkline."
+- "Add a sparkline to each row of the pricing table that shows the hovered value."
 - "Give the bar chart rounded tops and a diagonal pattern that matches our theme."
 - "Use a diagonal pattern background that fades out on all sides."
 - "Replace our Recharts line chart with the Bklit one."
 - "Migrate all our shadcn charts to Bklit."
+- "Swap our TanStack Charts KPI sparklines for Bklit sparklines."
 - "Fix the crosshair color on my candlestick chart tooltip."
 
 ## Install
@@ -37,7 +39,7 @@ Your agent loads each skill automatically when a request matches it. Learn more 
 |-------|-----------|
 | **bklit-ui** | Installing, importing, composing, theming, and animating charts — the core skill |
 | **bklit-ui-design** | How charts look: patterns and textures, rounded / squircle / 3D bars, edge fades, gradients, loading looks, and matching your app's theme |
-| **bklit-ui-migrate** | Moving from Recharts or shadcn `ChartContainer` charts to Bklit equivalents |
+| **bklit-ui-migrate** | Moving from Recharts, shadcn `ChartContainer`, or TanStack Charts to Bklit equivalents, including tiny charts to sparklines |
 
 ## What bklit-ui covers
 
@@ -65,7 +67,7 @@ Root chart → `Grid` → series → axes → overlays → `ChartTooltip`; `char
 
 ### Catalog
 
-17 chart items — area, bar, line, live line, composed, scatter, candlestick, profit/loss line, pie, ring, radar, gauge, heatmap, funnel, sankey, sunburst, and choropleth — plus add-ons (axes, grid, tooltip, legend, markers, background, patterns, reference area, projection line, band, bar depth, stat flow) and stat-card blocks, each with install commands and links to [docs](/docs/components), the [charts gallery](/charts/area-chart), and [Studio](/studio).
+18 chart items — area, bar, line, sparkline (line, area and bar, with `useSparklineHover`), live line, composed, scatter, candlestick, profit/loss line, pie, ring, radar, gauge, heatmap, funnel, sankey, sunburst, and choropleth — plus add-ons (axes, grid, tooltip, legend, markers, background, patterns, reference area, projection line, band, bar depth, stat flow) and stat-card blocks, each with install commands and links to [docs](/docs/components), the [charts gallery](/charts/area-chart), and [Studio](/studio).
 
 ## What bklit-ui-design covers
 
@@ -102,19 +104,21 @@ When you ask for something Bklit doesn't support, such as a wave or hexagon back
 
 ### Finding your charts
 
-A dependency-free script, `detect-recharts.mjs`, lists every chart that uses Recharts directly or through shadcn's `components/ui/chart.tsx` (`ChartContainer`, `ChartConfig`, `ChartTooltipContent`).
+A dependency-free script, `detect-recharts.mjs`, lists every chart that uses Recharts directly or through shadcn's `components/ui/chart.tsx` (`ChartContainer`, `ChartConfig`, `ChartTooltipContent`), and every TanStack Charts (`@tanstack/charts`) `defineChart` definition. Tiny charts with one series and no axes, such as Recharts' "Tiny" line, area and bar charts or a TanStack KPI sparkline, are flagged as [sparklines](/docs/components/sparkline).
 
 ### Planning the migration
 
 Each chart is classified as:
 
-- **Clean**: a direct Bklit equivalent, such as line, area, bar, pie, radar, funnel, or sankey charts.
-- **Needs a workaround**: for example numeric x values on a line chart, stacked areas, or a fixed y domain. The agent asks before converting these.
-- **Keep on Recharts**: no Bklit equivalent yet, such as `Treemap`, `syncId`, or `ErrorBar`.
+- **Clean**: a direct Bklit equivalent, such as line, area, bar, pie, radar, funnel, or sankey charts, or a tiny chart that becomes a `LineSparkline`, `AreaSparkline`, or `BarSparkline`.
+- **Needs a workaround**: for example numeric x values on a line chart, stacked areas, a fixed y domain, or a tooltip on a sparkline (sparklines show the hovered value through `useSparklineHover` instead). The agent asks before converting these.
+- **Keep on Recharts or TanStack Charts**: no Bklit equivalent yet, such as `Treemap` or `ErrorBar`, or TanStack marks like `dot`, `cell`, or `text`.
+
+TanStack Charts coverage focuses on what Bklit supports: sparklines map closely, while full `lineY`, `areaY`, and `barY` charts map to line, area, and bar charts at a high level and need a manual check of scales and axes.
 
 ### Converting
 
-Files are converted one at a time: data is reshaped where needed (for example, x values to dates), components and props are mapped, and `ChartConfig` colors and labels carry over to series and tooltip rows. `components/ui/chart.tsx` and the `recharts` dependency are removed only once nothing imports them, then the project is typechecked and built.
+Files are converted one at a time: data is reshaped where needed (for example, x values to dates), components and props are mapped, and `ChartConfig` colors and labels carry over to series and tooltip rows. `components/ui/chart.tsx` and the `recharts` or `@tanstack/charts` dependency are removed only once nothing imports them, then the project is typechecked and built.
 
 ## Learn more
 

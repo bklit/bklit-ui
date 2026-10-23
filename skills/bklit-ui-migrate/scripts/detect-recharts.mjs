@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 // detect-recharts.mjs — inventory Recharts usage (direct or via shadcn's
-// components/ui/chart.tsx wrapper) and propose a bklit target per chart.
+// components/ui/chart.tsx wrapper) and TanStack Charts (`@tanstack/charts`)
+// definitions, and propose a bklit target per chart. Tiny axis-less charts
+// (Recharts "Tiny" examples, TanStack KPI sparklines) map to `@bklit/sparkline`.
 //
 // Usage (from the project root, Node >= 18, zero dependencies):
 //   node detect-recharts.mjs [dir] [--format=json|table]
@@ -30,7 +32,9 @@ const MAX_FILES = 20_000;
 const CLEAN = "clean";
 const WORKAROUND = "needs-workaround";
 const KEEP = "keep-recharts";
-const RANK = { [CLEAN]: 0, [WORKAROUND]: 1, [KEEP]: 2 };
+const KEEP_TANSTACK = "keep-tanstack";
+const RANK = { [CLEAN]: 0, [WORKAROUND]: 1, [KEEP]: 2, [KEEP_TANSTACK]: 2 };
+const isKept = (level) => level === KEEP || level === KEEP_TANSTACK;
 
 /** Recharts chart roots -> bklit root export, registry slug, import file. */
 const ROOTS = {
@@ -106,6 +110,85 @@ const RE_CHART_CONFIG = /\bChartConfig\b/;
 const RE_COLOR_VAR = /var\(--color-([\w-]+)\)/g;
 const RE_SCRIPT_EXT = /\.(?:tsx|ts|jsx|js)$/;
 const RE_ALIAS_PREFIX = /^[@~#]\//;
+
+// ------------------------------------------------------------- sparklines
+
+/** Recharts roots that can collapse to a `@bklit/sparkline` component. */
+const SPARKLINE_ROOTS = {
+  LineChart: { series: "Line", bklit: "LineSparkline" },
+  AreaChart: { series: "Area", bklit: "AreaSparkline" },
+  BarChart: { series: "Bar", bklit: "BarSparkline" },
+};
+/** Children that make a chart "a chart", not a sparkline. */
+const CHART_CHROME = [
+  "XAxis",
+  "YAxis",
+  "CartesianGrid",
+  "Legend",
+  "Brush",
+  "ReferenceLine",
+  "ReferenceArea",
+  "ReferenceDot",
+  "LabelList",
+];
+/** Height (px) at or below which an axis-less chart reads as a sparkline. */
+const SPARKLINE_MAX_HEIGHT = 120;
+/** Width (px) at or below which an axis-less chart reads as a sparkline. */
+const SPARKLINE_MAX_WIDTH = 200;
+const SPARKLINE_CURVES = new Set(["linear", "monotone", "natural", "step"]);
+const RE_STYLE_SIZE = /\b(maxWidth|maxHeight|width|height)\s*:\s*["']?(\d+)/g;
+const RE_TW_HEIGHT = /(?:^|\s)h-(?:\[(\d+)px\]|(\d+(?:\.5)?))(?=\s|$)/;
+const RE_NUMBER = /^\d+(?:\.\d+)?$/;
+
+// ---------------------------------------------------------- TanStack Charts
+
+const RE_TANSTACK_SOURCE = /^@tanstack\/charts(?:\/|$)/;
+/** TanStack marks bklit can express, by mark name. */
+const TANSTACK_MAPPED_MARKS = new Set(["lineY", "areaY", "barY"]);
+/** Every built-in TanStack mark (anything else imported is ignored). */
+const TANSTACK_MARKS = new Set([
+  "lineY",
+  "areaX",
+  "areaY",
+  "barX",
+  "barY",
+  "dot",
+  "rect",
+  "cell",
+  "ruleX",
+  "ruleY",
+  "text",
+  "arrow",
+  "frame",
+  "hexagon",
+  "link",
+  "tickX",
+  "tickY",
+  "vector",
+  "facet",
+]);
+const RE_AXIS_FALSE = /\baxis\s*:\s*false\b/;
+const RE_AXIS_ON = /\baxis\s*:\s*(?:true|\{)/;
+const RE_GRID_ON = /\bgrid\s*:\s*true\b/;
+const RE_GUIDES_FALSE = /\bguides\s*:\s*false\b/;
+const RE_TOOLTIP_WORD = /\btooltip\b/;
+const RE_TOOLTIP_OFF = /\btooltip\s*:\s*false\b/;
+const RE_LEGEND = /\blegend\s*:/;
+const RE_Z_CHANNEL = /\bz\s*:/;
+const RE_Y_KEY = /\by\s*:\s*["']([^"']+)["']/;
+const RE_X_KEY = /\bx\s*:\s*["']([^"']+)["']/;
+const RE_CURVE = /\bcurve\s*:\s*["']([^"']+)["']/;
+const RE_ANIMATION = /\b(?:svgAnimation|motion)\b/;
+const RE_DOMAIN = /\.domain\s*\(|\bdomain\s*:/;
+const RE_GRADIENTS = /\bgradients\s*:/;
+const RE_MARGIN = /\bmargin\s*:/;
+const RE_STROKE = /\bstroke\s*:/;
+const RE_STROKE_WIDTH = /\bstrokeWidth\s*:/;
+const RE_ID_PREFIX = /\bidPrefix\b/;
+const RE_ARIA_LABEL = /\bariaLabel\b/;
+const RE_CURVE_AXIS_SUFFIX = /[XY]$/;
+const RE_CURVE_PREFIX = /^curve/i;
+const RE_PX_SUFFIX = /px$/;
 
 // ---------------------------------------------------------------- scanning
 
@@ -266,8 +349,8 @@ function readTag(code, start) {
   return { end: code.length, attrs, selfClosing: true };
 }
 
-/** From an opening `{`, return the index just past its matching `}`. */
-function skipBalanced(code, start) {
+/** From an opening `{` (or `open`), return the index just past its matching close. */
+function skipBalanced(code, start, open = "{", close = "}") {
   let depth = 0;
   let quote = null;
   for (let i = start; i < code.length; i += 1) {
@@ -282,9 +365,9 @@ function skipBalanced(code, start) {
     }
     if (c === '"' || c === "'" || c === "`") {
       quote = c;
-    } else if (c === "{") {
+    } else if (c === open) {
       depth += 1;
-    } else if (c === "}") {
+    } else if (c === close) {
       depth -= 1;
       if (depth === 0) {
         return i + 1;
@@ -664,12 +747,441 @@ function classifyChart(root, inner) {
   };
 }
 
+// ------------------------------------------------------ sparkline detection
+
+/** Numeric px value of a JSX attr (`{48}`, `"48"`, `48px`); null otherwise. */
+function pxAttr(value) {
+  const v = unquote(value);
+  if (typeof v !== "string") {
+    return null;
+  }
+  const n = v.replace(RE_PX_SUFFIX, "");
+  return RE_NUMBER.test(n) ? Number(n) : null;
+}
+
+/**
+ * Smallest known width / height of a chart root from its own props, its
+ * `style` / `className`, and an enclosing `ResponsiveContainer`.
+ */
+function measureFootprint(root, container) {
+  let width = null;
+  let height = null;
+  const take = (kind, n) => {
+    if (n === null) {
+      return;
+    }
+    if (kind === "w") {
+      width = width === null ? n : Math.min(width, n);
+    } else {
+      height = height === null ? n : Math.min(height, n);
+    }
+  };
+  for (const tag of [root, container].filter(Boolean)) {
+    take("w", pxAttr(tag.attrs.width));
+    take("h", pxAttr(tag.attrs.height));
+    take("h", pxAttr(tag.attrs.maxHeight));
+    for (const m of (tag.attrs.style ?? "").matchAll(RE_STYLE_SIZE)) {
+      take(m[1].toLowerCase().includes("width") ? "w" : "h", Number(m[2]));
+    }
+    const tw = (unquote(tag.attrs.className) ?? "").match(RE_TW_HEIGHT);
+    if (tw) {
+      take("h", tw[1] ? Number(tw[1]) : Number(tw[2]) * 4);
+    }
+  }
+  return { width, height };
+}
+
+/**
+ * Is this Recharts root a sparkline? Line/Area/Bar with one series and no
+ * axes, grid, legend or reference chrome. `small` says whether the footprint
+ * is also sparkline-sized; size-unknown charts only get a note.
+ */
+function sparklineShape(root, inner, container) {
+  const spec = SPARKLINE_ROOTS[root.component];
+  if (!spec) {
+    return null;
+  }
+  const visibleChrome = inner.filter(
+    (t) =>
+      t.origin === "recharts" &&
+      CHART_CHROME.includes(t.component) &&
+      unquote(t.attrs.hide) !== "true"
+  );
+  const series = inner.filter((t) =>
+    ["Line", "Area", "Bar"].includes(t.component)
+  );
+  if (visibleChrome.length > 0 || series.length !== 1) {
+    return null;
+  }
+  const { width, height } = measureFootprint(root, container);
+  const small =
+    (height !== null && height <= SPARKLINE_MAX_HEIGHT) ||
+    (width !== null && width <= SPARKLINE_MAX_WIDTH);
+  return { spec, series: series[0], width, height, small };
+}
+
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: flat list of independent prop mappings
+function classifySparkline(root, inner, shape, container) {
+  const { spec, series, width, height } = shape;
+  const reasons = [];
+  const notes = [];
+  let level = CLEAN;
+  const raise = (to, why) => {
+    if (RANK[to] > RANK[level]) {
+      level = to;
+    }
+    reasons.push(`${to}: ${why}`);
+  };
+  const a = series.attrs;
+  const size = [
+    width === null ? null : `${width}px wide`,
+    height === null ? null : `${height}px tall`,
+  ]
+    .filter(Boolean)
+    .join(", ");
+  notes.push(
+    `tiny ${root.component} (one ${spec.series}, no axes/grid${size ? `, ${size}` : ""}) -> ${spec.bklit} from @bklit/sparkline, not ${ROOTS[root.component].bklit}`
+  );
+  const dataKey = unquote(a.dataKey);
+  if (dataKey) {
+    notes.push(
+      `${spec.series} dataKey="${dataKey}" -> ${spec.bklit} dataKey="${dataKey}"`
+    );
+  }
+  if (container || root.attrs.responsive) {
+    notes.push(
+      "ResponsiveContainer / responsive -> omit width (sparklines fill the parent); keep height"
+    );
+  } else if (width !== null || height !== null) {
+    notes.push("width / height (px) -> width / height (height defaults to 32)");
+  }
+  if (root.attrs.margin) {
+    notes.push("margin -> padding (number or { top, right, bottom, left })");
+  }
+  const tooltip = inner.filter(
+    (t) => t.component === "Tooltip" || t.component === "ChartTooltip"
+  );
+  if (tooltip.length > 0) {
+    raise(
+      WORKAROUND,
+      "Tooltip: sparklines have no tooltip by design — drop it, read the hovered row with useSparklineHover() and render the value next to the sparkline"
+    );
+    if (tooltip.some((t) => unquote(t.attrs.cursor) === "false")) {
+      notes.push("Tooltip cursor={false} -> crosshair={false}");
+    }
+  }
+  const curve = unquote(a.type);
+  if (curve && spec.series !== "Bar") {
+    notes.push(
+      SPARKLINE_CURVES.has(curve)
+        ? `type="${curve}" -> curve="${curve}" (a string, not @visx/curve)`
+        : `type="${curve}" has no sparkline curve — closest is curve="${curve.startsWith("step") ? "step" : "monotone"}"`
+    );
+  } else if (spec.series !== "Bar") {
+    notes.push(
+      'no type: Recharts defaults to linear, sparklines to monotone — set curve="linear" for parity'
+    );
+  }
+  if (a.stroke) {
+    notes.push("stroke -> color");
+  } else if (a.fill) {
+    notes.push("fill -> color");
+  }
+  if (spec.series === "Area" && a.fill && a.stroke) {
+    notes.push(
+      'Area fill + stroke -> color (the stroke) + fill="solid" | "gradient" with fillOpacity'
+    );
+  }
+  if (a.strokeWidth && spec.series !== "Bar") {
+    notes.push("strokeWidth -> strokeWidth (default 1.5)");
+  }
+  if (spec.series === "Line" && unquote(a.dot) !== "false") {
+    notes.push(
+      "Line dots on every point have no sparkline equivalent — endDot marks the last point, dot marks the hovered point"
+    );
+  }
+  if (unquote(a.activeDot) === "false") {
+    notes.push("activeDot={false} -> dot={false}");
+  }
+  if (unquote(a.isAnimationActive) === "false") {
+    notes.push("isAnimationActive={false} -> animate={false}");
+  }
+  if (a.animationDuration) {
+    notes.push("animationDuration -> animationDuration (ms, default 900)");
+  }
+  if (spec.series === "Bar" && a.radius) {
+    notes.push(
+      "Bar radius -> barRadius (one number, rounds the end away from the baseline)"
+    );
+  }
+  if (a.shape || a.label || inner.some((t) => t.component === "Cell")) {
+    raise(
+      KEEP,
+      "custom shape / label / per-bar Cell colours have no sparkline equivalent"
+    );
+  }
+  if (root.attrs.syncId) {
+    notes.push(
+      "syncId -> share one useSparklineHover() and spread sparklineProps onto each sparkline"
+    );
+  }
+  return {
+    type: root.component,
+    line: root.line,
+    bklitTarget: spec.bklit,
+    slugs: ["sparkline"],
+    classification: level,
+    sparkline: true,
+    reasons,
+    notes,
+  };
+}
+
+// --------------------------------------------------- TanStack Charts files
+
+/** Local names imported from `@tanstack/charts*` -> imported name. */
+function tanstackLocals(imports) {
+  const locals = new Map();
+  for (const imp of imports) {
+    for (const s of imp.specifiers) {
+      locals.set(s.local, s.imported);
+    }
+  }
+  return locals;
+}
+
+/** Text of each `name(...)` call's arguments inside `text`. */
+function callArgs(text, name) {
+  const out = [];
+  const re = new RegExp(
+    `(?<![\\w$.])${name.replace(RE_ESCAPE, "\\$&")}\\s*\\(`,
+    "g"
+  );
+  for (const m of text.matchAll(re)) {
+    const open = (m.index ?? 0) + m[0].length - 1;
+    const close = skipBalanced(text, open, "(", ")");
+    out.push({ index: m.index ?? 0, args: text.slice(open + 1, close - 1) });
+  }
+  return out;
+}
+
+/** Smallest `height` passed to a TanStack `<Chart>` in this file. */
+function tanstackChartHeight(code, locals) {
+  const chartLocals = [...locals].filter(
+    ([, imported]) => imported === "Chart"
+  );
+  let min = null;
+  for (const [local] of chartLocals) {
+    const tags = collectTags(code, (raw) =>
+      raw === local ? { name: "Chart", origin: "tanstack" } : null
+    );
+    for (const tag of tags) {
+      const h = pxAttr(tag.attrs.height);
+      if (h !== null) {
+        min = min === null ? h : Math.min(min, h);
+      }
+    }
+  }
+  return min;
+}
+
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: flat list of independent mapping rules
+function classifyTanstack(code, def, locals, chartHeight) {
+  const text = def.args;
+  const marks = [];
+  for (const [local, imported] of locals) {
+    if (!TANSTACK_MARKS.has(imported)) {
+      continue;
+    }
+    for (const call of callArgs(text, local)) {
+      marks.push({ mark: imported, args: call.args });
+    }
+  }
+  const count = (name) => marks.filter((m) => m.mark === name).length;
+  const horizontalBars = count("barX");
+  const unmappedAll = [...new Set(marks.map((m) => m.mark))].filter(
+    (m) => !TANSTACK_MAPPED_MARKS.has(m)
+  );
+  // barX (horizontal bars) maps to a full BarChart, never to a sparkline.
+  const unmapped = unmappedAll.filter((m) => m !== "barX");
+  const lines = count("lineY");
+  const areas = count("areaY");
+  const bars = count("barY") + horizontalBars;
+  const multiSeries =
+    RE_Z_CHANNEL.test(text) || lines > 1 || areas > 1 || bars > 1;
+  const hidesAxes = RE_AXIS_FALSE.test(text) && !RE_AXIS_ON.test(text);
+  const hidesGuides = RE_GUIDES_FALSE.test(text) || !RE_GRID_ON.test(text);
+  const small = chartHeight !== null && chartHeight <= SPARKLINE_MAX_HEIGHT;
+  const isSparkline =
+    marks.length > 0 &&
+    unmappedAll.length === 0 &&
+    !multiSeries &&
+    !(bars > 0 && lines + areas > 0) &&
+    hidesGuides &&
+    !RE_LEGEND.test(text) &&
+    (hidesAxes || small);
+
+  const reasons = [];
+  const notes = [];
+  let level = CLEAN;
+  const raise = (to, why) => {
+    if (RANK[to] > RANK[level]) {
+      level = to;
+    }
+    reasons.push(`${to}: ${why}`);
+  };
+  const markList = marks.map((m) => m.mark).join(" + ") || "no marks found";
+  let bklitTarget = null;
+  let slugs = [];
+
+  if (marks.length === 0) {
+    raise(
+      WORKAROUND,
+      "no lineY / areaY / barY marks found in this definition — open the file and map it by hand"
+    );
+  } else if (isSparkline) {
+    bklitTarget = "LineSparkline";
+    if (areas > 0) {
+      bklitTarget = "AreaSparkline";
+    } else if (bars > 0) {
+      bklitTarget = "BarSparkline";
+    }
+    slugs = ["sparkline"];
+    notes.push(
+      `${markList} with axes hidden${small ? ` (<Chart height={${chartHeight}}>)` : ""} -> ${bklitTarget} from @bklit/sparkline`
+    );
+    const y = marks.map((m) => m.args.match(RE_Y_KEY)?.[1]).find(Boolean);
+    if (y) {
+      notes.push(`y: "${y}" -> dataKey="${y}"`);
+    }
+    if (areas > 0 && lines > 0) {
+      notes.push(
+        "areaY + lineY pair -> one AreaSparkline (it draws its own line)"
+      );
+    }
+    const curve = marks.map((m) => m.args.match(RE_CURVE)?.[1]).find(Boolean);
+    if (curve) {
+      const base = curve
+        .replace(RE_CURVE_AXIS_SUFFIX, "")
+        .replace(RE_CURVE_PREFIX, "")
+        .toLowerCase();
+      notes.push(
+        SPARKLINE_CURVES.has(base)
+          ? `curve "${curve}" -> curve="${base}"`
+          : `curve "${curve}" has no sparkline equivalent — closest is curve="monotone"`
+      );
+    }
+    if (marks.some((m) => RE_STROKE.test(m.args))) {
+      notes.push("stroke -> color");
+    }
+    if (marks.some((m) => RE_STROKE_WIDTH.test(m.args)) && bars === 0) {
+      notes.push("strokeWidth -> strokeWidth");
+    }
+    if (RE_ID_PREFIX.test(code)) {
+      notes.push("<Chart idPrefix> -> drop (sparklines scope ids with useId)");
+    }
+    if (RE_ARIA_LABEL.test(code)) {
+      notes.push("<Chart ariaLabel> -> aria-label (generated when omitted)");
+    }
+    if (RE_DOMAIN.test(text)) {
+      notes.push("y scale domain -> yDomain={[min, max]}");
+    }
+    if (RE_GRADIENTS.test(text)) {
+      notes.push(
+        'gradients -> AreaSparkline fill="gradient" (default) + fillOpacity'
+      );
+    }
+    if (RE_MARGIN.test(text)) {
+      notes.push("margin -> padding");
+    }
+    if (RE_ANIMATION.test(text)) {
+      notes.push(
+        "svgAnimation / motion renderer -> animate (+ animationDuration); reduced motion is handled"
+      );
+    }
+    if (RE_TOOLTIP_WORD.test(text) && !RE_TOOLTIP_OFF.test(text)) {
+      raise(
+        WORKAROUND,
+        "tooltip: sparklines have no tooltip — use useSparklineHover() and render the hovered value yourself"
+      );
+    }
+  } else if (unmapped.length > 0) {
+    raise(
+      KEEP_TANSTACK,
+      `marks ${unmapped.join(", ")} have no bklit mapping — keep this chart on TanStack Charts`
+    );
+  } else {
+    const roots = [];
+    if (bars > 0 && lines + areas > 0) {
+      roots.push(["ComposedChart", "composed-chart"]);
+    } else if (bars > 0) {
+      roots.push(["BarChart", "bar-chart"]);
+    } else if (areas > 0) {
+      roots.push(["AreaChart", "area-chart"]);
+    } else {
+      roots.push(["LineChart", "line-chart"]);
+    }
+    bklitTarget = roots[0][0];
+    slugs = [roots[0][1]];
+    if (RE_AXIS_ON.test(text) && !(bars > 0 && lines + areas === 0)) {
+      slugs.push("y-axis");
+    }
+    raise(
+      WORKAROUND,
+      `full ${markList} chart -> ${bklitTarget}: mapped at a high level only — check x values (Line/Area/Composed need dates), scales, axes, colour scale and interactions by hand`
+    );
+    if (horizontalBars > 0) {
+      notes.push(
+        'barX (horizontal bars) -> BarChart orientation="horizontal" + BarYAxis; xDataKey is the category (TanStack y) channel'
+      );
+    }
+    if (multiSeries) {
+      notes.push(
+        "z channel / several marks -> one bklit series per value (pivot long rows to one key per series)"
+      );
+    }
+  }
+  const x = marks.map((m) => m.args.match(RE_X_KEY)?.[1]).find(Boolean);
+  if (x && !isSparkline && horizontalBars === 0) {
+    notes.push(`x: "${x}" -> root xDataKey="${x}"`);
+  }
+  return {
+    type: "defineChart",
+    library: "@tanstack/charts",
+    line: lineAt(code, def.index),
+    bklitTarget,
+    slugs,
+    classification: level,
+    sparkline: isSparkline,
+    reasons,
+    notes,
+  };
+}
+
+function analyzeTanstack(code, imports) {
+  const locals = tanstackLocals(imports);
+  const defineLocal = [...locals].find(([, i]) => i === "defineChart")?.[0];
+  const chartHeight = tanstackChartHeight(code, locals);
+  const charts = defineLocal
+    ? callArgs(code, defineLocal).map((def) =>
+        classifyTanstack(code, def, locals, chartHeight)
+      )
+    : [];
+  return { charts, names: [...new Set(locals.values())].sort() };
+}
+
 // ---------------------------------------------------------------- per file
 
 // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: linear pipeline per file
 function analyzeFile(absPath, relPath) {
   const src = readFileSync(absPath, "utf8");
-  if (!(src.includes("recharts") || RE_WRAPPER_HINT.test(src))) {
+  if (
+    !(
+      src.includes("recharts") ||
+      src.includes("@tanstack/charts") ||
+      RE_WRAPPER_HINT.test(src)
+    )
+  ) {
     return null;
   }
   const code = stripComments(src);
@@ -682,10 +1194,17 @@ function analyzeFile(absPath, relPath) {
       RE_WRAPPER_SOURCE.test(imp.source) &&
       imp.specifiers.some((s) => SHADCN_WRAPPER_EXPORTS.has(s.imported))
   );
+  const tanstackImports = imports.filter((imp) =>
+    RE_TANSTACK_SOURCE.test(imp.source)
+  );
   const definesWrapper =
     RE_DEFINES_WRAPPER.test(code) && rechartsImports.length > 0;
 
-  if (rechartsImports.length === 0 && wrapperImports.length === 0) {
+  if (
+    rechartsImports.length === 0 &&
+    wrapperImports.length === 0 &&
+    tanstackImports.length === 0
+  ) {
     return null;
   }
 
@@ -714,7 +1233,11 @@ function analyzeFile(absPath, relPath) {
   };
 
   const tags = collectTags(code, resolveName);
-  const components = [...new Set(tags.map((t) => t.component))].sort();
+  const tanstack =
+    tanstackImports.length > 0 ? analyzeTanstack(code, tanstackImports) : null;
+  const components = [
+    ...new Set([...tags.map((t) => t.component), ...(tanstack?.names ?? [])]),
+  ].sort();
   const charts = [];
   for (const tag of tags) {
     if (tag.origin !== "recharts" || !(tag.component in ROOTS)) {
@@ -726,7 +1249,23 @@ function analyzeFile(absPath, relPath) {
     }
     const end = findClose(code, tag);
     const inner = tags.filter((t) => t.start > tag.start && t.start < end);
-    const result = classifyChart(tag, inner);
+    const container = tags
+      .filter(
+        (t) =>
+          t.component === "ResponsiveContainer" &&
+          t.start < tag.start &&
+          findClose(code, t) > tag.start
+      )
+      .at(-1);
+    const shape = sparklineShape(tag, inner, container);
+    const result = shape?.small
+      ? classifySparkline(tag, inner, shape, container)
+      : classifyChart(tag, inner);
+    if (shape && !shape.small) {
+      result.notes.push(
+        `no axes/grid and one series: if this renders as a small inline trend, use ${shape.spec.bklit} from @bklit/sparkline instead`
+      );
+    }
     charts.push({ ...result, _start: tag.start, _end: end });
   }
 
@@ -756,20 +1295,23 @@ function analyzeFile(absPath, relPath) {
         .join(", ")} with the ChartConfig colors (e.g. var(--chart-1))`
     );
   }
-  const allKept =
-    charts.length > 0 && charts.every((c) => c.classification === KEEP);
+  // Sparklines and kept charts carry their own sizing notes.
+  const noFullCharts =
+    charts.length > 0 &&
+    charts.every((c) => isKept(c.classification) || c.sparkline);
   if (
     components.includes("ResponsiveContainer") &&
     !definesWrapper &&
-    !allKept
+    !noFullCharts
   ) {
     fileNotes.push(
       "ResponsiveContainer -> remove (bklit charts size to their parent; set aspectRatio)"
     );
   }
 
-  let classification = charts.length === 0 ? null : CLEAN;
-  for (const c of charts) {
+  const allCharts = [...charts, ...(tanstack?.charts ?? [])];
+  let classification = allCharts.length === 0 ? null : CLEAN;
+  for (const c of allCharts) {
     if (RANK[c.classification] > RANK[classification]) {
       classification = c.classification;
     }
@@ -786,7 +1328,15 @@ function analyzeFile(absPath, relPath) {
     })),
     shadcn,
     components,
-    charts: charts.map(({ _start, _end, ...rest }) => rest),
+    tanstackImports: tanstackImports.map((i) => ({
+      source: i.source,
+      line: i.line,
+      names: i.specifiers.map((s) => s.imported),
+    })),
+    charts: [
+      ...charts.map(({ _start, _end, ...rest }) => rest),
+      ...(tanstack?.charts ?? []),
+    ],
     classification,
     notes: fileNotes,
   };
@@ -867,8 +1417,8 @@ function resolveWrapper(fromPath, source, wrappers) {
 
 function toTable(report) {
   const rows = [
-    "| File | Recharts / shadcn components | Chart(s) | bklit target | Class |",
-    "|------|------------------------------|----------|--------------|-------|",
+    "| File | Recharts / TanStack / shadcn components | Chart(s) | bklit target | Class |",
+    "|------|-----------------------------------------|----------|--------------|-------|",
   ];
   for (const f of report.files) {
     const comps = f.components.join(", ") || "—";
@@ -887,7 +1437,7 @@ function toTable(report) {
   const s = report.summary;
   rows.push(
     "",
-    `Charts: ${s.charts} (clean ${s.clean}, needs-workaround ${s.workaround}, keep-recharts ${s.keep}).`,
+    `Charts: ${s.charts} (clean ${s.clean}, needs-workaround ${s.workaround}, keep ${s.keep}).`,
     `Install: ${s.slugs.length ? `npx shadcn@latest add ${s.slugs.map((x) => `@bklit/${x}`).join(" ")}` : "nothing"}`
   );
   return rows.join("\n");
@@ -908,7 +1458,10 @@ function main() {
   try {
     const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
     const deps = { ...pkg.dependencies, ...pkg.devDependencies };
-    packageJson = { recharts: deps.recharts ?? null };
+    packageJson = {
+      recharts: deps.recharts ?? null,
+      tanstackCharts: deps["@tanstack/charts"] ?? null,
+    };
   } catch {
     packageJson = null;
   }
@@ -942,7 +1495,7 @@ function main() {
   const charts = files.flatMap((f) => f.charts);
   const slugs = new Set();
   for (const c of charts) {
-    if (c.classification !== KEEP) {
+    if (!isKept(c.classification)) {
       for (const s of c.slugs) {
         slugs.add(s);
       }
@@ -957,7 +1510,7 @@ function main() {
       charts: charts.length,
       clean: charts.filter((c) => c.classification === CLEAN).length,
       workaround: charts.filter((c) => c.classification === WORKAROUND).length,
-      keep: charts.filter((c) => c.classification === KEEP).length,
+      keep: charts.filter((c) => isKept(c.classification)).length,
       slugs: [...slugs].sort(),
     },
     // shadcn chart.tsx wrappers; remove one only when `importedBy` is empty.

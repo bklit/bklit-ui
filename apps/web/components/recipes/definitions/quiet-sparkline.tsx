@@ -1,29 +1,20 @@
 "use client";
 
-import {
-  Area,
-  AreaChart,
-  Bar,
-  BarChart,
-  ChartTooltip,
-  Line,
-  LineChart,
-} from "@bklitui/ui/charts";
+import { AreaSparkline, BarSparkline, LineSparkline } from "@bklitui/ui/charts";
 import type { Recipe } from "@/lib/recipes/types";
 import { recipeDailyData, recipeMonthlyData } from "../recipe-data";
-import { SPARK_MARGIN } from "./shared";
+
+const SPARK_HEIGHT = 72;
 
 function SparkLine() {
   return (
     <div className="mx-auto w-full max-w-xl">
-      <LineChart
-        aspectRatio="4 / 1"
+      <LineSparkline
         data={recipeDailyData}
-        margin={SPARK_MARGIN}
-      >
-        <Line dataKey="visitors" strokeWidth={2} />
-        <ChartTooltip showDatePill={false} />
-      </LineChart>
+        dataKey="visitors"
+        height={SPARK_HEIGHT}
+        strokeWidth={2}
+      />
     </div>
   );
 }
@@ -31,14 +22,12 @@ function SparkLine() {
 function SparkArea() {
   return (
     <div className="mx-auto w-full max-w-xl">
-      <AreaChart
-        aspectRatio="4 / 1"
+      <AreaSparkline
         data={recipeDailyData}
-        margin={SPARK_MARGIN}
-      >
-        <Area dataKey="visitors" fillOpacity={0.2} strokeWidth={1.5} />
-        <ChartTooltip showDatePill={false} />
-      </AreaChart>
+        dataKey="visitors"
+        fillOpacity={0.2}
+        height={SPARK_HEIGHT}
+      />
     </div>
   );
 }
@@ -46,44 +35,44 @@ function SparkArea() {
 function SparkBar() {
   return (
     <div className="mx-auto w-full max-w-xl">
-      <BarChart
-        aspectRatio="4 / 1"
-        barGap={0.35}
+      <BarSparkline
+        barGap={6}
+        barRadius={2}
         data={recipeMonthlyData}
-        margin={SPARK_MARGIN}
-        xDataKey="month"
-      >
-        <Bar dataKey="revenue" lineCap={2} />
-        <ChartTooltip />
-      </BarChart>
+        dataKey="revenue"
+        height={SPARK_HEIGHT}
+      />
     </div>
   );
 }
+
+const SHARED_STEPS = [
+  "Find the compact charts used as sparklines (stat cards, table cells, list rows) — or the one I point you at. Leave full-size charts with axes alone.",
+];
 
 export const quietSparkline: Recipe = {
   id: "quiet-sparkline",
   title: "Quiet sparkline",
   category: "color-shape",
   description:
-    "Strip the chrome — no grid, no axes, tight margins — for cards and tables.",
-  look: "a compact 4:1 strip with no grid, no background, no axes and only 8px margins; the series alone carries the shape, and the tooltip still works on hover without the date pill.",
+    "Swap compact charts for sparklines — one path, no grid, no axes — for cards and tables.",
+  look: "a short fixed-height strip (about 72px) that fills its container's width, with no grid, no background, no axes and no tooltip; the series alone carries the shape, and hovering shows only a thin dashed crosshair and a dot on the nearest point.",
   charts: [
     {
       id: "line",
       label: "Line",
-      rootComponent: "LineChart",
+      rootComponent: "LineSparkline",
       Preview: SparkLine,
-      install: ["line-chart"],
+      install: ["sparkline"],
       steps: [
-        "Remove `<Grid />`, `<Background />`, `<XAxis />` and `<YAxis />` from `<LineChart>` (and their imports).",
-        'On `<LineChart>`, set `aspectRatio="4 / 1"` and `margin={{ top: 8, right: 8, bottom: 8, left: 8 }}` — the default 40px margins only exist to make room for axes.',
-        "Set `strokeWidth={2}` on each `<Line>`.",
-        "Keep `<ChartTooltip />` but pass `showDatePill={false}` (there is no x-axis for the pill to sit on).",
+        ...SHARED_STEPS,
+        'Replace each `<LineChart>` (with its `<Line>`, `<Grid />`, axes and `<ChartTooltip />`) with a single `<LineSparkline data={data} dataKey="visitors" height={72} strokeWidth={2} />` imported from `@/components/charts/sparkline`. Use the old `<Line>`\'s `dataKey`.',
+        "Drop `aspectRatio` and `margin` — sparklines take a fixed `height` in px and fill their parent's width (pass `width` only for a fixed-size cell).",
+        "Keep the series colour by passing the old `stroke` as `color` (defaults to `var(--chart-line-primary)`).",
       ],
       code: `"use client";
 
-import { Line, LineChart } from "@/components/charts/line-chart";
-import { ChartTooltip } from "@/components/charts/tooltip";
+import { LineSparkline } from "@/components/charts/sparkline";
 
 export function VisitorsSparkline({
   data,
@@ -91,14 +80,7 @@ export function VisitorsSparkline({
   data: { date: Date; visitors: number }[];
 }) {
   return (
-    <LineChart
-      aspectRatio="4 / 1"
-      data={data}
-      margin={{ top: 8, right: 8, bottom: 8, left: 8 }}
-    >
-      <Line dataKey="visitors" strokeWidth={2} />
-      <ChartTooltip showDatePill={false} />
-    </LineChart>
+    <LineSparkline data={data} dataKey="visitors" height={72} strokeWidth={2} />
   );
 }
 `,
@@ -106,19 +88,18 @@ export function VisitorsSparkline({
     {
       id: "area",
       label: "Area",
-      rootComponent: "AreaChart",
+      rootComponent: "AreaSparkline",
       Preview: SparkArea,
-      install: ["area-chart"],
+      install: ["sparkline"],
       steps: [
-        "Remove `<Grid />`, `<Background />`, `<XAxis />` and `<YAxis />` from `<AreaChart>` (and their imports).",
-        'On `<AreaChart>`, set `aspectRatio="4 / 1"` and `margin={{ top: 8, right: 8, bottom: 8, left: 8 }}`.',
-        "On each `<Area>`, set `fillOpacity={0.2}` and `strokeWidth={1.5}` so the fill stays light at small sizes.",
-        "Keep `<ChartTooltip />` but pass `showDatePill={false}`.",
+        ...SHARED_STEPS,
+        'Replace each `<AreaChart>` (with its `<Area>`, `<Grid />`, axes and `<ChartTooltip />`) with `<AreaSparkline data={data} dataKey="visitors" fillOpacity={0.2} height={72} />` imported from `@/components/charts/sparkline`. Use the old `<Area>`\'s `dataKey`.',
+        "Drop `aspectRatio` and `margin` — sparklines take a fixed `height` in px and fill their parent's width.",
+        "Keep `fillOpacity` low (0.2) so the gradient stays light at small sizes; pass the old `stroke` as `color` if it was customised.",
       ],
       code: `"use client";
 
-import { Area, AreaChart } from "@/components/charts/area-chart";
-import { ChartTooltip } from "@/components/charts/tooltip";
+import { AreaSparkline } from "@/components/charts/sparkline";
 
 export function VisitorsSparkline({
   data,
@@ -126,14 +107,12 @@ export function VisitorsSparkline({
   data: { date: Date; visitors: number }[];
 }) {
   return (
-    <AreaChart
-      aspectRatio="4 / 1"
+    <AreaSparkline
       data={data}
-      margin={{ top: 8, right: 8, bottom: 8, left: 8 }}
-    >
-      <Area dataKey="visitors" fillOpacity={0.2} strokeWidth={1.5} />
-      <ChartTooltip showDatePill={false} />
-    </AreaChart>
+      dataKey="visitors"
+      fillOpacity={0.2}
+      height={72}
+    />
   );
 }
 `,
@@ -141,20 +120,18 @@ export function VisitorsSparkline({
     {
       id: "bar",
       label: "Bar",
-      rootComponent: "BarChart",
+      rootComponent: "BarSparkline",
       Preview: SparkBar,
-      install: ["bar-chart"],
+      install: ["sparkline"],
       steps: [
-        "Remove `<Grid />`, `<Background />`, `<BarXAxis />` and `<BarYAxis />` from `<BarChart>` (and their imports).",
-        'On `<BarChart>`, set `aspectRatio="4 / 1"`, `margin={{ top: 8, right: 8, bottom: 8, left: 8 }}` and `barGap={0.35}` for thinner bars.',
-        "Set `lineCap={2}` on each `<Bar>` for a small corner radius.",
-        "Keep `<ChartTooltip />` as is (bar charts already hide the crosshair line by default).",
+        ...SHARED_STEPS,
+        'Replace each `<BarChart>` (with its `<Bar>`, `<Grid />`, axes and `<ChartTooltip />`) with `<BarSparkline barGap={6} barRadius={2} data={data} dataKey="revenue" height={72} />` imported from `@/components/charts/sparkline`. Use the old `<Bar>`\'s `dataKey`; `xDataKey` is not needed.',
+        "Drop `aspectRatio` and `margin`. `barGap` is in px (not a ratio like `BarChart`'s), and every bar is drawn as one path, so it stays cheap in long tables.",
+        "Bars always start from zero; hovering dims the other bars to `inactiveOpacity` (0.4).",
       ],
       code: `"use client";
 
-import { Bar } from "@/components/charts/bar";
-import { BarChart } from "@/components/charts/bar-chart";
-import { ChartTooltip } from "@/components/charts/tooltip";
+import { BarSparkline } from "@/components/charts/sparkline";
 
 export function RevenueSparkline({
   data,
@@ -162,16 +139,13 @@ export function RevenueSparkline({
   data: { month: string; revenue: number }[];
 }) {
   return (
-    <BarChart
-      aspectRatio="4 / 1"
-      barGap={0.35}
+    <BarSparkline
+      barGap={6}
+      barRadius={2}
       data={data}
-      margin={{ top: 8, right: 8, bottom: 8, left: 8 }}
-      xDataKey="month"
-    >
-      <Bar dataKey="revenue" lineCap={2} />
-      <ChartTooltip />
-    </BarChart>
+      dataKey="revenue"
+      height={72}
+    />
   );
 }
 `,

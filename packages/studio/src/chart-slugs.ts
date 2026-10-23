@@ -15,6 +15,7 @@ export const validChartSlugs = [
   "ring-chart",
   "scatter-chart",
   "sankey-chart",
+  "sparkline",
   "sunburst-chart",
 ] as const;
 

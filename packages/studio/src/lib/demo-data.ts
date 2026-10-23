@@ -824,3 +824,125 @@ export function generateStudioTrendingData({
     return row;
   });
 }
+
+export interface SparklineDemoPoint {
+  index: number;
+  value: number;
+}
+
+export interface SparklineDemoKpi {
+  id: string;
+  label: string;
+  format: Intl.NumberFormatOptions;
+  data: SparklineDemoPoint[];
+}
+
+const SPARKLINE_KPI_SPECS = [
+  {
+    id: "visitors",
+    label: "Total visitors",
+    base: 284_000,
+    trend: 0.18,
+    amp: 0.06,
+    decimals: 0,
+    format: { notation: "compact", maximumFractionDigits: 1 },
+  },
+  {
+    id: "revenue",
+    label: "Revenue",
+    base: 48_200,
+    trend: 0.22,
+    amp: 0.08,
+    decimals: 0,
+    format: {
+      style: "currency",
+      currency: "USD",
+      maximumFractionDigits: 0,
+    },
+  },
+  {
+    id: "users",
+    label: "Active users",
+    base: 12_400,
+    trend: 0.1,
+    amp: 0.05,
+    decimals: 0,
+    format: { maximumFractionDigits: 0 },
+  },
+  {
+    id: "conversion",
+    label: "Conversion",
+    base: 3.2,
+    trend: 0.06,
+    amp: 0.1,
+    decimals: 2,
+    format: { maximumFractionDigits: 2, minimumFractionDigits: 2 },
+  },
+  {
+    id: "order",
+    label: "Avg. order",
+    base: 86,
+    trend: -0.04,
+    amp: 0.07,
+    decimals: 2,
+    format: { style: "currency", currency: "USD" },
+  },
+  {
+    id: "churn",
+    label: "Churn",
+    base: 1.8,
+    trend: -0.15,
+    amp: 0.12,
+    decimals: 2,
+    format: { maximumFractionDigits: 2, minimumFractionDigits: 2 },
+  },
+  {
+    id: "latency",
+    label: "p95 latency",
+    base: 120,
+    trend: -0.08,
+    amp: 0.14,
+    decimals: 0,
+    format: { maximumFractionDigits: 0 },
+  },
+] as const satisfies readonly {
+  id: string;
+  label: string;
+  base: number;
+  trend: number;
+  amp: number;
+  decimals: number;
+  format: Intl.NumberFormatOptions;
+}[];
+
+/**
+ * Deterministic KPI series for the sparkline studio preview. The first entry
+ * is the hero metric; the rest fill the card grid. `seed` comes from the
+ * scramble-data button.
+ */
+export function getSparklineKpiData(
+  pointCount: number,
+  seed = 0
+): SparklineDemoKpi[] {
+  const count = Math.max(2, Math.min(240, Math.round(pointCount)));
+  return SPARKLINE_KPI_SPECS.map((spec, kpiIndex) => {
+    const random = seededRandom(seed * 31 + kpiIndex * 7 + 1);
+    const phase = kpiIndex * 1.7 + seed * 0.9;
+    const scale = 10 ** spec.decimals;
+    const data = Array.from({ length: count }, (_, index) => {
+      const t = count > 1 ? index / (count - 1) : 0;
+      const wave =
+        Math.sin(t * Math.PI * 3 + phase) * spec.amp +
+        Math.sin(t * Math.PI * 8.3 + phase * 2) * spec.amp * 0.4;
+      const noise = (random() - 0.5) * spec.amp * 0.8;
+      const value = spec.base * (1 + spec.trend * t + wave + noise);
+      return { index, value: Math.round(value * scale) / scale };
+    });
+    return {
+      id: spec.id,
+      label: spec.label,
+      format: spec.format,
+      data,
+    };
+  });
+}

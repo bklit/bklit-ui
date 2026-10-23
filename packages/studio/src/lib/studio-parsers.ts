@@ -630,6 +630,37 @@ export const studioSearchParams = {
   ] as const).withDefault("none"),
   trendLineFadeEdgesLength: parseAsFloat.withDefault(15),
   trendLineOpacity: parseAsFloat.withDefault(1),
+  sparklineVariant: parseAsStringLiteral([
+    "line",
+    "area",
+    "bar",
+  ] as const).withDefault("line"),
+  sparklineHeight: parseAsInteger.withDefault(40),
+  sparklinePoints: parseAsInteger.withDefault(24),
+  sparklineCurve: parseAsStringLiteral([
+    "linear",
+    "monotone",
+    "natural",
+    "step",
+  ] as const).withDefault("monotone"),
+  sparklineStrokeWidth: parseAsFloat.withDefault(1.5),
+  sparklineFill: parseAsStringLiteral([
+    "gradient",
+    "solid",
+  ] as const).withDefault("gradient"),
+  sparklineFillOpacity: parseAsFloat.withDefault(0.3),
+  sparklineBarGap: parseAsFloat.withDefault(2),
+  sparklineBarRadius: parseAsFloat.withDefault(1),
+  sparklineInactiveOpacity: parseAsFloat.withDefault(0.4),
+  sparklineCrosshair: parseAsStringLiteral([
+    "dashed",
+    "solid",
+    "gradient",
+  ] as const).withDefault("dashed"),
+  sparklineEndDot: parseAsBoolean.withDefault(false),
+  sparklineAnimate: parseAsBoolean.withDefault(true),
+  sparklineHoverSpring: parseAsBoolean.withDefault(true),
+  sparklineSpringDamping: parseAsFloat.withDefault(30),
 };
 
 export interface StudioUrlState {
@@ -1059,6 +1090,21 @@ export interface StudioUrlState {
   trendLineFadeEdges: "both" | "none" | "left" | "right";
   trendLineFadeEdgesLength: number;
   trendLineOpacity: number;
+  sparklineVariant: "line" | "area" | "bar";
+  sparklineHeight: number;
+  sparklinePoints: number;
+  sparklineCurve: "linear" | "monotone" | "natural" | "step";
+  sparklineStrokeWidth: number;
+  sparklineFill: "gradient" | "solid";
+  sparklineFillOpacity: number;
+  sparklineBarGap: number;
+  sparklineBarRadius: number;
+  sparklineInactiveOpacity: number;
+  sparklineCrosshair: "dashed" | "solid" | "gradient";
+  sparklineEndDot: boolean;
+  sparklineAnimate: boolean;
+  sparklineHoverSpring: boolean;
+  sparklineSpringDamping: number;
 }
 
 /** Full default state for chart switches (nuqs used `null` to clear keys; in-memory state needs real defaults). */
@@ -1497,6 +1543,21 @@ export function defaultStudioState(
     trendLineFadeEdges: "none",
     trendLineFadeEdgesLength: 15,
     trendLineOpacity: 1,
+    sparklineVariant: "line",
+    sparklineHeight: 40,
+    sparklinePoints: 24,
+    sparklineCurve: "monotone",
+    sparklineStrokeWidth: 1.5,
+    sparklineFill: "gradient",
+    sparklineFillOpacity: 0.3,
+    sparklineBarGap: 2,
+    sparklineBarRadius: 1,
+    sparklineInactiveOpacity: 0.4,
+    sparklineCrosshair: "dashed",
+    sparklineEndDot: false,
+    sparklineAnimate: true,
+    sparklineHoverSpring: true,
+    sparklineSpringDamping: 30,
     ...overrides,
   };
 }

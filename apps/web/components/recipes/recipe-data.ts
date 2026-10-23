@@ -117,3 +117,21 @@ export const recipeRingData = [
   { label: "Email", value: 2100, maxValue: 5000, color: "var(--chart-3)" },
   { label: "Social", value: 1580, maxValue: 5000, color: "var(--chart-4)" },
 ];
+
+/** Three 28-day KPI series (same dates, so their sparklines can share a hover index). */
+export const recipeKpiData = {
+  visitors: recipeDailyData.map(({ date, visitors }) => ({
+    date,
+    value: visitors,
+  })),
+  signups: recipeDailyData.map(({ date, visitors }, index) => ({
+    date,
+    value: Math.round(visitors * 0.045 + Math.sin(index * 1.7) * 9),
+  })),
+  revenue: recipeDailyData.map(({ date, visitors }, index) => ({
+    date,
+    value: Math.round(
+      visitors * 2.6 + Math.cos(index * 0.8) * 420 - index * 18
+    ),
+  })),
+};

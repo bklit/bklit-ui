@@ -1,0 +1,149 @@
+---
+title: Sparkline
+description: Tiny line, area and bar charts built for density — one path per chart, a shared resize observer, lightweight enter animations and a minimal hover crosshair
+---
+
+import {
+  SparklineCrosshairDemo,
+  SparklineDemo,
+  SparklineGridDemo,
+  SparklineHoverFeelDemo,
+  SparklineSyncedDemo,
+} from "@/components/docs/sparkline-demo";
+
+<ComponentPreview registryName="sparkline">
+  <SparklineDemo />
+</ComponentPreview>
+
+## Installation
+
+<InstallationTabs name="sparkline" dependencies={["d3-shape", "motion"]} />
+
+## Usage
+
+Sparklines are single-element charts. Pass `data` and a `dataKey` — no axes, grid or tooltip to configure.
+
+```tsx
+import { AreaSparkline, BarSparkline, LineSparkline } from "@bklitui/ui/charts";
+
+<LineSparkline data={rows} dataKey="value" />
+<AreaSparkline data={rows} dataKey="value" fill="gradient" />
+<BarSparkline data={rows} dataKey="value" barRadius={2} />
+```
+
+- **Sizing:** omit `width` to fill the parent; `height` defaults to **32**. Every responsive sparkline on the page shares one `ResizeObserver`. Pass a fixed `width` to skip measuring entirely.
+- **Animation:** the enter animation is on by default (`animate`). Lines draw in along their stroke, areas wipe in, bars grow from the baseline. When `data` changes, the path morphs to the new values over 500ms (`dataTransitionDuration`), like the main charts — written straight to the DOM, so no React re-render per frame. With `prefers-reduced-motion: reduce` the enter becomes a short fade and data changes snap.
+- **Hover highlight:** like the main line and area charts, hovering fades the series to `inactiveOpacity` (0.5) and re-strokes the segment around the hovered point at full strength; the bright segment springs as you move. Bars fade every bar except the focused one (`inactiveOpacity`, 0.4). Turn the line/area highlight off with `showHighlight={false}`.
+- **Hover:** a crosshair (`"dashed"` by default) and a dot spring to the nearest point, with the same spring as the main charts' tooltip (`hoverTransition={false}` to snap; reduced motion always snaps). Springs only exist while a sparkline is hovered. There is deliberately no tooltip — read the hovered value with `useSparklineHover` and render it wherever you like.
+
+## Hovered values
+
+`useSparklineHover` lifts hover state out of the chart. Spread `sparklineProps` onto a sparkline and read `datum` or `index`:
+
+```tsx
+const hover = useSparklineHover<Row>();
+const shown = hover.datum ?? rows.at(-1);
+
+<span>{shown.value}</span>
+<AreaSparkline data={rows} dataKey="value" {...hover.sparklineProps} />
+```
+
+Spread the same props onto several sparklines to sync their crosshairs:
+
+<ComponentShowcase>
+  <SparklineSyncedDemo />
+</ComponentShowcase>
+
+## Crosshair styles
+
+<ComponentShowcase>
+  <SparklineCrosshairDemo />
+</ComponentShowcase>
+
+## Hover feel
+
+The crosshair and dot spring between points with the same spring as the main charts' tooltip. Pass only the values you want to change to `springConfig` — higher `stiffness` feels snappier, lower `damping` bouncier — or set `hoverTransition={false}` to snap straight to each point. The series fade and highlight still animate either way. Reduced motion always snaps.
+
+```tsx
+<LineSparkline data={rows} dataKey="value" />
+<LineSparkline data={rows} dataKey="value" springConfig={{ stiffness: 600, damping: 45 }} />
+<LineSparkline data={rows} dataKey="value" hoverTransition={false} />
+<BarSparkline data={rows} dataKey="value" hoverTransition={false} />
+```
+
+<ComponentShowcase>
+  <SparklineHoverFeelDemo />
+</ComponentShowcase>
+
+## Many on one page
+
+Each sparkline renders a single `<path>` (bars included), animates with the Web Animations API, and only the hovered instance re-renders. 200 instances:
+
+<ComponentShowcase>
+  <SparklineGridDemo />
+</ComponentShowcase>
+
+## Migrating
+
+| Recharts | TanStack Charts | bklit |
+| --- | --- | --- |
+| `<LineChart data><Line dataKey="v" dot={false} /></LineChart>` | `lineY(rows, { y: "v" })` | `<LineSparkline data dataKey="v" />` |
+| `<AreaChart data><Area dataKey="v" /></AreaChart>` | `areaY(rows, …)` + `lineY(rows, …)` | `<AreaSparkline data dataKey="v" />` |
+| `<BarChart data><Bar dataKey="v" /></BarChart>` | `barY(rows, { y: "v" })` | `<BarSparkline data dataKey="v" />` |
+| `isAnimationActive` | `svgAnimation` / `motion()` | `animate` |
+| `type="monotone"` | `curve` | `curve="monotone"` |
+| `ResponsiveContainer` / `responsive` | `width` / `height` | omit `width` |
+
+## Components
+
+### LineSparkline
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `data` | `T[]` | — | Rows to plot |
+| `dataKey` | `keyof T \| (d, i) => number` | — | Numeric field or accessor |
+| `width` | `number` | parent width | Fixed width in px |
+| `height` | `number` | `32` | Height in px |
+| `color` | `string` | `var(--chart-line-primary)` | Series colour |
+| `strokeWidth` | `number` | `1.5` | Line width |
+| `curve` | `"linear" \| "monotone" \| "natural" \| "step"` | `"monotone"` | Interpolation |
+| `endDot` | `boolean` | `false` | Dot on the last point when idle |
+| `showHighlight` | `boolean` | `true` | Fade the series and highlight the hovered segment |
+| `inactiveOpacity` | `number` | `0.5` | Series opacity while hovering |
+| `padding` | `number \| { top, right, bottom, left }` | `4` | Inner padding |
+| `yDomain` | `[min?, max?]` | data extent | Override the value domain |
+| `animate` | `boolean` | `true` | Play the enter animation |
+| `animationDuration` | `number` | `900` | Enter duration in ms |
+| `animationEasing` | `string` | `cubic-bezier(0.85, 0, 0.15, 1)` | CSS easing |
+| `dataTransitionDuration` | `number` | `500` | Morph to new data in ms; `0` snaps (requires `animate`) |
+| `crosshair` | `"dashed" \| "solid" \| "gradient" \| false` | `"dashed"` | Hover guide line |
+| `dot` | `boolean` | `true` | Dot on the hovered point |
+| `hoverTransition` | `boolean` | `true` | Spring the crosshair and dot between points |
+| `springConfig` | `{ stiffness?, damping? }` | `{ stiffness: 300, damping: 30 }` | Crosshair/dot spring — pass only what you change, e.g. `{ damping: 40 }` |
+| `interactive` | `boolean` | `true` | Attach pointer listeners |
+| `hoverIndex` | `number \| null` | — | Controlled hovered index |
+| `onHoverChange` | `(index, datum) => void` | — | Hover callback |
+| `aria-label` | `string` | generated summary | Accessible label |
+
+### AreaSparkline
+
+Everything on `LineSparkline`, plus:
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `fill` | `"gradient" \| "solid"` | `"gradient"` | Fill style |
+| `fillOpacity` | `number` | `0.3` | Peak fill opacity |
+
+### BarSparkline
+
+Shares the base props (no `curve`, `strokeWidth` or `endDot`; `padding` defaults to `2`). Bars always include zero and support negative values.
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `barGap` | `number` | `2` | Gap between bars in px |
+| `barRadius` | `number` | `1` | Corner radius away from the baseline |
+| `inactiveOpacity` | `number` | `0.4` | Opacity of other bars while hovering |
+
+### useSparklineHover
+
+Returns `{ index, datum, isHovering, sparklineProps }`.

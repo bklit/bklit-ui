@@ -7,7 +7,8 @@ export type ChartExamplePreviewLayout =
   | "compact"
   | "funnel"
   | "wide"
-  | "heatmap";
+  | "heatmap"
+  | "inline";
 
 /** Override inline chart aspect on narrow viewports so demos aren't paper-thin. */
 const cartesianChartMobileAspectClassName =
@@ -48,6 +49,10 @@ export function getChartExamplePreviewFrameClassName(
     case "wide":
       // Sankey / choropleth demos set their own aspect ratio, so the frame
       // hugs them (a fixed min-height left dead space under short charts).
+      return "flex w-full flex-col justify-center";
+    case "inline":
+      // Sparklines: short rows sized by their own content, so the frame hugs
+      // them instead of reserving a chart-sized box.
       return "flex w-full flex-col justify-center";
     case "heatmap":
       return cn(

@@ -1,11 +1,13 @@
 "use client";
 
+import { ControlField } from "@/components/controls/control-field";
 import { MotionControl } from "@/components/controls/motion-control";
 import { MotionResetButton } from "@/components/controls/motion-reset-button";
 import { StudioControlGroup } from "@/components/studio-control-group";
 import { EditorPanelEmptyState } from "@/editor/editor-panel-empty-state";
 import { studioMotionSectionClass } from "@/lib/studio-chrome-classes";
 import type { StudioUrlState } from "@/lib/studio-parsers";
+import type { StudioControl } from "@/lib/types";
 
 export function EditorAnimationSection({
   defaultOpen = true,
@@ -15,6 +17,7 @@ export function EditorAnimationSection({
   onCommit,
   onMotionCurveDragActiveChange,
   showMotionControls = false,
+  extraControls,
 }: {
   defaultOpen?: boolean;
   state: StudioUrlState;
@@ -32,6 +35,8 @@ export function EditorAnimationSection({
   ) => void;
   onMotionCurveDragActiveChange?: (dragging: boolean) => void;
   showMotionControls?: boolean;
+  /** Chart-specific toggles shown above the motion curve (e.g. sparkline animate). */
+  extraControls?: StudioControl[];
 }) {
   if (!showMotionControls) {
     return (
@@ -55,6 +60,16 @@ export function EditorAnimationSection({
       title="Animation"
       titleTrailing={<MotionResetButton onCommit={onCommit} state={state} />}
     >
+      {extraControls?.map((control) => (
+        <ControlField
+          control={control}
+          key={control.key}
+          onChange={onChange}
+          onCommit={onCommit}
+          onPreview={onPreview}
+          state={state}
+        />
+      ))}
       <MotionControl
         onChange={onChange}
         onCommit={onCommit}

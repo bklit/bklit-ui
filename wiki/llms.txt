@@ -33,6 +33,7 @@ Documentation source files live under `apps/web/content/docs/` (MDX, Fumadocs). 
 - [Ring Chart](../apps/web/content/docs/components/ring-chart.mdx): A composable multi-ring progress chart with animated arcs, hover interactions, and a reusable legend component
 - [Sankey Chart](../apps/web/content/docs/components/sankey-chart.mdx): A composable sankey diagram for visualizing flow between nodes with animated links and interactive tooltips
 - [Scatter Chart](../apps/web/content/docs/components/scatter-chart.mdx): A composable time-series scatter chart with hover dimming, optional offset rings, jitter, and animated enter
+- [Sparkline](../apps/web/content/docs/components/sparkline.mdx): Tiny line, area and bar charts built for density — one path per chart, a shared resize observer, lightweight enter animations and a minimal hover crosshair
 - [Sunburst Chart](../apps/web/content/docs/components/sunburst-chart.mdx): A composable hierarchical sunburst chart with drill-down zoom, animated segments, breadcrumb navigation, and legend sync
 
 ## Utilities

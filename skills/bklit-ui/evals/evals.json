@@ -68,10 +68,12 @@
     {
       "id": 6,
       "prompt": "Add a KPI stat card with a sparkline showing monthly revenue to my dashboard using bklit.",
-      "expected_output": "Recommends the stat-card-area-01 (or stat-card-line-01) block, or composes an AreaChart/LineChart sparkline in a shadcn Card, noting the block's barrel and sample-data files.",
+      "expected_output": "Recommends the stat-card-area-01 (or stat-card-line-01) block, which is built on @bklit/sparkline, or composes an AreaSparkline/LineSparkline from @bklit/sparkline in a shadcn Card (not a full AreaChart/LineChart with hidden axes), showing the hovered month's revenue via useSparklineHover and noting the block's barrel and sample-data files.",
       "files": [],
       "expectations": [
-        "Mentions an existing block (`@bklit/stat-card-area-01` or `@bklit/stat-card-line-01`) or builds from @bklit/area-chart / @bklit/line-chart rather than hand-rolled SVG",
+        "Mentions an existing block (`@bklit/stat-card-area-01` or `@bklit/stat-card-line-01`) or installs `@bklit/sparkline` rather than hand-rolled SVG",
+        "When composing by hand, uses AreaSparkline or LineSparkline imported from @/components/charts/sparkline with data + dataKey, not AreaChart/LineChart with axes removed",
+        "Does not add ChartTooltip, Grid or axes to the sparkline; shows the hovered value with useSparklineHover (hover.datum) or leaves the latest value static",
         "If using a block, notes that it needs shadcn card/badge and writes components/charts/index.ts plus sample data that may need merging or replacing",
         "Uses theme tokens for colors",
         "Does not import from `@bklitui/ui/charts`"

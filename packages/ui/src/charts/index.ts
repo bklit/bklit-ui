@@ -565,6 +565,27 @@ export {
   type SeriesPointMarkerProps,
   type SeriesPointMarkerStyle,
 } from "./series-point-marker";
+// Sparkline components
+export {
+  AreaSparkline,
+  type AreaSparklineProps,
+  BarSparkline,
+  type BarSparklineProps,
+  DEFAULT_SPARKLINE_ANIMATION_DURATION_MS,
+  DEFAULT_SPARKLINE_DATA_TRANSITION_MS,
+  DEFAULT_SPARKLINE_HOVER_SPRING,
+  LineSparkline,
+  type LineSparklineProps,
+  type SparklineBaseProps,
+  type SparklineCrosshair,
+  type SparklineSpringConfig,
+  useSparklineHover,
+} from "./sparkline";
+export type {
+  SparklineCurve,
+  SparklineDataKey,
+  SparklinePadding,
+} from "./sparkline-geometry";
 export {
   StaticChartPreviewProvider,
   useStaticChartPreview,

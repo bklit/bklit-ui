@@ -5,13 +5,15 @@ description: >
   registry) in a React / Next.js app. Use when the user wants a chart, graph,
   or data visualization: line, area, bar, live/streaming line, composed,
   scatter, candlestick/OHLC, pie, ring/donut, radar, gauge, heatmap, funnel,
-  sankey, sunburst, or choropleth/world map; a sparkline, dashboard, analytics
-  page, KPI or stat card; chart tooltips, crosshairs, legends, markers,
+  sankey, sunburst, or choropleth/world map; a sparkline or tiny inline
+  chart (LineSparkline, AreaSparkline, BarSparkline, useSparklineHover) for
+  tables, KPI cards, or dense dashboards; a dashboard, analytics page, KPI or
+  stat card; chart tooltips, crosshairs, legends, markers,
   reference bands, projections, trend lines, axes, or grids; or when code imports from
   components/charts/* or mentions @bklit/* or bklit.com. For styling vocabulary
   (patterns, squircle/rounded/3D bars, fades, loading looks, matching the app
-  theme) also use bklit-ui-design. For moving from Recharts or shadcn
-  ChartContainer to Bklit, use bklit-ui-migrate.
+  theme) also use bklit-ui-design. For moving from Recharts, shadcn
+  ChartContainer, or TanStack Charts to Bklit, use bklit-ui-migrate.
 allowed-tools: Bash(npx shadcn@latest *), Bash(pnpm dlx shadcn@latest *), Bash(bunx --bun shadcn@latest *), Bash(yarn dlx shadcn@latest *)
 ---
 
@@ -49,6 +51,7 @@ There is no barrel for component items — import each export from the file that
 | `line-chart` | `LineChart`, `Line` |
 | `area-chart` | `AreaChart`, `Area` |
 | `bar-chart` / `bar` / `bar-x-axis` / `bar-y-axis` | `BarChart` / `Bar` / `BarXAxis` / `BarYAxis` |
+| `sparkline` | `LineSparkline`, `AreaSparkline`, `BarSparkline`, `useSparklineHover` |
 | `composed-chart` / `series-bar` | `ComposedChart` / `SeriesBar` (+ `Line`, `Area` from their charts) |
 | `scatter-chart` | `ScatterChart`, `Scatter` |
 | `candlestick-chart` / `candlestick` | `CandlestickChart` / `Candlestick` |
@@ -93,6 +96,12 @@ import { chartCssVars } from "@/components/charts/chart-context";
 - `indicatorColor` is a string or `(point) => string`.
 - Custom crosshairs/indicators use `useChart()` — never global mouse listeners.
 
+### Sparklines (`@bklit/sparkline`)
+- `LineSparkline` / `AreaSparkline` / `BarSparkline` are **single elements** — `data` + `dataKey`, no children. Don't build sparklines from `LineChart` with hidden axes.
+- Omit `width` to fill the parent; `height` defaults to 32. `color`, `curve` (`"monotone"` default), `strokeWidth`, `endDot`; area `fill="gradient" | "solid"` + `fillOpacity`; bar `barGap`, `barRadius`.
+- **No tooltip by design.** `const hover = useSparklineHover<Row>()`, spread `hover.sparklineProps` (on several sparklines to sync crosshairs), render `hover.datum ?? latest` yourself. `crosshair` (`"dashed"` default, `"solid"`, `"gradient"`, `false`), `dot`, `interactive={false}`. Hover fades the series and re-strokes the hovered segment like the main charts (`showHighlight`, `inactiveOpacity` 0.5; bars fade unfocused bars to 0.4). Crosshair and dot spring between points (`hoverTransition={false}` to snap, `springConfig` to tune), and new `data` morphs in over `dataTransitionDuration` (500ms; `0` snaps). Reduced motion snaps both.
+- Enter animation is on (`animate`, 900ms) and falls back to a fade under reduced motion.
+
 ### Overlays → [overlays.md](./rules/overlays.md)
 - `ChartMarkers` is a **sibling** of `ChartTooltip`; marker hover content goes inside `ChartTooltip` children.
 - `ChartBrush` has **no registry item** — don't promise `@bklit/brush`.
@@ -120,8 +129,9 @@ All items install with `npx shadcn@latest add @bklit/<item>`. For any `<item>`:
 
 | Item | Use when |
 |---|---|
-| `line-chart` | Time series, multi-line trends, sparklines, markers, dashed tails |
-| `area-chart` | Trends with filled regions, gradient/pattern fills, stat-card sparklines |
+| `line-chart` | Time series, multi-line trends, markers, dashed tails |
+| `area-chart` | Trends with filled regions, gradient/pattern fills |
+| `sparkline` | Tiny inline line / area / bar trends for table cells, KPI and stat cards, dense grids — no axes, grid or tooltip; read the hovered value with `useSparklineHover` |
 | `bar-chart` | Category comparisons; grouped, stacked, horizontal, square-column bars |
 | `composed-chart` | Bars + lines/areas on one date axis, dual Y axes |
 | `live-line-chart` | Streaming / real-time values (`{ time: unixSeconds, value }`) |
@@ -148,11 +158,13 @@ All items install with `npx shadcn@latest add @bklit/<item>`. For any `<item>`:
 
 | Item | What |
 |---|---|
-| `stat-card-area-01` | Revenue card: gradient area sparkline, NumberFlow value, trend badge |
-| `stat-card-line-01` | Sessions card: line sparkline with overlaid value, trend badge |
-| `stat-card-choropleth-01` | Visitors card: choropleth sparkline map, trend badge |
+| `stat-card-area-01` | Revenue card: `AreaSparkline` (gradient), hover-to-read value, NumberFlow, trend badge |
+| `stat-card-line-01` | Sessions card: `LineSparkline` with overlaid value, hover-to-read, trend badge |
+| `stat-card-choropleth-01` | Visitors card: choropleth mini map, trend badge |
 
-Blocks need shadcn `card` + `badge`, write sample data under `data/`, and import from a `@/components/charts` **barrel** (`components/charts/index.ts`) that they create. Installing a second block overwrites that barrel and shared files (`stat-card-chart.tsx`, `trend-badge.tsx`) — merge them by hand.
+The area and line cards are built on `@bklit/sparkline` (installed as a dependency) and use `useSparklineHover` to swap the headline number for the hovered value. For a sparkline in a table row or a custom card, compose `@bklit/sparkline` directly instead of installing a block.
+
+Blocks need shadcn `card` + `badge`, write sample data under `data/`, and import from a `@/components/charts` **barrel** (`components/charts/index.ts`) that they create. Installing a second block overwrites that barrel and shared files (`stat-card-chart.tsx`, `stat-card-sparkline-hover.ts`, `trend-badge.tsx`) — merge them by hand.
 
 ## Workflow
 
@@ -201,7 +213,7 @@ export function UsersChart() {
 ## Related skills
 
 - **[bklit-ui-design](../bklit-ui-design/SKILL.md)** — design vocabulary and recipes: patterns and textures, squircle / rounded / 3D bars, edge fades, gradients, loading looks, and matching charts to the app's theme. Use it when the request is about how a chart *looks*.
-- **[bklit-ui-migrate](../bklit-ui-migrate/SKILL.md)** — move Recharts or shadcn `ChartContainer` / `ChartConfig` charts to Bklit equivalents.
+- **[bklit-ui-migrate](../bklit-ui-migrate/SKILL.md)** — move Recharts, shadcn `ChartContainer` / `ChartConfig`, or TanStack Charts (`@tanstack/charts`) charts to Bklit equivalents, including tiny charts → sparklines.
 
 Install all three with `npx skills add bklit/bklit-ui`.
 

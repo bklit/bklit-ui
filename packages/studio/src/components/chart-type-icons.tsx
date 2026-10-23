@@ -21,6 +21,7 @@ export const CHART_TYPE_ICONS: Record<ChartSlug, IconName> = {
   "live-line-chart": "IconTrending4",
   "choropleth-chart": "IconGlobe",
   "sankey-chart": "IconSankeyChart",
+  sparkline: "IconTrending4",
   "sunburst-chart": "IconPieChart1",
 };
 

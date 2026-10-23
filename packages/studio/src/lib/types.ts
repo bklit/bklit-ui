@@ -249,6 +249,8 @@ export interface StudioChartConfig {
   resolveComponents?: (state: StudioUrlState) => StudioComponentDefinition[];
   /** When true, sidebar shows the motion spline editor at the top. */
   motionPanel?: boolean;
+  /** Extra controls rendered above the motion curve in the Animation section. */
+  motionControls?: StudioControl[];
   /** Show stagger scale slider in Motion (gauge, radar, funnel). */
   motionStagger?: boolean;
   /** Show scramble-data button in the components panel. Default true. */
@@ -276,6 +278,7 @@ export const chartLabels = {
   "ring-chart": "Ring Chart",
   "scatter-chart": "Scatter Chart",
   "sankey-chart": "Sankey Chart",
+  sparkline: "Sparkline",
   "sunburst-chart": "Sunburst Chart",
 } satisfies Record<ChartSlug, string>;
 

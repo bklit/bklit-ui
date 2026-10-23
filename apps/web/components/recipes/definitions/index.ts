@@ -6,6 +6,7 @@ import { eventMarkers } from "./event-markers";
 import { gradientGlow } from "./gradient-glow";
 import { hatchedBackdrop } from "./hatched-backdrop";
 import { heatmapDotCalendar, heatmapWorkweek } from "./heatmaps";
+import { kpiSparklines } from "./kpi-sparklines";
 import { monochrome } from "./monochrome";
 import { linkedLegend, patternedSlices } from "./pie-recipes";
 import { projectionLine } from "./projection-line";
@@ -29,6 +30,7 @@ export const recipes: Recipe[] = [
   eventMarkers,
   diamondMarkers,
   valueLabels,
+  kpiSparklines,
   projectionLine,
   trendLine,
   rangeBand,

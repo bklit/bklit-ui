@@ -4,6 +4,8 @@ Every bklit name below is an export of the file the `@bklit/<slug>` registry ite
 
 Docs: `https://bklit.com/docs/components/<slug>`.
 
+**Tiny charts are sparklines.** A Recharts `LineChart` / `AreaChart` / `BarChart` with a single series and no `XAxis` / `YAxis` / `CartesianGrid` / `Legend`, rendered small (a `ResponsiveContainer` or root `height` around 120px or less, or `maxWidth` / `width` around 200px or less), maps to `LineSparkline` / `AreaSparkline` / `BarSparkline` from `@bklit/sparkline` — not the full chart. The detector flags these (`"sparkline": true`). Sparklines have no tooltip, axes, grid, legend or multiple series; see `rules/gaps.md`. TanStack Charts sources: `tanstack-charts.md`.
+
 ## Chart roots
 
 | Recharts | bklit export | Install | Import from | Notes |
@@ -20,6 +22,9 @@ Docs: `https://bklit.com/docs/components/<slug>`.
 | `FunnelChart` + `Funnel` | `FunnelChart` | `@bklit/funnel-chart` | `@/components/charts/funnel-chart` | `data: { label, value, displayValue?, color? }[]`. |
 | `Sankey` | `SankeyChart` | `@bklit/sankey-chart` | `@/components/charts/sankey` | Same `{ nodes: [{name}], links: [{source, target, value}] }` shape. |
 | `SunburstChart` (Recharts 3) | `SunburstChart` | `@bklit/sunburst-chart` | `@/components/charts/sunburst-chart` | Hierarchical `SunburstNode` data. |
+| Tiny `LineChart` (one `Line`, no axes/grid, small) | `LineSparkline` | `@bklit/sparkline` | `@/components/charts/sparkline` | Single element: `data` + `dataKey`. Height 32 by default; omit `width` to fill the parent. Recharts "Tiny Line Chart". |
+| Tiny `AreaChart` (one `Area`, no axes/grid, small) | `AreaSparkline` | `@bklit/sparkline` | `@/components/charts/sparkline` | Line over a `fill="gradient"` (default) or `"solid"` fill. |
+| Tiny `BarChart` (one `Bar`, no axes/grid, small) | `BarSparkline` | `@bklit/sparkline` | `@/components/charts/sparkline` | All bars in one path; includes zero, negatives render below the baseline. |
 | `Treemap` | — | — | — | No equivalent. Keep Recharts (see `rules/gaps.md`). |
 | `ResponsiveContainer` | — (remove) | — | — | Every bklit root measures its parent (`ParentSize`). Use `aspectRatio` or a sized wrapper. |
 
@@ -75,6 +80,8 @@ Full walkthrough: `shadcn-chart.md`.
 
 ## Registry slugs this skill installs
 
-`line-chart`, `area-chart`, `bar-chart`, `composed-chart`, `scatter-chart`, `pie-chart`, `radar-chart`, `ring-chart`, `gauge-chart`, `funnel-chart`, `sankey-chart`, `sunburst-chart`, `y-axis`, `legend`, `reference-area`, `markers`.
+`line-chart`, `area-chart`, `bar-chart`, `sparkline`, `composed-chart`, `scatter-chart`, `pie-chart`, `radar-chart`, `ring-chart`, `gauge-chart`, `funnel-chart`, `sankey-chart`, `sunburst-chart`, `y-axis`, `legend`, `reference-area`, `markers`.
+
+`sparkline` is self-contained: it installs `sparkline.tsx` + `sparkline-geometry.ts` (exports `LineSparkline`, `AreaSparkline`, `BarSparkline`, `useSparklineHover`) and only pulls internal plumbing (`chart-context`, `chart-animation`, `utils`) plus `d3-shape` — no grid, axes or tooltip.
 
 Auto-included dependencies: line/area/scatter pull `grid`, `x-axis`, `chart-tooltip`; bar-chart pulls `grid`, `chart-tooltip` and ships `bar-x-axis`/`bar-y-axis`; composed-chart pulls line-chart, area-chart, `y-axis`.
