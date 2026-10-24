@@ -1,8 +1,9 @@
 import { type ChartSlug, studioChartHref } from "@bklitui/studio";
 import type { Metadata } from "next";
+import { SITE_NAME as BASE_SITE_NAME } from "@/lib/site-name";
 import { SITE_URL } from "@/lib/site-url";
 
-export const SITE_NAME = "Bklit UI";
+export const SITE_NAME = BASE_SITE_NAME;
 
 export const SITE_TITLE = "Bklit UI - Charts & Data Visualization Components";
 
