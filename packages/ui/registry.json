@@ -228,10 +228,7 @@
       "name": "chart-parent-size",
       "type": "registry:component",
       "title": "Chart Parent Size",
-      "description": "Responsive size wrapper for charts (visx useParentSize without overflow clipping).",
-      "dependencies": [
-        "@visx/responsive@4.0.0"
-      ],
+      "description": "Responsive size wrapper for charts: measures before first paint, then tracks resizes (no overflow clipping).",
       "files": [
         {
           "path": "src/charts/chart-parent-size.tsx",
@@ -1370,13 +1367,13 @@
         "@bklit/grid",
         "@bklit/x-axis",
         "@bklit/chart-tooltip",
-        "@bklit/utils"
+        "@bklit/utils",
+        "@bklit/chart-parent-size"
       ],
       "dependencies": [
         "d3-array",
         "d3-scale",
-        "motion",
-        "react-use-measure"
+        "motion"
       ],
       "files": [
         {

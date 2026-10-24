@@ -20,10 +20,11 @@ import {
   type RefObject,
   type SetStateAction,
   useContext,
+  useEffect,
+  useLayoutEffect,
   useMemo,
   useState,
 } from "react";
-import { useIsomorphicLayoutEffect } from "./chart-parent-size";
 import type { ChartPhase, ChartStatus } from "./chart-phase";
 import type { ReferenceAreaConfig } from "./reference-area-config";
 import type { ChartSelection } from "./use-chart-interaction";
@@ -257,6 +258,10 @@ export type ChartStableContextValue = Omit<
   ChartContextValue,
   keyof ChartHoverContextValue
 >;
+
+/** `useLayoutEffect` in the browser, `useEffect` on the server (no SSR warning). */
+const useIsomorphicLayoutEffect =
+  typeof window === "undefined" ? useEffect : useLayoutEffect;
 
 const ChartStableContext = createContext<ChartStableContextValue | null>(null);
 const ChartHoverContext = createContext<ChartHoverContextValue | null>(null);
