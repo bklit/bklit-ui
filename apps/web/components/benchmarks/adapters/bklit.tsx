@@ -170,5 +170,5 @@ export const bklitAdapter: BenchLibraryAdapter = {
   },
   initialAnimationMs: BKLIT_ENTER_MS,
   notes:
-    "SVG + Motion. Line, area, bar and scatter all default to a 1100 ms enter reveal; data updates morph paths and tween the y-domain (500 ms).",
+    "SVG + Motion. Line, area, bar and scatter all default to a 1100 ms enter reveal; on data updates line paths and bars morph and the y-domain tweens (500 ms). Charts size themselves from their parent (ResizeObserver), so the first chart frame lands a frame or two after mount; that wait is counted. Line and area downsample each series (LTTB) to 1.5 points per plot pixel, so at 1,000+ points their paths hold fewer points than the other libraries'. Hover renders are deferred to rAF; the frame that paints them is counted.",
 };

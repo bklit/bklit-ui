@@ -8,11 +8,13 @@ export type BenchLibraryId = "bklit" | "recharts" | "tanstack";
 /**
  * One generated row. Every library reads the same rows:
  * - `date` is the x value for line / area / scatter (time axis)
+ * - `t` is the same instant as epoch ms, for libraries keyed on numbers
  * - `label` is the x category for bar
  * - `s0`…`s{n-1}` are the numeric series values
  */
 export interface BenchRow {
   date: Date;
+  t: number;
   label: string;
   [series: `s${number}`]: number;
 }
@@ -68,11 +70,18 @@ export function resolveInitialAnimationMs(
 
 /** Medians (ms) over the measured iterations; warm-up runs are discarded. */
 export interface BenchMetrics {
-  /** `render()` call → first painted frame. Excludes enter-animation time. */
+  /**
+   * `render()` call → first painted frame that shows the chart's marks (a
+   * library that sizes itself asynchronously pays for those frames).
+   * Excludes enter-animation time.
+   */
   mountMs: number;
   /** New same-size dataset → first painted frame. Excludes update-animation time. */
   updateMs: number;
-  /** Per pointer move across the plot: dispatch → next painted frame. */
+  /**
+   * Per pointer move across the plot: dispatch → the painted frame that shows
+   * the hover result (one frame later when a library defers it to rAF).
+   */
   hoverMs: number;
   /** Elements in the chart container after mount. */
   domNodes: number;
@@ -96,6 +105,8 @@ export interface BenchAnimationReference {
 export interface BenchResult {
   library: BenchLibraryId;
   kind: BenchChartKind;
+  /** Whether the scored iterations ran with animation on. */
+  animate: boolean;
   size: number;
   seriesCount: number;
   iterations: number;
@@ -115,6 +126,11 @@ export interface BenchRunConfig {
   iterations: number;
   /** Pointer moves per hover sample. */
   hoverMoves: number;
+  /**
+   * Scored iterations with each library's default animation on (`true`) or
+   * off (`false`). The enter-animation reference pass always animates.
+   */
+  animate: boolean;
   width: number;
   height: number;
 }

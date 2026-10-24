@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { BENCH_ADAPTERS } from "./adapters";
 import {
-  BENCH_BUNDLE_SIZES,
   BENCH_LIBRARY_COLORS,
+  benchBundleSize,
   bestValue,
   formatCount,
   formatKb,
@@ -193,10 +193,10 @@ function MetricFrames({ results }: { results: BenchResult[] }) {
 
   const bundleValues = results.map((r) => ({
     library: r.library,
-    value: BENCH_BUNDLE_SIZES[r.library]?.gzipBytes ?? null,
+    value: benchBundleSize(r.library, r.animate)?.gzipBytes ?? null,
   }));
   const bundleData = results.flatMap((r) => {
-    const bundle = BENCH_BUNDLE_SIZES[r.library];
+    const bundle = benchBundleSize(r.library, r.animate);
     return bundle
       ? [
           {
@@ -231,21 +231,21 @@ function MetricFrames({ results }: { results: BenchResult[] }) {
         measured,
         "mountMs",
         "Mount",
-        "React render call → first painted frame. The enter animation that follows is not counted."
+        "React render call → first painted frame that shows the chart, including any frames a library waits to size itself. The enter animation is not counted."
       )}
       {timingFrame(
         results,
         measured,
         "updateMs",
         "Data update",
-        "New same-size dataset → first painted frame. Update morphs after that frame are not counted."
+        "New same-size dataset → painted frame showing it (static), or the first painted frame (animated; the morph after it is not counted)."
       )}
       {timingFrame(
         results,
         measured,
         "hoverMs",
         "Hover",
-        "Per pointer move across the plot → next painted frame, tooltip and crosshair included."
+        "Per pointer move → the painted frame showing the tooltip and crosshair update, including a frame a library defers it to."
       )}
       <MetricFrame
         best={bestValue(results, (r) => r.metrics.domNodes)}
@@ -261,11 +261,11 @@ function MetricFrames({ results }: { results: BenchResult[] }) {
       <MetricFrame
         best={bestValue(
           results,
-          (r) => BENCH_BUNDLE_SIZES[r.library]?.gzipBytes
+          (r) => benchBundleSize(r.library, r.animate)?.gzipBytes
         )}
         chartFormat={(value) => `${value.toFixed(1)} KB`}
         data={bundleData}
-        description="A minimal line chart per library as benchmarked, bundled with esbuild (React external). Measured at build time."
+        description="A minimal line chart per library as benchmarked, bundled with esbuild (React external). TanStack ships its motion() renderer only when animation is on. Measured at build time."
         format={formatKb}
         note="Gzipped (solid) and minified (pattern), in KB. Lower is better."
         secondaryLabel="Minified"
@@ -346,7 +346,10 @@ function ResultsTable({ results }: { results: BenchResult[] }) {
     update: bestValue(results, (r) => r.metrics.updateMs),
     hover: bestValue(results, (r) => r.metrics.hoverMs),
     dom: bestValue(results, (r) => r.metrics.domNodes),
-    bundle: bestValue(results, (r) => BENCH_BUNDLE_SIZES[r.library]?.gzipBytes),
+    bundle: bestValue(
+      results,
+      (r) => benchBundleSize(r.library, r.animate)?.gzipBytes
+    ),
   };
 
   const toggle = (library: string) => {
@@ -380,7 +383,7 @@ function ResultsTable({ results }: { results: BenchResult[] }) {
         <tbody>
           {results.map((result) => {
             const adapter = BENCH_ADAPTERS[result.library];
-            const bundle = BENCH_BUNDLE_SIZES[result.library];
+            const bundle = benchBundleSize(result.library, result.animate);
             const isOpen = expanded.has(result.library);
             return (
               <Fragment key={result.library}>

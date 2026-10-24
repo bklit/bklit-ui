@@ -1,8 +1,8 @@
 {
   "bklit": {
     "entry": "export { ChartTooltip, Grid, Line, LineChart, XAxis } from \"@bklitui/ui/charts\";",
-    "minBytes": 274572,
-    "gzipBytes": 92926
+    "minBytes": 288298,
+    "gzipBytes": 97988
   },
   "recharts": {
     "entry": "export { CartesianGrid, Line, LineChart, Tooltip, XAxis, YAxis } from \"recharts\";",
@@ -10,8 +10,13 @@
     "gzipBytes": 107899
   },
   "tanstack": {
-    "entry": "export { crosshair, defineChart, lineY } from \"@tanstack/charts\"; export { d3Curve } from \"@tanstack/charts/d3/shape\"; export { motion } from \"@tanstack/charts/motion\"; export { Chart } from \"@tanstack/charts/react\"; export { Chart as RendererChart } from \"@tanstack/charts/react/core\"; export { scaleLinear } from \"@tanstack/charts/scales/linear\"; export { tooltip } from \"@tanstack/charts/tooltip\"; export { scaleTime } from \"d3-scale\"; export { curveMonotoneX } from \"d3-shape\";",
-    "minBytes": 195972,
-    "gzipBytes": 67459
+    "entry": "export { crosshair, defineChart, lineY } from \"@tanstack/charts\"; export { d3Curve } from \"@tanstack/charts/d3/shape\"; export { motion } from \"@tanstack/charts/motion\"; export { Chart as RendererChart } from \"@tanstack/charts/react/core\"; export { scaleLinear } from \"@tanstack/charts/scales/linear\"; export { tooltip } from \"@tanstack/charts/tooltip\"; export { scaleTime } from \"d3-scale\"; export { curveMonotoneX } from \"d3-shape\";",
+    "minBytes": 190383,
+    "gzipBytes": 65599,
+    "static": {
+      "entry": "export { crosshair, defineChart, lineY } from \"@tanstack/charts\"; export { d3Curve } from \"@tanstack/charts/d3/shape\"; export { Chart } from \"@tanstack/charts/react\"; export { scaleLinear } from \"@tanstack/charts/scales/linear\"; export { tooltip } from \"@tanstack/charts/tooltip\"; export { scaleTime } from \"d3-scale\"; export { curveMonotoneX } from \"d3-shape\";",
+      "minBytes": 146280,
+      "gzipBytes": 51419
+    }
   }
 }

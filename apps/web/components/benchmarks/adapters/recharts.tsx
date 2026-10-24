@@ -14,7 +14,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import type { BenchChartProps, BenchLibraryAdapter, BenchRow } from "../types";
+import type { BenchChartProps, BenchLibraryAdapter } from "../types";
 
 /** Same palette as the bklit and TanStack adapters. */
 const SERIES_COLORS = [
@@ -39,8 +39,7 @@ const dateTick = new Intl.DateTimeFormat("en-US", {
 const MARGIN = { top: 8, right: 8, bottom: 0, left: 8 };
 const TIME_DOMAIN = ["dataMin", "dataMax"] as const;
 
-/** Module-level accessors keep Recharts' memoized selectors stable. */
-const rowTime = (row: BenchRow) => row.date.getTime();
+/** Module-level formatter keeps Recharts' memoized selectors stable. */
 const formatTime = (value: number) => dateTick.format(value);
 
 function seriesKeys(seriesCount: number) {
@@ -63,8 +62,10 @@ function animationProp(animate: boolean) {
 function TimeChrome() {
   return [
     <CartesianGrid key="grid" stroke="var(--chart-grid)" vertical={false} />,
+    // String key on a precomputed epoch-ms field: the form Recharts'
+    // performance guide recommends over accessor functions.
     <XAxis
-      dataKey={rowTime}
+      dataKey="t"
       domain={TIME_DOMAIN}
       key="x"
       scale="time"
@@ -190,5 +191,5 @@ export const rechartsAdapter: BenchLibraryAdapter = {
   initialAnimationMs: RECHARTS_LINE_AREA_ENTER_MS,
   initialAnimationMsByKind: { bar: 400, scatter: 400 },
   notes:
-    "SVG. Default enter animation: 1,500 ms for Line/Area, 400 ms for Bar/Scatter. Fixed width/height (no ResponsiveContainer). Line dots disabled to match bklit; hover dot (activeDot) and Tooltip cursor are defaults.",
+    "SVG. Default enter animation: 1,500 ms for Line/Area, 400 ms for Bar/Scatter. Fixed width/height (no ResponsiveContainer). Line dots disabled to match bklit; hover dot (activeDot) and Tooltip cursor are defaults. Time x reads a precomputed epoch-ms key. Hover is rAF-throttled by default (throttleDelay 'raf'). Scatter uses per-point (item) tooltips, so hover sweeps across rendered points.",
 };

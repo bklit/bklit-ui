@@ -53,6 +53,8 @@ const KINDS: BenchChartKind[] = ["line", "area", "bar", "scatter"];
 const LIBRARIES: BenchLibraryId[] = ["bklit", "recharts", "tanstack"];
 const SERIES_COUNTS = [1, 2, 3] as const;
 const ITERATION_OPTIONS = [5, 10, 20] as const;
+const ANIMATION_OPTIONS = ["off", "on"] as const;
+type AnimationOption = (typeof ANIMATION_OPTIONS)[number];
 /**
  * Stage size. Width fills the run area up to {@link STAGE_MAX_WIDTH}; height
  * follows it on narrow screens so phones get a landscape-ish chart. Locked
@@ -150,7 +152,7 @@ function progressLabel(event: Extract<BenchProgress, { type: "start" }>) {
 
 function formatRunSummary(config: BenchRunConfig) {
   const unit = config.kind === "bar" ? "bars" : "points";
-  return `${BENCH_KIND_LABELS[config.kind]} chart · ${config.size.toLocaleString("en-US")} ${unit} · ${config.seriesCount} series · ${config.iterations} iterations · ${config.width}×${config.height}px`;
+  return `${BENCH_KIND_LABELS[config.kind]} chart · ${config.size.toLocaleString("en-US")} ${unit} · ${config.seriesCount} series · ${config.iterations} iterations · animation ${config.animate ? "on" : "off"} · ${config.width}×${config.height}px`;
 }
 
 interface StageSize {
@@ -193,6 +195,9 @@ export function BenchmarkPageClient() {
   const [size, setSize] = useState<number>(BENCH_SIZES.line[1] ?? 1000);
   const [seriesCount, setSeriesCount] = useState<number>(1);
   const [iterations, setIterations] = useState<number>(10);
+  // Off by default: the like-for-like comparison. On adds each library's
+  // default enter/update animation (TanStack via its motion() renderer).
+  const [animation, setAnimation] = useState<AnimationOption>("off");
   const [libraries, setLibraries] = useState<BenchLibraryId[]>(LIBRARIES);
   const [run, setRun] = useState<RunState>(IDLE);
   const [results, setResults] = useState<BenchResult[]>([]);
@@ -241,6 +246,7 @@ export function BenchmarkPageClient() {
       libraries: runLibraries,
       iterations,
       hoverMoves: HOVER_MOVES,
+      animate: animation === "on",
       width: fitSize.width,
       height: fitSize.height,
     };
@@ -323,7 +329,7 @@ export function BenchmarkPageClient() {
         abortRef.current = null;
       }
     }
-  }, [fitSize, iterations, kind, libraries, seriesCount, size]);
+  }, [animation, fitSize, iterations, kind, libraries, seriesCount, size]);
 
   const cancel = () => abortRef.current?.abort();
 
@@ -412,7 +418,7 @@ export function BenchmarkPageClient() {
       >
         <BenchFrame
           action={runAction}
-          description="Same seeded data, same pixel size, one library at a time. Enter animations run but are never scored."
+          description="Same seeded data, same pixel size, one chart at a time. Timed to the frame that shows the chart; enter animations are never scored."
           footer={runFooter}
           title="Benchmark setup"
         >
@@ -456,6 +462,16 @@ export function BenchmarkPageClient() {
                   onChange={setIterations}
                   options={ITERATION_OPTIONS}
                   value={iterations}
+                />
+              </ControlGroup>
+              <ControlGroup label="Animation">
+                <BenchOptionControl
+                  disabled={isRunning}
+                  format={(value) => (value === "on" ? "On" : "Off")}
+                  label="Animation"
+                  onChange={setAnimation}
+                  options={ANIMATION_OPTIONS}
+                  value={animation}
                 />
               </ControlGroup>
               <ControlGroup label="Libraries">

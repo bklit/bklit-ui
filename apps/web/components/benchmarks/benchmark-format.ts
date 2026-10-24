@@ -32,9 +32,23 @@ export interface BenchBundleSize {
   gzipBytes: number;
 }
 
+/** Animated-run bundle, plus a `static` one where animation off ships less. */
+export interface BenchBundleSizes extends BenchBundleSize {
+  static?: BenchBundleSize;
+}
+
 export const BENCH_BUNDLE_SIZES = bundleSizes as Partial<
-  Record<BenchLibraryId, BenchBundleSize>
+  Record<BenchLibraryId, BenchBundleSizes>
 >;
+
+/** The bundle a run with this animation setting ships. */
+export function benchBundleSize(
+  library: BenchLibraryId,
+  animate: boolean
+): BenchBundleSize | undefined {
+  const sizes = BENCH_BUNDLE_SIZES[library];
+  return (animate ? undefined : sizes?.static) ?? sizes;
+}
 
 export function formatMs(value: number | null | undefined): string {
   if (value == null || !Number.isFinite(value)) {

@@ -5,8 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { BENCH_ADAPTERS } from "./adapters";
 import {
-  BENCH_BUNDLE_SIZES,
   BENCH_LIBRARY_COLORS,
+  benchBundleSize,
   formatCount,
   formatKb,
   formatMs,
@@ -51,11 +51,14 @@ const FORMATTERS: Record<BenchScoreUnit, (value: number | null) => string> = {
   size: formatKb,
 };
 
-function bundleGzipBytes(): Partial<Record<BenchLibraryId, number>> {
+function bundleGzipBytes(
+  results: BenchResult[]
+): Partial<Record<BenchLibraryId, number>> {
   const out: Partial<Record<BenchLibraryId, number>> = {};
-  for (const [library, size] of Object.entries(BENCH_BUNDLE_SIZES)) {
+  for (const result of results) {
+    const size = benchBundleSize(result.library, result.animate);
     if (size) {
-      out[library as BenchLibraryId] = size.gzipBytes;
+      out[result.library] = size.gzipBytes;
     }
   }
   return out;
@@ -207,7 +210,7 @@ function HeadToHead({ scores }: { scores: BenchLibraryScore[] }) {
  * reference only), with each metric's % difference from the best library.
  */
 export function BenchmarkScores({ results }: { results: BenchResult[] }) {
-  const scores = scoreBenchResults(results, bundleGzipBytes());
+  const scores = scoreBenchResults(results, bundleGzipBytes(results));
   const partial = scores.some(
     (s) => s.score != null && s.scoredMetricCount < s.metrics.length
   );

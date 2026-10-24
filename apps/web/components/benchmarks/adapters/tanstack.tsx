@@ -64,6 +64,14 @@ const gridY = {
   axis: false as const,
 };
 
+/**
+ * Hover guides snap instead of inheriting the motion() renderer's 1,100 ms
+ * tween (docs: guides/tooltips-and-focus.md "fast pointer inspection"), the
+ * way bklit and Recharts tooltips follow the pointer. No-ops on the static
+ * renderer.
+ */
+const tooltipOptions = { use: tooltip, motion: false as const };
+
 type Definition = Parameters<typeof Chart>[0]["definition"];
 
 /**
@@ -117,7 +125,7 @@ function TanStackLine({
     () =>
       defineChart({
         marks: [
-          crosshair({ x: true, y: false }),
+          crosshair({ x: true, y: false, motion: false }),
           ...seriesKeys(seriesCount).map((key, index) =>
             lineY(data, {
               id: key,
@@ -131,7 +139,7 @@ function TanStackLine({
         scales: { x: timeX, y: gridY },
         focus: "group-x",
         maxFocusDistance: Number.POSITIVE_INFINITY,
-        tooltip,
+        tooltip: tooltipOptions,
       }),
     [data, seriesCount]
   );
@@ -156,7 +164,7 @@ function TanStackArea({
     () =>
       defineChart({
         marks: [
-          crosshair({ x: true, y: false }),
+          crosshair({ x: true, y: false, motion: false }),
           ...seriesKeys(seriesCount).flatMap((key, index) => [
             // Explicit baseline: overlapping (not stacked) areas, like bklit.
             areaY(data, {
@@ -183,7 +191,7 @@ function TanStackArea({
         scales: { x: timeX, y: gridY },
         focus: "group-x",
         maxFocusDistance: Number.POSITIVE_INFINITY,
-        tooltip,
+        tooltip: tooltipOptions,
       }),
     [data, seriesCount]
   );
@@ -222,7 +230,7 @@ function TanStackBar({
     }
     return defineChart({
       marks: [
-        crosshair({ x: true, y: false }),
+        crosshair({ x: true, y: false, motion: false }),
         barY(rows, {
           x: "label",
           y: "value",
@@ -241,7 +249,7 @@ function TanStackBar({
       },
       focus: "group-x",
       maxFocusDistance: Number.POSITIVE_INFINITY,
-      tooltip,
+      tooltip: tooltipOptions,
     });
   }, [data, seriesCount]);
   return (
@@ -265,7 +273,7 @@ function TanStackScatter({
     () =>
       defineChart({
         marks: [
-          crosshair(),
+          crosshair({ motion: false }),
           ...seriesKeys(seriesCount).map((key, index) =>
             dot(data, {
               id: key,
@@ -276,7 +284,7 @@ function TanStackScatter({
           ),
         ],
         scales: { x: timeX, y: gridY },
-        tooltip,
+        tooltip: tooltipOptions,
       }),
     [data, seriesCount]
   );
@@ -302,5 +310,5 @@ export const tanstackAdapter: BenchLibraryAdapter = {
   },
   initialAnimationMs: TANSTACK_MOTION_ENTER_MS,
   notes:
-    "SVG. The default Chart has no entrance animation; with animation on, the opt-in motion() renderer is used (1,100 ms tween). Hover uses the default linear nearest-point scan (no spatialIndex). Time x uses d3-scale scaleTime; curves via d3Curve(curveMonotoneX).",
+    'SVG. Animation off uses the default Chart (no entrance animation); animation on uses the opt-in motion() renderer (1,100 ms tween), with tooltip and crosshair motion off so hover snaps. focus: "group-x" scans every point per move (a spatialIndex is not consulted for group-x). The motion() renderer pre-renders one hidden focus ring <circle> per point, raising DOM nodes when animated. Time x uses d3-scale scaleTime; curves via d3Curve(curveMonotoneX).',
 };

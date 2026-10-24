@@ -17,21 +17,38 @@ import { build } from "esbuild";
 const webRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
 const outFile = join(webRoot, "components/benchmarks/bundle-sizes.json");
 
-/** One minimal line chart entry per library: the same pieces the adapters use. */
+/**
+ * One minimal line chart entry per library: the same pieces the adapters use.
+ * `animated` is what a run with animation on ships; `static` (only where it
+ * differs) what a run with animation off ships.
+ */
 const ENTRIES = {
-  bklit: `export { ChartTooltip, Grid, Line, LineChart, XAxis } from "@bklitui/ui/charts";`,
-  recharts: `export { CartesianGrid, Line, LineChart, Tooltip, XAxis, YAxis } from "recharts";`,
-  // Line chart as benchmarked: tooltip + crosshair, monotone curve, time
-  // scale, and the motion() renderer used when animation is on.
-  tanstack: `export { crosshair, defineChart, lineY } from "@tanstack/charts";
+  bklit: {
+    animated: `export { ChartTooltip, Grid, Line, LineChart, XAxis } from "@bklitui/ui/charts";`,
+  },
+  recharts: {
+    animated: `export { CartesianGrid, Line, LineChart, Tooltip, XAxis, YAxis } from "recharts";`,
+  },
+  // Line chart as benchmarked: tooltip + crosshair, monotone curve and time
+  // scale. Animated runs use the opt-in motion() renderer host; static runs
+  // the default Chart, without motion.
+  tanstack: {
+    animated: `export { crosshair, defineChart, lineY } from "@tanstack/charts";
 export { d3Curve } from "@tanstack/charts/d3/shape";
 export { motion } from "@tanstack/charts/motion";
-export { Chart } from "@tanstack/charts/react";
 export { Chart as RendererChart } from "@tanstack/charts/react/core";
 export { scaleLinear } from "@tanstack/charts/scales/linear";
 export { tooltip } from "@tanstack/charts/tooltip";
 export { scaleTime } from "d3-scale";
 export { curveMonotoneX } from "d3-shape";`,
+    static: `export { crosshair, defineChart, lineY } from "@tanstack/charts";
+export { d3Curve } from "@tanstack/charts/d3/shape";
+export { Chart } from "@tanstack/charts/react";
+export { scaleLinear } from "@tanstack/charts/scales/linear";
+export { tooltip } from "@tanstack/charts/tooltip";
+export { scaleTime } from "d3-scale";
+export { curveMonotoneX } from "d3-shape";`,
+  },
 };
 
 const EXTERNAL = [
@@ -74,13 +91,20 @@ async function measure(library, contents) {
   };
 }
 
-const sizes = {};
-for (const [library, contents] of Object.entries(ENTRIES)) {
-  sizes[library] = await measure(library, contents);
-  const { minBytes, gzipBytes } = sizes[library];
+function log(label, { minBytes, gzipBytes }) {
   console.log(
-    `${library.padEnd(9)} ${(minBytes / 1024).toFixed(1).padStart(7)} KB min  ${(gzipBytes / 1024).toFixed(1).padStart(6)} KB gzip`
+    `${label.padEnd(18)} ${(minBytes / 1024).toFixed(1).padStart(7)} KB min  ${(gzipBytes / 1024).toFixed(1).padStart(6)} KB gzip`
   );
+}
+
+const sizes = {};
+for (const [library, entries] of Object.entries(ENTRIES)) {
+  sizes[library] = await measure(library, entries.animated);
+  log(library, sizes[library]);
+  if (entries.static) {
+    sizes[library].static = await measure(`${library}-static`, entries.static);
+    log(`${library} (static)`, sizes[library].static);
+  }
 }
 
 writeFileSync(outFile, `${JSON.stringify(sizes, null, 2)}\n`);

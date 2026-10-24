@@ -29,10 +29,10 @@ export function generateBenchDataset(
   seed: number
 ): BenchDataset {
   const random = createBenchRandom(seed);
-  const rows: BenchRow[] = Array.from({ length: size }, (_, index) => ({
-    date: new Date(START_MS + index * DAY_MS),
-    label: `#${index + 1}`,
-  }));
+  const rows: BenchRow[] = Array.from({ length: size }, (_, index) => {
+    const t = START_MS + index * DAY_MS;
+    return { date: new Date(t), t, label: `#${index + 1}` };
+  });
 
   for (let series = 0; series < seriesCount; series++) {
     let value = 40 + random() * 40;
