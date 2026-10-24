@@ -104,6 +104,12 @@ export const StaticSeriesPointMarker = memo(function StaticSeriesPointMarker({
   outlineColor,
   radius = 5,
 }: StaticSeriesPointMarkerProps) {
+  // Plain dot (no ring / outline): one positioned circle instead of a
+  // translated group, halving DOM nodes for large scatter plots. Scaling a
+  // lone circle about its centre is the same as scaling its radius.
+  if (strokeWidth <= 0 && outlineWidth <= 0) {
+    return <circle cx={cx} cy={cy} fill={fill} r={radius * scale} />;
+  }
   return (
     <g transform={`translate(${cx}, ${cy}) scale(${scale})`}>
       <MarkerCircles

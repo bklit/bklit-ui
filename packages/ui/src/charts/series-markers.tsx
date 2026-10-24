@@ -197,14 +197,27 @@ export function SeriesMarkers({
 
   // Stable base layer — its children come from the parent and stay
   // referentially identical when the dim wrapper re-renders for hover.
-  const baseMarkers = points.map((point) => (
-    <StaticSeriesPointMarker
-      cx={point.cx}
-      cy={point.cy}
-      key={`${dataKey}-${point.index}`}
-      {...markerStyle}
-    />
-  ));
+  // Plain dots render as bare circles (no component per point) — same
+  // output as `StaticSeriesPointMarker`, a fraction of the mount cost.
+  const plainDots = strokeWidth <= 0 && outlineWidth <= 0;
+  const baseMarkers = points.map((point) =>
+    plainDots ? (
+      <circle
+        cx={point.cx}
+        cy={point.cy}
+        fill={resolvedFill}
+        key={`${dataKey}-${point.index}`}
+        r={radius}
+      />
+    ) : (
+      <StaticSeriesPointMarker
+        cx={point.cx}
+        cy={point.cy}
+        key={`${dataKey}-${point.index}`}
+        {...markerStyle}
+      />
+    )
+  );
   const activeScale = showActiveHighlight ? 1.35 : 1;
 
   return (
