@@ -31,7 +31,13 @@ function Icon({
   children,
   ...props
 }: IconProps) {
-  const [title, markup] = icons[name];
+  const entry = icons[name] as (typeof icons)[IconName] | undefined;
+  if (!entry) {
+    // A cast or stale name slipped past the types: render nothing rather than
+    // crash the page.
+    return null;
+  }
+  const [title, markup] = entry;
   const dimension = typeof size === "number" ? `${size}px` : size;
   return (
     // biome-ignore lint/a11y/noSvgWithoutTitle: decorative by default; <title> renders when ariaHidden is false
