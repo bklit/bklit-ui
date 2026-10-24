@@ -47,3 +47,55 @@ export function formatBandRange(
   }
   return `${format(Math.min(lower, upper))} – ${format(Math.max(lower, upper))}`;
 }
+
+/** Below this many rows labels are formatted up front (cheap, no proxy). */
+const EAGER_LABEL_LIMIT = 64;
+
+/** `prop` as an array index below `length`, or -1. */
+function toArrayIndex(prop: string | symbol, length: number): number {
+  if (typeof prop !== "string" || prop.length === 0) {
+    return -1;
+  }
+  const first = prop.charCodeAt(0);
+  if (first < 48 || first > 57) {
+    return -1;
+  }
+  const index = Number(prop);
+  return Number.isInteger(index) && index < length && String(index) === prop
+    ? index
+    : -1;
+}
+
+/**
+ * A `string[]` of per-row labels formatted on first read. Charts expose one
+ * label per row (date pill, axis ticks) but usually read only a handful, and
+ * `Intl.DateTimeFormat#format` costs ~1 µs per call, so formatting 10k rows up
+ * front would add ~10 ms to every mount and data update. Behaves like a
+ * regular array (length, indexing, iteration, `map`, `Array.isArray`).
+ */
+export function lazyLabels(
+  length: number,
+  format: (index: number) => string
+): string[] {
+  if (length <= EAGER_LABEL_LIMIT) {
+    return Array.from({ length }, (_, index) => format(index));
+  }
+  const cache: string[] = new Array(length);
+  return new Proxy(cache, {
+    get(target, prop, receiver) {
+      const index = toArrayIndex(prop, length);
+      if (index === -1) {
+        return Reflect.get(target, prop, receiver);
+      }
+      let label = target[index];
+      if (label === undefined) {
+        label = format(index);
+        target[index] = label;
+      }
+      return label;
+    },
+    has(target, prop) {
+      return toArrayIndex(prop, length) !== -1 || Reflect.has(target, prop);
+    },
+  });
+}

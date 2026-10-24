@@ -12,7 +12,7 @@ import {
 } from "./bar-value-label-layout";
 import {
   chartCssVars,
-  useChart,
+  useChartHover,
   useChartStable,
   useYScale,
 } from "./chart-context";
@@ -231,6 +231,82 @@ function AnimatedBar({
   );
 }
 
+/** Geometry for one bar — independent of hover, so it is memoized once. */
+interface BarGeometry {
+  key: string;
+  index: number;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  rx: number;
+  growOrigin: number;
+  valueLabel?: string;
+  labelX: number;
+  labelY: number;
+  labelTransform?: string;
+}
+
+const STATIC_BAR_STYLE = {
+  cursor: "default",
+  transition: "opacity 0.15s ease-in-out",
+} as const;
+const STATIC_LABEL_STYLE = { transition: "opacity 0.15s ease-in-out" } as const;
+
+interface StaticBarProps {
+  geometry: BarGeometry;
+  fill: string;
+  opacity: number;
+  valueLabelColor: string;
+  valueLabelClassName?: string;
+}
+
+/**
+ * Bar after the enter animation (or with animation off). Memoized on its
+ * geometry object + opacity, so a hover only re-renders the bars whose fade
+ * state changed instead of every bar in the series.
+ */
+const StaticBar = memo(function StaticBar({
+  geometry,
+  fill,
+  opacity,
+  valueLabelColor,
+  valueLabelClassName,
+}: StaticBarProps) {
+  return (
+    <g>
+      <rect
+        fill={fill}
+        height={geometry.height}
+        opacity={opacity}
+        rx={geometry.rx}
+        ry={geometry.rx}
+        style={STATIC_BAR_STYLE}
+        width={geometry.width}
+        x={geometry.x}
+        y={geometry.y}
+      />
+      {geometry.valueLabel ? (
+        <text
+          className={valueLabelClassName}
+          dominantBaseline="middle"
+          fill={valueLabelColor}
+          fontSize={12}
+          fontWeight={600}
+          opacity={opacity}
+          style={STATIC_LABEL_STYLE}
+          textAnchor="middle"
+          transform={geometry.labelTransform}
+          x={geometry.labelX}
+          y={geometry.labelY}
+        >
+          {geometry.valueLabel}
+        </text>
+      ) : null}
+    </g>
+  );
+});
+
 const BarInner = memo(function BarInner({
   dataKey,
   yAxisId,
@@ -260,7 +336,6 @@ const BarInner = memo(function BarInner({
     innerHeight,
     innerWidth,
     isLoaded,
-    hoveredBarIndex,
     lines,
     orientation,
     stacked,
@@ -268,7 +343,8 @@ const BarInner = memo(function BarInner({
     animationDuration,
     enterTransition,
     revealEpoch = 0,
-  } = useChart();
+  } = useChartStable();
+  const { hoveredBarIndex = null } = useChartHover();
 
   // Calculate stagger delay automatically if not provided
   // Total animation duration is ~1200ms, with 40% for stagger spread and 60% for bar animation
@@ -327,230 +403,254 @@ const BarInner = memo(function BarInner({
     return 0;
   }, [lineCap, barWidth, perspective]);
 
-  return (
-    <g className={`bar-series-${uniqueId}`}>
-      {data.map((d, i) => {
-        const value = d[dataKey];
-        if (typeof value !== "number") {
-          return null;
-        }
+  // Hover-independent geometry: recomputed on data / layout changes only.
+  const geometries = useMemo(() => {
+    const result: BarGeometry[] = [];
+    const scale = isHorizontal ? chartYScale : valueScale;
+    const zeroX = isHorizontal ? (scale(0) ?? 0) : 0;
+    const zeroY = isHorizontal ? 0 : (scale(0) ?? innerHeight);
+    const effectiveGroupGap = seriesCount > 1 ? groupGap : 0;
+    // Apply rounded corners:
+    // - For non-stacked: always apply
+    // - For stacked with gap: apply to all bars
+    // - For stacked without gap: only apply to the last series
+    const applyRounding = !stacked || stackGap > 0 || isLastSeries;
+    const effectiveRx = applyRounding ? cornerRadius : 0;
 
-        const categoryValue = barXAccessor(d);
-        const bandPos = barScale(categoryValue) ?? 0;
+    for (let i = 0; i < data.length; i++) {
+      const d = data[i] as Record<string, unknown>;
+      const value = d[dataKey];
+      if (typeof value !== "number") {
+        continue;
+      }
 
-        let x: number;
-        let y: number;
-        let barHeight: number;
-        let barW: number;
+      const categoryValue = barXAccessor(d);
+      const bandPos = barScale(categoryValue) ?? 0;
 
-        const scale = isHorizontal ? chartYScale : valueScale;
-        const zeroX = isHorizontal ? (scale(0) ?? 0) : 0;
-        const zeroY = isHorizontal ? 0 : (scale(0) ?? innerHeight);
+      let x = 0;
+      let y = 0;
+      let barHeight: number;
+      let barW: number;
 
-        if (isHorizontal) {
-          // Horizontal bars: category on y-axis, value on x-axis
-          const valuePos = scale(value) ?? 0;
-          barW = valuePos; // Width is the value position (grows from left)
-          barHeight = barWidth;
+      if (isHorizontal) {
+        // Horizontal bars: category on y-axis, value on x-axis
+        const valuePos = scale(value) ?? 0;
+        barW = valuePos; // Width is the value position (grows from left)
+        barHeight = barWidth;
 
-          if (stacked && stackOffsets) {
-            const offset = stackOffsets.get(i)?.get(dataKey) ?? 0;
-            x = scale(offset) ?? 0;
-            // Segment spans [offset, offset + value]; `valuePos` is the
-            // position of `value` alone, so it is not this segment's end.
-            barW = (scale(offset + value) ?? 0) - x;
-            // Apply stack gap for horizontal: shift right and reduce width
-            const gapOffset = seriesIndex * stackGap;
-            x += gapOffset;
-            if (!isLastSeries && stackGap > 0) {
-              barW = Math.max(0, barW - stackGap);
-            }
-          } else {
-            // Grow from the zero line in either direction (zeroX is 0 for
-            // non-negative data).
-            x = Math.min(valuePos, zeroX);
-            barW = Math.abs(valuePos - zeroX);
-            // For grouped bars, offset y position
-            const effectiveGroupGap = seriesCount > 1 ? groupGap : 0;
-            y = bandPos + seriesIndex * (barWidth + effectiveGroupGap);
+        if (stacked && stackOffsets) {
+          const offset = stackOffsets.get(i)?.get(dataKey) ?? 0;
+          x = scale(offset) ?? 0;
+          // Segment spans [offset, offset + value]; `valuePos` is the
+          // position of `value` alone, so it is not this segment's end.
+          barW = (scale(offset + value) ?? 0) - x;
+          // Apply stack gap for horizontal: shift right and reduce width
+          const gapOffset = seriesIndex * stackGap;
+          x += gapOffset;
+          if (!isLastSeries && stackGap > 0) {
+            barW = Math.max(0, barW - stackGap);
           }
-          y = stacked
-            ? bandPos
-            : bandPos +
-              seriesIndex * (barWidth + (seriesCount > 1 ? groupGap : 0));
         } else {
-          // Vertical bars: category on x-axis, value on y-axis
-          // Measure from the zero line (not the plot floor) so negative
-          // values grow downward. For non-negative data zeroY === innerHeight.
-          const valuePos = scale(value) ?? 0;
-          barHeight = Math.abs(zeroY - valuePos);
-          barW = barWidth;
+          // Grow from the zero line in either direction (zeroX is 0 for
+          // non-negative data).
+          x = Math.min(valuePos, zeroX);
+          barW = Math.abs(valuePos - zeroX);
+        }
+        y = stacked
+          ? bandPos
+          : bandPos + seriesIndex * (barWidth + effectiveGroupGap);
+      } else {
+        // Vertical bars: category on x-axis, value on y-axis
+        // Measure from the zero line (not the plot floor) so negative
+        // values grow downward. For non-negative data zeroY === innerHeight.
+        const valuePos = scale(value) ?? 0;
+        barHeight = Math.abs(zeroY - valuePos);
+        barW = barWidth;
 
-          if (stacked && stackOffsets) {
-            const offset = stackOffsets.get(i)?.get(dataKey) ?? 0;
-            const offsetY = scale(offset) ?? innerHeight;
-            // Apply stack gap: shift up and reduce height
-            const gapOffset = seriesIndex * stackGap;
-            y = offsetY - barHeight - gapOffset;
-            // Reduce height slightly for non-last bars to create visual gap
-            if (!isLastSeries && stackGap > 0) {
-              barHeight = Math.max(0, barHeight - stackGap);
-            }
-          } else {
-            y = Math.min(valuePos, zeroY);
-            // For grouped bars, offset x position
-            const effectiveGroupGap = seriesCount > 1 ? groupGap : 0;
-            x = bandPos + seriesIndex * (barWidth + effectiveGroupGap);
+        if (stacked && stackOffsets) {
+          const offset = stackOffsets.get(i)?.get(dataKey) ?? 0;
+          const offsetY = scale(offset) ?? innerHeight;
+          // Apply stack gap: shift up and reduce height
+          const gapOffset = seriesIndex * stackGap;
+          y = offsetY - barHeight - gapOffset;
+          // Reduce height slightly for non-last bars to create visual gap
+          if (!isLastSeries && stackGap > 0) {
+            barHeight = Math.max(0, barHeight - stackGap);
           }
-          x = stacked
-            ? bandPos
-            : bandPos +
-              seriesIndex * (barWidth + (seriesCount > 1 ? groupGap : 0));
+        } else {
+          y = Math.min(valuePos, zeroY);
+        }
+        x = stacked
+          ? bandPos
+          : bandPos + seriesIndex * (barWidth + effectiveGroupGap);
 
-          // Minimum visible height — floor short/zero non-stacked bars so a
-          // zero-value data point still reads as a tiny bar instead of
-          // vanishing. Grows up from the zero line. Non-negative only, to
-          // match bar-depth's floor. Floored bars skip the perspective trim
-          // (sub-pixel on a 3px bar; keeps the front aligned with bar-depth,
-          // which also skips trim for floored bars).
-          let isFloored = false;
-          if (
-            !stacked &&
-            minBarHeight > 0 &&
-            value >= 0 &&
-            barHeight < minBarHeight
-          ) {
-            barHeight = minBarHeight;
-            y = zeroY - minBarHeight;
-            isFloored = true;
-          }
-
-          // Perspective trim — shrink the topmost positive bar's front-face
-          // top down by its perspective rise so it meets `<BarDepthBack>`'s
-          // lid back edge. Stacked: only the last (topmost) series; grouped or
-          // single: every positive bar. Clamped to `barHeight - 1` so very
-          // short bars keep a positive height (matches bar-depth's clamp).
-          if (
-            perspective &&
-            value > 0 &&
-            !isFloored &&
-            (!stacked || isLastSeries)
-          ) {
-            const rise = barDepthPerspectiveRise(
-              barScale,
-              bandWidth,
-              barXAccessor,
-              innerWidth,
-              d,
-              y,
-              zeroY
-            );
-            const trim = Math.min(rise, Math.max(0, barHeight - 1));
-            y += trim;
-            barHeight -= trim;
-          }
+        // Minimum visible height — floor short/zero non-stacked bars so a
+        // zero-value data point still reads as a tiny bar instead of
+        // vanishing. Grows up from the zero line. Non-negative only, to
+        // match bar-depth's floor. Floored bars skip the perspective trim
+        // (sub-pixel on a 3px bar; keeps the front aligned with bar-depth,
+        // which also skips trim for floored bars).
+        let isFloored = false;
+        if (
+          !stacked &&
+          minBarHeight > 0 &&
+          value >= 0 &&
+          barHeight < minBarHeight
+        ) {
+          barHeight = minBarHeight;
+          y = zeroY - minBarHeight;
+          isFloored = true;
         }
 
-        const isFaded =
-          (hoveredBarIndex !== null && hoveredBarIndex !== i) || isLegendDimmed;
+        // Perspective trim — shrink the topmost positive bar's front-face
+        // top down by its perspective rise so it meets `<BarDepthBack>`'s
+        // lid back edge. Stacked: only the last (topmost) series; grouped or
+        // single: every positive bar. Clamped to `barHeight - 1` so very
+        // short bars keep a positive height (matches bar-depth's clamp).
+        if (
+          perspective &&
+          value > 0 &&
+          !isFloored &&
+          (!stacked || isLastSeries)
+        ) {
+          const rise = barDepthPerspectiveRise(
+            barScale,
+            bandWidth,
+            barXAccessor,
+            innerWidth,
+            d,
+            y,
+            zeroY
+          );
+          const trim = Math.min(rise, Math.max(0, barHeight - 1));
+          y += trim;
+          barHeight -= trim;
+        }
+      }
 
-        // Use categoryValue as key since it's the unique identifier from data
-        const barKey = `bar-${dataKey}-${categoryValue}`;
-
-        // Apply rounded corners:
-        // - For non-stacked: always apply
-        // - For stacked with gap: apply to all bars
-        // - For stacked without gap: only apply to the last series
-        const applyRounding = !stacked || stackGap > 0 || isLastSeries;
-        const effectiveRx = applyRounding ? cornerRadius : 0;
-        const effectiveRy = applyRounding ? cornerRadius : 0;
-        const valueLabel = showValue ? valueLabelFormatter(value) : "";
-        const labelWidth = valueLabel.length * 7.2;
+      let labelX = 0;
+      let labelY = 0;
+      let labelTransform: string | undefined;
+      let valueLabel: string | undefined;
+      if (showValue) {
+        const text = valueLabelFormatter(value);
         const labelLayout = getBarValueLabelLayout({
           x,
           y,
           width: barW,
           height: barHeight,
-          labelWidth,
+          labelWidth: text.length * 7.2,
           isHorizontal,
           orientation: valueLabelOrientation,
           position: valueLabelPosition,
         });
-        const labelFits = showValue && labelLayout.fits;
-        const labelTransform = labelLayout.rotated
+        labelX = labelLayout.x;
+        labelY = labelLayout.y;
+        labelTransform = labelLayout.rotated
           ? `rotate(-90 ${labelLayout.x} ${labelLayout.y})`
           : undefined;
+        valueLabel = labelLayout.fits ? text : undefined;
+      }
 
-        let growOrigin = zeroY;
-        if (isHorizontal) {
-          growOrigin = stacked ? x : zeroX;
-        }
+      let growOrigin = zeroY;
+      if (isHorizontal) {
+        growOrigin = stacked ? x : zeroX;
+      }
 
-        if (animate && !isLoaded) {
+      result.push({
+        // Use categoryValue as key since it's the unique identifier from data
+        key: `bar-${dataKey}-${categoryValue}`,
+        index: i,
+        x,
+        y,
+        width: barW,
+        height: barHeight,
+        rx: effectiveRx,
+        growOrigin,
+        valueLabel,
+        labelX,
+        labelY,
+        labelTransform,
+      });
+    }
+    return result;
+  }, [
+    bandWidth,
+    barScale,
+    barWidth,
+    barXAccessor,
+    chartYScale,
+    cornerRadius,
+    data,
+    dataKey,
+    groupGap,
+    innerHeight,
+    innerWidth,
+    isHorizontal,
+    isLastSeries,
+    minBarHeight,
+    perspective,
+    seriesCount,
+    seriesIndex,
+    showValue,
+    stackGap,
+    stackOffsets,
+    stacked,
+    valueLabelFormatter,
+    valueLabelOrientation,
+    valueLabelPosition,
+    valueScale,
+  ]);
+
+  const animating = animate && !isLoaded;
+
+  return (
+    <g className={`bar-series-${uniqueId}`}>
+      {geometries.map((bar) => {
+        const isFaded =
+          (hoveredBarIndex !== null && hoveredBarIndex !== bar.index) ||
+          isLegendDimmed;
+
+        if (animating) {
           return (
             <AnimatedBar
               animationType={animationType}
               enterTransition={enterTransition}
               fadedOpacity={fadedOpacity}
               fill={fill}
-              growOrigin={growOrigin}
-              height={barHeight}
-              index={i}
+              growOrigin={bar.growOrigin}
+              height={bar.height}
+              index={bar.index}
               isFaded={isFaded}
               isHorizontal={isHorizontal}
-              key={barKey}
-              labelTransform={labelTransform}
-              labelX={labelLayout.x}
-              labelY={labelLayout.y}
+              key={bar.key}
+              labelTransform={bar.labelTransform}
+              labelX={bar.labelX}
+              labelY={bar.labelY}
               revealEpoch={revealEpoch}
-              rx={effectiveRx}
-              ry={effectiveRy}
+              rx={bar.rx}
+              ry={bar.rx}
               staggerDelay={calculatedStaggerDelay}
-              valueLabel={labelFits ? valueLabel : undefined}
+              valueLabel={bar.valueLabel}
               valueLabelClassName={valueLabelClassName}
               valueLabelColor={valueLabelColor}
-              width={barW}
-              x={x}
-              y={y}
+              width={bar.width}
+              x={bar.x}
+              y={bar.y}
             />
           );
         }
 
         // Static bar after animation completes
         return (
-          <g key={barKey}>
-            <rect
-              fill={fill}
-              height={barHeight}
-              opacity={isFaded ? fadedOpacity : 1}
-              rx={effectiveRx}
-              ry={effectiveRy}
-              style={{
-                cursor: "default",
-                transition: "opacity 0.15s ease-in-out",
-              }}
-              width={barW}
-              x={x}
-              y={y}
-            />
-            {labelFits ? (
-              <text
-                className={valueLabelClassName}
-                dominantBaseline="middle"
-                fill={valueLabelColor}
-                fontSize={12}
-                fontWeight={600}
-                opacity={isFaded ? fadedOpacity : 1}
-                style={{ transition: "opacity 0.15s ease-in-out" }}
-                textAnchor="middle"
-                transform={labelTransform}
-                x={labelLayout.x}
-                y={labelLayout.y}
-              >
-                {valueLabel}
-              </text>
-            ) : null}
-          </g>
+          <StaticBar
+            fill={fill}
+            geometry={bar}
+            key={bar.key}
+            opacity={isFaded ? fadedOpacity : 1}
+            valueLabelClassName={valueLabelClassName}
+            valueLabelColor={valueLabelColor}
+          />
         );
       })}
     </g>

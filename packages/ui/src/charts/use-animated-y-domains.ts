@@ -141,6 +141,24 @@ export function useAnimatedYDomains({
   const targetRef = useRef(targetByAxis);
 
   const [animatedByAxis, setAnimatedByAxis] = useState(destinationByAxis);
+
+  // Only grid-tween phases and (opt-in) ready-phase target changes animate.
+  // Everything else snaps — resolved during render so the new domain lands in
+  // the same commit as the data (a snap from an effect would paint a frame
+  // with the old y-scale, then re-render).
+  const mayTween =
+    isYDomainTweenPhase(chartPhase) ||
+    (tweenOnTargetChange &&
+      chartPhase === "ready" &&
+      enabled &&
+      !reducedMotion);
+  if (
+    !mayTween &&
+    animatedByAxis !== destinationByAxis &&
+    !domainsEqual(animatedByAxis, destinationByAxis)
+  ) {
+    setAnimatedByAxis(destinationByAxis);
+  }
   const animatedRef = useRef(animatedByAxis);
   const prevPhaseRef = useRef(chartPhase);
   const onSettledRef = useRef(onSettled);
@@ -244,5 +262,5 @@ export function useAnimatedYDomains({
     tweenOnTargetChange,
   ]);
 
-  return animatedByAxis;
+  return mayTween ? animatedByAxis : destinationByAxis;
 }

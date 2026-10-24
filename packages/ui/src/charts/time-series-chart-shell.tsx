@@ -34,7 +34,7 @@ import {
 } from "./chart-child-passthrough";
 import { ChartProvider, type LineConfig, type Margin } from "./chart-context";
 import { isGradientDefComponent, isPatternDefComponent } from "./chart-defs";
-import { shortDateFmt } from "./chart-formatters";
+import { lazyLabels, shortDateFmt } from "./chart-formatters";
 import {
   type ChartPhase,
   type ChartStatus,
@@ -398,7 +398,12 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
   );
 
   const dateLabels = useMemo(
-    () => visiblePlotData.map((d) => shortDateFmt.format(xAccessor(d))),
+    () =>
+      lazyLabels(visiblePlotData.length, (index) =>
+        shortDateFmt.format(
+          xAccessor(visiblePlotData[index] as Record<string, unknown>)
+        )
+      ),
     [visiblePlotData, xAccessor]
   );
 

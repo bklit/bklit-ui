@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 
 export interface ScheduledTooltipControls<T> {
   tooltipData: T | null;
@@ -71,7 +72,10 @@ export function useScheduledTooltip<T>(): ScheduledTooltipControls<T> {
         const next = pendingRef.current;
         const nextKey = pendingKeyRef.current;
         if (next && nextKey) {
-          commitTooltip(next, nextKey);
+          // Commit inside this frame: a plain setState from rAF is
+          // default-priority and would render after the frame paints,
+          // showing the tooltip one frame late.
+          flushSync(() => commitTooltip(next, nextKey));
         }
       });
     },

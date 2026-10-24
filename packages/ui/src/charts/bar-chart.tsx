@@ -217,7 +217,11 @@ const ChartCore = memo(function ChartCore({
 }: ChartInnerProps) {
   const { tooltipData, setTooltipData, scheduleTooltip, clearTooltip } =
     useScheduledTooltip<TooltipData>();
-  const [isLoaded, setIsLoaded] = useState(false);
+  // A zero-duration reveal is loaded from the first render, so static charts
+  // don't re-render (cursor / interaction wiring) after their first paint.
+  const [isLoaded, setIsLoaded] = useState(
+    () => animationDuration <= 0 && status !== "loading"
+  );
   const [revealEpoch, setRevealEpoch] = useState(1);
   const hoveredBarIndex = tooltipData?.index ?? null;
 
@@ -375,7 +379,7 @@ const ChartCore = memo(function ChartCore({
   ) {
     setRevealKey({ animationDuration, revealSignature, status });
     setRevealEpoch((n) => n + 1);
-    setIsLoaded(false);
+    setIsLoaded(animationDuration <= 0 && status !== "loading");
   }
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: revealSignature

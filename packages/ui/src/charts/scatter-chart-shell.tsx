@@ -27,7 +27,7 @@ import {
   type Margin,
 } from "./chart-context";
 import { isGradientDefComponent, isPatternDefComponent } from "./chart-defs";
-import { shortDateFmt } from "./chart-formatters";
+import { lazyLabels, shortDateFmt } from "./chart-formatters";
 import { type ChartPhase, DEFAULT_CHART_LIFECYCLE } from "./chart-phase";
 import { extractReferenceAreaConfigs } from "./reference-area-config";
 import {
@@ -77,7 +77,9 @@ export function ScatterChartInner({
   formatXLabel,
   onPhaseChange,
 }: ScatterChartInnerProps) {
-  const [isLoaded, setIsLoaded] = useState(false);
+  // A zero-duration reveal is loaded from the first render, so static charts
+  // don't re-render (cursor / interaction wiring) after their first paint.
+  const [isLoaded, setIsLoaded] = useState(() => animationDuration <= 0);
   const [revealEpoch, setRevealEpoch] = useState(1);
 
   const innerWidth = width - margin.left - margin.right;
@@ -181,11 +183,10 @@ export function ScatterChartInner({
 
   const dateLabels = useMemo(
     () =>
-      data.map((d) =>
-        formatXLabel
-          ? formatXLabel(xAccessor(d))
-          : shortDateFmt.format(xAccessor(d))
-      ),
+      lazyLabels(data.length, (index) => {
+        const date = xAccessor(data[index] as Record<string, unknown>);
+        return formatXLabel ? formatXLabel(date) : shortDateFmt.format(date);
+      }),
     [data, xAccessor, formatXLabel]
   );
 
@@ -202,7 +203,7 @@ export function ScatterChartInner({
   ) {
     setRevealKey({ animationDuration, revealSignature });
     setRevealEpoch((n) => n + 1);
-    setIsLoaded(false);
+    setIsLoaded(animationDuration <= 0);
   }
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: revealSignature

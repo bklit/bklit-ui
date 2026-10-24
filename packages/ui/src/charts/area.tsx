@@ -204,14 +204,21 @@ export function Area({
   }, [lines, dataKey]);
 
   const pathRef = useRef<SVGPathElement>(null);
-  const { pathLength, pathD } = usePathStrokeMetrics(pathRef, [
-    renderData,
-    innerWidth,
-    dashFromIndex,
-    showLine,
-    showSeriesContent,
-    showLoadingPulse,
-  ]);
+  const hasDashTail = resolveDashTailBounds(dashFromIndex, data.length);
+  const { pathLength, pathD } = usePathStrokeMetrics(
+    pathRef,
+    [
+      renderData,
+      innerWidth,
+      dashFromIndex,
+      showLine,
+      showSeriesContent,
+      showLoadingPulse,
+    ],
+    // Only the dash tail and loading pulse read the metrics; outside the
+    // resting "ready" phase keep measuring so a pulse starts on a fresh path.
+    hasDashTail || showLoadingPulse || chartPhase !== "ready"
+  );
 
   // Unique IDs for this area
   const uniqueId = useId();
@@ -236,7 +243,6 @@ export function Area({
     [dataKey, yScale]
   );
 
-  const hasDashTail = resolveDashTailBounds(dashFromIndex, data.length);
   // The stroke gradient is only emitted when at least one edge fades, so fall
   // back to the resolved solid color otherwise — avoids an invalid url(#...).
   const fadeSides = resolveFadeSides(fadeEdges);

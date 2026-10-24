@@ -43,13 +43,19 @@ const EMPTY_METRICS: PathStrokeMetrics = { pathD: null, pathLength: 0 };
  */
 export function usePathStrokeMetrics(
   pathRef: RefObject<SVGPathElement | null>,
-  deps: readonly unknown[]
+  deps: readonly unknown[],
+  /**
+   * Skip measuring while nothing reads the metrics (no dash tail / loading
+   * pulse): `getTotalLength()` on a long path plus the follow-up render is
+   * real work on every data update. Flipping to true re-measures.
+   */
+  enabled = true
 ): PathStrokeMetrics {
   const [metrics, setMetrics] = useState<PathStrokeMetrics>(EMPTY_METRICS);
 
   useEffect(() => {
     const path = pathRef.current;
-    if (!path) {
+    if (!(enabled && path)) {
       return;
     }
     const d = path.getAttribute("d");
@@ -59,7 +65,7 @@ export function usePathStrokeMetrics(
         ? prev
         : { pathD: d, pathLength: len }
     );
-  }, deps);
+  }, [enabled, ...deps]);
 
   return metrics;
 }

@@ -20,10 +20,10 @@ import {
   type RefObject,
   type SetStateAction,
   useContext,
-  useEffect,
   useMemo,
   useState,
 } from "react";
+import { useIsomorphicLayoutEffect } from "./chart-parent-size";
 import type { ChartPhase, ChartStatus } from "./chart-phase";
 import type { ReferenceAreaConfig } from "./reference-area-config";
 import type { ChartSelection } from "./use-chart-interaction";
@@ -422,16 +422,17 @@ export function useChartStable(): ChartStableContextValue {
 /**
  * Resolves a chart container element to use as a `createPortal` target.
  *
- * The element is captured from the ref in an effect (after mount) and kept in
- * state, so nothing reads `ref.current` during render (React Compiler
- * `react-hooks/refs`). Costs the same single post-mount render as the previous
- * `mounted` flag pattern and returns `null` during SSR / the first render.
+ * The element is captured from the ref in a layout effect (after mount) and
+ * kept in state, so nothing reads `ref.current` during render (React Compiler
+ * `react-hooks/refs`). The layout-effect update re-renders synchronously, so
+ * portalled axes and tooltips land in the same painted frame as the plot.
+ * Returns `null` during SSR / the first render.
  */
 export function useChartPortalContainer<T extends HTMLElement>(
   containerRef: RefObject<T | null> | undefined
 ): T | null {
   const [container, setContainer] = useState<T | null>(null);
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     setContainer(containerRef?.current ?? null);
   }, [containerRef]);
   return container;

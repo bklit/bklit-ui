@@ -280,13 +280,20 @@ export function Line({
   }, [lines, dataKey]);
 
   const pathRef = useRef<SVGPathElement>(null);
-  const { pathLength, pathD } = usePathStrokeMetrics(pathRef, [
-    renderData,
-    innerWidth,
-    dashFromIndex,
-    animate,
-    useDataTransitionPath ? animatedPathD : null,
-  ]);
+  const hasDashTail = resolveDashTailBounds(dashFromIndex, data.length);
+  const { pathLength, pathD } = usePathStrokeMetrics(
+    pathRef,
+    [
+      renderData,
+      innerWidth,
+      dashFromIndex,
+      animate,
+      useDataTransitionPath ? animatedPathD : null,
+    ],
+    // Only the dash tail and loading pulse read the metrics; outside the
+    // resting "ready" phase keep measuring so a pulse starts on a fresh path.
+    hasDashTail || showLoadingPulse || chartPhase !== "ready"
+  );
 
   const reactId = useId();
   const gradientId = `line-gradient-${dataKey}-${reactId}`;
@@ -299,7 +306,6 @@ export function Line({
     [dataKey, yScale]
   );
 
-  const hasDashTail = resolveDashTailBounds(dashFromIndex, data.length);
   const fadeSides = resolveFadeSides(fadeEdges);
   const lineStroke = fadeSides.any ? `url(#${gradientId})` : stroke;
   const fadeStops = fadeSides.any ? fadeGradientStops(fadeSides) : null;

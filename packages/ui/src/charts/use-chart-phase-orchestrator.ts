@@ -19,12 +19,17 @@ export interface UseChartPhaseOrchestratorOptions {
   skipEnterReveal?: boolean;
 }
 
-/** Phase the reveal starts from on mount (or the resting phase when skipped). */
+/**
+ * Phase the reveal starts from on mount (or the resting phase when skipped).
+ * A zero-duration reveal starts at rest: passing through "revealing" would
+ * only cost a timer-driven re-render after the first paint.
+ */
 function resolveInitialChartPhase(
   chartStatus: ChartStatus,
-  skipEnterReveal: boolean
+  skipEnterReveal: boolean,
+  animationDuration: number
 ): ChartPhase {
-  if (chartStatus === "ready" && !skipEnterReveal) {
+  if (chartStatus === "ready" && !skipEnterReveal && animationDuration > 0) {
     return "revealing";
   }
   return resolveRestingChartPhase(chartStatus);
@@ -177,14 +182,14 @@ export function useChartPhaseOrchestrator({
   skipEnterReveal = false,
 }: UseChartPhaseOrchestratorOptions) {
   const [chartPhase, setChartPhase] = useState<ChartPhase>(() =>
-    resolveInitialChartPhase(chartStatus, skipEnterReveal)
+    resolveInitialChartPhase(chartStatus, skipEnterReveal, animationDuration)
   );
   const [revealEpoch, setRevealEpoch] = useState(() =>
     chartStatus === "ready" && !skipEnterReveal ? 1 : 0
   );
   const [concealEpoch, setConcealEpoch] = useState(0);
   const [isLoaded, setIsLoaded] = useState(
-    () => chartStatus === "ready" && skipEnterReveal
+    () => chartStatus === "ready" && (skipEnterReveal || animationDuration <= 0)
   );
 
   // Previous inputs — compared during render to derive transitions.
