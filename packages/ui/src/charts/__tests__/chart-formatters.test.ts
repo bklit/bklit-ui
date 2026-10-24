@@ -3,6 +3,7 @@ import { describe, it } from "node:test";
 import {
   hmsTimeFmt,
   intFmt,
+  lazyLabels,
   shortDateFmt,
   valueLabelFmt,
   weekdayDateFmt,
@@ -79,6 +80,37 @@ describe("chart-formatters", () => {
     it("uses English digits and keeps value labels to integers", () => {
       assert.equal(valueLabelFmt(1234), "1,234");
       assert.equal(valueLabelFmt(1234.5), "1,235");
+    });
+  });
+
+  describe("lazyLabels", () => {
+    it("acts like an eager array and formats each label once, on read", () => {
+      const calls: number[] = [];
+      const format = (index: number) => {
+        calls.push(index);
+        return `L${index}`;
+      };
+      const labels = lazyLabels(500, format);
+      assert.equal(calls.length, 0);
+      assert.equal(labels.length, 500);
+      assert.ok(Array.isArray(labels));
+      assert.equal(labels[7], "L7");
+      assert.equal(labels[7], "L7");
+      assert.deepEqual(calls, [7]);
+      assert.equal(labels[500], undefined);
+      assert.ok(3 in labels);
+      assert.deepEqual(
+        labels.map((label) => label),
+        Array.from({ length: 500 }, (_, index) => `L${index}`)
+      );
+      assert.equal(labels.at(-1), "L499");
+    });
+
+    it("formats small lists up front", () => {
+      assert.deepEqual(
+        lazyLabels(3, (index) => `#${index}`),
+        ["#0", "#1", "#2"]
+      );
     });
   });
 });
