@@ -11,6 +11,8 @@ import { Icon } from "@bklitui/icons";
 <Icon className="size-4" name="IconBezierCurves" />
 ```
 
+`Icon` only ships the icons the monorepo uses (one style: round, outlined, radius 0, stroke 1.5). `name` is typed to that set, so using a new icon is a type error until you run `pnpm --filter @bklitui/icons generate`, which rescans the repo and regenerates `packages/icons/src/generated/icons.ts`. To render any name at runtime (like the catalog below), use `AnyIcon` from `@bklitui/icons/all`, but it bundles the full ~5.9 MB gzip icon set.
+
 `components.json` in `packages/studio` sets `"iconLibrary": "central"`. Install requires `CENTRAL_LICENSE_KEY` in the environment (see repo `.env.example`).
 
 <IconsPageContent />

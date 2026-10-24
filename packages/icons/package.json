@@ -6,10 +6,13 @@
   "sideEffects": false,
   "exports": {
     ".": "./src/index.ts",
+    "./all": "./src/all.tsx",
     "./central-icon-names": "./src/central-icon-names.ts"
   },
   "scripts": {
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc --noEmit",
+    "generate": "node scripts/generate-icons.mjs",
+    "generate:check": "node scripts/generate-icons.mjs --check"
   },
   "dependencies": {
     "@central-icons-react/all": "^1.1.260"

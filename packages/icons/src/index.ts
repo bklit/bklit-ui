@@ -1,4 +1,3 @@
-export { CentralIcon } from "@central-icons-react/all";
 export type {
   CentralIconFill,
   CentralIconJoin,

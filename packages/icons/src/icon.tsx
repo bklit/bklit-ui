@@ -1,58 +1,56 @@
-import {
-  CentralIcon as CentralIconPrimitive,
-  type CentralIconProps,
-} from "@central-icons-react/all";
-import type {
-  CentralIconFill,
-  CentralIconJoin,
-  CentralIconName,
-  CentralIconRadius,
-  CentralIconStroke,
-} from "@central-icons-react/all/icons";
-import type { ComponentProps } from "react";
+import type { ComponentProps, SVGProps } from "react";
+import { iconStyle, icons } from "./generated/icons";
 
-export type IconName = CentralIconName;
+/**
+ * Icon names this monorepo ships. Generated from usages by
+ * `packages/icons/scripts/generate-icons.mjs` — a name outside this union is a
+ * type error; run `pnpm --filter @bklitui/icons generate` to add it.
+ */
+export type IconName = keyof typeof icons;
 
-export const defaultIconStyle = {
-  join: "round",
-  fill: "outlined",
-  radius: "0",
-  stroke: "1.5",
-} as const satisfies {
-  join: CentralIconJoin;
-  fill: CentralIconFill;
-  radius: CentralIconRadius;
-  stroke: CentralIconStroke;
-};
+/** The single Central style variant baked into the generated icon data. */
+export const defaultIconStyle = iconStyle;
 
-export type IconProps = Omit<
-  CentralIconProps,
-  "join" | "fill" | "radius" | "stroke" | "name"
-> & {
+export type IconProps = SVGProps<SVGSVGElement> & {
   name: IconName;
-  join?: CentralIconJoin;
-  fill?: CentralIconFill;
-  radius?: CentralIconRadius;
-  stroke?: CentralIconStroke;
+  size?: string | number;
+  ariaHidden?: boolean;
 };
 
+/**
+ * Renders one Central icon (round join, outlined, radius 0, stroke 1.5).
+ * Same markup as `CentralIcon` from `@central-icons-react/all`, without
+ * bundling every icon in every style.
+ */
 function Icon({
   name,
-  join = defaultIconStyle.join,
-  fill = defaultIconStyle.fill,
-  radius = defaultIconStyle.radius,
-  stroke = defaultIconStyle.stroke,
+  size = 24,
+  ariaHidden = true,
+  color,
+  style,
+  children,
   ...props
 }: IconProps) {
+  const [title, markup] = icons[name];
+  const dimension = typeof size === "number" ? `${size}px` : size;
   return (
-    <CentralIconPrimitive
-      fill={fill}
-      join={join}
-      name={name}
-      radius={radius}
-      stroke={stroke}
+    // biome-ignore lint/a11y/noSvgWithoutTitle: decorative by default; <title> renders when ariaHidden is false
+    <svg
       {...props}
-    />
+      aria-hidden={ariaHidden}
+      fill="none"
+      height={dimension}
+      role={ariaHidden ? undefined : "img"}
+      style={{ color, ...style }}
+      viewBox="0 0 24 24"
+      width={dimension}
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      {ariaHidden ? null : <title>{title}</title>}
+      {children}
+      {/* biome-ignore lint/security/noDangerouslySetInnerHtml: static SVG markup generated from @central-icons-react */}
+      <g dangerouslySetInnerHTML={{ __html: markup }} />
+    </svg>
   );
 }
 

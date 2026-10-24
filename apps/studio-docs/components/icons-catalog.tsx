@@ -1,6 +1,7 @@
 "use client";
 
-import { Icon, type IconName } from "@bklitui/icons";
+import type { CentralIconName } from "@bklitui/icons";
+import { AnyIcon } from "@bklitui/icons/all";
 import { useDeferredValue, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 
@@ -43,7 +44,7 @@ export function IconsCatalog({ names }: { names: string[] }) {
             title={name}
           >
             <div className="flex size-12 shrink-0 items-center justify-center text-foreground">
-              <Icon className="size-5" name={name as IconName} />
+              <AnyIcon className="size-5" name={name as CentralIconName} />
             </div>
             <span className="max-w-full truncate px-0.5 font-mono text-[8px] text-muted-foreground leading-none">
               {name}
