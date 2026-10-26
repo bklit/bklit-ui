@@ -45,7 +45,7 @@ function chartSubtitle(state: ReturnType<typeof loadStudioStateFromRequest>) {
   return "bklit.com";
 }
 
-export function GET(request: Request) {
+export async function GET(request: Request) {
   const url = new URL(request.url);
   const state = loadStudioStateFromRequest(url);
   const serialized = studioSerializedParam(state);
@@ -53,6 +53,21 @@ export function GET(request: Request) {
   const origin = resolveOrigin(request);
   const chartImageUrl = `${origin}/api/og/studio/chart?s=${encodeURIComponent(serialized)}`;
   const logoUrl = `${origin}/img/bklit-mark.svg`;
+
+  // Fetch the screenshot first: if it fails, answer 503 + `no-store` instead
+  // of a 200 card with a missing chart that would be cached for a year.
+  const chartResponse = await fetch(chartImageUrl, { cache: "no-store" }).catch(
+    () => null
+  );
+  if (!chartResponse?.ok) {
+    return Response.json(
+      { error: "Failed to generate chart screenshot" },
+      { status: 503, headers: { "Cache-Control": "no-store" } }
+    );
+  }
+  const chartImage = `data:image/png;base64,${Buffer.from(
+    await chartResponse.arrayBuffer()
+  ).toString("base64")}`;
   const fonts = loadStudioOgFonts();
 
   return new ImageResponse(
@@ -86,7 +101,7 @@ export function GET(request: Request) {
         <img
           alt=""
           height={size.height}
-          src={chartImageUrl}
+          src={chartImage}
           style={{
             width: CHART_PANEL_WIDTH,
             height: size.height,

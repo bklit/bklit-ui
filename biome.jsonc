@@ -12,6 +12,13 @@
       "assist": { "enabled": false }
     },
     {
+      // Vendored world TopoJSON for OG chart renders — kept byte-identical to upstream
+      "includes": ["apps/web/lib/og-data/**/*.json"],
+      "formatter": { "enabled": false },
+      "linter": { "enabled": false },
+      "assist": { "enabled": false }
+    },
+    {
       // Static marketing/chart SVG exports — not hand-edited React components
       "includes": ["apps/web/public/**/*.svg"],
       "formatter": { "enabled": false },

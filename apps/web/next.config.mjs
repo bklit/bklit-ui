@@ -16,7 +16,15 @@ const nextConfig = {
     viewTransition: true,
   },
   async headers() {
+    // Internal OG render surfaces: never index or follow (also disallowed in
+    // app/robots.ts and marked noindex in their metadata).
+    const noIndexHeaders = [
+      { key: "X-Robots-Tag", value: "noindex, nofollow" },
+    ];
     return [
+      { source: "/og/:path*", headers: noIndexHeaders },
+      { source: "/studio/og-preview", headers: noIndexHeaders },
+      { source: "/charts/og-preview", headers: noIndexHeaders },
       {
         source: "/studio/embed",
         headers: [

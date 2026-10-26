@@ -6145,8 +6145,12 @@ function ChartHeroCurveToolbar({
   onValueChange: (v: string) => void;
 }) {
   return (
-    // Right inset clears the frame's top-right Replay overlay.
-    <div className="flex flex-wrap items-center justify-end gap-2 pr-6 sm:pr-4">
+    // Right inset clears the frame's top-right Replay overlay. Hidden in OG
+    // image renders (`data-og-hide`).
+    <div
+      className="flex flex-wrap items-center justify-end gap-2 pr-6 sm:pr-4"
+      data-og-hide
+    >
       <span className="text-muted-foreground text-xs">Curve</span>
       <Select
         onValueChange={(v) => {
@@ -7772,6 +7776,31 @@ export function chartExampleVariationCount(): number {
     (total, entry) => total + entry.factory().length + (entry.hero ? 1 : 0),
     0
   );
+}
+
+export interface FeaturedChartExample {
+  title: string;
+  previewLayout: ChartExamplePreviewLayout;
+  render: () => ReactNode;
+}
+
+/**
+ * The chart page's first example: the hero (sidebar "Featured" badge) when the
+ * chart type has one, otherwise its first example card. Used for OG images.
+ */
+export function getFeaturedChartExample(
+  chartSlug: string
+): FeaturedChartExample | null {
+  const entry = chartExamplesRegistry[chartSlug];
+  const example = entry?.hero?.() ?? entry?.factory()[0];
+  if (!(entry && example)) {
+    return null;
+  }
+  return {
+    title: example.title,
+    previewLayout: example.previewLayout ?? entry.previewLayout ?? "cartesian",
+    render: example.render,
+  };
 }
 
 export function ChartExamplesGrid({ chartSlug }: { chartSlug: string }) {

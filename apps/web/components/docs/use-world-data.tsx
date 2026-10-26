@@ -10,6 +10,7 @@ import {
 } from "react";
 import { feature } from "topojson-client";
 import type { GeometryCollection, Topology } from "topojson-specification";
+import { WORLD_DATA_URL } from "@/lib/world-data-url";
 
 interface CountryProperties {
   name: string;
@@ -22,9 +23,6 @@ interface WorldTopology extends Topology {
   };
 }
 
-const WORLD_DATA_URL =
-  "https://raw.githubusercontent.com/subyfly/topojson/refs/heads/master/world-countries.json";
-
 // Global cache to avoid refetching across component mounts
 let globalWorldDataCache: FeatureCollection<
   Geometry,
@@ -35,7 +33,8 @@ let globalFetchPromise: Promise<FeatureCollection<
   CountryProperties
 > | null> | null = null;
 
-function fetchWorldData(): Promise<FeatureCollection<
+/** Fetch (once) and cache the world GeoJSON; resolves `null` on failure. */
+export function fetchWorldData(): Promise<FeatureCollection<
   Geometry,
   CountryProperties
 > | null> {

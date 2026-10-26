@@ -1,5 +1,6 @@
-import { type ChartSlug, studioChartHref } from "@bklitui/studio";
+import type { ChartSlug } from "@bklitui/studio";
 import type { Metadata } from "next";
+import { chartOgImagePath } from "@/lib/chart-og";
 import { SITE_NAME as BASE_SITE_NAME } from "@/lib/site-name";
 import { SITE_URL } from "@/lib/site-url";
 
@@ -9,8 +10,6 @@ export const SITE_TITLE = "Bklit UI - Charts & Data Visualization Components";
 
 export const SITE_DESCRIPTION =
   "Bklit UI is a component library built on top of shadcn/ui to help you build charts and data visualizations more easily.";
-
-const STUDIO_PATH_RE = /^\/studio/;
 
 export const GITHUB_URL = "https://github.com/bklit/bklit-ui";
 
@@ -94,13 +93,13 @@ export function pageMetadata({
 }
 
 /**
- * Dynamic Studio OG image (chart screenshot + label) for a chart's default
- * Studio state — the same `/api/og/studio` route Studio share links use.
+ * `/charts/[chart]` OG image: the page's featured example in a crop of the
+ * homepage design (`/api/og/charts/[chart]`, versioned for cache busting).
+ * Studio share links keep their own `/api/og/studio` image.
  */
 export function chartOgImage(slug: ChartSlug, alt: string): OgImage {
-  const studioHref = studioChartHref(slug);
   return {
-    url: studioHref.replace(STUDIO_PATH_RE, "/api/og/studio"),
+    url: chartOgImagePath(slug),
     width: 1200,
     height: 630,
     alt,
