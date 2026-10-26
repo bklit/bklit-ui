@@ -5,8 +5,7 @@
   "title": "Stat Card Line Example",
   "description": "Sessions stat card with a line sparkline, hover-to-read values, overlaid NumberFlow, and trend badge — demo for Open in v0",
   "dependencies": [
-    "@number-flow/react",
-    "@central-icons-react/all"
+    "@number-flow/react"
   ],
   "registryDependencies": [
     "@bklit/stat-card-line-01"

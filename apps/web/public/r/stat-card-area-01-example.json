@@ -5,8 +5,7 @@
   "title": "Stat Card Area Example",
   "description": "Revenue stat card with a gradient area sparkline, hover-to-read values, NumberFlow, and trend badge — demo for Open in v0",
   "dependencies": [
-    "@number-flow/react",
-    "@central-icons-react/all"
+    "@number-flow/react"
   ],
   "registryDependencies": [
     "@bklit/stat-card-area-01"

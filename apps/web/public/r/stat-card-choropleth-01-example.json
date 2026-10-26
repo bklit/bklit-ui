@@ -8,7 +8,6 @@
     "@number-flow/react",
     "@types/geojson",
     "@types/topojson-specification",
-    "@central-icons-react/all",
     "topojson-client"
   ],
   "registryDependencies": [

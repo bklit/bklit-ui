@@ -2588,8 +2588,7 @@
         "badge"
       ],
       "dependencies": [
-        "@number-flow/react",
-        "@central-icons-react/all"
+        "@number-flow/react"
       ],
       "files": [
         {
@@ -2633,8 +2632,7 @@
         "@bklit/stat-card-area-01"
       ],
       "dependencies": [
-        "@number-flow/react",
-        "@central-icons-react/all"
+        "@number-flow/react"
       ],
       "files": [
         {
@@ -2661,8 +2659,7 @@
         "badge"
       ],
       "dependencies": [
-        "@number-flow/react",
-        "@central-icons-react/all"
+        "@number-flow/react"
       ],
       "files": [
         {
@@ -2706,8 +2703,7 @@
         "@bklit/stat-card-line-01"
       ],
       "dependencies": [
-        "@number-flow/react",
-        "@central-icons-react/all"
+        "@number-flow/react"
       ],
       "files": [
         {
@@ -2737,7 +2733,6 @@
         "@number-flow/react",
         "@types/geojson",
         "@types/topojson-specification",
-        "@central-icons-react/all",
         "topojson-client"
       ],
       "files": [
@@ -2790,7 +2785,6 @@
         "@number-flow/react",
         "@types/geojson",
         "@types/topojson-specification",
-        "@central-icons-react/all",
         "topojson-client"
       ],
       "files": [

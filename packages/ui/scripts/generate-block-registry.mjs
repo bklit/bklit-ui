@@ -19,46 +19,6 @@ const registryBlocksRoot = join(uiRoot, "registry/blocks");
 const examplesDir = join(uiRoot, "registry/examples");
 const registryPath = join(uiRoot, "registry.json");
 
-const TREND_BADGE_REGISTRY = `"use client";
-
-import { CentralIcon } from "@central-icons-react/all";
-import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
-
-export function TrendBadge({
-  value,
-  className,
-}: {
-  value: number;
-  className?: string;
-}) {
-  const positive = value >= 0;
-
-  return (
-    <Badge
-      className={cn(
-        positive &&
-          "border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
-        className
-      )}
-      variant={positive ? "outline" : "destructive"}
-    >
-      <CentralIcon
-        className="size-3"
-        data-icon="inline-start"
-        fill="outlined"
-        join="round"
-        name={positive ? "IconArrowUp" : "IconArrowDown"}
-        radius="0"
-        stroke="1.5"
-      />
-      {positive ? "+" : ""}
-      {value.toFixed(1)}%
-    </Badge>
-  );
-}
-`;
-
 const BLOCK_CHART_INDEX = {
   "stat-card-area-01": `export { AreaSparkline, useSparklineHover } from "./sparkline";
 export { ChartStatFlow } from "./chart-stat-flow";`,
@@ -81,7 +41,7 @@ const BLOCKS = {
       "card",
       "badge",
     ],
-    dependencies: ["@number-flow/react", "@central-icons-react/all"],
+    dependencies: ["@number-flow/react"],
     files: [
       "components/stat-card-area.tsx",
       "components/stat-card-chart.tsx",
@@ -101,7 +61,7 @@ const BLOCKS = {
       "card",
       "badge",
     ],
-    dependencies: ["@number-flow/react", "@central-icons-react/all"],
+    dependencies: ["@number-flow/react"],
     files: [
       "components/stat-card-line.tsx",
       "components/stat-card-chart.tsx",
@@ -125,7 +85,6 @@ const BLOCKS = {
       "@number-flow/react",
       "@types/geojson",
       "@types/topojson-specification",
-      "@central-icons-react/all",
       "topojson-client",
     ],
     files: [
@@ -145,9 +104,20 @@ const COMPONENT_EXPORTS = {
   "stat-card-choropleth-01": "StatCardChoropleth",
 };
 
+/**
+ * Icon packages must never reach a published block: `@central-icons-react/all`
+ * is one ~6 MB module that cannot be tree-shaken, and `@bklitui/icons` is
+ * workspace-only. Blocks inline the SVGs they need instead.
+ */
+const FORBIDDEN_IMPORT =
+  /from\s+["'](@central-icons-react\/[^"']+|@bklitui\/icons)["']/;
+
 function transformForRegistry(content, filePath) {
-  if (filePath.endsWith("trend-badge.tsx")) {
-    return TREND_BADGE_REGISTRY;
+  const forbidden = content.match(FORBIDDEN_IMPORT);
+  if (forbidden) {
+    throw new Error(
+      `${filePath} imports ${forbidden[1]}; inline the SVG instead so registry installs stay icon-light.`
+    );
   }
 
   return content
