@@ -57,7 +57,7 @@ export interface PieSliceProps {
   fill?: string;
   /** Animate the slice on mount. Default: true */
   animate?: boolean;
-  /** Show glow effect on hover. Default: true */
+  /** Show glow effect on hover. Default: false */
   showGlow?: boolean;
   /**
    * Hover effect type. Default: "translate"
@@ -333,7 +333,7 @@ export const PieSlice = memo(function PieSlice({
   color: colorProp,
   fill: fillProp,
   animate = true,
-  showGlow = true,
+  showGlow = false,
   hoverEffect = "translate",
   hoverOffset: hoverOffsetProp,
 }: PieSliceProps) {

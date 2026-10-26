@@ -267,7 +267,7 @@ returns the matching pattern node (same presets as `Background`).
 | "gaps between slices" | `padAngle={0.02}` | Radians. |
 | "rounded slices" | `cornerRadius={4}` | |
 | "slices grow on hover" | `<PieSlice hoverEffect="grow" />` | Default `"translate"`; `"none"` disables. |
-| "no glow" | `<PieSlice showGlow={false} />` / `<Ring showGlow={false} />` | Default true. |
+| "no glow" | `<Ring showGlow={false} />` | Ring defaults to true; `PieSlice` and `RadarArea` default to false (`showGlow` opts in). |
 | "total in the middle" | `<PieCenter defaultLabel="Total" prefix="$" />` / `<RingCenter defaultLabel="Sessions" />` | |
 | "half ring", "semicircle", "speedometer arc" | `<RingChart startAngle={-Math.PI} endAngle={0}>` | Gallery "Ring Chart - Half Circle". |
 | "three-quarter ring" | `startAngle={-Math.PI} endAngle={Math.PI / 2}` | |

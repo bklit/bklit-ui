@@ -16,7 +16,7 @@ export interface RadarAreaProps {
   showPoints?: boolean;
   /** Show stroke outline on the polygon. Default: true */
   showStroke?: boolean;
-  /** Show glow effect on hover. Default: true */
+  /** Show glow effect on hover. Default: false */
   showGlow?: boolean;
   /** Additional class name */
   className?: string;
@@ -87,7 +87,7 @@ export const RadarArea = memo(function RadarArea({
   color: colorProp,
   showPoints = true,
   showStroke = true,
-  showGlow = true,
+  showGlow = false,
   className = "",
 }: RadarAreaProps) {
   const {
