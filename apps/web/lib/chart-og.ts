@@ -10,7 +10,7 @@
  * Bump when the card design changes so social caches (X, LinkedIn, Slack,
  * Discord) fetch a fresh image: it is part of every og:image URL.
  */
-export const CHART_OG_VERSION = "2";
+export const CHART_OG_VERSION = "3";
 
 export const CHART_OG_SIZE = { width: 1200, height: 630 } as const;
 

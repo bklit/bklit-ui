@@ -151,7 +151,9 @@ export async function GET(
     page = await browser.newPage();
     await page.setViewport({ ...CHART_OG_SIZE, deviceScaleFactor: 1 });
     await page.emulateMediaFeatures([
-      { name: "prefers-color-scheme", value: "light" },
+      // Dark cards: the site follows the system theme, and this page has no
+      // stored preference, so the emulated scheme decides.
+      { name: "prefers-color-scheme", value: "dark" },
       { name: "prefers-reduced-motion", value: "reduce" },
     ]);
     await page.setRequestInterception(true);
