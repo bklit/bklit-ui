@@ -4,8 +4,8 @@ import {
   AnimatePresence,
   type MotionValue,
   motion,
-  useMotionValue,
   useReducedMotion,
+  useSpring,
 } from "motion/react";
 import type { CSSProperties, ReactNode, RefObject } from "react";
 import {
@@ -17,6 +17,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
+import { type SpringConfig, useChartConfig } from "../chart-config-context";
 import { chartCssVars, useChartPortalContainer } from "../chart-context";
 import {
   TOOLTIP_PANEL_CLASS_NAME,
@@ -36,6 +37,8 @@ export interface CursorTooltipBoxProps {
   children: ReactNode;
   /** Fade the panel out when `visible` turns false. Default: true */
   exit?: boolean;
+  /** Per-chart override; falls back to `ChartConfigProvider.tooltipBoxSpring`. */
+  springConfig?: SpringConfig;
   /** Inline styles for the inner tooltip panel. */
   panelStyle?: CSSProperties;
   /**
@@ -52,21 +55,33 @@ const DEFAULT_TOOLTIP_HEIGHT = 80;
  * Tooltip panel that tracks the cursor across a chart container.
  *
  * Pointer moves are read by a native listener and written straight into
- * Motion values that drive a `transform`, so following the cursor never
- * re-renders React and never triggers layout. React only renders when the
- * content changes (hover target) or the panel flips sides near the right edge.
- * Same panel styling and entrance/exit as `TooltipBox`.
+ * springs (the shared `tooltipBoxSpring`, like `TooltipBox`) that drive a
+ * `transform`, so following the cursor never re-renders React and never
+ * triggers layout. React only renders when the content changes (hover target)
+ * or the panel flips sides near the right edge. The panel appears at the
+ * cursor, then springs after it. Same panel styling and entrance/exit as
+ * `TooltipBox`.
  */
 export function CursorTooltipBox({
   visible,
   containerRef,
   offset = 16,
   exit = true,
+  springConfig,
   ...panelProps
 }: CursorTooltipBoxProps) {
   const container = useChartPortalContainer(containerRef);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
+  const { tooltipBoxSpring } = useChartConfig();
+  // Reduced motion: the panel jumps to the cursor instead of springing.
+  const reducedMotion = useReducedMotion() === true;
+  const x = useSpring(0, springConfig ?? tooltipBoxSpring);
+  const y = useSpring(0, springConfig ?? tooltipBoxSpring);
+  // While hidden, positions jump so the panel appears at the cursor rather
+  // than springing in from where it was last shown.
+  const visibleRef = useRef(visible);
+  useLayoutEffect(() => {
+    visibleRef.current = visible;
+  }, [visible]);
   const pointerRef = useRef({ x: 0, y: 0 });
   const sizeRef = useRef({
     width: DEFAULT_TOOLTIP_WIDTH,
@@ -83,21 +98,23 @@ export function CursorTooltipBox({
     const { width, height } = sizeRef.current;
     const pointer = pointerRef.current;
     const flip = pointer.x + offset + width > container.clientWidth;
-    x.set(flip ? pointer.x - offset - width : pointer.x + offset);
-    y.set(
-      Math.max(
-        offset,
-        Math.min(
-          pointer.y - height / 2,
-          container.clientHeight - height - offset
-        )
-      )
+    const left = flip ? pointer.x - offset - width : pointer.x + offset;
+    const top = Math.max(
+      offset,
+      Math.min(pointer.y - height / 2, container.clientHeight - height - offset)
     );
+    if (reducedMotion || !visibleRef.current) {
+      x.jump(left);
+      y.jump(top);
+    } else {
+      x.set(left);
+      y.set(top);
+    }
     if (flip !== flippedRef.current) {
       flippedRef.current = flip;
       setFlipped(flip);
     }
-  }, [container, offset, x, y]);
+  }, [container, offset, reducedMotion, x, y]);
 
   useEffect(() => {
     if (!container) {
