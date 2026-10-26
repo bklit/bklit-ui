@@ -10,7 +10,6 @@ import {
 } from "react";
 import { feature } from "topojson-client";
 import type { GeometryCollection, Topology } from "topojson-specification";
-import { WORLD_DATA_URL } from "@/lib/world-data-url";
 
 interface CountryProperties {
   name: string;
@@ -22,6 +21,12 @@ interface WorldTopology extends Topology {
     [key: string]: GeometryCollection<CountryProperties>;
   };
 }
+
+// Inline (not imported) so the copy shipped in the stat-card-choropleth-01
+// registry block stays self-contained. Server code uses the same URL from
+// `@/lib/world-data-url` — keep the two in sync.
+const WORLD_DATA_URL =
+  "https://raw.githubusercontent.com/subyfly/topojson/refs/heads/master/world-countries.json";
 
 // Global cache to avoid refetching across component mounts
 let globalWorldDataCache: FeatureCollection<

@@ -22,6 +22,9 @@ interface WorldTopology extends Topology {
   };
 }
 
+// Inline (not imported) so the copy shipped in the stat-card-choropleth-01
+// registry block stays self-contained. Server code uses the same URL from
+// `@/lib/world-data-url` — keep the two in sync.
 const WORLD_DATA_URL =
   "https://raw.githubusercontent.com/subyfly/topojson/refs/heads/master/world-countries.json";
 
@@ -35,7 +38,8 @@ let globalFetchPromise: Promise<FeatureCollection<
   CountryProperties
 > | null> | null = null;
 
-function fetchWorldData(): Promise<FeatureCollection<
+/** Fetch (once) and cache the world GeoJSON; resolves `null` on failure. */
+export function fetchWorldData(): Promise<FeatureCollection<
   Geometry,
   CountryProperties
 > | null> {
