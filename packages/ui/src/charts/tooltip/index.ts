@@ -1,4 +1,8 @@
 export { ChartTooltip, type ChartTooltipProps } from "./chart-tooltip";
+export {
+  CursorTooltipBox,
+  type CursorTooltipBoxProps,
+} from "./cursor-tooltip-box";
 export { DateTicker, type DateTickerProps } from "./date-ticker";
 export { TooltipBox, type TooltipBoxProps } from "./tooltip-box";
 export {

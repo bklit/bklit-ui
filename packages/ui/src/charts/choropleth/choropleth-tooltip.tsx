@@ -1,7 +1,7 @@
 "use client";
 
 import { intFmt } from "../chart-formatters";
-import { TooltipBox } from "../tooltip/tooltip-box";
+import { CursorTooltipBox } from "../tooltip/cursor-tooltip-box";
 import { TooltipContent, type TooltipRow } from "../tooltip/tooltip-content";
 import {
   TOOLTIP_HIDE_DELAY_MS,
@@ -11,7 +11,6 @@ import {
   type ChoroplethFeature,
   useChoroplethInteraction,
   useChoroplethStable,
-  useChoroplethZoom,
 } from "./choropleth-context";
 
 export interface ChoroplethTooltipProps {
@@ -62,21 +61,11 @@ export function ChoroplethTooltip({
   exit = true,
   hideDelay = TOOLTIP_HIDE_DELAY_MS,
 }: ChoroplethTooltipProps) {
-  const { containerRef, width, height, features } = useChoroplethStable();
+  const { containerRef, features } = useChoroplethStable();
   const { tooltipData: hoverData } = useChoroplethInteraction();
   const tooltipData = useDelayedTooltipData(hoverData, 0, hideDelay);
-  const { zoom } = useChoroplethZoom();
 
   const feature = tooltipData ? features[tooltipData.featureIndex] : undefined;
-
-  // Apply zoom transform to centroid position
-  let x = tooltipData?.x ?? 0;
-  let y = tooltipData?.y ?? 0;
-  if (tooltipData && zoom) {
-    const transformed = zoom.applyToPoint({ x, y });
-    x = transformed.x;
-    y = transformed.y;
-  }
 
   let body: React.ReactNode = null;
   if (tooltipData && feature) {
@@ -102,22 +91,20 @@ export function ChoroplethTooltip({
     }
   }
 
-  // Always mounted so the panel can fade out; `visible` drives presence.
+  // Always mounted so the panel can fade out; `visible` drives presence. The
+  // panel follows the cursor (Motion values, no re-render per move); React
+  // only re-renders here when the hovered feature changes.
   return (
-    <TooltipBox
+    <CursorTooltipBox
       backgroundColor={backgroundColor}
       className={className}
-      containerHeight={height}
       containerRef={containerRef}
-      containerWidth={width}
       exit={exit}
       panelStyle={panelStyle}
       visible={Boolean(tooltipData && feature)}
-      x={x}
-      y={y}
     >
       {body}
-    </TooltipBox>
+    </CursorTooltipBox>
   );
 }
 

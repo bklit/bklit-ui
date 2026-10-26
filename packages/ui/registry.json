@@ -755,6 +755,11 @@
           "target": "components/charts/tooltip/tooltip-box.tsx"
         },
         {
+          "path": "src/charts/tooltip/cursor-tooltip-box.tsx",
+          "type": "registry:component",
+          "target": "components/charts/tooltip/cursor-tooltip-box.tsx"
+        },
+        {
           "path": "src/charts/tooltip/tooltip-content.tsx",
           "type": "registry:component",
           "target": "components/charts/tooltip/tooltip-content.tsx"

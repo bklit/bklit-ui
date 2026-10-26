@@ -1,0 +1,223 @@
+"use client";
+
+import {
+  AnimatePresence,
+  type MotionValue,
+  motion,
+  useMotionValue,
+  useReducedMotion,
+} from "motion/react";
+import type { CSSProperties, ReactNode, RefObject } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
+import { createPortal } from "react-dom";
+import { cn } from "@/lib/utils";
+import { chartCssVars, useChartPortalContainer } from "../chart-context";
+import {
+  TOOLTIP_PANEL_CLASS_NAME,
+  TOOLTIP_PANEL_INNER_CLASS_NAME,
+} from "./tooltip-box";
+
+export interface CursorTooltipBoxProps {
+  /** Whether the tooltip is visible */
+  visible: boolean;
+  /** Chart container: pointer moves over it drive the panel position. */
+  containerRef: RefObject<HTMLDivElement | null>;
+  /** Gap between the cursor and the panel (px). Default: 16 */
+  offset?: number;
+  /** Custom class name */
+  className?: string;
+  /** Tooltip content */
+  children: ReactNode;
+  /** Fade the panel out when `visible` turns false. Default: true */
+  exit?: boolean;
+  /** Inline styles for the inner tooltip panel. */
+  panelStyle?: CSSProperties;
+  /**
+   * Tooltip panel background color (CSS variable or color value).
+   * Default: `var(--chart-tooltip-background)`.
+   */
+  backgroundColor?: string;
+}
+
+const DEFAULT_TOOLTIP_WIDTH = 180;
+const DEFAULT_TOOLTIP_HEIGHT = 80;
+
+/**
+ * Tooltip panel that tracks the cursor across a chart container.
+ *
+ * Pointer moves are read by a native listener and written straight into
+ * Motion values that drive a `transform`, so following the cursor never
+ * re-renders React and never triggers layout. React only renders when the
+ * content changes (hover target) or the panel flips sides near the right edge.
+ * Same panel styling and entrance/exit as `TooltipBox`.
+ */
+export function CursorTooltipBox({
+  visible,
+  containerRef,
+  offset = 16,
+  exit = true,
+  ...panelProps
+}: CursorTooltipBoxProps) {
+  const container = useChartPortalContainer(containerRef);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const pointerRef = useRef({ x: 0, y: 0 });
+  const sizeRef = useRef({
+    width: DEFAULT_TOOLTIP_WIDTH,
+    height: DEFAULT_TOOLTIP_HEIGHT,
+  });
+  const [flipped, setFlipped] = useState(false);
+  const flippedRef = useRef(false);
+
+  /** Panel beside the cursor: flips left near the right edge, clamped vertically. */
+  const place = useCallback(() => {
+    if (!container) {
+      return;
+    }
+    const { width, height } = sizeRef.current;
+    const pointer = pointerRef.current;
+    const flip = pointer.x + offset + width > container.clientWidth;
+    x.set(flip ? pointer.x - offset - width : pointer.x + offset);
+    y.set(
+      Math.max(
+        offset,
+        Math.min(
+          pointer.y - height / 2,
+          container.clientHeight - height - offset
+        )
+      )
+    );
+    if (flip !== flippedRef.current) {
+      flippedRef.current = flip;
+      setFlipped(flip);
+    }
+  }, [container, offset, x, y]);
+
+  useEffect(() => {
+    if (!container) {
+      return;
+    }
+    const track = (event: PointerEvent) => {
+      const rect = container.getBoundingClientRect();
+      pointerRef.current = {
+        x: event.clientX - rect.left,
+        y: event.clientY - rect.top,
+      };
+      place();
+    };
+    // `pointerover` fires before the hover target's enter handlers, so the
+    // panel mounts at the cursor even when entering without a prior move.
+    container.addEventListener("pointerover", track, { passive: true });
+    container.addEventListener("pointermove", track, { passive: true });
+    return () => {
+      container.removeEventListener("pointerover", track);
+      container.removeEventListener("pointermove", track);
+    };
+  }, [container, place]);
+
+  const onMeasure = useCallback(
+    (width: number, height: number) => {
+      if (width > 0 && height > 0) {
+        sizeRef.current = { width, height };
+        place();
+      }
+    },
+    [place]
+  );
+
+  if (!container) {
+    return null;
+  }
+  const inner = visible ? (
+    <CursorTooltipPanel
+      {...panelProps}
+      container={container}
+      flipped={flipped}
+      key="cursor-tooltip"
+      onMeasure={onMeasure}
+      x={x}
+      y={y}
+    />
+  ) : null;
+  return exit ? <AnimatePresence>{inner}</AnimatePresence> : inner;
+}
+
+function CursorTooltipPanel({
+  container,
+  x,
+  y,
+  flipped,
+  onMeasure,
+  className,
+  children,
+  panelStyle,
+  backgroundColor = chartCssVars.tooltipBackground,
+}: Pick<
+  CursorTooltipBoxProps,
+  "className" | "children" | "panelStyle" | "backgroundColor"
+> & {
+  container: HTMLElement;
+  x: MotionValue<number>;
+  y: MotionValue<number>;
+  flipped: boolean;
+  onMeasure: (width: number, height: number) => void;
+}) {
+  const reducedMotion = useReducedMotion() === true;
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  // Re-measure when the content changes (new hover target), before paint.
+  useLayoutEffect(() => {
+    const element = panelRef.current;
+    if (element) {
+      onMeasure(element.offsetWidth, element.offsetHeight);
+    }
+  }, [children, onMeasure]);
+
+  return createPortal(
+    <motion.div
+      animate={{ opacity: 1 }}
+      className={cn(
+        "pointer-events-none absolute top-0 left-0 z-50",
+        className
+      )}
+      exit={{ opacity: 0 }}
+      initial={{ opacity: 0 }}
+      ref={panelRef}
+      style={{ x, y }}
+      transition={{ duration: 0.1 }}
+    >
+      <motion.div
+        animate={{ scale: 1, opacity: 1 }}
+        className={cn(
+          TOOLTIP_PANEL_CLASS_NAME,
+          panelStyle?.backgroundColor === undefined &&
+            backgroundColor === chartCssVars.tooltipBackground &&
+            "bg-chart-tooltip-background",
+          panelStyle?.backdropFilter === undefined && "backdrop-blur-md"
+        )}
+        initial={reducedMotion ? { opacity: 0 } : { scale: 0.85, opacity: 0 }}
+        style={{
+          transformOrigin: flipped ? "right center" : "left center",
+          ...(panelStyle?.backgroundColor === undefined && {
+            backgroundColor,
+          }),
+          ...panelStyle,
+        }}
+        transition={{ type: "spring", stiffness: 300, damping: 25 }}
+      >
+        <div className={TOOLTIP_PANEL_INNER_CLASS_NAME}>{children}</div>
+      </motion.div>
+    </motion.div>,
+    container
+  );
+}
+
+CursorTooltipBox.displayName = "CursorTooltipBox";
+
+export default CursorTooltipBox;
