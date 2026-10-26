@@ -16,7 +16,8 @@ import { source } from "@/lib/source";
  *
  * Excluded on purpose: `/charts` (redirects to `/charts/area-chart`),
  * `/playground` (redirects to `/studio`), noindexed Studio surfaces
- * (`/studio/embed`, `/studio/demo`, `/studio/og-preview`), and `/api/*`.
+ * (`/studio/embed`, `/studio/demo`, `/studio/og-preview`), the dev-only
+ * `/charts/og-preview`, and `/api/*`.
  */
 export default function sitemap(): MetadataRoute.Sitemap {
   const docRoutes: MetadataRoute.Sitemap = source.getPages().map((page) => {
