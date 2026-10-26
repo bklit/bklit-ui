@@ -12,6 +12,7 @@ import {
   type Transition,
   useReducedMotion,
 } from "motion/react";
+import dynamic from "next/dynamic";
 import {
   type ReactNode,
   useEffect,
@@ -19,13 +20,24 @@ import {
   useRef,
   useState,
 } from "react";
-import { ChartThemeExportDialog } from "@/components/chart-theme/chart-theme-export-dialog";
 import { useChartTheme } from "@/components/chart-theme/chart-theme-provider";
 import { ChartThemeSwatchIcon } from "@/components/chart-theme/chart-theme-swatch-icon";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverPopup, PopoverTrigger } from "@/components/ui/popover";
 import { CUSTOM_CHART_THEME_ID } from "@/lib/chart-themes";
 import { cn } from "@/lib/utils";
+
+/**
+ * The export dialog (code block + highlighter) is only needed after a click,
+ * and the header renders on every page, so load it on first open.
+ */
+const ChartThemeExportDialog = dynamic(
+  () =>
+    import("@/components/chart-theme/chart-theme-export-dialog").then(
+      (mod) => mod.ChartThemeExportDialog
+    ),
+  { ssr: false }
+);
 
 const STRIP_VARS = ["chart-1", "chart-2", "chart-3", "chart-4", "chart-5"];
 
@@ -182,6 +194,8 @@ export function ChartThemeSelector() {
   const [view, setView] = useState<View>("list");
   const [direction, setDirection] = useState(1);
   const [exportOpen, setExportOpen] = useState(false);
+  // Keep the dialog mounted after the first open so its exit animation plays.
+  const [exportRequested, setExportRequested] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -204,6 +218,7 @@ export function ChartThemeSelector() {
 
   const openExport = () => {
     setOpen(false);
+    setExportRequested(true);
     setExportOpen(true);
   };
 
@@ -332,11 +347,13 @@ export function ChartThemeSelector() {
           </AnimatedViews>
         </PopoverPopup>
       </Popover>
-      <ChartThemeExportDialog
-        onOpenChange={setExportOpen}
-        open={exportOpen}
-        theme={theme}
-      />
+      {exportRequested ? (
+        <ChartThemeExportDialog
+          onOpenChange={setExportOpen}
+          open={exportOpen}
+          theme={theme}
+        />
+      ) : null}
     </>
   );
 }

@@ -10,11 +10,15 @@ export interface Testimonial {
   content: string;
 }
 
-const TWITTER_AVATAR_200 = /_200x200\.(jpg|png|webp)$/i;
+const TWITTER_AVATAR_SIZE =
+  /_(normal|bigger|mini|\d+x\d+)\.(jpg|jpeg|png|webp)$/i;
 
-/** Prefer 400×400 Twitter profile images in the UI. */
+/**
+ * Avatars render at 40px, so request X's 73×73 `_bigger` size rather than
+ * `_400x400` (~10× the bytes for the same pixels on a 2× screen).
+ */
 export function twitterAvatarUrl(url: string) {
-  return url.replace(TWITTER_AVATAR_200, "_400x400.$1");
+  return url.replace(TWITTER_AVATAR_SIZE, "_bigger.$2");
 }
 
 /**
@@ -70,8 +74,9 @@ export const testimonials: Testimonial[] = [
     author: {
       name: "Carl Lindesvärd",
       handle: "@CarlLindesvard",
-      avatar:
-        "https://pbs.twimg.com/profile_images/1751607056316944384/8E4F88FL_400x400.jpg",
+      avatar: twitterAvatarUrl(
+        "https://pbs.twimg.com/profile_images/1751607056316944384/8E4F88FL_400x400.jpg"
+      ),
       verified: true,
     },
     content: "Looks f**king awesome! Well done!",
@@ -122,8 +127,9 @@ export const testimonials: Testimonial[] = [
     author: {
       name: "Amped",
       handle: "@jayalxndr",
-      avatar:
-        "https://pbs.twimg.com/profile_images/1944673322018500608/fc7NYahG_400x400.jpg",
+      avatar: twitterAvatarUrl(
+        "https://pbs.twimg.com/profile_images/1944673322018500608/fc7NYahG_400x400.jpg"
+      ),
     },
     content: "These are clean. I look forward to trying them out",
   },
@@ -147,8 +153,9 @@ export const testimonials: Testimonial[] = [
     author: {
       name: "Carl Lindesvärd",
       handle: "@CarlLindesvard",
-      avatar:
-        "https://pbs.twimg.com/profile_images/1751607056316944384/8E4F88FL_400x400.jpg",
+      avatar: twitterAvatarUrl(
+        "https://pbs.twimg.com/profile_images/1751607056316944384/8E4F88FL_400x400.jpg"
+      ),
       verified: true,
     },
     content: "should i just pay you to implement all your charts in op?",
@@ -292,8 +299,9 @@ export const testimonials: Testimonial[] = [
     author: {
       name: "Khalid",
       handle: "@khalidxv1",
-      avatar:
-        "https://pbs.twimg.com/profile_images/1937604395945918464/zBCajSen_400x400.jpg",
+      avatar: twitterAvatarUrl(
+        "https://pbs.twimg.com/profile_images/1937604395945918464/zBCajSen_400x400.jpg"
+      ),
     },
     content: "This is insane! I've never seen a design like this.",
   },
@@ -303,8 +311,9 @@ export const testimonials: Testimonial[] = [
     author: {
       name: "Sergei Lavrukhin",
       handle: "@SergeiLavrukhin",
-      avatar:
-        "https://pbs.twimg.com/profile_images/1790449245960429568/ClsrHZ8p_400x400.jpg",
+      avatar: twitterAvatarUrl(
+        "https://pbs.twimg.com/profile_images/1790449245960429568/ClsrHZ8p_400x400.jpg"
+      ),
     },
     content: "so cool! so smooth!!",
   },
@@ -314,8 +323,9 @@ export const testimonials: Testimonial[] = [
     author: {
       name: "Daniel",
       handle: "@DanielWhit21874",
-      avatar:
-        "https://pbs.twimg.com/profile_images/2015154381310550016/bnq0483l_400x400.jpg",
+      avatar: twitterAvatarUrl(
+        "https://pbs.twimg.com/profile_images/2015154381310550016/bnq0483l_400x400.jpg"
+      ),
     },
     content: "Beautiful work Matt honestly it looks sensational",
   },
@@ -325,8 +335,9 @@ export const testimonials: Testimonial[] = [
     author: {
       name: "Imad Atyat",
       handle: "@imadatyat",
-      avatar:
-        "https://pbs.twimg.com/profile_images/1445703657140338694/H2jE7fZk_400x400.jpg",
+      avatar: twitterAvatarUrl(
+        "https://pbs.twimg.com/profile_images/1445703657140338694/H2jE7fZk_400x400.jpg"
+      ),
     },
     content: "The best shadcn charts I have ever seen & used!",
   },

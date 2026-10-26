@@ -13,6 +13,22 @@
 @source "../../../packages/ui/src/**/*.tsx";
 @source "../../../packages/studio/src/**/*.{ts,tsx}";
 
+/*
+ * Cal Sans italic joins the `calSans` family that `localFont` declares in
+ * app/layout.tsx (the family name comes from that const's name). It lives
+ * here rather than in `localFont`'s `src` because next/font preloads every
+ * file it is given, and 160 KB of italic, unused on most pages, was competing
+ * with the page's CSS and JS on mobile. Declared this way it downloads only
+ * when italic text renders.
+ */
+@font-face {
+  font-family: calSans;
+  src: url("/fonts/CalSansVF-Italic.woff2") format("woff2");
+  font-display: swap;
+  font-style: italic;
+  font-weight: 400 700;
+}
+
 /* Animatable edge-fade widths for HorizontalScrollArea's mask. */
 @property --scroll-fade-left {
   syntax: "<length>";

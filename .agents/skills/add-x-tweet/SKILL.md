@@ -50,7 +50,7 @@ Parse `author_name` and HTML `<p>` for text. Avatar still needs fxtwitter or man
 
 - Use **status id** as `id` (numeric string from URL)
 - Set `url` to the canonical tweet URL (no query params)
-- Run avatar through `twitterAvatarUrl()` (upgrades `_200x200` → `_400x400`)
+- Run avatar through `twitterAvatarUrl()` (normalises any size suffix to `_bigger`, 73×73: avatars render at 40px)
 - Strip leading `@uixmat` from content; trim whitespace
 - Shorten very long tweets if they include trailing promo links (keep the praise, drop link-only tails)
 

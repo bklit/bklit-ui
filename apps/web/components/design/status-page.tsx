@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { siteContainerClassName } from "@/components/design/site-chrome";
-import { StatusPageChartBackdrop } from "@/components/design/status-page-chart-backdrop";
+import { StatusPageChartBackdrop } from "@/components/design/status-page-chart-backdrop-lazy";
 import { cn } from "@/lib/utils";
 
 /**

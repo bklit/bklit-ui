@@ -37,7 +37,9 @@ function Avatar({
     <img
       alt={alt}
       className="h-10 w-10 shrink-0 rounded-full object-cover"
+      decoding="async"
       height={40}
+      loading="lazy"
       onError={() => setError(true)}
       src={src}
       width={40}

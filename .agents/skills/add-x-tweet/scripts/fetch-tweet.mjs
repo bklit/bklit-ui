@@ -24,7 +24,10 @@ function stripReplyPrefix(text) {
 }
 
 function upgradeAvatar(url) {
-  return url.replace(/_200x200\.(jpg|png|webp)$/i, "_400x400.$1");
+  return url.replace(
+    /_(normal|bigger|mini|\d+x\d+)\.(jpg|jpeg|png|webp)$/i,
+    "_bigger.$2"
+  );
 }
 
 async function fetchTweet(url) {

@@ -1,17 +1,16 @@
 import { GithubStatsProvider } from "@/components/providers/github-stats-provider";
 import "./globals.css";
-import { OpenPanelComponent } from "@openpanel/nextjs";
 import { RootProvider } from "fumadocs-ui/provider";
 import { GeistMono } from "geist/font/mono";
 import type { Metadata, Viewport } from "next";
 import { Source_Serif_4 } from "next/font/google";
 import localFont from "next/font/local";
 import type { ReactNode } from "react";
+import { OpenPanelScript } from "@/components/analytics/openpanel-script";
 import { ChartThemeProvider } from "@/components/chart-theme/chart-theme-provider";
 import { ChartThemeScript } from "@/components/chart-theme/chart-theme-script";
 import { SiteLeftDotGrid } from "@/components/design/site-left-dot-grid";
-import { DocsSearchDialog } from "@/components/docs/docs-search-dialog";
-import { getChartThemeIdFromCookie } from "@/lib/chart-theme-cookie.server";
+import { DocsSearchDialogLazy } from "@/components/docs/docs-search-dialog-lazy";
 import { getOpenPanelClientId } from "@/lib/openpanel-env";
 import {
   DEFAULT_OG_IMAGE,
@@ -26,19 +25,25 @@ import { cn } from "@/lib/utils";
  * Cal Sans 2.010 variable font (OFL-1.1, see ./fonts/OFL.txt), loaded the
  * same way as coss ui (`@coss/ui/fonts` `fontSans`): one family for body and
  * headings, `--font-heading` aliases it in globals.css.
+ *
+ * Only the upright face is preloaded. The italic face is declared in
+ * globals.css under the same `calSans` family name (derived from this const's
+ * name: rename both together) so it loads only on pages that use italic.
  */
 const calSans = localFont({
   display: "swap",
-  src: [
-    { path: "./fonts/CalSansVF.woff2", style: "normal" },
-    { path: "./fonts/CalSansVF-Italic.woff2", style: "italic" },
-  ],
+  src: [{ path: "./fonts/CalSansVF.woff2", style: "normal" }],
   variable: "--font-cal-sans",
   weight: "400 700",
 });
 
-/** Paired serif until `geist/font/serif` ships in the geist package. */
+/**
+ * Paired serif until `geist/font/serif` ships in the geist package. Not used
+ * above the fold, so it isn't preloaded: it downloads only if something
+ * renders with `font-serif`.
+ */
 const geistSerif = Source_Serif_4({
+  preload: false,
   subsets: ["latin"],
   variable: "--font-serif",
 });
@@ -100,13 +105,8 @@ export const viewport: Viewport = {
   colorScheme: "light dark",
 };
 
-export default async function RootLayout({
-  children,
-}: {
-  children: ReactNode;
-}) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   const openPanelClientId = getOpenPanelClientId();
-  const chartThemeId = await getChartThemeIdFromCookie();
 
   return (
     <html
@@ -114,23 +114,20 @@ export default async function RootLayout({
       lang="en"
       suppressHydrationWarning
     >
-      <body className="relative flex min-h-screen flex-col">
+      <head>
         <ChartThemeScript />
+      </head>
+      <body className="relative flex min-h-screen flex-col">
         <SiteLeftDotGrid />
         {openPanelClientId ? (
-          <OpenPanelComponent
-            apiUrl="/api/op"
-            clientId={openPanelClientId}
-            scriptUrl="/api/op/op1.js"
-            trackAttributes
-            trackOutgoingLinks
-            trackScreenViews
-          />
+          <OpenPanelScript clientId={openPanelClientId} />
         ) : null}
         <GithubStatsProvider>
           <RootProvider
             search={{
-              SearchDialog: DocsSearchDialog,
+              SearchDialog: DocsSearchDialogLazy,
+              // Mount (and so download) the dialog on first open only.
+              preload: false,
               options: {
                 api: "/api/search",
               },
@@ -142,9 +139,7 @@ export default async function RootLayout({
               enableSystem: true,
             }}
           >
-            <ChartThemeProvider initialThemeId={chartThemeId}>
-              {children}
-            </ChartThemeProvider>
+            <ChartThemeProvider>{children}</ChartThemeProvider>
           </RootProvider>
         </GithubStatsProvider>
       </body>

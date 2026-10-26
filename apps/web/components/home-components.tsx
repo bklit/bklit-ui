@@ -1,6 +1,5 @@
 "use client";
 
-import { studioChartDocsHref, studioChartHref } from "@bklitui/studio";
 import {
   Bar,
   BarChart,
@@ -39,27 +38,8 @@ import {
   type RingData,
   TooltipContent,
 } from "@bklitui/ui/charts";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
-import type { ChartSlug } from "@/components/charts/chart-slugs";
 import { useWorldDataStandalone } from "@/components/docs/use-world-data";
-import { HomeAreaChart } from "@/components/home-area-chart";
-import {
-  ShowcaseReplayAction,
-  showcaseActionEase,
-  showcaseActionEnterDuration,
-  showcaseActionExitDuration,
-  showcaseActionStagger,
-} from "@/components/showcase-replay-action";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  previewCardClassName,
-  previewCardContentClassName,
-  previewCardContentFillClassName,
-} from "@/components/ui/card";
+import { HomeShowcaseAreaChart } from "@/components/home-area-chart";
 import { getHeatmapDemoData } from "@/lib/heatmap-demo-data";
 import {
   homeBarChartMargin,
@@ -69,11 +49,6 @@ import {
 } from "@/lib/home-chart-margin";
 import { homeTooltipPanelStyle } from "@/lib/home-tooltip-style";
 import { cn } from "@/lib/utils";
-
-const easeOutQuint = showcaseActionEase;
-const actionEnterDuration = showcaseActionEnterDuration;
-const actionExitDuration = showcaseActionExitDuration;
-const actionStagger = showcaseActionStagger;
 
 const heatmapLevelStyles = [
   {
@@ -142,150 +117,6 @@ function getHomeHeatmapLevel(value: number | undefined): number {
 
 function getHomeHeatmapLevelColor(level: number): string {
   return heatmapLevelStyles[level]?.color ?? heatmapLevelStyles[0].color;
-}
-
-function CardAction({
-  href,
-  label,
-  variant,
-  index,
-  visible,
-  reducedMotion,
-}: {
-  href: string;
-  label: string;
-  variant: "outline" | "default";
-  index: number;
-  visible: boolean;
-  reducedMotion: boolean | null;
-}) {
-  return (
-    <AnimatePresence>
-      {visible && (
-        <motion.div
-          animate={
-            reducedMotion
-              ? { opacity: 1, y: 0 }
-              : {
-                  opacity: 1,
-                  y: 0,
-                  transition: {
-                    duration: actionEnterDuration,
-                    ease: easeOutQuint,
-                    delay: index * actionStagger,
-                  },
-                }
-          }
-          exit={
-            reducedMotion
-              ? undefined
-              : {
-                  opacity: 0,
-                  y: 4,
-                  transition: {
-                    duration: actionExitDuration,
-                    ease: easeOutQuint,
-                  },
-                }
-          }
-          initial={reducedMotion ? false : { opacity: 0, y: 6 }}
-        >
-          <Button render={<Link href={href} />} size="sm" variant={variant}>
-            {label}
-          </Button>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
-}
-
-function ShowcaseCard({
-  chart,
-  children,
-  className = "",
-}: {
-  chart: ChartSlug;
-  children?: React.ReactNode;
-  className?: string;
-}) {
-  const reducedMotion = useReducedMotion();
-  const [hoverFine, setHoverFine] = useState(false);
-  const [focused, setFocused] = useState(false);
-  const [coarsePointer, setCoarsePointer] = useState(false);
-  const [replayKey, setReplayKey] = useState(0);
-
-  const replay = useCallback(() => {
-    setReplayKey((k) => k + 1);
-  }, []);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(hover: hover) and (pointer: fine)");
-    const update = () => setCoarsePointer(!mq.matches);
-    update();
-    mq.addEventListener("change", update);
-    return () => mq.removeEventListener("change", update);
-  }, []);
-
-  const showActions =
-    reducedMotion === true || coarsePointer || hoverFine || focused;
-
-  return (
-    <Card
-      className={cn(
-        "relative flex min-h-0 flex-1 flex-col overflow-visible",
-        previewCardClassName,
-        className
-      )}
-      onBlurCapture={(e) => {
-        if (!e.currentTarget.contains(e.relatedTarget)) {
-          setFocused(false);
-        }
-      }}
-      onFocusCapture={() => setFocused(true)}
-      onPointerEnter={() => setHoverFine(true)}
-      onPointerLeave={() => setHoverFine(false)}
-    >
-      <div className="absolute top-3 left-3 z-10">
-        <ShowcaseReplayAction
-          index={0}
-          onReplay={replay}
-          reducedMotion={reducedMotion}
-          visible={showActions}
-        />
-      </div>
-      <div className="absolute top-3 right-3 z-10 flex items-center gap-2">
-        <CardAction
-          href={studioChartDocsHref(chart)}
-          index={1}
-          label="Docs"
-          reducedMotion={reducedMotion}
-          variant="outline"
-          visible={showActions}
-        />
-        <CardAction
-          href={studioChartHref(chart)}
-          index={2}
-          label="Open in Studio"
-          reducedMotion={reducedMotion}
-          variant="default"
-          visible={showActions}
-        />
-      </div>
-      <CardContent
-        className={cn(
-          previewCardContentClassName,
-          previewCardContentFillClassName
-        )}
-      >
-        <div
-          className="flex size-full min-h-0 items-center justify-center"
-          key={replayKey}
-        >
-          {children}
-        </div>
-      </CardContent>
-    </Card>
-  );
 }
 
 const visitorsByCountry: Record<string, number> = {
@@ -611,12 +442,7 @@ export function HomeShowcaseChart({ id }: { id: HomeShowcaseId }) {
 
   switch (id) {
     case "line":
-      return (
-        <HomeAreaChart
-          aspectRatio={compact ? "5 / 2" : "5 / 2"}
-          className={compact ? "min-h-[120px]" : "min-h-[180px]"}
-        />
-      );
+      return <HomeShowcaseAreaChart />;
     case "pie":
       return <ShowcasePieChart compact={compact} />;
     case "ring":
@@ -646,63 +472,4 @@ export function HomeShowcaseChart({ id }: { id: HomeShowcaseId }) {
     default:
       return null;
   }
-}
-
-export function HomeComponents() {
-  return (
-    <>
-      <ShowcaseCard
-        chart="area-chart"
-        className="col-span-full flex-1 sm:col-span-7"
-      >
-        <HomeShowcaseChart id="line" />
-      </ShowcaseCard>
-
-      <ShowcaseCard
-        chart="pie-chart"
-        className="col-span-full flex-1 sm:col-span-5"
-      >
-        <HomeShowcaseChart id="pie" />
-      </ShowcaseCard>
-
-      <ShowcaseCard
-        chart="ring-chart"
-        className="col-span-full min-h-[200px] flex-1 sm:col-span-5"
-      >
-        <HomeShowcaseChart id="ring" />
-      </ShowcaseCard>
-      <ShowcaseCard
-        chart="bar-chart"
-        className="col-span-full flex min-h-[300px] flex-col gap-4 sm:col-span-7"
-      >
-        <HomeShowcaseChart id="bar" />
-      </ShowcaseCard>
-
-      <ShowcaseCard
-        chart="choropleth-chart"
-        className="col-span-full min-h-[200px] flex-1 sm:col-span-7"
-      >
-        <HomeShowcaseChart id="choropleth" />
-      </ShowcaseCard>
-      <ShowcaseCard
-        chart="radar-chart"
-        className="col-span-full flex min-h-[300px] flex-col gap-4 sm:col-span-5"
-      >
-        <HomeShowcaseChart id="radar" />
-      </ShowcaseCard>
-
-      <ShowcaseCard
-        chart="gauge-chart"
-        className="col-span-full min-h-[200px] sm:col-span-5"
-      >
-        <HomeShowcaseChart id="gauge" />
-      </ShowcaseCard>
-      <ShowcaseCard
-        chart="heatmap-chart"
-        className="col-span-full min-h-[200px] sm:col-span-7"
-      >
-        <HomeShowcaseChart id="heatmap" />
-      </ShowcaseCard>
-    </>
-  );
 }

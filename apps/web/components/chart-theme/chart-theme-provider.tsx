@@ -21,7 +21,10 @@ import {
   type ChartThemePreview,
   resolveChartThemeModeFromElement,
 } from "@/lib/apply-chart-theme-vars";
-import { setChartThemeCookie } from "@/lib/chart-theme-cookie";
+import {
+  getChartThemeIdFromDocumentCookie,
+  setChartThemeCookie,
+} from "@/lib/chart-theme-cookie";
 import {
   clearCustomChartTheme,
   readCustomChartTheme,
@@ -74,15 +77,20 @@ function readModes() {
   return { rootMode, studioMode, studioShell };
 }
 
-export function ChartThemeProvider({
-  children,
-  initialThemeId = DEFAULT_CHART_THEME_ID,
-}: {
-  children: ReactNode;
-  initialThemeId?: string;
-}) {
+/**
+ * The palette id lives in a cookie but is read on the client only: reading it
+ * on the server (`cookies()` in the root layout) made every route dynamic and
+ * uncacheable. Paint is unaffected — `ChartThemeScript` applies the palette's
+ * CSS variables from the cookie before first paint — and nothing this provider
+ * renders depends on `themeId` during hydration (the selector waits for mount).
+ */
+export function ChartThemeProvider({ children }: { children: ReactNode }) {
   const { resolvedTheme } = useTheme();
-  const [themeId, setThemeIdState] = useState(initialThemeId);
+  const [themeId, setThemeIdState] = useState(() =>
+    typeof window === "undefined"
+      ? DEFAULT_CHART_THEME_ID
+      : (getChartThemeIdFromDocumentCookie() ?? DEFAULT_CHART_THEME_ID)
+  );
   // Provider renders no palette-dependent markup, so reading storage here is hydration-safe.
   const [customTheme, setCustomTheme] = useState<ChartPalette | null>(() =>
     typeof window === "undefined" ? null : readCustomChartTheme()
@@ -118,12 +126,27 @@ export function ChartThemeProvider({
     applyTheme(theme);
   }, [applyTheme, theme, resolvedTheme]);
 
+  // Re-apply when a Studio shell mounts, is replaced or switches light/dark (it
+  // carries its own copy of the vars). Chart tooltips, animations and mounts
+  // mutate the body constantly, so only re-apply when that state changed
+  // instead of re-setting every variable on every mutation.
   useEffect(() => {
+    let last = readModes();
     const observer = new MutationObserver(() => {
+      const next = readModes();
+      if (
+        next.studioShell === last.studioShell &&
+        next.studioMode === last.studioMode &&
+        next.rootMode === last.rootMode
+      ) {
+        return;
+      }
+      last = next;
       applyTheme(theme);
     });
 
     observer.observe(document.body, {
+      attributeFilter: ["class"],
       childList: true,
       subtree: true,
     });

@@ -1,4 +1,3 @@
-import Script from "next/script";
 import { CHART_THEME_COOKIE_NAME } from "@/lib/chart-theme-cookie.constants";
 import {
   CHART_THEME_VAR_NAMES,
@@ -89,13 +88,23 @@ function buildChartThemeScript() {
 })();`;
 }
 
+/**
+ * Applies the saved chart palette's CSS variables to `<html>` before first
+ * paint. Render it inside `<head>`.
+ *
+ * A plain inline `<script>` (the next-themes pattern), not `next/script`:
+ * in the App Router, `next/script` `beforeInteractive` inline scripts are
+ * queued on `self.__next_s` and only run once Next's client JS has loaded, so
+ * the page painted with the default palette first. As a parser-blocking
+ * inline script in `<head>` it runs before the body renders, which is also
+ * what lets the page be static: the palette never has to be server-rendered.
+ */
 export function ChartThemeScript() {
   return (
-    <Script
-      // biome-ignore lint/security/noDangerouslySetInnerHtml: inline bootstrap before hydration
+    <script
+      // biome-ignore lint/security/noDangerouslySetInnerHtml: palette bootstrap before first paint
       dangerouslySetInnerHTML={{ __html: buildChartThemeScript() }}
       id="bklit-chart-theme"
-      strategy="beforeInteractive"
     />
   );
 }

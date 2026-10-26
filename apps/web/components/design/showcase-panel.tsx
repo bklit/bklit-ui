@@ -1,10 +1,8 @@
 "use client";
 
-import { studioChartDocsHref, studioChartHref } from "@bklitui/studio";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import type { ChartSlug } from "@/components/charts/chart-slugs";
 import { ChartMountPlaceholder } from "@/components/design/chart-mount-placeholder";
 import {
   ShowcaseReplayAction,
@@ -79,14 +77,17 @@ function CardAction({
 }
 
 export function DesignShowcasePanel({
-  chart,
   children,
   className,
+  docsHref,
   mountKey,
+  studioHref,
 }: {
-  chart: ChartSlug;
   children?: React.ReactNode;
   className?: string;
+  docsHref: string;
+  /** Built on the server so the Studio URL codec isn't shipped to the client. */
+  studioHref: string;
   /** Serial homepage mount slot (pass `showcase-${id}` from the grid). */
   mountKey: string;
 }) {
@@ -139,7 +140,7 @@ export function DesignShowcasePanel({
         </div>
         <div className="absolute top-3 right-3 z-10 flex items-center gap-2">
           <CardAction
-            href={studioChartDocsHref(chart)}
+            href={docsHref}
             index={1}
             label="Docs"
             reducedMotion={reducedMotion}
@@ -147,7 +148,7 @@ export function DesignShowcasePanel({
             visible={showActions}
           />
           <CardAction
-            href={studioChartHref(chart)}
+            href={studioHref}
             index={2}
             label="Open in Studio"
             reducedMotion={reducedMotion}

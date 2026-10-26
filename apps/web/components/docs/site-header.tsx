@@ -25,6 +25,7 @@ import {
   type SiteNavLink,
   siteNavLinks,
 } from "@/lib/site-nav-links";
+import { loadDocsTree, useDocsTree } from "@/lib/use-docs-tree";
 import { cn } from "@/lib/utils";
 import { GithubStarCount } from "../github-star-count";
 import { BklitLogo } from "../icons/bklit";
@@ -50,8 +51,6 @@ function trackDiscordClick(location: "header" | "mobile_menu") {
 
 interface SiteHeaderProps {
   links?: SiteNavLink[];
-  /** Docs page tree — the mobile menu mirrors the docs sidebar from it. */
-  docsTree?: PageTree.Root;
   githubUrl?: string;
   discordUrl?: string;
 }
@@ -206,7 +205,6 @@ function MobileDocsNode({
 }
 
 interface MobileMenuProps {
-  docsTree?: PageTree.Root;
   githubUrl?: string;
   discordUrl?: string;
   open: boolean;
@@ -214,7 +212,6 @@ interface MobileMenuProps {
 }
 
 function MobileMenu({
-  docsTree,
   githubUrl,
   discordUrl,
   open,
@@ -222,6 +219,9 @@ function MobileMenu({
 }: MobileMenuProps) {
   const pathname = usePathname();
   const onClose = () => onOpenChange(false);
+  // The docs section mirrors the docs sidebar. The tree is fetched on first
+  // open (see `app/docs-tree.json/route.ts` for why it isn't a prop).
+  const docsTree = useDocsTree(open);
 
   return (
     <Sheet onOpenChange={onOpenChange} open={open}>
@@ -230,6 +230,10 @@ function MobileMenu({
           <Button
             aria-label={open ? "Close menu" : "Open menu"}
             className="relative -ms-1.5 size-8 lg:hidden"
+            // Start the tree fetch as the finger lands, before the click.
+            onPointerDown={() => {
+              loadDocsTree();
+            }}
             size="icon"
             variant="ghost"
           />
@@ -330,7 +334,6 @@ function MobileMenu({
 
 export function SiteHeader({
   links = [],
-  docsTree,
   githubUrl,
   discordUrl,
 }: SiteHeaderProps) {
@@ -385,7 +388,6 @@ export function SiteHeader({
       >
         <MobileMenu
           discordUrl={discordUrl}
-          docsTree={docsTree}
           githubUrl={githubUrl}
           onOpenChange={setMobileMenuOpen}
           open={mobileMenuOpen}

@@ -2,12 +2,13 @@ import type { ReactNode } from "react";
 import { ScrollToTopOnNavigate } from "@/components/docs/scroll-to-top-on-navigate";
 import { SiteHeader } from "@/components/docs/site-header";
 import { siteHeaderNavLinks } from "@/lib/site-nav-links";
-import { source } from "@/lib/source";
 
 /**
  * Site frame: fixed header + content column. Used by the `(site)` layout and
  * by the root `not-found.tsx`, which renders outside `(site)` (it handles
  * unmatched URLs and `notFound()` from any route) but should keep the header.
+ *
+ * Don't import `@/lib/source` here: see `app/docs-tree.json/route.ts`.
  */
 export function SiteShell({ children }: { children: ReactNode }) {
   return (
@@ -15,7 +16,6 @@ export function SiteShell({ children }: { children: ReactNode }) {
       <ScrollToTopOnNavigate />
       <SiteHeader
         discordUrl="https://discord.gg/75s4frfE8X"
-        docsTree={source.pageTree}
         githubUrl="https://github.com/bklit/bklit-ui"
         links={[...siteHeaderNavLinks]}
       />

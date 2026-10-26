@@ -57,3 +57,15 @@ export function HomeAreaChart({
     </AreaChart>
   );
 }
+
+/** The homepage showcase's first card (sized like the other showcase charts). */
+export function HomeShowcaseAreaChart() {
+  const compact = useHomeChartCompact();
+
+  return (
+    <HomeAreaChart
+      aspectRatio="5 / 2"
+      className={compact ? "min-h-[120px]" : "min-h-[180px]"}
+    />
+  );
+}
