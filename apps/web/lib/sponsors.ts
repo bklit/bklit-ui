@@ -1,5 +1,6 @@
 import type { ComponentType } from "react";
 import { OpenPanel } from "@/components/brands/openpanel";
+import { Pug } from "@/components/brands/pug";
 import { ShadcnStudio } from "@/components/brands/shadcn-studio";
 import { UiRules } from "@/components/brands/ui-rules";
 import { Vercel } from "@/components/brands/vercel";
@@ -61,7 +62,12 @@ export const silverSponsorSlots: SponsorSlot[] = [
     href: sponsorHref("https://uirules.com", "silver-ui-rules"),
     Logo: UiRules,
   },
-  "placeholder",
+  {
+    id: "pug",
+    name: "pug",
+    href: sponsorHref("https://pug.sh", "silver-pug"),
+    Logo: Pug,
+  },
   "placeholder",
   "placeholder",
 ];
