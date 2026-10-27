@@ -703,6 +703,9 @@
       "type": "registry:component",
       "title": "Y Axis",
       "description": "Y-axis component for value labels in line and area charts",
+      "dependencies": [
+        "motion"
+      ],
       "registryDependencies": [
         "@bklit/chart-context",
         "@bklit/utils"
