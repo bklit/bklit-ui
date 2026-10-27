@@ -1,14 +1,19 @@
 "use client";
 
-import { memo, useMemo } from "react";
+import {
+  AnimatePresence,
+  motion,
+  useReducedMotion,
+  type Variants,
+} from "motion/react";
+import { memo, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import {
   useChartPortalContainer,
   useChartStable,
+  useSettledYScale,
   useYScale,
 } from "./chart-context";
-import { DEFAULT_Y_DOMAIN_TWEEN_MS } from "./chart-phase";
-import { LINE_LOADING_PULSE_EASE } from "./line-loading-timing";
 import { resolveReferenceDataRange } from "./reference-area-geometry";
 import type { YAxisOrientation } from "./y-axis-scales";
 import { normalizeYAxisId } from "./y-axis-scales";
@@ -17,7 +22,41 @@ import {
   Y_AXIS_DEFAULT_TICK_COUNT,
 } from "./y-axis-ticks";
 
-const Y_AXIS_POSITION_TWEEN_MS = DEFAULT_Y_DOMAIN_TWEEN_MS;
+/** Vertical drift (px) of labels fading in / out on a y-domain change. */
+const Y_AXIS_LABEL_SHIFT_PX = 8;
+const Y_AXIS_LABEL_EASE_OUT = [0.23, 1, 0.32, 1] as const;
+const Y_AXIS_LABEL_ENTER_S = 0.4;
+const Y_AXIS_LABEL_EXIT_S = 0.25;
+const Y_AXIS_LABEL_CLIP_BLEED_PX = 12;
+/** Delay between consecutive entering labels (cascade). */
+const Y_AXIS_LABEL_STAGGER_S = 0.05;
+
+/**
+ * Direction labels travel while the y-domain tweens: `-1` (up) when the
+ * domain shrinks — values grow apart and rise — `1` (down) when it grows.
+ */
+type LabelDrift = -1 | 1;
+
+interface LabelMotion {
+  drift: LabelDrift;
+  reducedMotion: boolean;
+}
+
+const labelVariants: Variants = {
+  hidden: ({ drift }: LabelMotion) => ({
+    opacity: 0,
+    y: -drift * Y_AXIS_LABEL_SHIFT_PX,
+  }),
+  visible: { opacity: 1, y: 0 },
+  exit: ({ drift, reducedMotion }: LabelMotion) => ({
+    opacity: 0,
+    y: drift * Y_AXIS_LABEL_SHIFT_PX,
+    transition: {
+      duration: reducedMotion ? 0 : Y_AXIS_LABEL_EXIT_S,
+      ease: Y_AXIS_LABEL_EASE_OUT,
+    },
+  }),
+};
 
 export interface YAxisProps {
   /** Scale group id (Recharts `yAxisId`). Default: `"left"`. */
@@ -44,7 +83,8 @@ function formatLabel(
     return formatValue(value);
   }
   if (formatLargeNumbers && value >= 1000) {
-    return `${(value / 1000).toFixed(0)}k`;
+    // One decimal so 1500 reads "1.5k", not a second "2k".
+    return `${Number((value / 1000).toFixed(1))}k`;
   }
   return String(value);
 }
@@ -99,11 +139,29 @@ const YAxisInner = memo(function YAxisInner({
 }: YAxisProps & { container: HTMLDivElement }) {
   const { margin, referenceAreas } = useChartStable();
   const yScale = useYScale(yAxisId);
+  // Tick values come from the settled (target) domain so a y-domain tween
+  // swaps one label set for the next once, instead of churning through every
+  // intermediate tick set; positions still follow the live scale each frame.
+  const settledYScale = useSettledYScale(yAxisId);
+  const reducedMotion = useReducedMotion() ?? false;
   const isLeft = orientation === "left";
   const axisId = normalizeYAxisId(yAxisId);
 
+  const [settledMin, settledMax] = settledYScale.domain() as [number, number];
+  const settledSpan = settledMax - settledMin;
+  const [prevSettledSpan, setPrevSettledSpan] = useState(settledSpan);
+  const [drift, setDrift] = useState<LabelDrift>(-1);
+  if (settledSpan !== prevSettledSpan) {
+    setPrevSettledSpan(settledSpan);
+    setDrift(settledSpan < prevSettledSpan ? -1 : 1);
+  }
+
+  const tickValues = useMemo(
+    () => settledYScale.ticks(resolveYAxisTickCount(numTicks)),
+    [settledYScale, numTicks]
+  );
+
   const ticks = useMemo(() => {
-    const tickValues = yScale.ticks(resolveYAxisTickCount(numTicks));
     return tickValues.map((value) => {
       const y = (yScale(value) ?? 0) + margin.top;
       return {
@@ -119,9 +177,9 @@ const YAxisInner = memo(function YAxisInner({
       };
     });
   }, [
+    tickValues,
     yScale,
     margin.top,
-    numTicks,
     formatLargeNumbers,
     formatValue,
     axisId,
@@ -131,34 +189,66 @@ const YAxisInner = memo(function YAxisInner({
   return createPortal(
     <div className="pointer-events-none absolute inset-0">
       <div
-        className="absolute top-0 bottom-0"
-        style={
-          isLeft
+        className="absolute overflow-hidden"
+        style={{
+          // Clip labels tweening in from far off-scale, with room for a
+          // half-height edge label when the chart margin is tight.
+          top: -Y_AXIS_LABEL_CLIP_BLEED_PX,
+          bottom: -Y_AXIS_LABEL_CLIP_BLEED_PX,
+          ...(isLeft
             ? { left: 0, width: margin.left }
-            : { right: 0, width: margin.right }
-        }
+            : { right: 0, width: margin.right }),
+        }}
       >
-        {ticks.map((tick) => (
-          <div
-            className="absolute flex items-center"
-            key={tick.value}
-            style={{
-              top: tick.y,
-              transform: "translateY(-50%)",
-              transition: `top ${Y_AXIS_POSITION_TWEEN_MS}ms cubic-bezier(${LINE_LOADING_PULSE_EASE.join(", ")})`,
-              ...(isLeft
-                ? { right: 0, justifyContent: "flex-end", paddingRight: 8 }
-                : { left: 0, justifyContent: "flex-start", paddingLeft: 8 }),
-            }}
-          >
-            <span
-              className="text-chart-label text-xs"
-              style={tick.labelColor ? { color: tick.labelColor } : undefined}
-            >
-              {tick.label}
-            </span>
-          </div>
-        ))}
+        <AnimatePresence
+          custom={{ drift, reducedMotion } satisfies LabelMotion}
+          initial={false}
+        >
+          {ticks.map((tick, index) => {
+            // Cascade in the direction of travel: bottom-up while labels
+            // rise, top-down while they fall.
+            const cascadeIndex = drift < 0 ? index : ticks.length - 1 - index;
+            return (
+              <motion.div
+                animate="visible"
+                className="absolute flex h-0 items-center"
+                custom={{ drift, reducedMotion } satisfies LabelMotion}
+                exit="exit"
+                initial="hidden"
+                key={tick.value}
+                style={{
+                  top: tick.y + Y_AXIS_LABEL_CLIP_BLEED_PX,
+                  ...(isLeft
+                    ? { right: 0, justifyContent: "flex-end", paddingRight: 8 }
+                    : {
+                        left: 0,
+                        justifyContent: "flex-start",
+                        paddingLeft: 8,
+                      }),
+                }}
+                transition={
+                  reducedMotion
+                    ? { duration: 0 }
+                    : {
+                        delay: cascadeIndex * Y_AXIS_LABEL_STAGGER_S,
+                        duration: Y_AXIS_LABEL_ENTER_S,
+                        ease: Y_AXIS_LABEL_EASE_OUT,
+                      }
+                }
+                variants={labelVariants}
+              >
+                <span
+                  className="whitespace-nowrap text-chart-label text-xs"
+                  style={
+                    tick.labelColor ? { color: tick.labelColor } : undefined
+                  }
+                >
+                  {tick.label}
+                </span>
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
       </div>
     </div>,
     container

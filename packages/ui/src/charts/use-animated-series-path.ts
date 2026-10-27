@@ -21,6 +21,12 @@ export interface UseAnimatedSeriesPathOptions {
   xAccessor: (datum: Record<string, unknown>) => Date;
   xScale: (value: Date) => number | undefined;
   yScale: (value: number) => number | undefined;
+  /**
+   * Y-scale at the end of the y-domain tween. Data morphs animate toward this
+   * scale so the line never chases a mid-tween domain out of the plot.
+   * Default: `yScale`.
+   */
+  settledYScale?: (value: number) => number | undefined;
   dataKey: string;
   curve: CurveFactory;
   chartPhase: string;
@@ -43,6 +49,7 @@ export function useAnimatedSeriesPath({
   xAccessor,
   xScale,
   yScale,
+  settledYScale = yScale,
   dataKey,
   curve,
   chartPhase,
@@ -86,8 +93,12 @@ export function useAnimatedSeriesPath({
     [renderData, xAccessor, dataKey]
   );
 
+  const settledYDomainKey =
+    (settledYScale as { domain?: () => number[] }).domain?.().join(",") ?? "";
+
   const prevTransitionSignatureRef = useRef(transitionSignature);
   const prevDataSignatureRef = useRef(dataSignature);
+  const prevSettledYDomainKeyRef = useRef(settledYDomainKey);
 
   // Live scale/data inputs for the running tween. The y-domain tween rebuilds
   // `yScale` every frame, so these must not be effect deps — otherwise the
@@ -97,6 +108,7 @@ export function useAnimatedSeriesPath({
     xAccessor,
     xScale,
     yScale,
+    settledYScale,
     dataKey,
     curve,
   });
@@ -109,17 +121,18 @@ export function useAnimatedSeriesPath({
       xAccessor,
       xScale,
       yScale,
+      settledYScale,
       dataKey,
       curve,
     };
   });
-  const computeLatestTarget = () => {
+  const computeLatestTarget = (settled = false) => {
     const latest = latestRef.current;
     return computeSeriesPathPoints(
       latest.renderData,
       latest.xAccessor,
       latest.xScale,
-      latest.yScale,
+      settled ? latest.settledYScale : latest.yScale,
       latest.dataKey
     );
   };
@@ -143,6 +156,9 @@ export function useAnimatedSeriesPath({
   useLayoutEffect(() => {
     const dataChanged = prevDataSignatureRef.current !== dataSignature;
     prevDataSignatureRef.current = dataSignature;
+    const yDomainChanged =
+      prevSettledYDomainKeyRef.current !== settledYDomainKey;
+    prevSettledYDomainKeyRef.current = settledYDomainKey;
 
     if (!shouldAnimate) {
       animatingRef.current = false;
@@ -173,9 +189,16 @@ export function useAnimatedSeriesPath({
     const fromPolyline = from.polyline
       ? from.points
       : flattenSeriesPath(from.points, curve);
+    // When new data also moves the y-domain, hold the line in place while the
+    // grid and y-axis tween to the new scale, then morph straight to its
+    // settled pixels — morphing against the mid-tween scale sends the line
+    // far outside the plot when the magnitude changes (e.g. ~15k → ~10).
+    const holdForYDomain = morph && dataChanged && yDomainChanged;
 
     const renderFrame = (progress: number) => {
-      const currentTarget = computeLatestTarget();
+      // Morphs target the settled scale; x-domain slides (brush) track the
+      // live y-domain tween so the series stays glued to the grid.
+      const currentTarget = computeLatestTarget(morph);
       const next: DisplayedSeriesPath = morph
         ? {
             points: morphSeriesPolylines(
@@ -199,6 +222,7 @@ export function useAnimatedSeriesPath({
     renderFrame(0);
 
     const control = animate(0, 1, {
+      delay: holdForYDomain ? durationMs / 1000 : 0,
       duration: durationMs / 1000,
       ease: [...LINE_LOADING_PULSE_EASE],
       onUpdate: renderFrame,

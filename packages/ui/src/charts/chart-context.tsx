@@ -1,6 +1,6 @@
 "use client";
 
-import type { scaleBand, scaleLinear, scaleTime } from "@visx/scale";
+import { type scaleBand, scaleLinear, type scaleTime } from "@visx/scale";
 
 type ScaleLinear<Output, _Input = number> = ReturnType<
   typeof scaleLinear<Output>
@@ -460,6 +460,32 @@ export function useYScale(
   const id =
     yAxisId == null || yAxisId === "" ? DEFAULT_Y_AXIS_ID : String(yAxisId);
   return yScales[id] ?? yScale;
+}
+
+/**
+ * Y-scale at the end of the y-domain tween (the target domain), for series
+ * that animate toward their final pixels rather than the mid-tween scale.
+ * Falls back to {@link useYScale} when no target domain is published.
+ */
+export function useSettledYScale(
+  yAxisId?: string | number
+): ScaleLinear<number, number> {
+  const { yDomainTargetByAxis, innerHeight } = useChartStable();
+  const liveScale = useYScale(yAxisId);
+  const id =
+    yAxisId == null || yAxisId === "" ? DEFAULT_Y_AXIS_ID : String(yAxisId);
+  const domain =
+    yDomainTargetByAxis?.[id] ?? yDomainTargetByAxis?.[DEFAULT_Y_AXIS_ID];
+  const min = domain?.[0];
+  const max = domain?.[1];
+  const settled = useMemo(
+    () =>
+      min == null || max == null
+        ? null
+        : scaleLinear({ range: [innerHeight, 0], domain: [min, max] }),
+    [min, max, innerHeight]
+  );
+  return settled ?? liveScale;
 }
 
 /**
