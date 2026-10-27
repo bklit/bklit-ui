@@ -28,6 +28,8 @@ export function ReloadAllButton() {
 
 interface OgPreviewImageProps {
   alt: string;
+  /** `square` previews the 1200×1200 card; default is the 1200×630 card. */
+  aspect?: "wide" | "square";
   className?: string;
   /** Real metadata URL (relative, resolved against the dev server). */
   src: string;
@@ -38,6 +40,7 @@ interface OgPreviewImageProps {
 
 export function OgPreviewImage({
   alt,
+  aspect = "wide",
   className,
   src,
   version,
@@ -51,13 +54,15 @@ export function OgPreviewImage({
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="relative aspect-[1200/630] w-full overflow-hidden rounded-md border bg-muted">
+      <div
+        className={`relative w-full overflow-hidden rounded-md border bg-muted ${aspect === "square" ? "aspect-square" : "aspect-[1200/630]"}`}
+      >
         {/* biome-ignore lint/performance/noImgElement: preview the exact OG response, no image optimizer */}
         {/* biome-ignore lint/a11y/noNoninteractiveElementInteractions: load/error status, not user interaction */}
         <img
           alt={alt}
           className={className ?? "size-full object-cover"}
-          height={630}
+          height={aspect === "square" ? 1200 : 630}
           key={resolved}
           loading="lazy"
           onError={() => setStatus("error")}

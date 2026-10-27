@@ -8,7 +8,7 @@ import {
   validChartSlugs,
 } from "@/components/charts/chart-slugs";
 import { JsonLd } from "@/components/seo/json-ld";
-import { breadcrumbJsonLd, chartOgImage, pageMetadata } from "@/lib/seo";
+import { breadcrumbJsonLd, chartOgImages, pageMetadata } from "@/lib/seo";
 import { source } from "@/lib/source";
 
 const TRAILING_PERIOD_RE = /\.$/;
@@ -48,7 +48,7 @@ export async function generateMetadata({
     title,
     description: chartDescription(chart),
     path: `/charts/${chart}`,
-    images: [chartOgImage(chart, `${title} | Bklit UI`)],
+    images: chartOgImages(chart, `${title} | Bklit UI`),
   });
 }
 

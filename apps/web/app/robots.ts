@@ -12,7 +12,7 @@ export default function robots(): MetadataRoute.Robots {
       // Other noindexed pages (Studio embed/demo) stay
       // crawlable so bots can see their `noindex`. The OG render surfaces are
       // blocked outright instead: they are internal screenshot targets with
-      // no content of their own (`/og/` chart cards, `/studio/og-preview`)
+      // no content of their own (`/og/` chart + home cards, `/studio/og-preview`)
       // or a dev-only tool that 404s in production (`/charts/og-preview`),
       // and crawling them would only spend crawl budget. They also send
       // `X-Robots-Tag: noindex, nofollow` (next.config) and noindex metadata

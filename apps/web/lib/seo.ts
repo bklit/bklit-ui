@@ -1,6 +1,11 @@
 import type { ChartSlug } from "@bklitui/studio";
 import type { Metadata } from "next";
-import { chartOgImagePath } from "@/lib/chart-og";
+import {
+  CHART_OG_SIZES,
+  type ChartOgFormat,
+  chartOgImagePath,
+  homeOgImagePath,
+} from "@/lib/chart-og";
 import { SITE_NAME as BASE_SITE_NAME } from "@/lib/site-name";
 import { SITE_URL } from "@/lib/site-url";
 
@@ -86,25 +91,46 @@ export function pageMetadata({
       card: "summary_large_image",
       title: socialTitle,
       description,
-      images: resolvedImages.map(({ url, alt }) => ({ url, alt })),
+      // The first image only: `summary_large_image` wants the 1.91:1 card,
+      // and extra og:images (e.g. a 1:1 variant) are for other platforms.
+      images: resolvedImages.slice(0, 1).map(({ url, alt }) => ({ url, alt })),
     },
     ...(noIndex ? { robots: { index: false, follow: true } } : {}),
   };
 }
 
 /**
- * `/charts/[chart]` OG image: the page's featured example in a crop of the
- * homepage design (`/api/og/charts/[chart]`, versioned for cache busting).
- * Studio share links keep their own `/api/og/studio` image.
+ * Wide + square images from a versioned capture route. The 1200×630
+ * letterbox card comes first (og:image and twitter:image); a purpose-built
+ * 1200×1200 card follows for platforms with 1:1 previews.
  */
-export function chartOgImage(slug: ChartSlug, alt: string): OgImage {
-  return {
-    url: chartOgImagePath(slug),
-    width: 1200,
-    height: 630,
+function ogImagePair(
+  path: (format: ChartOgFormat) => string,
+  alt?: string
+): OgImage[] {
+  return (["wide", "square"] as const).map((format) => ({
+    url: path(format),
+    ...CHART_OG_SIZES[format],
     alt,
     type: "image/png",
-  };
+  }));
+}
+
+/**
+ * `/charts/[chart]` (and its docs page) OG images: the page's examples on a
+ * perspective floor (`/api/og/charts/[chart]`). Studio share links keep their
+ * own `/api/og/studio` image.
+ */
+export function chartOgImages(slug: ChartSlug, alt: string): OgImage[] {
+  return ogImagePair((format) => chartOgImagePath(slug, format), alt);
+}
+
+/**
+ * Homepage OG images: the homepage showcase charts on the same perspective
+ * floor (`/api/og/home`). Other pages keep `DEFAULT_OG_IMAGE`.
+ */
+export function homeOgImages(alt?: string): OgImage[] {
+  return ogImagePair(homeOgImagePath, alt);
 }
 
 export interface BreadcrumbItem {

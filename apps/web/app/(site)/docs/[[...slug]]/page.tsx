@@ -21,7 +21,7 @@ import { JsonLd } from "@/components/seo/json-ld";
 import { Frame, FramePanel } from "@/components/ui/frame";
 import {
   breadcrumbJsonLd,
-  chartOgImage,
+  chartOgImages,
   pageMetadata,
   SITE_NAME,
 } from "@/lib/seo";
@@ -175,7 +175,7 @@ function docsTitle(slugs: string[], title: string): string {
 function docsOgImages(slugs: string[], alt: string) {
   const [section, name] = slugs;
   if (section === "components" && name && isChartSlug(name)) {
-    return [chartOgImage(name, alt)];
+    return chartOgImages(name, alt);
   }
   return undefined;
 }

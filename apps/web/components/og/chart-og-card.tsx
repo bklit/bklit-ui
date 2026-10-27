@@ -1,320 +1,385 @@
 "use client";
 
-import { StaticChartPreviewProvider } from "@bklitui/ui/charts";
-import { MotionGlobalConfig } from "motion/react";
-import { useEffect, useMemo, useRef, useState } from "react";
-import type { ChartExamplePreviewLayout } from "@/components/charts/chart-example-preview";
-import { getFeaturedChartExample } from "@/components/charts/chart-examples";
-import { DotGridBackground } from "@/components/design/dot-grid-background";
-import { fetchWorldData } from "@/components/docs/use-world-data";
+import {
+  type CSSProperties,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import {
+  type FeaturedChartExample,
+  getChartPageExamples,
+} from "@/components/charts/chart-examples";
+import { freezeMotionCss, nextFrame } from "@/components/og/chart-og-fit";
+import {
+  OgWordmark,
+  stopCardLoops,
+  TILE_CHROME,
+  TILE_PADDING,
+  TileChart,
+  useWorldDataReady,
+} from "@/components/og/chart-og-tile";
 import { Frame, FramePanel } from "@/components/ui/frame";
 import {
   CHART_OG_CARD_ATTR,
   CHART_OG_READY_ATTR,
-  CHART_OG_SIZE,
+  CHART_OG_SIZES,
+  type ChartOgFormat,
 } from "@/lib/chart-og";
 import { cn } from "@/lib/utils";
 
-// This page only exists to be screenshotted: Motion animations jump straight
-// to their end state so pie / funnel / radar entries are never caught midway.
-if (typeof window !== "undefined") {
-  MotionGlobalConfig.skipAnimations = true;
+/**
+ * `/charts/[chart]` OG card: no text but the Bklit UI wordmark, just an
+ * infinite-looking floor of homepage chart panels (the chart page's
+ * examples) tilted away in 3D perspective, centred on the featured example,
+ * with a vignette that fades the floor into the background toward the edges.
+ *
+ * The floor is a `cols × rows` grid of tiles (`tile` px each, before
+ * perspective) inside a larger plane whose faint grid lines continue past
+ * the tiles. The featured example's tile sits at `featured` (column, row) and
+ * is pinned to `anchor` on the card: it is the transform origin, so it keeps
+ * its size and position while everything else recedes. To keep capture fast,
+ * only slots that land on the card (projected with the same transform) get a
+ * tile, capped at `maxCharts` nearest the featured one; the rest of the plane
+ * is grid lines.
+ */
+const GEOMETRY = {
+  wide: {
+    tile: { width: 420, height: 265 },
+    gap: 24,
+    cols: 5,
+    rows: 5,
+    featured: { col: 2, row: 4 },
+    maxCharts: 12,
+    /** Extra grid-line cells around the tiles: sides, far, near. */
+    extraCells: { x: 4, far: 6, near: 2 },
+    anchor: { x: 600, y: 460 },
+    perspective: 900,
+    perspectiveOrigin: { x: 600, y: 60 },
+    rotateX: 40,
+    rotateZ: 0,
+    /** Radial vignette ellipse (card %) centred on the anchor. */
+    vignette: { rx: 62, ry: 78 },
+    /** Bklit wordmark, top-left: inset from the card edges, mark + text size. */
+    logo: { x: 56, y: 48, mark: 36, text: 40 },
+  },
+  square: {
+    tile: { width: 460, height: 290 },
+    gap: 26,
+    cols: 5,
+    rows: 7,
+    featured: { col: 2, row: 6 },
+    maxCharts: 16,
+    extraCells: { x: 4, far: 8, near: 2 },
+    anchor: { x: 600, y: 920 },
+    perspective: 900,
+    perspectiveOrigin: { x: 600, y: 200 },
+    rotateX: 40,
+    rotateZ: 0,
+    vignette: { rx: 64, ry: 74 },
+    logo: { x: 80, y: 72, mark: 48, text: 54 },
+  },
+} as const;
+
+type CardGeometry = (typeof GEOMETRY)[ChartOgFormat];
+
+interface Tile {
+  key: string;
+  col: number;
+  row: number;
+  featured: boolean;
+  example: FeaturedChartExample;
 }
 
-/** Card geometry (px), a 1200×630 crop of the homepage: rails, divider, panel. */
-const RAIL_INSET = 40;
-const HEADER_HEIGHT = 150;
-const PANEL_INSET_X = 72;
-const PANEL_TOP = HEADER_HEIGHT + 32;
-const PANEL_BOTTOM = 32;
-
 /**
- * CSS keyframe / transition reveals (clip-path wipes, fades) also settle on
- * their final frame. Interactive-only chrome is dropped: `data-og-hide`
- * controls (curve pickers) and live hint text ("Click a segment…"). Scoped to
- * the card so nothing else on the page changes.
+ * Featured tile per chart page when the page's first example doesn't read
+ * well as a card: the line hero's legend + brush overflow a tile, and the
+ * patterned donut says more than the plain pie.
  */
-const freezeMotionCss = `[${CHART_OG_CARD_ATTR}] *, [${CHART_OG_CARD_ATTR}] *::before, [${CHART_OG_CARD_ATTR}] *::after {
-  animation-delay: 0s !important;
-  animation-duration: 0s !important;
-  animation-iteration-count: 1 !important;
-  transition-delay: 0s !important;
-  transition-duration: 0s !important;
-}
-[${CHART_OG_CARD_ATTR}] [data-og-hide] { display: none !important; }
-[${CHART_OG_CARD_ATTR}] [aria-live] { visibility: hidden !important; }`;
-
-/**
- * How the featured example fills the panel's chart box, per gallery layout.
- * Responsive time-series charts stretch to the box. The rest are laid out at
- * their gallery width (`designWidth`), then CSS `zoom`ed (vector-sharp) until
- * they fill the box. Compact charts (pie, radar, ring, gauge, sunburst) draw
- * inside fixed-size squares with built-in whitespace, so they are instead
- * scaled until their painted SVG marks fill the box.
- */
-const stretchClassName =
-  "w-full [&_.relative.w-full]:!aspect-auto [&_.relative.w-full]:!h-[330px]";
-
-const designWidth: Record<ChartExamplePreviewLayout, number | null> = {
-  cartesian: null,
-  "time-series": null,
-  compact: 300,
-  funnel: 640,
-  wide: 760,
-  heatmap: 860,
-  inline: 600,
+const FEATURED_OVERRIDES: Partial<Record<string, string>> = {
+  "line-chart": "Line Chart - Multiple Lines",
+  "pie-chart": "Donut Chart - Patterns",
 };
 
-const MAX_ZOOM = 2.25;
-const MAX_COMPACT_SCALE = 3;
-const CHART_BOX_PADDING = 32;
-/** Stretched charts get wider gutters for labels drawn past the plot (live value badge). */
-const STRETCH_PADDING_X = 56;
+/** Examples that never tile well (interactive chrome that overflows a tile). */
+const EXCLUDED_TITLES = new Set(["Line Chart - Trio with Brush"]);
 
-const GRAPHIC_SELECTOR =
-  "svg :is(path, circle, ellipse, rect, line, polyline, polygon, text)";
+/** Loading-state examples ("Area Chart - Loading (Sweep)") are skeletons, not charts. */
+const LOADING_TITLE = / - Loading\b/;
 
-function isPainted(paint: string) {
-  return (
-    paint !== "none" &&
-    paint !== "transparent" &&
-    !paint.startsWith("rgba(0, 0, 0, 0)")
+/** The page's examples, featured first, without ones that don't tile. */
+function ogExamples(slug: string): FeaturedChartExample[] {
+  const examples = getChartPageExamples(slug).filter(
+    (example) => !EXCLUDED_TITLES.has(example.title)
   );
+  const override = FEATURED_OVERRIDES[slug];
+  const index = override
+    ? examples.findIndex((example) => example.title === override)
+    : -1;
+  if (index <= 0) {
+    return examples;
+  }
+  const featured = examples[index] as FeaturedChartExample;
+  return [featured, ...examples.filter((_, i) => i !== index)];
 }
 
-/** Union of the visible SVG marks under `root`, in viewport px. */
-function paintedGraphicsRect(root: HTMLElement) {
-  let left = Number.POSITIVE_INFINITY;
-  let top = Number.POSITIVE_INFINITY;
-  let right = Number.NEGATIVE_INFINITY;
-  let bottom = Number.NEGATIVE_INFINITY;
-  for (const element of root.querySelectorAll(GRAPHIC_SELECTOR)) {
-    if (element.closest("defs, clipPath, mask, pattern, marker")) {
-      continue;
+/** Tiles showing less than this much card area (px², before the vignette) get no chart. */
+const MIN_VISIBLE_AREA = 28_000;
+
+/**
+ * On-card area (px²) of the slot's projected bounding box, using the same
+ * transform as the plane: `rotateX(θ) rotateZ(φ)` about the featured tile's
+ * centre (pinned to `anchor`), then `perspective` from `perspectiveOrigin`.
+ */
+function visibleArea(
+  col: number,
+  row: number,
+  geometry: CardGeometry,
+  size: { width: number; height: number }
+): number {
+  const pitchX = geometry.tile.width + geometry.gap;
+  const pitchY = geometry.tile.height + geometry.gap;
+  const theta = (geometry.rotateX * Math.PI) / 180;
+  const phi = (geometry.rotateZ * Math.PI) / 180;
+  const d = geometry.perspective;
+  const { x: px, y: py } = geometry.perspectiveOrigin;
+  const left = (col - geometry.featured.col - 0.5) * pitchX;
+  const top = (row - geometry.featured.row - 0.5) * pitchY;
+  const corners = [
+    [left, top],
+    [left + geometry.tile.width, top],
+    [left, top + geometry.tile.height],
+    [left + geometry.tile.width, top + geometry.tile.height],
+  ] as const;
+  let minX = Number.POSITIVE_INFINITY;
+  let minY = Number.POSITIVE_INFINITY;
+  let maxX = Number.NEGATIVE_INFINITY;
+  let maxY = Number.NEGATIVE_INFINITY;
+  for (const [x, y] of corners) {
+    const rx = x * Math.cos(phi) - y * Math.sin(phi);
+    const ry = x * Math.sin(phi) + y * Math.cos(phi);
+    const cardX = geometry.anchor.x + rx;
+    const cardY = geometry.anchor.y + ry * Math.cos(theta);
+    const z = ry * Math.sin(theta);
+    const scale = d / (d - z);
+    const sx = px + (cardX - px) * scale;
+    const sy = py + (cardY - py) * scale;
+    minX = Math.min(minX, sx);
+    minY = Math.min(minY, sy);
+    maxX = Math.max(maxX, sx);
+    maxY = Math.max(maxY, sy);
+  }
+  const width = Math.max(0, Math.min(maxX, size.width) - Math.max(minX, 0));
+  const height = Math.max(0, Math.min(maxY, size.height) - Math.max(minY, 0));
+  return width * height;
+}
+
+/**
+ * Featured example at its slot; the other examples fill the visible slots
+ * nearest to it (rows count a little less, they are foreshortened), cycling
+ * when the page has fewer examples than slots. Capped at `maxCharts`.
+ */
+function layoutTiles(
+  examples: FeaturedChartExample[],
+  geometry: CardGeometry,
+  size: { width: number; height: number }
+): Tile[] {
+  const [featured, ...rest] = examples;
+  if (!featured) {
+    return [];
+  }
+  const others = rest.filter((example) => !LOADING_TITLE.test(example.title));
+  const fill = others.length > 0 ? others : [featured];
+  const slots: { col: number; row: number; distance: number }[] = [];
+  for (let row = 0; row < geometry.rows; row++) {
+    for (let col = 0; col < geometry.cols; col++) {
+      if (col === geometry.featured.col && row === geometry.featured.row) {
+        continue;
+      }
+      if (visibleArea(col, row, geometry, size) < MIN_VISIBLE_AREA) {
+        continue;
+      }
+      slots.push({
+        col,
+        row,
+        distance:
+          Math.abs(col - geometry.featured.col) +
+          Math.abs(row - geometry.featured.row) * 0.8,
+      });
     }
-    const style = getComputedStyle(element);
-    if (
-      style.visibility === "hidden" ||
-      Number(style.opacity) === 0 ||
-      !(isPainted(style.fill) || isPainted(style.stroke))
-    ) {
-      continue;
-    }
-    const rect = element.getBoundingClientRect();
-    if (rect.width === 0 && rect.height === 0) {
-      continue;
-    }
-    left = Math.min(left, rect.left);
-    top = Math.min(top, rect.top);
-    right = Math.max(right, rect.right);
-    bottom = Math.max(bottom, rect.bottom);
   }
-  if (!(Number.isFinite(left) && right > left && bottom > top)) {
-    return null;
+  slots.sort((a, b) => a.distance - b.distance || a.row - b.row);
+  const tiles: Tile[] = [
+    {
+      key: "featured",
+      ...geometry.featured,
+      featured: true,
+      example: featured,
+    },
+  ];
+  for (const [index, slot] of slots
+    .slice(0, geometry.maxCharts - 1)
+    .entries()) {
+    tiles.push({
+      key: `${slot.col}-${slot.row}`,
+      col: slot.col,
+      row: slot.row,
+      featured: false,
+      example: fill[index % fill.length] as FeaturedChartExample,
+    });
   }
-  return { left, top, width: right - left, height: bottom - top };
+  return tiles;
 }
 
-interface ContentFit {
-  zoom?: number;
-  transform?: string;
-  transformOrigin?: string;
-}
-
-/** Zoom / scale that makes the laid-out example fill the chart box. */
-function measureFit(
-  box: HTMLElement,
-  content: HTMLElement,
-  layout: ChartExamplePreviewLayout,
-  width: number
-): ContentFit {
-  const boxRect = box.getBoundingClientRect();
-  const boxWidth = boxRect.width - CHART_BOX_PADDING * 2;
-  const boxHeight = boxRect.height - CHART_BOX_PADDING * 2;
-
-  const painted = layout === "compact" ? paintedGraphicsRect(content) : null;
-  if (painted) {
-    const scale = Math.min(
-      boxWidth / painted.width,
-      boxHeight / painted.height,
-      MAX_COMPACT_SCALE
-    );
-    const contentRect = content.getBoundingClientRect();
-    const centerX = painted.left + painted.width / 2;
-    const centerY = painted.top + painted.height / 2;
-    const shiftX = boxRect.left + boxRect.width / 2 - centerX;
-    const shiftY = boxRect.top + boxRect.height / 2 - centerY;
-    return {
-      transform: `translate(${shiftX}px, ${shiftY}px) scale(${scale})`,
-      transformOrigin: `${centerX - contentRect.left}px ${centerY - contentRect.top}px`,
-    };
-  }
-
-  const height = content.offsetHeight;
-  if (height <= 0) {
-    return {};
-  }
-  return {
-    zoom: Math.min(boxWidth / width, boxHeight / height, MAX_ZOOM),
-  };
-}
-
-function nextFrame() {
-  return new Promise<void>((resolve) => {
-    requestAnimationFrame(() => resolve());
-  });
-}
-
-const rivetClassName =
-  "absolute size-2 rounded-[2px] border border-border bg-popover bg-clip-padding shadow-xs/5";
-
-export function ChartOgCard({ slug, label }: { slug: string; label: string }) {
-  const featured = useMemo(() => getFeaturedChartExample(slug), [slug]);
-  const needsWorldData = slug === "choropleth-chart";
-  const [dataReady, setDataReady] = useState(!needsWorldData);
+export function ChartOgCard({
+  slug,
+  label,
+  format = "wide",
+}: {
+  slug: string;
+  label: string;
+  format?: ChartOgFormat;
+}) {
+  const geometry = GEOMETRY[format];
+  const size = CHART_OG_SIZES[format];
+  const tiles = useMemo(
+    () => layoutTiles(ogExamples(slug), geometry, size),
+    [slug, geometry, size]
+  );
+  const dataReady = useWorldDataReady(slug === "choropleth-chart");
   const [mounted, setMounted] = useState(false);
+  const [readyTiles, setReadyTiles] = useState(0);
+  const [tilted, setTilted] = useState(false);
   const [ready, setReady] = useState(false);
 
+  useEffect(() => setMounted(true), []);
+
+  const showCharts = mounted && dataReady && tiles.length > 0;
+  const onTileReady = useCallback(() => setReadyTiles((n) => n + 1), []);
+
+  // Tiles are fitted on the flat plane (fit measuring reads client rects),
+  // then the plane tilts into perspective.
   useEffect(() => {
-    setMounted(true);
-    if (!needsWorldData) {
+    if (!showCharts || readyTiles < tiles.length) {
       return;
     }
     let cancelled = false;
-    // Warm the shared cache before the map mounts so it never renders its
-    // "Loading map…" state. On failure the card is never marked ready and the
-    // capture route answers with an uncached error.
-    fetchWorldData().then((data) => {
-      if (!cancelled && data) {
-        setDataReady(true);
-      }
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [needsWorldData]);
-
-  const showChart = mounted && dataReady && featured !== null;
-
-  const layout = featured?.previewLayout ?? "cartesian";
-  const width = designWidth[layout];
-  const boxRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
-  const [fit, setFit] = useState<ContentFit>({});
-
-  useEffect(() => {
-    if (!showChart) {
-      return;
-    }
-    let cancelled = false;
+    setTilted(true);
     (async () => {
-      await document.fonts.ready;
       await nextFrame();
       await nextFrame();
-      const box = boxRef.current;
-      const content = contentRef.current;
-      if (width && box && content && !cancelled) {
-        setFit(measureFit(box, content, layout, width));
-        await nextFrame();
-        await nextFrame();
-      }
       if (!cancelled) {
+        stopCardLoops();
         setReady(true);
       }
     })();
     return () => {
       cancelled = true;
     };
-  }, [showChart, layout, width]);
+  }, [showCharts, readyTiles, tiles.length]);
+
+  const pitchX = geometry.tile.width + geometry.gap;
+  const pitchY = geometry.tile.height + geometry.gap;
+  const { extraCells } = geometry;
+  const planeWidth = (geometry.cols + extraCells.x * 2) * pitchX;
+  const planeHeight =
+    (geometry.rows + extraCells.far + extraCells.near) * pitchY;
+  // Featured tile centre in plane px: the transform origin, pinned to anchor.
+  const originX = (extraCells.x + geometry.featured.col + 0.5) * pitchX;
+  const originY = (extraCells.far + geometry.featured.row + 0.5) * pitchY;
+  const anchorPct = {
+    x: (geometry.anchor.x / size.width) * 100,
+    y: (geometry.anchor.y / size.height) * 100,
+  };
+  const tileInnerHeight = geometry.tile.height - TILE_CHROME - TILE_PADDING * 2;
 
   return (
     <div
+      aria-label={label}
       className="relative isolate overflow-hidden bg-sidebar text-foreground"
+      role="img"
       {...{
         [CHART_OG_CARD_ATTR]: "",
         [CHART_OG_READY_ATTR]: ready ? "true" : "false",
       }}
-      style={{ width: CHART_OG_SIZE.width, height: CHART_OG_SIZE.height }}
+      style={
+        {
+          width: size.width,
+          height: size.height,
+          "--og-stretch-height": `${tileInnerHeight}px`,
+        } as CSSProperties
+      }
     >
       <style>{freezeMotionCss}</style>
 
-      {/* Homepage dot grid, fading in from both edges. */}
-      <div aria-hidden className="absolute inset-y-0 left-0 w-[320px]">
-        <DotGridBackground className="[mask-image:linear-gradient(to_right,black_0%,transparent_100%)]" />
-      </div>
-      <div aria-hidden className="absolute inset-y-0 right-0 w-[320px]">
-        <DotGridBackground className="[mask-image:linear-gradient(to_left,black_0%,transparent_100%)]" />
-      </div>
-
-      {/* Container rails + full-bleed divider with rivets (site-chrome). */}
+      {/* Perspective floor. */}
       <div
         aria-hidden
-        className="absolute inset-y-0 w-px bg-border/64"
-        style={{ left: RAIL_INSET }}
-      />
-      <div
-        aria-hidden
-        className="absolute inset-y-0 w-px bg-border/64"
-        style={{ right: RAIL_INSET }}
-      />
-      <div
-        aria-hidden
-        className="absolute inset-x-0 h-px bg-border/64"
-        style={{ top: HEADER_HEIGHT }}
-      />
-      <div
-        aria-hidden
-        className={rivetClassName}
-        style={{ left: RAIL_INSET - 3.5, top: HEADER_HEIGHT - 3.5 }}
-      />
-      <div
-        aria-hidden
-        className={rivetClassName}
-        style={{ right: RAIL_INSET - 3.5, top: HEADER_HEIGHT - 3.5 }}
-      />
-
-      <h1
-        className="absolute inset-x-0 top-0 m-0 flex items-center justify-center whitespace-nowrap font-bold font-heading text-[68px] leading-none tracking-tight"
-        style={{ height: HEADER_HEIGHT }}
-      >
-        {label}
-      </h1>
-
-      <Frame
-        className="absolute"
+        className="absolute inset-0"
         style={{
-          left: PANEL_INSET_X,
-          right: PANEL_INSET_X,
-          top: PANEL_TOP,
-          bottom: PANEL_BOTTOM,
+          perspective: geometry.perspective,
+          perspectiveOrigin: `${geometry.perspectiveOrigin.x}px ${geometry.perspectiveOrigin.y}px`,
         }}
       >
-        <FramePanel className="flex-1 overflow-hidden p-0">
-          <div
-            className="absolute inset-0 flex items-center justify-center"
-            ref={boxRef}
-            style={{
-              padding: CHART_BOX_PADDING,
-              paddingInline: width === null ? STRETCH_PADDING_X : undefined,
-            }}
-          >
-            <div
-              className={cn(
-                "min-w-0 shrink-0 [&_svg]:overflow-visible",
-                width === null && stretchClassName
-              )}
-              ref={contentRef}
-              style={width === null ? undefined : { width, ...fit }}
-            >
-              {showChart ? (
-                <StaticChartPreviewProvider>
-                  {featured.render()}
-                </StaticChartPreviewProvider>
-              ) : null}
-            </div>
-          </div>
-        </FramePanel>
-      </Frame>
+        <div
+          className="absolute"
+          style={{
+            left: geometry.anchor.x - originX,
+            top: geometry.anchor.y - originY,
+            width: planeWidth,
+            height: planeHeight,
+            transformOrigin: `${originX}px ${originY}px`,
+            transform: tilted
+              ? `rotateX(${geometry.rotateX}deg) rotateZ(${geometry.rotateZ}deg)`
+              : undefined,
+            // Grid lines run through the middle of the gaps between tiles.
+            backgroundImage:
+              "linear-gradient(to right, var(--color-border) 1px, transparent 1px), linear-gradient(to bottom, var(--color-border) 1px, transparent 1px)",
+            backgroundSize: `${pitchX}px ${pitchY}px`,
+            backgroundPosition: `${-geometry.gap / 2}px ${-geometry.gap / 2}px`,
+          }}
+        >
+          {showCharts
+            ? tiles.map((tile) => (
+                <Frame
+                  className={cn(
+                    "absolute",
+                    tile.featured &&
+                      "shadow-[0_40px_120px_-30px_rgb(0_0_0/0.9)] ring-1 ring-foreground/12"
+                  )}
+                  key={tile.key}
+                  style={{
+                    left: (extraCells.x + tile.col) * pitchX,
+                    top: (extraCells.far + tile.row) * pitchY,
+                    width: geometry.tile.width,
+                    height: geometry.tile.height,
+                  }}
+                >
+                  <FramePanel className="flex-1 overflow-hidden p-0">
+                    <TileChart
+                      layout={tile.example.previewLayout}
+                      onReady={onTileReady}
+                    >
+                      {tile.example.render()}
+                    </TileChart>
+                  </FramePanel>
+                </Frame>
+              ))
+            : null}
+        </div>
+      </div>
+
+      {/* Vignette: the floor fades to the background toward the edges. */}
+      <div
+        aria-hidden
+        className="absolute inset-0"
+        style={{
+          backgroundImage: `radial-gradient(ellipse ${geometry.vignette.rx}% ${geometry.vignette.ry}% at ${anchorPct.x}% ${anchorPct.y}%, transparent 40%, var(--color-sidebar) 100%)`,
+        }}
+      />
+
+      <OgWordmark {...geometry.logo} />
     </div>
   );
 }

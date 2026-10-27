@@ -14,6 +14,7 @@ import { JsonLd } from "@/components/seo/json-ld";
 import {
   absoluteUrl,
   GITHUB_URL,
+  homeOgImages,
   pageMetadata,
   SITE_DESCRIPTION,
   SITE_NAME,
@@ -26,6 +27,7 @@ export const metadata: Metadata = pageMetadata({
   absoluteTitle: true,
   description: SITE_DESCRIPTION,
   path: "/",
+  images: homeOgImages(),
 });
 
 const homeJsonLd = [

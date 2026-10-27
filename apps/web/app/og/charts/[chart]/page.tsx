@@ -6,9 +6,8 @@ import { ChartOgCard } from "@/components/og/chart-og-card";
 
 /**
  * Internal render target for `/api/og/charts/[chart]`: the chart page's
- * featured example as a 1200×630 card, screenshotted in headless Chrome.
- * Not linked anywhere; noindex, `X-Robots-Tag` (next.config) and disallowed
- * in robots.txt.
+ * examples on a perspective floor as a 1200×630 card. Not linked anywhere;
+ * noindex, `X-Robots-Tag` (next.config) and disallowed in robots.txt (`/og/`).
  */
 export const metadata: Metadata = {
   title: "Chart OG render",

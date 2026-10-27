@@ -7803,6 +7803,26 @@ export function getFeaturedChartExample(
   };
 }
 
+/**
+ * Every example on the chart page, in page order: the featured example first
+ * (see `getFeaturedChartExample`), then the remaining example cards. Used for
+ * the tiled OG images.
+ */
+export function getChartPageExamples(
+  chartSlug: string
+): FeaturedChartExample[] {
+  const entry = chartExamplesRegistry[chartSlug];
+  if (!entry) {
+    return [];
+  }
+  const hero = entry.hero?.();
+  return [...(hero ? [hero] : []), ...entry.factory()].map((example) => ({
+    title: example.title,
+    previewLayout: example.previewLayout ?? entry.previewLayout ?? "cartesian",
+    render: example.render,
+  }));
+}
+
 export function ChartExamplesGrid({ chartSlug }: { chartSlug: string }) {
   const entry = chartExamplesRegistry[chartSlug];
 

@@ -4,20 +4,18 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { generateMetadata as chartPageMetadata } from "@/app/(site)/(home)/charts/[chart]/page";
-import {
-  type ChartSlug,
-  isChartSlug,
-  validChartSlugs,
-} from "@/components/charts/chart-slugs";
+import { metadata as homePageMetadata } from "@/app/(site)/(home)/page";
+import { isChartSlug, validChartSlugs } from "@/components/charts/chart-slugs";
 import { OgPreviewImage, ReloadAllButton } from "./og-preview-client";
 import { withVersion } from "./with-version";
 
 /**
- * Dev-only preview of every `/charts/[chart]` Open Graph image.
- *
- * Image URLs come from the chart page's own `generateMetadata`, so this shows
- * exactly what social cards fetch. `notFound()` in production; noindex and
- * excluded from the sitemap.
+ * Dev-only preview of the chart Open Graph images: the homepage card and
+ * every `/charts/[chart]` card. Image URLs come from each page's own metadata
+ * (`metadata` / `generateMetadata`), so it shows exactly what social cards
+ * fetch. `?slug=<chart>` or `?slug=home` focuses one card. `notFound()` in
+ * production; noindex, `X-Robots-Tag`, disallowed in robots.txt and excluded
+ * from the sitemap.
  */
 export const metadata: Metadata = {
   title: "Chart OG preview",
@@ -25,6 +23,8 @@ export const metadata: Metadata = {
 };
 
 const PAGE_PATH = "/charts/og-preview";
+const PAGE_TITLE = "Chart OG preview";
+const HOME_SLUG = "home";
 
 interface SocialImage {
   url: string;
@@ -32,11 +32,16 @@ interface SocialImage {
 }
 
 interface ChartOgEntry {
-  slug: ChartSlug;
+  /** Chart slug, or `home`. */
+  slug: string;
   label: string;
+  /** The page the card belongs to. */
+  href: string;
   title: string;
   description: string;
   ogImage: SocialImage | null;
+  /** The 1:1 og:image (width === height), when the page lists one. */
+  squareImage: SocialImage | null;
   twitterImage: SocialImage | null;
   twitterCard: string | null;
 }
@@ -53,22 +58,63 @@ function firstImage(images: unknown): SocialImage | null {
   return { url: image.url.toString(), alt: image.alt };
 }
 
-async function chartOgEntry(slug: ChartSlug): Promise<ChartOgEntry> {
-  const meta = await chartPageMetadata({
-    params: Promise.resolve({ chart: slug }),
-  });
+/** First og:image whose declared width equals its height. */
+function squareImage(images: unknown): SocialImage | null {
+  const list = Array.isArray(images) ? images : [images];
+  for (const image of list) {
+    if (image && typeof image === "object" && !(image instanceof URL)) {
+      const { url, alt, width, height } = image as {
+        url: string | URL;
+        alt?: string;
+        width?: number | string;
+        height?: number | string;
+      };
+      if (width !== undefined && Number(width) === Number(height)) {
+        return { url: url.toString(), alt };
+      }
+    }
+  }
+  return null;
+}
+
+function metadataEntry(
+  meta: Metadata,
+  page: { slug: string; label: string; href: string }
+): ChartOgEntry {
   const twitter = meta.twitter as
     | { card?: string; images?: unknown }
     | undefined;
+  const title = meta.openGraph?.title ?? meta.title ?? page.slug;
   return {
-    slug,
-    label: chartLabels[slug],
-    title: String(meta.openGraph?.title ?? meta.title ?? slug),
+    ...page,
+    title:
+      typeof title === "object" && "absolute" in title
+        ? title.absolute
+        : String(title),
     description: String(meta.openGraph?.description ?? meta.description ?? ""),
     ogImage: firstImage(meta.openGraph?.images),
+    squareImage: squareImage(meta.openGraph?.images),
     twitterImage: firstImage(twitter?.images),
     twitterCard: twitter?.card ?? null,
   };
+}
+
+async function entryFor(slug: string): Promise<ChartOgEntry> {
+  if (!isChartSlug(slug)) {
+    return metadataEntry(homePageMetadata, {
+      slug: HOME_SLUG,
+      label: "Home",
+      href: "/",
+    });
+  }
+  const meta = await chartPageMetadata({
+    params: Promise.resolve({ chart: slug }),
+  });
+  return metadataEntry(meta, {
+    slug,
+    label: chartLabels[slug],
+    href: `/charts/${slug}`,
+  });
 }
 
 function previewHref(params: Record<string, string | undefined>) {
@@ -80,19 +126,20 @@ function previewHref(params: Record<string, string | undefined>) {
   return search ? `${PAGE_PATH}?${search}` : PAGE_PATH;
 }
 
-interface PageProps {
+export default async function ChartOgPreviewPage({
+  searchParams,
+}: {
   searchParams: Promise<{ slug?: string; v?: string }>;
-}
-
-export default async function ChartOgPreviewPage({ searchParams }: PageProps) {
+}) {
   if (process.env.NODE_ENV === "production") {
     notFound();
   }
 
   const { slug, v = "" } = await searchParams;
-  const focusSlug = slug && isChartSlug(slug) ? slug : null;
+  const focusSlug =
+    slug && (slug === HOME_SLUG || isChartSlug(slug)) ? slug : null;
   const entries = await Promise.all(
-    (focusSlug ? [focusSlug] : validChartSlugs).map(chartOgEntry)
+    (focusSlug ? [focusSlug] : [HOME_SLUG, ...validChartSlugs]).map(entryFor)
   );
 
   return (
@@ -100,24 +147,24 @@ export default async function ChartOgPreviewPage({ searchParams }: PageProps) {
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex flex-col gap-1">
           <h1 className="font-semibold text-2xl">
-            {focusSlug ? (
+            {focusSlug && entries[0] ? (
               <>
                 <Link
                   className="text-muted-foreground hover:text-foreground"
                   href={previewHref({ v })}
                 >
-                  Chart OG preview
+                  {PAGE_TITLE}
                 </Link>{" "}
-                / {chartLabels[focusSlug]}
+                / {entries[0].label}
               </>
             ) : (
-              "Chart OG preview"
+              PAGE_TITLE
             )}
           </h1>
           <p className="text-muted-foreground text-sm">
             {focusSlug
               ? "Large view and approximate social card crops."
-              : `${entries.length} chart pages. Images use the URLs from each page's metadata (og:image / twitter:image). Dev only.`}
+              : `Homepage + ${entries.length - 1} chart pages. Images use the URLs from each page's metadata (og:image / twitter:image). Dev only.`}
           </p>
         </div>
         <Suspense fallback={null}>
@@ -183,7 +230,7 @@ function GridCard({
           <code>{entry.slug}</code>
           <Link
             className="hover:text-foreground hover:underline"
-            href={`/charts/${entry.slug}`}
+            href={entry.href}
           >
             Page
           </Link>
@@ -202,6 +249,21 @@ function GridCard({
           src={entry.ogImage.url}
           version={version}
         />
+      ) : null}
+      {entry.squareImage ? (
+        <div className="flex flex-col gap-1">
+          <span className="text-muted-foreground text-xs">1:1</span>
+          <div className="w-44">
+            <OgPreviewImage
+              alt={entry.squareImage.alt ?? entry.title}
+              aspect="square"
+              key={version}
+              src={entry.squareImage.url}
+              version={version}
+              withActions={false}
+            />
+          </div>
+        </div>
       ) : null}
       <TwitterMismatch entry={entry} />
     </article>
@@ -228,9 +290,9 @@ function FocusView({
         <div className="flex flex-wrap items-center gap-3 text-muted-foreground text-sm">
           <Link
             className="hover:text-foreground hover:underline"
-            href={`/charts/${entry.slug}`}
+            href={entry.href}
           >
-            /charts/{entry.slug}
+            {entry.href}
           </Link>
           <span>·</span>
           <span>{entry.title}</span>
@@ -244,9 +306,28 @@ function FocusView({
             version={version}
           />
         </div>
+        {entry.squareImage ? (
+          <div className="flex max-w-[600px] flex-col gap-2">
+            <span className="text-muted-foreground text-xs">
+              1:1 card (second og:image)
+            </span>
+            <OgPreviewImage
+              alt={entry.squareImage.alt ?? entry.title}
+              aspect="square"
+              className="size-full object-contain"
+              key={version}
+              src={entry.squareImage.url}
+              version={version}
+            />
+          </div>
+        ) : null}
         <dl className="grid max-w-[1200px] grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-xs">
           <dt className="text-muted-foreground">og:image</dt>
           <dd className="break-all font-mono">{entry.ogImage.url}</dd>
+          <dt className="text-muted-foreground">og:image (1:1)</dt>
+          <dd className="break-all font-mono">
+            {entry.squareImage?.url ?? "none"}
+          </dd>
           <dt className="text-muted-foreground">twitter:image</dt>
           <dd className="break-all font-mono">
             {entry.twitterImage?.url === entry.ogImage.url
@@ -324,10 +405,22 @@ function FocusView({
             </div>
           </CardFrame>
 
-          <CardFrame label="Square centre crop (X summary, WhatsApp, compact previews)">
+          <CardFrame
+            label={
+              entry.squareImage
+                ? "Square preview, 1:1 card (WhatsApp, iMessage, compact previews)"
+                : "Square centre crop (WhatsApp, iMessage, compact previews)"
+            }
+          >
             <div className="flex w-[440px] items-center gap-3 overflow-hidden rounded-xl border border-neutral-700">
               <div className="size-32 shrink-0 overflow-hidden">
-                <SocialImg src={src} />
+                <SocialImg
+                  src={
+                    entry.squareImage
+                      ? withVersion(entry.squareImage.url, version)
+                      : src
+                  }
+                />
               </div>
               <div className="min-w-0 py-2 pr-3">
                 <p className="text-neutral-500 text-xs">{SITE_DOMAIN}</p>
