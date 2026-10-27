@@ -2,6 +2,7 @@
 
 import { curveNatural } from "@visx/curve";
 import type { CurveFactory } from "d3-shape";
+import { motion } from "motion/react";
 import { type ReactNode, useId } from "react";
 import {
   chartCssVars,
@@ -10,6 +11,9 @@ import {
   useYScale,
 } from "./chart-context";
 import { useAnimatedSeriesPath } from "./use-animated-series-path";
+
+/** Fade-in after the series reveal — matches `Background`. */
+const BACKDROP_ENTER_FADE_MS = 420;
 
 /** A colour stop on the backdrop's radial gradient (`offset` 0–1, centre → rim). */
 export interface LineBackdropStop {
@@ -78,7 +82,8 @@ function seriesRegionPath(pathD: string, edgeY: number): string | null {
  * Fill clipped to the region between a series and the top (or bottom) of the
  * plot — e.g. a sky glow that only shows above the line. Follows the same
  * animated path as `Line`, so it stays glued to the stroke through data morphs,
- * y-domain tweens and the reveal clip. Render it before the `Line`.
+ * y-domain tweens and the reveal clip. Fades in once the line has revealed
+ * (like `Background`). Render it before the `Line`.
  */
 export function LineBackdrop({
   dataKey,
@@ -100,6 +105,8 @@ export function LineBackdrop({
     xAccessor,
     chartPhase,
     yDomainTweenDuration,
+    isLoaded,
+    enterTransition,
   } = useChartStable();
   const yScale = useYScale(yAxisId);
   const settledYScale = useSettledYScale(yAxisId);
@@ -135,8 +142,19 @@ export function LineBackdrop({
   const rx = Math.max(1, innerWidth * radius.x);
   const ry = Math.max(1, innerHeight * radius.y);
 
+  // Hold back until the line has revealed, then fade in (like `Background`).
+  const enterFade =
+    enterTransition && typeof enterTransition === "object"
+      ? enterTransition
+      : { duration: BACKDROP_ENTER_FADE_MS / 1000, ease: "easeOut" as const };
+
   return (
-    <g opacity={opacity} pointerEvents="none">
+    <motion.g
+      animate={{ opacity: isLoaded ? opacity : 0 }}
+      initial={{ opacity: 0 }}
+      pointerEvents="none"
+      transition={isLoaded ? enterFade : { duration: 0 }}
+    >
       <defs>
         <clipPath id={clipId}>
           <path d={regionD} />
@@ -172,7 +190,7 @@ export function LineBackdrop({
           />
         )}
       </g>
-    </g>
+    </motion.g>
   );
 }
 

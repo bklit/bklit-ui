@@ -125,14 +125,6 @@ export function LineChartGlowDemo() {
         "[--sunset-dot:#e8742a] dark:[--sunset-dot:#fff1d0]",
       ].join(" ")}
     >
-      {STARS.map((star) => (
-        <span
-          aria-hidden
-          className="pointer-events-none absolute hidden size-[3px] bg-white/30 dark:block"
-          key={`${star.left}-${star.top}`}
-          style={star}
-        />
-      ))}
       <LineChart
         aspectRatio="7 / 5"
         data={glowData}
@@ -151,6 +143,19 @@ export function LineChartGlowDemo() {
           radius={{ x: 0.35, y: 0.22 }}
           stops={SUN_STOPS}
         />
+        {/* Stars live in a backdrop too, so they fade in with the glow. */}
+        <LineBackdrop dataKey="sessions">
+          {STARS.map((star) => (
+            <rect
+              className="hidden fill-white/30 dark:block"
+              height={3}
+              key={`${star.left}-${star.top}`}
+              width={3}
+              x={star.left}
+              y={star.top}
+            />
+          ))}
+        </LineBackdrop>
         <Line
           dataKey="sessions"
           fadeEdges={false}

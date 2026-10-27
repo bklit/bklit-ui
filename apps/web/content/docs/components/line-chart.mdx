@@ -93,7 +93,7 @@ Click the date range buttons — the line and y-axis morph smoothly without rein
 
 ## Glow
 
-Layer a sky behind the line with `LineBackdrop`: a radial gradient clipped to the region between the series and the top of the plot, so it only shows above the line. It follows the same animated path as `Line` — through the reveal, data morphs and y-domain tweens — so render it **before** the `Line` with the same `dataKey` (and `curve`, if you change it). Stack several backdrops to mix colours.
+Layer a sky behind the line with `LineBackdrop`: a radial gradient clipped to the region between the series and the top of the plot, so it only shows above the line. It follows the same animated path as `Line` — through the reveal, data morphs and y-domain tweens — so render it **before** the `Line` with the same `dataKey` (and `curve`, if you change it). Stack several backdrops to mix colours. Backdrops fade in once the line has drawn, so pass decorations such as stars as `children` of a backdrop to have them clipped to the sky and fade in with it.
 
 On the `Line`, `strokeGradient` paints a left → right colour ramp (it composes with `fadeEdges`) and `glow` adds a blurred copy of the stroke behind it. `highlight` styles the hover segment that follows the cursor along the curve: `fadeLength` gives it soft ends, `glow` makes it bloom, `span` sets how many points either side it covers, and `dimOpacity` controls how far the rest of the line dims. It keeps the line's `strokeGradient` unless you pass `highlight.stroke` / `highlight.strokeGradient`. On the tooltip, `indicatorEnd="point"` stops the crosshair at the hovered point, `indicatorEndColor` ramps its colour top → bottom, and `dotHaloBlur` softens the dot halo into a glow.
 
@@ -117,6 +117,11 @@ On the `Line`, `strokeGradient` paints a left → right colour ramp (it composes
       { offset: 1, color: "#3e2a48", opacity: 0 },
     ]}
   />
+  {/* Children replace the gradient — stars clipped to the sky, fading in with it */}
+  <LineBackdrop dataKey="sessions">
+    <rect fill="white" fillOpacity={0.3} height={3} width={3} x="38%" y="13%" />
+    <rect fill="white" fillOpacity={0.3} height={3} width={3} x="77%" y="4%" />
+  </LineBackdrop>
   <Line
     dataKey="sessions"
     fadeEdges={false}
@@ -201,7 +206,7 @@ Renders a line on the chart.
 
 ### LineBackdrop
 
-Fill clipped to the region between a series and the top (or bottom) of the plot. Follows the `Line`'s animated path. Render it before the `Line`.
+Fill clipped to the region between a series and the top (or bottom) of the plot. Follows the `Line`'s animated path and fades in after the line reveal (like `Background`). Render it before the `Line`.
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|

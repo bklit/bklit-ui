@@ -235,14 +235,6 @@ function SkyGlowChart({
       className="relative w-full overflow-hidden rounded-xl"
       style={{ background: palette.background }}
     >
-      {palette.stars.map((star) => (
-        <span
-          aria-hidden
-          className="pointer-events-none absolute size-[3px]"
-          key={`${star.left}-${star.top}`}
-          style={{ ...star, backgroundColor: palette.starColor }}
-        />
-      ))}
       <LineChart
         data={data}
         margin={SKY_MARGIN}
@@ -257,6 +249,21 @@ function SkyGlowChart({
             stops={backdrop.stops}
           />
         ))}
+        {palette.stars.length > 0 ? (
+          <LineBackdrop dataKey="visitors">
+            {palette.stars.map((star) => (
+              <rect
+                fill={palette.starColor}
+                height={3}
+                key={`${star.left}-${star.top}`}
+                opacity={star.opacity}
+                width={3}
+                x={star.left}
+                y={star.top}
+              />
+            ))}
+          </LineBackdrop>
+        ) : null}
         <Line
           dataKey="visitors"
           fadeEdges={false}
@@ -351,14 +358,19 @@ ${palette.stars
     : "";
   const starsJsx = hasStars
     ? `
-      {STARS.map((star) => (
-        <span
-          aria-hidden
-          className="pointer-events-none absolute size-[3px]"
-          key={\`\${star.left}-\${star.top}\`}
-          style={{ ...star, backgroundColor: "${palette.starColor}" }}
-        />
-      ))}`
+        <LineBackdrop dataKey="visitors">
+          {STARS.map((star) => (
+            <rect
+              fill="${palette.starColor}"
+              height={3}
+              key={\`\${star.left}-\${star.top}\`}
+              opacity={star.opacity}
+              width={3}
+              x={star.left}
+              y={star.top}
+            />
+          ))}
+        </LineBackdrop>`
     : "";
 
   return `"use client";
@@ -379,13 +391,13 @@ export function ${component}({
     <div
       className="relative w-full overflow-hidden rounded-xl"
       style={{ background: "${palette.background}" }}
-    >${starsJsx}
+    >
       <LineChart
         data={data}
         margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
         yScaleDomainMax={peak * ${SKY_HEADROOM}}
       >
-${palette.backdrops.map(fmtBackdrop).join("\n")}
+${palette.backdrops.map(fmtBackdrop).join("\n")}${starsJsx}
         <Line
           dataKey="visitors"
           fadeEdges={false}
@@ -431,7 +443,7 @@ function skySteps(palette: SkyPalette, sceneStep: string): string[] {
     `On \`<ChartTooltip>\`, set \`showDatePill={false}\`, \`topOffset={16}\` so the panel clears the top edge, a solid crosshair that fades in from the top and stops at the point (\`indicatorEnd="point"\`, \`indicatorColor="${palette.crosshair}"\`, \`indicatorEndColor="${palette.dot}"\`, \`indicatorFadeEdges="top"\`, \`indicatorFadeLength={35}\`) and a glowing dot (\`dotColor="${palette.dot}"\`, \`dotSize={4.5}\`, \`dotHaloScale={2.4}\`, \`dotHaloOpacity={0.7}\`, \`dotHaloBlur={4}\`).`,
     ...(palette.stars.length > 0
       ? [
-          `Scatter ${palette.stars.length} 3px square \`<span>\` stars (\`absolute\`, \`pointer-events-none\`, \`backgroundColor: "${palette.starColor}"\`, varied \`opacity\`) in the top third of the wrapper, before the chart.`,
+          `After the glow backdrops, add one more \`<LineBackdrop dataKey>\` whose children are ${palette.stars.length} 3px square \`<rect>\` stars (\`fill="${palette.starColor}"\`, varied \`opacity\`, percentage \`x\`/\`y\` in the top third), so the stars are clipped to the sky and fade in with the glow once the line has drawn.`,
         ]
       : []),
   ];
