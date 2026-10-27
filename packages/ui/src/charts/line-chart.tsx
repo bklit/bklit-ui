@@ -57,6 +57,12 @@ export interface LineChartProps {
   xDomainSlotCount?: number;
   /** Tween y-domain when brush changes the visible x-range. Default: false */
   tweenYDomainOnXDomainChange?: boolean;
+  /**
+   * Fixed y-domain max for single-axis charts: the domain becomes
+   * `[0, yScaleDomainMax × 1.1]` instead of following the data max. Use it to
+   * leave headroom above the series. Default: data max.
+   */
+  yScaleDomainMax?: number;
   /** Inline container styles (e.g. fixed height for brush strip). */
   style?: CSSProperties;
   /** Fires when the internal chart phase changes (e.g. OG capture readiness). */
@@ -71,6 +77,7 @@ const DEFAULT_MARGIN: Margin = { top: 40, right: 40, bottom: 40, left: 40 };
 const LINE_DOMAIN_EXCLUDED_NAMES = new Set([
   "ProfitLossLine",
   "LineSeriesTerminalMarker",
+  "LineBackdrop",
   "Area",
   "SeriesBar",
   "Scatter",
@@ -156,6 +163,7 @@ interface ChartInnerProps {
   xDomain?: [Date, Date];
   xDomainSlotCount?: number;
   tweenYDomainOnXDomainChange?: boolean;
+  yScaleDomainMax?: number;
   children: ReactNode;
   containerRef: React.RefObject<HTMLDivElement | null>;
   onPhaseChange: (phase: ChartPhase) => void;
@@ -178,6 +186,7 @@ function ChartInner({
   xDomain,
   xDomainSlotCount,
   tweenYDomainOnXDomainChange,
+  yScaleDomainMax,
   children,
   containerRef,
   onPhaseChange,
@@ -206,6 +215,7 @@ function ChartInner({
       xDomainSlotCount={xDomainSlotCount}
       yDomainTween={yDomainTween}
       yDomainTweenDuration={yDomainTweenDuration}
+      yScaleDomainMax={yScaleDomainMax}
     >
       {children}
     </TimeSeriesChartInner>
@@ -229,6 +239,7 @@ export function LineChart({
   xDomain,
   xDomainSlotCount,
   tweenYDomainOnXDomainChange = false,
+  yScaleDomainMax,
   style,
   onPhaseChange,
   children,
@@ -285,6 +296,7 @@ export function LineChart({
             xDomainSlotCount={xDomainSlotCount}
             yDomainTween={yDomainTween}
             yDomainTweenDuration={yDomainTweenDuration}
+            yScaleDomainMax={yScaleDomainMax}
           >
             {children}
           </ChartInner>

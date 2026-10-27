@@ -8,6 +8,7 @@ import { LineChart, Line, Grid, XAxis, ChartTooltip, ChartBrush, ChartBrushLayou
 import { LineChartBrushDemo } from "@/components/docs/line-chart-brush-demo";
 import { LineChartYDomainDemo } from "@/components/docs/line-chart-y-domain-demo";
 import { LineChartDateRangeDemo } from "@/components/docs/line-chart-date-range-demo";
+import { LineChartGlowDemo } from "@/components/docs/line-chart-glow-demo";
 import { ProjectionLineDemo } from "@/components/docs/projection-line-demo";
 import { BandRangeDemo } from "@/components/docs/band-demo";
 import { DateHighlightsLineDemo } from "@/components/docs/date-highlights-demo";
@@ -90,6 +91,68 @@ const filteredData = useMemo(() => {
 
 Click the date range buttons — the line and y-axis morph smoothly without reinitialization. Switch the dataset between **Revenue**, **~1,000** and **~10** (with the **Y axis** toggle on) to see a large y-domain change: the grid and y-axis labels rescale first — outgoing labels fade out while new ones cascade in — then the line morphs into place, so it never leaves the chart. Use the replay button to run the enter animation again.
 
+## Glow
+
+Layer a sky behind the line with `LineBackdrop`: a radial gradient clipped to the region between the series and the top of the plot, so it only shows above the line. It follows the same animated path as `Line` — through the reveal, data morphs and y-domain tweens — so render it **before** the `Line` with the same `dataKey` (and `curve`, if you change it). Stack several backdrops to mix colours.
+
+On the `Line`, `strokeGradient` paints a left → right colour ramp (it composes with `fadeEdges`) and `glow` adds a blurred copy of the stroke behind it. `highlight` styles the hover segment that follows the cursor along the curve: `fadeLength` gives it soft ends, `glow` makes it bloom, `span` sets how many points either side it covers, and `dimOpacity` controls how far the rest of the line dims. It keeps the line's `strokeGradient` unless you pass `highlight.stroke` / `highlight.strokeGradient`. On the tooltip, `indicatorEnd="point"` stops the crosshair at the hovered point, `indicatorEndColor` ramps its colour top → bottom, and `dotHaloBlur` softens the dot halo into a glow.
+
+<ComponentShowcase
+  code={`import { ChartTooltip, Line, LineBackdrop, LineChart } from "@bklitui/ui/charts";
+
+<LineChart
+  data={data}
+  margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
+  yScaleDomainMax={105} // headroom so the line sits low
+>
+  <LineBackdrop
+    dataKey="sessions"
+    center={{ x: 0.45, y: 0.82 }}
+    radius={{ x: 0.95, y: 0.6 }}
+    stops={[
+      { offset: 0, color: "#b4703c" },
+      { offset: 0.22, color: "#b4703c", opacity: 0.85 },
+      { offset: 0.45, color: "#7a4650", opacity: 0.7 },
+      { offset: 0.7, color: "#3e2a48", opacity: 0.45 },
+      { offset: 1, color: "#3e2a48", opacity: 0 },
+    ]}
+  />
+  <Line
+    dataKey="sessions"
+    fadeEdges={false}
+    glow={{ blur: 5, opacity: 0.85 }}
+    highlight={{
+      dimOpacity: 0.25,
+      fadeLength: 40, // soft ends
+      glow: { blur: 6, opacity: 1 },
+      span: 3,
+      strokeWidth: 2.5,
+    }}
+    strokeGradient={["#d9622b", "#f0b25a", "#f7dc9a"]}
+    strokeWidth={2}
+  />
+  <ChartTooltip
+    content={GlowTooltipContent}
+    dotColor="#fff1d0"
+    dotHaloBlur={4}
+    dotHaloOpacity={0.7}
+    indicatorColor="#3e2a48"
+    indicatorEndColor="#fff1d0"
+    indicatorEnd="point"
+    indicatorFadeEdges="top"
+    indicatorFadeLength={35}
+    showDatePill={false}
+    topOffset={16}
+  />
+</LineChart>`}
+  liveChartPreview
+  previewMinHeight={360}
+>
+  <LineChartGlowDemo />
+</ComponentShowcase>
+
+The demo reads its colours from CSS variables that switch with the theme, so the same chart works in light and dark mode. Pass `side="below"` to fill under the line instead, or `children` to clip your own SVG fill to the region.
+
 ## Components
 
 ### LineChart
@@ -109,6 +172,7 @@ The root component that provides context to all children.
 | `xDomain` | `[Date, Date]` | — | Visible x-range for brush zoom |
 | `xDomainSlotCount` | `number` | — | Full dataset length for x-scale padding when `xDomain` is set |
 | `tweenYDomainOnXDomainChange` | `boolean` | `false` | Tween y-domain when the brush changes the visible x-range |
+| `yScaleDomainMax` | `number` | data max | Fixed y-domain max (single axis): domain becomes `[0, yScaleDomainMax × 1.1]` — headroom above the series |
 | `aspectRatio` | `string` | `"2 / 1"` | CSS aspect ratio |
 | `className` | `string` | `""` | Additional CSS class |
 | `style` | `CSSProperties` | — | Inline container styles (e.g. fixed height for a brush strip) |
@@ -125,12 +189,32 @@ Renders a line on the chart.
 | `strokeWidth` | `number` | `2.5` | Line width |
 | `curve` | `CurveFactory` | `curveNatural` | D3 curve function |
 | `animate` | `boolean` | `true` | Enable grow animation |
-| `fadeEdges` | `boolean` | `true` | Fade line at edges |
+| `fadeEdges` | `boolean \| "left" \| "right"` | `true` | Fade line at edges |
+| `strokeGradient` | `string[] \| { offset, color }[]` | — | Left → right colour ramp across the plot (offsets 0–1; plain colours spaced evenly). Composes with `fadeEdges`; overrides `stroke` for the line paint |
+| `glow` | `boolean \| { blur?, opacity?, strokeWidth? }` | `false` | Blurred copy of the stroke behind the line. Defaults: `blur` `6`, `opacity` `0.7`, `strokeWidth` 2× line width |
 | `showHighlight` | `boolean` | `true` | Show highlight on hover |
+| `highlight` | `{ stroke?, strokeGradient?, strokeWidth?, span?, fadeLength?, glow?, dimOpacity? }` | — | Hover segment styling. `stroke` / `strokeGradient` override the colour (default: the line's paint); `strokeWidth` (default: line width); `span` points either side (default `1`); `fadeLength` soft ends as % of the segment width per side, 0–50 (default `0`, hard edges); `glow` same options as `glow` (default `false`); `dimOpacity` of the rest of the line (default `0.3`) |
 | `showMarkers` | `boolean` | `false` | Render scatter-style ring markers at each point |
 | `loadingStroke` | `string` | `var(--foreground)` | Pulse stroke color while chart is loading |
 | `loadingStrokeOpacity` | `number` | `0.5` | Pulse stroke opacity while chart is loading |
 | `markers` | `SeriesPointMarkerStyle` | — | Marker styling (same options as [`Scatter`](/docs/components/scatter-chart)) |
+
+### LineBackdrop
+
+Fill clipped to the region between a series and the top (or bottom) of the plot. Follows the `Line`'s animated path. Render it before the `Line`.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `dataKey` | `string` | required | Series to follow — match the `Line` |
+| `yAxisId` | `string \| number` | `"left"` | Y-scale group |
+| `side` | `"above" \| "below"` | `"above"` | Fill between the line and the top, or the line and the bottom |
+| `curve` | `CurveFactory` | `curveNatural` | Keep it the same as the `Line` |
+| `animate` | `boolean` | `true` | Follow the line's data and y-domain tweens |
+| `stops` | `{ offset, color, opacity? }[]` | `--chart-line-primary` 35% → 0% | Radial gradient stops, centre → rim |
+| `center` | `{ x, y }` | `{ x: 0.5, y: 1 }` | Gradient centre as fractions of the plot |
+| `radius` | `{ x, y }` | `{ x: 0.75, y: 1 }` | Gradient radii as fractions of plot width / height |
+| `opacity` | `number` | `1` | Overall opacity |
+| `children` | `ReactNode` | — | Custom SVG fill in plot coordinates; replaces the gradient |
 
 ### Grid
 
@@ -189,11 +273,15 @@ Renders the tooltip with crosshair, dots, and content box.
 | `showCrosshair` | `boolean` | `true` | Show vertical crosshair |
 | `showDots` | `boolean` | `true` | Show dots on lines |
 | `indicatorColor` | `string \| (point) => string` | — | Crosshair and dot color; use a function for value-based colors |
+| `indicatorEndColor` | `string` | — | Bottom colour of a vertical crosshair ramp (`indicatorColor` at the top) |
+| `indicatorEnd` | `"plot" \| "point"` | `"plot"` | Span the full plot height, or stop at the hovered point |
 | `indicatorDasharray` | `string` | — | Dash pattern for the crosshair (e.g. `"4,4"`) |
 | `indicatorFadeEdges` | `"both" \| "top" \| "bottom" \| "none"` | `"both"` | Vertical crosshair fade |
 | `indicatorFadeLength` | `number` | `10` | Fade size (% of height) |
+| `dotHaloBlur` | `number` | `0` | Blur (px) on the dot halo for a soft glow |
 | `matchCrosshair` | `boolean` | `false` | Panel uses crosshair spring when `true` |
 | `damping` | `number` | `20` | Panel follow when `matchCrosshair={false}`; `0` = instant |
+| `topOffset` | `number` | `0` | Extra gap (px) between the top of the plot and the panel when it is pinned to the top |
 | `content` | `(props) => ReactNode` | - | Custom content renderer |
 | `rows` | `(point) => TooltipRow[]` | - | Custom row generator |
 

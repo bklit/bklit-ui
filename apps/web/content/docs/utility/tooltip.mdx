@@ -36,6 +36,8 @@ import { LineChart, Line, Grid, ChartTooltip } from "@bklitui/ui/charts";
 | `showCrosshair` | `boolean` | `true` (`false` in `BarChart` and jittered `ScatterChart`) | Show the crosshair indicator line. Bar charts (vertical and horizontal) and `ScatterChart` with `jitter` (hover snaps to the nearest point, not a date) hide it by default — pass `showCrosshair` to opt in |
 | `showDots` | `boolean` | `true` | Show dots on data points |
 | `indicatorColor` | `string \| (point) => string` | — | Crosshair and dot color; pass a function for dynamic colors |
+| `indicatorEndColor` | `string` | — | Bottom colour of a vertical crosshair ramp (`indicatorColor` at the top) |
+| `indicatorEnd` | `"plot" \| "point"` | `"plot"` | Span the full plot height, or stop at the hovered point |
 | `indicatorDasharray` | `string` | — | SVG dash pattern for the crosshair (e.g. `"4,4"`). Omit for solid |
 | `indicatorFadeEdges` | `"both" \| "top" \| "bottom" \| "none"` | `"both"` | Vertical crosshair fade; `none` = solid line |
 | `indicatorFadeLength` | `number` | `10` | Fade zone size (% of crosshair height) when fading |
@@ -44,12 +46,14 @@ import { LineChart, Line, Grid, ChartTooltip } from "@bklitui/ui/charts";
 | `springConfig` | `{ stiffness: number; damping: number }` | chart config | Full spring override for crosshair, dots, and date pill |
 | `boxSpringConfig` | `{ stiffness: number; damping: number }` | chart config | Full spring override for the floating tooltip panel |
 | `exit` | `boolean` | `true` | Fade the panel out when hover ends. `false` hides it immediately |
+| `topOffset` | `number` | `0` | Extra gap (px) between the top of the plot and the panel when it is pinned to the top |
 | `backgroundColor` | `string` | `var(--chart-tooltip-background)` | Panel background (CSS variable or color value) |
 | `panelStyle` | `CSSProperties` | — | Inline styles for tooltip background and blur |
 | `dotVariant` | `"dot" \| "ring"` | `"dot"` | Dot style on series markers. `dot` is a solid core with a soft same-color halo |
 | `dotSize` | `number` | `5` | Dot core / ring radius in pixels |
 | `dotHaloScale` | `number` | `2.6` | Halo radius as a multiple of `dotSize`; `0` hides the halo. Dot variant only |
 | `dotHaloOpacity` | `number` | `0.3` | Halo opacity (0–1). Dot variant only |
+| `dotHaloBlur` | `number` | `0` | Blur (px) on the halo for a soft glow. Dot variant only |
 | `dotRadiusFraction` | `number` | — | Ring corner radius as a fraction of side length (0 = square, 0.5 = circle). Ring variant only |
 | `dotScale` | `number` | `1` | Multiplier applied to the dot / ring radius |
 | `dotStrokeWidth` | `number` | `1.5` (ring) / `0` (dot) | Ring stroke width; for the dot variant, a background-colored outline around the core |

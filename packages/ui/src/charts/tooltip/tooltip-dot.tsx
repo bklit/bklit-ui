@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, useSpring, useTransform } from "motion/react";
+import { useId } from "react";
 import { type SpringConfig, useChartConfig } from "../chart-config-context";
 import { chartCssVars } from "../chart-context";
 
@@ -25,6 +26,11 @@ export interface TooltipDotProps {
   haloScale?: number;
   /** `dot` variant: halo opacity (0–1). Default: `0.3` */
   haloOpacity?: number;
+  /**
+   * `dot` variant: Gaussian blur (px) on the halo, turning the disc into a
+   * soft glow. `0` keeps a crisp disc. Default: `0`
+   */
+  haloBlur?: number;
   /** Dot fill or transparent ring around the hovered mark. Default: "dot" */
   variant?: "dot" | "ring";
   /**
@@ -107,6 +113,7 @@ export function TooltipDot({
   strokeWidth,
   haloScale = DEFAULT_HALO_SCALE,
   haloOpacity = DEFAULT_HALO_OPACITY,
+  haloBlur = 0,
   variant = "dot",
   cornerRadiusFraction = 0.25,
   springConfig,
@@ -116,6 +123,7 @@ export function TooltipDot({
   const effectiveSpring = springConfig ?? tooltipSpring;
   const animatedX = useSpring(x, effectiveSpring);
   const animatedY = useSpring(y, effectiveSpring);
+  const haloFilterId = `tooltip-dot-halo-${useId()}`;
 
   const isRing = variant === "ring";
 
@@ -170,16 +178,29 @@ export function TooltipDot({
       : undefined;
   const haloRadius = Math.max(0, size * haloScale);
   const showHalo = haloRadius > size && haloOpacity > 0;
+  const blurHalo = showHalo && haloBlur > 0;
+  const haloFilter = blurHalo ? `url(#${haloFilterId})` : undefined;
+  // Filter region: 3× the halo's bounding box leaves room for the blur's
+  // falloff without cropping it into a square.
+  const haloFilterDefs = blurHalo ? (
+    <defs>
+      <filter height="300%" id={haloFilterId} width="300%" x="-100%" y="-100%">
+        <feGaussianBlur stdDeviation={haloBlur} />
+      </filter>
+    </defs>
+  ) : null;
 
   if (!animate) {
     return (
       <g>
+        {haloFilterDefs}
         {showHalo && (
           <circle
             cx={x}
             cy={y}
             fill={color}
             fillOpacity={haloOpacity}
+            filter={haloFilter}
             r={haloRadius}
           />
         )}
@@ -190,6 +211,7 @@ export function TooltipDot({
 
   return (
     <g>
+      {haloFilterDefs}
       {showHalo && (
         <motion.circle
           animate={{ r: haloRadius }}
@@ -197,6 +219,7 @@ export function TooltipDot({
           cy={animatedY}
           fill={color}
           fillOpacity={haloOpacity}
+          filter={haloFilter}
           initial={{ r: size }}
           transition={HALO_SPRING}
         />

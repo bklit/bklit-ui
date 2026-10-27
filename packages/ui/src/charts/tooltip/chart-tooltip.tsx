@@ -51,6 +51,8 @@ export interface ChartTooltipProps {
   dotHaloScale?: number;
   /** `dot` variant: halo opacity (0–1). Default: `0.3` */
   dotHaloOpacity?: number;
+  /** `dot` variant: blur (px) on the halo for a soft glow. `0` = crisp disc. Default: `0` */
+  dotHaloBlur?: number;
   /** Ring corner radius as a fraction of side length (0 = square, 0.5 = circle). */
   dotRadiusFraction?: number;
   /** Multiplier applied to the computed dot / ring pixel radius. Default: 1 */
@@ -65,6 +67,16 @@ export interface ChartTooltipProps {
    * (e.g. for candlestick: match candle color from close vs open). Default: --chart-crosshair.
    */
   indicatorColor?: string | ((point: Record<string, unknown>) => string);
+  /**
+   * Bottom colour of a vertical crosshair ramp: the crosshair blends from
+   * `indicatorColor` (top) to this colour (bottom). Composes with the fade.
+   */
+  indicatorEndColor?: string;
+  /**
+   * Where the crosshair ends: `"plot"` spans the full plot height, `"point"`
+   * stops at the hovered point (the topmost dot). Default: `"plot"`.
+   */
+  indicatorEnd?: "plot" | "point";
   /** Custom content renderer for the tooltip box */
   content?: (props: {
     point: Record<string, unknown>;
@@ -114,6 +126,11 @@ export interface ChartTooltipProps {
   backgroundColor?: string;
   /** Fade the panel out when hover ends. Default: true */
   exit?: boolean;
+  /**
+   * Extra gap (px) between the top of the plot and the panel when it is pinned
+   * to the top (vertical charts without a single active point). Default: `0`.
+   */
+  topOffset?: number;
 }
 
 interface ChartTooltipInnerProps extends ChartTooltipProps {
@@ -148,6 +165,24 @@ function resolveActivePoint(
   };
 }
 
+/** Smallest (topmost) hovered y across series — `indicatorEnd="point"`. */
+function resolveTopmostPointY(
+  tooltipData: TooltipData | null,
+  lines: LineConfig[]
+): number | undefined {
+  if (!tooltipData) {
+    return undefined;
+  }
+  let topmost: number | undefined;
+  for (const line of lines) {
+    const y = tooltipData.yPositions[line.dataKey];
+    if (y !== undefined && (topmost === undefined || y < topmost)) {
+      topmost = y;
+    }
+  }
+  return topmost;
+}
+
 /** TooltipBox position props for the hovered row / point. */
 function resolveBoxPlacement({
   activePoint,
@@ -156,6 +191,7 @@ function resolveBoxPlacement({
   margin,
   isHorizontal,
   xWithMargin,
+  topOffset,
 }: {
   activePoint: ReturnType<typeof resolveActivePoint>;
   tooltipData: TooltipData | null;
@@ -163,6 +199,7 @@ function resolveBoxPlacement({
   margin: Margin;
   isHorizontal: boolean;
   xWithMargin: number;
+  topOffset: number;
 }): Pick<TooltipBoxProps, "x" | "y" | "top" | "flipX" | "replayOnFlip"> {
   if (activePoint) {
     // Beside the hovered point, vertically centred + clamped. The side is
@@ -183,7 +220,8 @@ function resolveBoxPlacement({
       : 0;
     return { x: xWithMargin, y: firstLineY + margin.top };
   }
-  return { top: margin.top, x: xWithMargin, y: margin.top };
+  const top = margin.top + topOffset;
+  return { top, x: xWithMargin, y: top };
 }
 
 const ChartTooltipInner = memo(function ChartTooltipInner({
@@ -194,10 +232,13 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
   dotSize = 5,
   dotHaloScale,
   dotHaloOpacity,
+  dotHaloBlur,
   dotRadiusFraction,
   dotScale = 1,
   dotStrokeWidth,
   indicatorColor: indicatorColorProp,
+  indicatorEndColor,
+  indicatorEnd = "plot",
   content,
   rows: rowsRenderer,
   dotColor: dotColorProp,
@@ -215,6 +256,7 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
   backgroundColor,
   dateLabels: dateLabelsProp,
   exit = true,
+  topOffset = 0,
 }: ChartTooltipInnerProps) {
   const {
     tooltipData,
@@ -303,6 +345,7 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
     margin,
     isHorizontal,
     xWithMargin,
+    topOffset,
   });
 
   const tooltipRows = useMemo(() => {
@@ -387,6 +430,11 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
     return indicatorColorProp;
   }, [indicatorColorProp, tooltipData]);
 
+  const indicatorBottom =
+    indicatorEnd === "point"
+      ? resolveTopmostPointY(tooltipData, lines)
+      : undefined;
+
   // Title from date or category
   const title = useMemo(() => {
     if (!tooltipData) {
@@ -413,7 +461,9 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
           <g transform={`translate(${margin.left},${margin.top})`}>
             <TooltipIndicator
               animate={!discreteInteraction}
+              bottom={indicatorBottom}
               colorEdge={indicatorColor}
+              colorEnd={indicatorEndColor}
               colorMid={indicatorColor}
               columnWidth={columnWidth}
               fadeEdges={
@@ -449,6 +499,7 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
                     cornerRadiusFraction={
                       dotVariant === "ring" ? dotRadiusFraction : undefined
                     }
+                    haloBlur={dotHaloBlur}
                     haloOpacity={dotHaloOpacity}
                     haloScale={dotHaloScale}
                     size={resolvedDotSize}
@@ -467,6 +518,7 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
                     cornerRadiusFraction={
                       dotVariant === "ring" ? dotRadiusFraction : undefined
                     }
+                    haloBlur={dotHaloBlur}
                     haloOpacity={dotHaloOpacity}
                     haloScale={dotHaloScale}
                     key={line.dataKey}
@@ -493,6 +545,7 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
                   cornerRadiusFraction={
                     dotVariant === "ring" ? dotRadiusFraction : undefined
                   }
+                  haloBlur={dotHaloBlur}
                   haloOpacity={dotHaloOpacity}
                   haloScale={dotHaloScale}
                   key={`band-${dot.key}`}

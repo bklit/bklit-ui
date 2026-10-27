@@ -219,6 +219,8 @@ export {
   type DeadlineFillType,
   type DeadlineProps,
 } from "./deadline";
+// Line chart components
+export type { StrokeGradient, StrokeGradientStop } from "./fade-edges";
 // Funnel chart components
 export {
   FunnelChart,
@@ -336,8 +338,17 @@ export {
   useLegend,
   useLegendItem,
 } from "./legend";
-// Line chart components
-export { Line, type LineProps } from "./line";
+export {
+  Line,
+  type LineGlow,
+  type LineHighlight,
+  type LineProps,
+} from "./line";
+export {
+  LineBackdrop,
+  type LineBackdropProps,
+  type LineBackdropStop,
+} from "./line-backdrop";
 export { LineChart, type LineChartProps } from "./line-chart";
 export {
   LineChartLoading,

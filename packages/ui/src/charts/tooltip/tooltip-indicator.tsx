@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useSpring } from "motion/react";
-import { useEffect } from "react";
+import { useEffect, useId } from "react";
 import { type SpringConfig, useChartConfig } from "../chart-config-context";
 import { chartCssVars } from "../chart-context";
 import {
@@ -40,13 +40,23 @@ export interface TooltipIndicatorProps {
   colorEdge?: string;
   /** Secondary color at center (50%) */
   colorMid?: string;
+  /**
+   * Bottom colour for a vertical colour ramp: the indicator blends from
+   * `colorMid` (top) to `colorEnd` (bottom). Composes with `fadeEdges`.
+   */
+  colorEnd?: string;
+  /**
+   * Y (px) where the indicator ends, e.g. the hovered point. Springs with the
+   * indicator. Default: `height` (full plot).
+   */
+  bottom?: number;
   /** Vertical fade: both ends, top, bottom, or none (solid). */
   fadeEdges?: IndicatorFadeEdges | boolean;
   /** Fade zone size as a percentage of indicator height. Default: 10 */
   fadeLength?: number;
   /** Animate position with a spring. Default: true */
   animate?: boolean;
-  /** Unique ID for the gradient */
+  /** Unique ID for the gradient. Default: generated per instance. */
   gradientId?: string;
   /** Per-chart override; falls back to `ChartConfigProvider.tooltipSpring`. */
   springConfig?: SpringConfig;
@@ -72,6 +82,18 @@ function resolveWidth(width: IndicatorWidth): number {
   }
 }
 
+/** Colour at a gradient `offset` ("40%") on a top → bottom ramp. */
+function verticalRampColor(top: string, end: string, offset: string): string {
+  const percent = Number.parseFloat(offset);
+  if (percent <= 0) {
+    return top;
+  }
+  if (percent >= 100) {
+    return end;
+  }
+  return `color-mix(in srgb, ${end} ${percent}%, ${top})`;
+}
+
 // Inner-only-on-visible so `useSpring` initializes at the real cursor x
 // instead of 0 on first hover.
 export function TooltipIndicator(props: TooltipIndicatorProps) {
@@ -90,13 +112,20 @@ function TooltipIndicatorInner({
   columnWidth,
   colorEdge = chartCssVars.crosshair,
   colorMid = chartCssVars.crosshair,
+  colorEnd,
+  bottom,
   fadeEdges = "both",
   fadeLength = 10,
   animate = true,
-  gradientId = "tooltip-indicator-gradient",
+  gradientId: gradientIdProp,
   springConfig,
   strokeDasharray,
 }: TooltipIndicatorProps) {
+  // Per-instance id: a shared id makes every chart on the page resolve
+  // `url(#…)` to the first chart's gradient (and its colours).
+  const generatedId = useId();
+  const gradientId =
+    gradientIdProp ?? `tooltip-indicator-gradient-${generatedId}`;
   const { tooltipSpring } = useChartConfig();
   const effectiveSpring = springConfig ?? tooltipSpring;
 
@@ -107,19 +136,23 @@ function TooltipIndicatorInner({
 
   const rectX = x - pixelWidth / 2;
   const lineX = x;
+  const endY = Math.max(0, Math.min(height, bottom ?? height));
   const animatedX = useSpring(rectX, effectiveSpring);
   const animatedLineX = useSpring(lineX, effectiveSpring);
+  const animatedEndY = useSpring(endY, effectiveSpring);
 
   if (animate) {
     animatedX.set(rectX);
     animatedLineX.set(lineX);
+    animatedEndY.set(endY);
   }
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: we need to jump the animatedX when the visible prop changes
   useEffect(() => {
     animatedX.set(rectX);
     animatedLineX.set(lineX);
-  }, [animatedLineX, animatedX, lineX, rectX, visible]);
+    animatedEndY.set(endY);
+  }, [animatedLineX, animatedX, animatedEndY, endY, lineX, rectX, visible]);
 
   const indicatorFill = colorMid || colorEdge;
   const fadeSides = resolveVerticalFadeSides(fadeEdges);
@@ -135,7 +168,7 @@ function TooltipIndicatorInner({
         x1={animatedLineX}
         x2={animatedLineX}
         y1={0}
-        y2={height}
+        y2={animatedEndY}
       />
     ) : (
       <line
@@ -145,16 +178,16 @@ function TooltipIndicatorInner({
         x1={lineX}
         x2={lineX}
         y1={0}
-        y2={height}
+        y2={endY}
       />
     );
   }
 
-  if (!fadeSides.any) {
+  if (!(fadeSides.any || colorEnd)) {
     return animate ? (
       <motion.rect
         fill={indicatorFill}
-        height={height}
+        height={animatedEndY}
         width={pixelWidth}
         x={animatedX}
         y={0}
@@ -162,7 +195,7 @@ function TooltipIndicatorInner({
     ) : (
       <rect
         fill={indicatorFill}
-        height={height}
+        height={endY}
         width={pixelWidth}
         x={rectX}
         y={0}
@@ -171,6 +204,9 @@ function TooltipIndicatorInner({
   }
 
   const fadeStops = indicatorFadeGradientStops(fadeSides, fadeLength);
+  if (colorEnd && fadeStops.length === 1) {
+    fadeStops.push({ offset: "100%", opacity: 1 });
+  }
 
   return (
     <g>
@@ -180,7 +216,12 @@ function TooltipIndicatorInner({
             <stop
               key={stop.offset}
               offset={stop.offset}
-              style={{ stopColor: indicatorFill, stopOpacity: stop.opacity }}
+              style={{
+                stopColor: colorEnd
+                  ? verticalRampColor(indicatorFill, colorEnd, stop.offset)
+                  : indicatorFill,
+                stopOpacity: stop.opacity,
+              }}
             />
           ))}
         </linearGradient>
@@ -188,7 +229,7 @@ function TooltipIndicatorInner({
       {animate ? (
         <motion.rect
           fill={`url(#${gradientId})`}
-          height={height}
+          height={animatedEndY}
           width={pixelWidth}
           x={animatedX}
           y={0}
@@ -196,7 +237,7 @@ function TooltipIndicatorInner({
       ) : (
         <rect
           fill={`url(#${gradientId})`}
-          height={height}
+          height={endY}
           width={pixelWidth}
           x={rectX}
           y={0}

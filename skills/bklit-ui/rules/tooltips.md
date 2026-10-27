@@ -22,6 +22,8 @@
 | `content` | `({ point, index }) => ReactNode` | built-in rows |
 | `rows` | `(point) => { color, label, value }[]` | one row per series |
 | `indicatorColor` | `string \| (point) => string` | `--chart-crosshair` |
+| `indicatorEndColor` | `string` (bottom of a top → bottom ramp) | — |
+| `indicatorEnd` | `"plot" \| "point"` | `"plot"` |
 | `indicatorDasharray` | `string` (e.g. `"4,4"`) | solid |
 | `indicatorFadeEdges` | `"both" \| "top" \| "bottom" \| "none"` | `"both"` |
 | `indicatorFadeLength` | `number` (% of height) | `10` |
@@ -33,6 +35,7 @@
 | `damping` | `number` (`0` = instant) | `20` |
 | `springConfig`, `boxSpringConfig` | `{ stiffness, damping }` | chart config |
 | `exit` | `boolean` (fade out on leave) | `true` |
+| `topOffset` | `number` (px gap below plot top) | `0` |
 | `backgroundColor` | `string` | `var(--chart-tooltip-background)` |
 | `panelStyle`, `className` | `CSSProperties`, `string` | — |
 | `children` | `ReactNode` | rendered below rows (e.g. marker content) |

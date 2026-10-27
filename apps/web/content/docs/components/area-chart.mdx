@@ -205,11 +205,14 @@ Renders the tooltip with crosshair, dots, and content box.
 | `showCrosshair` | `boolean` | `true` | Show vertical crosshair |
 | `showDots` | `boolean` | `true` | Show dots on series |
 | `indicatorColor` | `string \| (point) => string` | — | Crosshair and dot color |
+| `indicatorEndColor` | `string` | — | Bottom colour of a vertical crosshair ramp (`indicatorColor` at the top) |
+| `indicatorEnd` | `"plot" \| "point"` | `"plot"` | Span the full plot height, or stop at the hovered point |
 | `indicatorDasharray` | `string` | — | Dash pattern for the crosshair (e.g. `"4,4"`) |
 | `indicatorFadeEdges` | `"both" \| "top" \| "bottom" \| "none"` | `"both"` | Vertical crosshair fade |
 | `indicatorFadeLength` | `number` | `10` | Fade size (% of height) |
 | `matchCrosshair` | `boolean` | `false` | Panel uses crosshair spring when `true` |
 | `damping` | `number` | `20` | Panel follow when `matchCrosshair={false}`; `0` = instant |
+| `topOffset` | `number` | `0` | Extra gap (px) between the top of the plot and the panel when it is pinned to the top |
 | `content` | `(props) => ReactNode` | - | Custom content renderer |
 | `rows` | `(point) => TooltipRow[]` | - | Custom row generator |
 | `dateLabels` | `string[]` | — | Date-pill text per data row (pair with `XAxis` `labels`) |

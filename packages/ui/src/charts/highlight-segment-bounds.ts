@@ -30,7 +30,8 @@ export const INACTIVE_SEGMENT: SegmentBounds = {
  * The highlight band `{x, width}` in pixel space, from the data + `xScale` plus
  * the current hover/selection. Hover spans one data point either side of the dot
  * (clamped to the ends); an active drag-selection uses the dragged pixel range
- * directly and takes priority over hover.
+ * directly and takes priority over hover. `span` widens the hover band to that
+ * many data points either side (default 1).
  */
 export function computeSegmentBounds(
   data: Record<string, unknown>[],
@@ -40,7 +41,8 @@ export function computeSegmentBounds(
   selection:
     | Pick<ChartSelection, "active" | "startX" | "endX">
     | null
-    | undefined
+    | undefined,
+  span = 1
 ): SegmentBounds {
   if (data.length === 0) {
     return INACTIVE_SEGMENT;
@@ -57,8 +59,9 @@ export function computeSegmentBounds(
   }
 
   const idx = tooltipData.index;
-  const startIdx = Math.max(0, idx - 1);
-  const endIdx = Math.min(data.length - 1, idx + 1);
+  const reach = Math.max(1, Math.round(span));
+  const startIdx = Math.max(0, idx - reach);
+  const endIdx = Math.min(data.length - 1, idx + reach);
   const startPoint = data[startIdx];
   const endPoint = data[endIdx];
   if (!(startPoint && endPoint)) {

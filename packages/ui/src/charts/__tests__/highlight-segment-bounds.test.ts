@@ -47,6 +47,14 @@ describe("computeSegmentBounds", () => {
     );
   });
 
+  it("widens the band to `span` points either side (clamped)", () => {
+    // idx 1, span 2 → [t 0 (clamped), t 30] → x 0, width 30
+    assert.deepEqual(
+      computeSegmentBounds(data, xScale, xAccessor, { index: 1 }, null, 2),
+      { x: 0, width: 30, isActive: true }
+    );
+  });
+
   it("uses the dragged pixel range for an active selection (takes priority)", () => {
     const bounds = computeSegmentBounds(
       data,
