@@ -91,8 +91,7 @@ export function pageMetadata({
       card: "summary_large_image",
       title: socialTitle,
       description,
-      // The first image only: `summary_large_image` wants the 1.91:1 card,
-      // and extra og:images (e.g. a 1:1 variant) are for other platforms.
+      // The first image only: `summary_large_image` wants the 1.91:1 card.
       images: resolvedImages.slice(0, 1).map(({ url, alt }) => ({ url, alt })),
     },
     ...(noIndex ? { robots: { index: false, follow: true } } : {}),
@@ -100,20 +99,23 @@ export function pageMetadata({
 }
 
 /**
- * Wide + square images from a versioned capture route. The 1200×630
- * letterbox card comes first (og:image and twitter:image); a purpose-built
- * 1200×1200 card follows for platforms with 1:1 previews.
+ * The 1200×630 letterbox card from a versioned capture route, as og:image and
+ * twitter:image. The capture routes can also render a 1200×1200 card
+ * (`format: "square"`), but it isn't listed: platforms such as Discord show
+ * every og:image as a gallery, so a second image appears next to the first.
  */
-function ogImagePair(
+function ogImages(
   path: (format: ChartOgFormat) => string,
   alt?: string
 ): OgImage[] {
-  return (["wide", "square"] as const).map((format) => ({
-    url: path(format),
-    ...CHART_OG_SIZES[format],
-    alt,
-    type: "image/png",
-  }));
+  return [
+    {
+      url: path("wide"),
+      ...CHART_OG_SIZES.wide,
+      alt,
+      type: "image/png",
+    },
+  ];
 }
 
 /**
@@ -122,7 +124,7 @@ function ogImagePair(
  * own `/api/og/studio` image.
  */
 export function chartOgImages(slug: ChartSlug, alt: string): OgImage[] {
-  return ogImagePair((format) => chartOgImagePath(slug, format), alt);
+  return ogImages((format) => chartOgImagePath(slug, format), alt);
 }
 
 /**
@@ -130,7 +132,7 @@ export function chartOgImages(slug: ChartSlug, alt: string): OgImage[] {
  * floor (`/api/og/home`). Other pages keep `DEFAULT_OG_IMAGE`.
  */
 export function homeOgImages(alt?: string): OgImage[] {
-  return ogImagePair(homeOgImagePath, alt);
+  return ogImages(homeOgImagePath, alt);
 }
 
 export interface BreadcrumbItem {
