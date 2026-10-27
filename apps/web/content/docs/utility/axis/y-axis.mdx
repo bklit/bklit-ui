@@ -36,7 +36,7 @@ import { LineChart, Line, XAxis, YAxis, ChartTooltip } from "@bklitui/ui/charts"
 | `yAxisId` | `string \| number` | `"left"` | Scale group (pair with `yAxisId` on `Line` / `Area`) |
 | `orientation` | `"left" \| "right"` | `"left"` | Which side of the chart renders tick labels |
 | `numTicks` | `number` | `5` | Approximate tick count hint for d3 `scale.ticks()` (actual labels may differ). Valid range: 1–10 |
-| `formatLargeNumbers` | `boolean` | `true` | Format values ≥1000 as "1k", "2k", etc. |
+| `formatLargeNumbers` | `boolean` | `true` | Format values ≥1000 as "1k", "1.5k", "2k", etc. |
 | `formatValue` | `(value: number) => string` | — | Custom tick formatter (overrides `formatLargeNumbers`) |
 
 In **Studio** (`/studio`), open a time-series chart (line, area, composed, scatter, vertical bar, or profit/loss line) and select **YAxis · left** or **YAxis · right** in the components tree to edit `numTicks` and `formatLargeNumbers` per axis. Each series exposes a **Y axis** control (left / right) except horizontal bar charts (categorical `BarYAxis` only).
