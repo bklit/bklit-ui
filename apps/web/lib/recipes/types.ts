@@ -21,6 +21,7 @@ export interface RecipeChart {
 /** Gallery section a recipe is listed under on /recipes. */
 export type RecipeCategory =
   | "backgrounds"
+  | "skies"
   | "color-shape"
   | "hover-annotations"
   | "forecasts-ranges"

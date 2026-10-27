@@ -12,6 +12,7 @@ import { linkedLegend, patternedSlices } from "./pie-recipes";
 import { projectionLine } from "./projection-line";
 import { quietSparkline } from "./quiet-sparkline";
 import { rangeBand } from "./range-band";
+import { skyAurora, skySunset } from "./sky-glow";
 import { squircleBars } from "./squircle-bars";
 import { trendLine } from "./trend-line";
 import { valueLabels } from "./value-labels";
@@ -22,6 +23,8 @@ export const recipes: Recipe[] = [
   hatchedBackdrop,
   weekendStripes,
   dotMatrix,
+  skySunset,
+  skyAurora,
   gradientGlow,
   monochrome,
   squircleBars,
@@ -50,6 +53,11 @@ export const recipeCategories: {
     id: "backgrounds",
     title: "Backgrounds",
     description: "Textures that replace grid lines behind the series.",
+  },
+  {
+    id: "skies",
+    title: "Skies",
+    description: "Atmospheric glows clipped to the sky above the line.",
   },
   {
     id: "color-shape",
