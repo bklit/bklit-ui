@@ -1258,6 +1258,11 @@
           "target": "components/charts/line.tsx"
         },
         {
+          "path": "src/charts/line-backdrop.tsx",
+          "type": "registry:component",
+          "target": "components/charts/line-backdrop.tsx"
+        },
+        {
           "path": "src/charts/band.tsx",
           "type": "registry:component",
           "target": "components/charts/band.tsx"
