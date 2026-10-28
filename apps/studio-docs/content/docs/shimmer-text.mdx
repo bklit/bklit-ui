@@ -1,9 +1,9 @@
 ---
 title: Shimmer text
-description: Per-character shimmer animation for loading labels and badges
+description: Gradient shimmer animation for loading labels and badges
 ---
 
-`ShimmeringText` animates each character through a muted → highlight → muted color sweep. Studio uses it for chart loading labels (via `@bklitui/ui`), and the home page uses it in the **Version 2** pill.
+`ShimmeringText` sweeps a soft muted → highlight → muted gradient band across the text. Studio uses it for chart loading labels (via `@bklitui/ui`), and the home page uses it in the **Version 2** pill.
 
 **Source:** `packages/ui/src/shimmering-text.tsx`
 
@@ -26,8 +26,8 @@ import { ShimmeringText } from "@bklitui/ui/components/shimmering-text";
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `text` | `string` | — | Text to shimmer |
-| `duration` | `number` | `1` | Seconds per shimmer cycle |
-| `isStopped` | `boolean` | `false` | Pause animation |
+| `duration` | `number` | `1.5` | Seconds per shimmer sweep |
+| `paused` | `boolean` | `false` | Pause animation (`isStopped` is a legacy alias) |
 | `className` | `string` | — | Extra classes on the root span |
 
 ## Custom colors
@@ -35,7 +35,7 @@ import { ShimmeringText } from "@bklitui/ui/components/shimmering-text";
 Override CSS variables on the root:
 
 - `--color` — resting character color
-- `--shimmering-color` — peak highlight during the sweep
+- `--shimmering-color` — peak highlight at the center of the gradient band
 
 ```tsx
 <ShimmeringText
