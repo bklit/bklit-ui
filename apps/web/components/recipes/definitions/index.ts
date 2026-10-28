@@ -11,6 +11,11 @@ import { monochrome } from "./monochrome";
 import { linkedLegend, patternedSlices } from "./pie-recipes";
 import { projectionLine } from "./projection-line";
 import { quietSparkline } from "./quiet-sparkline";
+import {
+  activityClockCard,
+  seasonalTemperatureCard,
+  storageUsageCard,
+} from "./radial-recipes";
 import { rangeBand } from "./range-band";
 import { skyAurora, skySunset } from "./sky-glow";
 import { squircleBars } from "./squircle-bars";
@@ -41,6 +46,9 @@ export const recipes: Recipe[] = [
   heatmapWorkweek,
   patternedSlices,
   linkedLegend,
+  activityClockCard,
+  storageUsageCard,
+  seasonalTemperatureCard,
 ];
 
 /** Gallery sections, in display order. */
@@ -83,5 +91,11 @@ export const recipeCategories: {
     id: "pie-ring",
     title: "Pie & ring",
     description: "Donuts, rings and linked legends.",
+  },
+  {
+    id: "radial",
+    title: "Radial cards",
+    description:
+      "Dashboard cards built on RadialChart — clocks, gauges and yearly loops.",
   },
 ];

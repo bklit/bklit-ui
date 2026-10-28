@@ -32,6 +32,8 @@ function legendComponentIdForChart(chart: ChartSlug): string | null {
       return "ring.legend";
     case "radar-chart":
       return "radar.legend";
+    case "radial-chart":
+      return "radial.legend";
     case "funnel-chart":
       return "funnel.legend";
     case "sunburst-chart":

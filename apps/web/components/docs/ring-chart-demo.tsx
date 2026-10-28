@@ -12,6 +12,8 @@ import {
   RingCenter,
   RingChart,
   type RingData,
+  RingGrid,
+  RingLabels,
 } from "@bklitui/ui/charts";
 import { useState } from "react";
 
@@ -115,5 +117,46 @@ export function RingChartCustomColorsDemo() {
         prefix="$"
       />
     </RingChart>
+  );
+}
+
+const activityData: RingData[] = [
+  { label: "Steps", value: 8200, maxValue: 10_000, color: "var(--chart-1)" },
+  { label: "Calories", value: 1800, maxValue: 2500, color: "var(--chart-2)" },
+  { label: "Distance", value: 4.2, maxValue: 5, color: "var(--chart-3)" },
+];
+
+/** Three-quarter and half-circle arcs with `RingGrid` + `RingLabels`. */
+export function RingChartGridDemo() {
+  return (
+    <div className="flex w-full flex-col items-center justify-center gap-6 sm:flex-row">
+      <div className="aspect-square w-full max-w-[260px]">
+        <RingChart
+          data={activityData}
+          endAngle={Math.PI / 2}
+          startAngle={-Math.PI}
+        >
+          <RingGrid />
+          {activityData.map((item, index) => (
+            <Ring index={index} key={item.label} />
+          ))}
+          <RingLabels colorByRing />
+          <RingCenter defaultLabel="Activity" />
+        </RingChart>
+      </div>
+      <div className="aspect-square w-full max-w-[260px]">
+        <RingChart
+          data={activityData}
+          endAngle={Math.PI / 2}
+          startAngle={-Math.PI / 2}
+        >
+          <RingGrid ticks={[0, 0.5, 1]} />
+          {activityData.map((item, index) => (
+            <Ring index={index} key={item.label} />
+          ))}
+          <RingLabels />
+        </RingChart>
+      </div>
+    </div>
   );
 }

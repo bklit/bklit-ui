@@ -54,6 +54,11 @@ export { RadarGrid } from "./radar-grid";
 export { RadarAxis } from "./radar-axis";
 export { RadarLabels } from "./radar-labels";
 export { RadarArea } from "./radar-area";`,
+  "radial-chart": `export { RadialChart } from "./radial-chart";
+export { RadialAxis } from "./radial-axis";
+export { RadialBar } from "./radial-bar";
+export { RadialCenter } from "./radial-center";
+export { RadialLegend } from "./radial-legend";`,
   "composed-chart": `export { ComposedChart } from "./composed-chart";
 export { SeriesBar } from "./series-bar";
 export { Area } from "./area";
@@ -306,6 +311,36 @@ const data = [
     <RadarArea key={row.id} index={i} fill="var(--chart-line-primary)" fillOpacity={0.35} />
   ))}
 </RadarChart>`,
+  },
+  "radial-chart": {
+    registryDependencies: ["@bklit/radial-chart"],
+    dependencies: ["d3-scale", "d3-shape", "motion"],
+    importFrom:
+      "RadialChart, RadialAxis, RadialBar, RadialCenter, RadialLegend",
+    data: `const series = [
+  { dataKey: "desktop", label: "Desktop" },
+  { dataKey: "mobile", label: "Mobile" },
+];
+const data = [
+  { month: "Jan", desktop: 186, mobile: 80 },
+  { month: "Feb", desktop: 305, mobile: 200 },
+  { month: "Mar", desktop: 237, mobile: 120 },
+  { month: "Apr", desktop: 173, mobile: 190 },
+  { month: "May", desktop: 209, mobile: 130 },
+  { month: "Jun", desktop: 214, mobile: 140 },
+  { month: "Jul", desktop: 248, mobile: 160 },
+  { month: "Aug", desktop: 276, mobile: 175 },
+  { month: "Sep", desktop: 231, mobile: 150 },
+  { month: "Oct", desktop: 262, mobile: 185 },
+  { month: "Nov", desktop: 290, mobile: 210 },
+  { month: "Dec", desktop: 318, mobile: 240 },
+];`,
+    body: `<RadialChart angleType="band" data={data} xDataKey="month" series={series} maxValue="stacked">
+  <RadialBar />
+  <RadialAxis showCircle={false} />
+  <RadialCenter />
+  <RadialLegend />
+</RadialChart>`,
   },
   "composed-chart": {
     registryDependencies: [

@@ -661,6 +661,24 @@ export const studioSearchParams = {
   sparklineAnimate: parseAsBoolean.withDefault(true),
   sparklineHoverSpring: parseAsBoolean.withDefault(true),
   sparklineSpringDamping: parseAsFloat.withDefault(30),
+  radialSize: parseAsInteger.withDefault(100),
+  radialRows: parseAsInteger.withDefault(14),
+  radialDotSize: parseAsFloat.withDefault(0.44),
+  radialDotLayout: parseAsStringLiteral([
+    "grid",
+    "columns",
+  ] as const).withDefault("grid"),
+  radialGhost: parseAsBoolean.withDefault(true),
+  radialAnnotations: parseAsBoolean.withDefault(true),
+  radialFadedOpacity: parseAsFloat.withDefault(0.2),
+  radialCenterGradient: parseAsBoolean.withDefault(true),
+  radialAxisCircle: parseAsBoolean.withDefault(true),
+  radialScrubberVariant: parseAsStringLiteral([
+    "solid",
+    "dashed",
+    "gradient",
+  ] as const).withDefault("solid"),
+  radialLegendValues: parseAsBoolean.withDefault(true),
 };
 
 export interface StudioUrlState {
@@ -1105,6 +1123,17 @@ export interface StudioUrlState {
   sparklineAnimate: boolean;
   sparklineHoverSpring: boolean;
   sparklineSpringDamping: number;
+  radialSize: number;
+  radialRows: number;
+  radialDotSize: number;
+  radialDotLayout: "grid" | "columns";
+  radialGhost: boolean;
+  radialAnnotations: boolean;
+  radialFadedOpacity: number;
+  radialCenterGradient: boolean;
+  radialAxisCircle: boolean;
+  radialScrubberVariant: "solid" | "dashed" | "gradient";
+  radialLegendValues: boolean;
 }
 
 /** Full default state for chart switches (nuqs used `null` to clear keys; in-memory state needs real defaults). */
@@ -1558,6 +1587,17 @@ export function defaultStudioState(
     sparklineAnimate: true,
     sparklineHoverSpring: true,
     sparklineSpringDamping: 30,
+    radialSize: 100,
+    radialRows: 14,
+    radialDotSize: 0.44,
+    radialDotLayout: "grid",
+    radialGhost: true,
+    radialAnnotations: true,
+    radialFadedOpacity: 0.2,
+    radialCenterGradient: true,
+    radialAxisCircle: true,
+    radialScrubberVariant: "solid",
+    radialLegendValues: true,
     ...overrides,
   };
 }

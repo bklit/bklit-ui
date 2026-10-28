@@ -25,6 +25,7 @@ const chartLinks = [
   { text: "Live Line Chart", href: "/docs/components/live-line-chart" },
   { text: "Pie Chart", href: "/docs/components/pie-chart" },
   { text: "Radar Chart", href: "/docs/components/radar-chart" },
+  { text: "Radial Chart", href: "/docs/components/radial-chart" },
   { text: "Ring Chart", href: "/docs/components/ring-chart" },
   { text: "Scatter Chart", href: "/docs/components/scatter-chart" },
   { text: "Sankey Chart", href: "/docs/components/sankey-chart" },

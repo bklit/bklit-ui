@@ -448,6 +448,17 @@ export const STUDIO_STATE_KEY_ORDER = [
   "sparklineAnimate",
   "sparklineHoverSpring",
   "sparklineSpringDamping",
+  "radialSize",
+  "radialRows",
+  "radialDotSize",
+  "radialDotLayout",
+  "radialGhost",
+  "radialAnnotations",
+  "radialFadedOpacity",
+  "radialCenterGradient",
+  "radialAxisCircle",
+  "radialScrubberVariant",
+  "radialLegendValues",
 ] as const satisfies readonly (keyof StudioUrlState)[];
 
 /** Frozen historical layout (cc7bc08 — first compressed-URL release). Decode-only. */

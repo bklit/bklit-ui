@@ -4,6 +4,7 @@ import {
   Ring,
   RingCenter,
   RingChart,
+  RingGrid,
   useChartLegendHover,
 } from "@bklitui/ui/charts";
 import { memo, useMemo } from "react";
@@ -34,6 +35,7 @@ interface RingChartGeometry {
   strokeWidth: number;
   pieSize: number;
   showCenter: boolean;
+  showGrid: boolean;
   centerLabel: string;
   centerPrefix: string | undefined;
   centerSuffix: string | undefined;
@@ -86,6 +88,7 @@ const RingChartBody = memo(
           size={chartSize}
           strokeWidth={geometry.strokeWidth}
         >
+          {geometry.showGrid ? <RingGrid /> : null}
           {rings}
           {geometry.showCenter ? (
             <RingCenter
@@ -120,6 +123,7 @@ export const RingStudioPreview = memo(function RingStudioPreview({
   const motionState = studioPreviewMotionState(state, ctx);
   const colorState = studioPreviewColorState(state, ctx);
   const ringCenterVisible = isStudioComponentVisible(state, "ring.center");
+  const ringGridVisible = isStudioComponentVisible(state, "ring.ring-grid");
 
   const geometry = useMemo(
     (): RingChartGeometry => ({
@@ -128,6 +132,7 @@ export const RingStudioPreview = memo(function RingStudioPreview({
       strokeWidth: state.ringStrokeWidth,
       pieSize: state.pieSize,
       showCenter: ringCenterVisible,
+      showGrid: ringGridVisible,
       centerLabel: state.ringCenterLabel,
       centerPrefix: state.ringCenterPrefix || undefined,
       centerSuffix: state.ringCenterSuffix || undefined,
@@ -141,6 +146,7 @@ export const RingStudioPreview = memo(function RingStudioPreview({
       state.ringCenterPrefix,
       state.ringCenterSuffix,
       ringCenterVisible,
+      ringGridVisible,
     ]
   );
 

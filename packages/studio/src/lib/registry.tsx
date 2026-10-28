@@ -30,6 +30,7 @@ import { LineProfitLossStudioChart } from "@/components/charts/line-profit-loss-
 import { LiveLineStudioPreview } from "@/components/charts/live-line-studio";
 import { PieStudioPreview } from "@/components/charts/pie-studio-preview";
 import { RadarStudioPreview } from "@/components/charts/radar-studio-preview";
+import { RadialStudioPreview } from "@/components/charts/radial-studio-preview";
 import { RingStudioPreview } from "@/components/charts/ring-studio-preview";
 import { SankeyStudioPreview } from "@/components/charts/sankey-studio-preview";
 import { SparklineStudioPreview } from "@/components/charts/sparkline-studio-preview";
@@ -91,6 +92,7 @@ import { isProfitLossLineMode } from "./line-chart-mode";
 import { getLineSeriesYAxisId } from "./line-series-y-axis";
 import { motionEnterPropsCodegen } from "./motion-codegen";
 import { profitLossLineCodegen } from "./profit-loss-line-codegen";
+import { radialCodegen } from "./radial-codegen";
 import {
   areaChartControlGroups,
   barChartControlGroups,
@@ -105,6 +107,7 @@ import {
   liveLineChartControlGroups,
   pieChartControlGroups,
   radarChartControlGroups,
+  radialChartControlGroups,
   ringChartControlGroups,
   sankeyChartControlGroups,
   scatterChartControlGroups,
@@ -140,6 +143,7 @@ import {
   resolveLiveLineComponents,
   resolvePieComponents,
   resolveRadarComponents,
+  resolveRadialComponents,
   resolveRingComponents,
   resolveSankeyComponents,
   resolveScatterComponents,
@@ -767,6 +771,17 @@ const radarConfig: StudioChartConfig = {
   generateCode: (state) => radarCodegen(state),
 };
 
+const radialConfig: StudioChartConfig = {
+  slug: "radial-chart",
+  label: chartLabels["radial-chart"],
+  supportsPatterns: true,
+  controls: [],
+  controlGroups: radialChartControlGroups,
+  resolveComponents: resolveRadialComponents,
+  render: (state, ctx) => <RadialStudioPreview ctx={ctx} state={state} />,
+  generateCode: (state) => radialCodegen(state),
+};
+
 const candlestickConfig: StudioChartConfig = {
   slug: "candlestick-chart",
   label: chartLabels["candlestick-chart"],
@@ -930,6 +945,7 @@ export const studioRegistry: Record<ChartSlug, StudioChartConfig> = {
   "pie-chart": pieConfig,
   "ring-chart": ringConfig,
   "radar-chart": radarConfig,
+  "radial-chart": radialConfig,
   "candlestick-chart": candlestickConfig,
   "funnel-chart": funnelConfig,
   "sunburst-chart": sunburstConfig,

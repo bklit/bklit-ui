@@ -3,8 +3,10 @@ title: Ring Chart
 description: A composable multi-ring progress chart with animated arcs, hover interactions, and a reusable legend component
 ---
 
-import { RingChart, Ring, RingCenter } from "@bklitui/ui/charts";
-import { RingChartDemo } from "@/components/docs/ring-chart-demo";
+import {
+  RingChartDemo,
+  RingChartGridDemo,
+} from "@/components/docs/ring-chart-demo";
 
 <ComponentPreview registryName="ring-chart">
   <RingChartDemo />
@@ -52,6 +54,9 @@ The root component that provides context to all children.
 | `strokeWidth` | `number` | `12` | Width of each ring |
 | `ringGap` | `number` | `6` | Gap between rings |
 | `baseInnerRadius` | `number` | `60` | Inner radius of the innermost ring |
+| `startAngle` | `number` | `-Math.PI / 2` | Arc start in radians (0 = 12 o'clock, clockwise) |
+| `endAngle` | `number` | `3 * Math.PI / 2` | Arc end in radians (full circle by default) |
+| `padding` | `number` | `8` (`32` with `RingGrid`) | Space between the outermost ring and the chart edge |
 | `hoveredIndex` | `number \| null` | - | Controlled hover state |
 | `onHoverChange` | `(index: number \| null) => void` | - | Hover state callback |
 | `className` | `string` | `""` | Additional CSS class |
@@ -78,6 +83,66 @@ Displays the total or hovered value in the center of the chart.
 | `formatValue` | `(value: number) => string` | `toLocaleString()` | Format function for values |
 | `children` | `function` | - | Custom render function |
 | `className` | `string` | `""` | Additional CSS class |
+
+### RingGrid
+
+A circular grid: spokes across the rings at progress intervals, with tick labels along the outer edge of the arc. Ticks are fractions of each ring's `maxValue`. Place it **before** the rings so the spokes sit behind the progress fill. When present, `RingChart` reserves room for the labels (`padding` defaults to `32`).
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `ticks` | `number \| number[]` | `4` | Number of equal intervals, or explicit fractions (`[0, 0.5, 1]`) |
+| `tickFormat` | `(fraction: number) => string` | `"25%"` | Tick label format |
+| `showSpokes` | `boolean` | `true` | Spokes across the rings |
+| `showLabels` | `boolean` | `true` | Tick labels outside the arc |
+| `stroke` | `string` | `var(--chart-foreground)` | Spoke color |
+| `strokeOpacity` | `number` | `0.2` | Spoke opacity |
+| `tickLength` | `number` | `4` | Spoke overhang past the outermost ring (px) |
+| `labelColor` | `string` | `var(--chart-label)` | Tick label color |
+| `fontSize` | `number` | scales with size | Tick label font size (px) |
+| `labelOffset` | `number` | `4` | Gap between spoke end and label (px) |
+
+On a full circle the `100%` tick lands on `0%`, so only `0%` is drawn.
+
+### RingLabels
+
+Each ring's label, placed just before the ring's start angle and aligned with its bar. On a 270° arc the labels sit beside the start, in the open quadrant; when the arc starts at 3 or 9 o'clock (a semicircle across the top) they are rotated upright along the start edge. Best on partial arcs — on a full circle there is no open space at the start.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `format` | `(data: RingData, index: number) => string` | `data.label` | Label text per ring |
+| `colorByRing` | `boolean` | `false` | Use each ring's color instead of the muted label color |
+| `color` | `string` | `var(--chart-label)` | Label color when `colorByRing` is off |
+| `fontSize` | `number` | scales with ring width | Font size (px) |
+| `offset` | `number` | `0.6 × fontSize` | Distance before each ring's start (px) |
+
+Labels fade in as their ring starts filling and dim with the rings on hover.
+
+<ComponentPreview>
+  <RingChartGridDemo />
+</ComponentPreview>
+
+```tsx
+import { Ring, RingCenter, RingChart, RingGrid, RingLabels } from "@bklitui/ui/charts";
+
+// Three-quarter arc: 6 o'clock → 3 o'clock, labels in the open quadrant
+<RingChart data={data} startAngle={-Math.PI} endAngle={Math.PI / 2}>
+  <RingGrid />
+  {data.map((item, index) => (
+    <Ring index={index} key={item.label} />
+  ))}
+  <RingLabels colorByRing />
+  <RingCenter defaultLabel="Activity" />
+</RingChart>
+
+// Half circle across the top: labels run up the left edge
+<RingChart data={data} startAngle={-Math.PI / 2} endAngle={Math.PI / 2}>
+  <RingGrid ticks={[0, 0.5, 1]} />
+  {data.map((item, index) => (
+    <Ring index={index} key={item.label} />
+  ))}
+  <RingLabels />
+</RingChart>
+```
 
 ### Legend
 
@@ -134,9 +199,10 @@ The ring chart features a multi-phase animation on mount:
 1. **Ring Expansion** - Background rings scale in with staggered timing
 2. **Progress Arcs** - Progress arcs animate from 0 to their target value
 3. **Center Content** - Value and label fade in
-4. **Legend** - Items slide in from the right with progress bars filling
+4. **Grid & labels** - `RingGrid` enters like the radar chart grid — spokes extend outward one after another, then tick labels fade in while sliding out from the center; each `RingLabels` label fades in as its ring starts filling
+5. **Legend** - Items slide in from the right with progress bars filling
 
-All animations use spring physics for natural motion.
+All animations use spring physics for natural motion. With `prefers-reduced-motion`, rings, grid and labels render in their final state.
 
 ## Dependencies
 

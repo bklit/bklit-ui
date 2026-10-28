@@ -13,6 +13,7 @@ import {
   lineChartStandardDefaults,
 } from "@/lib/line-chart-mode";
 import { StudioPatternDefs, studioPatternFill } from "@/lib/patterns";
+import { radialChartDefaults } from "@/lib/radial-chart-defaults";
 import { getStudioConfig } from "@/lib/registry";
 import { chartDefaultHiddenComponents } from "@/lib/studio-component-visibility";
 import { defaultStudioState, type StudioUrlState } from "@/lib/studio-parsers";
@@ -62,6 +63,7 @@ const CATALOG_CHART_LAYOUT: Partial<
     overrides: { radarMargin: 28, radarSize: 100 },
   },
   "choropleth-chart": { tileHeight: 280, frameH: 280 },
+  "radial-chart": { tileHeight: 340, frameH: 340 },
   "funnel-chart": { tileHeight: 320, frameH: 320 },
   "gauge-chart": { tileHeight: 280, frameH: 280 },
   "heatmap-chart": {
@@ -98,6 +100,7 @@ function catalogStateForChart(slug: ChartSlug): StudioUrlState {
     ...(slug === "candlestick-chart" ? candlestickChartDefaults : {}),
     ...(slug === "heatmap-chart" ? heatmapChartDefaults : {}),
     ...(slug === "sunburst-chart" ? sunburstChartDefaults : {}),
+    ...(slug === "radial-chart" ? radialChartDefaults : {}),
     ...(slug === "area-chart" || slug === "composed-chart"
       ? { dataSeries: 2 }
       : {}),

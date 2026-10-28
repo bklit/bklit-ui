@@ -508,6 +508,52 @@ function RingIllustration() {
   );
 }
 
+const RADIAL_COLUMNS = Array.from({ length: 24 }, (_, i) => {
+  // Quiet night, busy afternoon: 1–5 dots per hourly column.
+  const rows = Math.max(
+    1,
+    Math.round(1 + 4 * Math.sin((Math.PI * i) / 24) ** 2)
+  );
+  return { deg: i * 15, rows };
+});
+
+function RadialIllustration() {
+  return (
+    <ThumbCard className="max-w-40">
+      <ThumbPanel className="flex items-center justify-center">
+        <div className="relative w-full max-w-28">
+          <ThumbSvg viewBox="0 0 64 64">
+            <circle
+              cx="32"
+              cy="32"
+              r={11}
+              stroke="currentColor"
+              strokeOpacity={0.14}
+            />
+            {RADIAL_COLUMNS.flatMap(({ deg, rows }, i) =>
+              Array.from({ length: rows }, (_, row) => {
+                const p = polar(32, 32, 14.5 + row * 4, deg);
+                const accent = i >= 12 && i <= 15;
+                return (
+                  <circle
+                    className={accent ? "text-primary" : undefined}
+                    cx={p.x}
+                    cy={p.y}
+                    fill="currentColor"
+                    fillOpacity={accent ? 0.88 : 0.24 + row * 0.08}
+                    key={`dot-${deg}-${row}`}
+                    r={1.35}
+                  />
+                );
+              })
+            )}
+          </ThumbSvg>
+        </div>
+      </ThumbPanel>
+    </ThumbCard>
+  );
+}
+
 const GAUGE_NOTCHES = Array.from({ length: 25 }, (_, i) => -135 + i * 11.25);
 
 function GaugeIllustration() {
@@ -963,6 +1009,7 @@ export const chartIllustrations: Record<string, () => ReactNode> = {
   "pie-chart": PieIllustration,
   "profit-loss-line": ProfitLossIllustration,
   "radar-chart": RadarIllustration,
+  "radial-chart": RadialIllustration,
   "ring-chart": RingIllustration,
   "sankey-chart": SankeyIllustration,
   "scatter-chart": ScatterIllustration,

@@ -15,6 +15,7 @@ import {
   isProfitLossLineMode,
 } from "@/lib/line-chart-mode";
 import type { LineYAxisId } from "@/lib/line-series-y-axis";
+import { pullRequestSeries } from "@/lib/radial-demo-data";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import {
   getDesignSeriesLabel,
@@ -59,6 +60,11 @@ import {
   pieChartControlGroups,
   projectionControlGroup,
   radarChartControlGroups,
+  radialAxisControlGroups,
+  radialChartControlGroups,
+  radialDotBarControlGroups,
+  radialLegendControlGroups,
+  radialScrubberControlGroups,
   referenceAreaControlGroups,
   ringCenterControlGroup,
   ringChartControlGroups,
@@ -1366,6 +1372,7 @@ export function resolveRingComponents(
       controlGroups: design ? [design] : [],
       design: rootPaletteDesign(false),
     },
+    passiveNode("ring", "ring-grid", "RingGrid"),
     ...ringData.map((ring, index) => ({
       id: `ring.layer.${index}`,
       label: ring.label,
@@ -1423,6 +1430,49 @@ export function resolveRadarComponents(
       },
     })),
     legendNode("radar"),
+  ];
+}
+
+export function resolveRadialComponents(
+  state: StudioUrlState
+): StudioComponentDefinition[] {
+  const chartId = "radial.chart";
+  const layer = (
+    idSuffix: string,
+    label: string,
+    controlGroups: StudioControlGroup[] = []
+  ): StudioComponentDefinition => ({
+    id: `radial.${idSuffix}`,
+    label,
+    parentId: chartId,
+    kind: "chart",
+    controlGroups,
+  });
+
+  return [
+    {
+      id: chartId,
+      label: "RadialChart",
+      kind: "chart",
+      treeIcon: "layers",
+      controlGroups: radialChartControlGroups,
+      design: rootPaletteDesign(true),
+    },
+    layer("axis", "RadialAxis", radialAxisControlGroups),
+    layer("dotBar", "RadialDotBar", radialDotBarControlGroups),
+    ...pullRequestSeries.map((series, index) => ({
+      id: `radial.series.${index}`,
+      label: series.label ?? series.dataKey,
+      parentId: chartId,
+      kind: "series" as StudioComponentKind,
+      listMarker: "color-dot" as const,
+      swatchColor: getEffectiveSeriesColor(state, index),
+      controlGroups: [] as StudioControlGroup[],
+      design: { seriesIndex: index, supportsPattern: true },
+    })),
+    layer("scrubber", "RadialScrubber", radialScrubberControlGroups),
+    layer("center", "RadialCenter"),
+    layer("legend", "RadialLegend", radialLegendControlGroups),
   ];
 }
 

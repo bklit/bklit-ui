@@ -4,6 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback } from "react";
 import { HorizontalScrollArea } from "@/components/horizontal-scroll-area";
+import { NavBadge } from "@/components/nav-badge";
+import { getNavBadge } from "@/lib/nav-badges";
 import { cn } from "@/lib/utils";
 
 const chartTypes = [
@@ -19,6 +21,7 @@ const chartTypes = [
   { label: "Live Line Chart", slug: "live-line-chart" },
   { label: "Pie Chart", slug: "pie-chart" },
   { label: "Radar Chart", slug: "radar-chart" },
+  { label: "Radial Chart", slug: "radial-chart" },
   { label: "Ring Chart", slug: "ring-chart" },
   { label: "Scatter Chart", slug: "scatter-chart" },
   { label: "Sankey Chart", slug: "sankey-chart" },
@@ -46,7 +49,7 @@ export function ChartNav() {
           return (
             <Link
               className={cn(
-                "shrink-0 snap-center rounded-lg border px-3 py-1.5 font-medium text-sm transition-colors",
+                "flex shrink-0 snap-center items-center gap-1.5 rounded-lg border px-3 py-1.5 font-medium text-sm transition-colors",
                 isActive
                   ? "border-border bg-background text-foreground shadow-xs/5 dark:bg-input/32"
                   : "border-transparent text-muted-foreground hover:text-foreground"
@@ -56,6 +59,7 @@ export function ChartNav() {
               ref={isActive ? scrollActiveIntoView : undefined}
             >
               {chart.label}
+              <NavBadge kind={getNavBadge(href)} />
             </Link>
           );
         })}

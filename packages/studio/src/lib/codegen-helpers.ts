@@ -1048,11 +1048,12 @@ ${curveImports}
 }
 
 export function ringCodegen(state: StudioUrlState) {
+  const showGrid = isStudioComponentVisible(state, "ring.ring-grid");
   return {
-    code: `import { RingChart, Ring, RingCenter } from "@bklitui/ui/charts";
+    code: `import { RingChart, Ring, RingCenter${showGrid ? ", RingGrid" : ""} } from "@bklitui/ui/charts";
 
 <RingChart data={ringData} size={${state.pieSize}}
-  ${cssRevealAnimationCodegen(state.animationDuration, motionSliceFromState(state))} strokeWidth={${state.ringStrokeWidth}} ringGap={${state.ringGap}} baseInnerRadius={${state.ringBaseInnerRadius}}>
+  ${cssRevealAnimationCodegen(state.animationDuration, motionSliceFromState(state))} strokeWidth={${state.ringStrokeWidth}} ringGap={${state.ringGap}} baseInnerRadius={${state.ringBaseInnerRadius}}>${showGrid ? "\n  <RingGrid />" : ""}
   {ringData.map((_, i) => <Ring index={i} key={i} />)}
   <RingCenter defaultLabel="${state.ringCenterLabel}"${state.ringCenterPrefix ? ` prefix="${state.ringCenterPrefix}"` : ""}${state.ringCenterSuffix ? ` suffix="${state.ringCenterSuffix}"` : ""} />
 </RingChart>`,

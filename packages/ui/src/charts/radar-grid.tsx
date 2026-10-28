@@ -3,6 +3,12 @@
 import { scaleLinear } from "@visx/scale";
 import { LineRadial } from "@visx/shape";
 import { motion } from "motion/react";
+import {
+  GRID_RING_SPRING,
+  GRID_RING_STAGGER_S,
+  GRID_VALUE_LABEL_STAGGER_S,
+  gridLabelDelay,
+} from "./animation";
 import { transitionWithDelay } from "./motion-utils";
 import { radarCssVars, useRadarStable } from "./radar-context";
 
@@ -35,7 +41,7 @@ export function RadarGrid({
   } = useRadarStable();
 
   const durationFactor = enterDurationMs / 1100;
-  const gridStagger = 0.08 * staggerScale * durationFactor;
+  const gridStagger = GRID_RING_STAGGER_S * staggerScale * durationFactor;
 
   // Generate angles for the radial lines (one per metric)
   const degrees = 360;
@@ -49,7 +55,7 @@ export function RadarGrid({
     domain: [degrees, 0],
   });
 
-  const labelDelay = levels * gridStagger * 0.5;
+  const labelDelay = gridLabelDelay(levels, gridStagger);
 
   return (
     <g className={className}>
@@ -67,12 +73,11 @@ export function RadarGrid({
             style={{ transformOrigin: "0px 0px" }}
             transition={
               animate
-                ? transitionWithDelay(enterTransition, i * gridStagger, {
-                    type: "spring",
-                    stiffness: 100,
-                    damping: 15,
-                    mass: 1,
-                  })
+                ? transitionWithDelay(
+                    enterTransition,
+                    i * gridStagger,
+                    GRID_RING_SPRING
+                  )
                 : undefined
             }
           >
@@ -102,7 +107,7 @@ export function RadarGrid({
               animate
                 ? transitionWithDelay(
                     enterTransition,
-                    labelDelay + i * 0.06 * durationFactor
+                    labelDelay + i * GRID_VALUE_LABEL_STAGGER_S * durationFactor
                   )
                 : undefined
             }

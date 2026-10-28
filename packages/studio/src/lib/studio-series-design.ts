@@ -29,6 +29,7 @@ const CHART_FIXED_SERIES_COUNTS: Partial<Record<ChartSlug, number>> = {
   "funnel-chart": 5,
   "ring-chart": 4,
   "radar-chart": 2,
+  "radial-chart": 3,
 };
 
 export function getSunburstArcCount(): number {

@@ -2428,3 +2428,86 @@ export const sparklineControlGroups: StudioControlGroup[] = [
 export const sparklineMotionControls: StudioControl[] = [
   { type: "boolean", key: "sparklineAnimate", label: "Animate" },
 ];
+
+/** Radial chart root (RadialChart). */
+export const radialChartControlGroups: StudioControlGroup[] = [
+  controlGroup("Layout", [
+    {
+      type: "number",
+      key: "radialSize",
+      label: "Scale",
+      min: 50,
+      max: 100,
+      input: "number",
+      unit: "%",
+    },
+  ]),
+];
+
+export const radialAxisControlGroups: StudioControlGroup[] = [
+  controlGroup("Axis", [
+    { type: "boolean", key: "radialCenterGradient", label: "Center gradient" },
+    { type: "boolean", key: "radialAxisCircle", label: "Outer circle" },
+  ]),
+];
+
+export const radialDotBarControlGroups: StudioControlGroup[] = [
+  controlGroup("Dots", [
+    {
+      type: "number",
+      key: "radialRows",
+      label: "Rows",
+      min: 6,
+      max: 24,
+      step: 1,
+    },
+    {
+      type: "number",
+      key: "radialDotSize",
+      label: "Dot size",
+      min: 0.2,
+      max: 0.9,
+      step: 0.02,
+    },
+    {
+      type: "select",
+      key: "radialDotLayout",
+      label: "Layout",
+      options: [
+        { value: "grid", label: "Grid" },
+        { value: "columns", label: "Columns" },
+      ],
+    },
+    {
+      type: "opacity",
+      key: "radialFadedOpacity",
+      label: "Faded",
+      min: 0,
+      max: 1,
+      step: 0.05,
+      color: "var(--chart-1)",
+    },
+  ]),
+  controlGroup("Comparison", [
+    { type: "boolean", key: "radialGhost", label: "Yesterday ghost" },
+    { type: "boolean", key: "radialAnnotations", label: "Spike callout" },
+  ]),
+];
+
+export const radialScrubberControlGroups: StudioControlGroup[] = [
+  controlGroup("Scrubber", [
+    {
+      type: "strokeStyle",
+      key: "radialScrubberVariant",
+      label: "Style",
+      options: ["solid", "dashed", "gradient"],
+    },
+  ]),
+];
+
+export const radialLegendControlGroups: StudioControlGroup[] = [
+  controlGroup("Legend", [
+    { type: "boolean", key: "showLegend", label: "Show" },
+    { type: "boolean", key: "radialLegendValues", label: "Totals" },
+  ]),
+];

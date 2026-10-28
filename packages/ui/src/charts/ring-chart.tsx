@@ -23,6 +23,7 @@ import {
   RingProvider,
   ringCssVars,
 } from "./ring-context";
+import { RING_GRID_PADDING } from "./ring-grid";
 
 function generateRingArcPath(
   innerRadius: number,
@@ -50,6 +51,11 @@ export interface RingChartProps {
   ringGap?: number;
   /** Inner radius of the innermost ring. Default: 60 */
   baseInnerRadius?: number;
+  /**
+   * Space kept clear between the outermost ring and the chart edge, px.
+   * Default: 8, or 32 when a `RingGrid` child is present (room for its labels)
+   */
+  padding?: number;
   /** Animation duration in milliseconds. Default: 1100 */
   animationDuration?: number;
   /** Additional class name for the container */
@@ -82,6 +88,7 @@ interface RingChartInnerProps {
   strokeWidth: number;
   ringGap: number;
   baseInnerRadius: number;
+  padding?: number;
   children: ReactNode;
   containerRef: React.RefObject<HTMLDivElement | null>;
   hoveredIndexProp?: number | null;
@@ -100,6 +107,24 @@ function isRing(child: ReactNode): boolean {
     ((child.type as { displayName?: string }).displayName === "Ring" ||
       (child.type as { name?: string }).name === "Ring")
   );
+}
+
+function isRingGrid(child: ReactNode): boolean {
+  return (
+    isValidElement(child) &&
+    typeof child.type !== "string" &&
+    (child.type as { displayName?: string }).displayName === "RingGrid"
+  );
+}
+
+function hasRingGrid(children: ReactNode): boolean {
+  let found = false;
+  Children.forEach(children, (child) => {
+    if (isRingGrid(child)) {
+      found = true;
+    }
+  });
+  return found;
 }
 
 // Helper to check if a child is a RingCenter component
@@ -135,6 +160,7 @@ const RingChartCore = memo(function RingChartCore({
   strokeWidth: strokeWidthProp,
   ringGap: ringGapProp,
   baseInnerRadius: baseInnerRadiusProp,
+  padding: paddingProp,
   children,
   containerRef,
   hoveredIndexProp,
@@ -172,7 +198,8 @@ const RingChartCore = memo(function RingChartCore({
   // Calculate scaled dimensions to fit within the available space
   // The outermost ring needs to fit within the chart with some padding
   const ringCount = data.length;
-  const padding = 8; // Padding from edge
+  const padding =
+    paddingProp ?? (hasRingGrid(children) ? RING_GRID_PADDING : 8);
   const availableRadius = center - padding;
 
   // Calculate the "design" outer radius (what we'd need at 1:1 scale)
@@ -419,6 +446,7 @@ function ringChartCorePropsEqual(
     prev.strokeWidth === next.strokeWidth &&
     prev.ringGap === next.ringGap &&
     prev.baseInnerRadius === next.baseInnerRadius &&
+    prev.padding === next.padding &&
     prev.hoveredIndexProp === next.hoveredIndexProp &&
     prev.onHoverChange === next.onHoverChange &&
     prev.startAngle === next.startAngle &&
@@ -436,6 +464,7 @@ export function RingChart({
   strokeWidth = 12,
   ringGap = 6,
   baseInnerRadius = 60,
+  padding,
   className = "",
   hoveredIndex,
   onHoverChange,
@@ -467,6 +496,7 @@ export function RingChart({
           height={fixedSize}
           hoveredIndexProp={hoveredIndex}
           onHoverChange={onHoverChange}
+          padding={padding}
           ringGap={ringGap}
           startAngle={startAngle}
           strokeWidth={strokeWidth}
@@ -497,6 +527,7 @@ export function RingChart({
             height={height}
             hoveredIndexProp={hoveredIndex}
             onHoverChange={onHoverChange}
+            padding={padding}
             ringGap={ringGap}
             startAngle={startAngle}
             strokeWidth={strokeWidth}

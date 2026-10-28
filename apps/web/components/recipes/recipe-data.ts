@@ -135,3 +135,43 @@ export const recipeKpiData = {
     ),
   })),
 };
+
+/** A café's cups per hour, 00:00 → 23:00 (open 06:00–20:00), for radial clocks. */
+export const recipeCafeHours = (
+  [
+    [0, 0],
+    [0, 0],
+    [0, 0],
+    [0, 0],
+    [0, 0],
+    [0, 0],
+    [6, 22],
+    [14, 58],
+    [22, 84],
+    [26, 61],
+    [31, 38],
+    [36, 34],
+    [44, 41],
+    [38, 36],
+    [27, 24],
+    [24, 30],
+    [21, 33],
+    [15, 26],
+    [10, 14],
+    [6, 7],
+    [0, 0],
+    [0, 0],
+    [0, 0],
+    [0, 0],
+  ] as const
+).map(([dineIn, takeaway], hour) => ({
+  time: `${String(hour).padStart(2, "0")}:00`,
+  dineIn,
+  takeaway,
+}));
+
+/** One 2 TB cloud plan, GB used by content type. */
+export const recipeStoragePlan = {
+  capacity: 2048,
+  used: { photos: 846, backups: 312, documents: 188, mail: 64 },
+};

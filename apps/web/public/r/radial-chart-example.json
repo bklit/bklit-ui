@@ -1,0 +1,29 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "radial-chart-example",
+  "type": "registry:example",
+  "title": "Radial Chart Example",
+  "description": "Composable radial-chart demo for Open in v0",
+  "dependencies": [
+    "d3-scale",
+    "d3-shape",
+    "motion"
+  ],
+  "registryDependencies": [
+    "@bklit/radial-chart"
+  ],
+  "files": [
+    {
+      "path": "registry/examples/radial-chart.tsx",
+      "content": "\"use client\"\n\n// In your app (monorepo/npm): import { RadialChart, RadialAxis, RadialBar, RadialCenter, RadialLegend } from \"@bklitui/ui/charts\"\nimport { RadialChart, RadialAxis, RadialBar, RadialCenter, RadialLegend } from \"@/components/charts\"\n\nconst series = [\n  { dataKey: \"desktop\", label: \"Desktop\" },\n  { dataKey: \"mobile\", label: \"Mobile\" },\n];\nconst data = [\n  { month: \"Jan\", desktop: 186, mobile: 80 },\n  { month: \"Feb\", desktop: 305, mobile: 200 },\n  { month: \"Mar\", desktop: 237, mobile: 120 },\n  { month: \"Apr\", desktop: 173, mobile: 190 },\n  { month: \"May\", desktop: 209, mobile: 130 },\n  { month: \"Jun\", desktop: 214, mobile: 140 },\n  { month: \"Jul\", desktop: 248, mobile: 160 },\n  { month: \"Aug\", desktop: 276, mobile: 175 },\n  { month: \"Sep\", desktop: 231, mobile: 150 },\n  { month: \"Oct\", desktop: 262, mobile: 185 },\n  { month: \"Nov\", desktop: 290, mobile: 210 },\n  { month: \"Dec\", desktop: 318, mobile: 240 },\n];\n\nexport default function Component() {\n  return (\n    <main className=\"flex min-h-svh w-full items-center justify-center p-6 md:p-10\">\n      <div className=\"w-full max-w-3xl\">\n        <RadialChart angleType=\"band\" data={data} xDataKey=\"month\" series={series} maxValue=\"stacked\">\n  <RadialBar />\n  <RadialAxis showCircle={false} />\n  <RadialCenter />\n  <RadialLegend />\n</RadialChart>\n      </div>\n    </main>\n  )\n}\n",
+      "type": "registry:page",
+      "target": "app/page.tsx"
+    },
+    {
+      "path": "registry/examples/radial-chart-index.ts",
+      "content": "// biome-ignore-all lint/performance/noBarrelFile: v0 registry example barrel for shadcn install\nexport { RadialChart } from \"./radial-chart\";\nexport { RadialAxis } from \"./radial-axis\";\nexport { RadialBar } from \"./radial-bar\";\nexport { RadialCenter } from \"./radial-center\";\nexport { RadialLegend } from \"./radial-legend\";\n",
+      "type": "registry:lib",
+      "target": "components/charts/index.ts"
+    }
+  ]
+}

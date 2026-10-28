@@ -69,6 +69,7 @@ export const LINE_CHART_DEFAULT_HIDDEN_Y_AXES = chartDefaultHiddenYAxes("line");
  */
 const OPT_IN_COMPONENT_SUFFIXES = [
   ".trend-line",
+  ".ring-grid",
   ".weekends",
   ".deadline",
 ] as const;

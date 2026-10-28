@@ -1699,9 +1699,134 @@
           "target": "components/charts/ring-center.tsx"
         },
         {
+          "path": "src/charts/ring-grid.tsx",
+          "type": "registry:component",
+          "target": "components/charts/ring-grid.tsx"
+        },
+        {
+          "path": "src/charts/ring-labels.tsx",
+          "type": "registry:component",
+          "target": "components/charts/ring-labels.tsx"
+        },
+        {
+          "path": "src/charts/arc-geometry.ts",
+          "type": "registry:component",
+          "target": "components/charts/arc-geometry.ts"
+        },
+        {
           "path": "src/charts/chart-center-typography.ts",
           "type": "registry:component",
           "target": "components/charts/chart-center-typography.ts"
+        }
+      ]
+    },
+    {
+      "name": "radial-chart",
+      "type": "registry:component",
+      "title": "Radial Chart",
+      "description": "A composable polar chart with radial bars, ring bars, dot bars, lines, areas, axes, scrubber and legend",
+      "registryDependencies": [
+        "@bklit/chart-animation",
+        "@bklit/utils",
+        "@bklit/chart-parent-size",
+        "@bklit/patterns",
+        "@bklit/legend"
+      ],
+      "dependencies": [
+        "d3-scale",
+        "d3-shape",
+        "motion"
+      ],
+      "files": [
+        {
+          "path": "src/charts/radial-chart.tsx",
+          "type": "registry:component",
+          "target": "components/charts/radial-chart.tsx"
+        },
+        {
+          "path": "src/charts/radial-geometry.ts",
+          "type": "registry:component",
+          "target": "components/charts/radial-geometry.ts"
+        },
+        {
+          "path": "src/charts/arc-geometry.ts",
+          "type": "registry:component",
+          "target": "components/charts/arc-geometry.ts"
+        },
+        {
+          "path": "src/charts/radial-series-color.ts",
+          "type": "registry:component",
+          "target": "components/charts/radial-series-color.ts"
+        },
+        {
+          "path": "src/charts/radial-axis.tsx",
+          "type": "registry:component",
+          "target": "components/charts/radial-axis.tsx"
+        },
+        {
+          "path": "src/charts/radial-bar.tsx",
+          "type": "registry:component",
+          "target": "components/charts/radial-bar.tsx"
+        },
+        {
+          "path": "src/charts/radial-ring-bar.tsx",
+          "type": "registry:component",
+          "target": "components/charts/radial-ring-bar.tsx"
+        },
+        {
+          "path": "src/charts/radial-dot-bar.tsx",
+          "type": "registry:component",
+          "target": "components/charts/radial-dot-bar.tsx"
+        },
+        {
+          "path": "src/charts/radial-dot-bar-layout.ts",
+          "type": "registry:component",
+          "target": "components/charts/radial-dot-bar-layout.ts"
+        },
+        {
+          "path": "src/charts/radial-line.tsx",
+          "type": "registry:component",
+          "target": "components/charts/radial-line.tsx"
+        },
+        {
+          "path": "src/charts/radial-area.tsx",
+          "type": "registry:component",
+          "target": "components/charts/radial-area.tsx"
+        },
+        {
+          "path": "src/charts/radial-scrubber.tsx",
+          "type": "registry:component",
+          "target": "components/charts/radial-scrubber.tsx"
+        },
+        {
+          "path": "src/charts/radial-center.tsx",
+          "type": "registry:component",
+          "target": "components/charts/radial-center.tsx"
+        },
+        {
+          "path": "src/charts/radial-legend.tsx",
+          "type": "registry:component",
+          "target": "components/charts/radial-legend.tsx"
+        },
+        {
+          "path": "src/charts/chart-stat-flow.tsx",
+          "type": "registry:component",
+          "target": "components/charts/chart-stat-flow.tsx"
+        },
+        {
+          "path": "src/charts/chart-center-typography.ts",
+          "type": "registry:component",
+          "target": "components/charts/chart-center-typography.ts"
+        },
+        {
+          "path": "src/charts/pattern-preset.tsx",
+          "type": "registry:component",
+          "target": "components/charts/pattern-preset.tsx"
+        },
+        {
+          "path": "src/charts/visx-pattern.tsx",
+          "type": "registry:component",
+          "target": "components/charts/visx-pattern.tsx"
         }
       ]
     },
@@ -2349,6 +2474,32 @@
         },
         {
           "path": "registry/examples/radar-chart-index.ts",
+          "type": "registry:lib",
+          "target": "components/charts/index.ts"
+        }
+      ]
+    },
+    {
+      "name": "radial-chart-example",
+      "type": "registry:example",
+      "title": "Radial Chart Example",
+      "description": "Composable radial-chart demo for Open in v0",
+      "registryDependencies": [
+        "@bklit/radial-chart"
+      ],
+      "dependencies": [
+        "d3-scale",
+        "d3-shape",
+        "motion"
+      ],
+      "files": [
+        {
+          "path": "registry/examples/radial-chart.tsx",
+          "type": "registry:page",
+          "target": "app/page.tsx"
+        },
+        {
+          "path": "registry/examples/radial-chart-index.ts",
           "type": "registry:lib",
           "target": "components/charts/index.ts"
         }

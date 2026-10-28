@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
+import { GRID_SPOKE_SPRING, GRID_SPOKE_STAGGER_S } from "./animation";
 import { radarCssVars, useRadarStable } from "./radar-context";
 
 export interface RadarAxisProps {
@@ -38,11 +39,8 @@ export function RadarAxis({
             strokeOpacity={strokeOpacity}
             strokeWidth={1}
             transition={{
-              type: "spring",
-              stiffness: 80,
-              damping: 15,
-              mass: 1,
-              delay: animate ? axisBaseDelay + i * 0.05 : 0,
+              ...GRID_SPOKE_SPRING,
+              delay: animate ? axisBaseDelay + i * GRID_SPOKE_STAGGER_S : 0,
             }}
             x1={0}
             y1={0}

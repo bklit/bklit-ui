@@ -89,6 +89,8 @@ import {
   RingCenter,
   RingChart,
   type RingData,
+  RingGrid,
+  RingLabels,
   renderPatternPreset,
   resolveProfitLossTooltipLabel,
   SankeyChart,
@@ -149,6 +151,7 @@ import {
 import { useChartPreviewOffscreen } from "@/components/charts/chart-preview-gate";
 import { FeaturedChartHero } from "@/components/charts/featured-chart-hero";
 import { LineChartStudioTrioDemo } from "@/components/charts/line-chart-studio-trio-demo";
+import { radialChartVariants } from "@/components/charts/radial/registry";
 import {
   SparklineAreaExample,
   SparklineBarExample,
@@ -4863,16 +4866,19 @@ function makeRingExamples(): ChartExample[] {
     },
     {
       title: "Ring Chart - Three Quarter",
-      description: "270-degree arc from top-left to bottom-left",
+      description:
+        "270-degree arc with a percent grid and ring labels in the open quadrant",
       code: `<RingChart
   data={goalData}
   endAngle={Math.PI / 2}
   size={250}
   startAngle={-Math.PI}
 >
+  <RingGrid />
   {goalData.map((item, index) => (
     <Ring index={index} key={item.label} />
   ))}
+  <RingLabels colorByRing />
   <RingCenter defaultLabel="Activity" />
 </RingChart>`,
       render: () => (
@@ -4882,9 +4888,11 @@ function makeRingExamples(): ChartExample[] {
             endAngle={Math.PI / 2}
             startAngle={-Math.PI}
           >
+            <RingGrid />
             {ringGoalData.map((item, index) => (
               <Ring index={index} key={item.label} />
             ))}
+            <RingLabels colorByRing />
             <RingCenter defaultLabel="Activity" />
           </RingChart>
         </div>
@@ -4892,23 +4900,33 @@ function makeRingExamples(): ChartExample[] {
     },
     {
       title: "Ring Chart - Half Circle",
-      description: "180-degree arc across the top",
+      description:
+        "180-degree arc across the top, with ring labels along the start edge",
       code: `<RingChart
   data={ringData}
-  endAngle={0}
+  endAngle={Math.PI / 2}
   size={250}
-  startAngle={-Math.PI}
+  startAngle={-Math.PI / 2}
 >
+  <RingGrid />
   {ringData.map((item, index) => (
     <Ring index={index} key={item.label} />
   ))}
+  <RingLabels />
+  <RingCenter defaultLabel="Sessions" />
 </RingChart>`,
       render: () => (
         <div className={chartExampleRadialShellClassName}>
-          <RingChart data={ringData} endAngle={0} startAngle={-Math.PI}>
+          <RingChart
+            data={ringData}
+            endAngle={Math.PI / 2}
+            startAngle={-Math.PI / 2}
+          >
+            <RingGrid />
             {ringData.map((item, index) => (
               <Ring index={index} key={item.label} />
             ))}
+            <RingLabels />
             <RingCenter defaultLabel="Sessions" />
           </RingChart>
         </div>
@@ -5408,6 +5426,10 @@ function makeGaugeExamples(): ChartExample[] {
       ),
     },
   ];
+}
+
+function makeRadialExamples(): ChartExample[] {
+  return radialChartVariants.map((variant) => ({ ...variant }));
 }
 
 function makeSankeyExamples(): ChartExample[] {
@@ -7743,6 +7765,12 @@ const chartExamplesRegistry: Record<string, RegistryEntry> = {
   },
   "pie-chart": { factory: makePieExamples, previewLayout: "compact" },
   "radar-chart": { factory: makeRadarExamples, previewLayout: "compact" },
+  "radial-chart": {
+    factory: makeRadialExamples,
+    previewLayout: "wide",
+    notice:
+      "Radial charts are experimental and in active development. APIs may change.",
+  },
   "ring-chart": { factory: makeRingExamples, previewLayout: "compact" },
   "scatter-chart": { factory: makeScatterExamples, hero: makeScatterHero },
   "sankey-chart": {

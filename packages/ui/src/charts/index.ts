@@ -503,6 +503,89 @@ export {
 } from "./radar-context";
 export { RadarGrid, type RadarGridProps } from "./radar-grid";
 export { RadarLabels, type RadarLabelsProps } from "./radar-labels";
+// Radial charts (24h clock, band, time, angular rings)
+export {
+  RadialArea,
+  type RadialAreaCurve,
+  type RadialAreaProps,
+  type RadialAreaStroke,
+} from "./radial-area";
+export {
+  RadialAxis,
+  type RadialAxisProps,
+  type RadialLabelOrientation,
+  radialLabelFontSize,
+} from "./radial-axis";
+export { RadialBar, type RadialBarProps } from "./radial-bar";
+export {
+  RadialCenter,
+  type RadialCenterProps,
+  type RadialCenterState,
+} from "./radial-center";
+export {
+  createRadialEdgeLookup,
+  RADIAL_CROSSHAIR_SPRING,
+  RADIAL_DOT_SPRING,
+  type RadialAngleType,
+  RadialChart,
+  type RadialChartContextValue,
+  type RadialChartProps,
+  type RadialDotMotion,
+  type RadialEdgeLookup,
+  RadialHoverDot,
+  type RadialMaxValue,
+  type RadialOrientation,
+  type RadialRingBand,
+  type RadialSeries,
+  radialNumberAt,
+  radialTimeOf,
+  useRadialAngleSpring,
+  useRadialChart,
+  useRadialDotAngle,
+} from "./radial-chart";
+export {
+  RadialDotBar,
+  type RadialDotBarAnnotation,
+  type RadialDotBarProps,
+  type RadialDotPattern,
+} from "./radial-dot-bar";
+export {
+  computeRadialDotGrid,
+  createRadialRowScale,
+  type RadialDotGridInput,
+  type RadialDotLayout,
+  type RadialDotSlot,
+  radialDotRowRadius,
+  stackRadialRows,
+} from "./radial-dot-bar-layout";
+export {
+  cartesianToAngle,
+  createRadialScale,
+  defaultRadialLayout,
+  degreesToRadians,
+  isFullArc,
+  niceRadialDomain,
+  polarToCartesian,
+  type RadialLayout,
+  radialAngleToBin,
+  radialArcBounds,
+  radialArcFraction,
+  radialArcPath,
+  radialBinCenterAngle,
+  radialBinStartAngle,
+  radialValueTicks,
+  radialWedgePath,
+  TAU,
+} from "./radial-geometry";
+export { RadialLegend, type RadialLegendProps } from "./radial-legend";
+export { RadialLine, type RadialLineProps } from "./radial-line";
+export { RadialRingBar, type RadialRingBarProps } from "./radial-ring-bar";
+export {
+  RadialScrubber,
+  type RadialScrubberProps,
+  type RadialScrubberVariant,
+} from "./radial-scrubber";
+export { radialSeriesColor } from "./radial-series-color";
 export {
   ReferenceArea,
   type ReferenceAreaProps,
@@ -527,6 +610,8 @@ export {
   useRingHover,
   useRingStable,
 } from "./ring-context";
+export { RingGrid, type RingGridProps } from "./ring-grid";
+export { RingLabels, type RingLabelsProps } from "./ring-labels";
 // Sankey chart components
 export {
   SankeyChart,

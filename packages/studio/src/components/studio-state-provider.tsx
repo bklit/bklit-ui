@@ -21,6 +21,7 @@ import {
   lineChartProfitLossDefaults,
   lineChartStandardDefaults,
 } from "@/lib/line-chart-mode";
+import { radialChartDefaults } from "@/lib/radial-chart-defaults";
 import { getStudioConfig } from "@/lib/registry";
 import { chartDefaultHiddenComponents } from "@/lib/studio-component-visibility";
 import {
@@ -304,6 +305,7 @@ export function StudioStateProvider({
         ...(slug === "candlestick-chart" ? candlestickChartDefaults : {}),
         ...(slug === "heatmap-chart" ? heatmapChartDefaults : {}),
         ...(slug === "sunburst-chart" ? sunburstChartDefaults : {}),
+        ...(slug === "radial-chart" ? radialChartDefaults : {}),
         ...(slug === "area-chart" || slug === "composed-chart"
           ? { dataSeries: 2 }
           : {}),

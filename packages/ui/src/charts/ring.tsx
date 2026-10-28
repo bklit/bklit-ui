@@ -1,7 +1,12 @@
 "use client";
 
 import { arc as arcGenerator } from "@visx/shape";
-import { type MotionValue, motion, useTransform } from "motion/react";
+import {
+  type MotionValue,
+  motion,
+  useReducedMotion,
+  useTransform,
+} from "motion/react";
 import { memo, useCallback } from "react";
 import {
   getRingHitRadii,
@@ -88,6 +93,7 @@ export const Ring = memo(function Ring({
     ringGap,
   } = useRingStable();
   const { hoveredIndex, setHoveredIndex } = useRingHover();
+  const reducedMotion = useReducedMotion() ?? false;
 
   const expandDelay = index * 0.08 * enterStaggerScale;
   const expandProgress = useMountProgress(
@@ -174,7 +180,8 @@ export const Ring = memo(function Ring({
 
   const hoverScale = ringHoverScale(isHovered, isPushedOut);
   const layerOpacity = isFaded ? 0.35 : 1;
-  const enterDone = !animate || (expandComplete && progressComplete);
+  const enterDone =
+    !animate || reducedMotion || (expandComplete && progressComplete);
 
   const groupStyle = {
     transformOrigin: "0px 0px",

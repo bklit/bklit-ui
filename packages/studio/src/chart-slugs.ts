@@ -12,6 +12,7 @@ export const validChartSlugs = [
   "live-line-chart",
   "pie-chart",
   "radar-chart",
+  "radial-chart",
   "ring-chart",
   "scatter-chart",
   "sankey-chart",

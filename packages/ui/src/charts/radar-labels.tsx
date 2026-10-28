@@ -1,6 +1,12 @@
 "use client";
 
 import { motion } from "motion/react";
+import {
+  GRID_ANGLE_LABEL_FADE_S,
+  GRID_ANGLE_LABEL_STAGGER_S,
+  GRID_SPOKE_SPRING,
+  gridLabelDelay,
+} from "./animation";
 import { radarCssVars, useRadarStable } from "./radar-context";
 
 export interface RadarLabelsProps {
@@ -23,8 +29,7 @@ export function RadarLabels({
   const { metrics, radius, levels, getAngle, animate } = useRadarStable();
 
   // Label animation delay (starts after grid begins)
-  const gridStagger = 0.08;
-  const labelDelay = levels * gridStagger * 0.5;
+  const labelDelay = gridLabelDelay(levels);
 
   const labelRadius = radius + offset;
 
@@ -44,11 +49,13 @@ export function RadarLabels({
             key={`label-${metric.key}`}
             transition={{
               opacity: {
-                duration: 0.5,
-                delay: animate ? labelDelay + i * 0.08 : 0,
+                duration: GRID_ANGLE_LABEL_FADE_S,
+                delay: animate
+                  ? labelDelay + i * GRID_ANGLE_LABEL_STAGGER_S
+                  : 0,
               },
-              x: { type: "spring", stiffness: 80, damping: 15 },
-              y: { type: "spring", stiffness: 80, damping: 15 },
+              x: GRID_SPOKE_SPRING,
+              y: GRID_SPOKE_SPRING,
             }}
           >
             <text

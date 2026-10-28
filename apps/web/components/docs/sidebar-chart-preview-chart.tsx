@@ -7,7 +7,11 @@ import {
   useRef,
   useState,
 } from "react";
-import { getChartPageExamples } from "@/components/charts/chart-examples";
+import {
+  type FeaturedChartExample,
+  getChartPageExamples,
+} from "@/components/charts/chart-examples";
+import { RadialDotBarExample } from "@/components/charts/radial/dot-bar-example";
 import { SidebarChartPreviewLoader } from "@/components/docs/sidebar-chart-preview-loader";
 import { freezeMotionCss } from "@/components/og/chart-og-fit";
 import {
@@ -38,6 +42,18 @@ const STRETCH_HEIGHT = BOX.height - TILE_PADDING * 2;
  */
 const previewExampleIndex: Record<string, number> = { "line-chart": 1 };
 
+/**
+ * Card-specific renders. The radial featured example stacks a legend under a
+ * square clock, so the card shows the clock alone, without the enter cascade.
+ */
+const previewOverrides: Record<string, FeaturedChartExample> = {
+  "radial-chart": {
+    title: "Radial Chart - Dot Bars",
+    previewLayout: "compact",
+    render: () => <RadialDotBarExample animate={false} legend={false} />,
+  },
+};
+
 export default function SidebarChartPreviewChart({
   slug,
   width,
@@ -49,7 +65,9 @@ export default function SidebarChartPreviewChart({
   /** Shown when the chart has no featured example. */
   fallback: ReactNode;
 }) {
-  const example = getChartPageExamples(slug)[previewExampleIndex[slug] ?? 0];
+  const example =
+    previewOverrides[slug] ??
+    getChartPageExamples(slug)[previewExampleIndex[slug] ?? 0];
   const worldReady = useWorldDataReady(slug === "choropleth-chart");
   const [ready, setReady] = useState(false);
   const [contain, setContain] = useState(1);

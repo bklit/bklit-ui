@@ -275,6 +275,7 @@ export const chartLabels = {
   "live-line-chart": "Live Line Chart",
   "pie-chart": "Pie Chart",
   "radar-chart": "Radar Chart",
+  "radial-chart": "Radial Chart",
   "ring-chart": "Ring Chart",
   "scatter-chart": "Scatter Chart",
   "sankey-chart": "Sankey Chart",
