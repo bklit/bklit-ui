@@ -13,11 +13,14 @@ export function DocsCodeBlock({
   code,
   lang = "tsx",
   className,
+  viewportClassName,
   showCopy = true,
 }: {
   code: string;
   lang?: string;
   className?: string;
+  /** Caps the code area (e.g. `max-h-80 overflow-auto`) while the copy button stays pinned. */
+  viewportClassName?: string;
   showCopy?: boolean;
 }) {
   const formattedCode = useMemo(() => formatDocsCode(code), [code]);
@@ -34,6 +37,7 @@ export function DocsCodeBlock({
         code={code}
         lang={lang}
         showLineNumbers
+        viewportClassName={viewportClassName}
       />
       {showCopy ? (
         <CopyButton

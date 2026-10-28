@@ -44,7 +44,7 @@ export function SheetBackdrop({
 export function SheetViewport({
   className,
   side,
-  variant = "default",
+  variant = "inset",
   ...props
 }: SheetPrimitive.Viewport.Props & {
   side?: "right" | "left" | "top" | "bottom";
@@ -72,7 +72,7 @@ export function SheetPopup({
   children,
   showCloseButton = true,
   side = "right",
-  variant = "default",
+  variant = "inset",
   closeProps,
   portalProps,
   ...props

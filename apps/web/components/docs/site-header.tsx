@@ -437,7 +437,7 @@ export function SiteHeader({
           {githubUrl ? (
             <Button
               aria-label="GitHub"
-              className="relative hidden h-8 shadow-none md:inline-flex"
+              className="relative hidden h-8 min-w-16 shadow-none md:inline-flex"
               render={
                 <Link
                   href={githubUrl}

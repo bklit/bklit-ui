@@ -17,7 +17,7 @@ function MenuBarDivider() {
   return (
     <div
       aria-hidden
-      className="mx-0.5 h-5 w-px shrink-0 bg-border"
+      className="mx-1 h-4 w-px shrink-0 bg-border"
       role="presentation"
     />
   );
@@ -61,7 +61,7 @@ function EditorMenuBarZoomControls({
       </EditorMenuBarTooltipItem>
 
       <button
-        className="min-w-12 shrink-0 px-1 font-mono text-[11px] text-muted-foreground tabular-nums hover:text-foreground"
+        className="h-8 min-w-12 shrink-0 rounded-lg px-1.5 font-mono text-[11px] text-muted-foreground tabular-nums outline-none transition-colors hover:bg-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring sm:h-7"
         onClick={onResetZoom}
         type="button"
       >
@@ -173,7 +173,7 @@ export function EditorMenuBar({
     <StudioToolbarTooltips>
       <div
         className={cn(
-          "flex shrink-0 items-center justify-center gap-1 rounded-full border-2 border-border/80 bg-background/95 p-2 shadow-lg backdrop-blur-sm",
+          "relative flex shrink-0 items-center justify-center gap-0.5 rounded-xl border bg-popover/90 not-dark:bg-clip-padding p-1 text-popover-foreground shadow-[0_8px_24px_-6px_rgb(0_0_0/0.08),0_2px_6px_-2px_rgb(0_0_0/0.05)] backdrop-blur-md [--radius:0.625rem] before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--radius-xl)-1px)] before:shadow-[0_1px_--theme(--color-black/4%)] dark:shadow-[0_8px_24px_-6px_rgb(0_0_0/0.4),0_2px_6px_-2px_rgb(0_0_0/0.25)] dark:before:shadow-[0_-1px_--theme(--color-white/6%)]",
           className
         )}
       >

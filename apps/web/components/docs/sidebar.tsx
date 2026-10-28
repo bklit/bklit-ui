@@ -5,6 +5,11 @@ import type * as PageTree from "fumadocs-core/page-tree";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { DocsScrollArea } from "@/components/docs/docs-scroll-area";
+import {
+  SidebarChartPreview,
+  SidebarChartPreviewTrigger,
+  sidebarChartPreviewSlug,
+} from "@/components/docs/sidebar-chart-preview";
 import { NavBadge } from "@/components/nav-badge";
 import { getNavBadge } from "@/lib/nav-badges";
 import { isFileUrl, type SiteNavLink } from "@/lib/site-nav-links";
@@ -58,6 +63,7 @@ export function Sidebar({ tree, links = [] }: SidebarProps) {
           <SidebarNodes nodes={tree.children} />
         </nav>
       </DocsScrollArea>
+      <SidebarChartPreview />
     </aside>
   );
 }
@@ -90,20 +96,33 @@ function SidebarNode({ node }: { node: PageTree.Node }) {
 
   if (node.type === "page") {
     const isActive = pathname === node.url;
+    const link = (
+      <Link
+        className={cn(
+          linkStyles.base,
+          isActive ? linkStyles.active : linkStyles.inactive
+        )}
+        external={node.external || isFileUrl(node.url)}
+        href={node.url}
+      >
+        {node.icon}
+        <span>{node.name}</span>
+        <NavBadge kind={getNavBadge(node.url)} />
+      </Link>
+    );
+    const previewSlug = sidebarChartPreviewSlug(node.url);
     return (
       <li>
-        <Link
-          className={cn(
-            linkStyles.base,
-            isActive ? linkStyles.active : linkStyles.inactive
-          )}
-          external={node.external || isFileUrl(node.url)}
-          href={node.url}
-        >
-          {node.icon}
-          <span>{node.name}</span>
-          <NavBadge kind={getNavBadge(node.url)} />
-        </Link>
+        {previewSlug ? (
+          <SidebarChartPreviewTrigger
+            description={node.description}
+            render={link}
+            slug={previewSlug}
+            title={node.name}
+          />
+        ) : (
+          link
+        )}
       </li>
     );
   }

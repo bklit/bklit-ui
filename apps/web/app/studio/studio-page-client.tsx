@@ -16,14 +16,14 @@ export function StudioPageClient() {
   const { setTheme } = useTheme();
 
   return (
-    <div className="flex h-dvh flex-col overflow-hidden bg-background">
+    <div className="flex h-dvh flex-col overflow-hidden bg-sidebar">
       <SiteHeader
         discordUrl="https://discord.gg/75s4frfE8X"
         githubUrl="https://github.com/bklit/bklit-ui"
         links={[...siteHeaderNavLinks]}
       />
-      <main className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background pt-16">
-        <div className="flex min-h-0 flex-1 flex-col border-border border-t">
+      <main className="flex min-h-0 flex-1 flex-col overflow-hidden bg-sidebar p-8 pt-24">
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border bg-card shadow-xs/5">
           <Suspense fallback={<StudioFallback />}>
             <StudioShell
               analytics={{

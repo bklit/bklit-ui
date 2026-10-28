@@ -12,12 +12,15 @@ export function DocsHighlightedCodeBlock({
   className,
   showLineNumbers = true,
   allowCopy = false,
+  viewportClassName,
 }: {
   code: string;
   lang?: string;
   className?: string;
   showLineNumbers?: boolean;
   allowCopy?: boolean;
+  /** Overrides the fumadocs viewport (the element that scrolls). */
+  viewportClassName?: string;
 }) {
   const formattedCode = useMemo(() => formatDocsCode(code), [code]);
 
@@ -31,7 +34,10 @@ export function DocsHighlightedCodeBlock({
           className:
             "my-0 rounded-none border-0 bg-transparent shadow-none text-sm",
           viewportProps: {
-            className: "max-h-none overflow-visible py-0",
+            className: cn(
+              "max-h-none overflow-visible py-0",
+              viewportClassName
+            ),
           },
         }}
         lang={lang}

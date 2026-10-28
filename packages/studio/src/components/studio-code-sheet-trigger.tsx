@@ -17,6 +17,10 @@ import {
   SheetTrigger,
 } from "@/ui/sheet";
 
+/** Scrollable code card sunk below the drawer surface. */
+const codeCardClass =
+  "max-h-80 overflow-auto overscroll-contain rounded-xl border bg-[color-mix(in_srgb,var(--popover),var(--color-black)_3%)] p-4 font-mono text-xs dark:bg-[color-mix(in_srgb,var(--popover),var(--color-black)_32%)]";
+
 export function StudioCodeSheetTrigger({
   state,
   headerActions,
@@ -115,9 +119,7 @@ export function StudioCodeSheetTrigger({
               {renderUsageCode ? (
                 renderUsageCode(code)
               ) : (
-                <pre className="overflow-x-auto rounded-lg border bg-muted/30 p-4 font-mono text-xs">
-                  {code}
-                </pre>
+                <pre className={codeCardClass}>{code}</pre>
               )}
             </section>
             <section className="space-y-2">
@@ -127,7 +129,7 @@ export function StudioCodeSheetTrigger({
               {renderDataCode ? (
                 renderDataCode(data)
               ) : (
-                <pre className="overflow-x-auto rounded-lg border bg-muted/30 p-4 font-mono text-xs">
+                <pre className={codeCardClass}>
                   {data ??
                     "// Example data for this chart is not available yet."}
                 </pre>

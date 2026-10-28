@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { CopyButton } from "@/components/copy-button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { codeThemes } from "@/lib/code-theme";
+import { cn } from "@/lib/utils";
 
 const STORAGE_KEY = "bklit-package-manager";
 
@@ -28,9 +29,13 @@ const PM_ADD_COMMANDS: Record<PackageManager, string> = {
 
 interface PackageManagerTabsProps {
   name: string;
+  className?: string;
 }
 
-export function PackageManagerTabs({ name }: PackageManagerTabsProps) {
+export function PackageManagerTabs({
+  name,
+  className,
+}: PackageManagerTabsProps) {
   const [pm, setPm] = useState<PackageManager>("pnpm");
 
   useEffect(() => {
@@ -59,7 +64,12 @@ export function PackageManagerTabs({ name }: PackageManagerTabsProps) {
 
   // Adapted from coss ui code-block-command (https://coss.com/ui, MIT).
   return (
-    <figure className="not-prose relative my-4 overflow-hidden rounded-xl border border-border bg-code text-code-foreground">
+    <figure
+      className={cn(
+        "not-prose relative my-4 overflow-hidden rounded-xl border border-border bg-code text-code-foreground",
+        className
+      )}
+    >
       <Tabs className="gap-0" onValueChange={handleValueChange} value={pm}>
         <div className="flex items-center gap-2 border-border/64 border-b px-3 py-1 font-mono">
           <Icon

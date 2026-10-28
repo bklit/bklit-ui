@@ -28,6 +28,7 @@ import {
 import { isFileUrl } from "@/lib/site-nav-links";
 import { SITE_URL } from "@/lib/site-url";
 import { source } from "@/lib/source";
+import { cn } from "@/lib/utils";
 
 // Extended page data types from fumadocs-mdx
 interface PageData {
@@ -99,7 +100,12 @@ export default async function Page(props: {
       <div className="relative flex w-full min-w-0 flex-1 flex-col lg:my-6">
         <Frame className="max-lg:rounded-none max-lg:bg-transparent max-lg:p-0">
           <FramePanel className="px-4 pt-8 pb-12 max-lg:rounded-none max-lg:border-0 max-lg:shadow-none max-lg:before:hidden sm:px-6 lg:px-10 lg:pt-12 lg:pb-16">
-            <article className="mx-auto w-full max-w-3xl">
+            <article
+              className={cn(
+                "mx-auto w-full",
+                data.full ? "max-w-6xl" : "max-w-3xl"
+              )}
+            >
               <header className="mb-10 flex flex-col gap-2">
                 <h1 className="m-0 scroll-m-20 font-bold font-heading text-3xl text-foreground xl:text-4xl">
                   {data.title}
@@ -137,7 +143,8 @@ export default async function Page(props: {
           <PageFooter next={neighbours.next} previous={neighbours.previous} />
         </Frame>
       </div>
-      <TableOfContents items={data.toc} />
+      {/* `full: true` frontmatter: no TOC rail, wider article column. */}
+      {data.full ? null : <TableOfContents items={data.toc} />}
     </div>
   );
 }

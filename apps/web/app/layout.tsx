@@ -9,7 +9,6 @@ import type { ReactNode } from "react";
 import { OpenPanelScript } from "@/components/analytics/openpanel-script";
 import { ChartThemeProvider } from "@/components/chart-theme/chart-theme-provider";
 import { ChartThemeScript } from "@/components/chart-theme/chart-theme-script";
-import { SiteLeftDotGrid } from "@/components/design/site-left-dot-grid";
 import { DocsSearchDialogLazy } from "@/components/docs/docs-search-dialog-lazy";
 import { getOpenPanelClientId } from "@/lib/openpanel-env";
 import {
@@ -118,7 +117,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <ChartThemeScript />
       </head>
       <body className="relative flex min-h-screen flex-col">
-        <SiteLeftDotGrid />
         {openPanelClientId ? (
           <OpenPanelScript clientId={openPanelClientId} />
         ) : null}
