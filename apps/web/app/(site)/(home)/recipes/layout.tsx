@@ -1,5 +1,6 @@
 "use client";
 
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 import type { ReactNode } from "react";
 import { useEffect } from "react";
 
@@ -11,5 +12,9 @@ export default function RecipesLayout({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  return <div className="flex flex-1 flex-col">{children}</div>;
+  return (
+    <NuqsAdapter>
+      <div className="flex flex-1 flex-col">{children}</div>
+    </NuqsAdapter>
+  );
 }
