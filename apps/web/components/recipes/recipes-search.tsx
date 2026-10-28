@@ -50,7 +50,7 @@ export function RecipesSearch({
     >
       <Autocomplete.InputGroup render={<InputGroup className="w-full" />}>
         <InputGroupAddon>
-          <Icon className="size-4" name="IconQuickSearch" />
+          <Icon className="size-4" name="IconMagnifyingGlass" />
         </InputGroupAddon>
         <Autocomplete.Input
           aria-label="Search recipes"
