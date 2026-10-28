@@ -1,6 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createRecipeSearch, normalizeWord, paginate } from "../filter";
+import {
+  createRecipeSearch,
+  normalizeWord,
+  paginate,
+  type RecipeFilters,
+} from "../filter";
 import type { Recipe, RecipeCategory } from "../types";
 
 function recipe(
@@ -100,6 +105,37 @@ test("suggest groups chart types, categories and recipe titles", () => {
       .recipes.map((r) => r.id),
     ["squircle"]
   );
+});
+
+test("facet counts reflect the other group, search and additions", () => {
+  const facets = (filters: Partial<RecipeFilters>) =>
+    search.facetCounts({ query: "", charts: [], categories: [], ...filters });
+
+  // Line + Pie & ring returns nothing, so Pie & ring must say 0, not 1.
+  const withLine = facets({ charts: ["line"] });
+  assert.deepEqual(withLine.categories.get("pie-ring"), {
+    count: 0,
+    added: false,
+  });
+  assert.deepEqual(withLine.categories.get("skies"), {
+    count: 1,
+    added: false,
+  });
+  // Bar would add Squircle bars to Hatched + Sunset.
+  assert.deepEqual(withLine.charts.get("bar"), { count: 1, added: true });
+  // A selected option counts the current results it matches.
+  assert.deepEqual(withLine.charts.get("line"), { count: 2, added: false });
+
+  // With Skies also on, Bar would add nothing.
+  assert.equal(
+    facets({ charts: ["line"], categories: ["skies"] }).charts.get("bar")
+      ?.count,
+    0
+  );
+
+  const searched = facets({ query: "sky" });
+  assert.equal(searched.charts.get("line")?.count, 1);
+  assert.equal(searched.charts.get("bar")?.count, 0);
 });
 
 test("paginate clamps out-of-range pages", () => {

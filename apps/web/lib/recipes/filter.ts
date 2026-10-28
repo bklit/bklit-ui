@@ -24,6 +24,18 @@ export interface RecipeFilters {
   categories: readonly RecipeCategory[];
 }
 
+/** See `facetCounts`. */
+export interface RecipeFacet {
+  count: number;
+  /** `count` is the number of extra recipes checking this would add. */
+  added: boolean;
+}
+
+export interface RecipeFacetCounts {
+  charts: Map<string, RecipeFacet>;
+  categories: Map<RecipeCategory, RecipeFacet>;
+}
+
 export interface RecipeSuggestions {
   charts: RecipeChartType[];
   categories: RecipeCategoryInfo[];
@@ -176,7 +188,57 @@ export function createRecipeSearch(
     };
   }
 
-  return { chartTypes, filterRecipes, suggest };
+  /**
+   * Faceted counts under the current query and filters. Groups OR inside and
+   * AND across, so each option reports what checking it would do:
+   * - its group has no selection → `count` is the results you'd get;
+   * - its group already has a selection → `added` is true and `count` is how
+   *   many *more* recipes it would add (shown as "+N");
+   * - it is selected → `count` is how many current results it matches.
+   * An unselected option with count 0 would empty the gallery or change
+   * nothing, so the UI disables it.
+   */
+  function facetCounts(filters: RecipeFilters): RecipeFacetCounts {
+    const total = filterRecipes(filters).length;
+    const facet = (
+      selected: readonly string[],
+      id: string,
+      results: (selection: string[]) => number
+    ): RecipeFacet => {
+      if (selected.length === 0 || selected.includes(id)) {
+        return { count: results([id]), added: false };
+      }
+      return { count: results([...selected, id]) - total, added: true };
+    };
+    return {
+      charts: new Map(
+        chartTypes.map(({ id }) => [
+          id,
+          facet(
+            filters.charts,
+            id,
+            (charts) => filterRecipes({ ...filters, charts }).length
+          ),
+        ])
+      ),
+      categories: new Map(
+        categories.map(({ id }) => [
+          id,
+          facet(
+            filters.categories,
+            id,
+            (selection) =>
+              filterRecipes({
+                ...filters,
+                categories: selection as RecipeCategory[],
+              }).length
+          ),
+        ])
+      ),
+    };
+  }
+
+  return { chartTypes, facetCounts, filterRecipes, suggest };
 }
 
 export interface RecipePage<T> {

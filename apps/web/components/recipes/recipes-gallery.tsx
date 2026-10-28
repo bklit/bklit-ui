@@ -16,12 +16,18 @@ import {
   createRecipeSearch,
   paginate,
   RECIPES_PER_PAGE,
+  type RecipeFacet,
+  type RecipeFacetCounts,
   type RecipeSuggestions,
 } from "@/lib/recipes/filter";
 import type { Recipe, RecipeCategory } from "@/lib/recipes/types";
-import { cn } from "@/lib/utils";
 import { recipeCategories, recipes } from "./definitions";
 import { RecipeViewer } from "./recipe-viewer";
+import {
+  type RecipeFilterGroup,
+  RecipesActiveFilters,
+  RecipesFilterMenu,
+} from "./recipes-filters";
 import {
   type RecipeSuggestion,
   type RecipeSuggestionGroup,
@@ -40,20 +46,6 @@ const orderedRecipes = [...recipes].sort(
 );
 
 const search = createRecipeSearch(orderedRecipes, recipeCategories);
-
-const chartOptions = search.chartTypes.map((type) => ({
-  ...type,
-  count: orderedRecipes.filter((recipe) =>
-    recipe.charts.some((chart) => chart.id === type.id)
-  ).length,
-}));
-
-const categoryOptions = recipeCategories.map((category) => ({
-  id: category.id,
-  label: category.title,
-  count: orderedRecipes.filter((recipe) => recipe.category === category.id)
-    .length,
-}));
 
 interface GalleryState {
   q: string;
@@ -87,11 +79,20 @@ function plural(count: number, word: string): string {
   return `${count} ${count === 1 ? word : `${word}s`}`;
 }
 
-function suggestionGroups({
-  charts,
-  categories,
-  recipes: matches,
-}: RecipeSuggestions): RecipeSuggestionGroup[] {
+const EMPTY_FACET: RecipeFacet = { count: 0, added: false };
+
+function facetLabel({ count, added }: RecipeFacet = EMPTY_FACET): string {
+  return added ? `+${plural(count, "recipe")}` : plural(count, "recipe");
+}
+
+/**
+ * `counts` are facets for the filters a pick would leave (picking a chart or
+ * category clears the search text).
+ */
+function suggestionGroups(
+  { charts, categories, recipes: matches }: RecipeSuggestions,
+  counts: RecipeFacetCounts
+): RecipeSuggestionGroup[] {
   const groups: RecipeSuggestionGroup[] = [
     {
       value: "Charts",
@@ -99,10 +100,7 @@ function suggestionGroups({
         kind: "chart",
         id: type.id,
         label: `${type.label} charts`,
-        detail: plural(
-          chartOptions.find((option) => option.id === type.id)?.count ?? 0,
-          "recipe"
-        ),
+        detail: facetLabel(counts.charts.get(type.id)),
       })),
     },
     {
@@ -111,11 +109,7 @@ function suggestionGroups({
         kind: "category",
         id: category.id,
         label: category.title,
-        detail: plural(
-          categoryOptions.find((option) => option.id === category.id)?.count ??
-            0,
-          "recipe"
-        ),
+        detail: facetLabel(counts.categories.get(category.id)),
       })),
     },
     {
@@ -164,9 +158,39 @@ function RecipesGalleryView({
     [query, charts, categories]
   );
   const suggestions = useMemo(
-    () => suggestionGroups(search.suggest({ query, charts, categories })),
+    () =>
+      suggestionGroups(
+        search.suggest({ query, charts, categories }),
+        search.facetCounts({ query: "", charts, categories })
+      ),
     [query, charts, categories]
   );
+  const filterGroups = useMemo<RecipeFilterGroup[]>(() => {
+    const counts = search.facetCounts({ query, charts, categories });
+    return [
+      {
+        label: "Chart types",
+        options: search.chartTypes.map((type) => ({
+          key: `chart:${type.id}`,
+          label: type.label,
+          facet: counts.charts.get(type.id) ?? EMPTY_FACET,
+          checked: charts.includes(type.id),
+        })),
+      },
+      {
+        label: "Categories",
+        options: recipeCategories.map((category) => ({
+          key: `category:${category.id}`,
+          label: category.title,
+          facet: counts.categories.get(category.id) ?? EMPTY_FACET,
+          checked: categories.includes(category.id),
+        })),
+      },
+    ];
+  }, [query, charts, categories]);
+  const activeFilters = filterGroups
+    .flatMap((group) => group.options)
+    .filter((option) => option.checked);
   const { items, page, pageCount } = paginate(filtered, state.page);
   const sections = recipeCategories
     .map((category) => ({
@@ -183,6 +207,16 @@ function RecipesGalleryView({
 
   const clearFilters = () =>
     onChange({ q: null, chart: null, category: null, page: null });
+
+  /** Toggle a `chart:<id>` / `category:<id>` filter key. */
+  const toggleFilter = (key: string) => {
+    const [group, id] = key.split(":") as [string, string];
+    if (group === "chart") {
+      updateFilters({ chart: toggle(charts, id) });
+    } else {
+      updateFilters({ category: toggle(categories, id as RecipeCategory) });
+    }
+  };
 
   const selectSuggestion = (suggestion: RecipeSuggestion) => {
     if (suggestion.kind === "chart") {
@@ -271,41 +305,32 @@ function RecipesGalleryView({
 
   return (
     <div className="flex w-full flex-col gap-10 md:gap-14">
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-3">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <div className="w-full sm:max-w-sm">
-            <RecipesSearch
-              groups={suggestions}
-              onQueryChange={(value) => updateFilters({ q: value || null })}
-              onSelect={selectSuggestion}
-              query={query}
-            />
+          <div className="flex w-full items-center gap-2 sm:max-w-md">
+            <div className="min-w-0 flex-1">
+              <RecipesSearch
+                groups={suggestions}
+                onQueryChange={(value) => updateFilters({ q: value || null })}
+                onSelect={selectSuggestion}
+                query={query}
+              />
+            </div>
+            <RecipesFilterMenu groups={filterGroups} onToggle={toggleFilter} />
           </div>
-          <div className="flex items-center gap-3 sm:ms-auto">
-            <p aria-live="polite" className="text-muted-foreground text-sm">
-              {filtering
-                ? `${plural(filtered.length, "recipe")} found`
-                : plural(orderedRecipes.length, "recipe")}
-            </p>
-            {filtering ? (
-              <Button onClick={clearFilters} size="xs" variant="ghost">
-                Clear all
-              </Button>
-            ) : null}
-          </div>
+          <p
+            aria-live="polite"
+            className="text-muted-foreground text-sm sm:ms-auto"
+          >
+            {filtering
+              ? `${plural(filtered.length, "recipe")} found`
+              : plural(orderedRecipes.length, "recipe")}
+          </p>
         </div>
-
-        <FilterToggles
-          active={charts}
-          label="Chart"
-          onToggle={(id) => updateFilters({ chart: toggle(charts, id) })}
-          options={chartOptions}
-        />
-        <FilterToggles
-          active={categories}
-          label="Category"
-          onToggle={(id) => updateFilters({ category: toggle(categories, id) })}
-          options={categoryOptions}
+        <RecipesActiveFilters
+          onClearAll={() => updateFilters({ chart: null, category: null })}
+          onRemove={toggleFilter}
+          options={activeFilters}
         />
       </div>
 
@@ -363,60 +388,6 @@ function RecipesGalleryView({
         pageCount={pageCount}
       />
     </div>
-  );
-}
-
-/**
- * One row of toggle buttons. Active options in a row OR together; rows AND
- * with each other and the search query.
- */
-function FilterToggles<T extends string>({
-  label,
-  options,
-  active,
-  onToggle,
-}: {
-  label: string;
-  options: { id: T; label: string; count: number }[];
-  active: readonly T[];
-  onToggle: (id: T) => void;
-}) {
-  return (
-    // A legend can't be a flex item, so it floats beside the list instead.
-    <fieldset className="min-w-0">
-      <legend className="float-left w-16 font-medium text-muted-foreground text-xs leading-7 sm:leading-6">
-        {label}
-      </legend>
-      <ul className="flex flex-wrap gap-1.5">
-        {options.map((option) => {
-          const pressed = active.includes(option.id);
-          return (
-            <li key={option.id}>
-              <Button
-                aria-pressed={pressed}
-                className="rounded-full before:rounded-full"
-                onClick={() => onToggle(option.id)}
-                size="xs"
-                type="button"
-                variant={pressed ? "default" : "outline"}
-              >
-                {option.label}
-                <span
-                  className={cn(
-                    "tabular-nums",
-                    pressed
-                      ? "text-primary-foreground/72"
-                      : "text-muted-foreground"
-                  )}
-                >
-                  {option.count}
-                </span>
-              </Button>
-            </li>
-          );
-        })}
-      </ul>
-    </fieldset>
   );
 }
 
