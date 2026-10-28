@@ -28,6 +28,7 @@ import {
 import { getAnalyticsUrl, trackEvent } from "@/lib/analytics/track-client";
 import { buildPrompt, type RecipePromptScope } from "@/lib/recipes/prompts";
 import type { Recipe } from "@/lib/recipes/types";
+import { useInViewOnce } from "@/lib/use-in-view-once";
 import { cn } from "@/lib/utils";
 
 const BlockCodeBlock = dynamic(
@@ -48,6 +49,12 @@ const BlockCodeBlock = dynamic(
 type RecipeView = "preview" | "code" | "prompt";
 
 const PANEL_HEIGHT_CLASS = "h-[380px] md:h-[460px]";
+
+/**
+ * Mount each recipe chart just before it scrolls in, so a page of recipes
+ * doesn't initialise every chart at load and entrances play on screen.
+ */
+const PREVIEW_MOUNT_ROOT_MARGIN = "200px 0px";
 
 function ScopeToggle({
   scope,
@@ -200,6 +207,11 @@ export function RecipeViewer({ recipe }: { recipe: Recipe }) {
   const [previewKey, setPreviewKey] = useState(0);
   const multiChart = recipe.charts.length > 1;
   const effectiveScope: RecipePromptScope = multiChart ? scope : "chart";
+  // Stays mounted once seen: recipe previews are static after their entrance,
+  // so unmounting off-screen would only replay the animation on scroll-back.
+  const { ref: previewPanelRef, inView: previewInView } = useInViewOnce({
+    rootMargin: PREVIEW_MOUNT_ROOT_MARGIN,
+  });
 
   const chart =
     recipe.charts.find((item) => item.id === chartId) ?? recipe.charts[0];
@@ -315,7 +327,7 @@ export function RecipeViewer({ recipe }: { recipe: Recipe }) {
             </div>
           </div>
 
-          <FramePanel className="overflow-hidden p-0">
+          <FramePanel className="overflow-hidden p-0" ref={previewPanelRef}>
             {view === "preview" ? (
               <div
                 className={cn(
@@ -323,12 +335,16 @@ export function RecipeViewer({ recipe }: { recipe: Recipe }) {
                   PANEL_HEIGHT_CLASS
                 )}
               >
-                <div
-                  className="w-full max-w-3xl"
-                  key={`${chart.id}-${previewKey}`}
-                >
-                  <Preview />
-                </div>
+                {previewInView ? (
+                  <div
+                    className="w-full max-w-3xl"
+                    key={`${chart.id}-${previewKey}`}
+                  >
+                    <Preview />
+                  </div>
+                ) : (
+                  <div aria-hidden className="w-full max-w-3xl" />
+                )}
               </div>
             ) : null}
 
