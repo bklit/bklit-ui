@@ -11,7 +11,7 @@ import {
   RadialScrubber,
   type RadialSeries,
 } from "@bklitui/ui/charts";
-import { memo, useMemo } from "react";
+import { memo, useCallback, useMemo } from "react";
 import {
   StudioRadialCenter,
   studioRadialSize,
@@ -19,11 +19,11 @@ import {
 import { StudioChartShell } from "@/components/charts/studio-chart-shell";
 import { studioPreviewChartKey } from "@/lib/chart-animation";
 import {
-  PULL_REQUEST_NOW_INDEX,
   PULL_REQUEST_SPIKE_INDEX,
   type PullRequestBin,
-  pullRequestDayData,
+  pullRequestBinEndLabel,
   pullRequestSeries,
+  usePullRequestDay,
 } from "@/lib/radial-demo-data";
 import type { StudioRenderContext } from "@/lib/render-context";
 import { useStudioChartContentFrame } from "@/lib/studio-chart-content-frame";
@@ -38,22 +38,19 @@ import {
 /** Room under the clock for the inline RadialLegend row. */
 const LEGEND_HEIGHT = 36;
 
-const liveBins = pullRequestDayData.slice(0, PULL_REQUEST_NOW_INDEX + 1);
-const yesterdayMergedSoFar = liveBins.reduce(
-  (total, d) => total + d.yesterdayMerged,
-  0
-);
-const nowLabel = pullRequestDayData[PULL_REQUEST_NOW_INDEX + 1]?.time ?? "now";
 const countFormat = { maximumFractionDigits: 0 };
 const deltaFormat = new Intl.NumberFormat("en-US", countFormat);
 
-function centerStat({
-  datum,
-  isFuture,
-  label,
-  totals,
-  values,
-}: RadialCenterState) {
+/** Today so far: caption end time and yesterday's merged PRs over the same bins. */
+interface DaySoFar {
+  nowLabel: string;
+  yesterdayMergedSoFar: number;
+}
+
+function centerStat(
+  { datum, isFuture, label, totals, values }: RadialCenterState,
+  { nowLabel, yesterdayMergedSoFar }: DaySoFar
+) {
   const bin = datum as PullRequestBin | null;
   if (!bin) {
     const merged = totals.merged ?? 0;
@@ -88,8 +85,8 @@ function deltaColor(delta: number) {
   return "var(--muted-foreground)";
 }
 
-function renderCenter(state: RadialCenterState) {
-  const { value, caption, delta } = centerStat(state);
+function renderCenter(state: RadialCenterState, soFar: DaySoFar) {
+  const { value, caption, delta } = centerStat(state, soFar);
   const rounded = Math.round(delta ?? 0);
   return (
     <>
@@ -115,8 +112,11 @@ function renderCenter(state: RadialCenterState) {
   );
 }
 
-/** Spike callout takes the draft series color (index 2). */
-function spikeAnnotations(series: RadialSeries[]) {
+/** Spike callout takes the draft series color (index 2); hidden until it happens. */
+function spikeAnnotations(series: RadialSeries[], nowIndex: number) {
+  if (PULL_REQUEST_SPIKE_INDEX > nowIndex) {
+    return [];
+  }
   return [
     {
       index: PULL_REQUEST_SPIKE_INDEX,
@@ -167,13 +167,30 @@ const RadialChartBody = memo(function RadialChartBody({
     });
     return entries.length > 0 ? Object.fromEntries(entries) : undefined;
   }, [colorState]);
-  const annotations = useMemo(() => spikeAnnotations(series), [series]);
+  const { data, nowIndex } = usePullRequestDay();
+  const soFar = useMemo<DaySoFar>(
+    () => ({
+      nowLabel: pullRequestBinEndLabel(nowIndex),
+      yesterdayMergedSoFar: data
+        .slice(0, nowIndex + 1)
+        .reduce((total, d) => total + d.yesterdayMerged, 0),
+    }),
+    [data, nowIndex]
+  );
+  const center = useCallback(
+    (centerState: RadialCenterState) => renderCenter(centerState, soFar),
+    [soFar]
+  );
+  const annotations = useMemo(
+    () => spikeAnnotations(series, nowIndex),
+    [series, nowIndex]
+  );
 
   return (
     <StudioRadialCenter frame={contentFrame}>
       <div style={{ width: size }}>
         <RadialChart
-          data={pullRequestDayData}
+          data={data}
           key={studioPreviewChartKey(ctx)}
           maxWidth={size}
           series={visibleSeries}
@@ -200,7 +217,7 @@ const RadialChartBody = memo(function RadialChartBody({
             <RadialScrubber variant={state.radialScrubberVariant} />
           ) : null}
           {isStudioComponentVisible(state, "radial.center") ? (
-            <RadialCenter>{renderCenter}</RadialCenter>
+            <RadialCenter>{center}</RadialCenter>
           ) : null}
           {showLegend ? (
             <RadialLegend showValues={state.radialLegendValues} />

@@ -1,7 +1,8 @@
 import {
-  PULL_REQUEST_NOW_INDEX,
+  fallbackPullRequestDayData,
+  PULL_REQUEST_FALLBACK_NOW_INDEX,
   PULL_REQUEST_SPIKE_INDEX,
-  pullRequestDayData,
+  pullRequestBinEndLabel,
   pullRequestSeries,
 } from "./radial-demo-data";
 import { isStudioComponentVisible } from "./studio-component-visibility";
@@ -56,7 +57,7 @@ const CENTER_CODE = `  <RadialCenter>
       // Today vs yesterday over the same bins: a count, not a rate
       let merged = totals.merged;
       let delta = merged - yesterdayMergedSoFar;
-      let caption = "merged by ${pullRequestDayData[PULL_REQUEST_NOW_INDEX + 1]?.time ?? "now"}";
+      let caption = "merged by ${pullRequestBinEndLabel(PULL_REQUEST_FALLBACK_NOW_INDEX)}";
       if (datum) {
         merged = isFuture ? datum.yesterdayMerged : values.merged;
         delta = isFuture ? null : merged - datum.yesterdayMerged;
@@ -149,9 +150,11 @@ ${seriesCode(state)}
 ${children.join("\n")}
 </RadialChart>`;
 
-  const rows = pullRequestDayData.map((d) => `  ${JSON.stringify(d)},`);
-  const data = `// 96 × 15-minute bins, clockwise from 00:00. Bins after "now" have null
-// counts and are drawn as ghost dots from \`yesterday\`.
+  // A fixed 14:15 snapshot (not the preview's live local time) so the
+  // generated code is deterministic and copy-pasteable.
+  const rows = fallbackPullRequestDayData.map((d) => `  ${JSON.stringify(d)},`);
+  const data = `// 96 × 15-minute bins, clockwise from 00:00, as of 14:15. Bins after "now"
+// have null counts and are drawn as ghost dots from \`yesterday\`.
 const chartData = [
 ${rows.join("\n")}
 ];

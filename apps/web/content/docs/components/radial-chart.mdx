@@ -343,7 +343,7 @@ Dot, muted label and series total per series. `emphasize` series tint their tota
 ];
 
 <RadialChart data={chartData} xDataKey="time" series={series}>
-  <RadialAxis centerGradient />
+  <RadialAxis />
   <RadialDotBar
     ghostDataKey="yesterday"
     annotations={[{ index: 8, label: "02:14", color: "var(--chart-3)" }]}
@@ -354,7 +354,7 @@ Dot, muted label and series total per series. `emphasize` series tint their tota
       // Today vs yesterday over the same bins: a count, not a rate
       let merged = totals.merged;
       let delta = merged - yesterdayMergedSoFar;
-      let caption = "merged by 14:30";
+      let caption = \`merged by \${nowLabel}\`;
       if (datum) {
         merged = isFuture ? datum.yesterdayMerged : values.merged;
         delta = isFuture ? null : merged - datum.yesterdayMerged;
@@ -409,7 +409,7 @@ The examples mix the three `RadialScrubber` styles: `variant="solid"` (the defau
     {({ datum, totals, label }) => (
       <ChartStatFlow
         value={datum ? (datum.merged ?? datum.yesterday) : totals.merged}
-        label={datum ? \`merged at \${label}\` : "merged by 14:30"}
+        label={datum ? \`merged at \${label}\` : \`merged by \${nowLabel}\`}
       />
     )}
   </RadialCenter>
@@ -423,20 +423,20 @@ The examples mix the three `RadialScrubber` styles: `variant="solid"` (the defau
 
 ### Time axis
 
-With `angleType="time"`, `datum[xDataKey]` holds a date per evenly spaced bin and `RadialAxis` draws UTC time ticks with month names between them. Here 366 days of San Francisco temperatures share one scale: `valueKeys` pulls the record extremes into the domain, `minValue="auto"` maps the coldest record to the band base, and two banded `RadialArea`s plus a `RadialLine` draw the record range, the normal range and the daily average.
+With `angleType="time"`, `datum[xDataKey]` holds a date per evenly spaced bin and `RadialAxis` draws UTC time ticks with month names between them. Here a year of San Francisco temperatures shares one scale: `valueKeys` pulls the record extremes into the domain, `minValue="auto"` maps the coldest record to the band base, and two banded `RadialArea`s draw the record and normal ranges for the whole year. This year's daily mean is the series: it is `null` after today, so `trackNow` rests the scrubber on today and the `RadialLine` ends in a pulsing "now" marker.
 
 <ComponentShowcase
   code={`const series = [
-  { dataKey: "avg", label: "Daily average", color: "var(--chart-1)" },
+  { dataKey: "temp", label: "2026", color: "var(--chart-1)" },
 ];
 
-// 366 days, °F
+// One datum per day of this year, °F — \`temp\` is null after today
 const days = [
-  { date: Date.UTC(2000, 0, 1), avg: 50.2, min: 43.6, max: 55.7, minmin: 37, maxmax: 62 },
+  { date: Date.UTC(2026, 0, 1), temp: 51.4, avg: 50.2, min: 43.6, max: 55.7, minmin: 37, maxmax: 62 },
   // …
 ];
 
-const annualAverage = days.reduce((total, d) => total + d.avg, 0) / days.length;
+const todayIndex = days.findLastIndex((d) => d.temp !== null);
 const dayFormat = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
 
 <RadialChart
@@ -444,6 +444,7 @@ const dayFormat = new Intl.DateTimeFormat("en-US", { month: "short", day: "numer
   data={days}
   xDataKey="date"
   series={series}
+  trackNow
   valueKeys={["minmin", "maxmax"]}
   minValue="auto"
   maxValue="auto"
@@ -470,17 +471,21 @@ const dayFormat = new Intl.DateTimeFormat("en-US", { month: "short", day: "numer
     stroke="none"
     curve="linear"
   />
-  <RadialLine dataKey="avg" strokeWidth={1.5} />
+  {/* This year up to today */}
+  <RadialLine dataKey="temp" strokeWidth={1.5} />
   <RadialScrubber variant="gradient" />
   <RadialCenter>
-    {({ datum }) => (
-      <ChartStatFlow
-        value={datum ? datum.avg : annualAverage}
-        label={datum ? dayFormat.format(datum.date) : "annual average"}
-        suffix="°F"
-        formatOptions={{ maximumFractionDigits: 1 }}
-      />
-    )}
+    {({ index }) => {
+      const day = days[index ?? todayIndex];
+      return (
+        <ChartStatFlow
+          value={day.temp ?? day.avg}
+          label={day.temp === null ? "normal average" : dayFormat.format(day.date)}
+          suffix="°F"
+          formatOptions={{ maximumFractionDigits: 1 }}
+        />
+      );
+    }}
   </RadialCenter>
 </RadialChart>`}
   liveChartPreview

@@ -12,8 +12,12 @@ import {
   RadialScrubber,
   type RadialSeries,
 } from "@bklitui/ui/charts";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { sfTemperatureData } from "@/components/charts/radial/sf-temperature-data";
+import {
+  nowBinIndex,
+  useLocalNow,
+} from "@/components/charts/radial/use-local-now";
 import type { Recipe } from "@/lib/recipes/types";
 import { recipeCafeHours, recipeStoragePlan } from "../recipe-data";
 
@@ -31,17 +35,28 @@ const cafeSeries: RadialSeries[] = [
   { dataKey: "takeaway", label: "Takeaway", color: "var(--chart-3)" },
 ];
 
-const cafeTotals = recipeCafeHours.reduce(
-  (sum, h) => ({
-    dineIn: sum.dineIn + h.dineIn,
-    takeaway: sum.takeaway + h.takeaway,
-  }),
-  { dineIn: 0, takeaway: 0 }
+interface CafeHour extends Record<string, unknown> {
+  time: string;
+  /** Cups (null for hours still to come today) */
+  dineIn: number | null;
+  takeaway: number | null;
+}
+
+/** Fixed dot scale (the full day's peak) so columns don't rescale as the day fills in. */
+const CAFE_MAX_CUPS = Math.max(
+  ...recipeCafeHours.map((h) => h.dineIn + h.takeaway)
 );
 
-const busiestHour = recipeCafeHours.reduce((best, h) =>
-  h.dineIn + h.takeaway > best.dineIn + best.takeaway ? h : best
-);
+function cups(h: CafeHour): number {
+  return (h.dineIn ?? 0) + (h.takeaway ?? 0);
+}
+
+/** Today's hours up to `nowHour` (inclusive); later hours are null. */
+function cafeHoursUntil(nowHour: number): CafeHour[] {
+  return recipeCafeHours.map((h, index) =>
+    index <= nowHour ? h : { time: h.time, dineIn: null, takeaway: null }
+  );
+}
 
 function nextHour(time: string): string {
   const hour = (Number.parseInt(time, 10) + 1) % 24;
@@ -74,9 +89,35 @@ function StatRow({
 
 function ActivityClockCard() {
   const [hovered, setHovered] = useState<number | null>(null);
-  const hour = hovered === null ? null : recipeCafeHours[hovered];
-  const counts = hour ?? cafeTotals;
-  const total = counts.dineIn + counts.takeaway;
+  const { minuteOfDay } = useLocalNow();
+  const nowHour = nowBinIndex(minuteOfDay, 24);
+  const { hours, totals, busiest } = useMemo(() => {
+    const today = cafeHoursUntil(nowHour);
+    const sold = today.slice(0, nowHour + 1);
+    return {
+      hours: today,
+      totals: sold.reduce(
+        (sum, h) => ({
+          dineIn: sum.dineIn + (h.dineIn ?? 0),
+          takeaway: sum.takeaway + (h.takeaway ?? 0),
+        }),
+        { dineIn: 0, takeaway: 0 }
+      ),
+      busiest: sold.reduce((best, h) => (cups(h) > cups(best) ? h : best)),
+    };
+  }, [nowHour]);
+
+  const hour = hovered === null ? null : (hours[hovered] ?? null);
+  const isLater = hovered !== null && hovered > nowHour;
+  const dineIn = hour ? (hour.dineIn ?? 0) : totals.dineIn;
+  const takeaway = hour ? (hour.takeaway ?? 0) : totals.takeaway;
+  const total = dineIn + takeaway;
+  const busiestCups = cups(busiest);
+
+  let caption = "cups sold today";
+  if (hour) {
+    caption = `cups ${hour.time}–${nextHour(hour.time)}${isLater ? " · later today" : ""}`;
+  }
 
   return (
     <div className={`${CARD_CLASS} max-w-xl`}>
@@ -87,7 +128,7 @@ function ActivityClockCard() {
       <div className="flex flex-col items-center gap-4 sm:flex-row sm:gap-6">
         <div className="w-full max-w-[200px] shrink-0 sm:max-w-[220px]">
           <RadialChart
-            data={recipeCafeHours}
+            data={hours}
             hoveredIndex={hovered}
             onHoverChange={setHovered}
             series={cafeSeries}
@@ -97,6 +138,7 @@ function ActivityClockCard() {
             <RadialDotBar
               dotSize={0.9}
               layout="columns"
+              maxValue={CAFE_MAX_CUPS}
               patterns={{ takeaway: { preset: "diagonal", strokeWidth: 1.5 } }}
               rows={5}
             />
@@ -106,28 +148,26 @@ function ActivityClockCard() {
         <div className="flex w-full min-w-0 flex-1 flex-col gap-3">
           <div>
             <div className="font-semibold text-3xl tabular-nums tracking-tight">
-              {count.format(total)}
+              {isLater ? "–" : count.format(total)}
             </div>
-            <div className="text-muted-foreground text-xs">
-              {hour
-                ? `cups ${hour.time}–${nextHour(hour.time)}`
-                : "cups sold today"}
-            </div>
+            <div className="text-muted-foreground text-xs">{caption}</div>
           </div>
           <div className="flex flex-col gap-1.5 border-t pt-3">
             <StatRow
               color="var(--chart-1)"
               label="Dine in"
-              value={count.format(counts.dineIn)}
+              value={isLater ? "–" : count.format(dineIn)}
             />
             <StatRow
               color="var(--chart-3)"
               label="Takeaway"
-              value={count.format(counts.takeaway)}
+              value={isLater ? "–" : count.format(takeaway)}
             />
             <StatRow
               label="Busiest hour"
-              value={`${busiestHour.time} · ${busiestHour.dineIn + busiestHour.takeaway} cups`}
+              value={
+                busiestCups > 0 ? `${busiest.time} · ${busiestCups} cups` : "–"
+              }
             />
           </div>
         </div>
@@ -146,8 +186,8 @@ import { RadialScrubber } from "@/components/charts/radial-scrubber";
 
 interface Hour {
   time: string; // "00:00" … "23:00"
-  dineIn: number;
-  takeaway: number;
+  dineIn: number | null; // null for hours still to come today
+  takeaway: number | null;
 }
 
 const series = [
@@ -156,6 +196,8 @@ const series = [
 ];
 
 const count = new Intl.NumberFormat("en-US");
+
+const cups = (h: Hour) => (h.dineIn ?? 0) + (h.takeaway ?? 0);
 
 const nextHour = (time: string) =>
   \`\${String((Number.parseInt(time, 10) + 1) % 24).padStart(2, "0")}:00\`;
@@ -174,13 +216,16 @@ export function OrdersTodayCard({ hours }: { hours: Hour[] }) {
   const [hovered, setHovered] = useState<number | null>(null);
   const hour = hovered === null ? null : hours[hovered];
   const totals = hours.reduce(
-    (sum, h) => ({ dineIn: sum.dineIn + h.dineIn, takeaway: sum.takeaway + h.takeaway }),
+    (sum, h) => ({
+      dineIn: sum.dineIn + (h.dineIn ?? 0),
+      takeaway: sum.takeaway + (h.takeaway ?? 0),
+    }),
     { dineIn: 0, takeaway: 0 }
   );
-  const busiest = hours.reduce((best, h) =>
-    h.dineIn + h.takeaway > best.dineIn + best.takeaway ? h : best
-  );
-  const counts = hour ?? totals;
+  const busiest = hours.reduce((best, h) => (cups(h) > cups(best) ? h : best));
+  const counts = hour
+    ? { dineIn: hour.dineIn ?? 0, takeaway: hour.takeaway ?? 0 }
+    : totals;
 
   return (
     <div className="flex w-full max-w-xl flex-col gap-4 rounded-xl border bg-card p-4 sm:p-5">
@@ -221,7 +266,7 @@ export function OrdersTodayCard({ hours }: { hours: Hour[] }) {
             <StatRow color="var(--chart-3)" label="Takeaway" value={count.format(counts.takeaway)} />
             <StatRow
               label="Busiest hour"
-              value={\`\${busiest.time} · \${busiest.dineIn + busiest.takeaway} cups\`}
+              value={cups(busiest) ? \`\${busiest.time} · \${cups(busiest)} cups\` : "–"}
             />
           </div>
         </div>
@@ -251,6 +296,7 @@ export const activityClockCard: Recipe = {
         'Draw `<RadialAxis />`, `<RadialDotBar layout="columns" rows={5} dotSize={0.9} patterns={{ takeaway: { preset: "diagonal", strokeWidth: 1.5 } }} />` and `<RadialScrubber rest="hidden" variant="dashed" />`. Leave out `RadialCenter` and `RadialLegend` — the card shows the numbers.',
         "Lay the card out as a header row, then a flex row (column on mobile) with the chart in a `max-w-[220px]` box and a stats column: a big count (`text-3xl tabular-nums`) with a caption, a `border-t` divider and one row per series (colour dot, label, value) plus the busiest hour.",
         "Read `hours[hovered]` when hovered, else the day's totals, so every number and the caption switch together.",
+        "For a live “today” card, set hours after the current local hour to `null` — the clock stops at now and the totals and busiest hour only count what's been sold.",
       ],
       code: ACTIVITY_SOURCE,
     },

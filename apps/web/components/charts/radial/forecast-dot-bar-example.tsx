@@ -11,10 +11,16 @@ import {
   RadialScrubber,
   type RadialSeries,
 } from "@bklitui/ui/charts";
+import { useMemo } from "react";
 import type { RadialGalleryVariant } from "@/components/charts/radial/types";
+import {
+  nowBinIndex,
+  useLocalNow,
+} from "@/components/charts/radial/use-local-now";
 
 // ---------------------------------------------------------------------------
-// Data — household energy use per hour, metered until 15:00, forecast after
+// Data — household energy use per hour, metered up to the viewer's local
+// current hour, forecast after
 // ---------------------------------------------------------------------------
 
 interface EnergyHour extends Record<string, unknown> {
@@ -27,9 +33,7 @@ interface EnergyHour extends Record<string, unknown> {
   forecast: number;
 }
 
-const NOW_HOUR = 14;
-
-/** [solar, grid, forecast] kWh per hour, 00:00 → 23:00 */
+/** [solar, grid, forecast] kWh per hour, 00:00 → 23:00 — a full metered day */
 const usage: [number, number, number][] = [
   [0, 0.6, 0.6],
   [0, 0.5, 0.5],
@@ -46,23 +50,26 @@ const usage: [number, number, number][] = [
   [1.9, 0.2, 2],
   [1.8, 0.1, 1.8],
   [1.5, 0.2, 1.7],
-  [0, 0, 1.9],
-  [0, 0, 2.2],
-  [0, 0, 2.8],
-  [0, 0, 3.2],
-  [0, 0, 3],
-  [0, 0, 2.6],
-  [0, 0, 2],
-  [0, 0, 1.3],
-  [0, 0, 0.8],
+  [1.1, 0.9, 1.9],
+  [0.7, 1.4, 2.2],
+  [0.3, 2.6, 2.8],
+  [0.1, 3, 3.2],
+  [0, 2.9, 3],
+  [0, 2.7, 2.6],
+  [0, 1.9, 2],
+  [0, 1.4, 1.3],
+  [0, 0.8, 0.8],
 ];
 
-const energyData: EnergyHour[] = usage.map(([solar, grid, forecast], hour) => ({
-  time: `${String(hour).padStart(2, "0")}:00`,
-  solar: hour <= NOW_HOUR ? solar : null,
-  grid: hour <= NOW_HOUR ? grid : null,
-  forecast,
-}));
+/** Metered readings up to `nowHour` (inclusive); later hours are forecast only. */
+function energyDataUntil(nowHour: number): EnergyHour[] {
+  return usage.map(([solar, grid, forecast], hour) => ({
+    time: `${String(hour).padStart(2, "0")}:00`,
+    solar: hour <= nowHour ? solar : null,
+    grid: hour <= nowHour ? grid : null,
+    forecast,
+  }));
+}
 
 const energySeries: RadialSeries[] = [
   { dataKey: "solar", label: "Solar", color: "var(--chart-2)" },
@@ -112,6 +119,10 @@ function renderEnergyCenter({
 // ---------------------------------------------------------------------------
 
 export function RadialForecastDotBarExample() {
+  const { minuteOfDay } = useLocalNow();
+  const nowHour = nowBinIndex(minuteOfDay, 24);
+  const energyData = useMemo(() => energyDataUntil(nowHour), [nowHour]);
+
   return (
     <RadialChart data={energyData} series={energySeries} xDataKey="time">
       <RadialAxis />
@@ -177,8 +188,8 @@ const code = `const series = [
   <RadialLegend formatValue={(v) => \`\${v.toFixed(1)} kWh\`} />
 </RadialChart>`;
 
-const dataSnippet = `// 24 hourly bins, clockwise from 00:00. Metered until 14:00;
-// later hours have null readings and show the striped forecast.
+const dataSnippet = `// 24 hourly bins, clockwise from 00:00. Metered up to the current local
+// hour; later hours have null readings and show the striped forecast.
 const chartData = [
   { time: "00:00", solar: 0, grid: 0.6, forecast: 0.6 },
   // …

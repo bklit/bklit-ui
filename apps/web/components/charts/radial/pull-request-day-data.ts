@@ -1,10 +1,16 @@
 import type { RadialSeries } from "@bklitui/ui/charts";
+import { useMemo } from "react";
+import {
+  nowBinIndex,
+  useLocalNow,
+} from "@/components/charts/radial/use-local-now";
 
 /**
  * Shared demo data for radial gallery variants: pull requests per 15-minute
- * bin over a 24h day (96 bins, clockwise from 00:00), deterministic so SSR and
- * client render the same marks. Bins after "now" (14:15) have null counts and
- * carry only yesterday's values for ghost / comparison layers.
+ * bin over a 24h day (96 bins, clockwise from 00:00), seeded per local day so
+ * SSR and client render the same marks. Today's bins run up to the viewer's
+ * local time; bins after "now" have null counts and carry only yesterday's
+ * values for ghost / comparison layers.
  */
 export interface PullRequestBin extends Record<string, unknown> {
   time: string;
@@ -36,12 +42,31 @@ const todayProfile: Profile = [
   [6, 2.6],
   [7, 4.5],
   [8, 6.8],
-  [9, 9],
-  [10, 11],
-  [11, 12.6],
-  [12, 13.4],
-  [13, 12.8],
-  [14.5, 12.4],
+  [9, 8.6],
+  // Morning spike around 10:45
+  [10, 10.4],
+  [10.5, 13.6],
+  [11, 14],
+  [11.5, 12.2],
+  // Lunch dip
+  [12.25, 9.6],
+  [13, 10.4],
+  // Wide afternoon spike, 14:00–15:30
+  [13.75, 13.4],
+  [14.25, 14.2],
+  [15.25, 14],
+  [15.75, 12],
+  [16.25, 10.2],
+  // Short spike before the end of the day
+  [16.75, 13],
+  [17.25, 10.6],
+  [18, 8.6],
+  [19, 9.8],
+  [20, 11.4],
+  [21, 11.8],
+  [22, 9],
+  [23, 5.8],
+  [24, 1.3],
 ];
 
 const yesterdayProfile: Profile = [
@@ -49,11 +74,13 @@ const yesterdayProfile: Profile = [
   [5, 1.4],
   [6, 2.8],
   [8, 7],
-  [10, 11],
-  [12, 13],
-  [14, 12.6],
-  [15, 12.4],
-  [16, 11.2],
+  [10, 10.6],
+  [11.25, 13.4],
+  [12, 11],
+  [12.75, 10],
+  [14, 12.4],
+  [15, 13.6],
+  [16, 11.4],
   [17, 9.8],
   [18, 8.6],
   [19, 9.6],
@@ -80,17 +107,66 @@ function rowsToCount(rows: number): number {
   return (1000 * (27 * rows + rows * rows)) / 574;
 }
 
-/** Last bin with data today (14:15–14:30) — "now". */
-export const PULL_REQUEST_NOW_INDEX = 57;
+/** 15-minute bins per day. */
+export const PULL_REQUEST_BIN_COUNT = 96;
 
-/** Odd burst of draft PRs around 02:14. */
-const draftSpike: Record<number, number> = { 8: 720, 9: 640, 10: 500 };
+/** Odd burst of draft PRs, 01:15–03:30, peaking around 02:14. */
+const draftSpike: Record<number, number> = {
+  5: 90,
+  6: 260,
+  7: 520,
+  8: 720,
+  9: 660,
+  10: 540,
+  11: 380,
+  12: 220,
+  13: 110,
+  14: 40,
+};
 
-function generatePullRequestDay(): PullRequestBin[] {
-  const rand = seededRandom(2598);
-  return Array.from({ length: 96 }, (_, i) => {
+const BASE_SEED = 2598;
+const PARK_MILLER_MODULUS = 2_147_483_647;
+
+/**
+ * Seed for `dayKey`: a few Park–Miller steps from the base seed plus the day,
+ * so adjacent days (keys differing by 1) get unrelated noise.
+ */
+function daySeed(dayKey: number): number {
+  const warm = seededRandom(BASE_SEED + dayKey);
+  warm();
+  warm();
+  return Math.floor(warm() * (PARK_MILLER_MODULUS - 2)) + 1;
+}
+
+/** "HH:MM" at the start of bin `index` (bin 96 is "24:00"). */
+function binTime(index: number): string {
+  const minutes = index * 15;
+  return `${String(Math.floor(minutes / 60)).padStart(2, "0")}:${String(minutes % 60).padStart(2, "0")}`;
+}
+
+/** End of the "now" bin, e.g. "14:30" ("24:00" in the day's last bin). */
+export function pullRequestNowLabel(nowIndex: number): string {
+  return binTime(nowIndex + 1);
+}
+
+/**
+ * One day of bins. Every bin draws its random values whatever `nowIndex` is,
+ * so the past stays put as "now" advances; bins after `nowIndex` then drop
+ * today's counts.
+ */
+export function generatePullRequestDay({
+  nowIndex,
+  dayKey,
+}: {
+  /** Last bin with data today ("now") */
+  nowIndex: number;
+  /** Local date as YYYYMMDD — varies the noise from day to day */
+  dayKey: number;
+}): PullRequestBin[] {
+  const rand = seededRandom(daySeed(dayKey));
+  return Array.from({ length: PULL_REQUEST_BIN_COUNT }, (_, i) => {
     const hour = (i + 0.5) / 4;
-    const time = `${String(Math.floor(i / 4)).padStart(2, "0")}:${String((i % 4) * 15).padStart(2, "0")}`;
+    const time = binTime(i);
     const yesterdayRows = Math.max(
       0.6,
       interpolate(yesterdayProfile, hour) + (rand() - 0.5) * 1.4
@@ -108,7 +184,7 @@ function generatePullRequestDay(): PullRequestBin[] {
       rows > 2 && readyRoll < 0.5 ? Math.round(total * readyShare) : 0;
     const draft = draftSpike[i] ?? 0;
 
-    if (i > PULL_REQUEST_NOW_INDEX) {
+    if (i > nowIndex) {
       return {
         time,
         merged: null,
@@ -129,7 +205,22 @@ function generatePullRequestDay(): PullRequestBin[] {
   });
 }
 
-export const pullRequestDayData = generatePullRequestDay();
+/**
+ * Today's bins up to the viewer's local time, regenerated only when the
+ * 15-minute bin or the local day changes.
+ */
+export function usePullRequestDay(): {
+  data: PullRequestBin[];
+  nowIndex: number;
+} {
+  const { minuteOfDay, dayKey } = useLocalNow();
+  const nowIndex = nowBinIndex(minuteOfDay, PULL_REQUEST_BIN_COUNT);
+  const data = useMemo(
+    () => generatePullRequestDay({ nowIndex, dayKey }),
+    [nowIndex, dayKey]
+  );
+  return { data, nowIndex };
+}
 
 export const pullRequestSeries: RadialSeries[] = [
   {

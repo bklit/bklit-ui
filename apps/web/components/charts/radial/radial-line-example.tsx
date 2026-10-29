@@ -11,10 +11,12 @@ import {
   RadialScrubber,
   type RadialSeries,
 } from "@bklitui/ui/charts";
+import { useMemo } from "react";
 import { CenterCountDelta } from "@/components/charts/radial/center-delta";
 import {
-  PULL_REQUEST_NOW_INDEX,
-  pullRequestDayData,
+  type PullRequestBin,
+  pullRequestNowLabel,
+  usePullRequestDay,
 } from "@/components/charts/radial/pull-request-day-data";
 import type { RadialGalleryVariant } from "@/components/charts/radial/types";
 
@@ -50,42 +52,58 @@ function smooth(values: number[], wrap: boolean): number[] {
   });
 }
 
-const todayRaw = pullRequestDayData
-  .slice(0, PULL_REQUEST_NOW_INDEX + 1)
-  .map((d) => d.merged ?? 0);
-const todaySmooth = smooth(todayRaw, false);
-const yesterdaySmooth = smooth(
-  pullRequestDayData.map((d) => d.yesterdayMerged),
-  true
-);
+interface MergedDay {
+  data: MergedBin[];
+  /** Shared by both lines so today and yesterday use one scale */
+  maxMerged: number;
+  /** Yesterday's (smoothed) merged PRs over the bins that have data today */
+  yesterdaySoFar: number;
+}
 
-const mergedDayData: MergedBin[] = pullRequestDayData.map((d, i) => ({
-  time: d.time,
-  merged: i <= PULL_REQUEST_NOW_INDEX ? (todaySmooth[i] ?? 0) : null,
-  yesterday: yesterdaySmooth[i] ?? 0,
-}));
-
-/** Shared by both lines so today and yesterday use one scale. */
-const maxMerged = Math.max(
-  ...mergedDayData.map((d) => Math.max(d.merged ?? 0, d.yesterday))
-);
+/** Smooths today (up to `nowIndex`) and yesterday (whole day) into lines. */
+function toMergedDay(day: PullRequestBin[], nowIndex: number): MergedDay {
+  const todaySmooth = smooth(
+    day.slice(0, nowIndex + 1).map((d) => d.merged ?? 0),
+    false
+  );
+  const yesterdaySmooth = smooth(
+    day.map((d) => d.yesterdayMerged),
+    true
+  );
+  const data: MergedBin[] = day.map((d, i) => ({
+    time: d.time,
+    merged: i <= nowIndex ? (todaySmooth[i] ?? 0) : null,
+    yesterday: yesterdaySmooth[i] ?? 0,
+  }));
+  return {
+    data,
+    maxMerged: Math.max(
+      ...data.map((d) => Math.max(d.merged ?? 0, d.yesterday))
+    ),
+    yesterdaySoFar: data
+      .slice(0, nowIndex + 1)
+      .reduce((total, d) => total + d.yesterday, 0),
+  };
+}
 
 const mergedSeries: RadialSeries[] = [
   { dataKey: "merged", label: "Merged today", color: "var(--chart-1)" },
 ];
 
-const yesterdaySoFar = mergedDayData
-  .slice(0, PULL_REQUEST_NOW_INDEX + 1)
-  .reduce((total, d) => total + d.yesterday, 0);
-
 // ---------------------------------------------------------------------------
 // Center
 // ---------------------------------------------------------------------------
 
-/** End of the "now" bin, e.g. "14:30" — today's line runs up to here. */
-const nowLabel = mergedDayData[PULL_REQUEST_NOW_INDEX + 1]?.time ?? "now";
+interface CenterContext {
+  /** End of the "now" bin, e.g. "14:30" — today's line runs up to here */
+  nowLabel: string;
+  yesterdaySoFar: number;
+}
 
-function centerStat({ datum, isFuture, label, totals }: RadialCenterState) {
+function centerStat(
+  { datum, isFuture, label, totals }: RadialCenterState,
+  { nowLabel, yesterdaySoFar }: CenterContext
+) {
   const bin = datum as MergedBin | null;
   if (!bin) {
     const merged = totals.merged ?? 0;
@@ -109,8 +127,14 @@ function centerStat({ datum, isFuture, label, totals }: RadialCenterState) {
   };
 }
 
-function renderMergedCenter(state: RadialCenterState) {
-  const { value, caption, delta } = centerStat(state);
+function MergedCenter({
+  context,
+  state,
+}: {
+  context: CenterContext;
+  state: RadialCenterState;
+}) {
+  const { value, caption, delta } = centerStat(state, context);
   return (
     <>
       <ChartStatFlow
@@ -129,10 +153,26 @@ function renderMergedCenter(state: RadialCenterState) {
 // ---------------------------------------------------------------------------
 
 export function RadialLineExample() {
+  const { data: day, nowIndex } = usePullRequestDay();
+  const { data, maxMerged, yesterdaySoFar } = useMemo(
+    () => toMergedDay(day, nowIndex),
+    [day, nowIndex]
+  );
+
+  const renderCenter = useMemo(() => {
+    const context: CenterContext = {
+      nowLabel: pullRequestNowLabel(nowIndex),
+      yesterdaySoFar,
+    };
+    return (state: RadialCenterState) => (
+      <MergedCenter context={context} state={state} />
+    );
+  }, [nowIndex, yesterdaySoFar]);
+
   return (
     <RadialChart
-      data={mergedDayData}
-      nowIndex={PULL_REQUEST_NOW_INDEX}
+      data={data}
+      nowIndex={nowIndex}
       series={mergedSeries}
       xDataKey="time"
     >
@@ -152,7 +192,7 @@ export function RadialLineExample() {
         strokeWidth={2.25}
       />
       <RadialScrubber variant="gradient" />
-      <RadialCenter>{renderMergedCenter}</RadialCenter>
+      <RadialCenter>{renderCenter}</RadialCenter>
       <RadialLegend />
     </RadialChart>
   );
@@ -179,7 +219,7 @@ const code = `const series = [
     {({ datum, totals, label }) => (
       <ChartStatFlow
         value={datum ? (datum.merged ?? datum.yesterday) : totals.merged}
-        label={datum ? \`merged at \${label}\` : "merged by 14:30"}
+        label={datum ? \`merged at \${label}\` : \`merged by \${nowLabel}\`}
       />
     )}
   </RadialCenter>
@@ -187,14 +227,18 @@ const code = `const series = [
 </RadialChart>`;
 
 const dataSnippet = `// 96 × 15-minute bins, clockwise from 00:00.
-// Today's line ends at "now"; yesterday closes the loop.
+// Today's line runs up to the viewer's local time ("now"); yesterday closes the loop.
 const chartData = [
   { time: "00:00", merged: 44, yesterday: 58 },
   // …
-  { time: "14:15", merged: 846, yesterday: 870 },
+  { time: "14:15", merged: 846, yesterday: 870 }, // now
   { time: "14:30", merged: null, yesterday: 862 },
   // …
 ];
+
+// End of the "now" bin, e.g. "14:30"
+const nowIndex = chartData.findLastIndex((d) => d.merged !== null);
+const nowLabel = chartData[nowIndex + 1]?.time ?? "24:00";
 
 // Share one scale between the lines
 const maxValue = Math.max(...chartData.map((d) => Math.max(d.merged ?? 0, d.yesterday)));`;
@@ -202,7 +246,7 @@ const maxValue = Math.max(...chartData.map((d) => Math.max(d.merged ?? 0, d.yest
 export const radialLineVariant: RadialGalleryVariant = {
   title: "Radial Chart - Line",
   description:
-    "Smooth radial lines around a 24-hour clock: today's merged PRs drawn clockwise up to now, with yesterday dashed for the whole day",
+    "Smooth radial lines around a 24-hour clock: today's merged PRs drawn clockwise up to your local time, with yesterday dashed for the whole day",
   code,
   data: dataSnippet,
   footer:

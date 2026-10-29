@@ -136,7 +136,10 @@ export const recipeKpiData = {
   })),
 };
 
-/** A café's cups per hour, 00:00 → 23:00 (open 06:00–20:00), for radial clocks. */
+/**
+ * A café's cups per hour, 00:00 → 23:00 (open 06:00–20:00), for radial clocks.
+ * A full day — "today" previews blank the hours after the viewer's local now.
+ */
 export const recipeCafeHours = (
   [
     [0, 0],

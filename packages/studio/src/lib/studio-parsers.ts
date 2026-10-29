@@ -671,7 +671,7 @@ export const studioSearchParams = {
   radialGhost: parseAsBoolean.withDefault(true),
   radialAnnotations: parseAsBoolean.withDefault(true),
   radialFadedOpacity: parseAsFloat.withDefault(0.2),
-  radialCenterGradient: parseAsBoolean.withDefault(true),
+  radialCenterGradient: parseAsBoolean.withDefault(false),
   radialAxisCircle: parseAsBoolean.withDefault(true),
   radialScrubberVariant: parseAsStringLiteral([
     "solid",
@@ -1594,7 +1594,7 @@ export function defaultStudioState(
     radialGhost: true,
     radialAnnotations: true,
     radialFadedOpacity: 0.2,
-    radialCenterGradient: true,
+    radialCenterGradient: false,
     radialAxisCircle: true,
     radialScrubberVariant: "solid",
     radialLegendValues: true,

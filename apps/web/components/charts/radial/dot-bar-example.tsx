@@ -10,13 +10,14 @@ import {
   RadialLegend,
   RadialScrubber,
 } from "@bklitui/ui/charts";
+import { useMemo } from "react";
 import { CenterCountDelta } from "@/components/charts/radial/center-delta";
 import {
-  PULL_REQUEST_NOW_INDEX,
   PULL_REQUEST_SPIKE_INDEX,
   type PullRequestBin,
-  pullRequestDayData,
+  pullRequestNowLabel,
   pullRequestSeries,
+  usePullRequestDay,
 } from "@/components/charts/radial/pull-request-day-data";
 import type { RadialGalleryVariant } from "@/components/charts/radial/types";
 
@@ -29,24 +30,17 @@ const DRAFT_COLOR =
 // Center — merged PRs (a count) and the change vs yesterday at the same time
 // ---------------------------------------------------------------------------
 
-const liveBins = pullRequestDayData.slice(0, PULL_REQUEST_NOW_INDEX + 1);
+interface CenterContext {
+  /** End of the "now" bin, e.g. "14:30" — today's totals run up to here */
+  nowLabel: string;
+  /** Yesterday's merged PRs over the same bins that have data today */
+  yesterdayMergedSoFar: number;
+}
 
-/** Yesterday's merged PRs over the same bins that have data today. */
-const yesterdayMergedSoFar = liveBins.reduce(
-  (total, d) => total + d.yesterdayMerged,
-  0
-);
-
-/** End of the "now" bin, e.g. "14:30" — today's totals run up to here. */
-const nowLabel = pullRequestDayData[PULL_REQUEST_NOW_INDEX + 1]?.time ?? "now";
-
-function centerStat({
-  datum,
-  isFuture,
-  label,
-  totals,
-  values,
-}: RadialCenterState) {
+function centerStat(
+  { datum, isFuture, label, totals, values }: RadialCenterState,
+  { nowLabel, yesterdayMergedSoFar }: CenterContext
+) {
   const bin = datum as PullRequestBin | null;
   if (!bin) {
     const merged = totals.merged ?? 0;
@@ -73,8 +67,14 @@ function centerStat({
 
 const countFormat = { maximumFractionDigits: 0 };
 
-function renderPullRequestCenter(state: RadialCenterState) {
-  const { value, caption, delta } = centerStat(state);
+function PullRequestCenter({
+  context,
+  state,
+}: {
+  context: CenterContext;
+  state: RadialCenterState;
+}) {
+  const { value, caption, delta } = centerStat(state, context);
   return (
     <>
       <ChartStatFlow
@@ -101,26 +101,47 @@ export function RadialDotBarExample({
   animate?: boolean;
   legend?: boolean;
 }) {
+  const { data, nowIndex } = usePullRequestDay();
+
+  const renderCenter = useMemo(() => {
+    const context: CenterContext = {
+      nowLabel: pullRequestNowLabel(nowIndex),
+      yesterdayMergedSoFar: data
+        .slice(0, nowIndex + 1)
+        .reduce((total, d) => total + d.yesterdayMerged, 0),
+    };
+    return (state: RadialCenterState) => (
+      <PullRequestCenter context={context} state={state} />
+    );
+  }, [data, nowIndex]);
+
+  /** The draft burst is only annotated once it has happened today. */
+  const annotations = useMemo(
+    () =>
+      PULL_REQUEST_SPIKE_INDEX <= nowIndex
+        ? [
+            {
+              index: PULL_REQUEST_SPIKE_INDEX,
+              label: "02:14",
+              color: DRAFT_COLOR,
+            },
+          ]
+        : [],
+    [nowIndex]
+  );
+
   return (
     <RadialChart
       animate={animate}
-      data={pullRequestDayData}
+      data={data}
+      nowIndex={nowIndex}
       series={pullRequestSeries}
       xDataKey="time"
     >
-      <RadialAxis centerGradient />
-      <RadialDotBar
-        annotations={[
-          {
-            index: PULL_REQUEST_SPIKE_INDEX,
-            label: "02:14",
-            color: DRAFT_COLOR,
-          },
-        ]}
-        ghostDataKey="yesterday"
-      />
+      <RadialAxis />
+      <RadialDotBar annotations={annotations} ghostDataKey="yesterday" />
       <RadialScrubber />
-      <RadialCenter>{renderPullRequestCenter}</RadialCenter>
+      <RadialCenter>{renderCenter}</RadialCenter>
       {legend ? <RadialLegend /> : null}
     </RadialChart>
   );
@@ -133,7 +154,7 @@ const code = `const series = [
 ];
 
 <RadialChart data={chartData} xDataKey="time" series={series}>
-  <RadialAxis centerGradient />
+  <RadialAxis />
   <RadialDotBar
     ghostDataKey="yesterday"
     annotations={[{ index: 8, label: "02:14", color: "var(--chart-3)" }]}
@@ -144,7 +165,7 @@ const code = `const series = [
       // Today vs yesterday over the same bins: a count, not a rate
       let merged = totals.merged;
       let delta = merged - yesterdayMergedSoFar;
-      let caption = "merged by 14:30";
+      let caption = \`merged by \${nowLabel}\`;
       if (datum) {
         merged = isFuture ? datum.yesterdayMerged : values.merged;
         delta = isFuture ? null : merged - datum.yesterdayMerged;
@@ -167,26 +188,31 @@ const code = `const series = [
 </RadialChart>`;
 
 const dataSnippet = `// 96 × 15-minute bins, clockwise from 00:00.
-// Bins after "now" have null counts and are drawn as ghost dots from \`yesterday\`.
+// Today's bins run up to the viewer's local time; bins after "now" have null
+// counts and are drawn as ghost dots from \`yesterday\`.
 const chartData = [
   { time: "00:00", merged: 29, ready: 0, draft: 0, yesterday: 29, yesterdayMerged: 28 },
   // …
   { time: "02:00", merged: 47, ready: 0, draft: 720, yesterday: 86, yesterdayMerged: 83 },
   // …
-  { time: "14:15", merged: 778, ready: 60, draft: 0, yesterday: 881, yesterdayMerged: 848 },
+  { time: "14:15", merged: 778, ready: 60, draft: 0, yesterday: 881, yesterdayMerged: 848 }, // now
   { time: "14:30", merged: null, ready: null, draft: null, yesterday: 804, yesterdayMerged: 778 },
   // …
 ];
 
-// Yesterday's merged PRs over the bins that have data today (00:00–14:30)
+// "now" is the last bin with data; totals run to the end of it, e.g. "14:30"
+const nowIndex = chartData.findLastIndex((d) => d.merged !== null);
+const nowLabel = chartData[nowIndex + 1]?.time ?? "24:00";
+
+// Yesterday's merged PRs over the bins that have data today
 const yesterdayMergedSoFar = chartData
-  .filter((d) => d.merged !== null)
+  .slice(0, nowIndex + 1)
   .reduce((total, d) => total + d.yesterdayMerged, 0);`;
 
 export const radialDotBarVariant: RadialGalleryVariant = {
   title: "Radial Chart - Dot Bars",
   description:
-    "24-hour clock of stacked dot columns per 15-minute bin, with yesterday ghosted for the rest of the day and a scrubber that follows the pointer",
+    "24-hour clock of stacked dot columns per 15-minute bin up to your local time, with yesterday ghosted for the rest of the day and a scrubber that follows the pointer",
   code,
   data: dataSnippet,
   footer:
