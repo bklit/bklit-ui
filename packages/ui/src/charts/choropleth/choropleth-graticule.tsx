@@ -1,8 +1,8 @@
 "use client";
 
-import { Graticule } from "@visx/geo";
-import { memo } from "react";
+import { memo, useMemo } from "react";
 import { useChoroplethStable } from "./choropleth-context";
+import { graticulePath } from "./choropleth-projection";
 
 export interface ChoroplethGraticuleProps {
   /** Stroke color for graticule lines. Default: rgba(255,255,255,0.1) */
@@ -19,14 +19,23 @@ export const ChoroplethGraticule = memo(function ChoroplethGraticule({
   step,
 }: ChoroplethGraticuleProps) {
   const { rawPathGenerator } = useChoroplethStable();
+  const stepX = step?.[0];
+  const stepY = step?.[1];
 
+  const d = useMemo(
+    () =>
+      graticulePath(
+        rawPathGenerator,
+        stepX === undefined || stepY === undefined ? undefined : [stepX, stepY]
+      ),
+    [rawPathGenerator, stepX, stepY]
+  );
+
+  // Same markup as visx <Graticule>: a group wrapping one unfilled path.
   return (
-    <Graticule
-      graticule={(g) => rawPathGenerator(g) || ""}
-      step={step}
-      stroke={stroke}
-      strokeWidth={strokeWidth}
-    />
+    <g className="visx-group visx-geo-graticule" transform="translate(0, 0)">
+      <path d={d} fill="none" stroke={stroke} strokeWidth={strokeWidth} />
+    </g>
   );
 });
 

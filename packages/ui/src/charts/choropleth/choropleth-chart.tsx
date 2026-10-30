@@ -1,6 +1,5 @@
 "use client";
 
-import { Mercator } from "@visx/geo";
 import type { TransformMatrix } from "@visx/zoom";
 import { Zoom } from "@visx/zoom";
 import type { FeatureCollection, GeoJSON, Geometry } from "geojson";
@@ -28,6 +27,11 @@ import {
 } from "./choropleth-context";
 import { ChoroplethFeature as ChoroplethFeatureLayer } from "./choropleth-feature";
 import { ChoroplethGraticule as ChoroplethGraticuleLayer } from "./choropleth-graticule";
+import {
+  type ChoroplethMercator,
+  createChoroplethMercator,
+  projectFeaturePaths,
+} from "./choropleth-projection";
 import { ChoroplethTooltip as ChoroplethTooltipLayer } from "./choropleth-tooltip";
 
 export interface ChoroplethChartProps {
@@ -167,13 +171,9 @@ const DEFAULT_INITIAL_ZOOM: TransformMatrix = {
   skewY: 0,
 };
 
-interface MercatorRenderProps {
-  path: (geo: GeoJSON) => string | null;
-  projection: (coords: [number, number]) => [number, number] | null | undefined;
-}
-
 interface ChoroplethMercatorContentProps {
-  mercator: MercatorRenderProps;
+  mercator: ChoroplethMercator;
+  featurePaths: readonly (string | null)[];
   data: FeatureCollection<Geometry, ChoroplethFeatureProperties>;
   width: number;
   height: number;
@@ -235,6 +235,7 @@ const ChoroplethSvg = memo(function ChoroplethSvg({
 
 const ChoroplethMercatorContent = memo(function ChoroplethMercatorContent({
   mercator,
+  featurePaths,
   data,
   width,
   height,
@@ -250,10 +251,6 @@ const ChoroplethMercatorContent = memo(function ChoroplethMercatorContent({
   overlayChildren,
   zoom,
 }: ChoroplethMercatorContentProps) {
-  const featurePaths = data.features.map(
-    (feature) => mercator.path(feature) ?? null
-  ) as (string | null)[];
-
   const pathGenerator = useCallback(
     (feature: ChoroplethFeature) => mercator.path(feature) ?? undefined,
     [mercator]
@@ -336,7 +333,7 @@ function ChoroplethChartInner({
   data,
   width,
   height,
-  margin,
+  margin: marginProp,
   animationDuration,
   enterTransition,
   revealSignature = "",
@@ -369,15 +366,42 @@ function ChoroplethChartInner({
   const [isLoaded, setIsLoaded] = useState(false);
   const [revealEpoch, setRevealEpoch] = useState(1);
 
+  // ChoroplethChart spreads a fresh margin object every render; key it on
+  // its values so the memoized content and stable context survive.
+  const margin = useMemo(
+    () => ({
+      top: marginProp.top,
+      right: marginProp.right,
+      bottom: marginProp.bottom,
+      left: marginProp.left,
+    }),
+    [marginProp.top, marginProp.right, marginProp.bottom, marginProp.left]
+  );
+
   const innerWidth = width - margin.left - margin.right;
   const innerHeight = height - margin.top - margin.bottom;
 
   const scale = scaleProp ?? (innerWidth / 630) * 100;
 
-  const translate = translateProp ?? [
-    innerWidth / 2 + margin.left,
-    innerHeight / 2 + margin.top + 50,
-  ];
+  const translateX = translateProp?.[0] ?? innerWidth / 2 + margin.left;
+  const translateY = translateProp?.[1] ?? innerHeight / 2 + margin.top + 50;
+  const [centerX, centerY] = center;
+
+  // Projection + per-feature paths, recomputed only when their inputs change
+  // (visx <Mercator> rebuilt both on every render).
+  const mercator = useMemo(
+    () =>
+      createChoroplethMercator({
+        scale,
+        translate: [translateX, translateY],
+        center: [centerX, centerY],
+      }),
+    [scale, translateX, translateY, centerX, centerY]
+  );
+  const featurePaths = useMemo(
+    () => projectFeaturePaths(mercator, data.features),
+    [mercator, data.features]
+  );
 
   const { svgChildren, overlayChildren } = useMemo(
     () => separateChildren(children),
@@ -428,46 +452,36 @@ function ChoroplethChartInner({
     width,
   };
 
-  return (
-    <Mercator
-      center={center}
-      data={data.features}
-      scale={scale}
-      translate={translate as [number, number]}
-    >
-      {(mercator) => {
-        const content = (zoom?: ZoomInstance<SVGSVGElement>) => (
-          <ChoroplethMercatorContent
-            {...mercatorContentProps}
-            mercator={mercator}
-            zoom={zoom}
-          />
-        );
-
-        if (zoomEnabled) {
-          return (
-            <Zoom<SVGSVGElement>
-              height={height}
-              initialTransformMatrix={initialZoom}
-              scaleXMax={zoomMax}
-              scaleXMin={zoomMin}
-              scaleYMax={zoomMax}
-              scaleYMin={zoomMin}
-              wheelDelta={(event) => {
-                const zoomScale = event.deltaY > 0 ? 0.95 : 1.05;
-                return { scaleX: zoomScale, scaleY: zoomScale };
-              }}
-              width={width}
-            >
-              {(zoom) => content(zoom)}
-            </Zoom>
-          );
-        }
-
-        return content();
-      }}
-    </Mercator>
+  const content = (zoom?: ZoomInstance<SVGSVGElement>) => (
+    <ChoroplethMercatorContent
+      {...mercatorContentProps}
+      featurePaths={featurePaths}
+      mercator={mercator}
+      zoom={zoom}
+    />
   );
+
+  if (zoomEnabled) {
+    return (
+      <Zoom<SVGSVGElement>
+        height={height}
+        initialTransformMatrix={initialZoom}
+        scaleXMax={zoomMax}
+        scaleXMin={zoomMin}
+        scaleYMax={zoomMax}
+        scaleYMin={zoomMin}
+        wheelDelta={(event) => {
+          const zoomScale = event.deltaY > 0 ? 0.95 : 1.05;
+          return { scaleX: zoomScale, scaleY: zoomScale };
+        }}
+        width={width}
+      >
+        {(zoom) => content(zoom)}
+      </Zoom>
+    );
+  }
+
+  return content();
 }
 
 export function ChoroplethChart({
