@@ -49,6 +49,8 @@ export interface ParityResult {
   afterCount: number;
   comparedAttributes: number;
   diffs: GeometryDiff[];
+  /** HTML text runs on each side (`snapshot.ts`), when compared. */
+  textCount?: { before: number; after: number };
 }
 
 const TOKEN_PATTERN = /[-+]?(?:\d+\.?\d*|\.\d+)(?:e[-+]?\d+)?|[a-z]+/gi;

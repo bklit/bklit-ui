@@ -1,6 +1,7 @@
-import { diffGeometry, type ParityResult, snapshotGeometry } from "./geometry";
+import type { ParityResult } from "./geometry";
 import { center, fire } from "./hover";
 import { waitForSettle } from "./settle";
+import { diffSnapshots, takeSnapshot } from "./snapshot";
 
 /** One compared moment: after the enter animation, or after a hover step. */
 export interface ParityStep {
@@ -79,7 +80,7 @@ export async function settleAndDiff(
     id,
     label,
     status: settledBefore.settled && settledAfter.settled ? "done" : "timeout",
-    result: diffGeometry(snapshotGeometry(before), snapshotGeometry(after)),
+    result: diffSnapshots(takeSnapshot(before), takeSnapshot(after)),
     settleMs: {
       before: settledBefore.settleMs,
       after: settledAfter.settleMs,

@@ -5,7 +5,6 @@ import {
   Band,
   type BandFillType,
   buildProjectionPath,
-  ChartBrush,
   ChartBrushLayout,
   ChartLegend,
   ChartLegendHoverProvider,
@@ -61,6 +60,7 @@ import {
   buildLineChartDemoData,
   REFERENCE_AREA_DEMO,
 } from "@/components/docs/line-chart-demo-data";
+import { brushScript, ProbedChartBrush } from "./interaction-scripts";
 import {
   axisDemoData,
   bandPriceData,
@@ -191,6 +191,10 @@ const TRIO_STROKES = {
 
 const TRIO_KEYS = ["desktop", "mobile", "tablet"] as const;
 
+/** Brush strip margins (the interaction scripts aim inside the plot). */
+const TRIO_STRIP_MARGIN = { top: 4, right: 8, bottom: 4, left: 8 };
+const DOCS_STRIP_MARGIN = { top: 4, right: 40, bottom: 4, left: 40 };
+
 /** components/charts/line-chart-studio-trio-demo.tsx (hero, height 540). */
 function TrioWithBrush({ height }: { height: number }) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
@@ -229,7 +233,7 @@ function TrioWithBrush({ height }: { height: number }) {
               animationDuration={0}
               className="size-full"
               data={trioData}
-              margin={{ top: 4, right: 8, bottom: 4, left: 8 }}
+              margin={TRIO_STRIP_MARGIN}
               status="ready"
               style={{ aspectRatio: "unset", height: "100%" }}
             >
@@ -245,7 +249,7 @@ function TrioWithBrush({ height }: { height: number }) {
                   strokeWidth={2}
                 />
               ))}
-              <ChartBrush
+              <ProbedChartBrush
                 initialSelection={brushLayout.brushSelection ?? undefined}
                 onSelectionChange={brushLayout.onBrushSelectionChange}
               />
@@ -298,7 +302,7 @@ function BrushDemo() {
             animationDuration={0}
             className="size-full"
             data={brushData}
-            margin={{ top: 4, right: 40, bottom: 4, left: 40 }}
+            margin={DOCS_STRIP_MARGIN}
             status="ready"
             style={{ aspectRatio: "unset", height: "100%" }}
           >
@@ -310,7 +314,7 @@ function BrushDemo() {
               stroke="var(--chart-line-primary)"
               strokeWidth={2}
             />
-            <ChartBrush
+            <ProbedChartBrush
               initialSelection={brushLayout.brushSelection ?? undefined}
               onSelectionChange={brushLayout.onBrushSelectionChange}
               selectionPattern={{ color: "var(--chart-1)", preset: "diagonal" }}
@@ -357,7 +361,7 @@ function DateHighlightsBrush() {
             animationDuration={0}
             className="size-full"
             data={longRangeData}
-            margin={{ top: 4, right: 40, bottom: 4, left: 40 }}
+            margin={DOCS_STRIP_MARGIN}
             status="ready"
             style={{ aspectRatio: "unset", height: "100%" }}
           >
@@ -369,7 +373,7 @@ function DateHighlightsBrush() {
               stroke="var(--chart-line-primary)"
               strokeWidth={2}
             />
-            <ChartBrush
+            <ProbedChartBrush
               initialSelection={brushLayout.brushSelection ?? undefined}
               onSelectionChange={brushLayout.onBrushSelectionChange}
             />
@@ -1298,6 +1302,7 @@ export const LINE_VARIANTS: readonly LabVariant[] = [
     exercises:
       "ChartBrushLayout + ChartBrush strip, xDomain/xDomainSlotCount, tweenYDomainOnXDomainChange, dot Background, 3 catmullRom fadeEdges lines, ChartLegend hover provider",
     height: 560,
+    interactions: brushScript(TRIO_STRIP_MARGIN),
     render: () => <TrioWithBrush height={540} />,
   },
   {
@@ -1967,6 +1972,7 @@ export const LINE_VARIANTS: readonly LabVariant[] = [
     exercises:
       "Weekends / Deadline clipped to the brushed x-domain, Deadline in the brush strip, 120 points",
     height: 380,
+    interactions: brushScript(DOCS_STRIP_MARGIN),
     render: () => <DateHighlightsBrush />,
   },
   {
@@ -1977,6 +1983,7 @@ export const LINE_VARIANTS: readonly LabVariant[] = [
     exercises:
       "ChartBrushLayout with diagonal selectionPattern, default margins, brushed xDomain + y-domain tween",
     height: 380,
+    interactions: brushScript(DOCS_STRIP_MARGIN),
     render: () => <BrushDemo />,
   },
   {

@@ -1,5 +1,6 @@
 "use client";
 
+import type { InteractionScript } from "./bench/interactions";
 import { atCenters, type HoverTarget, type HoverTargets } from "./bench/parity";
 import { LAB_CHART_SLUGS, type LabChartSlug } from "./lab-slugs";
 import { AREA_VARIANTS } from "./variants/area";
@@ -239,6 +240,8 @@ export interface LabTarget {
   hoverTargets: HoverTargets;
   /** Hover steps run for this variant (sweeps and baselines). */
   hover: boolean;
+  /** Scripted interaction steps, `null` when the variant has none. */
+  interactions: InteractionScript | null;
   /** Not recorded / compared, with the reason. */
   previewOnly: string | null;
 }
@@ -261,6 +264,10 @@ export function resolveTarget(
     height: variant.height ?? fixture.height,
     hoverTargets: variant.hoverTargets ?? fixture.hoverTargets,
     hover: variant.hover !== false,
+    interactions:
+      variant.interactions && variant.interactions.length > 0
+        ? variant.interactions
+        : null,
     previewOnly: variant.previewOnly ?? null,
   };
 }

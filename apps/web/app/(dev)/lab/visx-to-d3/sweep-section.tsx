@@ -18,6 +18,8 @@ import {
   captureLive,
   compareToBaseline,
   type LiveStep,
+  selectSteps,
+  stepKind,
 } from "./bench/baseline";
 import {
   combinedVerdict,
@@ -27,6 +29,7 @@ import {
   type StepVerdict,
   settleAndDiff,
 } from "./bench/parity";
+import { LabProbe, LabProbeProvider } from "./bench/probe";
 import { delay, nextFrame } from "./bench/settle";
 import {
   allTargets,
@@ -60,6 +63,7 @@ interface SweepRow {
   kind: RowKind;
   enter: ParityStep | null;
   hover: ParityStep[] | null;
+  interactions: ParityStep[] | null;
   /** Record mode: what was written. */
   recorded: LiveStep[] | null;
   note?: string;
@@ -68,7 +72,7 @@ interface SweepRow {
 interface StageState {
   target: LabTarget;
   /** `null`: frames sized but empty (between variants). */
-  runKey: number | null;
+  runKey: number | string | null;
   /** Mount Before + After (pairs) or the live chart alone. */
   pair: boolean;
 }
@@ -116,6 +120,7 @@ function emptyRow(target: LabTarget, kind: RowKind = "pending"): SweepRow {
     kind,
     enter: null,
     hover: null,
+    interactions: null,
     recorded: null,
   };
 }
@@ -129,6 +134,7 @@ export function SweepSection({
 }) {
   const [scope, setScope] = useState<Scope>("all");
   const [includeHover, setIncludeHover] = useState(true);
+  const [includeInteractions, setIncludeInteractions] = useState(true);
   const [running, setRunning] = useState<SweepMode | null>(null);
   const [mode, setMode] = useState<SweepMode>("pairs");
   const [progress, setProgress] = useState("");
@@ -138,6 +144,8 @@ export function SweepSection({
   const [error, setError] = useState<string | null>(null);
   const [durationMs, setDurationMs] = useState(0);
   const [hoverRan, setHoverRan] = useState(false);
+  const [interactionsRan, setInteractionsRan] = useState(false);
+  const probeRef = useRef(new LabProbe());
   const beforeRef = useRef<HTMLDivElement>(null);
   const afterRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
@@ -200,14 +208,18 @@ export function SweepSection({
     target: LabTarget,
     index: number,
     signal: AbortSignal,
-    hover: boolean
+    hover: boolean,
+    interactions: boolean
   ) => {
     const { after } = await prepare(target, false);
     return captureLive(after, {
       signal,
       hover,
       hoverTargets: target.hoverTargets,
+      interactions: interactions ? target.interactions : null,
+      probe: probeRef.current,
       mount: () => setStage({ target, runKey: index, pair: false }),
+      remount: () => setStage({ target, runKey: `${index}-ix`, pair: false }),
     });
   };
 
@@ -216,7 +228,7 @@ export function SweepSection({
     index: number,
     signal: AbortSignal
   ) => {
-    const live = await capture(target, index, signal, target.hover);
+    const live = await capture(target, index, signal, target.hover, true);
     if (signal.aborted) {
       return;
     }
@@ -244,25 +256,25 @@ export function SweepSection({
       updateRow(index, { kind: "missing" });
       return;
     }
-    const live = await capture(
-      target,
-      index,
-      signal,
-      includeHover && baseline.hover
-    );
+    const hover = includeHover && baseline.hover;
+    const interactions = includeInteractions && baseline.interactions;
+    const live = await capture(target, index, signal, hover, interactions);
     if (signal.aborted) {
       return;
     }
-    const [enter, ...hover] = compareToBaseline(
-      includeHover
-        ? baseline
-        : { ...baseline, steps: baseline.steps.slice(0, 1) },
+    const steps = compareToBaseline(
+      selectSteps(baseline, { hover, interactions }),
       live
     );
     updateRow(index, {
       kind: "compared",
-      enter: enter ?? null,
-      hover: baseline.hover && includeHover ? hover : null,
+      enter: steps.find((step) => step.id === "enter") ?? null,
+      hover: hover
+        ? steps.filter((step) => stepKind(step.id) === "hover")
+        : null,
+      interactions: interactions
+        ? steps.filter((step) => stepKind(step.id) === "interaction")
+        : null,
     });
     await cooldown(target, false);
   };
@@ -314,6 +326,7 @@ export function SweepSection({
     setCancelled(false);
     setError(null);
     setHoverRan(includeHover);
+    setInteractionsRan(includeInteractions || nextMode === "record");
     setRunning(nextMode);
 
     try {
@@ -360,6 +373,14 @@ export function SweepSection({
             />
             Hover steps
           </Label>
+          <Label className="text-muted-foreground text-xs">
+            <Switch
+              checked={includeInteractions}
+              disabled={running !== null}
+              onCheckedChange={setIncludeInteractions}
+            />
+            Interaction steps
+          </Label>
           <Button
             disabled={running !== null}
             loading={running === "pairs"}
@@ -392,8 +413,10 @@ export function SweepSection({
         <>
           Walks every variant in turn, one on screen at a time. Legacy pairs:
           mounts Before + After together and diffs them. Record: settles the
-          live chart, snapshots enter + hover steps and writes{" "}
-          <code>_baselines/&lt;chart&gt;/&lt;variant&gt;.json</code> (dev only).
+          live chart, snapshots enter, hover steps and the variant&apos;s
+          interaction script (SVG geometry, HTML text, callback output) and
+          writes <code>_baselines/&lt;chart&gt;/&lt;variant&gt;.json</code> (dev
+          only; always records every step, the toggles only apply to checks).
           Compare: replays the same steps on the live chart and diffs them
           against the stored baseline.
         </>
@@ -405,6 +428,7 @@ export function SweepSection({
           afterRef={afterRef}
           beforeRef={beforeRef}
           onCancel={() => abortRef.current?.abort()}
+          probe={probeRef.current}
           progress={progress}
           stage={stage}
           title={MODE_TITLES[running]}
@@ -419,7 +443,8 @@ export function SweepSection({
             <span className="tabular-nums">
               {MODE_TITLES[mode]} · {doneCount} / {rows.length} variants
               {running ? "" : ` · ${(durationMs / 1000).toFixed(1)} s`}
-              {hoverRan ? " · with hover steps" : " · enter only"}
+              {hoverRan ? " · with hover steps" : " · no hover"}
+              {interactionsRan ? " · with interactions" : " · no interactions"}
             </span>
             <TallyBadges rows={rows} />
             {cancelled ? <Badge variant="warning">Cancelled</Badge> : null}
@@ -435,11 +460,16 @@ export function SweepSection({
   );
 }
 
-function rowVerdict(row: SweepRow): StepVerdict {
-  return combinedVerdict([
+function rowSteps(row: SweepRow): ParityStep[] {
+  return [
     ...(row.enter ? [row.enter] : []),
     ...(row.hover ?? []),
-  ]);
+    ...(row.interactions ?? []),
+  ];
+}
+
+function rowVerdict(row: SweepRow): StepVerdict {
+  return combinedVerdict(rowSteps(row));
 }
 
 function TallyBadges({ rows }: { rows: readonly SweepRow[] }) {
@@ -519,6 +549,7 @@ function SweepMatrix({
             <th className="px-2 py-1.5 font-medium">Variant</th>
             <th className="px-2 py-1.5 font-medium">Enter</th>
             <th className="px-2 py-1.5 font-medium">Hover steps</th>
+            <th className="px-2 py-1.5 font-medium">Interactions</th>
             <th className="px-2 py-1.5 text-right font-medium">
               Settle {labels[0].toLowerCase()} / {labels[1].toLowerCase()}
             </th>
@@ -527,10 +558,9 @@ function SweepMatrix({
         <tbody>
           {rows.map((row, index) => {
             const firstOfChart = rows[index - 1]?.chart !== row.chart;
-            const failing = [
-              ...(row.enter ? [row.enter] : []),
-              ...(row.hover ?? []),
-            ].filter((step) => !step.result.identical || step.note);
+            const failing = rowSteps(row).filter(
+              (step) => !step.result.identical || step.note
+            );
             const showNote =
               row.note && (row.kind === "error" || row.kind === "recorded");
             return (
@@ -560,7 +590,10 @@ function SweepMatrix({
                     <EnterCell row={row} />
                   </td>
                   <td className="px-2 py-1.5">
-                    <HoverCell row={row} />
+                    <StepsCell kind="hover" row={row} />
+                  </td>
+                  <td className="px-2 py-1.5">
+                    <StepsCell kind="interaction" row={row} />
                   </td>
                   <td className="px-2 py-1.5 text-right font-mono tabular-nums">
                     <SettleCell row={row} />
@@ -568,7 +601,7 @@ function SweepMatrix({
                 </tr>
                 {failing.length > 0 || showNote ? (
                   <tr>
-                    <td className="px-2 pb-2" colSpan={5}>
+                    <td className="px-2 pb-2" colSpan={6}>
                       <div className="flex flex-col gap-2">
                         {showNote ? (
                           <span
@@ -645,26 +678,39 @@ function SettleCell({ row }: { row: SweepRow }) {
 
 function stepIds(ids: readonly string[]): string {
   return ids
-    .map((id) => (id === "hover-leave" ? "leave" : id.replace("hover-", "#")))
+    .map((id) => {
+      if (id === "hover-leave") {
+        return "leave";
+      }
+      return id.startsWith("ix-") ? id.slice(3) : id.replace("hover-", "#");
+    })
     .join(" → ");
 }
 
-function HoverCell({ row }: { row: SweepRow }) {
+function StepsCell({
+  row,
+  kind,
+}: {
+  row: SweepRow;
+  kind: "hover" | "interaction";
+}) {
   if (row.kind === "recorded") {
-    const hover = row.recorded?.slice(1) ?? [];
-    if (hover.length === 0) {
+    const steps = (row.recorded ?? []).filter(
+      (step) => stepKind(step.id) === kind
+    );
+    if (steps.length === 0) {
       return <span className="text-muted-foreground">none</span>;
     }
-    const timeouts = hover.filter((step) => step.status === "timeout").length;
+    const timeouts = steps.filter((step) => step.status === "timeout").length;
     return (
       <span className="flex flex-wrap items-center gap-1.5">
         {timeouts > 0 ? (
           <Badge variant="warning">{timeouts} mid-motion</Badge>
         ) : (
-          <Badge variant="success">{hover.length} steps</Badge>
+          <Badge variant="success">{steps.length} steps</Badge>
         )}
         <span className="text-muted-foreground">
-          {stepIds(hover.map((step) => step.id))}
+          {stepIds(steps.map((step) => step.id))}
         </span>
       </span>
     );
@@ -672,11 +718,16 @@ function HoverCell({ row }: { row: SweepRow }) {
   if (row.kind !== "compared") {
     return null;
   }
-  if (row.hover === null || row.hover.length === 0) {
-    return <span className="text-muted-foreground">skipped</span>;
+  const steps = kind === "hover" ? row.hover : row.interactions;
+  if (steps === null || steps.length === 0) {
+    return (
+      <span className="text-muted-foreground">
+        {kind === "interaction" && steps === null ? "none" : "skipped"}
+      </span>
+    );
   }
-  const verdict = combinedVerdict(row.hover);
-  const count = diffCount(row.hover);
+  const verdict = combinedVerdict(steps);
+  const count = diffCount(steps);
   return (
     <span className="flex flex-wrap items-center gap-1.5">
       {verdict === "identical" ? (
@@ -689,7 +740,7 @@ function HoverCell({ row }: { row: SweepRow }) {
       ) : null}
       {verdict === "timeout" ? <Badge variant="warning">Timeout</Badge> : null}
       <span className="text-muted-foreground">
-        {stepIds(row.hover.map((step) => step.id))}
+        {stepIds(steps.map((step) => step.id))}
       </span>
     </span>
   );
@@ -706,8 +757,10 @@ function SweepStage({
   beforeRef,
   afterRef,
   onCancel,
+  probe,
 }: {
   stage: StageState;
+  probe: LabProbe;
   title: string;
   progress: string;
   beforeRef: React.Ref<HTMLDivElement>;
@@ -748,7 +801,9 @@ function SweepStage({
           width={target.width}
         >
           {runKey === null ? null : (
-            <Fragment key={runKey}>{renderSide(target, "after")}</Fragment>
+            <LabProbeProvider probe={probe}>
+              <Fragment key={runKey}>{renderSide(target, "after")}</Fragment>
+            </LabProbeProvider>
           )}
         </ChartPanel>
       </div>

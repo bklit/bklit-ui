@@ -20,12 +20,15 @@ import { BaselineWireframe } from "./baseline-wireframe";
 import {
   type BaselineFile,
   captureHoverSteps,
+  captureInteractionSteps,
   compareToBaseline,
   type LiveStep,
+  selectSteps,
   settleAndSnapshot,
   unpackSteps,
 } from "./bench/baseline";
 import type { ParityStep } from "./bench/parity";
+import { LabProbe, LabProbeProvider } from "./bench/probe";
 import { nextFrame } from "./bench/settle";
 import { type LabTarget, renderSide } from "./fixtures";
 import { ChoiceControl, Section } from "./lab-controls";
@@ -52,6 +55,10 @@ export function BaselinePreview({ target }: { target: LabTarget }) {
   });
   const [liveEnter, setLiveEnter] = useState<LiveStep | null>(null);
   const [hover, setHover] = useState<ParityStep[] | "running" | null>(null);
+  const [interactions, setInteractions] = useState<
+    ParityStep[] | "running" | null
+  >(null);
+  const probeRef = useRef(new LabProbe());
   const [recording, setRecording] = useState<string | null>(null);
   const [shownStep, setShownStep] = useState("enter");
   const frameRef = useRef<HTMLDivElement>(null);
@@ -87,12 +94,14 @@ export function BaselinePreview({ target }: { target: LabTarget }) {
     abortRef.current = controller;
     setLiveEnter(null);
     setHover(null);
+    probeRef.current.reset();
     const promise = settleAndSnapshot(
       "enter",
       "Enter",
       frame,
       undefined,
-      controller.signal
+      controller.signal,
+      probeRef.current
     );
     enterRef.current = promise;
     promise.then((step) => {
@@ -133,15 +142,67 @@ export function BaselinePreview({ target }: { target: LabTarget }) {
     }
     const signal = abortRef.current?.signal;
     setHover("running");
-    const live = await captureHoverSteps(frame, target.hoverTargets, signal);
+    const live = await captureHoverSteps(
+      frame,
+      target.hoverTargets,
+      signal,
+      probeRef.current
+    );
     if (signal?.aborted) {
       return;
     }
     setHover(
-      compareToBaseline(file, {
-        steps: [liveEnter, ...live.steps],
-        hoverTargetCount: live.hoverTargetCount,
-      }).slice(1)
+      compareToBaseline(
+        selectSteps(file, { hover: true, interactions: false }),
+        {
+          steps: [liveEnter, ...live.steps],
+          hoverTargetCount: live.hoverTargetCount,
+        }
+      ).slice(1)
+    );
+  };
+
+  /**
+   * Remounts (fresh state) and waits for enter. Scrolls the frame into view
+   * first: interaction steps hit-test with `elementFromPoint`.
+   */
+  const freshEnter = async (): Promise<LiveStep | null> => {
+    frameRef.current?.scrollIntoView({ block: "center" });
+    setReplayKey((k) => k + 1);
+    await nextFrame();
+    await nextFrame();
+    return (await enterRef.current) ?? null;
+  };
+
+  const runInteractions = async () => {
+    const frame = frameRef.current;
+    const script = target.interactions;
+    if (!(frame && file && script)) {
+      return;
+    }
+    setInteractions("running");
+    await document.fonts.ready;
+    const enter = await freshEnter();
+    const signal = abortRef.current?.signal;
+    if (!enter || signal?.aborted) {
+      setInteractions(null);
+      return;
+    }
+    const steps = await captureInteractionSteps(
+      frame,
+      script,
+      signal,
+      probeRef.current
+    );
+    if (signal?.aborted) {
+      setInteractions(null);
+      return;
+    }
+    setInteractions(
+      compareToBaseline(
+        selectSteps(file, { hover: false, interactions: true }),
+        { steps: [enter, ...steps], hoverTargetCount: 0 }
+      ).slice(1)
     );
   };
 
@@ -152,10 +213,7 @@ export function BaselinePreview({ target }: { target: LabTarget }) {
     }
     setRecording("Replaying…");
     await document.fonts.ready;
-    setReplayKey((k) => k + 1);
-    await nextFrame();
-    await nextFrame();
-    const enter = await enterRef.current;
+    const enter = await freshEnter();
     if (!enter) {
       setRecording(null);
       return;
@@ -165,9 +223,29 @@ export function BaselinePreview({ target }: { target: LabTarget }) {
     let hoverTargetCount = 0;
     if (target.hover) {
       setRecording("Hover steps…");
-      const live = await captureHoverSteps(frame, target.hoverTargets, signal);
+      const live = await captureHoverSteps(
+        frame,
+        target.hoverTargets,
+        signal,
+        probeRef.current
+      );
       steps = [enter, ...live.steps];
       hoverTargetCount = live.hoverTargetCount;
+    }
+    if (target.interactions) {
+      if (target.hover) {
+        setRecording("Remounting for interactions…");
+        await freshEnter();
+      }
+      setRecording("Interaction steps…");
+      steps.push(
+        ...(await captureInteractionSteps(
+          frame,
+          target.interactions,
+          abortRef.current?.signal,
+          probeRef.current
+        ))
+      );
     }
     try {
       await saveBaseline(
@@ -183,12 +261,14 @@ export function BaselinePreview({ target }: { target: LabTarget }) {
       setRecording(caught instanceof Error ? caught.message : String(caught));
     }
     setHover(null);
+    setInteractions(null);
   };
 
-  const busy = liveEnter === null || hover === "running";
+  const busy =
+    liveEnter === null || hover === "running" || interactions === "running";
   const stepOptions = storedSteps.map((step) => ({
     value: step.id,
-    label: step.id === "hover-leave" ? "leave" : step.id.replace("hover-", "#"),
+    label: stepOptionLabel(step.id),
   }));
 
   return (
@@ -198,7 +278,7 @@ export function BaselinePreview({ target }: { target: LabTarget }) {
           Replay
         </Button>
       }
-      description="No legacy copy for this chart: the live chart is diffed against its recorded baseline (geometry after enter and after each hover step, recorded on the pre-migration code)."
+      description="No legacy copy for this chart: the live chart is diffed against its recorded baseline (SVG geometry, HTML text and callback output after enter, after each hover step and after each scripted interaction step, recorded on the pre-migration code)."
       title="Preview"
     >
       <p className="text-muted-foreground text-xs">
@@ -220,7 +300,9 @@ export function BaselinePreview({ target }: { target: LabTarget }) {
           height={target.height}
           width={target.width}
         >
-          <Fragment key={replayKey}>{renderSide(target, "after")}</Fragment>
+          <LabProbeProvider probe={probeRef.current}>
+            <Fragment key={replayKey}>{renderSide(target, "after")}</Fragment>
+          </LabProbeProvider>
         </ChartPanel>
         {file ? (
           <figure className="flex flex-col gap-2">
@@ -268,6 +350,15 @@ export function BaselinePreview({ target }: { target: LabTarget }) {
             >
               Hover steps vs baseline
             </Button>
+            <Button
+              disabled={busy || !file || !target.interactions}
+              loading={interactions === "running"}
+              onClick={runInteractions}
+              size="xs"
+              variant="outline"
+            >
+              Interaction steps vs baseline
+            </Button>
           </div>
         </div>
         <BaselineStatus baseline={baseline} />
@@ -284,9 +375,21 @@ export function BaselinePreview({ target }: { target: LabTarget }) {
               <StepRow key={step.id} labels={LABELS} step={step} />
             ))
           : null}
+        {Array.isArray(interactions)
+          ? interactions.map((step) => (
+              <StepRow key={step.id} labels={LABELS} step={step} />
+            ))
+          : null}
       </div>
     </Section>
   );
+}
+
+function stepOptionLabel(id: string): string {
+  if (id === "hover-leave") {
+    return "leave";
+  }
+  return id.startsWith("ix-") ? id.slice(3) : id.replace("hover-", "#");
 }
 
 function BaselineStatus({ baseline }: { baseline: BaselineState }) {
@@ -310,8 +413,9 @@ function BaselineStatus({ baseline }: { baseline: BaselineState }) {
       return (
         <p className="text-muted-foreground text-xs">
           Baseline recorded {baseline.file.recordedAt} on{" "}
-          {baseline.file.machine} · {baseline.file.steps.length} steps · numbers
-          within 1e-4.
+          {baseline.file.machine} · {baseline.file.steps.length} steps · SVG
+          numbers within 1e-4, HTML text exact with boxes within 0.5 px,
+          callback output exact.
         </p>
       );
   }

@@ -22,6 +22,12 @@ import {
   getRegionCategory,
 } from "./choropleth-data";
 import { labWorldData } from "./deterministic";
+import {
+  ZOOM_IN,
+  ZOOM_OUT,
+  ZoomProbe,
+  zoomScript,
+} from "./interaction-scripts";
 import type { LabVariant } from "./types";
 
 const EXAMPLES = "chart-examples.tsx";
@@ -61,7 +67,11 @@ function getLinesPattern(feat: ChoroplethFeature): string | null {
   return name ? `lab-choro-p-${getRegionCategory(name as string)}` : null;
 }
 
-/** docs/choropleth-*-demo.tsx zoom buttons (identical in all three demos). */
+/**
+ * docs/choropleth-*-demo.tsx zoom buttons (identical in all three demos).
+ * The lab adds `aria-label`s (the demos' buttons are icon-only) so the
+ * interaction scripts can find them by accessible name; nothing visible.
+ */
 function ZoomControls() {
   const { zoom } = useChoroplethZoom();
   if (!zoom) {
@@ -70,6 +80,7 @@ function ZoomControls() {
   return (
     <div className="absolute right-4 bottom-4 flex flex-col gap-1">
       <Button
+        aria-label={ZOOM_IN}
         className="size-10 rounded-lg shadow-md"
         onClick={() => zoom.scale({ scaleX: 1.2, scaleY: 1.2 })}
         size="icon"
@@ -78,6 +89,7 @@ function ZoomControls() {
         <Icon className="size-5" name="IconPlusSmall" />
       </Button>
       <Button
+        aria-label={ZOOM_OUT}
         className="size-10 rounded-lg shadow-md"
         onClick={() => zoom.scale({ scaleX: 0.8, scaleY: 0.8 })}
         size="icon"
@@ -199,12 +211,14 @@ export const CHOROPLETH_VARIANTS: readonly LabVariant[] = [
     exercises:
       "zoomEnabled (@visx/zoom transform on the feature group), useChoroplethZoom buttons overlay, scale-03 fill; static initial zoom",
     hoverTargets,
+    interactions: zoomScript({ buttons: true }),
     render: () => (
       <Frame>
         <ChoroplethChart aspectRatio="16 / 9" data={worldData} zoomEnabled>
           <ChoroplethFeatureComponent fill="var(--chart-scale-03)" />
           <ChoroplethTooltip />
           <ZoomControls />
+          <ZoomProbe />
         </ChoroplethChart>
       </Frame>
     ),
@@ -217,9 +231,11 @@ export const CHOROPLETH_VARIANTS: readonly LabVariant[] = [
     exercises:
       "zoomEnabled, scale-01..05 colors, 'Unique Visitors' tooltip, HTML legend overlay + zoom buttons",
     hoverTargets,
+    interactions: zoomScript({ buttons: true }),
     render: () => (
       <Frame>
         <ChoroplethChart aspectRatio="16 / 9" data={worldData} zoomEnabled>
+          <ZoomProbe />
           <ChoroplethFeatureComponent getFeatureColor={getDocsVisitorColor} />
           <ChoroplethTooltip
             getFeatureValue={getDocsVisitorValue}
@@ -252,6 +268,7 @@ export const CHOROPLETH_VARIANTS: readonly LabVariant[] = [
     exercises:
       "zoomEnabled with initialZoom (2x, translated onto Europe), zoomMin/zoomMax",
     hoverTargets,
+    interactions: zoomScript({ buttons: false }),
     render: () => (
       <Frame>
         <ChoroplethChart
@@ -274,6 +291,62 @@ export const CHOROPLETH_VARIANTS: readonly LabVariant[] = [
             getFeatureColor={getGalleryVisitorColor}
           />
           <ChoroplethTooltip />
+          <ZoomProbe />
+        </ChoroplethChart>
+      </Frame>
+    ),
+  },
+  {
+    kind: "single",
+    id: "initial-zoom-controls",
+    label: "Initial zoom + controls",
+    source: `${PROPS} + ${DOCS} zoom buttons`,
+    exercises:
+      "initialZoom (1.5x, translated) + zoomMin 1 / zoomMax 3 constraints driven by wheel, pan, pinch and the +/- buttons (zoom out past zoomMin is refused)",
+    hoverTargets,
+    interactions: [
+      ...zoomScript({ buttons: true }),
+      {
+        id: "button-out-2",
+        label: "Zoom out button (to ~1.34x)",
+        kind: "button",
+        name: ZOOM_OUT,
+      },
+      {
+        id: "button-out-3",
+        label: "Zoom out button (to ~1.08x)",
+        kind: "button",
+        name: ZOOM_OUT,
+      },
+      {
+        id: "button-out-4",
+        label: "Zoom out button (below zoomMin 1: refused, no change)",
+        kind: "button",
+        name: ZOOM_OUT,
+      },
+    ],
+    render: () => (
+      <Frame>
+        <ChoroplethChart
+          aspectRatio="16 / 9"
+          data={worldData}
+          initialZoom={{
+            scaleX: 1.5,
+            scaleY: 1.5,
+            translateX: -180,
+            translateY: -60,
+            skewX: 0,
+            skewY: 0,
+          }}
+          zoomEnabled
+          zoomMax={3}
+          zoomMin={1}
+        >
+          <ChoroplethGraticule />
+          <ChoroplethFeatureComponent fill="var(--chart-scale-03)" />
+          <ChoroplethTooltip />
+          <ZoomControls />
+          <ZoomProbe />
         </ChoroplethChart>
       </Frame>
     ),

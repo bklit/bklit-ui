@@ -31,3 +31,9 @@ export function isLabChartSlug(value: unknown): value is LabChartSlug {
 
 /** Variant ids double as file names: lowercase slug, nothing else. */
 export const VARIANT_ID_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
+/**
+ * Baseline file format (`bench/baseline.ts`). 2: HTML text, callbacks and
+ * interaction steps. Lives here so the route handler can check it.
+ */
+export const BASELINE_SCHEMA = 2;

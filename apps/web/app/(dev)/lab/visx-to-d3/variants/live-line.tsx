@@ -79,6 +79,15 @@ const momentumColors: MomentumColors = {
 const FROZEN_LERP_SPEED = 0.3;
 
 /**
+ * `LiveYAxis` picks its tick interval with hysteresis (keeps the previous
+ * one while it still fits), and the eased y range is committed on a timer,
+ * so which intermediate ranges it sees, and thus the settled label set, can
+ * depend on frame timing (docs: $5 vs $10 steps between sweeps). Jumping
+ * straight to the target range makes the path, and the labels, fixed.
+ */
+const INSTANT_LERP_SPEED = 1;
+
+/**
  * chart-examples `LiveLineExampleChart` (example margin merged under the
  * per-example margin), frozen: `Date.now()` pinned while mounted + `paused`.
  */
@@ -364,13 +373,13 @@ export const LIVE_LINE_VARIANTS: readonly LabVariant[] = [
     label: "Docs preview",
     source: `${DOCS} LiveLineChartDemo (live-line-chart.mdx)`,
     exercises:
-      "explicit margin 16/16/40/56, 30 seed points, height 260, time + price tooltip content",
+      "explicit margin 16/16/40/56, 30 seed points, height 260, time + price tooltip content (instant y-range lerp: see INSTANT_LERP_SPEED)",
     render: () => (
       <FrozenNow at={LAB_NOW}>
         <div className="w-full">
           <LiveLineChart
             data={docs.data}
-            lerpSpeed={FROZEN_LERP_SPEED}
+            lerpSpeed={INSTANT_LERP_SPEED}
             margin={{ top: 16, right: 16, bottom: 40, left: 56 }}
             paused
             style={{ height: 260 }}

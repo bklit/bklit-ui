@@ -7,7 +7,6 @@ import {
   Background,
   Band,
   buildProjectionPath,
-  ChartBrush,
   ChartBrushLayout,
   type ChartMarker,
   ChartMarkers,
@@ -65,6 +64,7 @@ import {
   weeklyVisitorsData,
   yDomainReadyData,
 } from "./area-data";
+import { brushScript, ProbedChartBrush } from "./interaction-scripts";
 import type { LabVariant } from "./types";
 
 const EXAMPLES = "chart-examples.tsx";
@@ -196,7 +196,7 @@ function AreaBrush() {
               showHighlight={false}
               strokeWidth={2}
             />
-            <ChartBrush
+            <ProbedChartBrush
               fadeOuterEdges
               initialSelection={brushLayout.brushSelection ?? undefined}
               onSelectionChange={brushLayout.onBrushSelectionChange}
@@ -1048,6 +1048,7 @@ export const AREA_VARIANTS: readonly LabVariant[] = [
     exercises:
       "ChartBrushLayout: main chart on xDomain + strip with ChartBrush (animate off)",
     height: 380,
+    interactions: brushScript(brushStripMargin),
     render: () => <AreaBrush />,
   },
   {

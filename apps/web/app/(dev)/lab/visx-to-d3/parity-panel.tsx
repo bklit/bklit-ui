@@ -88,7 +88,8 @@ export function ParityPanel({
       <p className="text-muted-foreground text-xs">
         Compares d, transform, cx/cy/r, x/y/width/height, x1–y2, points and
         inline transform of every SVG element (class names, ids and fills
-        ignored; numbers within 1e-4).
+        ignored; numbers within 1e-4), plus every visible HTML text outside the
+        SVG (exact text, box within 0.5 px).
       </p>
       {enter ? (
         <StepRow step={enter} />
@@ -126,9 +127,12 @@ export function StepRow({
         <StepBadge step={step} />
         <span className="text-muted-foreground text-xs tabular-nums">
           {step.result.beforeCount} / {step.result.afterCount} SVG elements,{" "}
-          {step.result.comparedAttributes} attributes · settled{" "}
-          {Math.round(step.settleMs.before)} / {Math.round(step.settleMs.after)}{" "}
-          ms
+          {step.result.comparedAttributes} attributes
+          {step.result.textCount
+            ? ` · ${step.result.textCount.before} / ${step.result.textCount.after} HTML texts`
+            : ""}{" "}
+          · settled {Math.round(step.settleMs.before)} /{" "}
+          {Math.round(step.settleMs.after)} ms
         </span>
         {step.note ? <Badge variant="warning">{step.note}</Badge> : null}
       </div>

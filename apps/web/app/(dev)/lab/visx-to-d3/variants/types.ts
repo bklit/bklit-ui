@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import type { InteractionScript } from "../bench/interactions";
 import type { HoverTargets } from "../bench/parity";
 
 /** Which implementation a render call should use. */
@@ -22,6 +23,13 @@ interface LabVariantBase {
   hover?: boolean;
   /** Overrides the chart's hover targets for this variant. */
   hoverTargets?: HoverTargets;
+  /**
+   * Scripted interaction steps (drag, wheel, buttons, …; `bench/
+   * interactions.ts`), run on a fresh mount after enter (and hover). Each
+   * step is settled and snapshotted (geometry + HTML text + callbacks the
+   * variant emits through `useLabProbe`).
+   */
+  interactions?: InteractionScript;
   /**
    * Shown in the lab but never recorded or compared (animates forever,
    * depends on the network, …). The string says why.

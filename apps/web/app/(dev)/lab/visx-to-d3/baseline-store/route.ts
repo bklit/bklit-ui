@@ -7,7 +7,11 @@ import type {
   BaselineFile,
   BaselineStepRecord,
 } from "../bench/baseline";
-import { isLabChartSlug, VARIANT_ID_PATTERN } from "../lab-slugs";
+import {
+  BASELINE_SCHEMA,
+  isLabChartSlug,
+  VARIANT_ID_PATTERN,
+} from "../lab-slugs";
 
 /**
  * Dev-only read/write access to the lab's golden baselines
@@ -79,8 +83,8 @@ function machineLabel(): string {
 }
 
 /**
- * Pretty JSON with one geometry node per line: small, stable git diffs
- * without spreading every attribute over its own line.
+ * Pretty JSON with one geometry node / text run per line: small, stable git
+ * diffs without spreading every attribute over its own line.
  */
 function formatBaseline(file: BaselineFile): string {
   const blocks: string[] = [];
@@ -96,6 +100,8 @@ function formatBaseline(file: BaselineFile): string {
     ...step,
     ...(step.nodes ? { nodes: marker(step.nodes) } : {}),
     ...(step.changed ? { changed: marker(step.changed) } : {}),
+    ...(step.texts ? { texts: marker(step.texts) } : {}),
+    ...(step.changedTexts ? { changedTexts: marker(step.changedTexts) } : {}),
   }));
   const json = JSON.stringify({ ...file, steps }, null, 2);
   return `${json.replace(/"__NODES_(\d+)__"/g, (_, i: string) => blocks[Number(i)] ?? "[]")}\n`;
@@ -106,7 +112,7 @@ function isBaselineFile(value: unknown): value is BaselineFile {
   return (
     typeof file === "object" &&
     file !== null &&
-    file.schema === 1 &&
+    file.schema === BASELINE_SCHEMA &&
     typeof file.chart === "string" &&
     typeof file.variant === "string" &&
     Array.isArray(file.steps) &&

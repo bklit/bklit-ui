@@ -1,13 +1,13 @@
 "use client";
 
 import {
-  BASELINE_SCHEMA,
   type BaselineBenchmark,
   type BaselineFile,
   type LiveCapture,
   packSteps,
 } from "./bench/baseline";
 import type { LabTarget } from "./fixtures";
+import { BASELINE_SCHEMA } from "./lab-slugs";
 
 /** Client side of `baseline-store/route.ts` (dev only). */
 
@@ -83,6 +83,7 @@ export function buildBaselineFile(
     userAgent: navigator.userAgent,
     hover: target.hover,
     hoverTargetCount: capture.hoverTargetCount,
+    interactions: target.interactions !== null,
     steps: packSteps(capture.steps),
   };
 }
