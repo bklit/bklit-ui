@@ -25,6 +25,8 @@ const nextConfig = {
       { source: "/og/:path*", headers: noIndexHeaders },
       { source: "/studio/og-preview", headers: noIndexHeaders },
       { source: "/charts/og-preview", headers: noIndexHeaders },
+      // Hidden dev labs (e.g. /lab/visx-to-d3); 404 on the production deploy.
+      { source: "/lab/:path*", headers: noIndexHeaders },
       {
         source: "/studio/embed",
         headers: [

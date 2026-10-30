@@ -1,0 +1,548 @@
+"use client";
+
+// Frozen visx snapshot for the /lab/visx-to-d3 before/after harness only.
+// Not exported from the public charts index or shipped in registry.json.
+// Delete once the visx → d3 migration is complete.
+
+import { Group } from "@visx/group";
+import { arc as arcGenerator } from "@visx/shape";
+import type { Transition } from "motion/react";
+import {
+  Children,
+  isValidElement,
+  memo,
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { cn } from "@/lib/utils";
+import { ParentSize } from "../chart-parent-size";
+import {
+  defaultRingColors,
+  type RingContextValue,
+  type RingData,
+  RingProvider,
+  ringCssVars,
+} from "../ring-context";
+import { RING_GRID_PADDING } from "../ring-grid";
+
+function generateRingArcPath(
+  innerRadius: number,
+  outerRadius: number,
+  startAngle: number,
+  endAngle: number,
+  cornerRadius: number
+): string {
+  const generator = arcGenerator<unknown>({
+    innerRadius,
+    outerRadius,
+    cornerRadius,
+  });
+  return generator({ startAngle, endAngle } as unknown as null) || "";
+}
+
+export interface RingChartProps {
+  /** Data array - each item represents a ring */
+  data: RingData[];
+  /** Chart size in pixels. If not provided, uses parent container size */
+  size?: number;
+  /** Stroke width of each ring. Default: 12 */
+  strokeWidth?: number;
+  /** Gap between rings. Default: 6 */
+  ringGap?: number;
+  /** Inner radius of the innermost ring. Default: 60 */
+  baseInnerRadius?: number;
+  /**
+   * Space kept clear between the outermost ring and the chart edge, px.
+   * Default: 8, or 32 when a `RingGrid` child is present (room for its labels)
+   */
+  padding?: number;
+  /** Animation duration in milliseconds. Default: 1100 */
+  animationDuration?: number;
+  /** Additional class name for the container */
+  className?: string;
+  /** Controlled hover state - index of hovered ring */
+  hoveredIndex?: number | null;
+  /** Callback when hover state changes */
+  onHoverChange?: (index: number | null) => void;
+  /** Start angle in radians. Default: -PI/2 (top) */
+  startAngle?: number;
+  /** End angle in radians. Default: 3*PI/2 (full circle) */
+  endAngle?: number;
+  /** Framer Motion transition for ring enter animation */
+  enterTransition?: Transition;
+  /** Scales ring stagger delays (1 = default). */
+  enterStaggerScale?: number;
+  /**
+   * High-frequency geometry updates (e.g. studio NumberField scrub).
+   * Uses plain SVG paths instead of Motion `d` morphing.
+   */
+  geometryScrubbing?: boolean;
+  /** Child components (Ring, RingCenter, etc.) */
+  children: ReactNode;
+}
+
+interface RingChartInnerProps {
+  width: number;
+  height: number;
+  data: RingData[];
+  strokeWidth: number;
+  ringGap: number;
+  baseInnerRadius: number;
+  padding?: number;
+  children: ReactNode;
+  containerRef: React.RefObject<HTMLDivElement | null>;
+  hoveredIndexProp?: number | null;
+  onHoverChange?: (index: number | null) => void;
+  startAngle: number;
+  endAngle: number;
+  enterTransition?: Transition;
+  enterStaggerScale: number;
+  geometryScrubbing: boolean;
+}
+
+function isRing(child: ReactNode): boolean {
+  return (
+    isValidElement(child) &&
+    typeof child.type === "function" &&
+    ((child.type as { displayName?: string }).displayName === "Ring" ||
+      (child.type as { name?: string }).name === "Ring")
+  );
+}
+
+function isRingGrid(child: ReactNode): boolean {
+  return (
+    isValidElement(child) &&
+    typeof child.type !== "string" &&
+    (child.type as { displayName?: string }).displayName === "RingGrid"
+  );
+}
+
+function hasRingGrid(children: ReactNode): boolean {
+  let found = false;
+  Children.forEach(children, (child) => {
+    if (isRingGrid(child)) {
+      found = true;
+    }
+  });
+  return found;
+}
+
+// Helper to check if a child is a RingCenter component
+function isRingCenter(child: ReactNode): boolean {
+  return (
+    isValidElement(child) &&
+    typeof child.type === "function" &&
+    ((child.type as { displayName?: string }).displayName === "RingCenter" ||
+      child.type.name === "RingCenter")
+  );
+}
+
+function RingChartInner(props: RingChartInnerProps) {
+  const size = Math.min(props.width, props.height);
+
+  if (size < 10) {
+    return null;
+  }
+
+  return <RingChartCore {...props} />;
+}
+
+interface ScrubRingLayer {
+  bgPath: string;
+  progressPath: string;
+  color: string;
+}
+
+const RingChartCore = memo(function RingChartCore({
+  width,
+  height,
+  data,
+  strokeWidth: strokeWidthProp,
+  ringGap: ringGapProp,
+  baseInnerRadius: baseInnerRadiusProp,
+  padding: paddingProp,
+  children,
+  containerRef,
+  hoveredIndexProp,
+  onHoverChange,
+  startAngle,
+  endAngle,
+  enterTransition,
+  enterStaggerScale,
+  geometryScrubbing,
+}: RingChartInnerProps) {
+  const [internalHoveredIndex, setInternalHoveredIndex] = useState<
+    number | null
+  >(null);
+  const [animationKey] = useState(0);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  // Use controlled or uncontrolled hover state
+  const isControlled = hoveredIndexProp !== undefined;
+  const hoveredIndex = isControlled ? hoveredIndexProp : internalHoveredIndex;
+  const setHoveredIndex = useCallback(
+    (index: number | null) => {
+      if (isControlled) {
+        onHoverChange?.(index);
+      } else {
+        setInternalHoveredIndex(index);
+      }
+    },
+    [isControlled, onHoverChange]
+  );
+
+  // Use the smaller dimension to ensure the chart fits
+  const size = Math.min(width, height);
+  const center = size / 2;
+
+  // Calculate scaled dimensions to fit within the available space
+  // The outermost ring needs to fit within the chart with some padding
+  const ringCount = data.length;
+  const padding =
+    paddingProp ?? (hasRingGrid(children) ? RING_GRID_PADDING : 8);
+  const availableRadius = center - padding;
+
+  // Calculate the "design" outer radius (what we'd need at 1:1 scale)
+  const designOuterRadius =
+    baseInnerRadiusProp +
+    (ringCount - 1) * (strokeWidthProp + ringGapProp) +
+    strokeWidthProp;
+
+  // Scale factor to fit within available space
+  const scale = Math.min(1, availableRadius / designOuterRadius);
+
+  // Apply scaling to all dimensions
+  const strokeWidth = strokeWidthProp * scale;
+  const ringGap = ringGapProp * scale;
+  const baseInnerRadius = baseInnerRadiusProp * scale;
+
+  // Calculate total value
+  const totalValue = useMemo(
+    () => data.reduce((sum, d) => sum + d.value, 0),
+    [data]
+  );
+
+  // Get color for a ring index
+  const getColor = useCallback(
+    (index: number) => {
+      const item = data[index];
+      if (item?.color) {
+        return item.color;
+      }
+      return defaultRingColors[index % defaultRingColors.length] as string;
+    },
+    [data]
+  );
+
+  // Get ring radii for an index
+  const getRingRadii = useCallback(
+    (index: number) => {
+      const innerRadius = baseInnerRadius + index * (strokeWidth + ringGap);
+      const outerRadius = innerRadius + strokeWidth;
+      return { innerRadius, outerRadius };
+    },
+    [baseInnerRadius, strokeWidth, ringGap]
+  );
+
+  const arcRange = endAngle - startAngle;
+  const scrubRingLayers = useMemo((): readonly ScrubRingLayer[] | null => {
+    if (!geometryScrubbing) {
+      return null;
+    }
+    return data.map((ringData, index) => {
+      const { innerRadius, outerRadius } = getRingRadii(index);
+      const cornerRadius = (outerRadius - innerRadius) / 2;
+      const progress = ringData.value / ringData.maxValue;
+      const progressEndAngle = startAngle + arcRange * progress;
+      return {
+        bgPath: generateRingArcPath(
+          innerRadius,
+          outerRadius,
+          startAngle,
+          endAngle,
+          cornerRadius
+        ),
+        progressPath:
+          progressEndAngle <= startAngle + 0.01
+            ? ""
+            : generateRingArcPath(
+                innerRadius,
+                outerRadius,
+                startAngle,
+                progressEndAngle,
+                cornerRadius
+              ),
+        color: getColor(index),
+      };
+    });
+  }, [
+    geometryScrubbing,
+    data,
+    getRingRadii,
+    getColor,
+    startAngle,
+    endAngle,
+    arcRange,
+  ]);
+
+  const effectiveIsLoaded = geometryScrubbing || isLoaded;
+
+  // Replay enter when motion settings change. The reset is adjusted during
+  // render ("store previous props in state") instead of setState in an effect.
+  const [enterKey, setEnterKey] = useState({
+    enterTransition,
+    enterStaggerScale,
+    geometryScrubbing,
+  });
+  if (
+    enterKey.enterTransition !== enterTransition ||
+    enterKey.enterStaggerScale !== enterStaggerScale ||
+    enterKey.geometryScrubbing !== geometryScrubbing
+  ) {
+    setEnterKey({ enterTransition, enterStaggerScale, geometryScrubbing });
+    if (!geometryScrubbing) {
+      setIsLoaded(false);
+    }
+  }
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: enterTransition
+  useEffect(() => {
+    if (geometryScrubbing) {
+      return;
+    }
+    const timer = setTimeout(() => {
+      setIsLoaded(true);
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [enterTransition, enterStaggerScale, geometryScrubbing]);
+
+  // Separate SVG children (rings) from HTML children (RingCenter)
+  // This avoids Safari's foreignObject positioning bugs (WebKit #23113)
+  const { svgChildren, centerChildren } = useMemo(() => {
+    const svgNodes: ReactNode[] = [];
+    const centerNodes: ReactNode[] = [];
+
+    Children.forEach(children, (child) => {
+      if (isRingCenter(child)) {
+        centerNodes.push(child);
+      } else if (geometryScrubbing && isRing(child)) {
+        return;
+      } else {
+        svgNodes.push(child);
+      }
+    });
+
+    return { svgChildren: svgNodes, centerChildren: centerNodes };
+  }, [children, geometryScrubbing]);
+
+  const contextValue: RingContextValue = useMemo(
+    () => ({
+      data,
+      size,
+      center,
+      strokeWidth,
+      ringGap,
+      baseInnerRadius,
+      hoveredIndex,
+      setHoveredIndex,
+      animationKey,
+      isLoaded: effectiveIsLoaded,
+      enterTransition,
+      enterStaggerScale,
+      containerRef,
+      totalValue,
+      getColor,
+      getRingRadii,
+      startAngle,
+      endAngle,
+      geometryScrubbing,
+    }),
+    [
+      data,
+      size,
+      center,
+      strokeWidth,
+      ringGap,
+      baseInnerRadius,
+      hoveredIndex,
+      setHoveredIndex,
+      animationKey,
+      effectiveIsLoaded,
+      enterTransition,
+      enterStaggerScale,
+      containerRef,
+      totalValue,
+      getColor,
+      getRingRadii,
+      startAngle,
+      endAngle,
+      geometryScrubbing,
+    ]
+  );
+
+  // Use CSS Grid stacking to layer SVG and HTML content
+  // This avoids Safari's foreignObject rendering bugs where HTML content
+  // inside SVG foreignObject renders at wrong positions when it has a RenderLayer
+  return (
+    <RingProvider value={contextValue}>
+      <div
+        className="grid"
+        style={{
+          gridTemplateColumns: "1fr",
+          gridTemplateRows: "1fr",
+          width: size,
+          height: size,
+        }}
+      >
+        {/* SVG layer with rings */}
+        <svg
+          aria-hidden="true"
+          height={size}
+          style={{
+            gridArea: "1 / 1",
+            // No `paint` containment: it clips hover glow at the svg box.
+            contain: "layout style",
+            overflow: "visible",
+          }}
+          width={size}
+        >
+          <Group left={center} top={center}>
+            {scrubRingLayers
+              ? scrubRingLayers.map((layer, index) => (
+                  <g key={data[index]?.label ?? index}>
+                    <path d={layer.bgPath} fill={ringCssVars.ringBackground} />
+                    {layer.progressPath ? (
+                      <path d={layer.progressPath} fill={layer.color} />
+                    ) : null}
+                  </g>
+                ))
+              : null}
+            {svgChildren}
+          </Group>
+        </svg>
+
+        {/* HTML layer with center content - stacked on top via grid */}
+        {centerChildren.length > 0 && (
+          <div
+            className="pointer-events-none flex items-center justify-center"
+            style={{ gridArea: "1 / 1" }}
+          >
+            {centerChildren}
+          </div>
+        )}
+      </div>
+    </RingProvider>
+  );
+}, ringChartCorePropsEqual);
+
+function ringChartCorePropsEqual(
+  prev: RingChartInnerProps,
+  next: RingChartInnerProps
+): boolean {
+  return (
+    prev.width === next.width &&
+    prev.height === next.height &&
+    prev.data === next.data &&
+    prev.strokeWidth === next.strokeWidth &&
+    prev.ringGap === next.ringGap &&
+    prev.baseInnerRadius === next.baseInnerRadius &&
+    prev.padding === next.padding &&
+    prev.hoveredIndexProp === next.hoveredIndexProp &&
+    prev.onHoverChange === next.onHoverChange &&
+    prev.startAngle === next.startAngle &&
+    prev.endAngle === next.endAngle &&
+    prev.enterTransition === next.enterTransition &&
+    prev.enterStaggerScale === next.enterStaggerScale &&
+    prev.geometryScrubbing === next.geometryScrubbing &&
+    prev.children === next.children
+  );
+}
+
+export function RingChart({
+  data,
+  size: fixedSize,
+  strokeWidth = 12,
+  ringGap = 6,
+  baseInnerRadius = 60,
+  padding,
+  className = "",
+  hoveredIndex,
+  onHoverChange,
+  startAngle = -Math.PI / 2,
+  endAngle = (3 * Math.PI) / 2,
+  enterTransition,
+  enterStaggerScale = 1,
+  geometryScrubbing = false,
+  children,
+}: RingChartProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // If fixed size is provided, use it directly
+  if (fixedSize) {
+    return (
+      <div
+        className={cn("relative flex items-center justify-center", className)}
+        ref={containerRef}
+        style={{ width: fixedSize, height: fixedSize }}
+      >
+        <RingChartInner
+          baseInnerRadius={baseInnerRadius}
+          containerRef={containerRef}
+          data={data}
+          endAngle={endAngle}
+          enterStaggerScale={enterStaggerScale}
+          enterTransition={enterTransition}
+          geometryScrubbing={geometryScrubbing}
+          height={fixedSize}
+          hoveredIndexProp={hoveredIndex}
+          onHoverChange={onHoverChange}
+          padding={padding}
+          ringGap={ringGap}
+          startAngle={startAngle}
+          strokeWidth={strokeWidth}
+          width={fixedSize}
+        >
+          {children}
+        </RingChartInner>
+      </div>
+    );
+  }
+
+  // Otherwise use ParentSize for responsive sizing
+  return (
+    <div
+      className={cn("relative aspect-square w-full", className)}
+      ref={containerRef}
+    >
+      <ParentSize debounceTime={10}>
+        {({ width, height }) => (
+          <RingChartInner
+            baseInnerRadius={baseInnerRadius}
+            containerRef={containerRef}
+            data={data}
+            endAngle={endAngle}
+            enterStaggerScale={enterStaggerScale}
+            enterTransition={enterTransition}
+            geometryScrubbing={geometryScrubbing}
+            height={height}
+            hoveredIndexProp={hoveredIndex}
+            onHoverChange={onHoverChange}
+            padding={padding}
+            ringGap={ringGap}
+            startAngle={startAngle}
+            strokeWidth={strokeWidth}
+            width={width}
+          >
+            {children}
+          </RingChartInner>
+        )}
+      </ParentSize>
+    </div>
+  );
+}
+
+export default RingChart;

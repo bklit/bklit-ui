@@ -17,8 +17,15 @@ export default function robots(): MetadataRoute.Robots {
       // and crawling them would only spend crawl budget. They also send
       // `X-Robots-Tag: noindex, nofollow` (next.config) and noindex metadata
       // in case a URL is discovered elsewhere. The headless Chrome that
-      // screenshots them does not read robots.txt.
-      disallow: ["/api/", "/og/", "/studio/og-preview", "/charts/og-preview"],
+      // screenshots them does not read robots.txt. `/lab/` holds hidden
+      // contributor tools (e.g. the visx → d3 lab) that 404 in production.
+      disallow: [
+        "/api/",
+        "/og/",
+        "/studio/og-preview",
+        "/charts/og-preview",
+        "/lab/",
+      ],
     },
     sitemap: `${SITE_URL}/sitemap.xml`,
     host: SITE_URL,
