@@ -42,7 +42,11 @@ export const DEFAULT_CHART_LIFECYCLE = {
   loadingLabel: undefined,
   yDomainTweenDuration: DEFAULT_Y_DOMAIN_TWEEN_MS,
   yDomainSkeletonByAxis: { left: [0, 100] as [number, number] },
-  yDomainTargetByAxis: { left: [0, 100] as [number, number] },
+  // No target: charts without a y-domain tween (bar, candlestick, scatter,
+  // live line) have no settled domain distinct from the live scale, so
+  // `useSettledYScale` must fall back to it. A placeholder here made `YAxis`
+  // tick 0–100 on top of the real data scale.
+  yDomainTargetByAxis: {} as Record<string, [number, number]>,
 } as const satisfies {
   chartPhase: ChartPhase;
   chartStatus: ChartStatus;
