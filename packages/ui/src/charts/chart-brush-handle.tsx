@@ -1,6 +1,5 @@
 "use client";
 
-import type { BrushHandleRenderProps } from "@visx/brush";
 import { createPortal } from "react-dom";
 import type { ChartBrushOverlayHost } from "./chart-brush-track-overlay";
 import { useChartPortalContainer, useChartStable } from "./chart-context";
@@ -9,8 +8,20 @@ import { useChartPortalContainer, useChartStable } from "./chart-context";
 const HANDLE_HEIGHT_PX = 24;
 const HANDLE_WIDTH_PX = 4;
 
+/** Props passed to a brush handle renderer (same shape as visx `BrushHandleRenderProps`). */
+export interface BrushHandleRenderProps {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  /** `visx-brush-handle-left` / `visx-brush-handle-right`. */
+  className: string;
+  /** False while the brush is empty (extent -1). */
+  isBrushActive: boolean;
+}
+
 /**
- * Invisible hit target for visx `BrushHandle` drag interaction.
+ * Invisible hit target for a brush resize handle.
  * Visible pills render in `ChartBrushHandleOverlay` above the blur layer.
  */
 function brushHandleCursor(className: string) {
