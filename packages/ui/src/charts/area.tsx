@@ -1,6 +1,5 @@
 "use client";
 
-import { AreaClosed, LinePath } from "@visx/shape";
 import { type CurveFactory, curveMonotoneX } from "d3-shape";
 
 import { useCallback, useId, useMemo, useRef, useState } from "react";
@@ -14,6 +13,7 @@ import {
   resolveLineLoadingPulseMode,
 } from "./line-loading-pulse";
 import { LINE_LOADING_LOOP_PAUSE_MS } from "./line-loading-timing";
+import { areaClosedD, LinePath, linePathD } from "./line-path";
 import { LineLoadingSweep } from "./loading-sweep";
 import {
   resolveDashTailBounds,
@@ -257,31 +257,41 @@ export function Area({
     visibleStroke = strokePaint;
   }
   const shouldMeasurePath = showLine && (showSeriesContent || showLoadingPulse);
+  const showFill = showSeriesContent && showAreaFill;
+
+  // Fill and stroke `d` only change with their inputs, so re-renders for
+  // other reasons reuse them. Hidden layers skip the work, as before.
+  const getX = useCallback(
+    (d: Record<string, unknown>) => xScale(xAccessor(d)) ?? 0,
+    [xAccessor, xScale]
+  );
+  const areaPathD = useMemo(
+    () =>
+      showFill
+        ? areaClosedD(renderData, { curve, x: getX, y: getY, yScale })
+        : "",
+    [curve, getX, getY, renderData, showFill, yScale]
+  );
+  const strokePathD = useMemo(
+    () =>
+      shouldMeasurePath
+        ? linePathD(renderData, { curve, x: getX, y: getY })
+        : "",
+    [curve, getX, getY, renderData, shouldMeasurePath]
+  );
 
   const seriesLayers = (
     <>
-      {showSeriesContent && showAreaFill ? (
-        <AreaClosed
-          curve={curve}
-          data={renderData}
-          fill={areaFill}
-          x={(d) => xScale(xAccessor(d)) ?? 0}
-          y={getY}
-          yScale={yScale}
-        />
-      ) : null}
+      {showFill ? <path d={areaPathD} fill={areaFill} /> : null}
 
       {shouldMeasurePath ? (
         <>
           <LinePath
-            curve={curve}
-            data={renderData}
+            d={strokePathD}
             innerRef={pathRef}
             stroke={visibleStroke}
             strokeLinecap="round"
             strokeWidth={strokeWidth}
-            x={(d) => xScale(xAccessor(d)) ?? 0}
-            y={getY}
           />
           {showSeriesStroke ? (
             <SeriesDashTailOverlay

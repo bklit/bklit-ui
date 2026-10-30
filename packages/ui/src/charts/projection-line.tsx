@@ -1,9 +1,9 @@
 "use client";
 
-import { LinePath } from "@visx/shape";
 import { type CurveFactory, curveLinear } from "d3-shape";
 import { useCallback, useId, useMemo } from "react";
 import { useChartStable, useYScale } from "./chart-context";
+import { LinePath, linePathD } from "./line-path";
 import {
   buildHorizontalTangentBezierPath,
   type ProjectionCurveKind,
@@ -87,11 +87,8 @@ function renderProjectionStroke({
   }
   return (
     <LinePath
-      curve={curve ?? curveLinear}
-      data={data}
+      d={linePathD(data, { curve: curve ?? curveLinear, x: getX, y: getY })}
       {...strokeProps}
-      x={getX}
-      y={getY}
     />
   );
 }

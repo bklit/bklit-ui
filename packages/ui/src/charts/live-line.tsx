@@ -1,15 +1,10 @@
 "use client";
 
-import { AreaClosed, type AreaClosedProps, LinePath } from "@visx/shape";
-import { curveMonotoneX } from "d3-shape";
-
-// Curve factory type via @visx/shape (already a dependency) rather than
-// importing from d3-shape, which this registry item does not install.
-type CurveFactory = NonNullable<AreaClosedProps<unknown>["curve"]>;
-
+import { type CurveFactory, curveMonotoneX } from "d3-shape";
 import { motion } from "motion/react";
 import { useCallback, useId, useMemo } from "react";
 import { chartCssVars, useChart } from "./chart-context";
+import { areaClosedD, LinePath, linePathD } from "./line-path";
 
 export type Momentum = "up" | "down" | "flat";
 
@@ -131,6 +126,19 @@ export function LiveLine({
     [dataKey, yScale]
   );
 
+  // Each new frame brings new scales / data and rebuilds these; scrub
+  // (hover) re-renders reuse them.
+  const showFill = fill && data.length > 1;
+  const areaPathD = useMemo(
+    () =>
+      showFill ? areaClosedD(data, { curve, x: getX, y: getY, yScale }) : "",
+    [curve, data, getX, getY, showFill, yScale]
+  );
+  const strokePathD = useMemo(
+    () => (data.length > 1 ? linePathD(data, { curve, x: getX, y: getY }) : ""),
+    [curve, data, getX, getY]
+  );
+
   // The second-to-last point is the "now" position (live tip).
   // The last point is the queued future point for the fade-out zone.
   const nowPoint = data.length >= 2 ? data.at(-2) : data.at(-1);
@@ -199,16 +207,12 @@ export function LiveLine({
       </defs>
 
       {/* Area fill */}
-      {fill && data.length > 1 && (
+      {showFill && (
         <g mask={`url(#${fadeMaskId})`}>
-          <AreaClosed
-            curve={curve}
-            data={data}
+          <path
+            d={areaPathD}
             fill={`url(#${areaGradientId})`}
             strokeWidth={0}
-            x={getX}
-            y={getY}
-            yScale={yScale}
           />
         </g>
       )}
@@ -217,14 +221,11 @@ export function LiveLine({
       {data.length > 1 && (
         <g mask={`url(#${fadeMaskId})`}>
           <LinePath
-            curve={curve}
-            data={data}
+            d={strokePathD}
             stroke={`url(#${gradientId})`}
             strokeLinecap="round"
             strokeLinejoin="round"
             strokeWidth={strokeWidth}
-            x={getX}
-            y={getY}
           />
         </g>
       )}

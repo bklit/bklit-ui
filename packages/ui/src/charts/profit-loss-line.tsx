@@ -1,6 +1,5 @@
 "use client";
 
-import { LinePath } from "@visx/shape";
 import { type CurveFactory, curveLinear } from "d3-shape";
 import { useCallback, useId, useMemo } from "react";
 import { useChart, useChartStable } from "./chart-context";
@@ -9,6 +8,7 @@ import {
   fadeGradientStops,
   resolveFadeSides,
 } from "./fade-edges";
+import { LinePath, linePathD } from "./line-path";
 import { useProfitLossLegendHover } from "./profit-loss-legend-hover";
 import { splitProfitLossSegments } from "./profit-loss-segments";
 
@@ -107,6 +107,15 @@ export function ProfitLossLine({
     [dataKey, yScale]
   );
 
+  // Hover (tooltip / legend) re-renders only change opacity; reuse the paths.
+  const segmentPaths = useMemo(
+    () =>
+      segments.map((segment) =>
+        linePathD(segment.data, { curve, x: getX, y: getY })
+      ),
+    [curve, getX, getY, segments]
+  );
+
   return (
     <>
       {fadeStops ? (
@@ -151,7 +160,7 @@ export function ProfitLossLine({
           </linearGradient>
         </defs>
       ) : null}
-      {segments.map((segment) => {
+      {segments.map((segment, segmentIndex) => {
         const isDimmed =
           focusedLegendIndex !== null &&
           focusedLegendIndex !== segmentLegendIndex(segment.isPositive);
@@ -170,14 +179,11 @@ export function ProfitLossLine({
             style={{ transition: "opacity 0.2s ease-in-out" }}
           >
             <LinePath
-              curve={curve}
-              data={segment.data}
+              d={segmentPaths[segmentIndex] ?? ""}
               stroke={segmentStroke}
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth={strokeWidth}
-              x={getX}
-              y={getY}
             />
           </g>
         );

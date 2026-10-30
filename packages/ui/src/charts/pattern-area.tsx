@@ -1,8 +1,9 @@
 "use client";
 
-import { AreaClosed } from "@visx/shape";
 import { type CurveFactory, curveMonotoneX } from "d3-shape";
+import { useMemo } from "react";
 import { useChartStable } from "./chart-context";
+import { areaClosedD } from "./line-path";
 
 export interface PatternAreaProps {
   /** Key in data to use for y values */
@@ -26,19 +27,21 @@ export function PatternArea({
 }: PatternAreaProps) {
   const { renderData, xScale, yScale, xAccessor } = useChartStable();
 
-  return (
-    <AreaClosed
-      curve={curve}
-      data={renderData}
-      fill={fill}
-      x={(d) => xScale(xAccessor(d)) ?? 0}
-      y={(d) => {
-        const v = d[dataKey];
-        return typeof v === "number" ? (yScale(v) ?? 0) : 0;
-      }}
-      yScale={yScale}
-    />
+  const d = useMemo(
+    () =>
+      areaClosedD(renderData, {
+        curve,
+        x: (datum) => xScale(xAccessor(datum)) ?? 0,
+        y: (datum) => {
+          const v = datum[dataKey];
+          return typeof v === "number" ? (yScale(v) ?? 0) : 0;
+        },
+        yScale,
+      }),
+    [curve, dataKey, renderData, xAccessor, xScale, yScale]
   );
+
+  return <path d={d} fill={fill} />;
 }
 
 PatternArea.displayName = "PatternArea";

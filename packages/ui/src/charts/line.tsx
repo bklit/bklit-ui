@@ -1,6 +1,5 @@
 "use client";
 
-import { LinePath } from "@visx/shape";
 import { type CurveFactory, curveNatural } from "d3-shape";
 
 import {
@@ -34,6 +33,7 @@ import {
   resolveLineLoadingPulseMode,
 } from "./line-loading-pulse";
 import { LINE_LOADING_LOOP_PAUSE_MS } from "./line-loading-timing";
+import { LinePath, linePathD } from "./line-path";
 import { LineLoadingSweep } from "./loading-sweep";
 import {
   resolveDashTailBounds,
@@ -159,32 +159,25 @@ export interface LineProps {
 
 function LineSeriesStroke({
   animatedPathD,
-  curve,
   filter,
-  getY,
   pathRef,
-  renderData,
+  staticPathD,
   strokeOpacity,
   strokeWidth,
-  useDataTransitionPath,
+  drawAnimatedPath,
   visibleStroke,
-  xAccessor,
-  xScale,
 }: {
   animatedPathD: string;
-  curve: CurveFactory;
   filter?: string;
-  getY: (datum: Record<string, unknown>) => number;
   pathRef?: RefObject<SVGPathElement | null>;
+  /** `d` of the resting line (unused while `drawAnimatedPath`). */
+  staticPathD: string;
   strokeOpacity?: number;
-  renderData: Record<string, unknown>[];
   strokeWidth: number;
-  useDataTransitionPath: boolean;
+  drawAnimatedPath: boolean;
   visibleStroke: string;
-  xAccessor: (datum: Record<string, unknown>) => Date;
-  xScale: (value: Date) => number | undefined;
 }) {
-  if (useDataTransitionPath && animatedPathD) {
+  if (drawAnimatedPath) {
     return (
       <path
         d={animatedPathD}
@@ -201,16 +194,13 @@ function LineSeriesStroke({
 
   return (
     <LinePath
-      curve={curve}
-      data={renderData}
+      d={staticPathD}
       filter={filter}
       innerRef={pathRef}
       stroke={visibleStroke}
       strokeLinecap="round"
       strokeOpacity={strokeOpacity}
       strokeWidth={strokeWidth}
-      x={(d) => xScale(xAccessor(d)) ?? 0}
-      y={getY}
     />
   );
 }
@@ -562,6 +552,22 @@ export function Line({
     [dataKey, yScale]
   );
 
+  // The resting path only changes with its inputs, so hover / phase re-renders
+  // reuse it. While the data-transition tween runs, `animatedPathD` (per frame)
+  // is drawn instead and this stays "" — same switch as before.
+  const drawAnimatedPath = useDataTransitionPath && Boolean(animatedPathD);
+  const staticPathD = useMemo(
+    () =>
+      drawAnimatedPath
+        ? ""
+        : linePathD(renderData, {
+            curve,
+            x: (d) => xScale(xAccessor(d)) ?? 0,
+            y: getY,
+          }),
+    [curve, getY, renderData, drawAnimatedPath, xAccessor, xScale]
+  );
+
   const colorStops = useMemo(
     () => resolveStrokeGradientStops(strokeGradient),
     [strokeGradient]
@@ -619,29 +625,21 @@ export function Line({
         {glowOptions && showSeriesStroke ? (
           <LineSeriesStroke
             animatedPathD={animatedPathD}
-            curve={curve}
+            drawAnimatedPath={drawAnimatedPath}
             filter={`url(#${glowFilterId})`}
-            getY={getY}
-            renderData={renderData}
+            staticPathD={staticPathD}
             strokeOpacity={glowOptions.opacity}
             strokeWidth={glowOptions.strokeWidth}
-            useDataTransitionPath={useDataTransitionPath}
             visibleStroke={lineStroke}
-            xAccessor={xAccessor}
-            xScale={xScale}
           />
         ) : null}
         <LineSeriesStroke
           animatedPathD={animatedPathD}
-          curve={curve}
-          getY={getY}
+          drawAnimatedPath={drawAnimatedPath}
           pathRef={pathRef}
-          renderData={renderData}
+          staticPathD={staticPathD}
           strokeWidth={strokeWidth}
-          useDataTransitionPath={useDataTransitionPath}
           visibleStroke={visibleStroke}
-          xAccessor={xAccessor}
-          xScale={xScale}
         />
 
         <SeriesDashTailOverlay
