@@ -1,8 +1,7 @@
 "use client";
 
-import { curveLinear } from "@visx/curve";
 import { LinePath } from "@visx/shape";
-import type { CurveFactory } from "d3-shape";
+import { type CurveFactory, curveLinear } from "d3-shape";
 import { useCallback, useId, useMemo } from "react";
 import { useChartStable, useYScale } from "./chart-context";
 import {

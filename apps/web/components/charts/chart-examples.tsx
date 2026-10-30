@@ -123,7 +123,7 @@ import {
   curveMonotoneX,
   curveNatural,
   curveStep,
-} from "@visx/curve";
+} from "d3-shape";
 import { motion, useSpring } from "motion/react";
 import {
   type ComponentProps,
@@ -1680,7 +1680,7 @@ function makeAreaExamples(): ChartExample[] {
     {
       title: "Area Chart - Step",
       description: "Discrete step interpolation between points",
-      code: `import { curveStep } from "@visx/curve";
+      code: `import { curveStep } from "d3-shape";
 
 <AreaChart data={chartData}>
   <Grid horizontal />
@@ -3242,7 +3242,7 @@ function makeComposedHero(): ChartExample {
     title: "Composed Chart",
     description:
       "One time axis, one Y scale: combine SeriesBar, Line, and Area. Use the curve menu to swap the shared Line and Area interpolation.",
-    code: `import { curveCatmullRom } from "@visx/curve";
+    code: `import { curveCatmullRom } from "d3-shape";
 
 <ComposedChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={data} xDataKey="date" aspectRatio="2 / 1" barGap={0} maxBarSize={32}>
   <Grid horizontal />
@@ -3316,7 +3316,7 @@ const autoProjectionPath = buildProjectionPath({
     {
       title: "Line Chart - Linear",
       description: "Straight lines between data points",
-      code: `import { curveLinear } from "@visx/curve";
+      code: `import { curveLinear } from "d3-shape";
 
 <LineChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={chartData}>
   <Grid horizontal />
@@ -6440,7 +6440,7 @@ function makeLineHero(): ChartExample {
     title: "Line Chart - Trio with Brush",
     description:
       "Three Catmull–Rom series on a dot background with a top legend and brush zoom — matches the Studio trio preset.",
-    code: `import { curveCatmullRom } from "@visx/curve";
+    code: `import { curveCatmullRom } from "d3-shape";
 import {
   Background,
   ChartBrush,
@@ -6480,8 +6480,8 @@ function makeAreaHero(): ChartExample {
   return {
     title: "Area Chart - Interactive",
     description:
-      "Revenue vs costs over 30 days with segment selection. Use the curve menu to compare @visx/curve on both areas.",
-    code: `import { curveMonotoneX } from "@visx/curve";
+      "Revenue vs costs over 30 days with segment selection. Use the curve menu to compare d3-shape curves on both areas.",
+    code: `import { curveMonotoneX } from "d3-shape";
 
 <AreaChart aspectRatio="4 / 1" data={chartData}>
   <Grid horizontal />

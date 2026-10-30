@@ -1,7 +1,7 @@
 "use client";
 
-import { curveMonotoneX } from "@visx/curve";
 import { AreaClosed, type AreaClosedProps, LinePath } from "@visx/shape";
+import { curveMonotoneX } from "d3-shape";
 
 // Curve factory type via @visx/shape (already a dependency) rather than
 // importing from d3-shape, which this registry item does not install.

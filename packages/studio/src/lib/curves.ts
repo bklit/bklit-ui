@@ -5,7 +5,7 @@ import {
   curveMonotoneX,
   curveNatural,
   curveStep,
-} from "@visx/curve";
+} from "d3-shape";
 
 export const CURVE_IDS = [
   "natural",

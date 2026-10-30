@@ -11,7 +11,7 @@ import { ProfitLossLineDemo } from "@/components/docs/profit-loss-line-demo";
 
 ## Installation
 
-<InstallationTabs name="profit-loss-line" dependencies={["@visx/curve", "@visx/shape"]} />
+<InstallationTabs name="profit-loss-line" dependencies={["d3-shape", "@visx/shape"]} />
 
 ## Usage
 
@@ -28,7 +28,7 @@ import {
   profitLossColor,
   resolveProfitLossTooltipLabel,
 } from "@bklitui/ui/charts";
-import { curveLinear } from "@visx/curve";
+import { curveLinear } from "d3-shape";
 
 const data = [
   { date: new Date("2024-01-01"), pnl: 420 },

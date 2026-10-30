@@ -1,9 +1,7 @@
 "use client";
 
-import { curveMonotoneX } from "@visx/curve";
 import { AreaClosed, LinePath } from "@visx/shape";
-
-import type { CurveFactory } from "d3-shape";
+import { type CurveFactory, curveMonotoneX } from "d3-shape";
 
 import { useCallback, useId, useMemo, useRef, useState } from "react";
 import { AreaGradientDefs } from "./area-gradient-defs";

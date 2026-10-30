@@ -57,7 +57,7 @@ export function profitLossLineCodegen(state: StudioUrlState) {
   resolveProfitLossTooltipLabel,
   XAxis,
 } from "@bklitui/ui/charts";
-import { ${curveName} } from "@visx/curve";
+import { ${curveName} } from "d3-shape";
 import { useState } from "react";
 
 export function ProfitLossChart({ data }: { data: Record<string, unknown>[] }) {

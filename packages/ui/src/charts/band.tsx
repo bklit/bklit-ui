@@ -1,7 +1,6 @@
 "use client";
 
-import { curveLinear, curveNatural } from "@visx/curve";
-import type { CurveFactory } from "d3-shape";
+import { type CurveFactory, curveLinear, curveNatural } from "d3-shape";
 import { type ReactNode, useId, useMemo } from "react";
 import {
   type BandFadeEdges,

@@ -1,8 +1,7 @@
 "use client";
 
-import { curveMonotoneX } from "@visx/curve";
 import { AreaClosed } from "@visx/shape";
-import type { CurveFactory } from "d3-shape";
+import { type CurveFactory, curveMonotoneX } from "d3-shape";
 import { useChartStable } from "./chart-context";
 
 export interface PatternAreaProps {

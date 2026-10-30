@@ -53,7 +53,6 @@
     "@bklitui/icons": "workspace:*",
     "@number-flow/react": "^0.5.4",
     "@visx/brush": "4.0.0",
-    "@visx/curve": "4.0.0",
     "@visx/event": "4.0.0",
     "@visx/geo": "4.0.0",
     "@visx/gradient": "4.0.0",

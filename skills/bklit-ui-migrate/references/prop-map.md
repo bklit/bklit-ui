@@ -30,11 +30,11 @@ Defaults quoted are bklit source defaults. "—" means no equivalent: see `rules
 | Recharts | bklit | Notes |
 |---|---|---|
 | `type="linear"` (Recharts default) | `curve={curveLinear}` | Recharts' default is **linear**; bklit `Line` defaults to `curveNatural`, `Area` to `curveMonotoneX`. Set `curve` explicitly for parity. |
-| `type="monotone"` | `curve={curveMonotoneX}` | `import { curveMonotoneX } from "@visx/curve"` (installed with line/area-chart). |
+| `type="monotone"` | `curve={curveMonotoneX}` | `import { curveMonotoneX } from "d3-shape"` (installed with line/area-chart). |
 | `type="natural"` | `curve={curveNatural}` | |
-| `type="step"` / `"stepBefore"` / `"stepAfter"` | `curveStep` / `curveStepBefore` / `curveStepAfter` | `@visx/curve`. |
-| `type="basis"` / `"cardinal"` / `"monotoneY"` | `curveBasis` / `curveCardinal` / `curveMonotoneY` | `@visx/curve`. |
-| `type="bump"` / `"bumpX"` | `curveBumpX` | Not in `@visx/curve` — `import { curveBumpX } from "d3-shape"` (installed with line/area-chart). |
+| `type="step"` / `"stepBefore"` / `"stepAfter"` | `curveStep` / `curveStepBefore` / `curveStepAfter` | `d3-shape`. |
+| `type="basis"` / `"cardinal"` / `"monotoneY"` | `curveBasis` / `curveCardinal` / `curveMonotoneY` | `d3-shape`. |
+| `type="bump"` / `"bumpX"` | `curveBumpX` | `import { curveBumpX } from "d3-shape"` (installed with line/area-chart). |
 | `stroke`, `strokeWidth` | `stroke`, `strokeWidth` | Line default stroke `var(--chart-line-primary)`, width 2.5; Area width 2. |
 | (hard line ends) | `Line fadeEdges={false}` | bklit `Line` fades its stroke at both chart edges by default (`fadeEdges` true; `Area` default false). |
 | `fill` (Area) | `fill` | Colour for the built-in vertical gradient (or a `url(#id)`; then also set `stroke`). |
@@ -152,7 +152,7 @@ Sparklines are single elements: no children, no `Grid`/axes/`ChartTooltip`. Prop
 | `margin` | `padding` | Number or `{ top, right, bottom, left }`. Defaults 4 (line/area), 2 (bar) so strokes and the hover dot are not clipped. |
 | `stroke` (Line/Area) / `fill` (Bar) | `color` | Default `var(--chart-line-primary)`. Use `var(--chart-1)` … tokens. |
 | `strokeWidth` | `strokeWidth` (line/area) | Default 1.5. |
-| `type="monotone"` / `"natural"` / `"linear"` / `"step"` | `curve="monotone" \| "natural" \| "linear" \| "step"` | A **string** (not `@visx/curve`). Default `"monotone"`; Recharts defaults to linear — set `curve="linear"` for parity. Other types → closest of the four. |
+| `type="monotone"` / `"natural"` / `"linear"` / `"step"` | `curve="monotone" \| "natural" \| "linear" \| "step"` | A **string** (not a `d3-shape` curve). Default `"monotone"`; Recharts defaults to linear — set `curve="linear"` for parity. Other types → closest of the four. |
 | `Area fill` + `fillOpacity` | `fill="gradient" \| "solid"` + `fillOpacity` | Default `"gradient"` at 0.3 fading to 0. A flat Recharts fill → `fill="solid"` with the same `fillOpacity`. Colour follows `color`. |
 | `<defs><linearGradient>` + `fill="url(#…)"` | `fill="gradient"` | Built in; drop the defs. |
 | `Bar radius={n}` / `[n, n, 0, 0]` | `barRadius={n}` | Rounds the end away from the baseline. Default 1. |

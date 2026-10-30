@@ -54,7 +54,7 @@ After:
 ```tsx
 "use client";
 
-import { curveMonotoneX } from "@visx/curve";
+import { curveMonotoneX } from "d3-shape";
 import { Grid } from "@/components/charts/grid";
 import {
   Legend,

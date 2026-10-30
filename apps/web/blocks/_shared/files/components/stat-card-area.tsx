@@ -6,7 +6,7 @@ import {
   ChartStatFlow,
   LinearGradient,
 } from "@bklitui/ui/charts";
-import { curveCardinal } from "@visx/curve";
+import { curveCardinal } from "d3-shape";
 import { useState } from "react";
 import {
   Card,

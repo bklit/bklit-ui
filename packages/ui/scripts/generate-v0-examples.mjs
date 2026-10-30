@@ -105,7 +105,7 @@ const EXAMPLES = {
       "@bklit/x-axis",
       "@bklit/chart-tooltip",
     ],
-    dependencies: ["@visx/curve@4.0.0", "@visx/shape@4.0.0", "motion"],
+    dependencies: ["d3-shape", "@visx/shape@4.0.0", "motion"],
     importFrom: "AreaChart, Area, Grid, XAxis, ChartTooltip",
     data: `const chartData = [
   { date: new Date("2024-01-01"), desktop: 186 },
@@ -121,7 +121,7 @@ const EXAMPLES = {
   <XAxis />
   <ChartTooltip />
 </AreaChart>`,
-    extraImports: `import { curveNatural } from "@visx/curve";`,
+    extraImports: `import { curveNatural } from "d3-shape";`,
   },
   "bar-chart": {
     registryDependencies: [
@@ -154,7 +154,7 @@ const EXAMPLES = {
       "@bklit/x-axis",
       "@bklit/chart-tooltip",
     ],
-    dependencies: ["@visx/curve@4.0.0", "@visx/shape@4.0.0", "motion"],
+    dependencies: ["d3-shape", "@visx/shape@4.0.0", "motion"],
     importFrom: "LineChart, Line, Grid, XAxis, ChartTooltip",
     data: `const chartData = [
   { date: new Date("2024-01-01"), users: 1200 },
@@ -170,7 +170,7 @@ const EXAMPLES = {
   <XAxis />
   <ChartTooltip />
 </LineChart>`,
-    extraImports: `import { curveNatural } from "@visx/curve";`,
+    extraImports: `import { curveNatural } from "d3-shape";`,
   },
   "scatter-chart": {
     registryDependencies: [
@@ -349,7 +349,7 @@ const data = [
       "@bklit/x-axis",
       "@bklit/chart-tooltip",
     ],
-    dependencies: ["@visx/curve@4.0.0", "@visx/shape@4.0.0", "motion"],
+    dependencies: ["d3-shape", "@visx/shape@4.0.0", "motion"],
     importFrom:
       "ComposedChart, SeriesBar, Area, Line, Grid, XAxis, ChartTooltip",
     data: `const chartData = [
@@ -366,7 +366,7 @@ const data = [
   <XAxis />
   <ChartTooltip />
 </ComposedChart>`,
-    extraImports: `import { curveNatural } from "@visx/curve";`,
+    extraImports: `import { curveNatural } from "d3-shape";`,
   },
   "funnel-chart": {
     registryDependencies: ["@bklit/funnel-chart"],
@@ -491,7 +491,7 @@ const { arcs } = buildArcs(data);`,
   },
   "live-line-chart": {
     registryDependencies: ["@bklit/live-line-chart", "@bklit/chart-tooltip"],
-    dependencies: ["@visx/curve@4.0.0", "@visx/shape@4.0.0", "motion"],
+    dependencies: ["d3-shape", "@visx/shape@4.0.0", "motion"],
     importFrom: "LiveLineChart, LiveLine, LiveXAxis, LiveYAxis, ChartTooltip",
     data: `const initialData = Array.from({ length: 24 }, (_, i) => ({
   time: Date.now() - (23 - i) * 60_000,
@@ -509,7 +509,7 @@ const { arcs } = buildArcs(data);`,
   <LiveYAxis />
   <ChartTooltip />
 </LiveLineChart>`,
-    extraImports: `import { curveNatural } from "@visx/curve";`,
+    extraImports: `import { curveNatural } from "d3-shape";`,
   },
   sparkline: {
     registryDependencies: ["@bklit/sparkline"],

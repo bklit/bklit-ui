@@ -9,7 +9,7 @@ import {
   SeriesBar,
   XAxis,
 } from "@bklitui/ui/charts";
-import { curveCatmullRom } from "@visx/curve";
+import { curveCatmullRom } from "d3-shape";
 import { composedDemoData } from "@/lib/composed-demo-data";
 
 const smoothCurve = curveCatmullRom.alpha(0.42);

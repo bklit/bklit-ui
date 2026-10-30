@@ -1,9 +1,7 @@
 "use client";
 
-import { curveNatural } from "@visx/curve";
 import { LinePath } from "@visx/shape";
-
-import type { CurveFactory } from "d3-shape";
+import { type CurveFactory, curveNatural } from "d3-shape";
 
 import {
   type RefObject,

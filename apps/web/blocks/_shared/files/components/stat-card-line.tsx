@@ -1,7 +1,7 @@
 "use client";
 
 import { ChartStatFlow, Line, LineChart } from "@bklitui/ui/charts";
-import { curveBasis } from "@visx/curve";
+import { curveBasis } from "d3-shape";
 import { useState } from "react";
 import {
   Card,

@@ -477,7 +477,6 @@
         "@bklit/background"
       ],
       "dependencies": [
-        "@visx/curve@4.0.0",
         "d3-shape",
         "motion"
       ],
@@ -911,10 +910,10 @@
         "@bklit/chart-parent-size"
       ],
       "dependencies": [
-        "@visx/curve@4.0.0",
         "@visx/gradient@4.0.0",
         "@visx/shape@4.0.0",
-        "motion"
+        "motion",
+        "d3-shape"
       ],
       "files": [
         {
@@ -1021,7 +1020,6 @@
         "@bklit/chart-parent-size"
       ],
       "dependencies": [
-        "@visx/curve@4.0.0",
         "@visx/scale@4.0.0",
         "@visx/shape@4.0.0",
         "@visx/responsive@4.0.0",
@@ -1191,7 +1189,6 @@
         "@bklit/background"
       ],
       "dependencies": [
-        "@visx/curve@4.0.0",
         "@visx/shape@4.0.0",
         "d3-shape",
         "motion"
@@ -1323,8 +1320,8 @@
         "@bklit/utils"
       ],
       "dependencies": [
-        "@visx/curve@4.0.0",
-        "@visx/shape@4.0.0"
+        "@visx/shape@4.0.0",
+        "d3-shape"
       ],
       "files": [
         {
@@ -1468,13 +1465,13 @@
         "@bklit/chart-parent-size"
       ],
       "dependencies": [
-        "@visx/curve@4.0.0",
         "@visx/scale@4.0.0",
         "@visx/shape@4.0.0",
         "@visx/responsive@4.0.0",
         "@visx/event@4.0.0",
         "d3-array",
-        "motion"
+        "motion",
+        "d3-shape"
       ],
       "files": [
         {
@@ -2251,7 +2248,7 @@
         "@bklit/chart-tooltip"
       ],
       "dependencies": [
-        "@visx/curve@4.0.0",
+        "d3-shape",
         "@visx/shape@4.0.0",
         "motion"
       ],
@@ -2308,7 +2305,7 @@
         "@bklit/chart-tooltip"
       ],
       "dependencies": [
-        "@visx/curve@4.0.0",
+        "d3-shape",
         "@visx/shape@4.0.0",
         "motion"
       ],
@@ -2519,7 +2516,7 @@
         "@bklit/chart-tooltip"
       ],
       "dependencies": [
-        "@visx/curve@4.0.0",
+        "d3-shape",
         "@visx/shape@4.0.0",
         "motion"
       ],
@@ -2676,7 +2673,7 @@
         "@bklit/chart-tooltip"
       ],
       "dependencies": [
-        "@visx/curve@4.0.0",
+        "d3-shape",
         "@visx/shape@4.0.0",
         "motion"
       ],

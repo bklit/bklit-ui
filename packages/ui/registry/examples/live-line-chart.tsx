@@ -3,7 +3,7 @@
 // In your app (monorepo/npm): import { LiveLineChart, LiveLine, LiveXAxis, LiveYAxis, ChartTooltip } from "@bklitui/ui/charts"
 import { LiveLineChart, LiveLine, LiveXAxis, LiveYAxis, ChartTooltip } from "@/components/charts"
 
-import { curveNatural } from "@visx/curve";
+import { curveNatural } from "d3-shape";
 
 const initialData = Array.from({ length: 24 }, (_, i) => ({
   time: Date.now() - (23 - i) * 60_000,

@@ -26,7 +26,6 @@
     "@sparticuz/chromium-min": "^149.0.0",
     "@tanstack/charts": "1.1.0",
     "@visx/brush": "4.0.0",
-    "@visx/curve": "4.0.0",
     "@visx/event": "4.0.0",
     "@visx/gradient": "4.0.0",
     "@visx/grid": "4.0.0",

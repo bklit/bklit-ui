@@ -1,6 +1,6 @@
 "use client";
 
-import { curveNatural } from "@visx/curve";
+import { curveNatural } from "d3-shape";
 import { useMemo } from "react";
 import { Area } from "./area";
 import { AreaChart } from "./area-chart";

@@ -113,7 +113,7 @@ For each chart:
    - `ResponsiveContainer` → delete; size with `aspectRatio` (default `"2 / 1"`) or `className="h-[300px]"`.
    - `layout="vertical"` → `BarChart orientation="horizontal"` (inverted naming) + `BarYAxis`.
    - All bars share one `stackId` → root `stacked`.
-   - `type="monotone"` → `curve={curveMonotoneX}` from `@visx/curve`. Recharts' default curve is linear; bklit `Line` defaults to `curveNatural`, `Area` to `curveMonotoneX`.
+   - `type="monotone"` → `curve={curveMonotoneX}` from `d3-shape`. Recharts' default curve is linear; bklit `Line` defaults to `curveNatural`, `Area` to `curveMonotoneX`.
    - `dot` → `showMarkers`/`markers`; `activeDot` → `ChartTooltip showDots`/`dotSize`.
    - `isAnimationActive={false}` → `animate={false}` on the series (root `animationDuration`, default 1100 ms).
    - `Bar radius` → `lineCap` (default `"round"`; `"butt"` for square Recharts bars; a number for px).

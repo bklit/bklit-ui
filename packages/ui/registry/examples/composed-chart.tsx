@@ -3,7 +3,7 @@
 // In your app (monorepo/npm): import { ComposedChart, SeriesBar, Area, Line, Grid, XAxis, ChartTooltip } from "@bklitui/ui/charts"
 import { ComposedChart, SeriesBar, Area, Line, Grid, XAxis, ChartTooltip } from "@/components/charts"
 
-import { curveNatural } from "@visx/curve";
+import { curveNatural } from "d3-shape";
 
 const chartData = [
   { date: new Date("2024-01-01"), revenue: 4200, runRate: 3800 },

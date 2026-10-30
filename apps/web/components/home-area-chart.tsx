@@ -1,7 +1,7 @@
 "use client";
 
 import { Area, AreaChart, Background, ChartTooltip } from "@bklitui/ui/charts";
-import { curveNatural } from "@visx/curve";
+import { curveNatural } from "d3-shape";
 import {
   homeAreaChartMargin,
   useHomeChartCompact,

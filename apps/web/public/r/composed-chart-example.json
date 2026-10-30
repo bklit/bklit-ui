@@ -5,7 +5,7 @@
   "title": "Composed Chart Example",
   "description": "Composable composed-chart demo for Open in v0",
   "dependencies": [
-    "@visx/curve@4.0.0",
+    "d3-shape",
     "@visx/shape@4.0.0",
     "motion"
   ],
@@ -18,7 +18,7 @@
   "files": [
     {
       "path": "registry/examples/composed-chart.tsx",
-      "content": "\"use client\"\n\n// In your app (monorepo/npm): import { ComposedChart, SeriesBar, Area, Line, Grid, XAxis, ChartTooltip } from \"@bklitui/ui/charts\"\nimport { ComposedChart, SeriesBar, Area, Line, Grid, XAxis, ChartTooltip } from \"@/components/charts\"\n\nimport { curveNatural } from \"@visx/curve\";\n\nconst chartData = [\n  { date: new Date(\"2024-01-01\"), revenue: 4200, runRate: 3800 },\n  { date: new Date(\"2024-02-01\"), revenue: 5100, runRate: 4600 },\n  { date: new Date(\"2024-03-01\"), revenue: 4800, runRate: 5200 },\n  { date: new Date(\"2024-04-01\"), revenue: 5500, runRate: 5000 },\n];\n\nexport default function Component() {\n  return (\n    <main className=\"flex min-h-svh w-full items-center justify-center p-6 md:p-10\">\n      <div className=\"w-full max-w-3xl\">\n        <ComposedChart data={chartData}>\n  <Grid horizontal />\n  <SeriesBar dataKey=\"revenue\" fill=\"var(--chart-1)\" />\n  <Area dataKey=\"runRate\" curve={curveNatural} fill=\"var(--chart-4)\" fillOpacity={0.35} />\n  <Line dataKey=\"runRate\" curve={curveNatural} stroke=\"var(--chart-2)\" />\n  <XAxis />\n  <ChartTooltip />\n</ComposedChart>\n      </div>\n    </main>\n  )\n}\n",
+      "content": "\"use client\"\n\n// In your app (monorepo/npm): import { ComposedChart, SeriesBar, Area, Line, Grid, XAxis, ChartTooltip } from \"@bklitui/ui/charts\"\nimport { ComposedChart, SeriesBar, Area, Line, Grid, XAxis, ChartTooltip } from \"@/components/charts\"\n\nimport { curveNatural } from \"d3-shape\";\n\nconst chartData = [\n  { date: new Date(\"2024-01-01\"), revenue: 4200, runRate: 3800 },\n  { date: new Date(\"2024-02-01\"), revenue: 5100, runRate: 4600 },\n  { date: new Date(\"2024-03-01\"), revenue: 4800, runRate: 5200 },\n  { date: new Date(\"2024-04-01\"), revenue: 5500, runRate: 5000 },\n];\n\nexport default function Component() {\n  return (\n    <main className=\"flex min-h-svh w-full items-center justify-center p-6 md:p-10\">\n      <div className=\"w-full max-w-3xl\">\n        <ComposedChart data={chartData}>\n  <Grid horizontal />\n  <SeriesBar dataKey=\"revenue\" fill=\"var(--chart-1)\" />\n  <Area dataKey=\"runRate\" curve={curveNatural} fill=\"var(--chart-4)\" fillOpacity={0.35} />\n  <Line dataKey=\"runRate\" curve={curveNatural} stroke=\"var(--chart-2)\" />\n  <XAxis />\n  <ChartTooltip />\n</ComposedChart>\n      </div>\n    </main>\n  )\n}\n",
       "type": "registry:page",
       "target": "app/page.tsx"
     },

@@ -46,7 +46,7 @@ private to the bklit monorepo).
 | `HeatmapChart`, `HeatmapCells`, `HeatmapLegend`, `HeatmapTooltip`, `HeatmapXAxis`, `HeatmapYAxis`, `HeatmapChartLoading` | `@/components/charts/heatmap` | `@bklit/heatmap-chart` |
 | `chartCssVars`, `useChart`, `useChartStable` | `@/components/charts/chart-context` | `@bklit/chart-context` (pulled in by every chart) |
 | `LinearGradient`, `RadialGradient` | `@visx/gradient` | npm dep of `@bklit/area-chart`, `@bklit/bar-chart` (pie/ring: `npm i @visx/gradient@4.0.0`) |
-| `curveNatural`, `curveMonotoneX`, `curveLinear`, `curveStep`, `curveBasis`, `curveCatmullRom` | `@visx/curve` | npm dep of line/area charts |
+| `curveNatural`, `curveMonotoneX`, `curveLinear`, `curveStep`, `curveBasis`, `curveCatmullRom` | `d3-shape` | npm dep of line/area charts |
 
 `@bklit/pie-chart` and `@bklit/ring-chart` do **not** pull in `@bklit/patterns`
 — add it when a pie needs `PatternLines`.

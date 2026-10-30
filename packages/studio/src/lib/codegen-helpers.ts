@@ -67,7 +67,7 @@ import {
   HORIZONTAL_BAR_TREND_LINE_DATA_KEY,
 } from "./studio-trend-line-props";
 
-function visxCurveImportLines(
+function curveImportLine(
   state: StudioUrlState,
   seriesIndices: number[]
 ): string {
@@ -78,9 +78,9 @@ function visxCurveImportLines(
       )
     ),
   ];
-  return names
-    .map((name) => `import { ${name} } from "@visx/curve";`)
-    .join("\n");
+  return names.length > 0
+    ? `import { ${names.join(", ")} } from "d3-shape";`
+    : "";
 }
 
 // Only 5 chart-N vars exist; series 6–10 cycle back through chart-1…chart-5.
@@ -617,7 +617,7 @@ export function cartesianLoadingCodegen(
     child = `\n  <Area dataKey="${primaryKey}" curve={${curveName}} fillOpacity={${state.fillOpacity}} strokeWidth={${getSeriesStrokeWidth(state, 0)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, 0))} gradientToOpacity={${state.gradientToOpacity}} showLine={${getSeriesShowLine(state, 0)}} ${loadingStrokeAttr}${loadingStyleAttr} />`;
   }
 
-  const curveImports = visxCurveImportLines(state, [0]);
+  const curveImports = curveImportLine(state, [0]);
 
   return {
     code: `import { ${chartImports.join(", ")} } from "@bklitui/ui/charts";
@@ -773,7 +773,7 @@ export function cartesianCodegen(
     ...cartesianSeriesImports(chartType, state, child)
   );
 
-  const curveImports = visxCurveImportLines(
+  const curveImports = curveImportLine(
     state,
     keys.map((_, index) => index)
   );
@@ -1029,7 +1029,7 @@ export function composedCodegen(state: StudioUrlState) {
     : "";
   const trendLineImport = trendLineBlock ? ", TrendLine" : "";
 
-  const curveImports = visxCurveImportLines(
+  const curveImports = curveImportLine(
     state,
     secondaryKeys.map((_, index) => index + 1)
   );
@@ -1388,7 +1388,7 @@ export function liveLineCodegen(state: StudioUrlState) {
 
   return {
     code: `import { LiveLineChart, LiveLine, LiveXAxis, LiveYAxis${gridImport}${backgroundImport}${referenceAreaImport} } from "@bklitui/ui/charts";
-import { ${curveName} } from "@visx/curve";
+import { ${curveName} } from "d3-shape";
 
 <LiveLineChart
   data={data}

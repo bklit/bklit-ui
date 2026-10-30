@@ -5,7 +5,7 @@
   "title": "Area Chart Example",
   "description": "Composable area-chart demo for Open in v0",
   "dependencies": [
-    "@visx/curve@4.0.0",
+    "d3-shape",
     "@visx/shape@4.0.0",
     "motion"
   ],
@@ -18,7 +18,7 @@
   "files": [
     {
       "path": "registry/examples/area-chart.tsx",
-      "content": "\"use client\"\n\n// In your app (monorepo/npm): import { AreaChart, Area, Grid, XAxis, ChartTooltip } from \"@bklitui/ui/charts\"\nimport { AreaChart, Area, Grid, XAxis, ChartTooltip } from \"@/components/charts\"\n\nimport { curveNatural } from \"@visx/curve\";\n\nconst chartData = [\n  { date: new Date(\"2024-01-01\"), desktop: 186 },\n  { date: new Date(\"2024-02-01\"), desktop: 305 },\n  { date: new Date(\"2024-03-01\"), desktop: 237 },\n  { date: new Date(\"2024-04-01\"), desktop: 73 },\n  { date: new Date(\"2024-05-01\"), desktop: 209 },\n  { date: new Date(\"2024-06-01\"), desktop: 214 },\n];\n\nexport default function Component() {\n  return (\n    <main className=\"flex min-h-svh w-full items-center justify-center p-6 md:p-10\">\n      <div className=\"w-full max-w-3xl\">\n        <AreaChart data={chartData} animationDuration={1100}>\n  <Grid horizontal />\n  <Area dataKey=\"desktop\" curve={curveNatural} strokeWidth={2.5} fillOpacity={0.4} />\n  <XAxis />\n  <ChartTooltip />\n</AreaChart>\n      </div>\n    </main>\n  )\n}\n",
+      "content": "\"use client\"\n\n// In your app (monorepo/npm): import { AreaChart, Area, Grid, XAxis, ChartTooltip } from \"@bklitui/ui/charts\"\nimport { AreaChart, Area, Grid, XAxis, ChartTooltip } from \"@/components/charts\"\n\nimport { curveNatural } from \"d3-shape\";\n\nconst chartData = [\n  { date: new Date(\"2024-01-01\"), desktop: 186 },\n  { date: new Date(\"2024-02-01\"), desktop: 305 },\n  { date: new Date(\"2024-03-01\"), desktop: 237 },\n  { date: new Date(\"2024-04-01\"), desktop: 73 },\n  { date: new Date(\"2024-05-01\"), desktop: 209 },\n  { date: new Date(\"2024-06-01\"), desktop: 214 },\n];\n\nexport default function Component() {\n  return (\n    <main className=\"flex min-h-svh w-full items-center justify-center p-6 md:p-10\">\n      <div className=\"w-full max-w-3xl\">\n        <AreaChart data={chartData} animationDuration={1100}>\n  <Grid horizontal />\n  <Area dataKey=\"desktop\" curve={curveNatural} strokeWidth={2.5} fillOpacity={0.4} />\n  <XAxis />\n  <ChartTooltip />\n</AreaChart>\n      </div>\n    </main>\n  )\n}\n",
       "type": "registry:page",
       "target": "app/page.tsx"
     },

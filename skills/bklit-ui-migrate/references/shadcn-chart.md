@@ -160,7 +160,7 @@ Install: `npx shadcn@latest add @bklit/area-chart @bklit/legend`.
 ```tsx
 "use client";
 
-import { curveNatural } from "@visx/curve";
+import { curveNatural } from "d3-shape";
 import { useState } from "react";
 import { Area, AreaChart } from "@/components/charts/area-chart";
 import { Grid } from "@/components/charts/grid";

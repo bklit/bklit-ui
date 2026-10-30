@@ -6,7 +6,8 @@ import { barCodegen, liveLineCodegen } from "../codegen-helpers";
 import { defaultStudioState } from "../studio-parsers";
 
 const SHOW_LINE_FALSE_RE = /showLine=\{false\}/;
-const CURVE_MONOTONE_X_RE = /curveMonotoneX/;
+const CURVE_MONOTONE_X_IMPORT_RE =
+  /import \{ curveMonotoneX \} from "d3-shape";/;
 const FILL_FALSE_RE = /fill=\{false\}/;
 const STROKE_WIDTH_3_RE = /strokeWidth=\{3\}/;
 const ORIENTATION_HORIZONTAL_RE = /orientation="horizontal"/;
@@ -43,6 +44,7 @@ describe("generateStudioCode", () => {
       const state = defaultStudioState({ chart: slug });
       const { code } = generateStudioCode(slug, state);
       assert.ok(code.length > 20);
+      assert.ok(!code.includes("@visx/curve"));
     });
   }
 
@@ -64,7 +66,7 @@ describe("generateStudioCode", () => {
       strokeWidth: 3,
     });
     const { code } = generateStudioCode("live-line-chart", state);
-    assert.match(code, CURVE_MONOTONE_X_RE);
+    assert.match(code, CURVE_MONOTONE_X_IMPORT_RE);
     assert.match(code, FILL_FALSE_RE);
     assert.match(code, STROKE_WIDTH_3_RE);
   });

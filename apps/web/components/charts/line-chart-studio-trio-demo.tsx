@@ -11,7 +11,7 @@ import {
   LineChart,
   XAxis,
 } from "@bklitui/ui/charts";
-import { curveCatmullRom } from "@visx/curve";
+import { curveCatmullRom } from "d3-shape";
 import { useMemo, useState } from "react";
 
 /** Studio share URL for this trio preset (line-chart, 3 series, dot background). */

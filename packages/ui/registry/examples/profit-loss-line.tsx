@@ -13,7 +13,7 @@ import {
   resolveProfitLossTooltipLabel,
   XAxis,
 } from "@/components/charts"
-import { curveLinear } from "@visx/curve";
+import { curveLinear } from "d3-shape";
 import { useState } from "react";
 
 const chartData = [

@@ -1,7 +1,6 @@
 "use client";
 
-import { curveNatural } from "@visx/curve";
-import type { CurveFactory } from "d3-shape";
+import { type CurveFactory, curveNatural } from "d3-shape";
 import { motion } from "motion/react";
 import { type ReactNode, useId } from "react";
 import {

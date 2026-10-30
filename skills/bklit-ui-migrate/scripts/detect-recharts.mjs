@@ -618,7 +618,7 @@ function classifyChart(root, inner) {
   for (const t of series) {
     const curve = unquote(t.attrs.type);
     if (curve) {
-      notes.push(`type="${curve}" -> curve prop from @visx/curve`);
+      notes.push(`type="${curve}" -> curve prop from d3-shape`);
       break;
     }
   }
@@ -874,7 +874,7 @@ function classifySparkline(root, inner, shape, container) {
   if (curve && spec.series !== "Bar") {
     notes.push(
       SPARKLINE_CURVES.has(curve)
-        ? `type="${curve}" -> curve="${curve}" (a string, not @visx/curve)`
+        ? `type="${curve}" -> curve="${curve}" (a string, not a d3-shape curve)`
         : `type="${curve}" has no sparkline curve — closest is curve="${curve.startsWith("step") ? "step" : "monotone"}"`
     );
   } else if (spec.series !== "Bar") {

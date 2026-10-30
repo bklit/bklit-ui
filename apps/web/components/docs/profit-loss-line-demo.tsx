@@ -12,7 +12,7 @@ import {
   resolveProfitLossTooltipLabel,
   XAxis,
 } from "@bklitui/ui/charts";
-import { curveLinear } from "@visx/curve";
+import { curveLinear } from "d3-shape";
 import { useState } from "react";
 import {
   PROFIT_LOSS_DATA_KEY,
