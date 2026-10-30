@@ -112,7 +112,13 @@ export function ParityPanel({
   );
 }
 
-function StepRow({ step }: { step: ParityStep }) {
+export function StepRow({
+  step,
+  labels,
+}: {
+  step: ParityStep;
+  labels?: readonly [string, string];
+}) {
   return (
     <div className="flex flex-col gap-2">
       <div className="flex flex-wrap items-center gap-3">
@@ -126,12 +132,19 @@ function StepRow({ step }: { step: ParityStep }) {
         </span>
         {step.note ? <Badge variant="warning">{step.note}</Badge> : null}
       </div>
-      {step.result.identical ? null : <DiffTable step={step} />}
+      {step.result.identical ? null : <DiffTable labels={labels} step={step} />}
     </div>
   );
 }
 
-export function DiffTable({ step }: { step: ParityStep }) {
+export function DiffTable({
+  step,
+  labels = ["Before", "After"],
+}: {
+  step: ParityStep;
+  /** Column headings for the two compared sides. */
+  labels?: readonly [string, string];
+}) {
   const rows = step.result.diffs.slice(0, MAX_ROWS);
   return (
     <div className="max-h-96 overflow-auto rounded-md border">
@@ -140,8 +153,8 @@ export function DiffTable({ step }: { step: ParityStep }) {
           <tr>
             <th className="px-2 py-1.5 font-medium">Element</th>
             <th className="px-2 py-1.5 font-medium">Attribute</th>
-            <th className="px-2 py-1.5 font-medium">Before</th>
-            <th className="px-2 py-1.5 font-medium">After</th>
+            <th className="px-2 py-1.5 font-medium">{labels[0]}</th>
+            <th className="px-2 py-1.5 font-medium">{labels[1]}</th>
             <th className="px-2 py-1.5 text-right font-medium">Max Δ</th>
           </tr>
         </thead>

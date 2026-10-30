@@ -39,6 +39,11 @@ export interface BenchmarkOptions {
   driver: BenchStageDriver;
   iterations: number;
   hover: boolean;
+  /**
+   * `pair`: Before and After alternately; `live`: the live chart only (single
+   * sided variants, compared against stored baseline medians).
+   */
+  sides?: "pair" | "live";
   signal?: AbortSignal;
   onProgress?: (done: number, total: number, variant: LabSide) => void;
 }
@@ -47,11 +52,14 @@ export interface BenchmarkOptions {
 const COOLDOWN_MS = 120;
 
 /**
- * Pair 0 is warm-up (discarded in the summary). Later pairs alternate order
+ * Pair 0 (live: run 0) is warm-up (discarded in the summary). Later pairs alternate order
  * (before→after, after→before, …) so slow drift on the machine hits both
  * sides equally.
  */
-function runOrder(iterations: number): LabSide[] {
+function runOrder(iterations: number, sides: "pair" | "live"): LabSide[] {
+  if (sides === "live") {
+    return Array.from({ length: iterations + 1 }, () => "after" as const);
+  }
   const order: LabSide[] = [];
   for (let pair = 0; pair <= iterations; pair++) {
     order.push(
@@ -120,10 +128,12 @@ export async function runBenchmark({
   driver,
   iterations,
   hover,
+  sides = "pair",
   signal,
   onProgress,
 }: BenchmarkOptions): Promise<RunRecord[]> {
-  const order = runOrder(iterations);
+  const order = runOrder(iterations, sides);
+  const warmupRuns = sides === "live" ? 1 : 2;
   const records: RunRecord[] = [];
   for (const [run, variant] of order.entries()) {
     if (signal?.aborted) {
@@ -131,7 +141,7 @@ export async function runBenchmark({
     }
     onProgress?.(run, order.length, variant);
     const record = await measureRun(driver, variant, run, hover, signal);
-    records.push({ ...record, warmup: run < 2 });
+    records.push({ ...record, warmup: run < warmupRuns });
     driver.unmount();
     await nextFrame();
     await nextFrame();

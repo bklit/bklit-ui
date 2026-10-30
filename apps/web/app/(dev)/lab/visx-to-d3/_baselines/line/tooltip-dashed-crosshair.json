@@ -1,0 +1,113 @@
+{
+  "schema": 1,
+  "chart": "line",
+  "variant": "tooltip-dashed-crosshair",
+  "label": "Tooltip dashed crosshair",
+  "frame": {
+    "width": 640,
+    "height": 360
+  },
+  "recordedAt": "2026-10-30T14:02:15.126Z",
+  "machine": "dev · Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz × 8 · 8 threads · DPR 1",
+  "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+  "hover": true,
+  "hoverTargetCount": 3,
+  "steps": [
+    {
+      "id": "enter",
+      "label": "Enter",
+      "status": "done",
+      "settleMs": 1162,
+      "nodes": [
+        {"path":"svg[0]","tag":"svg","attrs":{"width":"638","height":"319"}},
+        {"path":"svg[0] > defs[0]","tag":"defs","attrs":{}},
+        {"path":"svg[0] > defs[0] > clippath[0]","tag":"clippath","attrs":{}},
+        {"path":"svg[0] > defs[0] > clippath[0] > rect[0]","tag":"rect","attrs":{"x":"-24","y":"-24","width":"606","height":"287"}},
+        {"path":"svg[0] > rect[0]","tag":"rect","attrs":{"x":"0","y":"0","width":"638","height":"319"}},
+        {"path":"svg[0] > g[0]","tag":"g","attrs":{"transform":"translate(40,40)"}},
+        {"path":"svg[0] > g[0] > rect[0]","tag":"rect","attrs":{"x":"0","y":"0","width":"558","height":"239"}},
+        {"path":"svg[0] > g[0] > g[0]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[0] > defs[0]","tag":"defs","attrs":{}},
+        {"path":"svg[0] > g[0] > g[0] > defs[0] > lineargradient[0]","tag":"lineargradient","attrs":{"x1":"0%","y1":"0%","x2":"100%","y2":"0%"}},
+        {"path":"svg[0] > g[0] > g[0] > defs[0] > lineargradient[0] > stop[0]","tag":"stop","attrs":{}},
+        {"path":"svg[0] > g[0] > g[0] > defs[0] > lineargradient[0] > stop[1]","tag":"stop","attrs":{}},
+        {"path":"svg[0] > g[0] > g[0] > defs[0] > lineargradient[0] > stop[2]","tag":"stop","attrs":{}},
+        {"path":"svg[0] > g[0] > g[0] > defs[0] > lineargradient[0] > stop[3]","tag":"stop","attrs":{}},
+        {"path":"svg[0] > g[0] > g[0] > defs[0] > mask[0]","tag":"mask","attrs":{}},
+        {"path":"svg[0] > g[0] > g[0] > defs[0] > mask[0] > rect[0]","tag":"rect","attrs":{"x":"0","y":"0","width":"558","height":"239"}},
+        {"path":"svg[0] > g[0] > g[0] > g[0]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[0] > g[0] > g[0]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[0] > g[0] > g[0] > line[0]","tag":"line","attrs":{"x1":"0","y1":"239","x2":"558","y2":"239"}},
+        {"path":"svg[0] > g[0] > g[0] > g[0] > g[0] > line[1]","tag":"line","attrs":{"x1":"0","y1":"193.03846153846155","x2":"558","y2":"193.03846153846155"}},
+        {"path":"svg[0] > g[0] > g[0] > g[0] > g[0] > line[2]","tag":"line","attrs":{"x1":"0","y1":"147.0769230769231","x2":"558","y2":"147.0769230769231"}},
+        {"path":"svg[0] > g[0] > g[0] > g[0] > g[0] > line[3]","tag":"line","attrs":{"x1":"0","y1":"101.11538461538463","x2":"558","y2":"101.11538461538463"}},
+        {"path":"svg[0] > g[0] > g[0] > g[0] > g[0] > line[4]","tag":"line","attrs":{"x1":"0","y1":"55.153846153846146","x2":"558","y2":"55.153846153846146"}},
+        {"path":"svg[0] > g[0] > g[0] > g[0] > g[0] > line[5]","tag":"line","attrs":{"x1":"0","y1":"9.192307692307686","x2":"558","y2":"9.192307692307686"}},
+        {"path":"svg[0] > g[0] > g[1]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[1] > defs[0]","tag":"defs","attrs":{}},
+        {"path":"svg[0] > g[0] > g[1] > defs[0] > lineargradient[0]","tag":"lineargradient","attrs":{"x1":"0","y1":"0","x2":"558","y2":"0"}},
+        {"path":"svg[0] > g[0] > g[1] > defs[0] > lineargradient[0] > stop[0]","tag":"stop","attrs":{}},
+        {"path":"svg[0] > g[0] > g[1] > defs[0] > lineargradient[0] > stop[1]","tag":"stop","attrs":{}},
+        {"path":"svg[0] > g[0] > g[1] > defs[0] > lineargradient[0] > stop[2]","tag":"stop","attrs":{}},
+        {"path":"svg[0] > g[0] > g[1] > defs[0] > lineargradient[0] > stop[3]","tag":"stop","attrs":{}},
+        {"path":"svg[0] > g[0] > g[1] > g[0]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[1] > g[0] > path[0]","tag":"path","attrs":{"d":"M0,128.692C26.571,117.789,53.143,106.886,79.714,105.712C106.286,104.537,132.857,113.09,159.429,112.146C186,111.202,212.571,100.761,239.143,90.085C265.714,79.408,292.286,68.497,318.857,68.942C345.429,69.387,372,81.189,398.571,78.135C425.143,75.08,451.714,57.17,478.286,45.962C504.857,34.753,531.429,30.246,558,25.738"}},
+        {"path":"svg[1]","tag":"svg","attrs":{"width":"100%","height":"100%"}},
+        {"path":"svg[1] > g[0]","tag":"g","attrs":{"transform":"translate(40,40)"}}
+      ]
+    },
+    {
+      "id": "hover-0",
+      "label": "Hover #0 (rect @ 15%,15%)",
+      "status": "done",
+      "settleMs": 526,
+      "changed": [
+        {"path":"svg[0] > g[0] > g[1] > defs[1]","tag":"defs","attrs":{}},
+        {"path":"svg[0] > g[0] > g[1] > defs[1] > clippath[0]","tag":"clippath","attrs":{}},
+        {"path":"svg[0] > g[0] > g[1] > defs[1] > clippath[0] > rect[0]","tag":"rect","attrs":{"x":"0","y":"-2.5","width":"159.42857142857142px","height":"244"}},
+        {"path":"svg[0] > g[0] > g[1] > g[1]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[1] > g[1] > path[0]","tag":"path","attrs":{"d":"M0,128.692C26.571,117.789,53.143,106.886,79.714,105.712C106.286,104.537,132.857,113.09,159.429,112.146C186,111.202,212.571,100.761,239.143,90.085C265.714,79.408,292.286,68.497,318.857,68.942C345.429,69.387,372,81.189,398.571,78.135C425.143,75.08,451.714,57.17,478.286,45.962C504.857,34.753,531.429,30.246,558,25.738"}},
+        {"path":"svg[1] > g[0] > line[0]","tag":"line","attrs":{"x1":"79.71428571428571","y1":"0","x2":"79.71428571428571","y2":"239"}}
+      ],
+      "removed": []
+    },
+    {
+      "id": "hover-1",
+      "label": "Hover #1 (rect @ 50%,50%)",
+      "status": "done",
+      "settleMs": 1516,
+      "changed": [
+        {"path":"svg[0] > g[0] > g[1] > defs[1]","tag":"defs","attrs":{}},
+        {"path":"svg[0] > g[0] > g[1] > defs[1] > clippath[0]","tag":"clippath","attrs":{}},
+        {"path":"svg[0] > g[0] > g[1] > defs[1] > clippath[0] > rect[0]","tag":"rect","attrs":{"x":"159.42857142857142","y":"-2.5","width":"159.42857142857142px","height":"244"}},
+        {"path":"svg[0] > g[0] > g[1] > g[1]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[1] > g[1] > path[0]","tag":"path","attrs":{"d":"M0,128.692C26.571,117.789,53.143,106.886,79.714,105.712C106.286,104.537,132.857,113.09,159.429,112.146C186,111.202,212.571,100.761,239.143,90.085C265.714,79.408,292.286,68.497,318.857,68.942C345.429,69.387,372,81.189,398.571,78.135C425.143,75.08,451.714,57.17,478.286,45.962C504.857,34.753,531.429,30.246,558,25.738"}},
+        {"path":"svg[1] > g[0] > line[0]","tag":"line","attrs":{"x1":"239.14285714285714","y1":"0","x2":"239.14285714285714","y2":"239"}}
+      ],
+      "removed": []
+    },
+    {
+      "id": "hover-2",
+      "label": "Hover #2 (rect @ 85%,85%)",
+      "status": "done",
+      "settleMs": 1374,
+      "changed": [
+        {"path":"svg[0] > g[0] > g[1] > defs[1]","tag":"defs","attrs":{}},
+        {"path":"svg[0] > g[0] > g[1] > defs[1] > clippath[0]","tag":"clippath","attrs":{}},
+        {"path":"svg[0] > g[0] > g[1] > defs[1] > clippath[0] > rect[0]","tag":"rect","attrs":{"x":"398.57142857142856","y":"-2.5","width":"159.42857142857144px","height":"244"}},
+        {"path":"svg[0] > g[0] > g[1] > g[1]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[1] > g[1] > path[0]","tag":"path","attrs":{"d":"M0,128.692C26.571,117.789,53.143,106.886,79.714,105.712C106.286,104.537,132.857,113.09,159.429,112.146C186,111.202,212.571,100.761,239.143,90.085C265.714,79.408,292.286,68.497,318.857,68.942C345.429,69.387,372,81.189,398.571,78.135C425.143,75.08,451.714,57.17,478.286,45.962C504.857,34.753,531.429,30.246,558,25.738"}},
+        {"path":"svg[1] > g[0] > line[0]","tag":"line","attrs":{"x1":"478.2857142857143","y1":"0","x2":"478.2857142857143","y2":"239"}}
+      ],
+      "removed": []
+    },
+    {
+      "id": "hover-leave",
+      "label": "Leave",
+      "status": "done",
+      "settleMs": 425,
+      "changed": [],
+      "removed": []
+    }
+  ]
+}

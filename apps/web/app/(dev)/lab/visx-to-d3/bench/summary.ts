@@ -94,15 +94,35 @@ function verdictFor(
   return delta < 0 ? "faster" : "slower";
 }
 
-/** Medians per metric over measured (non-warm-up) runs. */
-export function summarize(records: RunRecord[]): MetricSummary[] {
+/** Medians of the live (After) runs, keyed by metric, for a baseline. */
+export function liveMedians(records: RunRecord[]): Record<string, number> {
+  const after = records.filter((r) => !r.warmup && r.variant === "after");
+  const hasHover = after.some((r) => r.hoverCommitMs !== null);
+  return Object.fromEntries(
+    METRICS.filter((m) => hasHover || !m.hoverOnly).map((metric) => [
+      metric.key,
+      median(values(after, metric.key)),
+    ])
+  );
+}
+
+/**
+ * Medians per metric over measured (non-warm-up) runs. With `reference`
+ * (stored baseline medians), Before is the reference instead of Before runs.
+ */
+export function summarize(
+  records: RunRecord[],
+  reference?: Record<string, number>
+): MetricSummary[] {
   const measured = records.filter((r) => !r.warmup);
   const before = measured.filter((r) => r.variant === "before");
   const after = measured.filter((r) => r.variant === "after");
   const hasHover = measured.some((r) => r.hoverCommitMs !== null);
 
   return METRICS.filter((m) => hasHover || !m.hoverOnly).map((metric) => {
-    const b = median(values(before, metric.key));
+    const b = reference
+      ? (reference[metric.key] ?? 0)
+      : median(values(before, metric.key));
     const a = median(values(after, metric.key));
     const delta = deltaPct(b, a);
     return {

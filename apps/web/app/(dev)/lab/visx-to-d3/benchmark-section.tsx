@@ -12,13 +12,19 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import {
+  browserMachine,
+  fetchBaseline,
+  saveBenchmark,
+} from "./baseline-client";
+import type { BaselineBenchmark } from "./bench/baseline";
+import {
   type BenchStageDriver,
   type ProfilerCommit,
   type RunRecord,
   runBenchmark,
 } from "./bench/run-benchmark";
 import { delay, nextFrame } from "./bench/settle";
-import { summarize } from "./bench/summary";
+import { liveMedians, summarize } from "./bench/summary";
 import { BenchmarkResults } from "./benchmark-results";
 import {
   BenchmarkStage,
@@ -53,6 +59,7 @@ export interface BenchmarkOutcome {
 }
 
 export function BenchmarkSection({ target }: { target: LabTarget }) {
+  const single = target.variant.kind === "single";
   const [iterations, setIterations] = useState(10);
   const [copies, setCopies] = useState<CopiesValue>("1");
   const [hover, setHover] = useState(false);
@@ -61,6 +68,9 @@ export function BenchmarkSection({ target }: { target: LabTarget }) {
   const [progress, setProgress] = useState("");
   const [content, setContent] = useState<StageContent | null>(null);
   const [outcome, setOutcome] = useState<BenchmarkOutcome | null>(null);
+  /** Stored medians the live-only run is compared against. */
+  const [reference, setReference] = useState<BaselineBenchmark | null>(null);
+  const [storeState, setStoreState] = useState<string | null>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const commitsRef = useRef<ProfilerCommit[]>([]);
   const abortRef = useRef<AbortController | null>(null);
@@ -113,6 +123,7 @@ export function BenchmarkSection({ target }: { target: LabTarget }) {
         driver,
         iterations,
         hover,
+        sides: single ? "live" : "pair",
         signal: controller.signal,
         onProgress: (done, total, variant) => {
           setProgress(
@@ -127,6 +138,14 @@ export function BenchmarkSection({ target }: { target: LabTarget }) {
       setRunning(false);
       abortRef.current = null;
     }
+    setStoreState(null);
+    if (single) {
+      const baseline = await fetchBaseline(
+        target.chart,
+        target.variant.id
+      ).catch(() => null);
+      setReference(baseline?.benchmark ?? null);
+    }
     setOutcome({
       config,
       records,
@@ -137,9 +156,36 @@ export function BenchmarkSection({ target }: { target: LabTarget }) {
   };
 
   const summary = useMemo(
-    () => (outcome ? summarize(outcome.records) : null),
-    [outcome]
+    () =>
+      outcome
+        ? summarize(
+            outcome.records,
+            single ? (reference?.medians ?? {}) : undefined
+          )
+        : null,
+    [outcome, reference, single]
   );
+
+  const storeMedians = async () => {
+    if (!outcome) {
+      return;
+    }
+    const benchmark: BaselineBenchmark = {
+      recordedAt: outcome.startedAt,
+      machine: browserMachine(),
+      userAgent: navigator.userAgent,
+      iterations: outcome.config.iterations,
+      copies: outcome.config.copies,
+      hover: outcome.config.hover,
+      medians: liveMedians(outcome.records),
+    };
+    try {
+      await saveBenchmark(target.chart, target.variant.id, benchmark);
+      setStoreState("Stored in baseline");
+    } catch (caught) {
+      setStoreState(caught instanceof Error ? caught.message : String(caught));
+    }
+  };
 
   return (
     <Section
@@ -188,11 +234,19 @@ export function BenchmarkSection({ target }: { target: LabTarget }) {
         </>
       }
       description={
-        <>
-          Mounts Before and After alternately, one at a time, in a full-screen
-          stage. One warm-up pair is discarded, then {iterations} measured runs
-          per side ({2 * (iterations + 1)} mounts).
-        </>
+        single ? (
+          <>
+            Mounts the live chart {iterations + 1} times in a full-screen stage
+            (first run is a warm-up) and compares the medians with the ones
+            stored in the baseline, if any.
+          </>
+        ) : (
+          <>
+            Mounts Before and After alternately, one at a time, in a full-screen
+            stage. One warm-up pair is discarded, then {iterations} measured
+            runs per side ({2 * (iterations + 1)} mounts).
+          </>
+        )
       }
       title="Benchmark"
     >
@@ -209,7 +263,19 @@ export function BenchmarkSection({ target }: { target: LabTarget }) {
         />
       ) : null}
       {outcome && summary ? (
-        <BenchmarkResults outcome={outcome} summary={summary} />
+        <BenchmarkResults
+          baseline={
+            single
+              ? {
+                  reference,
+                  onStore: storeMedians,
+                  storeState,
+                }
+              : null
+          }
+          outcome={outcome}
+          summary={summary}
+        />
       ) : (
         <p className="text-muted-foreground text-sm">
           No results yet. Close other tabs and keep this one focused while it

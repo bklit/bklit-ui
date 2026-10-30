@@ -1,0 +1,99 @@
+{
+  "schema": 1,
+  "chart": "radar",
+  "variant": "grid-only",
+  "label": "Grid only",
+  "frame": {
+    "width": 360,
+    "height": 360
+  },
+  "recordedAt": "2026-10-30T13:51:58.685Z",
+  "machine": "dev · Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz × 8 · 8 threads · DPR 1",
+  "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+  "hover": true,
+  "hoverTargetCount": 2,
+  "steps": [
+    {
+      "id": "enter",
+      "label": "Enter",
+      "status": "done",
+      "settleMs": 1895,
+      "nodes": [
+        {"path":"svg[0]","tag":"svg","attrs":{"width":"260","height":"260"}},
+        {"path":"svg[0] > g[0]","tag":"g","attrs":{"transform":"translate(130, 130)"}},
+        {"path":"svg[0] > g[0] > g[0]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[0] > g[0]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[0] > g[0] > path[0]","tag":"path","attrs":{"d":"M-12.124,-7L0,14L12.124,-7L-12.124,-7"}},
+        {"path":"svg[0] > g[0] > g[0] > g[1]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[0] > g[1] > path[0]","tag":"path","attrs":{"d":"M-24.249,-14L0,28L24.249,-14L-24.249,-14"}},
+        {"path":"svg[0] > g[0] > g[0] > g[2]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[0] > g[2] > path[0]","tag":"path","attrs":{"d":"M-36.373,-21L0,42L36.373,-21L-36.373,-21"}},
+        {"path":"svg[0] > g[0] > g[0] > g[3]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[0] > g[3] > path[0]","tag":"path","attrs":{"d":"M-48.497,-28L0,56L48.497,-28L-48.497,-28"}},
+        {"path":"svg[0] > g[0] > g[0] > g[4]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[0] > g[4] > path[0]","tag":"path","attrs":{"d":"M-60.622,-35L0,70L60.622,-35L-60.622,-35"}},
+        {"path":"svg[0] > g[0] > g[0] > g[5]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[0] > g[5] > text[0]","tag":"text","attrs":{"x":"4","y":"-14"}},
+        {"path":"svg[0] > g[0] > g[0] > g[6]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[0] > g[6] > text[0]","tag":"text","attrs":{"x":"4","y":"-28"}},
+        {"path":"svg[0] > g[0] > g[0] > g[7]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[0] > g[7] > text[0]","tag":"text","attrs":{"x":"4","y":"-42"}},
+        {"path":"svg[0] > g[0] > g[0] > g[8]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[0] > g[8] > text[0]","tag":"text","attrs":{"x":"4","y":"-56"}},
+        {"path":"svg[0] > g[0] > g[0] > g[9]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[0] > g[9] > text[0]","tag":"text","attrs":{"x":"4","y":"-70"}},
+        {"path":"svg[0] > g[0] > g[1]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[1] > g[0]","tag":"g","attrs":{"style.transform":"translateX(5.26598e-15px) translateY(-86px)"}},
+        {"path":"svg[0] > g[0] > g[1] > g[0] > text[0]","tag":"text","attrs":{"x":"0","y":"0"}},
+        {"path":"svg[0] > g[0] > g[1] > g[1]","tag":"g","attrs":{"style.transform":"translateX(74.4782px) translateY(43px)"}},
+        {"path":"svg[0] > g[0] > g[1] > g[1] > text[0]","tag":"text","attrs":{"x":"0","y":"0"}},
+        {"path":"svg[0] > g[0] > g[1] > g[2]","tag":"g","attrs":{"style.transform":"translateX(-74.4782px) translateY(43px)"}},
+        {"path":"svg[0] > g[0] > g[1] > g[2] > text[0]","tag":"text","attrs":{"x":"0","y":"0"}},
+        {"path":"svg[0] > g[0] > g[2]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[2] > path[0]","tag":"path","attrs":{"d":"M 3.857637417314163e-15,-63 L 45.46633369868303,26.249999999999993 L -18.18653347947321,10.500000000000007 Z"}},
+        {"path":"svg[0] > g[0] > g[2] > circle[0]","tag":"circle","attrs":{"cx":"3.857637417314163e-15","cy":"-63","r":"4"}},
+        {"path":"svg[0] > g[0] > g[2] > circle[1]","tag":"circle","attrs":{"cx":"45.46633369868303","cy":"26.249999999999993","r":"4"}},
+        {"path":"svg[0] > g[0] > g[2] > circle[2]","tag":"circle","attrs":{"cx":"-18.18653347947321","cy":"10.500000000000007","r":"4"}},
+        {"path":"svg[0] > g[0] > g[3]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[3] > path[0]","tag":"path","attrs":{"d":"M 1.5001923289555077e-15,-24.5 L 24.248711305964285,13.999999999999995 L -57.59068935166516,33.25000000000002 Z"}},
+        {"path":"svg[0] > g[0] > g[3] > circle[0]","tag":"circle","attrs":{"cx":"1.5001923289555077e-15","cy":"-24.5","r":"4"}},
+        {"path":"svg[0] > g[0] > g[3] > circle[1]","tag":"circle","attrs":{"cx":"24.248711305964285","cy":"13.999999999999995","r":"4"}},
+        {"path":"svg[0] > g[0] > g[3] > circle[2]","tag":"circle","attrs":{"cx":"-57.59068935166516","cy":"33.25000000000002","r":"4"}}
+      ]
+    },
+    {
+      "id": "hover-0",
+      "label": "Hover #0 (path)",
+      "status": "done",
+      "settleMs": 215,
+      "changed": [
+        {"path":"svg[0] > g[0] > g[2]","tag":"g","attrs":{"style.transform":"scale(1.05)"}},
+        {"path":"svg[0] > g[0] > g[2] > circle[0]","tag":"circle","attrs":{"cx":"3.857637417314163e-15","cy":"-63","r":"6"}},
+        {"path":"svg[0] > g[0] > g[2] > circle[1]","tag":"circle","attrs":{"cx":"45.46633369868303","cy":"26.249999999999993","r":"6"}},
+        {"path":"svg[0] > g[0] > g[2] > circle[2]","tag":"circle","attrs":{"cx":"-18.18653347947321","cy":"10.500000000000007","r":"6"}}
+      ],
+      "removed": []
+    },
+    {
+      "id": "hover-1",
+      "label": "Hover #1 (path)",
+      "status": "done",
+      "settleMs": 210,
+      "changed": [
+        {"path":"svg[0] > g[0] > g[3]","tag":"g","attrs":{"style.transform":"scale(1.05)"}},
+        {"path":"svg[0] > g[0] > g[3] > circle[0]","tag":"circle","attrs":{"cx":"1.5001923289555077e-15","cy":"-24.5","r":"6"}},
+        {"path":"svg[0] > g[0] > g[3] > circle[1]","tag":"circle","attrs":{"cx":"24.248711305964285","cy":"13.999999999999995","r":"6"}},
+        {"path":"svg[0] > g[0] > g[3] > circle[2]","tag":"circle","attrs":{"cx":"-57.59068935166516","cy":"33.25000000000002","r":"6"}}
+      ],
+      "removed": []
+    },
+    {
+      "id": "hover-leave",
+      "label": "Leave",
+      "status": "done",
+      "settleMs": 207,
+      "changed": [],
+      "removed": []
+    }
+  ]
+}

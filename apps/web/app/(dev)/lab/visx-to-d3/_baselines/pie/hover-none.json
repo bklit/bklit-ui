@@ -1,0 +1,74 @@
+{
+  "schema": 1,
+  "chart": "pie",
+  "variant": "hover-none",
+  "label": "hoverEffect \"none\"",
+  "frame": {
+    "width": 320,
+    "height": 320
+  },
+  "recordedAt": "2026-10-30T13:50:19.772Z",
+  "machine": "dev · Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz × 8 · 8 threads · DPR 1",
+  "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+  "hover": true,
+  "hoverTargetCount": 5,
+  "steps": [
+    {
+      "id": "enter",
+      "label": "Enter",
+      "status": "done",
+      "settleMs": 1576,
+      "nodes": [
+        {"path":"svg[0]","tag":"svg","attrs":{"width":"280","height":"280"}},
+        {"path":"svg[0] > g[0]","tag":"g","attrs":{"transform":"translate(140, 140)"}},
+        {"path":"svg[0] > g[0] > g[0]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[0] > path[0]","tag":"path","attrs":{"d":"M-130,0A130,130,0,0,1,77.229,-104.574L0,0Z"}},
+        {"path":"svg[0] > g[0] > g[0] > path[1]","tag":"path","attrs":{"d":"M-130,0A130,130,0,0,1,77.229,-104.574L0,0Z"}},
+        {"path":"svg[0] > g[0] > g[1]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[1] > path[0]","tag":"path","attrs":{"d":"M77.229,-104.574A130,130,0,0,1,100.638,82.292L0,0Z"}},
+        {"path":"svg[0] > g[0] > g[1] > path[1]","tag":"path","attrs":{"d":"M77.229,-104.574A130,130,0,0,1,100.638,82.292L0,0Z"}},
+        {"path":"svg[0] > g[0] > g[2]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[2] > path[0]","tag":"path","attrs":{"d":"M100.638,82.292A130,130,0,0,1,-26.478,127.275L0,0Z"}},
+        {"path":"svg[0] > g[0] > g[2] > path[1]","tag":"path","attrs":{"d":"M100.638,82.292A130,130,0,0,1,-26.478,127.275L0,0Z"}},
+        {"path":"svg[0] > g[0] > g[3]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[3] > path[0]","tag":"path","attrs":{"d":"M-26.478,127.275A130,130,0,0,1,-111.151,67.42L0,0Z"}},
+        {"path":"svg[0] > g[0] > g[3] > path[1]","tag":"path","attrs":{"d":"M-26.478,127.275A130,130,0,0,1,-111.151,67.42L0,0Z"}},
+        {"path":"svg[0] > g[0] > g[4]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[4] > path[0]","tag":"path","attrs":{"d":"M-111.151,67.42A130,130,0,0,1,-130,0L0,0Z"}},
+        {"path":"svg[0] > g[0] > g[4] > path[1]","tag":"path","attrs":{"d":"M-111.151,67.42A130,130,0,0,1,-130,0L0,0Z"}}
+      ]
+    },
+    {
+      "id": "hover-0",
+      "label": "Hover #0 (path)",
+      "status": "done",
+      "settleMs": 177,
+      "changed": [],
+      "removed": []
+    },
+    {
+      "id": "hover-2",
+      "label": "Hover #2 (path)",
+      "status": "done",
+      "settleMs": 164,
+      "changed": [],
+      "removed": []
+    },
+    {
+      "id": "hover-4",
+      "label": "Hover #4 (path)",
+      "status": "done",
+      "settleMs": 164,
+      "changed": [],
+      "removed": []
+    },
+    {
+      "id": "hover-leave",
+      "label": "Leave",
+      "status": "done",
+      "settleMs": 158,
+      "changed": [],
+      "removed": []
+    }
+  ]
+}

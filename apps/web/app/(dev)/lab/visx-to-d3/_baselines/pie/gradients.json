@@ -1,0 +1,87 @@
+{
+  "schema": 1,
+  "chart": "pie",
+  "variant": "gradients",
+  "label": "Gradients",
+  "frame": {
+    "width": 320,
+    "height": 320
+  },
+  "recordedAt": "2026-10-30T13:49:23.558Z",
+  "machine": "dev · Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz × 8 · 8 threads · DPR 1",
+  "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+  "hover": true,
+  "hoverTargetCount": 3,
+  "steps": [
+    {
+      "id": "enter",
+      "label": "Enter",
+      "status": "done",
+      "settleMs": 1408,
+      "nodes": [
+        {"path":"svg[0]","tag":"svg","attrs":{"width":"260","height":"260"}},
+        {"path":"svg[0] > defs[0]","tag":"defs","attrs":{}},
+        {"path":"svg[0] > defs[0] > defs[0]","tag":"defs","attrs":{}},
+        {"path":"svg[0] > defs[0] > defs[0] > radialgradient[0]","tag":"radialgradient","attrs":{}},
+        {"path":"svg[0] > defs[0] > defs[0] > radialgradient[0] > stop[0]","tag":"stop","attrs":{}},
+        {"path":"svg[0] > defs[0] > defs[0] > radialgradient[0] > stop[1]","tag":"stop","attrs":{}},
+        {"path":"svg[0] > defs[0] > defs[1]","tag":"defs","attrs":{}},
+        {"path":"svg[0] > defs[0] > defs[1] > radialgradient[0]","tag":"radialgradient","attrs":{}},
+        {"path":"svg[0] > defs[0] > defs[1] > radialgradient[0] > stop[0]","tag":"stop","attrs":{}},
+        {"path":"svg[0] > defs[0] > defs[1] > radialgradient[0] > stop[1]","tag":"stop","attrs":{}},
+        {"path":"svg[0] > defs[0] > defs[2]","tag":"defs","attrs":{}},
+        {"path":"svg[0] > defs[0] > defs[2] > radialgradient[0]","tag":"radialgradient","attrs":{}},
+        {"path":"svg[0] > defs[0] > defs[2] > radialgradient[0] > stop[0]","tag":"stop","attrs":{}},
+        {"path":"svg[0] > defs[0] > defs[2] > radialgradient[0] > stop[1]","tag":"stop","attrs":{}},
+        {"path":"svg[0] > g[0]","tag":"g","attrs":{"transform":"translate(130, 130)"}},
+        {"path":"svg[0] > g[0] > g[0]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[0] > path[0]","tag":"path","attrs":{"d":"M-120,0A120,120,0,0,1,97.082,-70.534L0,0Z"}},
+        {"path":"svg[0] > g[0] > g[0] > path[1]","tag":"path","attrs":{"d":"M-120,0A120,120,0,0,1,97.082,-70.534L0,0Z"}},
+        {"path":"svg[0] > g[0] > g[1]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[1] > path[0]","tag":"path","attrs":{"d":"M97.082,-70.534A120,120,0,0,1,37.082,114.127L0,0Z"}},
+        {"path":"svg[0] > g[0] > g[1] > path[1]","tag":"path","attrs":{"d":"M97.082,-70.534A120,120,0,0,1,37.082,114.127L0,0Z"}},
+        {"path":"svg[0] > g[0] > g[2]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[2] > path[0]","tag":"path","attrs":{"d":"M37.082,114.127A120,120,0,0,1,-120,0L0,0Z"}},
+        {"path":"svg[0] > g[0] > g[2] > path[1]","tag":"path","attrs":{"d":"M37.082,114.127A120,120,0,0,1,-120,0L0,0Z"}}
+      ]
+    },
+    {
+      "id": "hover-0",
+      "label": "Hover #0 (path)",
+      "status": "done",
+      "settleMs": 609,
+      "changed": [
+        {"path":"svg[0] > g[0] > g[0] > path[1]","tag":"path","attrs":{"d":"M-120,0A120,120,0,0,1,97.082,-70.534L0,0Z","style.transform":"translateX(-3.09017px) translateY(-9.51057px)"}}
+      ],
+      "removed": []
+    },
+    {
+      "id": "hover-1",
+      "label": "Hover #1 (path)",
+      "status": "done",
+      "settleMs": 600,
+      "changed": [
+        {"path":"svg[0] > g[0] > g[1] > path[1]","tag":"path","attrs":{"d":"M97.082,-70.534A120,120,0,0,1,37.082,114.127L0,0Z","style.transform":"translateX(9.51057px) translateY(3.09017px)"}}
+      ],
+      "removed": []
+    },
+    {
+      "id": "hover-2",
+      "label": "Hover #2 (path)",
+      "status": "done",
+      "settleMs": 612,
+      "changed": [
+        {"path":"svg[0] > g[0] > g[2] > path[1]","tag":"path","attrs":{"d":"M37.082,114.127A120,120,0,0,1,-120,0L0,0Z","style.transform":"translateX(-5.87785px) translateY(8.09017px)"}}
+      ],
+      "removed": []
+    },
+    {
+      "id": "hover-leave",
+      "label": "Leave",
+      "status": "done",
+      "settleMs": 358,
+      "changed": [],
+      "removed": []
+    }
+  ]
+}

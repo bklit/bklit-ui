@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import type { BaselineBenchmark } from "./bench/baseline";
 import type { RunRecord } from "./bench/run-benchmark";
 import {
   type MetricSummary,
@@ -11,6 +12,13 @@ import {
   type Verdict,
 } from "./bench/summary";
 import type { BenchmarkOutcome } from "./benchmark-section";
+
+/** Single-sided variants: the live run vs medians stored in the baseline. */
+export interface BaselineBenchmarkProps {
+  reference: BaselineBenchmark | null;
+  onStore: () => void;
+  storeState: string | null;
+}
 
 const VERDICT_CLASS: Record<Verdict, string> = {
   faster: "text-emerald-600 dark:text-emerald-400",
@@ -58,9 +66,11 @@ function buildJson(outcome: BenchmarkOutcome, summary: MetricSummary[]) {
 export function BenchmarkResults({
   outcome,
   summary,
+  baseline,
 }: {
   outcome: BenchmarkOutcome;
   summary: MetricSummary[];
+  baseline: BaselineBenchmarkProps | null;
 }) {
   const [copied, setCopied] = useState(false);
   const profilerMissing = outcome.records.every((r) => r.commits === 0);
@@ -92,10 +102,19 @@ export function BenchmarkResults({
             </Badge>
           ) : null}
         </div>
-        <Button onClick={copy} size="xs" variant="outline">
-          {copied ? "Copied" : "Copy results as JSON"}
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          {baseline ? (
+            <StoreMediansButton
+              baseline={baseline}
+              disabled={outcome.cancelled}
+            />
+          ) : null}
+          <Button onClick={copy} size="xs" variant="outline">
+            {copied ? "Copied" : "Copy results as JSON"}
+          </Button>
+        </div>
       </div>
+      {baseline ? <ReferenceNote reference={baseline.reference} /> : null}
 
       <div className="overflow-x-auto rounded-lg border">
         <table className="w-full text-sm tabular-nums">
@@ -105,9 +124,11 @@ export function BenchmarkResults({
                 Metric (median)
               </th>
               <th className="px-3 py-2 text-right font-medium">
-                Before · visx
+                {baseline ? "Baseline" : "Before · visx"}
               </th>
-              <th className="px-3 py-2 text-right font-medium">After · d3</th>
+              <th className="px-3 py-2 text-right font-medium">
+                {baseline ? "Live" : "After · d3"}
+              </th>
               <th className="px-3 py-2 text-right font-medium">Δ</th>
             </tr>
           </thead>
@@ -232,5 +253,51 @@ function RunsTable({ records }: { records: RunRecord[] }) {
         </table>
       </div>
     </details>
+  );
+}
+
+function StoreMediansButton({
+  baseline,
+  disabled,
+}: {
+  baseline: BaselineBenchmarkProps;
+  disabled: boolean;
+}) {
+  return (
+    <>
+      {baseline.storeState ? (
+        <span className="text-muted-foreground text-xs">
+          {baseline.storeState}
+        </span>
+      ) : null}
+      <Button
+        disabled={disabled}
+        onClick={baseline.onStore}
+        size="xs"
+        variant="outline"
+      >
+        Store medians in baseline
+      </Button>
+    </>
+  );
+}
+
+function ReferenceNote({ reference }: { reference: BaselineBenchmark | null }) {
+  if (!reference) {
+    return (
+      <p className="text-muted-foreground text-xs">
+        No benchmark medians stored in this variant&apos;s baseline yet: the
+        Baseline column is empty.
+      </p>
+    );
+  }
+  const copies = `${reference.copies} ${reference.copies === 1 ? "copy" : "copies"}`;
+  return (
+    <p className="text-muted-foreground text-xs">
+      Baseline medians: {reference.machine}, {reference.recordedAt} (
+      {reference.iterations} iterations, {copies}
+      {reference.hover ? ", hover pass" : ""}). Only compare runs with the same
+      settings on the same machine.
+    </p>
   );
 }

@@ -20,10 +20,30 @@ export interface SettleResult {
 const POLL_MS = 50;
 
 /**
+ * Web Animations (CSS animations / transitions, `element.animate`) change
+ * what is painted without touching the DOM, so the observer never sees them.
+ * Finite ones still running keep the target "moving"; infinite ones (loading
+ * loops) are ignored, they would never settle anyway.
+ */
+function hasRunningFiniteAnimation(target: Node): boolean {
+  if (!(target instanceof Element)) {
+    return false;
+  }
+  return target.getAnimations({ subtree: true }).some((animation) => {
+    if (animation.playState !== "running") {
+      return false;
+    }
+    const end = animation.effect?.getComputedTiming().endTime;
+    return typeof end === "number" && Number.isFinite(end);
+  });
+}
+
+/**
  * Resolves once `target`'s subtree has gone `quietMs` without any attribute,
  * child list or text mutation. Motion writes `d`, `transform` and inline
  * styles straight to the DOM every frame, so a quiet window means every enter
- * tween / spring has come to rest. Starts observing immediately: call it
+ * tween / spring has come to rest (finite Web Animations count as motion
+ * too). Starts observing immediately: call it
  * before (or in the same task as) the change you want to time.
  */
 export function waitForSettle(
@@ -72,6 +92,9 @@ export function waitForSettle(
       if (pending.length > 0) {
         lastMutationAt = performance.now();
         mutationRecords += pending.length;
+      }
+      if (hasRunningFiniteAnimation(target)) {
+        lastMutationAt = performance.now();
       }
       const now = performance.now();
       if (now - lastMutationAt >= quietMs) {

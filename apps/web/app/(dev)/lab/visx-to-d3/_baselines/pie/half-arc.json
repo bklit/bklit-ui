@@ -1,0 +1,80 @@
+{
+  "schema": 1,
+  "chart": "pie",
+  "variant": "half-arc",
+  "label": "Half arc",
+  "frame": {
+    "width": 320,
+    "height": 320
+  },
+  "recordedAt": "2026-10-30T13:50:32.636Z",
+  "machine": "dev · Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz × 8 · 8 threads · DPR 1",
+  "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+  "hover": true,
+  "hoverTargetCount": 5,
+  "steps": [
+    {
+      "id": "enter",
+      "label": "Enter",
+      "status": "done",
+      "settleMs": 1589,
+      "nodes": [
+        {"path":"svg[0]","tag":"svg","attrs":{"width":"280","height":"280"}},
+        {"path":"svg[0] > g[0]","tag":"g","attrs":{"transform":"translate(140, 140)"}},
+        {"path":"svg[0] > g[0] > g[0]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[0] > path[0]","tag":"path","attrs":{"d":"M-130,0A130,130,0,0,1,-77.302,-104.52L-41.624,-56.28A70,70,0,0,0,-70,0Z"}},
+        {"path":"svg[0] > g[0] > g[0] > path[1]","tag":"path","attrs":{"d":"M-130,0A130,130,0,0,1,-77.302,-104.52L-41.624,-56.28A70,70,0,0,0,-70,0Z"}},
+        {"path":"svg[0] > g[0] > g[1]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[1] > path[0]","tag":"path","attrs":{"d":"M-77.302,-104.52A130,130,0,0,1,5.517,-129.883L2.971,-69.937A70,70,0,0,0,-41.624,-56.28Z"}},
+        {"path":"svg[0] > g[0] > g[1] > path[1]","tag":"path","attrs":{"d":"M-77.302,-104.52A130,130,0,0,1,5.517,-129.883L2.971,-69.937A70,70,0,0,0,-41.624,-56.28Z"}},
+        {"path":"svg[0] > g[0] > g[2]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[2] > path[0]","tag":"path","attrs":{"d":"M5.517,-129.883A130,130,0,0,1,81.497,-101.283L43.883,-54.537A70,70,0,0,0,2.971,-69.937Z"}},
+        {"path":"svg[0] > g[0] > g[2] > path[1]","tag":"path","attrs":{"d":"M5.517,-129.883A130,130,0,0,1,81.497,-101.283L43.883,-54.537A70,70,0,0,0,2.971,-69.937Z"}},
+        {"path":"svg[0] > g[0] > g[3]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[3] > path[0]","tag":"path","attrs":{"d":"M81.497,-101.283A130,130,0,0,1,123.974,-39.121L66.755,-21.065A70,70,0,0,0,43.883,-54.537Z"}},
+        {"path":"svg[0] > g[0] > g[3] > path[1]","tag":"path","attrs":{"d":"M81.497,-101.283A130,130,0,0,1,123.974,-39.121L66.755,-21.065A70,70,0,0,0,43.883,-54.537Z"}},
+        {"path":"svg[0] > g[0] > g[4]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[4] > path[0]","tag":"path","attrs":{"d":"M123.974,-39.121A130,130,0,0,1,130,0L70,0A70,70,0,0,0,66.755,-21.065Z"}},
+        {"path":"svg[0] > g[0] > g[4] > path[1]","tag":"path","attrs":{"d":"M123.974,-39.121A130,130,0,0,1,130,0L70,0A70,70,0,0,0,66.755,-21.065Z"}}
+      ]
+    },
+    {
+      "id": "hover-0",
+      "label": "Hover #0 (path)",
+      "status": "done",
+      "settleMs": 616,
+      "changed": [
+        {"path":"svg[0] > g[0] > g[0] > path[1]","tag":"path","attrs":{"d":"M-130,0A130,130,0,0,1,-77.302,-104.52L-41.624,-56.28A70,70,0,0,0,-70,0Z","style.transform":"translateX(-8.92926px) translateY(-4.50204px)"}}
+      ],
+      "removed": []
+    },
+    {
+      "id": "hover-2",
+      "label": "Hover #2 (path)",
+      "status": "done",
+      "settleMs": 624,
+      "changed": [
+        {"path":"svg[0] > g[0] > g[2] > path[1]","tag":"path","attrs":{"d":"M5.517,-129.883A130,130,0,0,1,81.497,-101.283L43.883,-54.537A70,70,0,0,0,2.971,-69.937Z","style.transform":"translateX(3.52283px) translateY(-9.35893px)"}}
+      ],
+      "removed": []
+    },
+    {
+      "id": "hover-4",
+      "label": "Hover #4 (path)",
+      "status": "done",
+      "settleMs": 620,
+      "changed": [
+        {"path":"svg[0] > g[0] > g[4] > path[1]","tag":"path","attrs":{"d":"M123.974,-39.121A130,130,0,0,1,130,0L70,0A70,70,0,0,0,66.755,-21.065Z","style.transform":"translateX(9.88344px) translateY(-1.5224px)"}}
+      ],
+      "removed": []
+    },
+    {
+      "id": "hover-leave",
+      "label": "Leave",
+      "status": "done",
+      "settleMs": 607,
+      "changed": [],
+      "removed": []
+    }
+  ]
+}

@@ -2,20 +2,22 @@
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback } from "react";
+import { BaselinePreview } from "./baseline-preview";
 import { BenchmarkSection } from "./benchmark-section";
+import { LAB_FIXTURES, resolveTarget } from "./fixtures";
+import { PillPicker } from "./lab-controls";
 import {
   isLabChartSlug,
-  LAB_FIXTURES,
+  LAB_CHART_SLUGS,
   type LabChartSlug,
-  resolveTarget,
-} from "./fixtures";
-import { ChoiceControl, PillPicker } from "./lab-controls";
+} from "./lab-slugs";
 import { PreviewSection } from "./preview-section";
 import { SweepSection } from "./sweep-section";
 
-const CHART_OPTIONS = (Object.keys(LAB_FIXTURES) as LabChartSlug[]).map(
-  (slug) => ({ value: slug, label: LAB_FIXTURES[slug].label })
-);
+const CHART_OPTIONS = LAB_CHART_SLUGS.map((slug) => ({
+  value: slug,
+  label: `${LAB_FIXTURES[slug].label} (${LAB_FIXTURES[slug].variants.length})`,
+}));
 
 export function LabClient() {
   const router = useRouter();
@@ -52,20 +54,32 @@ export function LabClient() {
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div className="flex flex-col gap-1">
             <h1 className="font-semibold text-2xl">visx → d3 lab</h1>
-            <p className="max-w-2xl text-muted-foreground text-sm">
-              Before is the frozen visx snapshot ({fixture.legacyParts} from{" "}
-              <code>legacy-visx/</code>); After is the migrated d3 version from{" "}
-              <code>@bklitui/ui/charts</code>. Same props, same data, same
-              frame. Hidden page: not on the production deployment.
+            <p className="max-w-3xl text-muted-foreground text-sm">
+              {fixture.legacyParts ? (
+                <>
+                  Before is the frozen visx snapshot ({fixture.legacyParts} from{" "}
+                  <code>legacy-visx/</code>); After is the migrated d3 version
+                  from <code>@bklitui/ui/charts</code>. Same props, same data,
+                  same frame.
+                </>
+              ) : (
+                <>
+                  No legacy copy: the live chart from{" "}
+                  <code>@bklitui/ui/charts</code> is compared against a golden
+                  baseline recorded on the pre-migration code (
+                  <code>_baselines/{chart}/</code>).
+                </>
+              )}{" "}
+              Hidden page: not on the production deployment.
             </p>
           </div>
-          <ChoiceControl
-            label="Chart"
-            onChange={(next) => select(next, null)}
-            options={CHART_OPTIONS}
-            value={chart}
-          />
         </div>
+        <PillPicker
+          label="Chart"
+          onChange={(next) => select(next, null)}
+          options={CHART_OPTIONS}
+          value={chart}
+        />
         <PillPicker
           label={`Variant (${fixture.variants.length})`}
           onChange={(next) => select(chart, next)}
@@ -73,7 +87,11 @@ export function LabClient() {
           value={target.variant.id}
         />
       </header>
-      <PreviewSection key={`preview-${key}`} target={target} />
+      {target.variant.kind === "single" ? (
+        <BaselinePreview key={`preview-${key}`} target={target} />
+      ) : (
+        <PreviewSection key={`preview-${key}`} target={target} />
+      )}
       <SweepSection chart={chart} onSelect={select} />
       <BenchmarkSection key={`bench-${key}`} target={target} />
     </>

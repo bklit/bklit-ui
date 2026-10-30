@@ -1,0 +1,109 @@
+{
+  "schema": 1,
+  "chart": "bar",
+  "variant": "no-gap",
+  "label": "No gap + line indicator",
+  "frame": {
+    "width": 640,
+    "height": 360
+  },
+  "recordedAt": "2026-10-30T14:15:44.260Z",
+  "machine": "dev · Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz × 8 · 8 threads · DPR 1",
+  "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+  "hover": true,
+  "hoverTargetCount": 3,
+  "steps": [
+    {
+      "id": "enter",
+      "label": "Enter",
+      "status": "done",
+      "settleMs": 1597,
+      "nodes": [
+        {"path":"svg[0]","tag":"svg","attrs":{"width":"638","height":"319"}},
+        {"path":"svg[0] > defs[0]","tag":"defs","attrs":{}},
+        {"path":"svg[0] > defs[0] > defs[0]","tag":"defs","attrs":{}},
+        {"path":"svg[0] > defs[0] > defs[0] > lineargradient[0]","tag":"lineargradient","attrs":{"x1":"0","y1":"0","x2":"0","y2":"1"}},
+        {"path":"svg[0] > defs[0] > defs[0] > lineargradient[0] > stop[0]","tag":"stop","attrs":{}},
+        {"path":"svg[0] > defs[0] > defs[0] > lineargradient[0] > stop[1]","tag":"stop","attrs":{}},
+        {"path":"svg[0] > rect[0]","tag":"rect","attrs":{"x":"0","y":"0","width":"638","height":"319"}},
+        {"path":"svg[0] > g[0]","tag":"g","attrs":{"transform":"translate(8,20)"}},
+        {"path":"svg[0] > g[0] > rect[0]","tag":"rect","attrs":{"x":"0","y":"0","width":"622","height":"259"}},
+        {"path":"svg[0] > g[0] > g[0]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[0] > defs[0]","tag":"defs","attrs":{}},
+        {"path":"svg[0] > g[0] > g[0] > defs[0] > lineargradient[0]","tag":"lineargradient","attrs":{"x1":"0%","y1":"0%","x2":"100%","y2":"0%"}},
+        {"path":"svg[0] > g[0] > g[0] > defs[0] > lineargradient[0] > stop[0]","tag":"stop","attrs":{}},
+        {"path":"svg[0] > g[0] > g[0] > defs[0] > lineargradient[0] > stop[1]","tag":"stop","attrs":{}},
+        {"path":"svg[0] > g[0] > g[0] > defs[0] > lineargradient[0] > stop[2]","tag":"stop","attrs":{}},
+        {"path":"svg[0] > g[0] > g[0] > defs[0] > lineargradient[0] > stop[3]","tag":"stop","attrs":{}},
+        {"path":"svg[0] > g[0] > g[0] > defs[0] > mask[0]","tag":"mask","attrs":{}},
+        {"path":"svg[0] > g[0] > g[0] > defs[0] > mask[0] > rect[0]","tag":"rect","attrs":{"x":"0","y":"0","width":"622","height":"259"}},
+        {"path":"svg[0] > g[0] > g[0] > g[0]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[0] > g[0] > g[0]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[0] > g[0] > g[0] > line[0]","tag":"line","attrs":{"x1":"0","y1":"259","x2":"622","y2":"259"}},
+        {"path":"svg[0] > g[0] > g[0] > g[0] > g[0] > line[1]","tag":"line","attrs":{"x1":"0","y1":"205.04166666666666","x2":"622","y2":"205.04166666666666"}},
+        {"path":"svg[0] > g[0] > g[0] > g[0] > g[0] > line[2]","tag":"line","attrs":{"x1":"0","y1":"151.08333333333331","x2":"622","y2":"151.08333333333331"}},
+        {"path":"svg[0] > g[0] > g[0] > g[0] > g[0] > line[3]","tag":"line","attrs":{"x1":"0","y1":"97.125","x2":"622","y2":"97.125"}},
+        {"path":"svg[0] > g[0] > g[0] > g[0] > g[0] > line[4]","tag":"line","attrs":{"x1":"0","y1":"43.16666666666666","x2":"622","y2":"43.16666666666666"}},
+        {"path":"svg[0] > g[0] > g[1]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[1] > g[0]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[1] > g[0] > rect[0]","tag":"rect","attrs":{"rx":"0","ry":"0","x":"0","y":"129.5","width":"103.66666666666667","height":"129.5"}},
+        {"path":"svg[0] > g[0] > g[1] > g[1]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[1] > g[1] > rect[0]","tag":"rect","attrs":{"rx":"0","ry":"0","x":"103.66666666666667","y":"91.72916666666666","width":"103.66666666666667","height":"167.27083333333334"}},
+        {"path":"svg[0] > g[0] > g[1] > g[2]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[1] > g[2] > rect[0]","tag":"rect","attrs":{"rx":"0","ry":"0","x":"207.33333333333334","y":"140.29166666666669","width":"103.66666666666667","height":"118.70833333333331"}},
+        {"path":"svg[0] > g[0] > g[1] > g[3]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[1] > g[3] > rect[0]","tag":"rect","attrs":{"rx":"0","ry":"0","x":"311","y":"59.35416666666666","width":"103.66666666666667","height":"199.64583333333334"}},
+        {"path":"svg[0] > g[0] > g[1] > g[4]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[1] > g[4] > rect[0]","tag":"rect","attrs":{"rx":"0","ry":"0","x":"414.6666666666667","y":"77.70000000000002","width":"103.66666666666667","height":"181.29999999999998"}},
+        {"path":"svg[0] > g[0] > g[1] > g[5]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[1] > g[5] > rect[0]","tag":"rect","attrs":{"rx":"0","ry":"0","x":"518.3333333333334","y":"30.216666666666676","width":"103.66666666666667","height":"228.78333333333333"}},
+        {"path":"svg[1]","tag":"svg","attrs":{"width":"100%","height":"100%"}},
+        {"path":"svg[1] > g[0]","tag":"g","attrs":{"transform":"translate(8,20)"}},
+        {"path":"svg[1] > g[0] > rect[0]","tag":"rect","attrs":{"x":"0","width":"103.66666666666667","height":"2","style.transform":"translateY(259px)"}},
+        {"path":"svg[1] > g[0] > rect[1]","tag":"rect","attrs":{"x":"103.66666666666667","width":"103.66666666666667","height":"2","style.transform":"translateY(259px)"}},
+        {"path":"svg[1] > g[0] > rect[2]","tag":"rect","attrs":{"x":"207.33333333333334","width":"103.66666666666667","height":"2","style.transform":"translateY(259px)"}},
+        {"path":"svg[1] > g[0] > rect[3]","tag":"rect","attrs":{"x":"311","width":"103.66666666666667","height":"2","style.transform":"translateY(259px)"}},
+        {"path":"svg[1] > g[0] > rect[4]","tag":"rect","attrs":{"x":"414.6666666666667","width":"103.66666666666667","height":"2","style.transform":"translateY(259px)"}},
+        {"path":"svg[1] > g[0] > rect[5]","tag":"rect","attrs":{"x":"518.3333333333334","width":"103.66666666666667","height":"2","style.transform":"translateY(259px)"}}
+      ]
+    },
+    {
+      "id": "hover-0",
+      "label": "Hover #0 (rect @ 15%,15%)",
+      "status": "done",
+      "settleMs": 917,
+      "changed": [
+        {"path":"svg[1] > g[0] > rect[0]","tag":"rect","attrs":{"x":"0","width":"103.66666666666667","height":"2","style.transform":"translateY(129.5px)"}}
+      ],
+      "removed": []
+    },
+    {
+      "id": "hover-1",
+      "label": "Hover #1 (rect @ 50%,50%)",
+      "status": "done",
+      "settleMs": 1581,
+      "changed": [
+        {"path":"svg[1] > g[0] > rect[3]","tag":"rect","attrs":{"x":"311","width":"103.66666666666667","height":"2","style.transform":"translateY(59.3542px)"}}
+      ],
+      "removed": []
+    },
+    {
+      "id": "hover-2",
+      "label": "Hover #2 (rect @ 85%,85%)",
+      "status": "done",
+      "settleMs": 1106,
+      "changed": [
+        {"path":"svg[1] > g[0] > rect[5]","tag":"rect","attrs":{"x":"518.3333333333334","width":"103.66666666666667","height":"2","style.transform":"translateY(30.2167px)"}}
+      ],
+      "removed": []
+    },
+    {
+      "id": "hover-leave",
+      "label": "Leave",
+      "status": "done",
+      "settleMs": 928,
+      "changed": [],
+      "removed": []
+    }
+  ]
+}

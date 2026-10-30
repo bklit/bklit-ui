@@ -10,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { type ParityStep, runHoverParity, settleAndDiff } from "./bench/parity";
-import type { LabTarget } from "./fixtures";
+import { type LabTarget, renderSide } from "./fixtures";
 import { ChoiceControl, Section } from "./lab-controls";
 import { type HoverParityState, ParityPanel } from "./parity-panel";
 
@@ -128,7 +128,7 @@ export function PreviewSection({ target }: { target: LabTarget }) {
           hideCaption={overlaid}
           width={target.width}
         >
-          <Fragment key={replayKey}>{target.render("before")}</Fragment>
+          <Fragment key={replayKey}>{renderSide(target, "before")}</Fragment>
         </ChartPanel>
         <ChartPanel
           caption="After · d3"
@@ -144,7 +144,7 @@ export function PreviewSection({ target }: { target: LabTarget }) {
           transparent={overlaid}
           width={target.width}
         >
-          <Fragment key={replayKey}>{target.render("after")}</Fragment>
+          <Fragment key={replayKey}>{renderSide(target, "after")}</Fragment>
         </ChartPanel>
       </div>
       <ParityPanel

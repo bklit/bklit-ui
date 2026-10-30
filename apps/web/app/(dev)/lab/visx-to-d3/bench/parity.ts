@@ -14,7 +14,41 @@ export interface ParityStep {
   note?: string;
 }
 
-export type HoverTargets = (root: Element) => Element[];
+/**
+ * Where a hover step points: an element, optionally at a fraction of its
+ * bounding box (cartesian charts hover by x on one big hit rect, so several
+ * steps share the element and differ in position). Default is the centre.
+ */
+export interface HoverTarget {
+  element: Element;
+  at?: { fx: number; fy: number };
+}
+
+export type HoverTargets = (root: Element) => HoverTarget[];
+
+/** Wraps plain elements as centre-pointed hover targets. */
+export function atCenters(elements: Iterable<Element>): HoverTarget[] {
+  return [...elements].map((element) => ({ element }));
+}
+
+/** Client point a hover target resolves to right now. */
+export function targetPoint(target: HoverTarget): { x: number; y: number } {
+  if (!target.at) {
+    return center(target.element) ?? { x: 0, y: 0 };
+  }
+  const rect = target.element.getBoundingClientRect();
+  return {
+    x: rect.left + rect.width * target.at.fx,
+    y: rect.top + rect.height * target.at.fy,
+  };
+}
+
+function describeTarget(target: HoverTarget): string {
+  const tag = target.element.tagName.toLowerCase();
+  return target.at
+    ? `${tag} @ ${Math.round(target.at.fx * 100)}%,${Math.round(target.at.fy * 100)}%`
+    : tag;
+}
 
 interface StepOptions {
   signal?: AbortSignal;
@@ -53,10 +87,6 @@ export async function settleAndDiff(
   };
 }
 
-function pointOf(element: Element) {
-  return center(element) ?? { x: 0, y: 0 };
-}
-
 /**
  * The out/over pair a real pointer produces when moving from `from` (or the
  * frame, `outside`) onto `target`. React derives `onMouseEnter` /
@@ -64,24 +94,33 @@ function pointOf(element: Element) {
  * `relatedTarget` is a React node), so the out half is required even when
  * entering from the empty frame.
  */
-function moveInto(target: Element, from: Element | null, outside: Element) {
-  const point = pointOf(target);
-  const source = from ?? outside;
-  fire(source, "pointerout", point, target);
-  fire(source, "mouseout", point, target);
-  fire(target, "pointerover", point, source);
-  fire(target, "mouseover", point, source);
-  fire(target, "pointermove", point, null);
-  fire(target, "mousemove", point, null);
+export function moveInto(
+  target: HoverTarget,
+  from: HoverTarget | null,
+  outside: Element
+) {
+  const point = targetPoint(target);
+  const element = target.element;
+  // Same element, new position: a real pointer only produces moves.
+  if (from?.element !== element) {
+    const source = from?.element ?? outside;
+    fire(source, "pointerout", point, element);
+    fire(source, "mouseout", point, element);
+    fire(element, "pointerover", point, source);
+    fire(element, "mouseover", point, source);
+  }
+  fire(element, "pointermove", point, null);
+  fire(element, "mousemove", point, null);
 }
 
 /** Leaves `from` towards `outside` (the frame), firing React's leave path. */
-function moveOut(from: Element, outside: Element) {
-  const point = pointOf(from);
-  fire(from, "pointerout", point, outside);
-  fire(from, "mouseout", point, outside);
-  fire(outside, "pointerover", point, from);
-  fire(outside, "mouseover", point, from);
+export function moveOut(from: HoverTarget, outside: Element) {
+  const point = targetPoint(from);
+  const element = from.element;
+  fire(element, "pointerout", point, outside);
+  fire(element, "mouseout", point, outside);
+  fire(outside, "pointerover", point, element);
+  fire(outside, "mouseover", point, element);
 }
 
 /** Target indices hovered in turn: first, middle and last (deduplicated). */
@@ -129,7 +168,7 @@ export async function runHoverParity(
     return [{ ...step, note: countNote ?? "No hover targets found" }];
   }
 
-  let previous: { before: Element; after: Element } | null = null;
+  let previous: { before: HoverTarget; after: HoverTarget } | null = null;
   for (const k of indices) {
     if (signal?.aborted) {
       return steps;
@@ -142,7 +181,7 @@ export async function runHoverParity(
     const from = previous;
     const step = await settleAndDiff(
       `hover-${k}`,
-      `Hover #${k} (${targetBefore.tagName.toLowerCase()})`,
+      `Hover #${k} (${describeTarget(targetBefore)})`,
       before,
       after,
       () => {

@@ -1,75 +1,126 @@
 "use client";
 
+import { atCenters, type HoverTarget, type HoverTargets } from "./bench/parity";
+import { LAB_CHART_SLUGS, type LabChartSlug } from "./lab-slugs";
+import { AREA_VARIANTS } from "./variants/area";
+import { BAR_VARIANTS } from "./variants/bar";
+import { CANDLESTICK_VARIANTS } from "./variants/candlestick";
+import { CHOROPLETH_VARIANTS } from "./variants/choropleth";
+import { choroplethCountryTargets } from "./variants/choropleth-data";
+import { COMPOSED_VARIANTS } from "./variants/composed";
+import { HEATMAP_VARIANTS } from "./variants/heatmap";
+import { LINE_VARIANTS } from "./variants/line";
+import { LIVE_LINE_VARIANTS } from "./variants/live-line";
 import { PIE_VARIANTS } from "./variants/pie";
+import { PROFIT_LOSS_VARIANTS } from "./variants/profit-loss";
 import { RADAR_VARIANTS } from "./variants/radar";
 import { RING_VARIANTS } from "./variants/ring";
 import { SANKEY_VARIANTS } from "./variants/sankey";
+import { SCATTER_VARIANTS } from "./variants/scatter";
+import { SPARKLINE_VARIANTS } from "./variants/sparkline";
 import type { LabSide, LabVariant } from "./variants/types";
 
 /**
- * Before (frozen visx snapshot) and After (d3 migration) for every documented
- * variation of each chart, ported from the gallery (`chart-examples.tsx`),
- * the docs demos and the recipes (see `variants/*`). Each variant has ONE
- * render function for both sides, so props, data and children are identical
- * and only the visx-touching components are swapped. The legacy roots reuse
- * the shared contexts, so children that are not part of the migration
- * (centers, axes, labels, legends, sankey nodes/links) are the normal exports
- * on both sides.
+ * Every documented variation of each chart, ported from the gallery
+ * (`chart-examples.tsx`), the docs demos and the recipes (see `variants/*`).
+ *
+ * Two kinds of variant (`variants/types.ts`):
+ * - pairs (pie, ring, radar, sankey): ONE render function for Before (frozen
+ *   visx snapshot in `legacy-visx/`) and After, so props, data and children
+ *   are identical and only the visx-touching components are swapped;
+ * - single-sided (the cartesian core, heatmap, choropleth): only the live
+ *   chart exists, compared against a recorded geometry baseline
+ *   (`_baselines/<chart>/<variant>.json`).
+ * Every variant can be recorded as a baseline (pairs record their After).
  */
 
+export type { LabChartSlug } from "./lab-slugs";
 export type { LabSide, LabVariant } from "./variants/types";
-
-export type LabChartSlug = "pie" | "ring" | "radar" | "sankey";
-
-export const LAB_CHART_SLUGS: readonly LabChartSlug[] = [
-  "pie",
-  "ring",
-  "radar",
-  "sankey",
-];
-
-export function isLabChartSlug(value: unknown): value is LabChartSlug {
-  return (
-    typeof value === "string" &&
-    (LAB_CHART_SLUGS as readonly string[]).includes(value)
-  );
-}
 
 export interface LabChartFixture {
   label: string;
-  /** Default frame every copy renders in, so both sides lay out identically. */
+  /** Default frame every copy renders in, so every run lays out identically. */
   width: number;
   height: number;
-  /** Which files are swapped on the Before side. */
-  legacyParts: string;
+  /** Which files are swapped on the Before side; `null`: single-sided. */
+  legacyParts: string | null;
   variants: readonly LabVariant[];
   /**
-   * Elements the hover-parity step points at, in document order. Run on both
-   * sides; step k hovers element k of each list.
+   * Where the hover steps point, in document order. Step k hovers target k
+   * (first, middle and last are used).
    */
-  hoverTargets: (root: Element) => Element[];
+  hoverTargets: HoverTargets;
 }
 
 /** Pie slices and rings: the transparent hitbox path that owns the hover. */
-function transparentHitboxes(root: Element): Element[] {
-  return [...root.querySelectorAll('svg path[fill="transparent"]')];
+function transparentHitboxes(root: Element): HoverTarget[] {
+  return atCenters(root.querySelectorAll('svg path[fill="transparent"]'));
 }
 
 /** `RadarArea` groups (pointer cursor + a path child). */
-function radarAreas(root: Element): Element[] {
-  return [...root.querySelectorAll('svg g[style*="cursor"]')]
-    .map((g) => g.querySelector(":scope > path"))
-    .filter((path): path is SVGPathElement => path !== null);
+function radarAreas(root: Element): HoverTarget[] {
+  return atCenters(
+    [...root.querySelectorAll('svg g[style*="cursor"]')]
+      .map((g) => g.querySelector(":scope > path"))
+      .filter((path): path is SVGPathElement => path !== null)
+  );
 }
 
 /** Sankey links (pointer-cursor paths) then nodes (pointer-cursor groups). */
-function sankeyLinksThenNodes(root: Element): Element[] {
+function sankeyLinksThenNodes(root: Element): HoverTarget[] {
   const links = [...root.querySelectorAll('svg path[style*="cursor"]')];
   const nodes = [...root.querySelectorAll('svg g[style*="cursor"]')]
     .map((g) => g.querySelector(":scope > rect"))
     .filter((rect): rect is SVGRectElement => rect !== null);
-  return [...links, ...nodes];
+  return atCenters([...links, ...nodes]);
 }
+
+/** Positions (fraction of the hit rect) the cartesian hover steps visit. */
+const PLOT_FRACTIONS = [0.15, 0.5, 0.85] as const;
+
+/**
+ * Cartesian charts (time-series shell, bar, scatter, candlestick, live line)
+ * listen on the plot `<g transform="translate(margin)">`, whose first child
+ * is a transparent hit rect the size of the plot. Hover moves along its
+ * diagonal (x picks the point / band; y matters for horizontal bars and
+ * nearest-point scatter). First chart only (brush charts render a second).
+ */
+export function plotHitRect(root: Element): HoverTarget[] {
+  const rect = root.querySelector(
+    'svg > g[transform] > rect[fill="transparent"]:first-child'
+  );
+  if (!rect) {
+    return [];
+  }
+  return PLOT_FRACTIONS.map((f) => ({ element: rect, at: { fx: f, fy: f } }));
+}
+
+/** Sparkline: pointer handlers on the `<svg role="img">` itself. */
+function sparklineSvg(root: Element): HoverTarget[] {
+  const svg = root.querySelector('svg[role="img"]');
+  if (!svg) {
+    return [];
+  }
+  return PLOT_FRACTIONS.map((f) => ({
+    element: svg,
+    at: { fx: f, fy: 0.5 },
+  }));
+}
+
+/**
+ * Heatmap cells: the hit rect of each cell group (the first `rect`, followed
+ * by the `pointer-events="none"` shimmer rect). Structural on purpose: no
+ * visx class names, and no `cursor` style (missing after loading → ready).
+ */
+function heatmapCells(root: Element): HoverTarget[] {
+  return atCenters(
+    root.querySelectorAll(
+      'svg g > rect:first-child:has(+ rect[pointer-events="none"])'
+    )
+  );
+}
+
+const CARTESIAN = { width: 640, height: 360, legacyParts: null } as const;
 
 export const LAB_FIXTURES: Record<LabChartSlug, LabChartFixture> = {
   pie: {
@@ -104,6 +155,78 @@ export const LAB_FIXTURES: Record<LabChartSlug, LabChartFixture> = {
     variants: SANKEY_VARIANTS,
     hoverTargets: sankeyLinksThenNodes,
   },
+  line: {
+    label: "Line",
+    ...CARTESIAN,
+    variants: LINE_VARIANTS,
+    hoverTargets: plotHitRect,
+  },
+  area: {
+    label: "Area",
+    ...CARTESIAN,
+    variants: AREA_VARIANTS,
+    hoverTargets: plotHitRect,
+  },
+  bar: {
+    label: "Bar",
+    ...CARTESIAN,
+    variants: BAR_VARIANTS,
+    hoverTargets: plotHitRect,
+  },
+  composed: {
+    label: "Composed",
+    ...CARTESIAN,
+    variants: COMPOSED_VARIANTS,
+    hoverTargets: plotHitRect,
+  },
+  scatter: {
+    label: "Scatter",
+    ...CARTESIAN,
+    variants: SCATTER_VARIANTS,
+    hoverTargets: plotHitRect,
+  },
+  sparkline: {
+    label: "Sparkline",
+    width: 320,
+    height: 160,
+    legacyParts: null,
+    variants: SPARKLINE_VARIANTS,
+    hoverTargets: sparklineSvg,
+  },
+  candlestick: {
+    label: "Candlestick",
+    ...CARTESIAN,
+    variants: CANDLESTICK_VARIANTS,
+    hoverTargets: plotHitRect,
+  },
+  "profit-loss": {
+    label: "Profit/Loss",
+    ...CARTESIAN,
+    variants: PROFIT_LOSS_VARIANTS,
+    hoverTargets: plotHitRect,
+  },
+  "live-line": {
+    label: "Live line",
+    ...CARTESIAN,
+    variants: LIVE_LINE_VARIANTS,
+    hoverTargets: plotHitRect,
+  },
+  heatmap: {
+    label: "Heatmap",
+    width: 760,
+    height: 260,
+    legacyParts: null,
+    variants: HEATMAP_VARIANTS,
+    hoverTargets: heatmapCells,
+  },
+  choropleth: {
+    label: "Choropleth",
+    width: 720,
+    height: 420,
+    legacyParts: null,
+    variants: CHOROPLETH_VARIANTS,
+    hoverTargets: choroplethCountryTargets,
+  },
 };
 
 /** A chart + variant pair resolved to everything a stage needs to render it. */
@@ -113,8 +236,11 @@ export interface LabTarget {
   variant: LabVariant;
   width: number;
   height: number;
-  render: (side: LabSide) => React.ReactNode;
-  hoverTargets: (root: Element) => Element[];
+  hoverTargets: HoverTargets;
+  /** Hover steps run for this variant (sweeps and baselines). */
+  hover: boolean;
+  /** Not recorded / compared, with the reason. */
+  previewOnly: string | null;
 }
 
 export function resolveTarget(
@@ -133,9 +259,17 @@ export function resolveTarget(
     variant,
     width: variant.width ?? fixture.width,
     height: variant.height ?? fixture.height,
-    render: variant.render,
-    hoverTargets: fixture.hoverTargets,
+    hoverTargets: variant.hoverTargets ?? fixture.hoverTargets,
+    hover: variant.hover !== false,
+    previewOnly: variant.previewOnly ?? null,
   };
+}
+
+/** Charts that have at least one variant. */
+export function populatedCharts(): LabChartSlug[] {
+  return LAB_CHART_SLUGS.filter(
+    (chart) => LAB_FIXTURES[chart].variants.length > 0
+  );
 }
 
 /** Every chart × variant, in display order. */
@@ -145,4 +279,10 @@ export function allTargets(charts: readonly LabChartSlug[]): LabTarget[] {
       resolveTarget(chart, variant.id)
     )
   );
+}
+
+/** Renders a target's variant for one side (single-sided: always live). */
+export function renderSide(target: LabTarget, side: LabSide): React.ReactNode {
+  const { variant } = target;
+  return variant.kind === "single" ? variant.render() : variant.render(side);
 }

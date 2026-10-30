@@ -1,0 +1,132 @@
+{
+  "schema": 1,
+  "chart": "bar",
+  "variant": "multiple-series",
+  "label": "Grouped",
+  "frame": {
+    "width": 640,
+    "height": 360
+  },
+  "recordedAt": "2026-10-30T14:13:41.435Z",
+  "machine": "dev · Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz × 8 · 8 threads · DPR 1",
+  "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+  "hover": true,
+  "hoverTargetCount": 3,
+  "steps": [
+    {
+      "id": "enter",
+      "label": "Enter",
+      "status": "done",
+      "settleMs": 1596,
+      "nodes": [
+        {"path":"svg[0]","tag":"svg","attrs":{"width":"638","height":"319"}},
+        {"path":"svg[0] > rect[0]","tag":"rect","attrs":{"x":"0","y":"0","width":"638","height":"319"}},
+        {"path":"svg[0] > g[0]","tag":"g","attrs":{"transform":"translate(8,20)"}},
+        {"path":"svg[0] > g[0] > rect[0]","tag":"rect","attrs":{"x":"0","y":"0","width":"622","height":"259"}},
+        {"path":"svg[0] > g[0] > g[0]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[0] > defs[0]","tag":"defs","attrs":{}},
+        {"path":"svg[0] > g[0] > g[0] > defs[0] > lineargradient[0]","tag":"lineargradient","attrs":{"x1":"0%","y1":"0%","x2":"100%","y2":"0%"}},
+        {"path":"svg[0] > g[0] > g[0] > defs[0] > lineargradient[0] > stop[0]","tag":"stop","attrs":{}},
+        {"path":"svg[0] > g[0] > g[0] > defs[0] > lineargradient[0] > stop[1]","tag":"stop","attrs":{}},
+        {"path":"svg[0] > g[0] > g[0] > defs[0] > lineargradient[0] > stop[2]","tag":"stop","attrs":{}},
+        {"path":"svg[0] > g[0] > g[0] > defs[0] > lineargradient[0] > stop[3]","tag":"stop","attrs":{}},
+        {"path":"svg[0] > g[0] > g[0] > defs[0] > mask[0]","tag":"mask","attrs":{}},
+        {"path":"svg[0] > g[0] > g[0] > defs[0] > mask[0] > rect[0]","tag":"rect","attrs":{"x":"0","y":"0","width":"622","height":"259"}},
+        {"path":"svg[0] > g[0] > g[0] > g[0]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[0] > g[0] > g[0]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[0] > g[0] > g[0] > line[0]","tag":"line","attrs":{"x1":"0","y1":"259","x2":"622","y2":"259"}},
+        {"path":"svg[0] > g[0] > g[0] > g[0] > g[0] > line[1]","tag":"line","attrs":{"x1":"0","y1":"219.15384615384616","x2":"622","y2":"219.15384615384616"}},
+        {"path":"svg[0] > g[0] > g[0] > g[0] > g[0] > line[2]","tag":"line","attrs":{"x1":"0","y1":"179.3076923076923","x2":"622","y2":"179.3076923076923"}},
+        {"path":"svg[0] > g[0] > g[0] > g[0] > g[0] > line[3]","tag":"line","attrs":{"x1":"0","y1":"139.46153846153845","x2":"622","y2":"139.46153846153845"}},
+        {"path":"svg[0] > g[0] > g[0] > g[0] > g[0] > line[4]","tag":"line","attrs":{"x1":"0","y1":"99.61538461538461","x2":"622","y2":"99.61538461538461"}},
+        {"path":"svg[0] > g[0] > g[0] > g[0] > g[0] > line[5]","tag":"line","attrs":{"x1":"0","y1":"59.76923076923076","x2":"622","y2":"59.76923076923076"}},
+        {"path":"svg[0] > g[0] > g[0] > g[0] > g[0] > line[6]","tag":"line","attrs":{"x1":"0","y1":"19.92307692307691","x2":"622","y2":"19.92307692307691"}},
+        {"path":"svg[0] > g[0] > g[1]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[1] > g[0]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[1] > g[0] > rect[0]","tag":"rect","attrs":{"rx":"8","ry":"8","x":"20.064516129032313","y":"99.61538461538461","width":"38.12903225806451","height":"159.3846153846154"}},
+        {"path":"svg[0] > g[0] > g[1] > g[1]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[1] > g[1] > rect[0]","tag":"rect","attrs":{"rx":"8","ry":"8","x":"120.3870967741936","y":"59.76923076923076","width":"38.12903225806451","height":"199.23076923076923"}},
+        {"path":"svg[0] > g[0] > g[1] > g[2]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[1] > g[2] > rect[0]","tag":"rect","attrs":{"rx":"8","ry":"8","x":"220.70967741935488","y":"119.53846153846155","width":"38.12903225806451","height":"139.46153846153845"}},
+        {"path":"svg[0] > g[0] > g[1] > g[3]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[1] > g[3] > rect[0]","tag":"rect","attrs":{"rx":"8","ry":"8","x":"321.03225806451616","y":"91.64615384615384","width":"38.12903225806451","height":"167.35384615384618"}},
+        {"path":"svg[0] > g[0] > g[1] > g[4]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[1] > g[4] > rect[0]","tag":"rect","attrs":{"rx":"8","ry":"8","x":"421.35483870967744","y":"107.58461538461538","width":"38.12903225806451","height":"151.41538461538462"}},
+        {"path":"svg[0] > g[0] > g[1] > g[5]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[1] > g[5] > rect[0]","tag":"rect","attrs":{"rx":"8","ry":"8","x":"521.6774193548388","y":"39.84615384615385","width":"38.12903225806451","height":"219.15384615384616"}},
+        {"path":"svg[0] > g[0] > g[2]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[2] > g[0]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[2] > g[0] > rect[0]","tag":"rect","attrs":{"rx":"8","ry":"8","x":"62.193548387096826","y":"163.36923076923077","width":"38.12903225806451","height":"95.63076923076923"}},
+        {"path":"svg[0] > g[0] > g[2] > g[1]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[2] > g[1] > rect[0]","tag":"rect","attrs":{"rx":"8","ry":"8","x":"162.5161290322581","y":"139.46153846153845","width":"38.12903225806451","height":"119.53846153846155"}},
+        {"path":"svg[0] > g[0] > g[2] > g[2]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[2] > g[2] > rect[0]","tag":"rect","attrs":{"rx":"8","ry":"8","x":"262.8387096774194","y":"147.43076923076922","width":"38.12903225806451","height":"111.56923076923078"}},
+        {"path":"svg[0] > g[0] > g[2] > g[3]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[2] > g[3] > rect[0]","tag":"rect","attrs":{"rx":"8","ry":"8","x":"363.16129032258067","y":"131.4923076923077","width":"38.12903225806451","height":"127.50769230769231"}},
+        {"path":"svg[0] > g[0] > g[2] > g[4]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[2] > g[4] > rect[0]","tag":"rect","attrs":{"rx":"8","ry":"8","x":"463.48387096774195","y":"155.4","width":"38.12903225806451","height":"103.6"}},
+        {"path":"svg[0] > g[0] > g[2] > g[5]","tag":"g","attrs":{}},
+        {"path":"svg[0] > g[0] > g[2] > g[5] > rect[0]","tag":"rect","attrs":{"rx":"8","ry":"8","x":"563.8064516129033","y":"107.58461538461538","width":"38.12903225806451","height":"151.41538461538462"}}
+      ]
+    },
+    {
+      "id": "hover-0",
+      "label": "Hover #0 (rect @ 15%,15%)",
+      "status": "done",
+      "settleMs": 613,
+      "changed": [
+        {"path":"svg[1]","tag":"svg","attrs":{"width":"100%","height":"100%"}},
+        {"path":"svg[1] > g[0]","tag":"g","attrs":{"transform":"translate(8,20)"}},
+        {"path":"svg[1] > g[0] > g[0]","tag":"g","attrs":{}},
+        {"path":"svg[1] > g[0] > g[0] > circle[0]","tag":"circle","attrs":{"cx":"39.12903225806457","cy":"99.61538461538461","r":"13"}},
+        {"path":"svg[1] > g[0] > g[0] > circle[1]","tag":"circle","attrs":{"cx":"39.12903225806457","cy":"99.61538461538461","r":"5"}},
+        {"path":"svg[1] > g[0] > g[1]","tag":"g","attrs":{}},
+        {"path":"svg[1] > g[0] > g[1] > circle[0]","tag":"circle","attrs":{"cx":"81.25806451612908","cy":"163.36923076923077","r":"13"}},
+        {"path":"svg[1] > g[0] > g[1] > circle[1]","tag":"circle","attrs":{"cx":"81.25806451612908","cy":"163.36923076923077","r":"5"}}
+      ],
+      "removed": []
+    },
+    {
+      "id": "hover-1",
+      "label": "Hover #1 (rect @ 50%,50%)",
+      "status": "done",
+      "settleMs": 1572,
+      "changed": [
+        {"path":"svg[1]","tag":"svg","attrs":{"width":"100%","height":"100%"}},
+        {"path":"svg[1] > g[0]","tag":"g","attrs":{"transform":"translate(8,20)"}},
+        {"path":"svg[1] > g[0] > g[0]","tag":"g","attrs":{}},
+        {"path":"svg[1] > g[0] > g[0] > circle[0]","tag":"circle","attrs":{"cx":"340.0967741935484","cy":"91.64615384615384","r":"13"}},
+        {"path":"svg[1] > g[0] > g[0] > circle[1]","tag":"circle","attrs":{"cx":"340.0967741935484","cy":"91.64615384615384","r":"5"}},
+        {"path":"svg[1] > g[0] > g[1]","tag":"g","attrs":{}},
+        {"path":"svg[1] > g[0] > g[1] > circle[0]","tag":"circle","attrs":{"cx":"382.2258064516129","cy":"131.4923076923077","r":"13"}},
+        {"path":"svg[1] > g[0] > g[1] > circle[1]","tag":"circle","attrs":{"cx":"382.2258064516129","cy":"131.4923076923077","r":"5"}}
+      ],
+      "removed": []
+    },
+    {
+      "id": "hover-2",
+      "label": "Hover #2 (rect @ 85%,85%)",
+      "status": "done",
+      "settleMs": 1065,
+      "changed": [
+        {"path":"svg[1]","tag":"svg","attrs":{"width":"100%","height":"100%"}},
+        {"path":"svg[1] > g[0]","tag":"g","attrs":{"transform":"translate(8,20)"}},
+        {"path":"svg[1] > g[0] > g[0]","tag":"g","attrs":{}},
+        {"path":"svg[1] > g[0] > g[0] > circle[0]","tag":"circle","attrs":{"cx":"540.741935483871","cy":"39.84615384615385","r":"13"}},
+        {"path":"svg[1] > g[0] > g[0] > circle[1]","tag":"circle","attrs":{"cx":"540.741935483871","cy":"39.84615384615385","r":"5"}},
+        {"path":"svg[1] > g[0] > g[1]","tag":"g","attrs":{}},
+        {"path":"svg[1] > g[0] > g[1] > circle[0]","tag":"circle","attrs":{"cx":"582.8709677419356","cy":"107.58461538461538","r":"13"}},
+        {"path":"svg[1] > g[0] > g[1] > circle[1]","tag":"circle","attrs":{"cx":"582.8709677419356","cy":"107.58461538461538","r":"5"}}
+      ],
+      "removed": []
+    },
+    {
+      "id": "hover-leave",
+      "label": "Leave",
+      "status": "done",
+      "settleMs": 432,
+      "changed": [],
+      "removed": []
+    }
+  ]
+}
