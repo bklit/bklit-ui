@@ -2056,8 +2056,6 @@
       ],
       "dependencies": [
         "@types/geojson",
-        "@visx/geo@4.0.0",
-        "@visx/zoom@4.0.0",
         "d3-geo",
         "topojson-client",
         "motion",
@@ -2068,6 +2066,21 @@
           "path": "src/charts/choropleth/choropleth-chart.tsx",
           "type": "registry:component",
           "target": "components/charts/choropleth/choropleth-chart.tsx"
+        },
+        {
+          "path": "src/charts/choropleth/choropleth-projection.ts",
+          "type": "registry:component",
+          "target": "components/charts/choropleth/choropleth-projection.ts"
+        },
+        {
+          "path": "src/charts/choropleth/choropleth-zoom-matrix.ts",
+          "type": "registry:component",
+          "target": "components/charts/choropleth/choropleth-zoom-matrix.ts"
+        },
+        {
+          "path": "src/charts/choropleth/use-choropleth-zoom-state.ts",
+          "type": "registry:component",
+          "target": "components/charts/choropleth/use-choropleth-zoom-state.ts"
         },
         {
           "path": "src/charts/choropleth/choropleth-context.tsx",
