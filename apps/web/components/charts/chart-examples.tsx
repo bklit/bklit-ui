@@ -113,6 +113,8 @@ import {
   sumValues,
   TrendLine,
   useChart,
+  useLiveYAxisTickValues,
+  useYScale,
   XAxis,
   YAxis,
 } from "@bklitui/ui/charts";
@@ -3863,6 +3865,27 @@ function makeLiveLineExamples(): ChartExample[] {
       render: () => <LiveLineBackgroundDotsDemo />,
     },
     {
+      title: "Live Line - Grid",
+      description: "Horizontal grid rows that track the live Y-axis labels",
+      code: `function LiveGridRows() {
+  // Same tick values as LiveYAxis, so rows line up with the labels
+  const yScale = useYScale();
+  const [min, max] = yScale.domain() as [number, number];
+  const rowTickValues = useLiveYAxisTickValues().filter(
+    (v) => v >= min && v <= max
+  );
+  return <Grid horizontal rowTickValues={rowTickValues} />;
+}
+
+<LiveLineChart margin={{ top: 8, right: 8, bottom: 40, left: 28 }} data={data} value={value} window={30}>
+  <LiveGridRows />
+  <LiveLine dataKey="value" stroke="var(--chart-1)" formatValue={formatUsd} />
+  <LiveXAxis />
+  <LiveYAxis position="left" formatValue={formatUsd} />
+</LiveLineChart>`,
+      render: () => <LiveLineGridDemo />,
+    },
+    {
       title: "Live Line - Reference Band",
       description: "Target price band with dashed edges and bracket markers",
       code: `<LiveLineChart margin={{ top: 8, right: 8, bottom: 40, left: 28 }} data={data} value={value} window={30}>
@@ -3907,6 +3930,39 @@ function LiveLineBackgroundDiagonalDemo() {
       window={30}
     >
       <Background />
+      <LiveLine
+        dataKey="value"
+        formatValue={formatUsd}
+        stroke="var(--chart-1)"
+      />
+      <LiveXAxis />
+      <LiveYAxis formatValue={formatUsd} position="left" />
+    </LiveLineExampleChart>
+  );
+}
+
+function LiveGridRows() {
+  // Same tick values as LiveYAxis, so rows line up with the labels
+  const yScale = useYScale();
+  const [min, max] = yScale.domain() as [number, number];
+  const rowTickValues = useLiveYAxisTickValues().filter(
+    (v) => v >= min && v <= max
+  );
+  return <Grid horizontal rowTickValues={rowTickValues} />;
+}
+
+function LiveLineGridDemo() {
+  const { data, value } = useLiveData(142.5, 600);
+  const formatUsd = useCallback((v: number) => `$${v.toFixed(2)}`, []);
+  return (
+    <LiveLineExampleChart
+      data={data}
+      margin={{ left: 28 }}
+      style={{ height: 240 }}
+      value={value}
+      window={30}
+    >
+      <LiveGridRows />
       <LiveLine
         dataKey="value"
         formatValue={formatUsd}

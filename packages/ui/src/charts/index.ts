@@ -380,7 +380,12 @@ export {
   type LiveLinePoint,
 } from "./live-line-chart";
 export { LiveXAxis, type LiveXAxisProps } from "./live-x-axis";
-export { LiveYAxis, type LiveYAxisProps } from "./live-y-axis";
+export {
+  LiveYAxis,
+  type LiveYAxisProps,
+  type LiveYAxisTickOptions,
+  useLiveYAxisTickValues,
+} from "./live-y-axis";
 // Sweep loading visuals: `loadingStyle="sweep"` on Line/Area + bar skeleton
 export {
   BarLoadingSkeleton,
