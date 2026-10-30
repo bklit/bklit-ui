@@ -486,7 +486,7 @@ export function RevenueArea() {
 After (multi-colour gradient via `url(#id)`):
 
 ```tsx
-import { LinearGradient } from "@visx/gradient";
+import { LinearGradient } from "@/components/charts/gradients";
 
 <AreaChart className="h-[240px]" data={data}>
   <LinearGradient id="revenue-fill" from="#8b5cf6" to="#06b6d4" fromOpacity={0.6} toOpacity={0} />
@@ -496,7 +496,7 @@ import { LinearGradient } from "@visx/gradient";
 </AreaChart>
 ```
 
-Notes: `Area` already draws a vertical gradient from `fill` at `fillOpacity` (top) to `gradientToOpacity` (bottom); `gradientSpan` (0–1) compresses it toward the top. `curveMonotoneX` is `Area`'s default, so `type="monotone"` needs no prop. With a `url(...)` fill, set `stroke` explicitly (it otherwise falls back to `var(--chart-line-primary)`). `@visx/gradient` is installed by `@bklit/area-chart`; `LinearGradient` children are hoisted into the chart's `<defs>`. A raw `<defs><linearGradient …/></defs>` child also works.
+Notes: `Area` already draws a vertical gradient from `fill` at `fillOpacity` (top) to `gradientToOpacity` (bottom); `gradientSpan` (0–1) compresses it toward the top. `curveMonotoneX` is `Area`'s default, so `type="monotone"` needs no prop. With a `url(...)` fill, set `stroke` explicitly (it otherwise falls back to `var(--chart-line-primary)`). `gradients.tsx` (`@bklit/gradients`) is installed by `@bklit/area-chart`; `LinearGradient` children are hoisted into the chart's `<defs>`. A raw `<defs><linearGradient …/></defs>` child also works.
 
 ---
 

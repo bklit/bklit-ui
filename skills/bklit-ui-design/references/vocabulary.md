@@ -45,7 +45,7 @@ private to the bklit monorepo).
 | `RingChart` / `Ring` / `RingCenter` | `@/components/charts/ring-chart` / `ring` / `ring-center` | `@bklit/ring-chart` |
 | `HeatmapChart`, `HeatmapCells`, `HeatmapLegend`, `HeatmapTooltip`, `HeatmapXAxis`, `HeatmapYAxis`, `HeatmapChartLoading` | `@/components/charts/heatmap` | `@bklit/heatmap-chart` |
 | `chartCssVars`, `useChart`, `useChartStable` | `@/components/charts/chart-context` | `@bklit/chart-context` (pulled in by every chart) |
-| `LinearGradient`, `RadialGradient` | `@visx/gradient` | npm dep of `@bklit/area-chart`, `@bklit/bar-chart` (pie/ring: `npm i @visx/gradient@4.0.0`) |
+| `LinearGradient`, `RadialGradient` | `components/charts/gradients.tsx` | `@bklit/gradients`, installed by `@bklit/area-chart`, `@bklit/bar-chart`, `@bklit/line-chart` (pie/ring: `npx shadcn add @bklit/gradients`) |
 | `curveNatural`, `curveMonotoneX`, `curveLinear`, `curveStep`, `curveBasis`, `curveCatmullRom` | `d3-shape` | npm dep of line/area charts |
 
 `@bklit/pie-chart` and `@bklit/ring-chart` do **not** pull in `@bklit/patterns`
@@ -143,13 +143,13 @@ returns the matching pattern node (same presets as `Background`).
 
 | People say | JSX | Notes |
 |---|---|---|
-| "gradient bars" | `<LinearGradient id="g" from="var(--chart-1)" to="var(--chart-3)" />` + `<Bar fill="url(#g)" stroke="var(--chart-1)" />` | `LinearGradient` from `@visx/gradient`. |
+| "gradient bars" | `<LinearGradient id="g" from="var(--chart-1)" to="var(--chart-3)" />` + `<Bar fill="url(#g)" stroke="var(--chart-1)" />` | `LinearGradient` from `components/charts/gradients`. |
 | "bars that fade to transparent" | `<LinearGradient id="g" from="var(--chart-3)" to="transparent" />` + `<Bar fill="url(#g)" lineCap="butt" />` | Gallery "Bar Chart - No Gap". |
 | "soft/glassy area" | `<Area fillOpacity={0.5} gradientToOpacity={0.05} />` | `fillOpacity` default 0.4. |
 | "radial gradient pie slices" | `<RadialGradient id="r" from="var(--chart-1)" to="var(--chart-2)" />` + `<PieSlice fill="url(#r)" />` | Gallery uses hex colours — replace with tokens. |
 | "gradient trend line" | `<TrendLine dataKey="v" strokeStyle="gradient" gradientStart="var(--chart-1)" gradientEnd="var(--chart-5)" />` | Same defaults as `ProjectionLine`; gradient runs start → end of the fit. |
 | "gradient projection line" | `<ProjectionLine strokeStyle="gradient" gradientStart="var(--chart-1)" gradientEnd="var(--chart-5)" />` | Defaults: `gradientStart` = `stroke`, `gradientEnd="var(--chart-5)"`. |
-| "preset gradients" (`GradientPinkBlue`, `GradientTealBlue`, …) | `@visx/gradient` named gradients | Hardcoded colours — avoid in themed apps. |
+| "preset gradients" (`GradientPinkBlue`, `GradientTealBlue`, …) | named gradients in `components/charts/gradients` | Hardcoded colours — avoid in themed apps. |
 
 ## Lines & curves
 

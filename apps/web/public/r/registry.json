@@ -74,7 +74,8 @@
       "dependencies": [
         "d3-array",
         "motion",
-        "d3-scale"
+        "d3-scale",
+        "d3-shape"
       ],
       "cssVars": {
         "theme": {
@@ -176,6 +177,11 @@
           "target": "components/charts/use-chart-interaction.ts"
         },
         {
+          "path": "src/charts/line-path.tsx",
+          "type": "registry:component",
+          "target": "components/charts/line-path.tsx"
+        },
+        {
           "path": "src/charts/local-point.ts",
           "type": "registry:component",
           "target": "components/charts/local-point.ts"
@@ -237,6 +243,19 @@
           "path": "src/charts/chart-parent-size.tsx",
           "type": "registry:component",
           "target": "components/charts/chart-parent-size.tsx"
+        }
+      ]
+    },
+    {
+      "name": "gradients",
+      "type": "registry:component",
+      "title": "Chart Gradients",
+      "description": "LinearGradient, RadialGradient and gradient presets for chart fills (SVG defs).",
+      "files": [
+        {
+          "path": "src/charts/gradients.tsx",
+          "type": "registry:component",
+          "target": "components/charts/gradients.tsx"
         }
       ]
     },
@@ -387,7 +406,6 @@
         "@bklit/chart-context"
       ],
       "dependencies": [
-        "@visx/grid@4.0.0",
         "d3-scale"
       ],
       "files": [
@@ -395,6 +413,11 @@
           "path": "src/charts/grid.tsx",
           "type": "registry:component",
           "target": "components/charts/grid.tsx"
+        },
+        {
+          "path": "src/charts/grid-lines.tsx",
+          "type": "registry:component",
+          "target": "components/charts/grid-lines.tsx"
         },
         {
           "path": "src/charts/use-grid-shimmer.ts",
@@ -443,8 +466,8 @@
         "@bklit/line-chart"
       ],
       "dependencies": [
-        "@visx/shape@4.0.0",
-        "motion"
+        "motion",
+        "d3-shape"
       ],
       "files": [
         {
@@ -918,10 +941,10 @@
         "@bklit/chart-tooltip",
         "@bklit/shimmering-text",
         "@bklit/utils",
-        "@bklit/chart-parent-size"
+        "@bklit/chart-parent-size",
+        "@bklit/gradients"
       ],
       "dependencies": [
-        "@visx/shape@4.0.0",
         "motion",
         "d3-shape"
       ],
@@ -1093,10 +1116,10 @@
         "@bklit/chart-tooltip",
         "@bklit/utils",
         "@bklit/patterns",
-        "@bklit/chart-parent-size"
+        "@bklit/chart-parent-size",
+        "@bklit/gradients"
       ],
       "dependencies": [
-        "@visx/shape@4.0.0",
         "motion"
       ],
       "files": [
@@ -1192,10 +1215,10 @@
         "@bklit/shimmering-text",
         "@bklit/utils",
         "@bklit/chart-parent-size",
-        "@bklit/background"
+        "@bklit/background",
+        "@bklit/gradients"
       ],
       "dependencies": [
-        "@visx/shape@4.0.0",
         "d3-shape",
         "motion"
       ],
@@ -1326,7 +1349,6 @@
         "@bklit/utils"
       ],
       "dependencies": [
-        "@visx/shape@4.0.0",
         "d3-shape"
       ],
       "files": [
@@ -1471,7 +1493,6 @@
         "@bklit/chart-parent-size"
       ],
       "dependencies": [
-        "@visx/shape@4.0.0",
         "d3-array",
         "motion",
         "d3-shape",
@@ -1901,12 +1922,10 @@
         "@bklit/chart-utils",
         "@bklit/chart-tooltip",
         "@bklit/background",
-        "@bklit/shimmering-text"
+        "@bklit/shimmering-text",
+        "@bklit/chart-parent-size"
       ],
       "dependencies": [
-        "@visx/group@4.0.0",
-        "@visx/heatmap@4.0.0",
-        "@visx/responsive@4.0.0",
         "motion",
         "d3-scale"
       ],
@@ -1925,6 +1944,11 @@
           "path": "src/charts/heatmap/heatmap-cells.tsx",
           "type": "registry:component",
           "target": "components/charts/heatmap/heatmap-cells.tsx"
+        },
+        {
+          "path": "src/charts/heatmap/heatmap-rect-cells.ts",
+          "type": "registry:component",
+          "target": "components/charts/heatmap/heatmap-rect-cells.ts"
         },
         {
           "path": "src/charts/heatmap/heatmap-x-axis.tsx",

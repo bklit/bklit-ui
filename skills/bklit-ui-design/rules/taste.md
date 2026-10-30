@@ -151,7 +151,7 @@ Correct:
 ```
 
 In TS, prefer `chartCssVars.grid` over the string `"var(--chart-grid)"` when
-writing custom layers. Avoid `pattern="accent"` and the `@visx/gradient` named
+writing custom layers. Avoid `pattern="accent"` and the named gradient
 presets (`GradientPinkBlue` …) in themed apps — their colours are fixed.
 
 ## 7. Respect dark mode

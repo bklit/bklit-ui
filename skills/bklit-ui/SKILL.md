@@ -19,7 +19,7 @@ allowed-tools: Bash(npx shadcn@latest *), Bash(pnpm dlx shadcn@latest *), Bash(b
 
 # Bklit UI
 
-Composable React chart components (visx + motion) distributed through the `@bklit` shadcn registry. `shadcn add` copies the **source** into the user's project — the user owns that code, and it is the source of truth for props.
+Composable React chart components (d3 + motion) distributed through the `@bklit` shadcn registry. `shadcn add` copies the **source** into the user's project — the user owns that code, and it is the source of truth for props.
 
 > Run the shadcn CLI with the project's package runner: `npx shadcn@latest`, `pnpm dlx shadcn@latest`, `bunx --bun shadcn@latest`, or `yarn dlx shadcn@latest`.
 
@@ -114,7 +114,7 @@ import { chartCssVars } from "@/components/charts/chart-context";
 - Reduced motion is only **partially** handled internally — see animation.md.
 
 ### Installation → [installation.md](./rules/installation.md)
-- Let `shadcn add` install npm deps and `@bklit/*` registry dependencies; don't pin `@visx/*` by hand.
+- Let `shadcn add` install npm deps and `@bklit/*` registry dependencies; don't pin chart npm deps (`d3-*`, `motion`) by hand.
 - Don't install `*-example` items into an existing app — they write `app/page.tsx`.
 
 ## Catalog
