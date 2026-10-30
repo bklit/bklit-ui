@@ -355,10 +355,11 @@ const ChartBrushInteraction = memo(function ChartBrushInteraction({
   const isBrushActive = state.extent.x0 !== -1 && state.extent.x1 !== -1;
 
   return (
-    <g className="visx-brush">
+    // Class names kept from the visx markup (CSS / test hooks).
+    <g className="visx-group visx-brush" transform="translate(0, 0)">
       {/* biome-ignore lint/a11y/noStaticElementInteractions: brush track pointer area */}
       <rect
-        className="visx-brush-overlay"
+        className="visx-bar visx-brush-overlay"
         fill="transparent"
         height={height}
         onDoubleClick={handleTrackDoubleClick}
