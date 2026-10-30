@@ -1,7 +1,5 @@
 "use client";
 
-import type { TransformMatrix } from "@visx/zoom";
-import { Zoom } from "@visx/zoom";
 import type { FeatureCollection, GeoJSON, Geometry } from "geojson";
 import type { Transition } from "motion/react";
 import React, {
@@ -33,6 +31,11 @@ import {
   projectFeaturePaths,
 } from "./choropleth-projection";
 import { ChoroplethTooltip as ChoroplethTooltipLayer } from "./choropleth-tooltip";
+import {
+  choroplethWheelDelta,
+  type TransformMatrix,
+} from "./choropleth-zoom-matrix";
+import { useChoroplethZoomState } from "./use-choropleth-zoom-state";
 
 export interface ChoroplethChartProps {
   /** GeoJSON FeatureCollection data */
@@ -222,9 +225,11 @@ const ChoroplethSvg = memo(function ChoroplethSvg({
       width={width}
     >
       <g
+        ref={zoom?.transformRef}
         style={{
           transition: zoom?.isDragging ? "none" : "transform 0.18s ease-out",
         }}
+        // Reads the live matrix; gestures also write this attribute directly.
         transform={zoom ? zoom.toString() : undefined}
       >
         {svgChildren}
@@ -328,6 +333,35 @@ const ChoroplethMercatorContent = memo(function ChoroplethMercatorContent({
     </ChoroplethZoomContext.Provider>
   );
 });
+
+/** Owns the zoom state (replaces visx `<Zoom>`'s render prop). */
+function ChoroplethZoom({
+  width,
+  height,
+  initialTransformMatrix,
+  scaleMin,
+  scaleMax,
+  children,
+}: {
+  width: number;
+  height: number;
+  initialTransformMatrix: TransformMatrix;
+  scaleMin: number;
+  scaleMax: number;
+  children: (zoom: ZoomInstance<SVGSVGElement>) => ReactNode;
+}) {
+  const zoom = useChoroplethZoomState<SVGSVGElement>({
+    width,
+    height,
+    initialTransformMatrix,
+    scaleXMin: scaleMin,
+    scaleXMax: scaleMax,
+    scaleYMin: scaleMin,
+    scaleYMax: scaleMax,
+    wheelDelta: choroplethWheelDelta,
+  });
+  return children(zoom);
+}
 
 function ChoroplethChartInner({
   data,
@@ -463,21 +497,15 @@ function ChoroplethChartInner({
 
   if (zoomEnabled) {
     return (
-      <Zoom<SVGSVGElement>
+      <ChoroplethZoom
         height={height}
         initialTransformMatrix={initialZoom}
-        scaleXMax={zoomMax}
-        scaleXMin={zoomMin}
-        scaleYMax={zoomMax}
-        scaleYMin={zoomMin}
-        wheelDelta={(event) => {
-          const zoomScale = event.deltaY > 0 ? 0.95 : 1.05;
-          return { scaleX: zoomScale, scaleY: zoomScale };
-        }}
+        scaleMax={zoomMax}
+        scaleMin={zoomMin}
         width={width}
       >
-        {(zoom) => content(zoom)}
-      </Zoom>
+        {content}
+      </ChoroplethZoom>
     );
   }
 
