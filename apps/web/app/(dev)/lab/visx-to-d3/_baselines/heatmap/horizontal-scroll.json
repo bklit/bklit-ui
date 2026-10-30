@@ -1,5 +1,5 @@
 {
-  "schema": 1,
+  "schema": 2,
   "chart": "heatmap",
   "variant": "horizontal-scroll",
   "label": "Horizontal scroll",
@@ -7,17 +7,18 @@
     "width": 760,
     "height": 260
   },
-  "recordedAt": "2026-10-30T14:32:06.331Z",
+  "recordedAt": "2026-10-30T20:46:00.566Z",
   "machine": "dev · Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz × 8 · 8 threads · DPR 1",
   "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
   "hover": true,
   "hoverTargetCount": 378,
+  "interactions": false,
   "steps": [
     {
       "id": "enter",
       "label": "Enter",
       "status": "done",
-      "settleMs": 2095,
+      "settleMs": 2078,
       "nodes": [
         {"path":"svg[0]","tag":"svg","attrs":{"width":"1482.921875","height":"218.67505787037038"}},
         {"path":"svg[0] > g[0]","tag":"g","attrs":{"transform":"translate(0,28)"}},
@@ -1156,39 +1157,79 @@
         {"path":"svg[0] > g[0] > g[0] > g[377]","tag":"g","attrs":{}},
         {"path":"svg[0] > g[0] > g[0] > g[377] > rect[0]","tag":"rect","attrs":{"rx":"2","ry":"2","x":"1443.6825810185185","y":"166.43576388888889","width":"24.23929398148148","height":"24.23929398148148"}},
         {"path":"svg[0] > g[0] > g[0] > g[377] > rect[1]","tag":"rect","attrs":{"rx":"2","ry":"2","x":"1443.6825810185185","y":"166.43576388888889","width":"24.23929398148148","height":"24.23929398148148"}}
+      ],
+      "texts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > span[0] > #text[0]","text":"Mon","box":[15,69,26,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[1] > span[0] > #text[0]","text":"Wed","box":[14,124,27,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[2] > span[0] > #text[0]","text":"Fri","box":[27,178.5,14,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > div[0] > span[0] > #text[0]","text":"Jul","box":[45,9.5,15,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > div[1] > span[0] > #text[0]","text":"Aug","box":[181,9.5,24,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > div[2] > span[0] > #text[0]","text":"Sep","box":[290,9.5,22,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > div[3] > span[0] > #text[0]","text":"Oct","box":[426.5,9.5,22,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > div[4] > span[0] > #text[0]","text":"Nov","box":[535.5,9.5,23,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > div[5] > span[0] > #text[0]","text":"Dec","box":[644.5,9.5,23,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > div[6] > span[0] > #text[0]","text":"Jan","box":[780.5,9.5,19,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > div[7] > span[0] > #text[0]","text":"Feb","box":[889.5,9.5,22,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > div[8] > span[0] > #text[0]","text":"Mar","box":[998.5,9.5,23,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > div[9] > span[0] > #text[0]","text":"Apr","box":[1134.5,9.5,21,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > div[10] > span[0] > #text[0]","text":"May","box":[1243.5,9.5,26,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > div[11] > span[0] > #text[0]","text":"Jun","box":[1352.5,9.5,19,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > div[12] > span[0] > #text[0]","text":"Jul","box":[1488.5,9.5,15,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[1] > span[0] > #text[0]","text":"Less","box":[312.5,236.5,26,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[1] > span[1] > #text[0]","text":"More","box":[417.5,236.5,30,14]}
       ]
     },
     {
       "id": "hover-0",
       "label": "Hover #0 (rect)",
       "status": "done",
-      "settleMs": 628,
+      "settleMs": 611,
       "changed": [],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > div[13] > div[0] > div[0] > div[0] > #text[0]","text":"June 25th 2023","box":[89.5,37.5,101,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > div[13] > div[0] > div[0] > div[0] > div[0] > #text[0]","text":"Sunday","box":[89.5,58.5,43,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > div[13] > div[0] > div[0] > div[1] > #text[0]","text":"0 contributions","box":[89.5,98.5,101,16]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-189",
       "label": "Hover #189 (rect)",
       "status": "done",
-      "settleMs": 1881,
+      "settleMs": 1828,
       "changed": [],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > div[13] > div[0] > div[0] > div[0] > #text[0]","text":"December 31st 2023","box":[825,37.5,135,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > div[13] > div[0] > div[0] > div[0] > div[0] > #text[0]","text":"Sunday","box":[825,58.5,43,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > div[13] > div[0] > div[0] > div[1] > #text[0]","text":"0 contributions","box":[825,98.5,101,16]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-377",
       "label": "Hover #377 (rect)",
       "status": "done",
-      "settleMs": 1816,
+      "settleMs": 1818,
       "changed": [],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > div[13] > div[0] > div[0] > div[0] > #text[0]","text":"July 6th 2024","box":[1341.5,119.5,88,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > div[13] > div[0] > div[0] > div[0] > div[0] > #text[0]","text":"Saturday","box":[1341.5,140.5,52,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > div[13] > div[0] > div[0] > div[1] > #text[0]","text":"0 contributions","box":[1341.5,180.5,101,16]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-leave",
       "label": "Leave",
       "status": "done",
-      "settleMs": 466,
+      "settleMs": 427,
       "changed": [],
-      "removed": []
+      "removed": [],
+      "changedTexts": [],
+      "removedTexts": []
     }
   ]
 }

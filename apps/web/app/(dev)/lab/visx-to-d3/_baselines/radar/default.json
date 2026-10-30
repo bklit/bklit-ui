@@ -1,5 +1,5 @@
 {
-  "schema": 1,
+  "schema": 2,
   "chart": "radar",
   "variant": "default",
   "label": "Radar",
@@ -7,17 +7,18 @@
     "width": 360,
     "height": 360
   },
-  "recordedAt": "2026-10-30T13:51:36.157Z",
+  "recordedAt": "2026-10-30T20:04:31.756Z",
   "machine": "dev · Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz × 8 · 8 threads · DPR 1",
   "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
   "hover": true,
   "hoverTargetCount": 2,
+  "interactions": false,
   "steps": [
     {
       "id": "enter",
       "label": "Enter",
       "status": "done",
-      "settleMs": 1912,
+      "settleMs": 2044,
       "nodes": [
         {"path":"svg[0]","tag":"svg","attrs":{"width":"260","height":"260"}},
         {"path":"svg[0] > g[0]","tag":"g","attrs":{"transform":"translate(130, 130)"}},
@@ -73,13 +74,14 @@
         {"path":"svg[0] > g[0] > g[4] > circle[2]","tag":"circle","attrs":{"cx":"26.74422897930753","cy":"36.810273244060106","r":"4"}},
         {"path":"svg[0] > g[0] > g[4] > circle[3]","tag":"circle","attrs":{"cx":"-36.20757154121634","cy":"49.83544685349676","r":"4"}},
         {"path":"svg[0] > g[0] > g[4] > circle[4]","tag":"circle","attrs":{"cx":"-49.930467105495566","cy":"-16.223392204684732","r":"4"}}
-      ]
+      ],
+      "texts": []
     },
     {
       "id": "hover-0",
       "label": "Hover #0 (path)",
       "status": "done",
-      "settleMs": 210,
+      "settleMs": 226,
       "changed": [
         {"path":"svg[0] > g[0] > g[3]","tag":"g","attrs":{"style.transform":"scale(1.05)"}},
         {"path":"svg[0] > g[0] > g[3] > circle[0]","tag":"circle","attrs":{"cx":"3.643324227463376e-15","cy":"-59.5","r":"6"}},
@@ -88,13 +90,15 @@
         {"path":"svg[0] > g[0] > g[3] > circle[3]","tag":"circle","attrs":{"cx":"-28.801477362331177","cy":"39.64183272437243","r":"6"}},
         {"path":"svg[0] > g[0] > g[3] > circle[4]","tag":"circle","attrs":{"cx":"-58.585081403781466","cy":"-19.035446853496754","r":"6"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [],
+      "removedTexts": []
     },
     {
       "id": "hover-1",
       "label": "Hover #1 (path)",
       "status": "done",
-      "settleMs": 209,
+      "settleMs": 219,
       "changed": [
         {"path":"svg[0] > g[0] > g[4]","tag":"g","attrs":{"style.transform":"scale(1.05)"}},
         {"path":"svg[0] > g[0] > g[4] > circle[0]","tag":"circle","attrs":{"cx":"3.08610993385133e-15","cy":"-50.4","r":"6"}},
@@ -103,15 +107,19 @@
         {"path":"svg[0] > g[0] > g[4] > circle[3]","tag":"circle","attrs":{"cx":"-36.20757154121634","cy":"49.83544685349676","r":"6"}},
         {"path":"svg[0] > g[0] > g[4] > circle[4]","tag":"circle","attrs":{"cx":"-49.930467105495566","cy":"-16.223392204684732","r":"6"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [],
+      "removedTexts": []
     },
     {
       "id": "hover-leave",
       "label": "Leave",
       "status": "done",
-      "settleMs": 220,
+      "settleMs": 214,
       "changed": [],
-      "removed": []
+      "removed": [],
+      "changedTexts": [],
+      "removedTexts": []
     }
   ]
 }

@@ -1,5 +1,5 @@
 {
-  "schema": 1,
+  "schema": 2,
   "chart": "line",
   "variant": "recipe-sky-aurora",
   "label": "Recipe: aurora sky",
@@ -7,17 +7,18 @@
     "width": 640,
     "height": 360
   },
-  "recordedAt": "2026-10-30T14:04:17.489Z",
+  "recordedAt": "2026-10-30T20:17:52.624Z",
   "machine": "dev · Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz × 8 · 8 threads · DPR 1",
   "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
   "hover": true,
   "hoverTargetCount": 3,
+  "interactions": false,
   "steps": [
     {
       "id": "enter",
       "label": "Enter",
       "status": "done",
-      "settleMs": 1593,
+      "settleMs": 1608,
       "nodes": [
         {"path":"svg[0]","tag":"svg","attrs":{"width":"638","height":"319"}},
         {"path":"svg[0] > defs[0]","tag":"defs","attrs":{}},
@@ -122,13 +123,14 @@
         {"path":"svg[0] > g[0] > g[0] > g[8] > path[1]","tag":"path","attrs":{"d":"M0,225.754C7.864,224.055,15.729,222.357,23.593,220.306C31.458,218.256,39.322,215.853,47.186,213.926C55.051,211.999,62.915,210.548,70.78,210C78.644,209.453,86.508,209.81,94.373,210.785C102.237,211.761,110.102,213.356,117.966,214.662C125.831,215.969,133.695,216.988,141.559,217.116C149.424,217.245,157.288,216.484,165.153,214.859C173.017,213.234,180.881,210.746,188.746,208.037C196.61,205.328,204.475,202.399,212.339,200.087C220.203,197.775,228.068,196.081,235.932,195.522C243.797,194.964,251.661,195.542,259.525,197.093C267.39,198.643,275.254,201.166,283.119,203.964C290.983,206.761,298.847,209.833,306.712,212.405C314.576,214.976,322.441,217.047,330.305,218.147C338.169,219.247,346.034,219.375,353.898,218.589C361.763,217.802,369.627,216.1,377.492,214.172C385.356,212.244,393.22,210.089,401.085,208.675C408.949,207.261,416.813,206.587,424.678,206.957C432.542,207.328,440.407,208.744,448.271,210.54C456.135,212.336,463.999,214.514,471.864,216.037C479.73,217.559,487.597,218.427,495.458,218.147C503.318,217.867,511.172,216.439,519.051,214.27C526.93,212.101,534.835,209.192,542.644,206.712C550.453,204.232,558.165,202.181,566.237,201.461C574.309,200.74,582.74,201.35,590.814,203.129C598.887,204.909,606.602,207.858,614.407,210.834C622.212,213.81,630.106,216.813,638,219.816"}},
         {"path":"svg[1]","tag":"svg","attrs":{"width":"100%","height":"100%"}},
         {"path":"svg[1] > g[0]","tag":"g","attrs":{}}
-      ]
+      ],
+      "texts": []
     },
     {
       "id": "hover-0",
       "label": "Hover #0 (rect @ 15%,15%)",
       "status": "done",
-      "settleMs": 612,
+      "settleMs": 602,
       "changed": [
         {"path":"svg[0] > g[0] > g[0] > defs[1]","tag":"defs","attrs":{}},
         {"path":"svg[0] > g[0] > g[0] > defs[1] > lineargradient[0]","tag":"lineargradient","attrs":{"x1":"0","y1":"0","x2":"1","y2":"0"}},
@@ -157,13 +159,19 @@
         {"path":"svg[2] > g[0] > g[0] > circle[0]","tag":"circle","attrs":{"cx":"94.37288135593221","cy":"210.78538461538463","r":"10.799999999999999"}},
         {"path":"svg[2] > g[0] > g[0] > circle[1]","tag":"circle","attrs":{"cx":"94.37288135593221","cy":"210.78538461538463","r":"4.5"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > div[0] > #text[0]","text":"Mon, Oct 5","box":[126.5,49.5,74,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"visitors","box":[142.5,92.5,48,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > span[0] > #text[0]","text":"2,205","box":[216.5,92.5,40,16]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-1",
       "label": "Hover #1 (rect @ 50%,50%)",
       "status": "done",
-      "settleMs": 1553,
+      "settleMs": 1555,
       "changed": [
         {"path":"svg[0] > g[0] > g[0] > defs[1]","tag":"defs","attrs":{}},
         {"path":"svg[0] > g[0] > g[0] > defs[1] > lineargradient[0]","tag":"lineargradient","attrs":{"x1":"0","y1":"0","x2":"1","y2":"0"}},
@@ -192,13 +200,19 @@
         {"path":"svg[2] > g[0] > g[0] > circle[0]","tag":"circle","attrs":{"cx":"330.3050847457627","cy":"218.14692307692306","r":"10.799999999999999"}},
         {"path":"svg[2] > g[0] > g[0] > circle[1]","tag":"circle","attrs":{"cx":"330.3050847457627","cy":"218.14692307692306","r":"4.5"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > div[0] > #text[0]","text":"Thu, Oct 15","box":[362.5,49.5,75,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"visitors","box":[378.5,92.5,48,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > span[0] > #text[0]","text":"2,055","box":[452.5,92.5,40,16]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-2",
       "label": "Hover #2 (rect @ 85%,85%)",
       "status": "done",
-      "settleMs": 1354,
+      "settleMs": 1342,
       "changed": [
         {"path":"svg[0] > g[0] > g[0] > defs[1]","tag":"defs","attrs":{}},
         {"path":"svg[0] > g[0] > g[0] > defs[1] > lineargradient[0]","tag":"lineargradient","attrs":{"x1":"0","y1":"0","x2":"1","y2":"0"}},
@@ -227,15 +241,23 @@
         {"path":"svg[2] > g[0] > g[0] > circle[0]","tag":"circle","attrs":{"cx":"542.6440677966102","cy":"206.71200000000002","r":"10.799999999999999"}},
         {"path":"svg[2] > g[0] > g[0] > circle[1]","tag":"circle","attrs":{"cx":"542.6440677966102","cy":"206.71200000000002","r":"4.5"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > div[0] > #text[0]","text":"Sat, Oct 24","box":[382.5,49.5,74,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"visitors","box":[398.5,92.5,48,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > span[0] > #text[0]","text":"2,288","box":[472.5,92.5,40,16]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-leave",
       "label": "Leave",
       "status": "done",
-      "settleMs": 409,
+      "settleMs": 414,
       "changed": [],
-      "removed": []
+      "removed": [],
+      "changedTexts": [],
+      "removedTexts": []
     }
   ]
 }

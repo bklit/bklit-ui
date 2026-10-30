@@ -1,5 +1,5 @@
 {
-  "schema": 1,
+  "schema": 2,
   "chart": "bar",
   "variant": "value-labels",
   "label": "Value labels",
@@ -7,17 +7,18 @@
     "width": 640,
     "height": 360
   },
-  "recordedAt": "2026-10-30T14:12:37.473Z",
+  "recordedAt": "2026-10-30T20:26:26.789Z",
   "machine": "dev · Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz × 8 · 8 threads · DPR 1",
   "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
   "hover": true,
   "hoverTargetCount": 3,
+  "interactions": false,
   "steps": [
     {
       "id": "enter",
       "label": "Enter",
       "status": "done",
-      "settleMs": 1651,
+      "settleMs": 1612,
       "nodes": [
         {"path":"svg[0]","tag":"svg","attrs":{"width":"638","height":"319"}},
         {"path":"svg[0] > rect[0]","tag":"rect","attrs":{"x":"0","y":"0","width":"638","height":"319"}},
@@ -78,13 +79,27 @@
         {"path":"svg[0] > g[0] > g[1] > g[11]","tag":"g","attrs":{}},
         {"path":"svg[0] > g[0] > g[1] > g[11] > rect[0]","tag":"rect","attrs":{"rx":"8","ry":"8","x":"571.016393442623","y":"65.74615384615385","width":"40.78688524590164","height":"193.25384615384615"}},
         {"path":"svg[0] > g[0] > g[1] > g[11] > text[0]","tag":"text","attrs":{"x":"591.4098360655738","y":"162.37307692307692"}}
+      ],
+      "texts": [
+        {"path":"frame > div[0] > div[0] > div[1] > div[0] > span[0] > #text[0]","text":"Jan","box":[30,312.5,19,14]},
+        {"path":"frame > div[0] > div[0] > div[1] > div[1] > span[0] > #text[0]","text":"Feb","box":[79.5,312.5,22,14]},
+        {"path":"frame > div[0] > div[0] > div[1] > div[2] > span[0] > #text[0]","text":"Mar","box":[130,312.5,23,14]},
+        {"path":"frame > div[0] > div[0] > div[1] > div[3] > span[0] > #text[0]","text":"Apr","box":[182,312.5,21,14]},
+        {"path":"frame > div[0] > div[0] > div[1] > div[4] > span[0] > #text[0]","text":"May","box":[230.5,312.5,26,14]},
+        {"path":"frame > div[0] > div[0] > div[1] > div[5] > span[0] > #text[0]","text":"Jun","box":[285,312.5,19,14]},
+        {"path":"frame > div[0] > div[0] > div[1] > div[6] > span[0] > #text[0]","text":"Jul","box":[338,312.5,15,14]},
+        {"path":"frame > div[0] > div[0] > div[1] > div[7] > span[0] > #text[0]","text":"Aug","box":[384.5,312.5,24,14]},
+        {"path":"frame > div[0] > div[0] > div[1] > div[8] > span[0] > #text[0]","text":"Sep","box":[436.5,312.5,22,14]},
+        {"path":"frame > div[0] > div[0] > div[1] > div[9] > span[0] > #text[0]","text":"Oct","box":[487.5,312.5,22,14]},
+        {"path":"frame > div[0] > div[0] > div[1] > div[10] > span[0] > #text[0]","text":"Nov","box":[538,312.5,23,14]},
+        {"path":"frame > div[0] > div[0] > div[1] > div[11] > span[0] > #text[0]","text":"Dec","box":[589,312.5,23,14]}
       ]
     },
     {
       "id": "hover-0",
       "label": "Hover #0 (rect @ 15%,15%)",
       "status": "done",
-      "settleMs": 639,
+      "settleMs": 646,
       "changed": [
         {"path":"svg[1]","tag":"svg","attrs":{"width":"100%","height":"100%"}},
         {"path":"svg[1] > g[0]","tag":"g","attrs":{"transform":"translate(8,20)"}},
@@ -92,13 +107,33 @@
         {"path":"svg[1] > g[0] > g[0] > circle[0]","tag":"circle","attrs":{"cx":"81.57377049180327","cy":"131.4923076923077","r":"13"}},
         {"path":"svg[1] > g[0] > g[0] > circle[1]","tag":"circle","attrs":{"cx":"81.57377049180327","cy":"131.4923076923077","r":"5"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[2] > div[0] > div[0] > div[0] > div[0] > #text[0]","text":"Feb","box":[121.5,53.5,25,16]},
+        {"path":"frame > div[0] > div[0] > div[2] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"orders","box":[137.5,96.5,43,16]},
+        {"path":"frame > div[0] > div[0] > div[2] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > span[0] > #text[0]","text":"640","box":[224.5,96.5,27,16]},
+        {"path":"frame > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > span[0] > #text[0]","text":"Jan","box":[77,287.5,23,16]},
+        {"path":"frame > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[0] > div[0] > div[1] > span[0] > #text[0]","text":"Feb","box":[76,311.5,25,16]},
+        {"path":"frame > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[0] > div[0] > div[2] > span[0] > #text[0]","text":"Mar","box":[75.5,335.5,26,16]},
+        {"path":"frame > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[0] > div[0] > div[3] > span[0] > #text[0]","text":"Apr","box":[76.5,359.5,24,16]},
+        {"path":"frame > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[0] > div[0] > div[4] > span[0] > #text[0]","text":"May","box":[74,383.5,29,16]},
+        {"path":"frame > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[0] > div[0] > div[5] > span[0] > #text[0]","text":"Jun","box":[77,407.5,23,16]},
+        {"path":"frame > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[0] > div[0] > div[6] > span[0] > #text[0]","text":"Jul","box":[79.5,431.5,18,16]},
+        {"path":"frame > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[0] > div[0] > div[7] > span[0] > #text[0]","text":"Aug","box":[75,455.5,27,16]},
+        {"path":"frame > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[0] > div[0] > div[8] > span[0] > #text[0]","text":"Sep","box":[75.5,479.5,26,16]},
+        {"path":"frame > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[0] > div[0] > div[9] > span[0] > #text[0]","text":"Oct","box":[76,503.5,25,16]},
+        {"path":"frame > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[0] > div[0] > div[10] > span[0] > #text[0]","text":"Nov","box":[74.5,527.5,28,16]},
+        {"path":"frame > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[0] > div[0] > div[11] > span[0] > #text[0]","text":"Dec","box":[75.5,551.5,26,16]}
+      ],
+      "removedTexts": [
+        "frame > div[0] > div[0] > div[1] > div[1] > span[0] > #text[0]"
+      ]
     },
     {
       "id": "hover-1",
       "label": "Hover #1 (rect @ 50%,50%)",
       "status": "done",
-      "settleMs": 1557,
+      "settleMs": 1569,
       "changed": [
         {"path":"svg[1]","tag":"svg","attrs":{"width":"100%","height":"100%"}},
         {"path":"svg[1] > g[0]","tag":"g","attrs":{"transform":"translate(8,20)"}},
@@ -106,13 +141,33 @@
         {"path":"svg[1] > g[0] > g[0] > circle[0]","tag":"circle","attrs":{"cx":"336.4918032786885","cy":"83.67692307692306","r":"13"}},
         {"path":"svg[1] > g[0] > g[0] > circle[1]","tag":"circle","attrs":{"cx":"336.4918032786885","cy":"83.67692307692306","r":"5"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[2] > div[0] > div[0] > div[0] > div[0] > #text[0]","text":"Jul","box":[376.5,53.5,18,16]},
+        {"path":"frame > div[0] > div[0] > div[2] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"orders","box":[392.5,96.5,43,16]},
+        {"path":"frame > div[0] > div[0] > div[2] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > span[0] > #text[0]","text":"880","box":[479.5,96.5,27,16]},
+        {"path":"frame > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > span[0] > #text[0]","text":"Jan","box":[332,167.5,23,16]},
+        {"path":"frame > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[0] > div[0] > div[1] > span[0] > #text[0]","text":"Feb","box":[331,191.5,25,16]},
+        {"path":"frame > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[0] > div[0] > div[2] > span[0] > #text[0]","text":"Mar","box":[330.5,215.5,26,16]},
+        {"path":"frame > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[0] > div[0] > div[3] > span[0] > #text[0]","text":"Apr","box":[331.5,239.5,24,16]},
+        {"path":"frame > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[0] > div[0] > div[4] > span[0] > #text[0]","text":"May","box":[329,263.5,29,16]},
+        {"path":"frame > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[0] > div[0] > div[5] > span[0] > #text[0]","text":"Jun","box":[332,287.5,23,16]},
+        {"path":"frame > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[0] > div[0] > div[6] > span[0] > #text[0]","text":"Jul","box":[334.5,311.5,18,16]},
+        {"path":"frame > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[0] > div[0] > div[7] > span[0] > #text[0]","text":"Aug","box":[330,335.5,27,16]},
+        {"path":"frame > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[0] > div[0] > div[8] > span[0] > #text[0]","text":"Sep","box":[330.5,359.5,26,16]},
+        {"path":"frame > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[0] > div[0] > div[9] > span[0] > #text[0]","text":"Oct","box":[331,383.5,25,16]},
+        {"path":"frame > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[0] > div[0] > div[10] > span[0] > #text[0]","text":"Nov","box":[329.5,407.5,28,16]},
+        {"path":"frame > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[0] > div[0] > div[11] > span[0] > #text[0]","text":"Dec","box":[330.5,431.5,26,16]}
+      ],
+      "removedTexts": [
+        "frame > div[0] > div[0] > div[1] > div[6] > span[0] > #text[0]"
+      ]
     },
     {
       "id": "hover-2",
       "label": "Hover #2 (rect @ 85%,85%)",
       "status": "done",
-      "settleMs": 1224,
+      "settleMs": 1234,
       "changed": [
         {"path":"svg[1]","tag":"svg","attrs":{"width":"100%","height":"100%"}},
         {"path":"svg[1] > g[0]","tag":"g","attrs":{"transform":"translate(8,20)"}},
@@ -120,15 +175,37 @@
         {"path":"svg[1] > g[0] > g[0] > circle[0]","tag":"circle","attrs":{"cx":"540.4262295081967","cy":"35.86153846153845","r":"13"}},
         {"path":"svg[1] > g[0] > g[0] > circle[1]","tag":"circle","attrs":{"cx":"540.4262295081967","cy":"35.86153846153845","r":"5"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[2] > div[0] > div[0] > div[0] > div[0] > #text[0]","text":"Nov","box":[388.5,53.5,28,16]},
+        {"path":"frame > div[0] > div[0] > div[2] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"orders","box":[404.5,96.5,43,16]},
+        {"path":"frame > div[0] > div[0] > div[2] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > span[0] > #text[0]","text":"1,120","box":[478.5,96.5,40,16]},
+        {"path":"frame > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > span[0] > #text[0]","text":"Jan","box":[536,71.5,23,16]},
+        {"path":"frame > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[0] > div[0] > div[1] > span[0] > #text[0]","text":"Feb","box":[535,95.5,25,16]},
+        {"path":"frame > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[0] > div[0] > div[2] > span[0] > #text[0]","text":"Mar","box":[534.5,119.5,26,16]},
+        {"path":"frame > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[0] > div[0] > div[3] > span[0] > #text[0]","text":"Apr","box":[535.5,143.5,24,16]},
+        {"path":"frame > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[0] > div[0] > div[4] > span[0] > #text[0]","text":"May","box":[533,167.5,29,16]},
+        {"path":"frame > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[0] > div[0] > div[5] > span[0] > #text[0]","text":"Jun","box":[536,191.5,23,16]},
+        {"path":"frame > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[0] > div[0] > div[6] > span[0] > #text[0]","text":"Jul","box":[538.5,215.5,18,16]},
+        {"path":"frame > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[0] > div[0] > div[7] > span[0] > #text[0]","text":"Aug","box":[534,239.5,27,16]},
+        {"path":"frame > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[0] > div[0] > div[8] > span[0] > #text[0]","text":"Sep","box":[534.5,263.5,26,16]},
+        {"path":"frame > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[0] > div[0] > div[9] > span[0] > #text[0]","text":"Oct","box":[535,287.5,25,16]},
+        {"path":"frame > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[0] > div[0] > div[10] > span[0] > #text[0]","text":"Nov","box":[533.5,311.5,28,16]},
+        {"path":"frame > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[0] > div[0] > div[11] > span[0] > #text[0]","text":"Dec","box":[534.5,335.5,26,16]}
+      ],
+      "removedTexts": [
+        "frame > div[0] > div[0] > div[1] > div[10] > span[0] > #text[0]"
+      ]
     },
     {
       "id": "hover-leave",
       "label": "Leave",
       "status": "done",
-      "settleMs": 439,
+      "settleMs": 430,
       "changed": [],
-      "removed": []
+      "removed": [],
+      "changedTexts": [],
+      "removedTexts": []
     }
   ]
 }

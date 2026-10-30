@@ -1,5 +1,5 @@
 {
-  "schema": 1,
+  "schema": 2,
   "chart": "heatmap",
   "variant": "docs-preview",
   "label": "Docs preview",
@@ -7,17 +7,18 @@
     "width": 760,
     "height": 260
   },
-  "recordedAt": "2026-10-30T14:31:02.543Z",
+  "recordedAt": "2026-10-30T20:44:57.093Z",
   "machine": "dev · Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz × 8 · 8 threads · DPR 1",
   "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
   "hover": true,
   "hoverTargetCount": 378,
+  "interactions": false,
   "steps": [
     {
       "id": "enter",
       "label": "Enter",
       "status": "done",
-      "settleMs": 2077,
+      "settleMs": 2121,
       "nodes": [
         {"path":"svg[0]","tag":"svg","attrs":{"width":"758","height":"119"}},
         {"path":"svg[0] > g[0]","tag":"g","attrs":{"transform":"translate(40,28)"}},
@@ -1156,39 +1157,79 @@
         {"path":"svg[0] > g[0] > g[0] > g[377]","tag":"g","attrs":{}},
         {"path":"svg[0] > g[0] > g[0] > g[377] > rect[0]","tag":"rect","attrs":{"rx":"2","ry":"2","x":"689","y":"80","width":"11","height":"11"}},
         {"path":"svg[0] > g[0] > g[0] > g[377] > rect[1]","tag":"rect","attrs":{"rx":"2","ry":"2","x":"689","y":"80","width":"11","height":"11"}}
+      ],
+      "texts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > span[0] > #text[0]","text":"Jul","box":[41,57.5,15,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[1] > span[0] > #text[0]","text":"Aug","box":[106,57.5,24,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[2] > span[0] > #text[0]","text":"Sep","box":[158,57.5,22,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[3] > span[0] > #text[0]","text":"Oct","box":[223,57.5,22,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[4] > span[0] > #text[0]","text":"Nov","box":[275,57.5,23,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[5] > span[0] > #text[0]","text":"Dec","box":[327,57.5,23,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[6] > span[0] > #text[0]","text":"Jan","box":[392,57.5,19,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[7] > span[0] > #text[0]","text":"Feb","box":[444,57.5,22,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[8] > span[0] > #text[0]","text":"Mar","box":[496,57.5,23,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[9] > span[0] > #text[0]","text":"Apr","box":[561,57.5,21,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[10] > span[0] > #text[0]","text":"May","box":[613,57.5,26,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[11] > span[0] > #text[0]","text":"Jun","box":[665,57.5,19,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[12] > span[0] > #text[0]","text":"Jul","box":[730,57.5,15,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[13] > span[0] > #text[0]","text":"Mon","box":[7,96,26,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[14] > span[0] > #text[0]","text":"Wed","box":[6,122,27,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[15] > span[0] > #text[0]","text":"Fri","box":[19,148,14,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[1] > span[0] > #text[0]","text":"Less","box":[628,188.5,26,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[1] > span[1] > #text[0]","text":"More","box":[729,188.5,30,14]}
       ]
     },
     {
       "id": "hover-0",
       "label": "Hover #0 (rect)",
       "status": "done",
-      "settleMs": 621,
+      "settleMs": 620,
       "changed": [],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[16] > div[0] > div[0] > div[0] > #text[0]","text":"June 25th 2023","box":[78.5,85.5,101,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[16] > div[0] > div[0] > div[0] > div[0] > #text[0]","text":"Sunday","box":[78.5,106.5,43,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[16] > div[0] > div[0] > div[1] > #text[0]","text":"0 contributions","box":[78.5,146.5,101,16]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-189",
       "label": "Hover #189 (rect)",
       "status": "done",
-      "settleMs": 1779,
+      "settleMs": 1777,
       "changed": [],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[16] > div[0] > div[0] > div[0] > #text[0]","text":"December 31st 2023","box":[429.5,85.5,135,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[16] > div[0] > div[0] > div[0] > div[0] > #text[0]","text":"Sunday","box":[429.5,106.5,43,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[16] > div[0] > div[0] > div[1] > #text[0]","text":"0 contributions","box":[429.5,146.5,101,16]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-377",
       "label": "Hover #377 (rect)",
       "status": "done",
-      "settleMs": 1694,
+      "settleMs": 1680,
       "changed": [],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[16] > div[0] > div[0] > div[0] > #text[0]","text":"July 6th 2024","box":[575.5,85.5,88,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[16] > div[0] > div[0] > div[0] > div[0] > #text[0]","text":"Saturday","box":[575.5,106.5,52,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[16] > div[0] > div[0] > div[1] > #text[0]","text":"0 contributions","box":[575.5,146.5,101,16]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-leave",
       "label": "Leave",
       "status": "done",
-      "settleMs": 443,
+      "settleMs": 434,
       "changed": [],
-      "removed": []
+      "removed": [],
+      "changedTexts": [],
+      "removedTexts": []
     }
   ]
 }

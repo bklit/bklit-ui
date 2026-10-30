@@ -1,5 +1,5 @@
 {
-  "schema": 1,
+  "schema": 2,
   "chart": "line",
   "variant": "glow",
   "label": "Glow (sunset)",
@@ -7,17 +7,18 @@
     "width": 640,
     "height": 470
   },
-  "recordedAt": "2026-10-30T13:56:39.977Z",
+  "recordedAt": "2026-10-30T20:09:49.983Z",
   "machine": "dev · Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz × 8 · 8 threads · DPR 1",
   "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
   "hover": true,
   "hoverTargetCount": 3,
+  "interactions": false,
   "steps": [
     {
       "id": "enter",
       "label": "Enter",
       "status": "done",
-      "settleMs": 1583,
+      "settleMs": 1629,
       "nodes": [
         {"path":"svg[0]","tag":"svg","attrs":{"width":"638","height":"455.703"}},
         {"path":"svg[0] > defs[0]","tag":"defs","attrs":{}},
@@ -75,13 +76,14 @@
         {"path":"svg[0] > g[0] > g[0] > g[3] > path[1]","tag":"path","attrs":{"d":"M0,339.119C7.864,338.712,15.729,338.306,23.593,337.6C31.458,336.894,39.322,335.889,47.186,334.562C55.051,333.234,62.915,331.584,70.78,329.625C78.644,327.666,86.508,325.399,94.373,322.79C102.237,320.181,110.102,317.23,117.966,314.055C125.831,310.881,133.695,307.481,141.559,304.182C149.424,300.882,157.288,297.682,165.153,294.688C173.017,291.694,180.881,288.906,188.746,286.713C196.61,284.52,204.475,282.921,212.339,282.156C220.203,281.391,228.068,281.459,235.932,282.156C243.797,282.854,251.661,284.181,259.525,286.333C267.39,288.486,275.254,291.465,283.119,294.688C290.983,297.911,298.847,301.378,306.712,304.941C314.576,308.504,322.441,312.164,330.305,315.574C338.169,318.985,346.034,322.146,353.898,324.688C361.763,327.23,369.627,329.153,377.492,330.385C385.356,331.617,393.22,332.159,401.085,332.283C408.949,332.408,416.813,332.115,424.678,331.904C432.542,331.693,440.407,331.564,448.271,331.904C456.135,332.244,463.999,333.052,471.864,334.562C479.73,336.072,487.597,338.283,495.458,340.638C503.318,342.993,511.172,345.493,519.051,347.853C526.93,350.214,534.835,352.434,542.644,354.309C550.453,356.184,558.165,357.713,566.237,358.866C574.309,360.02,582.74,360.798,590.814,361.524C598.887,362.251,606.602,362.925,614.407,363.423C622.212,363.921,630.106,364.242,638,364.562"}},
         {"path":"svg[1]","tag":"svg","attrs":{"width":"100%","height":"100%"}},
         {"path":"svg[1] > g[0]","tag":"g","attrs":{}}
-      ]
+      ],
+      "texts": []
     },
     {
       "id": "hover-0",
       "label": "Hover #0 (rect @ 15%,15%)",
       "status": "done",
-      "settleMs": 617,
+      "settleMs": 607,
       "changed": [
         {"path":"svg[0] > g[0] > g[0] > defs[1]","tag":"defs","attrs":{}},
         {"path":"svg[0] > g[0] > g[0] > defs[1] > lineargradient[0]","tag":"lineargradient","attrs":{"x1":"0","y1":"0","x2":"1","y2":"0"}},
@@ -110,13 +112,19 @@
         {"path":"svg[2] > g[0] > g[0] > circle[0]","tag":"circle","attrs":{"cx":"94.37288135593221","cy":"322.78962499999994","r":"10.799999999999999"}},
         {"path":"svg[2] > g[0] > g[0] > circle[1]","tag":"circle","attrs":{"cx":"94.37288135593221","cy":"322.78962499999994","r":"4.5"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > div[0] > span[0] > #text[0]","text":"Oct 5","box":[128.5,38,37,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"Normal","box":[311.5,39,41,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > p[0] > #text[0]","text":"35.0k sessions.","box":[128.5,66,85,14]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-1",
       "label": "Hover #1 (rect @ 50%,50%)",
       "status": "done",
-      "settleMs": 1568,
+      "settleMs": 1548,
       "changed": [
         {"path":"svg[0] > g[0] > g[0] > defs[1]","tag":"defs","attrs":{}},
         {"path":"svg[0] > g[0] > g[0] > defs[1] > lineargradient[0]","tag":"lineargradient","attrs":{"x1":"0","y1":"0","x2":"1","y2":"0"}},
@@ -145,13 +153,19 @@
         {"path":"svg[2] > g[0] > g[0] > circle[0]","tag":"circle","attrs":{"cx":"330.3050847457627","cy":"315.5743275","r":"10.799999999999999"}},
         {"path":"svg[2] > g[0] > g[0] > circle[1]","tag":"circle","attrs":{"cx":"330.3050847457627","cy":"315.5743275","r":"4.5"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > div[0] > span[0] > #text[0]","text":"Oct 15","box":[364.5,38,43,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"Normal","box":[547.5,39,41,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > p[0] > #text[0]","text":"36.9k sessions — down 13% on last week.","box":[364.5,66,195,33.5]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-2",
       "label": "Hover #2 (rect @ 85%,85%)",
       "status": "done",
-      "settleMs": 1448,
+      "settleMs": 1422,
       "changed": [
         {"path":"svg[0] > g[0] > g[0] > defs[1]","tag":"defs","attrs":{}},
         {"path":"svg[0] > g[0] > g[0] > defs[1] > lineargradient[0]","tag":"lineargradient","attrs":{"x1":"0","y1":"0","x2":"1","y2":"0"}},
@@ -180,15 +194,23 @@
         {"path":"svg[2] > g[0] > g[0] > circle[0]","tag":"circle","attrs":{"cx":"542.6440677966102","cy":"354.3090825","r":"10.799999999999999"}},
         {"path":"svg[2] > g[0] > g[0] > circle[1]","tag":"circle","attrs":{"cx":"542.6440677966102","cy":"354.3090825","r":"4.5"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > div[0] > span[0] > #text[0]","text":"Oct 24","box":[286.5,38,45,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"Unusual","box":[464.5,39,46,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > p[0] > #text[0]","text":"26.7k sessions — down 19% on last week.","box":[286.5,66,194,33.5]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-leave",
       "label": "Leave",
       "status": "done",
-      "settleMs": 418,
+      "settleMs": 441,
       "changed": [],
-      "removed": []
+      "removed": [],
+      "changedTexts": [],
+      "removedTexts": []
     }
   ]
 }

@@ -1,5 +1,5 @@
 {
-  "schema": 1,
+  "schema": 2,
   "chart": "heatmap",
   "variant": "hero",
   "label": "Contributions (hero)",
@@ -7,17 +7,18 @@
     "width": 760,
     "height": 260
   },
-  "recordedAt": "2026-10-30T14:31:47.794Z",
+  "recordedAt": "2026-10-30T20:45:42.176Z",
   "machine": "dev · Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz × 8 · 8 threads · DPR 1",
   "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
   "hover": true,
   "hoverTargetCount": 378,
+  "interactions": false,
   "steps": [
     {
       "id": "enter",
       "label": "Enter",
       "status": "done",
-      "settleMs": 2140,
+      "settleMs": 2084,
       "nodes": [
         {"path":"svg[0]","tag":"svg","attrs":{"width":"758","height":"108.62962962962963"}},
         {"path":"svg[0] > g[0]","tag":"g","attrs":{"transform":"translate(44,28)"}},
@@ -1170,13 +1171,42 @@
         {"path":"svg[0] > g[0] > g[1] > g[2] > line[0]","tag":"line","attrs":{"x1":"0","y1":"-48","x2":"0","y2":"80.62962962962963"}},
         {"path":"svg[0] > g[0] > g[1] > g[3]","tag":"g","attrs":{"transform":"translate(680.4814814814815, 0)"}},
         {"path":"svg[0] > g[0] > g[1] > g[3] > line[0]","tag":"line","attrs":{"x1":"0","y1":"-48","x2":"0","y2":"80.62962962962963"}}
+      ],
+      "texts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > span[0] > #text[0]","text":"Q2","box":[45,54.5,17,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[1] > span[0] > #text[0]","text":"Q4","box":[226.5,54.5,18,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[2] > span[0] > #text[0]","text":"Q1","box":[396,54.5,16,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[3] > span[0] > #text[0]","text":"Q2","box":[565.5,54.5,17,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[4] > span[0] > #text[0]","text":"Q3","box":[735.5,54.5,17,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[5] > span[0] > #text[0]","text":"Jul","box":[45,74.5,15,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[6] > span[0] > #text[0]","text":"Aug","box":[102.5,74.5,24,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[7] > span[0] > #text[0]","text":"Sep","box":[148.5,74.5,22,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[8] > span[0] > #text[0]","text":"Oct","box":[226.5,74.5,22,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[9] > span[0] > #text[0]","text":"Nov","box":[272.5,74.5,23,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[10] > span[0] > #text[0]","text":"Dec","box":[318.5,74.5,23,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[11] > span[0] > #text[0]","text":"Jan","box":[396,74.5,19,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[12] > span[0] > #text[0]","text":"Feb","box":[442,74.5,22,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[13] > span[0] > #text[0]","text":"Mar","box":[488,74.5,23,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[14] > span[0] > #text[0]","text":"Apr","box":[565.5,74.5,21,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[15] > span[0] > #text[0]","text":"May","box":[612,74.5,26,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[16] > span[0] > #text[0]","text":"Jun","box":[658,74.5,19,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[17] > span[0] > #text[0]","text":"Jul","box":[735.5,74.5,15,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[18] > span[0] > #text[0]","text":"S","box":[30,99,7,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[19] > span[0] > #text[0]","text":"M","box":[25,110.5,12,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[20] > span[0] > #text[0]","text":"T","box":[30,122,7,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[21] > span[0] > #text[0]","text":"W","box":[24,133.5,13,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[22] > span[0] > #text[0]","text":"T","box":[30,145,7,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[23] > span[0] > #text[0]","text":"F","box":[30,156.5,7,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[24] > span[0] > #text[0]","text":"S","box":[30,168,7,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[1] > span[0] > #text[0]","text":"Less","box":[312.5,191.5,26,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[1] > span[1] > #text[0]","text":"More","box":[417.5,191.5,30,14]}
       ]
     },
     {
       "id": "hover-0",
       "label": "Hover #0 (rect)",
       "status": "done",
-      "settleMs": 623,
+      "settleMs": 619,
       "changed": [
         {"path":"svg[0] > g[0] > g[0] > g[1]","tag":"g","attrs":{"style.transform":"scale(0.8)"}},
         {"path":"svg[0] > g[0] > g[0] > g[2]","tag":"g","attrs":{"style.transform":"scale(0.8)"}},
@@ -1556,13 +1586,19 @@
         {"path":"svg[0] > g[0] > g[0] > g[376]","tag":"g","attrs":{"style.transform":"scale(0.8)"}},
         {"path":"svg[0] > g[0] > g[0] > g[377]","tag":"g","attrs":{"style.transform":"scale(0.8)"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[25] > div[0] > div[0] > div[0] > #text[0]","text":"June 25th 2023","box":[82,102.5,101,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[25] > div[0] > div[0] > div[0] > div[0] > #text[0]","text":"Sunday","box":[82,123.5,43,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[25] > div[0] > div[0] > div[1] > #text[0]","text":"0 contributions","box":[82,163.5,101,16]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-189",
       "label": "Hover #189 (rect)",
       "status": "done",
-      "settleMs": 1767,
+      "settleMs": 1777,
       "changed": [
         {"path":"svg[0] > g[0] > g[0] > g[0]","tag":"g","attrs":{"style.transform":"scale(0.8)"}},
         {"path":"svg[0] > g[0] > g[0] > g[1]","tag":"g","attrs":{"style.transform":"scale(0.8)"}},
@@ -1942,13 +1978,19 @@
         {"path":"svg[0] > g[0] > g[0] > g[376]","tag":"g","attrs":{"style.transform":"scale(0.8)"}},
         {"path":"svg[0] > g[0] > g[0] > g[377]","tag":"g","attrs":{"style.transform":"scale(0.8)"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[25] > div[0] > div[0] > div[0] > #text[0]","text":"December 31st 2023","box":[433,102.5,135,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[25] > div[0] > div[0] > div[0] > div[0] > #text[0]","text":"Sunday","box":[433,123.5,43,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[25] > div[0] > div[0] > div[1] > #text[0]","text":"0 contributions","box":[433,163.5,101,16]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-377",
       "label": "Hover #377 (rect)",
       "status": "done",
-      "settleMs": 1757,
+      "settleMs": 1674,
       "changed": [
         {"path":"svg[0] > g[0] > g[0] > g[0]","tag":"g","attrs":{"style.transform":"scale(0.8)"}},
         {"path":"svg[0] > g[0] > g[0] > g[1]","tag":"g","attrs":{"style.transform":"scale(0.8)"}},
@@ -2328,15 +2370,23 @@
         {"path":"svg[0] > g[0] > g[0] > g[375]","tag":"g","attrs":{"style.transform":"scale(0.8)"}},
         {"path":"svg[0] > g[0] > g[0] > g[376]","tag":"g","attrs":{"style.transform":"scale(0.8)"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[25] > div[0] > div[0] > div[0] > #text[0]","text":"July 6th 2024","box":[580,102.5,88,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[25] > div[0] > div[0] > div[0] > div[0] > #text[0]","text":"Saturday","box":[580,123.5,52,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[25] > div[0] > div[0] > div[1] > #text[0]","text":"0 contributions","box":[580,163.5,101,16]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-leave",
       "label": "Leave",
       "status": "done",
-      "settleMs": 482,
+      "settleMs": 478,
       "changed": [],
-      "removed": []
+      "removed": [],
+      "changedTexts": [],
+      "removedTexts": []
     }
   ]
 }

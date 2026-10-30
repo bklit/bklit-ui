@@ -1,5 +1,5 @@
 {
-  "schema": 1,
+  "schema": 2,
   "chart": "line",
   "variant": "band-range",
   "label": "Band range",
@@ -7,17 +7,18 @@
     "width": 640,
     "height": 360
   },
-  "recordedAt": "2026-10-30T13:56:47.731Z",
+  "recordedAt": "2026-10-30T20:09:57.801Z",
   "machine": "dev · Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz × 8 · 8 threads · DPR 1",
   "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
   "hover": true,
   "hoverTargetCount": 3,
+  "interactions": false,
   "steps": [
     {
       "id": "enter",
       "label": "Enter",
       "status": "done",
-      "settleMs": 1170,
+      "settleMs": 1187,
       "nodes": [
         {"path":"svg[0]","tag":"svg","attrs":{"width":"638","height":"319"}},
         {"path":"svg[0] > defs[0]","tag":"defs","attrs":{}},
@@ -61,13 +62,19 @@
         {"path":"svg[0] > g[0] > g[1] > g[1] > path[0]","tag":"path","attrs":{"d":"M0,110.111C8.087,104.916,16.174,99.722,24.261,98.161C32.348,96.599,40.435,98.67,48.522,100.721C56.609,102.772,64.696,104.803,72.783,104.136C80.87,103.468,88.957,100.102,97.043,96.454C105.13,92.805,113.217,88.875,121.304,87.064C129.391,85.254,137.478,85.563,145.565,85.357C153.652,85.151,161.739,84.43,169.826,81.089C177.913,77.748,186,71.788,194.087,67.432C202.174,63.077,210.261,60.326,218.348,61.457C226.435,62.588,234.522,67.6,242.609,71.7C250.696,75.8,258.783,78.986,266.87,80.236C274.957,81.485,283.043,80.798,291.13,81.089C299.217,81.381,307.304,82.651,315.391,85.357C323.478,88.063,331.565,92.204,339.652,93.893C347.739,95.581,355.826,94.817,363.913,91.332C372,87.847,380.087,81.641,388.174,76.821C396.261,72.001,404.348,68.567,412.435,67.432C420.522,66.297,428.609,67.462,436.696,67.432C444.783,67.403,452.87,66.179,460.957,63.164C469.043,60.149,477.13,55.343,485.217,52.921C493.304,50.5,501.391,50.464,509.478,52.068C517.565,53.672,525.652,56.916,533.739,56.336C541.826,55.756,549.913,51.351,558,46.946"}},
         {"path":"svg[1]","tag":"svg","attrs":{"width":"100%","height":"100%"}},
         {"path":"svg[1] > g[0]","tag":"g","attrs":{"transform":"translate(40,40)"}}
+      ],
+      "texts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[1] > div[0] > span[0] > #text[0]","text":"Jan 1","box":[27,312.5,28,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[1] > div[1] > span[0] > #text[0]","text":"Jan 9","box":[220.5,312.5,29,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[1] > div[2] > span[0] > #text[0]","text":"Jan 17","box":[412,312.5,34,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[1] > div[3] > span[0] > #text[0]","text":"Jan 24","box":[581,312.5,36,14]}
       ]
     },
     {
       "id": "hover-0",
       "label": "Hover #0 (rect @ 15%,15%)",
       "status": "done",
-      "settleMs": 658,
+      "settleMs": 692,
       "changed": [
         {"path":"svg[0] > g[0] > g[1] > defs[1]","tag":"defs","attrs":{}},
         {"path":"svg[0] > g[0] > g[1] > defs[1] > clippath[0]","tag":"clippath","attrs":{}},
@@ -95,13 +102,46 @@
         {"path":"svg[2] > g[0] > g[2] > circle[0]","tag":"circle","attrs":{"cx":"72.78260869565217","cy":"117.79285714285714","r":"13"}},
         {"path":"svg[2] > g[0] > g[2] > circle[1]","tag":"circle","attrs":{"cx":"72.78260869565217","cy":"117.79285714285714","r":"5"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[2] > div[0] > div[0] > div[0] > div[0] > #text[0]","text":"Thu, Jan 4","box":[145,73.5,68,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[2] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"value","box":[161,116.5,34,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[2] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > span[0] > #text[0]","text":"158","box":[266,116.5,27,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[2] > div[0] > div[0] > div[0] > div[1] > div[0] > div[1] > div[0] > span[1] > #text[0]","text":"range","box":[161,144.5,38,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[2] > div[0] > div[0] > div[0] > div[1] > div[0] > div[1] > span[0] > #text[0]","text":"142 – 177","box":[223,144.5,70,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > span[0] > #text[0]","text":"Jan","box":[96,311.5,23,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > span[0] > #text[0]","text":"1","box":[124.5,239.5,6,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[1] > span[0] > #text[0]","text":"2","box":[123.5,263.5,8,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[2] > span[0] > #text[0]","text":"3","box":[123.5,287.5,8,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[3] > span[0] > #text[0]","text":"4","box":[123,311.5,9,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[4] > span[0] > #text[0]","text":"5","box":[123.5,335.5,8,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[5] > span[0] > #text[0]","text":"6","box":[123.5,359.5,8,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[6] > span[0] > #text[0]","text":"7","box":[124,383.5,7,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[7] > span[0] > #text[0]","text":"8","box":[123,407.5,9,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[8] > span[0] > #text[0]","text":"9","box":[123.5,431.5,8,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[9] > span[0] > #text[0]","text":"10","box":[120,455.5,15,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[10] > span[0] > #text[0]","text":"11","box":[121.5,479.5,12,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[11] > span[0] > #text[0]","text":"12","box":[120.5,503.5,14,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[12] > span[0] > #text[0]","text":"13","box":[120.5,527.5,14,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[13] > span[0] > #text[0]","text":"14","box":[120,551.5,15,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[14] > span[0] > #text[0]","text":"15","box":[120.5,575.5,14,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[15] > span[0] > #text[0]","text":"16","box":[120.5,599.5,14,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[16] > span[0] > #text[0]","text":"17","box":[121,623.5,13,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[17] > span[0] > #text[0]","text":"18","box":[120,647.5,15,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[18] > span[0] > #text[0]","text":"19","box":[120.5,671.5,14,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[19] > span[0] > #text[0]","text":"20","box":[119,695.5,17,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[20] > span[0] > #text[0]","text":"21","box":[120.5,719.5,14,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[21] > span[0] > #text[0]","text":"22","box":[119.5,743.5,16,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[22] > span[0] > #text[0]","text":"23","box":[119.5,767.5,16,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[23] > span[0] > #text[0]","text":"24","box":[119.5,791.5,16,16]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-1",
       "label": "Hover #1 (rect @ 50%,50%)",
       "status": "done",
-      "settleMs": 1521,
+      "settleMs": 1523,
       "changed": [
         {"path":"svg[0] > g[0] > g[1] > defs[1]","tag":"defs","attrs":{}},
         {"path":"svg[0] > g[0] > g[1] > defs[1] > clippath[0]","tag":"clippath","attrs":{}},
@@ -129,13 +169,46 @@
         {"path":"svg[2] > g[0] > g[2] > circle[0]","tag":"circle","attrs":{"cx":"266.8695652173913","cy":"92.18571428571428","r":"13"}},
         {"path":"svg[2] > g[0] > g[2] > circle[1]","tag":"circle","attrs":{"cx":"266.8695652173913","cy":"92.18571428571428","r":"5"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[2] > div[0] > div[0] > div[0] > div[0] > #text[0]","text":"Fri, Jan 12","box":[339,73.5,64,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[2] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"value","box":[355,116.5,34,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[2] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > span[0] > #text[0]","text":"186","box":[460,116.5,27,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[2] > div[0] > div[0] > div[0] > div[1] > div[0] > div[1] > div[0] > span[1] > #text[0]","text":"range","box":[355,144.5,38,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[2] > div[0] > div[0] > div[0] > div[1] > div[0] > div[1] > span[0] > #text[0]","text":"172 – 200","box":[417,144.5,70,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > span[0] > #text[0]","text":"Jan","box":[287.5,311.5,23,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > span[0] > #text[0]","text":"1","box":[318.5,47.5,6,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[1] > span[0] > #text[0]","text":"2","box":[317.5,71.5,8,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[2] > span[0] > #text[0]","text":"3","box":[317.5,95.5,8,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[3] > span[0] > #text[0]","text":"4","box":[317,119.5,9,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[4] > span[0] > #text[0]","text":"5","box":[317.5,143.5,8,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[5] > span[0] > #text[0]","text":"6","box":[317.5,167.5,8,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[6] > span[0] > #text[0]","text":"7","box":[318,191.5,7,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[7] > span[0] > #text[0]","text":"8","box":[317,215.5,9,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[8] > span[0] > #text[0]","text":"9","box":[317.5,239.5,8,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[9] > span[0] > #text[0]","text":"10","box":[314,263.5,15,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[10] > span[0] > #text[0]","text":"11","box":[315.5,287.5,12,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[11] > span[0] > #text[0]","text":"12","box":[314.5,311.5,14,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[12] > span[0] > #text[0]","text":"13","box":[314.5,335.5,14,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[13] > span[0] > #text[0]","text":"14","box":[314,359.5,15,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[14] > span[0] > #text[0]","text":"15","box":[314.5,383.5,14,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[15] > span[0] > #text[0]","text":"16","box":[314.5,407.5,14,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[16] > span[0] > #text[0]","text":"17","box":[315,431.5,13,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[17] > span[0] > #text[0]","text":"18","box":[314,455.5,15,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[18] > span[0] > #text[0]","text":"19","box":[314.5,479.5,14,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[19] > span[0] > #text[0]","text":"20","box":[313,503.5,17,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[20] > span[0] > #text[0]","text":"21","box":[314.5,527.5,14,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[21] > span[0] > #text[0]","text":"22","box":[313.5,551.5,16,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[22] > span[0] > #text[0]","text":"23","box":[313.5,575.5,16,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[23] > span[0] > #text[0]","text":"24","box":[313.5,599.5,16,16]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-2",
       "label": "Hover #2 (rect @ 85%,85%)",
       "status": "done",
-      "settleMs": 1353,
+      "settleMs": 1334,
       "changed": [
         {"path":"svg[0] > g[0] > g[1] > defs[1]","tag":"defs","attrs":{}},
         {"path":"svg[0] > g[0] > g[1] > defs[1] > clippath[0]","tag":"clippath","attrs":{}},
@@ -163,15 +236,50 @@
         {"path":"svg[2] > g[0] > g[2] > circle[0]","tag":"circle","attrs":{"cx":"485.2173913043478","cy":"70.84642857142856","r":"13"}},
         {"path":"svg[2] > g[0] > g[2] > circle[1]","tag":"circle","attrs":{"cx":"485.2173913043478","cy":"70.84642857142856","r":"5"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[2] > div[0] > div[0] > div[0] > div[0] > #text[0]","text":"Sun, Jan 21","box":[347,73.5,73,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[2] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"value","box":[363,116.5,34,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[2] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > span[0] > #text[0]","text":"218","box":[468,116.5,27,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[2] > div[0] > div[0] > div[0] > div[1] > div[0] > div[1] > div[0] > span[1] > #text[0]","text":"range","box":[363,144.5,38,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[2] > div[0] > div[0] > div[0] > div[1] > div[0] > div[1] > span[0] > #text[0]","text":"197 – 232","box":[425,144.5,70,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > span[0] > #text[0]","text":"Jan","box":[505.5,311.5,23,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > span[0] > #text[0]","text":"1","box":[536.5,-168.5,6,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[1] > span[0] > #text[0]","text":"2","box":[535.5,-144.5,8,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[2] > span[0] > #text[0]","text":"3","box":[535.5,-120.5,8,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[3] > span[0] > #text[0]","text":"4","box":[535,-96.5,9,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[4] > span[0] > #text[0]","text":"5","box":[535.5,-72.5,8,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[5] > span[0] > #text[0]","text":"6","box":[535.5,-48.5,8,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[6] > span[0] > #text[0]","text":"7","box":[536,-24.5,7,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[7] > span[0] > #text[0]","text":"8","box":[535,-0.5,9,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[8] > span[0] > #text[0]","text":"9","box":[535.5,23.5,8,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[9] > span[0] > #text[0]","text":"10","box":[532,47.5,15,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[10] > span[0] > #text[0]","text":"11","box":[533.5,71.5,12,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[11] > span[0] > #text[0]","text":"12","box":[532.5,95.5,14,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[12] > span[0] > #text[0]","text":"13","box":[532.5,119.5,14,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[13] > span[0] > #text[0]","text":"14","box":[532,143.5,15,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[14] > span[0] > #text[0]","text":"15","box":[532.5,167.5,14,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[15] > span[0] > #text[0]","text":"16","box":[532.5,191.5,14,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[16] > span[0] > #text[0]","text":"17","box":[533,215.5,13,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[17] > span[0] > #text[0]","text":"18","box":[532,239.5,15,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[18] > span[0] > #text[0]","text":"19","box":[532.5,263.5,14,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[19] > span[0] > #text[0]","text":"20","box":[531,287.5,17,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[20] > span[0] > #text[0]","text":"21","box":[532.5,311.5,14,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[21] > span[0] > #text[0]","text":"22","box":[531.5,335.5,16,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[22] > span[0] > #text[0]","text":"23","box":[531.5,359.5,16,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[23] > span[0] > #text[0]","text":"24","box":[531.5,383.5,16,16]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-leave",
       "label": "Leave",
       "status": "done",
-      "settleMs": 418,
+      "settleMs": 423,
       "changed": [],
-      "removed": []
+      "removed": [],
+      "changedTexts": [],
+      "removedTexts": []
     }
   ]
 }

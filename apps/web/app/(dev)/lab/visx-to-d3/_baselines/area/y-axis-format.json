@@ -1,5 +1,5 @@
 {
-  "schema": 1,
+  "schema": 2,
   "chart": "area",
   "variant": "y-axis-format",
   "label": "Y axis · ticks + format",
@@ -7,17 +7,18 @@
     "width": 640,
     "height": 360
   },
-  "recordedAt": "2026-10-30T14:08:43.515Z",
+  "recordedAt": "2026-10-30T20:22:21.927Z",
   "machine": "dev · Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz × 8 · 8 threads · DPR 1",
   "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
   "hover": true,
   "hoverTargetCount": 3,
+  "interactions": false,
   "steps": [
     {
       "id": "enter",
       "label": "Enter",
       "status": "done",
-      "settleMs": 1176,
+      "settleMs": 1214,
       "nodes": [
         {"path":"svg[0]","tag":"svg","attrs":{"width":"638","height":"319"}},
         {"path":"svg[0] > defs[0]","tag":"defs","attrs":{}},
@@ -50,13 +51,23 @@
         {"path":"svg[0] > g[0] > g[1] > g[0] > path[1]","tag":"path","attrs":{"d":"M0,116.143C6.598,110.899,13.195,105.655,19.793,100.56C26.391,95.466,32.989,90.372,39.586,85.578C46.184,80.784,52.782,76.099,59.379,71.796C65.977,67.492,72.575,63.398,79.172,59.756C85.77,56.113,92.368,52.784,98.966,49.941C105.563,47.099,112.161,44.631,118.759,42.702C125.356,40.773,131.954,39.243,138.552,38.366C145.149,37.488,151.747,37.05,158.345,37.05C164.943,37.05,171.54,37.737,178.138,38.83C184.736,39.924,191.333,41.547,197.931,43.612C204.529,45.676,211.126,48.27,217.724,51.219C224.322,54.168,230.92,57.597,237.517,61.304C244.115,65.011,250.713,69.137,257.31,73.46C263.908,77.783,270.506,82.481,277.103,87.243C283.701,92.005,290.299,97.028,296.897,102.031C303.494,107.035,310.092,112.217,316.69,117.266C323.287,122.315,329.885,127.438,336.483,132.325C343.08,137.213,349.678,142.065,356.276,146.592C362.874,151.118,369.471,155.499,376.069,159.484C382.667,163.468,389.264,167.217,395.862,170.498C402.46,173.779,409.057,176.727,415.655,179.17C422.253,181.612,428.851,183.648,435.448,185.151C442.046,186.654,448.644,188.19,455.241,188.19C461.839,188.19,468.437,188.184,475.034,188.171C481.632,188.158,488.23,186.6,494.828,185.074C501.425,183.548,508.023,181.486,514.621,179.015C521.218,176.544,527.816,173.569,534.414,170.246C541.011,166.923,547.609,163.126,554.207,159.077C560.805,155.028,567.402,150.49,574,145.953"}},
         {"path":"svg[1]","tag":"svg","attrs":{"width":"100%","height":"100%"}},
         {"path":"svg[1] > g[0]","tag":"g","attrs":{"transform":"translate(56,8)"}}
+      ],
+      "texts": [
+        {"path":"frame > div[0] > div[0] > div[1] > div[0] > div[0] > span[0] > #text[0]","text":"$0","box":[34,292.5,15,14]},
+        {"path":"frame > div[0] > div[0] > div[1] > div[0] > div[1] > span[0] > #text[0]","text":"$5,000","box":[8,195.5,41,14]},
+        {"path":"frame > div[0] > div[0] > div[1] > div[0] > div[2] > span[0] > #text[0]","text":"$10,000","box":[1,99,48,14]},
+        {"path":"frame > div[0] > div[0] > div[2] > div[0] > span[0] > #text[0]","text":"Jan 1","box":[43,312.5,28,14]},
+        {"path":"frame > div[0] > div[0] > div[2] > div[1] > span[0] > #text[0]","text":"Jan 8","box":[181,312.5,29,14]},
+        {"path":"frame > div[0] > div[0] > div[2] > div[2] > span[0] > #text[0]","text":"Jan 16","box":[336.5,312.5,35,14]},
+        {"path":"frame > div[0] > div[0] > div[2] > div[3] > span[0] > #text[0]","text":"Jan 23","box":[474.5,312.5,36,14]},
+        {"path":"frame > div[0] > div[0] > div[2] > div[4] > span[0] > #text[0]","text":"Jan 30","box":[612.5,312.5,37,14]}
       ]
     },
     {
       "id": "hover-0",
       "label": "Hover #0 (rect @ 15%,15%)",
       "status": "done",
-      "settleMs": 726,
+      "settleMs": 728,
       "changed": [
         {"path":"svg[0] > g[0] > g[1] > defs[1]","tag":"defs","attrs":{}},
         {"path":"svg[0] > g[0] > g[1] > defs[1] > clippath[0]","tag":"clippath","attrs":{}},
@@ -78,13 +89,50 @@
         {"path":"svg[2] > g[0] > g[0] > circle[0]","tag":"circle","attrs":{"cx":"79.17241379310344","cy":"59.755500000000005","r":"13"}},
         {"path":"svg[2] > g[0] > g[0] > circle[1]","tag":"circle","attrs":{"cx":"79.17241379310344","cy":"59.755500000000005","r":"5"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[0] > #text[0]","text":"Fri, Jan 5","box":[167,41.5,58,16]},
+        {"path":"frame > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"revenue","box":[183,84.5,53,16]},
+        {"path":"frame > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > span[0] > #text[0]","text":"10,913","box":[260,84.5,49,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > span[0] > #text[0]","text":"Jan","box":[118.5,311.5,23,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > span[0] > #text[0]","text":"1","box":[146.5,215.5,6,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[1] > span[0] > #text[0]","text":"2","box":[145.5,239.5,8,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[2] > span[0] > #text[0]","text":"3","box":[145.5,263.5,8,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[3] > span[0] > #text[0]","text":"4","box":[145,287.5,9,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[4] > span[0] > #text[0]","text":"5","box":[145.5,311.5,8,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[5] > span[0] > #text[0]","text":"6","box":[145.5,335.5,8,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[6] > span[0] > #text[0]","text":"7","box":[146,359.5,7,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[7] > span[0] > #text[0]","text":"8","box":[145,383.5,9,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[8] > span[0] > #text[0]","text":"9","box":[145.5,407.5,8,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[9] > span[0] > #text[0]","text":"10","box":[142,431.5,15,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[10] > span[0] > #text[0]","text":"11","box":[143.5,455.5,12,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[11] > span[0] > #text[0]","text":"12","box":[142.5,479.5,14,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[12] > span[0] > #text[0]","text":"13","box":[142.5,503.5,14,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[13] > span[0] > #text[0]","text":"14","box":[142,527.5,15,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[14] > span[0] > #text[0]","text":"15","box":[142.5,551.5,14,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[15] > span[0] > #text[0]","text":"16","box":[142.5,575.5,14,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[16] > span[0] > #text[0]","text":"17","box":[143,599.5,13,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[17] > span[0] > #text[0]","text":"18","box":[142,623.5,15,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[18] > span[0] > #text[0]","text":"19","box":[142.5,647.5,14,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[19] > span[0] > #text[0]","text":"20","box":[141,671.5,17,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[20] > span[0] > #text[0]","text":"21","box":[142.5,695.5,14,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[21] > span[0] > #text[0]","text":"22","box":[141.5,719.5,16,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[22] > span[0] > #text[0]","text":"23","box":[141.5,743.5,16,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[23] > span[0] > #text[0]","text":"24","box":[141.5,767.5,16,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[24] > span[0] > #text[0]","text":"25","box":[141.5,791.5,16,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[25] > span[0] > #text[0]","text":"26","box":[141.5,815.5,16,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[26] > span[0] > #text[0]","text":"27","box":[142,839.5,15,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[27] > span[0] > #text[0]","text":"28","box":[141,863.5,17,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[28] > span[0] > #text[0]","text":"29","box":[141.5,887.5,16,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[29] > span[0] > #text[0]","text":"30","box":[141,911.5,17,16]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-1",
       "label": "Hover #1 (rect @ 50%,50%)",
       "status": "done",
-      "settleMs": 1537,
+      "settleMs": 1516,
       "changed": [
         {"path":"svg[0] > g[0] > g[1] > defs[1]","tag":"defs","attrs":{}},
         {"path":"svg[0] > g[0] > g[1] > defs[1] > clippath[0]","tag":"clippath","attrs":{}},
@@ -106,13 +154,52 @@
         {"path":"svg[2] > g[0] > g[0] > circle[0]","tag":"circle","attrs":{"cx":"277.1034482758621","cy":"87.24264285714287","r":"13"}},
         {"path":"svg[2] > g[0] > g[0] > circle[1]","tag":"circle","attrs":{"cx":"277.1034482758621","cy":"87.24264285714287","r":"5"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[0] > #text[0]","text":"Mon, Jan 15","box":[365,41.5,78,16]},
+        {"path":"frame > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"revenue","box":[381,84.5,53,16]},
+        {"path":"frame > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > span[0] > #text[0]","text":"9,493","box":[458,84.5,40,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > span[0] > #text[0]","text":"Jan","box":[313.5,311.5,23,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > span[0] > #text[0]","text":"1","box":[344.5,-24.5,6,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[1] > span[0] > #text[0]","text":"2","box":[343.5,-0.5,8,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[2] > span[0] > #text[0]","text":"3","box":[343.5,23.5,8,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[3] > span[0] > #text[0]","text":"4","box":[343,47.5,9,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[4] > span[0] > #text[0]","text":"5","box":[343.5,71.5,8,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[5] > span[0] > #text[0]","text":"6","box":[343.5,95.5,8,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[6] > span[0] > #text[0]","text":"7","box":[344,119.5,7,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[7] > span[0] > #text[0]","text":"8","box":[343,143.5,9,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[8] > span[0] > #text[0]","text":"9","box":[343.5,167.5,8,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[9] > span[0] > #text[0]","text":"10","box":[340,191.5,15,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[10] > span[0] > #text[0]","text":"11","box":[341.5,215.5,12,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[11] > span[0] > #text[0]","text":"12","box":[340.5,239.5,14,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[12] > span[0] > #text[0]","text":"13","box":[340.5,263.5,14,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[13] > span[0] > #text[0]","text":"14","box":[340,287.5,15,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[14] > span[0] > #text[0]","text":"15","box":[340.5,311.5,14,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[15] > span[0] > #text[0]","text":"16","box":[340.5,335.5,14,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[16] > span[0] > #text[0]","text":"17","box":[341,359.5,13,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[17] > span[0] > #text[0]","text":"18","box":[340,383.5,15,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[18] > span[0] > #text[0]","text":"19","box":[340.5,407.5,14,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[19] > span[0] > #text[0]","text":"20","box":[339,431.5,17,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[20] > span[0] > #text[0]","text":"21","box":[340.5,455.5,14,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[21] > span[0] > #text[0]","text":"22","box":[339.5,479.5,16,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[22] > span[0] > #text[0]","text":"23","box":[339.5,503.5,16,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[23] > span[0] > #text[0]","text":"24","box":[339.5,527.5,16,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[24] > span[0] > #text[0]","text":"25","box":[339.5,551.5,16,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[25] > span[0] > #text[0]","text":"26","box":[339.5,575.5,16,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[26] > span[0] > #text[0]","text":"27","box":[340,599.5,15,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[27] > span[0] > #text[0]","text":"28","box":[339,623.5,17,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[28] > span[0] > #text[0]","text":"29","box":[339.5,647.5,16,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[29] > span[0] > #text[0]","text":"30","box":[339,671.5,17,16]}
+      ],
+      "removedTexts": [
+        "frame > div[0] > div[0] > div[2] > div[2] > span[0] > #text[0]"
+      ]
     },
     {
       "id": "hover-2",
       "label": "Hover #2 (rect @ 85%,85%)",
       "status": "done",
-      "settleMs": 1345,
+      "settleMs": 1342,
       "changed": [
         {"path":"svg[0] > g[0] > g[1] > defs[1]","tag":"defs","attrs":{}},
         {"path":"svg[0] > g[0] > g[1] > defs[1] > clippath[0]","tag":"clippath","attrs":{}},
@@ -134,15 +221,54 @@
         {"path":"svg[2] > g[0] > g[0] > circle[0]","tag":"circle","attrs":{"cx":"494.8275862068965","cy":"185.07364285714286","r":"13"}},
         {"path":"svg[2] > g[0] > g[0] > circle[1]","tag":"circle","attrs":{"cx":"494.8275862068965","cy":"185.07364285714286","r":"5"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[0] > #text[0]","text":"Fri, Jan 26","box":[388,41.5,66,16]},
+        {"path":"frame > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"revenue","box":[404,84.5,53,16]},
+        {"path":"frame > div[0] > div[0] > div[3] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > span[0] > #text[0]","text":"4,439","box":[481,84.5,40,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > span[0] > #text[0]","text":"Jan","box":[530.5,311.5,23,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > span[0] > #text[0]","text":"1","box":[562.5,-288.5,6,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[1] > span[0] > #text[0]","text":"2","box":[561.5,-264.5,8,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[2] > span[0] > #text[0]","text":"3","box":[561.5,-240.5,8,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[3] > span[0] > #text[0]","text":"4","box":[561,-216.5,9,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[4] > span[0] > #text[0]","text":"5","box":[561.5,-192.5,8,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[5] > span[0] > #text[0]","text":"6","box":[561.5,-168.5,8,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[6] > span[0] > #text[0]","text":"7","box":[562,-144.5,7,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[7] > span[0] > #text[0]","text":"8","box":[561,-120.5,9,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[8] > span[0] > #text[0]","text":"9","box":[561.5,-96.5,8,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[9] > span[0] > #text[0]","text":"10","box":[558,-72.5,15,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[10] > span[0] > #text[0]","text":"11","box":[559.5,-48.5,12,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[11] > span[0] > #text[0]","text":"12","box":[558.5,-24.5,14,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[12] > span[0] > #text[0]","text":"13","box":[558.5,-0.5,14,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[13] > span[0] > #text[0]","text":"14","box":[558,23.5,15,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[14] > span[0] > #text[0]","text":"15","box":[558.5,47.5,14,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[15] > span[0] > #text[0]","text":"16","box":[558.5,71.5,14,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[16] > span[0] > #text[0]","text":"17","box":[559,95.5,13,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[17] > span[0] > #text[0]","text":"18","box":[558,119.5,15,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[18] > span[0] > #text[0]","text":"19","box":[558.5,143.5,14,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[19] > span[0] > #text[0]","text":"20","box":[557,167.5,17,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[20] > span[0] > #text[0]","text":"21","box":[558.5,191.5,14,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[21] > span[0] > #text[0]","text":"22","box":[557.5,215.5,16,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[22] > span[0] > #text[0]","text":"23","box":[557.5,239.5,16,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[23] > span[0] > #text[0]","text":"24","box":[557.5,263.5,16,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[24] > span[0] > #text[0]","text":"25","box":[557.5,287.5,16,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[25] > span[0] > #text[0]","text":"26","box":[557.5,311.5,16,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[26] > span[0] > #text[0]","text":"27","box":[558,335.5,15,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[27] > span[0] > #text[0]","text":"28","box":[557,359.5,17,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[28] > span[0] > #text[0]","text":"29","box":[557.5,383.5,16,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[29] > span[0] > #text[0]","text":"30","box":[557,407.5,17,16]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-leave",
       "label": "Leave",
       "status": "done",
-      "settleMs": 421,
+      "settleMs": 417,
       "changed": [],
-      "removed": []
+      "removed": [],
+      "changedTexts": [],
+      "removedTexts": []
     }
   ]
 }

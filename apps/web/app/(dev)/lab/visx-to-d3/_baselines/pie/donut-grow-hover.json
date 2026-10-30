@@ -1,5 +1,5 @@
 {
-  "schema": 1,
+  "schema": 2,
   "chart": "pie",
   "variant": "donut-grow-hover",
   "label": "Donut grow",
@@ -7,11 +7,12 @@
     "width": 320,
     "height": 320
   },
-  "recordedAt": "2026-10-30T13:49:49.106Z",
+  "recordedAt": "2026-10-30T20:02:44.350Z",
   "machine": "dev · Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz × 8 · 8 threads · DPR 1",
   "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
   "hover": true,
   "hoverTargetCount": 5,
+  "interactions": false,
   "steps": [
     {
       "id": "enter",
@@ -36,45 +37,62 @@
         {"path":"svg[0] > g[0] > g[4]","tag":"g","attrs":{}},
         {"path":"svg[0] > g[0] > g[4] > path[0]","tag":"path","attrs":{"d":"M-98.266,68.876A120,120,0,0,1,-120,0L-55,0A55,55,0,0,0,-45.038,31.568Z"}},
         {"path":"svg[0] > g[0] > g[4] > path[1]","tag":"path","attrs":{"d":"M-98.266,68.876A120,120,0,0,1,-120,0L-55,0A55,55,0,0,0,-45.038,31.568Z"}}
+      ],
+      "texts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"Browsers","box":[138,171,44,11]}
       ]
     },
     {
       "id": "hover-0",
       "label": "Hover #0 (path)",
       "status": "done",
-      "settleMs": 561,
+      "settleMs": 568,
       "changed": [
         {"path":"svg[0] > g[0] > g[0] > path[1]","tag":"path","attrs":{"d":"M-130,0A130,130,0,0,1,38.067,-124.302L16.105,-52.589A55,55,0,0,0,-55,0Z"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"Chrome","box":[141,171,38,11]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-2",
       "label": "Hover #2 (path)",
       "status": "done",
-      "settleMs": 575,
+      "settleMs": 578,
       "changed": [
         {"path":"svg[0] > g[0] > g[2] > path[1]","tag":"path","attrs":{"d":"M129.532,11.025A130,130,0,0,1,27.82,126.988L11.77,53.726A55,55,0,0,0,54.802,4.664Z"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"Firefox","box":[142.5,171,35,11]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-4",
       "label": "Hover #4 (path)",
       "status": "done",
-      "settleMs": 572,
+      "settleMs": 575,
       "changed": [
         {"path":"svg[0] > g[0] > g[4] > path[1]","tag":"path","attrs":{"d":"M-106.455,74.615A130,130,0,0,1,-130,0L-55,0A55,55,0,0,0,-45.038,31.568Z"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"Other","box":[146,171,28,11]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-leave",
       "label": "Leave",
       "status": "done",
-      "settleMs": 573,
+      "settleMs": 572,
       "changed": [],
-      "removed": []
+      "removed": [],
+      "changedTexts": [],
+      "removedTexts": []
     }
   ]
 }

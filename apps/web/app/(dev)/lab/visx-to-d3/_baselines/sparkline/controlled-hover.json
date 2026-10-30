@@ -1,5 +1,5 @@
 {
-  "schema": 1,
+  "schema": 2,
   "chart": "sparkline",
   "variant": "controlled-hover",
   "label": "Controlled hoverIndex",
@@ -7,17 +7,18 @@
     "width": 320,
     "height": 200
   },
-  "recordedAt": "2026-10-30T14:25:52.187Z",
+  "recordedAt": "2026-10-30T20:39:44.638Z",
   "machine": "dev · Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz × 8 · 8 threads · DPR 1",
   "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
   "hover": false,
   "hoverTargetCount": 0,
+  "interactions": false,
   "steps": [
     {
       "id": "enter",
       "label": "Enter",
       "status": "done",
-      "settleMs": 956,
+      "settleMs": 965,
       "nodes": [
         {"path":"svg[0]","tag":"svg","attrs":{"width":"302","height":"40"}},
         {"path":"svg[0] > g[0]","tag":"g","attrs":{}},
@@ -53,7 +54,8 @@
         {"path":"svg[2] > g[1]","tag":"g","attrs":{"style.transform":"translateX(159.278px)"}},
         {"path":"svg[2] > g[1] > line[0]","tag":"line","attrs":{"x1":"0","y1":"1","x2":"0","y2":"39"}},
         {"path":"svg[2] > circle[0]","tag":"circle","attrs":{"cx":"159.2777777777778","cy":"8.988235294117647","r":"3"}}
-      ]
+      ],
+      "texts": []
     }
   ]
 }

@@ -1,5 +1,5 @@
 {
-  "schema": 1,
+  "schema": 2,
   "chart": "radar",
   "variant": "single-series",
   "label": "Single series",
@@ -7,17 +7,18 @@
     "width": 360,
     "height": 360
   },
-  "recordedAt": "2026-10-30T13:51:49.323Z",
+  "recordedAt": "2026-10-30T20:04:44.980Z",
   "machine": "dev · Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz × 8 · 8 threads · DPR 1",
   "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
   "hover": true,
   "hoverTargetCount": 1,
+  "interactions": false,
   "steps": [
     {
       "id": "enter",
       "label": "Enter",
       "status": "done",
-      "settleMs": 1752,
+      "settleMs": 1757,
       "nodes": [
         {"path":"svg[0]","tag":"svg","attrs":{"width":"260","height":"260"}},
         {"path":"svg[0] > g[0]","tag":"g","attrs":{"transform":"translate(130, 130)"}},
@@ -61,25 +62,30 @@
         {"path":"svg[0] > g[0] > g[2] > g[4] > text[0]","tag":"text","attrs":{"x":"0","y":"0"}},
         {"path":"svg[0] > g[0] > g[3]","tag":"g","attrs":{}},
         {"path":"svg[0] > g[0] > g[3] > path[0]","tag":"path","attrs":{"d":"M 4.071950607164949e-15,-66.5 L 26.6295824562643,-8.652475842498527 L 8.228993532094623,11.326237921249264 L -37.030470894425804,50.96807064562169 L -36.615675877363415,-11.897154283435471 Z"}}
-      ]
+      ],
+      "texts": []
     },
     {
       "id": "hover-0",
       "label": "Hover #0 (path)",
       "status": "done",
-      "settleMs": 207,
+      "settleMs": 216,
       "changed": [
         {"path":"svg[0] > g[0] > g[3]","tag":"g","attrs":{"style.transform":"scale(1.05)"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [],
+      "removedTexts": []
     },
     {
       "id": "hover-leave",
       "label": "Leave",
       "status": "done",
-      "settleMs": 203,
+      "settleMs": 206,
       "changed": [],
-      "removed": []
+      "removed": [],
+      "changedTexts": [],
+      "removedTexts": []
     }
   ]
 }

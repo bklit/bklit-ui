@@ -1,5 +1,5 @@
 {
-  "schema": 1,
+  "schema": 2,
   "chart": "sankey",
   "variant": "simple",
   "label": "Simple",
@@ -7,17 +7,18 @@
     "width": 640,
     "height": 480
   },
-  "recordedAt": "2026-10-30T13:52:42.682Z",
+  "recordedAt": "2026-10-30T20:05:38.505Z",
   "machine": "dev · Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz × 8 · 8 threads · DPR 1",
   "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
   "hover": true,
   "hoverTargetCount": 11,
+  "interactions": false,
   "steps": [
     {
       "id": "enter",
       "label": "Enter",
       "status": "done",
-      "settleMs": 1657,
+      "settleMs": 1660,
       "nodes": [
         {"path":"svg[0]","tag":"svg","attrs":{"width":"606","height":"454.5"}},
         {"path":"svg[0] > g[0]","tag":"g","attrs":{"transform":"translate(56,20)"}},
@@ -78,39 +79,60 @@
         {"path":"svg[0] > g[0] > g[1] > g[4] > g[0] > text[0]","tag":"text","attrs":{"x":"-8"}},
         {"path":"svg[0] > g[0] > g[1] > g[4] > g[1]","tag":"g","attrs":{"style.transform":"translateX(506px) translateY(195.652px) rotate(90deg)"}},
         {"path":"svg[0] > g[0] > g[1] > g[4] > g[1] > text[0]","tag":"text","attrs":{"x":"8"}}
-      ]
+      ],
+      "texts": []
     },
     {
       "id": "hover-0",
       "label": "Hover #0 (path)",
       "status": "done",
-      "settleMs": 1499,
+      "settleMs": 1503,
       "changed": [],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > #text[0]","text":"A → X","box":[230,61.5,34,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"Flow","box":[246,104.5,32,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > span[0] > #text[0]","text":"40","box":[342,104.5,18,16]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-5",
       "label": "Hover #5 (path)",
       "status": "done",
-      "settleMs": 1546,
+      "settleMs": 1554,
       "changed": [],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > #text[0]","text":"Y → Z","box":[471,308.5,32,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"Flow","box":[487,351.5,32,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > span[0] > #text[0]","text":"55","box":[583,351.5,18,16]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-10",
       "label": "Hover #10 (rect)",
       "status": "done",
-      "settleMs": 1455,
+      "settleMs": 1470,
       "changed": [],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > #text[0]","text":"Z","box":[400,197.5,9,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"Sessions","box":[416,240.5,57,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > span[0] > #text[0]","text":"125","box":[503,240.5,27,16]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-leave",
       "label": "Leave",
       "status": "done",
-      "settleMs": 1345,
+      "settleMs": 1350,
       "changed": [],
-      "removed": []
+      "removed": [],
+      "changedTexts": [],
+      "removedTexts": []
     }
   ]
 }

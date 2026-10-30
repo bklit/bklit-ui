@@ -1,5 +1,5 @@
 {
-  "schema": 1,
+  "schema": 2,
   "chart": "pie",
   "variant": "custom-center",
   "label": "Custom center",
@@ -7,17 +7,18 @@
     "width": 320,
     "height": 320
   },
-  "recordedAt": "2026-10-30T13:49:36.230Z",
+  "recordedAt": "2026-10-30T20:02:31.518Z",
   "machine": "dev · Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz × 8 · 8 threads · DPR 1",
   "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
   "hover": true,
   "hoverTargetCount": 5,
+  "interactions": false,
   "steps": [
     {
       "id": "enter",
       "label": "Enter",
       "status": "done",
-      "settleMs": 1585,
+      "settleMs": 1574,
       "nodes": [
         {"path":"svg[0]","tag":"svg","attrs":{"width":"260","height":"260"}},
         {"path":"svg[0] > g[0]","tag":"g","attrs":{"transform":"translate(130, 130)"}},
@@ -36,27 +37,43 @@
         {"path":"svg[0] > g[0] > g[4]","tag":"g","attrs":{}},
         {"path":"svg[0] > g[0] > g[4] > path[0]","tag":"path","attrs":{"d":"M-98.266,68.876A120,120,0,0,1,-120,0L-65,0A65,65,0,0,0,-53.227,37.308Z"}},
         {"path":"svg[0] > g[0] > g[4] > path[1]","tag":"path","attrs":{"d":"M-98.266,68.876A120,120,0,0,1,-120,0L-65,0A65,65,0,0,0,-53.227,37.308Z"}}
+      ],
+      "texts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > #text[0]","text":"925","box":[142,140,36,23]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[1] > #text[0]","text":"Total","box":[146.5,167,27,14]}
       ]
     },
     {
       "id": "hover-0",
       "label": "Hover #0 (path)",
       "status": "done",
-      "settleMs": 365,
+      "settleMs": 364,
       "changed": [
         {"path":"svg[0] > g[0] > g[0] > path[1]","tag":"path","attrs":{"d":"M-120,0A120,120,0,0,1,35.139,-114.74L19.033,-62.151A65,65,0,0,0,-65,0Z","style.transform":"translateX(-5.94633px) translateY(-8.03997px)"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > #text[0]","text":"275","box":[143,131.5,34,23]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[1] > #text[0]","text":"Chrome","box":[137.5,158.5,45,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[2] > #text[0]","text":"29.7%","box":[146.5,177.5,27,11]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-2",
       "label": "Hover #2 (path)",
       "status": "done",
-      "settleMs": 360,
+      "settleMs": 361,
       "changed": [
         {"path":"svg[0] > g[0] > g[2] > path[1]","tag":"path","attrs":{"d":"M119.568,10.177A120,120,0,0,1,25.68,117.22L13.91,63.494A65,65,0,0,0,64.766,5.512Z","style.transform":"translateX(7.51793px) translateY(6.59399px)"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > #text[0]","text":"187","box":[145,131.5,30,23]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[1] > #text[0]","text":"Firefox","box":[140,158.5,40,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[2] > #text[0]","text":"20.2%","box":[145,177.5,30,11]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-4",
@@ -66,7 +83,13 @@
       "changed": [
         {"path":"svg[0] > g[0] > g[4] > path[1]","tag":"path","attrs":{"d":"M-98.266,68.876A120,120,0,0,1,-120,0L-65,0A65,65,0,0,0,-53.227,37.308Z","style.transform":"translateX(-9.53646px) translateY(3.00931px)"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > #text[0]","text":"90","box":[147,131.5,26,23]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[1] > #text[0]","text":"Other","box":[143.5,158.5,33,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[2] > #text[0]","text":"9.7%","box":[149.5,177.5,21,11]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-leave",
@@ -74,7 +97,9 @@
       "status": "done",
       "settleMs": 604,
       "changed": [],
-      "removed": []
+      "removed": [],
+      "changedTexts": [],
+      "removedTexts": []
     }
   ]
 }

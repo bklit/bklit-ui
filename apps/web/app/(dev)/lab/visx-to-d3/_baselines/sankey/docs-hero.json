@@ -1,5 +1,5 @@
 {
-  "schema": 1,
+  "schema": 2,
   "chart": "sankey",
   "variant": "docs-hero",
   "label": "Docs hero",
@@ -7,17 +7,18 @@
     "width": 640,
     "height": 480
   },
-  "recordedAt": "2026-10-30T13:53:13.634Z",
+  "recordedAt": "2026-10-30T20:06:09.858Z",
   "machine": "dev · Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz × 8 · 8 threads · DPR 1",
   "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
   "hover": true,
   "hoverTargetCount": 47,
+  "interactions": false,
   "steps": [
     {
       "id": "enter",
       "label": "Enter",
       "status": "done",
-      "settleMs": 1727,
+      "settleMs": 1710,
       "nodes": [
         {"path":"svg[0]","tag":"svg","attrs":{"width":"638","height":"358.875"}},
         {"path":"svg[0] > g[0]","tag":"g","attrs":{"transform":"translate(180,40)"}},
@@ -240,39 +241,60 @@
         {"path":"svg[0] > g[0] > g[1] > g[13] > g[0] > text[0]","tag":"text","attrs":{"x":"-8"}},
         {"path":"svg[0] > g[0] > g[1] > g[13] > g[1]","tag":"g","attrs":{"style.transform":"translateX(290px) translateY(200.582px) rotate(90deg)"}},
         {"path":"svg[0] > g[0] > g[1] > g[13] > g[1] > text[0]","tag":"text","attrs":{"x":"8"}}
-      ]
+      ],
+      "texts": []
     },
     {
       "id": "hover-0",
       "label": "Hover #0 (path)",
       "status": "done",
-      "settleMs": 1537,
+      "settleMs": 1536,
       "changed": [],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > #text[0]","text":"Organic Search → Blog","box":[285,143.5,150,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"Flow","box":[301,186.5,32,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > span[0] > #text[0]","text":"4,200","box":[395,186.5,40,16]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-23",
       "label": "Hover #23 (path)",
       "status": "done",
-      "settleMs": 1528,
+      "settleMs": 1588,
       "changed": [],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > #text[0]","text":"Pricing → Bounced","box":[416,180.5,123,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"Flow","box":[432,223.5,32,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > span[0] > #text[0]","text":"1,500","box":[506,223.5,40,16]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-46",
       "label": "Hover #46 (rect)",
       "status": "done",
-      "settleMs": 1484,
+      "settleMs": 1485,
       "changed": [],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > #text[0]","text":"Bounced","box":[482,270.5,60,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"Sessions","box":[498,313.5,57,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > span[0] > #text[0]","text":"8,900","box":[579,313.5,40,16]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-leave",
       "label": "Leave",
       "status": "done",
-      "settleMs": 1534,
+      "settleMs": 1566,
       "changed": [],
-      "removed": []
+      "removed": [],
+      "changedTexts": [],
+      "removedTexts": []
     }
   ]
 }

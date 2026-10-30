@@ -1,5 +1,5 @@
 {
-  "schema": 1,
+  "schema": 2,
   "chart": "pie",
   "variant": "recipe-patterned-pie",
   "label": "Recipe: patterned pie",
@@ -7,17 +7,18 @@
     "width": 320,
     "height": 320
   },
-  "recordedAt": "2026-10-30T13:50:02.129Z",
+  "recordedAt": "2026-10-30T20:02:57.433Z",
   "machine": "dev · Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz × 8 · 8 threads · DPR 1",
   "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
   "hover": true,
   "hoverTargetCount": 4,
+  "interactions": false,
   "steps": [
     {
       "id": "enter",
       "label": "Enter",
       "status": "done",
-      "settleMs": 1480,
+      "settleMs": 1483,
       "nodes": [
         {"path":"svg[0]","tag":"svg","attrs":{"width":"280","height":"280"}},
         {"path":"svg[0] > defs[0]","tag":"defs","attrs":{}},
@@ -46,27 +47,32 @@
         {"path":"svg[0] > g[0] > g[3]","tag":"g","attrs":{}},
         {"path":"svg[0] > g[0] > g[3] > path[0]","tag":"path","attrs":{"d":"M-85.084,92.848A4,4,0,0,1,-90.828,93.007A130,130,0,0,1,-129.858,6.075A4,4,0,0,1,-125.922,1.889L0,0Z"}},
         {"path":"svg[0] > g[0] > g[3] > path[1]","tag":"path","attrs":{"d":"M-85.084,92.848A4,4,0,0,1,-90.828,93.007A130,130,0,0,1,-129.858,6.075A4,4,0,0,1,-125.922,1.889L0,0Z"}}
-      ]
+      ],
+      "texts": []
     },
     {
       "id": "hover-0",
       "label": "Hover #0 (path)",
       "status": "done",
-      "settleMs": 601,
+      "settleMs": 613,
       "changed": [
         {"path":"svg[0] > g[0] > g[0] > path[1]","tag":"path","attrs":{"d":"M-125.922,-1.889A4,4,0,0,1,-129.858,-6.075A130,130,0,0,1,98.049,-85.36A4,4,0,0,1,97.561,-79.635L0,0Z","style.transform":"translateX(-3.28569px) translateY(-9.4448px)"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [],
+      "removedTexts": []
     },
     {
       "id": "hover-2",
       "label": "Hover #2 (path)",
       "status": "done",
-      "settleMs": 612,
+      "settleMs": 606,
       "changed": [
         {"path":"svg[0] > g[0] > g[2] > path[1]","tag":"path","attrs":{"d":"M48.221,116.339A4,4,0,0,1,45.939,121.612A130,130,0,0,1,-81.747,101.081A4,4,0,0,1,-82.261,95.358L0,0Z","style.transform":"translateX(-1.58755px) translateY(9.87318px)"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [],
+      "removedTexts": []
     },
     {
       "id": "hover-3",
@@ -76,15 +82,19 @@
       "changed": [
         {"path":"svg[0] > g[0] > g[3] > path[1]","tag":"path","attrs":{"d":"M-85.084,92.848A4,4,0,0,1,-90.828,93.007A130,130,0,0,1,-129.858,6.075A4,4,0,0,1,-125.922,1.889L0,0Z","style.transform":"translateX(-9.1227px) translateY(4.09588px)"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [],
+      "removedTexts": []
     },
     {
       "id": "hover-leave",
       "label": "Leave",
       "status": "done",
-      "settleMs": 608,
+      "settleMs": 607,
       "changed": [],
-      "removed": []
+      "removed": [],
+      "changedTexts": [],
+      "removedTexts": []
     }
   ]
 }

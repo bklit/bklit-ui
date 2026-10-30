@@ -1,5 +1,5 @@
 {
-  "schema": 1,
+  "schema": 2,
   "chart": "ring",
   "variant": "custom-radii",
   "label": "Custom radii",
@@ -7,17 +7,18 @@
     "width": 320,
     "height": 320
   },
-  "recordedAt": "2026-10-30T13:51:26.723Z",
+  "recordedAt": "2026-10-30T20:04:22.107Z",
   "machine": "dev · Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz × 8 · 8 threads · DPR 1",
   "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
   "hover": true,
   "hoverTargetCount": 4,
+  "interactions": false,
   "steps": [
     {
       "id": "enter",
       "label": "Enter",
       "status": "done",
-      "settleMs": 2058,
+      "settleMs": 2067,
       "nodes": [
         {"path":"svg[0]","tag":"svg","attrs":{"width":"280","height":"280"}},
         {"path":"svg[0] > g[0]","tag":"g","attrs":{"transform":"translate(140, 140)"}},
@@ -41,49 +42,66 @@
         {"path":"svg[0] > g[0] > g[3] > g[0]","tag":"g","attrs":{}},
         {"path":"svg[0] > g[0] > g[3] > g[0] > path[0]","tag":"path","attrs":{"d":"M-106,0A106,106,0,1,1,106,0A106,106,0,1,1,-106,0M-94,0A94,94,0,1,0,94,0A94,94,0,1,0,-94,0Z"}},
         {"path":"svg[0] > g[0] > g[3] > g[0] > path[1]","tag":"path","attrs":{"d":"M-99.82,0A6,6,0,0,1,-105.809,-6.36A106,106,0,0,1,36.81,-99.403A6,6,0,0,1,40.218,-91.359L40.218,-91.359A6,6,0,0,1,32.643,-88.15A94,94,0,0,0,-93.831,-5.64A6,6,0,0,1,-99.82,0Z"}}
+      ],
+      "texts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"Sessions","box":[120,166.5,42,11]}
       ]
     },
     {
       "id": "hover-0",
       "label": "Hover #0 (path)",
       "status": "done",
-      "settleMs": 223,
+      "settleMs": 231,
       "changed": [
         {"path":"svg[0] > g[0] > g[0] > g[0]","tag":"g","attrs":{"style.transform":"scale(1.03)"}},
         {"path":"svg[0] > g[0] > g[1] > g[0]","tag":"g","attrs":{"style.transform":"scale(1.02)"}},
         {"path":"svg[0] > g[0] > g[2] > g[0]","tag":"g","attrs":{"style.transform":"scale(1.02)"}},
         {"path":"svg[0] > g[0] > g[3] > g[0]","tag":"g","attrs":{"style.transform":"scale(1.02)"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"Organic","box":[121,166.5,40,11]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-2",
       "label": "Hover #2 (path)",
       "status": "done",
-      "settleMs": 227,
+      "settleMs": 225,
       "changed": [
         {"path":"svg[0] > g[0] > g[2] > g[0]","tag":"g","attrs":{"style.transform":"scale(1.03)"}},
         {"path":"svg[0] > g[0] > g[3] > g[0]","tag":"g","attrs":{"style.transform":"scale(1.02)"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"Email","box":[127.5,166.5,27,11]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-3",
       "label": "Hover #3 (path)",
       "status": "done",
-      "settleMs": 221,
+      "settleMs": 236,
       "changed": [
         {"path":"svg[0] > g[0] > g[3] > g[0]","tag":"g","attrs":{"style.transform":"scale(1.03)"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"Social","box":[126,166.5,30,11]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-leave",
       "label": "Leave",
       "status": "done",
-      "settleMs": 223,
+      "settleMs": 225,
       "changed": [],
-      "removed": []
+      "removed": [],
+      "changedTexts": [],
+      "removedTexts": []
     }
   ]
 }

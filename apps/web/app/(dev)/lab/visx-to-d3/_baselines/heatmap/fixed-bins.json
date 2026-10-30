@@ -1,5 +1,5 @@
 {
-  "schema": 1,
+  "schema": 2,
   "chart": "heatmap",
   "variant": "fixed-bins",
   "label": "Fixed bins & level colors",
@@ -7,17 +7,18 @@
     "width": 760,
     "height": 260
   },
-  "recordedAt": "2026-10-30T14:32:39.277Z",
+  "recordedAt": "2026-10-30T20:46:33.504Z",
   "machine": "dev · Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz × 8 · 8 threads · DPR 1",
   "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
   "hover": true,
   "hoverTargetCount": 217,
+  "interactions": false,
   "steps": [
     {
       "id": "enter",
       "label": "Enter",
       "status": "done",
-      "settleMs": 2123,
+      "settleMs": 1855,
       "nodes": [
         {"path":"svg[0]","tag":"svg","attrs":{"width":"532","height":"126"}},
         {"path":"svg[0] > g[0]","tag":"g","attrs":{"transform":"translate(40,28)"}},
@@ -688,39 +689,74 @@
         {"path":"svg[0] > g[0] > g[1] > g[5] > line[0]","tag":"line","attrs":{"x1":"0","y1":"0","x2":"0","y2":"98"}},
         {"path":"svg[0] > g[0] > g[1] > g[6]","tag":"g","attrs":{"transform":"translate(431, 0)"}},
         {"path":"svg[0] > g[0] > g[1] > g[6] > line[0]","tag":"line","attrs":{"x1":"0","y1":"0","x2":"0","y2":"98"}}
+      ],
+      "texts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > span[0] > #text[0]","text":"Dec","box":[41,56,23,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[1] > span[0] > #text[0]","text":"Jan","box":[117,56,19,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[2] > span[0] > #text[0]","text":"Feb","box":[179,56,22,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[3] > span[0] > #text[0]","text":"Mar","box":[241,56,23,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[4] > span[0] > #text[0]","text":"Apr","box":[317,56,21,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[5] > span[0] > #text[0]","text":"May","box":[379,56,26,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[6] > span[0] > #text[0]","text":"Jun","box":[441,56,19,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[7] > span[0] > #text[0]","text":"Sun","box":[12,82,21,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[8] > span[0] > #text[0]","text":"Tue","box":[13,110,20,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[9] > span[0] > #text[0]","text":"Thu","box":[12,138,21,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[10] > span[0] > #text[0]","text":"Sat","box":[14,166,19,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[1] > span[0] > #text[0]","text":"Less","box":[1,190,26,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[1] > span[1] > #text[0]","text":"More","box":[102,190,30,14]}
       ]
     },
     {
       "id": "hover-0",
       "label": "Hover #0 (rect)",
       "status": "done",
-      "settleMs": 326,
+      "settleMs": 325,
       "changed": [],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[11] > div[0] > div[0] > div[0] > #text[0]","text":"November 26th 2023","box":[79,84,141,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[11] > div[0] > div[0] > div[0] > div[0] > #text[0]","text":"Sunday","box":[79,105,43,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[11] > div[0] > div[0] > div[1] > #text[0]","text":"0 contributions","box":[79,145,101,16]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-108",
       "label": "Hover #108 (rect)",
       "status": "done",
-      "settleMs": 363,
+      "settleMs": 346,
       "changed": [],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[11] > div[0] > div[0] > div[0] > #text[0]","text":"March 13th 2024","box":[307,84,111,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[11] > div[0] > div[0] > div[0] > div[0] > #text[0]","text":"Wednesday","box":[307,105,69,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[11] > div[0] > div[0] > div[1] > #text[0]","text":"0 contributions","box":[307,145,101,16]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-216",
       "label": "Hover #216 (rect)",
       "status": "done",
-      "settleMs": 373,
+      "settleMs": 328,
       "changed": [],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[11] > div[0] > div[0] > div[0] > #text[0]","text":"June 29th 2024","box":[349,84,101,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[11] > div[0] > div[0] > div[0] > div[0] > #text[0]","text":"Saturday","box":[349,105,52,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[11] > div[0] > div[0] > div[1] > #text[0]","text":"0 contributions","box":[349,145,101,16]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-leave",
       "label": "Leave",
       "status": "done",
-      "settleMs": 334,
+      "settleMs": 333,
       "changed": [],
-      "removed": []
+      "removed": [],
+      "changedTexts": [],
+      "removedTexts": []
     }
   ]
 }

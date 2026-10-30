@@ -1,5 +1,5 @@
 {
-  "schema": 1,
+  "schema": 2,
   "chart": "ring",
   "variant": "thick-rings",
   "label": "Thick rings",
@@ -7,17 +7,18 @@
     "width": 320,
     "height": 320
   },
-  "recordedAt": "2026-10-30T13:50:53.646Z",
+  "recordedAt": "2026-10-30T20:03:48.926Z",
   "machine": "dev · Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz × 8 · 8 threads · DPR 1",
   "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
   "hover": true,
   "hoverTargetCount": 3,
+  "interactions": false,
   "steps": [
     {
       "id": "enter",
       "label": "Enter",
       "status": "done",
-      "settleMs": 1957,
+      "settleMs": 1952,
       "nodes": [
         {"path":"svg[0]","tag":"svg","attrs":{"width":"260","height":"260"}},
         {"path":"svg[0] > g[0]","tag":"g","attrs":{"transform":"translate(130, 130)"}},
@@ -36,48 +37,65 @@
         {"path":"svg[0] > g[0] > g[2] > g[0]","tag":"g","attrs":{}},
         {"path":"svg[0] > g[0] > g[2] > g[0] > path[0]","tag":"path","attrs":{"d":"M-122,0A122,122,0,1,1,122,0A122,122,0,1,1,-122,0M-105.108,0A105.108,105.108,0,1,0,105.108,0A105.108,105.108,0,1,0,-105.108,0Z"}},
         {"path":"svg[0] > g[0] > g[2] > g[0] > path[1]","tag":"path","attrs":{"d":"M-113.239,0A8.446,8.446,0,0,1,-121.662,-9.074A122,122,0,0,1,-24.251,-119.565A8.446,8.446,0,0,1,-14.193,-112.346L-14.193,-112.346A8.446,8.446,0,0,1,-20.893,-103.01A105.108,105.108,0,0,0,-104.817,-7.818A8.446,8.446,0,0,1,-113.239,0Z"}}
+      ],
+      "texts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"Total","box":[148,171.5,24,11]}
       ]
     },
     {
       "id": "hover-0",
       "label": "Hover #0 (path)",
       "status": "done",
-      "settleMs": 225,
+      "settleMs": 218,
       "changed": [
         {"path":"svg[0] > g[0] > g[0] > g[0]","tag":"g","attrs":{"style.transform":"scale(1.03)"}},
         {"path":"svg[0] > g[0] > g[1] > g[0]","tag":"g","attrs":{"style.transform":"scale(1.02)"}},
         {"path":"svg[0] > g[0] > g[2] > g[0]","tag":"g","attrs":{"style.transform":"scale(1.02)"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"Revenue","box":[139.5,171.5,41,11]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-1",
       "label": "Hover #1 (path)",
       "status": "done",
-      "settleMs": 223,
+      "settleMs": 225,
       "changed": [
         {"path":"svg[0] > g[0] > g[1] > g[0]","tag":"g","attrs":{"style.transform":"scale(1.03)"}},
         {"path":"svg[0] > g[0] > g[2] > g[0]","tag":"g","attrs":{"style.transform":"scale(1.02)"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"Expenses","box":[136.5,171.5,47,11]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-2",
       "label": "Hover #2 (path)",
       "status": "done",
-      "settleMs": 221,
+      "settleMs": 238,
       "changed": [
         {"path":"svg[0] > g[0] > g[2] > g[0]","tag":"g","attrs":{"style.transform":"scale(1.03)"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"Profit","box":[147,171.5,26,11]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-leave",
       "label": "Leave",
       "status": "done",
-      "settleMs": 223,
+      "settleMs": 234,
       "changed": [],
-      "removed": []
+      "removed": [],
+      "changedTexts": [],
+      "removedTexts": []
     }
   ]
 }

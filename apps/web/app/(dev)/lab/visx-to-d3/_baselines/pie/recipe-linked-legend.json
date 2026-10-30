@@ -1,5 +1,5 @@
 {
-  "schema": 1,
+  "schema": 2,
   "chart": "pie",
   "variant": "recipe-linked-legend",
   "label": "Recipe: linked legend",
@@ -7,17 +7,18 @@
     "width": 560,
     "height": 320
   },
-  "recordedAt": "2026-10-30T13:50:14.988Z",
+  "recordedAt": "2026-10-30T20:03:10.373Z",
   "machine": "dev · Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz × 8 · 8 threads · DPR 1",
   "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
   "hover": true,
   "hoverTargetCount": 4,
+  "interactions": false,
   "steps": [
     {
       "id": "enter",
       "label": "Enter",
       "status": "done",
-      "settleMs": 1481,
+      "settleMs": 1498,
       "nodes": [
         {"path":"svg[0]","tag":"svg","attrs":{"width":"224","height":"224"}},
         {"path":"svg[0] > g[0]","tag":"g","attrs":{"transform":"translate(112, 112)"}},
@@ -33,45 +34,70 @@
         {"path":"svg[0] > g[0] > g[3]","tag":"g","attrs":{}},
         {"path":"svg[0] > g[0] > g[3] > path[0]","tag":"path","attrs":{"d":"M-68.848,75.259A102,102,0,0,1,-102,0L-50,0A50,50,0,0,0,-33.749,36.892Z"}},
         {"path":"svg[0] > g[0] > g[3] > path[1]","tag":"path","attrs":{"d":"M-68.848,75.259A102,102,0,0,1,-102,0L-50,0A50,50,0,0,0,-33.749,36.892Z"}}
+      ],
+      "texts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"Visits","box":[122.5,169.5,27,11]},
+        {"path":"frame > div[0] > div[0] > div[1] > div[0] > span[0] > #text[0]","text":"Direct","box":[314,99,35,14]},
+        {"path":"frame > div[0] > div[0] > div[1] > div[0] > span[1] > span[0] > #text[0]","text":"420","box":[505,99,23,14]},
+        {"path":"frame > div[0] > div[0] > div[1] > div[1] > span[0] > #text[0]","text":"Search","box":[314,135,39,14]},
+        {"path":"frame > div[0] > div[0] > div[1] > div[1] > span[1] > span[0] > #text[0]","text":"310","box":[507,135,21,14]},
+        {"path":"frame > div[0] > div[0] > div[1] > div[2] > span[0] > #text[0]","text":"Social","box":[314,171,34,14]},
+        {"path":"frame > div[0] > div[0] > div[1] > div[2] > span[1] > span[0] > #text[0]","text":"190","box":[507,171,21,14]},
+        {"path":"frame > div[0] > div[0] > div[1] > div[3] > span[0] > #text[0]","text":"Referral","box":[314,207,45,14]},
+        {"path":"frame > div[0] > div[0] > div[1] > div[3] > span[1] > span[0] > #text[0]","text":"140","box":[506,207,22,14]}
       ]
     },
     {
       "id": "hover-0",
       "label": "Hover #0 (path)",
       "status": "done",
-      "settleMs": 573,
+      "settleMs": 583,
       "changed": [
         {"path":"svg[0] > g[0] > g[0] > path[1]","tag":"path","attrs":{"d":"M-112,0A112,112,0,0,1,89.024,-67.962L39.743,-30.34A50,50,0,0,0,-50,0Z"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"Direct","box":[121,169.5,30,11]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-2",
       "label": "Hover #2 (path)",
       "status": "done",
-      "settleMs": 587,
+      "settleMs": 575,
       "changed": [
         {"path":"svg[0] > g[0] > g[2] > path[1]","tag":"path","attrs":{"d":"M42.093,103.789A112,112,0,0,1,-75.598,82.637L-33.749,36.892A50,50,0,0,0,18.791,46.334Z"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"Social","box":[121,169.5,30,11]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-3",
       "label": "Hover #3 (path)",
       "status": "done",
-      "settleMs": 570,
+      "settleMs": 572,
       "changed": [
         {"path":"svg[0] > g[0] > g[3] > path[1]","tag":"path","attrs":{"d":"M-75.598,82.637A112,112,0,0,1,-112,0L-50,0A50,50,0,0,0,-33.749,36.892Z"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"Referral","box":[116.5,169.5,39,11]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-leave",
       "label": "Leave",
       "status": "done",
-      "settleMs": 578,
+      "settleMs": 568,
       "changed": [],
-      "removed": []
+      "removed": [],
+      "changedTexts": [],
+      "removedTexts": []
     }
   ]
 }

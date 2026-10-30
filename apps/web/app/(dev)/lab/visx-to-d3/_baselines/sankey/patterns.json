@@ -1,5 +1,5 @@
 {
-  "schema": 1,
+  "schema": 2,
   "chart": "sankey",
   "variant": "patterns",
   "label": "Pattern links",
@@ -7,17 +7,18 @@
     "width": 640,
     "height": 480
   },
-  "recordedAt": "2026-10-30T13:53:23.968Z",
+  "recordedAt": "2026-10-30T20:06:20.188Z",
   "machine": "dev · Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz × 8 · 8 threads · DPR 1",
   "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
   "hover": true,
   "hoverTargetCount": 47,
+  "interactions": false,
   "steps": [
     {
       "id": "enter",
       "label": "Enter",
       "status": "done",
-      "settleMs": 1737,
+      "settleMs": 1708,
       "nodes": [
         {"path":"svg[0]","tag":"svg","attrs":{"width":"638","height":"358.875"}},
         {"path":"svg[0] > g[0]","tag":"g","attrs":{"transform":"translate(180,40)"}},
@@ -249,39 +250,60 @@
         {"path":"svg[0] > g[0] > g[1] > g[13] > g[0] > text[0]","tag":"text","attrs":{"x":"0"}},
         {"path":"svg[0] > g[0] > g[1] > g[13] > g[1]","tag":"g","attrs":{"style.transform":"translateX(290px) translateY(216.582px)"}},
         {"path":"svg[0] > g[0] > g[1] > g[13] > g[1] > text[0]","tag":"text","attrs":{"x":"0"}}
-      ]
+      ],
+      "texts": []
     },
     {
       "id": "hover-0",
       "label": "Hover #0 (path)",
       "status": "done",
-      "settleMs": 1539,
+      "settleMs": 1535,
       "changed": [],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > #text[0]","text":"Organic Search → Blog","box":[285,143.5,150,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"Flow","box":[301,186.5,32,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > span[0] > #text[0]","text":"4,200","box":[395,186.5,40,16]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-23",
       "label": "Hover #23 (path)",
       "status": "done",
-      "settleMs": 1539,
+      "settleMs": 1537,
       "changed": [],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > #text[0]","text":"Pricing → Bounced","box":[416,180.5,123,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"Flow","box":[432,223.5,32,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > span[0] > #text[0]","text":"1,500","box":[506,223.5,40,16]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-46",
       "label": "Hover #46 (rect)",
       "status": "done",
-      "settleMs": 1487,
+      "settleMs": 1477,
       "changed": [],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > #text[0]","text":"Bounced","box":[482,270.5,60,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"Sessions","box":[498,313.5,57,16]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > span[0] > #text[0]","text":"8,900","box":[579,313.5,40,16]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-leave",
       "label": "Leave",
       "status": "done",
-      "settleMs": 1536,
+      "settleMs": 1551,
       "changed": [],
-      "removed": []
+      "removed": [],
+      "changedTexts": [],
+      "removedTexts": []
     }
   ]
 }

@@ -1,5 +1,5 @@
 {
-  "schema": 1,
+  "schema": 2,
   "chart": "ring",
   "variant": "default",
   "label": "Ring",
@@ -7,17 +7,18 @@
     "width": 320,
     "height": 320
   },
-  "recordedAt": "2026-10-30T13:50:42.816Z",
+  "recordedAt": "2026-10-30T20:03:38.096Z",
   "machine": "dev · Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz × 8 · 8 threads · DPR 1",
   "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
   "hover": true,
   "hoverTargetCount": 4,
+  "interactions": false,
   "steps": [
     {
       "id": "enter",
       "label": "Enter",
       "status": "done",
-      "settleMs": 2054,
+      "settleMs": 2049,
       "nodes": [
         {"path":"svg[0]","tag":"svg","attrs":{"width":"260","height":"260"}},
         {"path":"svg[0] > g[0]","tag":"g","attrs":{"transform":"translate(130, 130)"}},
@@ -41,41 +42,56 @@
         {"path":"svg[0] > g[0] > g[3] > g[0]","tag":"g","attrs":{}},
         {"path":"svg[0] > g[0] > g[3] > g[0] > path[0]","tag":"path","attrs":{"d":"M-122,0A122,122,0,1,1,122,0A122,122,0,1,1,-122,0M-110.381,0A110.381,110.381,0,1,0,110.381,0A110.381,110.381,0,1,0,-110.381,0Z"}},
         {"path":"svg[0] > g[0] > g[3] > g[0] > path[1]","tag":"path","attrs":{"d":"M-116.045,0A5.81,5.81,0,0,1,-121.847,-6.1A122,122,0,0,1,43.51,-113.977A5.81,5.81,0,0,1,46.755,-106.209L46.755,-106.209A5.81,5.81,0,0,1,39.366,-103.122A110.381,110.381,0,0,0,-110.243,-5.519A5.81,5.81,0,0,1,-116.045,0Z"}}
+      ],
+      "texts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"Sessions","box":[139,172.5,42,11]}
       ]
     },
     {
       "id": "hover-0",
       "label": "Hover #0 (path)",
       "status": "done",
-      "settleMs": 218,
+      "settleMs": 240,
       "changed": [
         {"path":"svg[0] > g[0] > g[0] > g[0]","tag":"g","attrs":{"style.transform":"scale(1.03)"}},
         {"path":"svg[0] > g[0] > g[1] > g[0]","tag":"g","attrs":{"style.transform":"scale(1.02)"}},
         {"path":"svg[0] > g[0] > g[2] > g[0]","tag":"g","attrs":{"style.transform":"scale(1.02)"}},
         {"path":"svg[0] > g[0] > g[3] > g[0]","tag":"g","attrs":{"style.transform":"scale(1.02)"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"Organic","box":[140,172.5,40,11]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-2",
       "label": "Hover #2 (path)",
       "status": "done",
-      "settleMs": 225,
+      "settleMs": 236,
       "changed": [
         {"path":"svg[0] > g[0] > g[2] > g[0]","tag":"g","attrs":{"style.transform":"scale(1.03)"}},
         {"path":"svg[0] > g[0] > g[3] > g[0]","tag":"g","attrs":{"style.transform":"scale(1.02)"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"Email","box":[146.5,172.5,27,11]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-3",
       "label": "Hover #3 (path)",
       "status": "done",
-      "settleMs": 217,
+      "settleMs": 243,
       "changed": [
         {"path":"svg[0] > g[0] > g[3] > g[0]","tag":"g","attrs":{"style.transform":"scale(1.03)"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"Social","box":[145,172.5,30,11]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-leave",
@@ -83,7 +99,9 @@
       "status": "done",
       "settleMs": 239,
       "changed": [],
-      "removed": []
+      "removed": [],
+      "changedTexts": [],
+      "removedTexts": []
     }
   ]
 }

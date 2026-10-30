@@ -1,5 +1,5 @@
 {
-  "schema": 1,
+  "schema": 2,
   "chart": "area",
   "variant": "y-axis-biaxial",
   "label": "Left + right Y axes",
@@ -7,17 +7,18 @@
     "width": 640,
     "height": 360
   },
-  "recordedAt": "2026-10-30T14:08:35.688Z",
+  "recordedAt": "2026-10-30T20:22:14.057Z",
   "machine": "dev · Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz × 8 · 8 threads · DPR 1",
   "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
   "hover": true,
   "hoverTargetCount": 3,
+  "interactions": false,
   "steps": [
     {
       "id": "enter",
       "label": "Enter",
       "status": "done",
-      "settleMs": 1176,
+      "settleMs": 1210,
       "nodes": [
         {"path":"svg[0]","tag":"svg","attrs":{"width":"638","height":"319"}},
         {"path":"svg[0] > defs[0]","tag":"defs","attrs":{}},
@@ -62,13 +63,34 @@
         {"path":"svg[0] > g[0] > g[1] > g[1] > path[1]","tag":"path","attrs":{"d":"M0,180.667C35.769,112.917,71.537,45.167,107.306,45.167C140.767,45.167,174.228,135.5,207.689,135.5C243.409,135.5,279.13,56.458,314.85,56.458C349.465,56.458,384.08,124.208,418.694,124.208C454.463,124.208,490.231,118.563,526,112.917"}},
         {"path":"svg[1]","tag":"svg","attrs":{"width":"100%","height":"100%"}},
         {"path":"svg[1] > g[0]","tag":"g","attrs":{"transform":"translate(56,8)"}}
+      ],
+      "texts": [
+        {"path":"frame > div[0] > div[0] > div[1] > div[0] > div[0] > span[0] > #text[0]","text":"0","box":[41,292.5,8,14]},
+        {"path":"frame > div[0] > div[0] > div[1] > div[0] > div[1] > span[0] > #text[0]","text":"50","box":[34,254,15,14]},
+        {"path":"frame > div[0] > div[0] > div[1] > div[0] > div[2] > span[0] > #text[0]","text":"100","box":[27,215,22,14]},
+        {"path":"frame > div[0] > div[0] > div[1] > div[0] > div[3] > span[0] > #text[0]","text":"150","box":[28,176.5,21,14]},
+        {"path":"frame > div[0] > div[0] > div[1] > div[0] > div[4] > span[0] > #text[0]","text":"200","box":[26,137.5,23,14]},
+        {"path":"frame > div[0] > div[0] > div[1] > div[0] > div[5] > span[0] > #text[0]","text":"250","box":[27,99,22,14]},
+        {"path":"frame > div[0] > div[0] > div[1] > div[0] > div[6] > span[0] > #text[0]","text":"300","box":[26,60,23,14]},
+        {"path":"frame > div[0] > div[0] > div[1] > div[0] > div[7] > span[0] > #text[0]","text":"350","box":[27,21.5,22,14]},
+        {"path":"frame > div[0] > div[0] > div[2] > div[0] > div[0] > span[0] > #text[0]","text":"0","box":[591,292.5,8,14]},
+        {"path":"frame > div[0] > div[0] > div[2] > div[0] > div[1] > span[0] > #text[0]","text":"50","box":[591,236,15,14]},
+        {"path":"frame > div[0] > div[0] > div[2] > div[0] > div[2] > span[0] > #text[0]","text":"100","box":[591,179.5,22,14]},
+        {"path":"frame > div[0] > div[0] > div[2] > div[0] > div[3] > span[0] > #text[0]","text":"150","box":[591,123,21,14]},
+        {"path":"frame > div[0] > div[0] > div[2] > div[0] > div[4] > span[0] > #text[0]","text":"200","box":[591,66.5,23,14]},
+        {"path":"frame > div[0] > div[0] > div[3] > div[0] > span[0] > #text[0]","text":"Jan 1","box":[43,312.5,28,14]},
+        {"path":"frame > div[0] > div[0] > div[3] > div[1] > span[0] > #text[0]","text":"Feb 1","box":[149,312.5,31,14]},
+        {"path":"frame > div[0] > div[0] > div[3] > div[2] > span[0] > #text[0]","text":"Mar 1","box":[248.5,312.5,32,14]},
+        {"path":"frame > div[0] > div[0] > div[3] > div[3] > span[0] > #text[0]","text":"Apr 1","box":[357,312.5,30,14]},
+        {"path":"frame > div[0] > div[0] > div[3] > div[4] > span[0] > #text[0]","text":"May 1","box":[458,312.5,35,14]},
+        {"path":"frame > div[0] > div[0] > div[3] > div[5] > span[0] > #text[0]","text":"Jun 1","box":[569,312.5,28,14]}
       ]
     },
     {
       "id": "hover-0",
       "label": "Hover #0 (rect @ 15%,15%)",
       "status": "done",
-      "settleMs": 637,
+      "settleMs": 678,
       "changed": [
         {"path":"svg[0] > g[0] > g[1] > defs[1] > clippath[0]","tag":"clippath","attrs":{}},
         {"path":"svg[0] > g[0] > g[1] > defs[1] > clippath[0] > rect[0]","tag":"rect","attrs":{"x":"0","y":"-2","width":"207.68851110501782px","height":"275"}},
@@ -108,13 +130,30 @@
         "svg[0] > g[0] > g[1] > defs[1] > lineargradient[0] > stop[0]",
         "svg[0] > g[0] > g[1] > defs[1] > lineargradient[0] > stop[1]",
         "svg[0] > g[0] > g[1] > g[1] > path[1]"
+      ],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[0] > #text[0]","text":"Thu, Feb 1","box":[195.5,41.5,67,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"desktop","box":[211.5,84.5,56,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > span[0] > #text[0]","text":"305","box":[298.5,84.5,27,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[1] > div[0] > span[1] > #text[0]","text":"mobile","box":[211.5,112.5,45,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[1] > span[0] > #text[0]","text":"200","box":[298.5,112.5,27,16]},
+        {"path":"frame > div[0] > div[0] > div[5] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > span[0] > #text[0]","text":"Jan","box":[148,287.5,23,16]},
+        {"path":"frame > div[0] > div[0] > div[5] > div[0] > div[0] > div[0] > div[0] > div[0] > div[1] > span[0] > #text[0]","text":"Feb","box":[147,311.5,25,16]},
+        {"path":"frame > div[0] > div[0] > div[5] > div[0] > div[0] > div[0] > div[0] > div[0] > div[2] > span[0] > #text[0]","text":"Mar","box":[146.5,335.5,26,16]},
+        {"path":"frame > div[0] > div[0] > div[5] > div[0] > div[0] > div[0] > div[0] > div[0] > div[3] > span[0] > #text[0]","text":"Apr","box":[147.5,359.5,24,16]},
+        {"path":"frame > div[0] > div[0] > div[5] > div[0] > div[0] > div[0] > div[0] > div[0] > div[4] > span[0] > #text[0]","text":"May","box":[145,383.5,29,16]},
+        {"path":"frame > div[0] > div[0] > div[5] > div[0] > div[0] > div[0] > div[0] > div[0] > div[5] > span[0] > #text[0]","text":"Jun","box":[148,407.5,23,16]},
+        {"path":"frame > div[0] > div[0] > div[5] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > span[0] > #text[0]","text":"1","box":[176,311.5,6,16]}
+      ],
+      "removedTexts": [
+        "frame > div[0] > div[0] > div[3] > div[1] > span[0] > #text[0]"
       ]
     },
     {
       "id": "hover-1",
       "label": "Hover #1 (rect @ 50%,50%)",
       "status": "done",
-      "settleMs": 1545,
+      "settleMs": 1554,
       "changed": [
         {"path":"svg[0] > g[0] > g[1] > defs[1] > clippath[0]","tag":"clippath","attrs":{}},
         {"path":"svg[0] > g[0] > g[1] > defs[1] > clippath[0] > rect[0]","tag":"rect","attrs":{"x":"207.68851110501782","y":"-2","width":"211.0057581573896px","height":"275"}},
@@ -154,13 +193,30 @@
         "svg[0] > g[0] > g[1] > defs[1] > lineargradient[0] > stop[0]",
         "svg[0] > g[0] > g[1] > defs[1] > lineargradient[0] > stop[1]",
         "svg[0] > g[0] > g[1] > g[1] > path[1]"
+      ],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[0] > #text[0]","text":"Mon, Apr 1","box":[403,41.5,71,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"desktop","box":[419,84.5,56,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > span[0] > #text[0]","text":"73","box":[515,84.5,18,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[1] > div[0] > span[1] > #text[0]","text":"mobile","box":[419,112.5,45,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[1] > span[0] > #text[0]","text":"190","box":[506,112.5,27,16]},
+        {"path":"frame > div[0] > div[0] > div[5] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > span[0] > #text[0]","text":"Jan","box":[355.5,239.5,23,16]},
+        {"path":"frame > div[0] > div[0] > div[5] > div[0] > div[0] > div[0] > div[0] > div[0] > div[1] > span[0] > #text[0]","text":"Feb","box":[354.5,263.5,25,16]},
+        {"path":"frame > div[0] > div[0] > div[5] > div[0] > div[0] > div[0] > div[0] > div[0] > div[2] > span[0] > #text[0]","text":"Mar","box":[354,287.5,26,16]},
+        {"path":"frame > div[0] > div[0] > div[5] > div[0] > div[0] > div[0] > div[0] > div[0] > div[3] > span[0] > #text[0]","text":"Apr","box":[355,311.5,24,16]},
+        {"path":"frame > div[0] > div[0] > div[5] > div[0] > div[0] > div[0] > div[0] > div[0] > div[4] > span[0] > #text[0]","text":"May","box":[352.5,335.5,29,16]},
+        {"path":"frame > div[0] > div[0] > div[5] > div[0] > div[0] > div[0] > div[0] > div[0] > div[5] > span[0] > #text[0]","text":"Jun","box":[355.5,359.5,23,16]},
+        {"path":"frame > div[0] > div[0] > div[5] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > span[0] > #text[0]","text":"1","box":[383,311.5,6,16]}
+      ],
+      "removedTexts": [
+        "frame > div[0] > div[0] > div[3] > div[3] > span[0] > #text[0]"
       ]
     },
     {
       "id": "hover-2",
       "label": "Hover #2 (rect @ 85%,85%)",
       "status": "done",
-      "settleMs": 1459,
+      "settleMs": 1455,
       "changed": [
         {"path":"svg[0] > g[0] > g[1] > defs[1] > clippath[0]","tag":"clippath","attrs":{}},
         {"path":"svg[0] > g[0] > g[1] > defs[1] > clippath[0] > rect[0]","tag":"rect","attrs":{"x":"314.8500137098986","y":"-2","width":"211.14998629010142px","height":"275"}},
@@ -200,15 +256,34 @@
         "svg[0] > g[0] > g[1] > defs[1] > lineargradient[0] > stop[0]",
         "svg[0] > g[0] > g[1] > defs[1] > lineargradient[0] > stop[1]",
         "svg[0] > g[0] > g[1] > g[1] > path[1]"
+      ],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[0] > #text[0]","text":"Wed, May 1","box":[314.5,41.5,76,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"desktop","box":[330.5,84.5,56,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > span[0] > #text[0]","text":"209","box":[417.5,84.5,27,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[1] > div[0] > span[1] > #text[0]","text":"mobile","box":[330.5,112.5,45,16]},
+        {"path":"frame > div[0] > div[0] > div[4] > div[0] > div[0] > div[0] > div[1] > div[0] > div[1] > span[0] > #text[0]","text":"130","box":[417.5,112.5,27,16]},
+        {"path":"frame > div[0] > div[0] > div[5] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > span[0] > #text[0]","text":"Jan","box":[459,215.5,23,16]},
+        {"path":"frame > div[0] > div[0] > div[5] > div[0] > div[0] > div[0] > div[0] > div[0] > div[1] > span[0] > #text[0]","text":"Feb","box":[458,239.5,25,16]},
+        {"path":"frame > div[0] > div[0] > div[5] > div[0] > div[0] > div[0] > div[0] > div[0] > div[2] > span[0] > #text[0]","text":"Mar","box":[457.5,263.5,26,16]},
+        {"path":"frame > div[0] > div[0] > div[5] > div[0] > div[0] > div[0] > div[0] > div[0] > div[3] > span[0] > #text[0]","text":"Apr","box":[458.5,287.5,24,16]},
+        {"path":"frame > div[0] > div[0] > div[5] > div[0] > div[0] > div[0] > div[0] > div[0] > div[4] > span[0] > #text[0]","text":"May","box":[456,311.5,29,16]},
+        {"path":"frame > div[0] > div[0] > div[5] > div[0] > div[0] > div[0] > div[0] > div[0] > div[5] > span[0] > #text[0]","text":"Jun","box":[459,335.5,23,16]},
+        {"path":"frame > div[0] > div[0] > div[5] > div[0] > div[0] > div[0] > div[1] > div[0] > div[0] > span[0] > #text[0]","text":"1","box":[489,311.5,6,16]}
+      ],
+      "removedTexts": [
+        "frame > div[0] > div[0] > div[3] > div[4] > span[0] > #text[0]"
       ]
     },
     {
       "id": "hover-leave",
       "label": "Leave",
       "status": "done",
-      "settleMs": 423,
+      "settleMs": 421,
       "changed": [],
-      "removed": []
+      "removed": [],
+      "changedTexts": [],
+      "removedTexts": []
     }
   ]
 }

@@ -1,5 +1,5 @@
 {
-  "schema": 1,
+  "schema": 2,
   "chart": "line",
   "variant": "segment-line-variants",
   "label": "Segment lines solid / gradient",
@@ -7,17 +7,18 @@
     "width": 640,
     "height": 360
   },
-  "recordedAt": "2026-10-30T13:59:39.993Z",
+  "recordedAt": "2026-10-30T20:13:12.834Z",
   "machine": "dev · Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz × 8 · 8 threads · DPR 1",
   "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
   "hover": true,
   "hoverTargetCount": 3,
+  "interactions": false,
   "steps": [
     {
       "id": "enter",
       "label": "Enter",
       "status": "done",
-      "settleMs": 1576,
+      "settleMs": 1580,
       "nodes": [
         {"path":"svg[0]","tag":"svg","attrs":{"width":"638","height":"319"}},
         {"path":"svg[0] > defs[0]","tag":"defs","attrs":{}},
@@ -69,50 +70,62 @@
         {"path":"svg[0] > g[0] > g[1] > g[2] > line[0]","tag":"line","attrs":{"x1":"390","y1":"0","x2":"390","y2":"239"}},
         {"path":"svg[1]","tag":"svg","attrs":{"width":"100%","height":"100%"}},
         {"path":"svg[1] > g[0]","tag":"g","attrs":{"transform":"translate(40,40)"}}
+      ],
+      "texts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[1] > div[0] > span[0] > #text[0]","text":"Jun 1","box":[27,312.5,28,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[1] > div[1] > span[0] > #text[0]","text":"Jun 11","box":[216.5,312.5,34,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[1] > div[2] > span[0] > #text[0]","text":"Jun 21","box":[408.5,312.5,35,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[1] > div[3] > span[0] > #text[0]","text":"Jun 30","box":[580.5,312.5,37,14]}
       ]
     },
     {
       "id": "hover-0",
       "label": "Hover #0 (rect @ 15%,15%)",
       "status": "done",
-      "settleMs": 1288,
+      "settleMs": 1300,
       "changed": [
         {"path":"svg[0] > g[0] > g[1] > defs[1] > clippath[0] > rect[0]","tag":"rect","attrs":{"x":"83","y":"-2.5","width":"84px","height":"244"}},
         {"path":"svg[0] > g[0] > g[1] > rect[0]","tag":"rect","attrs":{"x":"83","y":"0","width":"84","height":"239"}},
         {"path":"svg[0] > g[0] > g[1] > line[0]","tag":"line","attrs":{"x1":"83","y1":"0","x2":"83","y2":"239"}},
         {"path":"svg[0] > g[0] > g[1] > g[2] > line[0]","tag":"line","attrs":{"x1":"167","y1":"0","x2":"167","y2":"239"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [],
+      "removedTexts": []
     },
     {
       "id": "hover-1",
       "label": "Hover #1 (rect @ 50%,50%)",
       "status": "done",
-      "settleMs": 1233,
+      "settleMs": 1249,
       "changed": [
         {"path":"svg[0] > g[0] > g[1] > defs[1] > clippath[0] > rect[0]","tag":"rect","attrs":{"x":"167","y":"-2.5","width":"112px","height":"244"}},
         {"path":"svg[0] > g[0] > g[1] > rect[0]","tag":"rect","attrs":{"x":"167","y":"0","width":"112","height":"239"}},
         {"path":"svg[0] > g[0] > g[1] > g[2] > line[0]","tag":"line","attrs":{"x1":"279","y1":"0","x2":"279","y2":"239"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [],
+      "removedTexts": []
     },
     {
       "id": "hover-2",
       "label": "Hover #2 (rect @ 85%,85%)",
       "status": "done",
-      "settleMs": 1323,
+      "settleMs": 1319,
       "changed": [
         {"path":"svg[0] > g[0] > g[1] > defs[1] > clippath[0] > rect[0]","tag":"rect","attrs":{"x":"167","y":"-2.5","width":"307px","height":"244"}},
         {"path":"svg[0] > g[0] > g[1] > rect[0]","tag":"rect","attrs":{"x":"167","y":"0","width":"307","height":"239"}},
         {"path":"svg[0] > g[0] > g[1] > g[2] > line[0]","tag":"line","attrs":{"x1":"474","y1":"0","x2":"474","y2":"239"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [],
+      "removedTexts": []
     },
     {
       "id": "hover-leave",
       "label": "Leave",
       "status": "done",
-      "settleMs": 416,
+      "settleMs": 435,
       "changed": [],
       "removed": [
         "svg[0] > g[0] > g[1] > defs[1]",
@@ -130,7 +143,9 @@
         "svg[0] > g[0] > g[1] > g[2] > defs[0] > lineargradient[0] > stop[2]",
         "svg[0] > g[0] > g[1] > g[2] > defs[0] > lineargradient[0] > stop[3]",
         "svg[0] > g[0] > g[1] > g[2] > line[0]"
-      ]
+      ],
+      "changedTexts": [],
+      "removedTexts": []
     }
   ]
 }

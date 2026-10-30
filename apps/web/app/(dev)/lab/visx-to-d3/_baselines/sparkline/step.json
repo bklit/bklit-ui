@@ -1,5 +1,5 @@
 {
-  "schema": 1,
+  "schema": 2,
   "chart": "sparkline",
   "variant": "step",
   "label": "Step",
@@ -7,17 +7,18 @@
     "width": 320,
     "height": 160
   },
-  "recordedAt": "2026-10-30T14:24:50.383Z",
+  "recordedAt": "2026-10-30T20:38:42.656Z",
   "machine": "dev · Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz × 8 · 8 threads · DPR 1",
   "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
   "hover": true,
   "hoverTargetCount": 3,
+  "interactions": false,
   "steps": [
     {
       "id": "enter",
       "label": "Enter",
       "status": "done",
-      "settleMs": 958,
+      "settleMs": 962,
       "nodes": [
         {"path":"svg[0]","tag":"svg","attrs":{"width":"302","height":"56"}},
         {"path":"svg[0] > g[0]","tag":"g","attrs":{}},
@@ -28,13 +29,14 @@
         {"path":"svg[0] > g[0] > path[0]","tag":"path","attrs":{"d":"M4,42.4L12.647,42.4L12.647,42.4L29.941,42.4L29.941,42.4L47.235,42.4L47.235,36.64L64.529,36.64L64.529,36.64L81.824,36.64L81.824,36.64L99.118,36.64L99.118,36.64L116.412,36.64L116.412,28.96L133.706,28.96L133.706,28.96L151,28.96L151,32.8L168.294,32.8L168.294,32.8L185.588,32.8L185.588,23.2L202.882,23.2L202.882,23.2L220.176,23.2L220.176,23.2L237.471,23.2L237.471,13.6L254.765,13.6L254.765,13.6L272.059,13.6L272.059,17.44L289.353,17.44L289.353,4L298,4L298,52L289.353,52L289.353,52L272.059,52L272.059,52L254.765,52L254.765,52L237.471,52L237.471,52L220.176,52L220.176,52L202.882,52L202.882,52L185.588,52L185.588,52L168.294,52L168.294,52L151,52L151,52L133.706,52L133.706,52L116.412,52L116.412,52L99.118,52L99.118,52L81.824,52L81.824,52L64.529,52L64.529,52L47.235,52L47.235,52L29.941,52L29.941,52L12.647,52L12.647,52L4,52Z"}},
         {"path":"svg[0] > g[0] > path[1]","tag":"path","attrs":{"d":"M4,42.4L12.647,42.4L12.647,42.4L29.941,42.4L29.941,42.4L47.235,42.4L47.235,36.64L64.529,36.64L64.529,36.64L81.824,36.64L81.824,36.64L99.118,36.64L99.118,36.64L116.412,36.64L116.412,28.96L133.706,28.96L133.706,28.96L151,28.96L151,32.8L168.294,32.8L168.294,32.8L185.588,32.8L185.588,23.2L202.882,23.2L202.882,23.2L220.176,23.2L220.176,23.2L237.471,23.2L237.471,13.6L254.765,13.6L254.765,13.6L272.059,13.6L272.059,17.44L289.353,17.44L289.353,4L298,4"}},
         {"path":"svg[0] > circle[0]","tag":"circle","attrs":{"cx":"298","cy":"4","r":"3"}}
-      ]
+      ],
+      "texts": []
     },
     {
       "id": "hover-0",
       "label": "Hover #0 (svg @ 15%,50%)",
       "status": "done",
-      "settleMs": 413,
+      "settleMs": 422,
       "changed": [
         {"path":"svg[0] > g[1]","tag":"g","attrs":{}},
         {"path":"svg[0] > g[1] > defs[0]","tag":"defs","attrs":{}},
@@ -45,13 +47,15 @@
         {"path":"svg[0] > g[2] > line[0]","tag":"line","attrs":{"x1":"0","y1":"2","x2":"0","y2":"54"}},
         {"path":"svg[0] > circle[0]","tag":"circle","attrs":{"cx":"38.588235294117645","cy":"42.4","r":"3"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [],
+      "removedTexts": []
     },
     {
       "id": "hover-1",
       "label": "Hover #1 (svg @ 50%,50%)",
       "status": "done",
-      "settleMs": 1275,
+      "settleMs": 1284,
       "changed": [
         {"path":"svg[0] > g[1]","tag":"g","attrs":{}},
         {"path":"svg[0] > g[1] > defs[0]","tag":"defs","attrs":{}},
@@ -62,13 +66,15 @@
         {"path":"svg[0] > g[2] > line[0]","tag":"line","attrs":{"x1":"0","y1":"2","x2":"0","y2":"54"}},
         {"path":"svg[0] > circle[0]","tag":"circle","attrs":{"cx":"159.6470588235294","cy":"32.8","r":"3"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [],
+      "removedTexts": []
     },
     {
       "id": "hover-2",
       "label": "Hover #2 (svg @ 85%,50%)",
       "status": "done",
-      "settleMs": 1251,
+      "settleMs": 1267,
       "changed": [
         {"path":"svg[0] > g[1]","tag":"g","attrs":{}},
         {"path":"svg[0] > g[1] > defs[0]","tag":"defs","attrs":{}},
@@ -79,15 +85,19 @@
         {"path":"svg[0] > g[2] > line[0]","tag":"line","attrs":{"x1":"0","y1":"2","x2":"0","y2":"54"}},
         {"path":"svg[0] > circle[0]","tag":"circle","attrs":{"cx":"263.4117647058823","cy":"13.599999999999994","r":"3"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [],
+      "removedTexts": []
     },
     {
       "id": "hover-leave",
       "label": "Leave",
       "status": "done",
-      "settleMs": 354,
+      "settleMs": 403,
       "changed": [],
-      "removed": []
+      "removed": [],
+      "changedTexts": [],
+      "removedTexts": []
     }
   ]
 }

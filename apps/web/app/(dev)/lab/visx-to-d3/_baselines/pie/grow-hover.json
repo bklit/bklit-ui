@@ -1,5 +1,5 @@
 {
-  "schema": 1,
+  "schema": 2,
   "chart": "pie",
   "variant": "grow-hover",
   "label": "Grow hover",
@@ -7,17 +7,18 @@
     "width": 320,
     "height": 320
   },
-  "recordedAt": "2026-10-30T13:49:30.163Z",
+  "recordedAt": "2026-10-30T20:02:25.465Z",
   "machine": "dev · Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz × 8 · 8 threads · DPR 1",
   "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
   "hover": true,
   "hoverTargetCount": 5,
+  "interactions": false,
   "steps": [
     {
       "id": "enter",
       "label": "Enter",
       "status": "done",
-      "settleMs": 1577,
+      "settleMs": 1575,
       "nodes": [
         {"path":"svg[0]","tag":"svg","attrs":{"width":"260","height":"260"}},
         {"path":"svg[0] > g[0]","tag":"g","attrs":{"transform":"translate(130, 130)"}},
@@ -36,45 +37,54 @@
         {"path":"svg[0] > g[0] > g[4]","tag":"g","attrs":{}},
         {"path":"svg[0] > g[0] > g[4] > path[0]","tag":"path","attrs":{"d":"M-98.266,68.876A120,120,0,0,1,-120,0L0,0Z"}},
         {"path":"svg[0] > g[0] > g[4] > path[1]","tag":"path","attrs":{"d":"M-98.266,68.876A120,120,0,0,1,-120,0L0,0Z"}}
-      ]
+      ],
+      "texts": []
     },
     {
       "id": "hover-0",
       "label": "Hover #0 (path)",
       "status": "done",
-      "settleMs": 565,
+      "settleMs": 568,
       "changed": [
         {"path":"svg[0] > g[0] > g[0] > path[1]","tag":"path","attrs":{"d":"M-130,0A130,130,0,0,1,38.067,-124.302L0,0Z"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [],
+      "removedTexts": []
     },
     {
       "id": "hover-2",
       "label": "Hover #2 (path)",
       "status": "done",
-      "settleMs": 561,
+      "settleMs": 559,
       "changed": [
         {"path":"svg[0] > g[0] > g[2] > path[1]","tag":"path","attrs":{"d":"M129.532,11.025A130,130,0,0,1,27.82,126.988L0,0Z"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [],
+      "removedTexts": []
     },
     {
       "id": "hover-4",
       "label": "Hover #4 (path)",
       "status": "done",
-      "settleMs": 559,
+      "settleMs": 569,
       "changed": [
         {"path":"svg[0] > g[0] > g[4] > path[1]","tag":"path","attrs":{"d":"M-106.455,74.615A130,130,0,0,1,-130,0L0,0Z"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [],
+      "removedTexts": []
     },
     {
       "id": "hover-leave",
       "label": "Leave",
       "status": "done",
-      "settleMs": 571,
+      "settleMs": 576,
       "changed": [],
-      "removed": []
+      "removed": [],
+      "changedTexts": [],
+      "removedTexts": []
     }
   ]
 }

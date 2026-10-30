@@ -1,5 +1,5 @@
 {
-  "schema": 1,
+  "schema": 2,
   "chart": "sparkline",
   "variant": "quiet",
   "label": "Quiet sparkline (recipe)",
@@ -7,17 +7,18 @@
     "width": 576,
     "height": 280
   },
-  "recordedAt": "2026-10-30T14:25:28.532Z",
+  "recordedAt": "2026-10-30T20:39:20.973Z",
   "machine": "dev · Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz × 8 · 8 threads · DPR 1",
   "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
   "hover": true,
   "hoverTargetCount": 3,
+  "interactions": false,
   "steps": [
     {
       "id": "enter",
       "label": "Enter",
       "status": "done",
-      "settleMs": 963,
+      "settleMs": 1067,
       "nodes": [
         {"path":"svg[0]","tag":"svg","attrs":{"width":"558","height":"72"}},
         {"path":"svg[0] > g[0]","tag":"g","attrs":{}},
@@ -33,13 +34,14 @@
         {"path":"svg[2]","tag":"svg","attrs":{"width":"558","height":"72"}},
         {"path":"svg[2] > g[0]","tag":"g","attrs":{}},
         {"path":"svg[2] > g[0] > path[0]","tag":"path","attrs":{"d":"M5,70V33.5A2,2 0 0 1 7,31.5H43.17A2,2 0 0 1 45.17,33.5V70ZM51.17,70V25.04A2,2 0 0 1 53.17,23.04H89.33A2,2 0 0 1 91.33,25.04V70ZM97.33,70V28.72A2,2 0 0 1 99.33,26.72H135.5A2,2 0 0 1 137.5,28.72V70ZM143.5,70V37.23A2,2 0 0 1 145.5,35.23H181.67A2,2 0 0 1 183.67,37.23V70ZM189.67,70V35.65A2,2 0 0 1 191.67,33.65H227.83A2,2 0 0 1 229.83,35.65V70ZM235.83,70V22.56A2,2 0 0 1 237.83,20.56H274A2,2 0 0 1 276,22.56V70ZM282,70V12.57A2,2 0 0 1 284,10.57H320.17A2,2 0 0 1 322.17,12.57V70ZM328.17,70V16.11A2,2 0 0 1 330.17,14.11H366.33A2,2 0 0 1 368.33,16.11V70ZM374.33,70V25.03A2,2 0 0 1 376.33,23.03H412.5A2,2 0 0 1 414.5,25.03V70ZM420.5,70V24.26A2,2 0 0 1 422.5,22.26H458.67A2,2 0 0 1 460.67,24.26V70ZM466.67,70V12.75A2,2 0 0 1 468.67,10.75H504.83A2,2 0 0 1 506.83,12.75V70ZM512.83,70V4A2,2 0 0 1 514.83,2H551A2,2 0 0 1 553,4V70Z"}}
-      ]
+      ],
+      "texts": []
     },
     {
       "id": "hover-0",
       "label": "Hover #0 (svg @ 30%,50%)",
       "status": "done",
-      "settleMs": 411,
+      "settleMs": 421,
       "changed": [
         {"path":"svg[0] > g[1]","tag":"g","attrs":{}},
         {"path":"svg[0] > g[1] > defs[0]","tag":"defs","attrs":{}},
@@ -50,13 +52,15 @@
         {"path":"svg[0] > g[2] > line[0]","tag":"line","attrs":{"x1":"0","y1":"2","x2":"0","y2":"70"}},
         {"path":"svg[0] > circle[0]","tag":"circle","attrs":{"cx":"166.96296296296296","cy":"47.33901192504259","r":"3"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [],
+      "removedTexts": []
     },
     {
       "id": "hover-1",
       "label": "Hover #1 (svg @ 50%,50%)",
       "status": "done",
-      "settleMs": 407,
+      "settleMs": 417,
       "changed": [
         {"path":"svg[1] > g[1]","tag":"g","attrs":{}},
         {"path":"svg[1] > g[1] > defs[0]","tag":"defs","attrs":{}},
@@ -67,28 +71,34 @@
         {"path":"svg[1] > g[2] > line[0]","tag":"line","attrs":{"x1":"0","y1":"2","x2":"0","y2":"70"}},
         {"path":"svg[1] > circle[0]","tag":"circle","attrs":{"cx":"289.18518518518516","cy":"37.47189097103919","r":"3"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [],
+      "removedTexts": []
     },
     {
       "id": "hover-2",
       "label": "Hover #2 (svg @ 70%,50%)",
       "status": "done",
-      "settleMs": 352,
+      "settleMs": 403,
       "changed": [
         {"path":"svg[2] > g[0] > path[1]","tag":"path","attrs":{"d":"M374.33,70V25.03A2,2 0 0 1 376.33,23.03H412.5A2,2 0 0 1 414.5,25.03V70Z"}},
         {"path":"svg[2] > g[1]","tag":"g","attrs":{"style.transform":"translateX(394.417px)"}},
         {"path":"svg[2] > g[1] > line[0]","tag":"line","attrs":{"x1":"0","y1":"1","x2":"0","y2":"71"}},
         {"path":"svg[2] > circle[0]","tag":"circle","attrs":{"cx":"394.41666666666663","cy":"23.027047427349352","r":"3"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [],
+      "removedTexts": []
     },
     {
       "id": "hover-leave",
       "label": "Leave",
       "status": "done",
-      "settleMs": 401,
+      "settleMs": 406,
       "changed": [],
-      "removed": []
+      "removed": [],
+      "changedTexts": [],
+      "removedTexts": []
     }
   ]
 }

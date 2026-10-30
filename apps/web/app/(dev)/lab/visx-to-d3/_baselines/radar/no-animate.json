@@ -1,5 +1,5 @@
 {
-  "schema": 1,
+  "schema": 2,
   "chart": "radar",
   "variant": "no-animate",
   "label": "animate={false}",
@@ -7,17 +7,18 @@
     "width": 360,
     "height": 360
   },
-  "recordedAt": "2026-10-30T13:52:12.424Z",
+  "recordedAt": "2026-10-30T20:05:08.222Z",
   "machine": "dev · Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz × 8 · 8 threads · DPR 1",
   "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
   "hover": true,
   "hoverTargetCount": 2,
+  "interactions": false,
   "steps": [
     {
       "id": "enter",
       "label": "Enter",
       "status": "done",
-      "settleMs": 61,
+      "settleMs": 50,
       "nodes": [
         {"path":"svg[0]","tag":"svg","attrs":{"width":"300","height":"300"}},
         {"path":"svg[0] > g[0]","tag":"g","attrs":{"transform":"translate(150, 150)"}},
@@ -73,13 +74,14 @@
         {"path":"svg[0] > g[0] > g[4] > circle[2]","tag":"circle","attrs":{"cx":"0","cy":"0","r":"4"}},
         {"path":"svg[0] > g[0] > g[4] > circle[3]","tag":"circle","attrs":{"cx":"0","cy":"0","r":"4"}},
         {"path":"svg[0] > g[0] > g[4] > circle[4]","tag":"circle","attrs":{"cx":"0","cy":"0","r":"4"}}
-      ]
+      ],
+      "texts": []
     },
     {
       "id": "hover-0",
       "label": "Hover #0 (path)",
       "status": "done",
-      "settleMs": 1404,
+      "settleMs": 1456,
       "changed": [
         {"path":"svg[0] > g[0] > g[3]","tag":"g","attrs":{"style.transform":"scale(1.05)"}},
         {"path":"svg[0] > g[0] > g[3] > path[0]","tag":"path","attrs":{"d":"M 4.684274006738626e-15,-76.5 L 66.76416744391977,-21.69299300512131 L 48.66861888981678,66.98660713424565 L -37.0304708944258,50.96807064562169 L -75.32367609057617,-24.474145954495825 Z"}},
@@ -95,7 +97,9 @@
         {"path":"svg[0] > g[0] > g[4] > circle[3]","tag":"circle","attrs":{"cx":"-46.552591981563864","cy":"64.07414595449585","r":"4"}},
         {"path":"svg[0] > g[0] > g[4] > circle[4]","tag":"circle","attrs":{"cx":"-64.19631484992287","cy":"-20.85864712030894","r":"4"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [],
+      "removedTexts": []
     },
     {
       "id": "hover-1",
@@ -117,7 +121,9 @@
         {"path":"svg[0] > g[0] > g[4] > circle[3]","tag":"circle","attrs":{"cx":"-46.552591981563864","cy":"64.07414595449585","r":"4"}},
         {"path":"svg[0] > g[0] > g[4] > circle[4]","tag":"circle","attrs":{"cx":"-64.19631484992287","cy":"-20.85864712030894","r":"4"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [],
+      "removedTexts": []
     },
     {
       "id": "hover-leave",
@@ -139,7 +145,9 @@
         {"path":"svg[0] > g[0] > g[4] > circle[3]","tag":"circle","attrs":{"cx":"-46.552591981563864","cy":"64.07414595449585","r":"4"}},
         {"path":"svg[0] > g[0] > g[4] > circle[4]","tag":"circle","attrs":{"cx":"-64.19631484992287","cy":"-20.85864712030894","r":"4"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [],
+      "removedTexts": []
     }
   ]
 }

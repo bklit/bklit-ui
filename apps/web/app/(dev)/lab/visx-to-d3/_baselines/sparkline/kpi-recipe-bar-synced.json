@@ -1,5 +1,5 @@
 {
-  "schema": 1,
+  "schema": 2,
   "chart": "sparkline",
   "variant": "kpi-recipe-bar-synced",
   "label": "KPI recipe: synced bars",
@@ -7,17 +7,18 @@
     "width": 720,
     "height": 200
   },
-  "recordedAt": "2026-10-30T14:25:23.510Z",
+  "recordedAt": "2026-10-30T20:39:15.698Z",
   "machine": "dev · Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz × 8 · 8 threads · DPR 1",
   "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
   "hover": true,
   "hoverTargetCount": 3,
+  "interactions": false,
   "steps": [
     {
       "id": "enter",
       "label": "Enter",
       "status": "done",
-      "settleMs": 964,
+      "settleMs": 969,
       "nodes": [
         {"path":"svg[0]","tag":"svg","attrs":{"width":"192","height":"40"}},
         {"path":"svg[0] > g[0]","tag":"g","attrs":{}},
@@ -28,13 +29,27 @@
         {"path":"svg[2]","tag":"svg","attrs":{"width":"192","height":"40"}},
         {"path":"svg[2] > g[0]","tag":"g","attrs":{}},
         {"path":"svg[2] > g[0] > path[0]","tag":"path","attrs":{"d":"M3,38V16A1,1 0 0 1 4,15H6.71A1,1 0 0 1 7.71,16V38ZM9.71,38V13.77A1,1 0 0 1 10.71,12.77H13.43A1,1 0 0 1 14.43,13.77V38ZM16.43,38V17.6A1,1 0 0 1 17.43,16.6H20.14A1,1 0 0 1 21.14,17.6V38ZM23.14,38V18.5A1,1 0 0 1 24.14,17.5H26.86A1,1 0 0 1 27.86,18.5V38ZM29.86,38V20.75A1,1 0 0 1 30.86,19.75H33.57A1,1 0 0 1 34.57,20.75V38ZM36.57,38V21.44A1,1 0 0 1 37.57,20.44H40.29A1,1 0 0 1 41.29,21.44V38ZM43.29,38V16.28A1,1 0 0 1 44.29,15.28H47A1,1 0 0 1 48,16.28V38ZM50,38V14.64A1,1 0 0 1 51,13.64H53.71A1,1 0 0 1 54.71,14.64V38ZM56.71,38V12.59A1,1 0 0 1 57.71,11.59H60.43A1,1 0 0 1 61.43,12.59V38ZM63.43,38V10.82A1,1 0 0 1 64.43,9.82H67.14A1,1 0 0 1 68.14,10.82V38ZM70.14,38V15.04A1,1 0 0 1 71.14,14.04H73.86A1,1 0 0 1 74.86,15.04V38ZM76.86,38V16.29A1,1 0 0 1 77.86,15.29H80.57A1,1 0 0 1 81.57,16.29V38ZM83.57,38V17.12A1,1 0 0 1 84.57,16.12H87.29A1,1 0 0 1 88.29,17.12V38ZM90.29,38V18.1A1,1 0 0 1 91.29,17.1H94A1,1 0 0 1 95,18.1V38ZM97,38V12.42A1,1 0 0 1 98,11.42H100.71A1,1 0 0 1 101.71,12.42V38ZM103.71,38V9.12A1,1 0 0 1 104.71,8.12H107.43A1,1 0 0 1 108.43,9.12V38ZM110.43,38V8.1A1,1 0 0 1 111.43,7.1H114.14A1,1 0 0 1 115.14,8.1V38ZM117.14,38V7.27A1,1 0 0 1 118.14,6.27H120.86A1,1 0 0 1 121.86,7.27V38ZM123.86,38V13.09A1,1 0 0 1 124.86,12.09H127.57A1,1 0 0 1 128.57,13.09V38ZM130.57,38V16.01A1,1 0 0 1 131.57,15.01H134.29A1,1 0 0 1 135.29,16.01V38ZM137.29,38V14.22A1,1 0 0 1 138.29,13.22H141A1,1 0 0 1 142,14.22V38ZM144,38V12.5A1,1 0 0 1 145,11.5H147.71A1,1 0 0 1 148.71,12.5V38ZM150.71,38V5.8A1,1 0 0 1 151.71,4.8H154.43A1,1 0 0 1 155.43,5.8V38ZM157.43,38V3A1,1 0 0 1 158.43,2H161.14A1,1 0 0 1 162.14,3V38ZM164.14,38V6.3A1,1 0 0 1 165.14,5.3H167.86A1,1 0 0 1 168.86,6.3V38ZM170.86,38V7.87A1,1 0 0 1 171.86,6.87H174.57A1,1 0 0 1 175.57,7.87V38ZM177.57,38V11.96A1,1 0 0 1 178.57,10.96H181.29A1,1 0 0 1 182.29,11.96V38ZM184.29,38V12.34A1,1 0 0 1 185.29,11.34H188A1,1 0 0 1 189,12.34V38Z"}}
+      ],
+      "texts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > span[0] > #text[0]","text":"Visitors","box":[26,49,43,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"Feb 1","box":[185,49,33,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[1] > span[0] > #text[0]","text":"2.2K","box":[26,70,48.5,28]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[1] > span[1] > #text[0]","text":"+3.3%","box":[82.5,81,36,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[1] > div[0] > span[0] > #text[0]","text":"Signups","box":[264,49,46,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[1] > div[0] > span[1] > #text[0]","text":"Feb 1","box":[423,49,33,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[1] > div[1] > span[0] > #text[0]","text":"108","box":[264,70,43,28]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[1] > div[1] > span[1] > #text[0]","text":"+9.1%","box":[315,81,36,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[2] > div[0] > span[0] > #text[0]","text":"Revenue","box":[502,49,50,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[2] > div[0] > span[1] > #text[0]","text":"Feb 1","box":[661,49,33,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[2] > div[1] > span[0] > #text[0]","text":"$4.9K","box":[502,70,63,28]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[2] > div[1] > span[1] > #text[0]","text":"-1.4%","box":[573,81,33,14]}
       ]
     },
     {
       "id": "hover-0",
       "label": "Hover #0 (svg @ 15%,50%)",
       "status": "done",
-      "settleMs": 402,
+      "settleMs": 403,
       "changed": [
         {"path":"svg[0] > g[0] > path[1]","tag":"path","attrs":{"d":"M23.14,38V16.64A1,1 0 0 1 24.14,15.64H26.86A1,1 0 0 1 27.86,16.64V38Z"}},
         {"path":"svg[0] > g[1]","tag":"g","attrs":{"style.transform":"translateX(25.5px)"}},
@@ -49,13 +64,25 @@
         {"path":"svg[2] > g[1] > line[0]","tag":"line","attrs":{"x1":"0","y1":"1","x2":"0","y2":"39"}},
         {"path":"svg[2] > circle[0]","tag":"circle","attrs":{"cx":"25.5","cy":"17.504167298075465","r":"3"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"Jan 8","box":[188,49,30,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[1] > span[0] > #text[0]","text":"1.6K","box":[26,70,48.5,28]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[1] > span[1] > #text[0]","text":"+3.8%","box":[82.5,81,36,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[1] > div[0] > span[1] > #text[0]","text":"Jan 8","box":[426,49,30,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[1] > div[1] > span[0] > #text[0]","text":"63","box":[264,70,29,28]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[1] > div[1] > span[1] > #text[0]","text":"-4.5%","box":[301,81,33,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[2] > div[0] > span[1] > #text[0]","text":"Jan 8","box":[664,49,30,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[2] > div[1] > span[0] > #text[0]","text":"$3.8K","box":[502,70,63,28]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[2] > div[1] > span[1] > #text[0]","text":"-4.2%","box":[573,81,33,14]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-1",
       "label": "Hover #1 (svg @ 50%,50%)",
       "status": "done",
-      "settleMs": 801,
+      "settleMs": 798,
       "changed": [
         {"path":"svg[0] > g[0] > path[1]","tag":"path","attrs":{"d":"M97,38V11.66A1,1 0 0 1 98,10.66H100.71A1,1 0 0 1 101.71,11.66V38Z"}},
         {"path":"svg[0] > g[1]","tag":"g","attrs":{"style.transform":"translateX(99.3571px)"}},
@@ -70,13 +97,24 @@
         {"path":"svg[2] > g[1] > line[0]","tag":"line","attrs":{"x1":"0","y1":"1","x2":"0","y2":"39"}},
         {"path":"svg[2] > circle[0]","tag":"circle","attrs":{"cx":"99.35714285714286","cy":"11.421427489013489","r":"3"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"Jan 19","box":[180,49,38,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[1] > span[0] > #text[0]","text":"1.9K","box":[26,70,48.5,28]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[1] > span[1] > #text[0]","text":"+17.2%","box":[82.5,81,44,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[1] > div[0] > span[1] > #text[0]","text":"Jan 19","box":[418,49,38,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[1] > div[1] > span[0] > #text[0]","text":"78","box":[264,70,29,28]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[1] > div[1] > span[1] > #text[0]","text":"+6.8%","box":[301,81,36,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[2] > div[0] > span[1] > #text[0]","text":"Jan 19","box":[656,49,38,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[2] > div[1] > span[1] > #text[0]","text":"+27.2%","box":[573,81,44,14]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-2",
       "label": "Hover #2 (svg @ 85%,50%)",
       "status": "done",
-      "settleMs": 792,
+      "settleMs": 785,
       "changed": [
         {"path":"svg[0] > g[0] > path[1]","tag":"path","attrs":{"d":"M164.14,38V6.27A1,1 0 0 1 165.14,5.27H167.86A1,1 0 0 1 168.86,6.27V38Z"}},
         {"path":"svg[0] > g[1]","tag":"g","attrs":{"style.transform":"translateX(166.5px)"}},
@@ -91,7 +129,19 @@
         {"path":"svg[2] > g[1] > line[0]","tag":"line","attrs":{"x1":"0","y1":"1","x2":"0","y2":"39"}},
         {"path":"svg[2] > circle[0]","tag":"circle","attrs":{"cx":"166.5","cy":"5.300500075769051","r":"3"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"Jan 29","box":[180,49,38,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[1] > span[0] > #text[0]","text":"2.3K","box":[26,70,48.5,28]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[1] > span[1] > #text[0]","text":"-9.1%","box":[82.5,81,33,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[1] > div[0] > span[1] > #text[0]","text":"Jan 29","box":[418,49,38,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[1] > div[1] > span[0] > #text[0]","text":"105","box":[264,70,43,28]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[1] > div[1] > span[1] > #text[0]","text":"-15.3%","box":[315,81,41,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[2] > div[0] > span[1] > #text[0]","text":"Jan 29","box":[656,49,38,14]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[2] > div[1] > span[0] > #text[0]","text":"$6K","box":[502,70,43,28]},
+        {"path":"frame > div[0] > div[0] > div[0] > div[2] > div[1] > span[1] > #text[0]","text":"-9.2%","box":[553,81,33,14]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-leave",
@@ -99,7 +149,9 @@
       "status": "done",
       "settleMs": 403,
       "changed": [],
-      "removed": []
+      "removed": [],
+      "changedTexts": [],
+      "removedTexts": []
     }
   ]
 }

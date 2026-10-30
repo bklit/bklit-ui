@@ -1,5 +1,5 @@
 {
-  "schema": 1,
+  "schema": 2,
   "chart": "pie",
   "variant": "donut-patterns",
   "label": "Donut patterns",
@@ -7,17 +7,18 @@
     "width": 320,
     "height": 320
   },
-  "recordedAt": "2026-10-30T13:49:42.550Z",
+  "recordedAt": "2026-10-30T20:02:37.848Z",
   "machine": "dev · Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz × 8 · 8 threads · DPR 1",
   "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
   "hover": true,
   "hoverTargetCount": 4,
+  "interactions": false,
   "steps": [
     {
       "id": "enter",
       "label": "Enter",
       "status": "done",
-      "settleMs": 1499,
+      "settleMs": 1489,
       "nodes": [
         {"path":"svg[0]","tag":"svg","attrs":{"width":"260","height":"260"}},
         {"path":"svg[0] > defs[0]","tag":"defs","attrs":{}},
@@ -46,45 +47,62 @@
         {"path":"svg[0] > g[0] > g[3]","tag":"g","attrs":{}},
         {"path":"svg[0] > g[0] > g[3] > path[0]","tag":"path","attrs":{"d":"M-37.082,114.127A120,120,0,0,1,-120,0L-55,0A55,55,0,0,0,-16.996,52.308Z"}},
         {"path":"svg[0] > g[0] > g[3] > path[1]","tag":"path","attrs":{"d":"M-37.082,114.127A120,120,0,0,1,-120,0L-55,0A55,55,0,0,0,-16.996,52.308Z"}}
+      ],
+      "texts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"Total","box":[148,171,24,11]}
       ]
     },
     {
       "id": "hover-0",
       "label": "Hover #0 (path)",
       "status": "done",
-      "settleMs": 610,
+      "settleMs": 637,
       "changed": [
         {"path":"svg[0] > g[0] > g[0] > path[1]","tag":"path","attrs":{"d":"M-120,0A120,120,0,0,1,70.534,-97.082L32.328,-44.496A55,55,0,0,0,-55,0Z","style.transform":"translateX(-4.5399px) translateY(-8.91007px)"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"Category A","box":[133,171,54,11]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-2",
       "label": "Hover #2 (path)",
       "status": "done",
-      "settleMs": 614,
+      "settleMs": 619,
       "changed": [
         {"path":"svg[0] > g[0] > g[2] > path[1]","tag":"path","attrs":{"d":"M97.082,70.534A120,120,0,0,1,-37.082,114.127L-16.996,52.308A55,55,0,0,0,44.496,32.328Z","style.transform":"translateX(3.09017px) translateY(9.51057px)"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"Category C","box":[133,171,54,11]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-3",
       "label": "Hover #3 (path)",
       "status": "done",
-      "settleMs": 607,
+      "settleMs": 613,
       "changed": [
         {"path":"svg[0] > g[0] > g[3] > path[1]","tag":"path","attrs":{"d":"M-37.082,114.127A120,120,0,0,1,-120,0L-55,0A55,55,0,0,0,-16.996,52.308Z","style.transform":"translateX(-8.09017px) translateY(5.87785px)"}}
       ],
-      "removed": []
+      "removed": [],
+      "changedTexts": [
+        {"path":"frame > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > div[0] > span[1] > #text[0]","text":"Category D","box":[133,171,54,11]}
+      ],
+      "removedTexts": []
     },
     {
       "id": "hover-leave",
       "label": "Leave",
       "status": "done",
-      "settleMs": 370,
+      "settleMs": 373,
       "changed": [],
-      "removed": []
+      "removed": [],
+      "changedTexts": [],
+      "removedTexts": []
     }
   ]
 }
