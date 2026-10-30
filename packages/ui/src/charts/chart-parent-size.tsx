@@ -36,29 +36,107 @@ function readElementSize(element: HTMLElement): ElementSize {
   };
 }
 
+export interface ElementSizeOptions {
+  /**
+   * - `"layout"` (default): measure in a layout effect so the sized render
+   *   commits before the first paint; later `ResizeObserver` changes are
+   *   throttled to one update per `debounceTime`.
+   * - `"observer"`: visx `useParentSize` timing, for charts whose enter
+   *   motion was tuned on it. Stays 0×0 until the observer's first
+   *   notification (applied in the next animation frame), reads the
+   *   content-box size (`contentRect`), and debounces like visx: the first
+   *   change applies at once, later ones once `debounceTime` passes without
+   *   another.
+   */
+  timing?: "layout" | "observer";
+}
+
+const sameSize = (a: ElementSize, b: ElementSize) =>
+  a.width === b.width && a.height === b.height;
+
+/**
+ * visx `debounce(fn, wait, { leading: true })`: fires on the first call, then
+ * once more with the latest argument `wait` ms after the last call (only if
+ * there were calls after the leading one).
+ */
+function leadingDebounce<A>(fn: (arg: A) => void, wait: number) {
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+  let pending: { arg: A } | null = null;
+  const debounced = (arg: A) => {
+    if (timeout === undefined) {
+      fn(arg);
+      pending = null;
+    } else {
+      pending = { arg };
+    }
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      timeout = undefined;
+      if (pending !== null) {
+        fn(pending.arg);
+        pending = null;
+      }
+    }, wait);
+  };
+  debounced.cancel = () => {
+    clearTimeout(timeout);
+    timeout = undefined;
+    pending = null;
+  };
+  return debounced;
+}
+
 /**
  * Tracks an element's size. The first measurement happens in a layout effect,
  * so the sized render commits before the browser paints its first frame
  * (no blank frame while a `ResizeObserver` round-trips). Later changes come
  * from a `ResizeObserver`; `debounceTime` coalesces bursts after an
- * immediate leading update, like visx `useParentSize`.
+ * immediate leading update. `timing: "observer"` keeps visx `useParentSize`
+ * behaviour instead (see {@link ElementSizeOptions}).
  */
 export function useElementSize<T extends HTMLElement>(
   ref: RefObject<T | null>,
-  debounceTime = 0
+  debounceTime = 0,
+  { timing = "layout" }: ElementSizeOptions = {}
 ): ElementSize {
   const [size, setSize] = useState<ElementSize>(ZERO_SIZE);
 
+  // visx useParentSize: passive effect, rAF-deferred observer callbacks.
+  useEffect(() => {
+    const element = ref.current;
+    if (
+      timing !== "observer" ||
+      !element ||
+      typeof ResizeObserver === "undefined"
+    ) {
+      return;
+    }
+    const resize = leadingDebounce<ElementSize>((next) => {
+      setSize((prev) => (sameSize(prev, next) ? prev : next));
+    }, debounceTime);
+    let frame = 0;
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const { width, height } = entry.contentRect;
+        frame = requestAnimationFrame(() => resize({ width, height }));
+      }
+    });
+    observer.observe(element);
+    return () => {
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+      resize.cancel();
+    };
+  }, [ref, debounceTime, timing]);
+
   useIsomorphicLayoutEffect(() => {
     const element = ref.current;
-    if (!element) {
+    if (timing !== "layout" || !element) {
       return;
     }
     const apply = () => {
       const next = readElementSize(element);
-      setSize((prev) =>
-        prev.width === next.width && prev.height === next.height ? prev : next
-      );
+      setSize((prev) => (sameSize(prev, next) ? prev : next));
     };
     apply();
 
@@ -95,7 +173,7 @@ export function useElementSize<T extends HTMLElement>(
         clearTimeout(timeout);
       }
     };
-  }, [ref, debounceTime]);
+  }, [ref, debounceTime, timing]);
 
   return size;
 }

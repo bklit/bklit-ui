@@ -1,6 +1,5 @@
 "use client";
 
-import { useParentSize } from "@visx/responsive";
 import { scaleLinear, scaleTime } from "d3-scale";
 import type { Transition } from "motion/react";
 import { useReducedMotion } from "motion/react";
@@ -15,6 +14,7 @@ import {
 import { cn } from "@/lib/utils";
 import type { Margin } from "../chart-context";
 import { ChartLoadingLabel } from "../chart-loading-label";
+import { useElementSize } from "../chart-parent-size";
 import {
   type ChartPhase,
   type ChartStatus,
@@ -666,8 +666,13 @@ export function HeatmapChart({
 
   // Measure this container directly: visx 4's <ParentSize> renders children in
   // an absolutely positioned box, which collapses the content-sized fluid
-  // layout to zero height.
-  const { parentRef, width, height: parentHeight } = useParentSize();
+  // layout to zero height. `timing: "observer"` keeps visx useParentSize's
+  // timing (first size a frame after mount from the observer's content box,
+  // 300 ms debounce), which the cell enter animation was tuned on.
+  const parentRef = useRef<HTMLDivElement>(null);
+  const { width, height: parentHeight } = useElementSize(parentRef, 300, {
+    timing: "observer",
+  });
 
   return (
     <div
