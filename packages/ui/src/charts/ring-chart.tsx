@@ -1,7 +1,5 @@
 "use client";
 
-import { Group } from "@visx/group";
-import { arc as arcGenerator } from "@visx/shape";
 import type { Transition } from "motion/react";
 import {
   Children,
@@ -15,6 +13,7 @@ import {
   useState,
 } from "react";
 import { cn } from "@/lib/utils";
+import { arcPath } from "./arc-path";
 import { ParentSize } from "./chart-parent-size";
 import {
   defaultRingColors,
@@ -24,21 +23,6 @@ import {
   ringCssVars,
 } from "./ring-context";
 import { RING_GRID_PADDING } from "./ring-grid";
-
-function generateRingArcPath(
-  innerRadius: number,
-  outerRadius: number,
-  startAngle: number,
-  endAngle: number,
-  cornerRadius: number
-): string {
-  const generator = arcGenerator<unknown>({
-    innerRadius,
-    outerRadius,
-    cornerRadius,
-  });
-  return generator({ startAngle, endAngle } as unknown as null) || "";
-}
 
 export interface RingChartProps {
   /** Data array - each item represents a ring */
@@ -255,7 +239,7 @@ const RingChartCore = memo(function RingChartCore({
       const progress = ringData.value / ringData.maxValue;
       const progressEndAngle = startAngle + arcRange * progress;
       return {
-        bgPath: generateRingArcPath(
+        bgPath: arcPath(
           innerRadius,
           outerRadius,
           startAngle,
@@ -265,7 +249,7 @@ const RingChartCore = memo(function RingChartCore({
         progressPath:
           progressEndAngle <= startAngle + 0.01
             ? ""
-            : generateRingArcPath(
+            : arcPath(
                 innerRadius,
                 outerRadius,
                 startAngle,
@@ -406,7 +390,7 @@ const RingChartCore = memo(function RingChartCore({
           }}
           width={size}
         >
-          <Group left={center} top={center}>
+          <g transform={`translate(${center}, ${center})`}>
             {scrubRingLayers
               ? scrubRingLayers.map((layer, index) => (
                   <g key={data[index]?.label ?? index}>
@@ -418,7 +402,7 @@ const RingChartCore = memo(function RingChartCore({
                 ))
               : null}
             {svgChildren}
-          </Group>
+          </g>
         </svg>
 
         {/* HTML layer with center content - stacked on top via grid */}

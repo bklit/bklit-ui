@@ -1,7 +1,7 @@
 "use client";
 
-import { scaleLinear } from "@visx/scale";
-import { LineRadial } from "@visx/shape";
+import { scaleLinear } from "d3-scale";
+import { lineRadial } from "d3-shape";
 import { motion } from "motion/react";
 import {
   GRID_RING_SPRING,
@@ -21,6 +21,47 @@ export interface RadarGridProps {
   strokeOpacity?: number;
   /** Additional class name */
   className?: string;
+}
+
+export interface RadarGridRingProps {
+  /** One point per metric, plus a closing point back at the first angle */
+  data: { angle: number }[];
+  /** Maps a datum to its angle in radians */
+  angle: (d: { angle: number }) => number;
+  /** Ring radius (constant for every point) */
+  radius: number;
+  stroke: string;
+  strokeOpacity: number;
+}
+
+/**
+ * One polygon ring of the grid. Renders the same `<path>` visx `LineRadial`
+ * did (minus its `visx-line-radial` class): d3 `lineRadial` with the default
+ * linear curve and `d` / `fill` emitted before the stroke props.
+ */
+export function RadarGridRing({
+  data,
+  angle,
+  radius,
+  stroke,
+  strokeOpacity,
+}: RadarGridRingProps) {
+  const path = lineRadial<{ angle: number }>().angle(angle);
+  // visx only applied `radius` when truthy; a 0 radius kept d3's default
+  // accessor (`d[1]` -> NaN). Mirror that so the output is byte-identical.
+  if (radius) {
+    path.radius(radius);
+  }
+  return (
+    <path
+      d={path(data) || ""}
+      fill="none"
+      stroke={stroke}
+      strokeLinecap="round"
+      strokeOpacity={strokeOpacity}
+      strokeWidth={1}
+    />
+  );
 }
 
 export function RadarGrid({
@@ -50,10 +91,9 @@ export function RadarGrid({
   }));
 
   // Radial scale for converting degrees to radians
-  const radialScale = scaleLinear<number>({
-    range: [0, Math.PI * 2],
-    domain: [degrees, 0],
-  });
+  const radialScale = scaleLinear<number>()
+    .domain([degrees, 0])
+    .range([0, Math.PI * 2]);
 
   const labelDelay = gridLabelDelay(levels, gridStagger);
 
@@ -81,15 +121,12 @@ export function RadarGrid({
                 : undefined
             }
           >
-            <LineRadial
+            <RadarGridRing
               angle={(d) => radialScale(d.angle) ?? 0}
               data={angles}
-              fill="none"
               radius={targetRadius}
               stroke={stroke}
-              strokeLinecap="round"
               strokeOpacity={strokeOpacity}
-              strokeWidth={1}
             />
           </motion.g>
         );

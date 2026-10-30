@@ -1560,9 +1560,6 @@
       ],
       "dependencies": [
         "@number-flow/react",
-        "@visx/group@4.0.0",
-        "@visx/responsive@4.0.0",
-        "@visx/shape@4.0.0",
         "d3-shape",
         "motion"
       ],
@@ -1581,6 +1578,11 @@
           "path": "src/charts/pie-slice.tsx",
           "type": "registry:component",
           "target": "components/charts/pie-slice.tsx"
+        },
+        {
+          "path": "src/charts/arc-path.ts",
+          "type": "registry:component",
+          "target": "components/charts/arc-path.ts"
         },
         {
           "path": "src/charts/chart-stat-flow.tsx",
@@ -1615,10 +1617,7 @@
         "@bklit/chart-parent-size"
       ],
       "dependencies": [
-        "@visx/group@4.0.0",
-        "@visx/responsive@4.0.0",
-        "@visx/scale@4.0.0",
-        "@visx/shape@4.0.0",
+        "d3-scale",
         "d3-shape",
         "motion"
       ],
@@ -1666,11 +1665,9 @@
         "@bklit/chart-parent-size"
       ],
       "dependencies": [
-        "@visx/group@4.0.0",
-        "@visx/responsive@4.0.0",
-        "@visx/shape@4.0.0",
         "@number-flow/react",
-        "motion"
+        "motion",
+        "d3-shape"
       ],
       "files": [
         {
@@ -1687,6 +1684,11 @@
           "path": "src/charts/ring.tsx",
           "type": "registry:component",
           "target": "components/charts/ring.tsx"
+        },
+        {
+          "path": "src/charts/arc-path.ts",
+          "type": "registry:component",
+          "target": "components/charts/arc-path.ts"
         },
         {
           "path": "src/charts/chart-stat-flow.tsx",
@@ -1840,7 +1842,6 @@
         "@bklit/chart-parent-size"
       ],
       "dependencies": [
-        "@visx/responsive@4.0.0",
         "@number-flow/react",
         "motion",
         "d3-shape"
@@ -2110,10 +2111,6 @@
         "@bklit/chart-parent-size"
       ],
       "dependencies": [
-        "@visx/event@4.0.0",
-        "@visx/gradient@4.0.0",
-        "@visx/responsive@4.0.0",
-        "@visx/sankey@4.0.0",
         "d3-sankey",
         "motion"
       ],
@@ -2122,6 +2119,11 @@
           "path": "src/charts/sankey/sankey-chart.tsx",
           "type": "registry:component",
           "target": "components/charts/sankey/sankey-chart.tsx"
+        },
+        {
+          "path": "src/charts/local-point.ts",
+          "type": "registry:component",
+          "target": "components/charts/local-point.ts"
         },
         {
           "path": "src/charts/sankey/sankey-context.tsx",

@@ -1,7 +1,6 @@
 "use client";
 
-import { Group } from "@visx/group";
-import { scaleLinear } from "@visx/scale";
+import { scaleLinear } from "d3-scale";
 import type { Transition } from "motion/react";
 import { type ReactNode, useCallback, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -103,10 +102,7 @@ function RadarChartInner({
   // Scale for converting values (0-100) to radius
   const yScale = useCallback(
     (value: number) => {
-      const scale = scaleLinear<number>({
-        range: [0, radius],
-        domain: [0, 100],
-      });
+      const scale = scaleLinear<number>().domain([0, 100]).range([0, radius]);
       return scale(value) ?? 0;
     },
     [radius]
@@ -179,9 +175,8 @@ function RadarChartInner({
         style={{ overflow: "visible" }}
         width={size}
       >
-        <Group left={size / 2} top={size / 2}>
-          {children}
-        </Group>
+        {/* Same transform string visx Group emitted (note the space). */}
+        <g transform={`translate(${size / 2}, ${size / 2})`}>{children}</g>
       </svg>
     </RadarProvider>
   );

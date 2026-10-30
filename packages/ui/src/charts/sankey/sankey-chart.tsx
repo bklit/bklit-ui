@@ -1,8 +1,11 @@
 "use client";
 
-import { localPoint } from "@visx/event";
-import { sankey, sankeyCenter, sankeyLinkHorizontal } from "@visx/sankey";
-import type { SankeyLink } from "d3-sankey";
+import {
+  type SankeyLink,
+  sankey,
+  sankeyCenter,
+  sankeyLinkHorizontal,
+} from "d3-sankey";
 import type { Transition } from "motion/react";
 import {
   memo,
@@ -15,6 +18,7 @@ import {
 } from "react";
 import { cn } from "@/lib/utils";
 import { ParentSize } from "../chart-parent-size";
+import { localPoint } from "../local-point";
 import {
   type Margin,
   type SankeyLinkDatum,

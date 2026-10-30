@@ -5,7 +5,6 @@
   "title": "Gauge",
   "description": "Notch-based radial or linear gauge with optional center label, patterns, and optional gradients",
   "dependencies": [
-    "@visx/responsive@4.0.0",
     "@number-flow/react",
     "motion",
     "d3-shape"
