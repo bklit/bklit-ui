@@ -1,16 +1,15 @@
 "use client";
 
-import { type scaleBand, scaleLinear, type scaleTime } from "@visx/scale";
+import {
+  type ScaleBand as D3ScaleBand,
+  type ScaleLinear as D3ScaleLinear,
+  type ScaleTime as D3ScaleTime,
+  scaleLinear,
+} from "d3-scale";
 
-type ScaleLinear<Output, _Input = number> = ReturnType<
-  typeof scaleLinear<Output>
->;
-type ScaleTime<Output, _Input = Date | number> = ReturnType<
-  typeof scaleTime<Output>
->;
-type ScaleBand<Domain extends { toString(): string }> = ReturnType<
-  typeof scaleBand<Domain>
->;
+type ScaleLinear<Output, _Input = number> = D3ScaleLinear<Output, Output>;
+type ScaleTime<Output, _Input = Date | number> = D3ScaleTime<Output, Output>;
+type ScaleBand<Domain extends { toString(): string }> = D3ScaleBand<Domain>;
 
 import type { Transition } from "motion/react";
 import {
@@ -482,7 +481,7 @@ export function useSettledYScale(
     () =>
       min == null || max == null
         ? null
-        : scaleLinear({ range: [innerHeight, 0], domain: [min, max] }),
+        : scaleLinear().domain([min, max]).range([innerHeight, 0]),
     [min, max, innerHeight]
   );
   return settled ?? liveScale;

@@ -1,7 +1,9 @@
 "use client";
 
-import { localPoint } from "@visx/event";
-import type { scaleLinear, scaleTime } from "@visx/scale";
+import type {
+  ScaleLinear as D3ScaleLinear,
+  ScaleTime as D3ScaleTime,
+} from "d3-scale";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type {
   BandConfig,
@@ -9,11 +11,12 @@ import type {
   Margin,
   TooltipData,
 } from "./chart-context";
+import { localPoint } from "./local-point";
 import { useScheduledTooltip } from "./use-scheduled-tooltip";
 import { normalizeYAxisId } from "./y-axis-scales";
 
-type ScaleTime = ReturnType<typeof scaleTime<number>>;
-type ScaleLinear = ReturnType<typeof scaleLinear<number>>;
+type ScaleTime = D3ScaleTime<number, number>;
+type ScaleLinear = D3ScaleLinear<number, number>;
 
 export interface ChartSelection {
   startX: number;
@@ -181,7 +184,7 @@ export function useChartInteraction({
         if (!svg) {
           return null;
         }
-        point = localPoint(svg, touch as unknown as MouseEvent);
+        point = localPoint(svg, touch);
       } else {
         point = localPoint(event);
       }

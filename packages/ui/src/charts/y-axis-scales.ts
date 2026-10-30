@@ -1,4 +1,4 @@
-import { scaleLinear } from "@visx/scale";
+import { type ScaleLinear, scaleLinear } from "d3-scale";
 import type { LineConfig } from "./chart-context";
 
 /** Default axis id when `yAxisId` is omitted (Recharts-style `0` / primary left axis). */
@@ -26,7 +26,7 @@ export function groupLinesByYAxisId(
   return groups;
 }
 
-type YScale = ReturnType<typeof scaleLinear<number>>;
+type YScale = ScaleLinear<number, number>;
 
 export function getPrimaryYScale(
   yScales: Record<string, YScale>,
@@ -57,19 +57,17 @@ export function buildYScalesForLines({
   for (const [axisId, axisLines] of groups) {
     const dataKeys = axisLines.map((line) => line.dataKey);
     const domain = resolveDomain(dataKeys);
-    scales[axisId] = scaleLinear({
-      range: [innerHeight, 0],
-      domain,
-      nice: true,
-    });
+    scales[axisId] = scaleLinear()
+      .domain(domain)
+      .nice()
+      .range([innerHeight, 0]);
   }
 
   if (!scales[DEFAULT_Y_AXIS_ID]) {
-    scales[DEFAULT_Y_AXIS_ID] = scaleLinear({
-      range: [innerHeight, 0],
-      domain: [0, 100],
-      nice: true,
-    });
+    scales[DEFAULT_Y_AXIS_ID] = scaleLinear()
+      .domain([0, 100])
+      .nice()
+      .range([innerHeight, 0]);
   }
 
   return scales;
@@ -93,17 +91,13 @@ export function buildYScalesFromDomains({
       domainsByAxis[axisId] ??
       domainsByAxis[DEFAULT_Y_AXIS_ID] ??
       ([0, 100] as [number, number]);
-    scales[axisId] = scaleLinear({
-      range: [innerHeight, 0],
-      domain,
-    });
+    scales[axisId] = scaleLinear().domain(domain).range([innerHeight, 0]);
   }
 
   if (!scales[DEFAULT_Y_AXIS_ID]) {
-    scales[DEFAULT_Y_AXIS_ID] = scaleLinear({
-      range: [innerHeight, 0],
-      domain: domainsByAxis[DEFAULT_Y_AXIS_ID] ?? [0, 100],
-    });
+    scales[DEFAULT_Y_AXIS_ID] = scaleLinear()
+      .domain(domainsByAxis[DEFAULT_Y_AXIS_ID] ?? [0, 100])
+      .range([innerHeight, 0]);
   }
 
   return scales;

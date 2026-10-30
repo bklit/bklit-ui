@@ -1,7 +1,7 @@
 "use client";
 
-import { scaleLinear } from "@visx/scale";
 import { AreaClosed, type AreaClosedProps, LinePath } from "@visx/shape";
+import { scaleLinear } from "d3-scale";
 import { motion, useReducedMotion } from "motion/react";
 import {
   useCallback,
@@ -244,11 +244,10 @@ export function LineLoadingSweep({
     return null;
   }
 
-  const xScale = scaleLinear({
-    domain: [0, heights.length - 1],
-    range: [0, innerWidth],
-  });
-  const yScale = scaleLinear({ domain: [0, 100], range: [innerHeight, 0] });
+  const xScale = scaleLinear()
+    .domain([0, heights.length - 1])
+    .range([0, innerWidth]);
+  const yScale = scaleLinear().domain([0, 100]).range([innerHeight, 0]);
   const points = heights.map((value, index) => ({ index, value }));
   const getX = (d: { index: number }) => xScale(d.index);
   const getY = (d: { value: number }) => yScale(d.value);

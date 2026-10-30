@@ -1,7 +1,7 @@
 "use client";
 
-import { scaleLinear, scaleTime } from "@visx/scale";
 import { bisector, extent } from "d3-array";
+import { scaleLinear, scaleTime } from "d3-scale";
 import type { Transition } from "motion/react";
 import {
   Children,
@@ -284,10 +284,7 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
       maxTime = mergeProjectionXDomainMax(maxTime, projectionConfigs);
     }
 
-    return scaleTime({
-      range: [0, innerWidth],
-      domain: [minTime, maxTime],
-    });
+    return scaleTime().domain([minTime, maxTime]).range([0, innerWidth]);
   }, [innerWidth, plotData, projectionConfigs, xAccessor, xDomain]);
 
   // When brushing, keep the full series for path rendering so edge fades stay
@@ -394,7 +391,7 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
 
   const yScale = getPrimaryYScale(
     yScales,
-    scaleLinear({ range: [innerHeight, 0], domain: [0, 100], nice: true })
+    scaleLinear().domain([0, 100]).nice().range([innerHeight, 0])
   );
 
   const dateLabels = useMemo(

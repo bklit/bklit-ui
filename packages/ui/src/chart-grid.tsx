@@ -1,15 +1,14 @@
 "use client";
 
 import { GridColumns, GridRows } from "@visx/grid";
-import type { scaleLinear, scaleTime } from "@visx/scale";
+import type {
+  ScaleLinear as D3ScaleLinear,
+  ScaleTime as D3ScaleTime,
+} from "d3-scale";
 import { useId } from "react";
 
-type ScaleLinear<Output, _Input = number> = ReturnType<
-  typeof scaleLinear<Output>
->;
-type ScaleTime<Output, _Input = Date | number> = ReturnType<
-  typeof scaleTime<Output>
->;
+type ScaleLinear<Output, _Input = number> = D3ScaleLinear<Output, Output>;
+type ScaleTime<Output, _Input = Date | number> = D3ScaleTime<Output, Output>;
 
 export interface ChartGridProps {
   /** Width of the grid area */

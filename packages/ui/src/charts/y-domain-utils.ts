@@ -1,4 +1,4 @@
-import { scaleLinear } from "@visx/scale";
+import { scaleLinear } from "d3-scale";
 import type { LineConfig } from "./chart-context";
 import { type ChartPhase, Y_DOMAIN_TWEEN_SKIP_THRESHOLD } from "./chart-phase";
 import { groupLinesByYAxisId, normalizeYAxisId } from "./y-axis-scales";
@@ -110,9 +110,9 @@ export function resolveBarValueDomain({
   return [Math.min(0, minValue - padding), Math.max(0, maxValue + padding)];
 }
 
-/** Apply visx `nice()` to raw domain endpoints for stable grid ticks. */
+/** Apply d3 `nice()` to raw domain endpoints for stable grid ticks. */
 export function niceYDomain(domain: YDomain): YDomain {
-  const scale = scaleLinear({ domain, range: [0, 1], nice: true });
+  const scale = scaleLinear().domain(domain).nice().range([0, 1]);
   const niceDomain = scale.domain();
   return [niceDomain[0] ?? domain[0], niceDomain[1] ?? domain[1]];
 }
