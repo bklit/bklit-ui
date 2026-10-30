@@ -1,8 +1,7 @@
 "use client";
 
-import { localPoint } from "@visx/event";
-import { scaleLinear, scaleTime } from "@visx/scale";
 import { bisector } from "d3-array";
+import { scaleLinear, scaleTime } from "d3-scale";
 import {
   Children,
   isValidElement,
@@ -31,6 +30,7 @@ import { hmsTimeFmt } from "./chart-formatters";
 import { ParentSize } from "./chart-parent-size";
 import { DEFAULT_CHART_LIFECYCLE } from "./chart-phase";
 import type { LiveLineProps } from "./live-line";
+import { localPoint } from "./local-point";
 import { extractReferenceAreaConfigs } from "./reference-area-config";
 import { wrapSingleYScale } from "./y-axis-scales";
 
@@ -242,15 +242,13 @@ function resolveLiveTooltip(
   }
 
   const domainEndMs = frame.now + leadingMs;
-  const xScaleNext = scaleTime({
-    domain: [new Date(domainEndMs - windowMs), new Date(domainEndMs)],
-    range: [0, innerWidth],
-  });
-  const yScaleNext = scaleLinear({
-    domain: [frame.yMin, frame.yMax],
-    range: [innerHeight, 0],
-    nice: true,
-  });
+  const xScaleNext = scaleTime()
+    .domain([new Date(domainEndMs - windowMs), new Date(domainEndMs)])
+    .range([0, innerWidth]);
+  const yScaleNext = scaleLinear()
+    .domain([frame.yMin, frame.yMax])
+    .nice()
+    .range([innerHeight, 0]);
   const timeMs = xScaleNext.invert(cursorX).getTime();
   const timeSec = timeMs / 1000;
   const visible = data.filter((p) => p.time >= (domainEndMs - windowMs) / 1000);
@@ -444,20 +442,18 @@ const LiveLineChartCore = memo(function LiveLineChartCore({
   // ---- Scales ----
   const xScale = useMemo(
     () =>
-      scaleTime({
-        domain: [new Date(domainEndMs - windowMs), new Date(domainEndMs)],
-        range: [0, innerWidth],
-      }),
+      scaleTime()
+        .domain([new Date(domainEndMs - windowMs), new Date(domainEndMs)])
+        .range([0, innerWidth]),
     [domainEndMs, windowMs, innerWidth]
   );
 
   const yScale = useMemo(
     () =>
-      scaleLinear({
-        domain: [frame.yMin, frame.yMax],
-        range: [innerHeight, 0],
-        nice: true,
-      }),
+      scaleLinear()
+        .domain([frame.yMin, frame.yMax])
+        .nice()
+        .range([innerHeight, 0]),
     [frame.yMin, frame.yMax, innerHeight]
   );
 

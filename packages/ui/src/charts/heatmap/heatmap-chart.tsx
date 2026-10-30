@@ -1,7 +1,7 @@
 "use client";
 
 import { useParentSize } from "@visx/responsive";
-import { scaleLinear, scaleTime } from "@visx/scale";
+import { scaleLinear, scaleTime } from "d3-scale";
 import type { Transition } from "motion/react";
 import { useReducedMotion } from "motion/react";
 import {
@@ -340,18 +340,11 @@ function HeatmapChartInner({
 
   const timeXScale = useMemo(() => {
     const domain = timeExtent ?? [new Date(), new Date()];
-    return scaleTime({
-      domain,
-      range: [0, innerWidth],
-    });
+    return scaleTime().domain(domain).range([0, innerWidth]);
   }, [innerWidth, timeExtent]);
 
   const brushYScale = useMemo(
-    () =>
-      scaleLinear({
-        domain: [0, 1],
-        range: [innerHeight, 0],
-      }),
+    () => scaleLinear().domain([0, 1]).range([innerHeight, 0]),
     [innerHeight]
   );
 

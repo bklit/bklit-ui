@@ -1,6 +1,6 @@
 "use client";
 
-import type { scaleBand } from "@visx/scale";
+import type { ScaleBand as D3ScaleBand } from "d3-scale";
 import type { Transition } from "motion/react";
 import { motion } from "motion/react";
 import { memo, useId, useMemo } from "react";
@@ -15,9 +15,7 @@ import { useChartLegendHover } from "./chart-legend-hover";
 import { transitionWithDelay } from "./motion-utils";
 import { type PatternPresetId, renderPatternPreset } from "./pattern-preset";
 
-type ScaleBand<Domain extends { toString(): string }> = ReturnType<
-  typeof scaleBand<Domain>
->;
+type ScaleBand<Domain extends { toString(): string }> = D3ScaleBand<Domain>;
 
 export interface GradientStop {
   offset: number;

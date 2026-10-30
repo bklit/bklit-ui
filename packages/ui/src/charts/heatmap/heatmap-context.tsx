@@ -1,6 +1,6 @@
 "use client";
 
-import type { scaleLinear, scaleTime } from "@visx/scale";
+import type { ScaleLinear, ScaleTime } from "d3-scale";
 import type { Transition } from "motion/react";
 import {
   createContext,
@@ -25,8 +25,8 @@ import type {
   HeatmapWeekStartDay,
 } from "./heatmap-utils";
 
-type HeatmapTimeScale = ReturnType<typeof scaleTime<number>>;
-type HeatmapLinearScale = ReturnType<typeof scaleLinear<number>>;
+type HeatmapTimeScale = ScaleTime<number, number>;
+type HeatmapLinearScale = ScaleLinear<number, number>;
 
 export interface HeatmapBin {
   count: number;

@@ -1,7 +1,7 @@
 "use client";
 
-import { scaleLinear, scaleTime } from "@visx/scale";
 import { bisector } from "d3-array";
+import { scaleLinear, scaleTime } from "d3-scale";
 import type { Transition } from "motion/react";
 import {
   Children,
@@ -147,10 +147,9 @@ const ChartCore = memo(function ChartCore({
       ? xDomain[1].getTime()
       : Math.max(...data.map((d) => xAccessor(d).getTime()));
     const padding = slotWidth / 2;
-    return scaleTime({
-      range: [padding, innerWidth - padding],
-      domain: [minTime, maxTime],
-    });
+    return scaleTime()
+      .domain([minTime, maxTime])
+      .range([padding, innerWidth - padding]);
   }, [innerWidth, data, xAccessor, slotWidth, xDomain]);
 
   const yScale = useMemo(() => {
@@ -173,11 +172,10 @@ const ChartCore = memo(function ChartCore({
       maxVal = 100;
     }
     const padding = (maxVal - minVal) * 0.05 || 1;
-    return scaleLinear({
-      range: [innerHeight, 0],
-      domain: [minVal - padding, maxVal + padding],
-      nice: true,
-    });
+    return scaleLinear()
+      .domain([minVal - padding, maxVal + padding])
+      .nice()
+      .range([innerHeight, 0]);
   }, [innerHeight, data]);
 
   const columnWidth = slotWidth;

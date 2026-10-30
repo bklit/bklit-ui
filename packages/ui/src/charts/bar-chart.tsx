@@ -1,7 +1,6 @@
 "use client";
 
-import { localPoint } from "@visx/event";
-import { scaleBand, scaleLinear } from "@visx/scale";
+import { type ScaleTime, scaleBand, scaleLinear } from "d3-scale";
 import type { Transition } from "motion/react";
 import {
   memo,
@@ -41,6 +40,7 @@ import {
   resolveRestingChartPhase,
 } from "./chart-phase";
 import { BarLoadingSkeleton } from "./loading-sweep";
+import { localPoint } from "./local-point";
 import { extractReferenceAreaConfigs } from "./reference-area-config";
 import { useScheduledTooltip } from "./use-scheduled-tooltip";
 import {
@@ -265,11 +265,7 @@ const ChartCore = memo(function ChartCore({
     const range: [number, number] = isHorizontal
       ? [0, innerHeight]
       : [0, innerWidth];
-    return scaleBand<string>({
-      range,
-      domain,
-      padding: barGap,
-    });
+    return scaleBand<string>().domain(domain).range(range).padding(barGap);
   }, [innerWidth, innerHeight, data, categoryAccessor, barGap, isHorizontal]);
 
   // Band width for bars - use prop if provided, otherwise use scale's bandwidth
@@ -289,11 +285,10 @@ const ChartCore = memo(function ChartCore({
   // grow from the zero line in either direction.
   const valueScale = useMemo(() => {
     const range = isHorizontal ? [0, innerWidth] : [innerHeight, 0];
-    return scaleLinear({
-      range,
-      domain: resolveBarValueDomain(valueExtents),
-      nice: true,
-    });
+    return scaleLinear()
+      .domain(resolveBarValueDomain(valueExtents))
+      .nice()
+      .range(range);
   }, [innerWidth, innerHeight, valueExtents, isHorizontal]);
 
   const yScales = useMemo(() => {
@@ -600,9 +595,7 @@ const ChartCore = memo(function ChartCore({
     chartStatus: status,
     data,
     renderData: data,
-    xScale: fakeTimeScale as unknown as ReturnType<
-      typeof import("@visx/scale").scaleTime<number>
-    >,
+    xScale: fakeTimeScale as unknown as ScaleTime<number, number>,
     yScale: isHorizontal ? valueScale : primaryYScale,
     yScales,
     width,
