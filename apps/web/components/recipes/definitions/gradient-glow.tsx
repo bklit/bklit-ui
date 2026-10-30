@@ -110,17 +110,17 @@ export function VisitorsChart({
       install: ["bar-chart"],
       steps: [
         "Remove the `<Grid />` (or `<Background />`) child of `<BarChart>` and its import.",
-        "Add a vertical `<LinearGradient>` from `@visx/gradient` (already a dependency of `@bklit/bar-chart`) as the first child of `<BarChart>`: `from` and `to` set to the series colour (e.g. `var(--chart-1)`), `fromOpacity={1}`, `toOpacity={0.12}`, and an `id` made unique with `useId()`.",
+        "Add a vertical `<LinearGradient>` (from `@/components/charts/gradients`, installed with `@bklit/bar-chart`) as the first child of `<BarChart>`: `from` and `to` set to the series colour (e.g. `var(--chart-1)`), `fromOpacity={1}`, `toOpacity={0.12}`, and an `id` made unique with `useId()`.",
         "On each `<Bar>`, set `fill` to `url(#<that id>)`, `stroke` to the solid series colour (the tooltip dot uses it, since the fill is a gradient) and `lineCap={6}` for softer tops.",
         "Keep `<BarXAxis />` and `<ChartTooltip />` unchanged.",
       ],
       code: `"use client";
 
-import { LinearGradient } from "@visx/gradient";
 import { useId } from "react";
 import { Bar } from "@/components/charts/bar";
 import { BarChart } from "@/components/charts/bar-chart";
 import { BarXAxis } from "@/components/charts/bar-x-axis";
+import { LinearGradient } from "@/components/charts/gradients";
 import { ChartTooltip } from "@/components/charts/tooltip";
 
 export function RevenueChart({

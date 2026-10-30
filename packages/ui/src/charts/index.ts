@@ -1,19 +1,5 @@
 // Chart context and hooks
 
-// Re-export visx gradient and pattern components for bar fill styling
-export {
-  GradientDarkgreenGreen,
-  GradientLightgreenGreen,
-  GradientOrangeRed,
-  GradientPinkBlue,
-  GradientPinkRed,
-  GradientPurpleOrange,
-  GradientPurpleTeal,
-  GradientSteelPurple,
-  GradientTealBlue,
-  LinearGradient,
-  RadialGradient,
-} from "@visx/gradient";
 export {
   DEFAULT_ANIMATION_DURATION_MS,
   DEFAULT_ANIMATION_EASING,
@@ -238,6 +224,22 @@ export {
   type GenerateChartSkeletonDataOptions,
   generateChartSkeletonData,
 } from "./generate-chart-skeleton-data";
+// SVG gradient defs (same API as @visx/gradient) for bar / area fills
+export {
+  GradientDarkgreenGreen,
+  GradientLightgreenGreen,
+  GradientOrangeRed,
+  GradientPinkBlue,
+  GradientPinkRed,
+  GradientPurpleOrange,
+  GradientPurpleTeal,
+  GradientSteelPurple,
+  GradientTealBlue,
+  LinearGradient,
+  type LinearGradientProps,
+  RadialGradient,
+  type RadialGradientProps,
+} from "./gradients";
 export { Grid, type GridProps } from "./grid";
 // Heatmap chart components
 export {
