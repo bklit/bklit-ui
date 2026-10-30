@@ -1,11 +1,11 @@
 "use client";
 
-import { GridColumns, GridRows } from "@visx/grid";
 import type {
   ScaleLinear as D3ScaleLinear,
   ScaleTime as D3ScaleTime,
 } from "d3-scale";
 import { useId } from "react";
+import { GridColumns, GridRows } from "./charts/grid-lines";
 
 type ScaleLinear<Output, _Input = number> = D3ScaleLinear<Output, Output>;
 type ScaleTime<Output, _Input = Date | number> = D3ScaleTime<Output, Output>;
