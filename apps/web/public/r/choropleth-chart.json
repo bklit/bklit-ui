@@ -7,11 +7,11 @@
   "dependencies": [
     "@types/geojson",
     "@visx/geo@4.0.0",
-    "@visx/responsive@4.0.0",
     "@visx/zoom@4.0.0",
     "d3-geo",
     "topojson-client",
-    "motion"
+    "motion",
+    "d3-scale"
   ],
   "registryDependencies": [
     "@bklit/chart-animation",

@@ -6,7 +6,8 @@
   "description": "A flow diagram for visualizing data transfers between nodes",
   "dependencies": [
     "d3-sankey",
-    "motion"
+    "motion",
+    "d3-scale"
   ],
   "registryDependencies": [
     "@bklit/chart-animation",

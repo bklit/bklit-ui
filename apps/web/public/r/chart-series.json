@@ -5,7 +5,6 @@
   "title": "Chart Series Layer",
   "description": "Shared line and area series rendering helpers (paths, markers, highlights, dash tails)",
   "dependencies": [
-    "@visx/shape@4.0.0",
     "d3-shape",
     "motion"
   ],

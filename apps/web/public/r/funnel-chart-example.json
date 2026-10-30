@@ -5,7 +5,6 @@
   "title": "Funnel Chart Example",
   "description": "Composable funnel-chart demo for Open in v0",
   "dependencies": [
-    "@visx/shape@4.0.0",
     "motion"
   ],
   "registryDependencies": [

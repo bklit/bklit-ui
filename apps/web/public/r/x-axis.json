@@ -4,6 +4,9 @@
   "type": "registry:component",
   "title": "X Axis",
   "description": "X-axis component for time-series charts",
+  "dependencies": [
+    "d3-scale"
+  ],
   "registryDependencies": [
     "@bklit/chart-context",
     "@bklit/utils"

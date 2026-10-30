@@ -6,7 +6,8 @@
   "description": "Composable tooltip components for charts",
   "dependencies": [
     "@number-flow/react",
-    "motion"
+    "motion",
+    "d3-scale"
   ],
   "registryDependencies": [
     "@bklit/chart-context",

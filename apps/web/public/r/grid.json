@@ -5,7 +5,8 @@
   "title": "Chart Grid",
   "description": "Grid lines for charts",
   "dependencies": [
-    "@visx/grid@4.0.0"
+    "@visx/grid@4.0.0",
+    "d3-scale"
   ],
   "registryDependencies": [
     "@bklit/chart-context"

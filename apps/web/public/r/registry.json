@@ -72,11 +72,9 @@
         "@bklit/chart-utils"
       ],
       "dependencies": [
-        "@visx/event@4.0.0",
-        "@visx/responsive@4.0.0",
-        "@visx/scale@4.0.0",
         "d3-array",
-        "motion"
+        "motion",
+        "d3-scale"
       ],
       "cssVars": {
         "theme": {
@@ -176,6 +174,11 @@
           "path": "src/charts/use-chart-interaction.ts",
           "type": "registry:component",
           "target": "components/charts/use-chart-interaction.ts"
+        },
+        {
+          "path": "src/charts/local-point.ts",
+          "type": "registry:component",
+          "target": "components/charts/local-point.ts"
         },
         {
           "path": "src/charts/y-axis-scales.ts",
@@ -294,7 +297,6 @@
         "@bklit/chart-tooltip"
       ],
       "dependencies": [
-        "@visx/shape@4.0.0",
         "d3-shape",
         "motion"
       ],
@@ -385,7 +387,8 @@
         "@bklit/chart-context"
       ],
       "dependencies": [
-        "@visx/grid@4.0.0"
+        "@visx/grid@4.0.0",
+        "d3-scale"
       ],
       "files": [
         {
@@ -695,6 +698,9 @@
           "type": "registry:component",
           "target": "components/charts/responsive-chart-label-count.ts"
         }
+      ],
+      "dependencies": [
+        "d3-scale"
       ]
     },
     {
@@ -703,7 +709,8 @@
       "title": "Y Axis",
       "description": "Y-axis component for value labels in line and area charts",
       "dependencies": [
-        "motion"
+        "motion",
+        "d3-scale"
       ],
       "registryDependencies": [
         "@bklit/chart-context",
@@ -733,7 +740,8 @@
       ],
       "dependencies": [
         "@number-flow/react",
-        "motion"
+        "motion",
+        "d3-scale"
       ],
       "files": [
         {
@@ -891,6 +899,9 @@
           "type": "registry:component",
           "target": "components/charts/markers/index.ts"
         }
+      ],
+      "dependencies": [
+        "d3-scale"
       ]
     },
     {
@@ -910,7 +921,6 @@
         "@bklit/chart-parent-size"
       ],
       "dependencies": [
-        "@visx/gradient@4.0.0",
         "@visx/shape@4.0.0",
         "motion",
         "d3-shape"
@@ -1020,9 +1030,6 @@
         "@bklit/chart-parent-size"
       ],
       "dependencies": [
-        "@visx/scale@4.0.0",
-        "@visx/shape@4.0.0",
-        "@visx/responsive@4.0.0",
         "d3-array",
         "motion"
       ],
@@ -1089,7 +1096,6 @@
         "@bklit/chart-parent-size"
       ],
       "dependencies": [
-        "@visx/gradient@4.0.0",
         "@visx/shape@4.0.0",
         "motion"
       ],
@@ -1465,13 +1471,11 @@
         "@bklit/chart-parent-size"
       ],
       "dependencies": [
-        "@visx/scale@4.0.0",
         "@visx/shape@4.0.0",
-        "@visx/responsive@4.0.0",
-        "@visx/event@4.0.0",
         "d3-array",
         "motion",
-        "d3-shape"
+        "d3-shape",
+        "d3-scale"
       ],
       "files": [
         {
@@ -1517,10 +1521,9 @@
         "@bklit/chart-parent-size"
       ],
       "dependencies": [
-        "@visx/scale@4.0.0",
-        "@visx/responsive@4.0.0",
         "d3-array",
-        "motion"
+        "motion",
+        "d3-scale"
       ],
       "files": [
         {
@@ -1904,8 +1907,8 @@
         "@visx/group@4.0.0",
         "@visx/heatmap@4.0.0",
         "@visx/responsive@4.0.0",
-        "@visx/scale@4.0.0",
-        "motion"
+        "motion",
+        "d3-scale"
       ],
       "files": [
         {
@@ -2030,11 +2033,11 @@
       "dependencies": [
         "@types/geojson",
         "@visx/geo@4.0.0",
-        "@visx/responsive@4.0.0",
         "@visx/zoom@4.0.0",
         "d3-geo",
         "topojson-client",
-        "motion"
+        "motion",
+        "d3-scale"
       ],
       "files": [
         {
@@ -2109,7 +2112,8 @@
       ],
       "dependencies": [
         "d3-sankey",
-        "motion"
+        "motion",
+        "d3-scale"
       ],
       "files": [
         {
@@ -2249,7 +2253,6 @@
       ],
       "dependencies": [
         "d3-shape",
-        "@visx/shape@4.0.0",
         "motion"
       ],
       "files": [
@@ -2276,8 +2279,6 @@
         "@bklit/chart-tooltip"
       ],
       "dependencies": [
-        "@visx/gradient@4.0.0",
-        "@visx/shape@4.0.0",
         "motion"
       ],
       "files": [
@@ -2306,7 +2307,6 @@
       ],
       "dependencies": [
         "d3-shape",
-        "@visx/shape@4.0.0",
         "motion"
       ],
       "files": [
@@ -2361,7 +2361,6 @@
         "@bklit/pie-chart"
       ],
       "dependencies": [
-        "@visx/shape@4.0.0",
         "motion"
       ],
       "files": [
@@ -2386,7 +2385,6 @@
         "@bklit/gauge-chart"
       ],
       "dependencies": [
-        "@visx/shape@4.0.0",
         "motion"
       ],
       "files": [
@@ -2411,8 +2409,6 @@
         "@bklit/heatmap-chart"
       ],
       "dependencies": [
-        "@visx/heatmap@4.0.0",
-        "@visx/shape@4.0.0",
         "motion"
       ],
       "files": [
@@ -2437,7 +2433,6 @@
         "@bklit/ring-chart"
       ],
       "dependencies": [
-        "@visx/shape@4.0.0",
         "motion"
       ],
       "files": [
@@ -2462,7 +2457,6 @@
         "@bklit/radar-chart"
       ],
       "dependencies": [
-        "@visx/shape@4.0.0",
         "motion"
       ],
       "files": [
@@ -2517,7 +2511,6 @@
       ],
       "dependencies": [
         "d3-shape",
-        "@visx/shape@4.0.0",
         "motion"
       ],
       "files": [
@@ -2542,7 +2535,6 @@
         "@bklit/funnel-chart"
       ],
       "dependencies": [
-        "@visx/shape@4.0.0",
         "motion"
       ],
       "files": [
@@ -2567,8 +2559,6 @@
         "@bklit/sankey-chart"
       ],
       "dependencies": [
-        "@visx/sankey@4.0.0",
-        "@visx/shape@4.0.0",
         "motion"
       ],
       "files": [
@@ -2621,7 +2611,6 @@
         "@bklit/chart-tooltip"
       ],
       "dependencies": [
-        "@visx/shape@4.0.0",
         "motion"
       ],
       "files": [
@@ -2646,7 +2635,6 @@
         "@bklit/choropleth-chart"
       ],
       "dependencies": [
-        "@visx/geo@4.0.0",
         "d3-geo",
         "topojson-client"
       ],
@@ -2674,7 +2662,6 @@
       ],
       "dependencies": [
         "d3-shape",
-        "@visx/shape@4.0.0",
         "motion"
       ],
       "files": [

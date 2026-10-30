@@ -5,7 +5,8 @@
   "title": "Y Axis",
   "description": "Y-axis component for value labels in line and area charts",
   "dependencies": [
-    "motion"
+    "motion",
+    "d3-scale"
   ],
   "registryDependencies": [
     "@bklit/chart-context",

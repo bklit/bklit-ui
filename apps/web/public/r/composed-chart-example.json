@@ -6,7 +6,6 @@
   "description": "Composable composed-chart demo for Open in v0",
   "dependencies": [
     "d3-shape",
-    "@visx/shape@4.0.0",
     "motion"
   ],
   "registryDependencies": [
