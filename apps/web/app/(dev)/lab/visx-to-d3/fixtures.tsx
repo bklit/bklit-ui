@@ -19,32 +19,23 @@ import { RING_VARIANTS } from "./variants/ring";
 import { SANKEY_VARIANTS } from "./variants/sankey";
 import { SCATTER_VARIANTS } from "./variants/scatter";
 import { SPARKLINE_VARIANTS } from "./variants/sparkline";
-import type { LabSide, LabVariant } from "./variants/types";
+import type { LabVariant } from "./variants/types";
 
 /**
  * Every documented variation of each chart, ported from the gallery
  * (`chart-examples.tsx`), the docs demos and the recipes (see `variants/*`).
- *
- * Two kinds of variant (`variants/types.ts`):
- * - pairs (pie, ring, radar, sankey): ONE render function for Before (frozen
- *   visx snapshot in `legacy-visx/`) and After, so props, data and children
- *   are identical and only the visx-touching components are swapped;
- * - single-sided (the cartesian core, heatmap, choropleth): only the live
- *   chart exists, compared against a recorded geometry baseline
- *   (`_baselines/<chart>/<variant>.json`).
- * Every variant can be recorded as a baseline (pairs record their After).
+ * Each renders the live chart from `@bklitui/ui/charts` and is compared
+ * against its golden baseline (`_baselines/<chart>/<variant>.json`).
  */
 
 export type { LabChartSlug } from "./lab-slugs";
-export type { LabSide, LabVariant } from "./variants/types";
+export type { LabVariant } from "./variants/types";
 
 export interface LabChartFixture {
   label: string;
   /** Default frame every copy renders in, so every run lays out identically. */
   width: number;
   height: number;
-  /** Which files are swapped on the Before side; `null`: single-sided. */
-  legacyParts: string | null;
   variants: readonly LabVariant[];
   /**
    * Where the hover steps point, in document order. Step k hovers target k
@@ -121,14 +112,13 @@ function heatmapCells(root: Element): HoverTarget[] {
   );
 }
 
-const CARTESIAN = { width: 640, height: 360, legacyParts: null } as const;
+const CARTESIAN = { width: 640, height: 360 } as const;
 
 export const LAB_FIXTURES: Record<LabChartSlug, LabChartFixture> = {
   pie: {
     label: "Pie",
     width: 320,
     height: 320,
-    legacyParts: "PieChart + PieSlice",
     variants: PIE_VARIANTS,
     hoverTargets: transparentHitboxes,
   },
@@ -136,7 +126,6 @@ export const LAB_FIXTURES: Record<LabChartSlug, LabChartFixture> = {
     label: "Ring",
     width: 320,
     height: 320,
-    legacyParts: "RingChart + Ring",
     variants: RING_VARIANTS,
     hoverTargets: transparentHitboxes,
   },
@@ -144,7 +133,6 @@ export const LAB_FIXTURES: Record<LabChartSlug, LabChartFixture> = {
     label: "Radar",
     width: 360,
     height: 360,
-    legacyParts: "RadarChart + RadarGrid",
     variants: RADAR_VARIANTS,
     hoverTargets: radarAreas,
   },
@@ -152,7 +140,6 @@ export const LAB_FIXTURES: Record<LabChartSlug, LabChartFixture> = {
     label: "Sankey",
     width: 640,
     height: 480,
-    legacyParts: "SankeyChart",
     variants: SANKEY_VARIANTS,
     hoverTargets: sankeyLinksThenNodes,
   },
@@ -190,7 +177,6 @@ export const LAB_FIXTURES: Record<LabChartSlug, LabChartFixture> = {
     label: "Sparkline",
     width: 320,
     height: 160,
-    legacyParts: null,
     variants: SPARKLINE_VARIANTS,
     hoverTargets: sparklineSvg,
   },
@@ -216,7 +202,6 @@ export const LAB_FIXTURES: Record<LabChartSlug, LabChartFixture> = {
     label: "Heatmap",
     width: 760,
     height: 260,
-    legacyParts: null,
     variants: HEATMAP_VARIANTS,
     hoverTargets: heatmapCells,
   },
@@ -224,7 +209,6 @@ export const LAB_FIXTURES: Record<LabChartSlug, LabChartFixture> = {
     label: "Choropleth",
     width: 720,
     height: 420,
-    legacyParts: null,
     variants: CHOROPLETH_VARIANTS,
     hoverTargets: choroplethCountryTargets,
   },
@@ -286,10 +270,4 @@ export function allTargets(charts: readonly LabChartSlug[]): LabTarget[] {
       resolveTarget(chart, variant.id)
     )
   );
-}
-
-/** Renders a target's variant for one side (single-sided: always live). */
-export function renderSide(target: LabTarget, side: LabSide): React.ReactNode {
-  const { variant } = target;
-  return variant.kind === "single" ? variant.render() : variant.render(side);
 }

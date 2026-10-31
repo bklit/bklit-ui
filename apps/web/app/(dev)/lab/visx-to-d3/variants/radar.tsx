@@ -1,8 +1,6 @@
 "use client";
 
 import {
-  RadarChart as D3RadarChart,
-  RadarGrid as D3RadarGrid,
   Legend,
   LegendItemComponent,
   type LegendItemData,
@@ -11,22 +9,15 @@ import {
   LegendValue,
   RadarArea,
   RadarAxis,
+  RadarChart,
   type RadarData,
+  RadarGrid,
   RadarLabels,
   type RadarMetric,
 } from "@bklitui/ui/charts";
-import {
-  LegacyRadarChart,
-  LegacyRadarGrid,
-} from "@bklitui/ui/charts/legacy-visx";
 import { useState } from "react";
 import { chartExampleRadialShellClassName } from "@/components/charts/chart-example-preview";
-import type { LabSide, LabVariant } from "./types";
-
-const PARTS = {
-  before: { RadarChart: LegacyRadarChart, RadarGrid: LegacyRadarGrid },
-  after: { RadarChart: D3RadarChart, RadarGrid: D3RadarGrid },
-} as const;
+import type { LabVariant } from "./types";
 
 const EXAMPLES = "chart-examples.tsx";
 const DOCS = "docs/radar-chart-demo.tsx";
@@ -179,8 +170,7 @@ function Shell({ children }: { children: React.ReactNode }) {
   return <div className={chartExampleRadialShellClassName}>{children}</div>;
 }
 
-function RadarChartDemo({ side }: { side: LabSide }) {
-  const { RadarChart, RadarGrid } = PARTS[side];
+function RadarChartDemo() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const legendItems: LegendItemData[] = campaignData.map((d, index) => ({
     label: d.label,
@@ -228,8 +218,8 @@ export const RADAR_VARIANTS: LabVariant[] = [
     label: "Radar",
     source: `${EXAMPLES}: Radar Chart`,
     exercises: "5 metrics × 2 series, grid labels, axis, points",
-    render: (side) => {
-      const { RadarChart, RadarGrid } = PARTS[side];
+    kind: "single",
+    render: () => {
       return (
         <Shell>
           <RadarChart data={radarDataDual} metrics={radarMetrics5}>
@@ -249,8 +239,8 @@ export const RADAR_VARIANTS: LabVariant[] = [
     label: "Triangle",
     source: `${EXAMPLES}: Radar Chart - Triangle (also ${DOCS}: RadarChartMinimalDemo)`,
     exercises: "3 metrics (triangular grid)",
-    render: (side) => {
-      const { RadarChart, RadarGrid } = PARTS[side];
+    kind: "single",
+    render: () => {
       return (
         <Shell>
           <RadarChart data={radarDataTriangle} metrics={radarMetrics3}>
@@ -270,8 +260,8 @@ export const RADAR_VARIANTS: LabVariant[] = [
     label: "Hexagon",
     source: `${EXAMPLES}: Radar Chart - Hexagon`,
     exercises: "6 metrics, no axis, grid showLabels={false}, fill-only areas",
-    render: (side) => {
-      const { RadarChart, RadarGrid } = PARTS[side];
+    kind: "single",
+    render: () => {
       return (
         <Shell>
           <RadarChart data={radarDataSkills} metrics={radarMetrics6}>
@@ -296,8 +286,8 @@ export const RADAR_VARIANTS: LabVariant[] = [
     label: "Single series",
     source: `${EXAMPLES}: Radar Chart - Single Series`,
     exercises: "1 lopsided series, showPoints={false}",
-    render: (side) => {
-      const { RadarChart, RadarGrid } = PARTS[side];
+    kind: "single",
+    render: () => {
       return (
         <Shell>
           <RadarChart data={radarDataLopsided} metrics={radarMetrics5}>
@@ -315,8 +305,8 @@ export const RADAR_VARIANTS: LabVariant[] = [
     label: "Minimal",
     source: `${EXAMPLES}: Radar Chart - Minimal`,
     exercises: "levels={3}, no grid labels, no axis, no points",
-    render: (side) => {
-      const { RadarChart, RadarGrid } = PARTS[side];
+    kind: "single",
+    render: () => {
       return (
         <Shell>
           <RadarChart data={radarDataDual} levels={3} metrics={radarMetrics5}>
@@ -335,8 +325,8 @@ export const RADAR_VARIANTS: LabVariant[] = [
     label: "Grid only",
     source: `${EXAMPLES}: Radar Chart - Grid Only`,
     exercises: "Triangle without axis lines, showGlow={false}",
-    render: (side) => {
-      const { RadarChart, RadarGrid } = PARTS[side];
+    kind: "single",
+    render: () => {
       return (
         <Shell>
           <RadarChart data={radarDataTriangle} metrics={radarMetrics3}>
@@ -358,15 +348,16 @@ export const RADAR_VARIANTS: LabVariant[] = [
       "4 series, className-sized (w-[400px]), interactive labels, Legend",
     width: 760,
     height: 460,
-    render: (side) => <RadarChartDemo side={side} />,
+    kind: "single",
+    render: () => <RadarChartDemo />,
   },
   {
     id: "glow-margin",
     label: "Glow + margin",
     source: "radar-chart.mdx RadarChart/RadarArea props: margin, showGlow",
     exercises: "margin={40}, levels={4}, showGlow on every area",
-    render: (side) => {
-      const { RadarChart, RadarGrid } = PARTS[side];
+    kind: "single",
+    render: () => {
       return (
         <RadarChart
           data={radarDataDual}
@@ -390,8 +381,8 @@ export const RADAR_VARIANTS: LabVariant[] = [
     label: "animate={false}",
     source: "radar-chart.mdx RadarChart props: animate",
     exercises: "Static grid + areas (no enter grow), hover still on",
-    render: (side) => {
-      const { RadarChart, RadarGrid } = PARTS[side];
+    kind: "single",
+    render: () => {
       return (
         <RadarChart
           animate={false}

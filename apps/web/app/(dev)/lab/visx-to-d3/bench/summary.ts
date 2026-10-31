@@ -64,8 +64,9 @@ export interface MetricSummary {
   key: NumericKey;
   label: string;
   unit: MetricDefinition["unit"];
-  before: number;
-  after: number;
+  /** Stored baseline median (0 when none is stored). */
+  baseline: number;
+  live: number;
   deltaPct: number | null;
   verdict: Verdict;
 }
@@ -78,15 +79,15 @@ function values(records: RunRecord[], key: NumericKey): number[] {
 
 function verdictFor(
   metric: MetricDefinition,
-  before: number,
-  after: number,
+  baseline: number,
+  live: number,
   delta: number | null
 ): Verdict {
   if (metric.better === "neutral") {
     return "neutral";
   }
   if (delta === null) {
-    return after > before ? "slower" : "faster";
+    return live > baseline ? "slower" : "faster";
   }
   if (Math.abs(delta) <= NOISE_BAND_PCT) {
     return "noise";
@@ -94,43 +95,39 @@ function verdictFor(
   return delta < 0 ? "faster" : "slower";
 }
 
-/** Medians of the live (After) runs, keyed by metric, for a baseline. */
+/** Medians of the measured live runs, keyed by metric, for a baseline. */
 export function liveMedians(records: RunRecord[]): Record<string, number> {
-  const after = records.filter((r) => !r.warmup && r.variant === "after");
-  const hasHover = after.some((r) => r.hoverCommitMs !== null);
+  const measured = records.filter((r) => !r.warmup);
+  const hasHover = measured.some((r) => r.hoverCommitMs !== null);
   return Object.fromEntries(
     METRICS.filter((m) => hasHover || !m.hoverOnly).map((metric) => [
       metric.key,
-      median(values(after, metric.key)),
+      median(values(measured, metric.key)),
     ])
   );
 }
 
 /**
- * Medians per metric over measured (non-warm-up) runs. With `reference`
- * (stored baseline medians), Before is the reference instead of Before runs.
+ * Median per metric over the measured (non-warm-up) live runs, next to the
+ * medians stored in the baseline (`reference`).
  */
 export function summarize(
   records: RunRecord[],
-  reference?: Record<string, number>
+  reference: Record<string, number>
 ): MetricSummary[] {
-  const measured = records.filter((r) => !r.warmup);
-  const before = measured.filter((r) => r.variant === "before");
-  const after = measured.filter((r) => r.variant === "after");
-  const hasHover = measured.some((r) => r.hoverCommitMs !== null);
+  const live = liveMedians(records);
+  const hasHover = records.some((r) => !r.warmup && r.hoverCommitMs !== null);
 
   return METRICS.filter((m) => hasHover || !m.hoverOnly).map((metric) => {
-    const b = reference
-      ? (reference[metric.key] ?? 0)
-      : median(values(before, metric.key));
-    const a = median(values(after, metric.key));
+    const b = reference[metric.key] ?? 0;
+    const a = live[metric.key] ?? 0;
     const delta = deltaPct(b, a);
     return {
       key: metric.key,
       label: metric.label,
       unit: metric.unit,
-      before: b,
-      after: a,
+      baseline: b,
+      live: a,
       deltaPct: delta,
       verdict: verdictFor(metric, b, a, delta),
     };

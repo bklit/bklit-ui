@@ -1,4 +1,3 @@
-import type { LabSide } from "../fixtures";
 import { type FrameStats, frameStats, startFrameRecorder } from "./frames";
 import { runHoverPass } from "./hover";
 import { delay, nextFrame, waitForSettle } from "./settle";
@@ -11,8 +10,8 @@ export interface ProfilerCommit {
 
 /** Imperative handle onto the benchmark stage component. */
 export interface BenchStageDriver {
-  /** Renders `variant` alone in the stage (replacing whatever was there). */
-  mount: (variant: LabSide, runKey: number) => void;
+  /** Renders the live chart alone in the stage (replacing what was there). */
+  mount: (runKey: number) => void;
   unmount: () => void;
   element: () => HTMLElement | null;
   /** Returns and clears the Profiler commits recorded since the last call. */
@@ -21,7 +20,6 @@ export interface BenchStageDriver {
 
 export interface RunRecord extends FrameStats {
   run: number;
-  variant: LabSide;
   warmup: boolean;
   /** `actualDuration` of the mount commit. */
   mountCommitMs: number;
@@ -39,37 +37,15 @@ export interface BenchmarkOptions {
   driver: BenchStageDriver;
   iterations: number;
   hover: boolean;
-  /**
-   * `pair`: Before and After alternately; `live`: the live chart only (single
-   * sided variants, compared against stored baseline medians).
-   */
-  sides?: "pair" | "live";
   signal?: AbortSignal;
-  onProgress?: (done: number, total: number, variant: LabSide) => void;
+  onProgress?: (done: number, total: number) => void;
 }
 
 /** Runs between mounts so GC / idle work from the last run lands outside. */
 const COOLDOWN_MS = 120;
 
-/**
- * Pair 0 (live: run 0) is warm-up (discarded in the summary). Later pairs alternate order
- * (before→after, after→before, …) so slow drift on the machine hits both
- * sides equally.
- */
-function runOrder(iterations: number, sides: "pair" | "live"): LabSide[] {
-  if (sides === "live") {
-    return Array.from({ length: iterations + 1 }, () => "after" as const);
-  }
-  const order: LabSide[] = [];
-  for (let pair = 0; pair <= iterations; pair++) {
-    order.push(
-      ...(pair % 2 === 0
-        ? (["before", "after"] as const)
-        : (["after", "before"] as const))
-    );
-  }
-  return order;
-}
+/** Run 0 is a warm-up (discarded in the summary). */
+const WARMUP_RUNS = 1;
 
 function sumDuration(commits: ProfilerCommit[]): number {
   return commits.reduce((sum, c) => sum + c.actualDuration, 0);
@@ -77,7 +53,6 @@ function sumDuration(commits: ProfilerCommit[]): number {
 
 async function measureRun(
   driver: BenchStageDriver,
-  variant: LabSide,
   run: number,
   hover: boolean,
   signal?: AbortSignal
@@ -91,7 +66,7 @@ async function measureRun(
   const startedAt = performance.now();
   const settlePromise = waitForSettle(stage, { startedAt, signal });
   const recorder = startFrameRecorder();
-  driver.mount(variant, run);
+  driver.mount(run);
   const settle = await settlePromise;
   const stamps = recorder.stop();
   const enterCommits = driver.takeCommits();
@@ -111,7 +86,6 @@ async function measureRun(
 
   return {
     run,
-    variant,
     mountCommitMs: mountCommit?.actualDuration ?? 0,
     totalCommitMs: sumDuration(enterCommits),
     commits: enterCommits.length,
@@ -128,25 +102,23 @@ export async function runBenchmark({
   driver,
   iterations,
   hover,
-  sides = "pair",
   signal,
   onProgress,
 }: BenchmarkOptions): Promise<RunRecord[]> {
-  const order = runOrder(iterations, sides);
-  const warmupRuns = sides === "live" ? 1 : 2;
+  const total = iterations + WARMUP_RUNS;
   const records: RunRecord[] = [];
-  for (const [run, variant] of order.entries()) {
+  for (let run = 0; run < total; run++) {
     if (signal?.aborted) {
       break;
     }
-    onProgress?.(run, order.length, variant);
-    const record = await measureRun(driver, variant, run, hover, signal);
-    records.push({ ...record, warmup: run < warmupRuns });
+    onProgress?.(run, total);
+    const record = await measureRun(driver, run, hover, signal);
+    records.push({ ...record, warmup: run < WARMUP_RUNS });
     driver.unmount();
     await nextFrame();
     await nextFrame();
     await delay(COOLDOWN_MS);
   }
-  onProgress?.(records.length, order.length, "after");
+  onProgress?.(records.length, total);
   return records;
 }

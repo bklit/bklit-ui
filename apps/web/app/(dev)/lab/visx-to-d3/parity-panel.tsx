@@ -1,7 +1,6 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { type ParityStep, stepVerdict } from "./bench/parity";
 
 const MAX_ROWS = 200;
@@ -46,73 +45,6 @@ export function StepBadge({ step }: { step: ParityStep }) {
   );
 }
 
-export type HoverParityState = ParityStep[] | "running" | null;
-
-export function ParityPanel({
-  enter,
-  hover,
-  onRecheck,
-  onHoverParity,
-}: {
-  /** `null` while waiting for both sides to settle after (re)mount. */
-  enter: ParityStep | null;
-  hover: HoverParityState;
-  onRecheck: () => void;
-  onHoverParity: () => void;
-}) {
-  const busy = enter === null || hover === "running";
-  return (
-    <div className="flex flex-col gap-3 rounded-lg border p-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <span className="font-medium text-sm">Geometry parity</span>
-        <div className="flex flex-wrap items-center gap-2">
-          <Button
-            disabled={busy}
-            onClick={onRecheck}
-            size="xs"
-            variant="outline"
-          >
-            Re-check now
-          </Button>
-          <Button
-            disabled={busy}
-            loading={hover === "running"}
-            onClick={onHoverParity}
-            size="xs"
-            variant="outline"
-          >
-            Hover parity
-          </Button>
-        </div>
-      </div>
-      <p className="text-muted-foreground text-xs">
-        Compares d, transform, cx/cy/r, x/y/width/height, x1–y2, points and
-        inline transform of every SVG element (class names, ids and fills
-        ignored; numbers within 1e-4), plus every visible HTML text outside the
-        SVG (exact text, box within 0.5 px).
-      </p>
-      {enter ? (
-        <StepRow step={enter} />
-      ) : (
-        <div className="flex items-center gap-3">
-          <span className="w-40 text-muted-foreground text-xs">Enter</span>
-          <Badge variant="outline">Waiting for both to settle…</Badge>
-        </div>
-      )}
-      {Array.isArray(hover)
-        ? hover.map((step) => <StepRow key={step.id} step={step} />)
-        : null}
-      {hover === null ? (
-        <p className="text-muted-foreground text-xs">
-          Hover parity dispatches the same pointer events onto the first, middle
-          and last hover target (slice / ring / area / link → node) of both
-          sides, waits for both to settle after each step, then leaves.
-        </p>
-      ) : null}
-    </div>
-  );
-}
-
 export function StepRow({
   step,
   labels,
@@ -143,7 +75,7 @@ export function StepRow({
 
 export function DiffTable({
   step,
-  labels = ["Before", "After"],
+  labels = ["Baseline", "Live"],
 }: {
   step: ParityStep;
   /** Column headings for the two compared sides. */

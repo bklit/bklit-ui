@@ -25,9 +25,7 @@ import {
   combinedVerdict,
   diffCount,
   type ParityStep,
-  runHoverParity,
   type StepVerdict,
-  settleAndDiff,
 } from "./bench/parity";
 import { LabProbe, LabProbeProvider } from "./bench/probe";
 import { delay, nextFrame } from "./bench/settle";
@@ -37,16 +35,14 @@ import {
   type LabChartSlug,
   type LabTarget,
   populatedCharts,
-  renderSide,
 } from "./fixtures";
-import { ChoiceControl, Section } from "./lab-controls";
+import { ChartPanel, ChoiceControl, Section } from "./lab-controls";
 import { DiffTable, StepBadge } from "./parity-panel";
-import { ChartPanel } from "./preview-section";
 
 type Scope = "all" | "current";
 
-/** pairs: legacy Before vs After; record / compare: live vs baseline. */
-type SweepMode = "pairs" | "record" | "compare";
+/** Record or compare the live chart against its baseline. */
+type SweepMode = "record" | "compare";
 
 type RowKind =
   | "pending"
@@ -73,26 +69,17 @@ interface StageState {
   target: LabTarget;
   /** `null`: frames sized but empty (between variants). */
   runKey: number | string | null;
-  /** Mount Before + After (pairs) or the live chart alone. */
-  pair: boolean;
 }
 
 /** Gap between variants so the previous unmount's work lands outside. */
 const COOLDOWN_MS = 80;
 
 const MODE_TITLES: Record<SweepMode, string> = {
-  pairs: "Checking legacy pairs",
   record: "Recording baselines",
   compare: "Comparing to baselines",
 };
 
-const SIDE_LABELS: Record<SweepMode, readonly [string, string]> = {
-  pairs: ["Before", "After"],
-  record: ["Baseline", "Live"],
-  compare: ["Baseline", "Live"],
-};
-
-const ENTER_SUFFIX = /enter$/;
+const SIDE_LABELS = ["Baseline", "Live"] as const;
 
 /** Row before the run: skipped variants are final from the start. */
 function initialRow(
@@ -100,7 +87,7 @@ function initialRow(
   mode: SweepMode,
   index: BaselineIndex | null
 ): SweepRow {
-  if (mode !== "pairs" && target.previewOnly) {
+  if (target.previewOnly) {
     return { ...emptyRow(target, "preview-only"), note: target.previewOnly };
   }
   if (
@@ -136,7 +123,7 @@ export function SweepSection({
   const [includeHover, setIncludeHover] = useState(true);
   const [includeInteractions, setIncludeInteractions] = useState(true);
   const [running, setRunning] = useState<SweepMode | null>(null);
-  const [mode, setMode] = useState<SweepMode>("pairs");
+  const [mode, setMode] = useState<SweepMode>("compare");
   const [progress, setProgress] = useState("");
   const [stage, setStage] = useState<StageState | null>(null);
   const [rows, setRows] = useState<SweepRow[]>([]);
@@ -146,27 +133,25 @@ export function SweepSection({
   const [hoverRan, setHoverRan] = useState(false);
   const [interactionsRan, setInteractionsRan] = useState(false);
   const probeRef = useRef(new LabProbe());
-  const beforeRef = useRef<HTMLDivElement>(null);
-  const afterRef = useRef<HTMLDivElement>(null);
+  const liveRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
 
   const charts = scope === "all" ? populatedCharts() : [chart];
 
-  /** Sizes the empty stage for `target`, returns its frame(s). */
-  const prepare = async (target: LabTarget, pair: boolean) => {
-    setStage({ target, runKey: null, pair });
+  /** Sizes the empty stage for `target`, returns its frame. */
+  const prepare = async (target: LabTarget) => {
+    setStage({ target, runKey: null });
     await nextFrame();
     await nextFrame();
-    const before = beforeRef.current;
-    const after = afterRef.current;
-    if (!after || (pair && !before)) {
+    const frame = liveRef.current;
+    if (!frame) {
       throw new Error("Sweep stage is not mounted");
     }
-    return { before, after };
+    return frame;
   };
 
-  const cooldown = async (target: LabTarget, pair: boolean) => {
-    setStage({ target, runKey: null, pair });
+  const cooldown = async (target: LabTarget) => {
+    setStage({ target, runKey: null });
     await nextFrame();
     await delay(COOLDOWN_MS);
   };
@@ -176,34 +161,6 @@ export function SweepSection({
       prev.map((row, i) => (i === index ? { ...row, ...patch } : row))
     );
 
-  const runPair = async (
-    target: LabTarget,
-    index: number,
-    signal: AbortSignal
-  ) => {
-    const { before, after } = await prepare(target, true);
-    if (!before) {
-      return;
-    }
-    const enter = await settleAndDiff(
-      "enter",
-      "Enter",
-      before,
-      after,
-      () => setStage({ target, runKey: index, pair: true }),
-      { signal }
-    );
-    let hover: ParityStep[] | null = null;
-    if (includeHover && target.hover && !signal.aborted) {
-      setProgress((p) => p.replace(ENTER_SUFFIX, "hover"));
-      hover = await runHoverParity(before, after, target.hoverTargets, signal);
-    }
-    if (!signal.aborted) {
-      updateRow(index, { kind: "compared", enter, hover });
-    }
-    await cooldown(target, true);
-  };
-
   const capture = async (
     target: LabTarget,
     index: number,
@@ -211,15 +168,15 @@ export function SweepSection({
     hover: boolean,
     interactions: boolean
   ) => {
-    const { after } = await prepare(target, false);
-    return captureLive(after, {
+    const frame = await prepare(target);
+    return captureLive(frame, {
       signal,
       hover,
       hoverTargets: target.hoverTargets,
       interactions: interactions ? target.interactions : null,
       probe: probeRef.current,
-      mount: () => setStage({ target, runKey: index, pair: false }),
-      remount: () => setStage({ target, runKey: `${index}-ix`, pair: false }),
+      mount: () => setStage({ target, runKey: index }),
+      remount: () => setStage({ target, runKey: `${index}-ix` }),
     });
   };
 
@@ -243,7 +200,7 @@ export function SweepSection({
           }
         : {}),
     });
-    await cooldown(target, false);
+    await cooldown(target);
   };
 
   const runCompare = async (
@@ -276,11 +233,10 @@ export function SweepSection({
         ? steps.filter((step) => stepKind(step.id) === "interaction")
         : null,
     });
-    await cooldown(target, false);
+    await cooldown(target);
   };
 
   const runners = {
-    pairs: runPair,
     record: runRecord,
     compare: runCompare,
   } satisfies Record<SweepMode, unknown>;
@@ -313,11 +269,7 @@ export function SweepSection({
   };
 
   const run = async (nextMode: SweepMode) => {
-    const all = allTargets(charts);
-    const targets =
-      nextMode === "pairs"
-        ? all.filter((t) => t.variant.kind !== "single")
-        : all;
+    const targets = allTargets(charts);
     const controller = new AbortController();
     const { signal } = controller;
     abortRef.current = controller;
@@ -331,10 +283,8 @@ export function SweepSection({
 
     try {
       const index = nextMode === "compare" ? await fetchBaselineIndex() : null;
-      if (nextMode !== "pairs") {
-        // Text layout depends on web fonts: never record before they load.
-        await document.fonts.ready;
-      }
+      // Text layout depends on web fonts: never record before they load.
+      await document.fonts.ready;
       const initial = targets.map((t) => initialRow(t, nextMode, index));
       setRows(initial);
       await runAll(nextMode, targets, initial, signal);
@@ -383,15 +333,6 @@ export function SweepSection({
           </Label>
           <Button
             disabled={running !== null}
-            loading={running === "pairs"}
-            onClick={() => run("pairs")}
-            size="sm"
-            variant="outline"
-          >
-            Check legacy pairs
-          </Button>
-          <Button
-            disabled={running !== null}
             loading={running === "record"}
             onClick={() => run("record")}
             size="sm"
@@ -411,9 +352,8 @@ export function SweepSection({
       }
       description={
         <>
-          Walks every variant in turn, one on screen at a time. Legacy pairs:
-          mounts Before + After together and diffs them. Record: settles the
-          live chart, snapshots enter, hover steps and the variant&apos;s
+          Walks every variant in turn, one on screen at a time. Record: settles
+          the live chart, snapshots enter, hover steps and the variant&apos;s
           interaction script (SVG geometry, HTML text, callback output) and
           writes <code>_baselines/&lt;chart&gt;/&lt;variant&gt;.json</code> (dev
           only; always records every step, the toggles only apply to checks).
@@ -425,8 +365,7 @@ export function SweepSection({
     >
       {running && stage ? (
         <SweepStage
-          afterRef={afterRef}
-          beforeRef={beforeRef}
+          frameRef={liveRef}
           onCancel={() => abortRef.current?.abort()}
           probe={probeRef.current}
           progress={progress}
@@ -449,11 +388,7 @@ export function SweepSection({
             <TallyBadges rows={rows} />
             {cancelled ? <Badge variant="warning">Cancelled</Badge> : null}
           </div>
-          <SweepMatrix
-            labels={SIDE_LABELS[mode]}
-            onSelect={onSelect}
-            rows={rows}
-          />
+          <SweepMatrix labels={SIDE_LABELS} onSelect={onSelect} rows={rows} />
         </div>
       )}
     </Section>
@@ -754,8 +689,7 @@ function SweepStage({
   stage,
   title,
   progress,
-  beforeRef,
-  afterRef,
+  frameRef,
   onCancel,
   probe,
 }: {
@@ -763,11 +697,10 @@ function SweepStage({
   probe: LabProbe;
   title: string;
   progress: string;
-  beforeRef: React.Ref<HTMLDivElement>;
-  afterRef: React.Ref<HTMLDivElement>;
+  frameRef: React.Ref<HTMLDivElement>;
   onCancel: () => void;
 }) {
-  const { target, runKey, pair } = stage;
+  const { target, runKey } = stage;
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-background">
       <div className="flex items-center justify-between gap-4 border-b px-6 py-3">
@@ -782,27 +715,15 @@ function SweepStage({
         </Button>
       </div>
       <div className="flex flex-1 flex-wrap items-start gap-6 overflow-auto p-6">
-        {pair ? (
-          <ChartPanel
-            caption="Before · visx"
-            frameRef={beforeRef}
-            height={target.height}
-            width={target.width}
-          >
-            {runKey === null ? null : (
-              <Fragment key={runKey}>{renderSide(target, "before")}</Fragment>
-            )}
-          </ChartPanel>
-        ) : null}
         <ChartPanel
-          caption={pair ? "After · d3" : "Live"}
-          frameRef={afterRef}
+          caption="Live"
+          frameRef={frameRef}
           height={target.height}
           width={target.width}
         >
           {runKey === null ? null : (
             <LabProbeProvider probe={probe}>
-              <Fragment key={runKey}>{renderSide(target, "after")}</Fragment>
+              <Fragment key={runKey}>{target.variant.render()}</Fragment>
             </LabProbeProvider>
           )}
         </ChartPanel>

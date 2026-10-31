@@ -2,9 +2,6 @@ import type { ReactNode } from "react";
 import type { InteractionScript } from "../bench/interactions";
 import type { HoverTargets } from "../bench/parity";
 
-/** Which implementation a render call should use. */
-export type LabSide = "before" | "after";
-
 interface LabVariantBase {
   /** Stable slug, used in `?variant=` and as the baseline file name. */
   id: string;
@@ -38,31 +35,10 @@ interface LabVariantBase {
 }
 
 /**
- * A legacy pair: Before (frozen visx snapshot) and After (live) go through
- * this one function, so data, props and children are identical; only the
- * visx-touching components are swapped based on `side`.
+ * Every variant renders the live chart from `@bklitui/ui/charts` and is
+ * compared against its recorded baseline (`_baselines/<chart>/<id>.json`).
  */
-export interface LabPairVariant extends LabVariantBase {
-  kind?: "pair";
-  render: (side: LabSide) => ReactNode;
-}
-
-/**
- * Single-sided: only the live chart exists (no legacy copy). Compared against
- * a recorded baseline (`baselines/<chart>/<id>.json`) instead of a Before.
- */
-export interface LabSingleVariant extends LabVariantBase {
+export interface LabVariant extends LabVariantBase {
   kind: "single";
   render: () => ReactNode;
-}
-
-export type LabVariant = LabPairVariant | LabSingleVariant;
-
-export function isPairVariant(variant: LabVariant): variant is LabPairVariant {
-  return variant.kind !== "single";
-}
-
-/** The live (current code) render of any variant. */
-export function renderLive(variant: LabVariant): ReactNode {
-  return isPairVariant(variant) ? variant.render("after") : variant.render();
 }

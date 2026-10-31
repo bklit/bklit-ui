@@ -1,8 +1,6 @@
 "use client";
 
 import {
-  PieChart as D3PieChart,
-  PieSlice as D3PieSlice,
   Legend,
   LegendItemComponent,
   LegendLabel,
@@ -10,20 +8,16 @@ import {
   LegendValue,
   PatternLines,
   PieCenter,
+  PieChart,
   type PieData,
+  PieSlice,
   RadialGradient,
 } from "@bklitui/ui/charts";
-import { LegacyPieChart, LegacyPieSlice } from "@bklitui/ui/charts/legacy-visx";
 import { useId, useState } from "react";
 import { chartExampleRadialShellClassName } from "@/components/charts/chart-example-preview";
 import { RADIAL_SHELL_CLASS } from "@/components/recipes/definitions/shared";
 import { recipePieData } from "@/components/recipes/recipe-data";
-import type { LabSide, LabVariant } from "./types";
-
-const PARTS = {
-  before: { PieChart: LegacyPieChart, PieSlice: LegacyPieSlice },
-  after: { PieChart: D3PieChart, PieSlice: D3PieSlice },
-} as const;
+import type { LabVariant } from "./types";
 
 const EXAMPLES = "chart-examples.tsx";
 const DOCS = "docs/pie-chart-demo.tsx";
@@ -118,8 +112,7 @@ function ExamplePatterns({ prefix }: { prefix: string }) {
   );
 }
 
-function PieDonutInteractive({ side }: { side: LabSide }) {
-  const { PieChart, PieSlice } = PARTS[side];
+function PieDonutInteractive() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   return (
     <Shell>
@@ -138,8 +131,7 @@ function PieDonutInteractive({ side }: { side: LabSide }) {
   );
 }
 
-function PieWithLegend({ side }: { side: LabSide }) {
-  const { PieChart, PieSlice } = PARTS[side];
+function PieWithLegend() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   return (
     <Shell>
@@ -171,8 +163,7 @@ function PieWithLegend({ side }: { side: LabSide }) {
   );
 }
 
-function PieCustomCenter({ side }: { side: LabSide }) {
-  const { PieChart, PieSlice } = PARTS[side];
+function PieCustomCenter() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const total = pieData.reduce((s, d) => s + d.value, 0);
   return (
@@ -209,8 +200,7 @@ function PieCustomCenter({ side }: { side: LabSide }) {
   );
 }
 
-function PieChartDemo({ side }: { side: LabSide }) {
-  const { PieChart, PieSlice } = PARTS[side];
+function PieChartDemo() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   return (
     <div className="flex w-full min-w-0 max-w-full flex-col items-center justify-center gap-8 lg:w-auto lg:flex-row lg:gap-12">
@@ -240,8 +230,7 @@ function PieChartDemo({ side }: { side: LabSide }) {
   );
 }
 
-function PatternedPie({ side, donut }: { side: LabSide; donut: boolean }) {
-  const { PieChart, PieSlice } = PARTS[side];
+function PatternedPie({ donut }: { donut: boolean }) {
   const uid = useId().replace(/:/g, "");
   return (
     <div className={RADIAL_SHELL_CLASS}>
@@ -278,8 +267,7 @@ function PatternedPie({ side, donut }: { side: LabSide; donut: boolean }) {
   );
 }
 
-function LegendDonut({ side }: { side: LabSide }) {
-  const { PieChart, PieSlice } = PARTS[side];
+function LegendDonut() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   return (
     <div className="mx-auto flex w-full max-w-lg items-center justify-center gap-6 sm:gap-10">
@@ -318,8 +306,8 @@ export const PIE_VARIANTS: LabVariant[] = [
     label: "Pie",
     source: `${EXAMPLES}: Pie Chart (also ${DOCS}: PieChartBasicDemo)`,
     exercises: "Solid pie, parent-sized, default translate hover",
-    render: (side) => {
-      const { PieChart, PieSlice } = PARTS[side];
+    kind: "single",
+    render: () => {
       return (
         <Shell>
           <PieChart data={pieData}>
@@ -336,9 +324,10 @@ export const PIE_VARIANTS: LabVariant[] = [
     label: "Donut",
     source: `${EXAMPLES}: Pie Chart - Donut (also ${DOCS}: PieChartDonutDemo)`,
     exercises: "innerRadius 60, controlled hoveredIndex, PieCenter",
-    render: (side) => (
+    kind: "single",
+    render: () => (
       <Shell>
-        <PieDonutInteractive side={side} />
+        <PieDonutInteractive />
       </Shell>
     ),
   },
@@ -348,15 +337,16 @@ export const PIE_VARIANTS: LabVariant[] = [
     source: `${EXAMPLES}: Pie Chart - Legend`,
     exercises: "Donut 55 + linked Legend (shared hover state)",
     height: 400,
-    render: (side) => <PieWithLegend side={side} />,
+    kind: "single",
+    render: () => <PieWithLegend />,
   },
   {
     id: "patterns",
     label: "Patterns",
     source: `${EXAMPLES}: Pie Chart - Patterns (also ${DOCS}: PieChartPatternsDemo)`,
     exercises: "PatternLines fills (4 orientations), no slice colors",
-    render: (side) => {
-      const { PieChart, PieSlice } = PARTS[side];
+    kind: "single",
+    render: () => {
       return (
         <Shell>
           <PieChart data={piePatternData}>
@@ -375,8 +365,8 @@ export const PIE_VARIANTS: LabVariant[] = [
     label: "Gradients",
     source: `${EXAMPLES}: Pie Chart - Gradients (also ${DOCS}: PieChartGradientsDemo)`,
     exercises: "RadialGradient fills",
-    render: (side) => {
-      const { PieChart, PieSlice } = PARTS[side];
+    kind: "single",
+    render: () => {
       return (
         <Shell>
           <PieChart data={pieGradientData}>
@@ -414,8 +404,8 @@ export const PIE_VARIANTS: LabVariant[] = [
     label: "Grow hover",
     source: `${EXAMPLES}: Pie Chart - Grow Hover`,
     exercises: 'hoverEffect="grow" on a solid pie',
-    render: (side) => {
-      const { PieChart, PieSlice } = PARTS[side];
+    kind: "single",
+    render: () => {
       // Gallery wraps PieGrowHover (itself a shell) in a second shell.
       return (
         <Shell>
@@ -435,9 +425,10 @@ export const PIE_VARIANTS: LabVariant[] = [
     label: "Custom center",
     source: `${EXAMPLES}: Pie Chart - Custom Center (also ${DOCS}: PieChartCustomCenterDemo)`,
     exercises: "innerRadius 65, PieCenter render prop",
-    render: (side) => (
+    kind: "single",
+    render: () => (
       <Shell>
-        <PieCustomCenter side={side} />
+        <PieCustomCenter />
       </Shell>
     ),
   },
@@ -446,8 +437,8 @@ export const PIE_VARIANTS: LabVariant[] = [
     label: "Donut patterns",
     source: `${EXAMPLES}: Donut Chart - Patterns`,
     exercises: "Pattern fills on a donut + PieCenter",
-    render: (side) => {
-      const { PieChart, PieSlice } = PARTS[side];
+    kind: "single",
+    render: () => {
       return (
         <Shell>
           <PieChart data={piePatternData} innerRadius={55}>
@@ -467,8 +458,8 @@ export const PIE_VARIANTS: LabVariant[] = [
     label: "Donut grow",
     source: `${EXAMPLES}: Donut Chart - Grow Hover`,
     exercises: 'hoverEffect="grow" on a donut',
-    render: (side) => {
-      const { PieChart, PieSlice } = PARTS[side];
+    kind: "single",
+    render: () => {
       return (
         <Shell>
           <PieChart data={pieData} innerRadius={55}>
@@ -488,21 +479,24 @@ export const PIE_VARIANTS: LabVariant[] = [
     exercises: "Fixed size={280}, controlled hover + Legend with values",
     width: 680,
     height: 360,
-    render: (side) => <PieChartDemo side={side} />,
+    kind: "single",
+    render: () => <PieChartDemo />,
   },
   {
     id: "recipe-patterned-pie",
     label: "Recipe: patterned pie",
     source: `${RECIPES}: Patterned slices / Pie`,
     exercises: "padAngle 0.03 + cornerRadius 4 + useId pattern fills",
-    render: (side) => <PatternedPie donut={false} side={side} />,
+    kind: "single",
+    render: () => <PatternedPie donut={false} />,
   },
   {
     id: "recipe-patterned-donut",
     label: "Recipe: patterned donut",
     source: `${RECIPES}: Patterned slices / Donut`,
     exercises: "padAngle + cornerRadius + innerRadius 60 + PieCenter",
-    render: (side) => <PatternedPie donut side={side} />,
+    kind: "single",
+    render: () => <PatternedPie donut />,
   },
   {
     id: "recipe-linked-legend",
@@ -511,15 +505,16 @@ export const PIE_VARIANTS: LabVariant[] = [
     exercises: "Grow donut (innerRadius 50) in a w-56 box + Legend",
     width: 560,
     height: 320,
-    render: (side) => <LegendDonut side={side} />,
+    kind: "single",
+    render: () => <LegendDonut />,
   },
   {
     id: "hover-none",
     label: 'hoverEffect "none"',
     source: `pie-chart.mdx PieSlice props (${DOCS}: PieChartHoverEffectDemo "None")`,
     exercises: 'hoverEffect="none": hover only fades siblings',
-    render: (side) => {
-      const { PieChart, PieSlice } = PARTS[side];
+    kind: "single",
+    render: () => {
       return (
         <PieChart data={salesData} size={280}>
           {salesData.map((item, index) => (
@@ -534,8 +529,8 @@ export const PIE_VARIANTS: LabVariant[] = [
     label: "Glow + offset",
     source: "pie-chart.mdx PieSlice props: showGlow, hoverOffset",
     exercises: "showGlow + hoverOffset={18} translate distance",
-    render: (side) => {
-      const { PieChart, PieSlice } = PARTS[side];
+    kind: "single",
+    render: () => {
       return (
         <PieChart data={salesData} innerRadius={60} size={260}>
           {salesData.map((item, index) => (
@@ -555,8 +550,8 @@ export const PIE_VARIANTS: LabVariant[] = [
     label: "Half arc",
     source: "pie-chart.mdx PieChart props: startAngle, endAngle",
     exercises: "startAngle -π/2 … endAngle π/2 (semicircle donut)",
-    render: (side) => {
-      const { PieChart, PieSlice } = PARTS[side];
+    kind: "single",
+    render: () => {
       return (
         <PieChart
           data={pieData}
@@ -578,8 +573,8 @@ export const PIE_VARIANTS: LabVariant[] = [
     label: "animate={false}",
     source: "pie-chart.mdx PieSlice props: animate",
     exercises: "Static slices (no enter tween), hover still on",
-    render: (side) => {
-      const { PieChart, PieSlice } = PARTS[side];
+    kind: "single",
+    render: () => {
       return (
         <PieChart data={pieData} innerRadius={55} size={260}>
           {pieData.map((item, index) => (

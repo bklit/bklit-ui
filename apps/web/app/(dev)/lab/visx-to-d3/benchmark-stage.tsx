@@ -2,10 +2,9 @@
 
 import { Profiler, type ProfilerOnRenderCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { type LabSide, type LabTarget, renderSide } from "./fixtures";
+import type { LabTarget } from "./fixtures";
 
 export interface StageContent {
-  variant: LabSide;
   runKey: number;
 }
 
@@ -95,9 +94,7 @@ export function BenchmarkStage({
                   key={i}
                   style={{ width: target.width, height: target.height }}
                 >
-                  <div className="w-full">
-                    {renderSide(target, content.variant)}
-                  </div>
+                  <div className="w-full">{target.variant.render()}</div>
                 </div>
               ))}
             </Profiler>

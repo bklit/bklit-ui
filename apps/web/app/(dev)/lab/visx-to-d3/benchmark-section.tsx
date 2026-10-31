@@ -59,7 +59,6 @@ export interface BenchmarkOutcome {
 }
 
 export function BenchmarkSection({ target }: { target: LabTarget }) {
-  const single = target.variant.kind === "single";
   const [iterations, setIterations] = useState(10);
   const [copies, setCopies] = useState<CopiesValue>("1");
   const [hover, setHover] = useState(false);
@@ -84,7 +83,7 @@ export function BenchmarkSection({ target }: { target: LabTarget }) {
 
   const driver = useMemo<BenchStageDriver>(
     () => ({
-      mount: (variant, runKey) => setContent({ variant, runKey }),
+      mount: (runKey) => setContent({ runKey }),
       unmount: () => setContent(null),
       element: () => stageRef.current,
       takeCommits: () => {
@@ -123,12 +122,11 @@ export function BenchmarkSection({ target }: { target: LabTarget }) {
         driver,
         iterations,
         hover,
-        sides: single ? "live" : "pair",
         signal: controller.signal,
-        onProgress: (done, total, variant) => {
+        onProgress: (done, total) => {
           setProgress(
             done < total
-              ? `Run ${done + 1} / ${total} · ${variant}${done < 2 ? " (warm-up)" : ""}`
+              ? `Run ${done + 1} / ${total}${done === 0 ? " (warm-up)" : ""}`
               : "Done"
           );
         },
@@ -139,13 +137,10 @@ export function BenchmarkSection({ target }: { target: LabTarget }) {
       abortRef.current = null;
     }
     setStoreState(null);
-    if (single) {
-      const baseline = await fetchBaseline(
-        target.chart,
-        target.variant.id
-      ).catch(() => null);
-      setReference(baseline?.benchmark ?? null);
-    }
+    const baseline = await fetchBaseline(target.chart, target.variant.id).catch(
+      () => null
+    );
+    setReference(baseline?.benchmark ?? null);
     setOutcome({
       config,
       records,
@@ -157,13 +152,8 @@ export function BenchmarkSection({ target }: { target: LabTarget }) {
 
   const summary = useMemo(
     () =>
-      outcome
-        ? summarize(
-            outcome.records,
-            single ? (reference?.medians ?? {}) : undefined
-          )
-        : null,
-    [outcome, reference, single]
+      outcome ? summarize(outcome.records, reference?.medians ?? {}) : null,
+    [outcome, reference]
   );
 
   const storeMedians = async () => {
@@ -234,19 +224,11 @@ export function BenchmarkSection({ target }: { target: LabTarget }) {
         </>
       }
       description={
-        single ? (
-          <>
-            Mounts the live chart {iterations + 1} times in a full-screen stage
-            (first run is a warm-up) and compares the medians with the ones
-            stored in the baseline, if any.
-          </>
-        ) : (
-          <>
-            Mounts Before and After alternately, one at a time, in a full-screen
-            stage. One warm-up pair is discarded, then {iterations} measured
-            runs per side ({2 * (iterations + 1)} mounts).
-          </>
-        )
+        <>
+          Mounts the live chart {iterations + 1} times in a full-screen stage
+          (first run is a warm-up) and compares the medians with the ones stored
+          in the baseline, if any.
+        </>
       }
       title="Benchmark"
     >
@@ -264,15 +246,7 @@ export function BenchmarkSection({ target }: { target: LabTarget }) {
       ) : null}
       {outcome && summary ? (
         <BenchmarkResults
-          baseline={
-            single
-              ? {
-                  reference,
-                  onStore: storeMedians,
-                  storeState,
-                }
-              : null
-          }
+          baseline={{ reference, onStore: storeMedians, storeState }}
           outcome={outcome}
           summary={summary}
         />

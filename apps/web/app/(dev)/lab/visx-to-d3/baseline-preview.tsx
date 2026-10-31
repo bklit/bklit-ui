@@ -30,10 +30,9 @@ import {
 import type { ParityStep } from "./bench/parity";
 import { LabProbe, LabProbeProvider } from "./bench/probe";
 import { nextFrame } from "./bench/settle";
-import { type LabTarget, renderSide } from "./fixtures";
-import { ChoiceControl, Section } from "./lab-controls";
+import type { LabTarget } from "./fixtures";
+import { ChartPanel, ChoiceControl, Section } from "./lab-controls";
 import { StepRow } from "./parity-panel";
-import { ChartPanel } from "./preview-section";
 
 const LABELS = ["Baseline", "Live"] as const;
 
@@ -44,7 +43,7 @@ type BaselineState =
   | { status: "ready"; file: BaselineFile };
 
 /**
- * Single-sided variants: the live chart next to a wireframe of its recorded
+ * The live chart next to a wireframe of its recorded
  * baseline geometry, with the enter step diffed on every (re)mount and the
  * hover steps on demand. Also records this one variant.
  */
@@ -278,7 +277,7 @@ export function BaselinePreview({ target }: { target: LabTarget }) {
           Replay
         </Button>
       }
-      description="No legacy copy for this chart: the live chart is diffed against its recorded baseline (SVG geometry, HTML text and callback output after enter, after each hover step and after each scripted interaction step, recorded on the pre-migration code)."
+      description="The live chart is diffed against its golden baseline: SVG geometry, HTML text and callback output after enter, after each hover step and after each scripted interaction step, recorded on the pre-migration visx code."
       title="Preview"
     >
       <p className="text-muted-foreground text-xs">
@@ -301,7 +300,7 @@ export function BaselinePreview({ target }: { target: LabTarget }) {
           width={target.width}
         >
           <LabProbeProvider probe={probeRef.current}>
-            <Fragment key={replayKey}>{renderSide(target, "after")}</Fragment>
+            <Fragment key={replayKey}>{target.variant.render()}</Fragment>
           </LabProbeProvider>
         </ChartPanel>
         {file ? (

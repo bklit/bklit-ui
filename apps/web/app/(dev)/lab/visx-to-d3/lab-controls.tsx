@@ -114,3 +114,33 @@ export function PillPicker<T extends string>({
     </div>
   );
 }
+
+/** Fixed-size frame a chart renders into (sweep stage, preview). */
+export function ChartPanel({
+  caption,
+  width,
+  height,
+  frameRef,
+  children,
+}: {
+  caption: string;
+  width: number;
+  height: number;
+  frameRef: React.Ref<HTMLDivElement>;
+  children: React.ReactNode;
+}) {
+  return (
+    <figure className="flex flex-col gap-2">
+      <figcaption className="font-medium text-muted-foreground text-xs">
+        {caption}
+      </figcaption>
+      <div
+        className="flex items-center justify-center overflow-hidden rounded-lg border bg-background"
+        ref={frameRef}
+        style={{ width, height }}
+      >
+        <div className="w-full">{children}</div>
+      </div>
+    </figure>
+  );
+}

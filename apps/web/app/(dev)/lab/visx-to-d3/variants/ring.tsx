@@ -1,8 +1,6 @@
 "use client";
 
 import {
-  Ring as D3Ring,
-  RingChart as D3RingChart,
   Legend,
   LegendItemComponent,
   type LegendItemData,
@@ -10,20 +8,16 @@ import {
   LegendMarker,
   LegendProgress,
   LegendValue,
+  Ring,
   RingCenter,
+  RingChart,
   type RingData,
   RingGrid,
   RingLabels,
 } from "@bklitui/ui/charts";
-import { LegacyRing, LegacyRingChart } from "@bklitui/ui/charts/legacy-visx";
 import { useState } from "react";
 import { chartExampleRadialShellClassName } from "@/components/charts/chart-example-preview";
-import type { LabSide, LabVariant } from "./types";
-
-const PARTS = {
-  before: { RingChart: LegacyRingChart, Ring: LegacyRing },
-  after: { RingChart: D3RingChart, Ring: D3Ring },
-} as const;
+import type { LabVariant } from "./types";
 
 const EXAMPLES = "chart-examples.tsx";
 const DOCS = "docs/ring-chart-demo.tsx";
@@ -91,8 +85,7 @@ function Shell({ children }: { children: React.ReactNode }) {
   return <div className={chartExampleRadialShellClassName}>{children}</div>;
 }
 
-function RingWithLegend({ side }: { side: LabSide }) {
-  const { RingChart, Ring } = PARTS[side];
+function RingWithLegend() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   return (
     <div className="flex w-full flex-col items-center gap-3">
@@ -127,8 +120,7 @@ function RingWithLegend({ side }: { side: LabSide }) {
   );
 }
 
-function RingChartDemo({ side }: { side: LabSide }) {
-  const { RingChart, Ring } = PARTS[side];
+function RingChartDemo() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   return (
     <div className="flex w-full min-w-0 max-w-full flex-col items-center justify-center gap-8 lg:w-auto lg:flex-row lg:gap-12">
@@ -168,8 +160,8 @@ export const RING_VARIANTS: LabVariant[] = [
     label: "Ring",
     source: `${EXAMPLES}: Ring Chart`,
     exercises: "4 full rings, parent-sized, round caps, RingCenter",
-    render: (side) => {
-      const { RingChart, Ring } = PARTS[side];
+    kind: "single",
+    render: () => {
       return (
         <Shell>
           <RingChart data={ringData}>
@@ -187,8 +179,8 @@ export const RING_VARIANTS: LabVariant[] = [
     label: "Flat caps",
     source: `${EXAMPLES}: Ring Chart - Flat Caps`,
     exercises: 'lineCap="butt"',
-    render: (side) => {
-      const { RingChart, Ring } = PARTS[side];
+    kind: "single",
+    render: () => {
       return (
         <Shell>
           <RingChart data={ringData}>
@@ -206,8 +198,8 @@ export const RING_VARIANTS: LabVariant[] = [
     label: "Thick rings",
     source: `${EXAMPLES}: Ring Chart - Thick Rings (also ${DOCS}: RingChartCustomColorsDemo)`,
     exercises: "strokeWidth 18, ringGap 8, compact $ center",
-    render: (side) => {
-      const { RingChart, Ring } = PARTS[side];
+    kind: "single",
+    render: () => {
       return (
         <Shell>
           <RingChart data={ringFinanceData} ringGap={8} strokeWidth={18}>
@@ -229,8 +221,8 @@ export const RING_VARIANTS: LabVariant[] = [
     label: "Three quarter",
     source: `${EXAMPLES}: Ring Chart - Three Quarter (also ${DOCS}: RingChartGridDemo, first chart)`,
     exercises: "270° arc (-π … π/2), RingGrid, RingLabels colorByRing",
-    render: (side) => {
-      const { RingChart, Ring } = PARTS[side];
+    kind: "single",
+    render: () => {
       return (
         <Shell>
           <RingChart
@@ -254,8 +246,8 @@ export const RING_VARIANTS: LabVariant[] = [
     label: "Half circle",
     source: `${EXAMPLES}: Ring Chart - Half Circle`,
     exercises: "180° arc (-π/2 … π/2), RingGrid, RingLabels",
-    render: (side) => {
-      const { RingChart, Ring } = PARTS[side];
+    kind: "single",
+    render: () => {
       return (
         <Shell>
           <RingChart
@@ -279,8 +271,8 @@ export const RING_VARIANTS: LabVariant[] = [
     label: "Grid ticks",
     source: `${DOCS}: RingChartGridDemo, second chart (ring-chart.mdx)`,
     exercises: "Half circle, RingGrid ticks={[0, 0.5, 1]}, no RingCenter",
-    render: (side) => {
-      const { RingChart, Ring } = PARTS[side];
+    kind: "single",
+    render: () => {
       return (
         <div className="aspect-square w-full max-w-[260px]">
           <RingChart
@@ -304,7 +296,8 @@ export const RING_VARIANTS: LabVariant[] = [
     source: `${EXAMPLES}: Ring Chart - Legend (also recipes: Linked legend / Ring)`,
     exercises: "Controlled hover + Legend with progress bars",
     height: 460,
-    render: (side) => <RingWithLegend side={side} />,
+    kind: "single",
+    render: () => <RingWithLegend />,
   },
   {
     id: "docs-hero",
@@ -313,7 +306,8 @@ export const RING_VARIANTS: LabVariant[] = [
     exercises: "6 rings, fixed size={320}, Legend",
     width: 720,
     height: 380,
-    render: (side) => <RingChartDemo side={side} />,
+    kind: "single",
+    render: () => <RingChartDemo />,
   },
   {
     id: "custom-radii",
@@ -321,8 +315,8 @@ export const RING_VARIANTS: LabVariant[] = [
     source:
       "ring-chart.mdx RingChart/Ring props: baseInnerRadius, padding, showGlow",
     exercises: "baseInnerRadius 40, padding 20, showGlow={false}",
-    render: (side) => {
-      const { RingChart, Ring } = PARTS[side];
+    kind: "single",
+    render: () => {
       return (
         <RingChart baseInnerRadius={40} data={ringData} padding={20} size={280}>
           {ringData.map((item, index) => (
@@ -338,8 +332,8 @@ export const RING_VARIANTS: LabVariant[] = [
     label: "animate={false}",
     source: "ring-chart.mdx Ring props: animate",
     exercises: "Static rings (no enter sweep), hover still on",
-    render: (side) => {
-      const { RingChart, Ring } = PARTS[side];
+    kind: "single",
+    render: () => {
       return (
         <RingChart data={ringData} size={280}>
           {ringData.map((item, index) => (

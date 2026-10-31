@@ -1,13 +1,14 @@
 import type { ParityResult } from "./geometry";
 import { center, fire } from "./hover";
-import { waitForSettle } from "./settle";
-import { diffSnapshots, takeSnapshot } from "./snapshot";
 
-/** One compared moment: after the enter animation, or after a hover step. */
+/**
+ * One compared moment (after enter, a hover step or an interaction step):
+ * `before` is the stored baseline, `after` the live chart.
+ */
 export interface ParityStep {
   id: string;
   label: string;
-  /** `timeout`: a side never went quiet, so it was compared mid-motion. */
+  /** `timeout`: the chart never went quiet, so it was compared mid-motion. */
   status: "done" | "timeout";
   result: ParityResult;
   settleMs: { before: number; after: number };
@@ -41,50 +42,6 @@ export function targetPoint(target: HoverTarget): { x: number; y: number } {
   return {
     x: rect.left + rect.width * target.at.fx,
     y: rect.top + rect.height * target.at.fy,
-  };
-}
-
-function describeTarget(target: HoverTarget): string {
-  const tag = target.element.tagName.toLowerCase();
-  return target.at
-    ? `${tag} @ ${Math.round(target.at.fx * 100)}%,${Math.round(target.at.fy * 100)}%`
-    : tag;
-}
-
-interface StepOptions {
-  signal?: AbortSignal;
-  startedAt?: number;
-}
-
-/**
- * Starts settle observers on both frames, runs `act` (which may be nothing
- * if the change was already kicked off), waits for both to go quiet and diffs
- * their geometry.
- */
-export async function settleAndDiff(
-  id: string,
-  label: string,
-  before: Element,
-  after: Element,
-  act?: () => void,
-  { signal, startedAt = performance.now() }: StepOptions = {}
-): Promise<ParityStep> {
-  const options = { startedAt, signal };
-  const settling = Promise.all([
-    waitForSettle(before, options),
-    waitForSettle(after, options),
-  ]);
-  act?.();
-  const [settledBefore, settledAfter] = await settling;
-  return {
-    id,
-    label,
-    status: settledBefore.settled && settledAfter.settled ? "done" : "timeout",
-    result: diffSnapshots(takeSnapshot(before), takeSnapshot(after)),
-    settleMs: {
-      before: settledBefore.settleMs,
-      after: settledAfter.settleMs,
-    },
   };
 }
 
@@ -130,88 +87,6 @@ export function hoverIndices(count: number): number[] {
     return [];
   }
   return [...new Set([0, Math.floor(count / 2), count - 1])];
-}
-
-/**
- * Hover parity: dispatches the same pointer sequence onto target k of each
- * side (events go straight to the element, so it works in overlay modes and
- * off-screen stages), lets both settle and diffs after every step, then
- * leaves and diffs once more.
- */
-export async function runHoverParity(
-  before: Element,
-  after: Element,
-  hoverTargets: HoverTargets,
-  signal?: AbortSignal
-): Promise<ParityStep[]> {
-  const beforeTargets = hoverTargets(before);
-  const afterTargets = hoverTargets(after);
-  const steps: ParityStep[] = [];
-  const indices = hoverIndices(
-    Math.min(beforeTargets.length, afterTargets.length)
-  );
-  const countNote =
-    beforeTargets.length === afterTargets.length
-      ? undefined
-      : `Hover target count differs: ${beforeTargets.length} before / ${afterTargets.length} after`;
-
-  if (indices.length === 0) {
-    const step = await settleAndDiff(
-      "hover",
-      "Hover",
-      before,
-      after,
-      undefined,
-      {
-        signal,
-      }
-    );
-    return [{ ...step, note: countNote ?? "No hover targets found" }];
-  }
-
-  let previous: { before: HoverTarget; after: HoverTarget } | null = null;
-  for (const k of indices) {
-    if (signal?.aborted) {
-      return steps;
-    }
-    const targetBefore = beforeTargets[k];
-    const targetAfter = afterTargets[k];
-    if (!(targetBefore && targetAfter)) {
-      continue;
-    }
-    const from = previous;
-    const step = await settleAndDiff(
-      `hover-${k}`,
-      `Hover #${k} (${describeTarget(targetBefore)})`,
-      before,
-      after,
-      () => {
-        moveInto(targetBefore, from?.before ?? null, before);
-        moveInto(targetAfter, from?.after ?? null, after);
-      },
-      { signal }
-    );
-    steps.push(countNote ? { ...step, note: countNote } : step);
-    previous = { before: targetBefore, after: targetAfter };
-  }
-
-  if (previous && !signal?.aborted) {
-    const last = previous;
-    steps.push(
-      await settleAndDiff(
-        "hover-leave",
-        "Leave",
-        before,
-        after,
-        () => {
-          moveOut(last.before, before);
-          moveOut(last.after, after);
-        },
-        { signal }
-      )
-    );
-  }
-  return steps;
 }
 
 export type StepVerdict = "identical" | "diffs" | "timeout";

@@ -4,19 +4,24 @@ import { Suspense } from "react";
 import { LabClient } from "./lab-client";
 
 /**
- * Hidden visx → d3 migration lab: Before (frozen visx snapshot in
- * `@bklitui/ui/charts/legacy-visx`) vs After (`@bklitui/ui/charts`) previews,
- * a geometry parity check and an enter/hover benchmark runner.
+ * Hidden chart regression lab: every variant of the live charts
+ * (`@bklitui/ui/charts`) is compared against a golden baseline
+ * (`_baselines/`) recorded on the pre-migration visx code — SVG geometry, HTML
+ * text and callbacks after enter, hover and scripted interaction steps — plus
+ * an enter/hover benchmark against stored medians.
+ *
+ * The route keeps its `/lab/visx-to-d3` path: the baselines route handler,
+ * next.config.mjs (`X-Robots-Tag`), robots.txt and existing links all point
+ * at it, and the baselines are named after the migration they guarded.
  *
  * Hidden, not secret: available locally (`next dev` / `next start`) and on
  * Vercel preview deployments, `notFound()` on the production deployment
  * (`VERCEL_ENV === "production"`). Also noindex metadata, `X-Robots-Tag`
  * (next.config.mjs), disallowed in robots.txt, excluded from the sitemap and
- * not linked from anywhere. Delete together with `legacy-visx/` once the
- * migration is done.
+ * not linked from anywhere.
  */
 export const metadata: Metadata = {
-  title: "visx → d3 lab",
+  title: "Chart regression lab",
   robots: { index: false, follow: false },
 };
 

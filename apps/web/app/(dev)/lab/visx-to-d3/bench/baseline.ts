@@ -23,8 +23,7 @@ import { diffSnapshots, type Snapshot, takeSnapshot } from "./snapshot";
 /**
  * Golden snapshots: the settled state of ONE live chart after enter, after
  * each hover step and after each scripted interaction step, recorded to
- * `_baselines/<chart>/<variant>.json` and compared against later (no legacy
- * copy needed). A state is SVG geometry (`geometry.ts`), HTML text with its
+ * `_baselines/<chart>/<variant>.json` and compared against later. A state is SVG geometry (`geometry.ts`), HTML text with its
  * box (`html-text.ts`) and callback output (`probe.tsx`).
  *
  * Step ids: `enter`, `hover-<k>` / `hover-leave`, `ix-<id>`. Interaction
@@ -147,8 +146,8 @@ function describe(element: Element, at?: { fx: number; fy: number }): string {
 }
 
 /**
- * The hover steps on an already settled live chart under `root`. Mirrors
- * `runHoverParity`: same targets (first / middle / last), same events.
+ * The hover steps on an already settled live chart under `root`: first,
+ * middle and last hover target, then leave.
  */
 export async function captureHoverSteps(
   root: Element,

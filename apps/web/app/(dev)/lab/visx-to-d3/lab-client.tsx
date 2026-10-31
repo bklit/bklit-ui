@@ -11,7 +11,6 @@ import {
   LAB_CHART_SLUGS,
   type LabChartSlug,
 } from "./lab-slugs";
-import { PreviewSection } from "./preview-section";
 import { SweepSection } from "./sweep-section";
 
 const CHART_OPTIONS = LAB_CHART_SLUGS.map((slug) => ({
@@ -53,24 +52,14 @@ export function LabClient() {
       <header className="flex flex-col gap-4">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div className="flex flex-col gap-1">
-            <h1 className="font-semibold text-2xl">visx → d3 lab</h1>
+            <h1 className="font-semibold text-2xl">Chart regression lab</h1>
             <p className="max-w-3xl text-muted-foreground text-sm">
-              {fixture.legacyParts ? (
-                <>
-                  Before is the frozen visx snapshot ({fixture.legacyParts} from{" "}
-                  <code>legacy-visx/</code>); After is the migrated d3 version
-                  from <code>@bklitui/ui/charts</code>. Same props, same data,
-                  same frame.
-                </>
-              ) : (
-                <>
-                  No legacy copy: the live chart from{" "}
-                  <code>@bklitui/ui/charts</code> is compared against a golden
-                  baseline recorded on the pre-migration code (
-                  <code>_baselines/{chart}/</code>).
-                </>
-              )}{" "}
-              Hidden page: not on the production deployment.
+              Regression harness for <code>@bklitui/ui/charts</code>: every
+              variant is compared against a golden baseline (
+              <code>_baselines/{chart}/</code>) recorded on the pre-migration
+              visx code, so the d3 charts must keep the same geometry, text,
+              hover and interaction output. Hidden page: not on the production
+              deployment.
             </p>
           </div>
         </div>
@@ -87,11 +76,7 @@ export function LabClient() {
           value={target.variant.id}
         />
       </header>
-      {target.variant.kind === "single" ? (
-        <BaselinePreview key={`preview-${key}`} target={target} />
-      ) : (
-        <PreviewSection key={`preview-${key}`} target={target} />
-      )}
+      <BaselinePreview key={`preview-${key}`} target={target} />
       <SweepSection chart={chart} onSelect={select} />
       <BenchmarkSection key={`bench-${key}`} target={target} />
     </>

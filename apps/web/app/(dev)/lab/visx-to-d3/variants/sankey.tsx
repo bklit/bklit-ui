@@ -1,21 +1,15 @@
 "use client";
 
 import {
-  SankeyChart as D3SankeyChart,
   type Margin,
   PatternLines,
+  SankeyChart,
   SankeyLink,
   SankeyNode,
   SankeyTooltip,
 } from "@bklitui/ui/charts";
-import { LegacySankeyChart } from "@bklitui/ui/charts/legacy-visx";
 import { CHART_EXAMPLE_MARGIN_PX } from "@/lib/chart-example-margin";
 import type { LabVariant } from "./types";
-
-const PARTS = {
-  before: { SankeyChart: LegacySankeyChart },
-  after: { SankeyChart: D3SankeyChart },
-} as const;
 
 const EXAMPLES = "chart-examples.tsx";
 const DOCS = "docs/sankey-pattern-demo.tsx";
@@ -201,8 +195,8 @@ export const SANKEY_VARIANTS: LabVariant[] = [
     label: "Sankey",
     source: `${EXAMPLES}: Sankey Chart`,
     exercises: "9 nodes, 4 / 3, vertical labels, gradient links, lineCap 4",
-    render: (side) => {
-      const { SankeyChart } = PARTS[side];
+    kind: "single",
+    render: () => {
       return (
         <div className={LABELED_WRAPPER_CLASS}>
           <SankeyChart
@@ -225,8 +219,8 @@ export const SANKEY_VARIANTS: LabVariant[] = [
     label: "No labels",
     source: `${EXAMPLES}: Sankey Chart - No Labels (also ${DOCS}: SankeyNoLabelsDemo)`,
     exercises: "showLabels={false}, example margin (8 px sides)",
-    render: (side) => {
-      const { SankeyChart } = PARTS[side];
+    kind: "single",
+    render: () => {
       return (
         <SankeyChart
           aspectRatio="4 / 3"
@@ -247,8 +241,8 @@ export const SANKEY_VARIANTS: LabVariant[] = [
     label: "Simple",
     source: `${EXAMPLES}: Sankey Chart - Simple`,
     exercises: "5 nodes, nodeWidth 12, nodePadding 20, strokeOpacity 0.5",
-    render: (side) => {
-      const { SankeyChart } = PARTS[side];
+    kind: "single",
+    render: () => {
       return (
         <div className={LABELED_WRAPPER_CLASS}>
           <SankeyChart
@@ -271,8 +265,8 @@ export const SANKEY_VARIANTS: LabVariant[] = [
     label: "Solid links",
     source: `${EXAMPLES}: Sankey Chart - Solid Links`,
     exercises: "useGradient={false}, solid stroke",
-    render: (side) => {
-      const { SankeyChart } = PARTS[side];
+    kind: "single",
+    render: () => {
       return (
         <div className={LABELED_WRAPPER_CLASS}>
           <SankeyChart
@@ -301,8 +295,8 @@ export const SANKEY_VARIANTS: LabVariant[] = [
     exercises: "Wide 5 / 2 aspect of the default layout",
     width: 760,
     height: 340,
-    render: (side) => {
-      const { SankeyChart } = PARTS[side];
+    kind: "single",
+    render: () => {
       return (
         <div className={LABELED_WRAPPER_CLASS}>
           <SankeyChart
@@ -325,8 +319,8 @@ export const SANKEY_VARIANTS: LabVariant[] = [
     label: "Docs hero",
     source: "sankey-chart.mdx: ComponentPreview",
     exercises: "14 nodes, 16 / 9, default margin, vertical labels",
-    render: (side) => {
-      const { SankeyChart } = PARTS[side];
+    kind: "single",
+    render: () => {
       return (
         <div className="w-full">
           <SankeyChart
@@ -349,8 +343,8 @@ export const SANKEY_VARIANTS: LabVariant[] = [
     source: `${DOCS}: SankeyPatternDemo`,
     exercises:
       "patterns + getLinkPattern on outcome links, horizontal labels (default)",
-    render: (side) => {
-      const { SankeyChart } = PARTS[side];
+    kind: "single",
+    render: () => {
       return (
         <SankeyChart
           aspectRatio="16 / 9"
@@ -374,8 +368,8 @@ export const SANKEY_VARIANTS: LabVariant[] = [
     source:
       "sankey-chart.mdx SankeyNode/SankeyLink props: getNodeColor, getLinkColor, showValueLabels",
     exercises: "Callback colours, no value labels, horizontal labels",
-    render: (side) => {
-      const { SankeyChart } = PARTS[side];
+    kind: "single",
+    render: () => {
       return (
         <SankeyChart
           aspectRatio="16 / 9"
@@ -394,8 +388,8 @@ export const SANKEY_VARIANTS: LabVariant[] = [
     label: "animationDuration 500",
     source: "sankey-chart.mdx SankeyChart props: animationDuration",
     exercises: "Shorter enter timeline (SankeyChart-owned reveal)",
-    render: (side) => {
-      const { SankeyChart } = PARTS[side];
+    kind: "single",
+    render: () => {
       return (
         <SankeyChart
           animationDuration={500}
