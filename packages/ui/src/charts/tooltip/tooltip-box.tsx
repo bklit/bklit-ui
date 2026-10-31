@@ -4,6 +4,7 @@ import {
   AnimatePresence,
   type MotionValue,
   motion,
+  useMotionValue,
   useReducedMotion,
   useSpring,
 } from "motion/react";
@@ -63,6 +64,12 @@ export interface TooltipBoxProps {
    * can sit on either side of the flip line). Default: true
    */
   replayOnFlip?: boolean;
+  /**
+   * Tween the panel to its new size when the content grows or shrinks (e.g.
+   * longer values, marker content). Off under reduced motion and when
+   * `animate` or `entrance` is false. Default: true
+   */
+  animateSize?: boolean;
   /** Inline styles for the inner tooltip panel. */
   panelStyle?: React.CSSProperties;
   /**
@@ -83,6 +90,121 @@ export const TOOLTIP_PANEL_CLASS_NAME =
 /** Clips content to the panel's inner radius without clipping the edge highlight. */
 export const TOOLTIP_PANEL_INNER_CLASS_NAME =
   "overflow-hidden rounded-[calc(var(--radius-xl)-1px)]";
+
+/** Panel scale/fade-in on show. */
+const PANEL_ENTRANCE_SPRING = {
+  type: "spring",
+  stiffness: 300,
+  damping: 25,
+} as const;
+
+/**
+ * Panel size tween when its content grows or shrinks. Critically damped (no
+ * overshoot, so a shrinking panel never dips under its content) and a little
+ * quicker than the entrance, so it reads as the panel hugging the new content.
+ */
+const PANEL_SIZE_SPRING = {
+  type: "spring",
+  stiffness: 500,
+  damping: 45,
+} as const;
+
+/**
+ * The tooltip panel: an entrance wrapper (scale/slide pivoting on
+ * `transformOrigin`) around the styled panel (fade + size), its clip box and
+ * the content.
+ *
+ * `animateSize` tweens the panel to its new size when the content changes,
+ * with a `layout="size"` animation. That is a transform, so the panel's layout
+ * box (and the `offsetWidth` / `offsetHeight` used for flip and clamp) is
+ * always the final size, and position stays with the caller's springs. The
+ * clip box follows the panel, and the content is scale-corrected (drawn at its
+ * final size and revealed by the clip), so text never stretches. All three are
+ * anchored top-left (`originX` / `originY` 0), so the tween has no translate.
+ * The entrance lives on the wrapper so its pivot can differ. Radii are read
+ * from the classes on mount and passed via `style` so Motion keeps the corners
+ * round while scaled.
+ *
+ * No size tween on mount (the entrance owns that). Callers pass `false` under
+ * reduced motion and when the position is not animated.
+ */
+export function TooltipPanel({
+  animateSize,
+  entrance,
+  transformOrigin,
+  className,
+  style,
+  children,
+}: {
+  animateSize: boolean;
+  /** Entrance scale/slide start, or `false` to only fade in. */
+  entrance: { scale: number; x?: number } | false;
+  transformOrigin: string;
+  className: string;
+  style: React.CSSProperties;
+  children: React.ReactNode;
+}) {
+  const panelRef = useRef<HTMLDivElement>(null);
+  const clipRef = useRef<HTMLDivElement>(null);
+  // "" = no inline radius (the classes apply) until measured.
+  const panelRadius = useMotionValue("");
+  const clipRadius = useMotionValue("");
+
+  useLayoutEffect(() => {
+    if (!animateSize) {
+      return;
+    }
+    if (panelRef.current && style.borderRadius === undefined) {
+      panelRadius.set(getComputedStyle(panelRef.current).borderTopLeftRadius);
+    }
+    if (clipRef.current) {
+      clipRadius.set(getComputedStyle(clipRef.current).borderTopLeftRadius);
+    }
+  }, [animateSize, style.borderRadius, panelRadius, clipRadius]);
+
+  const layout = animateSize ? "size" : false;
+  const sizeTransition = { layout: PANEL_SIZE_SPRING };
+
+  return (
+    <motion.div
+      animate={{ scale: 1, x: 0 }}
+      initial={entrance === false ? false : { x: 0, ...entrance }}
+      style={{ transformOrigin }}
+      transition={PANEL_ENTRANCE_SPRING}
+    >
+      <motion.div
+        animate={{ opacity: 1 }}
+        className={className}
+        initial={{ opacity: 0 }}
+        layout={layout}
+        ref={panelRef}
+        style={{
+          borderRadius: panelRadius,
+          ...style,
+          originX: 0,
+          originY: 0,
+        }}
+        transition={{ ...PANEL_ENTRANCE_SPRING, ...sizeTransition }}
+      >
+        <motion.div
+          className={TOOLTIP_PANEL_INNER_CLASS_NAME}
+          layout={layout}
+          ref={clipRef}
+          style={{ borderRadius: clipRadius, originX: 0, originY: 0 }}
+          transition={sizeTransition}
+        >
+          <motion.div
+            layout={animateSize ? "position" : false}
+            style={{ originX: 0, originY: 0 }}
+            transition={sizeTransition}
+          >
+            {children}
+          </motion.div>
+        </motion.div>
+      </motion.div>
+    </motion.div>
+  );
+}
 
 /** Spring to `value`, or jump there (no animation) when `snap`. */
 function moveTo(
@@ -165,6 +287,7 @@ function TooltipBoxInner({
   entrance = true,
   exit: _exit,
   replayOnFlip = true,
+  animateSize = true,
   panelStyle,
   backgroundColor = chartCssVars.tooltipBackground,
   container,
@@ -283,7 +406,6 @@ function TooltipBoxInner({
     panelStyle?.backdropFilter === undefined && "backdrop-blur-md"
   );
   const panelStyleResolved = {
-    transformOrigin,
     ...(panelStyle?.backgroundColor === undefined && {
       backgroundColor,
     }),
@@ -297,7 +419,10 @@ function TooltipBoxInner({
         ref={tooltipRef}
         style={{ left: staticPosition.left, top: staticPosition.top }}
       >
-        <div className={panelClassName} style={panelStyleResolved}>
+        <div
+          className={panelClassName}
+          style={{ transformOrigin, ...panelStyleResolved }}
+        >
           <div className={TOOLTIP_PANEL_INNER_CLASS_NAME}>{children}</div>
         </div>
       </div>,
@@ -315,20 +440,20 @@ function TooltipBoxInner({
       style={{ left: finalLeft, top: finalTop }}
       transition={{ duration: 0.1 }}
     >
-      <motion.div
-        animate={{ scale: 1, opacity: 1, x: 0 }}
+      <TooltipPanel
+        // Positions jump in the static path (a re-render mid-commit), which a
+        // layout animation would read as a move, and "no motion" means none.
+        animateSize={animateSize && animate && !reducedMotion}
         className={panelClassName}
-        initial={
-          reducedMotion
-            ? { opacity: 0 }
-            : { scale: 0.85, opacity: 0, x: isFlipped ? 20 : -20 }
+        entrance={
+          reducedMotion ? false : { scale: 0.85, x: isFlipped ? 20 : -20 }
         }
         key={flipKey}
         style={panelStyleResolved}
-        transition={{ type: "spring", stiffness: 300, damping: 25 }}
+        transformOrigin={transformOrigin}
       >
-        <div className={TOOLTIP_PANEL_INNER_CLASS_NAME}>{children}</div>
-      </motion.div>
+        {children}
+      </TooltipPanel>
     </motion.div>,
     container
   );

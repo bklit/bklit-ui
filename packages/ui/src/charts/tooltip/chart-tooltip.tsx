@@ -127,6 +127,11 @@ export interface ChartTooltipProps {
   /** Fade the panel out when hover ends. Default: true */
   exit?: boolean;
   /**
+   * Tween the panel to its new size when the content grows or shrinks. Off
+   * under reduced motion and with `damping={0}`. Default: true
+   */
+  animateSize?: boolean;
+  /**
    * Extra gap (px) between the top of the plot and the panel when it is pinned
    * to the top (vertical charts without a single active point). Default: `0`.
    */
@@ -256,6 +261,7 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
   backgroundColor,
   dateLabels: dateLabelsProp,
   exit = true,
+  animateSize = true,
   topOffset = 0,
 }: ChartTooltipInnerProps) {
   const {
@@ -567,6 +573,7 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
       {/* Tooltip Box */}
       <TooltipBox
         animate={boxMotion.animate}
+        animateSize={animateSize}
         backgroundColor={backgroundColor}
         className={className}
         containerHeight={height}
