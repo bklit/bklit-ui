@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { after, before, describe, it } from "node:test";
-import { localPoint } from "../local-point";
+import { type LocalPointEvent, localPoint } from "../local-point";
 
 // Node has `Event` but no DOM: stub just enough of Element / SVGElement for
 // the type guards.
@@ -51,8 +51,8 @@ child.ownerSVGElement = svg;
 const html = new FakeElement();
 
 /** React synthetic event shape. */
-function synthetic(target: unknown, extra: object) {
-  return { nativeEvent: new Event("x"), target, ...extra };
+function synthetic(target: unknown, extra: object): LocalPointEvent {
+  return { nativeEvent: new Event("x"), target, ...extra } as LocalPointEvent;
 }
 
 describe("localPoint", () => {
