@@ -11,7 +11,9 @@ Every chart in Bklit used to sit on visx, a set of React wrappers around d3. The
 
 ## Fewer packages
 
-The 13 `@visx/*` packages and `@use-gesture` are gone. Together with the duplicate d3 copies and types they pulled in, that's 27 fewer packages in the repo's lockfile. Installing the chart library's dependencies now pulls 41 packages instead of 80, about 3 MB less on disk. A chart's registry item now lists only the d3 modules it uses, such as `d3-shape` and `d3-scale`.
+The 13 `@visx/*` packages and `@use-gesture` are gone, and so is `react-use-measure`. Together with the duplicate d3 copies and types they pulled in, that's 28 fewer packages in the repo's lockfile. Installing the chart library's dependencies now pulls 40 packages instead of 80, about 3 MB less on disk. A chart's registry item now lists only the d3 modules it uses, such as `d3-shape` and `d3-scale`.
+
+The tooltip no longer needs a measuring library to adapt to its content: when the rows change, the panel now springs to its new size with Motion, keeping text crisp and the panel in place. Set `animateSize={false}` on `ChartTooltip` to turn it off; it is also off under reduced motion.
 
 ## Smaller and faster
 
