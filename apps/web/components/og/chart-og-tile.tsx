@@ -1,7 +1,6 @@
 "use client";
 
 import { StaticChartPreviewProvider } from "@bklitui/ui/charts";
-import { MotionGlobalConfig } from "motion/react";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import type { ChartExamplePreviewLayout } from "@/components/charts/chart-example-preview";
 import { fetchWorldData } from "@/components/docs/use-world-data";
@@ -21,11 +20,6 @@ import { cn } from "@/lib/utils";
  * Pieces shared by the OG cards (`chart-og-card.tsx`, `home-og-card.tsx`):
  * a fitted chart tile, the wordmark, world-data warmup and loop freezing.
  */
-
-// Screenshot-only pages: Motion animations jump straight to their end state.
-if (typeof window !== "undefined") {
-  MotionGlobalConfig.skipAnimations = true;
-}
 
 /** Padding between a tile's panel edge and its chart. */
 export const TILE_PADDING = 18;

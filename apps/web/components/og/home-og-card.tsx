@@ -1,5 +1,6 @@
 "use client";
 
+import { MotionGlobalConfig } from "motion/react";
 import {
   type CSSProperties,
   useCallback,
@@ -28,6 +29,13 @@ import {
   CHART_OG_SIZES,
   type ChartOgFormat,
 } from "@/lib/chart-og";
+
+// Screenshot-only pages: Motion animations jump straight to their end state.
+// Global, so it lives here and not in the shared `chart-og-tile` (the docs
+// sidebar preview imports that, and would switch Motion off site-wide).
+if (typeof window !== "undefined") {
+  MotionGlobalConfig.skipAnimations = true;
+}
 
 /**
  * Homepage OG card: an effectively endless grid of small panels with the
