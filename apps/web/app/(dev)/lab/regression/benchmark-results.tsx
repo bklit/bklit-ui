@@ -46,7 +46,7 @@ function formatDelta(metric: MetricSummary): string {
 function buildJson(outcome: BenchmarkOutcome, summary: MetricSummary[]) {
   return JSON.stringify(
     {
-      page: "/lab/visx-to-d3",
+      page: "/lab/regression",
       ...outcome,
       environment: {
         nodeEnv: process.env.NODE_ENV,

@@ -19,8 +19,8 @@
       "assist": { "enabled": false }
     },
     {
-      // Generated golden geometry baselines of the visx → d3 lab (one node per line)
-      "includes": ["apps/web/app/(dev)/lab/visx-to-d3/_baselines/**/*.json"],
+      // Generated golden baselines of the chart regression lab (one node per line)
+      "includes": ["apps/web/app/(dev)/lab/regression/_baselines/**/*.json"],
       "formatter": { "enabled": false },
       "linter": { "enabled": false },
       "assist": { "enabled": false }

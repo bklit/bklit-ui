@@ -18,7 +18,7 @@ export default function robots(): MetadataRoute.Robots {
       // `X-Robots-Tag: noindex, nofollow` (next.config) and noindex metadata
       // in case a URL is discovered elsewhere. The headless Chrome that
       // screenshots them does not read robots.txt. `/lab/` holds hidden
-      // contributor tools (e.g. the visx → d3 lab) that 404 in production.
+      // contributor tools (e.g. the chart regression lab) that 404 in production.
       disallow: [
         "/api/",
         "/og/",

@@ -34,7 +34,7 @@ const BASELINE_DIR = path.join(
   "app",
   "(dev)",
   "lab",
-  "visx-to-d3",
+  "regression",
   "_baselines"
 );
 

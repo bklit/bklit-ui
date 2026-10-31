@@ -10,9 +10,8 @@ import { LabClient } from "./lab-client";
  * text and callbacks after enter, hover and scripted interaction steps — plus
  * an enter/hover benchmark against stored medians.
  *
- * The route keeps its `/lab/visx-to-d3` path: the baselines route handler,
- * next.config.mjs (`X-Robots-Tag`), robots.txt and existing links all point
- * at it, and the baselines are named after the migration they guarded.
+ * Formerly `/lab/visx-to-d3`, the migration lab that compared the frozen visx
+ * snapshot with the d3 port.
  *
  * Hidden, not secret: available locally (`next dev` / `next start`) and on
  * Vercel preview deployments, `notFound()` on the production deployment
@@ -25,7 +24,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function VisxToD3LabPage() {
+export default function ChartRegressionLabPage() {
   if (process.env.VERCEL_ENV === "production") {
     notFound();
   }

@@ -11,7 +11,7 @@ import { BASELINE_SCHEMA } from "./lab-slugs";
 
 /** Client side of `baseline-store/route.ts` (dev only). */
 
-const ENDPOINT = "/lab/visx-to-d3/baseline-store";
+const ENDPOINT = "/lab/regression/baseline-store";
 
 export type BaselineIndex = Record<string, string[]>;
 
