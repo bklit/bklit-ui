@@ -1,12 +1,9 @@
-// visx -> d3 migration parity test. Delete together with @visx/event once the
-// migration is finished.
 import assert from "node:assert/strict";
 import { after, before, describe, it } from "node:test";
-import { localPoint as visxLocalPoint } from "@visx/event";
 import { localPoint } from "../local-point";
 
 // Node has `Event` but no DOM: stub just enough of Element / SVGElement for
-// both implementations' type guards.
+// the type guards.
 class FakeElement {
   clientLeft = 2;
   clientTop = 3;
@@ -58,52 +55,32 @@ function synthetic(target: unknown, extra: object) {
   return { nativeEvent: new Event("x"), target, ...extra };
 }
 
-function bothFor(...args: unknown[]) {
-  const ours = (localPoint as (...a: unknown[]) => unknown)(...args);
-  const theirs = (visxLocalPoint as (...a: unknown[]) => unknown)(...args) as {
-    x: number;
-    y: number;
-  } | null;
-  return { ours, theirs: theirs && { x: theirs.x, y: theirs.y } };
-}
+describe("localPoint", () => {
+  it("maps an SVG child's event through the root CTM", () => {
+    assert.deepEqual(
+      localPoint(synthetic(child, { clientX: 70, clientY: 90 })),
+      { x: 30, y: 35 }
+    );
+  });
 
-describe("localPoint matches @visx/event", () => {
-  const cases: [string, unknown[]][] = [
-    [
-      "mouse on svg child (CTM)",
-      [synthetic(child, { clientX: 70, clientY: 90 })],
-    ],
-    [
-      "mouse on outermost svg (rect fallback)",
-      [synthetic(svg, { clientX: 70, clientY: 90 })],
-    ],
-    [
-      "mouse on html node (rect fallback)",
-      [synthetic(html, { clientX: 130, clientY: 60 })],
-    ],
-    [
-      "touch event on svg child",
-      [synthetic(child, { changedTouches: [{ clientX: 30, clientY: 40 }] })],
-    ],
-    ["touch event with no touches", [synthetic(child, { changedTouches: [] })]],
-    ["focus event (target rect centre)", [synthetic(child, {})]],
-    ["explicit svg node + Touch", [svg, { clientX: 50, clientY: 60 }]],
-    [
-      "explicit child node + native event",
-      [child, Object.assign(new Event("x"), { clientX: 12, clientY: 14 })],
-    ],
-  ];
-  for (const [name, args] of cases) {
-    it(name, () => {
-      const { ours, theirs } = bothFor(...args);
-      assert.ok(theirs);
-      assert.deepEqual(ours, theirs);
-    });
-  }
+  it("falls back to the bounding rect for HTML nodes", () => {
+    assert.deepEqual(
+      localPoint(synthetic(html, { clientX: 130, clientY: 60 })),
+      { x: 28, y: 7 }
+    );
+  });
+
+  it("reads the first changed touch", () => {
+    assert.deepEqual(
+      localPoint(
+        synthetic(child, { changedTouches: [{ clientX: 30, clientY: 40 }] })
+      ),
+      { x: 10, y: 10 }
+    );
+  });
 
   it("returns null for non-events and missing nodes", () => {
     assert.equal(localPoint(null, { clientX: 1, clientY: 1 }), null);
     assert.equal(localPoint({ clientX: 1, clientY: 1 }), null);
-    assert.equal(visxLocalPoint({ clientX: 1, clientY: 1 } as never), null);
   });
 });
