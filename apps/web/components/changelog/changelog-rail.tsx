@@ -6,6 +6,8 @@ import {
   motion,
   useTransform,
 } from "motion/react";
+import { type PointerEvent, useState } from "react";
+import { cn } from "@/lib/utils";
 
 const LINE_COUNT = 36;
 /** How strongly lines are pulled toward the focus (must stay < 1). */
@@ -63,20 +65,54 @@ function RailLine({
 /**
  * Changelog scroll-spy: the "compressed lines" motif rotated 90° — horizontal
  * lines whose spacing tightens around the reader's position in the feed,
- * with the current month riding alongside.
+ * with the current month riding alongside. Click or drag on it to scrub
+ * through the feed.
  */
 export function ChangelogRail({
   focus,
   label,
+  onScrub,
 }: {
   /** 0 = newest entry, 1 = oldest. Already smoothed by the caller. */
   focus: MotionValue<number>;
   label: string | undefined;
+  /** Scroll the feed to a rail position (0–1). */
+  onScrub?: (fraction: number) => void;
 }) {
   const labelY = useTransform(focus, (f) => `${round(f * 100)}%`);
+  const [scrubbing, setScrubbing] = useState(false);
+
+  const scrub = (event: PointerEvent<HTMLDivElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const fraction = (event.clientY - rect.top) / Math.max(1, rect.height);
+    onScrub?.(Math.min(1, Math.max(0, fraction)));
+  };
 
   return (
-    <div aria-hidden className="relative h-full">
+    // Pointer-only enhancement; the feed itself stays the accessible path.
+    <div
+      aria-hidden
+      className={cn(
+        "relative h-full select-none",
+        onScrub && (scrubbing ? "cursor-grabbing" : "cursor-grab"),
+        onScrub && "touch-none"
+      )}
+      onLostPointerCapture={() => setScrubbing(false)}
+      onPointerDown={(event) => {
+        if (!onScrub || event.button !== 0) {
+          return;
+        }
+        event.preventDefault();
+        event.currentTarget.setPointerCapture(event.pointerId);
+        setScrubbing(true);
+        scrub(event);
+      }}
+      onPointerMove={(event) => {
+        if (scrubbing) {
+          scrub(event);
+        }
+      }}
+    >
       {positions.map((position) => (
         <RailLine focus={focus} key={position} position={position} />
       ))}
