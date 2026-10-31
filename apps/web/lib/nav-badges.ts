@@ -13,6 +13,7 @@ const navBadgesByUrl: Record<string, NavBadgeKind> = {
   "/charts/sparkline": "new",
   "/docs/components/radial-chart": "new",
   "/docs/components/sparkline": "new",
+  "/docs/upgrading-from-visx": "new",
   "/docs/utility/band": "new",
   "/docs/utility/deadline": "new",
   "/docs/utility/trend-line": "new",

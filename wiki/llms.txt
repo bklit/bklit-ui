@@ -13,6 +13,7 @@ Documentation source files live under `apps/web/content/docs/` (MDX, Fumadocs). 
 
 - [Skills](../apps/web/content/docs/skills.mdx): Give AI agents project-aware context for Bklit charts in your application.
 - [Theming](../apps/web/content/docs/theming.mdx): Theme your charts with CSS custom properties — multi-hue palettes, trend colors, sequential scales, and custom palette export.
+- [Upgrading from visx](../apps/web/content/docs/upgrading-from-visx.mdx): Move charts installed from the registry off visx and onto the d3-based version, with a one-shot AI prompt, manual steps, and a per-chart checklist.
 
 ## Chart Components
 
