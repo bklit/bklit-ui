@@ -1,14 +1,7 @@
 "use client";
 
 import type { WheelEvent as ReactWheelEvent, RefObject } from "react";
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { type LocalPointEvent, localPoint } from "../local-point";
 import {
   applyInverseMatrixToPoint,
@@ -34,29 +27,33 @@ import {
 } from "./choropleth-zoom-matrix";
 
 /**
- * Hand-written replacement for `@visx/zoom` 4.0.0 `<Zoom>` (and the
- * `@use-gesture/react` recognisers it binds), reproducing what bklit relies
- * on:
+ * Hand-written replacement for `@visx/zoom` 4.0.0 `<Zoom>` and the
+ * `@use-gesture/react` recognisers it binds.
  *
+ * The zoom API below is a transcription of visx's Zoom.js: the same React
+ * state (`transformMatrix`, `isDragging`, `startPoint`, `startTranslate`),
+ * the same matrix ref updated inside the `setTransformMatrix` updater, and
+ * the same render-time closures. That matters beyond style: on the first
+ * ctrl+wheel of a trackpad pinch, use-gesture calls the wheel handler and
+ * then the pinch handler in one event, and whether the pinch step sees the
+ * wheel step depends on whether React computed the first update eagerly.
+ * Mirroring visx's state lets React make that call exactly as it did.
+ *
+ * The gesture layer reproduces use-gesture:
  * - Drag-pan with the primary button / one finger: pointer capture on the hit
- *   element, starts once the pointer moved 3 px on an axis, and pans by the
- *   SVG-space distance from *that* point (the first 3 px are not applied).
- *   The pointer-up position is applied once more, then `isDragging` clears.
- *   A click after a real drag (> 3 px) is swallowed in the capture phase.
- * - Wheel (non-passive, `preventDefault`): one `wheelDelta` step per event
- *   around the cursor (`localPoint`), skipped while pinching.
- * - Pinch: two pointers (touch screens), ctrl+wheel (trackpads) or WebKit
- *   gesture events (desktop Safari). Each pinch event applies one
- *   `pinchDelta` step (default 0.9 / 1.1, picked by whether the pinch scale
- *   is below its start) around the pinch centre minus the container's
- *   client rect, including one step when the pinch starts and one when it
- *   ends, exactly as visx's `handlePinch` did. A pinch cancels a drag.
+ *   element, starts once the pointer moved 3 px on an axis (the first 3 px
+ *   are not applied), the pointer-up position is applied once more, and a
+ *   click after a real drag (> 3 px) is swallowed in the capture phase.
+ * - Wheel (non-passive): one `wheelDelta` step per event around the cursor,
+ *   skipped while pinching.
+ * - Pinch: two pointers, ctrl+wheel (trackpads) or WebKit gesture events
+ *   (desktop Safari). Each pinch event applies one `pinchDelta` step (default
+ *   0.9 / 1.1) around the pinch centre minus the container's client rect,
+ *   including one step when the pinch starts and one when it ends (a
+ *   ctrl+wheel pinch ends 140 ms after its last event). A pinch cancels a
+ *   drag.
  * - Scale steps that would leave `scaleXMin..scaleXMax` /
  *   `scaleYMin..scaleYMax` are rejected (not clamped). Pan is unconstrained.
- *
- * Gesture updates write the `<g transform>` directly (`transformRef`) and
- * commit React state only when the gesture ends, so the map does not
- * re-render per pointer move; `toString()` always reads the live matrix.
  */
 
 export interface ProvidedZoom<ElementType> {
@@ -97,13 +94,10 @@ export interface ProvidedZoom<ElementType> {
   applyInverseToPoint: (point: Point) => Point;
   /** Ref for the element that receives the gestures. */
   containerRef: RefObject<ElementType | null>;
-  /** Ref for the transformed `<g>` (bklit: written directly during gestures). */
-  transformRef: RefObject<SVGGElement | null>;
 }
 
 export interface ZoomState {
   initialTransformMatrix: TransformMatrix;
-  /** Committed transform (updated when a gesture ends). */
   transformMatrix: TransformMatrix;
   isDragging: boolean;
 }
@@ -127,9 +121,8 @@ export interface ChoroplethZoomOptions {
 }
 
 const DEFAULT_INITIAL: TransformMatrix = identityMatrix();
-/** use-gesture `TimeoutStore` default: a wheel pinch ends 140 ms after its last event. */
+/** use-gesture `TimeoutStore` default: a ctrl+wheel pinch ends 140 ms after its last event. */
 const WHEEL_END_MS = 140;
-const DRAG_TRANSITION = "none";
 
 export interface DragGesture {
   pointerId: number;
@@ -143,6 +136,8 @@ export interface DragGesture {
   movement: [number, number];
   distance: [number, number];
   intentional: boolean;
+  /** Last event handed to the handlers (re-sent after a cancel). */
+  event: PointerEvent | null;
 }
 
 interface PinchGesture {
@@ -151,12 +146,17 @@ interface PinchGesture {
   /** Persistent scale offset (use-gesture pinch `offset[0]`, starts at 1). */
   offset: number;
   lastOffset: number;
-  /** wheel: accumulated movement; pointer: initial distance. */
+  /** ctrl+wheel: accumulated movement. */
   movement: number;
   initialDistance: number;
   origin: [number, number];
   memo: { top: number; left: number } | undefined;
   pointers: Map<number, { clientX: number; clientY: number }>;
+}
+
+/** What visx `handlePinch` read from the use-gesture pinch state. */
+interface PinchHandlerState extends PinchDeltaState {
+  memo: { top: number; left: number } | undefined;
 }
 
 export function createDragGesture(
@@ -171,6 +171,7 @@ export function createDragGesture(
     movement: [0, 0],
     distance: [0, 0],
     intentional: false,
+    event: null,
   };
 }
 
@@ -242,130 +243,120 @@ export function useChoroplethZoomState<E extends Element>({
   pinchDelta = defaultPinchDelta,
   constrain,
 }: ChoroplethZoomOptions): ZoomInstance<E> {
+  // --- visx Zoom.js -------------------------------------------------------
+
   const containerRef = useRef<E | null>(null);
-  const transformRef = useRef<SVGGElement | null>(null);
-  const matrixRef = useRef<TransformMatrix>(initialTransformMatrix);
+  const matrixStateRef = useRef<TransformMatrix>(initialTransformMatrix);
   const [transformMatrix, setTransformMatrixState] = useState(
     initialTransformMatrix
   );
-  const [isDragging, setIsDraggingState] = useState(false);
-  const isDraggingRef = useRef(false);
-  const startPointRef = useRef<Point | undefined>(undefined);
-  const startTranslateRef = useRef<Translate | undefined>(undefined);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startTranslate, setStartTranslate] = useState<Translate | undefined>(
+    undefined
+  );
+  const [startPoint, setStartPoint] = useState<Point | undefined>(undefined);
 
-  const options = {
-    width,
-    height,
-    initialTransformMatrix,
-    limits: { scaleXMin, scaleXMax, scaleYMin, scaleYMax },
-    wheelDelta,
-    pinchDelta,
-    constrain,
-  };
-  const optionsRef = useRef(options);
-  useLayoutEffect(() => {
-    optionsRef.current = options;
-  });
-
-  // --- matrix -------------------------------------------------------------
-
-  const writeTransform = useCallback(() => {
-    transformRef.current?.setAttribute(
-      "transform",
-      matrixToString(matrixRef.current)
-    );
-  }, []);
-
-  /** visx `setTransformMatrix` (constrained). `commit: false` = gesture. */
-  const applyMatrix = useCallback(
-    (next: TransformMatrix, commit: boolean) => {
-      const { constrain: custom, limits } = optionsRef.current;
-      const prev = matrixRef.current;
-      const result = custom
-        ? custom(next, prev)
-        : constrainScale(next, prev, limits);
-      matrixRef.current = result;
-      writeTransform();
-      if (commit) {
-        setTransformMatrixState(result);
-      }
-    },
-    [writeTransform]
+  const defaultConstrain = useCallback(
+    (next: TransformMatrix, prev: TransformMatrix) =>
+      constrain
+        ? constrain(next, prev)
+        : constrainScale(next, prev, {
+            scaleXMin,
+            scaleXMax,
+            scaleYMin,
+            scaleYMax,
+          }),
+    [constrain, scaleXMin, scaleXMax, scaleYMin, scaleYMax]
   );
 
-  const commitMatrix = useCallback(() => {
-    setTransformMatrixState(matrixRef.current);
-  }, []);
+  const setTransformMatrix = useCallback(
+    (next: TransformMatrix) => {
+      setTransformMatrixState((prev) => {
+        const updated = defaultConstrain(next, prev);
+        matrixStateRef.current = updated;
+        return updated;
+      });
+    },
+    [defaultConstrain]
+  );
 
-  const setDragging = useCallback((next: boolean) => {
-    isDraggingRef.current = next;
-    // Mirror the render-time styles right away so the first pan frame is not
-    // eased (and the drop is), whatever React's render timing.
-    const container = containerRef.current;
-    if (container instanceof SVGElement || container instanceof HTMLElement) {
-      container.style.cursor = next ? "grabbing" : "grab";
-    }
-    const group = transformRef.current;
-    if (group) {
-      group.style.transition = next
-        ? DRAG_TRANSITION
-        : "transform 0.18s ease-out";
-    }
-    setIsDraggingState(next);
-  }, []);
+  const applyToPoint = useCallback(
+    ({ x, y }: Point) => applyMatrixToPoint(transformMatrix, { x, y }),
+    [transformMatrix]
+  );
+  const applyInverseToPoint = useCallback(
+    ({ x, y }: Point) => applyInverseMatrixToPoint(transformMatrix, { x, y }),
+    [transformMatrix]
+  );
+  const reset = useCallback(() => {
+    setTransformMatrix(initialTransformMatrix);
+  }, [initialTransformMatrix, setTransformMatrix]);
 
-  const scaleInternal = useCallback(
-    (
-      { scaleX, scaleY, point }: ScaleSignature,
-      commit: boolean,
-      /** Matrix to scale from (default: the live one). See handleWheelEvent. */
-      from?: TransformMatrix
-    ) => {
-      const { width: w, height: h } = optionsRef.current;
-      applyMatrix(
+  const scale = useCallback(
+    ({ scaleX, scaleY, point }: ScaleSignature) => {
+      // visx reads the ref, not state: the wheel listener has no fresh state.
+      setTransformMatrix(
         scaleMatrixAroundPoint(
-          from ?? matrixRef.current,
+          matrixStateRef.current,
           { scaleX, scaleY, point },
-          w,
-          h
-        ),
-        commit
+          width,
+          height
+        )
       );
-      if (isDraggingRef.current) {
-        const { translateX, translateY } = matrixRef.current;
-        startPointRef.current = point;
-        startTranslateRef.current = { translateX, translateY };
+      if (isDragging) {
+        const { translateX, translateY } = matrixStateRef.current;
+        setStartPoint(point);
+        setStartTranslate({ translateX, translateY });
       }
     },
-    [applyMatrix]
+    [height, width, isDragging, setTransformMatrix]
   );
 
-  const setTranslateInternal = useCallback(
-    ({ translateX, translateY }: Translate, commit: boolean) => {
-      applyMatrix({ ...matrixRef.current, translateX, translateY }, commit);
+  const translate = useCallback(
+    ({ translateX, translateY }: Translate) => {
+      setTransformMatrix(
+        composeMatrices(
+          transformMatrix,
+          translateMatrix(translateX, translateY)
+        )
+      );
     },
-    [applyMatrix]
+    [setTransformMatrix, transformMatrix]
   );
+  const setTranslate = useCallback(
+    ({ translateX, translateY }: Translate) => {
+      setTransformMatrix({ ...transformMatrix, translateX, translateY });
+    },
+    [setTransformMatrix, transformMatrix]
+  );
+  const translateTo = useCallback(
+    ({ x, y }: Point) => {
+      const point = applyInverseMatrixToPoint(transformMatrix, { x, y });
+      setTranslate({ translateX: point.x, translateY: point.y });
+    },
+    [setTranslate, transformMatrix]
+  );
+  const invert = useCallback(
+    () => inverseMatrix(transformMatrix),
+    [transformMatrix]
+  );
+  const toStringInvert = useCallback(() => matrixToString(invert()), [invert]);
 
-  const dragStartInternal = useCallback(
+  const dragStart = useCallback(
     (event: LocalPointEvent) => {
-      const { translateX, translateY } = matrixRef.current;
-      startPointRef.current = localPoint(event) || undefined;
-      startTranslateRef.current = { translateX, translateY };
-      setDragging(true);
+      const { translateX, translateY } = transformMatrix;
+      setStartPoint(localPoint(event) || undefined);
+      setStartTranslate({ translateX, translateY });
+      setIsDragging(true);
     },
-    [setDragging]
+    [transformMatrix]
   );
-
-  const dragMoveInternal = useCallback(
+  const dragMove = useCallback(
     (
       event: LocalPointEvent,
-      commit: boolean,
-      offsets?: { offsetX?: number; offsetY?: number }
+      options?: { offsetX?: number; offsetY?: number }
     ) => {
-      const startPoint = startPointRef.current;
-      const startTranslate = startTranslateRef.current;
-      if (!(isDraggingRef.current && startPoint && startTranslate)) {
+      if (!(isDragging && startPoint && startTranslate)) {
         return;
       }
       const currentPoint = localPoint(event);
@@ -376,43 +367,82 @@ export function useChoroplethZoomState<E extends Element>({
         ? -(startPoint.y - currentPoint.y)
         : -startPoint.y;
       let translateX = startTranslate.translateX + dx;
-      if (offsets?.offsetX) {
-        translateX += offsets.offsetX ?? 0;
+      if (options?.offsetX) {
+        translateX += options.offsetX ?? 0;
       }
       let translateY = startTranslate.translateY + dy;
-      if (offsets?.offsetY) {
-        translateY += offsets.offsetY ?? 0;
+      if (options?.offsetY) {
+        translateY += options.offsetY ?? 0;
       }
-      setTranslateInternal({ translateX, translateY }, commit);
+      setTranslate({ translateX, translateY });
     },
-    [setTranslateInternal]
+    [isDragging, setTranslate, startPoint, startTranslate]
   );
-
   const dragEnd = useCallback(() => {
-    startPointRef.current = undefined;
-    startTranslateRef.current = undefined;
-    if (isDraggingRef.current) {
-      setDragging(false);
-    } else {
-      setIsDraggingState(false);
-    }
-  }, [setDragging]);
+    setStartPoint(undefined);
+    setStartTranslate(undefined);
+    setIsDragging(false);
+  }, []);
 
-  const handleWheelInternal = useCallback(
-    (event: ReactWheelEvent | WheelEvent, commit: boolean) => {
+  const handleWheel = useCallback(
+    (event: ReactWheelEvent | WheelEvent) => {
       event.preventDefault();
       const point = localPoint(event as LocalPointEvent) || undefined;
-      const { scaleX, scaleY } = optionsRef.current.wheelDelta(event);
-      scaleInternal({ scaleX, scaleY, point }, commit);
+      const { scaleX, scaleY } = wheelDelta(event);
+      scale({ scaleX, scaleY, point });
     },
-    [scaleInternal]
+    [scale, wheelDelta]
   );
 
-  // --- gestures -----------------------------------------------------------
+  const handlePinch = useCallback(
+    (state: PinchHandlerState) => {
+      const {
+        origin: [ox, oy],
+        memo,
+      } = state;
+      let currentMemo = memo;
+      if (containerRef.current) {
+        const { top, left } =
+          currentMemo ?? containerRef.current.getBoundingClientRect();
+        if (!currentMemo) {
+          currentMemo = { top, left };
+        }
+        const { scaleX, scaleY } = pinchDelta(state);
+        scale({ scaleX, scaleY, point: { x: ox - left, y: oy - top } });
+      }
+      return currentMemo;
+    },
+    [scale, pinchDelta]
+  );
+
+  const toMatrixString = useCallback(
+    () => matrixToString(transformMatrix),
+    [transformMatrix]
+  );
+  const center = useCallback(() => {
+    const centerPoint = { x: width / 2, y: height / 2 };
+    const inverseCentroid = applyInverseToPoint(centerPoint);
+    translate({
+      translateX: inverseCentroid.x - centerPoint.x,
+      translateY: inverseCentroid.y - centerPoint.y,
+    });
+  }, [height, width, applyInverseToPoint, translate]);
+  const clear = useCallback(() => {
+    setTransformMatrix(identityMatrix());
+  }, [setTransformMatrix]);
+
+  // use-gesture applies the latest render's handlers during render.
+  const api = { dragStart, dragMove, dragEnd, handleWheel, handlePinch };
+  const apiRef = useRef(api);
+  apiRef.current = api;
+
+  // --- gestures (use-gesture drag / wheel / pinch engines) ----------------
 
   const pointerIdsRef = useRef(new Set<number>());
   const dragRef = useRef<DragGesture | null>(null);
   const tapRef = useRef(false);
+  /** use-gesture drag `state.last`: survives into the next gesture. */
+  const dragLastRef = useRef(false);
   const pinchRef = useRef<PinchGesture>({
     active: false,
     source: null,
@@ -424,41 +454,19 @@ export function useChoroplethZoomState<E extends Element>({
     memo: undefined,
     pointers: new Map(),
   });
-  const wheelTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const wheelPinchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cancelTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  /** visx `handlePinch`: one `pinchDelta` step around the pinch centre. */
-  const emitPinch = useCallback(
-    (from?: TransformMatrix) => {
-      const pinch = pinchRef.current;
-      const container = containerRef.current;
-      if (!container) {
-        return;
-      }
-      if (!pinch.memo) {
-        const { top, left } = container.getBoundingClientRect();
-        pinch.memo = { top, left };
-      }
-      const { scaleX, scaleY } = optionsRef.current.pinchDelta({
-        offset: [pinch.offset, 0],
-        lastOffset: [pinch.lastOffset, 0],
-        origin: pinch.origin,
-      });
-      scaleInternal(
-        {
-          scaleX,
-          scaleY,
-          point: {
-            x: pinch.origin[0] - pinch.memo.left,
-            y: pinch.origin[1] - pinch.memo.top,
-          },
-        },
-        false,
-        from
-      );
-    },
-    [scaleInternal]
-  );
+  /** One pinch handler call (visx `handlePinch`); keeps its memo. */
+  const emitPinch = useCallback(() => {
+    const pinch = pinchRef.current;
+    pinch.memo = apiRef.current.handlePinch({
+      offset: [pinch.offset, 0],
+      lastOffset: [pinch.lastOffset, 0],
+      origin: pinch.origin,
+      memo: pinch.memo,
+    });
+  }, []);
 
   const startPinch = useCallback((source: PinchGesture["source"]) => {
     const pinch = pinchRef.current;
@@ -474,23 +482,45 @@ export function useChoroplethZoomState<E extends Element>({
     pinch.active = false;
     pinch.source = null;
     emitPinch();
-    commitMatrix();
-  }, [commitMatrix, emitPinch]);
+  }, [emitPinch]);
 
-  const cancelDrag = useCallback(() => {
-    const drag = dragRef.current;
-    if (!drag) {
-      return;
-    }
-    drag.active = false;
-    drag.pointerActive = false;
-    dragEnd();
-  }, [dragEnd]);
-
-  // Drag recogniser (use-gesture `DragEngine` with filterTaps).
+  /** use-gesture drag handler: onDragStart (first), onDrag, onDragEnd (last). */
+  const emitDrag = useCallback(
+    (event: PointerEvent, first: boolean, last: boolean) => {
+      const handlers = apiRef.current;
+      const drag = dragRef.current;
+      if (first) {
+        handlers.dragStart(event);
+      }
+      if (pinchRef.current.active) {
+        // visx: `cancel(); dragEnd();`. The cancel re-emits on a timeout.
+        if (drag?.active) {
+          drag.active = false;
+          drag.pointerActive = false;
+          cancelTimerRef.current = setTimeout(() => {
+            cancelTimerRef.current = null;
+            dragLastRef.current = true;
+            const latest = apiRef.current;
+            if (pinchRef.current.active) {
+              latest.dragEnd();
+            } else if (drag.event) {
+              latest.dragMove(drag.event);
+            }
+            latest.dragEnd();
+          }, 0);
+        }
+        handlers.dragEnd();
+      } else {
+        handlers.dragMove(event);
+      }
+      if (last) {
+        handlers.dragEnd();
+      }
+    },
+    []
+  );
 
   const dragPointerDown = useCallback((event: PointerEvent) => {
-    // Primary button only, one pointer at a time.
     const drag = dragRef.current;
     if (
       !(event.buttons == null || event.buttons === 1) ||
@@ -513,16 +543,13 @@ export function useChoroplethZoomState<E extends Element>({
       if (step === "none") {
         return;
       }
-      if (pinchRef.current.active) {
-        cancelDrag();
-      } else if (step === "first") {
-        // visx: dragStart here; the same event's dragMove is a no-op.
-        dragStartInternal(event);
-      } else {
-        dragMoveInternal(event, false);
+      drag.event = event;
+      if (step === "first") {
+        dragLastRef.current = false;
       }
+      emitDrag(event, step === "first", false);
     },
-    [cancelDrag, dragMoveInternal, dragStartInternal]
+    [emitDrag]
   );
 
   const dragPointerEnd = useCallback(
@@ -542,26 +569,18 @@ export function useChoroplethZoomState<E extends Element>({
       tapRef.current =
         drag.distance[0] <= DRAG_THRESHOLD_PX &&
         drag.distance[1] <= DRAG_THRESHOLD_PX;
-      if (!(drag.intentional && drag.started)) {
-        return;
+      if (drag.started) {
+        drag.event = event;
+        dragLastRef.current = true;
+        emitDrag(event, false, true);
+      } else if (tapRef.current) {
+        // A tap still reaches the handlers (filterTaps); `last` is whatever
+        // the previous drag left, so a tap after a drag calls dragEnd.
+        emitDrag(event, false, dragLastRef.current);
       }
-      if (pinchRef.current.active) {
-        dragEnd();
-        return;
-      }
-      // visx applies the pointer-up position, then ends the drag in the same
-      // render, so the transition is already back on for that last step.
-      if (isDraggingRef.current && transformRef.current) {
-        transformRef.current.style.transition = "transform 0.18s ease-out";
-      }
-      dragMoveInternal(event, false);
-      dragEnd();
-      commitMatrix();
     },
-    [commitMatrix, dragEnd, dragMoveInternal]
+    [emitDrag]
   );
-
-  // Pinch recogniser, two pointers (use-gesture `PinchEngine`, pointer device).
 
   const pinchPointerDown = useCallback(
     (event: PointerEvent) => {
@@ -684,25 +703,11 @@ export function useChoroplethZoomState<E extends Element>({
 
   const handleWheelEvent = useCallback(
     (event: WheelEvent) => {
-      // use-gesture runs the wheel recogniser before the pinch one, so the
-      // first ctrl+wheel of a trackpad pinch calls visx `scale()` twice in
-      // one event. Both read visx's matrix ref before React applied either
-      // update, and the queued updaters each replace the whole matrix, so
-      // the pinch step (computed from the pre-wheel matrix) overwrites the
-      // wheel step unless the pinch step is rejected by the scale limits.
-      const before = matrixRef.current;
-      const startsWheelPinch = event.ctrlKey && !pinchRef.current.active;
+      // use-gesture's wheel recogniser runs before the pinch one, so the first
+      // ctrl+wheel of a pinch reaches both handlers in the same event.
       if (!pinchRef.current.active) {
-        handleWheelInternal(event, false);
-        if (wheelTimerRef.current) {
-          clearTimeout(wheelTimerRef.current);
-        }
-        wheelTimerRef.current = setTimeout(() => {
-          wheelTimerRef.current = null;
-          commitMatrix();
-        }, WHEEL_END_MS);
+        apiRef.current.handleWheel(event);
       }
-
       if (!event.ctrlKey) {
         return;
       }
@@ -717,7 +722,7 @@ export function useChoroplethZoomState<E extends Element>({
         (-wheelDeltaYPixels(event) / PINCH_WHEEL_RATIO) * pinch.offset;
       pinch.origin = [event.clientX, event.clientY];
       pinch.offset = pinch.movement + pinch.lastOffset;
-      emitPinch(startsWheelPinch ? before : undefined);
+      emitPinch();
       if (wheelPinchTimerRef.current) {
         clearTimeout(wheelPinchTimerRef.current);
       }
@@ -728,7 +733,7 @@ export function useChoroplethZoomState<E extends Element>({
         }
       }, WHEEL_END_MS);
     },
-    [commitMatrix, emitPinch, endPinch, handleWheelInternal, startPinch]
+    [emitPinch, endPinch, startPinch]
   );
 
   const handleGesture = useCallback(
@@ -739,10 +744,16 @@ export function useChoroplethZoomState<E extends Element>({
         clientY: number;
       };
       const pinch = pinchRef.current;
-      if (event.type === "gesturestart") {
-        if (event.cancelable) {
-          event.preventDefault();
+      if (event.type === "gestureend") {
+        if (pinch.active) {
+          endPinch();
         }
+        return;
+      }
+      if (event.cancelable) {
+        event.preventDefault();
+      }
+      if (event.type === "gesturestart") {
         if (pinch.active) {
           return;
         }
@@ -752,21 +763,12 @@ export function useChoroplethZoomState<E extends Element>({
         emitPinch();
         return;
       }
-      if (event.type === "gesturechange") {
-        if (event.cancelable) {
-          event.preventDefault();
-        }
-        if (!pinch.active) {
-          return;
-        }
-        pinch.origin = [gesture.clientX, gesture.clientY];
-        pinch.offset = (1 + (gesture.scale - 1)) * pinch.lastOffset;
-        emitPinch();
+      if (!pinch.active) {
         return;
       }
-      if (pinch.active) {
-        endPinch();
-      }
+      pinch.origin = [gesture.clientX, gesture.clientY];
+      pinch.offset = (1 + (gesture.scale - 1)) * pinch.lastOffset;
+      emitPinch();
     },
     [emitPinch, endPinch, startPinch]
   );
@@ -778,9 +780,8 @@ export function useChoroplethZoomState<E extends Element>({
     }
   }, []);
 
-  // Bind native listeners (non-passive) to the container; rebind if the
+  // Bind native (non-passive) listeners to the container; rebind if the
   // element is replaced.
-  const boundRef = useRef<{ element: E; cleanup: () => void } | null>(null);
   const handlersRef = useRef({
     handlePointerDown,
     handlePointerMove,
@@ -789,16 +790,7 @@ export function useChoroplethZoomState<E extends Element>({
     handleGesture,
     handleClickCapture,
   });
-  useLayoutEffect(() => {
-    handlersRef.current = {
-      handlePointerDown,
-      handlePointerMove,
-      handlePointerEnd,
-      handleWheelEvent,
-      handleGesture,
-      handleClickCapture,
-    };
-  });
+  const boundRef = useRef<{ element: E; cleanup: () => void } | null>(null);
   useEffect(() => {
     const element = containerRef.current;
     if (boundRef.current?.element === element) {
@@ -809,6 +801,7 @@ export function useChoroplethZoomState<E extends Element>({
     if (!element) {
       return;
     }
+    const handlers = handlersRef.current;
     const types = [
       "pointerdown",
       "pointermove",
@@ -821,7 +814,6 @@ export function useChoroplethZoomState<E extends Element>({
         : []),
     ];
     const listener = (event: Event) => {
-      const handlers = handlersRef.current;
       if (event.type === "pointerdown") {
         handlers.handlePointerDown(event as PointerEvent);
       } else if (event.type === "pointermove") {
@@ -835,13 +827,14 @@ export function useChoroplethZoomState<E extends Element>({
       }
     };
     const clickListener = (event: Event) =>
-      handlersRef.current.handleClickCapture(event as MouseEvent);
-    const options = { passive: false };
-    const clickOptions = { capture: true, passive: false };
+      handlers.handleClickCapture(event as MouseEvent);
     for (const type of types) {
-      element.addEventListener(type, listener, options);
+      element.addEventListener(type, listener, { passive: false });
     }
-    element.addEventListener("click", clickListener, clickOptions);
+    element.addEventListener("click", clickListener, {
+      capture: true,
+      passive: false,
+    });
     boundRef.current = {
       element,
       cleanup: () => {
@@ -856,7 +849,7 @@ export function useChoroplethZoomState<E extends Element>({
     () => () => {
       boundRef.current?.cleanup();
       boundRef.current = null;
-      for (const timer of [wheelTimerRef, wheelPinchTimerRef]) {
+      for (const timer of [wheelPinchTimerRef, cancelTimerRef]) {
         if (timer.current) {
           clearTimeout(timer.current);
         }
@@ -865,134 +858,28 @@ export function useChoroplethZoomState<E extends Element>({
     []
   );
 
-  // --- public API (commits immediately) -----------------------------------
-
-  const scale = useCallback(
-    (signature: ScaleSignature) => scaleInternal(signature, true),
-    [scaleInternal]
-  );
-  const setTransformMatrix = useCallback(
-    (matrix: TransformMatrix) => applyMatrix(matrix, true),
-    [applyMatrix]
-  );
-  const setTranslate = useCallback(
-    (translate: Translate) => setTranslateInternal(translate, true),
-    [setTranslateInternal]
-  );
-  const translate = useCallback(
-    ({ translateX, translateY }: Translate) =>
-      applyMatrix(
-        composeMatrices(
-          matrixRef.current,
-          translateMatrix(translateX, translateY)
-        ),
-        true
-      ),
-    [applyMatrix]
-  );
-  const translateTo = useCallback(
-    ({ x, y }: Point) => {
-      const point = applyInverseMatrixToPoint(matrixRef.current, { x, y });
-      setTranslateInternal({ translateX: point.x, translateY: point.y }, true);
-    },
-    [setTranslateInternal]
-  );
-  const applyToPoint = useCallback(
-    ({ x, y }: Point) => applyMatrixToPoint(matrixRef.current, { x, y }),
-    []
-  );
-  const applyInverseToPoint = useCallback(
-    ({ x, y }: Point) => applyInverseMatrixToPoint(matrixRef.current, { x, y }),
-    []
-  );
-  const center = useCallback(() => {
-    const { width: w, height: h } = optionsRef.current;
-    const centerPoint = { x: w / 2, y: h / 2 };
-    const inverseCentroid = applyInverseToPoint(centerPoint);
-    translate({
-      translateX: inverseCentroid.x - centerPoint.x,
-      translateY: inverseCentroid.y - centerPoint.y,
-    });
-  }, [applyInverseToPoint, translate]);
-  const clear = useCallback(
-    () => applyMatrix(identityMatrix(), true),
-    [applyMatrix]
-  );
-  const reset = useCallback(
-    () => applyMatrix(optionsRef.current.initialTransformMatrix, true),
-    [applyMatrix]
-  );
-  const invert = useCallback(() => inverseMatrix(matrixRef.current), []);
-  const toStringInvert = useCallback(
-    () => matrixToString(inverseMatrix(matrixRef.current)),
-    []
-  );
-  const toMatrixString = useCallback(
-    () => matrixToString(matrixRef.current),
-    []
-  );
-  const handleWheel = useCallback(
-    (event: ReactWheelEvent | WheelEvent) => handleWheelInternal(event, true),
-    [handleWheelInternal]
-  );
-  const dragStart = useCallback(
-    (event: LocalPointEvent) => dragStartInternal(event),
-    [dragStartInternal]
-  );
-  const dragMove = useCallback(
-    (
-      event: LocalPointEvent,
-      offsets?: { offsetX?: number; offsetY?: number }
-    ) => dragMoveInternal(event, true, offsets),
-    [dragMoveInternal]
-  );
-
-  return useMemo(
-    () => ({
-      initialTransformMatrix,
-      transformMatrix,
-      isDragging,
-      center,
-      clear,
-      scale,
-      translate,
-      translateTo,
-      setTranslate,
-      setTransformMatrix,
-      reset,
-      handleWheel,
-      dragEnd,
-      dragMove,
-      dragStart,
-      toString: toMatrixString,
-      invert,
-      toStringInvert,
-      applyToPoint,
-      applyInverseToPoint,
-      containerRef,
-      transformRef,
-    }),
-    [
-      applyInverseToPoint,
-      applyToPoint,
-      center,
-      clear,
-      dragEnd,
-      dragMove,
-      dragStart,
-      handleWheel,
-      initialTransformMatrix,
-      invert,
-      isDragging,
-      reset,
-      scale,
-      setTransformMatrix,
-      setTranslate,
-      toMatrixString,
-      toStringInvert,
-      transformMatrix,
-      translate,
-      translateTo,
-    ]
-  );
+  // A fresh object every render, like visx's `zoom`.
+  return {
+    initialTransformMatrix,
+    transformMatrix,
+    isDragging,
+    center,
+    clear,
+    scale,
+    translate,
+    translateTo,
+    setTranslate,
+    setTransformMatrix,
+    reset,
+    handleWheel,
+    dragEnd,
+    dragMove,
+    dragStart,
+    toString: toMatrixString,
+    invert,
+    toStringInvert,
+    applyToPoint,
+    applyInverseToPoint,
+    containerRef,
+  };
 }

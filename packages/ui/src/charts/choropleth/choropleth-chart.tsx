@@ -225,11 +225,9 @@ const ChoroplethSvg = memo(function ChoroplethSvg({
       width={width}
     >
       <g
-        ref={zoom?.transformRef}
         style={{
           transition: zoom?.isDragging ? "none" : "transform 0.18s ease-out",
         }}
-        // Reads the live matrix; gestures also write this attribute directly.
         transform={zoom ? zoom.toString() : undefined}
       >
         {svgChildren}

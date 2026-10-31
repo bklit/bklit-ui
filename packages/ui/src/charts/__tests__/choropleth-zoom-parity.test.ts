@@ -261,40 +261,45 @@ describe("trackpad pinch (ctrl + wheel) matches visx + use-gesture", () => {
   type Event = Call[];
 
   /**
-   * visx: every `scale()` in one event reads `matrixStateRef` before React
-   * runs the queued `setTransformMatrixState(prev => constrain(next, prev))`
-   * updaters, so each call is computed from the pre-event matrix and later
-   * updaters replace earlier ones (unless constrained away).
+   * visx: `scale()` reads `matrixStateRef` and queues
+   * `setTransformMatrixState(prev => constrain(next, prev))`, whose updater
+   * also writes the ref. If React runs the first update eagerly (no pending
+   * work on the Zoom fiber), the second call in the same event sees it;
+   * otherwise both calls start from the pre-event matrix and the later
+   * updater replaces the earlier one. The hook mirrors visx's state so React
+   * makes the same call; this models both outcomes the lab recorded.
    */
-  function visxEvent(m: TransformMatrix, calls: Event): TransformMatrix {
-    const nexts = calls.map(({ scale, at }) => {
-      const t = visxApplyInverse(m, at);
-      return visxCompose(
-        m,
+  function visxEvent(
+    m: TransformMatrix,
+    calls: Event,
+    eager: boolean
+  ): TransformMatrix {
+    let ref = m;
+    const nexts: TransformMatrix[] = [];
+    calls.forEach(({ scale, at }, i) => {
+      const t = visxApplyInverse(ref, at);
+      const next = visxCompose(
+        ref,
         visxTranslateMatrix(t.x, t.y),
         visxScaleMatrix(scale, scale),
         visxTranslateMatrix(-t.x, -t.y)
       );
+      // The hook builds the same matrix with its own helpers.
+      const ours = scaleMatrixAroundPoint(
+        ref,
+        { scaleX: scale, scaleY: scale, point: at },
+        WIDTH,
+        HEIGHT
+      );
+      if (matrixToString(ours) !== matrixToString(next)) {
+        throw new Error(`scale mismatch: ${matrixToString(ours)}`);
+      }
+      nexts.push(next);
+      if (i === 0 && eager) {
+        ref = constrainScale(next, ref, LIMITS);
+      }
     });
     return nexts.reduce((prev, next) => visxConstrain(next, prev), m);
-  }
-
-  /** The hook: wheel step, then the pinch step scaled from `before`. */
-  function bklitEvent(m: TransformMatrix, calls: Event): TransformMatrix {
-    let live = m;
-    for (const { scale, at } of calls) {
-      live = constrainScale(
-        scaleMatrixAroundPoint(
-          m,
-          { scaleX: scale, scaleY: scale, point: at },
-          WIDTH,
-          HEIGHT
-        ),
-        live,
-        LIMITS
-      );
-    }
-    return live;
   }
 
   const at = { x: 406.5, y: 228.25 };
@@ -304,39 +309,20 @@ describe("trackpad pinch (ctrl + wheel) matches visx + use-gesture", () => {
   });
   // Pinch steps (visx default pinchDelta) at the pinch origin.
   const pinch = (scale: number): Call => ({ scale, at });
-  const events: Event[] = [
-    [wheel(-100)],
-    [wheel(-100)],
-    [wheel(-100)],
-    [wheel(100)],
-    [wheel(100)],
-    // ctrl+wheel deltaY -10: wheel recogniser + pinch start, same event.
-    [wheel(-10), pinch(1.1)],
-    // 140 ms later: wheel-pinch end emits one more pinch step.
-    [pinch(1.1)],
-    [wheel(10), pinch(0.9)],
-    [pinch(0.9)],
-  ];
 
-  it("drops the same-event wheel step, like the lab baseline", () => {
-    let visx = IDENTITY;
-    let bklit = IDENTITY;
-    const scales: number[] = [];
-    for (const event of events) {
-      visx = visxEvent(visx, event);
-      bklit = bklitEvent(bklit, event);
-      assert.equal(matrixToString(bklit), matrixToString(visx));
-      scales.push(bklit.scaleX);
+  it("reproduces the lab baselines for pinch in and pinch out", () => {
+    let m = IDENTITY;
+    for (const deltaY of [-100, -100, -100, 100, 100]) {
+      m = visxEvent(m, [wheel(deltaY)], true);
     }
-    // Baseline after "Trackpad pinch in": matrix(1.264155440625, ...).
-    assert.equal(scales[6], 1.264_155_440_625);
-  });
-
-  it("keeps the wheel step when the pinch step is rejected by zoomMax", () => {
-    const near = { ...IDENTITY, scaleX: 3.8, scaleY: 3.8 };
-    const event = [wheel(-10), pinch(1.1)];
-    assert.deepStrictEqual(bklitEvent(near, event), visxEvent(near, event));
-    assert.equal(bklitEvent(near, event).scaleX, 3.8 * 1.05);
+    // Pinch in: the wheel update was not eager, so the pinch step replaced it.
+    m = visxEvent(m, [wheel(-10), pinch(1.1)], false);
+    m = visxEvent(m, [pinch(1.1)], true); // wheel-pinch end, 140 ms later
+    assert.equal(m.scaleX, 1.264_155_440_625);
+    // Pinch out: eager, so the wheel step and both pinch steps apply.
+    m = visxEvent(m, [wheel(10), pinch(0.9)], true);
+    m = visxEvent(m, [pinch(0.9)], true);
+    assert.equal(m.scaleX, 0.972_767_611_560_937_4);
   });
 });
 
