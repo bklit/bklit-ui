@@ -88,25 +88,24 @@ export interface LiveYAxisProps {
 
 const tickSpring = { type: "spring" as const, stiffness: 180, damping: 24 };
 
-export function LiveYAxis(props: LiveYAxisProps) {
-  const { containerRef } = useChartStable();
-
-  const container = useChartPortalContainer(containerRef);
-  if (!container) {
-    return null;
-  }
-
-  return <LiveYAxisInner {...props} container={container} />;
+export interface LiveYAxisTickOptions {
+  /** Minimum pixel gap between ticks. Default: 36 (same as `LiveYAxis`) */
+  minGap?: number;
+  /** Allow decimal tick values. Default: true */
+  allowDecimals?: boolean;
 }
 
-const LiveYAxisInner = memo(function LiveYAxisInner({
+/**
+ * Tick values `LiveYAxis` labels, for the live chart in context. Pass them to
+ * `<Grid rowTickValues={…} />` so grid rows line up with the axis labels; the
+ * set only changes when the domain crosses an interval boundary, and pixel
+ * positions still follow the live scale every frame.
+ */
+export function useLiveYAxisTickValues({
   minGap = 36,
-  position = "left",
-  formatValue = (v: number) => v.toFixed(2),
   allowDecimals = true,
-  container,
-}: LiveYAxisProps & { container: HTMLDivElement }) {
-  const { yScale, margin, innerHeight } = useChartStable();
+}: LiveYAxisTickOptions = {}): number[] {
+  const { yScale, innerHeight } = useChartStable();
   // Last picked interval, kept in state for hysteresis (not a ref read during
   // render). Only re-renders when the picked interval actually changes.
   const [prevInterval, setPrevInterval] = useState(0);
@@ -133,7 +132,7 @@ const LiveYAxisInner = memo(function LiveYAxisInner({
   const quantizedMax = interval > 0 ? Math.ceil(maxVal / interval) : 0;
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: quantized values are intentional coarse-grained deps for stability
-  const stableTickValues = useMemo(() => {
+  return useMemo(() => {
     if (interval <= 0 || valRange <= 0) {
       return [];
     }
@@ -159,6 +158,28 @@ const LiveYAxisInner = memo(function LiveYAxisInner({
     valRange,
     allowDecimals,
   ]);
+}
+
+export function LiveYAxis(props: LiveYAxisProps) {
+  const { containerRef } = useChartStable();
+
+  const container = useChartPortalContainer(containerRef);
+  if (!container) {
+    return null;
+  }
+
+  return <LiveYAxisInner {...props} container={container} />;
+}
+
+const LiveYAxisInner = memo(function LiveYAxisInner({
+  minGap = 36,
+  position = "left",
+  formatValue = (v: number) => v.toFixed(2),
+  allowDecimals = true,
+  container,
+}: LiveYAxisProps & { container: HTMLDivElement }) {
+  const { yScale, margin, innerHeight } = useChartStable();
+  const stableTickValues = useLiveYAxisTickValues({ minGap, allowDecimals });
 
   // Pixel positions update every frame for smooth movement
   const tickData = useMemo(

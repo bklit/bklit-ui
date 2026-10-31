@@ -145,7 +145,29 @@ Use **`ChartTooltip`** with **`showDatePill={false}`** and a custom **`content`*
 
 ### Grid with Live Charts
 
-If you use **Grid** inside `LiveLineChart`, you can pass **`rowTickValues`** (from context or derived from the same scale as `LiveYAxis`) so horizontal grid lines align with the Y-axis labels. See the [Grid](/docs/utility/grid) docs for `rowTickValues`.
+If you use **Grid** inside `LiveLineChart`, pass it the tick values `LiveYAxis` labels so horizontal grid lines align with the Y-axis labels. **`useLiveYAxisTickValues()`** returns them (it takes the same `minGap` and `allowDecimals` options as `LiveYAxis`); trim them to the visible domain, because the axis keeps ticks just past the edges to fade them in and out:
+
+```tsx
+import { Grid, useLiveYAxisTickValues, useYScale } from "@bklitui/ui/charts";
+
+function LiveGridRows() {
+  const yScale = useYScale();
+  const [min, max] = yScale.domain() as [number, number];
+  const rowTickValues = useLiveYAxisTickValues().filter(
+    (v) => v >= min && v <= max
+  );
+  return <Grid horizontal rowTickValues={rowTickValues} />;
+}
+
+<LiveLineChart data={data} value={value}>
+  <LiveGridRows />
+  <LiveLine dataKey="value" />
+  <LiveXAxis />
+  <LiveYAxis />
+</LiveLineChart>
+```
+
+See **Live Line - Grid** on the [live line chart gallery](/charts/live-line-chart) and the [Grid](/docs/utility/grid) docs for `rowTickValues`.
 
 ### Background
 
