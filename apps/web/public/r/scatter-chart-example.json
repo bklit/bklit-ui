@@ -7,8 +7,7 @@
   "dependencies": [
     "d3-scale",
     "d3-array",
-    "motion",
-    "react-use-measure"
+    "motion"
   ],
   "registryDependencies": [
     "@bklit/scatter-chart",

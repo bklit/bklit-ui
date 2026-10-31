@@ -179,7 +179,7 @@ const EXAMPLES = {
       "@bklit/x-axis",
       "@bklit/chart-tooltip",
     ],
-    dependencies: ["d3-scale", "d3-array", "motion", "react-use-measure"],
+    dependencies: ["d3-scale", "d3-array", "motion"],
     importFrom: "ScatterChart, Scatter, Grid, XAxis, ChartTooltip",
     data: `const chartData = [
   { date: new Date("2024-01-01"), sessions: 420, conversions: 28 },
