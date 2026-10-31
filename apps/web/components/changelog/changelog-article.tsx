@@ -2,6 +2,7 @@ import defaultMdxComponents from "fumadocs-ui/mdx";
 import Link from "next/link";
 import type { ComponentProps } from "react";
 import { ChangelogImage } from "@/components/changelog/changelog-image";
+import { DocsTable } from "@/components/docs/docs-table";
 import type { ChangelogEntry } from "@/lib/changelog";
 import { formatChangelogDate } from "@/lib/changelog-format";
 
@@ -64,6 +65,7 @@ export function ChangelogArticle({
             h2: ArticleH2,
             h3: ArticleH3,
             img: ArticleImage,
+            table: DocsTable,
             ChangelogImage,
           }}
         />
