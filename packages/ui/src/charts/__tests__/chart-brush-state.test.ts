@@ -8,6 +8,10 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { Brush } from "@visx/brush";
 import { scaleLinear, scaleTime } from "d3-scale";
+import { type ComponentType, createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { ChartBrushInteraction } from "../chart-brush";
+import { renderChartBrushHandle } from "../chart-brush-handle";
 import {
   type BrushExtent,
   type BrushInitialPosition,
@@ -21,7 +25,6 @@ import {
   createBrushState,
   dragBrush,
   endBrush,
-  hitTestBrushTrack,
   idleBrushState,
 } from "../chart-brush-state";
 
@@ -358,23 +361,6 @@ describe("chart brush matches @visx/brush", () => {
   }
 });
 
-describe("hitTestBrushTrack", () => {
-  const extent = { x0: 100, x1: 300, y0: 0, y1: HEIGHT };
-
-  it("moves inside the selection and selects outside it", () => {
-    assert.equal(hitTestBrushTrack({ x: 200, y: 30 }, extent), "move");
-    assert.equal(hitTestBrushTrack({ x: 99, y: 30 }, extent), "select");
-    assert.equal(hitTestBrushTrack({ x: 300.4, y: 30 }, extent, 0.5), "move");
-  });
-
-  it("never moves an empty or zero-width selection", () => {
-    const empty = { x0: -1, x1: -1, y0: -1, y1: -1 };
-    assert.equal(hitTestBrushTrack({ x: -1, y: -1 }, empty), "select");
-    const zero = { x0: 150, x1: 150, y0: 0, y1: HEIGHT };
-    assert.equal(hitTestBrushTrack({ x: 150, y: 30 }, zero), "select");
-  });
-});
-
 describe("brushHandleRects", () => {
   it("centres handle-size rects on each edge, left drawn last", () => {
     assert.deepStrictEqual(
@@ -385,4 +371,51 @@ describe("brushHandleRects", () => {
       ]
     );
   });
+});
+
+describe("brush markup matches @visx/brush BaseBrush", () => {
+  const style = {
+    fill: "transparent",
+    fillOpacity: 0,
+    stroke: "var(--chart-brush-border)",
+    strokeWidth: 1,
+  };
+  for (const initial of [undefined, INITIAL]) {
+    it(initial ? "with an initial selection" : "empty", () => {
+      const visx = renderToStaticMarkup(
+        createElement(
+          Brush as unknown as ComponentType<Record<string, unknown>>,
+          {
+            xScale,
+            yScale,
+            width: WIDTH,
+            height: HEIGHT,
+            margin: MARGIN,
+            brushDirection: "horizontal",
+            handleSize: 8,
+            initialBrushPosition: initial,
+            renderBrushHandle: renderChartBrushHandle,
+            selectedBoxStyle: style,
+            useWindowMoveEvents: true,
+          }
+        )
+      );
+      const bklit = renderToStaticMarkup(
+        createElement(ChartBrushInteraction, {
+          xScale,
+          width: WIDTH,
+          height: HEIGHT,
+          brushDirection: "horizontal",
+          handleSize: 8,
+          initialBrushPosition: initial,
+          startMargin: MARGIN,
+          moveMode: "window",
+          selectedBoxStyle: style,
+          onChange: () => undefined,
+          onBrushEnd: () => undefined,
+        })
+      );
+      assert.equal(bklit, visx);
+    });
+  }
 });

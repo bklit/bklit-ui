@@ -375,29 +375,6 @@ export function brushHandleRects(
   ];
 }
 
-/**
- * Which drag a pointer down on the track hit rect starts: `move` inside the
- * drawn selection (visx's selection rect sits above the overlay), otherwise
- * `select`. A zero-size selection is not hittable (SVG does not render it).
- * `strokePad` is half the selection stroke width (the stroke is hittable too).
- */
-export function hitTestBrushTrack(
-  point: BrushPoint,
-  extent: BrushExtent,
-  strokePad = 0
-): "move" | "select" {
-  const rect = brushSelectionRect(extent);
-  if (rect.width <= 0 || rect.height <= 0) {
-    return "select";
-  }
-  const inside =
-    point.x >= rect.x - strokePad &&
-    point.x <= rect.x + rect.width + strokePad &&
-    point.y >= rect.y - strokePad &&
-    point.y <= rect.y + rect.height + strokePad;
-  return inside ? "move" : "select";
-}
-
 export interface BrushDomainBounds {
   x0: number;
   x1: number;

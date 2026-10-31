@@ -2,6 +2,7 @@
 
 import type React from "react";
 import {
+  Fragment,
   memo,
   useCallback,
   useEffect,
@@ -21,8 +22,8 @@ import {
 import {
   type BrushDirection,
   type BrushDomainBounds,
-  type BrushHandleType,
   type BrushInitialPosition,
+  type BrushingType,
   type BrushMoveMode,
   type BrushPoint,
   type BrushState,
@@ -34,7 +35,6 @@ import {
   createBrushState,
   dragBrush,
   endBrush,
-  hitTestBrushTrack,
   idleBrushState,
 } from "./chart-brush-state";
 import {
@@ -74,8 +74,6 @@ interface BrushInteractionProps {
   initialBrushPosition?: BrushInitialPosition;
   /** Offset subtracted from the SVG pointer position when a selection starts. */
   startMargin: BrushMargin;
-  /** Real plot margin, for hit-testing the track in plot coordinates. */
-  plotMargin: BrushMargin;
   moveMode: BrushMoveMode;
   selectedBoxStyle: React.SVGProps<SVGRectElement>;
   onChange: (bounds: Bounds | null) => void;
@@ -104,26 +102,14 @@ function toDomain(state: BrushState, scale: unknown): Bounds | null {
   return brushExtentToDomain(state.extent, scaleInverter(scale));
 }
 
-/** Cursor on the captured track rect while dragging. */
-function trackDragCursor(state: BrushState, direction: BrushDirection): string {
-  if (state.brushingType === "move") {
-    return "move";
-  }
-  // visx: once a new selection has an extent the pointer sits on its moving
-  // edge, where the handle hit rect shows `ew-resize`.
-  if (direction !== "vertical" && state.extent.x0 >= 0) {
-    return "ew-resize";
-  }
-  return "crosshair";
-}
-
 /**
  * Hand-written replacement for `@visx/brush` `Brush`: one transparent hit rect
  * for the track (draw a new selection, or move the current one), the visible
  * selection rect, and the two edge handles. Pointer capture replaces visx's
  * window listeners; `chart-brush-state.ts` holds the parity rules.
  */
-const ChartBrushInteraction = memo(function ChartBrushInteraction({
+/** @internal Exported for the visx markup parity test only. */
+export const ChartBrushInteraction = memo(function ChartBrushInteraction({
   xScale,
   width,
   height,
@@ -131,7 +117,6 @@ const ChartBrushInteraction = memo(function ChartBrushInteraction({
   handleSize,
   initialBrushPosition,
   startMargin,
-  plotMargin,
   moveMode,
   selectedBoxStyle,
   onChange,
@@ -164,34 +149,9 @@ const ChartBrushInteraction = memo(function ChartBrushInteraction({
     []
   );
 
-  const strokePad =
-    typeof selectedBoxStyle.strokeWidth === "number"
-      ? selectedBoxStyle.strokeWidth / 2
-      : 0;
-
-  const hitTestTrack = useCallback(
-    (point: BrushPoint) =>
-      hitTestBrushTrack(
-        { x: point.x - plotMargin.left, y: point.y - plotMargin.top },
-        stateRef.current.extent,
-        strokePad
-      ),
-    [plotMargin.left, plotMargin.top, strokePad]
-  );
-
   const commitState = useCallback((next: BrushState) => {
     stateRef.current = next;
     setState(next);
-    const drag = dragRef.current;
-    if (
-      drag &&
-      drag.target instanceof SVGRectElement &&
-      drag.target.classList.contains("visx-brush-overlay")
-    ) {
-      drag.target.style.cursor = next.isBrushing
-        ? trackDragCursor(next, latestRef.current.stage.direction)
-        : "crosshair";
-    }
   }, []);
 
   const startDrag = useCallback(
@@ -219,27 +179,28 @@ const ChartBrushInteraction = memo(function ChartBrushInteraction({
     [commitState, onChange, xScale]
   );
 
-  const handleTrackPointerDown = useCallback(
+  // Which drag starts is decided by DOM hit-testing, as in visx: the overlay
+  // draws a new selection, the selection rect moves it, a handle resizes.
+  const handleOverlayPointerDown = useCallback(
     (event: React.PointerEvent<SVGRectElement>) => {
       if (dragRef.current) {
         return;
       }
       const point = localPoint(event) ?? { x: 0, y: 0 };
-      const current = stateRef.current;
-      const next =
-        hitTestTrack(point) === "move"
-          ? beginBrushDrag(current, "move")
-          : beginBrushSelect(current, {
-              x: point.x - startMargin.left,
-              y: point.y - startMargin.top,
-            });
+      const next = beginBrushSelect(stateRef.current, {
+        x: point.x - startMargin.left,
+        y: point.y - startMargin.top,
+      });
       startDrag(event, next, point);
     },
-    [hitTestTrack, startDrag, startMargin.left, startMargin.top]
+    [startDrag, startMargin.left, startMargin.top]
   );
 
-  const handleHandlePointerDown = useCallback(
-    (type: BrushHandleType, event: React.PointerEvent<SVGGElement>) => {
+  const handleDragPointerDown = useCallback(
+    (
+      type: Exclude<BrushingType, "select">,
+      event: React.PointerEvent<Element>
+    ) => {
       if (dragRef.current) {
         return;
       }
@@ -266,16 +227,7 @@ const ChartBrushInteraction = memo(function ChartBrushInteraction({
   const handlePointerMove = useCallback(
     (event: React.PointerEvent<Element>) => {
       const drag = dragRef.current;
-      if (!drag) {
-        // Hover cursor on the track: `move` over the selection.
-        if (event.currentTarget instanceof SVGRectElement) {
-          const point = localPoint(event) ?? { x: 0, y: 0 };
-          event.currentTarget.style.cursor =
-            hitTestTrack(point) === "move" ? "move" : "crosshair";
-        }
-        return;
-      }
-      if (event.pointerId !== drag.pointerId) {
+      if (!drag || event.pointerId !== drag.pointerId) {
         return;
       }
       if (moveMode === "local") {
@@ -300,7 +252,7 @@ const ChartBrushInteraction = memo(function ChartBrushInteraction({
         });
       }, WINDOW_MOVE_DEBOUNCE_MS);
     },
-    [applyOffset, hitTestTrack, moveMode]
+    [applyOffset, moveMode]
   );
 
   const handlePointerEnd = useCallback(
@@ -337,71 +289,95 @@ const ChartBrushInteraction = memo(function ChartBrushInteraction({
     [commitState, moveMode, onBrushEnd, onChange, xScale]
   );
 
-  const handleTrackDoubleClick = useCallback(
-    (event: React.MouseEvent<SVGRectElement>) => {
-      // visx resets on a double-click of the overlay, not of the selection.
-      const point = localPoint(event) ?? { x: 0, y: 0 };
-      if (hitTestTrack(point) === "move") {
-        return;
-      }
-      const next = idleBrushState();
-      commitState(next);
-      onChange(toDomain(next, xScale));
-    },
-    [commitState, hitTestTrack, onChange, xScale]
-  );
+  // visx resets on a double-click of the overlay (not the selection).
+  const handleOverlayDoubleClick = useCallback(() => {
+    const next = idleBrushState();
+    commitState(next);
+    onChange(toDomain(next, xScale));
+  }, [commitState, onChange, xScale]);
 
   const selection = brushSelectionRect(state.extent);
   const isBrushActive = state.extent.x0 !== -1 && state.extent.x1 !== -1;
+  const { brushingType } = state;
+  const selectionLocked = state.isBrushing || state.activeHandle !== null;
+  const fill = "transparent";
 
+  // Same tree as visx 4.0.0 BaseBrush (Group > overlay Drag, BrushSelection,
+  // right / left BrushHandle), including the transparent "dragging" rects
+  // each @visx/drag <Drag> adds while its drag is in progress. Moves and
+  // pointer-up reach the group through pointer capture on the pressed target.
   return (
-    // Class names kept from the visx markup (CSS / test hooks).
-    <g className="visx-group visx-brush" transform="translate(0, 0)">
-      {/* biome-ignore lint/a11y/noStaticElementInteractions: brush track pointer area */}
+    <g
+      className="visx-group visx-brush"
+      onLostPointerCapture={handlePointerEnd}
+      onPointerCancel={handlePointerEnd}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerEnd}
+      transform="translate(0, 0)"
+    >
+      {/* Attribute objects keep visx's attribute order in the DOM. */}
+      {brushingType === "select" ? <rect {...{ width, height, fill }} /> : null}
       <rect
-        className="visx-bar visx-brush-overlay"
-        fill="transparent"
-        height={height}
-        onDoubleClick={handleTrackDoubleClick}
-        onLostPointerCapture={handlePointerEnd}
-        onPointerCancel={handlePointerEnd}
-        onPointerDown={handleTrackPointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerEnd}
-        style={{ cursor: "crosshair", touchAction: "none" }}
-        width={width}
-        x={0}
-        y={0}
+        {...{
+          className: "visx-bar visx-brush-overlay",
+          fill,
+          x: 0,
+          y: 0,
+          width,
+          height,
+          onDoubleClick: handleOverlayDoubleClick,
+          onPointerDown: handleOverlayPointerDown,
+          style: { cursor: "crosshair" },
+        }}
       />
-      <rect
-        className="visx-brush-selection"
-        height={selection.height}
-        width={selection.width}
-        x={selection.x}
-        y={selection.y}
-        {...selectedBoxStyle}
-        pointerEvents="none"
-        style={{ ...selectedBoxStyle.style, pointerEvents: "none" }}
-      />
+      {brushingType === "move" ? (
+        <rect {...{ width: selection.width, height: selection.height, fill }} />
+      ) : null}
+      <g>
+        {brushingType === "move" ? (
+          <rect {...{ width, height, fill, style: { cursor: "move" } }} />
+        ) : null}
+        <rect
+          {...{
+            ...selection,
+            className: "visx-brush-selection",
+            onPointerDown: (event: React.PointerEvent<SVGRectElement>) =>
+              handleDragPointerDown("move", event),
+            style: {
+              pointerEvents: selectionLocked ? "none" : "all",
+              cursor: "move",
+            },
+            ...selectedBoxStyle,
+          }}
+        />
+      </g>
       {brushHandleRects(state.extent, handleSize, height).map((handle) => (
-        <g
-          key={`handle-${handle.type}`}
-          onLostPointerCapture={handlePointerEnd}
-          onPointerCancel={handlePointerEnd}
-          onPointerDown={(event) => handleHandlePointerDown(handle.type, event)}
-          onPointerMove={handlePointerMove}
-          onPointerUp={handlePointerEnd}
-          style={{ touchAction: "none" }}
-        >
-          {renderChartBrushHandle({
-            x: handle.x,
-            y: handle.y,
-            width: handle.width,
-            height: handle.height,
-            className: `visx-brush-handle-${handle.type}`,
-            isBrushActive,
-          })}
-        </g>
+        <Fragment key={`handle-${handle.type}`}>
+          {brushingType === handle.type ? (
+            <rect {...{ width, height, fill }} />
+          ) : null}
+          <g>
+            {brushingType === handle.type ? (
+              <rect
+                {...{ fill, width, height, style: { cursor: "ew-resize" } }}
+              />
+            ) : null}
+            <g
+              onPointerDown={(event) =>
+                handleDragPointerDown(handle.type, event)
+              }
+            >
+              {renderChartBrushHandle({
+                x: handle.x,
+                y: handle.y,
+                width: handle.width,
+                height: handle.height,
+                className: `visx-brush-handle-${handle.type}`,
+                isBrushActive,
+              })}
+            </g>
+          </g>
+        </Fragment>
       ))}
     </g>
   );
@@ -600,7 +576,6 @@ const ChartBrushInner = memo(function ChartBrushInner({
         moveMode={useWindowMoveEvents ? "window" : "local"}
         onBrushEnd={handleBrushCommit}
         onChange={handleBrushPreview}
-        plotMargin={margin}
         selectedBoxStyle={selectedBoxStyle ?? DEFAULT_SELECTED_BOX_STYLE}
         startMargin={useWindowMoveEvents ? margin : ZERO_MARGIN}
         width={innerWidth}
