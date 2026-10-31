@@ -1,0 +1,405 @@
+---
+title: Upgrading from visx
+description: Move charts installed from the registry off visx and onto the d3-based version, with a one-shot AI prompt, manual steps, and a per-chart checklist.
+---
+
+Bklit charts no longer use visx. They now call d3 directly (`d3-shape`, `d3-scale`, `d3-geo`, `d3-sankey`), with small Bklit-owned files for the parts visx used to render. Props, markup, animations, and hover behaviour are unchanged. See the [changelog entry](/changelog/2026-10-31-built-on-d3) for what changed and why.
+
+Charts installed with `npx shadcn@latest add @bklit/<chart>` are copied into your project, so they don't update on their own. To upgrade, add them again:
+
+- **You never edited the chart files:** re-add each chart with `--overwrite`, then remove the old packages. That's it.
+- **You edited the chart files, or import visx in your own code:** re-add the charts, re-apply your edits, and update the imports and CSS listed below. The [AI prompt](#upgrade-with-an-ai-agent) does all of this for you.
+
+## What changed
+
+| Before (visx) | Now |
+| --- | --- |
+| Curves from `@visx/curve` | Same curve names from `d3-shape` |
+| `LinearGradient`, `RadialGradient`, gradient presets from `@visx/gradient` | Same API from `components/charts/gradients.tsx` (registry item `@bklit/gradients`) |
+| Scales from `@visx/scale` | `d3-scale` chains; scale types from `d3-scale` |
+| `visx-*` class names on lines, areas, grid lines, heatmap cells, and pie, ring and radar groups | No class names. The brush, the choropleth graticule, and patterns keep theirs |
+| Choropleth `TransformMatrix` from `@visx/zoom` | Local type with the same fields, exported from `components/charts/choropleth` |
+| Tooltip panel snaps to its new size | Panel springs to its new size with Motion. Turn it off with `animateSize={false}` on `ChartTooltip` |
+| Up to 12 `@visx/*` packages, plus `react-use-measure` in some installs | Only the d3 modules each chart uses |
+
+## Upgrade with an AI agent
+
+Paste this prompt into Claude Code, Cursor, Codex, or another coding agent, from the root of your project. It finds your installed charts, re-adds them, keeps your edits, fixes imports and CSS, cleans up dependencies, and checks the build. Commit your work first so you can review the result as a diff.
+
+```text
+Upgrade the Bklit UI charts in this project from the old visx-based version to the new d3-based version. The chart source was copied into this repo by the shadcn CLI from the @bklit registry, so it may contain local edits that must survive the upgrade. Guide: https://bklit.com/docs/upgrading-from-visx
+
+What changed upstream: charts no longer use visx. Curves come from d3-shape, scales from d3-scale, LinearGradient / RadialGradient / gradient presets from a new @bklit/gradients item (components/charts/gradients.tsx), and lines, areas, grid lines, heatmap cells and pie/ring/radar groups no longer render visx-* class names. Props and markup are otherwise unchanged.
+
+1. Prepare
+- If the git working tree is not clean, stop and ask me to commit or stash.
+- Detect the package manager from the lockfile and use it for every command (runner: npx for npm and yarn, pnpm dlx for pnpm, bunx --bun for bun).
+- Read components.json. If "registries" has no "@bklit" entry, add "@bklit": "https://ui.bklit.com/r/{name}.json". Resolve aliases.components to a folder (via tsconfig paths); the charts live in <components>/charts/. Call that alias <alias> below (usually @/components).
+
+2. Find the installed charts. Map files in <components>/charts/ to registry items:
+- area-chart.tsx -> @bklit/area-chart
+- bar-chart.tsx -> @bklit/bar-chart
+- candlestick-chart.tsx -> @bklit/candlestick-chart
+- choropleth/choropleth-chart.tsx -> @bklit/choropleth-chart
+- composed-chart.tsx -> @bklit/composed-chart
+- funnel-chart.tsx -> @bklit/funnel-chart
+- gauge.tsx -> @bklit/gauge-chart
+- heatmap/heatmap-chart.tsx -> @bklit/heatmap-chart
+- line-chart.tsx -> @bklit/line-chart
+- live-line-chart.tsx -> @bklit/live-line-chart
+- pie-chart.tsx -> @bklit/pie-chart
+- profit-loss-line.tsx -> @bklit/profit-loss-line
+- radar-chart.tsx -> @bklit/radar-chart
+- radial-chart.tsx -> @bklit/radial-chart
+- ring-chart.tsx -> @bklit/ring-chart
+- sankey/sankey-chart.tsx -> @bklit/sankey-chart
+- scatter-chart.tsx -> @bklit/scatter-chart
+- sparkline.tsx -> @bklit/sparkline
+- sunburst-chart.tsx -> @bklit/sunburst-chart
+- bar-depth.tsx -> @bklit/bar-depth
+Other files (chart-context.tsx, grid.tsx, tooltip/, legend/, markers/, patterns/, x-axis.tsx, ...) are shared items that re-adding a chart reinstalls; only add them by name if no chart above is installed. Never re-add *-example items or stat-card-* blocks: they write app/page.tsx, data/ and components/charts/index.ts. Fix those files in place in step 5.
+
+3. Record my edits. For each file in <components>/charts/ and lib/utils.ts, find the commit that first added it (git log --diff-filter=A --format=%H -- <file> | tail -1) and save git diff <that commit> HEAD -- <file>. Those diffs are my customisations. Note files with no history as "unknown".
+
+4. Re-add. Run one command with every chart from step 2:
+<runner> shadcn@latest add @bklit/<chart> @bklit/<chart> ... --overwrite --yes
+Then check git diff --stat:
+- Re-apply each customisation from step 3 on top of the new files, translating visx code with the mapping in step 5. If one no longer applies cleanly, leave it out and list it in the report.
+- If the CLI overwrote a file outside <components>/charts/ and removed my code (for example extra helpers in lib/utils.ts), restore my version and keep only the additions the charts need.
+
+5. Rewrite remaining visx imports everywhere in the project (app/, src/, components/, lib/; not node_modules):
+- @visx/curve -> d3-shape (same names, e.g. curveMonotoneX, curveNatural).
+- @visx/gradient -> LinearGradient, RadialGradient, Gradient* presets from "<alias>/charts/gradients" (same props). If that file is missing, add @bklit/gradients.
+- @visx/scale -> d3-scale: scaleLinear({ domain, range, nice: true }) becomes scaleLinear().domain(domain).nice().range(range); same for scaleTime and scaleBand. Types like ReturnType<typeof scaleLinear<number>> become ScaleLinear<number, number> from d3-scale.
+- @visx/shape: LinePath / AreaClosed -> linePathD / areaClosedD and <LinePath d={...} /> from "<alias>/charts/line-path", or line() / area() from d3-shape. arc -> arc() from d3-shape. LineRadial -> lineRadial() from d3-shape.
+- @visx/group <Group left={x} top={y}> -> <g transform={`translate(${x}, ${y})`}>.
+- @visx/event localPoint -> localPoint from "<alias>/charts/local-point".
+- @visx/responsive ParentSize / useParentSize -> ParentSize / useElementSize from "<alias>/charts/chart-parent-size".
+- @visx/grid GridRows / GridColumns -> GridRows / GridColumns from "<alias>/charts/grid-lines".
+- @visx/heatmap HeatmapRect -> heatmapRectCells from "<alias>/charts/heatmap/heatmap-rect-cells".
+- @visx/geo Mercator / Graticule -> geoMercator / geoPath / geoGraticule from d3-geo.
+- @visx/zoom TransformMatrix -> TransformMatrix from "<alias>/charts/choropleth". useChoroplethZoom().zoom no longer has handlePinch.
+- @visx/sankey -> d3-sankey (same names).
+- react-use-measure -> useElementSize from "<alias>/charts/chart-parent-size" or a ResizeObserver.
+
+6. CSS. Search stylesheets, className strings and querySelector calls for visx- selectors. Lines, areas, grid lines, heatmap cells and pie/ring/radar groups no longer render .visx-linepath, .visx-area-closed, .visx-rows, .visx-columns, .visx-line, .visx-heatmap-rect, .visx-heatmap-rects, .visx-line-radial or .visx-group. Replace those rules with chart props (stroke, strokeWidth, strokeOpacity, fill, ...), the --chart-* CSS variables, or a className on the chart root plus a descendant selector (.chart-grid line for grid lines). Keep .visx-brush-*, .visx-geo-graticule, .visx-group on the brush and graticule, and .visx-pattern-*: they are still rendered. Do not rename visx-pattern.tsx.
+
+7. Dependencies. Remove from package.json every @visx/* package, @use-gesture/react, @use-gesture/core and react-use-measure that nothing imports any more (search first). Make sure every d3 module imported anywhere (d3-shape, d3-scale, d3-array, d3-geo, d3-sankey) is in dependencies. In a TypeScript project, add the matching @types/d3-* packages as devDependencies if TypeScript reports a missing declaration file. Reinstall.
+
+8. Verify. Run the project's typecheck (its typecheck script or tsc --noEmit), lint and build, and fix errors caused by the upgrade. Search again for "@visx/" and "react-use-measure" outside node_modules and lockfiles; expect no results.
+
+9. Report: the charts re-added; each customisation re-applied (file and one line); customisations I need to review; CSS selectors changed; packages removed and added; typecheck, lint and build results. Do not commit.
+```
+
+## Upgrade by hand
+
+### 1. Save your edits
+
+Start from a clean git tree. If you changed any file under `components/charts/` since installing it, keep a copy of the diff so you can re-apply it:
+
+```bash
+git status
+# For each file you edited:
+git log --diff-filter=A --format=%H -- components/charts/line.tsx | tail -1
+git diff <that-commit> HEAD -- components/charts/line.tsx > line.patch
+```
+
+To preview what re-adding would change without writing files, use `--diff`:
+
+```bash
+npx shadcn@latest add @bklit/line-chart --diff
+```
+
+### 2. Re-add your charts
+
+Re-add every chart you have installed in one command. `--overwrite` replaces existing files and `--yes` skips the prompts:
+
+```bash
+npx shadcn@latest add @bklit/line-chart @bklit/area-chart @bklit/bar-chart --overwrite --yes
+```
+
+Use `pnpm dlx shadcn@latest`, `bunx --bun shadcn@latest`, or `npx shadcn@latest` with yarn. Each chart reinstalls the shared items it depends on (`@bklit/chart-context`, `@bklit/grid`, `@bklit/chart-tooltip`, …), and area, bar and line charts now also install `@bklit/gradients`.
+
+Don't re-add `*-example` items or `stat-card-*` blocks. They write `app/page.tsx`, sample data and `components/charts/index.ts`, which are your files now. Update their imports by hand (step 3).
+
+Check `git diff --stat`. The CLI also writes `lib/utils.ts` (the `cn` helper). If you keep other helpers there, restore them.
+
+### 3. Re-apply edits and update imports
+
+Re-apply your saved diffs, then search the project for anything still importing visx:
+
+```bash
+grep -rn "@visx/\|react-use-measure" --include="*.ts" --include="*.tsx" . --exclude-dir=node_modules
+```
+
+Rewrite each match with the [before and after](#before-and-after) snippets below.
+
+### 4. Update CSS that targets visx classes
+
+```bash
+grep -rn "visx-" --include="*.css" --include="*.scss" --include="*.tsx" . --exclude-dir=node_modules
+```
+
+Replace rules for lines, areas, grid lines, heatmap cells, and pie, ring and radar groups. See [Class names](#class-names) for what to use instead. Leave `visx-brush-*`, `visx-geo-graticule` and `visx-pattern-*` alone.
+
+### 5. Remove the old packages
+
+Remove the packages that nothing imports any more. Only list the ones in your `package.json`; pnpm, yarn and bun fail on packages that aren't installed.
+
+```bash
+# npm
+npm uninstall @visx/curve @visx/event @visx/geo @visx/gradient @visx/grid @visx/group @visx/heatmap @visx/responsive @visx/sankey @visx/scale @visx/shape @visx/zoom react-use-measure
+
+# pnpm
+pnpm remove @visx/curve @visx/event @visx/geo @visx/gradient @visx/grid @visx/group @visx/heatmap @visx/responsive @visx/sankey @visx/scale @visx/shape @visx/zoom react-use-measure
+
+# yarn
+yarn remove @visx/curve @visx/event @visx/geo @visx/gradient @visx/grid @visx/group @visx/heatmap @visx/responsive @visx/sankey @visx/scale @visx/shape @visx/zoom react-use-measure
+
+# bun
+bun remove @visx/curve @visx/event @visx/geo @visx/gradient @visx/grid @visx/group @visx/heatmap @visx/responsive @visx/sankey @visx/scale @visx/shape @visx/zoom react-use-measure
+```
+
+Remove `@use-gesture/react` and `@use-gesture/core` too if you added them yourself. They were only pulled in by `@visx/zoom`.
+
+The re-add in step 2 installs the d3 modules the charts use. If TypeScript reports a missing declaration file for one of them, add its types:
+
+```bash
+npm install -D @types/d3-shape @types/d3-scale @types/d3-array
+```
+
+Add `@types/d3-geo` for the choropleth and `@types/d3-sankey` for the sankey chart.
+
+### 6. Verify
+
+Run your typecheck and build, then open each chart page. The charts should look and animate exactly as before.
+
+```bash
+npx tsc --noEmit
+npm run build
+```
+
+## Before and after
+
+### Curves
+
+```tsx
+// Before
+import { curveMonotoneX } from "@visx/curve";
+
+// After
+import { curveMonotoneX } from "d3-shape";
+
+<Line dataKey="revenue" curve={curveMonotoneX} />
+```
+
+### Gradients
+
+`LinearGradient`, `RadialGradient`, and the presets (`GradientPinkBlue`, `GradientTealBlue`, …) have the same names, props and defaults.
+
+```tsx
+// Before
+import { LinearGradient } from "@visx/gradient";
+
+// After
+import { LinearGradient } from "@/components/charts/gradients";
+
+<BarChart data={data}>
+  <LinearGradient id="bar-fill" from="var(--chart-1)" to="var(--chart-1)" toOpacity={0.12} />
+  <Bar dataKey="revenue" fill="url(#bar-fill)" stroke="var(--chart-1)" />
+</BarChart>
+```
+
+Area, bar and line charts install `@bklit/gradients` for you. For a pie, ring or gauge, add it once:
+
+```bash
+npx shadcn@latest add @bklit/gradients
+```
+
+### Scales
+
+```tsx
+// Before
+import { scaleLinear } from "@visx/scale";
+
+const y = scaleLinear({ domain: [0, max], range: [height, 0], nice: true });
+type Y = ReturnType<typeof scaleLinear<number>>;
+
+// After
+import { type ScaleLinear, scaleLinear } from "d3-scale";
+
+const y = scaleLinear().domain([0, max]).nice().range([height, 0]);
+type Y = ScaleLinear<number, number>;
+```
+
+The chart context (`useChart()`) now hands you `d3-scale` scales. They have the same methods as before.
+
+### Lines and areas in custom layers
+
+```tsx
+// Before
+import { LinePath } from "@visx/shape";
+
+<LinePath data={data} x={(d) => x(d.date)} y={(d) => y(d.value)} curve={curveNatural} stroke="var(--chart-1)" />
+
+// After
+import { curveNatural } from "d3-shape";
+import { LinePath, linePathD } from "@/components/charts/line-path";
+
+const d = linePathD(data, { x: (d) => x(d.date), y: (d) => y(d.value), curve: curveNatural });
+<LinePath d={d} stroke="var(--chart-1)" />
+```
+
+`areaClosedD` replaces `AreaClosed` and closes the area at the bottom of the y range by default. You can also call `line()` and `area()` from `d3-shape` directly.
+
+### Groups, pointer position and sizing
+
+```tsx
+// Before
+import { Group } from "@visx/group";
+import { localPoint } from "@visx/event";
+import { ParentSize } from "@visx/responsive";
+
+<Group left={left} top={top}>{children}</Group>
+
+// After
+import { localPoint } from "@/components/charts/local-point";
+import { ParentSize } from "@/components/charts/chart-parent-size";
+
+<g transform={`translate(${left}, ${top})`}>{children}</g>
+```
+
+`localPoint` returns `{ x, y }` measured the same way as visx. `ParentSize` takes a render function that receives `{ width, height }`. `useElementSize(ref)` replaces `useParentSize` and `react-use-measure`.
+
+### Choropleth zoom
+
+```tsx
+// Before
+import type { TransformMatrix } from "@visx/zoom";
+
+// After
+import type { TransformMatrix } from "@/components/charts/choropleth";
+
+const initialZoom: TransformMatrix = {
+  scaleX: 1, scaleY: 1, translateX: 0, translateY: 0, skewX: 0, skewY: 0,
+};
+```
+
+`useChoroplethZoom().zoom` keeps the same methods (`scale`, `translate`, `reset`, `center`, `handleWheel`, …) except `handlePinch`. Pinch zoom is handled for you.
+
+### Sankey
+
+```tsx
+// Before
+import type { SankeyNode } from "@visx/sankey";
+
+// After
+import type { SankeyNode } from "d3-sankey";
+```
+
+### Class names
+
+Lines, areas, grid lines, heatmap cells, and the pie, ring and radar groups no longer render these classes:
+
+`visx-linepath`, `visx-area-closed`, `visx-group`, `visx-rows`, `visx-columns`, `visx-line`, `visx-heatmap-rect`, `visx-heatmap-rects`, `visx-line-radial`
+
+Style them with props or CSS variables instead, or put a `className` on the chart and use a descendant selector. The grid keeps its `chart-grid` class.
+
+```css
+/* Before */
+.visx-rows line {
+  stroke-dasharray: 4 4;
+}
+```
+
+Use the prop instead:
+
+```tsx
+<Grid horizontal strokeDasharray="4 4" />
+```
+
+Or scope a selector to your chart:
+
+```tsx
+<LineChart className="revenue-chart" data={data}>
+  {/* … */}
+</LineChart>
+```
+
+```css
+.revenue-chart .chart-grid line {
+  stroke-dasharray: 4 4;
+}
+```
+
+These classes are still rendered, so rules that target them keep working: `visx-brush-*` and `visx-group` on the brush, `visx-geo-graticule` on the choropleth graticule, and `visx-pattern-*` on [patterns](/docs/utility/background). The bar chart's `visx-pattern.tsx` file keeps its name.
+
+### Tooltip size
+
+The tooltip panel now springs to its new size when its rows change. To keep the old snap:
+
+```tsx
+<ChartTooltip animateSize={false} />
+```
+
+It is already off under reduced motion and with `damping={0}`.
+
+## Which charts to check
+
+**Re-add** means re-adding is enough unless you import visx in your own code. **Re-apply edits** means the chart's own files were rewritten, so check any edits you made to them.
+
+| Chart | What changed | Action |
+| --- | --- | --- |
+| [Area Chart](/docs/components/area-chart) | Curves, gradients (`@bklit/gradients` added), area and line paths drawn with `d3-shape` (no `visx-*` classes), grid classes, scales, tooltip size | Re-add, re-apply edits |
+| [Bar Chart](/docs/components/bar-chart) | Gradients (`@bklit/gradients` added), band and value scales, grid classes, tooltip size | Re-add, re-apply edits |
+| [Candlestick Chart](/docs/components/candlestick-chart) | Scales, grid classes, tooltip size | Re-add, re-apply edits |
+| [Choropleth Chart](/docs/components/choropleth-chart) | Projection and graticule on `d3-geo`, own zoom hook (3 new files), local `TransformMatrix`, no `handlePinch`, tooltip size | Re-add, re-apply edits |
+| [Composed Chart](/docs/components/composed-chart) | Curves, lines, areas and grid via the line and area charts, tooltip size | Re-add, re-apply edits |
+| [Funnel Chart](/docs/components/funnel-chart) | Nothing | None |
+| [Gauge](/docs/components/gauge-chart) | Stale `@visx/responsive` dependency dropped. If you pass `LinearGradient` children, import it from `@bklit/gradients` | None (remove the package) |
+| [Heatmap Chart](/docs/components/heatmap-chart) | Cells built without `@visx/heatmap` (new `heatmap-rect-cells.ts`, no `visx-heatmap-*` classes), scales, sizing via `@bklit/chart-parent-size`, tooltip size | Re-add, re-apply edits |
+| [Line Chart](/docs/components/line-chart) | Curves, line paths drawn with `d3-shape` (no `visx-linepath`), grid classes, scales, `@bklit/gradients` added, tooltip size | Re-add, re-apply edits |
+| [Profit/Loss Line](/docs/components/profit-loss-line) | Curves, line paths, grid classes, tooltip size | Re-add, re-apply edits |
+| [Live Line Chart](/docs/components/live-line-chart) | Curves, line and area paths, per-frame scales, pointer position, tooltip size | Re-add, re-apply edits |
+| [Pie Chart](/docs/components/pie-chart) | Arcs from `d3-shape` (new `arc-path.ts`), no `visx-group` | Re-add, re-apply edits |
+| [Radar Chart](/docs/components/radar-chart) | Scales and grid from `d3-scale` / `d3-shape`, no `visx-group` or `visx-line-radial` | Re-add, re-apply edits |
+| [Radial Chart](/docs/components/radial-chart) | Nothing | None |
+| [Ring Chart](/docs/components/ring-chart) | Arcs from `d3-shape` (new `arc-path.ts`), no `visx-group` | Re-add, re-apply edits |
+| [Scatter Chart](/docs/components/scatter-chart) | Shared scales, grid classes, tooltip size | Re-add |
+| [Sankey Chart](/docs/components/sankey-chart) | Layout from `d3-sankey`, pointer position, tooltip size | Re-add, re-apply edits |
+| [Sparkline](/docs/components/sparkline) | Shared scales in the chart context | Re-add |
+| [Sunburst Chart](/docs/components/sunburst-chart) | Nothing | None |
+
+Stat card blocks (`stat-card-area-01`, `stat-card-line-01`) only need their curve import changed from `@visx/curve` to `d3-shape`.
+
+## Troubleshooting
+
+### Cannot find module '@visx/…'
+
+Something still imports visx after you removed the packages. It is usually your own code (recipes and older docs examples imported `@visx/curve` and `@visx/gradient`) or a block file. Swap the import using [Before and after](#before-and-after).
+
+### Could not find a declaration file for module 'd3-shape'
+
+The d3 modules don't ship their own types. visx used to bring them in. Install the `@types/d3-*` package for each module you import, for example `npm install -D @types/d3-shape @types/d3-scale`.
+
+### Type errors on scales or the zoom instance
+
+`useChart()` scales are now `d3-scale` types (`ScaleLinear`, `ScaleTime`, `ScaleBand`). Replace `ReturnType<typeof scaleLinear>` types from `@visx/scale` with these. For the choropleth, import `TransformMatrix` from `components/charts/choropleth` and drop any `handlePinch` calls.
+
+### My CSS stopped applying to lines, areas, or the grid
+
+Those rules targeted `visx-*` classes that are no longer rendered. Move them to props such as `stroke`, `strokeWidth` and `strokeDasharray`, to the `--chart-*` variables (see [Theming](/docs/theming)), or to a `className` on the chart. See [Class names](#class-names).
+
+### The tooltip animates when its content changes
+
+That's the new size spring. Set `animateSize={false}` on `ChartTooltip` to turn it off.
+
+### shadcn keeps asking whether to overwrite files
+
+Pass `--overwrite --yes`, or answer each prompt. Without `--overwrite`, existing files are skipped and keep the visx code.
+
+### Do I need to change my chart props?
+
+No. Props, defaults, markup and animations are unchanged. Every documented variant was compared against the visx output before release.
+
+For a fresh install, see [Installation](/docs/installation).
