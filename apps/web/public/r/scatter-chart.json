@@ -88,7 +88,7 @@
     },
     {
       "path": "src/charts/scatter-svg.ts",
-      "content": "/** Map viewport coordinates to SVG user space (no @visx/event). */\nexport function localPointFromSvg(\n  svg: SVGSVGElement | null,\n  clientX: number,\n  clientY: number\n): { x: number; y: number } | null {\n  if (!svg) {\n    return null;\n  }\n\n  const point = svg.createSVGPoint();\n  point.x = clientX;\n  point.y = clientY;\n\n  const matrix = svg.getScreenCTM();\n  if (!matrix) {\n    return null;\n  }\n\n  const transformed = point.matrixTransform(matrix.inverse());\n  return { x: transformed.x, y: transformed.y };\n}\n",
+      "content": "/** Map viewport coordinates to SVG user space. */\nexport function localPointFromSvg(\n  svg: SVGSVGElement | null,\n  clientX: number,\n  clientY: number\n): { x: number; y: number } | null {\n  if (!svg) {\n    return null;\n  }\n\n  const point = svg.createSVGPoint();\n  point.x = clientX;\n  point.y = clientY;\n\n  const matrix = svg.getScreenCTM();\n  if (!matrix) {\n    return null;\n  }\n\n  const transformed = point.matrixTransform(matrix.inverse());\n  return { x: transformed.x, y: transformed.y };\n}\n",
       "type": "registry:component",
       "target": "components/charts/scatter-svg.ts"
     },

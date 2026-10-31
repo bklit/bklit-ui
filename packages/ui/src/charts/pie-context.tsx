@@ -43,7 +43,7 @@ export interface PieData {
   fill?: string;
 }
 
-/** Arc data computed by visx Pie */
+/** Arc data computed by the d3 pie layout */
 export interface PieArcData {
   data: PieData;
   index: number;

@@ -108,8 +108,7 @@ function toDomain(state: BrushState, scale: unknown): Bounds | null {
  * selection rect, and the two edge handles. Pointer capture replaces visx's
  * window listeners; `chart-brush-state.ts` holds the parity rules.
  */
-/** @internal Exported for the visx markup parity test only. */
-export const ChartBrushInteraction = memo(function ChartBrushInteraction({
+const ChartBrushInteraction = memo(function ChartBrushInteraction({
   xScale,
   width,
   height,

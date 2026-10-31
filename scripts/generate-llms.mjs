@@ -10,7 +10,7 @@ const TITLE_RE = /^title:\s*(.+)$/m;
 const DESCRIPTION_RE = /^description:\s*(.+)$/m;
 
 const SUMMARY =
-  "> Bklit UI is an open-source React chart and data-viz component library (Visx, Motion, Tailwind 4) shipped from `packages/ui`, with a Next.js 15 + Fumadocs docs site at `apps/web`. Components install via the shadcn registry (`ui.bklit.com/r/*.json`). The interactive Studio (`/studio`) tunes chart props and records animations; it targets desktop browsers.";
+  "> Bklit UI is an open-source React chart and data-viz component library (d3, Motion, Tailwind 4) shipped from `packages/ui`, with a Next.js 15 + Fumadocs docs site at `apps/web`. Components install via the shadcn registry (`ui.bklit.com/r/*.json`). The interactive Studio (`/studio`) tunes chart props and records animations; it targets desktop browsers.";
 
 const CONTEXT =
   "Documentation source files live under `apps/web/content/docs/` (MDX, Fumadocs). The monorepo uses pnpm and Turborepo. Chart demos are at `/charts/[slug]`; registry JSON is served from `apps/web/public/r/`. The live site serves its own `/llms.txt` (generated from the docs page tree by `apps/web/app/llms.txt/route.ts`); this file links to the MDX sources and is regenerated with `node scripts/generate-llms.mjs`.";

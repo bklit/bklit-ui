@@ -59,8 +59,8 @@ export interface FunnelChartProps {
   /** Gap between segments in pixels. Default 4 */
   gap?: number;
   /**
-   * Render a visx pattern definition. Receives a unique `id` string per segment
-   * and the resolved `color`. Return a `<PatternLines>` (or any visx pattern)
+   * Render an SVG pattern definition. Receives a unique `id` string per segment
+   * and the resolved `color`. Return a `<PatternLines>` (or any pattern)
    * inside an SVG `<defs>`. The component will use `fill="url(#id)"` on the
    * innermost ring while keeping outer halo rings as solid color.
    */

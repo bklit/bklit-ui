@@ -209,7 +209,7 @@ export const CHOROPLETH_VARIANTS: readonly LabVariant[] = [
     label: "Zoom + controls",
     source: `${DOCS}: ChoroplethDemo (also docs/choropleth-zoom-demo.tsx: ChoroplethZoomDemo, which only differs in fill / icons)`,
     exercises:
-      "zoomEnabled (@visx/zoom transform on the feature group), useChoroplethZoom buttons overlay, scale-03 fill; static initial zoom",
+      "zoomEnabled (zoom transform on the feature group), useChoroplethZoom buttons overlay, scale-03 fill; static initial zoom",
     hoverTargets,
     interactions: zoomScript({ buttons: true }),
     render: () => (

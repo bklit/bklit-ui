@@ -88,4 +88,4 @@ This PR adds a **Live Line Chart** component and docs: a real-time, composable c
 
 ## Dependencies
 
-Live Line Chart uses existing chart stack: `@visx/scale`, `@visx/shape`, `@visx/curve`, `@visx/responsive`, `@visx/event`, `d3-array`, `motion`.
+Live Line Chart uses the existing chart stack: `d3-scale`, `d3-shape`, `d3-array`, `motion`.

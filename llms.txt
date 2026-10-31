@@ -1,6 +1,6 @@
 # Bklit UI
 
-> Bklit UI is an open-source React chart and data-viz component library (Visx, Motion, Tailwind 4) shipped from `packages/ui`, with a Next.js 15 + Fumadocs docs site at `apps/web`. Components install via the shadcn registry (`ui.bklit.com/r/*.json`). The interactive Studio (`/studio`) tunes chart props and records animations; it targets desktop browsers.
+> Bklit UI is an open-source React chart and data-viz component library (d3, Motion, Tailwind 4) shipped from `packages/ui`, with a Next.js 15 + Fumadocs docs site at `apps/web`. Components install via the shadcn registry (`ui.bklit.com/r/*.json`). The interactive Studio (`/studio`) tunes chart props and records animations; it targets desktop browsers.
 
 Documentation source files live under `apps/web/content/docs/` (MDX, Fumadocs). The monorepo uses pnpm and Turborepo. Chart demos are at `/charts/[slug]`; registry JSON is served from `apps/web/public/r/`. The live site serves its own `/llms.txt` (generated from the docs page tree by `apps/web/app/llms.txt/route.ts`); this file links to the MDX sources and is regenerated with `node scripts/generate-llms.mjs`.
 
@@ -30,6 +30,7 @@ Documentation source files live under `apps/web/content/docs/` (MDX, Fumadocs). 
 - [Pie Chart](./apps/web/content/docs/components/pie-chart.mdx): A composable pie and donut chart with animated slices, hover interactions, patterns, gradients, and an interactive legend
 - [Profit/Loss Line](./apps/web/content/docs/components/profit-loss-line.mdx): Sign-colored line segments for profit and loss on a shared zero baseline
 - [Radar Chart](./apps/web/content/docs/components/radar-chart.mdx): A composable multi-series radar chart with animated polygons, hover interactions, and customizable metrics
+- [Radial Chart](./apps/web/content/docs/components/radial-chart.mdx): Composable radial charts — 24-hour clocks, categories and time series around a circle or a partial arc, plus angular ring bars — with dot bar, stacked bar, ring bar, line and area layers
 - [Ring Chart](./apps/web/content/docs/components/ring-chart.mdx): A composable multi-ring progress chart with animated arcs, hover interactions, and a reusable legend component
 - [Sankey Chart](./apps/web/content/docs/components/sankey-chart.mdx): A composable sankey diagram for visualizing flow between nodes with animated links and interactive tooltips
 - [Scatter Chart](./apps/web/content/docs/components/scatter-chart.mdx): A composable time-series scatter chart with hover dimming, optional offset rings, jitter, and animated enter

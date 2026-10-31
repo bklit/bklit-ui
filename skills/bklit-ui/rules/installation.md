@@ -31,7 +31,7 @@ npx shadcn@latest add @bklit/bar-chart @bklit/legend @bklit/y-axis   # several a
 npx shadcn@latest view @bklit/line-chart                              # inspect before installing
 ```
 
-The CLI resolves `registryDependencies` (`@bklit/chart-context`, `@bklit/grid`, `@bklit/x-axis`, `@bklit/chart-tooltip`, …) and npm dependencies (`@visx/*`, `motion`, `d3-*`, `@number-flow/react`, …). Don't pre-install or pin these by hand unless resolving a real conflict.
+The CLI resolves `registryDependencies` (`@bklit/chart-context`, `@bklit/grid`, `@bklit/x-axis`, `@bklit/chart-tooltip`, …) and npm dependencies (`d3-*`, `motion`, `@number-flow/react`, …). Don't pre-install or pin these by hand unless resolving a real conflict.
 
 ## Where files land
 

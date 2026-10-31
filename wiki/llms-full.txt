@@ -1,6 +1,6 @@
 # Bklit UI
 
-> Bklit UI is an open-source React chart and data-viz component library (Visx, Motion, Tailwind 4) shipped from `packages/ui`, with a Next.js 15 + Fumadocs docs site at `apps/web`. Components install via the shadcn registry (`ui.bklit.com/r/*.json`). The interactive Studio (`/studio`) tunes chart props and records animations; it targets desktop browsers.
+> Bklit UI is an open-source React chart and data-viz component library (d3, Motion, Tailwind 4) shipped from `packages/ui`, with a Next.js 15 + Fumadocs docs site at `apps/web`. Components install via the shadcn registry (`ui.bklit.com/r/*.json`). The interactive Studio (`/studio`) tunes chart props and records animations; it targets desktop browsers.
 
 Documentation source files live under `apps/web/content/docs/` (MDX, Fumadocs). The monorepo uses pnpm and Turborepo. Chart demos are at `/charts/[slug]`; registry JSON is served from `apps/web/public/r/`. The live site serves its own `/llms.txt` (generated from the docs page tree by `apps/web/app/llms.txt/route.ts`); this file links to the MDX sources and is regenerated with `node scripts/generate-llms.mjs`.
 
@@ -631,7 +631,7 @@ export const chartData = [
 
 ## Installation
 
-<InstallationTabs name="area-chart" dependencies={["@visx/curve", "@visx/gradient", "@visx/shape", "motion"]} />
+<InstallationTabs name="area-chart" dependencies={["d3-shape", "motion"]} />
 
 ## Usage
 
@@ -778,11 +778,14 @@ Renders the tooltip with crosshair, dots, and content box.
 | `showCrosshair` | `boolean` | `true` | Show vertical crosshair |
 | `showDots` | `boolean` | `true` | Show dots on series |
 | `indicatorColor` | `string \| (point) => string` | — | Crosshair and dot color |
+| `indicatorEndColor` | `string` | — | Bottom colour of a vertical crosshair ramp (`indicatorColor` at the top) |
+| `indicatorEnd` | `"plot" \| "point"` | `"plot"` | Span the full plot height, or stop at the hovered point |
 | `indicatorDasharray` | `string` | — | Dash pattern for the crosshair (e.g. `"4,4"`) |
 | `indicatorFadeEdges` | `"both" \| "top" \| "bottom" \| "none"` | `"both"` | Vertical crosshair fade |
 | `indicatorFadeLength` | `number` | `10` | Fade size (% of height) |
 | `matchCrosshair` | `boolean` | `false` | Panel uses crosshair spring when `true` |
 | `damping` | `number` | `20` | Panel follow when `matchCrosshair={false}`; `0` = instant |
+| `topOffset` | `number` | `0` | Extra gap (px) between the top of the plot and the panel when it is pinned to the top |
 | `content` | `(props) => ReactNode` | - | Custom content renderer |
 | `rows` | `(point) => TooltipRow[]` | - | Custom row generator |
 | `dateLabels` | `string[]` | — | Date-pill text per data row (pair with `XAxis` `labels`) |
@@ -1189,7 +1192,7 @@ The Area Chart uses the same CSS variables as the Line Chart:
 This component requires the same packages as the Line Chart:
 
 ```bash
-pnpm add @visx/shape @visx/curve @visx/scale @visx/gradient @visx/responsive @visx/event @visx/grid d3-array motion react-use-measure
+pnpm add d3-shape d3-scale d3-array motion react-use-measure
 ```
 </doc>
 
@@ -1236,7 +1239,7 @@ export const chartData = [
 
 <InstallationTabs
   name="bar-chart"
-  dependencies={["@visx/gradient", "@visx/shape", "motion"]}
+  dependencies={["d3-shape", "motion"]}
 />
 
 ## Usage
@@ -1799,7 +1802,7 @@ The Bar Chart uses the same CSS variables as other charts:
 This component requires the same packages as the other charts:
 
 ```bash
-pnpm add @visx/shape @visx/scale @visx/responsive @visx/event @visx/grid d3-array motion react-use-measure
+pnpm add d3-shape d3-scale d3-array motion react-use-measure
 ```
 </doc>
 
@@ -1814,7 +1817,7 @@ import { CandlestickChartDemo } from "@/components/docs/candlestick-chart-demo";
 
 <InstallationTabs
   name="candlestick-chart"
-  dependencies={["@visx/scale", "@visx/shape", "@visx/responsive", "d3-array", "motion"]}
+  dependencies={["d3-shape", "d3-scale", "d3-array", "motion"]}
 />
 
 ## Usage
@@ -1893,7 +1896,7 @@ import { ChoroplethDemo } from "@/components/docs/choropleth-demo";
 
 ## Installation
 
-<InstallationTabs name="choropleth-chart" dependencies={["@visx/geo", "@visx/responsive", "@visx/zoom", "d3-geo", "topojson-client", "motion"]} />
+<InstallationTabs name="choropleth-chart" dependencies={["d3-geo", "topojson-client", "motion"]} />
 
 ## Usage
 
@@ -2019,7 +2022,7 @@ See [Theming](/docs/theming) for the full sequential scale reference.
 This component requires:
 
 ```bash
-pnpm add @visx/geo @visx/responsive @visx/zoom topojson-client motion react-use-measure
+pnpm add d3-geo topojson-client motion react-use-measure
 ```
 </doc>
 
@@ -2036,11 +2039,9 @@ import { DateHighlightsComposedDemo } from "@/components/docs/date-highlights-de
 <InstallationTabs
   name="composed-chart"
   dependencies={[
-    "@visx/curve",
-    "@visx/scale",
-    "@visx/shape",
-    "@visx/responsive",
+    "d3-scale",
     "d3-array",
+    "d3-shape",
     "motion",
   ]}
 />
@@ -2053,7 +2054,7 @@ import { DateHighlightsComposedDemo } from "@/components/docs/date-highlights-de
 - **`barSize`**, **`maxBarSize`**, **`barGap`** — parent-level layout for `SeriesBar` groups (similar to Recharts `ComposedChart` props). Use **`barGap={0}`** and a higher **`maxBarSize`** for dense daily data so columns read like the [90 days of data](/docs/components/bar-chart#90-days-of-data) bar example.
 - **`stacked`** / **`stackGap`** — stack `SeriesBar` segments in child order at each x (lines and areas are not stacked).
 - **`SeriesBar`** — default **`radius` is 0** (square tops). Pass **`radius={4}`** (or similar) for rounded corners.
-- **`Line`** / **`Area`** — pass a **`curve`** from `@visx/curve` (e.g. **`curveCatmullRom.alpha(0.42)`**) to soften paths when you have many daily points (preview + hero use the same curve for `revenue` and `runRate`).
+- **`Line`** / **`Area`** — pass a **`curve`** from `d3-shape` (e.g. **`curveCatmullRom.alpha(0.42)`**) to soften paths when you have many daily points (preview + hero use the same curve for `revenue` and `runRate`).
 - **`Line`** / **`Area`** — use **`showMarkers`** for scatter-style ring markers at each point; pass **`markers={{ radius, ringGap, strokeWidth }}`** to tune styling.
 - **`Line`** / **`Area`** — use **`dashFromIndex`** and **`dashArray`** for a dashed tail on incomplete periods (the dashed segment follows the same curve and edge fade).
 - **`XAxis`** — default ticks snap to data rows so the crosshair aligns. Tune **`numTicks`** for dense series (e.g. daily). Use **`tickMode="domain"`** only when you want calendar-even spacing instead of data alignment.
@@ -2073,7 +2074,7 @@ import {
   XAxis,
   ChartTooltip,
 } from "@bklitui/ui/charts";
-import { curveCatmullRom } from "@visx/curve";
+import { curveCatmullRom } from "d3-shape";
 import { composedDemoData } from "@/lib/composed-demo-data";
 
 const smooth = curveCatmullRom.alpha(0.42);
@@ -2261,7 +2262,6 @@ import { GaugeChartDemo } from "@/components/docs/gauge-chart-demo";
 <InstallationTabs
   name="gauge-chart"
   dependencies={[
-    "@visx/responsive",
     "@number-flow/react",
     "motion",
     "d3-shape",
@@ -2416,7 +2416,7 @@ export const contributionData = getHeatmapDemoData();
 
 ## Installation
 
-<InstallationTabs name="heatmap-chart" dependencies={["@visx/heatmap", "@visx/group", "@visx/responsive", "@visx/scale", "motion"]} />
+<InstallationTabs name="heatmap-chart" dependencies={["d3-scale", "motion"]} />
 
 When using `loadingLabel` or `HeatmapChartLoading`, centered shimmer text uses `@bklit/shimmering-text` — installed automatically with `@bklit/heatmap-chart`.
 
@@ -2730,6 +2730,7 @@ import { LineChart, Line, Grid, XAxis, ChartTooltip, ChartBrush, ChartBrushLayou
 import { LineChartBrushDemo } from "@/components/docs/line-chart-brush-demo";
 import { LineChartYDomainDemo } from "@/components/docs/line-chart-y-domain-demo";
 import { LineChartDateRangeDemo } from "@/components/docs/line-chart-date-range-demo";
+import { LineChartGlowDemo } from "@/components/docs/line-chart-glow-demo";
 import { ProjectionLineDemo } from "@/components/docs/projection-line-demo";
 import { BandRangeDemo } from "@/components/docs/band-demo";
 import { DateHighlightsLineDemo } from "@/components/docs/date-highlights-demo";
@@ -2757,7 +2758,7 @@ import {
 
 ## Installation
 
-<InstallationTabs name="line-chart" dependencies={["@visx/curve", "@visx/shape", "motion"]} />
+<InstallationTabs name="line-chart" dependencies={["d3-shape", "motion"]} />
 
 ## Usage
 
@@ -2810,7 +2811,74 @@ const filteredData = useMemo(() => {
   <LineChartDateRangeDemo />
 </ComponentShowcase>
 
-Click the date range buttons — the line and y-axis morph smoothly without reinitialization. Use the replay button to run the enter animation again.
+Click the date range buttons — the line and y-axis morph smoothly without reinitialization. Switch the dataset between **Revenue**, **~1,000** and **~10** (with the **Y axis** toggle on) to see a large y-domain change: the grid and y-axis labels rescale first — outgoing labels fade out while new ones cascade in — then the line morphs into place, so it never leaves the chart. Use the replay button to run the enter animation again.
+
+## Glow
+
+Layer a sky behind the line with `LineBackdrop`: a radial gradient clipped to the region between the series and the top of the plot, so it only shows above the line. It follows the same animated path as `Line` — through the reveal, data morphs and y-domain tweens — so render it **before** the `Line` with the same `dataKey` (and `curve`, if you change it). Stack several backdrops to mix colours. Backdrops fade in once the line has drawn, so pass decorations such as stars as `children` of a backdrop to have them clipped to the sky and fade in with it.
+
+On the `Line`, `strokeGradient` paints a left → right colour ramp (it composes with `fadeEdges`) and `glow` adds a blurred copy of the stroke behind it. `highlight` styles the hover segment that follows the cursor along the curve: `fadeLength` gives it soft ends, `glow` makes it bloom, `span` sets how many points either side it covers, and `dimOpacity` controls how far the rest of the line dims. It keeps the line's `strokeGradient` unless you pass `highlight.stroke` / `highlight.strokeGradient`. On the tooltip, `indicatorEnd="point"` stops the crosshair at the hovered point, `indicatorEndColor` ramps its colour top → bottom, and `dotHaloBlur` softens the dot halo into a glow.
+
+<ComponentShowcase
+  code={`import { ChartTooltip, Line, LineBackdrop, LineChart } from "@bklitui/ui/charts";
+
+<LineChart
+  data={data}
+  margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
+  yScaleDomainMax={105} // headroom so the line sits low
+>
+  <LineBackdrop
+    dataKey="sessions"
+    center={{ x: 0.45, y: 0.82 }}
+    radius={{ x: 0.95, y: 0.6 }}
+    stops={[
+      { offset: 0, color: "#b4703c" },
+      { offset: 0.22, color: "#b4703c", opacity: 0.85 },
+      { offset: 0.45, color: "#7a4650", opacity: 0.7 },
+      { offset: 0.7, color: "#3e2a48", opacity: 0.45 },
+      { offset: 1, color: "#3e2a48", opacity: 0 },
+    ]}
+  />
+  {/* Children replace the gradient — stars clipped to the sky, fading in with it */}
+  <LineBackdrop dataKey="sessions">
+    <rect fill="white" fillOpacity={0.3} height={3} width={3} x="38%" y="13%" />
+    <rect fill="white" fillOpacity={0.3} height={3} width={3} x="77%" y="4%" />
+  </LineBackdrop>
+  <Line
+    dataKey="sessions"
+    fadeEdges={false}
+    glow={{ blur: 5, opacity: 0.85 }}
+    highlight={{
+      dimOpacity: 0.25,
+      fadeLength: 40, // soft ends
+      glow: { blur: 6, opacity: 1 },
+      span: 3,
+      strokeWidth: 2.5,
+    }}
+    strokeGradient={["#d9622b", "#f0b25a", "#f7dc9a"]}
+    strokeWidth={2}
+  />
+  <ChartTooltip
+    content={GlowTooltipContent}
+    dotColor="#fff1d0"
+    dotHaloBlur={4}
+    dotHaloOpacity={0.7}
+    indicatorColor="#3e2a48"
+    indicatorEndColor="#fff1d0"
+    indicatorEnd="point"
+    indicatorFadeEdges="top"
+    indicatorFadeLength={35}
+    showDatePill={false}
+    topOffset={16}
+  />
+</LineChart>`}
+  liveChartPreview
+  previewMinHeight={360}
+>
+  <LineChartGlowDemo />
+</ComponentShowcase>
+
+The demo reads its colours from CSS variables that switch with the theme, so the same chart works in light and dark mode. Pass `side="below"` to fill under the line instead, or `children` to clip your own SVG fill to the region.
 
 ## Components
 
@@ -2831,6 +2899,7 @@ The root component that provides context to all children.
 | `xDomain` | `[Date, Date]` | — | Visible x-range for brush zoom |
 | `xDomainSlotCount` | `number` | — | Full dataset length for x-scale padding when `xDomain` is set |
 | `tweenYDomainOnXDomainChange` | `boolean` | `false` | Tween y-domain when the brush changes the visible x-range |
+| `yScaleDomainMax` | `number` | data max | Fixed y-domain max (single axis): domain becomes `[0, yScaleDomainMax × 1.1]` — headroom above the series |
 | `aspectRatio` | `string` | `"2 / 1"` | CSS aspect ratio |
 | `className` | `string` | `""` | Additional CSS class |
 | `style` | `CSSProperties` | — | Inline container styles (e.g. fixed height for a brush strip) |
@@ -2847,12 +2916,32 @@ Renders a line on the chart.
 | `strokeWidth` | `number` | `2.5` | Line width |
 | `curve` | `CurveFactory` | `curveNatural` | D3 curve function |
 | `animate` | `boolean` | `true` | Enable grow animation |
-| `fadeEdges` | `boolean` | `true` | Fade line at edges |
+| `fadeEdges` | `boolean \| "left" \| "right"` | `true` | Fade line at edges |
+| `strokeGradient` | `string[] \| { offset, color }[]` | — | Left → right colour ramp across the plot (offsets 0–1; plain colours spaced evenly). Composes with `fadeEdges`; overrides `stroke` for the line paint |
+| `glow` | `boolean \| { blur?, opacity?, strokeWidth? }` | `false` | Blurred copy of the stroke behind the line. Defaults: `blur` `6`, `opacity` `0.7`, `strokeWidth` 2× line width |
 | `showHighlight` | `boolean` | `true` | Show highlight on hover |
+| `highlight` | `{ stroke?, strokeGradient?, strokeWidth?, span?, fadeLength?, glow?, dimOpacity? }` | — | Hover segment styling. `stroke` / `strokeGradient` override the colour (default: the line's paint); `strokeWidth` (default: line width); `span` points either side (default `1`); `fadeLength` soft ends as % of the segment width per side, 0–50 (default `0`, hard edges); `glow` same options as `glow` (default `false`); `dimOpacity` of the rest of the line (default `0.3`) |
 | `showMarkers` | `boolean` | `false` | Render scatter-style ring markers at each point |
 | `loadingStroke` | `string` | `var(--foreground)` | Pulse stroke color while chart is loading |
 | `loadingStrokeOpacity` | `number` | `0.5` | Pulse stroke opacity while chart is loading |
 | `markers` | `SeriesPointMarkerStyle` | — | Marker styling (same options as [`Scatter`](/docs/components/scatter-chart)) |
+
+### LineBackdrop
+
+Fill clipped to the region between a series and the top (or bottom) of the plot. Follows the `Line`'s animated path and fades in after the line reveal (like `Background`). Render it before the `Line`.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `dataKey` | `string` | required | Series to follow — match the `Line` |
+| `yAxisId` | `string \| number` | `"left"` | Y-scale group |
+| `side` | `"above" \| "below"` | `"above"` | Fill between the line and the top, or the line and the bottom |
+| `curve` | `CurveFactory` | `curveNatural` | Keep it the same as the `Line` |
+| `animate` | `boolean` | `true` | Follow the line's data and y-domain tweens |
+| `stops` | `{ offset, color, opacity? }[]` | `--chart-line-primary` 35% → 0% | Radial gradient stops, centre → rim |
+| `center` | `{ x, y }` | `{ x: 0.5, y: 1 }` | Gradient centre as fractions of the plot |
+| `radius` | `{ x, y }` | `{ x: 0.75, y: 1 }` | Gradient radii as fractions of plot width / height |
+| `opacity` | `number` | `1` | Overall opacity |
+| `children` | `ReactNode` | — | Custom SVG fill in plot coordinates; replaces the gradient |
 
 ### Grid
 
@@ -2911,11 +3000,15 @@ Renders the tooltip with crosshair, dots, and content box.
 | `showCrosshair` | `boolean` | `true` | Show vertical crosshair |
 | `showDots` | `boolean` | `true` | Show dots on lines |
 | `indicatorColor` | `string \| (point) => string` | — | Crosshair and dot color; use a function for value-based colors |
+| `indicatorEndColor` | `string` | — | Bottom colour of a vertical crosshair ramp (`indicatorColor` at the top) |
+| `indicatorEnd` | `"plot" \| "point"` | `"plot"` | Span the full plot height, or stop at the hovered point |
 | `indicatorDasharray` | `string` | — | Dash pattern for the crosshair (e.g. `"4,4"`) |
 | `indicatorFadeEdges` | `"both" \| "top" \| "bottom" \| "none"` | `"both"` | Vertical crosshair fade |
 | `indicatorFadeLength` | `number` | `10` | Fade size (% of height) |
+| `dotHaloBlur` | `number` | `0` | Blur (px) on the dot halo for a soft glow |
 | `matchCrosshair` | `boolean` | `false` | Panel uses crosshair spring when `true` |
 | `damping` | `number` | `20` | Panel follow when `matchCrosshair={false}`; `0` = instant |
+| `topOffset` | `number` | `0` | Extra gap (px) between the top of the plot and the panel when it is pinned to the top |
 | `content` | `(props) => ReactNode` | - | Custom content renderer |
 | `rows` | `(point) => TooltipRow[]` | - | Custom row generator |
 
@@ -3366,7 +3459,7 @@ The chart uses CSS variables for theming. Define these in your CSS:
 This component requires the following packages:
 
 ```bash
-pnpm add @visx/shape @visx/curve @visx/scale @visx/gradient @visx/responsive @visx/event @visx/grid d3-array motion react-use-measure
+pnpm add d3-shape d3-scale d3-array motion react-use-measure
 ```
 </doc>
 
@@ -3380,7 +3473,7 @@ import { LiveLineChartDemo } from "@/components/docs/live-line-chart-demo";
 
 ## Installation
 
-<InstallationTabs name="live-line-chart" dependencies={["@visx/curve", "@visx/scale", "@visx/shape", "@visx/responsive", "@visx/event", "d3-array", "motion"]} />
+<InstallationTabs name="live-line-chart" dependencies={["d3-shape", "d3-scale", "d3-array", "motion"]} />
 
 ## Usage
 
@@ -3543,7 +3636,7 @@ Uses the same chart CSS variables as the Line Chart (`--chart-line-primary`, `--
 ## Dependencies
 
 ```bash
-pnpm add @visx/shape @visx/curve @visx/scale @visx/responsive @visx/event d3-array motion
+pnpm add d3-shape d3-scale d3-array motion
 ```
 </doc>
 
@@ -3557,7 +3650,7 @@ import { PieChartDemo } from "@/components/docs/pie-chart-demo";
 
 ## Installation
 
-<InstallationTabs name="pie-chart" dependencies={["@visx/responsive", "@visx/shape", "motion"]} />
+<InstallationTabs name="pie-chart" dependencies={["@number-flow/react", "d3-shape", "motion"]} />
 
 ## Usage
 
@@ -3612,7 +3705,7 @@ Renders an individual slice with animated arc and hover effects.
 | `color` | `string` | from data/palette | Optional color override |
 | `fill` | `string` | - | Optional fill for patterns/gradients (e.g., `url(#patternId)`) |
 | `animate` | `boolean` | `true` | Enable animation on mount |
-| `showGlow` | `boolean` | `true` | Show glow effect on hover |
+| `showGlow` | `boolean` | `false` | Show glow effect on hover |
 | `hoverEffect` | `"translate" \| "grow" \| "none"` | `"translate"` | Hover animation type |
 | `hoverOffset` | `number` | `10` | Distance in pixels for hover effect |
 
@@ -3688,7 +3781,7 @@ All animations use spring physics for natural motion.
 ## Dependencies
 
 ```bash
-pnpm add @visx/shape @visx/group @visx/responsive @visx/gradient d3-shape motion
+pnpm add @number-flow/react d3-shape motion
 ```
 </doc>
 
@@ -3701,7 +3794,7 @@ import { ProfitLossLineDemo } from "@/components/docs/profit-loss-line-demo";
 
 ## Installation
 
-<InstallationTabs name="profit-loss-line" dependencies={["@visx/curve", "@visx/shape"]} />
+<InstallationTabs name="profit-loss-line" dependencies={["d3-shape"]} />
 
 ## Usage
 
@@ -3718,7 +3811,7 @@ import {
   profitLossColor,
   resolveProfitLossTooltipLabel,
 } from "@bklitui/ui/charts";
-import { curveLinear } from "@visx/curve";
+import { curveLinear } from "d3-shape";
 
 const data = [
   { date: new Date("2024-01-01"), pnl: 420 },
@@ -3819,7 +3912,7 @@ import { RadarChartDemo } from "@/components/docs/radar-chart-demo";
 
 ## Installation
 
-<InstallationTabs name="radar-chart" dependencies={["@visx/responsive", "d3-shape", "motion"]} />
+<InstallationTabs name="radar-chart" dependencies={["d3-scale", "d3-shape", "motion"]} />
 
 ## Usage
 
@@ -3908,7 +4001,7 @@ Renders a single data polygon with hover effects.
 | `index` | `number` | required | Index in the data array |
 | `color` | `string` | from data | Optional color override |
 | `showPoints` | `boolean` | `true` | Show data point circles |
-| `showGlow` | `boolean` | `true` | Show glow effect on hover |
+| `showGlow` | `boolean` | `false` | Show glow effect on hover |
 | `className` | `string` | `""` | Additional CSS class |
 
 ## Data Shape
@@ -3970,13 +4063,715 @@ All animations use spring physics for natural motion. Hover interactions are ins
 ## Dependencies
 
 ```bash
-pnpm add @visx/group @visx/responsive @visx/scale @visx/shape motion
+pnpm add d3-scale d3-shape motion
 ```
 </doc>
 
+<doc title="Radial Chart" path="../apps/web/content/docs/components/radial-chart.mdx">
+import { RadialDotBarExample } from "@/components/charts/radial/dot-bar-example";
+import { RadialForecastDotBarExample } from "@/components/charts/radial/forecast-dot-bar-example";
+import { PopulationStackedBarExample } from "@/components/charts/radial/population-stacked-bar-example";
+import { RadialLineExample } from "@/components/charts/radial/radial-line-example";
+import { RadialStorageSemicircleExample } from "@/components/charts/radial/storage-semicircle-example";
+import { TemperatureAreaExample } from "@/components/charts/radial/temperature-area-example";
+
+<ComponentPreview registryName="radial-chart">
+  <RadialDotBarExample />
+</ComponentPreview>
+
+## Installation
+
+<InstallationTabs name="radial-chart" dependencies={["d3-scale", "d3-shape", "motion", "@number-flow/react"]} />
+
+## Usage
+
+`RadialChart` is the shell: it measures itself, owns the shared geometry, value scale, hover-by-angle, legend hover and the enter flag. Layers draw into it and read everything from context.
+
+```tsx
+import {
+  RadialAxis,
+  RadialCenter,
+  RadialChart,
+  RadialDotBar,
+  RadialLegend,
+  RadialScrubber,
+} from "@bklitui/ui/charts";
+
+const series = [
+  { dataKey: "merged", label: "Merged", color: "var(--chart-1)" },
+  { dataKey: "ready", label: "Ready for merge", color: "var(--chart-2)" },
+  { dataKey: "draft", label: "Draft", color: "var(--chart-3)", emphasize: true },
+];
+
+// 96 × 15-minute bins, clockwise from 00:00. Bins after "now" have null counts.
+const chartData = [
+  { time: "00:00", merged: 41, ready: 0, draft: 0, yesterday: 52 },
+  // …
+  { time: "14:30", merged: null, ready: null, draft: null, yesterday: 917 },
+];
+
+export function PullRequestClock() {
+  return (
+    <RadialChart data={chartData} xDataKey="time" series={series}>
+      <RadialAxis />
+      <RadialDotBar ghostDataKey="yesterday" />
+      <RadialScrubber />
+      <RadialCenter />
+      <RadialLegend />
+    </RadialChart>
+  );
+}
+```
+
+Children are routed by component: SVG layers (`RadialAxis`, `RadialDotBar`, `RadialBar`, `RadialRingBar`, `RadialLine`, `RadialArea`, `RadialScrubber`) render in a group centred on the chart in the order given, `RadialCenter` renders as HTML in the hole and `RadialLegend` below the chart. Place `RadialCenter` / `RadialLegend` as direct children so they are routed correctly.
+
+Series colors default to the palette slot for their index — `var(--chart-1)` … `var(--chart-5)` (see `radialSeriesColor`).
+
+## Angle, orientation and arcs
+
+Three props decide what the circle encodes.
+
+**`angleType`** — what the angle means:
+
+| Value     | Bins are…                                                   | Axis labels                         | Tracks "now" |
+| --------- | ----------------------------------------------------------- | ----------------------------------- | ------------ |
+| `"clock"` | time slots of one day (e.g. 24 hours, 96 × 15 minutes)      | `00` / `06` / `12` / `18`           | yes          |
+| `"band"`  | categories (`datum[xDataKey]` is the category)              | every category, rotated radially    | no           |
+| `"time"`  | evenly spaced dates (`datum[xDataKey]` is a Date / ms / ISO string) | UTC time ticks (e.g. months) | no           |
+
+When the chart tracks "now" (`trackNow`, on for clock charts), bins where no series has a value are **future** bins: dot / bar / area layers draw comparison data there from `ghostDataKey`, totals skip them, and the scrubber rests on the boundary.
+
+**`orientation`** — `"radial"` (default) puts bins around the angle with the value running outward. `"angular"` turns each bin into a concentric ring (first bin innermost) whose value sweeps along the angle — progress rings and gauges. Draw angular charts with `RadialRingBar`.
+
+**`startAngle` / `endAngle`** — the arc in degrees, `0` = 12 o'clock, clockwise. The default is the full turn. Partial arcs (e.g. `-90` → `90` for a semicircle, `-120` → `120` for a horseshoe) are cropped to their bounding box with `fitArc`, so a semicircle is about twice as wide as it is tall.
+
+**Value scale** — by default every layer scales itself. Pass `maxValue` to share one scale (and to give `RadialAxis` value rings): a number, `"auto"` (largest single value of any series / `valueKeys` key) or `"stacked"` (largest per-bin sum). `minValue` maps a value to the band base (`"auto"` = smallest value, useful for temperatures). Automatic domains are rounded to nice ticks unless `niceValues={false}`. Angular charts always share a scale (default `"stacked"`).
+
+## Components
+
+### RadialChart
+
+| Prop            | Type                                  | Default               | Description                                                                 |
+| --------------- | ------------------------------------- | --------------------- | --------------------------------------------------------------------------- |
+| `data`          | `Record<string, unknown>[]`           | required              | One datum per bin, clockwise from the start angle                           |
+| `series`        | `RadialSeries[]`                      | required              | Series, innermost / first stacked first                                     |
+| `xDataKey`      | `string`                              | `"time"`              | Bin label / category / time key                                             |
+| `angleType`     | `"clock" \| "band" \| "time"`         | `"clock"`             | What the angle encodes                                                      |
+| `orientation`   | `"radial" \| "angular"`               | `"radial"`            | Bins along the angle, or as concentric rings                                |
+| `startAngle`    | `number`                              | `0`                   | Arc start in degrees (0 = 12 o'clock, clockwise)                            |
+| `endAngle`      | `number`                              | `startAngle + 360`    | Arc end in degrees                                                          |
+| `fitArc`        | `boolean`                             | `true`                | Crop the stage to a partial arc's bounding box                              |
+| `trackNow`      | `boolean`                             | `true` for `clock`    | Treat bins after the last bin with data as future (ghost) bins              |
+| `nowIndex`      | `number`                              | last bin with data    | Bin the resting scrubber points at                                          |
+| `maxValue`      | `number \| "auto" \| "stacked"`       | unset (`"stacked"` when angular) | Shared value scale for layers without their own `maxValue`       |
+| `minValue`      | `number \| "auto"`                    | `0`                   | Value mapped to the band base                                               |
+| `valueKeys`     | `string[]`                            | -                     | Extra datum keys (not series) included in the auto domain                  |
+| `niceValues`    | `boolean`                             | `true`                | Round an automatic domain to nice tick values                               |
+| `ringGap`       | `number`                              | `0.3`                 | Angular charts: gap between rings as a fraction of a ring step             |
+| `layout`        | `Partial<RadialLayout>`               | `defaultRadialLayout` | Ring radii as fractions of the chart radius (see below)                     |
+| `animate`       | `boolean`                             | `true`                | Enter animations (skipped for `prefers-reduced-motion`)                     |
+| `hoveredIndex`  | `number \| null`                      | -                     | Controlled hovered bin                                                      |
+| `onHoverChange` | `(index: number \| null) => void`     | -                     | Hover callback                                                              |
+| `maxWidth`      | `number`                              | `640`                 | Max width in px                                                             |
+| `className`     | `string`                              | -                     | Wrapper class                                                               |
+
+**`RadialSeries`**
+
+| Field       | Type      | Default            | Description                                                      |
+| ----------- | --------- | ------------------ | ---------------------------------------------------------------- |
+| `dataKey`   | `string`  | required           | Datum key holding the series value                               |
+| `label`     | `string`  | `dataKey`          | Legend / center label                                            |
+| `color`     | `string`  | `var(--chart-N)`   | Fill / stroke color (palette slot for the series index)          |
+| `opacity`   | `number`  | `1`                | Base opacity of the series' marks                                |
+| `rampFrom`  | `number`  | `1`                | Opacity at the band base, rising to full outward                 |
+| `emphasize` | `boolean` | `false`            | Tint the legend total with the series color                      |
+
+**`RadialLayout`** (fractions of the chart radius): `center` `0.37` (hole), `tickInner` `0.38`, `tickMinorOuter` `0.393`, `tickMajorOuter` `0.405`, `bandInner` `0.408` (value base), `bandOuter` `0.83` (value top), `scrubberOuter` `0.895`, `axisLabel` `0.955`.
+
+### RadialAxis
+
+Axis chrome: center circle, tick ring, angle labels (clock hours, rotated categories or time ticks), optional value grid rings with labels and, on angular charts, value ticks along the arc with a label at the start of each ring. Render it **after** the data layers when you want value rings and labels on top. Grid rings and ticks animate in on enter with the same timing as the radar chart grid (shared constants in `animation.ts`), and are skipped for `prefers-reduced-motion`.
+
+| Prop                | Type                                         | Default                                    | Description                                                      |
+| ------------------- | -------------------------------------------- | ------------------------------------------ | ---------------------------------------------------------------- |
+| `showCircle`        | `boolean`                                    | `true`                                     | Center circle with a thin stroke                                 |
+| `centerGradient`    | `boolean`                                    | `false`                                    | Faint radial-gradient fill inside the center circle (stroke kept) |
+| `tickCount`         | `number`                                     | `24` for clock charts, else `0`            | Ticks just outside the center circle                             |
+| `majorTickEvery`    | `number`                                     | `6`                                        | Every n-th tick is long                                          |
+| `labels`            | `string[] \| false`                          | depends on `angleType`                     | Labels spaced evenly from the start angle, or `false` to hide    |
+| `labelColor`        | `string`                                     | `var(--muted-foreground)`                  | Label color                                                      |
+| `stroke`            | `string`                                     | `var(--foreground)`                        | Circle / tick / grid color                                       |
+| `labelOrientation`  | `"horizontal" \| "radial" \| "tangential"`   | `"radial"` for band, else `"horizontal"`   | Label rotation                                                   |
+| `labelRadius`       | `number`                                     | `layout.axisLabel`                         | Label radius (fraction of the chart radius)                      |
+| `labelEvery`        | `number`                                     | `1`                                        | Band charts: label every n-th category                           |
+| `labelFormat`       | `(value, index) => string`                   | `String(value)`                            | Band charts: format `datum[xDataKey]`                            |
+| `timeTicks`         | `number \| (Date \| number)[]`               | `12`                                       | Time charts: tick count hint or explicit tick times              |
+| `timeTickFormat`    | `(date: Date) => string`                     | short month (UTC) for spans over 60 days   | Time charts: tick label format                                   |
+| `timeLabelPosition` | `"tick" \| "between"`                        | `"between"`                                | Time charts: label at the tick or centred between ticks          |
+| `angleGrid`         | `boolean`                                    | `true` for time and angular charts         | Spokes across the value band at every angle tick                 |
+| `valueTicks`        | `number \| number[]`                         | none (radial), `5` (angular)               | Value grid: tick count hint or explicit values                   |
+| `valueTickFormat`   | `(value: number) => string`                  | en-US number                               | Value tick label format                                          |
+| `showValueLabels`   | `boolean`                                    | `true`                                     | Show value tick labels                                           |
+| `valueLabelAngle`   | `number`                                     | the start angle                            | Radial charts: angle (degrees) of the value labels               |
+| `showRingLabels`    | `boolean`                                    | `true`                                     | Angular charts: category label at the start of each ring         |
+| `gridOpacity`       | `number`                                     | `0.12`                                     | Grid ring / spoke opacity                                        |
+
+### RadialDotBar
+
+Each bin is a stacked column of dots on concentric rows, innermost series first. A radial scale keeps the dot count proportional to the value. `layout="grid"` keeps dot density even (outer rows hold more dots); `"columns"` lines dots up in strict radial columns. Dots cascade outward around the clock on enter. Fill dots with patterns via `patterns` — see [Patterned dots](#patterned-dots).
+
+| Prop           | Type                                                | Default                        | Description                                                        |
+| -------------- | --------------------------------------------------- | ------------------------------ | ------------------------------------------------------------------ |
+| `ghostDataKey` | `string`                                            | -                              | Comparison value drawn as ghost dots in future bins                |
+| `ghostColor`   | `string`                                            | `var(--foreground)`            | Ghost dot color                                                    |
+| `ghostOpacity` | `number`                                            | `0.22`                         | Ghost dot opacity                                                  |
+| `ghostDotSize` | `number`                                            | `0.26`                         | Ghost dot diameter as a fraction of the row spacing                |
+| `maxValue`     | `number`                                            | largest stack / ghost value    | Value mapped to the outermost row                                  |
+| `rows`         | `number`                                            | `14`                           | Concentric rows across the value band                              |
+| `layout`       | `"grid" \| "columns"`                               | `"grid"`                       | Even dot density or strict radial columns                          |
+| `dotSize`      | `number`                                            | `0.44`                         | Dot diameter as a fraction of the row spacing                      |
+| `rampExtent`   | `number`                                            | `0.5`                          | Fraction of rows over which `rampFrom` series reach full opacity   |
+| `annotations`  | `{ index, label, color? }[]`                        | -                              | Callout labels outside a bin's tip                                 |
+| `fadedOpacity` | `number`                                            | `0.2`                          | Opacity of other series while a legend item is hovered             |
+| `patterns`     | `Record<string, PatternPresetId \| RadialDotPattern>` | -                            | Pattern fills keyed by series `dataKey` (`"ghost"` for ghost dots) |
+
+### RadialBar
+
+Stacked arc bars, one per bin, innermost series first. It uses a radial scale, so segment **area** tracks the value. Works on clock, band and time charts and on partial arcs. Clock charts draw a dim ghost bar from `ghostDataKey` in future bins.
+
+```tsx
+<RadialChart data={chartData} xDataKey="time" series={series}>
+  <RadialAxis />
+  <RadialBar ghostDataKey="yesterday" cornerRadius={4} />
+  <RadialScrubber />
+  <RadialCenter />
+  <RadialLegend />
+</RadialChart>
+```
+
+| Prop                 | Type     | Default                                | Description                                                                   |
+| -------------------- | -------- | -------------------------------------- | ----------------------------------------------------------------------------- |
+| `ghostDataKey`       | `string` | -                                      | Comparison value drawn as a dim ghost bar in future bins                      |
+| `ghostColor`         | `string` | `var(--foreground)`                    | Ghost bar color                                                               |
+| `ghostOpacity`       | `number` | `0.12`                                 | Ghost bar opacity                                                             |
+| `maxValue`           | `number` | chart scale, else largest stack / ghost | Value mapped to the band top                                                 |
+| `padAngle`           | `number` | 18% of a bin's angle                   | Angular gap between bars in radians, constant width outward                   |
+| `cornerRadius`       | `number` | `0`                                    | Corner radius in px                                                           |
+| `stackGap`           | `number` | `0`                                    | Radial gap in px between segments; above 0 every segment is rounded on its own |
+| `rampExtent`         | `number` | `0.6`                                  | Band fraction over which `rampFrom` series reach full opacity                 |
+| `fadedOpacity`       | `number` | `0.35`                                 | Opacity of other bins while a bin is hovered                                  |
+| `seriesFadedOpacity` | `number` | `0.2`                                  | Opacity of other series while a legend item is hovered                        |
+
+### RadialRingBar
+
+The layer for `orientation="angular"` charts: each bin is a ring (first bin innermost) and its series stack end to end along the arc, over a faint full-arc track. Rings sweep in with a stagger on enter; hovering a ring dims the others. See [Angular rings and partial arcs](#angular-rings-and-partial-arcs).
+
+| Prop                 | Type                | Default                   | Description                                                    |
+| -------------------- | ------------------- | ------------------------- | -------------------------------------------------------------- |
+| `maxValue`           | `number`            | the chart's value domain  | Value mapped to the arc end                                    |
+| `cornerRadius`       | `number \| "round"` | `0`                       | Corner radius in px, or `"round"` for fully rounded ends       |
+| `segmentGap`         | `number`            | `0`                       | Gap in px between stacked segments, constant across the ring's width |
+| `track`              | `boolean`           | `true`                    | Faint full-arc track behind every ring                         |
+| `trackColor`         | `string`            | `var(--foreground)`       | Track color                                                    |
+| `trackOpacity`       | `number`            | `0.06`                    | Track opacity                                                  |
+| `fadedOpacity`       | `number`            | `0.35`                    | Opacity of other rings while a ring is hovered                 |
+| `seriesFadedOpacity` | `number`            | `0.2`                     | Opacity of other series while a legend item is hovered         |
+
+### RadialLine
+
+A smooth line through the bin centers, drawn clockwise on enter. When `dataKey` matches a chart series the line inherits its color and dims with the legend; any other key (e.g. `"yesterday"`) draws a comparison line. An open line ends in a pulsing "now" marker; a line with a value in every bin of a full circle closes the loop. Without a chart `maxValue`, pass the same `maxValue` to every line so they share a scale.
+
+The hover marker is locked to the crosshair: it moves at the same animated angle as `RadialScrubber` (or a matching spring when there's no scrubber) and its radius follows the curve at that angle, so it slides along the line as the crosshair springs — every line, e.g. today and yesterday, gets its own dot, hidden over gaps. `markerMotion="spring"` gives the marker its own spring (`markerSpring`) and `"none"` snaps it to the bin. `RadialArea`'s `activeDot` works the same way (`activeDotMotion`, `activeDotSpring`).
+
+```tsx
+<RadialChart data={chartData} xDataKey="time" series={[{ dataKey: "merged", label: "Merged today" }]}>
+  <RadialAxis />
+  <RadialLine dataKey="yesterday" dash stroke="var(--muted-foreground)" maxValue={maxValue} />
+  <RadialLine dataKey="merged" strokeWidth={2.25} maxValue={maxValue} />
+  <RadialScrubber variant="gradient" />
+  <RadialCenter />
+  <RadialLegend />
+</RadialChart>
+```
+
+| Prop            | Type                | Default                                       | Description                                                   |
+| --------------- | ------------------- | --------------------------------------------- | ------------------------------------------------------------- |
+| `dataKey`       | `string`            | required                                      | Datum key plotted by this line                                |
+| `stroke`        | `string`            | series color, else `var(--foreground)`        | Stroke color                                                  |
+| `strokeWidth`   | `number`            | `2`                                           | Stroke width in px                                            |
+| `strokeOpacity` | `number`            | series opacity, else `1`                      | Stroke opacity                                                |
+| `dash`          | `boolean \| string` | solid                                         | `true` for dashes with 3× gaps, or any `stroke-dasharray`     |
+| `curve`         | `CurveFactory`      | `curveCatmullRomClosed` / `curveCatmullRom`   | d3 curve                                                      |
+| `closed`        | `boolean`           | `true` when every bin has a value (full circle) | Join the last bin back to the first                         |
+| `maxValue`      | `number`            | chart scale, else largest value               | Value mapped to the band top                                  |
+| `showMarkers`   | `boolean`           | `true`                                        | Point marker on the hovered bin, riding the line              |
+| `markerMotion`  | `"crosshair" \| "spring" \| "none"` | `"crosshair"`                 | Locked to the crosshair, its own spring, or snap to the bin (reduced motion snaps) |
+| `markerSpring`  | `SpringOptions`     | `{ stiffness: 240, damping: 24 }`             | `markerMotion="spring"`: the marker's spring                  |
+| `showNowMarker` | `boolean`           | `true` for open lines                         | Marker at the line's last value ("now")                       |
+| `pulse`         | `boolean`           | `true`                                        | Soft pulse around the "now" marker (off under reduced motion) |
+| `markerRadius`  | `number`            | scales with the chart                         | Marker radius in px                                           |
+| `fadedOpacity`  | `number`            | `0.2`                                         | Opacity while another series is hovered in the legend         |
+| `enterDelay`    | `number`            | `0`                                           | Delay before the clockwise draw starts, in seconds            |
+
+### RadialArea
+
+A filled radial area with a gradient rising from the band base to the outer edge. Without `dataKey` it draws every chart series (stacked outward by default); with `dataKey` it draws a single area, and `baseDataKey` turns it into a band (e.g. a min–max range). `fill={false}` gives an outline only.
+
+```tsx
+// Every series, stacked outward, ghosting yesterday for the rest of the day
+<RadialChart data={chartData} xDataKey="time" series={series}>
+  <RadialAxis />
+  <RadialArea ghostDataKey="yesterday" />
+  <RadialScrubber />
+  <RadialCenter />
+  <RadialLegend />
+</RadialChart>
+```
+
+| Prop              | Type                                  | Default                         | Description                                                           |
+| ----------------- | ------------------------------------- | ------------------------------- | --------------------------------------------------------------------- |
+| `dataKey`         | `string`                              | -                               | Draw a single area for this key; omit to draw every series            |
+| `baseDataKey`     | `string`                              | band base                       | Inner edge of a single area, e.g. for a min/max band                  |
+| `stacked`         | `boolean`                             | `true`                          | Series mode: stack outward or overlay from the base                   |
+| `color`           | `string`                              | series color                    | Fill / stroke color for a single area                                 |
+| `fill`            | `boolean`                             | `true`                          | Draw the fill (`false` for outline only)                              |
+| `fillOpacity`     | `number`                              | `0.32`                          | Fill opacity at the outer edge                                        |
+| `rampFrom`        | `number`                              | series `rampFrom`, else `0.25`  | Fraction of `fillOpacity` at the band base                            |
+| `stroke`          | `"outer" \| "both" \| "none"`         | `"outer"`                       | Which edges get a stroke                                              |
+| `strokeWidth`     | `number`                              | `1.5`                           | Stroke width in px                                                    |
+| `strokeOpacity`   | `number`                              | `1`                             | Stroke opacity                                                        |
+| `strokeDasharray` | `string`                              | -                               | e.g. `"4 4"` for a dashed edge                                        |
+| `curve`           | `"catmullRom" \| "basis" \| "linear"` | `"catmullRom"`                  | Curve through the bin centers (closed when every bin has a value)     |
+| `ghostDataKey`    | `string`                              | -                               | Comparison value drawn as a dim, dashed-edge ghost area in future bins |
+| `ghostColor`      | `string`                              | `var(--foreground)`             | Ghost color                                                           |
+| `ghostOpacity`    | `number`                              | `0.1`                           | Ghost fill opacity (its stroke is twice this)                         |
+| `maxValue`        | `number`                              | chart scale, else largest value | Value mapped to the outer radius                                      |
+| `activeDot`       | `boolean`                             | `true`                          | Dot on the outer edge of the hovered bin, riding the edge             |
+| `activeDotMotion` | `"crosshair" \| "spring" \| "none"`   | `"crosshair"`                   | Locked to the crosshair, its own spring, or snap to the bin (reduced motion snaps) |
+| `activeDotSpring` | `SpringOptions`                       | `{ stiffness: 240, damping: 24 }` | `activeDotMotion="spring"`: the dot's spring                        |
+| `fadedOpacity`    | `number`                              | `0.2`                           | Opacity of other series while a legend item is hovered                |
+
+### RadialScrubber
+
+Line from the center circle outward: solid or dashed with an end dot, or a gradient that fades in toward the rim without one (`RadialScrubberVariant`). It springs to the hovered bin; at rest it marks "now" on clock charts and hides elsewhere. Not drawn on angular charts. Its spring is the chart's crosshair: `RadialLine` markers and `RadialArea` active dots ride along it (see below).
+
+| Prop          | Type                 | Default                            | Description                 |
+| ------------- | -------------------- | ---------------------------------- | --------------------------- |
+| `variant`     | `"solid" \| "dashed" \| "gradient"` | `"solid"`         | Line style; `gradient` is transparent at the center circle and full strength at the outer end |
+| `dashArray`   | `string`             | `"4 4"`                            | `dashed` only: stroke-dasharray (butt caps) |
+| `showDot`     | `boolean`            | `true` for solid / dashed, `false` for gradient | End dot        |
+| `color`       | `string`             | `var(--foreground)`                | Line + dot color            |
+| `lineOpacity` | `number`             | `0.7`                              | Line opacity                |
+| `strokeWidth` | `number`             | `1.5`                              | Line width                  |
+| `dotRadius`   | `number`             | scales with the chart              | End dot radius in px        |
+| `rest`        | `"now" \| "hidden"`  | `"now"` when tracking now, else `"hidden"` | Resting position    |
+| `spring`      | `SpringOptions`      | `{ stiffness: 420, damping: 42 }`  | Spring toward the hovered bin; crosshair-locked hover dots follow it |
+
+### RadialCenter
+
+Center stat in the hole. By default it shows the sum of the series totals at rest and the hovered bin's sum while hovering. Pass a render function for custom content.
+
+| Prop             | Type                                    | Default   | Description                                 |
+| ---------------- | --------------------------------------- | --------- | ------------------------------------------- |
+| `defaultLabel`   | `string`                                | `"Total"` | Label under the value at rest               |
+| `formatOptions`  | `ChartStatFlowFormat`                   | -         | Number format for the value                 |
+| `prefix`         | `string`                                | -         | Value prefix                                |
+| `suffix`         | `string`                                | -         | Value suffix                                |
+| `className`      | `string`                                | -         | Container class                             |
+| `valueClassName` | `string`                                | -         | Value class                                 |
+| `labelClassName` | `string`                                | -         | Label class                                 |
+| `children`       | `(state: RadialCenterState) => ReactNode` | -       | Full control over the content               |
+
+The render function receives `{ index, datum, label, isFuture, totals, values }`: the hovered bin (all `null` at rest), its x label, whether it is a future bin, per-series totals over non-future bins and the hovered bin's per-series values.
+
+### RadialLegend
+
+Dot, muted label and series total per series. `emphasize` series tint their total. Hovering an item dims the other series in every layer.
+
+| Prop          | Type                        | Default         | Description                                                  |
+| ------------- | --------------------------- | --------------- | ------------------------------------------------------------ |
+| `formatValue` | `(value: number) => string` | en-US integer   | Format the per-series totals                                 |
+| `showValues`  | `boolean`                   | `true`          | Show totals (turn off when sums are meaningless, e.g. temperatures or percentages) |
+| `className`   | `string`                    | -               | Wrapper class                                                |
+
+## Examples
+
+### Pull requests by time of day
+
+`RadialDotBar` stacks each series as dots in its 15-minute bin, with yesterday drawn as a ghost behind today and an annotation on the draft spike. `RadialCenter` takes a render function for a custom readout — here merged PRs and the change against yesterday at the same time.
+
+<ComponentShowcase
+  code={`const series = [
+  { dataKey: "merged", label: "Merged", color: "var(--chart-1)", rampFrom: 0.4 },
+  { dataKey: "ready", label: "Ready for merge", color: "var(--chart-2)" },
+  { dataKey: "draft", label: "Draft", color: "var(--chart-3)", emphasize: true },
+];
+
+<RadialChart data={chartData} xDataKey="time" series={series}>
+  <RadialAxis />
+  <RadialDotBar
+    ghostDataKey="yesterday"
+    annotations={[{ index: 8, label: "02:14", color: "var(--chart-3)" }]}
+  />
+  <RadialScrubber />
+  <RadialCenter>
+    {({ datum, isFuture, totals, values, label }) => {
+      // Today vs yesterday over the same bins: a count, not a rate
+      let merged = totals.merged;
+      let delta = merged - yesterdayMergedSoFar;
+      let caption = \`merged by \${nowLabel}\`;
+      if (datum) {
+        merged = isFuture ? datum.yesterdayMerged : values.merged;
+        delta = isFuture ? null : merged - datum.yesterdayMerged;
+        caption = isFuture ? \`merged at \${label} yesterday\` : \`merged at \${label}\`;
+      }
+      return (
+        <>
+          <ChartStatFlow value={merged} label={caption} />
+          {delta !== null && (
+            <span style={{ color: delta < 0 ? "var(--chart-negative)" : "var(--chart-positive)" }}>
+              {delta < 0 ? "−" : "+"}
+              {Math.abs(delta).toLocaleString()} vs yesterday
+            </span>
+          )}
+        </>
+      );
+    }}
+  </RadialCenter>
+  <RadialLegend />
+</RadialChart>`}
+  liveChartPreview
+  previewMinHeight={320}
+>
+  <RadialDotBarExample />
+</ComponentShowcase>
+
+The examples mix the three `RadialScrubber` styles: `variant="solid"` (the default, a line ending in a dot — the dot bars above), `"dashed"` (patterned dots) and `"gradient"` (a line that fades in toward the rim with no end dot — the line and temperature charts).
+
+### Today vs yesterday
+
+`RadialLine` draws a smooth line around the clock. Draw a comparison key that isn't a series (here yesterday's merged PRs) as a dashed line for the whole day, and give both lines one `maxValue` so they share a scale. Today's line ends at "now".
+
+<ComponentShowcase
+  code={`const series = [
+  { dataKey: "merged", label: "Merged today", color: "var(--chart-1)" },
+];
+
+<RadialChart data={chartData} xDataKey="time" series={series}>
+  <RadialAxis />
+  {/* Not a series: drawn as a comparison line for the whole day */}
+  <RadialLine
+    dataKey="yesterday"
+    dash
+    stroke="var(--muted-foreground)"
+    strokeOpacity={0.7}
+    strokeWidth={1.5}
+    maxValue={maxValue}
+  />
+  <RadialLine dataKey="merged" strokeWidth={2.25} maxValue={maxValue} />
+  <RadialScrubber variant="gradient" />
+  <RadialCenter>
+    {({ datum, totals, label }) => (
+      <ChartStatFlow
+        value={datum ? (datum.merged ?? datum.yesterday) : totals.merged}
+        label={datum ? \`merged at \${label}\` : \`merged by \${nowLabel}\`}
+      />
+    )}
+  </RadialCenter>
+  <RadialLegend />
+</RadialChart>`}
+  liveChartPreview
+  previewMinHeight={320}
+>
+  <RadialLineExample />
+</ComponentShowcase>
+
+### Time axis
+
+With `angleType="time"`, `datum[xDataKey]` holds a date per evenly spaced bin and `RadialAxis` draws UTC time ticks with month names between them. Here a year of San Francisco temperatures shares one scale: `valueKeys` pulls the record extremes into the domain, `minValue="auto"` maps the coldest record to the band base, and two banded `RadialArea`s draw the record and normal ranges for the whole year. This year's daily mean is the series: it is `null` after today, so `trackNow` rests the scrubber on today and the `RadialLine` ends in a pulsing "now" marker.
+
+<ComponentShowcase
+  code={`const series = [
+  { dataKey: "temp", label: "2026", color: "var(--chart-1)" },
+];
+
+// One datum per day of this year, °F — \`temp\` is null after today
+const days = [
+  { date: Date.UTC(2026, 0, 1), temp: 51.4, avg: 50.2, min: 43.6, max: 55.7, minmin: 37, maxmax: 62 },
+  // …
+];
+
+const todayIndex = days.findLastIndex((d) => d.temp !== null);
+const dayFormat = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
+
+<RadialChart
+  angleType="time"
+  data={days}
+  xDataKey="date"
+  series={series}
+  trackNow
+  valueKeys={["minmin", "maxmax"]}
+  minValue="auto"
+  maxValue="auto"
+  niceValues={false}
+>
+  <RadialAxis showCircle={false} valueTicks={4} valueTickFormat={(v) => \`\${v}°F\`} />
+  {/* Record extremes */}
+  <RadialArea
+    dataKey="maxmax"
+    baseDataKey="minmin"
+    color="var(--chart-1)"
+    fillOpacity={0.14}
+    rampFrom={1}
+    stroke="none"
+    curve="linear"
+  />
+  {/* Normal range: average low → average high */}
+  <RadialArea
+    dataKey="max"
+    baseDataKey="min"
+    color="var(--chart-1)"
+    fillOpacity={0.28}
+    rampFrom={1}
+    stroke="none"
+    curve="linear"
+  />
+  {/* This year up to today */}
+  <RadialLine dataKey="temp" strokeWidth={1.5} />
+  <RadialScrubber variant="gradient" />
+  <RadialCenter>
+    {({ index }) => {
+      const day = days[index ?? todayIndex];
+      return (
+        <ChartStatFlow
+          value={day.temp ?? day.avg}
+          label={day.temp === null ? "normal average" : dayFormat.format(day.date)}
+          suffix="°F"
+          formatOptions={{ maximumFractionDigits: 1 }}
+        />
+      );
+    }}
+  </RadialCenter>
+</RadialChart>`}
+  liveChartPreview
+  previewMinHeight={320}
+>
+  <TemperatureAreaExample />
+</ComponentShowcase>
+
+### Categories
+
+With `angleType="band"` every bin is a category and `RadialAxis` labels each one, rotated along its spoke. `maxValue="stacked"` gives the chart one shared scale so the axis can draw value rings; rendering `RadialAxis` after `RadialBar` keeps the rings and labels on top. Colors fall back to `--chart-1` … `--chart-5` by series position.
+
+<ComponentShowcase
+  code={`const series = [
+  { dataKey: "under14", label: "Under 14" },
+  { dataKey: "age14to24", label: "14–24" },
+  { dataKey: "age25to44", label: "25–44" },
+  { dataKey: "age45to64", label: "45–64" },
+  { dataKey: "age65plus", label: "65+" },
+]; // colors default to --chart-1 … --chart-5 by position
+
+// 50 states + DC, sorted by total population, largest first
+const states = [
+  { state: "CA", name: "California", under14: 7205000, age14to24: 6014000, age25to44: 10605000, age45to64: 8819000, age65plus: 4114000 },
+  // …
+];
+
+const compact = new Intl.NumberFormat("en-US", { notation: "compact" });
+
+<RadialChart
+  angleType="band"
+  data={states}
+  xDataKey="state"
+  series={series}
+  maxValue="stacked"
+>
+  <RadialBar />
+  {/* after the bars, so value rings + labels sit on top */}
+  <RadialAxis
+    showCircle={false}
+    valueTicks={[10e6, 20e6, 30e6, 40e6]}
+    valueTickFormat={(v) => compact.format(v)}
+  />
+  <RadialCenter>
+    {({ datum, totals, values }) => {
+      const counts = datum ? values : totals;
+      return (
+        <ChartStatFlow
+          value={Object.values(counts).reduce((a, b) => a + b, 0)}
+          formatOptions={{ notation: "compact", maximumFractionDigits: 1 }}
+          label={datum ? String(datum.name) : "US population"}
+        />
+      );
+    }}
+  </RadialCenter>
+  <RadialLegend showValues={false} />
+</RadialChart>`}
+  liveChartPreview
+  previewMinHeight={320}
+>
+  <PopulationStackedBarExample />
+</ComponentShowcase>
+
+### Angular rings and partial arcs
+
+`orientation="angular"` turns each datum into a ring and sweeps the value along the arc; `startAngle={-90}` / `endAngle={90}` makes it a semicircle, and `fitArc` crops the stage to the half disc. `RadialRingBar` stacks each device's content types end to end; on angular charts `RadialAxis` puts value ticks along the arc and a label at the start of each ring.
+
+<ComponentShowcase
+  code={`const series = [
+  { dataKey: "photos", label: "Photos", color: "var(--chart-1)" },
+  { dataKey: "apps", label: "Apps", color: "var(--chart-2)" },
+  { dataKey: "documents", label: "Documents", color: "var(--chart-3)" },
+  { dataKey: "system", label: "System", color: "var(--chart-4)" },
+];
+
+// One ring per device, innermost first. Values are % of the device's capacity (GB).
+const chartData = [
+  { device: "Phone", capacity: 256, photos: 46.1, apps: 21.1, documents: 3.5, system: 8.6 },
+  { device: "Laptop", capacity: 1024, photos: 20.7, apps: 16.4, documents: 23, system: 7.2 },
+  { device: "Cloud", capacity: 2048, photos: 41.3, apps: 0, documents: 20.1, system: 0 },
+];
+
+const percentUsed = (d) => d.photos + d.apps + d.documents + d.system;
+const totalCapacity = chartData.reduce((total, d) => total + d.capacity, 0);
+const overallUsed =
+  chartData.reduce((total, d) => total + percentUsed(d) * d.capacity, 0) / totalCapacity;
+
+<RadialChart
+  data={chartData}
+  xDataKey="device"
+  series={series}
+  orientation="angular"
+  startAngle={-90}
+  endAngle={90}
+  maxValue={100}
+  ringGap={0.18}
+>
+  <RadialAxis
+    showCircle={false}
+    valueTicks={[0, 25, 50, 75, 100]}
+    valueTickFormat={(v) => \`\${v}%\`}
+  />
+  <RadialRingBar cornerRadius={3} segmentGap={3} />
+  {/* The hole sits on the arc's center: lift the content into the half-disc */}
+  <RadialCenter className="-translate-y-[30%]">
+    {({ datum }) => (
+      <ChartStatFlow
+        value={datum ? percentUsed(datum) : overallUsed}
+        formatOptions={{ maximumFractionDigits: 0 }}
+        suffix="%"
+        label={datum ? \`\${datum.device} used\` : "used across devices"}
+      />
+    )}
+  </RadialCenter>
+  <RadialLegend className="mt-8" showValues={false} />
+</RadialChart>`}
+  liveChartPreview
+  previewMinHeight={280}
+>
+  <RadialStorageSemicircleExample />
+</ComponentShowcase>
+
+### Patterned dots
+
+`patterns` fills a series' dots with a pattern preset (`"diagonal"`, `"horizontal"`, `"vertical"`, `"cross"`, `"dots"`, `"circles"`, `"accent"`) keyed by `dataKey`; use `"ghost"` for the ghost layer (e.g. a striped forecast). Large dots in `layout="columns"` read best.
+
+<ComponentShowcase
+  code={`const series = [
+  { dataKey: "solar", label: "Solar", color: "var(--chart-2)" },
+  { dataKey: "grid", label: "Grid", color: "var(--chart-1)" },
+];
+
+<RadialChart data={chartData} xDataKey="time" series={series}>
+  <RadialAxis />
+  <RadialDotBar
+    layout="columns"
+    rows={5}
+    dotSize={0.9}
+    maxValue={3.2}
+    ghostDataKey="forecast"
+    ghostColor="var(--muted-foreground)"
+    ghostDotSize={0.9}
+    ghostOpacity={0.6}
+    patterns={{
+      grid: { preset: "diagonal", strokeWidth: 1.5 },
+      ghost: { preset: "diagonal", stroke: "none" },
+    }}
+  />
+  <RadialScrubber variant="dashed" />
+  <RadialCenter>
+    {({ datum, isFuture, totals, values, label }) => {
+      const counts = datum ? values : totals;
+      let caption = "kWh so far";
+      if (datum) {
+        caption = isFuture ? \`forecast \${label}\` : \`kWh at \${label}\`;
+      }
+      return (
+        <ChartStatFlow
+          value={isFuture ? datum.forecast : counts.solar + counts.grid}
+          formatOptions={{ minimumFractionDigits: 1, maximumFractionDigits: 1 }}
+          label={caption}
+        />
+      );
+    }}
+  </RadialCenter>
+  <RadialLegend formatValue={(v) => \`\${v.toFixed(1)} kWh\`} />
+</RadialChart>`}
+  liveChartPreview
+  previewMinHeight={320}
+>
+  <RadialForecastDotBarExample />
+</ComponentShowcase>
+
+Pass a preset id for defaults, or a `RadialDotPattern`:
+
+| Field         | Type                | Default                 | Description                                                                |
+| ------------- | ------------------- | ----------------------- | -------------------------------------------------------------------------- |
+| `preset`      | `PatternPresetId`   | `"diagonal"`            | Pattern preset                                                             |
+| `fill`        | `string`            | -                       | Custom fill (e.g. `url(#my-pattern)`); ignores `preset`, `color`, `scale`, `units` |
+| `color`       | `string`            | series color            | Stripe / dot color                                                         |
+| `scale`       | `number`            | `1`                     | Pattern tile scale                                                         |
+| `strokeWidth` | `number`            | preset width × `scale`  | Stripe stroke width in px                                                  |
+| `background`  | `string`            | transparent             | Tile background behind the stripes                                         |
+| `stroke`      | `string`            | `color`                 | Ring around each dot so patterned dots read as circles; `"none"` hides it |
+| `ringWidth`   | `number`            | `1`                     | Ring width in px                                                           |
+| `units`       | `"dot" \| "chart"`  | `"dot"`                 | Fit the tile to each dot, or one continuous texture across the chart       |
+
+## Hooks
+
+### useRadialChart
+
+Build your own layer from the shared context — geometry (`radius`, `innerRadius`, `outerRadius`, `centerRadius`, `layout`), angles (`binAngle`, `binStartAngle`, `angleToBin`, `fractionToAngle`, `timeToAngle`), the value scale (`valueDomain`, `valueScale`, `valueToAngle`, `ringBand`), state (`hoveredIndex`, `hoveredSeries`, `futureBins`, `nowIndex`, `totals`) and the enter flag (`revealed`).
+
+```tsx
+import { polarToCartesian, radialNumberAt, useRadialChart } from "@bklitui/ui/charts";
+
+function PeakMarkers({ dataKey }: { dataKey: string }) {
+  const { data, binAngle, valueScale, revealed } = useRadialChart();
+  return (
+    <g opacity={revealed ? 1 : 0}>
+      {data.map((d, i) => {
+        const value = radialNumberAt(d, dataKey);
+        if (value === null) return null;
+        const { x, y } = polarToCartesian(binAngle(i), valueScale(value));
+        return <circle cx={x} cy={y} fill="var(--chart-1)" key={i} r={2} />;
+      })}
+    </g>
+  );
+}
+```
+
+`valueScale` uses the chart's shared domain; for a layer with its own scale use `createRadialScale({ maxValue, innerRadius, outerRadius })`. Other helpers: `radialSeriesColor`, `radialTimeOf`, `radialArcPath`, `radialWedgePath` and `defaultRadialLayout`.
+
+See the [charts gallery](/charts/radial-chart) for every radial variant.
+</doc>
+
 <doc title="Ring Chart" path="../apps/web/content/docs/components/ring-chart.mdx">
-import { RingChart, Ring, RingCenter } from "@bklitui/ui/charts";
-import { RingChartDemo } from "@/components/docs/ring-chart-demo";
+import {
+  RingChartDemo,
+  RingChartGridDemo,
+} from "@/components/docs/ring-chart-demo";
 
 <ComponentPreview registryName="ring-chart">
   <RingChartDemo />
@@ -3984,7 +4779,7 @@ import { RingChartDemo } from "@/components/docs/ring-chart-demo";
 
 ## Installation
 
-<InstallationTabs name="ring-chart" dependencies={["@visx/responsive", "@number-flow/react", "motion"]} />
+<InstallationTabs name="ring-chart" dependencies={["@number-flow/react", "d3-shape", "motion"]} />
 
 ## Usage
 
@@ -4024,6 +4819,9 @@ The root component that provides context to all children.
 | `strokeWidth` | `number` | `12` | Width of each ring |
 | `ringGap` | `number` | `6` | Gap between rings |
 | `baseInnerRadius` | `number` | `60` | Inner radius of the innermost ring |
+| `startAngle` | `number` | `-Math.PI / 2` | Arc start in radians (0 = 12 o'clock, clockwise) |
+| `endAngle` | `number` | `3 * Math.PI / 2` | Arc end in radians (full circle by default) |
+| `padding` | `number` | `8` (`32` with `RingGrid`) | Space between the outermost ring and the chart edge |
 | `hoveredIndex` | `number \| null` | - | Controlled hover state |
 | `onHoverChange` | `(index: number \| null) => void` | - | Hover state callback |
 | `className` | `string` | `""` | Additional CSS class |
@@ -4050,6 +4848,66 @@ Displays the total or hovered value in the center of the chart.
 | `formatValue` | `(value: number) => string` | `toLocaleString()` | Format function for values |
 | `children` | `function` | - | Custom render function |
 | `className` | `string` | `""` | Additional CSS class |
+
+### RingGrid
+
+A circular grid: spokes across the rings at progress intervals, with tick labels along the outer edge of the arc. Ticks are fractions of each ring's `maxValue`. Place it **before** the rings so the spokes sit behind the progress fill. When present, `RingChart` reserves room for the labels (`padding` defaults to `32`).
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `ticks` | `number \| number[]` | `4` | Number of equal intervals, or explicit fractions (`[0, 0.5, 1]`) |
+| `tickFormat` | `(fraction: number) => string` | `"25%"` | Tick label format |
+| `showSpokes` | `boolean` | `true` | Spokes across the rings |
+| `showLabels` | `boolean` | `true` | Tick labels outside the arc |
+| `stroke` | `string` | `var(--chart-foreground)` | Spoke color |
+| `strokeOpacity` | `number` | `0.2` | Spoke opacity |
+| `tickLength` | `number` | `4` | Spoke overhang past the outermost ring (px) |
+| `labelColor` | `string` | `var(--chart-label)` | Tick label color |
+| `fontSize` | `number` | scales with size | Tick label font size (px) |
+| `labelOffset` | `number` | `4` | Gap between spoke end and label (px) |
+
+On a full circle the `100%` tick lands on `0%`, so only `0%` is drawn.
+
+### RingLabels
+
+Each ring's label, placed just before the ring's start angle and aligned with its bar. On a 270° arc the labels sit beside the start, in the open quadrant; when the arc starts at 3 or 9 o'clock (a semicircle across the top) they are rotated upright along the start edge. Best on partial arcs — on a full circle there is no open space at the start.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `format` | `(data: RingData, index: number) => string` | `data.label` | Label text per ring |
+| `colorByRing` | `boolean` | `false` | Use each ring's color instead of the muted label color |
+| `color` | `string` | `var(--chart-label)` | Label color when `colorByRing` is off |
+| `fontSize` | `number` | scales with ring width | Font size (px) |
+| `offset` | `number` | `0.6 × fontSize` | Distance before each ring's start (px) |
+
+Labels fade in as their ring starts filling and dim with the rings on hover.
+
+<ComponentPreview>
+  <RingChartGridDemo />
+</ComponentPreview>
+
+```tsx
+import { Ring, RingCenter, RingChart, RingGrid, RingLabels } from "@bklitui/ui/charts";
+
+// Three-quarter arc: 6 o'clock → 3 o'clock, labels in the open quadrant
+<RingChart data={data} startAngle={-Math.PI} endAngle={Math.PI / 2}>
+  <RingGrid />
+  {data.map((item, index) => (
+    <Ring index={index} key={item.label} />
+  ))}
+  <RingLabels colorByRing />
+  <RingCenter defaultLabel="Activity" />
+</RingChart>
+
+// Half circle across the top: labels run up the left edge
+<RingChart data={data} startAngle={-Math.PI / 2} endAngle={Math.PI / 2}>
+  <RingGrid ticks={[0, 0.5, 1]} />
+  {data.map((item, index) => (
+    <Ring index={index} key={item.label} />
+  ))}
+  <RingLabels />
+</RingChart>
+```
 
 ### Legend
 
@@ -4106,14 +4964,15 @@ The ring chart features a multi-phase animation on mount:
 1. **Ring Expansion** - Background rings scale in with staggered timing
 2. **Progress Arcs** - Progress arcs animate from 0 to their target value
 3. **Center Content** - Value and label fade in
-4. **Legend** - Items slide in from the right with progress bars filling
+4. **Grid & labels** - `RingGrid` enters like the radar chart grid — spokes extend outward one after another, then tick labels fade in while sliding out from the center; each `RingLabels` label fades in as its ring starts filling
+5. **Legend** - Items slide in from the right with progress bars filling
 
-All animations use spring physics for natural motion.
+All animations use spring physics for natural motion. With `prefers-reduced-motion`, rings, grid and labels render in their final state.
 
 ## Dependencies
 
 ```bash
-pnpm add @visx/shape @visx/group @visx/responsive motion
+pnpm add @number-flow/react d3-shape motion
 ```
 </doc>
 
@@ -4186,7 +5045,7 @@ export const analyticsData = {
 
 ## Installation
 
-<InstallationTabs name="sankey-chart" dependencies={["@visx/gradient", "@visx/responsive", "@visx/sankey", "motion"]} />
+<InstallationTabs name="sankey-chart" dependencies={["d3-sankey", "motion"]} />
 
 ## Usage
 
@@ -4336,7 +5195,7 @@ See the [charts gallery](/charts/sankey-chart) for label-free layouts and patter
 This component requires:
 
 ```bash
-pnpm add @visx/sankey @visx/responsive motion react-use-measure
+pnpm add d3-sankey motion react-use-measure
 ```
 </doc>
 
@@ -5074,7 +5933,7 @@ import { LineChart, Line, XAxis, YAxis, ChartTooltip } from "@bklitui/ui/charts"
 | `yAxisId` | `string \| number` | `"left"` | Scale group (pair with `yAxisId` on `Line` / `Area`) |
 | `orientation` | `"left" \| "right"` | `"left"` | Which side of the chart renders tick labels |
 | `numTicks` | `number` | `5` | Approximate tick count hint for d3 `scale.ticks()` (actual labels may differ). Valid range: 1–10 |
-| `formatLargeNumbers` | `boolean` | `true` | Format values ≥1000 as "1k", "2k", etc. |
+| `formatLargeNumbers` | `boolean` | `true` | Format values ≥1000 as "1k", "1.5k", "2k", etc. |
 | `formatValue` | `(value: number) => string` | — | Custom tick formatter (overrides `formatLargeNumbers`) |
 
 In **Studio** (`/studio`), open a time-series chart (line, area, composed, scatter, vertical bar, or profit/loss line) and select **YAxis · left** or **YAxis · right** in the components tree to edit `numTicks` and `formatLargeNumbers` per axis. Each series exposes a **Y axis** control (left / right) except horizontal bar charts (categorical `BarYAxis` only).
@@ -5244,7 +6103,7 @@ import { OpenInStudioButton } from "@/components/docs/open-in-studio-button";
 
 ## Installation
 
-<InstallationTabs name="band" dependencies={["@visx/curve", "d3-shape", "motion"]} />
+<InstallationTabs name="band" dependencies={["d3-shape", "motion"]} />
 
 `Band` also ships with `@bklit/line-chart`, so it is already available if you installed the line chart.
 
@@ -5985,7 +6844,7 @@ import { OpenInStudioButton } from "@/components/docs/open-in-studio-button";
 
 ## Installation
 
-<InstallationTabs name="grid" dependencies={["@visx/grid"]} />
+<InstallationTabs name="grid" dependencies={["d3-scale"]} />
 
 ## Usage
 
@@ -6678,7 +7537,7 @@ import { OpenInStudioButton } from "@/components/docs/open-in-studio-button";
 
 ## Installation
 
-<InstallationTabs name="projection-line" dependencies={["@visx/shape", "motion"]} />
+<InstallationTabs name="projection-line" dependencies={["d3-shape", "motion"]} />
 
 ## Usage
 
@@ -7002,6 +7861,8 @@ import { LineChart, Line, Grid, ChartTooltip } from "@bklitui/ui/charts";
 | `showCrosshair` | `boolean` | `true` (`false` in `BarChart` and jittered `ScatterChart`) | Show the crosshair indicator line. Bar charts (vertical and horizontal) and `ScatterChart` with `jitter` (hover snaps to the nearest point, not a date) hide it by default — pass `showCrosshair` to opt in |
 | `showDots` | `boolean` | `true` | Show dots on data points |
 | `indicatorColor` | `string \| (point) => string` | — | Crosshair and dot color; pass a function for dynamic colors |
+| `indicatorEndColor` | `string` | — | Bottom colour of a vertical crosshair ramp (`indicatorColor` at the top) |
+| `indicatorEnd` | `"plot" \| "point"` | `"plot"` | Span the full plot height, or stop at the hovered point |
 | `indicatorDasharray` | `string` | — | SVG dash pattern for the crosshair (e.g. `"4,4"`). Omit for solid |
 | `indicatorFadeEdges` | `"both" \| "top" \| "bottom" \| "none"` | `"both"` | Vertical crosshair fade; `none` = solid line |
 | `indicatorFadeLength` | `number` | `10` | Fade zone size (% of crosshair height) when fading |
@@ -7010,12 +7871,14 @@ import { LineChart, Line, Grid, ChartTooltip } from "@bklitui/ui/charts";
 | `springConfig` | `{ stiffness: number; damping: number }` | chart config | Full spring override for crosshair, dots, and date pill |
 | `boxSpringConfig` | `{ stiffness: number; damping: number }` | chart config | Full spring override for the floating tooltip panel |
 | `exit` | `boolean` | `true` | Fade the panel out when hover ends. `false` hides it immediately |
+| `topOffset` | `number` | `0` | Extra gap (px) between the top of the plot and the panel when it is pinned to the top |
 | `backgroundColor` | `string` | `var(--chart-tooltip-background)` | Panel background (CSS variable or color value) |
 | `panelStyle` | `CSSProperties` | — | Inline styles for tooltip background and blur |
 | `dotVariant` | `"dot" \| "ring"` | `"dot"` | Dot style on series markers. `dot` is a solid core with a soft same-color halo |
 | `dotSize` | `number` | `5` | Dot core / ring radius in pixels |
 | `dotHaloScale` | `number` | `2.6` | Halo radius as a multiple of `dotSize`; `0` hides the halo. Dot variant only |
 | `dotHaloOpacity` | `number` | `0.3` | Halo opacity (0–1). Dot variant only |
+| `dotHaloBlur` | `number` | `0` | Blur (px) on the halo for a soft glow. Dot variant only |
 | `dotRadiusFraction` | `number` | — | Ring corner radius as a fraction of side length (0 = square, 0.5 = circle). Ring variant only |
 | `dotScale` | `number` | `1` | Multiplier applied to the dot / ring radius |
 | `dotStrokeWidth` | `number` | `1.5` (ring) / `0` (dot) | Ring stroke width; for the dot variant, a background-colored outline around the core |

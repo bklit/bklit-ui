@@ -49,7 +49,7 @@ function linesWhen(
   return { key: patternKey, not: ["none", "dots", "circles"] };
 }
 
-/** Visx-relevant props shown when a pattern style is selected. */
+/** Pattern props shown when a pattern style is selected. */
 export function patternDetailControls(
   patternKey: keyof StudioUrlState,
   keys: PatternControlKeys,

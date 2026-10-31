@@ -3253,7 +3253,7 @@ function makeComposedHero(): ChartExample {
   <XAxis numTicks={8} />
 </ComposedChart>`,
     footer:
-      "Hero uses a Radix Select for the Line and Area `curve` prop (SeriesBar shape is unchanged). See https://visx.airbnb.tech/docs/curve.",
+      "Hero uses a Radix Select for the Line and Area `curve` prop (SeriesBar shape is unchanged). See https://d3js.org/d3-shape/curve.",
     render: () => <ComposedHeroWithCurveSelect />,
   };
 }
@@ -6138,7 +6138,7 @@ const ohlcData: OHLCDataPoint[] = [ ... ];`,
 // Hero examples (full-width, richer composition)
 // ---------------------------------------------------------------------------
 
-/** Catmull–Rom (α 0.42) for hero curve menu + composed gallery; see https://visx.airbnb.tech/docs/curve */
+/** Catmull–Rom (α 0.42) for hero curve menu + composed gallery; see https://d3js.org/d3-shape/curve */
 
 const HERO_CURVE_OPTIONS = [
   { value: "natural", label: "Natural", curve: curveNatural },

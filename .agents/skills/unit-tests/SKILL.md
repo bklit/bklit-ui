@@ -35,10 +35,10 @@ Do **not** add tests just to increase coverage or “be thorough”:
 
 | Skip | Why |
 |------|-----|
-| React component render smoke tests | visx, motion, portals → brittle; manual/docs check is cheaper |
+| React component render smoke tests | SVG, motion, portals → brittle; manual/docs check is cheaper |
 | `memo()` / guard extractions (#65-style) | Structural perf refactors; output unchanged; RTL mount assertions are heavy |
 | Default prop passthrough | `formatValue = intFmt` — types + formatter tests cover it |
-| Third-party library behavior | Don’t re-test d3, visx, or React |
+| Third-party library behavior | Don’t re-test d3, Motion, or React |
 | Trivial getters / one-line wrappers | No regression signal |
 | Snapshot entire chart SVG/JSX | High churn, low signal |
 

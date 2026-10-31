@@ -60,7 +60,7 @@ export const metadata: Metadata = {
     "shadcn/ui charts",
     "data visualization",
     "chart components",
-    "visx",
+    "d3",
     "Tailwind CSS",
     "dashboard charts",
   ],

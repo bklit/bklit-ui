@@ -1,4 +1,4 @@
-/** Map viewport coordinates to SVG user space (no @visx/event). */
+/** Map viewport coordinates to SVG user space. */
 export function localPointFromSvg(
   svg: SVGSVGElement | null,
   clientX: number,
