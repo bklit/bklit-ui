@@ -19,10 +19,7 @@ import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
 import { type SpringConfig, useChartConfig } from "../chart-config-context";
 import { chartCssVars, useChartPortalContainer } from "../chart-context";
-import {
-  TOOLTIP_PANEL_CLASS_NAME,
-  TOOLTIP_PANEL_INNER_CLASS_NAME,
-} from "./tooltip-box";
+import { TOOLTIP_PANEL_CLASS_NAME, TooltipPanel } from "./tooltip-box";
 
 export interface CursorTooltipBoxProps {
   /** Whether the tooltip is visible */
@@ -39,6 +36,11 @@ export interface CursorTooltipBoxProps {
   exit?: boolean;
   /** Per-chart override; falls back to `ChartConfigProvider.tooltipBoxSpring`. */
   springConfig?: SpringConfig;
+  /**
+   * Tween the panel to its new size when the content grows or shrinks. Off
+   * under reduced motion. Default: true
+   */
+  animateSize?: boolean;
   /** Inline styles for the inner tooltip panel. */
   panelStyle?: CSSProperties;
   /**
@@ -173,11 +175,12 @@ function CursorTooltipPanel({
   onMeasure,
   className,
   children,
+  animateSize = true,
   panelStyle,
   backgroundColor = chartCssVars.tooltipBackground,
 }: Pick<
   CursorTooltipBoxProps,
-  "className" | "children" | "panelStyle" | "backgroundColor"
+  "className" | "children" | "animateSize" | "panelStyle" | "backgroundColor"
 > & {
   container: HTMLElement;
   x: MotionValue<number>;
@@ -209,8 +212,8 @@ function CursorTooltipPanel({
       style={{ x, y }}
       transition={{ duration: 0.1 }}
     >
-      <motion.div
-        animate={{ scale: 1, opacity: 1 }}
+      <TooltipPanel
+        animateSize={animateSize && !reducedMotion}
         className={cn(
           TOOLTIP_PANEL_CLASS_NAME,
           panelStyle?.backgroundColor === undefined &&
@@ -218,18 +221,17 @@ function CursorTooltipPanel({
             "bg-chart-tooltip-background",
           panelStyle?.backdropFilter === undefined && "backdrop-blur-md"
         )}
-        initial={reducedMotion ? { opacity: 0 } : { scale: 0.85, opacity: 0 }}
+        entrance={reducedMotion ? false : { scale: 0.85 }}
         style={{
-          transformOrigin: flipped ? "right center" : "left center",
           ...(panelStyle?.backgroundColor === undefined && {
             backgroundColor,
           }),
           ...panelStyle,
         }}
-        transition={{ type: "spring", stiffness: 300, damping: 25 }}
+        transformOrigin={flipped ? "right center" : "left center"}
       >
-        <div className={TOOLTIP_PANEL_INNER_CLASS_NAME}>{children}</div>
-      </motion.div>
+        {children}
+      </TooltipPanel>
     </motion.div>,
     container
   );

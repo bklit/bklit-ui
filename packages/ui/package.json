@@ -13,7 +13,6 @@
     "./code": "./src/code.tsx",
     "./chart-grid": "./src/chart-grid.tsx",
     "./chart-marker": "./src/chart-marker.tsx",
-    "./tooltip": "./src/tooltip.tsx",
     "./*": "./src/*.tsx"
   },
   "scripts": {
@@ -60,7 +59,6 @@
     "motion": "^12.27.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "react-use-measure": "^2.1.7",
     "tailwind-merge": "^2.6.0",
     "topojson-client": "3.1.0"
   }

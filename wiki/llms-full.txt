@@ -1192,7 +1192,7 @@ The Area Chart uses the same CSS variables as the Line Chart:
 This component requires the same packages as the Line Chart:
 
 ```bash
-pnpm add d3-shape d3-scale d3-array motion react-use-measure
+pnpm add d3-shape d3-scale d3-array motion
 ```
 </doc>
 
@@ -1802,7 +1802,7 @@ The Bar Chart uses the same CSS variables as other charts:
 This component requires the same packages as the other charts:
 
 ```bash
-pnpm add d3-shape d3-scale d3-array motion react-use-measure
+pnpm add d3-shape d3-scale d3-array motion
 ```
 </doc>
 
@@ -2022,7 +2022,7 @@ See [Theming](/docs/theming) for the full sequential scale reference.
 This component requires:
 
 ```bash
-pnpm add d3-geo topojson-client motion react-use-measure
+pnpm add d3-geo topojson-client motion
 ```
 </doc>
 
@@ -3459,7 +3459,7 @@ The chart uses CSS variables for theming. Define these in your CSS:
 This component requires the following packages:
 
 ```bash
-pnpm add d3-shape d3-scale d3-array motion react-use-measure
+pnpm add d3-shape d3-scale d3-array motion
 ```
 </doc>
 
@@ -5195,7 +5195,7 @@ See the [charts gallery](/charts/sankey-chart) for label-free layouts and patter
 This component requires:
 
 ```bash
-pnpm add d3-sankey motion react-use-measure
+pnpm add d3-sankey motion
 ```
 </doc>
 
@@ -5213,7 +5213,7 @@ import {
 
 <InstallationTabs
   name="scatter-chart"
-  dependencies={["d3-scale", "d3-array", "motion", "react-use-measure"]}
+  dependencies={["d3-scale", "d3-array", "motion"]}
 />
 
 ## Usage
