@@ -7,7 +7,7 @@
     "width": 640,
     "height": 360
   },
-  "recordedAt": "2026-10-30T20:43:44.763Z",
+  "recordedAt": "2026-10-31T01:55:08.811Z",
   "machine": "dev · Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz × 8 · 8 threads · DPR 1",
   "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
   "hover": true,
@@ -18,7 +18,7 @@
       "id": "enter",
       "label": "Enter",
       "status": "done",
-      "settleMs": 1733,
+      "settleMs": 563,
       "nodes": [
         {"path":"svg[0]","tag":"svg","attrs":{"width":"638","height":"240"}},
         {"path":"svg[0] > g[0]","tag":"g","attrs":{"transform":"translate(28,20)"}},
@@ -69,7 +69,7 @@
       "id": "hover-0",
       "label": "Hover #0 (rect @ 15%,15%)",
       "status": "done",
-      "settleMs": 885,
+      "settleMs": 935,
       "changed": [
         {"path":"svg[1] > g[0] > g[0]","tag":"g","attrs":{}},
         {"path":"svg[1] > g[0] > g[0] > defs[0]","tag":"defs","attrs":{}},
@@ -97,7 +97,7 @@
       "id": "hover-1",
       "label": "Hover #1 (rect @ 50%,50%)",
       "status": "done",
-      "settleMs": 1554,
+      "settleMs": 1551,
       "changed": [
         {"path":"svg[1] > g[0] > g[0]","tag":"g","attrs":{}},
         {"path":"svg[1] > g[0] > g[0] > defs[0]","tag":"defs","attrs":{}},
@@ -127,7 +127,7 @@
       "id": "hover-2",
       "label": "Hover #2 (rect @ 85%,85%)",
       "status": "done",
-      "settleMs": 1286,
+      "settleMs": 1284,
       "changed": [
         {"path":"svg[1] > g[0] > g[0]","tag":"g","attrs":{}},
         {"path":"svg[1] > g[0] > g[0] > defs[0]","tag":"defs","attrs":{}},
@@ -155,7 +155,7 @@
       "id": "hover-leave",
       "label": "Leave",
       "status": "done",
-      "settleMs": 335,
+      "settleMs": 339,
       "changed": [],
       "removed": [],
       "changedTexts": [],

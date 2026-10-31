@@ -82,8 +82,9 @@ const FROZEN_LERP_SPEED = 0.3;
  * `LiveYAxis` picks its tick interval with hysteresis (keeps the previous
  * one while it still fits), and the eased y range is committed on a timer,
  * so which intermediate ranges it sees, and thus the settled label set, can
- * depend on frame timing (docs: $5 vs $10 steps between sweeps). Jumping
- * straight to the target range makes the path, and the labels, fixed.
+ * depend on frame timing (docs: $5 vs $10 steps between sweeps; momentum and
+ * line-only: $75/$85 vs $76/$84 under load). Jumping straight to the target
+ * range makes the path, and the labels, fixed.
  */
 const INSTANT_LERP_SPEED = 1;
 
@@ -93,13 +94,14 @@ const INSTANT_LERP_SPEED = 1;
  */
 function FrozenLiveChart({
   margin,
+  lerpSpeed = FROZEN_LERP_SPEED,
   ...props
 }: ComponentProps<typeof LiveLineChart>) {
   return (
     <FrozenNow at={LAB_NOW}>
       <LiveLineChart
         {...props}
-        lerpSpeed={FROZEN_LERP_SPEED}
+        lerpSpeed={lerpSpeed}
         margin={{ ...EXAMPLE_MARGIN, ...margin }}
         paused
       />
@@ -266,10 +268,12 @@ export const LIVE_LINE_VARIANTS: readonly LabVariant[] = [
     id: "momentum",
     label: "Momentum colours",
     source: `${EXAMPLES}: "Live Line - Momentum Colors" (LiveLineMomentumDemo)`,
-    exercises: "momentumColors up/down/flat, dotSize 5, window 25",
+    exercises:
+      "momentumColors up/down/flat, dotSize 5, window 25 (instant y-range lerp: see INSTANT_LERP_SPEED)",
     render: () => (
       <FrozenLiveChart
         data={momentum.data}
+        lerpSpeed={INSTANT_LERP_SPEED}
         margin={{ left: 28 }}
         style={{ height: 240 }}
         value={momentum.value}
@@ -292,10 +296,12 @@ export const LIVE_LINE_VARIANTS: readonly LabVariant[] = [
     id: "line-only",
     label: "Line only",
     source: `${EXAMPLES}: "Live Line - Line Only" (LiveLineNoFillDemo)`,
-    exercises: "fill={false}, window 28",
+    exercises:
+      "fill={false}, window 28 (instant y-range lerp: see INSTANT_LERP_SPEED)",
     render: () => (
       <FrozenLiveChart
         data={noFill.data}
+        lerpSpeed={INSTANT_LERP_SPEED}
         margin={{ left: 28 }}
         style={{ height: 240 }}
         value={noFill.value}
