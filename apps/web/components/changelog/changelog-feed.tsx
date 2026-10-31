@@ -169,6 +169,35 @@ export function ChangelogFeed({
     };
   }, [measure]);
 
+  // Rail scrubbing: the inverse of `measure` — scroll so the entry at
+  // `fraction` of the rail sits on the reading line. Positions outside this
+  // page's rows clamp to its first or last entry.
+  const scrubTo = useCallback(
+    (fraction: number) => {
+      const position = fraction * Math.max(0, total - 1) - firstPosition;
+      const nodes = rowRefs.current.slice(0, rows.length);
+      if (nodes.length === 0) {
+        return;
+      }
+      const clamped = Math.min(nodes.length - 1, Math.max(0, position));
+      const index = Math.floor(clamped);
+      const node = nodes[index];
+      if (!node) {
+        return;
+      }
+      const rect = node.getBoundingClientRect();
+      const within = position < 0 ? 0 : Math.min(1, clamped - index);
+      const top =
+        window.scrollY +
+        rect.top +
+        within * rect.height -
+        window.innerHeight * ANCHOR +
+        1;
+      window.scrollTo({ top, behavior: "instant" });
+    },
+    [firstPosition, rows.length, total]
+  );
+
   // Keep the address bar on the entry being read (shareable as you scroll).
   const activeUrl = activeIndex >= 0 ? rows[activeIndex]?.url : undefined;
   useEffect(() => {
@@ -211,6 +240,7 @@ export function ChangelogFeed({
             <ChangelogRail
               focus={reduceMotion ? progress : smoothed}
               label={labelRow ? formatChangelogMonth(labelRow.date) : undefined}
+              onScrub={scrubTo}
             />
           </div>
         </aside>
