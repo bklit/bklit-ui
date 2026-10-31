@@ -1,0 +1,33 @@
+---
+title: Bklit is now built on d3
+description: visx is gone. Charts install fewer packages, ship 45% less JavaScript and look exactly the same.
+date: 2026-10-31
+image: /changelog/2026-10-31-built-on-d3.svg
+imageAlt: Scattered circles flowing along curved lines into a tidy grid of squares
+tags: [d3, performance, install, breaking]
+---
+
+Every chart in Bklit used to sit on visx, a set of React wrappers around d3. The charts now use d3 directly, with small Bklit-owned components for the parts visx used to render. You get a lighter install and a smaller bundle, and your charts look and move exactly as before.
+
+## Fewer packages
+
+The 13 `@visx/*` packages and `@use-gesture` are gone. Together with the duplicate d3 copies and types they pulled in, that's 27 packages and about 2.3 MB of install size you no longer download. A chart's registry item now lists only the d3 modules it uses, such as `d3-shape` and `d3-scale`.
+
+## Smaller and faster
+
+The whole chart library is about 45% smaller gzipped, from 57 KB to 31 KB. A typical chart page ships about 6 KB less JavaScript. Choropleth maps render 10–20 ms faster, and line and area paths are memoized, so re-renders that don't change the data skip the path work.
+
+## Nothing to relearn
+
+Props, markup, animations and hover behaviour are unchanged. Before each step of the move, 357 recorded chart variants were compared against the old visx output, covering geometry, text, hover and interactions, and every one matched.
+
+## Breaking changes
+
+These only affect you if you installed components from the registry and edited or imported their internals:
+
+- **Curves** import from `d3-shape` instead of `@visx/curve`, for example `import { curveMonotoneX } from "d3-shape"`.
+- **Gradients:** `LinearGradient`, `RadialGradient` and the gradient presets are now Bklit components (`@bklit/gradients`) with the same API.
+- **Class names:** lines, areas, grid and heatmap no longer render `visx-*` class names. If you styled them, target your own `className` instead. The brush keeps its `visx-brush-*` classes.
+- **Choropleth:** `TransformMatrix` is now a local type with the same shape.
+
+See the [installation docs](/docs/installation) to add or update charts.
