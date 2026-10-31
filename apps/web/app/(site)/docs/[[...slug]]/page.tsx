@@ -5,12 +5,13 @@ import type { TOCItemType } from "fumadocs-core/toc";
 import defaultMdxComponents from "fumadocs-ui/mdx";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import type { ComponentProps, ComponentType } from "react";
+import type { ComponentType } from "react";
 import { isChartSlug } from "@/components/charts/chart-slugs";
 import { ComponentPreview } from "@/components/docs/component-preview";
 import { ComponentShowcase } from "@/components/docs/component-showcase";
 import { ComponentsList } from "@/components/docs/components-list";
 import { CopyPageButton } from "@/components/docs/copy-page-button";
+import { DocsTable } from "@/components/docs/docs-table";
 import { InstallationTabs } from "@/components/docs/installation-tabs";
 import { PackageManagerTabs } from "@/components/docs/package-manager-tabs";
 import { PageFooter } from "@/components/docs/page-footer";
@@ -145,15 +146,6 @@ export default async function Page(props: {
       </div>
       {/* `full: true` frontmatter: no TOC rail, wider article column. */}
       {data.full ? null : <TableOfContents items={data.toc} />}
-    </div>
-  );
-}
-
-/** Framed, horizontally scrollable table (border lives on the scroller). */
-function DocsTable(props: ComponentProps<"table">) {
-  return (
-    <div className="docs-table-frame">
-      <table {...props} />
     </div>
   );
 }
