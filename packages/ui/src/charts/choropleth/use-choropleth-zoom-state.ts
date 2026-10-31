@@ -315,11 +315,16 @@ export function useChoroplethZoomState<E extends Element>({
   }, []);
 
   const scaleInternal = useCallback(
-    ({ scaleX, scaleY, point }: ScaleSignature, commit: boolean) => {
+    (
+      { scaleX, scaleY, point }: ScaleSignature,
+      commit: boolean,
+      /** Matrix to scale from (default: the live one). See handleWheelEvent. */
+      from?: TransformMatrix
+    ) => {
       const { width: w, height: h } = optionsRef.current;
       applyMatrix(
         scaleMatrixAroundPoint(
-          matrixRef.current,
+          from ?? matrixRef.current,
           { scaleX, scaleY, point },
           w,
           h
@@ -423,33 +428,37 @@ export function useChoroplethZoomState<E extends Element>({
   const wheelPinchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   /** visx `handlePinch`: one `pinchDelta` step around the pinch centre. */
-  const emitPinch = useCallback(() => {
-    const pinch = pinchRef.current;
-    const container = containerRef.current;
-    if (!container) {
-      return;
-    }
-    if (!pinch.memo) {
-      const { top, left } = container.getBoundingClientRect();
-      pinch.memo = { top, left };
-    }
-    const { scaleX, scaleY } = optionsRef.current.pinchDelta({
-      offset: [pinch.offset, 0],
-      lastOffset: [pinch.lastOffset, 0],
-      origin: pinch.origin,
-    });
-    scaleInternal(
-      {
-        scaleX,
-        scaleY,
-        point: {
-          x: pinch.origin[0] - pinch.memo.left,
-          y: pinch.origin[1] - pinch.memo.top,
+  const emitPinch = useCallback(
+    (from?: TransformMatrix) => {
+      const pinch = pinchRef.current;
+      const container = containerRef.current;
+      if (!container) {
+        return;
+      }
+      if (!pinch.memo) {
+        const { top, left } = container.getBoundingClientRect();
+        pinch.memo = { top, left };
+      }
+      const { scaleX, scaleY } = optionsRef.current.pinchDelta({
+        offset: [pinch.offset, 0],
+        lastOffset: [pinch.lastOffset, 0],
+        origin: pinch.origin,
+      });
+      scaleInternal(
+        {
+          scaleX,
+          scaleY,
+          point: {
+            x: pinch.origin[0] - pinch.memo.left,
+            y: pinch.origin[1] - pinch.memo.top,
+          },
         },
-      },
-      false
-    );
-  }, [scaleInternal]);
+        false,
+        from
+      );
+    },
+    [scaleInternal]
+  );
 
   const startPinch = useCallback((source: PinchGesture["source"]) => {
     const pinch = pinchRef.current;
@@ -676,7 +685,13 @@ export function useChoroplethZoomState<E extends Element>({
   const handleWheelEvent = useCallback(
     (event: WheelEvent) => {
       // use-gesture runs the wheel recogniser before the pinch one, so the
-      // first ctrl+wheel of a trackpad pinch also applies one wheel step.
+      // first ctrl+wheel of a trackpad pinch calls visx `scale()` twice in
+      // one event. Both read visx's matrix ref before React applied either
+      // update, and the queued updaters each replace the whole matrix, so
+      // the pinch step (computed from the pre-wheel matrix) overwrites the
+      // wheel step unless the pinch step is rejected by the scale limits.
+      const before = matrixRef.current;
+      const startsWheelPinch = event.ctrlKey && !pinchRef.current.active;
       if (!pinchRef.current.active) {
         handleWheelInternal(event, false);
         if (wheelTimerRef.current) {
@@ -702,7 +717,7 @@ export function useChoroplethZoomState<E extends Element>({
         (-wheelDeltaYPixels(event) / PINCH_WHEEL_RATIO) * pinch.offset;
       pinch.origin = [event.clientX, event.clientY];
       pinch.offset = pinch.movement + pinch.lastOffset;
-      emitPinch();
+      emitPinch(startsWheelPinch ? before : undefined);
       if (wheelPinchTimerRef.current) {
         clearTimeout(wheelPinchTimerRef.current);
       }

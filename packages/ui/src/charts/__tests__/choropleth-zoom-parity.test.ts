@@ -251,6 +251,95 @@ describe("choropleth zoom matrix matches @visx/zoom", () => {
   });
 });
 
+describe("trackpad pinch (ctrl + wheel) matches visx + use-gesture", () => {
+  // The lab's `pinch` step: one ctrl+wheel (deltaY -10 in, +10 out), then a
+  // settle longer than use-gesture's 140 ms wheel-pinch end timeout.
+  interface Call {
+    scale: number;
+    at: Point;
+  }
+  type Event = Call[];
+
+  /**
+   * visx: every `scale()` in one event reads `matrixStateRef` before React
+   * runs the queued `setTransformMatrixState(prev => constrain(next, prev))`
+   * updaters, so each call is computed from the pre-event matrix and later
+   * updaters replace earlier ones (unless constrained away).
+   */
+  function visxEvent(m: TransformMatrix, calls: Event): TransformMatrix {
+    const nexts = calls.map(({ scale, at }) => {
+      const t = visxApplyInverse(m, at);
+      return visxCompose(
+        m,
+        visxTranslateMatrix(t.x, t.y),
+        visxScaleMatrix(scale, scale),
+        visxTranslateMatrix(-t.x, -t.y)
+      );
+    });
+    return nexts.reduce((prev, next) => visxConstrain(next, prev), m);
+  }
+
+  /** The hook: wheel step, then the pinch step scaled from `before`. */
+  function bklitEvent(m: TransformMatrix, calls: Event): TransformMatrix {
+    let live = m;
+    for (const { scale, at } of calls) {
+      live = constrainScale(
+        scaleMatrixAroundPoint(
+          m,
+          { scaleX: scale, scaleY: scale, point: at },
+          WIDTH,
+          HEIGHT
+        ),
+        live,
+        LIMITS
+      );
+    }
+    return live;
+  }
+
+  const at = { x: 406.5, y: 228.25 };
+  const wheel = (deltaY: number): Call => ({
+    scale: choroplethWheelDelta({ deltaY }).scaleX,
+    at,
+  });
+  // Pinch steps (visx default pinchDelta) at the pinch origin.
+  const pinch = (scale: number): Call => ({ scale, at });
+  const events: Event[] = [
+    [wheel(-100)],
+    [wheel(-100)],
+    [wheel(-100)],
+    [wheel(100)],
+    [wheel(100)],
+    // ctrl+wheel deltaY -10: wheel recogniser + pinch start, same event.
+    [wheel(-10), pinch(1.1)],
+    // 140 ms later: wheel-pinch end emits one more pinch step.
+    [pinch(1.1)],
+    [wheel(10), pinch(0.9)],
+    [pinch(0.9)],
+  ];
+
+  it("drops the same-event wheel step, like the lab baseline", () => {
+    let visx = IDENTITY;
+    let bklit = IDENTITY;
+    const scales: number[] = [];
+    for (const event of events) {
+      visx = visxEvent(visx, event);
+      bklit = bklitEvent(bklit, event);
+      assert.equal(matrixToString(bklit), matrixToString(visx));
+      scales.push(bklit.scaleX);
+    }
+    // Baseline after "Trackpad pinch in": matrix(1.264155440625, ...).
+    assert.equal(scales[6], 1.264_155_440_625);
+  });
+
+  it("keeps the wheel step when the pinch step is rejected by zoomMax", () => {
+    const near = { ...IDENTITY, scaleX: 3.8, scaleY: 3.8 };
+    const event = [wheel(-10), pinch(1.1)];
+    assert.deepStrictEqual(bklitEvent(near, event), visxEvent(near, event));
+    assert.equal(bklitEvent(near, event).scaleX, 3.8 * 1.05);
+  });
+});
+
 describe("drag gesture threshold (use-gesture filterTaps)", () => {
   it("starts on the move that crosses 3 px on an axis", () => {
     const drag = createDragGesture({
