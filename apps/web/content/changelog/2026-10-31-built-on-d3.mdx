@@ -1,6 +1,6 @@
 ---
 title: Bklit is now built on d3
-description: visx is gone. Charts install fewer packages, ship 45% less JavaScript and look exactly the same.
+description: "visx is gone: half the install packages, smaller bundles, faster re-renders, same charts."
 date: 2026-10-31
 image: /changelog/2026-10-31-built-on-d3.svg
 imageAlt: Scattered circles flowing along curved lines into a tidy grid of squares
@@ -11,11 +11,23 @@ Every chart in Bklit used to sit on visx, a set of React wrappers around d3. The
 
 ## Fewer packages
 
-The 13 `@visx/*` packages and `@use-gesture` are gone. Together with the duplicate d3 copies and types they pulled in, that's 27 packages and about 2.3 MB of install size you no longer download. A chart's registry item now lists only the d3 modules it uses, such as `d3-shape` and `d3-scale`.
+The 13 `@visx/*` packages and `@use-gesture` are gone. Together with the duplicate d3 copies and types they pulled in, that's 27 fewer packages in the repo's lockfile. Installing the chart library's dependencies now pulls 41 packages instead of 80, about 3 MB less on disk. A chart's registry item now lists only the d3 modules it uses, such as `d3-shape` and `d3-scale`.
 
 ## Smaller and faster
 
-The whole chart library is about 45% smaller gzipped, from 57 KB to 31 KB. A typical chart page ships about 6 KB less JavaScript. Choropleth maps render 10–20 ms faster, and line and area paths are memoized, so re-renders that don't change the data skip the path work.
+Every chart ships less JavaScript (gzipped, React and Motion excluded):
+
+| Chart | Before | After | Change |
+| --- | --- | --- | --- |
+| Choropleth | 44.4 KB | 27.2 KB | −38.6% |
+| Sankey | 24.6 KB | 16.6 KB | −32.6% |
+| Area with brush | 59.5 KB | 50.7 KB | −14.7% |
+| Bar | 42.2 KB | 36.2 KB | −14.4% |
+| Pie | 15.4 KB | 13.6 KB | −11.4% |
+| Line | 58.1 KB | 53.3 KB | −8.3% |
+| Whole library | 207.6 KB | 188.8 KB | −9.0% |
+
+Choropleth maps project their first render about 2.8× faster (34 ms → 12 ms for the world map) and no longer reproject when they re-render with the same data. Line and area paths are memoized, so a 200-point line re-renders about 16× faster when only hover or styling changes; animated data transitions still redraw every frame. Timings are relative, measured in Node.
 
 ## Nothing to relearn
 
