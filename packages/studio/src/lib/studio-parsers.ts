@@ -722,6 +722,10 @@ export const studioSearchParams = {
   barXAxisMaxLabels: parseAsInteger.withDefault(12),
   barYAxisShowAllLabels: parseAsBoolean.withDefault(true),
   barYAxisMaxLabels: parseAsInteger.withDefault(20),
+  choroplethFeatureStroke: parseAsString.withDefault("var(--background)"),
+  choroplethFeatureStrokeWidth: parseAsFloat.withDefault(0.5),
+  choroplethFeatureFadedOpacity: parseAsFloat.withDefault(0.4),
+  choroplethGraticuleStrokeWidth: parseAsFloat.withDefault(0.5),
 };
 
 export interface StudioUrlState {
@@ -1217,6 +1221,10 @@ export interface StudioUrlState {
   barXAxisMaxLabels: number;
   barYAxisShowAllLabels: boolean;
   barYAxisMaxLabels: number;
+  choroplethFeatureStroke: string;
+  choroplethFeatureStrokeWidth: number;
+  choroplethFeatureFadedOpacity: number;
+  choroplethGraticuleStrokeWidth: number;
 }
 
 /** Full default state for chart switches (nuqs used `null` to clear keys; in-memory state needs real defaults). */
@@ -1717,6 +1725,10 @@ export function defaultStudioState(
     barXAxisMaxLabels: 12,
     barYAxisShowAllLabels: true,
     barYAxisMaxLabels: 20,
+    choroplethFeatureStroke: "var(--background)",
+    choroplethFeatureStrokeWidth: 0.5,
+    choroplethFeatureFadedOpacity: 0.4,
+    choroplethGraticuleStrokeWidth: 0.5,
     ...overrides,
   };
 }

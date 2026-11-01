@@ -45,6 +45,8 @@ import {
   candlestickChartControlGroups,
   candlestickChartTooltipControlGroups,
   choroplethChartControlGroups,
+  choroplethFeatureControlGroups,
+  choroplethGraticuleControlGroups,
   composedChartControlGroups,
   composedOverlayLineControlGroups,
   deadlineControlGroups,
@@ -1638,7 +1640,7 @@ export function resolveChoroplethComponents(
             label: "ChoroplethGraticule",
             parentId: chartId,
             kind: "geometry" as StudioComponentKind,
-            controlGroups: [] as StudioControlGroup[],
+            controlGroups: choroplethGraticuleControlGroups,
           },
         ]
       : []),
@@ -1647,7 +1649,7 @@ export function resolveChoroplethComponents(
       label: "ChoroplethFeatureComponent",
       parentId: chartId,
       kind: "series",
-      controlGroups: [],
+      controlGroups: choroplethFeatureControlGroups,
     },
     {
       id: "choropleth.tooltip",

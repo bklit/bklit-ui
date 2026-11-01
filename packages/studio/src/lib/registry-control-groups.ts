@@ -2205,6 +2205,46 @@ export const choroplethChartControlGroups: StudioControlGroup[] = [
   ]),
 ];
 
+export const choroplethFeatureControlGroups: StudioControlGroup[] = [
+  controlGroup("Borders", [
+    { type: "color", key: "choroplethFeatureStroke", label: "Stroke" },
+    {
+      type: "number",
+      key: "choroplethFeatureStrokeWidth",
+      label: "Width",
+      min: 0,
+      max: 3,
+      step: 0.25,
+      unit: "px",
+    },
+  ]),
+  controlGroup("Hover", [
+    {
+      type: "opacity",
+      key: "choroplethFeatureFadedOpacity",
+      label: "Faded",
+      min: 0,
+      max: 1,
+      step: 0.05,
+      color: "var(--chart-3)",
+    },
+  ]),
+];
+
+export const choroplethGraticuleControlGroups: StudioControlGroup[] = [
+  controlGroup("Lines", [
+    {
+      type: "number",
+      key: "choroplethGraticuleStrokeWidth",
+      label: "Width",
+      min: 0.25,
+      max: 3,
+      step: 0.25,
+      unit: "px",
+    },
+  ]),
+];
+
 export const sankeyChartControlGroups: StudioControlGroup[] = [
   controlGroup("Layout", [
     {

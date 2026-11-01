@@ -887,24 +887,39 @@ const choroplethConfig: StudioChartConfig = {
     </StudioCartesianFill>
   ),
   generateCode: (state) => {
+    const featureProps = [
+      state.choroplethFeatureStroke === "var(--background)"
+        ? ""
+        : ` stroke="${state.choroplethFeatureStroke}"`,
+      state.choroplethFeatureStrokeWidth === 0.5
+        ? ""
+        : ` strokeWidth={${state.choroplethFeatureStrokeWidth}}`,
+      state.choroplethFeatureFadedOpacity === 0.4
+        ? ""
+        : ` fadedOpacity={${state.choroplethFeatureFadedOpacity}}`,
+    ].join("");
+    const graticuleProps =
+      state.choroplethGraticuleStrokeWidth === 0.5
+        ? ""
+        : ` strokeWidth={${state.choroplethGraticuleStrokeWidth}}`;
     const bg =
       state.choroplethBgPattern === "none"
         ? ""
-        : `\n  <ChoroplethFeatureComponent getFeaturePattern={() => "studio-choro-bg"} patterns={<PatternLines id="studio-choro-bg" height={8} width={8} orientation={["diagonal"]} stroke="var(--chart-5)" strokeWidth={1} />} />`;
+        : `\n  <ChoroplethFeatureComponent${featureProps} getFeaturePattern={() => "studio-choro-bg"} patterns={<PatternLines id="studio-choro-bg" height={8} width={8} orientation={["diagonal"]} stroke="var(--chart-5)" strokeWidth={1} />} />`;
     const regionExpr = "\x24{getRegionCategory(feat.properties?.name)}";
     const fg =
       state.choroplethFgPattern === "none"
         ? ""
-        : `\n  <ChoroplethFeatureComponent getFeaturePattern={(feat) => \`choro-p-${regionExpr}\`} patterns={/* regional PatternLines */} />`;
+        : `\n  <ChoroplethFeatureComponent${featureProps} getFeaturePattern={(feat) => \`choro-p-${regionExpr}\`} patterns={/* regional PatternLines */} />`;
     const solid =
       state.choroplethAnalytics ||
       (state.choroplethBgPattern === "none" &&
         state.choroplethFgPattern === "none")
-        ? `\n  <ChoroplethFeatureComponent${state.choroplethAnalytics ? " getFeatureColor={getVisitorColor}" : ` fill="${getSeriesColorOverride(state, 0) || "var(--chart-3)"}"`} />`
+        ? `\n  <ChoroplethFeatureComponent${featureProps}${state.choroplethAnalytics ? " getFeatureColor={getVisitorColor}" : ` fill="${getSeriesColorOverride(state, 0) || "var(--chart-3)"}"`} />`
         : "";
 
     return {
-      code: `<ChoroplethChart data={geojson} aspectRatio="16 / 9" animationDuration={${state.animationDuration}}>${state.showGraticule ? "\n  <ChoroplethGraticule />" : ""}${bg}${solid}${fg}
+      code: `<ChoroplethChart data={geojson} aspectRatio="16 / 9" animationDuration={${state.animationDuration}}>${state.showGraticule ? `\n  <ChoroplethGraticule${graticuleProps} />` : ""}${bg}${solid}${fg}
   <ChoroplethTooltip${state.choroplethAnalytics ? ' getFeatureValue={getVisitorValue} valueLabel="Visitors"' : ""} />
 </ChoroplethChart>`,
       data: choroplethDataSnippet(),
