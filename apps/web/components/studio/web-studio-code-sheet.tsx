@@ -21,6 +21,7 @@ const sheetCodeScrollClass = "max-h-80 overflow-auto overscroll-contain py-3";
 export function WebStudioCodeSheet({ state }: { state: StudioUrlState }) {
   return (
     <StudioCodeSheetTrigger
+      className="w-full"
       headerActions={
         <>
           <Button
@@ -57,7 +58,7 @@ export function WebStudioCodeSheet({ state }: { state: StudioUrlState }) {
         />
       )}
       state={state}
-      triggerClassName="w-full font-mono text-xs"
+      triggerClassName="font-mono text-xs"
       triggerSize="sm"
     />
   );

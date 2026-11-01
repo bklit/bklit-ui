@@ -20,6 +20,7 @@ import {
   isThemeColorToken,
   normalizeThemeTokenColor,
 } from "@/lib/chart-theme-color";
+import { generateThemeTokensPrompt } from "@/lib/prompt-gen";
 import {
   studioScrubSurfaceClass,
   studioSectionLabelClass,
@@ -146,15 +147,17 @@ function ThemeTokenRow({
   );
 }
 
+type CatalogThemeExportView = "code" | "prompt";
+
 function CatalogThemeCodeDialog({
-  open,
+  view,
   onOpenChange,
   cssBlock,
   resolvedTheme,
   tokenGroup,
   renderHighlightedCode,
 }: {
-  open: boolean;
+  view: CatalogThemeExportView | null;
   onOpenChange: (open: boolean) => void;
   cssBlock: string;
   resolvedTheme: "light" | "dark";
@@ -162,33 +165,62 @@ function CatalogThemeCodeDialog({
   renderHighlightedCode?: (code: string) => ReactNode;
 }) {
   const tokenLabel = tokenGroup === "chart" ? "Chart tokens" : "Theme tokens";
+  const prompt = useMemo(
+    () =>
+      view === "prompt"
+        ? generateThemeTokensPrompt({ cssBlock, resolvedTheme, tokenGroup })
+        : "",
+    [cssBlock, resolvedTheme, tokenGroup, view]
+  );
+
+  let body: ReactNode;
+  if (view === "prompt") {
+    body = (
+      <pre className="whitespace-pre-wrap break-words font-mono text-xs leading-relaxed">
+        {prompt}
+      </pre>
+    );
+  } else if (renderHighlightedCode) {
+    body = renderHighlightedCode(cssBlock);
+  } else {
+    body = (
+      <pre className="overflow-x-auto font-mono text-xs leading-relaxed">
+        {cssBlock}
+      </pre>
+    );
+  }
 
   return (
-    <Dialog onOpenChange={onOpenChange} open={open}>
+    <Dialog onOpenChange={onOpenChange} open={view !== null}>
       <DialogContent className="flex max-h-[min(90dvh,720px)] flex-col gap-0 overflow-hidden p-0 sm:max-w-2xl">
         <DialogHeader className="border-border border-b px-6 py-4">
-          <DialogTitle>{tokenLabel}</DialogTitle>
-          <DialogDescription>
-            Copy these CSS variables into{" "}
-            <code className="rounded bg-muted px-1 py-0.5 font-mono text-[11px]">
-              bklit-tokens.css
-            </code>{" "}
-            for {resolvedTheme} mode.
-          </DialogDescription>
+          <DialogTitle>
+            {view === "prompt" ? `${tokenLabel} prompt` : tokenLabel}
+          </DialogTitle>
+          {view === "prompt" ? (
+            <DialogDescription>
+              Paste into Claude Code, Cursor, v0 or any coding agent to apply
+              these tokens for {resolvedTheme} mode.
+            </DialogDescription>
+          ) : (
+            <DialogDescription>
+              Copy these CSS variables into{" "}
+              <code className="rounded bg-muted px-1 py-0.5 font-mono text-[11px]">
+                bklit-tokens.css
+              </code>{" "}
+              for {resolvedTheme} mode.
+            </DialogDescription>
+          )}
         </DialogHeader>
         <div className="relative min-h-0 flex-1 overflow-auto">
           <div className="absolute top-3 right-3 z-10">
-            <StudioCopyButton aria-label="Copy CSS" text={cssBlock} />
-          </div>
-          <div className="p-6 pt-10">
-            {renderHighlightedCode ? (
-              renderHighlightedCode(cssBlock)
+            {view === "prompt" ? (
+              <StudioCopyButton aria-label="Copy prompt" text={prompt} />
             ) : (
-              <pre className="overflow-x-auto font-mono text-xs leading-relaxed">
-                {cssBlock}
-              </pre>
+              <StudioCopyButton aria-label="Copy CSS" text={cssBlock} />
             )}
           </div>
+          <div className="p-6 pt-10">{body}</div>
         </div>
       </DialogContent>
     </Dialog>
@@ -213,7 +245,9 @@ export function CatalogThemePanel({
     resetTokens,
     cssBlock,
   } = useCatalogTheme();
-  const [codeOpen, setCodeOpen] = useState(false);
+  const [exportView, setExportView] = useState<CatalogThemeExportView | null>(
+    null
+  );
 
   const tokenRows =
     tokenGroup === "chart"
@@ -300,13 +334,21 @@ export function CatalogThemePanel({
               </div>
             </StudioScrollArea>
 
-            <div className="border-border border-t p-3">
+            <div className="flex gap-2 border-border border-t p-3">
               <Button
-                className="w-full font-mono text-[11px] sm:text-[11px]"
-                onClick={() => setCodeOpen(true)}
+                className="flex-1 font-mono text-[11px] sm:text-[11px]"
+                onClick={() => setExportView("code")}
                 type="button"
               >
-                Get code_
+                Code
+              </Button>
+              <Button
+                className="flex-1 font-mono text-[11px] sm:text-[11px]"
+                onClick={() => setExportView("prompt")}
+                type="button"
+                variant="outline"
+              >
+                Prompt
               </Button>
             </div>
           </>
@@ -334,11 +376,15 @@ export function CatalogThemePanel({
 
       <CatalogThemeCodeDialog
         cssBlock={cssBlock}
-        onOpenChange={setCodeOpen}
-        open={codeOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            setExportView(null);
+          }
+        }}
         renderHighlightedCode={renderHighlightedCode}
         resolvedTheme={resolvedTheme}
         tokenGroup={tokenGroup}
+        view={exportView}
       />
     </>
   );
