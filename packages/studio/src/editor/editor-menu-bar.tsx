@@ -204,9 +204,10 @@ export function EditorMenuBar({
     <StudioToolbarTooltips>
       <div
         className={cn(
-          "relative flex shrink-0 items-center justify-center gap-0.5 rounded-xl border bg-popover/90 not-dark:bg-clip-padding p-1 text-popover-foreground shadow-[0_8px_24px_-6px_rgb(0_0_0/0.08),0_2px_6px_-2px_rgb(0_0_0/0.05)] backdrop-blur-md [--radius:0.625rem] before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--radius-xl)-1px)] before:shadow-[0_1px_--theme(--color-black/4%)] dark:shadow-[0_8px_24px_-6px_rgb(0_0_0/0.4),0_2px_6px_-2px_rgb(0_0_0/0.25)] dark:before:shadow-[0_-1px_--theme(--color-white/6%)]",
+          "relative flex shrink-0 items-center justify-center gap-0.5 rounded-xl border bg-popover/90 not-dark:bg-clip-padding p-1 text-popover-foreground shadow-[0_8px_24px_-6px_rgb(0_0_0/0.08),0_2px_6px_-2px_rgb(0_0_0/0.05)] backdrop-blur-md before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--radius-xl)-1px)] before:shadow-[0_1px_--theme(--color-black/4%)] dark:shadow-[0_8px_24px_-6px_rgb(0_0_0/0.4),0_2px_6px_-2px_rgb(0_0_0/0.25)] dark:before:shadow-[0_-1px_--theme(--color-white/6%)]",
           className
         )}
+        data-studio-rounded-chrome
       >
         {openInStudioHref ? (
           <>
