@@ -18,6 +18,7 @@ import type { LineYAxisId } from "@/lib/line-series-y-axis";
 import { pullRequestSeries } from "@/lib/radial-demo-data";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import {
+  chartCssVarForSeriesIndex,
   getDesignSeriesLabel,
   getEffectiveSeriesColor,
 } from "@/lib/studio-series-design";
@@ -97,28 +98,10 @@ import {
   PER_PROJECTION_CONTROL_KEYS,
   PROJECTION_PRESET_LABELS,
 } from "./studio-projection-props";
+import { isPerSeriesLineControlKey } from "./studio-series-line-props";
 import { trendLineSeriesOptions } from "./studio-trend-line-props";
 
 const DESIGN_SERIES_LABEL_PREFIX = /^Series \d+ · /;
-
-const PER_SERIES_LINE_CONTROL_KEYS = new Set([
-  "curve",
-  "strokeWidth",
-  "fadeEdges",
-  "showHighlight",
-  "showLine",
-  "seriesShowMarkers",
-  "seriesMarkerRadius",
-  "seriesMarkerRingGap",
-  "seriesMarkerRingWidth",
-  "seriesTerminalMarkerShow",
-  "seriesTerminalMarkerFill",
-  "seriesTerminalMarkerRingColor",
-  "seriesTerminalMarkerRingGap",
-  "seriesDashTail",
-  "seriesDashFromIndex",
-  "seriesDashArray",
-]);
 
 function seriesScopedControlGroups(
   groups: StudioControlGroup[],
@@ -127,11 +110,15 @@ function seriesScopedControlGroups(
   return groups.map((group) => ({
     ...group,
     controls: group.controls.map((control) => {
-      if (
-        "key" in control &&
-        PER_SERIES_LINE_CONTROL_KEYS.has(String(control.key))
-      ) {
-        return { ...control, seriesIndex };
+      if ("key" in control && isPerSeriesLineControlKey(control.key)) {
+        // Opacity swatches preview the series' own chart color.
+        return control.type === "opacity"
+          ? {
+              ...control,
+              seriesIndex,
+              color: `var(${chartCssVarForSeriesIndex(seriesIndex)})`,
+            }
+          : { ...control, seriesIndex };
       }
       return control;
     }),
@@ -734,8 +721,8 @@ export function resolveAreaComponents(
 
   for (let index = 0; index < seriesCount; index += 1) {
     const controlGroups: StudioControlGroup[] = [];
-    if (index === 0 && design) {
-      controlGroups.push(design);
+    if (design) {
+      controlGroups.push(...seriesScopedControlGroups([design], index));
     }
     controlGroups.push(
       seriesYAxisControlGroup(index),
@@ -906,7 +893,7 @@ export function resolveComposedComponents(
 ): StudioComponentDefinition[] {
   const seriesCount = clampStudioSeriesCount(state.dataSeries);
   const designGroup = groupByTitle(composedChartControlGroups, "Design");
-  // Area opacity has its own group on the first area series below.
+  // Area opacity has its own group on each area series below.
   const design = designGroup && {
     ...designGroup,
     controls: designGroup.controls.filter(
@@ -924,7 +911,7 @@ export function resolveComposedComponents(
       controlGroups: [],
       design: rootPaletteDesign(true),
     },
-    passiveNode("composed", "grid", "Grid"),
+    gridNode("composed"),
     backgroundNode("composed"),
     referenceAreaNode("composed"),
     weekendsNode("composed"),
@@ -941,22 +928,23 @@ export function resolveComposedComponents(
         controlGroups.push(design);
       }
     } else {
-      if (index === 1) {
-        controlGroups.push(
-          controlGroup("Area", [
-            {
-              type: "opacity",
-              key: "fillOpacity",
-              label: "Opacity",
-              min: 0,
-              max: 1,
-              step: 0.05,
-              color: "var(--chart-4)",
-            },
-          ])
-        );
-      }
       controlGroups.push(
+        ...seriesScopedControlGroups(
+          [
+            controlGroup("Area", [
+              {
+                type: "opacity",
+                key: "fillOpacity",
+                label: "Opacity",
+                min: 0,
+                max: 1,
+                step: 0.05,
+                color: "var(--chart-4)",
+              },
+            ]),
+          ],
+          index
+        ),
         seriesYAxisControlGroup(index),
         ...seriesScopedControlGroups(composedOverlayLineControlGroups, index)
       );

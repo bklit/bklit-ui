@@ -53,6 +53,7 @@ import { getSeriesFillMode } from "@/lib/studio-series-design";
 import {
   getSeriesCurve,
   getSeriesFadeEdges,
+  getSeriesPipeValue,
   getSeriesShowHighlight,
   getSeriesShowLine,
   getSeriesStrokeWidth,
@@ -155,8 +156,12 @@ function renderMainAreas(
           }
           fadeValueLabels={state.areaFadeValueLabels}
           fill={fill}
-          fillOpacity={state.fillOpacity}
-          gradientToOpacity={state.gradientToOpacity}
+          fillOpacity={getSeriesPipeValue(state, "fillOpacity", idx)}
+          gradientToOpacity={getSeriesPipeValue(
+            state,
+            "gradientToOpacity",
+            idx
+          )}
           key={`area-${key}`}
           loading={studioCartesianSeriesLoadingProp(isPrimary)}
           showHighlight={getSeriesShowHighlight(state, idx)}

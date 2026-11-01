@@ -56,6 +56,7 @@ import {
 import {
   getSeriesCurve,
   getSeriesFadeEdges,
+  getSeriesPipeValue,
   getSeriesShowHighlight,
   getSeriesShowLine,
   getSeriesStrokeWidth,
@@ -614,7 +615,7 @@ export function cartesianLoadingCodegen(
   } else {
     chartImports.push("Area");
     const curveName = curveImportName(getSeriesCurve(state, 0));
-    child = `\n  <Area dataKey="${primaryKey}" curve={${curveName}} fillOpacity={${state.fillOpacity}} strokeWidth={${getSeriesStrokeWidth(state, 0)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, 0))} gradientToOpacity={${state.gradientToOpacity}} showLine={${getSeriesShowLine(state, 0)}} ${loadingStrokeAttr}${loadingStyleAttr} />`;
+    child = `\n  <Area dataKey="${primaryKey}" curve={${curveName}} fillOpacity={${getSeriesPipeValue(state, "fillOpacity", 0)}} strokeWidth={${getSeriesStrokeWidth(state, 0)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, 0))} gradientToOpacity={${getSeriesPipeValue(state, "gradientToOpacity", 0)}} showLine={${getSeriesShowLine(state, 0)}} ${loadingStrokeAttr}${loadingStyleAttr} />`;
   }
 
   const curveImports = curveImportLine(state, [0]);
@@ -719,7 +720,7 @@ export function cartesianCodegen(
           idx === 0 ? "" : ` fill="${SERIES_COLOR_BY_INDEX[idx]}"`;
         const seriesProps = seriesStrokePropsCodegen(state, idx);
         const curveName = curveImportName(getSeriesCurve(state, idx));
-        return `\n  <Area dataKey="${key}"${fillAttr} curve={${curveName}} fillOpacity={${state.fillOpacity}} strokeWidth={${getSeriesStrokeWidth(state, idx)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, idx))} gradientToOpacity={${state.gradientToOpacity}} showLine={${getSeriesShowLine(state, idx)}} showHighlight={${getSeriesShowHighlight(state, idx)}}${seriesProps}${valueLabels} />`;
+        return `\n  <Area dataKey="${key}"${fillAttr} curve={${curveName}} fillOpacity={${getSeriesPipeValue(state, "fillOpacity", idx)}} strokeWidth={${getSeriesStrokeWidth(state, idx)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, idx))} gradientToOpacity={${getSeriesPipeValue(state, "gradientToOpacity", idx)}} showLine={${getSeriesShowLine(state, idx)}} showHighlight={${getSeriesShowHighlight(state, idx)}}${seriesProps}${valueLabels} />`;
       })
       .join("");
   } else {
@@ -728,14 +729,14 @@ export function cartesianCodegen(
     const primarySeriesProps = seriesStrokePropsCodegen(state, 0);
     const primaryCurveName = curveImportName(getSeriesCurve(state, 0));
     const primary = primaryKey
-      ? `\n  ${patternCodegenBlock(state.pattern)}\n  <PatternArea dataKey="${primaryKey}" fill="${fill}" curve={${primaryCurveName}} />\n  <Area dataKey="${primaryKey}" fillOpacity={0} curve={${primaryCurveName}} strokeWidth={${getSeriesStrokeWidth(state, 0)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, 0))} gradientToOpacity={${state.gradientToOpacity}} showLine={${getSeriesShowLine(state, 0)}} showHighlight={${getSeriesShowHighlight(state, 0)}}${primarySeriesProps}${valueLabels} />`
+      ? `\n  ${patternCodegenBlock(state.pattern)}\n  <PatternArea dataKey="${primaryKey}" fill="${fill}" curve={${primaryCurveName}} />\n  <Area dataKey="${primaryKey}" fillOpacity={0} curve={${primaryCurveName}} strokeWidth={${getSeriesStrokeWidth(state, 0)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, 0))} gradientToOpacity={${getSeriesPipeValue(state, "gradientToOpacity", 0)}} showLine={${getSeriesShowLine(state, 0)}} showHighlight={${getSeriesShowHighlight(state, 0)}}${primarySeriesProps}${valueLabels} />`
       : "";
     const others = rest
       .map((key, idx) => {
         const seriesIndex = idx + 1;
         const seriesProps = seriesStrokePropsCodegen(state, seriesIndex);
         const curveName = curveImportName(getSeriesCurve(state, seriesIndex));
-        return `\n  <Area dataKey="${key}" fill="${SERIES_COLOR_BY_INDEX[seriesIndex]}" curve={${curveName}} fillOpacity={${state.fillOpacity}} strokeWidth={${getSeriesStrokeWidth(state, seriesIndex)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, seriesIndex))} gradientToOpacity={${state.gradientToOpacity}} showLine={${getSeriesShowLine(state, seriesIndex)}} showHighlight={${getSeriesShowHighlight(state, seriesIndex)}}${seriesProps}${valueLabels} />`;
+        return `\n  <Area dataKey="${key}" fill="${SERIES_COLOR_BY_INDEX[seriesIndex]}" curve={${curveName}} fillOpacity={${getSeriesPipeValue(state, "fillOpacity", seriesIndex)}} strokeWidth={${getSeriesStrokeWidth(state, seriesIndex)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, seriesIndex))} gradientToOpacity={${getSeriesPipeValue(state, "gradientToOpacity", seriesIndex)}} showLine={${getSeriesShowLine(state, seriesIndex)}} showHighlight={${getSeriesShowHighlight(state, seriesIndex)}}${seriesProps}${valueLabels} />`;
       })
       .join("");
     child = `${primary}${others}`;
@@ -1006,13 +1007,13 @@ export function composedCodegen(state: StudioUrlState) {
       const color = SERIES_COLOR_BY_INDEX[seriesIndex];
       const seriesProps = seriesStrokePropsCodegen(state, seriesIndex);
       const curveName = curveImportName(getSeriesCurve(state, seriesIndex));
-      return `\n  <Area dataKey="${key}" curve={${curveName}} fillOpacity={${state.fillOpacity}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, seriesIndex))} fill="${color}"${seriesProps} />\n  <Line dataKey="${key}" curve={${curveName}} strokeWidth={${getSeriesStrokeWidth(state, seriesIndex)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, seriesIndex))} stroke="${color}"${seriesProps} />`;
+      return `\n  <Area dataKey="${key}" curve={${curveName}} fillOpacity={${getSeriesPipeValue(state, "fillOpacity", seriesIndex)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, seriesIndex))} fill="${color}"${seriesProps} />\n  <Line dataKey="${key}" curve={${curveName}} strokeWidth={${getSeriesStrokeWidth(state, seriesIndex)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, seriesIndex))} stroke="${color}"${seriesProps} />`;
     })
     .join("");
 
   const backgroundBlock = backgroundCodegenBlock(state, "composed");
   const gridVisible = isStudioComponentVisible(state, "composed.grid");
-  const gridBlock = gridVisible ? "\n  <Grid horizontal />" : "";
+  const gridBlock = gridVisible ? `\n  <Grid${gridPropsCodegen(state)} />` : "";
   const referenceAreaBlock = referenceAreaCodegenBlock(state, "composed");
   const trendLineBlock = trendLineCodegenBlock(state, "composed");
   const dateHighlights = dateHighlightsCodegen(state, "composed");

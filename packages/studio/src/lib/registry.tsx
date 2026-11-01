@@ -10,7 +10,6 @@ import {
   BarYAxis,
   ChartTooltip,
   ComposedChart,
-  Grid,
   Line,
   Scatter,
   ScatterChart,
@@ -162,6 +161,7 @@ import {
 import {
   getSeriesCurve,
   getSeriesFadeEdges,
+  getSeriesPipeValue,
   getSeriesStrokeWidth,
 } from "./studio-series-line-props";
 import { HORIZONTAL_BAR_TREND_LINE_DATA_KEY } from "./studio-trend-line-props";
@@ -617,9 +617,7 @@ const composedConfig: StudioChartConfig = {
               "composed.background",
               "composed.grid"
             )}
-            <StudioVisibleLayer componentId="composed.grid" state={state}>
-              <Grid horizontal />
-            </StudioVisibleLayer>
+            {studioCartesianGridLayer(state, "composed.grid")}
             <StudioReferenceAreaLayer
               componentId="composed.reference-area"
               state={state}
@@ -657,7 +655,11 @@ const composedConfig: StudioChartConfig = {
                       getSeriesFadeEdges(state, seriesIndex)
                     )}
                     fill={color}
-                    fillOpacity={state.fillOpacity}
+                    fillOpacity={getSeriesPipeValue(
+                      state,
+                      "fillOpacity",
+                      seriesIndex
+                    )}
                     key={`area-${key}`}
                     yAxisId={yAxisId}
                     {...seriesStrokePropsFromState(

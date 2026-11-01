@@ -154,7 +154,7 @@ export const studioSearchParams = {
   showRadarGrid: parseAsBoolean.withDefault(true),
   radarShowPoints: parseAsBoolean.withDefault(true),
   radarShowStroke: parseAsBoolean.withDefault(true),
-  radarShowGlow: parseAsBoolean.withDefault(true),
+  radarShowGlow: parseAsBoolean.withDefault(false),
   funnelLayers: parseAsInteger.withDefault(3),
   funnelGap: parseAsInteger.withDefault(4),
   funnelOrientation: parseAsStringLiteral([
@@ -679,6 +679,31 @@ export const studioSearchParams = {
     "gradient",
   ] as const).withDefault("solid"),
   radialLegendValues: parseAsBoolean.withDefault(true),
+  seriesFillOpacities: parseAsString.withDefault(""),
+  seriesGradientToOpacities: parseAsString.withDefault(""),
+  seriesScatterRadii: parseAsString.withDefault(""),
+  seriesScatterRingsFlags: parseAsString.withDefault(""),
+  seriesScatterRingGaps: parseAsString.withDefault(""),
+  seriesScatterRingWidths: parseAsString.withDefault(""),
+  seriesRadarPointsFlags: parseAsString.withDefault(""),
+  seriesRadarStrokeFlags: parseAsString.withDefault(""),
+  seriesRadarGlowFlags: parseAsString.withDefault(""),
+  radarGridStrokeOpacity: parseAsFloat.withDefault(0.6),
+  radarAxisStrokeOpacity: parseAsFloat.withDefault(0.6),
+  radarLabelFontSize: parseAsInteger.withDefault(10),
+  radarLabelOffset: parseAsInteger.withDefault(16),
+  radarLabelsInteractive: parseAsBoolean.withDefault(false),
+  ringLineCap: parseAsStringLiteral(["round", "butt"] as const).withDefault(
+    "round"
+  ),
+  ringShowGlow: parseAsBoolean.withDefault(false),
+  seriesRingLineCaps: parseAsString.withDefault(""),
+  seriesRingGlowFlags: parseAsString.withDefault(""),
+  ringGridShowLabels: parseAsBoolean.withDefault(true),
+  ringGridShowSpokes: parseAsBoolean.withDefault(true),
+  ringGridStrokeOpacity: parseAsFloat.withDefault(0.2),
+  candleInsideStrokeWidth: parseAsFloat.withDefault(0),
+  candleShowHoverFade: parseAsBoolean.withDefault(true),
 };
 
 export interface StudioUrlState {
@@ -1134,6 +1159,31 @@ export interface StudioUrlState {
   radialAxisCircle: boolean;
   radialScrubberVariant: "solid" | "dashed" | "gradient";
   radialLegendValues: boolean;
+  /** Pipe-encoded per-series `fillOpacity` overrides (area, composed). */
+  seriesFillOpacities: string;
+  /** Pipe-encoded per-series `gradientToOpacity` overrides (area). */
+  seriesGradientToOpacities: string;
+  seriesScatterRadii: string;
+  seriesScatterRingsFlags: string;
+  seriesScatterRingGaps: string;
+  seriesScatterRingWidths: string;
+  seriesRadarPointsFlags: string;
+  seriesRadarStrokeFlags: string;
+  seriesRadarGlowFlags: string;
+  radarGridStrokeOpacity: number;
+  radarAxisStrokeOpacity: number;
+  radarLabelFontSize: number;
+  radarLabelOffset: number;
+  radarLabelsInteractive: boolean;
+  ringLineCap: "round" | "butt";
+  ringShowGlow: boolean;
+  seriesRingLineCaps: string;
+  seriesRingGlowFlags: string;
+  ringGridShowLabels: boolean;
+  ringGridShowSpokes: boolean;
+  ringGridStrokeOpacity: number;
+  candleInsideStrokeWidth: number;
+  candleShowHoverFade: boolean;
 }
 
 /** Full default state for chart switches (nuqs used `null` to clear keys; in-memory state needs real defaults). */
@@ -1245,7 +1295,7 @@ export function defaultStudioState(
     showRadarGrid: true,
     radarShowPoints: true,
     radarShowStroke: true,
-    radarShowGlow: true,
+    radarShowGlow: false,
     funnelLayers: 3,
     funnelGap: 4,
     funnelOrientation: "vertical",
@@ -1598,6 +1648,29 @@ export function defaultStudioState(
     radialAxisCircle: true,
     radialScrubberVariant: "solid",
     radialLegendValues: true,
+    seriesFillOpacities: "",
+    seriesGradientToOpacities: "",
+    seriesScatterRadii: "",
+    seriesScatterRingsFlags: "",
+    seriesScatterRingGaps: "",
+    seriesScatterRingWidths: "",
+    seriesRadarPointsFlags: "",
+    seriesRadarStrokeFlags: "",
+    seriesRadarGlowFlags: "",
+    radarGridStrokeOpacity: 0.6,
+    radarAxisStrokeOpacity: 0.6,
+    radarLabelFontSize: 10,
+    radarLabelOffset: 16,
+    radarLabelsInteractive: false,
+    ringLineCap: "round",
+    ringShowGlow: false,
+    seriesRingLineCaps: "",
+    seriesRingGlowFlags: "",
+    ringGridShowLabels: true,
+    ringGridShowSpokes: true,
+    ringGridStrokeOpacity: 0.2,
+    candleInsideStrokeWidth: 0,
+    candleShowHoverFade: true,
     ...overrides,
   };
 }
