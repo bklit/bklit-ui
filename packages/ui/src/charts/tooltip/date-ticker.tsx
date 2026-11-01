@@ -2,9 +2,12 @@
 
 import {
   domAnimation,
+  frameData,
+  JSAnimation,
   LazyMotion,
   type MotionValue,
   m,
+  useMotionValue,
   useReducedMotion,
   useSpring,
 } from "motion/react";
@@ -68,29 +71,21 @@ function segmentIndexAt(
  * items or loaded fonts change. Drives `width` toward the active item so the
  * pill hugs the current label instead of the longest one (e.g. when switching
  * between Persian and Latin labels).
- *
- * `cacheKey` (compact ticker: the label text) reuses widths already measured
- * for that key instead of forcing layout on every label change. The cache is
- * dropped whenever a font finishes loading, since widths depend on it.
  */
 function useActiveItemWidth(
   stackRef: RefObject<HTMLElement | null>,
   items: readonly unknown[],
   activeIndex: number,
   width: MotionValue<number>,
-  reduceMotion: boolean,
-  cacheKey?: string
+  reduceMotion: boolean
 ) {
   const widthsRef = useRef<number[]>([]);
   const activeIndexRef = useRef(activeIndex);
-  const widthCacheRef = useRef<Map<string, number[]> | null>(null);
-  const cacheKeyRef = useRef(cacheKey);
   const fontsPendingRef = useRef(false);
   const mountedRef = useRef(true);
   // Synced before the measure effect below (layout effects run in order).
   useLayoutEffect(() => {
     activeIndexRef.current = activeIndex;
-    cacheKeyRef.current = cacheKey;
   });
 
   useLayoutEffect(() => {
@@ -112,11 +107,6 @@ function useActiveItemWidth(
         stack.querySelectorAll<HTMLElement>("[data-ticker-item]"),
         (node) => node.getBoundingClientRect().width
       );
-      const key = cacheKeyRef.current;
-      if (key !== undefined) {
-        widthCacheRef.current ??= new Map();
-        widthCacheRef.current.set(key, widthsRef.current);
-      }
       const next = widthsRef.current[activeIndexRef.current];
       if (next === undefined) {
         return;
@@ -125,17 +115,7 @@ function useActiveItemWidth(
       driveSpring(width, next, snap || reduceMotion);
     };
 
-    const cached =
-      cacheKey === undefined ? undefined : widthCacheRef.current?.get(cacheKey);
-    if (cached) {
-      widthsRef.current = cached;
-      const next = cached[activeIndexRef.current];
-      if (next !== undefined) {
-        driveSpring(width, next, reduceMotion);
-      }
-    } else {
-      measure(widthsRef.current.length === 0);
-    }
+    measure(widthsRef.current.length === 0);
 
     // Measuring can start a web-font load (e.g. a `unicode-range` face for a
     // new script). Re-measure once it lands; one registration at a time.
@@ -144,11 +124,10 @@ function useActiveItemWidth(
       fontsPendingRef.current = true;
       fonts.ready.then(() => {
         fontsPendingRef.current = false;
-        widthCacheRef.current?.clear();
         measure(false);
       });
     }
-  }, [stackRef, items, width, reduceMotion, cacheKey]);
+  }, [stackRef, items, width, reduceMotion]);
 
   // Follow the active item. A layout effect (not render) so the spring
   // retargets before paint without reading refs / mutating during render.
@@ -166,28 +145,114 @@ export interface DateTickerProps {
   visible: boolean;
 }
 
+/** One 60 Hz frame (ms). */
+const FRAME_MS = 1000 / 60;
+
+/**
+ * `width` follows the label's rendered width (`getBoundingClientRect`, as
+ * `useActiveItemWidth` measures) with `TICKER_SPRING`, without forcing a
+ * layout when the label changes: the width is read once on mount (snapped, so
+ * the pill never grows in from zero) and after that in a `ResizeObserver`
+ * callback, which runs after layout and before paint.
+ *
+ * The spring is the one `useSpring` runs (same options and velocity hand-off),
+ * dated to this frame's Motion batch — where `useSpring` starts it after a
+ * `set` from the commit — so it plays the same curve. Reduced motion jumps,
+ * written to the element straight away so it paints this frame too.
+ */
+function useLabelWidth(
+  labelRef: RefObject<HTMLElement | null>,
+  boxRef: RefObject<HTMLElement | null>,
+  width: MotionValue<number>,
+  reduceMotion: boolean
+) {
+  useLayoutEffect(() => {
+    const labelEl = labelRef.current;
+    if (!labelEl) {
+      return;
+    }
+    let animation: JSAnimation<number> | null = null;
+    const stop = () => {
+      animation?.stop();
+      animation = null;
+    };
+    const start = (target: number, startTime?: number) => {
+      stop();
+      animation = new JSAnimation({
+        keyframes: [width.get(), target],
+        velocity: width.getVelocity(),
+        type: "spring",
+        restDelta: 0.001,
+        restSpeed: 0.01,
+        ...TICKER_SPRING,
+        startTime,
+        onUpdate: (latest) => width.set(latest),
+      });
+    };
+
+    let measured = labelEl.getBoundingClientRect().width;
+    stop();
+    width.jump(measured);
+
+    const follow = (next: number) => {
+      if (reduceMotion) {
+        stop();
+        width.jump(next);
+        if (boxRef.current) {
+          boxRef.current.style.width = `${next}px`;
+        }
+        return;
+      }
+      // No Motion batch ran this frame: start now (it still ticks next frame).
+      const sinceFrame = performance.now() - frameData.timestamp;
+      start(
+        next,
+        sinceFrame >= 0 && sinceFrame < FRAME_MS
+          ? frameData.timestamp
+          : undefined
+      );
+    };
+
+    if (typeof ResizeObserver === "undefined") {
+      return stop;
+    }
+    const observer = new ResizeObserver(() => {
+      const next = labelEl.getBoundingClientRect().width;
+      if (next !== measured) {
+        measured = next;
+        follow(next);
+      }
+    });
+    observer.observe(labelEl, { box: "border-box" });
+    return () => {
+      observer.disconnect();
+      stop();
+    };
+  }, [labelRef, boxRef, width, reduceMotion]);
+}
+
 const DateTickerCompact = memo(function DateTickerCompact({
   currentIndex,
   labels,
 }: Omit<DateTickerProps, "visible">) {
   const reduceMotion = useReducedMotion() === true;
   const label = labels[currentIndex] ?? labels[0] ?? "";
-  const labelItems = useMemo(() => [label], [label]);
-  const stackRef = useRef<HTMLDivElement>(null);
-  const width = useSpring(0, TICKER_SPRING);
-  useActiveItemWidth(stackRef, labelItems, 0, width, reduceMotion, label);
+  const labelRef = useRef<HTMLSpanElement>(null);
+  const boxRef = useRef<HTMLDivElement>(null);
+  const width = useMotionValue(0);
+  useLabelWidth(labelRef, boxRef, width, reduceMotion);
 
   return (
     <div className="overflow-hidden rounded-full bg-zinc-900 px-4 py-1 text-white shadow-lg dark:bg-zinc-100 dark:text-zinc-900">
-      <m.div className="relative h-6" style={{ width }}>
+      <m.div className="relative h-6" ref={boxRef} style={{ width }}>
         <m.div
           className="absolute top-0 left-1/2 flex h-6 items-center"
-          ref={stackRef}
           style={{ x: "-50%" }}
         >
           <span
             className="whitespace-nowrap font-medium text-sm"
             data-ticker-item
+            ref={labelRef}
           >
             {label}
           </span>
