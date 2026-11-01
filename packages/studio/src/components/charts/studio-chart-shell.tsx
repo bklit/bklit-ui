@@ -17,6 +17,7 @@ import {
   studioLegendWrapperStyle,
 } from "@/lib/studio-chart-overlays";
 import { isStudioComponentVisible } from "@/lib/studio-component-visibility";
+import { STUDIO_LAYER_MARKER } from "@/lib/studio-layer-hit-test";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 
 export function StudioVisibleLayer({
@@ -36,6 +37,10 @@ export function StudioVisibleLayer({
 
 (StudioVisibleLayer as unknown as Record<string, boolean>)[
   CHART_CLIP_PASSTHROUGH
+] = true;
+// Canvas direct selection maps rendered DOM back to `componentId`.
+(StudioVisibleLayer as unknown as Record<string, boolean>)[
+  STUDIO_LAYER_MARKER
 ] = true;
 
 function enrichLegendItemsForProgress(
@@ -109,6 +114,7 @@ export const StudioChartShell = memo(function StudioChartShell({
   const legend = legendVisible ? (
     <div
       className={studioLegendGridCellClassName(state)}
+      data-studio-layer={legendComponentId}
       style={{ gridArea: grid.legendGridArea }}
     >
       {renderLegend ? (
