@@ -210,15 +210,17 @@ export interface TimeSeriesChartInnerProps {
   onPhaseChange?: (phase: ChartPhase) => void;
 }
 
-export function TimeSeriesChartInner(props: TimeSeriesChartInnerProps) {
-  const { width, height } = props;
-  if (width < 10 || height < 10) {
-    return null;
-  }
-  return <TimeSeriesChartCore {...props} />;
+/**
+ * Whether a measured box is big enough to draw a time-series chart. Callers
+ * render {@link TimeSeriesChartInner} only when it is, so the chart core is
+ * the first component below the public chart that receives `data` (in dev,
+ * React diffs the props of every component that re-renders).
+ */
+export function timeSeriesChartHasRoom(width: number, height: number) {
+  return width >= 10 && height >= 10;
 }
 
-const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
+export const TimeSeriesChartInner = memo(function TimeSeriesChartCore({
   width,
   height,
   data,

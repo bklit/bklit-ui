@@ -293,7 +293,7 @@ export function Area({
             strokeLinecap="round"
             strokeWidth={strokeWidth}
           />
-          {showSeriesStroke ? (
+          {showSeriesStroke && hasDashTail ? (
             <SeriesDashTailOverlay
               dashArray={dashArray}
               dashFromIndex={dashFromIndex}

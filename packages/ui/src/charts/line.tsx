@@ -16,7 +16,7 @@ import {
   useSettledYScale,
   useYScale,
 } from "./chart-context";
-import type { LoadingStyle } from "./chart-phase";
+import type { ChartPhase, LoadingStyle } from "./chart-phase";
 import {
   type FadeEdges,
   fadeGradientStops,
@@ -440,6 +440,21 @@ function LineStrokeDefs({
   );
 }
 
+/** Loading pulse mode for the line, or `null` when no pulse shows. */
+function resolveLinePulseMode(
+  chartPhase: ChartPhase,
+  loading: boolean | undefined,
+  loadingPulseMode: LineLoadingPulseMode | undefined
+): LineLoadingPulseMode | null {
+  if (loading === false) {
+    return null;
+  }
+  return (
+    loadingPulseMode ??
+    (loading === true ? "loop" : resolveLineLoadingPulseMode(chartPhase))
+  );
+}
+
 export function Line({
   dataKey,
   yAxisId,
@@ -498,11 +513,7 @@ export function Line({
     yScale,
   });
 
-  const phasePulseMode = resolveLineLoadingPulseMode(chartPhase);
-  const pulseMode =
-    loading === false
-      ? null
-      : (loadingPulseMode ?? (loading === true ? "loop" : phasePulseMode));
+  const pulseMode = resolveLinePulseMode(chartPhase, loading, loadingPulseMode);
   const showLoadingPulse = pulseMode != null;
   const [pulseEpoch, setPulseEpoch] = useState(0);
   const effectiveShowHighlight = showHighlight && !showLoadingPulse;
@@ -624,19 +635,22 @@ export function Line({
           visibleStroke={visibleStroke}
         />
 
-        <SeriesDashTailOverlay
-          dashArray={dashArray}
-          dashFromIndex={dashFromIndex}
-          data={data}
-          innerHeight={innerHeight}
-          innerWidth={innerWidth}
-          pathD={pathD}
-          pathLength={pathLength}
-          stroke={lineStroke}
-          strokeWidth={strokeWidth}
-          xAccessor={xAccessor}
-          xScale={xScale}
-        />
+        {/* Only mounted with a dash tail: it takes `data` as a prop. */}
+        {hasDashTail ? (
+          <SeriesDashTailOverlay
+            dashArray={dashArray}
+            dashFromIndex={dashFromIndex}
+            data={data}
+            innerHeight={innerHeight}
+            innerWidth={innerWidth}
+            pathD={pathD}
+            pathLength={pathLength}
+            stroke={lineStroke}
+            strokeWidth={strokeWidth}
+            xAccessor={xAccessor}
+            xScale={xScale}
+          />
+        ) : null}
       </SeriesHoverDim>
 
       {showMarkers ? (
