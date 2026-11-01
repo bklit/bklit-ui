@@ -1985,6 +1985,65 @@ export const funnelChartControlGroups: StudioControlGroup[] = [
     { type: "boolean", key: "funnelShowValues", label: "Show values" },
     { type: "boolean", key: "funnelShowLabels", label: "Show labels" },
     { type: "boolean", key: "funnelShowPercentage", label: "Show %" },
+    {
+      type: "select",
+      key: "funnelLabelLayout",
+      label: "Layout",
+      options: [
+        { value: "spread", label: "Spread" },
+        { value: "grouped", label: "Grouped" },
+      ],
+    },
+    {
+      type: "select",
+      key: "funnelLabelOrientation",
+      label: "Stack",
+      options: [
+        { value: "auto", label: "Auto" },
+        { value: "vertical", label: "Vertical" },
+        { value: "horizontal", label: "Horizontal" },
+      ],
+      visibleWhen: { key: "funnelLabelLayout", equals: "grouped" },
+    },
+    {
+      type: "select",
+      key: "funnelLabelAlign",
+      label: "Align",
+      options: [
+        { value: "center", label: "Center" },
+        { value: "start", label: "Start" },
+        { value: "end", label: "End" },
+      ],
+      visibleWhen: { key: "funnelLabelLayout", equals: "grouped" },
+    },
+  ]),
+];
+
+/** `<FunnelChart grid>` — opt-in layer (`funnel.funnel-grid`). */
+export const funnelGridControlGroups: StudioControlGroup[] = [
+  controlGroup("Grid", [
+    { type: "boolean", key: "funnelGridBands", label: "Bands" },
+    { type: "boolean", key: "funnelGridLines", label: "Lines" },
+    {
+      type: "opacity",
+      key: "funnelGridLineOpacity",
+      label: "Line opacity",
+      min: 0,
+      max: 1,
+      step: 0.05,
+      color: "var(--chart-grid)",
+      visibleWhen: { key: "funnelGridLines", truthy: true },
+    },
+    {
+      type: "number",
+      key: "funnelGridLineWidth",
+      label: "Line width",
+      min: 0.5,
+      max: 4,
+      step: 0.5,
+      unit: "px",
+      visibleWhen: { key: "funnelGridLines", truthy: true },
+    },
   ]),
 ];
 

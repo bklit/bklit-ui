@@ -499,6 +499,13 @@ export const STUDIO_STATE_KEY_ORDER = [
   "choroplethFeatureStrokeWidth",
   "choroplethFeatureFadedOpacity",
   "choroplethGraticuleStrokeWidth",
+  "funnelLabelLayout",
+  "funnelLabelAlign",
+  "funnelLabelOrientation",
+  "funnelGridBands",
+  "funnelGridLines",
+  "funnelGridLineOpacity",
+  "funnelGridLineWidth",
 ] as const satisfies readonly (keyof StudioUrlState)[];
 
 /** Frozen historical layout (cc7bc08 — first compressed-URL release). Decode-only. */

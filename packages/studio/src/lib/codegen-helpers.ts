@@ -1212,6 +1212,37 @@ export function candlestickCodegen(state: StudioUrlState) {
   };
 }
 
+function funnelExtraPropsCodegen(state: StudioUrlState): string {
+  const props: string[] = [];
+  if (state.funnelLabelLayout !== "spread") {
+    props.push(`labelLayout="${state.funnelLabelLayout}"`);
+    if (state.funnelLabelOrientation !== "auto") {
+      props.push(`labelOrientation="${state.funnelLabelOrientation}"`);
+    }
+    if (state.funnelLabelAlign !== "center") {
+      props.push(`labelAlign="${state.funnelLabelAlign}"`);
+    }
+  }
+  if (isStudioComponentVisible(state, "funnel.funnel-grid")) {
+    const grid: string[] = [];
+    if (!state.funnelGridBands) {
+      grid.push("bands: false");
+    }
+    if (state.funnelGridLines) {
+      if (state.funnelGridLineOpacity !== 1) {
+        grid.push(`lineOpacity: ${state.funnelGridLineOpacity}`);
+      }
+      if (state.funnelGridLineWidth !== 1) {
+        grid.push(`lineWidth: ${state.funnelGridLineWidth}`);
+      }
+    } else {
+      grid.push("lines: false");
+    }
+    props.push(grid.length > 0 ? `grid={{ ${grid.join(", ")} }}` : "grid");
+  }
+  return props.map((prop) => `\n  ${prop}`).join("");
+}
+
 export function funnelCodegen(state: StudioUrlState) {
   return {
     code: `<FunnelChart
@@ -1222,7 +1253,7 @@ export function funnelCodegen(state: StudioUrlState) {
   orientation="${state.funnelOrientation}"
   showValues={${state.funnelShowValues}}
   showLabels={${state.funnelShowLabels}}
-  showPercentage={${state.funnelShowPercentage}}
+  showPercentage={${state.funnelShowPercentage}}${funnelExtraPropsCodegen(state)}
   staggerDelay={${(0.12 * state.motionStaggerScale).toFixed(2)}}
   color="var(--chart-1)"
 />`,

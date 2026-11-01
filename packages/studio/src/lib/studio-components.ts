@@ -51,6 +51,7 @@ import {
   composedOverlayLineControlGroups,
   deadlineControlGroups,
   funnelChartControlGroups,
+  funnelGridControlGroups,
   gaugeControlGroups,
   getLineChartControlGroups,
   gridControlGroups,
@@ -1027,6 +1028,13 @@ export function resolveFunnelComponents(
       controlGroups: [...(layout ? [layout] : []), ...(labels ? [labels] : [])],
       // FunnelChart stages take solid colors only (no Studio pattern defs).
       design: { seriesIndex: 0, supportsPattern: false },
+    },
+    {
+      id: "funnel.funnel-grid",
+      label: "Grid",
+      parentId: chartId,
+      kind: "chart",
+      controlGroups: funnelGridControlGroups,
     },
     ...funnelData.map((stage, index) => ({
       id: `funnel.stage.${index}`,

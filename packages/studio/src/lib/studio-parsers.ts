@@ -726,6 +726,24 @@ export const studioSearchParams = {
   choroplethFeatureStrokeWidth: parseAsFloat.withDefault(0.5),
   choroplethFeatureFadedOpacity: parseAsFloat.withDefault(0.4),
   choroplethGraticuleStrokeWidth: parseAsFloat.withDefault(0.5),
+  funnelLabelLayout: parseAsStringLiteral([
+    "spread",
+    "grouped",
+  ] as const).withDefault("spread"),
+  funnelLabelAlign: parseAsStringLiteral([
+    "center",
+    "start",
+    "end",
+  ] as const).withDefault("center"),
+  funnelLabelOrientation: parseAsStringLiteral([
+    "auto",
+    "vertical",
+    "horizontal",
+  ] as const).withDefault("auto"),
+  funnelGridBands: parseAsBoolean.withDefault(true),
+  funnelGridLines: parseAsBoolean.withDefault(true),
+  funnelGridLineOpacity: parseAsFloat.withDefault(1),
+  funnelGridLineWidth: parseAsFloat.withDefault(1),
 };
 
 export interface StudioUrlState {
@@ -1225,6 +1243,14 @@ export interface StudioUrlState {
   choroplethFeatureStrokeWidth: number;
   choroplethFeatureFadedOpacity: number;
   choroplethGraticuleStrokeWidth: number;
+  funnelLabelLayout: "spread" | "grouped";
+  funnelLabelAlign: "center" | "start" | "end";
+  /** `auto` omits `labelOrientation` (component picks by funnel orientation). */
+  funnelLabelOrientation: "auto" | "vertical" | "horizontal";
+  funnelGridBands: boolean;
+  funnelGridLines: boolean;
+  funnelGridLineOpacity: number;
+  funnelGridLineWidth: number;
 }
 
 /** Full default state for chart switches (nuqs used `null` to clear keys; in-memory state needs real defaults). */
@@ -1729,6 +1755,13 @@ export function defaultStudioState(
     choroplethFeatureStrokeWidth: 0.5,
     choroplethFeatureFadedOpacity: 0.4,
     choroplethGraticuleStrokeWidth: 0.5,
+    funnelLabelLayout: "spread",
+    funnelLabelAlign: "center",
+    funnelLabelOrientation: "auto",
+    funnelGridBands: true,
+    funnelGridLines: true,
+    funnelGridLineOpacity: 1,
+    funnelGridLineWidth: 1,
     ...overrides,
   };
 }
