@@ -74,6 +74,15 @@ export function resolveLazyChartChild(child: ReactElement): ReactElement {
 }
 
 /**
+ * True while a `React.lazy` chart child's module is still loading, so its
+ * layer can't be classified yet. Shells that memoize child classification on
+ * `children` re-classify on every render until this clears.
+ */
+export function isPendingLazyChartChild(child: ReactElement): boolean {
+  return isLazyComponentType(child.type);
+}
+
+/**
  * Unwrap visibility wrappers so `Grid` / axes stay outside the series clip.
  *
  * Use the result to classify a child only — render {@link renderableChartChild}

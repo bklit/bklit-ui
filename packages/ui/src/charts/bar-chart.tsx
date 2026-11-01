@@ -19,6 +19,7 @@ import { topSquareCenterY } from "./bar-squares-layout";
 import {
   forEachChartChild,
   isClipExcludedComponent,
+  isPendingLazyChartChild,
   isPostOverlayComponent,
   isUnderlayComponent,
   renderKeyedChartLayers,
@@ -112,6 +113,62 @@ function isSeriesOverlayComponent(child: ReactElement): boolean {
       ? childType.displayName || childType.name || ""
       : "";
   return componentName === "TrendLine";
+}
+
+interface BarChartLayers {
+  defs: ReactElement[];
+  clipExcluded: ReactElement[];
+  underlay: ReactElement[];
+  preOverlay: ReactElement[];
+  /** Trend lines draw above every bar regardless of child order. */
+  seriesOverlay: ReactElement[];
+  postOverlay: ReactElement[];
+  /** A lazy child is still loading, so its layer may change once it resolves. */
+  hasPendingLazy: boolean;
+}
+
+/** Separate children into defs, pre-overlay, and post-overlay layers. */
+function partitionBarChartLayers(children: ReactNode): BarChartLayers {
+  const defs: ReactElement[] = [];
+  const clipExcluded: ReactElement[] = [];
+  const underlay: ReactElement[] = [];
+  const preOverlay: ReactElement[] = [];
+  const seriesOverlay: ReactElement[] = [];
+  const postOverlay: ReactElement[] = [];
+  let hasPendingLazy = false;
+
+  forEachChartChild(children, (child) => {
+    const resolvedChild = resolveChartChildElement(child);
+    if (isPendingLazyChartChild(resolvedChild)) {
+      hasPendingLazy = true;
+    }
+
+    if (isGradientDefComponent(child)) {
+      defs.push(child);
+    } else if (isPatternDefComponent(child)) {
+      preOverlay.push(child);
+    } else if (isPostOverlayComponent(resolvedChild)) {
+      postOverlay.push(child);
+    } else if (isClipExcludedComponent(resolvedChild)) {
+      clipExcluded.push(child);
+    } else if (isUnderlayComponent(resolvedChild)) {
+      underlay.push(child);
+    } else if (isSeriesOverlayComponent(resolvedChild)) {
+      seriesOverlay.push(child);
+    } else {
+      preOverlay.push(child);
+    }
+  });
+
+  return {
+    defs,
+    clipExcluded: renderKeyedChartLayers(clipExcluded),
+    underlay: renderKeyedChartLayers(underlay),
+    preOverlay: renderKeyedChartLayers(preOverlay),
+    seriesOverlay: renderKeyedChartLayers(seriesOverlay),
+    postOverlay: renderKeyedChartLayers(postOverlay),
+    hasPendingLazy,
+  };
 }
 
 // Extract bar configs from children synchronously
@@ -555,34 +612,17 @@ const ChartCore = memo(function ChartCore({
 
   const canInteract = isLoaded;
 
-  // Separate children into defs, pre-overlay, and post-overlay
-  const defsChildren: ReactElement[] = [];
-  const clipExcludedChildren: ReactElement[] = [];
-  const underlayChildren: ReactElement[] = [];
-  const preOverlayChildren: ReactElement[] = [];
-  // Trend lines draw above every bar regardless of child order.
-  const seriesOverlayChildren: ReactElement[] = [];
-  const postOverlayChildren: ReactElement[] = [];
-
-  forEachChartChild(children, (child) => {
-    const resolvedChild = resolveChartChildElement(child);
-
-    if (isGradientDefComponent(child)) {
-      defsChildren.push(child);
-    } else if (isPatternDefComponent(child)) {
-      preOverlayChildren.push(child);
-    } else if (isPostOverlayComponent(resolvedChild)) {
-      postOverlayChildren.push(child);
-    } else if (isClipExcludedComponent(resolvedChild)) {
-      clipExcludedChildren.push(child);
-    } else if (isUnderlayComponent(resolvedChild)) {
-      underlayChildren.push(child);
-    } else if (isSeriesOverlayComponent(resolvedChild)) {
-      seriesOverlayChildren.push(child);
-    } else {
-      preOverlayChildren.push(child);
-    }
-  });
+  // Hover state lives in this component, so it re-renders on every tooltip
+  // commit. Partition and key children once per `children` identity: fresh
+  // `cloneElement` results each render would re-render every chart child on
+  // hover, defeating the stable / hover context split.
+  const memoLayers = useMemo(
+    () => partitionBarChartLayers(children),
+    [children]
+  );
+  const layers = memoLayers.hasPendingLazy
+    ? partitionBarChartLayers(children)
+    : memoLayers;
 
   const referenceAreas = useMemo(
     () => extractReferenceAreaConfigs(children),
@@ -636,7 +676,7 @@ const ChartCore = memo(function ChartCore({
         width={width}
       >
         {/* Gradient and pattern definitions */}
-        {defsChildren.length > 0 && <defs>{defsChildren}</defs>}
+        {layers.defs.length > 0 && <defs>{layers.defs}</defs>}
 
         <rect fill="transparent" height={height} width={width} x={0} y={0} />
 
@@ -656,8 +696,8 @@ const ChartCore = memo(function ChartCore({
             y={0}
           />
 
-          {renderKeyedChartLayers(clipExcludedChildren)}
-          {renderKeyedChartLayers(underlayChildren)}
+          {layers.clipExcluded}
+          {layers.underlay}
           {status === "loading" ? (
             <BarLoadingSkeleton
               barCount={data.length || FALLBACK_LOADING_BARS}
@@ -667,13 +707,13 @@ const ChartCore = memo(function ChartCore({
             />
           ) : (
             <>
-              {renderKeyedChartLayers(preOverlayChildren)}
-              {renderKeyedChartLayers(seriesOverlayChildren)}
+              {layers.preOverlay}
+              {layers.seriesOverlay}
             </>
           )}
 
           {/* Markers rendered last so they're on top for interaction */}
-          {renderKeyedChartLayers(postOverlayChildren)}
+          {layers.postOverlay}
         </g>
       </svg>
     </ChartProvider>

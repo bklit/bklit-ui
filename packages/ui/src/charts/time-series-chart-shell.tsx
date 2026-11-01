@@ -27,6 +27,7 @@ import {
 } from "./band-config";
 import {
   isClipExcludedComponent,
+  isPendingLazyChartChild,
   isPostOverlayComponent,
   isUnderlayComponent,
   renderableChartChild,
@@ -95,6 +96,57 @@ function ensureChildKey(child: ReactElement, index: number): ReactElement {
     return child;
   }
   return cloneElement(child, { key: `chart-child-${index}` });
+}
+
+interface ChartLayers {
+  defs: ReactElement[];
+  clipExcluded: ReactElement[];
+  underlay: ReactElement[];
+  preOverlay: ReactElement[];
+  postOverlay: ReactElement[];
+  /** A lazy child is still loading, so its layer may change once it resolves. */
+  hasPendingLazy: boolean;
+}
+
+function partitionChartLayers(children: ReactNode): ChartLayers {
+  const layers: ChartLayers = {
+    defs: [],
+    clipExcluded: [],
+    underlay: [],
+    preOverlay: [],
+    postOverlay: [],
+    hasPendingLazy: false,
+  };
+
+  Children.forEach(children, (child, index) => {
+    if (!isValidElement(child)) {
+      return;
+    }
+
+    const keyedChild = ensureChildKey(child, index);
+    const resolvedChild = resolveChartChildElement(keyedChild);
+    const renderChild = renderableChartChild(keyedChild);
+
+    if (isPendingLazyChartChild(resolvedChild)) {
+      layers.hasPendingLazy = true;
+    }
+
+    if (isGradientDefComponent(resolvedChild)) {
+      layers.defs.push(renderChild);
+    } else if (isPatternDefComponent(resolvedChild)) {
+      layers.preOverlay.push(renderChild);
+    } else if (isPostOverlayComponent(resolvedChild)) {
+      layers.postOverlay.push(renderChild);
+    } else if (isClipExcludedComponent(resolvedChild)) {
+      layers.clipExcluded.push(renderChild);
+    } else if (isUnderlayComponent(resolvedChild)) {
+      layers.underlay.push(renderChild);
+    } else {
+      layers.preOverlay.push(renderChild);
+    }
+  });
+
+  return layers;
 }
 
 export interface TimeSeriesChartInnerProps {
@@ -261,7 +313,10 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
   // series: they never enter `lines`. The tooltip reads `bands` separately for
   // range rows / edge dots. Keyed by a string signature so new `children`
   // identities don't redo decimation.
-  const bandConfigsSignature = JSON.stringify(extractBandConfigs(children));
+  const bandConfigsSignature = useMemo(
+    () => JSON.stringify(extractBandConfigs(children)),
+    [children]
+  );
   const bandConfigs = useMemo(
     () => JSON.parse(bandConfigsSignature) as BandConfig[],
     [bandConfigsSignature]
@@ -426,35 +481,14 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
     yScales,
   });
 
-  const defsChildren: ReactElement[] = [];
-  const clipExcludedChildren: ReactElement[] = [];
-  const underlayChildren: ReactElement[] = [];
-  const preOverlayChildren: ReactElement[] = [];
-  const postOverlayChildren: ReactElement[] = [];
-
-  Children.forEach(children, (child, index) => {
-    if (!isValidElement(child)) {
-      return;
-    }
-
-    const keyedChild = ensureChildKey(child, index);
-    const resolvedChild = resolveChartChildElement(keyedChild);
-    const renderChild = renderableChartChild(keyedChild);
-
-    if (isGradientDefComponent(resolvedChild)) {
-      defsChildren.push(renderChild);
-    } else if (isPatternDefComponent(resolvedChild)) {
-      preOverlayChildren.push(renderChild);
-    } else if (isPostOverlayComponent(resolvedChild)) {
-      postOverlayChildren.push(renderChild);
-    } else if (isClipExcludedComponent(resolvedChild)) {
-      clipExcludedChildren.push(renderChild);
-    } else if (isUnderlayComponent(resolvedChild)) {
-      underlayChildren.push(renderChild);
-    } else {
-      preOverlayChildren.push(renderChild);
-    }
-  });
+  // Hover state lives in this component, so it re-renders on every tooltip
+  // commit. Partition (and key) children once per `children` identity: fresh
+  // `cloneElement` results each render would re-render every chart child on
+  // hover, defeating the stable / hover context split.
+  const memoLayers = useMemo(() => partitionChartLayers(children), [children]);
+  const layers = memoLayers.hasPendingLazy
+    ? partitionChartLayers(children)
+    : memoLayers;
 
   const [registeredReferenceAreas, setRegisteredReferenceAreas] = useState(
     () => new Map<string, ReferenceAreaConfig>()
@@ -667,7 +701,7 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
           width={width}
         >
           <defs>
-            {defsChildren}
+            {layers.defs}
             {useClipReveal ? (
               <ChartRevealClip
                 animating={isRevealAnimating || isRevealConcealing}
@@ -701,14 +735,14 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
               y={0}
             />
 
-            {clipExcludedChildren}
-            {underlayChildren}
+            {layers.clipExcluded}
+            {layers.underlay}
             {useClipReveal ? (
-              <g clipPath={`url(#${uniqueClipPathId})`}>{preOverlayChildren}</g>
+              <g clipPath={`url(#${uniqueClipPathId})`}>{layers.preOverlay}</g>
             ) : (
-              preOverlayChildren
+              layers.preOverlay
             )}
-            {postOverlayChildren}
+            {layers.postOverlay}
           </g>
         </svg>
       </ChartProvider>
