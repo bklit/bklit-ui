@@ -408,13 +408,13 @@ function TooltipBoxInner({
   const isFlipped = flippedOverride ?? shouldFlipX;
   const transformOrigin = isFlipped ? "right top" : "left top";
 
-  const panelClassName = cn(
-    TOOLTIP_PANEL_CLASS_NAME,
+  // Internal classes only (no caller className): no tailwind-merge needed.
+  const panelClassName = `${TOOLTIP_PANEL_CLASS_NAME}${
     panelStyle?.backgroundColor === undefined &&
-      backgroundColor === chartCssVars.tooltipBackground &&
-      "bg-chart-tooltip-background",
-    panelStyle?.backdropFilter === undefined && "backdrop-blur-md"
-  );
+    backgroundColor === chartCssVars.tooltipBackground
+      ? " bg-chart-tooltip-background"
+      : ""
+  }${panelStyle?.backdropFilter === undefined ? " backdrop-blur-md" : ""}`;
   const panelStyleResolved = {
     ...(panelStyle?.backgroundColor === undefined && {
       backgroundColor,

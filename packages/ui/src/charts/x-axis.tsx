@@ -2,7 +2,6 @@
 
 import { memo, useMemo } from "react";
 import { createPortal } from "react-dom";
-import { cn } from "@/lib/utils";
 import {
   useChart,
   useChartPortalContainer,
@@ -87,7 +86,7 @@ function XAxisLabel({
       }}
     >
       <span
-        className={cn("whitespace-nowrap text-chart-label text-xs")}
+        className="whitespace-nowrap text-chart-label text-xs"
         style={{
           opacity,
           transition: "opacity 0.4s ease-in-out",
