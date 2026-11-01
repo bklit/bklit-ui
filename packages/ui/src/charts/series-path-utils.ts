@@ -1,5 +1,6 @@
 import type { CurveFactory } from "d3-shape";
 import { line as d3Line } from "d3-shape";
+import { fastShapePath } from "./fast-path";
 
 export interface SeriesPathPoint {
   x: number;
@@ -78,7 +79,7 @@ export function seriesPathFromPoints(
     .y((point) => point.y)
     .curve(curve);
 
-  return generator(points) ?? "";
+  return fastShapePath(generator, points);
 }
 
 const CURVE_SEGMENT_STEPS = 12;

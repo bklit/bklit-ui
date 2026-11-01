@@ -1,5 +1,6 @@
 import { area, type CurveFactory, line } from "d3-shape";
 import type { Ref, SVGProps } from "react";
+import { fastShapePath } from "./fast-path";
 
 /**
  * Line / closed-area path helpers that reproduce what `@visx/shape` 4.0.0
@@ -51,7 +52,7 @@ export function linePathD<Datum>(
   if (curve) {
     path.curve(curve);
   }
-  return path(data) || "";
+  return fastShapePath(path, data);
 }
 
 /** `d` of visx `<AreaClosed data={data} … />`. */
@@ -82,7 +83,7 @@ export function areaClosedD<Datum>(
   if (y) {
     path.y1(y);
   }
-  return path(data) || "";
+  return fastShapePath(path, data);
 }
 
 export type LinePathProps = Omit<SVGProps<SVGPathElement>, "d" | "ref"> & {
