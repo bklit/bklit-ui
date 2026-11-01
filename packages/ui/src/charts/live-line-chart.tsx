@@ -27,7 +27,7 @@ import {
   type Margin,
   type TooltipData,
 } from "./chart-context";
-import { hmsTimeFmt } from "./chart-formatters";
+import { hmsTimeFmt, lazyLabels } from "./chart-formatters";
 import { ParentSize } from "./chart-parent-size";
 import { DEFAULT_CHART_LIFECYCLE } from "./chart-phase";
 import type { LiveLineProps } from "./live-line";
@@ -115,6 +115,18 @@ function computeTargetRange(
   const paddingFactor = exaggerate ? 0.03 : 0.15;
   const rangePad = rawRange * paddingFactor || (exaggerate ? 0.04 : 10);
   return { yMin: min - rangePad, yMax: max + rangePad };
+}
+
+function isFrameSettled(prev: AnimFrame, next: AnimFrame): boolean {
+  if (prev.now !== next.now) {
+    return false;
+  }
+  const epsilon = Math.abs(next.yMax - next.yMin) * 1e-4;
+  return (
+    Math.abs(next.yMin - prev.yMin) <= epsilon &&
+    Math.abs(next.yMax - prev.yMax) <= epsilon &&
+    Math.abs(next.displayValue - prev.displayValue) <= epsilon
+  );
 }
 
 function nextAnimFrame(
@@ -252,7 +264,9 @@ function resolveLiveTooltip(
     .range([innerHeight, 0]);
   const timeMs = xScaleNext.invert(cursorX).getTime();
   const timeSec = timeMs / 1000;
-  const visible = data.filter((p) => p.time >= (domainEndMs - windowMs) / 1000);
+  const visible = data.slice(
+    bisectTime(data, (domainEndMs - windowMs) / 1000, 0)
+  );
   visible.push({ time: frame.now / 1000, value: frame.displayValue });
   visible.push({
     time: (frame.now + xTickUnitMs) / 1000,
@@ -368,6 +382,7 @@ const LiveLineChartCore = memo(function LiveLineChartCore({
   const cursorXRef = useRef<number | null>(null);
   const [tooltipData, setTooltipData] = useState<TooltipData | null>(null);
   const lastFrameCommitRef = useRef(0);
+  const committedFrameRef = useRef<AnimFrame>(frame);
   const lastTooltipKeyRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -395,12 +410,14 @@ const LiveLineChartCore = memo(function LiveLineChartCore({
       );
       const now = performance.now();
       const tooltipKey = liveTooltipKey(nextTooltip, dataKeyRef.current);
-      const { commitFrame, commitTooltip } = shouldCommitLiveUpdates(
+      const { commitFrame: frameDue, commitTooltip } = shouldCommitLiveUpdates(
         now,
         lastFrameCommitRef.current,
         tooltipKey,
         lastTooltipKeyRef.current
       );
+      const commitFrame =
+        frameDue && !isFrameSettled(committedFrameRef.current, next);
 
       if (!(commitFrame || commitTooltip)) {
         raf = requestAnimationFrame(tick);
@@ -409,6 +426,7 @@ const LiveLineChartCore = memo(function LiveLineChartCore({
 
       if (commitFrame) {
         lastFrameCommitRef.current = now;
+        committedFrameRef.current = next;
       }
       if (commitTooltip) {
         lastTooltipKeyRef.current = tooltipKey;
@@ -521,7 +539,12 @@ const LiveLineChartCore = memo(function LiveLineChartCore({
 
   // Date labels (for ChartTooltip's DateTicker — not used in live but needed for context)
   const dateLabels = useMemo(
-    () => contextData.map((d) => hmsTimeFmt.format(xAccessor(d))),
+    () =>
+      lazyLabels(contextData.length, (index) =>
+        hmsTimeFmt.format(
+          xAccessor(contextData[index] as Record<string, unknown>)
+        )
+      ),
     [contextData, xAccessor]
   );
 
