@@ -188,7 +188,12 @@ interface HeatmapCellRectProps {
   inactiveScale: number;
   activeScale: number;
   rowOpacity: number | readonly number[] | undefined;
-  hoverState: { isHighlighted: boolean; isDimmed: boolean };
+  /**
+   * Hover state as primitives so `memo` skips cells whose state didn't change:
+   * moving between cells re-renders only the cells that flip.
+   */
+  isHighlighted: boolean;
+  isDimmed: boolean;
   onEnter: (
     column: number,
     row: number,
@@ -209,7 +214,8 @@ const HeatmapMotionCell = memo(function HeatmapMotionCell({
   inactiveScale,
   activeScale,
   rowOpacity,
-  hoverState,
+  isHighlighted,
+  isDimmed,
   onEnter,
   onLeave,
 }: HeatmapCellRectProps & {
@@ -280,16 +286,18 @@ const HeatmapMotionCell = memo(function HeatmapMotionCell({
     enterStaggerScale,
     fadeDurationSec,
   });
-  const staggeredTransition = transitionWithDelay(
-    enterTransition,
-    delayMs / 1000
+  // Stable across re-renders so the layer-opacity sync effect below only
+  // re-runs when an input actually changes.
+  const staggeredTransition = useMemo(
+    () => transitionWithDelay(enterTransition, delayMs / 1000),
+    [enterTransition, delayMs]
   );
 
-  const readyHoverStyle = resolveHeatmapHoverStyle(
-    hoverState.isHighlighted,
-    hoverState.isDimmed,
-    { inactiveOpacity, inactiveScale, activeScale }
-  );
+  const readyHoverStyle = resolveHeatmapHoverStyle(isHighlighted, isDimmed, {
+    inactiveOpacity,
+    inactiveScale,
+    activeScale,
+  });
   const rowOpacityMultiplier = resolveHeatmapRowOpacity(cell.row, rowOpacity);
   const readyDataOpacity = readyHoverStyle.opacity;
   const readyScale = isReadyResting ? readyHoverStyle.scale : 1;
@@ -559,10 +567,11 @@ export const HeatmapCells = memo(function HeatmapCells({
               cell={cell}
               cornerRadius={cornerRadius}
               fillScale={fillScale}
-              hoverState={hoverState}
               inactiveOpacity={inactiveOpacity}
               inactiveScale={inactiveScale}
               interactive={cellsInteractive}
+              isDimmed={hoverState.isDimmed}
+              isHighlighted={hoverState.isHighlighted}
               key={`heatmap-cell-${cell.column}-${cell.row}`}
               onEnter={handleCellEnter}
               onLeave={handleCellLeave}
