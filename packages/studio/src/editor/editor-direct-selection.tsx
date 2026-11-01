@@ -43,7 +43,8 @@ export function useDirectSelectionShortcuts({
     }
 
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.metaKey || event.ctrlKey || event.altKey) {
+      // Shift+H toggles the selected layer's visibility (components panel).
+      if (event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) {
         return;
       }
       if (isTypingTarget(event.target)) {
