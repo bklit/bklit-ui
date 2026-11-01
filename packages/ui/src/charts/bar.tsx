@@ -2,7 +2,7 @@
 
 import type { ScaleBand as D3ScaleBand } from "d3-scale";
 import type { Transition } from "motion/react";
-import { motion } from "motion/react";
+import { m } from "motion/react";
 import { memo, useId, useMemo } from "react";
 import { barDepthAndRise, barDepthMaxDepth } from "./bar-depth-geometry";
 import {
@@ -161,7 +161,7 @@ function AnimatedBar({
 }: AnimatedBarProps) {
   const enterAnim = transitionWithDelay(enterTransition, index * staggerDelay);
   const label = valueLabel ? (
-    <motion.text
+    <m.text
       animate={{ opacity: isFaded ? fadedOpacity : 1 }}
       className={valueLabelClassName}
       dominantBaseline="middle"
@@ -176,13 +176,13 @@ function AnimatedBar({
       y={labelY}
     >
       {valueLabel}
-    </motion.text>
+    </m.text>
   ) : null;
 
   if (animationType === "fade") {
     return (
       <g>
-        <motion.rect
+        <m.rect
           animate={{
             opacity: isFaded ? fadedOpacity : 1,
             filter: "blur(0px)",
@@ -215,7 +215,7 @@ function AnimatedBar({
       opacity={isFaded ? fadedOpacity : 1}
       style={{ transition: "opacity 0.15s ease-in-out" }}
     >
-      <motion.rect
+      <m.rect
         animate={target}
         fill={fill}
         initial={initial}

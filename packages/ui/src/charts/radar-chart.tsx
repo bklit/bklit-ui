@@ -2,6 +2,7 @@
 
 import { scaleLinear } from "d3-scale";
 import type { Transition } from "motion/react";
+import { domAnimation, LazyMotion } from "motion/react";
 import { type ReactNode, useCallback, useState } from "react";
 import { cn } from "@/lib/utils";
 import { ParentSize } from "./chart-parent-size";
@@ -201,42 +202,17 @@ export function RadarChart({
   // If fixed size is provided, use it directly
   if (fixedSize) {
     return (
-      <div
-        className={cn("relative flex items-center justify-center", className)}
-        style={{ width: fixedSize, height: fixedSize }}
-      >
-        <RadarChartInner
-          animate={animate}
-          data={data}
-          enterDurationMs={enterDurationMs}
-          enterTransition={enterTransition}
-          height={fixedSize}
-          hoveredIndexProp={hoveredIndex}
-          levels={levels}
-          margin={margin}
-          metrics={metrics}
-          motionReplayKey={motionReplayKey}
-          onHoverChange={onHoverChange}
-          staggerScale={staggerScale}
-          width={fixedSize}
+      <LazyMotion features={domAnimation}>
+        <div
+          className={cn("relative flex items-center justify-center", className)}
+          style={{ width: fixedSize, height: fixedSize }}
         >
-          {children}
-        </RadarChartInner>
-      </div>
-    );
-  }
-
-  // Otherwise use ParentSize for responsive sizing
-  return (
-    <div className={cn("relative aspect-square w-full", className)}>
-      <ParentSize debounceTime={10}>
-        {({ width, height }) => (
           <RadarChartInner
             animate={animate}
             data={data}
             enterDurationMs={enterDurationMs}
             enterTransition={enterTransition}
-            height={height}
+            height={fixedSize}
             hoveredIndexProp={hoveredIndex}
             levels={levels}
             margin={margin}
@@ -244,13 +220,42 @@ export function RadarChart({
             motionReplayKey={motionReplayKey}
             onHoverChange={onHoverChange}
             staggerScale={staggerScale}
-            width={width}
+            width={fixedSize}
           >
             {children}
           </RadarChartInner>
-        )}
-      </ParentSize>
-    </div>
+        </div>
+      </LazyMotion>
+    );
+  }
+
+  // Otherwise use ParentSize for responsive sizing
+  return (
+    <LazyMotion features={domAnimation}>
+      <div className={cn("relative aspect-square w-full", className)}>
+        <ParentSize debounceTime={10}>
+          {({ width, height }) => (
+            <RadarChartInner
+              animate={animate}
+              data={data}
+              enterDurationMs={enterDurationMs}
+              enterTransition={enterTransition}
+              height={height}
+              hoveredIndexProp={hoveredIndex}
+              levels={levels}
+              margin={margin}
+              metrics={metrics}
+              motionReplayKey={motionReplayKey}
+              onHoverChange={onHoverChange}
+              staggerScale={staggerScale}
+              width={width}
+            >
+              {children}
+            </RadarChartInner>
+          )}
+        </ParentSize>
+      </div>
+    </LazyMotion>
   );
 }
 

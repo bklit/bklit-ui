@@ -1,7 +1,7 @@
 "use client";
 
 import type { Transition } from "motion/react";
-import { motion, useTransform } from "motion/react";
+import { domAnimation, LazyMotion, m, useTransform } from "motion/react";
 import {
   type CSSProperties,
   type ReactNode,
@@ -188,7 +188,7 @@ function HRing({
   const extraScale = 1 + (ringIndex / Math.max(totalRings - 1, 1)) * 0.12;
 
   return (
-    <motion.path
+    <m.path
       animate={{ scaleY: hovered ? extraScale : 1 }}
       d={d}
       fill={fill ?? color}
@@ -255,7 +255,7 @@ function HSegment({
   });
 
   return (
-    <motion.div
+    <m.div
       animate={{ opacity: dimmed ? 0.4 : 1 }}
       className="pointer-events-none relative shrink-0 overflow-visible"
       style={{
@@ -317,7 +317,7 @@ function HSegment({
           </svg>
         </div>
       ) : (
-        <motion.div
+        <m.div
           className="absolute inset-0 overflow-visible"
           style={{
             scaleX: entranceScaleX,
@@ -373,9 +373,9 @@ function HSegment({
               );
             })}
           </svg>
-        </motion.div>
+        </m.div>
       )}
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -399,7 +399,7 @@ function VRing({
   const extraScale = 1 + (ringIndex / Math.max(totalRings - 1, 1)) * 0.12;
 
   return (
-    <motion.path
+    <m.path
       animate={{ scaleX: hovered ? extraScale : 1 }}
       d={d}
       fill={fill ?? color}
@@ -466,7 +466,7 @@ function VSegment({
   });
 
   return (
-    <motion.div
+    <m.div
       animate={{ opacity: dimmed ? 0.4 : 1 }}
       className="pointer-events-none relative shrink-0 overflow-visible"
       style={{
@@ -528,7 +528,7 @@ function VSegment({
           </svg>
         </div>
       ) : (
-        <motion.div
+        <m.div
           className="absolute inset-0 overflow-visible"
           style={{
             scaleY: entranceScaleY,
@@ -584,9 +584,9 @@ function VSegment({
               );
             })}
           </svg>
-        </motion.div>
+        </m.div>
       )}
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -642,7 +642,7 @@ function SegmentLabel({
   // ── Spread layout (default): items pushed to edges with center element ──
   if (layout === "spread") {
     return (
-      <motion.div
+      <m.div
         animate={{ opacity: 1 }}
         className={cn(
           "absolute inset-0 flex",
@@ -680,7 +680,7 @@ function SegmentLabel({
             </div>
           </>
         )}
-      </motion.div>
+      </m.div>
     );
   }
 
@@ -704,7 +704,7 @@ function SegmentLabel({
   // The outer container uses the chart orientation to position the group,
   // and the inner group uses the label orientation for stacking.
   return (
-    <motion.div
+    <m.div
       animate={{ opacity: 1 }}
       className={cn(
         "absolute inset-0 flex",
@@ -736,7 +736,7 @@ function SegmentLabel({
         {pctEl}
         {labelEl}
       </div>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -833,209 +833,214 @@ export function FunnelChart({
   const gridLineWidth = gridCfg.lineWidth ?? 1;
 
   return (
-    <div
-      className={cn("relative w-full select-none overflow-visible", className)}
-      ref={ref}
-      style={{
-        aspectRatio: horiz ? "2.2 / 1" : "1 / 1.8",
-        ...style,
-      }}
-    >
-      {W > 0 && H > 0 && (
-        <>
-          {/* Grid layer: background bands + grid lines */}
-          {gridEnabled && (
-            <svg
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 h-full w-full"
-              preserveAspectRatio="none"
-              role="presentation"
-              viewBox={`0 0 ${W} ${H}`}
-            >
-              {/* Background bands — alternating on even segments */}
-              {showBands &&
-                data.map((stage, i) => {
-                  if (i % 2 !== 0) {
-                    return null;
-                  }
-                  if (horiz) {
-                    const x = (segW + gap) * i;
+    <LazyMotion features={domAnimation}>
+      <div
+        className={cn(
+          "relative w-full select-none overflow-visible",
+          className
+        )}
+        ref={ref}
+        style={{
+          aspectRatio: horiz ? "2.2 / 1" : "1 / 1.8",
+          ...style,
+        }}
+      >
+        {W > 0 && H > 0 && (
+          <>
+            {/* Grid layer: background bands + grid lines */}
+            {gridEnabled && (
+              <svg
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 h-full w-full"
+                preserveAspectRatio="none"
+                role="presentation"
+                viewBox={`0 0 ${W} ${H}`}
+              >
+                {/* Background bands — alternating on even segments */}
+                {showBands &&
+                  data.map((stage, i) => {
+                    if (i % 2 !== 0) {
+                      return null;
+                    }
+                    if (horiz) {
+                      const x = (segW + gap) * i;
+                      return (
+                        <rect
+                          fill={bandColor}
+                          height={H}
+                          key={`band-${stage.label}`}
+                          width={segW}
+                          x={x}
+                          y={0}
+                        />
+                      );
+                    }
+                    const y = (segH + gap) * i;
                     return (
                       <rect
                         fill={bandColor}
-                        height={H}
+                        height={segH}
                         key={`band-${stage.label}`}
-                        width={segW}
-                        x={x}
-                        y={0}
+                        width={W}
+                        x={0}
+                        y={y}
+                      />
+                    );
+                  })}
+              </svg>
+            )}
+
+            {/* Segments container — overflow-visible so hover scale is not clipped */}
+            <div
+              className={cn(
+                "absolute inset-0 flex overflow-visible",
+                horiz ? "flex-row" : "flex-col"
+              )}
+              style={{ gap }}
+            >
+              {data.map((stage, i) => {
+                const normStart = norms[i] ?? 0;
+                const normEnd = norms[Math.min(i + 1, n - 1)] ?? 0;
+                const firstStop = stage.gradient?.[0];
+                const segColor = firstStop
+                  ? firstStop.color
+                  : (stage.color ?? color);
+
+                return horiz ? (
+                  <HSegment
+                    color={segColor}
+                    dimmed={hoveredIndex !== null && hoveredIndex !== i}
+                    enterTransition={enterTransition}
+                    fullH={H}
+                    gradientStops={stage.gradient}
+                    hovered={hoveredIndex === i}
+                    index={i}
+                    key={stage.label}
+                    layers={layers}
+                    normEnd={normEnd}
+                    normStart={normStart}
+                    renderPattern={renderPattern}
+                    segW={segW}
+                    staggerDelay={staggerDelay}
+                    straight={edges === "straight"}
+                  />
+                ) : (
+                  <VSegment
+                    color={segColor}
+                    dimmed={hoveredIndex !== null && hoveredIndex !== i}
+                    enterTransition={enterTransition}
+                    fullW={W}
+                    gradientStops={stage.gradient}
+                    hovered={hoveredIndex === i}
+                    index={i}
+                    key={stage.label}
+                    layers={layers}
+                    normEnd={normEnd}
+                    normStart={normStart}
+                    renderPattern={renderPattern}
+                    segH={segH}
+                    staggerDelay={staggerDelay}
+                    straight={edges === "straight"}
+                  />
+                );
+              })}
+            </div>
+
+            {/* Grid lines — rendered above segments so they're visible */}
+            {gridEnabled && showGridLines && (
+              <svg
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 h-full w-full"
+                preserveAspectRatio="none"
+                role="presentation"
+                viewBox={`0 0 ${W} ${H}`}
+              >
+                {Array.from({ length: n - 1 }, (_, i) => {
+                  const idx = i + 1;
+                  const gridKey = `grid-${idx}`;
+                  if (horiz) {
+                    const x = segW * idx + gap * i + gap / 2;
+                    return (
+                      <line
+                        key={gridKey}
+                        stroke={gridLineColor}
+                        strokeOpacity={gridLineOpacity}
+                        strokeWidth={gridLineWidth}
+                        x1={x}
+                        x2={x}
+                        y1={0}
+                        y2={H}
                       />
                     );
                   }
-                  const y = (segH + gap) * i;
-                  return (
-                    <rect
-                      fill={bandColor}
-                      height={segH}
-                      key={`band-${stage.label}`}
-                      width={W}
-                      x={0}
-                      y={y}
-                    />
-                  );
-                })}
-            </svg>
-          )}
-
-          {/* Segments container — overflow-visible so hover scale is not clipped */}
-          <div
-            className={cn(
-              "absolute inset-0 flex overflow-visible",
-              horiz ? "flex-row" : "flex-col"
-            )}
-            style={{ gap }}
-          >
-            {data.map((stage, i) => {
-              const normStart = norms[i] ?? 0;
-              const normEnd = norms[Math.min(i + 1, n - 1)] ?? 0;
-              const firstStop = stage.gradient?.[0];
-              const segColor = firstStop
-                ? firstStop.color
-                : (stage.color ?? color);
-
-              return horiz ? (
-                <HSegment
-                  color={segColor}
-                  dimmed={hoveredIndex !== null && hoveredIndex !== i}
-                  enterTransition={enterTransition}
-                  fullH={H}
-                  gradientStops={stage.gradient}
-                  hovered={hoveredIndex === i}
-                  index={i}
-                  key={stage.label}
-                  layers={layers}
-                  normEnd={normEnd}
-                  normStart={normStart}
-                  renderPattern={renderPattern}
-                  segW={segW}
-                  staggerDelay={staggerDelay}
-                  straight={edges === "straight"}
-                />
-              ) : (
-                <VSegment
-                  color={segColor}
-                  dimmed={hoveredIndex !== null && hoveredIndex !== i}
-                  enterTransition={enterTransition}
-                  fullW={W}
-                  gradientStops={stage.gradient}
-                  hovered={hoveredIndex === i}
-                  index={i}
-                  key={stage.label}
-                  layers={layers}
-                  normEnd={normEnd}
-                  normStart={normStart}
-                  renderPattern={renderPattern}
-                  segH={segH}
-                  staggerDelay={staggerDelay}
-                  straight={edges === "straight"}
-                />
-              );
-            })}
-          </div>
-
-          {/* Grid lines — rendered above segments so they're visible */}
-          {gridEnabled && showGridLines && (
-            <svg
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 h-full w-full"
-              preserveAspectRatio="none"
-              role="presentation"
-              viewBox={`0 0 ${W} ${H}`}
-            >
-              {Array.from({ length: n - 1 }, (_, i) => {
-                const idx = i + 1;
-                const gridKey = `grid-${idx}`;
-                if (horiz) {
-                  const x = segW * idx + gap * i + gap / 2;
+                  const y = segH * idx + gap * i + gap / 2;
                   return (
                     <line
                       key={gridKey}
                       stroke={gridLineColor}
                       strokeOpacity={gridLineOpacity}
                       strokeWidth={gridLineWidth}
-                      x1={x}
-                      x2={x}
-                      y1={0}
-                      y2={H}
+                      x1={0}
+                      x2={W}
+                      y1={y}
+                      y2={y}
                     />
                   );
-                }
-                const y = segH * idx + gap * i + gap / 2;
-                return (
-                  <line
-                    key={gridKey}
-                    stroke={gridLineColor}
-                    strokeOpacity={gridLineOpacity}
-                    strokeWidth={gridLineWidth}
-                    x1={0}
-                    x2={W}
-                    y1={y}
-                    y2={y}
-                  />
-                );
-              })}
-            </svg>
-          )}
+                })}
+              </svg>
+            )}
 
-          {/* Label overlays — one per segment, positioned over each segment cell.
+            {/* Label overlays — one per segment, positioned over each segment cell.
               These are the hover triggers for each segment. */}
-          {data.map((stage, i) => {
-            const pct = (stage.value / max) * 100;
-            const posStyle: CSSProperties = horiz
-              ? {
-                  left: (segW + gap) * i,
-                  width: segW,
-                  top: 0,
-                  height: H,
-                }
-              : {
-                  top: (segH + gap) * i,
-                  height: segH,
-                  left: 0,
-                  width: W,
-                };
+            {data.map((stage, i) => {
+              const pct = (stage.value / max) * 100;
+              const posStyle: CSSProperties = horiz
+                ? {
+                    left: (segW + gap) * i,
+                    width: segW,
+                    top: 0,
+                    height: H,
+                  }
+                : {
+                    top: (segH + gap) * i,
+                    height: segH,
+                    left: 0,
+                    width: W,
+                  };
 
-            const isDimmed = hoveredIndex !== null && hoveredIndex !== i;
+              const isDimmed = hoveredIndex !== null && hoveredIndex !== i;
 
-            return (
-              <motion.div
-                animate={{ opacity: isDimmed ? 0.4 : 1 }}
-                className="absolute cursor-pointer"
-                key={`lbl-${stage.label}`}
-                onMouseEnter={() => setHoveredIndex(i)}
-                onMouseLeave={() => setHoveredIndex(null)}
-                style={{ ...posStyle, zIndex: 20 }}
-                transition={{ type: "spring", stiffness: 300, damping: 24 }}
-              >
-                <SegmentLabel
-                  align={labelAlign}
-                  formatPercentage={formatPercentage}
-                  formatValue={formatValue}
-                  index={i}
-                  isHorizontal={horiz}
-                  layout={labelLayout}
-                  orientation={labelOrientation}
-                  pct={pct}
-                  showLabels={showLabels}
-                  showPercentage={showPercentage}
-                  showValues={showValues}
-                  stage={stage}
-                  staggerDelay={staggerDelay}
-                />
-              </motion.div>
-            );
-          })}
-        </>
-      )}
-    </div>
+              return (
+                <m.div
+                  animate={{ opacity: isDimmed ? 0.4 : 1 }}
+                  className="absolute cursor-pointer"
+                  key={`lbl-${stage.label}`}
+                  onMouseEnter={() => setHoveredIndex(i)}
+                  onMouseLeave={() => setHoveredIndex(null)}
+                  style={{ ...posStyle, zIndex: 20 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 24 }}
+                >
+                  <SegmentLabel
+                    align={labelAlign}
+                    formatPercentage={formatPercentage}
+                    formatValue={formatValue}
+                    index={i}
+                    isHorizontal={horiz}
+                    layout={labelLayout}
+                    orientation={labelOrientation}
+                    pct={pct}
+                    showLabels={showLabels}
+                    showPercentage={showPercentage}
+                    showValues={showValues}
+                    stage={stage}
+                    staggerDelay={staggerDelay}
+                  />
+                </m.div>
+              );
+            })}
+          </>
+        )}
+      </div>
+    </LazyMotion>
   );
 }

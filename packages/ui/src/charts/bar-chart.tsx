@@ -2,6 +2,7 @@
 
 import { type ScaleTime, scaleBand, scaleLinear } from "d3-scale";
 import type { Transition } from "motion/react";
+import { domAnimation, LazyMotion } from "motion/react";
 import {
   memo,
   type ReactElement,
@@ -705,39 +706,41 @@ export function BarChart({
   const margin = { ...DEFAULT_MARGIN, ...marginProp };
 
   return (
-    <div
-      className={cn("relative w-full overflow-visible", className)}
-      ref={containerRef}
-      style={{ aspectRatio }}
-    >
-      <ParentSize debounceTime={10}>
-        {({ width, height }) => (
-          <ChartInner
-            animationDuration={animationDuration}
-            animationEasing={animationEasing}
-            barGap={barGap}
-            barWidthProp={barWidth}
-            containerRef={containerRef}
-            data={data}
-            enterTransition={enterTransition}
-            height={height}
-            loadingFill={loadingFill}
-            margin={margin}
-            onPhaseChange={onPhaseChange}
-            orientation={orientation}
-            revealSignature={revealSignature}
-            squareSnap={squareSnap}
-            stacked={stacked}
-            stackGap={stackGap}
-            status={status}
-            width={width}
-            xDataKey={xDataKey}
-          >
-            {children}
-          </ChartInner>
-        )}
-      </ParentSize>
-    </div>
+    <LazyMotion features={domAnimation}>
+      <div
+        className={cn("relative w-full overflow-visible", className)}
+        ref={containerRef}
+        style={{ aspectRatio }}
+      >
+        <ParentSize debounceTime={10}>
+          {({ width, height }) => (
+            <ChartInner
+              animationDuration={animationDuration}
+              animationEasing={animationEasing}
+              barGap={barGap}
+              barWidthProp={barWidth}
+              containerRef={containerRef}
+              data={data}
+              enterTransition={enterTransition}
+              height={height}
+              loadingFill={loadingFill}
+              margin={margin}
+              onPhaseChange={onPhaseChange}
+              orientation={orientation}
+              revealSignature={revealSignature}
+              squareSnap={squareSnap}
+              stacked={stacked}
+              stackGap={stackGap}
+              status={status}
+              width={width}
+              xDataKey={xDataKey}
+            >
+              {children}
+            </ChartInner>
+          )}
+        </ParentSize>
+      </div>
+    </LazyMotion>
   );
 }
 

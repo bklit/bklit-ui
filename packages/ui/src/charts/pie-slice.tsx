@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useSpring, useTransform } from "motion/react";
+import { m, useSpring, useTransform } from "motion/react";
 import { memo, useEffect } from "react";
 import { arcPath } from "./arc-path";
 import { usePieHover, usePieStable } from "./pie-context";
@@ -23,7 +23,7 @@ function getSliceOffset(
   };
 }
 
-// Every `motion.path` below uses `initial={false}`: Motion can't read `opacity`
+// Every `m.path` below uses `initial={false}`: Motion can't read `opacity`
 // or `d` back from an SVG path, so without it the first frame animates from
 // `undefined` (console warning + an invalid `d="undefined"` attribute).
 
@@ -129,7 +129,7 @@ function AnimatedSliceTranslate({
   if (enterComplete) {
     const shouldTranslate = isHovered;
     return (
-      <motion.path
+      <m.path
         animate={{
           opacity: isFaded ? 0.4 : 1,
           x: shouldTranslate ? offset.x : 0,
@@ -155,7 +155,7 @@ function AnimatedSliceTranslate({
   }
 
   return (
-    <motion.path
+    <m.path
       animate={{
         opacity: isFaded ? 0.4 : 1,
         x: isHovered ? offset.x : 0,
@@ -266,7 +266,7 @@ function AnimatedSliceGrow({
 
   if (enterComplete) {
     return (
-      <motion.path
+      <m.path
         animate={{
           opacity: isFaded ? 0.4 : 1,
           d: grownPath,
@@ -290,7 +290,7 @@ function AnimatedSliceGrow({
   }
 
   return (
-    <motion.path
+    <m.path
       animate={{
         opacity: isFaded ? 0.4 : 1,
       }}
@@ -431,7 +431,7 @@ export const PieSlice = memo(function PieSlice({
   const renderStaticSlice = () => {
     if (hoverEffect === "grow") {
       return (
-        <motion.path
+        <m.path
           animate={{
             opacity: isFaded ? 0.4 : 1,
             d: grownPath,
@@ -458,7 +458,7 @@ export const PieSlice = memo(function PieSlice({
     const translateY = shouldTranslate ? offset.y : 0;
 
     return (
-      <motion.path
+      <m.path
         animate={{
           opacity: isFaded ? 0.4 : 1,
           x: translateX,

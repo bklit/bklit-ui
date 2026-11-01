@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, m } from "motion/react";
 import { useId } from "react";
 import { chartCssVars, useChart } from "./chart-context";
 
@@ -27,7 +27,7 @@ export function SegmentBackground({
   return (
     <AnimatePresence>
       {isVisible && selection && (
-        <motion.rect
+        <m.rect
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           fill={fill}

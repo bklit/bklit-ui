@@ -1,6 +1,7 @@
 "use client";
 
 import type { Transition } from "motion/react";
+import { domAnimation, LazyMotion } from "motion/react";
 import {
   Children,
   isValidElement,
@@ -300,36 +301,38 @@ export function ComposedChart({
   const margin = useStableMargin({ ...DEFAULT_MARGIN, ...marginProp });
 
   return (
-    <div
-      className={cn("relative w-full", className)}
-      ref={containerRef}
-      style={{ aspectRatio, touchAction: "none" }}
-    >
-      <ParentSize debounceTime={10}>
-        {({ width, height }) => (
-          <ChartInner
-            animationDuration={animationDuration}
-            animationEasing={animationEasing}
-            barGap={barGap}
-            barSize={barSize}
-            containerRef={containerRef}
-            data={data}
-            enterTransition={enterTransition}
-            height={height}
-            margin={margin}
-            maxBarSize={maxBarSize}
-            onPhaseChange={onPhaseChange}
-            revealSignature={revealSignature}
-            stacked={stacked}
-            stackGap={stackGap}
-            width={width}
-            xDataKey={xDataKey}
-          >
-            {children}
-          </ChartInner>
-        )}
-      </ParentSize>
-    </div>
+    <LazyMotion features={domAnimation}>
+      <div
+        className={cn("relative w-full", className)}
+        ref={containerRef}
+        style={{ aspectRatio, touchAction: "none" }}
+      >
+        <ParentSize debounceTime={10}>
+          {({ width, height }) => (
+            <ChartInner
+              animationDuration={animationDuration}
+              animationEasing={animationEasing}
+              barGap={barGap}
+              barSize={barSize}
+              containerRef={containerRef}
+              data={data}
+              enterTransition={enterTransition}
+              height={height}
+              margin={margin}
+              maxBarSize={maxBarSize}
+              onPhaseChange={onPhaseChange}
+              revealSignature={revealSignature}
+              stacked={stacked}
+              stackGap={stackGap}
+              width={width}
+              xDataKey={xDataKey}
+            >
+              {children}
+            </ChartInner>
+          )}
+        </ParentSize>
+      </div>
+    </LazyMotion>
   );
 }
 

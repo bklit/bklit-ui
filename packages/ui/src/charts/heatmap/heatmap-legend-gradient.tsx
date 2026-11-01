@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "motion/react";
+import { m } from "motion/react";
 import { memo } from "react";
 import type { HeatmapLevelStyles } from "./heatmap-colors";
 import {
@@ -57,7 +57,7 @@ export const HeatmapLegendGradient = memo(function HeatmapLegendGradient({
       className="relative shrink-0"
       style={{ width: barWidth, height: barHeight }}
     >
-      <motion.div
+      <m.div
         animate={{
           opacity: isDimming && highlightedLevel === null ? inactiveOpacity : 1,
           scale: 1,
@@ -81,7 +81,7 @@ export const HeatmapLegendGradient = memo(function HeatmapLegendGradient({
         });
 
         return (
-          <motion.span
+          <m.span
             animate={{
               opacity: hoverStyle.opacity,
               scale: hoverStyle.scale,

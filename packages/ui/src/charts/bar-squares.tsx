@@ -2,7 +2,7 @@
 
 import type { ScaleBand as D3ScaleBand } from "d3-scale";
 import type { Transition } from "motion/react";
-import { motion } from "motion/react";
+import { m } from "motion/react";
 import { memo, useId, useMemo } from "react";
 import { computeSquareColumn } from "./bar-squares-layout";
 import {
@@ -248,7 +248,7 @@ function SquareColumn({
     }
 
     return (
-      <motion.rect
+      <m.rect
         animate={{ attrY: y, height: squareSize, opacity: squareOpacity }}
         fill={effectiveFill}
         height={squareSize}
@@ -585,7 +585,7 @@ function TrackColumn({
 
   if (animate) {
     return (
-      <motion.rect
+      <m.rect
         animate={{ height: animatedHeight, y: 0 }}
         fill={fill}
         height={animatedHeight}

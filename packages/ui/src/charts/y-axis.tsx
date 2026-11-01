@@ -2,7 +2,7 @@
 
 import {
   AnimatePresence,
-  motion,
+  m,
   useReducedMotion,
   type Variants,
 } from "motion/react";
@@ -209,7 +209,7 @@ const YAxisInner = memo(function YAxisInner({
             // rise, top-down while they fall.
             const cascadeIndex = drift < 0 ? index : ticks.length - 1 - index;
             return (
-              <motion.div
+              <m.div
                 animate="visible"
                 className="absolute flex h-0 items-center"
                 custom={{ drift, reducedMotion } satisfies LabelMotion}
@@ -245,7 +245,7 @@ const YAxisInner = memo(function YAxisInner({
                 >
                   {tick.label}
                 </span>
-              </motion.div>
+              </m.div>
             );
           })}
         </AnimatePresence>

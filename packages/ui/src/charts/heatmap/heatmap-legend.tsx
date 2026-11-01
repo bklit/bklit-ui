@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "motion/react";
+import { domAnimation, LazyMotion, m } from "motion/react";
 import { memo, useCallback } from "react";
 import { cn } from "@/lib/utils";
 import {
@@ -138,76 +138,78 @@ export const HeatmapLegend = memo(function HeatmapLegend({
   const labelStyle = fontSize == null ? undefined : { fontSize };
 
   return (
-    <div
-      className={cn(
-        "flex w-full items-center gap-1.5 text-chart-label text-xs",
-        align === "start" && "justify-start",
-        align === "center" && "justify-center",
-        align === "end" && "justify-end",
-        className
-      )}
-      style={labelStyle}
-    >
-      <span className={labelClassName}>{lessLabel}</span>
-      {variant === "gradient" ? (
-        <HeatmapLegendGradient
-          activeScale={activeScale}
-          cellSize={cellSize}
-          cornerRadius={cornerRadius}
-          gap={gap}
-          gradientSpan={gradientSpan}
-          highlightedLevel={highlightedLevel}
-          inactiveOpacity={inactiveOpacity}
-          inactiveScale={inactiveScale}
-          isDimming={isDimming}
-          isInteractive={isInteractive}
-          levelStyles={levelStyles}
-          levels={HEATMAP_LEGEND_LEVELS}
-          onEnter={handleLegendEnter}
-          onLeave={handleLegendLeave}
-        />
-      ) : (
-        <div className="flex items-center" style={{ gap }}>
-          {HEATMAP_LEGEND_LEVELS.map((level) => {
-            const isHighlighted = highlightedLevel === level;
-            const isDimmed = isDimming && !isHighlighted;
-            const hoverStyle = resolveHeatmapHoverStyle(
-              isHighlighted,
-              isDimmed,
-              hoverParams
-            );
-            const style = levelStyles[level];
+    <LazyMotion features={domAnimation}>
+      <div
+        className={cn(
+          "flex w-full items-center gap-1.5 text-chart-label text-xs",
+          align === "start" && "justify-start",
+          align === "center" && "justify-center",
+          align === "end" && "justify-end",
+          className
+        )}
+        style={labelStyle}
+      >
+        <span className={labelClassName}>{lessLabel}</span>
+        {variant === "gradient" ? (
+          <HeatmapLegendGradient
+            activeScale={activeScale}
+            cellSize={cellSize}
+            cornerRadius={cornerRadius}
+            gap={gap}
+            gradientSpan={gradientSpan}
+            highlightedLevel={highlightedLevel}
+            inactiveOpacity={inactiveOpacity}
+            inactiveScale={inactiveScale}
+            isDimming={isDimming}
+            isInteractive={isInteractive}
+            levelStyles={levelStyles}
+            levels={HEATMAP_LEGEND_LEVELS}
+            onEnter={handleLegendEnter}
+            onLeave={handleLegendLeave}
+          />
+        ) : (
+          <div className="flex items-center" style={{ gap }}>
+            {HEATMAP_LEGEND_LEVELS.map((level) => {
+              const isHighlighted = highlightedLevel === level;
+              const isDimmed = isDimming && !isHighlighted;
+              const hoverStyle = resolveHeatmapHoverStyle(
+                isHighlighted,
+                isDimmed,
+                hoverParams
+              );
+              const style = levelStyles[level];
 
-            return (
-              <motion.span
-                animate={{
-                  opacity: hoverStyle.opacity,
-                  scale: hoverStyle.scale,
-                }}
-                aria-hidden="true"
-                className="block shrink-0 leading-none"
-                initial={{ opacity: 1, scale: 1 }}
-                key={level}
-                onPointerEnter={() => handleLegendEnter(level)}
-                onPointerLeave={handleLegendLeave}
-                style={{
-                  cursor: isInteractive ? "pointer" : undefined,
-                }}
-                transition={HEATMAP_INACTIVE_TRANSITION}
-              >
-                <HeatmapLegendSwatch
-                  cellSize={cellSize}
-                  cornerRadius={cornerRadius}
-                  level={level}
-                  style={style}
-                />
-              </motion.span>
-            );
-          })}
-        </div>
-      )}
-      <span className={labelClassName}>{moreLabel}</span>
-    </div>
+              return (
+                <m.span
+                  animate={{
+                    opacity: hoverStyle.opacity,
+                    scale: hoverStyle.scale,
+                  }}
+                  aria-hidden="true"
+                  className="block shrink-0 leading-none"
+                  initial={{ opacity: 1, scale: 1 }}
+                  key={level}
+                  onPointerEnter={() => handleLegendEnter(level)}
+                  onPointerLeave={handleLegendLeave}
+                  style={{
+                    cursor: isInteractive ? "pointer" : undefined,
+                  }}
+                  transition={HEATMAP_INACTIVE_TRANSITION}
+                >
+                  <HeatmapLegendSwatch
+                    cellSize={cellSize}
+                    cornerRadius={cornerRadius}
+                    level={level}
+                    style={style}
+                  />
+                </m.span>
+              );
+            })}
+          </div>
+        )}
+        <span className={labelClassName}>{moreLabel}</span>
+      </div>
+    </LazyMotion>
   );
 });
 

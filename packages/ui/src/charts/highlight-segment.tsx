@@ -1,6 +1,6 @@
 "use client";
 
-import { type MotionValue, motion } from "motion/react";
+import { type MotionValue, m } from "motion/react";
 import { type RefObject, useId, useLayoutEffect, useRef } from "react";
 
 // Hover-highlight overlay: re-strokes the base path `d`, clipped to a vertical
@@ -99,7 +99,7 @@ export function HighlightSegment({
   // full width (and the glow isn't cropped vertically).
   const bleed = Math.max(strokeWidth, glow ? glow.strokeWidth * 2 : 0);
   const band = (
-    <motion.rect
+    <m.rect
       fill={soft ? `url(#${fadeId})` : undefined}
       height={height + bleed * 2}
       width={width}
@@ -138,7 +138,7 @@ export function HighlightSegment({
           <clipPath id={bandId}>{band}</clipPath>
         )}
       </defs>
-      <motion.g
+      <m.g
         animate={{ opacity: 1 }}
         clipPath={soft ? undefined : `url(#${bandId})`}
         exit={{ opacity: 0 }}
@@ -164,7 +164,7 @@ export function HighlightSegment({
           strokeLinecap="round"
           strokeWidth={strokeWidth}
         />
-      </motion.g>
+      </m.g>
     </>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import type { Transition } from "motion/react";
+import { domAnimation, LazyMotion } from "motion/react";
 import {
   Children,
   type CSSProperties,
@@ -266,49 +267,51 @@ export function LineChart({
   );
 
   return (
-    <div
-      className={cn("relative w-full", className)}
-      ref={containerRef}
-      style={{
-        ...(aspectRatio ? { aspectRatio } : undefined),
-        touchAction: "none",
-        ...style,
-      }}
-    >
-      <ParentSize debounceTime={10}>
-        {({ width, height }) => (
-          <ChartInner
-            animationDuration={animationDuration}
-            animationEasing={animationEasing}
-            chartStatus={status}
-            containerRef={containerRef}
-            data={data}
-            enterTransition={enterTransition}
-            height={height}
-            loadingLabel={loadingLabel}
-            margin={margin}
-            onPhaseChange={handlePhaseChange}
-            revealSignature={revealSignature}
-            tweenYDomainOnXDomainChange={tweenYDomainOnXDomainChange}
-            width={width}
-            xDataKey={xDataKey}
-            xDomain={xDomain}
-            xDomainSlotCount={xDomainSlotCount}
-            yDomainTween={yDomainTween}
-            yDomainTweenDuration={yDomainTweenDuration}
-            yScaleDomainMax={yScaleDomainMax}
-          >
-            {children}
-          </ChartInner>
-        )}
-      </ParentSize>
-      {showLoadingLabel ? (
-        <ChartLoadingLabel
-          exiting={chartPhase !== "loading"}
-          text={loadingLabel}
-        />
-      ) : null}
-    </div>
+    <LazyMotion features={domAnimation}>
+      <div
+        className={cn("relative w-full", className)}
+        ref={containerRef}
+        style={{
+          ...(aspectRatio ? { aspectRatio } : undefined),
+          touchAction: "none",
+          ...style,
+        }}
+      >
+        <ParentSize debounceTime={10}>
+          {({ width, height }) => (
+            <ChartInner
+              animationDuration={animationDuration}
+              animationEasing={animationEasing}
+              chartStatus={status}
+              containerRef={containerRef}
+              data={data}
+              enterTransition={enterTransition}
+              height={height}
+              loadingLabel={loadingLabel}
+              margin={margin}
+              onPhaseChange={handlePhaseChange}
+              revealSignature={revealSignature}
+              tweenYDomainOnXDomainChange={tweenYDomainOnXDomainChange}
+              width={width}
+              xDataKey={xDataKey}
+              xDomain={xDomain}
+              xDomainSlotCount={xDomainSlotCount}
+              yDomainTween={yDomainTween}
+              yDomainTweenDuration={yDomainTweenDuration}
+              yScaleDomainMax={yScaleDomainMax}
+            >
+              {children}
+            </ChartInner>
+          )}
+        </ParentSize>
+        {showLoadingLabel ? (
+          <ChartLoadingLabel
+            exiting={chartPhase !== "loading"}
+            text={loadingLabel}
+          />
+        ) : null}
+      </div>
+    </LazyMotion>
   );
 }
 

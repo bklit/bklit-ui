@@ -7,6 +7,7 @@ import {
   sankeyLinkHorizontal,
 } from "d3-sankey";
 import type { Transition } from "motion/react";
+import { domAnimation, LazyMotion } from "motion/react";
 import {
   memo,
   type ReactNode,
@@ -261,27 +262,29 @@ export function SankeyChart({
   const margin = { ...DEFAULT_MARGIN, ...marginProp };
 
   return (
-    <div className={cn("relative w-full", className)} style={{ aspectRatio }}>
-      <ParentSize>
-        {({ width, height }) => (
-          <SankeyChartInner
-            animationDuration={animationDuration}
-            data={data}
-            enterTransition={enterTransition}
-            height={height}
-            hoveredNodeIndexProp={hoveredNodeIndex}
-            margin={margin}
-            nodePadding={nodePadding}
-            nodeWidth={nodeWidth}
-            onNodeHoverChange={onNodeHoverChange}
-            revealSignature={revealSignature}
-            width={width}
-          >
-            {children}
-          </SankeyChartInner>
-        )}
-      </ParentSize>
-    </div>
+    <LazyMotion features={domAnimation}>
+      <div className={cn("relative w-full", className)} style={{ aspectRatio }}>
+        <ParentSize>
+          {({ width, height }) => (
+            <SankeyChartInner
+              animationDuration={animationDuration}
+              data={data}
+              enterTransition={enterTransition}
+              height={height}
+              hoveredNodeIndexProp={hoveredNodeIndex}
+              margin={margin}
+              nodePadding={nodePadding}
+              nodeWidth={nodeWidth}
+              onNodeHoverChange={onNodeHoverChange}
+              revealSignature={revealSignature}
+              width={width}
+            >
+              {children}
+            </SankeyChartInner>
+          )}
+        </ParentSize>
+      </div>
+    </LazyMotion>
   );
 }
 

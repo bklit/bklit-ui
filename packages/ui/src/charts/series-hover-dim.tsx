@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "motion/react";
+import { m } from "motion/react";
 import type { ReactNode } from "react";
 import { useChartHover } from "./chart-context";
 import { useChartLegendHover } from "./chart-legend-hover";
@@ -45,13 +45,13 @@ export function SeriesHoverDim({
   const opacity =
     enabled && (isChartHovering || isLegendDimmed) ? dimOpacity : 1;
   return (
-    <motion.g
+    <m.g
       animate={{ opacity }}
       initial={{ opacity: 1 }}
       transition={{ duration: durationSec, ease: "easeInOut" }}
     >
       {children}
-    </motion.g>
+    </m.g>
   );
 }
 

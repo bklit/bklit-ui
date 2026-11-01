@@ -2,7 +2,7 @@
 
 import {
   type MotionValue,
-  motion,
+  m,
   useReducedMotion,
   useTransform,
 } from "motion/react";
@@ -54,7 +54,7 @@ function RingProgressPath({
     }
     return <path d={progressPath} fill={color} />;
   }
-  return <motion.path d={animatedProgressPath} fill={color} />;
+  return <m.path d={animatedProgressPath} fill={color} />;
 }
 
 export const Ring = memo(function Ring({
@@ -203,7 +203,7 @@ export const Ring = memo(function Ring({
     return (
       <g>
         {hitbox}
-        <motion.g
+        <m.g
           animate={{ scale: hoverScale, opacity: layerOpacity }}
           initial={false}
           pointerEvents="none"
@@ -215,7 +215,7 @@ export const Ring = memo(function Ring({
         >
           <path d={bgPath} fill={ringCssVars.ringBackground} />
           {progressPath ? <path d={progressPath} fill={color} /> : null}
-        </motion.g>
+        </m.g>
       </g>
     );
   }
@@ -224,7 +224,7 @@ export const Ring = memo(function Ring({
     return (
       <g>
         {hitbox}
-        <motion.g
+        <m.g
           pointerEvents="none"
           style={{
             ...groupStyle,
@@ -233,7 +233,7 @@ export const Ring = memo(function Ring({
           }}
         >
           <path d={bgPath} fill={ringCssVars.ringBackground} />
-        </motion.g>
+        </m.g>
       </g>
     );
   }
@@ -241,7 +241,7 @@ export const Ring = memo(function Ring({
   return (
     <g>
       {hitbox}
-      <motion.g
+      <m.g
         animate={{ scale: hoverScale, opacity: layerOpacity }}
         initial={false}
         pointerEvents="none"
@@ -258,7 +258,7 @@ export const Ring = memo(function Ring({
           progressComplete={progressComplete}
           progressPath={progressPath}
         />
-      </motion.g>
+      </m.g>
     </g>
   );
 });

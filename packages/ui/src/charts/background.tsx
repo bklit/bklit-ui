@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "motion/react";
+import { m } from "motion/react";
 import { useId, useMemo } from "react";
 import { useChartStable } from "./chart-context";
 import {
@@ -199,7 +199,7 @@ export function Background({
         </defs>
       ) : null}
       <defs>{patternNode}</defs>
-      <motion.rect
+      <m.rect
         animate={{ opacity: revealOpacity }}
         fill={`url(#${patternId})`}
         height={innerHeight}

@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "motion/react";
+import { m } from "motion/react";
 import { GRID_SPOKE_SPRING, GRID_SPOKE_STAGGER_S } from "./animation";
 import { radarCssVars, useRadarStable } from "./radar-context";
 
@@ -31,7 +31,7 @@ export function RadarAxis({
         const targetY = radius * Math.sin(angle);
 
         return (
-          <motion.line
+          <m.line
             animate={{ x2: targetX, y2: targetY }}
             initial={animate ? { x2: 0, y2: 0 } : { x2: targetX, y2: targetY }}
             key={`axis-${metric.key}`}

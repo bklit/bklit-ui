@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, m } from "motion/react";
 import type * as React from "react";
 import { useState } from "react";
 import { createPortal } from "react-dom";
@@ -192,7 +192,7 @@ export function MarkerGroup({
       <g transform={`translate(${x}, ${y})`}>
         {/* Vertical guide line - non-interactive, rendered first (behind marker) */}
         {showLine && lineHeight > 0 && (
-          <motion.line
+          <m.line
             animate={{
               strokeOpacity: (() => {
                 if (isHovered) {
@@ -226,7 +226,7 @@ export function MarkerGroup({
           onMouseMove={handleMouseMove}
           style={{ cursor: "pointer" }}
         >
-          <motion.g
+          <m.g
             animate={currentVariant}
             initial={animate ? "hidden" : currentVariant}
             transition={{
@@ -259,7 +259,7 @@ export function MarkerGroup({
             {/* Count badge */}
             <AnimatePresence>
               {hasMultiple && !shouldFan && (
-                <motion.g
+                <m.g
                   animate={{ scale: 1, opacity: 1 }}
                   exit={{ scale: 0, opacity: 0 }}
                   initial={{ scale: 0, opacity: 0 }}
@@ -282,10 +282,10 @@ export function MarkerGroup({
                   >
                     {markers.length}
                   </text>
-                </motion.g>
+                </m.g>
               )}
             </AnimatePresence>
-          </motion.g>
+          </m.g>
         </g>
       </g>
 
@@ -326,7 +326,7 @@ export function MarkerGroup({
                       fannedMarkers.length
                     );
                     return (
-                      <motion.div
+                      <m.div
                         animate={{
                           x: position.x,
                           y: position.y,
@@ -362,14 +362,14 @@ export function MarkerGroup({
                           size={size}
                           target={marker.target}
                         />
-                      </motion.div>
+                      </m.div>
                     );
                   })}
               </AnimatePresence>
 
               <AnimatePresence>
                 {shouldFan && (
-                  <motion.div
+                  <m.div
                     animate={{ scale: 1, opacity: 0.5 }}
                     className="absolute"
                     exit={{ scale: 0, opacity: 0 }}
@@ -386,7 +386,7 @@ export function MarkerGroup({
                       className="h-full w-full rounded-full"
                       style={{ backgroundColor: chartCssVars.markerBorder }}
                     />
-                  </motion.div>
+                  </m.div>
                 )}
               </AnimatePresence>
             </div>
@@ -489,7 +489,7 @@ function MarkerCircleHTML({
 
   // Note: color and CSS vars must remain inline styles as they're dynamic
   return (
-    <motion.div
+    <m.div
       className={cn(
         "relative flex h-full w-full items-center justify-center rounded-full shadow-lg",
         hasAction && "cursor-pointer"
@@ -512,7 +512,7 @@ function MarkerCircleHTML({
       whileTap={hasAction ? { scale: 0.95 } : undefined}
     >
       {icon}
-    </motion.div>
+    </m.div>
   );
 }
 

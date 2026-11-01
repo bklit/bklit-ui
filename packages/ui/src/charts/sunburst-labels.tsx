@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useTransform } from "motion/react";
+import { m, useTransform } from "motion/react";
 import { memo } from "react";
 import { DEFAULT_CHART_ENTER_TRANSITION } from "./animation";
 import {
@@ -130,7 +130,7 @@ export const SunburstLabels = memo(function SunburstLabels({
         }
 
         return (
-          <motion.text
+          <m.text
             dominantBaseline="middle"
             key={`label-${arc.id}`}
             pointerEvents="none"
@@ -141,7 +141,7 @@ export const SunburstLabels = memo(function SunburstLabels({
             y={y}
           >
             {arc.name}
-          </motion.text>
+          </m.text>
         );
       })}
     </g>

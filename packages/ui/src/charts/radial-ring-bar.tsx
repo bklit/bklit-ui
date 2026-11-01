@@ -4,7 +4,7 @@ import { arc as d3Arc } from "d3-shape";
 import {
   animate as animateValue,
   type MotionValue,
-  motion,
+  m,
   useMotionValue,
   useTransform,
 } from "motion/react";
@@ -155,7 +155,7 @@ const RingSegmentPath = memo(function RingSegmentPath({
           fill={segment.fill}
         />
       ) : (
-        <motion.path d={d} fill={segment.fill} />
+        <m.path d={d} fill={segment.fill} />
       )}
     </g>
   );
@@ -243,9 +243,9 @@ const RingRow = memo(function RingRow({
       {!animate || expandDone ? (
         content
       ) : (
-        <motion.g style={{ scale: expand, transformOrigin: "0px 0px" }}>
+        <m.g style={{ scale: expand, transformOrigin: "0px 0px" }}>
           {content}
-        </motion.g>
+        </m.g>
       )}
     </g>
   );

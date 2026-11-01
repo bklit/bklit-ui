@@ -2,6 +2,7 @@
 
 import type { FeatureCollection, GeoJSON, Geometry } from "geojson";
 import type { Transition } from "motion/react";
+import { domAnimation, LazyMotion } from "motion/react";
 import React, {
   memo,
   type ReactNode,
@@ -530,32 +531,34 @@ export function ChoroplethChart({
   const margin = { ...DEFAULT_MARGIN, ...marginProp };
 
   return (
-    <div className={cn("relative w-full", className)} style={{ aspectRatio }}>
-      <ParentSize debounceTime={10}>
-        {({ width, height }) =>
-          width > 0 && height > 0 ? (
-            <ChoroplethChartInner
-              animationDuration={animationDuration}
-              center={center}
-              data={data}
-              enterTransition={enterTransition}
-              height={height}
-              initialZoom={initialZoom}
-              margin={margin}
-              revealSignature={revealSignature}
-              scale={scale}
-              translate={translate}
-              width={width}
-              zoomEnabled={zoomEnabled}
-              zoomMax={zoomMax}
-              zoomMin={zoomMin}
-            >
-              {children}
-            </ChoroplethChartInner>
-          ) : null
-        }
-      </ParentSize>
-    </div>
+    <LazyMotion features={domAnimation}>
+      <div className={cn("relative w-full", className)} style={{ aspectRatio }}>
+        <ParentSize debounceTime={10}>
+          {({ width, height }) =>
+            width > 0 && height > 0 ? (
+              <ChoroplethChartInner
+                animationDuration={animationDuration}
+                center={center}
+                data={data}
+                enterTransition={enterTransition}
+                height={height}
+                initialZoom={initialZoom}
+                margin={margin}
+                revealSignature={revealSignature}
+                scale={scale}
+                translate={translate}
+                width={width}
+                zoomEnabled={zoomEnabled}
+                zoomMax={zoomMax}
+                zoomMin={zoomMin}
+              >
+                {children}
+              </ChoroplethChartInner>
+            ) : null
+          }
+        </ParentSize>
+      </div>
+    </LazyMotion>
   );
 }
 

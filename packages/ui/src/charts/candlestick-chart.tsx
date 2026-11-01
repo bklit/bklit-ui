@@ -3,6 +3,7 @@
 import { bisector } from "d3-array";
 import { scaleLinear, scaleTime } from "d3-scale";
 import type { Transition } from "motion/react";
+import { domAnimation, LazyMotion } from "motion/react";
 import {
   Children,
   isValidElement,
@@ -423,33 +424,35 @@ export function CandlestickChart({
   const dataAsRecords = data as unknown as Record<string, unknown>[];
 
   return (
-    <div
-      className={cn("relative w-full", className)}
-      ref={containerRef}
-      style={{ aspectRatio, touchAction: "none", ...style }}
-    >
-      <ParentSize debounceTime={10}>
-        {({ width, height }) => (
-          <ChartInner
-            animationDuration={animationDuration}
-            candleGap={candleGap}
-            candleWidthProp={candleWidth}
-            containerRef={containerRef}
-            data={dataAsRecords}
-            enterTransition={enterTransition}
-            height={height}
-            margin={margin}
-            revealSignature={revealSignature}
-            width={width}
-            xDataKey={xDataKey}
-            xDomain={xDomain}
-            xDomainSlotCount={xDomainSlotCount}
-          >
-            {children}
-          </ChartInner>
-        )}
-      </ParentSize>
-    </div>
+    <LazyMotion features={domAnimation}>
+      <div
+        className={cn("relative w-full", className)}
+        ref={containerRef}
+        style={{ aspectRatio, touchAction: "none", ...style }}
+      >
+        <ParentSize debounceTime={10}>
+          {({ width, height }) => (
+            <ChartInner
+              animationDuration={animationDuration}
+              candleGap={candleGap}
+              candleWidthProp={candleWidth}
+              containerRef={containerRef}
+              data={dataAsRecords}
+              enterTransition={enterTransition}
+              height={height}
+              margin={margin}
+              revealSignature={revealSignature}
+              width={width}
+              xDataKey={xDataKey}
+              xDomain={xDomain}
+              xDomainSlotCount={xDomainSlotCount}
+            >
+              {children}
+            </ChartInner>
+          )}
+        </ParentSize>
+      </div>
+    </LazyMotion>
   );
 }
 
