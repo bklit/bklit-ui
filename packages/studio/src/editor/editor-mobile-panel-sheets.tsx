@@ -12,11 +12,6 @@ import { EditorPropertiesSidebarFooter } from "@/editor/editor-properties-sideba
 import { useStudioComponentSelection } from "@/editor/studio-component-selection";
 import { isCartesianLoadingMode } from "@/lib/line-chart-mode";
 import type { StudioUrlState } from "@/lib/studio-parsers";
-import type {
-  StudioRecordingAspect,
-  StudioRecordingFormat,
-  StudioRecordingInteractionMs,
-} from "@/lib/studio-recording";
 import type { StudioChartConfig } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Button } from "@/ui/button";
@@ -93,11 +88,7 @@ export function EditorMobilePanelSheets({
   controlsDisabled = false,
   footerActions,
   onScramble,
-  isRecording = false,
-  recordingBlocked = false,
   onExportSvg = () => undefined,
-  onStartRecording = () => undefined,
-  onStopRecording = () => undefined,
 }: {
   leftOpen: boolean;
   rightOpen: boolean;
@@ -125,15 +116,7 @@ export function EditorMobilePanelSheets({
   controlsDisabled?: boolean;
   footerActions?: ReactNode;
   onScramble: () => void;
-  isRecording?: boolean;
-  recordingBlocked?: boolean;
   onExportSvg: () => void;
-  onStartRecording: (
-    interactionMs: StudioRecordingInteractionMs,
-    aspect: StudioRecordingAspect,
-    format: StudioRecordingFormat
-  ) => void;
-  onStopRecording: () => void;
 }) {
   const {
     components,
@@ -222,11 +205,7 @@ export function EditorMobilePanelSheets({
           />
           <EditorExportSection
             controlsDisabled={controlsDisabled}
-            isRecording={isRecording}
             onExportSvg={onExportSvg}
-            onStartRecording={onStartRecording}
-            onStopRecording={onStopRecording}
-            recordingBlocked={recordingBlocked}
           />
           <EditorPropertiesSidebarFooter actions={footerActions} />
         </SheetContent>

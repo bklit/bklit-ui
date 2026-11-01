@@ -190,11 +190,8 @@ export const PieStudioPreview = memo(function PieStudioPreview({
   );
 
   const motionEnter = useMemo(
-    () =>
-      getStudioMotionEnterProps(motionState, {
-        linear: ctx.isRecording,
-      }),
-    [ctx.isRecording, motionState]
+    () => getStudioMotionEnterProps(motionState),
+    [motionState]
   );
 
   const data = useMemo(

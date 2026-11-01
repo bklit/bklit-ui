@@ -151,11 +151,7 @@ export function ChoroplethStudioPreview({
   state: StudioUrlState;
   ctx: Pick<
     StudioRenderContext,
-    | "motionCurveDragging"
-    | "numberScrubbing"
-    | "committedState"
-    | "isRecording"
-    | "dataSeed"
+    "motionCurveDragging" | "numberScrubbing" | "committedState" | "dataSeed"
   >;
   showGraticule: boolean;
   analytics: boolean;
@@ -171,15 +167,8 @@ export function ChoroplethStudioPreview({
         motionCurveDragging: ctx.motionCurveDragging,
         numberScrubbing: ctx.numberScrubbing,
         committedState: ctx.committedState,
-        isRecording: ctx.isRecording,
       }),
-    [
-      state,
-      ctx.committedState,
-      ctx.isRecording,
-      ctx.motionCurveDragging,
-      ctx.numberScrubbing,
-    ]
+    [state, ctx.committedState, ctx.motionCurveDragging, ctx.numberScrubbing]
   );
 
   if (isLoading || !worldData) {

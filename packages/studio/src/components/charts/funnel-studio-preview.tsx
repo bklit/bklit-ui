@@ -59,13 +59,7 @@ export function FunnelStudioPreview({
   state: StudioUrlState;
   ctx: StudioRenderContext;
 }) {
-  const motionEnter = useMemo(
-    () =>
-      getStudioMotionEnterProps(state, {
-        linear: ctx.isRecording,
-      }),
-    [ctx.isRecording, state]
-  );
+  const motionEnter = useMemo(() => getStudioMotionEnterProps(state), [state]);
 
   const stages = useMemo(
     () =>

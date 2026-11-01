@@ -153,11 +153,8 @@ export const RingStudioPreview = memo(function RingStudioPreview({
   const chartSize = studioRadialSize(contentFrame, geometry.pieSize);
 
   const motionEnter = useMemo(
-    () =>
-      getStudioMotionEnterProps(motionState, {
-        linear: ctx.isRecording,
-      }),
-    [ctx.isRecording, motionState]
+    () => getStudioMotionEnterProps(motionState),
+    [motionState]
   );
 
   const data = useMemo(

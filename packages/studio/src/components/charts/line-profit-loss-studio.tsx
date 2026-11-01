@@ -106,7 +106,6 @@ export function LineProfitLossStudioChart({
     motionCurveDragging: ctx.motionCurveDragging,
     numberScrubbing: ctx.numberScrubbing,
     committedState: ctx.committedState,
-    isRecording: ctx.isRecording,
   });
   const curve = resolveCurve(state.curve);
   const fadeEdges = fadeEdgesPropValue(state.fadeEdges);

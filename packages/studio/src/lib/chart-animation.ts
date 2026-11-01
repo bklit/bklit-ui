@@ -68,7 +68,7 @@ export function getStudioCssRevealPropsForPreview(
   displayState: StudioUrlState,
   ctx: Pick<
     StudioRenderContext,
-    "motionCurveDragging" | "numberScrubbing" | "committedState" | "isRecording"
+    "motionCurveDragging" | "numberScrubbing" | "committedState"
   > &
     Partial<Pick<StudioRenderContext, "animationKey">>
 ) {
@@ -77,7 +77,6 @@ export function getStudioCssRevealPropsForPreview(
 
   const props = getStudioCssRevealProps(motionState, {
     revealFrom: freezeMotion ? ctx.committedState : undefined,
-    linear: ctx.isRecording,
   });
 
   return {
