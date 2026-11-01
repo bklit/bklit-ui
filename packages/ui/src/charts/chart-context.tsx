@@ -23,6 +23,7 @@ import {
   useLayoutEffect,
   useMemo,
   useState,
+  useSyncExternalStore,
 } from "react";
 import type { ChartPhase, ChartStatus } from "./chart-phase";
 import type { ReferenceAreaConfig } from "./reference-area-config";
@@ -61,6 +62,14 @@ export const defaultScatterColors = [
   "var(--chart-4)",
   "var(--chart-5)",
 ] as const;
+
+/**
+ * Above this many x labels, `ChartTooltip` switches to discrete interaction:
+ * the crosshair, tooltip box and dots snap between points instead of
+ * springing (springs would lag behind a dense series). The hover highlight
+ * band follows the same rule.
+ */
+export const DISCRETE_INTERACTION_LABEL_THRESHOLD = 60;
 
 export interface Margin {
   top: number;
@@ -266,6 +275,108 @@ const ChartStableContext = createContext<ChartStableContextValue | null>(null);
 const ChartHoverContext = createContext<ChartHoverContextValue | null>(null);
 
 /**
+ * Subscribable hover/selection state. Time-series charts keep hover in one of
+ * these instead of React state, so a pointer move re-renders only the
+ * components that read hover — not the chart shell and its layers.
+ */
+export interface ChartHoverStore {
+  getSnapshot: () => ChartHoverContextValue;
+  subscribe: (listener: () => void) => () => void;
+}
+
+/** A {@link ChartHoverStore} the owning chart writes to. */
+export interface WritableChartHoverStore extends ChartHoverStore {
+  setTooltipData: Dispatch<SetStateAction<TooltipData | null>>;
+  setSelection: (selection: ChartSelection | null) => void;
+}
+
+const ChartHoverStoreContext = createContext<ChartHoverStore | null>(null);
+
+export function createChartHoverStore(): WritableChartHoverStore {
+  const listeners = new Set<() => void>();
+  let tooltipData: TooltipData | null = null;
+  let selection: ChartSelection | null = null;
+  const emit = () => {
+    snapshot = { ...snapshot, tooltipData, selection };
+    for (const listener of listeners) {
+      listener();
+    }
+  };
+  const setTooltipData: Dispatch<SetStateAction<TooltipData | null>> = (
+    action
+  ) => {
+    const next = typeof action === "function" ? action(tooltipData) : action;
+    if (next === tooltipData) {
+      return;
+    }
+    tooltipData = next;
+    emit();
+  };
+  const setSelection = (next: ChartSelection | null) => {
+    if (next === selection) {
+      return;
+    }
+    selection = next;
+    emit();
+  };
+  let snapshot: ChartHoverContextValue = {
+    tooltipData,
+    setTooltipData,
+    selection,
+    clearSelection: () => setSelection(null),
+  };
+  return {
+    getSnapshot: () => snapshot,
+    subscribe: (listener) => {
+      listeners.add(listener);
+      return () => {
+        listeners.delete(listener);
+      };
+    },
+    setTooltipData,
+    setSelection,
+  };
+}
+
+const noop = () => undefined;
+
+/** Read-only store over a plain hover value (re-created when it changes). */
+function staticChartHoverStore(value: ChartHoverContextValue): ChartHoverStore {
+  return {
+    getSnapshot: () => value,
+    subscribe: () => noop,
+  };
+}
+
+/**
+ * Publishes a hover store to `useChartHover()` (whole slice, re-renders on
+ * every change) and `useChartHoverSelector()` (re-renders only when the
+ * selected value changes). Only this provider re-renders on a hover change;
+ * `children` keeps its identity, so the subtree is skipped apart from hover
+ * consumers.
+ */
+export function ChartHoverStoreProvider({
+  children,
+  store,
+}: {
+  children: ReactNode;
+  store: ChartHoverStore;
+}) {
+  const hover = useSyncExternalStore(
+    store.subscribe,
+    store.getSnapshot,
+    store.getSnapshot
+  );
+  return (
+    <ChartHoverStoreContext.Provider value={store}>
+      <ChartHoverContext.Provider value={hover}>
+        {children}
+      </ChartHoverContext.Provider>
+    </ChartHoverStoreContext.Provider>
+  );
+}
+
+/**
  * Splits the merged `value` into a stable slice and a volatile hover slice,
  * publishing each to its own context. Each slice is memoized on its own
  * field identities, so changing `tooltipData` does not bust the stable
@@ -398,14 +509,21 @@ export function ChartProvider({
     ]
   );
 
+  const hoverStore = useMemo(() => staticChartHoverStore(hover), [hover]);
+
   return (
     <ChartStableContext.Provider value={stable}>
-      <ChartHoverContext.Provider value={hover}>
-        {children}
-      </ChartHoverContext.Provider>
+      <ChartHoverStoreContext.Provider value={hoverStore}>
+        <ChartHoverContext.Provider value={hover}>
+          {children}
+        </ChartHoverContext.Provider>
+      </ChartHoverStoreContext.Provider>
     </ChartStableContext.Provider>
   );
 }
+
+/** Stable-slice context, for chart shells that build the slice themselves. */
+export const ChartStableContextProvider = ChartStableContext.Provider;
 
 /**
  * Stable slice — data, scales, dimensions, animation state, layout config.
@@ -426,9 +544,10 @@ export function useChartStable(): ChartStableContextValue {
 /**
  * Resolves a chart container element to use as a `createPortal` target.
  *
- * The element is captured from the ref after mount and kept in state, so
- * nothing reads `ref.current` during render (React Compiler
- * `react-hooks/refs`). Returns `null` during SSR / the first render.
+ * The element is kept in state: it is seeded once from the ref (already
+ * attached when the chart renders after its container measured), then
+ * re-captured after mount. Returns `null` during SSR and when the ref is not
+ * attached on the first render.
  *
  * - Layout effect: when the container is a sibling or ancestor already
  *   attached, the synchronous re-render puts portalled axes and tooltips in
@@ -440,7 +559,12 @@ export function useChartStable(): ChartStableContextValue {
 export function useChartPortalContainer<T extends HTMLElement>(
   containerRef: RefObject<T | null> | undefined
 ): T | null {
-  const [container, setContainer] = useState<T | null>(null);
+  // Seed from the ref when it is already attached (charts render after their
+  // container measured, so it usually is) — saves a mount re-render of every
+  // portalled axis / tooltip. The effects below stay as the fallback.
+  const [container, setContainer] = useState<T | null>(
+    () => containerRef?.current ?? null
+  );
   useIsomorphicLayoutEffect(() => {
     setContainer(containerRef?.current ?? null);
   }, [containerRef]);
@@ -449,6 +573,18 @@ export function useChartPortalContainer<T extends HTMLElement>(
     setContainer((previous) => (previous === element ? previous : element));
   }, [containerRef]);
   return container;
+}
+
+/**
+ * Same margin object while its four numbers are unchanged, so an inline
+ * `margin={{…}}` (or the default merge) doesn't defeat memoised chart cores.
+ */
+export function useStableMargin(margin: Margin): Margin {
+  const { top, right, bottom, left } = margin;
+  return useMemo(
+    () => ({ top, right, bottom, left }),
+    [top, right, bottom, left]
+  );
 }
 
 /** Y-scale for a series axis (`yAxisId` on Line / Area / YAxis). */
@@ -501,6 +637,46 @@ export function useChartHover(): ChartHoverContextValue {
     );
   }
   return context;
+}
+
+/**
+ * One derived value from the hover slice; re-renders only when it changes
+ * (by `Object.is`). Return a primitive or a reference taken from the hover
+ * state (e.g. `s.tooltipData`), not a fresh object or array. Prefer this over
+ * `useChartHover()` for components that only care about part of hover, such
+ * as "is the chart hovered" or "which index".
+ */
+export function useChartHoverSelector<T>(
+  selector: (hover: ChartHoverContextValue) => T
+): T {
+  const store = useContext(ChartHoverStoreContext);
+  if (!store) {
+    throw new Error(
+      "useChartHoverSelector must be used within a ChartProvider. " +
+        "Make sure your component is wrapped in <LineChart>, <AreaChart>, <BarChart>, or <ComposedChart>."
+    );
+  }
+  const getSelected = () => selector(store.getSnapshot());
+  return useSyncExternalStore(store.subscribe, getSelected, getSelected);
+}
+
+/**
+ * The hover store itself, for components that drive motion values straight
+ * from hover changes without re-rendering. `null` outside a chart.
+ */
+export function useChartHoverStore(): ChartHoverStore | null {
+  return useContext(ChartHoverStoreContext);
+}
+
+export function selectTooltipData(
+  hover: ChartHoverContextValue
+): TooltipData | null {
+  return hover.tooltipData;
+}
+
+/** Whether the chart is hovered or a drag-selection is active. */
+export function selectIsChartHovering(hover: ChartHoverContextValue): boolean {
+  return hover.tooltipData !== null || hover.selection?.active === true;
 }
 
 /**

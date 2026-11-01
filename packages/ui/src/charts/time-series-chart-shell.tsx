@@ -29,10 +29,17 @@ import {
   isClipExcludedComponent,
   isPostOverlayComponent,
   isUnderlayComponent,
+  isUnresolvedLazyChartChild,
   renderableChartChild,
   resolveChartChildElement,
 } from "./chart-child-passthrough";
-import { ChartProvider, type LineConfig, type Margin } from "./chart-context";
+import {
+  ChartHoverStoreProvider,
+  ChartStableContextProvider,
+  type ChartStableContextValue,
+  type LineConfig,
+  type Margin,
+} from "./chart-context";
 import { isGradientDefComponent, isPatternDefComponent } from "./chart-defs";
 import { lazyLabels, shortDateFmt } from "./chart-formatters";
 import {
@@ -97,6 +104,67 @@ function ensureChildKey(child: ReactElement, index: number): ReactElement {
   return cloneElement(child, { key: `chart-child-${index}` });
 }
 
+/** `<defs>` only when it has children (an empty one is a wasted node). */
+function OptionalDefs({ children }: { children: ReactNode }) {
+  return Children.toArray(children).length > 0 ? <defs>{children}</defs> : null;
+}
+
+interface ClassifiedChartChildren {
+  defsChildren: ReactElement[];
+  clipExcludedChildren: ReactElement[];
+  underlayChildren: ReactElement[];
+  preOverlayChildren: ReactElement[];
+  postOverlayChildren: ReactElement[];
+  /** A lazy child had not loaded yet — classification is provisional. */
+  hasPendingLazyChild: boolean;
+}
+
+/**
+ * Sort chart children into SVG layers. Memoised on `children` by the caller:
+ * `ensureChildKey` / lazy resolution create new elements, and fresh element
+ * identities on every hover re-render would re-render every layer (Grid,
+ * series, …) instead of only the hover subscribers.
+ */
+function classifyChartChildren(children: ReactNode): ClassifiedChartChildren {
+  const layers: ClassifiedChartChildren = {
+    defsChildren: [],
+    clipExcludedChildren: [],
+    underlayChildren: [],
+    preOverlayChildren: [],
+    postOverlayChildren: [],
+    hasPendingLazyChild: false,
+  };
+
+  Children.forEach(children, (child, index) => {
+    if (!isValidElement(child)) {
+      return;
+    }
+
+    const keyedChild = ensureChildKey(child, index);
+    const resolvedChild = resolveChartChildElement(keyedChild);
+    const renderChild = renderableChartChild(keyedChild);
+    if (isUnresolvedLazyChartChild(resolvedChild)) {
+      layers.hasPendingLazyChild = true;
+    }
+
+    if (isGradientDefComponent(resolvedChild)) {
+      layers.defsChildren.push(renderChild);
+    } else if (isPatternDefComponent(resolvedChild)) {
+      layers.preOverlayChildren.push(renderChild);
+    } else if (isPostOverlayComponent(resolvedChild)) {
+      layers.postOverlayChildren.push(renderChild);
+    } else if (isClipExcludedComponent(resolvedChild)) {
+      layers.clipExcludedChildren.push(renderChild);
+    } else if (isUnderlayComponent(resolvedChild)) {
+      layers.underlayChildren.push(renderChild);
+    } else {
+      layers.preOverlayChildren.push(renderChild);
+    }
+  });
+
+  return layers;
+}
+
 export interface TimeSeriesChartInnerProps {
   width: number;
   height: number;
@@ -142,15 +210,17 @@ export interface TimeSeriesChartInnerProps {
   onPhaseChange?: (phase: ChartPhase) => void;
 }
 
-export function TimeSeriesChartInner(props: TimeSeriesChartInnerProps) {
-  const { width, height } = props;
-  if (width < 10 || height < 10) {
-    return null;
-  }
-  return <TimeSeriesChartCore {...props} />;
+/**
+ * Whether a measured box is big enough to draw a time-series chart. Callers
+ * render {@link TimeSeriesChartInner} only when it is, so the chart core is
+ * the first component below the public chart that receives `data` (in dev,
+ * React diffs the props of every component that re-renders).
+ */
+export function timeSeriesChartHasRoom(width: number, height: number) {
+  return width >= 10 && height >= 10;
 }
 
-const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
+export const TimeSeriesChartInner = memo(function TimeSeriesChartCore({
   width,
   height,
   data,
@@ -260,8 +330,12 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
   // `<Band>` edges extend the y-domain and survive decimation, but are not
   // series: they never enter `lines`. The tooltip reads `bands` separately for
   // range rows / edge dots. Keyed by a string signature so new `children`
-  // identities don't redo decimation.
-  const bandConfigsSignature = JSON.stringify(extractBandConfigs(children));
+  // identities don't redo decimation; the walk itself is memoised on
+  // `children` so hover re-renders skip it.
+  const bandConfigsSignature = useMemo(
+    () => JSON.stringify(extractBandConfigs(children)),
+    [children]
+  );
   const bandConfigs = useMemo(
     () => JSON.parse(bandConfigsSignature) as BandConfig[],
     [bandConfigsSignature]
@@ -389,10 +463,11 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
     [yDomainsForScales, innerHeight, lines]
   );
 
-  const yScale = getPrimaryYScale(
-    yScales,
-    scaleLinear().domain([0, 100]).nice().range([innerHeight, 0])
+  const fallbackYScale = useMemo(
+    () => scaleLinear().domain([0, 100]).nice().range([innerHeight, 0]),
+    [innerHeight]
   );
+  const yScale = getPrimaryYScale(yScales, fallbackYScale);
 
   const dateLabels = useMemo(
     () =>
@@ -406,55 +481,37 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
 
   const canInteract = isLoaded && isChartInteractionPhase(chartPhase);
 
+  // Hover lives in `hoverStore`, not state: pointer moves re-render only the
+  // hover consumers below `ChartHoverStoreProvider`, not this shell.
+  const { hoverStore, interactionHandlers, interactionStyle } =
+    useChartInteraction({
+      bisectDate,
+      canInteract,
+      bands: bandConfigs,
+      data: visiblePlotData,
+      lines,
+      margin,
+      xAccessor,
+      xScale,
+      yScale,
+      yScales,
+    });
+
+  const memoizedLayers = useMemo(
+    () => classifyChartChildren(children),
+    [children]
+  );
+  // A lazy child that hasn't loaded can't be classified yet: re-classify on
+  // every render until it resolves (the pre-memo behaviour).
   const {
-    tooltipData,
-    setTooltipData,
-    selection,
-    clearSelection,
-    interactionHandlers,
-    interactionStyle,
-  } = useChartInteraction({
-    bisectDate,
-    canInteract,
-    bands: bandConfigs,
-    data: visiblePlotData,
-    lines,
-    margin,
-    xAccessor,
-    xScale,
-    yScale,
-    yScales,
-  });
-
-  const defsChildren: ReactElement[] = [];
-  const clipExcludedChildren: ReactElement[] = [];
-  const underlayChildren: ReactElement[] = [];
-  const preOverlayChildren: ReactElement[] = [];
-  const postOverlayChildren: ReactElement[] = [];
-
-  Children.forEach(children, (child, index) => {
-    if (!isValidElement(child)) {
-      return;
-    }
-
-    const keyedChild = ensureChildKey(child, index);
-    const resolvedChild = resolveChartChildElement(keyedChild);
-    const renderChild = renderableChartChild(keyedChild);
-
-    if (isGradientDefComponent(resolvedChild)) {
-      defsChildren.push(renderChild);
-    } else if (isPatternDefComponent(resolvedChild)) {
-      preOverlayChildren.push(renderChild);
-    } else if (isPostOverlayComponent(resolvedChild)) {
-      postOverlayChildren.push(renderChild);
-    } else if (isClipExcludedComponent(resolvedChild)) {
-      clipExcludedChildren.push(renderChild);
-    } else if (isUnderlayComponent(resolvedChild)) {
-      underlayChildren.push(renderChild);
-    } else {
-      preOverlayChildren.push(renderChild);
-    }
-  });
+    defsChildren,
+    clipExcludedChildren,
+    underlayChildren,
+    preOverlayChildren,
+    postOverlayChildren,
+  } = memoizedLayers.hasPendingLazyChild
+    ? classifyChartChildren(children)
+    : memoizedLayers;
 
   const [registeredReferenceAreas, setRegisteredReferenceAreas] = useState(
     () => new Map<string, ReferenceAreaConfig>()
@@ -509,7 +566,7 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
     return [...extracted, ...registered];
   }, [children, registeredReferenceAreas]);
 
-  const contextValue = useMemo(
+  const contextValue = useMemo<ChartStableContextValue>(
     () => ({
       data: visiblePlotData,
       renderData,
@@ -522,8 +579,6 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
       innerHeight,
       margin,
       columnWidth,
-      tooltipData,
-      setTooltipData,
       containerRef,
       lines,
       bands: bandConfigs,
@@ -544,8 +599,6 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
       dateLabels,
       xDomain,
       xDomainSlotCount,
-      selection,
-      clearSelection,
       composedBarDataKeys,
       composedBarSize,
       composedMaxBarSize,
@@ -566,8 +619,6 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
       innerHeight,
       margin,
       columnWidth,
-      tooltipData,
-      setTooltipData,
       containerRef,
       lines,
       bandConfigs,
@@ -588,8 +639,6 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
       dateLabels,
       xDomain,
       xDomainSlotCount,
-      selection,
-      clearSelection,
       composedBarDataKeys,
       composedBarSize,
       composedMaxBarSize,
@@ -609,12 +658,15 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
   const isRevealConcealing =
     chartPhase === "exitingReady" && animationDuration > 0;
 
-  const effectiveEnterTransition: Transition =
-    enterTransition ??
-    ({
-      ...DEFAULT_CHART_ENTER_TRANSITION,
-      duration: animationDuration / 1000,
-    } satisfies Transition);
+  const effectiveEnterTransition = useMemo<Transition>(
+    () =>
+      enterTransition ??
+      ({
+        ...DEFAULT_CHART_ENTER_TRANSITION,
+        duration: animationDuration / 1000,
+      } satisfies Transition),
+    [animationDuration, enterTransition]
+  );
 
   const barRevealClipPadding = useMemo(() => {
     if (!composedBarDataKeys?.length) {
@@ -659,59 +711,69 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
     <ReferenceAreaRegistrationContext.Provider
       value={referenceAreaRegistration}
     >
-      <ChartProvider value={contextValue}>
-        <svg
-          aria-hidden="true"
-          className="overflow-visible"
-          height={height}
-          width={width}
-        >
-          <defs>
-            {defsChildren}
-            {useClipReveal ? (
-              <ChartRevealClip
-                animating={isRevealAnimating || isRevealConcealing}
-                clipPathId={uniqueClipPathId}
-                enterTransition={effectiveEnterTransition}
-                height={innerHeight}
-                mode={isRevealConcealing ? "conceal" : "reveal"}
-                onComplete={
-                  isRevealConcealing ? notifyRevealConcealComplete : undefined
-                }
-                padding={revealClipPadding}
-                paddingY={revealClipPaddingY}
-                revealEpoch={isRevealConcealing ? concealEpoch : revealEpoch}
-                targetWidth={innerWidth}
-              />
-            ) : null}
-          </defs>
-
-          <rect fill="transparent" height={height} width={width} x={0} y={0} />
-
-          <g
-            {...interactionHandlers}
-            style={interactionStyle}
-            transform={`translate(${margin.left},${margin.top})`}
+      <ChartStableContextProvider value={contextValue}>
+        <ChartHoverStoreProvider store={hoverStore}>
+          <svg
+            aria-hidden="true"
+            className="overflow-visible"
+            height={height}
+            width={width}
           >
+            <OptionalDefs>
+              {defsChildren}
+              {useClipReveal ? (
+                <ChartRevealClip
+                  animating={isRevealAnimating || isRevealConcealing}
+                  clipPathId={uniqueClipPathId}
+                  enterTransition={effectiveEnterTransition}
+                  height={innerHeight}
+                  mode={isRevealConcealing ? "conceal" : "reveal"}
+                  onComplete={
+                    isRevealConcealing ? notifyRevealConcealComplete : undefined
+                  }
+                  padding={revealClipPadding}
+                  paddingY={revealClipPaddingY}
+                  revealEpoch={isRevealConcealing ? concealEpoch : revealEpoch}
+                  targetWidth={innerWidth}
+                />
+              ) : null}
+            </OptionalDefs>
+
             <rect
               fill="transparent"
-              height={innerHeight}
-              width={innerWidth}
+              height={height}
+              width={width}
               x={0}
               y={0}
             />
 
-            {clipExcludedChildren}
-            {underlayChildren}
-            {useClipReveal ? (
-              <g clipPath={`url(#${uniqueClipPathId})`}>{preOverlayChildren}</g>
-            ) : (
-              preOverlayChildren
-            )}
-            {postOverlayChildren}
-          </g>
-        </svg>
-      </ChartProvider>
+            <g
+              {...interactionHandlers}
+              style={interactionStyle}
+              transform={`translate(${margin.left},${margin.top})`}
+            >
+              <rect
+                fill="transparent"
+                height={innerHeight}
+                width={innerWidth}
+                x={0}
+                y={0}
+              />
+
+              {clipExcludedChildren}
+              {underlayChildren}
+              {useClipReveal ? (
+                <g clipPath={`url(#${uniqueClipPathId})`}>
+                  {preOverlayChildren}
+                </g>
+              ) : (
+                preOverlayChildren
+              )}
+              {postOverlayChildren}
+            </g>
+          </svg>
+        </ChartHoverStoreProvider>
+      </ChartStableContextProvider>
     </ReferenceAreaRegistrationContext.Provider>
   );
 });

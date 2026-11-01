@@ -3,6 +3,7 @@
 import { type CurveFactory, curveNatural } from "d3-shape";
 
 import {
+  memo,
   type RefObject,
   useCallback,
   useId,
@@ -16,7 +17,7 @@ import {
   useSettledYScale,
   useYScale,
 } from "./chart-context";
-import type { LoadingStyle } from "./chart-phase";
+import type { ChartPhase, LoadingStyle } from "./chart-phase";
 import {
   type FadeEdges,
   fadeGradientStops,
@@ -33,7 +34,7 @@ import {
   resolveLineLoadingPulseMode,
 } from "./line-loading-pulse";
 import { LINE_LOADING_LOOP_PAUSE_MS } from "./line-loading-timing";
-import { LinePath, linePathD } from "./line-path";
+import { LinePath } from "./line-path";
 import { LineLoadingSweep } from "./loading-sweep";
 import {
   resolveDashTailBounds,
@@ -205,7 +206,9 @@ function LineSeriesStroke({
   );
 }
 
-function LineLoadingOverlays({
+// Memoised: a series re-render (data update, every morph frame) passes the
+// same props, so the overlays and their children are skipped.
+const LineLoadingOverlays = memo(function LineLoadingOverlays({
   curve,
   handleLoadingPulseComplete,
   innerWidth,
@@ -261,7 +264,7 @@ function LineLoadingOverlays({
       ) : null}
     </>
   );
-}
+});
 
 function resolveLineGlow(
   glow: boolean | LineGlow,
@@ -378,7 +381,8 @@ function GlowFilter({
   );
 }
 
-function LineStrokeDefs({
+// Memoised for the same reason as `LineLoadingOverlays`.
+const LineStrokeDefs = memo(function LineStrokeDefs({
   glowBlur,
   glowFilterId,
   gradientId,
@@ -437,6 +441,21 @@ function LineStrokeDefs({
         />
       ) : null}
     </defs>
+  );
+});
+
+/** Loading pulse mode for the line, or `null` when no pulse shows. */
+function resolveLinePulseMode(
+  chartPhase: ChartPhase,
+  loading: boolean | undefined,
+  loadingPulseMode: LineLoadingPulseMode | undefined
+): LineLoadingPulseMode | null {
+  if (loading === false) {
+    return null;
+  }
+  return (
+    loadingPulseMode ??
+    (loading === true ? "loop" : resolveLineLoadingPulseMode(chartPhase))
   );
 }
 
@@ -498,11 +517,7 @@ export function Line({
     yScale,
   });
 
-  const phasePulseMode = resolveLineLoadingPulseMode(chartPhase);
-  const pulseMode =
-    loading === false
-      ? null
-      : (loadingPulseMode ?? (loading === true ? "loop" : phasePulseMode));
+  const pulseMode = resolveLinePulseMode(chartPhase, loading, loadingPulseMode);
   const showLoadingPulse = pulseMode != null;
   const [pulseEpoch, setPulseEpoch] = useState(0);
   const effectiveShowHighlight = showHighlight && !showLoadingPulse;
@@ -544,29 +559,11 @@ export function Line({
   const highlightGradientId = `${gradientId}-highlight`;
   const glowFilterId = `line-glow-${dataKey}-${reactId}`;
 
-  const getY = useCallback(
-    (d: Record<string, unknown>) => {
-      const value = d[dataKey];
-      return typeof value === "number" ? (yScale(value) ?? 0) : 0;
-    },
-    [dataKey, yScale]
-  );
-
-  // The resting path only changes with its inputs, so hover / phase re-renders
-  // reuse it. While the data-transition tween runs, `animatedPathD` (per frame)
-  // is drawn instead and this stays "" — same switch as before.
+  // While the data-transition tween runs, `animatedPathD` (per frame) is drawn
+  // on a plain `<path>`; at rest the same hook `pathD` (built from the same
+  // scales, curve and y accessor as a `linePathD` call) is the static `d`, so
+  // the path is generated once rather than twice per render.
   const drawAnimatedPath = useDataTransitionPath && Boolean(animatedPathD);
-  const staticPathD = useMemo(
-    () =>
-      drawAnimatedPath
-        ? ""
-        : linePathD(renderData, {
-            curve,
-            x: (d) => xScale(xAccessor(d)) ?? 0,
-            y: getY,
-          }),
-    [curve, getY, renderData, drawAnimatedPath, xAccessor, xScale]
-  );
 
   const colorStops = useMemo(
     () => resolveStrokeGradientStops(strokeGradient),
@@ -627,7 +624,7 @@ export function Line({
             animatedPathD={animatedPathD}
             drawAnimatedPath={drawAnimatedPath}
             filter={`url(#${glowFilterId})`}
-            staticPathD={staticPathD}
+            staticPathD={animatedPathD}
             strokeOpacity={glowOptions.opacity}
             strokeWidth={glowOptions.strokeWidth}
             visibleStroke={lineStroke}
@@ -637,24 +634,27 @@ export function Line({
           animatedPathD={animatedPathD}
           drawAnimatedPath={drawAnimatedPath}
           pathRef={pathRef}
-          staticPathD={staticPathD}
+          staticPathD={animatedPathD}
           strokeWidth={strokeWidth}
           visibleStroke={visibleStroke}
         />
 
-        <SeriesDashTailOverlay
-          dashArray={dashArray}
-          dashFromIndex={dashFromIndex}
-          data={data}
-          innerHeight={innerHeight}
-          innerWidth={innerWidth}
-          pathD={pathD}
-          pathLength={pathLength}
-          stroke={lineStroke}
-          strokeWidth={strokeWidth}
-          xAccessor={xAccessor}
-          xScale={xScale}
-        />
+        {/* Only mounted with a dash tail: it takes `data` as a prop. */}
+        {hasDashTail ? (
+          <SeriesDashTailOverlay
+            dashArray={dashArray}
+            dashFromIndex={dashFromIndex}
+            data={data}
+            innerHeight={innerHeight}
+            innerWidth={innerWidth}
+            pathD={pathD}
+            pathLength={pathLength}
+            stroke={lineStroke}
+            strokeWidth={strokeWidth}
+            xAccessor={xAccessor}
+            xScale={xScale}
+          />
+        ) : null}
       </SeriesHoverDim>
 
       {showMarkers ? (

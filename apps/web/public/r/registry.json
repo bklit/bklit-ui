@@ -182,6 +182,11 @@
           "target": "components/charts/line-path.tsx"
         },
         {
+          "path": "src/charts/fast-path.ts",
+          "type": "registry:component",
+          "target": "components/charts/fast-path.ts"
+        },
+        {
           "path": "src/charts/local-point.ts",
           "type": "registry:component",
           "target": "components/charts/local-point.ts"

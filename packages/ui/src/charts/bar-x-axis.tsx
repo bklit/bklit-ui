@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "motion/react";
+import { m } from "motion/react";
 import { memo, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
@@ -63,14 +63,14 @@ function BarXAxisLabel({
         justifyContent: "center",
       }}
     >
-      <motion.span
+      <m.span
         animate={{ opacity }}
         className={cn("whitespace-nowrap text-chart-label text-xs")}
         initial={{ opacity: 1 }}
         transition={{ duration: 0.4, ease: "easeInOut" }}
       >
         {label}
-      </motion.span>
+      </m.span>
     </div>
   );
 }

@@ -101,6 +101,94 @@ function afterNextPaint(): Promise<PaintTiming> {
   });
 }
 
+/**
+ * A gap between two probe pings longer than this means something else ran on
+ * the main thread in between (a library task, a rAF callback, style, layout,
+ * paint). Shorter gaps are the probe's own idle turnaround. Above the 0.1 ms
+ * timer coarsening browsers apply without cross-origin isolation.
+ */
+const BUSY_GAP_MS = 0.25;
+
+interface BusyProbe {
+  /**
+   * Main-thread time inside [from, to] not spent idle or in runner
+   * bookkeeping wrapped with {@link BusyProbe.exclude}.
+   */
+  busyBetween: (from: number, to: number) => number;
+  /** Runs runner-only work (DOM checks) so it isn't counted as busy. */
+  exclude: <T>(fn: () => T) => T;
+  stop: () => void;
+}
+
+function overlap(
+  intervals: readonly number[],
+  from: number,
+  to: number
+): number {
+  let total = 0;
+  for (let index = 0; index < intervals.length; index += 2) {
+    const start = Math.max(from, intervals[index] as number);
+    const end = Math.min(to, intervals[index + 1] as number);
+    if (end > start) {
+      total += end - start;
+    }
+  }
+  return total;
+}
+
+/**
+ * Measures main-thread busy time without waiting on the display's refresh.
+ *
+ * A self-reposting MessageChannel task runs whenever the main thread is free.
+ * Any gap between two pings longer than {@link BUSY_GAP_MS} is time the
+ * thread spent on something else: event handlers, microtasks, the library's
+ * own tasks (React's scheduler also posts MessageChannel tasks, which run in
+ * order with the pings), rAF callbacks, and the browser's style, layout and
+ * paint steps. Idle time spent waiting for the next vsync shows up as short
+ * gaps and is not counted. Raster and compositing on other threads are not
+ * main-thread work and are not counted. The same probe runs for every library.
+ */
+function startBusyProbe(): BusyProbe {
+  const channel = new MessageChannel();
+  const busy: number[] = [];
+  const excluded: number[] = [];
+  let last = performance.now();
+  let running = true;
+  channel.port1.onmessage = () => {
+    const now = performance.now();
+    if (now - last > BUSY_GAP_MS) {
+      busy.push(last, now);
+    }
+    last = now;
+    if (running) {
+      channel.port2.postMessage(null);
+    }
+  };
+  channel.port2.postMessage(null);
+  return {
+    busyBetween: (from, to) => {
+      // Gaps still open (work in progress at `to`) end at the latest ping.
+      const open = to - last > BUSY_GAP_MS ? [last, to] : [];
+      return Math.max(
+        0,
+        overlap([...busy, ...open], from, to) - overlap(excluded, from, to)
+      );
+    },
+    exclude: (fn) => {
+      const start = performance.now();
+      try {
+        return fn();
+      } finally {
+        excluded.push(start, performance.now());
+      }
+    },
+    stop: () => {
+      running = false;
+      channel.port1.close();
+    },
+  };
+}
+
 async function cooldown(signal: AbortSignal) {
   for (let frame = 0; frame < COOLDOWN_FRAMES; frame++) {
     await nextFrame();
@@ -181,13 +269,22 @@ function mountChart(
   };
 }
 
-/** Render, then time to the first painted frame. */
-async function timeToPaint(work: () => void): Promise<number> {
-  const start = performance.now();
-  work();
-  const { paintedAt } = await afterNextPaint();
-  assertVisible();
-  return paintedAt - start;
+/**
+ * Busy main-thread time for `work` until the first painted frame after it.
+ * Starts right after a paint, in a task, like a real event or data push.
+ */
+async function busyToPaint(work: () => void): Promise<number> {
+  await afterNextPaint();
+  const probe = startBusyProbe();
+  try {
+    const start = performance.now();
+    work();
+    const { paintedAt } = await afterNextPaint();
+    assertVisible();
+    return probe.busyBetween(start, paintedAt);
+  } finally {
+    probe.stop();
+  }
 }
 
 const LONG_PATH_CHARS = 100;
@@ -237,22 +334,33 @@ function expectedMarks(kind: BenchChartKind, dataset: BenchDataset) {
     : dataset.size * dataset.seriesCount;
 }
 
+interface DrawnTiming {
+  /** Just before `work()` ran. */
+  start: number;
+  /** Right after the frame that shows the finished chart was painted. */
+  paintedAt: number;
+}
+
 /**
- * Render, then time to the painted frame that shows the finished chart.
+ * Render, then find the painted frame that shows the finished chart.
  *
  * - Animated: the first painted frame in which the chart is drawn (its enter
  *   animation then runs and is not counted).
  * - Static: the frame that paints the last DOM change, once the DOM has been
  *   quiet for a while. A library that measures its parent, portals its axis,
  *   or renders in several passes pays for every pass.
+ *
+ * `probe` (when timing busy work) excludes the runner's own DOM checks.
  */
 async function timeToDrawn(
   container: HTMLElement,
   work: () => void,
   isDrawn: () => boolean,
-  animate: boolean
-): Promise<number> {
+  animate: boolean,
+  probe?: BusyProbe
+): Promise<DrawnTiming> {
   const mutations = watchMutations(container);
+  const check = probe ? () => probe.exclude(isDrawn) : isDrawn;
   try {
     const start = performance.now();
     work();
@@ -264,11 +372,11 @@ async function timeToDrawn(
       if (frame.paintedAt - start > SETTLE_CAP_MS) {
         throw new Error("The chart never finished drawing.");
       }
-      if (!isDrawn()) {
+      if (!check()) {
         continue;
       }
       if (animate) {
-        return frame.paintedAt - start;
+        return { paintedAt: frame.paintedAt, start };
       }
       const last = mutations.last;
       const quietFrames = frames.filter((f) => f.frameAt > last);
@@ -277,11 +385,45 @@ async function timeToDrawn(
         frame.paintedAt - Math.max(last, start) >= DRAWN_QUIET_MS
       ) {
         // First frame painted after the last change.
-        return (quietFrames[0] as PaintTiming).paintedAt - start;
+        return { paintedAt: (quietFrames[0] as PaintTiming).paintedAt, start };
       }
     }
   } finally {
     mutations.stop();
+  }
+}
+
+/** Wall-clock time from render to the frame that shows the chart. */
+async function wallToDrawn(
+  ...args: Parameters<typeof timeToDrawn>
+): Promise<number> {
+  const { paintedAt, start } = await timeToDrawn(...args);
+  return paintedAt - start;
+}
+
+/**
+ * Busy main-thread time from render to the frame that shows the chart. Frames
+ * between passes cost only the work done in them, not the wait for them.
+ */
+async function busyToDrawn(
+  container: HTMLElement,
+  work: () => void,
+  isDrawn: () => boolean,
+  animate: boolean
+): Promise<number> {
+  await afterNextPaint();
+  const probe = startBusyProbe();
+  try {
+    const { paintedAt, start } = await timeToDrawn(
+      container,
+      work,
+      isDrawn,
+      animate,
+      probe
+    );
+    return probe.busyBetween(start, paintedAt);
+  } finally {
+    probe.stop();
   }
 }
 
@@ -461,11 +603,10 @@ const POINTER_FIELDS = {
  * Charts to pointer events. Both are sent, pointer first like a browser.
  */
 function dispatchPointer(
-  container: HTMLElement,
+  target: Element,
   point: Point,
   previous: Element | null
 ): Element {
-  const target = hitTest(container, point);
   if (target !== previous) {
     if (previous) {
       previous.dispatchEvent(
@@ -506,10 +647,13 @@ function dispatchPointer(
 }
 
 /**
- * Mean time per pointer move: dispatch → the painted frame that shows the
- * result. A library that defers its hover render to a later task (e.g. state
- * set inside rAF) changes the DOM after the first frame painted; we then wait
- * for the frame that paints it, so deferred work is counted, not skipped.
+ * Mean busy main-thread time per pointer move, from dispatch to the painted
+ * frame that shows the result: the event handlers, any microtasks, tasks and
+ * rAF callbacks the library defers its hover render to, and the browser's
+ * style, layout and paint for it. The wait for vsync is not counted. A library
+ * that changes the DOM after the first painted frame (e.g. state set inside
+ * rAF) is followed to the frame that paints it, so deferred work counts.
+ * Hit testing the next target is runner work and happens before the timer.
  */
 async function measureHover(
   container: HTMLElement,
@@ -521,11 +665,14 @@ async function measureHover(
   const mutations = watchMutations(container);
   let target: Element | null = null;
   let total = 0;
+  await afterNextPaint();
+  const probe = startBusyProbe();
   try {
     for (const point of path) {
       throwIfAborted(signal);
+      const next = hitTest(container, point);
       const start = performance.now();
-      target = dispatchPointer(container, point, target);
+      target = dispatchPointer(next, point, target);
       let frame = await afterNextPaint();
       for (
         let extra = 1;
@@ -535,9 +682,10 @@ async function measureHover(
         frame = await afterNextPaint();
       }
       assertVisible();
-      total += frame.paintedAt - start;
+      total += probe.busyBetween(start, frame.paintedAt);
     }
   } finally {
+    probe.stop();
     mutations.stop();
   }
 
@@ -584,7 +732,7 @@ async function runIteration(
   try {
     // Timing stops once the chart is drawn, so the enter animation's
     // duration is excluded.
-    const mountMs = await timeToDrawn(
+    const mountMs = await wallToDrawn(
       chart.container,
       () => chart.render(mountData),
       isDrawn,
@@ -604,11 +752,12 @@ async function runIteration(
     await observeSettle(chart.container, performance.now());
     throwIfAborted(signal);
 
-    // Animated updates morph from the old geometry over later frames (not
-    // counted); static updates are timed to their last painted change.
+    // Busy main-thread time, not time to vsync. Animated updates morph from
+    // the old geometry over later frames (not counted); static updates count
+    // every pass up to their last painted change.
     const updateMs = animate
-      ? await timeToPaint(() => chart.render(updateData))
-      : await timeToDrawn(
+      ? await busyToPaint(() => chart.render(updateData))
+      : await busyToDrawn(
           chart.container,
           () => chart.render(updateData),
           isDrawn,

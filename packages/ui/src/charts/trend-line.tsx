@@ -2,7 +2,7 @@
 
 import {
   animate as animateValue,
-  motion,
+  m,
   type Transition,
   useReducedMotion,
 } from "motion/react";
@@ -360,7 +360,7 @@ export function TrendLine({
   const isGradient = strokeStyle === "gradient";
 
   return (
-    <motion.g
+    <m.g
       animate={{ opacity: visible ? opacity : 0 }}
       aria-hidden="true"
       className={className ?? "chart-trend-line"}
@@ -398,7 +398,7 @@ export function TrendLine({
         y1={pixels.y1}
         y2={pixels.y2}
       />
-    </motion.g>
+    </m.g>
   );
 }
 

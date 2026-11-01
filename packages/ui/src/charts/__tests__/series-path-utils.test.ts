@@ -1,10 +1,16 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
+import { scaleLinear, scaleTime } from "d3-scale";
+import { curveNatural } from "d3-shape";
+import { linePathD } from "../line-path";
 import {
   computeSeriesPathPoints,
   interpolateSeriesPathPoints,
   morphSeriesPolylines,
+  seriesDataSignature,
+  seriesPathFromPoints,
   seriesPathTransitionSignature,
+  seriesPathTransitionSignatureFromData,
 } from "../series-path-utils";
 
 const WIDTH_PREFIX = /400\|/;
@@ -31,6 +37,54 @@ describe("series-path-utils", () => {
     assert.match(signature, WIDTH_PREFIX);
     assert.match(signature, TEN_VALUE);
     assert.match(signature, TWENTY_VALUE);
+  });
+
+  it("derives the transition signature from the data signature", () => {
+    const data = [
+      { date: new Date("2025-01-01"), value: 10 },
+      { date: new Date("2025-01-02"), value: "n/a" },
+      { date: new Date("2025-01-03"), value: 30 },
+    ];
+    const domain = { innerWidth: 320, xDomainMin: 1, xDomainMax: 2 };
+    assert.equal(
+      seriesPathTransitionSignatureFromData(
+        seriesDataSignature(data, xAccessor, "value"),
+        domain
+      ),
+      seriesPathTransitionSignature({
+        ...domain,
+        renderData: data,
+        xAccessor,
+        dataKey: "value",
+      })
+    );
+  });
+
+  // `<Line>` draws the hook's resting path instead of its own `linePathD`.
+  it("matches the Line resting path d", () => {
+    const data = [
+      { date: new Date("2025-01-01"), value: 10 },
+      { date: new Date("2025-01-02"), value: 42.5 },
+      { date: new Date("2025-01-03"), value: null },
+      { date: new Date("2025-01-04"), value: 7 },
+    ];
+    const xScale = scaleTime()
+      .domain([new Date("2025-01-01"), new Date("2025-01-04")])
+      .range([0, 300]);
+    const yScale = scaleLinear().domain([0, 50]).range([200, 0]);
+    const expected = linePathD(data as Record<string, unknown>[], {
+      curve: curveNatural,
+      x: (d) => xScale(xAccessor(d)) ?? 0,
+      y: (d) => (typeof d.value === "number" ? (yScale(d.value) ?? 0) : 0),
+    });
+    const points = computeSeriesPathPoints(
+      data,
+      xAccessor,
+      xScale,
+      yScale,
+      "value"
+    );
+    assert.equal(seriesPathFromPoints(points, curveNatural), expected);
   });
 
   it("interpolates matched points toward the next layout", () => {

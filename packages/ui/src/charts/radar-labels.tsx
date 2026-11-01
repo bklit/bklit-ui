@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "motion/react";
+import { m } from "motion/react";
 import {
   GRID_ANGLE_LABEL_FADE_S,
   GRID_ANGLE_LABEL_STAGGER_S,
@@ -41,7 +41,7 @@ export function RadarLabels({
         const y = labelRadius * Math.sin(angle);
 
         return (
-          <motion.g
+          <m.g
             animate={{ opacity: 1, x, y }}
             initial={
               animate ? { opacity: 0, x: 0, y: 0 } : { opacity: 1, x, y }
@@ -75,7 +75,7 @@ export function RadarLabels({
             >
               {metric.label}
             </text>
-          </motion.g>
+          </m.g>
         );
       })}
     </g>

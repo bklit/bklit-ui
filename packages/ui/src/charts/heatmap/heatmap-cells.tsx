@@ -3,7 +3,7 @@
 import {
   animate,
   type MotionValue,
-  motion,
+  m,
   type Transition,
   useMotionValue,
 } from "motion/react";
@@ -392,12 +392,12 @@ const HeatmapMotionCell = memo(function HeatmapMotionCell({
   };
 
   return (
-    <motion.g
+    <m.g
       animate={{ scale: readyScale }}
       style={{ transformOrigin }}
       transition={HEATMAP_INACTIVE_TRANSITION}
     >
-      <motion.rect
+      <m.rect
         {...cellProps}
         fill={targetFill}
         fillOpacity={
@@ -412,7 +412,7 @@ const HeatmapMotionCell = memo(function HeatmapMotionCell({
           opacity: dataOpacity,
         }}
       />
-      <motion.rect
+      <m.rect
         {...cellProps}
         fill={emptyFill}
         pointerEvents="none"
@@ -420,7 +420,7 @@ const HeatmapMotionCell = memo(function HeatmapMotionCell({
           opacity: showShimmerPulse ? pulseOpacity : shimmerOpacity,
         }}
       />
-    </motion.g>
+    </m.g>
   );
 });
 

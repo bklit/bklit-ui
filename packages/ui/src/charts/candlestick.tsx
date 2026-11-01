@@ -1,7 +1,7 @@
 "use client";
 
 import type { Transition } from "motion/react";
-import { motion } from "motion/react";
+import { m } from "motion/react";
 import { memo, useMemo } from "react";
 import { useChart } from "./chart-context";
 import { useChartLegendHover } from "./chart-legend-hover";
@@ -241,14 +241,14 @@ function AnimatedCandle({
   const wickCenterY = geometry.wickTop + geometry.wickHeight / 2;
 
   return (
-    <motion.g
+    <m.g
       animate={{ opacity: 1 }}
       initial={{ opacity: 0 }}
       key={`candle-enter-${geometry.time}-${revealEpoch}`}
       style={{ transformOrigin: `${geometry.centerX}px ${wickCenterY}px` }}
       transition={{ ...t, opacity: { duration: 0.15 } }}
     >
-      <motion.rect
+      <m.rect
         animate={{ scaleY: 1 }}
         fill={geometry.wickFill}
         height={geometry.wickHeight}
@@ -259,7 +259,7 @@ function AnimatedCandle({
         x={geometry.wickLeft}
         y={geometry.wickTop}
       />
-      <motion.rect
+      <m.rect
         animate={{ scaleY: 1 }}
         fill={geometry.bodySolidFill}
         height={geometry.bodyHeight}
@@ -275,7 +275,7 @@ function AnimatedCandle({
         y={geometry.bodyTop}
       />
       {geometry.bodyPattern ? (
-        <motion.rect
+        <m.rect
           animate={{ scaleY: 1 }}
           fill={geometry.bodyPattern}
           height={geometry.bodyHeight}
@@ -289,7 +289,7 @@ function AnimatedCandle({
           y={geometry.bodyTop}
         />
       ) : null}
-    </motion.g>
+    </m.g>
   );
 }
 

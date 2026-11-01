@@ -1,9 +1,8 @@
 "use client";
 
-import type { Variants } from "motion/react";
-import { motion } from "motion/react";
-import { memo } from "react";
-import { DEFAULT_CHART_ENTER_TRANSITION } from "./animation";
+import { MotionGlobalConfig } from "motion/react";
+import { memo, useLayoutEffect, useRef } from "react";
+import { DEFAULT_ANIMATION_EASING } from "./animation";
 
 export interface SeriesPointMarkerStyle {
   /** Fill color for the inner circle */
@@ -135,7 +134,22 @@ export interface SeriesPointMarkerProps extends SeriesPointMarkerStyle {
   enterDuration: number;
 }
 
-/** Motion enter marker — used only while the chart reveal is running. */
+/** Marker style once the enter fade has finished (what Motion left inline). */
+const MARKER_ENTERED_STYLE = { opacity: 1, filter: "blur(0px)" } as const;
+
+/**
+ * Enter marker — used only while the chart reveal is running.
+ *
+ * The fade/unblur is a Web Animation, not a Motion component: same keyframes,
+ * delay, duration and easing (`DEFAULT_ANIMATION_EASING` is the chart enter
+ * curve `[0.85, 0, 0.15, 1]`), but run by the browser, so a reveal with many
+ * markers costs no per-frame JS and no Motion visual element per point. The
+ * element renders its entered style and the animation's `backwards` fill
+ * holds the hidden keyframe through the delay, before first paint. Like
+ * Motion's mount animation the timing is fixed when it starts (a new
+ * `revealEpoch` replays it), and `MotionGlobalConfig.skipAnimations` (OG
+ * screenshots) shows the end state.
+ */
 export function SeriesPointMarker({
   dataKey,
   index,
@@ -153,31 +167,43 @@ export function SeriesPointMarker({
   outlineColor,
   radius = 5,
 }: SeriesPointMarkerProps) {
-  const variants: Variants = {
-    hidden: {
-      opacity: 0,
-      filter: `blur(${enterBlur}px)`,
-      scale: 1,
-    },
-    visible: {
-      opacity: 1,
-      filter: "blur(0px)",
-      scale: 1,
-      transition: {
-        delay: revealDelay,
-        duration: enterDuration,
-        ease: DEFAULT_CHART_ENTER_TRANSITION.ease,
-      },
-    },
-  };
+  const enterRef = useRef<SVGGElement>(null);
+  const timingRef = useRef({ enterBlur, revealDelay, enterDuration });
+  timingRef.current = { enterBlur, revealDelay, enterDuration };
+
+  // Replays per reveal epoch only; the timing is read when it starts.
+  useLayoutEffect(() => {
+    const element = enterRef.current;
+    if (
+      !element ||
+      typeof element.animate !== "function" ||
+      MotionGlobalConfig.skipAnimations ||
+      MotionGlobalConfig.instantAnimations
+    ) {
+      return;
+    }
+    const timing = timingRef.current;
+    const animation = element.animate(
+      [
+        { opacity: 0, filter: `blur(${timing.enterBlur}px)` },
+        MARKER_ENTERED_STYLE,
+      ],
+      {
+        delay: timing.revealDelay * 1000,
+        duration: timing.enterDuration * 1000,
+        easing: DEFAULT_ANIMATION_EASING,
+        fill: "backwards",
+      }
+    );
+    return () => animation.cancel();
+  }, [revealEpoch]);
 
   return (
     <g transform={`translate(${cx}, ${cy})`}>
-      <motion.g
-        animate="visible"
-        initial="hidden"
+      <g
         key={`${dataKey}-${index}-${revealEpoch}`}
-        variants={variants}
+        ref={enterRef}
+        style={MARKER_ENTERED_STYLE}
       >
         <MarkerCircles
           fill={fill}
@@ -188,7 +214,7 @@ export function SeriesPointMarker({
           stroke={stroke}
           strokeWidth={strokeWidth}
         />
-      </motion.g>
+      </g>
     </g>
   );
 }

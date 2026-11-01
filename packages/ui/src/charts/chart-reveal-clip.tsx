@@ -1,7 +1,7 @@
 "use client";
 
 import type { Transition } from "motion/react";
-import { motion } from "motion/react";
+import { m } from "motion/react";
 import { clipRevealTransition } from "./animation";
 
 export type ChartRevealClipMode = "reveal" | "conceal";
@@ -69,7 +69,7 @@ export function ChartRevealClip({
 
     return (
       <clipPath id={clipPathId}>
-        <motion.rect
+        <m.rect
           animate={{ width: 0, x: rightEdge }}
           height={paddedHeight}
           initial={{ width: paddedWidth, x: -padding }}
@@ -84,7 +84,7 @@ export function ChartRevealClip({
 
   return (
     <clipPath id={clipPathId}>
-      <motion.rect
+      <m.rect
         animate={{ width: paddedWidth }}
         height={paddedHeight}
         initial={{ width: 0 }}

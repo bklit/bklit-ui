@@ -76,10 +76,11 @@ export function TooltipContent({ title, rows, children }: TooltipContentProps) {
 
           {children && (
             <div
-              className={cn(
-                "transition-opacity duration-200 ease-out",
-                rows.length > 0 && "mt-2"
-              )}
+              className={
+                rows.length > 0
+                  ? "mt-2 transition-opacity duration-200 ease-out"
+                  : "transition-opacity duration-200 ease-out"
+              }
             >
               {children}
             </div>

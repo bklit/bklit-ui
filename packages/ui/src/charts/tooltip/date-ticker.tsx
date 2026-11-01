@@ -1,8 +1,10 @@
 "use client";
 
 import {
+  domAnimation,
+  LazyMotion,
   type MotionValue,
-  motion,
+  m,
   useReducedMotion,
   useSpring,
 } from "motion/react";
@@ -66,33 +68,55 @@ function segmentIndexAt(
  * items or loaded fonts change. Drives `width` toward the active item so the
  * pill hugs the current label instead of the longest one (e.g. when switching
  * between Persian and Latin labels).
+ *
+ * `cacheKey` (compact ticker: the label text) reuses widths already measured
+ * for that key instead of forcing layout on every label change. The cache is
+ * dropped whenever a font finishes loading, since widths depend on it.
  */
 function useActiveItemWidth(
   stackRef: RefObject<HTMLElement | null>,
   items: readonly unknown[],
   activeIndex: number,
   width: MotionValue<number>,
-  reduceMotion: boolean
+  reduceMotion: boolean,
+  cacheKey?: string
 ) {
   const widthsRef = useRef<number[]>([]);
   const activeIndexRef = useRef(activeIndex);
+  const widthCacheRef = useRef<Map<string, number[]> | null>(null);
+  const cacheKeyRef = useRef(cacheKey);
+  const fontsPendingRef = useRef(false);
+  const mountedRef = useRef(true);
   // Synced before the measure effect below (layout effects run in order).
   useLayoutEffect(() => {
     activeIndexRef.current = activeIndex;
+    cacheKeyRef.current = cacheKey;
   });
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: items change the rendered stack, so re-measure
   useLayoutEffect(() => {
-    let cancelled = false;
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  // `items` is a dep (unused in the body): new items change the rendered
+  // stack, so re-measure.
+  useLayoutEffect(() => {
     const measure = (snap: boolean) => {
       const stack = stackRef.current;
-      if (cancelled || !stack) {
+      if (!(mountedRef.current && stack)) {
         return;
       }
       widthsRef.current = Array.from(
         stack.querySelectorAll<HTMLElement>("[data-ticker-item]"),
         (node) => node.getBoundingClientRect().width
       );
+      const key = cacheKeyRef.current;
+      if (key !== undefined) {
+        widthCacheRef.current ??= new Map();
+        widthCacheRef.current.set(key, widthsRef.current);
+      }
       const next = widthsRef.current[activeIndexRef.current];
       if (next === undefined) {
         return;
@@ -100,12 +124,31 @@ function useActiveItemWidth(
       // First measure snaps so the pill never grows in from zero.
       driveSpring(width, next, snap || reduceMotion);
     };
-    measure(widthsRef.current.length === 0);
-    document.fonts?.ready.then(() => measure(false));
-    return () => {
-      cancelled = true;
-    };
-  }, [stackRef, items, width, reduceMotion]);
+
+    const cached =
+      cacheKey === undefined ? undefined : widthCacheRef.current?.get(cacheKey);
+    if (cached) {
+      widthsRef.current = cached;
+      const next = cached[activeIndexRef.current];
+      if (next !== undefined) {
+        driveSpring(width, next, reduceMotion);
+      }
+    } else {
+      measure(widthsRef.current.length === 0);
+    }
+
+    // Measuring can start a web-font load (e.g. a `unicode-range` face for a
+    // new script). Re-measure once it lands; one registration at a time.
+    const fonts = typeof document === "undefined" ? undefined : document.fonts;
+    if (fonts && fonts.status === "loading" && !fontsPendingRef.current) {
+      fontsPendingRef.current = true;
+      fonts.ready.then(() => {
+        fontsPendingRef.current = false;
+        widthCacheRef.current?.clear();
+        measure(false);
+      });
+    }
+  }, [stackRef, items, width, reduceMotion, cacheKey]);
 
   // Follow the active item. A layout effect (not render) so the spring
   // retargets before paint without reading refs / mutating during render.
@@ -132,12 +175,12 @@ const DateTickerCompact = memo(function DateTickerCompact({
   const labelItems = useMemo(() => [label], [label]);
   const stackRef = useRef<HTMLDivElement>(null);
   const width = useSpring(0, TICKER_SPRING);
-  useActiveItemWidth(stackRef, labelItems, 0, width, reduceMotion);
+  useActiveItemWidth(stackRef, labelItems, 0, width, reduceMotion, label);
 
   return (
     <div className="overflow-hidden rounded-full bg-zinc-900 px-4 py-1 text-white shadow-lg dark:bg-zinc-100 dark:text-zinc-900">
-      <motion.div className="relative h-6" style={{ width }}>
-        <motion.div
+      <m.div className="relative h-6" style={{ width }}>
+        <m.div
           className="absolute top-0 left-1/2 flex h-6 items-center"
           ref={stackRef}
           style={{ x: "-50%" }}
@@ -148,8 +191,8 @@ const DateTickerCompact = memo(function DateTickerCompact({
           >
             {label}
           </span>
-        </motion.div>
-      </motion.div>
+        </m.div>
+      </m.div>
     </div>
   );
 });
@@ -229,11 +272,11 @@ const DateTickerInner = memo(function DateTickerInner({
       <div className="relative h-6 overflow-hidden">
         <div className="flex items-center justify-center gap-1">
           {/* Month stack */}
-          <motion.div
+          <m.div
             className="relative h-6 overflow-hidden"
             style={{ width: monthWidth }}
           >
-            <motion.div
+            <m.div
               className="absolute top-0 left-1/2 flex flex-col items-center"
               ref={monthStackRef}
               style={{ x: "-50%", y: monthY }}
@@ -249,15 +292,15 @@ const DateTickerInner = memo(function DateTickerInner({
                   </span>
                 </div>
               ))}
-            </motion.div>
-          </motion.div>
+            </m.div>
+          </m.div>
 
           {/* Second-part stack (day or year) */}
-          <motion.div
+          <m.div
             className="relative h-6 overflow-hidden"
             style={{ width: dayWidth }}
           >
-            <motion.div
+            <m.div
               className="absolute top-0 left-1/2 flex flex-col items-center"
               ref={dayStackRef}
               style={{ x: "-50%", y: dayY }}
@@ -273,8 +316,8 @@ const DateTickerInner = memo(function DateTickerInner({
                   </span>
                 </div>
               ))}
-            </motion.div>
-          </motion.div>
+            </m.div>
+          </m.div>
         </div>
       </div>
     </div>
@@ -286,11 +329,16 @@ export function DateTicker({ currentIndex, labels, visible }: DateTickerProps) {
     return null;
   }
 
-  if (labels.length > COMPACT_TICKER_THRESHOLD) {
-    return <DateTickerCompact currentIndex={currentIndex} labels={labels} />;
-  }
-
-  return <DateTickerInner currentIndex={currentIndex} labels={labels} />;
+  // Own feature scope: the ticker also renders outside chart roots.
+  return (
+    <LazyMotion features={domAnimation}>
+      {labels.length > COMPACT_TICKER_THRESHOLD ? (
+        <DateTickerCompact currentIndex={currentIndex} labels={labels} />
+      ) : (
+        <DateTickerInner currentIndex={currentIndex} labels={labels} />
+      )}
+    </LazyMotion>
+  );
 }
 
 DateTicker.displayName = "DateTicker";

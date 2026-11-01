@@ -1,6 +1,7 @@
 "use client";
 
 import type { Transition } from "motion/react";
+import { domAnimation, LazyMotion } from "motion/react";
 import {
   Children,
   isValidElement,
@@ -464,42 +465,12 @@ export function RingChart({
   // If fixed size is provided, use it directly
   if (fixedSize) {
     return (
-      <div
-        className={cn("relative flex items-center justify-center", className)}
-        ref={containerRef}
-        style={{ width: fixedSize, height: fixedSize }}
-      >
-        <RingChartInner
-          baseInnerRadius={baseInnerRadius}
-          containerRef={containerRef}
-          data={data}
-          endAngle={endAngle}
-          enterStaggerScale={enterStaggerScale}
-          enterTransition={enterTransition}
-          geometryScrubbing={geometryScrubbing}
-          height={fixedSize}
-          hoveredIndexProp={hoveredIndex}
-          onHoverChange={onHoverChange}
-          padding={padding}
-          ringGap={ringGap}
-          startAngle={startAngle}
-          strokeWidth={strokeWidth}
-          width={fixedSize}
+      <LazyMotion features={domAnimation}>
+        <div
+          className={cn("relative flex items-center justify-center", className)}
+          ref={containerRef}
+          style={{ width: fixedSize, height: fixedSize }}
         >
-          {children}
-        </RingChartInner>
-      </div>
-    );
-  }
-
-  // Otherwise use ParentSize for responsive sizing
-  return (
-    <div
-      className={cn("relative aspect-square w-full", className)}
-      ref={containerRef}
-    >
-      <ParentSize debounceTime={10}>
-        {({ width, height }) => (
           <RingChartInner
             baseInnerRadius={baseInnerRadius}
             containerRef={containerRef}
@@ -508,20 +479,54 @@ export function RingChart({
             enterStaggerScale={enterStaggerScale}
             enterTransition={enterTransition}
             geometryScrubbing={geometryScrubbing}
-            height={height}
+            height={fixedSize}
             hoveredIndexProp={hoveredIndex}
             onHoverChange={onHoverChange}
             padding={padding}
             ringGap={ringGap}
             startAngle={startAngle}
             strokeWidth={strokeWidth}
-            width={width}
+            width={fixedSize}
           >
             {children}
           </RingChartInner>
-        )}
-      </ParentSize>
-    </div>
+        </div>
+      </LazyMotion>
+    );
+  }
+
+  // Otherwise use ParentSize for responsive sizing
+  return (
+    <LazyMotion features={domAnimation}>
+      <div
+        className={cn("relative aspect-square w-full", className)}
+        ref={containerRef}
+      >
+        <ParentSize debounceTime={10}>
+          {({ width, height }) => (
+            <RingChartInner
+              baseInnerRadius={baseInnerRadius}
+              containerRef={containerRef}
+              data={data}
+              endAngle={endAngle}
+              enterStaggerScale={enterStaggerScale}
+              enterTransition={enterTransition}
+              geometryScrubbing={geometryScrubbing}
+              height={height}
+              hoveredIndexProp={hoveredIndex}
+              onHoverChange={onHoverChange}
+              padding={padding}
+              ringGap={ringGap}
+              startAngle={startAngle}
+              strokeWidth={strokeWidth}
+              width={width}
+            >
+              {children}
+            </RingChartInner>
+          )}
+        </ParentSize>
+      </div>
+    </LazyMotion>
   );
 }
 

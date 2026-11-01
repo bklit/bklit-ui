@@ -2,8 +2,10 @@
 
 import {
   AnimatePresence,
+  domAnimation,
+  LazyMotion,
   type MotionValue,
-  motion,
+  m,
   useReducedMotion,
   useSpring,
 } from "motion/react";
@@ -164,7 +166,12 @@ export function CursorTooltipBox({
       y={y}
     />
   ) : null;
-  return exit ? <AnimatePresence>{inner}</AnimatePresence> : inner;
+  // Own feature scope: the box also renders outside chart roots.
+  return (
+    <LazyMotion features={domAnimation}>
+      {exit ? <AnimatePresence>{inner}</AnimatePresence> : inner}
+    </LazyMotion>
+  );
 }
 
 function CursorTooltipPanel({
@@ -200,7 +207,7 @@ function CursorTooltipPanel({
   }, [children, onMeasure]);
 
   return createPortal(
-    <motion.div
+    <m.div
       animate={{ opacity: 1 }}
       className={cn(
         "pointer-events-none absolute top-0 left-0 z-50",
@@ -232,7 +239,7 @@ function CursorTooltipPanel({
       >
         {children}
       </TooltipPanel>
-    </motion.div>,
+    </m.div>,
     container
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "motion/react";
+import { m } from "motion/react";
 import { useId, useMemo } from "react";
 import { chartCssVars, useChartStable } from "./chart-context";
 import {
@@ -244,7 +244,7 @@ export function Weekends({
       : { duration: ENTER_FADE_MS / 1000, ease: "easeOut" as const };
 
   return (
-    <motion.g
+    <m.g
       animate={{ opacity: visible ? 1 : 0 }}
       aria-hidden="true"
       className={className ?? "chart-weekends"}
@@ -263,7 +263,7 @@ export function Weekends({
           />
         ))}
       </g>
-    </motion.g>
+    </m.g>
   );
 }
 

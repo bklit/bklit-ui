@@ -2,7 +2,7 @@
 
 import { scaleLinear } from "d3-scale";
 import { lineRadial } from "d3-shape";
-import { motion } from "motion/react";
+import { m } from "motion/react";
 import {
   GRID_RING_SPRING,
   GRID_RING_STAGGER_S,
@@ -103,7 +103,7 @@ export function RadarGrid({
       {[...new Array(levels)].map((_, i) => {
         const targetRadius = ((i + 1) * radius) / levels;
         return (
-          <motion.g
+          <m.g
             animate={{ scale: 1, opacity: 1 }}
             initial={
               animate ? { scale: 0, opacity: 0 } : { scale: 1, opacity: 1 }
@@ -128,14 +128,14 @@ export function RadarGrid({
               stroke={stroke}
               strokeOpacity={strokeOpacity}
             />
-          </motion.g>
+          </m.g>
         );
       })}
 
       {/* Grid level labels */}
       {showLabels &&
         [...new Array(levels)].map((_, i) => (
-          <motion.g
+          <m.g
             animate={{ opacity: 1 }}
             initial={animate ? { opacity: 0 } : { opacity: 1 }}
             // biome-ignore lint/suspicious/noArrayIndexKey: Static grid levels
@@ -159,7 +159,7 @@ export function RadarGrid({
             >
               {((i + 1) * 100) / levels}
             </text>
-          </motion.g>
+          </m.g>
         ))}
     </g>
   );

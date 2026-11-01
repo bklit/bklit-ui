@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useReducedMotion } from "motion/react";
+import { m, useReducedMotion } from "motion/react";
 import { memo, useMemo } from "react";
 import {
   GRID_ANGLE_LABEL_FADE_S,
@@ -158,7 +158,7 @@ export const RingGrid = memo(function RingGrid({
           <line key={t.key} x1={t.a.x} x2={t.b.x} y1={t.a.y} y2={t.b.y} />
         ) : (
           // RadarAxis: each spoke extends from its inner end outward.
-          <motion.line
+          <m.line
             animate={{ x2: t.b.x, y2: t.b.y }}
             initial={{ x2: t.a.x, y2: t.a.y }}
             key={`${t.key}-${animationKey}`}
@@ -198,7 +198,7 @@ export const RingGrid = memo(function RingGrid({
         }
         // RadarLabels: fade in while sliding out from the center.
         return (
-          <motion.g
+          <m.g
             animate={{ opacity: 1, x: 0, y: 0 }}
             initial={{ opacity: 0, x: -t.label.x, y: -t.label.y }}
             key={`${t.key}-${animationKey}`}
@@ -212,7 +212,7 @@ export const RingGrid = memo(function RingGrid({
             }}
           >
             {text}
-          </motion.g>
+          </m.g>
         );
       })}
     </g>

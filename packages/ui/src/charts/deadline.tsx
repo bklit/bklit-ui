@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "motion/react";
+import { m } from "motion/react";
 import { type ReactNode, useId, useMemo } from "react";
 import { useChartStable } from "./chart-context";
 import { firstIndexOnOrAfter, toValidDate } from "./date-ranges";
@@ -364,7 +364,7 @@ export function Deadline({
       : { duration: ENTER_FADE_MS / 1000, ease: "easeOut" as const };
 
   return (
-    <motion.g
+    <m.g
       animate={{ opacity: visible ? 1 : 0 }}
       aria-hidden="true"
       className={className ?? "chart-deadline"}
@@ -403,7 +403,7 @@ export function Deadline({
           x={x0}
         />
       ) : null}
-    </motion.g>
+    </m.g>
   );
 }
 

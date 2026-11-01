@@ -1,7 +1,7 @@
 "use client";
 
 import { scaleUtc } from "d3-scale";
-import { motion, type Transition } from "motion/react";
+import { m, type Transition } from "motion/react";
 import { type ReactNode, useId, useMemo } from "react";
 import {
   DEFAULT_CHART_ENTER_TRANSITION,
@@ -141,7 +141,7 @@ function GridRingEnter({
     return <g>{children}</g>;
   }
   return (
-    <motion.g
+    <m.g
       animate={enter.revealed ? RING_SHOWN : RING_HIDDEN}
       initial={RING_HIDDEN}
       style={ORIGIN_STYLE}
@@ -151,7 +151,7 @@ function GridRingEnter({
       }}
     >
       {children}
-    </motion.g>
+    </m.g>
   );
 }
 
@@ -170,13 +170,13 @@ function GridLabelFade({
   }
   const transition: Transition = { ...DEFAULT_CHART_ENTER_TRANSITION, delay };
   return (
-    <motion.g
+    <m.g
       animate={{ opacity: enter.revealed ? 1 : 0 }}
       initial={{ opacity: 0 }}
       transition={transition}
     >
       {children}
-    </motion.g>
+    </m.g>
   );
 }
 
@@ -397,7 +397,7 @@ function AxisSpokes({
         // RadarAxis: each spoke extends from its inner end outward.
         const end = enter.revealed ? b : a;
         return (
-          <motion.line
+          <m.line
             animate={{ x2: end.x, y2: end.y }}
             initial={{ x2: a.x, y2: a.y }}
             key={`spoke-${angle}`}
@@ -606,7 +606,7 @@ function AxisAngleLabels({
         const shown = { opacity: 1, x: 0, y: 0 };
         const hidden = { opacity: 0, x: from.x, y: from.y };
         return (
-          <motion.g
+          <m.g
             animate={enter.revealed ? shown : hidden}
             initial={hidden}
             key={label.key}
@@ -620,7 +620,7 @@ function AxisAngleLabels({
             }}
           >
             {text}
-          </motion.g>
+          </m.g>
         );
       })}
     </>

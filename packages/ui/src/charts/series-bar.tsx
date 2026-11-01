@@ -1,7 +1,7 @@
 "use client";
 
 import type { Transition } from "motion/react";
-import { motion } from "motion/react";
+import { m } from "motion/react";
 import { useMemo } from "react";
 import { chartCssVars, useChart } from "./chart-context";
 import { useChartLegendHover } from "./chart-legend-hover";
@@ -243,7 +243,7 @@ export function SeriesBar({
         }
 
         return (
-          <motion.rect
+          <m.rect
             animate={{ opacity: isFaded ? fadedOpacity : 1 }}
             fill={fill}
             height={barHeight}
@@ -301,7 +301,7 @@ function SeriesBarRect({
   );
 
   return (
-    <motion.rect
+    <m.rect
       animate={{
         height: barHeight,
         y,

@@ -5,11 +5,13 @@ import type {
   ScaleTime as D3ScaleTime,
 } from "d3-scale";
 import { useCallback, useEffect, useRef, useState } from "react";
-import type {
-  BandConfig,
-  LineConfig,
-  Margin,
-  TooltipData,
+import {
+  type BandConfig,
+  type ChartHoverStore,
+  createChartHoverStore,
+  type LineConfig,
+  type Margin,
+  type TooltipData,
 } from "./chart-context";
 import { localPoint } from "./local-point";
 import { useScheduledTooltip } from "./use-scheduled-tooltip";
@@ -45,10 +47,11 @@ interface UseChartInteractionParams {
 }
 
 interface ChartInteractionResult {
-  tooltipData: TooltipData | null;
-  setTooltipData: React.Dispatch<React.SetStateAction<TooltipData | null>>;
-  selection: ChartSelection | null;
-  clearSelection: () => void;
+  /**
+   * Tooltip + selection state. Lives outside React state so a pointer move
+   * re-renders only hover consumers (publish it with `ChartHoverStoreProvider`).
+   */
+  hoverStore: ChartHoverStore;
   interactionHandlers: {
     onMouseMove?: (event: React.MouseEvent<SVGGElement>) => void;
     onMouseLeave?: () => void;
@@ -102,14 +105,10 @@ export function useChartInteraction({
   bisectDate,
   canInteract,
 }: UseChartInteractionParams): ChartInteractionResult {
-  const [selection, setSelection] = useState<ChartSelection | null>(null);
-  const {
-    tooltipData,
-    setTooltipData,
-    scheduleTooltip,
-    clearTooltip,
-    resetTooltipDedupe,
-  } = useScheduledTooltip<TooltipData>();
+  const [hoverStore] = useState(createChartHoverStore);
+  const { setSelection } = hoverStore;
+  const { scheduleTooltip, clearTooltip, resetTooltipDedupe } =
+    useScheduledTooltip<TooltipData>(hoverStore.setTooltipData);
 
   const isDraggingRef = useRef(false);
   const dragStartXRef = useRef<number>(0);
@@ -223,7 +222,13 @@ export function useChartInteraction({
         scheduleTooltip(tooltip);
       }
     },
-    [getChartX, resolveTooltipFromX, resolveIndexFromX, scheduleTooltip]
+    [
+      getChartX,
+      resolveTooltipFromX,
+      resolveIndexFromX,
+      scheduleTooltip,
+      setSelection,
+    ]
   );
 
   const handleMouseLeave = useCallback(() => {
@@ -233,7 +238,7 @@ export function useChartInteraction({
       isDraggingRef.current = false;
     }
     setSelection(null);
-  }, [clearTooltip]);
+  }, [clearTooltip, setSelection]);
 
   const handleMouseDown = useCallback(
     (event: React.MouseEvent<SVGGElement>) => {
@@ -246,7 +251,7 @@ export function useChartInteraction({
       clearTooltip();
       setSelection(null);
     },
-    [getChartX, clearTooltip]
+    [getChartX, clearTooltip, setSelection]
   );
 
   const handleMouseUp = useCallback(() => {
@@ -254,7 +259,7 @@ export function useChartInteraction({
       isDraggingRef.current = false;
     }
     setSelection(null);
-  }, []);
+  }, [setSelection]);
 
   const handleTouchStart = useCallback(
     (event: React.TouchEvent<SVGGElement>) => {
@@ -296,6 +301,7 @@ export function useChartInteraction({
       scheduleTooltip,
       resetTooltipDedupe,
       clearTooltip,
+      setSelection,
     ]
   );
 
@@ -330,17 +336,19 @@ export function useChartInteraction({
         });
       }
     },
-    [getChartX, resolveTooltipFromX, resolveIndexFromX, scheduleTooltip]
+    [
+      getChartX,
+      resolveTooltipFromX,
+      resolveIndexFromX,
+      scheduleTooltip,
+      setSelection,
+    ]
   );
 
   const handleTouchEnd = useCallback(() => {
     clearTooltip();
     setSelection(null);
-  }, [clearTooltip]);
-
-  const clearSelection = useCallback(() => {
-    setSelection(null);
-  }, []);
+  }, [clearTooltip, setSelection]);
 
   // Re-anchor tooltip/crosshair when x-scale or visible data changes (e.g. brush zoom commit).
   useEffect(() => {
@@ -373,10 +381,7 @@ export function useChartInteraction({
   };
 
   return {
-    tooltipData,
-    setTooltipData,
-    selection,
-    clearSelection,
+    hoverStore,
     interactionHandlers,
     interactionStyle,
   };

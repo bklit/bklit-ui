@@ -3,6 +3,7 @@
 import { bisector } from "d3-array";
 import { scaleLinear, scaleTime } from "d3-scale";
 import type { Transition } from "motion/react";
+import { domAnimation, LazyMotion } from "motion/react";
 import {
   Children,
   isValidElement,
@@ -14,6 +15,7 @@ import {
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
 } from "react";
 import { cn } from "@/lib/utils";
 import {
@@ -220,24 +222,27 @@ const ChartCore = memo(function ChartCore({
     return () => clearTimeout(timer);
   }, [animationDuration, revealSignature]);
 
-  const {
-    tooltipData,
-    setTooltipData,
-    selection,
-    clearSelection,
-    interactionHandlers,
-    interactionStyle,
-  } = useChartInteraction({
-    xScale,
-    yScale,
-    yScales: wrapSingleYScale(yScale),
-    data,
-    lines,
-    margin,
-    xAccessor,
-    bisectDate,
-    canInteract: isLoaded,
-  });
+  const { hoverStore, interactionHandlers, interactionStyle } =
+    useChartInteraction({
+      xScale,
+      yScale,
+      yScales: wrapSingleYScale(yScale),
+      data,
+      lines,
+      margin,
+      xAccessor,
+      bisectDate,
+      canInteract: isLoaded,
+    });
+
+  // Candles read hover through the merged context value, so this chart
+  // re-renders on hover (unlike the time-series shell).
+  const { tooltipData, setTooltipData, selection, clearSelection } =
+    useSyncExternalStore(
+      hoverStore.subscribe,
+      hoverStore.getSnapshot,
+      hoverStore.getSnapshot
+    );
 
   const hoveredCandleIndex = tooltipData?.index ?? null;
 
@@ -423,33 +428,35 @@ export function CandlestickChart({
   const dataAsRecords = data as unknown as Record<string, unknown>[];
 
   return (
-    <div
-      className={cn("relative w-full", className)}
-      ref={containerRef}
-      style={{ aspectRatio, touchAction: "none", ...style }}
-    >
-      <ParentSize debounceTime={10}>
-        {({ width, height }) => (
-          <ChartInner
-            animationDuration={animationDuration}
-            candleGap={candleGap}
-            candleWidthProp={candleWidth}
-            containerRef={containerRef}
-            data={dataAsRecords}
-            enterTransition={enterTransition}
-            height={height}
-            margin={margin}
-            revealSignature={revealSignature}
-            width={width}
-            xDataKey={xDataKey}
-            xDomain={xDomain}
-            xDomainSlotCount={xDomainSlotCount}
-          >
-            {children}
-          </ChartInner>
-        )}
-      </ParentSize>
-    </div>
+    <LazyMotion features={domAnimation}>
+      <div
+        className={cn("relative w-full", className)}
+        ref={containerRef}
+        style={{ aspectRatio, touchAction: "none", ...style }}
+      >
+        <ParentSize debounceTime={10}>
+          {({ width, height }) => (
+            <ChartInner
+              animationDuration={animationDuration}
+              candleGap={candleGap}
+              candleWidthProp={candleWidth}
+              containerRef={containerRef}
+              data={dataAsRecords}
+              enterTransition={enterTransition}
+              height={height}
+              margin={margin}
+              revealSignature={revealSignature}
+              width={width}
+              xDataKey={xDataKey}
+              xDomain={xDomain}
+              xDomainSlotCount={xDomainSlotCount}
+            >
+              {children}
+            </ChartInner>
+          )}
+        </ParentSize>
+      </div>
+    </LazyMotion>
   );
 }
 

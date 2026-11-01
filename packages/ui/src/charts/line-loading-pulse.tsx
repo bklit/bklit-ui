@@ -1,6 +1,6 @@
 "use client";
 
-import { animate, motion, useMotionValue, useTransform } from "motion/react";
+import { animate, m, useMotionValue, useTransform } from "motion/react";
 import { useEffect, useId } from "react";
 import { chartCssVars, useChartStable } from "./chart-context";
 import type { ChartPhase } from "./chart-phase";
@@ -180,7 +180,7 @@ export function LineLoadingPulseStroke({
     <>
       <defs>
         <clipPath id={clipPathId}>
-          <motion.rect
+          <m.rect
             height={clipHeight}
             style={{ width: clipWidth, x: clipX }}
             y={-CLIP_PADDING}

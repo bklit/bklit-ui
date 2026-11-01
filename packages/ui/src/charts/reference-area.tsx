@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "motion/react";
+import { m } from "motion/react";
 import { useId, useLayoutEffect, useMemo } from "react";
 import { chartCssVars, useChartStable, useYScale } from "./chart-context";
 import { type PatternPresetId, renderPatternPreset } from "./pattern-preset";
@@ -199,7 +199,7 @@ export function ReferenceArea({
 
   return (
     // biome-ignore lint/a11y/noAriaHiddenOnFocusable: decorative reference band
-    <motion.g
+    <m.g
       animate={{ opacity: visible ? 1 : 0 }}
       aria-hidden="true"
       className={className ?? "chart-reference-area"}
@@ -276,7 +276,7 @@ export function ReferenceArea({
           />
         </>
       ) : null}
-    </motion.g>
+    </m.g>
   );
 }
 

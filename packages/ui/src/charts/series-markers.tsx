@@ -3,8 +3,10 @@
 import { type ReactNode, useCallback, useMemo } from "react";
 import { clipRevealTransition } from "./animation";
 import {
+  type ChartHoverContextValue,
   defaultScatterColors,
   useChartHover,
+  useChartHoverSelector,
   useChartStable,
   useYScale,
 } from "./chart-context";
@@ -256,6 +258,9 @@ interface SeriesMarkersDimWrapperProps {
  * hover internally so the grid (passed as `children`) keeps a stable reference
  * and React skips reconciling it when this wrapper re-renders.
  */
+const selectIsTooltipShown = (hover: ChartHoverContextValue) =>
+  hover.tooltipData !== null;
+
 function SeriesMarkersDimWrapper({
   enabled,
   inactiveOpacity,
@@ -263,11 +268,11 @@ function SeriesMarkersDimWrapper({
   seriesIndex,
   children,
 }: SeriesMarkersDimWrapperProps) {
-  const { tooltipData } = useChartHover();
+  const isHovered = useChartHoverSelector(selectIsTooltipShown);
   const { hoveredIndex: legendHoveredIndex } = useChartLegendHover();
   const isLegendDimmed =
     legendHoveredIndex !== null && legendHoveredIndex !== seriesIndex;
-  const dimBase = enabled && (tooltipData !== null || isLegendDimmed);
+  const dimBase = enabled && (isHovered || isLegendDimmed);
   return (
     <g
       opacity={dimBase ? inactiveOpacity : 1}

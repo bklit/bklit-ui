@@ -2,10 +2,17 @@
 
 import {
   AnimatePresence,
+  type AnimationPlaybackControls,
+  animate,
+  cancelFrame,
+  domAnimation,
+  frame,
+  LazyMotion,
   type MotionValue,
-  motion,
-  useMotionValue,
+  m,
+  type Process,
   useReducedMotion,
+  useReducedMotionConfig,
   useSpring,
 } from "motion/react";
 import type { RefObject } from "react";
@@ -109,24 +116,280 @@ const PANEL_SIZE_SPRING = {
   damping: 45,
 } as const;
 
+/** Layout sizes (unaffected by transforms) of the panel and its clip box. */
+interface PanelSizes {
+  panelWidth: number;
+  panelHeight: number;
+  clipWidth: number;
+  clipHeight: number;
+}
+
+const mixNumber = (from: number, to: number, progress: number) =>
+  from + (to - from) * progress;
+
+function mixPanelSizes(
+  from: PanelSizes,
+  to: PanelSizes,
+  progress: number
+): PanelSizes {
+  return {
+    panelWidth: mixNumber(from.panelWidth, to.panelWidth, progress),
+    panelHeight: mixNumber(from.panelHeight, to.panelHeight, progress),
+    clipWidth: mixNumber(from.clipWidth, to.clipWidth, progress),
+    clipHeight: mixNumber(from.clipHeight, to.clipHeight, progress),
+  };
+}
+
+const samePanelSizes = (a: PanelSizes, b: PanelSizes) =>
+  a.panelWidth === b.panelWidth &&
+  a.panelHeight === b.panelHeight &&
+  a.clipWidth === b.clipWidth &&
+  a.clipHeight === b.clipHeight;
+
+/** Pixel radius from the computed top-left radius, or `null` (e.g. `%`). */
+function readPxRadius(element: HTMLElement): number | null {
+  const value = getComputedStyle(element).borderTopLeftRadius;
+  return value.endsWith("px") ? Number.parseFloat(value) : null;
+}
+
+/**
+ * Radius `r` (px) as per-axis percentages of the drawn (scaled) size, so the
+ * corners stay round while the box is scaled — Motion's own correction.
+ */
+function correctedRadius(r: number, width: number, height: number): string {
+  const x = width === 0 ? 0 : (r / width) * 100;
+  const y = height === 0 ? 0 : (r / height) * 100;
+  return `${x}% / ${y}%`;
+}
+
+const ratio = (drawn: number, layout: number) =>
+  layout === 0 ? 1 : drawn / layout;
+
+interface PanelRadii {
+  panel: number | null;
+  clip: number | null;
+  panelInline: string;
+  clipInline: string;
+}
+
+/** Border-box layout size (fractional, unaffected by transforms). */
+function readBorderBox(element: HTMLElement): [number, number] {
+  const style = getComputedStyle(element);
+  let width = Number.parseFloat(style.width);
+  let height = Number.parseFloat(style.height);
+  if (!(Number.isFinite(width) && Number.isFinite(height))) {
+    return [element.offsetWidth, element.offsetHeight];
+  }
+  if (style.boxSizing !== "border-box") {
+    width +=
+      Number.parseFloat(style.paddingLeft) +
+      Number.parseFloat(style.paddingRight) +
+      Number.parseFloat(style.borderLeftWidth) +
+      Number.parseFloat(style.borderRightWidth);
+    height +=
+      Number.parseFloat(style.paddingTop) +
+      Number.parseFloat(style.paddingBottom) +
+      Number.parseFloat(style.borderTopWidth) +
+      Number.parseFloat(style.borderBottomWidth);
+  }
+  return [width, height];
+}
+
+function readPanelSizes(panel: HTMLElement, clip: HTMLElement): PanelSizes {
+  const [panelWidth, panelHeight] = readBorderBox(panel);
+  const [clipWidth, clipHeight] = readBorderBox(clip);
+  return { panelWidth, panelHeight, clipWidth, clipHeight };
+}
+
+/**
+ * One frame of the size tween at `progress` (0–1): the panel scaled to the
+ * drawn size, the clip kept at its unscaled offset (the border) inside it and
+ * scaled to its own drawn size, the content counter-scaled to 1.
+ */
+function drawPanelTween(
+  {
+    panel,
+    clip,
+    content,
+  }: { panel: HTMLElement; clip: HTMLElement; content: HTMLElement },
+  radii: PanelRadii,
+  from: PanelSizes,
+  target: PanelSizes,
+  progress: number
+) {
+  const drawn = mixPanelSizes(from, target, progress);
+  const scaleX = ratio(drawn.panelWidth, target.panelWidth);
+  const scaleY = ratio(drawn.panelHeight, target.panelHeight);
+  const clipScaleX = ratio(drawn.clipWidth, target.clipWidth);
+  const clipScaleY = ratio(drawn.clipHeight, target.clipHeight);
+  panel.style.transform = `scale(${scaleX}, ${scaleY})`;
+  const offsetX = clip.offsetLeft / scaleX - clip.offsetLeft;
+  const offsetY = clip.offsetTop / scaleY - clip.offsetTop;
+  const translate =
+    offsetX || offsetY ? `translate3d(${offsetX}px, ${offsetY}px, 0px) ` : "";
+  clip.style.transform = `${translate}scale(${clipScaleX / scaleX}, ${
+    clipScaleY / scaleY
+  })`;
+  content.style.transform = `scale(${1 / clipScaleX}, ${1 / clipScaleY})`;
+  if (radii.panel !== null) {
+    panel.style.borderRadius = correctedRadius(
+      radii.panel,
+      drawn.panelWidth,
+      drawn.panelHeight
+    );
+  }
+  if (radii.clip !== null) {
+    clip.style.borderRadius = correctedRadius(
+      radii.clip,
+      drawn.clipWidth,
+      drawn.clipHeight
+    );
+  }
+}
+
+/**
+ * Tooltip panel size tween: the same FLIP scale Motion's `layout="size"`
+ * produced, without the layout/projection feature bundle (so charts can use
+ * `m` + `domAnimation`).
+ *
+ * When the panel's layout size changes, it is drawn at its previous size and
+ * scaled to the new one with `PANEL_SIZE_SPRING` — a 0 → 1000 progress with
+ * velocity 0 that starts on the next frame, like Motion's layout animation.
+ * The clip box follows the panel (kept at its unscaled border offset) and the
+ * content is counter-scaled, so it is drawn at its final size and revealed by
+ * the clip — text never stretches. Radii are corrected per axis so the
+ * corners stay round. A change mid-tween restarts from the size drawn now.
+ *
+ * Sizes are layout sizes (computed `width` / `height`, unaffected by
+ * transforms), so the layout box (and the `offsetWidth` / `offsetHeight`
+ * callers use for flip and clamp) is always the final size and a scaled
+ * ancestor (entrance, Studio zoom) does not skew the tween. They are checked
+ * after every render (before paint, where Motion measured) and by a
+ * `ResizeObserver` (size changes that don't re-render the panel). The first
+ * measurement only records the size: the entrance owns the mount.
+ */
+function usePanelSizeTween(
+  panelRef: RefObject<HTMLDivElement | null>,
+  clipRef: RefObject<HTMLDivElement | null>,
+  contentRef: RefObject<HTMLDivElement | null>,
+  enabled: boolean
+) {
+  const checkRef = useRef<(() => void) | null>(null);
+
+  useLayoutEffect(() => {
+    const panel = panelRef.current;
+    const clip = clipRef.current;
+    const content = contentRef.current;
+    if (!(enabled && panel && clip && content)) {
+      return;
+    }
+
+    let target = readPanelSizes(panel, clip);
+    let from: PanelSizes | null = null;
+    let progress = 1;
+    let controls: AnimationPlaybackControls | undefined;
+    let pendingStart: Process | undefined;
+    // Read when a tween starts; the inline values are restored when it ends.
+    let radii: PanelRadii | null = null;
+
+    const stop = () => {
+      if (pendingStart) {
+        cancelFrame(pendingStart);
+        pendingStart = undefined;
+      }
+      controls?.stop();
+      controls = undefined;
+    };
+
+    const reset = () => {
+      panel.style.transform = "";
+      clip.style.transform = "";
+      content.style.transform = "";
+      if (radii) {
+        panel.style.borderRadius = radii.panelInline;
+        clip.style.borderRadius = radii.clipInline;
+        radii = null;
+      }
+    };
+
+    const draw = (latest: number) => {
+      progress = latest;
+      if (from && radii) {
+        drawPanelTween({ panel, clip, content }, radii, from, target, latest);
+      }
+    };
+
+    const check = () => {
+      const next = readPanelSizes(panel, clip);
+      if (samePanelSizes(next, target)) {
+        return;
+      }
+      from =
+        from && progress < 1 ? mixPanelSizes(from, target, progress) : target;
+      target = next;
+      stop();
+      radii ??= {
+        panel: readPxRadius(panel),
+        clip: readPxRadius(clip),
+        panelInline: panel.style.borderRadius,
+        clipInline: clip.style.borderRadius,
+      };
+      // This frame draws the old size; the spring starts on the next one.
+      draw(0);
+      pendingStart = frame.update(() => {
+        pendingStart = undefined;
+        controls = animate(0, 1000, {
+          ...PANEL_SIZE_SPRING,
+          velocity: 0,
+          onUpdate: (latest) => draw(latest / 1000),
+          onComplete: () => {
+            progress = 1;
+            from = null;
+            controls = undefined;
+            reset();
+          },
+        });
+      });
+    };
+
+    checkRef.current = check;
+    const observer =
+      typeof ResizeObserver === "undefined" ? null : new ResizeObserver(check);
+    observer?.observe(panel);
+    observer?.observe(clip);
+    return () => {
+      checkRef.current = null;
+      observer?.disconnect();
+      stop();
+      reset();
+    };
+  }, [panelRef, clipRef, contentRef, enabled]);
+
+  // After every render (new content): measure before paint, as Motion did.
+  useLayoutEffect(() => {
+    checkRef.current?.();
+  });
+}
+
+const ORIGIN_TOP_LEFT: React.CSSProperties = { transformOrigin: "0 0" };
+
 /**
  * The tooltip panel: an entrance wrapper (scale/slide pivoting on
  * `transformOrigin`) around the styled panel (fade + size), its clip box and
  * the content.
  *
- * `animateSize` tweens the panel to its new size when the content changes,
- * with a `layout="size"` animation. That is a transform, so the panel's layout
- * box (and the `offsetWidth` / `offsetHeight` used for flip and clamp) is
- * always the final size, and position stays with the caller's springs. The
- * clip box follows the panel, and the content is scale-corrected (drawn at its
- * final size and revealed by the clip), so text never stretches. All three are
- * anchored top-left (`originX` / `originY` 0), so the tween has no translate.
- * The entrance lives on the wrapper so its pivot can differ. Radii are read
- * from the classes on mount and passed via `style` so Motion keeps the corners
- * round while scaled.
+ * `animateSize` tweens the panel to its new size when the content changes
+ * (`usePanelSizeTween`). That is a transform, so the panel's layout box (and
+ * the `offsetWidth` / `offsetHeight` used for flip and clamp) is always the
+ * final size, and position stays with the caller's springs. The clip box
+ * follows the panel, and the content is scale-corrected (drawn at its final
+ * size and revealed by the clip), so text never stretches. All three are
+ * anchored top-left, so the tween has no translate. The entrance lives on the
+ * wrapper so its pivot can differ.
  *
- * No size tween on mount (the entrance owns that). Callers pass `false` under
- * reduced motion and when the position is not animated.
+ * No size tween on mount (the entrance owns that) or under `MotionConfig`
+ * reduced motion. Callers pass `false` under reduced motion and when the
+ * position is not animated.
  */
 export function TooltipPanel({
   animateSize,
@@ -146,63 +409,42 @@ export function TooltipPanel({
 }) {
   const panelRef = useRef<HTMLDivElement>(null);
   const clipRef = useRef<HTMLDivElement>(null);
-  // "" = no inline radius (the classes apply) until measured.
-  const panelRadius = useMotionValue("");
-  const clipRadius = useMotionValue("");
-
-  useLayoutEffect(() => {
-    if (!animateSize) {
-      return;
-    }
-    if (panelRef.current && style.borderRadius === undefined) {
-      panelRadius.set(getComputedStyle(panelRef.current).borderTopLeftRadius);
-    }
-    if (clipRef.current) {
-      clipRadius.set(getComputedStyle(clipRef.current).borderTopLeftRadius);
-    }
-  }, [animateSize, style.borderRadius, panelRadius, clipRadius]);
-
-  const layout = animateSize ? "size" : false;
-  const sizeTransition = { layout: PANEL_SIZE_SPRING };
+  const contentRef = useRef<HTMLDivElement>(null);
+  // `MotionConfig reducedMotion` made Motion's layout tween instant.
+  const reducedMotionConfig = useReducedMotionConfig() === true;
+  usePanelSizeTween(
+    panelRef,
+    clipRef,
+    contentRef,
+    animateSize && !reducedMotionConfig
+  );
 
   return (
-    <motion.div
+    <m.div
       animate={{ scale: 1, x: 0 }}
       initial={entrance === false ? false : { x: 0, ...entrance }}
       style={{ transformOrigin }}
       transition={PANEL_ENTRANCE_SPRING}
     >
-      <motion.div
+      <m.div
         animate={{ opacity: 1 }}
         className={className}
         initial={{ opacity: 0 }}
-        layout={layout}
         ref={panelRef}
-        style={{
-          borderRadius: panelRadius,
-          ...style,
-          originX: 0,
-          originY: 0,
-        }}
-        transition={{ ...PANEL_ENTRANCE_SPRING, ...sizeTransition }}
+        style={{ ...style, ...ORIGIN_TOP_LEFT }}
+        transition={PANEL_ENTRANCE_SPRING}
       >
-        <motion.div
+        <div
           className={TOOLTIP_PANEL_INNER_CLASS_NAME}
-          layout={layout}
           ref={clipRef}
-          style={{ borderRadius: clipRadius, originX: 0, originY: 0 }}
-          transition={sizeTransition}
+          style={ORIGIN_TOP_LEFT}
         >
-          <motion.div
-            layout={animateSize ? "position" : false}
-            style={{ originX: 0, originY: 0 }}
-            transition={sizeTransition}
-          >
+          <div ref={contentRef} style={ORIGIN_TOP_LEFT}>
             {children}
-          </motion.div>
-        </motion.div>
-      </motion.div>
-    </motion.div>
+          </div>
+        </div>
+      </m.div>
+    </m.div>
   );
 }
 
@@ -264,10 +506,16 @@ export function TooltipBox(props: TooltipBoxProps) {
   const inner = props.visible ? (
     <TooltipBoxInner {...props} container={container} key="tooltip-box" />
   ) : null;
-  if (props.exit !== false && props.entrance !== false) {
-    return <AnimatePresence>{inner}</AnimatePresence>;
-  }
-  return inner;
+  // Own feature scope: the box also renders outside chart roots.
+  return (
+    <LazyMotion features={domAnimation}>
+      {props.exit !== false && props.entrance !== false ? (
+        <AnimatePresence>{inner}</AnimatePresence>
+      ) : (
+        inner
+      )}
+    </LazyMotion>
+  );
 }
 
 function TooltipBoxInner({
@@ -304,7 +552,10 @@ function TooltipBoxInner({
   // Last measured panel size — only read in the layout effect below.
   const tooltipWidthRef = useRef(DEFAULT_TOOLTIP_WIDTH);
   const tooltipHeightRef = useRef(DEFAULT_TOOLTIP_HEIGHT);
-  const [staticPosition, setStaticPosition] = useState({ left: x, top: y });
+  // Non-animated position: React only renders the mount position; the layout
+  // effect below writes later positions straight to the element, so each
+  // pointer move costs one render instead of render + sync re-render.
+  const [staticPosition] = useState(() => ({ left: x, top: y }));
   // First measured position jumps (no spring from the estimated size).
   const hasPositionedRef = useRef(false);
 
@@ -363,7 +614,14 @@ function TooltipBoxInner({
     const tx = target.left;
     const ty = target.top;
     if (!animate) {
-      setStaticPosition({ left: tx, top: ty });
+      const left = `${tx}px`;
+      const top = `${ty}px`;
+      if (el.style.left !== left) {
+        el.style.left = left;
+      }
+      if (el.style.top !== top) {
+        el.style.top = top;
+      }
       return;
     }
     const snap = reducedMotion || !hasPositionedRef.current;
@@ -398,13 +656,13 @@ function TooltipBoxInner({
   const isFlipped = flippedOverride ?? shouldFlipX;
   const transformOrigin = isFlipped ? "right top" : "left top";
 
-  const panelClassName = cn(
-    TOOLTIP_PANEL_CLASS_NAME,
+  // Internal classes only (no caller className): no tailwind-merge needed.
+  const panelClassName = `${TOOLTIP_PANEL_CLASS_NAME}${
     panelStyle?.backgroundColor === undefined &&
-      backgroundColor === chartCssVars.tooltipBackground &&
-      "bg-chart-tooltip-background",
-    panelStyle?.backdropFilter === undefined && "backdrop-blur-md"
-  );
+    backgroundColor === chartCssVars.tooltipBackground
+      ? " bg-chart-tooltip-background"
+      : ""
+  }${panelStyle?.backdropFilter === undefined ? " backdrop-blur-md" : ""}`;
   const panelStyleResolved = {
     ...(panelStyle?.backgroundColor === undefined && {
       backgroundColor,
@@ -431,7 +689,7 @@ function TooltipBoxInner({
   }
 
   return createPortal(
-    <motion.div
+    <m.div
       animate={{ opacity: 1 }}
       className={cn("pointer-events-none absolute z-50", className)}
       exit={{ opacity: 0 }}
@@ -454,7 +712,7 @@ function TooltipBoxInner({
       >
         {children}
       </TooltipPanel>
-    </motion.div>,
+    </m.div>,
     container
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useReducedMotion, useTransform } from "motion/react";
+import { m, useReducedMotion, useTransform } from "motion/react";
 import { memo } from "react";
 import { arcStartLabelLayout } from "./arc-geometry";
 import {
@@ -75,16 +75,16 @@ const RingLabel = memo(function RingLabel({
 
   if (isStatic || done) {
     return (
-      <motion.g
+      <m.g
         animate={{ opacity: hoverOpacity }}
         initial={false}
         transition={{ duration: 0.15 }}
       >
         {node}
-      </motion.g>
+      </m.g>
     );
   }
-  return <motion.g style={{ opacity: enterOpacity }}>{node}</motion.g>;
+  return <m.g style={{ opacity: enterOpacity }}>{node}</m.g>;
 });
 
 /**

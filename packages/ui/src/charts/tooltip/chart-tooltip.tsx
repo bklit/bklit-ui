@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useSpring } from "motion/react";
+import { m, useSpring } from "motion/react";
 import { memo, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
 import {
@@ -10,6 +10,7 @@ import {
 } from "../chart-config-context";
 import {
   chartCssVars,
+  DISCRETE_INTERACTION_LABEL_THRESHOLD,
   type LineConfig,
   type Margin,
   type TooltipData,
@@ -294,7 +295,8 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
   // hide the crosshair line by default.
   const showCrosshair =
     showCrosshairProp ?? !(barXAccessor || nearestPointHover);
-  const discreteInteraction = dateLabels.length > 60;
+  const discreteInteraction =
+    dateLabels.length > DISCRETE_INTERACTION_LABEL_THRESHOLD;
 
   const resolvedDotSize = useMemo(() => {
     if (dotVariant !== "ring" || !bandWidth || lines.length === 0) {
@@ -456,8 +458,10 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
 
   const tooltipContent = (
     <>
-      {/* Crosshair indicator - rendered as SVG overlay */}
-      {showCrosshair && (
+      {/* Crosshair indicator - rendered as SVG overlay. The indicator has no
+          exit animation (it unmounts when hidden), so the overlay is only
+          mounted while hovering. */}
+      {showCrosshair && visible && (
         <svg
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 overflow-visible"
@@ -501,6 +505,7 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
                 // one per series mounting / unmounting as rows change.
                 activePoint && (
                   <TooltipDot
+                    animate={!discreteInteraction}
                     color={resolveDotColor(activePoint.line, activePoint.index)}
                     cornerRadiusFraction={
                       dotVariant === "ring" ? dotRadiusFraction : undefined
@@ -520,6 +525,7 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
                 )
               : lines.map((line, index) => (
                   <TooltipDot
+                    animate={!discreteInteraction}
                     color={resolveDotColor(line, index)}
                     cornerRadiusFraction={
                       dotVariant === "ring" ? dotRadiusFraction : undefined
@@ -545,6 +551,7 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
               }
               return (
                 <TooltipDot
+                  animate={!discreteInteraction}
                   color={
                     typeof dotColorProp === "string" ? dotColorProp : dot.color
                   }
@@ -667,7 +674,7 @@ function DatePillTrackerInner({
   }, [animatedX, visible]);
 
   return (
-    <motion.div
+    <m.div
       className="pointer-events-none absolute z-50 w-max"
       style={{
         left: discreteInteraction ? xWithMargin : animatedX,
@@ -680,7 +687,7 @@ function DatePillTrackerInner({
         labels={labels}
         visible={visible}
       />
-    </motion.div>
+    </m.div>
   );
 }
 

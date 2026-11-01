@@ -1,6 +1,7 @@
 "use client";
 
 import type { Transition } from "motion/react";
+import { domAnimation, LazyMotion } from "motion/react";
 import {
   Children,
   isValidElement,
@@ -11,12 +12,15 @@ import {
 } from "react";
 import { cn } from "@/lib/utils";
 import { Area, type AreaProps } from "./area";
-import type { LineConfig, Margin } from "./chart-context";
+import { type LineConfig, type Margin, useStableMargin } from "./chart-context";
 import { ParentSize } from "./chart-parent-size";
 import type { ChartPhase } from "./chart-phase";
 import { Line, type LineProps } from "./line";
 import { SeriesBar, type SeriesBarProps } from "./series-bar";
-import { TimeSeriesChartInner } from "./time-series-chart-shell";
+import {
+  TimeSeriesChartInner,
+  timeSeriesChartHasRoom,
+} from "./time-series-chart-shell";
 
 export interface ComposedChartProps {
   /** Data array — each row typically has a date and multiple numeric series */
@@ -173,45 +177,26 @@ function computeComposedYScaleDomainMax(
   return max > 0 ? max : undefined;
 }
 
-interface ChartInnerProps {
-  width: number;
-  height: number;
-  data: Record<string, unknown>[];
-  xDataKey: string;
-  margin: Margin;
-  animationDuration: number;
-  animationEasing?: string;
-  enterTransition?: Transition;
-  revealSignature?: string;
-  children: ReactNode;
-  containerRef: React.RefObject<HTMLDivElement | null>;
-  barSize?: number;
-  maxBarSize?: number;
-  barGap?: number;
-  stacked?: boolean;
-  stackGap?: number;
-  onPhaseChange?: (phase: ChartPhase) => void;
-}
-
-function ChartInner({
-  width,
-  height,
+export function ComposedChart({
   data,
-  xDataKey,
-  margin,
-  animationDuration,
+  xDataKey = "date",
+  margin: marginProp,
+  animationDuration = 1100,
   animationEasing,
   enterTransition,
   revealSignature,
+  aspectRatio = "2 / 1",
+  className = "",
   children,
-  containerRef,
   barSize,
   maxBarSize,
-  barGap,
+  barGap = 4,
   stacked = false,
   stackGap = 0,
   onPhaseChange,
-}: ChartInnerProps) {
+}: ComposedChartProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const margin = useStableMargin({ ...DEFAULT_MARGIN, ...marginProp });
   const { lines, barDataKeys } = useMemo(
     () => extractComposedSeries(children),
     [children]
@@ -250,86 +235,47 @@ function ChartInner({
   );
 
   return (
-    <TimeSeriesChartInner
-      animationDuration={animationDuration}
-      animationEasing={animationEasing}
-      clipPathId="composed-chart-grow-clip"
-      composedBarDataKeys={barDataKeys.length > 0 ? barDataKeys : undefined}
-      composedBarGap={barGap}
-      composedBarSize={barSize}
-      composedMaxBarSize={maxBarSize}
-      composedStacked={stacked}
-      composedStackGap={stackGap}
-      composedStackOffsets={composedStackOffsets}
-      containerRef={containerRef}
-      data={data}
-      enterTransition={enterTransition}
-      height={height}
-      lines={lines}
-      margin={margin}
-      onPhaseChange={onPhaseChange}
-      revealSignature={revealSignature}
-      width={width}
-      xDataKey={xDataKey}
-      yScaleDomainMax={yScaleDomainMax}
-    >
-      {children}
-    </TimeSeriesChartInner>
-  );
-}
-
-export function ComposedChart({
-  data,
-  xDataKey = "date",
-  margin: marginProp,
-  animationDuration = 1100,
-  animationEasing,
-  enterTransition,
-  revealSignature,
-  aspectRatio = "2 / 1",
-  className = "",
-  children,
-  barSize,
-  maxBarSize,
-  barGap = 4,
-  stacked = false,
-  stackGap = 0,
-  onPhaseChange,
-}: ComposedChartProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const margin = { ...DEFAULT_MARGIN, ...marginProp };
-
-  return (
-    <div
-      className={cn("relative w-full", className)}
-      ref={containerRef}
-      style={{ aspectRatio, touchAction: "none" }}
-    >
-      <ParentSize debounceTime={10}>
-        {({ width, height }) => (
-          <ChartInner
-            animationDuration={animationDuration}
-            animationEasing={animationEasing}
-            barGap={barGap}
-            barSize={barSize}
-            containerRef={containerRef}
-            data={data}
-            enterTransition={enterTransition}
-            height={height}
-            margin={margin}
-            maxBarSize={maxBarSize}
-            onPhaseChange={onPhaseChange}
-            revealSignature={revealSignature}
-            stacked={stacked}
-            stackGap={stackGap}
-            width={width}
-            xDataKey={xDataKey}
-          >
-            {children}
-          </ChartInner>
-        )}
-      </ParentSize>
-    </div>
+    <LazyMotion features={domAnimation}>
+      <div
+        className={cn("relative w-full", className)}
+        ref={containerRef}
+        style={{ aspectRatio, touchAction: "none" }}
+      >
+        <ParentSize debounceTime={10}>
+          {({ width, height }) =>
+            timeSeriesChartHasRoom(width, height) ? (
+              <TimeSeriesChartInner
+                animationDuration={animationDuration}
+                animationEasing={animationEasing}
+                clipPathId="composed-chart-grow-clip"
+                composedBarDataKeys={
+                  barDataKeys.length > 0 ? barDataKeys : undefined
+                }
+                composedBarGap={barGap}
+                composedBarSize={barSize}
+                composedMaxBarSize={maxBarSize}
+                composedStacked={stacked}
+                composedStackGap={stackGap}
+                composedStackOffsets={composedStackOffsets}
+                containerRef={containerRef}
+                data={data}
+                enterTransition={enterTransition}
+                height={height}
+                lines={lines}
+                margin={margin}
+                onPhaseChange={onPhaseChange}
+                revealSignature={revealSignature}
+                width={width}
+                xDataKey={xDataKey}
+                yScaleDomainMax={yScaleDomainMax}
+              >
+                {children}
+              </TimeSeriesChartInner>
+            ) : null
+          }
+        </ParentSize>
+      </div>
+    </LazyMotion>
   );
 }
 

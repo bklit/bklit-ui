@@ -1,8 +1,8 @@
 {
   "bklit": {
     "entry": "export { ChartTooltip, Grid, Line, LineChart, XAxis } from \"@bklitui/ui/charts\";",
-    "minBytes": 288298,
-    "gzipBytes": 97988
+    "minBytes": 238532,
+    "gzipBytes": 83958
   },
   "recharts": {
     "entry": "export { CartesianGrid, Line, LineChart, Tooltip, XAxis, YAxis } from \"recharts\";",

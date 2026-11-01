@@ -4,7 +4,7 @@ import { arc as d3Arc } from "d3-shape";
 import {
   animate as animateValue,
   type MotionValue,
-  motion,
+  m,
   useMotionValue,
   useTransform,
 } from "motion/react";
@@ -121,7 +121,7 @@ const RadialBarSegment = memo(function RadialBarSegment({
     });
   });
   return (
-    // Opacity lives on a plain group: motion.path doesn't re-apply a changed
+    // Opacity lives on a plain group: m.path doesn't re-apply a changed
     // static `style.opacity`, which would break legend dimming.
     <g
       style={{
@@ -129,7 +129,7 @@ const RadialBarSegment = memo(function RadialBarSegment({
         transition: "opacity 0.15s ease-out",
       }}
     >
-      <motion.path clipPath={clipPath} d={d} fill={segment.fill} />
+      <m.path clipPath={clipPath} d={d} fill={segment.fill} />
     </g>
   );
 });
@@ -202,7 +202,7 @@ const RadialBarColumn = memo(function RadialBarColumn({
     >
       {useClip ? (
         <clipPath id={clipId}>
-          <motion.path d={outline} />
+          <m.path d={outline} />
         </clipPath>
       ) : null}
       {column.segments.map((segment, i) => (

@@ -6,7 +6,7 @@ import {
   curveCatmullRomClosed,
   lineRadial,
 } from "d3-shape";
-import { motion, type SpringOptions } from "motion/react";
+import { m, type SpringOptions } from "motion/react";
 import { memo, useId, useMemo } from "react";
 import {
   createRadialEdgeLookup,
@@ -106,7 +106,7 @@ const NowMarker = memo(function NowMarker({
       transform={`translate(${point.x},${point.y})`}
     >
       {pulse ? (
-        <motion.circle
+        <m.circle
           animate={{ scale: [1, 2.6], opacity: [0.35, 0] }}
           fill={color}
           r={r}

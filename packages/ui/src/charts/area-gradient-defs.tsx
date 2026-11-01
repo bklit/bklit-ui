@@ -1,3 +1,4 @@
+import { memo } from "react";
 import {
   type FadeEdges,
   fadeGradientStops,
@@ -22,7 +23,9 @@ interface AreaGradientDefsProps {
   innerHeight: number;
 }
 
-export function AreaGradientDefs({
+// Memoised: props are primitives that rarely change, while the area
+// re-renders on every data update and morph frame.
+export const AreaGradientDefs = memo(function AreaGradientDefs({
   gradientId,
   strokeGradientId,
   edgeMaskId,
@@ -110,4 +113,4 @@ export function AreaGradientDefs({
       ) : null}
     </defs>
   );
-}
+});

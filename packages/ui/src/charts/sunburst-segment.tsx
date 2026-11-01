@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useTransform } from "motion/react";
+import { m, useTransform } from "motion/react";
 import { memo, useMemo } from "react";
 import { applyHoverGrow, arcPath, transitionGeometry } from "./sunburst";
 import {
@@ -128,7 +128,7 @@ export const SunburstSegment = memo(function SunburstSegment({
 
   if (showStatic) {
     return (
-      <motion.g
+      <m.g
         animate={{ opacity: layerOpacity }}
         initial={false}
         onClick={hitHandlers.onClick}
@@ -138,12 +138,12 @@ export const SunburstSegment = memo(function SunburstSegment({
       >
         <path d={fullHitPath} fill="transparent" />
         <path d={fullVisualPath} {...visualPathProps} />
-      </motion.g>
+      </m.g>
     );
   }
 
   return (
-    <motion.g
+    <m.g
       animate={{ opacity: layerOpacity }}
       initial={false}
       onClick={hitHandlers.onClick}
@@ -154,9 +154,9 @@ export const SunburstSegment = memo(function SunburstSegment({
       }}
       transition={{ opacity: HOVER_DIM_TRANSITION }}
     >
-      <motion.path d={animatedHitPath} fill="transparent" />
-      <motion.path d={animatedVisualPath} {...visualPathProps} />
-    </motion.g>
+      <m.path d={animatedHitPath} fill="transparent" />
+      <m.path d={animatedVisualPath} {...visualPathProps} />
+    </m.g>
   );
 });
 
