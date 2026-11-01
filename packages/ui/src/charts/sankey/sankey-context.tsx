@@ -8,6 +8,7 @@ import {
   type RefObject,
   type SetStateAction,
   useContext,
+  useMemo,
 } from "react";
 
 export interface Margin {
@@ -78,8 +79,19 @@ export interface SankeyContextValue {
   createPath: (link: SankeyLink<SankeyNodeDatum, SankeyLinkDatum>) => string;
 }
 
-const SankeyContext = createContext<SankeyContextValue | null>(null);
+/** Everything except the pointer position. */
+export type SankeyLayoutContextValue = Omit<SankeyContextValue, "mousePos">;
 
+const SankeyContext = createContext<SankeyLayoutContextValue | null>(null);
+const SankeyPointerContext =
+  createContext<SankeyContextValue["mousePos"]>(null);
+
+/**
+ * Publishes `value` as two contexts: the pointer position (changes on every
+ * mouse move) and everything else, memoized on its own fields. Links and
+ * nodes read the second through {@link useSankeyLayout}, so moving the mouse
+ * re-renders only the tooltip.
+ */
 export function SankeyProvider({
   children,
   value,
@@ -87,17 +99,82 @@ export function SankeyProvider({
   children: React.ReactNode;
   value: SankeyContextValue;
 }) {
+  const layout = useMemo<SankeyLayoutContextValue>(
+    () => ({
+      graph: value.graph,
+      nodes: value.nodes,
+      links: value.links,
+      width: value.width,
+      height: value.height,
+      innerWidth: value.innerWidth,
+      innerHeight: value.innerHeight,
+      margin: value.margin,
+      hoveredNodeIndex: value.hoveredNodeIndex,
+      hoveredLinkIndex: value.hoveredLinkIndex,
+      setHoveredNodeIndex: value.setHoveredNodeIndex,
+      setHoveredLinkIndex: value.setHoveredLinkIndex,
+      tooltipData: value.tooltipData,
+      setTooltipData: value.setTooltipData,
+      containerRef: value.containerRef,
+      isLoaded: value.isLoaded,
+      animationDuration: value.animationDuration,
+      enterTransition: value.enterTransition,
+      revealEpoch: value.revealEpoch,
+      createPath: value.createPath,
+    }),
+    [
+      value.graph,
+      value.nodes,
+      value.links,
+      value.width,
+      value.height,
+      value.innerWidth,
+      value.innerHeight,
+      value.margin,
+      value.hoveredNodeIndex,
+      value.hoveredLinkIndex,
+      value.setHoveredNodeIndex,
+      value.setHoveredLinkIndex,
+      value.tooltipData,
+      value.setTooltipData,
+      value.containerRef,
+      value.isLoaded,
+      value.animationDuration,
+      value.enterTransition,
+      value.revealEpoch,
+      value.createPath,
+    ]
+  );
+
   return (
-    <SankeyContext.Provider value={value}>{children}</SankeyContext.Provider>
+    <SankeyContext.Provider value={layout}>
+      <SankeyPointerContext.Provider value={value.mousePos}>
+        {children}
+      </SankeyPointerContext.Provider>
+    </SankeyContext.Provider>
   );
 }
 
+/**
+ * Layout, hover and tooltip state without the pointer position. Subscribers
+ * skip re-renders on plain mouse moves; prefer it unless you need `mousePos`.
+ */
+export function useSankeyLayout(): SankeyLayoutContextValue {
+  const context = useContext(SankeyContext);
+  if (!context) {
+    throw new Error("useSankeyLayout must be used within a SankeyProvider");
+  }
+  return context;
+}
+
+/** Full context including `mousePos`. Re-renders on every mouse move. */
 export function useSankey(): SankeyContextValue {
   const context = useContext(SankeyContext);
+  const mousePos = useContext(SankeyPointerContext);
   if (!context) {
     throw new Error("useSankey must be used within a SankeyProvider");
   }
-  return context;
+  return { ...context, mousePos };
 }
 
 // CSS variables for sankey theming

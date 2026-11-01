@@ -10,7 +10,7 @@ import { useMountProgress } from "../use-mount-progress";
 import {
   type SankeyLinkDatum,
   type SankeyNodeDatum,
-  useSankey,
+  useSankeyLayout,
 } from "./sankey-context";
 
 // Helper to get node index from link source/target
@@ -105,7 +105,7 @@ function AnimatedLink({
   onMouseEnter,
   onMouseLeave,
 }: AnimatedLinkProps) {
-  const { enterTransition, revealEpoch } = useSankey();
+  const { enterTransition, revealEpoch } = useSankeyLayout();
   const pathRef = useRef<SVGPathElement>(null);
   const [pathLength, setPathLength] = useState(0);
 
@@ -115,12 +115,13 @@ function AnimatedLink({
   const staggerDelaySeconds =
     (linkStartDelay + (index / totalLinks) * linkAnimDuration * 0.4) / 1000;
 
+  // The length only depends on `d`; measuring on every render forces a
+  // geometry read per link on each hover change.
   useLayoutEffect(() => {
     if (pathRef.current) {
-      const length = pathRef.current.getTotalLength();
-      setPathLength(length);
+      setPathLength(pathRef.current.getTotalLength());
     }
-  });
+  }, [path]);
 
   const progress = useMountProgress(
     enterTransition,
@@ -187,7 +188,7 @@ export function SankeyLink({
     setTooltipData,
     animationDuration,
     createPath,
-  } = useSankey();
+  } = useSankeyLayout();
 
   // Get color for a node (for gradients)
   const getNodeColorFn = useCallback(
