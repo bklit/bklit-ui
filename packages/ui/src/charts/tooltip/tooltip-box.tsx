@@ -304,7 +304,10 @@ function TooltipBoxInner({
   // Last measured panel size — only read in the layout effect below.
   const tooltipWidthRef = useRef(DEFAULT_TOOLTIP_WIDTH);
   const tooltipHeightRef = useRef(DEFAULT_TOOLTIP_HEIGHT);
-  const [staticPosition, setStaticPosition] = useState({ left: x, top: y });
+  // Non-animated position: React only renders the mount position; the layout
+  // effect below writes later positions straight to the element, so each
+  // pointer move costs one render instead of render + sync re-render.
+  const [staticPosition] = useState(() => ({ left: x, top: y }));
   // First measured position jumps (no spring from the estimated size).
   const hasPositionedRef = useRef(false);
 
@@ -363,7 +366,14 @@ function TooltipBoxInner({
     const tx = target.left;
     const ty = target.top;
     if (!animate) {
-      setStaticPosition({ left: tx, top: ty });
+      const left = `${tx}px`;
+      const top = `${ty}px`;
+      if (el.style.left !== left) {
+        el.style.left = left;
+      }
+      if (el.style.top !== top) {
+        el.style.top = top;
+      }
       return;
     }
     const snap = reducedMotion || !hasPositionedRef.current;

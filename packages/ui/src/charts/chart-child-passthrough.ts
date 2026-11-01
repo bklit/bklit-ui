@@ -74,6 +74,14 @@ export function resolveLazyChartChild(child: ReactElement): ReactElement {
 }
 
 /**
+ * True when a (resolved) chart child is still a `React.lazy` element whose
+ * module has not loaded, so its classification may change on a later render.
+ */
+export function isUnresolvedLazyChartChild(child: ReactElement): boolean {
+  return isLazyComponentType(child.type);
+}
+
+/**
  * Unwrap visibility wrappers so `Grid` / axes stay outside the series clip.
  *
  * Use the result to classify a child only — render {@link renderableChartChild}

@@ -55,16 +55,38 @@ export function HighlightSegment({
   const highlightRef = useRef<SVGPathElement>(null);
   const glowRef = useRef<SVGPathElement>(null);
 
+  // Last `d` written, and the elements it was written to (they remount when
+  // the band hides / the glow toggles).
+  const appliedRef = useRef<{
+    d: string;
+    highlight: SVGPathElement | null;
+    glow: SVGPathElement | null;
+  } | null>(null);
+
   // Copy the base stroke's `d` after commit (before paint) instead of reading
   // `pathRef.current` during render — same frame, and it picks up the base
-  // path's `d` from this commit rather than the previous one.
+  // path's `d` from this commit rather than the previous one. Runs on every
+  // commit (hover moves included) but only writes when the base `d` or the
+  // target elements changed: re-setting a long `d` re-parses the path.
   useLayoutEffect(() => {
     if (!visible) {
       return;
     }
     const d = pathRef.current?.getAttribute("d") || "";
-    highlightRef.current?.setAttribute("d", d);
-    glowRef.current?.setAttribute("d", d);
+    const highlight = highlightRef.current;
+    const glowPath = glowRef.current;
+    const applied = appliedRef.current;
+    if (
+      applied &&
+      applied.d === d &&
+      applied.highlight === highlight &&
+      applied.glow === glowPath
+    ) {
+      return;
+    }
+    highlight?.setAttribute("d", d);
+    glowPath?.setAttribute("d", d);
+    appliedRef.current = { d, highlight, glow: glowPath };
   });
 
   if (!visible) {

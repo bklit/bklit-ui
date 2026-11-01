@@ -3,7 +3,11 @@
 import { useSpring } from "motion/react";
 import { useLayoutEffect, useMemo, useRef } from "react";
 import { useChartConfig } from "./chart-config-context";
-import { useChartHover, useChartStable } from "./chart-context";
+import {
+  DISCRETE_INTERACTION_LABEL_THRESHOLD,
+  useChartHover,
+  useChartStable,
+} from "./chart-context";
 import {
   computeSegmentBounds,
   INACTIVE_SEGMENT,
@@ -34,7 +38,10 @@ export function useHighlightSegment({
   enabled?: boolean;
   span?: number;
 } = {}): HighlightSegmentResult {
-  const { data, xScale, xAccessor } = useChartStable();
+  const { data, xScale, xAccessor, dateLabels } = useChartStable();
+  // Dense series: the crosshair, tooltip box and dots snap between points
+  // (`ChartTooltip` discrete mode), so the band jumps with them too.
+  const snap = dateLabels.length > DISCRETE_INTERACTION_LABEL_THRESHOLD;
   const { tooltipData, selection } = useChartHover();
   const { highlightSpring } = useChartConfig();
 
@@ -74,14 +81,14 @@ export function useHighlightSegment({
       wasActive.current = false;
       return;
     }
-    if (!wasActive.current) {
+    if (!wasActive.current || snap) {
       xSpring.jump(bounds.x);
       widthSpring.jump(bounds.width);
     }
     xSpring.set(bounds.x);
     widthSpring.set(bounds.width);
     wasActive.current = true;
-  }, [bounds, xSpring, widthSpring]);
+  }, [bounds, snap, xSpring, widthSpring]);
 
   return { xSpring, widthSpring, isActive: bounds.isActive };
 }

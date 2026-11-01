@@ -29,6 +29,7 @@ import {
   isClipExcludedComponent,
   isPostOverlayComponent,
   isUnderlayComponent,
+  isUnresolvedLazyChartChild,
   renderableChartChild,
   resolveChartChildElement,
 } from "./chart-child-passthrough";
@@ -95,6 +96,62 @@ function ensureChildKey(child: ReactElement, index: number): ReactElement {
     return child;
   }
   return cloneElement(child, { key: `chart-child-${index}` });
+}
+
+interface ClassifiedChartChildren {
+  defsChildren: ReactElement[];
+  clipExcludedChildren: ReactElement[];
+  underlayChildren: ReactElement[];
+  preOverlayChildren: ReactElement[];
+  postOverlayChildren: ReactElement[];
+  /** A lazy child had not loaded yet — classification is provisional. */
+  hasPendingLazyChild: boolean;
+}
+
+/**
+ * Sort chart children into SVG layers. Memoised on `children` by the caller:
+ * `ensureChildKey` / lazy resolution create new elements, and fresh element
+ * identities on every hover re-render would re-render every layer (Grid,
+ * series, …) instead of only the hover subscribers.
+ */
+function classifyChartChildren(children: ReactNode): ClassifiedChartChildren {
+  const layers: ClassifiedChartChildren = {
+    defsChildren: [],
+    clipExcludedChildren: [],
+    underlayChildren: [],
+    preOverlayChildren: [],
+    postOverlayChildren: [],
+    hasPendingLazyChild: false,
+  };
+
+  Children.forEach(children, (child, index) => {
+    if (!isValidElement(child)) {
+      return;
+    }
+
+    const keyedChild = ensureChildKey(child, index);
+    const resolvedChild = resolveChartChildElement(keyedChild);
+    const renderChild = renderableChartChild(keyedChild);
+    if (isUnresolvedLazyChartChild(resolvedChild)) {
+      layers.hasPendingLazyChild = true;
+    }
+
+    if (isGradientDefComponent(resolvedChild)) {
+      layers.defsChildren.push(renderChild);
+    } else if (isPatternDefComponent(resolvedChild)) {
+      layers.preOverlayChildren.push(renderChild);
+    } else if (isPostOverlayComponent(resolvedChild)) {
+      layers.postOverlayChildren.push(renderChild);
+    } else if (isClipExcludedComponent(resolvedChild)) {
+      layers.clipExcludedChildren.push(renderChild);
+    } else if (isUnderlayComponent(resolvedChild)) {
+      layers.underlayChildren.push(renderChild);
+    } else {
+      layers.preOverlayChildren.push(renderChild);
+    }
+  });
+
+  return layers;
 }
 
 export interface TimeSeriesChartInnerProps {
@@ -260,8 +317,12 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
   // `<Band>` edges extend the y-domain and survive decimation, but are not
   // series: they never enter `lines`. The tooltip reads `bands` separately for
   // range rows / edge dots. Keyed by a string signature so new `children`
-  // identities don't redo decimation.
-  const bandConfigsSignature = JSON.stringify(extractBandConfigs(children));
+  // identities don't redo decimation; the walk itself is memoised on
+  // `children` so hover re-renders skip it.
+  const bandConfigsSignature = useMemo(
+    () => JSON.stringify(extractBandConfigs(children)),
+    [children]
+  );
   const bandConfigs = useMemo(
     () => JSON.parse(bandConfigsSignature) as BandConfig[],
     [bandConfigsSignature]
@@ -389,10 +450,11 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
     [yDomainsForScales, innerHeight, lines]
   );
 
-  const yScale = getPrimaryYScale(
-    yScales,
-    scaleLinear().domain([0, 100]).nice().range([innerHeight, 0])
+  const fallbackYScale = useMemo(
+    () => scaleLinear().domain([0, 100]).nice().range([innerHeight, 0]),
+    [innerHeight]
   );
+  const yScale = getPrimaryYScale(yScales, fallbackYScale);
 
   const dateLabels = useMemo(
     () =>
@@ -426,35 +488,21 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
     yScales,
   });
 
-  const defsChildren: ReactElement[] = [];
-  const clipExcludedChildren: ReactElement[] = [];
-  const underlayChildren: ReactElement[] = [];
-  const preOverlayChildren: ReactElement[] = [];
-  const postOverlayChildren: ReactElement[] = [];
-
-  Children.forEach(children, (child, index) => {
-    if (!isValidElement(child)) {
-      return;
-    }
-
-    const keyedChild = ensureChildKey(child, index);
-    const resolvedChild = resolveChartChildElement(keyedChild);
-    const renderChild = renderableChartChild(keyedChild);
-
-    if (isGradientDefComponent(resolvedChild)) {
-      defsChildren.push(renderChild);
-    } else if (isPatternDefComponent(resolvedChild)) {
-      preOverlayChildren.push(renderChild);
-    } else if (isPostOverlayComponent(resolvedChild)) {
-      postOverlayChildren.push(renderChild);
-    } else if (isClipExcludedComponent(resolvedChild)) {
-      clipExcludedChildren.push(renderChild);
-    } else if (isUnderlayComponent(resolvedChild)) {
-      underlayChildren.push(renderChild);
-    } else {
-      preOverlayChildren.push(renderChild);
-    }
-  });
+  const memoizedLayers = useMemo(
+    () => classifyChartChildren(children),
+    [children]
+  );
+  // A lazy child that hasn't loaded can't be classified yet: re-classify on
+  // every render until it resolves (the pre-memo behaviour).
+  const {
+    defsChildren,
+    clipExcludedChildren,
+    underlayChildren,
+    preOverlayChildren,
+    postOverlayChildren,
+  } = memoizedLayers.hasPendingLazyChild
+    ? classifyChartChildren(children)
+    : memoizedLayers;
 
   const [registeredReferenceAreas, setRegisteredReferenceAreas] = useState(
     () => new Map<string, ReferenceAreaConfig>()
@@ -609,12 +657,15 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
   const isRevealConcealing =
     chartPhase === "exitingReady" && animationDuration > 0;
 
-  const effectiveEnterTransition: Transition =
-    enterTransition ??
-    ({
-      ...DEFAULT_CHART_ENTER_TRANSITION,
-      duration: animationDuration / 1000,
-    } satisfies Transition);
+  const effectiveEnterTransition = useMemo<Transition>(
+    () =>
+      enterTransition ??
+      ({
+        ...DEFAULT_CHART_ENTER_TRANSITION,
+        duration: animationDuration / 1000,
+      } satisfies Transition),
+    [animationDuration, enterTransition]
+  );
 
   const barRevealClipPadding = useMemo(() => {
     if (!composedBarDataKeys?.length) {

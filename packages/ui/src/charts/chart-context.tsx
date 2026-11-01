@@ -62,6 +62,14 @@ export const defaultScatterColors = [
   "var(--chart-5)",
 ] as const;
 
+/**
+ * Above this many x labels, `ChartTooltip` switches to discrete interaction:
+ * the crosshair, tooltip box and dots snap between points instead of
+ * springing (springs would lag behind a dense series). The hover highlight
+ * band follows the same rule.
+ */
+export const DISCRETE_INTERACTION_LABEL_THRESHOLD = 60;
+
 export interface Margin {
   top: number;
   right: number;
