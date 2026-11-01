@@ -72,6 +72,7 @@ const OPT_IN_COMPONENT_SUFFIXES = [
   ".ring-grid",
   ".weekends",
   ".deadline",
+  ".funnel-grid",
 ] as const;
 const SHOWN_TOKEN_PREFIX = "+";
 

@@ -26,9 +26,7 @@ export function GaugeStudioPreview({
   ctx: StudioRenderContext;
 }) {
   const isLinear = state.gaugeLinear;
-  const motionEnter = getStudioMotionEnterProps(state, {
-    linear: ctx.isRecording,
-  });
+  const motionEnter = getStudioMotionEnterProps(state);
   const trackFill = state.progressBarTrackFill.trim();
   const visible = (id: string) => isStudioComponentVisible(state, id);
   // Notches (and the arc they sit on) carry both the track and the fill.

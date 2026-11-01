@@ -24,3 +24,17 @@
     background: var(--studio-scrollbar-thumb-hover);
   }
 }
+
+/*
+ * Canvas direct selection: chart content ignores the pointer (no tooltips or
+ * hover fights) and is flipped back on only while the tool hit-tests.
+ */
+[data-studio-direct-select] [data-studio-chart-content] * {
+  pointer-events: none !important;
+}
+
+[data-studio-direct-select]
+  [data-studio-chart-content].studio-direct-select-hit-test
+  * {
+  pointer-events: auto !important;
+}

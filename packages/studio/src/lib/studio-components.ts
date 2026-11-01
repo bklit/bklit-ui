@@ -18,6 +18,7 @@ import type { LineYAxisId } from "@/lib/line-series-y-axis";
 import { pullRequestSeries } from "@/lib/radial-demo-data";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import {
+  chartCssVarForSeriesIndex,
   getDesignSeriesLabel,
   getEffectiveSeriesColor,
 } from "@/lib/studio-series-design";
@@ -39,13 +40,18 @@ import {
   bandControlGroups,
   barChartControlGroups,
   barChartTooltipControlGroups,
+  barXAxisControlGroups,
+  barYAxisControlGroups,
   candlestickChartControlGroups,
   candlestickChartTooltipControlGroups,
   choroplethChartControlGroups,
+  choroplethFeatureControlGroups,
+  choroplethGraticuleControlGroups,
   composedChartControlGroups,
   composedOverlayLineControlGroups,
   deadlineControlGroups,
   funnelChartControlGroups,
+  funnelGridControlGroups,
   gaugeControlGroups,
   getLineChartControlGroups,
   gridControlGroups,
@@ -59,7 +65,11 @@ import {
   pieCenterControlGroup,
   pieChartControlGroups,
   projectionControlGroup,
+  radarAreaControlGroup,
+  radarAxisControlGroups,
   radarChartControlGroups,
+  radarGridControlGroups,
+  radarLabelsControlGroups,
   radialAxisControlGroups,
   radialChartControlGroups,
   radialDotBarControlGroups,
@@ -68,7 +78,11 @@ import {
   referenceAreaControlGroups,
   ringCenterControlGroup,
   ringChartControlGroups,
+  ringGridControlGroups,
+  ringLayerControlGroup,
   sankeyChartControlGroups,
+  sankeyLinkControlGroups,
+  sankeyNodeControlGroups,
   scatterInteractionControlGroup,
   scatterJitterChartTooltipControlGroups,
   scatterJitterControlGroup,
@@ -83,6 +97,7 @@ import {
   tooltipAppearanceControlGroup,
   trendLineControlGroups,
   weekendsControlGroups,
+  xAxisControlGroups,
 } from "./registry-control-groups";
 import {
   barCollapsibleGroup,
@@ -97,28 +112,10 @@ import {
   PER_PROJECTION_CONTROL_KEYS,
   PROJECTION_PRESET_LABELS,
 } from "./studio-projection-props";
+import { isPerSeriesLineControlKey } from "./studio-series-line-props";
 import { trendLineSeriesOptions } from "./studio-trend-line-props";
 
 const DESIGN_SERIES_LABEL_PREFIX = /^Series \d+ · /;
-
-const PER_SERIES_LINE_CONTROL_KEYS = new Set([
-  "curve",
-  "strokeWidth",
-  "fadeEdges",
-  "showHighlight",
-  "showLine",
-  "seriesShowMarkers",
-  "seriesMarkerRadius",
-  "seriesMarkerRingGap",
-  "seriesMarkerRingWidth",
-  "seriesTerminalMarkerShow",
-  "seriesTerminalMarkerFill",
-  "seriesTerminalMarkerRingColor",
-  "seriesTerminalMarkerRingGap",
-  "seriesDashTail",
-  "seriesDashFromIndex",
-  "seriesDashArray",
-]);
 
 function seriesScopedControlGroups(
   groups: StudioControlGroup[],
@@ -127,11 +124,15 @@ function seriesScopedControlGroups(
   return groups.map((group) => ({
     ...group,
     controls: group.controls.map((control) => {
-      if (
-        "key" in control &&
-        PER_SERIES_LINE_CONTROL_KEYS.has(String(control.key))
-      ) {
-        return { ...control, seriesIndex };
+      if ("key" in control && isPerSeriesLineControlKey(control.key)) {
+        // Opacity swatches preview the series' own chart color.
+        return control.type === "opacity"
+          ? {
+              ...control,
+              seriesIndex,
+              color: `var(${chartCssVarForSeriesIndex(seriesIndex)})`,
+            }
+          : { ...control, seriesIndex };
       }
       return control;
     }),
@@ -214,6 +215,20 @@ function passiveNode(
     parentId: `${chartPrefix}.chart`,
     kind: "chart",
     controlGroups: [],
+  };
+}
+
+function xAxisNode(
+  chartPrefix: string,
+  controlGroups: StudioControlGroup[] = xAxisControlGroups,
+  label = "XAxis"
+): StudioComponentDefinition {
+  return {
+    id: `${chartPrefix}.xaxis`,
+    label,
+    parentId: `${chartPrefix}.chart`,
+    kind: "chart",
+    controlGroups,
   };
 }
 
@@ -734,8 +749,8 @@ export function resolveAreaComponents(
 
   for (let index = 0; index < seriesCount; index += 1) {
     const controlGroups: StudioControlGroup[] = [];
-    if (index === 0 && design) {
-      controlGroups.push(design);
+    if (design) {
+      controlGroups.push(...seriesScopedControlGroups([design], index));
     }
     controlGroups.push(
       seriesYAxisControlGroup(index),
@@ -760,7 +775,7 @@ export function resolveAreaComponents(
   components.push(
     chartYAxisNode("area", "left", "YAxis · left"),
     chartYAxisNode("area", "right", "YAxis · right"),
-    passiveNode("area", "xaxis", "XAxis"),
+    xAxisNode("area"),
     chartTooltipNode("area"),
     legendNode("area"),
     brushNode("area")
@@ -875,7 +890,13 @@ export function resolveBarComponents(
   }
 
   if (horizontal) {
-    components.push(passiveNode("bar", "baryaxis", "BarYAxis"));
+    components.push({
+      id: "bar.baryaxis",
+      label: "BarYAxis",
+      parentId: chartId,
+      kind: "chart",
+      controlGroups: expandFirstCollapsible(barYAxisControlGroups),
+    });
   } else {
     for (const [axis, label] of [
       ["left", "YAxis · left"],
@@ -890,7 +911,7 @@ export function resolveBarComponents(
   }
 
   components.push(
-    passiveNode("bar", "xaxis", "BarXAxis"),
+    xAxisNode("bar", expandFirstCollapsible(barXAxisControlGroups), "BarXAxis"),
     chartTooltipNode(
       "bar",
       expandFirstCollapsible(barChartTooltipControlGroups)
@@ -906,7 +927,7 @@ export function resolveComposedComponents(
 ): StudioComponentDefinition[] {
   const seriesCount = clampStudioSeriesCount(state.dataSeries);
   const designGroup = groupByTitle(composedChartControlGroups, "Design");
-  // Area opacity has its own group on the first area series below.
+  // Area opacity has its own group on each area series below.
   const design = designGroup && {
     ...designGroup,
     controls: designGroup.controls.filter(
@@ -924,7 +945,7 @@ export function resolveComposedComponents(
       controlGroups: [],
       design: rootPaletteDesign(true),
     },
-    passiveNode("composed", "grid", "Grid"),
+    gridNode("composed"),
     backgroundNode("composed"),
     referenceAreaNode("composed"),
     weekendsNode("composed"),
@@ -941,22 +962,23 @@ export function resolveComposedComponents(
         controlGroups.push(design);
       }
     } else {
-      if (index === 1) {
-        controlGroups.push(
-          controlGroup("Area", [
-            {
-              type: "opacity",
-              key: "fillOpacity",
-              label: "Opacity",
-              min: 0,
-              max: 1,
-              step: 0.05,
-              color: "var(--chart-4)",
-            },
-          ])
-        );
-      }
       controlGroups.push(
+        ...seriesScopedControlGroups(
+          [
+            controlGroup("Area", [
+              {
+                type: "opacity",
+                key: "fillOpacity",
+                label: "Opacity",
+                min: 0,
+                max: 1,
+                step: 0.05,
+                color: "var(--chart-4)",
+              },
+            ]),
+          ],
+          index
+        ),
         seriesYAxisControlGroup(index),
         ...seriesScopedControlGroups(composedOverlayLineControlGroups, index)
       );
@@ -983,7 +1005,7 @@ export function resolveComposedComponents(
   components.push(
     chartYAxisNode("composed", "left", "YAxis · left"),
     chartYAxisNode("composed", "right", "YAxis · right"),
-    passiveNode("composed", "xaxis", "XAxis"),
+    xAxisNode("composed"),
     chartTooltipNode("composed"),
     legendNode("composed")
   );
@@ -1006,6 +1028,13 @@ export function resolveFunnelComponents(
       controlGroups: [...(layout ? [layout] : []), ...(labels ? [labels] : [])],
       // FunnelChart stages take solid colors only (no Studio pattern defs).
       design: { seriesIndex: 0, supportsPattern: false },
+    },
+    {
+      id: "funnel.funnel-grid",
+      label: "Grid",
+      parentId: chartId,
+      kind: "chart",
+      controlGroups: funnelGridControlGroups,
     },
     ...funnelData.map((stage, index) => ({
       id: `funnel.stage.${index}`,
@@ -1197,7 +1226,7 @@ function resolveProfitLossLineComponents(): StudioComponentDefinition[] {
     chartYAxisNode("line", "right", "YAxis · right"),
     chartYAxisNode("line", "left", "YAxis · left"),
     chartYAxisNode("line", "right", "YAxis · right"),
-    passiveNode("line", "xaxis", "XAxis"),
+    xAxisNode("line"),
     chartTooltipNode("line", [
       ...(tooltip ? [tooltip] : []),
       ...(crosshair ? [crosshair] : []),
@@ -1345,7 +1374,7 @@ export function resolveLineComponents(
   components.push(
     chartYAxisNode("line", "left", "YAxis · left"),
     chartYAxisNode("line", "right", "YAxis · right"),
-    passiveNode("line", "xaxis", "XAxis"),
+    xAxisNode("line"),
     chartTooltipNode("line"),
     legendNode("line")
   );
@@ -1372,7 +1401,13 @@ export function resolveRingComponents(
       controlGroups: design ? [design] : [],
       design: rootPaletteDesign(false),
     },
-    passiveNode("ring", "ring-grid", "RingGrid"),
+    {
+      id: "ring.ring-grid",
+      label: "RingGrid",
+      parentId: chartId,
+      kind: "chart",
+      controlGroups: ringGridControlGroups,
+    },
     ...ringData.map((ring, index) => ({
       id: `ring.layer.${index}`,
       label: ring.label,
@@ -1380,7 +1415,7 @@ export function resolveRingComponents(
       kind: "series" as StudioComponentKind,
       listMarker: "color-dot" as const,
       swatchColor: getEffectiveSeriesColor(state, index),
-      controlGroups: [] as StudioControlGroup[],
+      controlGroups: seriesScopedControlGroups([ringLayerControlGroup], index),
       design: {
         seriesIndex: index,
         supportsPattern: false,
@@ -1400,9 +1435,20 @@ export function resolveRingComponents(
 export function resolveRadarComponents(
   state: StudioUrlState
 ): StudioComponentDefinition[] {
-  const [layout, shape] = radarChartControlGroups;
+  const [layout] = radarChartControlGroups;
   const chartId = "radar.chart";
   const radarSeries = getRadarData(0);
+  const radarLayer = (
+    idSuffix: string,
+    label: string,
+    controlGroups: StudioControlGroup[]
+  ): StudioComponentDefinition => ({
+    id: `radar.${idSuffix}`,
+    label,
+    parentId: chartId,
+    kind: "chart",
+    controlGroups,
+  });
 
   return [
     {
@@ -1410,12 +1456,12 @@ export function resolveRadarComponents(
       label: "RadarChart",
       kind: "chart",
       treeIcon: "layers",
-      controlGroups: [...(layout ? [layout] : []), ...(shape ? [shape] : [])],
+      controlGroups: layout ? [layout] : [],
       design: rootPaletteDesign(false),
     },
-    passiveNode("radar", "grid", "RadarGrid"),
-    passiveNode("radar", "axis", "RadarAxis"),
-    passiveNode("radar", "labels", "RadarLabels"),
+    radarLayer("grid", "RadarGrid", radarGridControlGroups),
+    radarLayer("axis", "RadarAxis", radarAxisControlGroups),
+    radarLayer("labels", "RadarLabels", radarLabelsControlGroups),
     ...radarSeries.map((series, index) => ({
       id: `radar.area.${index}`,
       label: series.label,
@@ -1423,7 +1469,7 @@ export function resolveRadarComponents(
       kind: "series" as StudioComponentKind,
       listMarker: "color-dot" as const,
       swatchColor: getEffectiveSeriesColor(state, index),
-      controlGroups: [] as StudioControlGroup[],
+      controlGroups: seriesScopedControlGroups([radarAreaControlGroup], index),
       design: {
         seriesIndex: index,
         supportsPattern: false,
@@ -1502,7 +1548,7 @@ export function resolveScatterComponents(
       swatchColor: getEffectiveSeriesColor(state, 0),
       controlGroups: [
         seriesYAxisControlGroup(0),
-        scatterPointsControlGroup,
+        ...seriesScopedControlGroups([scatterPointsControlGroup], 0),
         scatterInteractionControlGroup,
       ],
       design: { seriesIndex: 0, supportsPattern: false },
@@ -1517,7 +1563,10 @@ export function resolveScatterComponents(
       kind: "series",
       listMarker: "color-dot",
       swatchColor: getEffectiveSeriesColor(state, 1),
-      controlGroups: [seriesYAxisControlGroup(1)],
+      controlGroups: [
+        seriesYAxisControlGroup(1),
+        ...seriesScopedControlGroups([scatterPointsControlGroup], 1),
+      ],
       design: { seriesIndex: 1, supportsPattern: false },
     });
   }
@@ -1525,7 +1574,11 @@ export function resolveScatterComponents(
   components.push(
     chartYAxisNode("scatter", "left", "YAxis · left"),
     chartYAxisNode("scatter", "right", "YAxis · right"),
-    passiveNode("scatter", "xaxis", "XAxis"),
+    xAxisNode(
+      "scatter",
+      // Jittered scatter pins 12 monthly ticks.
+      state.scatterJitter ? [] : xAxisControlGroups
+    ),
     chartTooltipNode(
       "scatter",
       state.scatterJitter ? scatterJitterChartTooltipControlGroups : undefined
@@ -1550,7 +1603,8 @@ export function resolveCandlestickComponents(
       kind: "chart",
       treeIcon: "layers",
       controlGroups: design ? [design] : [],
-      design: { seriesIndex: 0, supportsPattern: true },
+      // Bullish bodies use series 0 (`--chart-1`); bearish use series 2 (`--chart-3`).
+      design: { seriesIndex: 0, supportsPattern: true, colorLabel: "Bullish" },
     },
     gridNode("candlestick"),
     backgroundNode("candlestick"),
@@ -1561,11 +1615,12 @@ export function resolveCandlestickComponents(
       parentId: chartId,
       kind: "series",
       controlGroups: candles ? [candles] : [],
+      design: { seriesIndex: 2, supportsPattern: false, colorLabel: "Bearish" },
     },
     chartTooltipNode("candlestick", candlestickChartTooltipControlGroups),
     chartYAxisNode("candlestick", "left", "YAxis · left"),
     chartYAxisNode("candlestick", "right", "YAxis · right"),
-    passiveNode("candlestick", "xaxis", "XAxis"),
+    xAxisNode("candlestick"),
     legendNode("candlestick"),
   ];
 }
@@ -1593,7 +1648,7 @@ export function resolveChoroplethComponents(
             label: "ChoroplethGraticule",
             parentId: chartId,
             kind: "geometry" as StudioComponentKind,
-            controlGroups: [] as StudioControlGroup[],
+            controlGroups: choroplethGraticuleControlGroups,
           },
         ]
       : []),
@@ -1602,7 +1657,7 @@ export function resolveChoroplethComponents(
       label: "ChoroplethFeatureComponent",
       parentId: chartId,
       kind: "series",
-      controlGroups: [],
+      controlGroups: choroplethFeatureControlGroups,
     },
     {
       id: "choropleth.tooltip",
@@ -1632,14 +1687,14 @@ export function resolveSankeyComponents(): StudioComponentDefinition[] {
       label: "SankeyNode",
       parentId: chartId,
       kind: "series",
-      controlGroups: [],
+      controlGroups: sankeyNodeControlGroups,
     },
     {
       id: "sankey.link",
       label: "SankeyLink",
       parentId: chartId,
       kind: "line",
-      controlGroups: [],
+      controlGroups: sankeyLinkControlGroups,
     },
     {
       id: "sankey.tooltip",

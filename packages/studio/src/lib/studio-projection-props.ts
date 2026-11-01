@@ -250,14 +250,18 @@ function defaultEndValueForPreset(
   const min = Math.min(...values);
   const max = Math.max(...values);
   const span = Math.max(max - min, last * 0.1, 10);
-  if (projectionIndex === 0) {
-    return Math.round(last + span * 0.45);
-  }
-  if (projectionIndex === 2) {
-    return Math.round(last - span * 0.35);
-  }
-  return Math.round(last + span * 0.12);
+  // Presets follow the data's direction so a downtrend projects downward.
+  const offsets =
+    last >= (values[0] ?? last)
+      ? PROJECTION_PRESET_OFFSETS_UP
+      : PROJECTION_PRESET_OFFSETS_DOWN;
+  const offset = offsets[projectionIndex] ?? offsets[1];
+  return Math.round(last + span * offset);
 }
+
+/** End-value offsets (× data span) for the High / Median / Low presets. */
+const PROJECTION_PRESET_OFFSETS_UP = [0.45, 0.12, -0.35] as const;
+const PROJECTION_PRESET_OFFSETS_DOWN = [-0.1, -0.3, -0.6] as const;
 
 function stateFallbackEndValue(projectionIndex: number): number {
   if (projectionIndex === 0) {

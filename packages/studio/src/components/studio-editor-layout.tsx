@@ -1,6 +1,5 @@
 "use client";
 
-import { cn } from "@bklitui/ui/lib/utils";
 import type { ReactNode, RefObject } from "react";
 import { memo, useCallback, useMemo, useRef, useState } from "react";
 import { ChartTypeSelector } from "@/components/chart-type-selector";
@@ -11,12 +10,8 @@ import {
 import { StudioChartRender } from "@/components/studio-chart-render";
 import { StudioChartViewport } from "@/components/studio-chart-viewport";
 import { StudioEditorSidebarActions } from "@/components/studio-editor-sidebar-actions";
-import { StudioRecordingMask } from "@/components/studio-recording-mask";
-import { StudioRecordingTimeline } from "@/components/studio-recording-timeline";
 import { StudioScenesProvider } from "@/components/studio-scenes-provider";
-import { useStudioEditorRecording } from "@/components/use-studio-editor-recording";
 import { useStudioMotionRemountKey } from "@/components/use-studio-motion-remount";
-import type { StudioRecordingPhase } from "@/components/use-studio-recording";
 import {
   useStudioDisplayState,
   useStudioShellState,
@@ -25,13 +20,8 @@ import { useReplayKeyboardShortcut } from "@/editor/editor-replay-button";
 import { EditorShell } from "@/editor/editor-shell";
 import { StudioComponentSelectionProvider } from "@/editor/studio-component-selection";
 import { StudioPatternDefs, studioPatternFill } from "@/lib/patterns";
-import { studioRecordingCaptureClass } from "@/lib/studio-chrome-classes";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import { studioPatternChromeState } from "@/lib/studio-pattern-chrome";
-import {
-  STUDIO_RECORDING_CAPTURE_INSET_PX,
-  type StudioRecordingTimeline as StudioRecordingTimelineModel,
-} from "@/lib/studio-recording";
 import {
   getDesignSeriesCount,
   getSeriesPattern,
@@ -56,18 +46,7 @@ const StudioEditorCanvas = memo(function StudioEditorCanvas({
   patternDefs,
   patternFillAt,
   chartAreaRef,
-  recordCaptureRef,
   frameRef,
-  showCaptureLayout,
-  showRecordingChrome,
-  recordingChartHeld,
-  isRecording,
-  phase,
-  elapsedMs,
-  timeline,
-  isPaused,
-  pauseRecording,
-  resumeRecording,
   size,
   boundsRef,
   onResize,
@@ -86,18 +65,7 @@ const StudioEditorCanvas = memo(function StudioEditorCanvas({
   patternDefs: ReactNode;
   patternFillAt: (seriesIndex: number) => string | undefined;
   chartAreaRef: RefObject<HTMLDivElement | null>;
-  recordCaptureRef: RefObject<HTMLDivElement | null>;
   frameRef: RefObject<HTMLDivElement | null>;
-  showCaptureLayout: boolean;
-  showRecordingChrome: boolean;
-  recordingChartHeld: boolean;
-  isRecording: boolean;
-  phase: StudioRecordingPhase;
-  elapsedMs: number;
-  timeline: StudioRecordingTimelineModel | null;
-  isPaused: boolean;
-  pauseRecording: () => void;
-  resumeRecording: () => void;
   size: { width: number; height: number };
   boundsRef: RefObject<HTMLDivElement | null>;
   onResize: (width: number, height: number) => void;
@@ -108,120 +76,44 @@ const StudioEditorCanvas = memo(function StudioEditorCanvas({
   const paletteMode = useOptionalStudioThemeMode();
 
   return (
-    <div
-      className={cn(
-        "relative min-h-0",
-        showCaptureLayout
-          ? "flex min-h-0 flex-1 flex-col gap-4 overflow-hidden"
-          : "overflow-visible"
-      )}
-      ref={chartAreaRef}
-    >
-      {showCaptureLayout ? (
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 z-1 bg-zinc-950/88"
-        />
-      ) : null}
-
-      <div
-        className={cn(
-          "relative z-2 flex min-h-0 w-full flex-col",
-          showCaptureLayout ? "min-h-0 flex-1 gap-4" : "overflow-visible"
-        )}
-      >
-        <div
-          className={cn(
-            "relative flex min-h-0 w-full overflow-visible",
-            showCaptureLayout
-              ? "min-h-0 flex-1 items-center justify-center"
-              : undefined
-          )}
-        >
-          <StudioRecordingMask
-            active={showCaptureLayout}
-            containerRef={chartAreaRef}
-            targetRef={recordCaptureRef}
-          />
-
-          <div
-            className={cn(
-              showCaptureLayout
-                ? cn(studioRecordingCaptureClass, "relative shrink-0")
-                : "overflow-visible"
-            )}
-            ref={recordCaptureRef}
-            style={
-              showCaptureLayout
-                ? {
-                    width: state.frameW + STUDIO_RECORDING_CAPTURE_INSET_PX * 2,
-                    height:
-                      state.frameH + STUDIO_RECORDING_CAPTURE_INSET_PX * 2,
-                  }
-                : undefined
-            }
-          >
-            <div
-              style={
-                showCaptureLayout
-                  ? {
-                      position: "absolute",
-                      top: STUDIO_RECORDING_CAPTURE_INSET_PX,
-                      left: STUDIO_RECORDING_CAPTURE_INSET_PX,
-                    }
-                  : undefined
-              }
+    <div className="relative min-h-0 overflow-visible" ref={chartAreaRef}>
+      <div className="relative z-2 flex min-h-0 w-full flex-col overflow-visible">
+        <div className="relative flex min-h-0 w-full overflow-visible">
+          <div className="overflow-visible">
+            <StudioChartFrame
+              boundsRef={boundsRef}
+              canvasScaleRef={canvasScaleRef}
+              className="overflow-visible"
+              height={size.height}
+              onResize={onResize}
+              ref={frameRef}
+              resizable={!mobileViewport}
+              style={resolveChartThemeStyle(themeState, paletteMode)}
+              width={size.width}
             >
-              <StudioChartFrame
-                boundsRef={boundsRef}
-                canvasScaleRef={canvasScaleRef}
-                className={showCaptureLayout ? undefined : "overflow-visible"}
-                height={size.height}
-                isRecording={isRecording}
-                onResize={onResize}
-                ref={frameRef}
-                resizable={!(mobileViewport || showCaptureLayout)}
-                style={resolveChartThemeStyle(themeState, paletteMode)}
-                width={size.width}
-              >
-                <div className="flex size-full min-h-0 items-center justify-center">
-                  {recordingChartHeld ? null : (
-                    <StudioChartViewport>
-                      {(frame) => (
-                        <StudioChartRender
-                          animationKey={animationKey}
-                          committedState={state}
-                          config={config}
-                          dataSeed={dataSeed}
-                          displayState={displayState}
-                          frame={frame}
-                          isRecording={isRecording}
-                          motionCurveDragging={motionCurveDragging}
-                          motionRemountKey={motionRemountKey}
-                          numberScrubbing={numberScrubbing}
-                          patternDefs={patternDefs}
-                          patternFillAt={patternFillAt}
-                          reportOgPhase={reportOgPhaseFromContext}
-                        />
-                      )}
-                    </StudioChartViewport>
+              <div className="flex size-full min-h-0 items-center justify-center">
+                <StudioChartViewport>
+                  {(frame) => (
+                    <StudioChartRender
+                      animationKey={animationKey}
+                      committedState={state}
+                      config={config}
+                      dataSeed={dataSeed}
+                      displayState={displayState}
+                      frame={frame}
+                      motionCurveDragging={motionCurveDragging}
+                      motionRemountKey={motionRemountKey}
+                      numberScrubbing={numberScrubbing}
+                      patternDefs={patternDefs}
+                      patternFillAt={patternFillAt}
+                      reportOgPhase={reportOgPhaseFromContext}
+                    />
                   )}
-                </div>
-              </StudioChartFrame>
-            </div>
+                </StudioChartViewport>
+              </div>
+            </StudioChartFrame>
           </div>
         </div>
-
-        {showRecordingChrome && timeline ? (
-          <StudioRecordingTimeline
-            elapsedMs={elapsedMs}
-            isPaused={isPaused}
-            onPause={pauseRecording}
-            onResume={resumeRecording}
-            phase={phase === "encoding" ? "encoding" : "capturing"}
-            timeline={timeline}
-          />
-        ) : null}
       </div>
     </div>
   );
@@ -233,7 +125,6 @@ export const StudioEditorChartRegion = memo(function StudioEditorChartRegion({
   chartAreaRef,
   frameRef,
   config,
-  recording,
   size,
   boundsRef,
   onResize,
@@ -245,7 +136,6 @@ export const StudioEditorChartRegion = memo(function StudioEditorChartRegion({
   chartAreaRef: RefObject<HTMLDivElement | null>;
   frameRef: RefObject<HTMLDivElement | null>;
   config: StudioChartConfig;
-  recording: ReturnType<typeof useStudioEditorRecording>;
   size: { width: number; height: number };
   boundsRef: RefObject<HTMLDivElement | null>;
   onResize: (width: number, height: number) => void;
@@ -292,10 +182,7 @@ export const StudioEditorChartRegion = memo(function StudioEditorChartRegion({
       config={config}
       dataSeed={dataSeed}
       displayState={displayState}
-      elapsedMs={recording.elapsedMs}
       frameRef={frameRef}
-      isPaused={recording.isPaused}
-      isRecording={recording.isRecording}
       mobileViewport={mobileViewport}
       motionCurveDragging={motionCurveDragging}
       motionRemountKey={motionRemountKey}
@@ -303,17 +190,9 @@ export const StudioEditorChartRegion = memo(function StudioEditorChartRegion({
       onResize={onResize}
       patternDefs={patternDefs}
       patternFillAt={patternFillAt}
-      pauseRecording={recording.pauseRecording}
-      phase={recording.phase}
-      recordCaptureRef={recording.recordCaptureRef}
-      recordingChartHeld={recording.recordingChartHeld}
-      resumeRecording={recording.resumeRecording}
-      showCaptureLayout={recording.showCaptureLayout}
-      showRecordingChrome={recording.showRecordingChrome}
       size={size}
       state={state}
       themeState={themeState}
-      timeline={recording.timeline}
     />
   );
 });
@@ -338,7 +217,6 @@ export function StudioEditorLayout({
     setPreviewParam,
     setPreviewParams,
     commitParam,
-    getDisplayState,
   } = useStudioShellState();
   const { track, getUrl } = useStudioAnalytics();
   const [animationKey, setAnimationKey] = useState(0);
@@ -354,14 +232,7 @@ export function StudioEditorLayout({
     setDataSeed((s) => s + 1);
   }, []);
 
-  const recording = useStudioEditorRecording({
-    state,
-    getDisplayState,
-    setFrameSize,
-    onReplay: replay,
-  });
-
-  useReplayKeyboardShortcut(replay, !(readOnly || recording.controlsDisabled));
+  useReplayKeyboardShortcut(replay, !readOnly);
 
   const handleExportSvg = useCallback(async () => {
     const root = chartAreaRef.current?.querySelector<HTMLElement>(
@@ -411,89 +282,66 @@ export function StudioEditorLayout({
   );
 
   return (
-    <>
-      {recording.error ? (
-        <div
-          className="absolute top-3 right-3 z-50 max-w-xs rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-destructive text-sm"
-          role="alert"
-        >
-          <p>{recording.error}</p>
-          <button
-            className="mt-1 underline"
-            onClick={recording.clearError}
-            type="button"
+    <div className="flex h-full min-h-0 w-full flex-col overflow-hidden">
+      <StudioScenesProvider
+        frameHeight={state.frameH}
+        frameWidth={state.frameW}
+        onPrimaryFrameChange={setFrameSize}
+        persistSession={!readOnly}
+      >
+        <StudioComponentSelectionProvider config={config} state={state}>
+          <EditorShell
+            chartSelector={
+              <ChartTypeSelector onChange={setChart} value={state.chart} />
+            }
+            chartState={chartState}
+            className="h-full min-h-0 w-full overflow-hidden"
+            config={config}
+            controlsDisabled={readOnly}
+            fillHeight={readOnly}
+            frameTitle={config.label}
+            onExportSvg={handleExportSvg}
+            onReplay={replay}
+            onScramble={scrambleData}
+            propertiesFooterActions={
+              <StudioEditorSidebarActions
+                renderCodeSheet={renderCodeSheet}
+                state={state}
+              />
+            }
+            showMotionControls={Boolean(config.motionPanel)}
+            size={{ width: state.frameW, height: state.frameH }}
+            staticPreview={readOnly}
           >
-            Dismiss
-          </button>
-        </div>
-      ) : null}
-
-      <div className="flex h-full min-h-0 w-full flex-col overflow-hidden">
-        <StudioScenesProvider
-          frameHeight={state.frameH}
-          frameWidth={state.frameW}
-          onPrimaryFrameChange={setFrameSize}
-          persistSession={!readOnly}
-        >
-          <StudioComponentSelectionProvider config={config} state={state}>
-            <EditorShell
-              chartSelector={
-                <ChartTypeSelector onChange={setChart} value={state.chart} />
-              }
-              chartState={chartState}
-              className="h-full min-h-0 w-full overflow-hidden"
-              config={config}
-              controlsDisabled={readOnly || recording.controlsDisabled}
-              fillHeight={readOnly}
-              frameTitle={config.label}
-              isRecording={recording.isRecording}
-              onExportSvg={handleExportSvg}
-              onReplay={replay}
-              onScramble={scrambleData}
-              onStartRecording={recording.handleStartRecording}
-              onStopRecording={recording.stopRecording}
-              propertiesFooterActions={
-                <StudioEditorSidebarActions
-                  renderCodeSheet={renderCodeSheet}
-                  state={state}
-                />
-              }
-              recordingBlocked={recording.recordingBlocked}
-              showMotionControls={Boolean(config.motionPanel)}
-              size={{ width: state.frameW, height: state.frameH }}
-              staticPreview={readOnly}
-            >
-              {({
-                size,
-                boundsRef,
-                onResize,
-                mobileViewport,
-                canvasScaleRef,
-              }: {
-                size: { width: number; height: number };
-                boundsRef: RefObject<HTMLDivElement | null>;
-                onResize: (width: number, height: number) => void;
-                mobileViewport: boolean;
-                canvasScaleRef: RefObject<number>;
-              }) => (
-                <StudioEditorChartRegion
-                  animationKey={animationKey}
-                  boundsRef={boundsRef}
-                  canvasScaleRef={canvasScaleRef}
-                  chartAreaRef={chartAreaRef}
-                  config={config}
-                  dataSeed={dataSeed}
-                  frameRef={frameRef}
-                  mobileViewport={mobileViewport}
-                  onResize={onResize}
-                  recording={recording}
-                  size={size}
-                />
-              )}
-            </EditorShell>
-          </StudioComponentSelectionProvider>
-        </StudioScenesProvider>
-      </div>
-    </>
+            {({
+              size,
+              boundsRef,
+              onResize,
+              mobileViewport,
+              canvasScaleRef,
+            }: {
+              size: { width: number; height: number };
+              boundsRef: RefObject<HTMLDivElement | null>;
+              onResize: (width: number, height: number) => void;
+              mobileViewport: boolean;
+              canvasScaleRef: RefObject<number>;
+            }) => (
+              <StudioEditorChartRegion
+                animationKey={animationKey}
+                boundsRef={boundsRef}
+                canvasScaleRef={canvasScaleRef}
+                chartAreaRef={chartAreaRef}
+                config={config}
+                dataSeed={dataSeed}
+                frameRef={frameRef}
+                mobileViewport={mobileViewport}
+                onResize={onResize}
+                size={size}
+              />
+            )}
+          </EditorShell>
+        </StudioComponentSelectionProvider>
+      </StudioScenesProvider>
+    </div>
   );
 }

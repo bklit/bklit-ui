@@ -4,6 +4,10 @@ import type { ReactNode, RefObject } from "react";
 import { useCallback, useEffect, useRef } from "react";
 import { useStudioFrame } from "@/components/studio-scenes-provider";
 import { EditorCanvas } from "@/editor/editor-canvas";
+import {
+  EditorDirectSelectionOverlay,
+  useEditorDirectSelect,
+} from "@/editor/editor-direct-selection";
 import { EditorFrameLabel } from "@/editor/editor-frame-label";
 import {
   EditorGridaRuler,
@@ -207,6 +211,9 @@ export function EditorMainPane({
   });
 
   canvasScaleRef.current = camera.camera.zoom;
+  const directSelect = useEditorDirectSelect(
+    canvasEnabled && !(embedMode || staticPreview)
+  );
 
   useStaticPreviewFrameSync({
     canvasEnabled,
@@ -261,6 +268,8 @@ export function EditorMainPane({
     sidebarsOpen,
     width: frame.width,
     openInStudioHref,
+    directSelectActive: directSelect.active,
+    onDirectSelectChange: directSelect.onActiveChange,
   };
 
   if (embedMode) {
@@ -402,6 +411,14 @@ export function EditorMainPane({
                 {frameContent}
               </div>
             </EditorCanvas>
+
+            {directSelect.active ? (
+              <EditorDirectSelectionOverlay
+                onExit={directSelect.exit}
+                spacePressed={camera.spacePressed}
+                viewportRef={canvasRef}
+              />
+            ) : null}
 
             {mobileViewport && onLeftSheetOpen && onRightSheetOpen ? (
               <EditorMobilePanelTriggers

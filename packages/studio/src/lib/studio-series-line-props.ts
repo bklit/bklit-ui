@@ -2,6 +2,7 @@ import { CURVE_IDS, type CurveId } from "@/lib/curves";
 import { clampStudioSeriesCount } from "@/lib/demo-data";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import {
+  getDesignSeriesCount,
   getEffectiveSeriesColor,
   parsePipeField,
   serializePipeField,
@@ -175,6 +176,97 @@ function readTerminalMarkerRingGap(
   );
 }
 
+type SeriesPipeFieldKind = "number" | "boolean" | "string";
+
+interface SeriesPipeField {
+  pipeKey: keyof StudioUrlState;
+  kind: SeriesPipeFieldKind;
+  /** Allowed values for `kind: "string"` slots; anything else falls back. */
+  values?: readonly string[];
+}
+
+/**
+ * Per-series overrides for non-line charts (area fill, scatter points, radar
+ * areas, rings). The control keeps the chart-level key; each slot in `pipeKey`
+ * overrides it for one series, and empty slots fall back to the chart-level value.
+ */
+const SERIES_PIPE_FIELDS = {
+  fillOpacity: { pipeKey: "seriesFillOpacities", kind: "number" },
+  gradientToOpacity: { pipeKey: "seriesGradientToOpacities", kind: "number" },
+  scatterRadius: { pipeKey: "seriesScatterRadii", kind: "number" },
+  scatterShowRings: { pipeKey: "seriesScatterRingsFlags", kind: "boolean" },
+  scatterRingGap: { pipeKey: "seriesScatterRingGaps", kind: "number" },
+  scatterRingWidth: { pipeKey: "seriesScatterRingWidths", kind: "number" },
+  radarShowPoints: { pipeKey: "seriesRadarPointsFlags", kind: "boolean" },
+  radarShowStroke: { pipeKey: "seriesRadarStrokeFlags", kind: "boolean" },
+  radarShowGlow: { pipeKey: "seriesRadarGlowFlags", kind: "boolean" },
+  ringLineCap: {
+    pipeKey: "seriesRingLineCaps",
+    kind: "string",
+    values: ["round", "butt"],
+  },
+  ringShowGlow: { pipeKey: "seriesRingGlowFlags", kind: "boolean" },
+} as const satisfies Partial<Record<keyof StudioUrlState, SeriesPipeField>>;
+
+export type SeriesPipeBaseKey = keyof typeof SERIES_PIPE_FIELDS;
+
+function isSeriesPipeBaseKey(
+  key: keyof StudioUrlState
+): key is SeriesPipeBaseKey {
+  return Object.hasOwn(SERIES_PIPE_FIELDS, key);
+}
+
+function parseSeriesPipeSlots(
+  field: SeriesPipeField,
+  raw: string
+): (number | boolean | string | undefined)[] {
+  if (field.kind === "number") {
+    return parsePipeNumbers(raw);
+  }
+  if (field.kind === "boolean") {
+    return parsePipeBooleans(raw);
+  }
+  return parsePipeStrings(raw).map((part) =>
+    part !== undefined && (!field.values || field.values.includes(part))
+      ? part
+      : undefined
+  );
+}
+
+/** Per-series value for a {@link SERIES_PIPE_FIELDS} key (chart-level value when unset). */
+export function getSeriesPipeValue<K extends SeriesPipeBaseKey>(
+  state: StudioUrlState,
+  key: K,
+  seriesIndex: number
+): StudioUrlState[K] {
+  const field: SeriesPipeField = SERIES_PIPE_FIELDS[key];
+  const parsed = parseSeriesPipeSlots(field, String(state[field.pipeKey]));
+  return getPipeSlot(seriesIndex, parsed, state[key]) as StudioUrlState[K];
+}
+
+function buildSeriesPipeFieldUpdate(
+  state: StudioUrlState,
+  key: SeriesPipeBaseKey,
+  seriesIndex: number,
+  value: StudioUrlState[keyof StudioUrlState]
+): Partial<StudioUrlState> {
+  const field: SeriesPipeField = SERIES_PIPE_FIELDS[key];
+  // Fixed-series charts (scatter, radar, ring) do not follow `dataSeries`.
+  const count = Math.max(
+    getDesignSeriesCount(state.chart, state),
+    seriesIndex + 1
+  );
+  const next = Array.from({ length: count }, (_, index) => {
+    const slot =
+      index === seriesIndex ? value : getSeriesPipeValue(state, key, index);
+    if (field.kind === "boolean") {
+      return slot ? "1" : "0";
+    }
+    return String(slot);
+  });
+  return { [field.pipeKey]: serializePipeField(next) };
+}
+
 export function getSeriesCurve(
   state: StudioUrlState,
   seriesIndex: number
@@ -326,7 +418,7 @@ const PER_SERIES_CONTROL_KEYS = new Set<keyof StudioUrlState>([
 export function isPerSeriesLineControlKey(
   key: keyof StudioUrlState
 ): key is keyof StudioUrlState {
-  return PER_SERIES_CONTROL_KEYS.has(key);
+  return PER_SERIES_CONTROL_KEYS.has(key) || isSeriesPipeBaseKey(key);
 }
 
 export function getSeriesScopedControlValue(
@@ -368,7 +460,9 @@ export function getSeriesScopedControlValue(
     case "seriesDashArray":
       return getSeriesDashArray(state, seriesIndex);
     default:
-      return state[key];
+      return isSeriesPipeBaseKey(key)
+        ? getSeriesPipeValue(state, key, seriesIndex)
+        : state[key];
   }
 }
 
@@ -556,6 +650,8 @@ export function buildSeriesScopedControlUpdate(
         ),
       };
     default:
-      return { [key]: value };
+      return isSeriesPipeBaseKey(key)
+        ? buildSeriesPipeFieldUpdate(state, key, seriesIndex, value)
+        : { [key]: value };
   }
 }

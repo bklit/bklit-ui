@@ -61,7 +61,6 @@ export function PlaygroundLineChart({
     motionCurveDragging,
     committedState,
     numberScrubbing: false,
-    isRecording: false,
   });
 
   const legendItems = useMemo(() => {

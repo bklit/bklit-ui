@@ -104,18 +104,39 @@
   --studio-canvas-grid-gap: 32px;
 }
 
-/* Studio keeps its square chrome; the site and docs use coss's rounded radius. */
+/*
+ * Studio keeps its square chrome; the site and docs use coss's rounded radius.
+ * The derived `--radius-*` tokens are redeclared too: `:root` resolves them
+ * against the site radius, so coss's `before:rounded-[calc(var(--radius-lg)-1px)]`
+ * overlays stayed rounded inside square borders.
+ */
 .studio-shell {
-  --radius: 0;
+  --radius: 0px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+  --radius-3xl: 0px;
+  --radius-4xl: 0px;
 }
 
 /*
  * Chart previews render as they ship, so restore the site radius (matches
  * :root above). Unitless `--radius: 0` also makes `calc(var(--radius) + 4px)`
  * invalid, which dropped chart tooltip panels to square corners.
+ * `data-studio-rounded-chrome` opts floating chrome (the canvas toolbar) back in.
  */
-.studio-shell [data-studio-chart-content] {
+.studio-shell [data-studio-chart-content],
+.studio-shell [data-studio-rounded-chrome] {
   --radius: 0.625rem;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
 }
 
 .dark,

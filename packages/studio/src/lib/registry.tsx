@@ -10,7 +10,6 @@ import {
   BarYAxis,
   ChartTooltip,
   ComposedChart,
-  Grid,
   Line,
   Scatter,
   ScatterChart,
@@ -124,9 +123,12 @@ import { seriesStrokePropsFromState } from "./series-stroke-props";
 import { sparklineCodegen } from "./sparkline-codegen";
 import {
   barTrackFillFromState,
+  barXAxisPropsFromState,
+  barYAxisPropsFromState,
   studioBarTrackPatternDef,
   studioCartesianBackgroundLayer,
   studioCartesianGridLayer,
+  xAxisPropsFromState,
 } from "./studio-cartesian-layers";
 import { chartTooltipPropsFromState } from "./studio-chart-overlays";
 import { isStudioComponentVisible } from "./studio-component-visibility";
@@ -162,6 +164,7 @@ import {
 import {
   getSeriesCurve,
   getSeriesFadeEdges,
+  getSeriesPipeValue,
   getSeriesStrokeWidth,
 } from "./studio-series-line-props";
 import { HORIZONTAL_BAR_TREND_LINE_DATA_KEY } from "./studio-trend-line-props";
@@ -246,16 +249,21 @@ const lineConfig: StudioChartConfig = {
   },
 };
 
-function scatterSeriesPropsFromState(state: StudioUrlState) {
+function scatterSeriesPropsFromState(
+  state: StudioUrlState,
+  seriesIndex: number
+) {
   return {
     fadeOnHover: state.scatterFadeOnHover,
     inactiveBlur: state.scatterInactiveBlur,
     inactiveMode: state.scatterInactiveMode,
     inactiveOpacity: state.scatterInactiveOpacity,
-    radius: state.scatterRadius,
-    ringGap: state.scatterRingGap,
+    radius: getSeriesPipeValue(state, "scatterRadius", seriesIndex),
+    ringGap: getSeriesPipeValue(state, "scatterRingGap", seriesIndex),
     showActiveHighlight: state.scatterShowActiveHighlight,
-    strokeWidth: state.scatterShowRings ? state.scatterRingWidth : 0,
+    strokeWidth: getSeriesPipeValue(state, "scatterShowRings", seriesIndex)
+      ? getSeriesPipeValue(state, "scatterRingWidth", seriesIndex)
+      : 0,
   };
 }
 
@@ -320,10 +328,11 @@ const scatterConfig: StudioChartConfig = {
               componentId="scatter.reference-area"
               state={state}
             />
+            {/* ScatterChart reads `<Scatter>` children directly (series configs), so series can't be wrapped. */}
             {isStudioComponentVisible(state, "scatter.desktop") ? (
               <Scatter
                 dataKey={firstKey}
-                {...scatterSeriesPropsFromState(state)}
+                {...scatterSeriesPropsFromState(state, 0)}
                 yAxisId={getLineSeriesYAxisId(state, 0)}
               />
             ) : null}
@@ -331,7 +340,7 @@ const scatterConfig: StudioChartConfig = {
             isStudioComponentVisible(state, "scatter.mobile") ? (
               <Scatter
                 dataKey={secondKey}
-                {...scatterSeriesPropsFromState(state)}
+                {...scatterSeriesPropsFromState(state, 1)}
                 yAxisId={getLineSeriesYAxisId(state, 1)}
               />
             ) : null}
@@ -341,7 +350,9 @@ const scatterConfig: StudioChartConfig = {
               state={state}
             />
             <StudioVisibleLayer componentId="scatter.xaxis" state={state}>
-              <XAxis numTicks={jitter ? 12 : undefined} />
+              <XAxis
+                {...(jitter ? { numTicks: 12 } : xAxisPropsFromState(state))}
+              />
             </StudioVisibleLayer>
             <StudioVisibleLayer componentId="scatter.tooltip" state={state}>
               <ChartTooltip
@@ -546,7 +557,7 @@ const barConfig: StudioChartConfig = {
             )}
             {!isLoading && horizontal ? (
               <StudioVisibleLayer componentId="bar.baryaxis" state={state}>
-                <BarYAxis />
+                <BarYAxis {...barYAxisPropsFromState(state)} />
               </StudioVisibleLayer>
             ) : null}
             {isLoading || horizontal ? null : (
@@ -554,7 +565,7 @@ const barConfig: StudioChartConfig = {
             )}
             {isLoading ? null : (
               <StudioVisibleLayer componentId="bar.xaxis" state={state}>
-                <BarXAxis />
+                <BarXAxis {...barXAxisPropsFromState(state)} />
               </StudioVisibleLayer>
             )}
             {isLoading ? null : (
@@ -617,9 +628,7 @@ const composedConfig: StudioChartConfig = {
               "composed.background",
               "composed.grid"
             )}
-            <StudioVisibleLayer componentId="composed.grid" state={state}>
-              <Grid horizontal />
-            </StudioVisibleLayer>
+            {studioCartesianGridLayer(state, "composed.grid")}
             <StudioReferenceAreaLayer
               componentId="composed.reference-area"
               state={state}
@@ -657,7 +666,11 @@ const composedConfig: StudioChartConfig = {
                       getSeriesFadeEdges(state, seriesIndex)
                     )}
                     fill={color}
-                    fillOpacity={state.fillOpacity}
+                    fillOpacity={getSeriesPipeValue(
+                      state,
+                      "fillOpacity",
+                      seriesIndex
+                    )}
                     key={`area-${key}`}
                     yAxisId={yAxisId}
                     {...seriesStrokePropsFromState(
@@ -691,7 +704,7 @@ const composedConfig: StudioChartConfig = {
             />
             <StudioChartYAxisLayers chartPrefix="composed" state={state} />
             <StudioVisibleLayer componentId="composed.xaxis" state={state}>
-              <XAxis />
+              <XAxis {...xAxisPropsFromState(state)} />
             </StudioVisibleLayer>
             <StudioVisibleLayer componentId="composed.tooltip" state={state}>
               <ChartTooltip {...chartTooltipPropsFromState(state)} />
@@ -874,24 +887,39 @@ const choroplethConfig: StudioChartConfig = {
     </StudioCartesianFill>
   ),
   generateCode: (state) => {
+    const featureProps = [
+      state.choroplethFeatureStroke === "var(--background)"
+        ? ""
+        : ` stroke="${state.choroplethFeatureStroke}"`,
+      state.choroplethFeatureStrokeWidth === 0.5
+        ? ""
+        : ` strokeWidth={${state.choroplethFeatureStrokeWidth}}`,
+      state.choroplethFeatureFadedOpacity === 0.4
+        ? ""
+        : ` fadedOpacity={${state.choroplethFeatureFadedOpacity}}`,
+    ].join("");
+    const graticuleProps =
+      state.choroplethGraticuleStrokeWidth === 0.5
+        ? ""
+        : ` strokeWidth={${state.choroplethGraticuleStrokeWidth}}`;
     const bg =
       state.choroplethBgPattern === "none"
         ? ""
-        : `\n  <ChoroplethFeatureComponent getFeaturePattern={() => "studio-choro-bg"} patterns={<PatternLines id="studio-choro-bg" height={8} width={8} orientation={["diagonal"]} stroke="var(--chart-5)" strokeWidth={1} />} />`;
+        : `\n  <ChoroplethFeatureComponent${featureProps} getFeaturePattern={() => "studio-choro-bg"} patterns={<PatternLines id="studio-choro-bg" height={8} width={8} orientation={["diagonal"]} stroke="var(--chart-5)" strokeWidth={1} />} />`;
     const regionExpr = "\x24{getRegionCategory(feat.properties?.name)}";
     const fg =
       state.choroplethFgPattern === "none"
         ? ""
-        : `\n  <ChoroplethFeatureComponent getFeaturePattern={(feat) => \`choro-p-${regionExpr}\`} patterns={/* regional PatternLines */} />`;
+        : `\n  <ChoroplethFeatureComponent${featureProps} getFeaturePattern={(feat) => \`choro-p-${regionExpr}\`} patterns={/* regional PatternLines */} />`;
     const solid =
       state.choroplethAnalytics ||
       (state.choroplethBgPattern === "none" &&
         state.choroplethFgPattern === "none")
-        ? `\n  <ChoroplethFeatureComponent${state.choroplethAnalytics ? " getFeatureColor={getVisitorColor}" : ` fill="${getSeriesColorOverride(state, 0) || "var(--chart-3)"}"`} />`
+        ? `\n  <ChoroplethFeatureComponent${featureProps}${state.choroplethAnalytics ? " getFeatureColor={getVisitorColor}" : ` fill="${getSeriesColorOverride(state, 0) || "var(--chart-3)"}"`} />`
         : "";
 
     return {
-      code: `<ChoroplethChart data={geojson} aspectRatio="16 / 9" animationDuration={${state.animationDuration}}>${state.showGraticule ? "\n  <ChoroplethGraticule />" : ""}${bg}${solid}${fg}
+      code: `<ChoroplethChart data={geojson} aspectRatio="16 / 9" animationDuration={${state.animationDuration}}>${state.showGraticule ? `\n  <ChoroplethGraticule${graticuleProps} />` : ""}${bg}${solid}${fg}
   <ChoroplethTooltip${state.choroplethAnalytics ? ' getFeatureValue={getVisitorValue} valueLabel="Visitors"' : ""} />
 </ChoroplethChart>`,
       data: choroplethDataSnippet(),
