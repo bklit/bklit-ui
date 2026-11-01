@@ -114,7 +114,6 @@ export function StudioOgPreview({ search }: { search?: string }) {
                 dataSeed={0}
                 displayState={state}
                 frame={{ width: frameWidth - 32, height: frameHeight - 32 }}
-                isRecording={false}
                 motionCurveDragging={false}
                 motionRemountKey="og"
                 numberScrubbing={false}

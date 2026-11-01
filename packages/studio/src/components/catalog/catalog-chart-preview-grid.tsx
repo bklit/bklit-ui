@@ -153,7 +153,6 @@ function CatalogChartPreview({ slug }: { slug: ChartSlug }) {
               dataSeed={0}
               displayState={state}
               frame={frame}
-              isRecording={false}
               motionCurveDragging={false}
               motionRemountKey={`catalog-${slug}`}
               numberScrubbing={false}

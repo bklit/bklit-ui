@@ -63,9 +63,6 @@ export const studioSectionLabelClass =
 export const studioPreviewCanvasClass =
   "rounded-lg bg-background bg-[radial-gradient(circle,color-mix(in_oklch,var(--foreground)_12%,transparent)_1px,transparent_0)] [background-size:var(--studio-canvas-grid-gap)_var(--studio-canvas-grid-gap)]";
 
-export const studioRecordingCaptureClass =
-  "bg-card bg-[radial-gradient(circle,color-mix(in_oklch,var(--foreground)_14%,transparent)_1px,transparent_1px)] [background-size:var(--studio-canvas-grid-gap)_var(--studio-canvas-grid-gap)]";
-
 export const studioMotionSectionClass = "max-w-full min-w-0";
 
 /** Motion curve editor canvas — same surface as scrub inputs. */

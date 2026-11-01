@@ -7,11 +7,6 @@ import { EditorExportSection } from "@/editor/editor-export-section";
 import { EditorPropertiesSidebarFooter } from "@/editor/editor-properties-sidebar-footer";
 import { useStudioComponentSelection } from "@/editor/studio-component-selection";
 import type { StudioUrlState } from "@/lib/studio-parsers";
-import type {
-  StudioRecordingAspect,
-  StudioRecordingFormat,
-  StudioRecordingInteractionMs,
-} from "@/lib/studio-recording";
 import type { StudioChartConfig } from "@/lib/types";
 
 export const EditorRightPanel = memo(function EditorRightPanel({
@@ -24,11 +19,7 @@ export const EditorRightPanel = memo(function EditorRightPanel({
   onCommit,
   controlsDisabled = false,
   footerActions,
-  isRecording = false,
-  recordingBlocked = false,
   onExportSvg = () => undefined,
-  onStartRecording = () => undefined,
-  onStopRecording = () => undefined,
 }: {
   state: StudioUrlState;
   config: StudioChartConfig;
@@ -48,15 +39,7 @@ export const EditorRightPanel = memo(function EditorRightPanel({
   ) => void;
   controlsDisabled?: boolean;
   footerActions?: ReactNode;
-  isRecording?: boolean;
-  recordingBlocked?: boolean;
   onExportSvg?: () => void;
-  onStartRecording?: (
-    interactionMs: StudioRecordingInteractionMs,
-    aspect: StudioRecordingAspect,
-    format: StudioRecordingFormat
-  ) => void;
-  onStopRecording?: () => void;
 }) {
   const { selectedComponent } = useStudioComponentSelection();
 
@@ -76,11 +59,7 @@ export const EditorRightPanel = memo(function EditorRightPanel({
         />
         <EditorExportSection
           controlsDisabled={controlsDisabled}
-          isRecording={isRecording}
           onExportSvg={onExportSvg}
-          onStartRecording={onStartRecording}
-          onStopRecording={onStopRecording}
-          recordingBlocked={recordingBlocked}
         />
         <EditorPropertiesSidebarFooter actions={footerActions} />
       </div>

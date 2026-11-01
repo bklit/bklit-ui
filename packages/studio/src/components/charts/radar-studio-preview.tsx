@@ -88,13 +88,7 @@ export function RadarStudioPreview({
   state: StudioUrlState;
   ctx: StudioRenderContext;
 }) {
-  const motionEnter = useMemo(
-    () =>
-      getStudioMotionEnterProps(state, {
-        linear: ctx.isRecording,
-      }),
-    [ctx.isRecording, state]
-  );
+  const motionEnter = useMemo(() => getStudioMotionEnterProps(state), [state]);
   const contentFrame = useStudioChartContentFrame(ctx.frame);
   const radarData = useMemo(() => getRadarData(ctx.dataSeed), [ctx.dataSeed]);
   const legendItems = useMemo(
