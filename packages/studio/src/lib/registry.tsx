@@ -246,16 +246,21 @@ const lineConfig: StudioChartConfig = {
   },
 };
 
-function scatterSeriesPropsFromState(state: StudioUrlState) {
+function scatterSeriesPropsFromState(
+  state: StudioUrlState,
+  seriesIndex: number
+) {
   return {
     fadeOnHover: state.scatterFadeOnHover,
     inactiveBlur: state.scatterInactiveBlur,
     inactiveMode: state.scatterInactiveMode,
     inactiveOpacity: state.scatterInactiveOpacity,
-    radius: state.scatterRadius,
-    ringGap: state.scatterRingGap,
+    radius: getSeriesPipeValue(state, "scatterRadius", seriesIndex),
+    ringGap: getSeriesPipeValue(state, "scatterRingGap", seriesIndex),
     showActiveHighlight: state.scatterShowActiveHighlight,
-    strokeWidth: state.scatterShowRings ? state.scatterRingWidth : 0,
+    strokeWidth: getSeriesPipeValue(state, "scatterShowRings", seriesIndex)
+      ? getSeriesPipeValue(state, "scatterRingWidth", seriesIndex)
+      : 0,
   };
 }
 
@@ -320,20 +325,21 @@ const scatterConfig: StudioChartConfig = {
               componentId="scatter.reference-area"
               state={state}
             />
-            {isStudioComponentVisible(state, "scatter.desktop") ? (
+            <StudioVisibleLayer componentId="scatter.desktop" state={state}>
               <Scatter
                 dataKey={firstKey}
-                {...scatterSeriesPropsFromState(state)}
+                {...scatterSeriesPropsFromState(state, 0)}
                 yAxisId={getLineSeriesYAxisId(state, 0)}
               />
-            ) : null}
-            {state.scatterSecondSeries &&
-            isStudioComponentVisible(state, "scatter.mobile") ? (
-              <Scatter
-                dataKey={secondKey}
-                {...scatterSeriesPropsFromState(state)}
-                yAxisId={getLineSeriesYAxisId(state, 1)}
-              />
+            </StudioVisibleLayer>
+            {state.scatterSecondSeries ? (
+              <StudioVisibleLayer componentId="scatter.mobile" state={state}>
+                <Scatter
+                  dataKey={secondKey}
+                  {...scatterSeriesPropsFromState(state, 1)}
+                  yAxisId={getLineSeriesYAxisId(state, 1)}
+                />
+              </StudioVisibleLayer>
             ) : null}
             <StudioChartYAxisLayers
               chartPrefix="scatter"

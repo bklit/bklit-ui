@@ -1490,7 +1490,7 @@ export function resolveScatterComponents(
       swatchColor: getEffectiveSeriesColor(state, 0),
       controlGroups: [
         seriesYAxisControlGroup(0),
-        scatterPointsControlGroup,
+        ...seriesScopedControlGroups([scatterPointsControlGroup], 0),
         scatterInteractionControlGroup,
       ],
       design: { seriesIndex: 0, supportsPattern: false },
@@ -1505,7 +1505,10 @@ export function resolveScatterComponents(
       kind: "series",
       listMarker: "color-dot",
       swatchColor: getEffectiveSeriesColor(state, 1),
-      controlGroups: [seriesYAxisControlGroup(1)],
+      controlGroups: [
+        seriesYAxisControlGroup(1),
+        ...seriesScopedControlGroups([scatterPointsControlGroup], 1),
+      ],
       design: { seriesIndex: 1, supportsPattern: false },
     });
   }

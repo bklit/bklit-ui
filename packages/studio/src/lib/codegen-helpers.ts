@@ -1426,12 +1426,17 @@ export function sankeyCodegen(state: StudioUrlState) {
   };
 }
 
-function scatterSeriesPropsCodegen(state: StudioUrlState): string {
-  const parts = [`radius={${state.scatterRadius}}`];
-  if (state.scatterShowRings) {
+function scatterSeriesPropsCodegen(
+  state: StudioUrlState,
+  seriesIndex: number
+): string {
+  const parts = [
+    `radius={${getSeriesPipeValue(state, "scatterRadius", seriesIndex)}}`,
+  ];
+  if (getSeriesPipeValue(state, "scatterShowRings", seriesIndex)) {
     parts.push(
-      `strokeWidth={${state.scatterRingWidth}}`,
-      `ringGap={${state.scatterRingGap}}`
+      `strokeWidth={${getSeriesPipeValue(state, "scatterRingWidth", seriesIndex)}}`,
+      `ringGap={${getSeriesPipeValue(state, "scatterRingGap", seriesIndex)}}`
     );
   }
   if (state.scatterFadeOnHover) {
@@ -1468,12 +1473,12 @@ export function scatterCodegen(state: StudioUrlState) {
   const anim = `\n  ${cssRevealAnimationCodegen(state.animationDuration, motionSliceFromState(state))}`;
   const isJitter = state.scatterJitter;
   const jitter = scatterJitterCodegen(state);
-  const seriesProps = scatterSeriesPropsCodegen(state);
+  const seriesProps = scatterSeriesPropsCodegen(state, 0);
   const [firstKey, secondKey] = isJitter
     ? ["fastlane", "human"]
     : ["desktop", "mobile"];
   const secondSeries = state.scatterSecondSeries
-    ? `\n  <Scatter dataKey="${secondKey}" ${seriesProps} />`
+    ? `\n  <Scatter dataKey="${secondKey}" ${scatterSeriesPropsCodegen(state, 1)} />`
     : "";
 
   const backgroundBlock = backgroundCodegenBlock(state, "scatter");
