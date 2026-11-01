@@ -26,6 +26,13 @@ export interface EditorContentBounds {
   height: number;
 }
 
+/** Zoom per wheel pixel for ctrl/⌘+wheel and Chromium trackpad pinch. */
+const WHEEL_ZOOM_SENSITIVITY = 0.006;
+/** Caps a single wheel event (mouse notch ≈ 100px) to roughly a 9% step. */
+const WHEEL_ZOOM_MAX_DELTA = 15;
+/** Softens WebKit `gesturechange` scale so pinch zoom isn't 1:1 twitchy. */
+const GESTURE_ZOOM_DAMPING = 0.7;
+
 /** WebKit trackpad pinch (Safari, Tauri/WKWebView on macOS). */
 interface WebKitGestureEvent extends Event {
   clientX: number;
@@ -365,7 +372,17 @@ export function useEditorCamera({
       if (event.ctrlKey || event.metaKey) {
         event.preventDefault();
         const rect = element.getBoundingClientRect();
-        const factor = event.deltaY < 0 ? 1.08 : 1 / 1.08;
+        // Trackpad pinch fires many small ctrl+wheel deltas; scale zoom by the
+        // delta (clamped so a mouse-wheel notch stays one gentle step).
+        const deltaPx =
+          event.deltaMode === WheelEvent.DOM_DELTA_LINE
+            ? event.deltaY * 16
+            : event.deltaY;
+        const delta = Math.max(
+          -WHEEL_ZOOM_MAX_DELTA,
+          Math.min(WHEEL_ZOOM_MAX_DELTA, deltaPx)
+        );
+        const factor = Math.exp(-delta * WHEEL_ZOOM_SENSITIVITY);
         applyCamera(
           zoomCameraAtPoint({
             camera: cameraRef.current,
@@ -425,7 +442,8 @@ export function useEditorCamera({
           },
           pointX: gestureSession.centerX,
           pointY: gestureSession.centerY,
-          nextZoom: gestureSession.startZoom * gesture.scale,
+          nextZoom:
+            gestureSession.startZoom * gesture.scale ** GESTURE_ZOOM_DAMPING,
         }),
         { userInitiated: true }
       );
