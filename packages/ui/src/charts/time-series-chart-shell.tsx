@@ -98,6 +98,11 @@ function ensureChildKey(child: ReactElement, index: number): ReactElement {
   return cloneElement(child, { key: `chart-child-${index}` });
 }
 
+/** `<defs>` only when it has children (an empty one is a wasted node). */
+function OptionalDefs({ children }: { children: ReactNode }) {
+  return Children.toArray(children).length > 0 ? <defs>{children}</defs> : null;
+}
+
 interface ClassifiedChartChildren {
   defsChildren: ReactElement[];
   clipExcludedChildren: ReactElement[];
@@ -717,7 +722,7 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
           height={height}
           width={width}
         >
-          <defs>
+          <OptionalDefs>
             {defsChildren}
             {useClipReveal ? (
               <ChartRevealClip
@@ -735,7 +740,7 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
                 targetWidth={innerWidth}
               />
             ) : null}
-          </defs>
+          </OptionalDefs>
 
           <rect fill="transparent" height={height} width={width} x={0} y={0} />
 

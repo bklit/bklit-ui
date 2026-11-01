@@ -1,4 +1,4 @@
-import type { CSSProperties, SVGProps } from "react";
+import type { CSSProperties, ReactElement, SVGProps } from "react";
 
 /**
  * Grid rows / columns that render what `@visx/grid` 4.0.0 `GridRows` and
@@ -137,6 +137,24 @@ function gridLine(
   return <line key={key} {...props} />;
 }
 
+/**
+ * The visx group wrapper (`translate(left, top)` + `className`), skipped when
+ * it would be an identity transform with no class — one less node per grid.
+ */
+function wrapGridLines(
+  lines: ReactElement[],
+  { className, left, top }: { className?: string; left: number; top: number }
+) {
+  if (left === 0 && top === 0 && !className) {
+    return <>{lines}</>;
+  }
+  return (
+    <g className={className} transform={`translate(${left}, ${top})`}>
+      {lines}
+    </g>
+  );
+}
+
 export function GridRows<Value>({
   top = 0,
   left = 0,
@@ -153,19 +171,16 @@ export function GridRows<Value>({
   ...rest
 }: GridRowsProps<Value>) {
   const positions = gridLinePositions(scale, { numTicks, offset, tickValues });
-  return (
-    <g className={className} transform={`translate(${left}, ${top})`}>
-      {positions.map((y, index) =>
-        gridLine(`row-line-${index}`, 0, y, width, y, {
-          stroke,
-          strokeWidth,
-          strokeDasharray,
-          lineStyle,
-          rest,
-        })
-      )}
-    </g>
+  const lines = positions.map((y, index) =>
+    gridLine(`row-line-${index}`, 0, y, width, y, {
+      stroke,
+      strokeWidth,
+      strokeDasharray,
+      lineStyle,
+      rest,
+    })
   );
+  return wrapGridLines(lines, { className, left, top });
 }
 
 export function GridColumns<Value>({
@@ -184,17 +199,14 @@ export function GridColumns<Value>({
   ...rest
 }: GridColumnsProps<Value>) {
   const positions = gridLinePositions(scale, { numTicks, offset, tickValues });
-  return (
-    <g className={className} transform={`translate(${left}, ${top})`}>
-      {positions.map((x, index) =>
-        gridLine(`column-line-${index}`, x, 0, x, height, {
-          stroke,
-          strokeWidth,
-          strokeDasharray,
-          lineStyle,
-          rest,
-        })
-      )}
-    </g>
+  const lines = positions.map((x, index) =>
+    gridLine(`column-line-${index}`, x, 0, x, height, {
+      stroke,
+      strokeWidth,
+      strokeDasharray,
+      lineStyle,
+      rest,
+    })
   );
+  return wrapGridLines(lines, { className, left, top });
 }
