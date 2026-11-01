@@ -714,6 +714,14 @@ export const studioSearchParams = {
   sankeyNodeFadedOpacity: parseAsFloat.withDefault(0.4),
   sankeyLinkFadedOpacity: parseAsFloat.withDefault(0.1),
   sankeyLinkUseGradient: parseAsBoolean.withDefault(true),
+  xAxisNumTicks: parseAsInteger.withDefault(5),
+  xAxisTickMode: parseAsStringLiteral(["data", "domain"] as const).withDefault(
+    "data"
+  ),
+  barXAxisShowAllLabels: parseAsBoolean.withDefault(false),
+  barXAxisMaxLabels: parseAsInteger.withDefault(12),
+  barYAxisShowAllLabels: parseAsBoolean.withDefault(true),
+  barYAxisMaxLabels: parseAsInteger.withDefault(20),
 };
 
 export interface StudioUrlState {
@@ -1202,6 +1210,13 @@ export interface StudioUrlState {
   sankeyNodeFadedOpacity: number;
   sankeyLinkFadedOpacity: number;
   sankeyLinkUseGradient: boolean;
+  /** `<XAxis numTicks>` for time-series cartesian charts. */
+  xAxisNumTicks: number;
+  xAxisTickMode: "data" | "domain";
+  barXAxisShowAllLabels: boolean;
+  barXAxisMaxLabels: number;
+  barYAxisShowAllLabels: boolean;
+  barYAxisMaxLabels: number;
 }
 
 /** Full default state for chart switches (nuqs used `null` to clear keys; in-memory state needs real defaults). */
@@ -1696,6 +1711,12 @@ export function defaultStudioState(
     sankeyNodeFadedOpacity: 0.4,
     sankeyLinkFadedOpacity: 0.1,
     sankeyLinkUseGradient: true,
+    xAxisNumTicks: 5,
+    xAxisTickMode: "data",
+    barXAxisShowAllLabels: false,
+    barXAxisMaxLabels: 12,
+    barYAxisShowAllLabels: true,
+    barYAxisMaxLabels: 20,
     ...overrides,
   };
 }

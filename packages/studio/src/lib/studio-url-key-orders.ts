@@ -489,6 +489,12 @@ export const STUDIO_STATE_KEY_ORDER = [
   "sankeyNodeFadedOpacity",
   "sankeyLinkFadedOpacity",
   "sankeyLinkUseGradient",
+  "xAxisNumTicks",
+  "xAxisTickMode",
+  "barXAxisShowAllLabels",
+  "barXAxisMaxLabels",
+  "barYAxisShowAllLabels",
+  "barYAxisMaxLabels",
 ] as const satisfies readonly (keyof StudioUrlState)[];
 
 /** Frozen historical layout (cc7bc08 — first compressed-URL release). Decode-only. */

@@ -1030,6 +1030,58 @@ export const lineChartControlGroups: StudioControlGroup[] = [
   seriesDashTailControlGroup,
 ];
 
+export const xAxisControlGroups: StudioControlGroup[] = [
+  controlGroup("Ticks", [
+    {
+      type: "number",
+      key: "xAxisNumTicks",
+      label: "Approx. tick count",
+      min: 2,
+      max: 12,
+      step: 1,
+    },
+    {
+      type: "select",
+      key: "xAxisTickMode",
+      label: "Snap",
+      options: [
+        { value: "data", label: "Data points" },
+        { value: "domain", label: "Even spacing" },
+      ],
+    },
+  ]),
+];
+
+export const barXAxisControlGroups: StudioControlGroup[] = [
+  barCollapsibleGroup("Labels", [
+    { type: "boolean", key: "barXAxisShowAllLabels", label: "Show all" },
+    {
+      type: "number",
+      key: "barXAxisMaxLabels",
+      label: "Max labels",
+      min: 2,
+      max: 24,
+      step: 1,
+      visibleWhen: { key: "barXAxisShowAllLabels", truthy: false },
+    },
+  ]),
+];
+
+export const barYAxisControlGroups: StudioControlGroup[] = [
+  barCollapsibleGroup("Labels", [
+    { type: "boolean", key: "barYAxisShowAllLabels", label: "Show all" },
+    {
+      type: "number",
+      key: "barYAxisMaxLabels",
+      label: "Max labels",
+      min: 2,
+      max: 24,
+      step: 1,
+      visibleWhen: { key: "barYAxisShowAllLabels", truthy: false },
+    },
+  ]),
+];
+
 export const tooltipAppearanceControlGroup = controlGroup("Appearance", [
   {
     type: "color",

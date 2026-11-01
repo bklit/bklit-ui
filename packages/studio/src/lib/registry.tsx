@@ -123,9 +123,12 @@ import { seriesStrokePropsFromState } from "./series-stroke-props";
 import { sparklineCodegen } from "./sparkline-codegen";
 import {
   barTrackFillFromState,
+  barXAxisPropsFromState,
+  barYAxisPropsFromState,
   studioBarTrackPatternDef,
   studioCartesianBackgroundLayer,
   studioCartesianGridLayer,
+  xAxisPropsFromState,
 } from "./studio-cartesian-layers";
 import { chartTooltipPropsFromState } from "./studio-chart-overlays";
 import { isStudioComponentVisible } from "./studio-component-visibility";
@@ -347,7 +350,9 @@ const scatterConfig: StudioChartConfig = {
               state={state}
             />
             <StudioVisibleLayer componentId="scatter.xaxis" state={state}>
-              <XAxis numTicks={jitter ? 12 : undefined} />
+              <XAxis
+                {...(jitter ? { numTicks: 12 } : xAxisPropsFromState(state))}
+              />
             </StudioVisibleLayer>
             <StudioVisibleLayer componentId="scatter.tooltip" state={state}>
               <ChartTooltip
@@ -552,7 +557,7 @@ const barConfig: StudioChartConfig = {
             )}
             {!isLoading && horizontal ? (
               <StudioVisibleLayer componentId="bar.baryaxis" state={state}>
-                <BarYAxis />
+                <BarYAxis {...barYAxisPropsFromState(state)} />
               </StudioVisibleLayer>
             ) : null}
             {isLoading || horizontal ? null : (
@@ -560,7 +565,7 @@ const barConfig: StudioChartConfig = {
             )}
             {isLoading ? null : (
               <StudioVisibleLayer componentId="bar.xaxis" state={state}>
-                <BarXAxis />
+                <BarXAxis {...barXAxisPropsFromState(state)} />
               </StudioVisibleLayer>
             )}
             {isLoading ? null : (
@@ -699,7 +704,7 @@ const composedConfig: StudioChartConfig = {
             />
             <StudioChartYAxisLayers chartPrefix="composed" state={state} />
             <StudioVisibleLayer componentId="composed.xaxis" state={state}>
-              <XAxis />
+              <XAxis {...xAxisPropsFromState(state)} />
             </StudioVisibleLayer>
             <StudioVisibleLayer componentId="composed.tooltip" state={state}>
               <ChartTooltip {...chartTooltipPropsFromState(state)} />

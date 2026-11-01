@@ -40,6 +40,8 @@ import {
   bandControlGroups,
   barChartControlGroups,
   barChartTooltipControlGroups,
+  barXAxisControlGroups,
+  barYAxisControlGroups,
   candlestickChartControlGroups,
   candlestickChartTooltipControlGroups,
   choroplethChartControlGroups,
@@ -92,6 +94,7 @@ import {
   tooltipAppearanceControlGroup,
   trendLineControlGroups,
   weekendsControlGroups,
+  xAxisControlGroups,
 } from "./registry-control-groups";
 import {
   barCollapsibleGroup,
@@ -209,6 +212,20 @@ function passiveNode(
     parentId: `${chartPrefix}.chart`,
     kind: "chart",
     controlGroups: [],
+  };
+}
+
+function xAxisNode(
+  chartPrefix: string,
+  controlGroups: StudioControlGroup[] = xAxisControlGroups,
+  label = "XAxis"
+): StudioComponentDefinition {
+  return {
+    id: `${chartPrefix}.xaxis`,
+    label,
+    parentId: `${chartPrefix}.chart`,
+    kind: "chart",
+    controlGroups,
   };
 }
 
@@ -755,7 +772,7 @@ export function resolveAreaComponents(
   components.push(
     chartYAxisNode("area", "left", "YAxis · left"),
     chartYAxisNode("area", "right", "YAxis · right"),
-    passiveNode("area", "xaxis", "XAxis"),
+    xAxisNode("area"),
     chartTooltipNode("area"),
     legendNode("area"),
     brushNode("area")
@@ -870,7 +887,13 @@ export function resolveBarComponents(
   }
 
   if (horizontal) {
-    components.push(passiveNode("bar", "baryaxis", "BarYAxis"));
+    components.push({
+      id: "bar.baryaxis",
+      label: "BarYAxis",
+      parentId: chartId,
+      kind: "chart",
+      controlGroups: expandFirstCollapsible(barYAxisControlGroups),
+    });
   } else {
     for (const [axis, label] of [
       ["left", "YAxis · left"],
@@ -885,7 +908,7 @@ export function resolveBarComponents(
   }
 
   components.push(
-    passiveNode("bar", "xaxis", "BarXAxis"),
+    xAxisNode("bar", expandFirstCollapsible(barXAxisControlGroups), "BarXAxis"),
     chartTooltipNode(
       "bar",
       expandFirstCollapsible(barChartTooltipControlGroups)
@@ -979,7 +1002,7 @@ export function resolveComposedComponents(
   components.push(
     chartYAxisNode("composed", "left", "YAxis · left"),
     chartYAxisNode("composed", "right", "YAxis · right"),
-    passiveNode("composed", "xaxis", "XAxis"),
+    xAxisNode("composed"),
     chartTooltipNode("composed"),
     legendNode("composed")
   );
@@ -1193,7 +1216,7 @@ function resolveProfitLossLineComponents(): StudioComponentDefinition[] {
     chartYAxisNode("line", "right", "YAxis · right"),
     chartYAxisNode("line", "left", "YAxis · left"),
     chartYAxisNode("line", "right", "YAxis · right"),
-    passiveNode("line", "xaxis", "XAxis"),
+    xAxisNode("line"),
     chartTooltipNode("line", [
       ...(tooltip ? [tooltip] : []),
       ...(crosshair ? [crosshair] : []),
@@ -1341,7 +1364,7 @@ export function resolveLineComponents(
   components.push(
     chartYAxisNode("line", "left", "YAxis · left"),
     chartYAxisNode("line", "right", "YAxis · right"),
-    passiveNode("line", "xaxis", "XAxis"),
+    xAxisNode("line"),
     chartTooltipNode("line"),
     legendNode("line")
   );
@@ -1541,7 +1564,11 @@ export function resolveScatterComponents(
   components.push(
     chartYAxisNode("scatter", "left", "YAxis · left"),
     chartYAxisNode("scatter", "right", "YAxis · right"),
-    passiveNode("scatter", "xaxis", "XAxis"),
+    xAxisNode(
+      "scatter",
+      // Jittered scatter pins 12 monthly ticks.
+      state.scatterJitter ? [] : xAxisControlGroups
+    ),
     chartTooltipNode(
       "scatter",
       state.scatterJitter ? scatterJitterChartTooltipControlGroups : undefined
@@ -1583,7 +1610,7 @@ export function resolveCandlestickComponents(
     chartTooltipNode("candlestick", candlestickChartTooltipControlGroups),
     chartYAxisNode("candlestick", "left", "YAxis · left"),
     chartYAxisNode("candlestick", "right", "YAxis · right"),
-    passiveNode("candlestick", "xaxis", "XAxis"),
+    xAxisNode("candlestick"),
     legendNode("candlestick"),
   ];
 }

@@ -232,6 +232,28 @@ function projectionCodegenBlock(state: StudioUrlState): string {
   return blocks.join("");
 }
 
+/** Non-default `<XAxis>` props (leading space, or empty). */
+export function xAxisPropsCodegen(state: StudioUrlState): string {
+  const props: string[] = [];
+  if (state.xAxisNumTicks !== 5) {
+    props.push(`numTicks={${state.xAxisNumTicks}}`);
+  }
+  if (state.xAxisTickMode !== "data") {
+    props.push(`tickMode="${state.xAxisTickMode}"`);
+  }
+  return props.length > 0 ? ` ${props.join(" ")}` : "";
+}
+
+function barXAxisPropsCodegen(state: StudioUrlState): string {
+  const props: string[] = [];
+  if (state.barXAxisShowAllLabels) {
+    props.push("showAllLabels");
+  } else if (state.barXAxisMaxLabels !== 12) {
+    props.push(`maxLabels={${state.barXAxisMaxLabels}}`);
+  }
+  return props.length > 0 ? ` ${props.join(" ")}` : "";
+}
+
 export function gridPropsCodegen(state: StudioUrlState): string {
   const props: string[] = [];
 
@@ -786,7 +808,7 @@ export function cartesianCodegen(
 ${curveImports}
 
 <${chartType} data={${band.dataVar}}${anim}>${backgroundBlock}${gridBlock}${referenceAreaBlock}${dateHighlights.block}${band.block}${child}${trendLineBlock}${projectionBlock}
-  <XAxis />
+  <XAxis${xAxisPropsCodegen(state)} />
   <ChartTooltip />
 </${chartType}>`;
 }
@@ -984,7 +1006,7 @@ function barReadyCodegen(
     code: `import { BarChart, Bar, BarXAxis, ChartTooltip${gridImport}${backgroundImport}${referenceAreaImport}${trendLineImport}${state.pattern === "none" ? "" : ", PatternLines"} } from "@bklitui/ui/charts";
 
 <BarChart ${chartProps}>${backgroundBlock}${gridBlock}${referenceAreaBlock}${patternBlock}${bars}${trendLineBlock}
-  <BarXAxis />
+  <BarXAxis${barXAxisPropsCodegen(state)} />
   <ChartTooltip${state.barShowCrosshair ? " showCrosshair" : ""} />
 </BarChart>`,
     data: dataSnippet,
@@ -1041,7 +1063,7 @@ ${curveImports}
 
 <ComposedChart data={chartData}
   ${cssRevealAnimationCodegen(state.animationDuration, motionSliceFromState(state))}>${backgroundBlock}${gridBlock}${referenceAreaBlock}${dateHighlights.block}${barPattern}${barLine}${overlays}${trendLineBlock}
-  <XAxis />
+  <XAxis${xAxisPropsCodegen(state)} />
   <ChartTooltip />
 </ComposedChart>`,
     data: studioCartesianDataSnippet(state, "date"),
@@ -1184,7 +1206,7 @@ export function candlestickCodegen(state: StudioUrlState) {
   ${gradientBlock}${patternBlock}${backgroundBlock}${gridBlock}${referenceAreaBlock}
   <Candlestick fadedOpacity={${state.candleFadedOpacity}} ${positiveFill} ${negativeFill}${patternProps}${candleBodyProps} />
   <ChartTooltip showDots={${state.candleShowDots}} />${yAxisLeftVisible ? `\n  <YAxis numTicks={${getLineYAxisNumTicks(state, "left")}} formatLargeNumbers={${getLineYAxisFormatLargeNumbers(state, "left")}} />` : ""}
-  <XAxis />
+  <XAxis${xAxisPropsCodegen(state)} />
 </CandlestickChart>`,
     data: `const ohlcData = ${JSON.stringify(candlestickOhlcData, null, 2)};`,
   };
@@ -1591,7 +1613,9 @@ export function scatterCodegen(state: StudioUrlState) {
     ? `${yAxisBlock ? ", YAxis" : ""}, TooltipContent`
     : "";
   const chartLabelProp = isJitter ? "\n  formatXLabel={formatMonth}" : "";
-  const xAxisBlock = isJitter ? "<XAxis numTicks={12} />" : "<XAxis />";
+  const xAxisBlock = isJitter
+    ? "<XAxis numTicks={12} />"
+    : `<XAxis${xAxisPropsCodegen(state)} />`;
   // Jittered scatter hides the crosshair by default — emit only the opt-in.
   const tooltipBlock = isJitter
     ? `<ChartTooltip${state.scatterJitterShowCrosshair ? " showCrosshair" : ""} content={({ point }) => <PrTooltip point={point} />} />`
