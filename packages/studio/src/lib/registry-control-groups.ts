@@ -1884,6 +1884,20 @@ export const candlestickChartControlGroups: StudioControlGroup[] = [
       max: 0.5,
       step: 0.05,
     },
+    {
+      type: "number",
+      key: "candleInsideStrokeWidth",
+      label: "Inner border",
+      min: 0,
+      max: 4,
+      step: 0.5,
+      unit: "px",
+    },
+    {
+      type: "boolean",
+      key: "candleShowHoverFade",
+      label: "Fade on hover",
+    },
   ]),
 ];
 

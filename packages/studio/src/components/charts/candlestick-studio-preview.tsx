@@ -106,8 +106,10 @@ const CandlestickChartBody = memo(function CandlestickChartBody({
             bodyPatternNegative={patternUp}
             bodyPatternPositive={patternUp}
             fadedOpacity={state.candleFadedOpacity}
+            insideStrokeWidth={state.candleInsideStrokeWidth}
             negativeFill={negativeFill}
             positiveFill={positiveFill}
+            showHoverFade={state.candleShowHoverFade}
           />
         </StudioVisibleLayer>
         <StudioVisibleLayer componentId="candlestick.tooltip" state={state}>

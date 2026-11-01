@@ -1564,7 +1564,8 @@ export function resolveCandlestickComponents(
       kind: "chart",
       treeIcon: "layers",
       controlGroups: design ? [design] : [],
-      design: { seriesIndex: 0, supportsPattern: true },
+      // Bullish bodies use series 0 (`--chart-1`); bearish use series 2 (`--chart-3`).
+      design: { seriesIndex: 0, supportsPattern: true, colorLabel: "Bullish" },
     },
     gridNode("candlestick"),
     backgroundNode("candlestick"),
@@ -1575,6 +1576,7 @@ export function resolveCandlestickComponents(
       parentId: chartId,
       kind: "series",
       controlGroups: candles ? [candles] : [],
+      design: { seriesIndex: 2, supportsPattern: false, colorLabel: "Bearish" },
     },
     chartTooltipNode("candlestick", candlestickChartTooltipControlGroups),
     chartYAxisNode("candlestick", "left", "YAxis · left"),

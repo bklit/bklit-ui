@@ -1151,6 +1151,13 @@ export function candlestickCodegen(state: StudioUrlState) {
       ? ""
       : '\n    bodyPatternPositive="url(#studio-pattern-fill)"\n    bodyPatternNegative="url(#studio-pattern-fill)"';
 
+  const candleBodyProps = [
+    state.candleInsideStrokeWidth > 0
+      ? ` insideStrokeWidth={${state.candleInsideStrokeWidth}}`
+      : "",
+    state.candleShowHoverFade ? "" : " showHoverFade={false}",
+  ].join("");
+
   const backgroundBlock = backgroundCodegenBlock(state, "candlestick");
   const gridVisible = isStudioComponentVisible(state, "candlestick.grid");
   const gridBlock = gridVisible ? `\n  <Grid${gridPropsCodegen(state)} />` : "";
@@ -1175,7 +1182,7 @@ export function candlestickCodegen(state: StudioUrlState) {
 <CandlestickChart data={ohlcData}
   ${cssRevealAnimationCodegen(state.animationDuration, motionSliceFromState(state))} candleGap={${state.candleGap}} margin={{ top: 16, right: 16, bottom: 40, left: 56 }}>
   ${gradientBlock}${patternBlock}${backgroundBlock}${gridBlock}${referenceAreaBlock}
-  <Candlestick fadedOpacity={${state.candleFadedOpacity}} ${positiveFill} ${negativeFill}${patternProps} />
+  <Candlestick fadedOpacity={${state.candleFadedOpacity}} ${positiveFill} ${negativeFill}${patternProps}${candleBodyProps} />
   <ChartTooltip showDots={${state.candleShowDots}} />${yAxisLeftVisible ? `\n  <YAxis numTicks={${getLineYAxisNumTicks(state, "left")}} formatLargeNumbers={${getLineYAxisFormatLargeNumbers(state, "left")}} />` : ""}
   <XAxis />
 </CandlestickChart>`,
