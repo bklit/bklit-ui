@@ -328,21 +328,21 @@ const scatterConfig: StudioChartConfig = {
               componentId="scatter.reference-area"
               state={state}
             />
-            <StudioVisibleLayer componentId="scatter.desktop" state={state}>
+            {/* ScatterChart reads `<Scatter>` children directly (series configs), so series can't be wrapped. */}
+            {isStudioComponentVisible(state, "scatter.desktop") ? (
               <Scatter
                 dataKey={firstKey}
                 {...scatterSeriesPropsFromState(state, 0)}
                 yAxisId={getLineSeriesYAxisId(state, 0)}
               />
-            </StudioVisibleLayer>
-            {state.scatterSecondSeries ? (
-              <StudioVisibleLayer componentId="scatter.mobile" state={state}>
-                <Scatter
-                  dataKey={secondKey}
-                  {...scatterSeriesPropsFromState(state, 1)}
-                  yAxisId={getLineSeriesYAxisId(state, 1)}
-                />
-              </StudioVisibleLayer>
+            ) : null}
+            {state.scatterSecondSeries &&
+            isStudioComponentVisible(state, "scatter.mobile") ? (
+              <Scatter
+                dataKey={secondKey}
+                {...scatterSeriesPropsFromState(state, 1)}
+                yAxisId={getLineSeriesYAxisId(state, 1)}
+              />
             ) : null}
             <StudioChartYAxisLayers
               chartPrefix="scatter"
