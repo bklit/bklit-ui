@@ -252,11 +252,23 @@ export function seriesPathTransitionSignature({
   xDomainMin: number;
   xDomainMax: number;
 }): string {
-  const values = renderData.map((datum) => {
-    const xValue = xAccessor(datum);
-    const yValue = datum[dataKey];
-    return `${xValue.getTime()}:${typeof yValue === "number" ? yValue : ""}`;
-  });
+  return seriesPathTransitionSignatureFromData(
+    seriesDataSignature(renderData, xAccessor, dataKey),
+    { innerWidth, xDomainMin, xDomainMax }
+  );
+}
 
-  return `${innerWidth}|${xDomainMin}|${xDomainMax}|${values.join(",")}`;
+/**
+ * {@link seriesPathTransitionSignature} from an already-built
+ * {@link seriesDataSignature}, so callers needing both walk the data once.
+ */
+export function seriesPathTransitionSignatureFromData(
+  dataSignature: string,
+  {
+    innerWidth,
+    xDomainMin,
+    xDomainMax,
+  }: { innerWidth: number; xDomainMin: number; xDomainMax: number }
+): string {
+  return `${innerWidth}|${xDomainMin}|${xDomainMax}|${dataSignature}`;
 }

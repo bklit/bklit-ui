@@ -33,7 +33,7 @@ import {
   resolveLineLoadingPulseMode,
 } from "./line-loading-pulse";
 import { LINE_LOADING_LOOP_PAUSE_MS } from "./line-loading-timing";
-import { LinePath, linePathD } from "./line-path";
+import { LinePath } from "./line-path";
 import { LineLoadingSweep } from "./loading-sweep";
 import {
   resolveDashTailBounds,
@@ -544,29 +544,11 @@ export function Line({
   const highlightGradientId = `${gradientId}-highlight`;
   const glowFilterId = `line-glow-${dataKey}-${reactId}`;
 
-  const getY = useCallback(
-    (d: Record<string, unknown>) => {
-      const value = d[dataKey];
-      return typeof value === "number" ? (yScale(value) ?? 0) : 0;
-    },
-    [dataKey, yScale]
-  );
-
-  // The resting path only changes with its inputs, so hover / phase re-renders
-  // reuse it. While the data-transition tween runs, `animatedPathD` (per frame)
-  // is drawn instead and this stays "" — same switch as before.
+  // While the data-transition tween runs, `animatedPathD` (per frame) is drawn
+  // on a plain `<path>`; at rest the same hook `pathD` (built from the same
+  // scales, curve and y accessor as a `linePathD` call) is the static `d`, so
+  // the path is generated once rather than twice per render.
   const drawAnimatedPath = useDataTransitionPath && Boolean(animatedPathD);
-  const staticPathD = useMemo(
-    () =>
-      drawAnimatedPath
-        ? ""
-        : linePathD(renderData, {
-            curve,
-            x: (d) => xScale(xAccessor(d)) ?? 0,
-            y: getY,
-          }),
-    [curve, getY, renderData, drawAnimatedPath, xAccessor, xScale]
-  );
 
   const colorStops = useMemo(
     () => resolveStrokeGradientStops(strokeGradient),
@@ -627,7 +609,7 @@ export function Line({
             animatedPathD={animatedPathD}
             drawAnimatedPath={drawAnimatedPath}
             filter={`url(#${glowFilterId})`}
-            staticPathD={staticPathD}
+            staticPathD={animatedPathD}
             strokeOpacity={glowOptions.opacity}
             strokeWidth={glowOptions.strokeWidth}
             visibleStroke={lineStroke}
@@ -637,7 +619,7 @@ export function Line({
           animatedPathD={animatedPathD}
           drawAnimatedPath={drawAnimatedPath}
           pathRef={pathRef}
-          staticPathD={staticPathD}
+          staticPathD={animatedPathD}
           strokeWidth={strokeWidth}
           visibleStroke={visibleStroke}
         />

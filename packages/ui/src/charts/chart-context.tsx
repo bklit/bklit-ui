@@ -434,9 +434,10 @@ export function useChartStable(): ChartStableContextValue {
 /**
  * Resolves a chart container element to use as a `createPortal` target.
  *
- * The element is captured from the ref after mount and kept in state, so
- * nothing reads `ref.current` during render (React Compiler
- * `react-hooks/refs`). Returns `null` during SSR / the first render.
+ * The element is kept in state: it is seeded once from the ref (already
+ * attached when the chart renders after its container measured), then
+ * re-captured after mount. Returns `null` during SSR and when the ref is not
+ * attached on the first render.
  *
  * - Layout effect: when the container is a sibling or ancestor already
  *   attached, the synchronous re-render puts portalled axes and tooltips in
@@ -448,7 +449,12 @@ export function useChartStable(): ChartStableContextValue {
 export function useChartPortalContainer<T extends HTMLElement>(
   containerRef: RefObject<T | null> | undefined
 ): T | null {
-  const [container, setContainer] = useState<T | null>(null);
+  // Seed from the ref when it is already attached (charts render after their
+  // container measured, so it usually is) — saves a mount re-render of every
+  // portalled axis / tooltip. The effects below stay as the fallback.
+  const [container, setContainer] = useState<T | null>(
+    () => containerRef?.current ?? null
+  );
   useIsomorphicLayoutEffect(() => {
     setContainer(containerRef?.current ?? null);
   }, [containerRef]);
@@ -457,6 +463,18 @@ export function useChartPortalContainer<T extends HTMLElement>(
     setContainer((previous) => (previous === element ? previous : element));
   }, [containerRef]);
   return container;
+}
+
+/**
+ * Same margin object while its four numbers are unchanged, so an inline
+ * `margin={{…}}` (or the default merge) doesn't defeat memoised chart cores.
+ */
+export function useStableMargin(margin: Margin): Margin {
+  const { top, right, bottom, left } = margin;
+  return useMemo(
+    () => ({ top, right, bottom, left }),
+    [top, right, bottom, left]
+  );
 }
 
 /** Y-scale for a series axis (`yAxisId` on Line / Area / YAxis). */

@@ -11,7 +11,7 @@ import {
 } from "react";
 import { cn } from "@/lib/utils";
 import { Area, type AreaProps } from "./area";
-import type { LineConfig, Margin } from "./chart-context";
+import { type LineConfig, type Margin, useStableMargin } from "./chart-context";
 import { ParentSize } from "./chart-parent-size";
 import type { ChartPhase } from "./chart-phase";
 import { Line, type LineProps } from "./line";
@@ -297,7 +297,7 @@ export function ComposedChart({
   onPhaseChange,
 }: ComposedChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const margin = { ...DEFAULT_MARGIN, ...marginProp };
+  const margin = useStableMargin({ ...DEFAULT_MARGIN, ...marginProp });
 
   return (
     <div

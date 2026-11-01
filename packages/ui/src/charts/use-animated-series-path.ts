@@ -13,7 +13,7 @@ import {
   type SeriesPathPoint,
   seriesDataSignature,
   seriesPathFromPoints,
-  seriesPathTransitionSignature,
+  seriesPathTransitionSignatureFromData,
 } from "./series-path-utils";
 
 export interface UseAnimatedSeriesPathOptions {
@@ -69,19 +69,6 @@ export function useAnimatedSeriesPath({
     return scaleWithDomain.domain?.() ?? [new Date(0), new Date(0)];
   }, [xScale]);
 
-  const transitionSignature = useMemo(
-    () =>
-      seriesPathTransitionSignature({
-        renderData,
-        xAccessor,
-        dataKey,
-        innerWidth,
-        xDomainMin: xScaleDomain[0]?.getTime?.() ?? 0,
-        xDomainMax: xScaleDomain[1]?.getTime?.() ?? 0,
-      }),
-    [renderData, xAccessor, dataKey, innerWidth, xScaleDomain]
-  );
-
   const targetPoints = useMemo(
     () =>
       computeSeriesPathPoints(renderData, xAccessor, xScale, yScale, dataKey),
@@ -91,6 +78,18 @@ export function useAnimatedSeriesPath({
   const dataSignature = useMemo(
     () => seriesDataSignature(renderData, xAccessor, dataKey),
     [renderData, xAccessor, dataKey]
+  );
+
+  // Same string `seriesPathTransitionSignature` builds, without walking the
+  // data a second time.
+  const transitionSignature = useMemo(
+    () =>
+      seriesPathTransitionSignatureFromData(dataSignature, {
+        innerWidth,
+        xDomainMin: xScaleDomain[0]?.getTime?.() ?? 0,
+        xDomainMax: xScaleDomain[1]?.getTime?.() ?? 0,
+      }),
+    [dataSignature, innerWidth, xScaleDomain]
   );
 
   const settledYDomainKey =

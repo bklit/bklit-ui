@@ -14,7 +14,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Area, type AreaProps } from "./area";
 import { AreaValueLabels } from "./area-value-labels";
-import type { LineConfig, Margin } from "./chart-context";
+import { type LineConfig, type Margin, useStableMargin } from "./chart-context";
 import { ChartLoadingLabel } from "./chart-loading-label";
 import { ParentSize } from "./chart-parent-size";
 import {
@@ -215,7 +215,7 @@ export function AreaChart({
   children,
 }: AreaChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const margin = { ...DEFAULT_MARGIN, ...marginProp };
+  const margin = useStableMargin({ ...DEFAULT_MARGIN, ...marginProp });
   const [chartPhase, setChartPhase] = useState<ChartPhase>(() =>
     resolveRestingChartPhase(status)
   );
