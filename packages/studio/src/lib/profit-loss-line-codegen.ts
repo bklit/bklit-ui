@@ -1,6 +1,6 @@
 import { fadeEdgesCodegen } from "@/components/controls/fade-edges-picker";
 import { motionSliceFromState } from "./chart-animation";
-import { backgroundCodegenBlock } from "./codegen-helpers";
+import { backgroundCodegenBlock, xAxisPropsCodegen } from "./codegen-helpers";
 import { curveImportName } from "./curves";
 import { STUDIO_PROFIT_LOSS_DATA_KEY } from "./demo-data";
 import { cssRevealAnimationCodegen } from "./motion-codegen";
@@ -82,7 +82,7 @@ export function ProfitLossChart({ data }: { data: Record<string, unknown>[] }) {
             strokeWidth={${state.strokeWidth}}
           />
         </ProfitLossLegendHoverProvider>
-        <XAxis />
+        <XAxis${xAxisPropsCodegen(state)} />
         <ChartTooltip
           indicatorColor={(point) => profitLossColor((point.pnl as number) ?? 0)}
           rows={(point) => {

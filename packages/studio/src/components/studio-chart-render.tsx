@@ -15,7 +15,6 @@ interface StudioChartRenderProps {
   config: StudioChartConfig;
   animationKey: number;
   dataSeed: number;
-  isRecording: boolean;
   motionRemountKey: string;
   committedState: StudioUrlState;
   motionCurveDragging: boolean;
@@ -37,7 +36,6 @@ function studioChartRenderPropsEqual(
     prev.config === next.config &&
     prev.animationKey === next.animationKey &&
     prev.dataSeed === next.dataSeed &&
-    prev.isRecording === next.isRecording &&
     prev.motionRemountKey === next.motionRemountKey &&
     prev.committedState === next.committedState &&
     prev.motionCurveDragging === next.motionCurveDragging &&
@@ -65,7 +63,6 @@ export const StudioChartRender = memo(function StudioChartRender(
     config,
     animationKey,
     dataSeed,
-    isRecording,
     motionRemountKey,
     committedState,
     motionCurveDragging,
@@ -86,7 +83,6 @@ export const StudioChartRender = memo(function StudioChartRender(
     () => ({
       animationKey,
       dataSeed,
-      isRecording,
       motionRemountKey,
       committedState,
       motionCurveDragging,
@@ -100,7 +96,6 @@ export const StudioChartRender = memo(function StudioChartRender(
     [
       animationKey,
       dataSeed,
-      isRecording,
       motionRemountKey,
       committedState,
       motionCurveDragging,

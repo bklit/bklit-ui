@@ -134,7 +134,6 @@ export const StudioChartFrame = forwardRef<
     boundsRef?: React.RefObject<HTMLElement | null>;
     className?: string;
     style?: CSSProperties;
-    isRecording?: boolean;
     resizable?: boolean;
     /** Screen zoom for resize pointer deltas — read from ref, not React state. */
     canvasScaleRef?: React.RefObject<number>;
@@ -149,7 +148,6 @@ export const StudioChartFrame = forwardRef<
     boundsRef,
     className,
     style,
-    isRecording = false,
     resizable = true,
     canvasScaleRef,
     children,
@@ -213,7 +211,7 @@ export const StudioChartFrame = forwardRef<
 
   const startDrag = useCallback(
     (edge: ResizeEdge) => (event: React.PointerEvent<HTMLButtonElement>) => {
-      if (isRecording || !resizable) {
+      if (!resizable) {
         return;
       }
       event.preventDefault();
@@ -277,7 +275,6 @@ export const StudioChartFrame = forwardRef<
       handle.addEventListener("pointerup", onPointerUp);
     },
     [
-      isRecording,
       resizable,
       canvasScaleRef,
       maxSize.height,
@@ -309,15 +306,11 @@ export const StudioChartFrame = forwardRef<
       <motion.div
         className={cn(
           "relative overflow-visible border-2 bg-card",
-          isRecording
-            ? "border-transparent shadow-none"
-            : cn(
-                resizable &&
-                  "rounded-lg shadow-sm transition-[border-color,border-style] dark:shadow-[0_12px_32px_-12px_rgb(0_0_0/0.3),0_2px_8px_-4px_rgb(0_0_0/0.15)]",
-                isDragging
-                  ? "border-accent border-dotted"
-                  : "border-border hover:border-accent"
-              )
+          resizable &&
+            "rounded-lg shadow-sm transition-[border-color,border-style] dark:shadow-[0_12px_32px_-12px_rgb(0_0_0/0.3),0_2px_8px_-4px_rgb(0_0_0/0.15)]",
+          isDragging
+            ? "border-accent border-dotted"
+            : "border-border hover:border-accent"
         )}
         data-studio-export-root=""
         layout={false}
@@ -325,7 +318,7 @@ export const StudioChartFrame = forwardRef<
         style={{ ...style, width: size.width, height: size.height }}
       >
         {frameContent}
-        {isRecording || !resizable ? null : (
+        {resizable ? (
           <>
             <ResizeHandle edge="right" onPointerDown={startDrag("right")} />
             <ResizeHandle edge="bottom" onPointerDown={startDrag("bottom")} />
@@ -348,7 +341,7 @@ export const StudioChartFrame = forwardRef<
               visible={isDragging}
             />
           </>
-        )}
+        ) : null}
       </motion.div>
       <AnimatePresence initial={false}>
         {isDragging ? (

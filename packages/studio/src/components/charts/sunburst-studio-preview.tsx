@@ -274,11 +274,8 @@ export const SunburstStudioPreview = memo(function SunburstStudioPreview({
   const chartSize = studioSunburstSize(contentFrame, geometry.pieSize);
 
   const motionEnter = useMemo(
-    () =>
-      getStudioMotionEnterProps(motionState, {
-        linear: ctx.isRecording,
-      }),
-    [ctx.isRecording, motionState]
+    () => getStudioMotionEnterProps(motionState),
+    [motionState]
   );
 
   const legendResult = useMemo(

@@ -16,6 +16,18 @@ import { studioFunnelLegendItems } from "@/lib/studio-legend-items";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import { getEffectiveSeriesColor } from "@/lib/studio-series-design";
 
+function funnelGridPropFromState(state: StudioUrlState) {
+  if (!isStudioComponentVisible(state, "funnel.funnel-grid")) {
+    return false;
+  }
+  return {
+    bands: state.funnelGridBands,
+    lines: state.funnelGridLines,
+    lineOpacity: state.funnelGridLineOpacity,
+    lineWidth: state.funnelGridLineWidth,
+  };
+}
+
 const FunnelChartBody = memo(function FunnelChartBody({
   state,
   ctx,
@@ -38,8 +50,16 @@ const FunnelChartBody = memo(function FunnelChartBody({
         edges={state.funnelEdges}
         enterTransition={motionEnter.enterTransition}
         gap={state.funnelGap}
+        grid={funnelGridPropFromState(state)}
         hoveredIndex={hoveredIndex}
         key={studioPreviewChartKey(ctx)}
+        labelAlign={state.funnelLabelAlign}
+        labelLayout={state.funnelLabelLayout}
+        labelOrientation={
+          state.funnelLabelOrientation === "auto"
+            ? undefined
+            : state.funnelLabelOrientation
+        }
         layers={state.funnelLayers}
         onHoverChange={setHoveredIndex}
         orientation={state.funnelOrientation}
@@ -59,13 +79,7 @@ export function FunnelStudioPreview({
   state: StudioUrlState;
   ctx: StudioRenderContext;
 }) {
-  const motionEnter = useMemo(
-    () =>
-      getStudioMotionEnterProps(state, {
-        linear: ctx.isRecording,
-      }),
-    [ctx.isRecording, state]
-  );
+  const motionEnter = useMemo(() => getStudioMotionEnterProps(state), [state]);
 
   const stages = useMemo(
     () =>

@@ -3,7 +3,6 @@
 import { useCallback, useRef, useState } from "react";
 import { StudioEditorChartRegion } from "@/components/studio-editor-layout";
 import { StudioScenesProvider } from "@/components/studio-scenes-provider";
-import { useStudioEditorRecording } from "@/components/use-studio-editor-recording";
 import { useStudioShellState } from "@/components/use-studio-state";
 import { EditorMainPane } from "@/editor/editor-main-pane";
 import { useReplayKeyboardShortcut } from "@/editor/editor-replay-button";
@@ -11,8 +10,7 @@ import { StudioComponentSelectionProvider } from "@/editor/studio-component-sele
 import { studioRelativeStateHref } from "@/lib/studio-url-codec";
 
 export function StudioEmbedLayout() {
-  const { state, setFrameSize, config, getDisplayState } =
-    useStudioShellState();
+  const { state, setFrameSize, config } = useStudioShellState();
   const [animationKey, setAnimationKey] = useState(0);
   const [dataSeed] = useState(0);
   const chartAreaRef = useRef<HTMLDivElement>(null);
@@ -24,14 +22,7 @@ export function StudioEmbedLayout() {
     setAnimationKey((key) => key + 1);
   }, []);
 
-  const recording = useStudioEditorRecording({
-    state,
-    getDisplayState,
-    setFrameSize,
-    onReplay: replay,
-  });
-
-  useReplayKeyboardShortcut(replay, !recording.controlsDisabled);
+  useReplayKeyboardShortcut(replay);
 
   return (
     <StudioScenesProvider
@@ -43,7 +34,6 @@ export function StudioEmbedLayout() {
         <div className="flex h-dvh min-h-0 flex-col overflow-hidden bg-background">
           <EditorMainPane
             className="min-h-0 min-w-0 flex-1"
-            controlsDisabled={recording.controlsDisabled}
             embedMode
             frameTitle={config.label}
             mobileViewport={false}
@@ -72,7 +62,6 @@ export function StudioEmbedLayout() {
                 frameRef={frameRef}
                 mobileViewport={mobileViewport}
                 onResize={onResize}
-                recording={recording}
                 size={size}
               />
             )}

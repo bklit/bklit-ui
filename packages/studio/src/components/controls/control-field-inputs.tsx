@@ -30,6 +30,7 @@ import { PieHoverEffectPicker } from "./pie-hover-effect-picker";
 import { ProjectionCurvePickerField } from "./projection-curve-picker";
 import { StrokeStylePicker } from "./stroke-style-picker";
 import { TooltipDotVariantPicker } from "./tooltip-dot-variant-picker";
+import { TrendDirectionPicker } from "./trend-direction-picker";
 
 export function ControlFieldInputs({
   control,
@@ -125,6 +126,14 @@ export function ControlFieldInputs({
             onChange(control.key, v as StudioUrlState[typeof control.key])
           }
           value={value as "vertical" | "horizontal"}
+        />
+      );
+    case "trendDirection":
+      return (
+        <TrendDirectionPicker
+          label={control.label}
+          onChange={(v) => onChange("lineDataTrend", v)}
+          value={value as "up" | "down"}
         />
       );
     case "lineCap":

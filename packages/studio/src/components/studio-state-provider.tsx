@@ -15,20 +15,17 @@ import {
   STUDIO_CHART_FRAME_HEIGHT,
   STUDIO_CHART_FRAME_WIDTH,
 } from "@/components/studio-chart-frame";
-import { heatmapChartDefaults } from "@/lib/heatmap-chart-defaults";
 import {
-  candlestickChartDefaults,
   lineChartProfitLossDefaults,
   lineChartStandardDefaults,
 } from "@/lib/line-chart-mode";
-import { radialChartDefaults } from "@/lib/radial-chart-defaults";
 import { getStudioConfig } from "@/lib/registry";
-import { chartDefaultHiddenComponents } from "@/lib/studio-component-visibility";
 import {
-  defaultStudioState,
-  defaultsForChart,
-  type StudioUrlState,
-} from "@/lib/studio-parsers";
+  STUDIO_Y_AXIS_CHART_PREFIX,
+  studioChartDefaultState,
+} from "@/lib/studio-chart-defaults";
+import { chartDefaultHiddenComponents } from "@/lib/studio-component-visibility";
+import { defaultStudioState, type StudioUrlState } from "@/lib/studio-parsers";
 import {
   decodeStudioUrlState,
   encodeStudioUrlState,
@@ -39,18 +36,7 @@ import {
   expandStudioParamUpdate,
   reconcileOverlayVisibility,
 } from "@/lib/studio-visibility-sync";
-import { sunburstChartDefaults } from "@/lib/sunburst-chart-defaults";
 import type { ChartSlug, StudioChartConfig } from "@/lib/types";
-
-const STUDIO_Y_AXIS_CHART_PREFIX: Partial<Record<ChartSlug, string>> = {
-  "line-chart": "line",
-  "area-chart": "area",
-  "scatter-chart": "scatter",
-  "composed-chart": "composed",
-  "bar-chart": "bar",
-  "candlestick-chart": "candlestick",
-  "live-line-chart": "live-line",
-};
 
 function finiteFrameDimension(value: number, fallback: number) {
   return Number.isFinite(value) ? value : fallback;
@@ -296,31 +282,7 @@ export function StudioStateProvider({
   const setChart = useCallback(
     (slug: ChartSlug) => {
       setPreviewOverrides({});
-      setParams({
-        ...defaultsForChart(),
-        chart: slug === "profit-loss-line" ? "line-chart" : slug,
-        ...(slug === "live-line-chart" ? { curve: "monotoneX" } : {}),
-        ...(slug === "profit-loss-line" ? lineChartProfitLossDefaults : {}),
-        ...(slug === "line-chart" ? lineChartStandardDefaults : {}),
-        ...(slug === "candlestick-chart" ? candlestickChartDefaults : {}),
-        ...(slug === "heatmap-chart" ? heatmapChartDefaults : {}),
-        ...(slug === "sunburst-chart" ? sunburstChartDefaults : {}),
-        ...(slug === "radial-chart" ? radialChartDefaults : {}),
-        ...(slug === "area-chart" || slug === "composed-chart"
-          ? { dataSeries: 2 }
-          : {}),
-        ...(() => {
-          const prefix = STUDIO_Y_AXIS_CHART_PREFIX[slug];
-          return prefix && slug !== "line-chart"
-            ? {
-                hiddenComponents: chartDefaultHiddenComponents(prefix, {
-                  showLegend: false,
-                  showBrush: false,
-                }),
-              }
-            : {};
-        })(),
-      });
+      setParams(studioChartDefaultState(slug));
     },
     [setParams]
   );

@@ -38,6 +38,10 @@ const ChoroplethChartBody = memo(function ChoroplethChartBody({
   showTooltip,
   solidFill,
   tooltipPanelStyle,
+  featureStroke,
+  featureStrokeWidth,
+  featureFadedOpacity,
+  graticuleStrokeWidth,
 }: {
   worldData: NonNullable<
     ReturnType<typeof useWorldDataStandalone>["worldData"]
@@ -54,7 +58,17 @@ const ChoroplethChartBody = memo(function ChoroplethChartBody({
   showTooltip: boolean;
   solidFill: string;
   tooltipPanelStyle?: CSSProperties;
+  featureStroke: string;
+  featureStrokeWidth: number;
+  featureFadedOpacity: number;
+  graticuleStrokeWidth: number;
 }) {
+  const featureProps = {
+    fadedOpacity: featureFadedOpacity,
+    stroke: featureStroke,
+    strokeWidth: featureStrokeWidth,
+  };
+
   const getVisitorColor = useCallback(
     (feat: ChoroplethFeature): string => {
       const visitors = visitorCounts[feat.properties?.name as string];
@@ -99,10 +113,16 @@ const ChoroplethChartBody = memo(function ChoroplethChartBody({
       enterTransition={enterTransition}
       revealSignature={revealSignature}
     >
-      {showGraticule ? <ChoroplethGraticule key="graticule" /> : null}
+      {showGraticule ? (
+        <ChoroplethGraticule
+          key="graticule"
+          strokeWidth={graticuleStrokeWidth}
+        />
+      ) : null}
 
       {bgActive ? (
         <ChoroplethFeatureComponent
+          {...featureProps}
           getFeaturePattern={() => "studio-choro-bg"}
           key="bg-pattern"
           patterns={<StudioChoroplethBgPattern preset={bgPattern} />}
@@ -111,6 +131,7 @@ const ChoroplethChartBody = memo(function ChoroplethChartBody({
 
       {showSolidLayer ? (
         <ChoroplethFeatureComponent
+          {...featureProps}
           fill={analytics ? undefined : solidFill}
           getFeatureColor={analytics ? getVisitorColor : undefined}
           key="solid"
@@ -119,6 +140,7 @@ const ChoroplethChartBody = memo(function ChoroplethChartBody({
 
       {fgActive ? (
         <ChoroplethFeatureComponent
+          {...featureProps}
           getFeaturePattern={(feat) =>
             studioChoroplethFgPatternId(feat.properties?.name as string)
           }
@@ -151,11 +173,7 @@ export function ChoroplethStudioPreview({
   state: StudioUrlState;
   ctx: Pick<
     StudioRenderContext,
-    | "motionCurveDragging"
-    | "numberScrubbing"
-    | "committedState"
-    | "isRecording"
-    | "dataSeed"
+    "motionCurveDragging" | "numberScrubbing" | "committedState" | "dataSeed"
   >;
   showGraticule: boolean;
   analytics: boolean;
@@ -171,15 +189,8 @@ export function ChoroplethStudioPreview({
         motionCurveDragging: ctx.motionCurveDragging,
         numberScrubbing: ctx.numberScrubbing,
         committedState: ctx.committedState,
-        isRecording: ctx.isRecording,
       }),
-    [
-      state,
-      ctx.committedState,
-      ctx.isRecording,
-      ctx.motionCurveDragging,
-      ctx.numberScrubbing,
-    ]
+    [state, ctx.committedState, ctx.motionCurveDragging, ctx.numberScrubbing]
   );
 
   if (isLoading || !worldData) {
@@ -196,7 +207,11 @@ export function ChoroplethStudioPreview({
       animationDuration={motionReveal.animationDuration}
       bgPattern={bgPattern}
       enterTransition={motionReveal.enterTransition}
+      featureFadedOpacity={state.choroplethFeatureFadedOpacity}
+      featureStroke={state.choroplethFeatureStroke}
+      featureStrokeWidth={state.choroplethFeatureStrokeWidth}
       fgPattern={fgPattern}
+      graticuleStrokeWidth={state.choroplethGraticuleStrokeWidth}
       revealSignature={motionReveal.revealSignature}
       showFeatures={isStudioComponentVisible(state, "choropleth.features")}
       showGraticule={

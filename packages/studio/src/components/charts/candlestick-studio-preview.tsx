@@ -30,6 +30,7 @@ import type { StudioRenderContext } from "@/lib/render-context";
 import {
   studioCartesianBackgroundLayer,
   studioCartesianGridLayer,
+  xAxisPropsFromState,
 } from "@/lib/studio-cartesian-layers";
 import { chartTooltipPropsFromState } from "@/lib/studio-chart-overlays";
 import { studioCandlestickLegendItems } from "@/lib/studio-legend-items";
@@ -106,8 +107,10 @@ const CandlestickChartBody = memo(function CandlestickChartBody({
             bodyPatternNegative={patternUp}
             bodyPatternPositive={patternUp}
             fadedOpacity={state.candleFadedOpacity}
+            insideStrokeWidth={state.candleInsideStrokeWidth}
             negativeFill={negativeFill}
             positiveFill={positiveFill}
+            showHoverFade={state.candleShowHoverFade}
           />
         </StudioVisibleLayer>
         <StudioVisibleLayer componentId="candlestick.tooltip" state={state}>
@@ -119,7 +122,7 @@ const CandlestickChartBody = memo(function CandlestickChartBody({
         </StudioVisibleLayer>
         <StudioChartYAxisLayers chartPrefix="candlestick" state={state} />
         <StudioVisibleLayer componentId="candlestick.xaxis" state={state}>
-          <XAxis />
+          <XAxis {...xAxisPropsFromState(state)} />
         </StudioVisibleLayer>
       </CandlestickChart>
     </StudioCartesianFill>

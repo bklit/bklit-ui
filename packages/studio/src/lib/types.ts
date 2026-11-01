@@ -77,7 +77,8 @@ export type StudioControl = StudioControlVisibility &
         key: keyof StudioUrlState;
         label: string;
         options: { value: string; label: string }[];
-      } & ProjectionScopedControl)
+      } & SeriesScopedControl &
+        ProjectionScopedControl)
     | ({
         type: "curve";
         key: keyof StudioUrlState;
@@ -99,6 +100,7 @@ export type StudioControl = StudioControlVisibility &
       }
     | { type: "pieFill"; key: keyof StudioUrlState; label: string }
     | { type: "orientation"; key: keyof StudioUrlState; label: string }
+    | { type: "trendDirection"; key: "lineDataTrend"; label: string }
     | { type: "lineCap"; key: "barLineCap"; label: string }
     | { type: "barShape"; key: "barVariant"; label: string }
     | { type: "tooltipDotVariant"; key: "tooltipDotVariant"; label: string }
@@ -155,7 +157,8 @@ export type StudioControl = StudioControlVisibility &
         label: string;
         color: string;
         secondaryColor?: string;
-      } & Pick<NumberControlBase, "min" | "max" | "step">)
+      } & Pick<NumberControlBase, "min" | "max" | "step"> &
+        SeriesScopedControl)
     | {
         type: "lineSeriesYAxis";
         key: "lineSeriesYAxes";

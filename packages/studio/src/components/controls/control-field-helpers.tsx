@@ -41,6 +41,7 @@ const GROUP_LABELED_TYPES = new Set<StudioControl["type"]>([
   "referenceAreaFill",
   "pieFill",
   "orientation",
+  "trendDirection",
   "lineCap",
   "barShape",
   "tooltipDotVariant",

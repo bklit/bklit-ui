@@ -44,6 +44,7 @@ import {
   studioCartesianSeriesLoadingProp,
   studioLoadingLabel,
   studioLoadingStrokeProps,
+  xAxisPropsFromState,
 } from "@/lib/studio-cartesian-layers";
 import { chartTooltipPropsFromState } from "@/lib/studio-chart-overlays";
 import { isStudioComponentVisible } from "@/lib/studio-component-visibility";
@@ -53,6 +54,7 @@ import { getSeriesFillMode } from "@/lib/studio-series-design";
 import {
   getSeriesCurve,
   getSeriesFadeEdges,
+  getSeriesPipeValue,
   getSeriesShowHighlight,
   getSeriesShowLine,
   getSeriesStrokeWidth,
@@ -155,8 +157,12 @@ function renderMainAreas(
           }
           fadeValueLabels={state.areaFadeValueLabels}
           fill={fill}
-          fillOpacity={state.fillOpacity}
-          gradientToOpacity={state.gradientToOpacity}
+          fillOpacity={getSeriesPipeValue(state, "fillOpacity", idx)}
+          gradientToOpacity={getSeriesPipeValue(
+            state,
+            "gradientToOpacity",
+            idx
+          )}
           key={`area-${key}`}
           loading={studioCartesianSeriesLoadingProp(isPrimary)}
           showHighlight={getSeriesShowHighlight(state, idx)}
@@ -305,7 +311,7 @@ export function AreaStudioPreview({
                 <>
                   <StudioChartYAxisLayers chartPrefix="area" state={state} />
                   <StudioVisibleLayer componentId="area.xaxis" state={state}>
-                    <XAxis />
+                    <XAxis {...xAxisPropsFromState(state)} />
                   </StudioVisibleLayer>
                   <StudioVisibleLayer componentId="area.tooltip" state={state}>
                     <ChartTooltip {...chartTooltipPropsFromState(state)} />

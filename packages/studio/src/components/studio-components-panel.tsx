@@ -2,7 +2,7 @@
 
 import { Icon } from "@bklitui/icons";
 import { cn } from "@bklitui/ui/lib/utils";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { StudioControlGroup } from "@/components/studio-control-group";
 import {
   buildAddProjectionLineUpdate,
@@ -31,8 +31,72 @@ import {
   ContextMenuItem,
   ContextMenuPopup,
   ContextMenuSeparator,
+  ContextMenuShortcut,
   ContextMenuTrigger,
 } from "@/ui/context-menu";
+
+/** Toggles the selected layer's visibility (Figma uses ⇧⌘H; ⌘ is taken by browsers). */
+const TOGGLE_VISIBILITY_SHORTCUT_LABEL = "⇧H";
+
+function isTypingTarget(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) {
+    return false;
+  }
+  const tag = target.tagName;
+  return (
+    target.isContentEditable ||
+    tag === "INPUT" ||
+    tag === "TEXTAREA" ||
+    tag === "SELECT"
+  );
+}
+
+/** Shift+H shows/hides the selected layer, like its eye toggle. */
+function useToggleSelectedVisibilityShortcut({
+  components,
+  selectedId,
+  state,
+  onChange,
+}: {
+  components: StudioComponentDefinition[];
+  selectedId: string;
+  state: StudioUrlState;
+  onChange: (key: "hiddenComponents", value: string) => void;
+}) {
+  const latestRef = useRef({ components, selectedId, state, onChange });
+  latestRef.current = { components, selectedId, state, onChange };
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (
+        !event.shiftKey ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.altKey ||
+        event.repeat ||
+        event.key.toLowerCase() !== "h" ||
+        isTypingTarget(event.target)
+      ) {
+        return;
+      }
+      const latest = latestRef.current;
+      const selected = flattenStudioComponents(latest.components).find(
+        (component) => component.id === latest.selectedId
+      );
+      if (!selected) {
+        return;
+      }
+      event.preventDefault();
+      latest.onChange(
+        "hiddenComponents",
+        toggleStudioComponentVisibility(latest.state, selected.id)
+      );
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+}
 
 function ComponentListMarker({
   component,
@@ -121,6 +185,9 @@ function ComponentContextMenuContent({
         </ContextMenuItem>
         <ContextMenuItem onClick={toggleVisibility}>
           {visible ? "Hide" : "Show"}
+          <ContextMenuShortcut>
+            {TOGGLE_VISIBILITY_SHORTCUT_LABEL}
+          </ContextMenuShortcut>
         </ContextMenuItem>
       </ContextMenuPopup>
     );
@@ -142,6 +209,9 @@ function ComponentContextMenuContent({
         </ContextMenuItem>
         <ContextMenuItem onClick={toggleVisibility}>
           {visible ? "Hide" : "Show"}
+          <ContextMenuShortcut>
+            {TOGGLE_VISIBILITY_SHORTCUT_LABEL}
+          </ContextMenuShortcut>
         </ContextMenuItem>
       </ContextMenuPopup>
     );
@@ -151,6 +221,9 @@ function ComponentContextMenuContent({
     <ContextMenuPopup>
       <ContextMenuItem onClick={toggleVisibility}>
         {visible ? "Hide" : "Show"}
+        <ContextMenuShortcut>
+          {TOGGLE_VISIBILITY_SHORTCUT_LABEL}
+        </ContextMenuShortcut>
       </ContextMenuItem>
     </ContextMenuPopup>
   );
@@ -206,6 +279,13 @@ export function StudioComponentsPanel({
   const [collapsedIds, setCollapsedIds] = useState<Set<string>>(
     () => new Set()
   );
+
+  useToggleSelectedVisibilityShortcut({
+    components,
+    selectedId,
+    state,
+    onChange,
+  });
 
   useEffect(() => {
     const ancestors = studioComponentAncestorIds(components, selectedId);
@@ -300,6 +380,7 @@ export function StudioComponentsPanel({
                     <span className="truncate">{component.label}</span>
                   </button>
                   <button
+                    aria-keyshortcuts={selected ? "Shift+H" : undefined}
                     aria-label={visible ? "Hide layer" : "Show layer"}
                     className={cn(
                       "shrink-0 rounded p-1 text-muted-foreground opacity-0 transition-opacity hover:bg-transparent hover:text-foreground group-hover:opacity-100",
@@ -312,6 +393,11 @@ export function StudioComponentsPanel({
                         toggleStudioComponentVisibility(state, component.id)
                       );
                     }}
+                    title={
+                      selected
+                        ? `${visible ? "Hide" : "Show"} layer (${TOGGLE_VISIBILITY_SHORTCUT_LABEL})`
+                        : undefined
+                    }
                     type="button"
                   >
                     {visible ? (

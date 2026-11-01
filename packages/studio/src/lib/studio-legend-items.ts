@@ -253,7 +253,7 @@ export function studioCandlestickLegendItems(
     : getEffectiveSeriesColor(state, 0);
   const bearishColor = state.candleUseGradient
     ? "var(--chart-3)"
-    : getEffectiveSeriesColor(state, 1);
+    : getEffectiveSeriesColor(state, 2);
   return [
     { label: "Bullish", value: 100, color: bullishColor },
     { label: "Bearish", value: 100, color: bearishColor },
