@@ -1741,6 +1741,36 @@ export const ringChartControlGroups: StudioControlGroup[] = [
   ]),
 ];
 
+/** Per-ring `<Ring>` controls (scoped to one ring in the layer tree). */
+export const ringLayerControlGroup = controlGroup("Ring", [
+  {
+    type: "select",
+    key: "ringLineCap",
+    label: "Line cap",
+    options: [
+      { value: "round", label: "Round" },
+      { value: "butt", label: "Flat" },
+    ],
+  },
+  { type: "boolean", key: "ringShowGlow", label: "Glow on hover" },
+]);
+
+export const ringGridControlGroups: StudioControlGroup[] = [
+  controlGroup("Grid", [
+    { type: "boolean", key: "ringGridShowLabels", label: "Labels" },
+    { type: "boolean", key: "ringGridShowSpokes", label: "Spokes" },
+    {
+      type: "opacity",
+      key: "ringGridStrokeOpacity",
+      label: "Opacity",
+      min: 0,
+      max: 1,
+      step: 0.05,
+      color: "var(--foreground)",
+    },
+  ]),
+];
+
 export const radarChartControlGroups: StudioControlGroup[] = [
   controlGroup("Layout", [
     {

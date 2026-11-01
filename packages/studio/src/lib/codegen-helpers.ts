@@ -1048,14 +1048,41 @@ ${curveImports}
   };
 }
 
+function ringGridPropsCodegen(state: StudioUrlState): string {
+  const props: string[] = [];
+  if (!state.ringGridShowLabels) {
+    props.push("showLabels={false}");
+  }
+  if (!state.ringGridShowSpokes) {
+    props.push("showSpokes={false}");
+  }
+  if (state.ringGridStrokeOpacity !== 0.2) {
+    props.push(`strokeOpacity={${state.ringGridStrokeOpacity}}`);
+  }
+  return props.length > 0 ? ` ${props.join(" ")}` : "";
+}
+
+/** One `<Ring>` per visible layer; line cap / glow only when non-default. */
+function ringLayersCodegen(state: StudioUrlState): string {
+  return ringData
+    .map((_, index) => {
+      if (!isStudioComponentVisible(state, `ring.layer.${index}`)) {
+        return "";
+      }
+      const lineCap = getSeriesPipeValue(state, "ringLineCap", index);
+      const glow = getSeriesPipeValue(state, "ringShowGlow", index);
+      return `\n  <Ring index={${index}}${lineCap === "round" ? "" : ` lineCap="${lineCap}"`}${glow ? "" : " showGlow={false}"} />`;
+    })
+    .join("");
+}
+
 export function ringCodegen(state: StudioUrlState) {
   const showGrid = isStudioComponentVisible(state, "ring.ring-grid");
   return {
     code: `import { RingChart, Ring, RingCenter${showGrid ? ", RingGrid" : ""} } from "@bklitui/ui/charts";
 
 <RingChart data={ringData} size={${state.pieSize}}
-  ${cssRevealAnimationCodegen(state.animationDuration, motionSliceFromState(state))} strokeWidth={${state.ringStrokeWidth}} ringGap={${state.ringGap}} baseInnerRadius={${state.ringBaseInnerRadius}}>${showGrid ? "\n  <RingGrid />" : ""}
-  {ringData.map((_, i) => <Ring index={i} key={i} />)}
+  ${cssRevealAnimationCodegen(state.animationDuration, motionSliceFromState(state))} strokeWidth={${state.ringStrokeWidth}} ringGap={${state.ringGap}} baseInnerRadius={${state.ringBaseInnerRadius}}>${showGrid ? `\n  <RingGrid${ringGridPropsCodegen(state)} />` : ""}${ringLayersCodegen(state)}
   <RingCenter defaultLabel="${state.ringCenterLabel}"${state.ringCenterPrefix ? ` prefix="${state.ringCenterPrefix}"` : ""}${state.ringCenterSuffix ? ` suffix="${state.ringCenterSuffix}"` : ""} />
 </RingChart>`,
     data: `const ringData = ${JSON.stringify(ringData, null, 2)};`,

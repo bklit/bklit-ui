@@ -73,6 +73,8 @@ import {
   referenceAreaControlGroups,
   ringCenterControlGroup,
   ringChartControlGroups,
+  ringGridControlGroups,
+  ringLayerControlGroup,
   sankeyChartControlGroups,
   scatterInteractionControlGroup,
   scatterJitterChartTooltipControlGroups,
@@ -1364,7 +1366,13 @@ export function resolveRingComponents(
       controlGroups: design ? [design] : [],
       design: rootPaletteDesign(false),
     },
-    passiveNode("ring", "ring-grid", "RingGrid"),
+    {
+      id: "ring.ring-grid",
+      label: "RingGrid",
+      parentId: chartId,
+      kind: "chart",
+      controlGroups: ringGridControlGroups,
+    },
     ...ringData.map((ring, index) => ({
       id: `ring.layer.${index}`,
       label: ring.label,
@@ -1372,7 +1380,7 @@ export function resolveRingComponents(
       kind: "series" as StudioComponentKind,
       listMarker: "color-dot" as const,
       swatchColor: getEffectiveSeriesColor(state, index),
-      controlGroups: [] as StudioControlGroup[],
+      controlGroups: seriesScopedControlGroups([ringLayerControlGroup], index),
       design: {
         seriesIndex: index,
         supportsPattern: false,
