@@ -20,24 +20,24 @@ export const BENCH_FAIRNESS_NOTES: string[] = [
   "TanStack areas are an areaY plus a decorative lineY edge per series, as its docs recommend, so each series gets a single tooltip row.",
   "Recharts draws a dot on every line point by default. These are turned off (dot={false}) to match bklit, while the hover dot (activeDot) stays on. Recharts scatter points render as <path> elements, and its time axis reads a precomputed epoch-ms key, the string dataKey its performance guide recommends.",
   "Recharts' default enter animation is 1,500 ms for line and area but 400 ms for bar and scatter. With animation on, Recharts skips bars until they start to grow, so animated bar charts count as drawn once the plot and axis are up. Recharts also skips animation when the OS prefers reduced motion, so run with that setting off.",
-  "Hover sends what a real mouse would (over/out when the element under the pointer changes, then pointermove and mousemove) to the element actually under each point. Line, area and bar sweep across the plot; scatter moves across rendered points, because Recharts' scatter tooltip only reacts over a point. A library that defers its hover render to rAF is timed to the frame that paints it. Tooltip spring or tween motion after that frame is not counted.",
+  "Hover sends what a real mouse would (over/out when the element under the pointer changes, then pointermove and mousemove) to the element actually under each point. Line, area and bar sweep across the plot; scatter moves across rendered points, because Recharts' scatter tooltip only reacts over a point. Each move starts right after a paint. A library that defers its hover render to a task or rAF is followed to the frame that paints it, and that work counts. Tooltip spring or tween motion after that frame is not counted.",
 ];
 
 const METRICS = [
   {
     term: "Mount",
     detail:
-      "Time from React's render call to the first painted frame that shows the chart (svg, tick labels and marks). Animated: the enter animation that follows is not counted. Static: timing runs to the frame that paints the last DOM change, so multi-pass renders count in full.",
+      "Wall-clock time from React's render call to the first painted frame that shows the chart (svg, tick labels and marks), so frames a library waits for (e.g. to size itself) count in full. Animated: the enter animation that follows is not counted. Static: timing runs to the frame that paints the last DOM change.",
   },
   {
     term: "Update",
     detail:
-      "Swap in a new dataset of the same size and shape (generated before the timer starts). Static: timed to the frame that paints the last DOM change. Animated: timed to the first painted frame; the morph after it is not counted.",
+      "Swap in a new dataset of the same size and shape (generated before the timer starts), starting right after a paint. Measured as main-thread busy time, not wall-clock: React's synchronous commit plus any microtasks, tasks and rAF callbacks the library defers work to, plus the browser's style, layout and paint, up to the painted frame that shows the result. Idle time waiting for the next frame is not counted. Static: every pass up to the frame that paints the last DOM change. Animated: up to the first painted frame; the morph after it is not counted.",
   },
   {
     term: "Hover / move",
     detail:
-      "Pointer moves dispatched across the plot area (or across points, for scatter); each sample is the time from the event to the painted frame that shows the tooltip and crosshair update, including any frame a library defers it to.",
+      "Pointer moves dispatched across the plot area (or across points, for scatter). Each sample is main-thread busy time from the event to the painted frame that shows the tooltip and crosshair update: the event handlers, any microtasks, tasks or rAF callbacks the library defers its render to, and the browser's style, layout and paint. Idle time waiting for the next frame is not counted. Hit testing the next target is runner work, done before the timer starts.",
   },
   {
     term: "DOM nodes",
@@ -46,7 +46,7 @@ const METRICS = [
   {
     term: "Bundle (gzip)",
     detail:
-      "A minimal line chart per library, bundled with esbuild (minified, React external) and gzipped, with the pieces the chosen animation setting needs (TanStack adds its motion() renderer only when animation is on). Measured at build time, not in your browser.",
+      "A minimal line chart per library, bundled with esbuild (minified, React external) and gzipped, with what each library ships for the chosen animation setting (TanStack adds its motion() renderer only when animation is on). With animation off, TanStack is measured from its separate static entry (default Chart, no motion() renderer), while bklit and Recharts each have a single entry, so their figures still include their animation code: Motion for bklit, Recharts' built-in animation. Measured at build time, not in your browser.",
   },
 ];
 
@@ -55,7 +55,9 @@ const CAVEATS = [
   "With animation on, each library uses its defaults, as users see them, but scores stop at the first painted frame that shows the chart. Switch animation off for the cleanest like-for-like comparison. The enter animation is always reported separately as a reference.",
   "One warm-up run per library is discarded; scores are medians of the measured iterations. Iterations are interleaved and the starting library rotates, so no library always runs right after the same neighbour. Raw samples are available per row.",
   "Every library renders at the same fixed pixel size with fresh copies of the same seeded data, and only one chart is mounted at a time.",
-  "Timings end at a painted frame, so they move in steps of one display frame (about 16.7 ms at 60 Hz). Differences smaller than a frame mostly reflect where in the frame the work landed.",
+  "Mount ends at a painted frame, so it moves in steps of one display frame (about 16.7 ms at 60 Hz); differences smaller than a frame mostly reflect where in the frame the work landed.",
+  "Update and hover use a busy-time probe instead: a chain of MessageChannel tasks that runs whenever the main thread is free. Any gap between two of its tasks over 0.25 ms is counted as work, so the wait for vsync drops out and results aren't quantised to frames. The same probe runs for every library.",
+  "Busy time is main-thread work only. Raster and compositing on other threads, and work a library leaves for after the measured frame (an idle callback, a tween), are not counted. Unrelated main-thread work during the window (garbage collection, extensions) is, for every library alike.",
   "Browsers coarsen timers (often to 0.1 ms or more without cross-origin isolation), so very small differences are noise.",
   "Background tabs throttle animation frames: keep this tab visible and focused while a run is in progress.",
   "Extensions, other tabs, power-saving modes, and thermal throttling all skew results. Run on a quiet machine and compare runs from the same device.",
@@ -73,7 +75,7 @@ export function BenchmarkMethodology() {
       {/* items-start: an open frame mustn't stretch its closed neighbour. */}
       <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-2 lg:gap-6">
         <BenchCollapsibleFrame
-          description="Every timing stops at the painted frame that shows the result."
+          description="Every timing ends at the painted frame that shows the result. Mount is wall-clock; update and hover count main-thread work only."
           title="What's measured"
         >
           <BenchPanel className="text-sm">

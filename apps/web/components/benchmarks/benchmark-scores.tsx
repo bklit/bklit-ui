@@ -226,6 +226,14 @@ export function BenchmarkScores({ results }: { results: BenchResult[] }) {
             on every metric scores 100. % differences are yours ÷ best − 1.
           </p>
           <p>
+            Mount is wall-clock time to the painted frame that shows the chart.
+            Update and hover are main-thread work only (script, style, layout
+            and paint up to that frame), without the idle wait for the display's
+            next frame. Bundle size with animation off uses TanStack's static
+            entry; bklit and Recharts ship one entry each, animation code
+            included.
+          </p>
+          <p>
             The enter animation is reference only and never part of the score.
             {partial
               ? " Libraries missing a metric are scored over the metrics they have."

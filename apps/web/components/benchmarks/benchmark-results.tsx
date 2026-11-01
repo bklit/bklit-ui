@@ -238,14 +238,14 @@ function MetricFrames({ results }: { results: BenchResult[] }) {
         measured,
         "updateMs",
         "Data update",
-        "New same-size dataset → painted frame showing it (static), or the first painted frame (animated; the morph after it is not counted)."
+        "New same-size dataset → painted frame showing it: main-thread work only (commit, deferred tasks and rAF callbacks, style, layout, paint), not the wait for vsync. Static counts every pass; animated stops at the first painted frame."
       )}
       {timingFrame(
         results,
         measured,
         "hoverMs",
         "Hover",
-        "Per pointer move → the painted frame showing the tooltip and crosshair update, including a frame a library defers it to."
+        "Per pointer move → the painted frame showing the tooltip and crosshair update: main-thread work only (handlers, deferred tasks and rAF callbacks, style, layout, paint), not the wait for vsync."
       )}
       <MetricFrame
         best={bestValue(results, (r) => r.metrics.domNodes)}
