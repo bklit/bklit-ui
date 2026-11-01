@@ -1,6 +1,8 @@
 "use client";
 
 import {
+  domAnimation,
+  LazyMotion,
   type MotionValue,
   type SpringOptions,
   useReducedMotion,
@@ -1044,60 +1046,62 @@ export function RadialChart({
   const centerSize = Math.max(0, centerRadius * 2 - 16);
 
   return (
-    <RadialChartContext.Provider value={contextValue}>
-      <div
-        className={cn("mx-auto flex w-full flex-col items-center", className)}
-        style={{ maxWidth }}
-      >
+    <LazyMotion features={domAnimation}>
+      <RadialChartContext.Provider value={contextValue}>
         <div
-          className="relative w-full"
-          ref={stageRef}
-          style={{ aspectRatio: `${boundsWidth} / ${boundsHeight}` }}
+          className={cn("mx-auto flex w-full flex-col items-center", className)}
+          style={{ maxWidth }}
         >
-          {hasSize ? (
-            <>
-              <svg
-                aria-hidden="true"
-                className="absolute inset-0 touch-pan-y select-none"
-                height={stageHeight}
-                onPointerLeave={handlePointerLeave}
-                onPointerMove={handlePointerMove}
-                style={{ overflow: "visible" }}
-                width={stageWidth}
-              >
-                <g transform={`translate(${cx},${cy})`}>
-                  {/* Hit area so the whole disc tracks the pointer */}
-                  {isFullCircle ? (
-                    <circle fill="transparent" r={radius} />
-                  ) : (
-                    <path
-                      d={radialWedgePath(radius, startAngle, endAngle)}
-                      fill="transparent"
-                    />
-                  )}
-                  {svgChildren}
-                </g>
-              </svg>
-
-              {centerChildren.length > 0 ? (
-                <div
-                  className="pointer-events-none absolute flex -translate-x-1/2 -translate-y-1/2 items-center justify-center"
-                  style={{
-                    left: cx,
-                    top: cy,
-                    width: centerSize,
-                    height: centerSize,
-                  }}
+          <div
+            className="relative w-full"
+            ref={stageRef}
+            style={{ aspectRatio: `${boundsWidth} / ${boundsHeight}` }}
+          >
+            {hasSize ? (
+              <>
+                <svg
+                  aria-hidden="true"
+                  className="absolute inset-0 touch-pan-y select-none"
+                  height={stageHeight}
+                  onPointerLeave={handlePointerLeave}
+                  onPointerMove={handlePointerMove}
+                  style={{ overflow: "visible" }}
+                  width={stageWidth}
                 >
-                  {centerChildren}
-                </div>
-              ) : null}
-            </>
-          ) : null}
+                  <g transform={`translate(${cx},${cy})`}>
+                    {/* Hit area so the whole disc tracks the pointer */}
+                    {isFullCircle ? (
+                      <circle fill="transparent" r={radius} />
+                    ) : (
+                      <path
+                        d={radialWedgePath(radius, startAngle, endAngle)}
+                        fill="transparent"
+                      />
+                    )}
+                    {svgChildren}
+                  </g>
+                </svg>
+
+                {centerChildren.length > 0 ? (
+                  <div
+                    className="pointer-events-none absolute flex -translate-x-1/2 -translate-y-1/2 items-center justify-center"
+                    style={{
+                      left: cx,
+                      top: cy,
+                      width: centerSize,
+                      height: centerSize,
+                    }}
+                  >
+                    {centerChildren}
+                  </div>
+                ) : null}
+              </>
+            ) : null}
+          </div>
+          {belowChildren}
         </div>
-        {belowChildren}
-      </div>
-    </RadialChartContext.Provider>
+      </RadialChartContext.Provider>
+    </LazyMotion>
   );
 }
 

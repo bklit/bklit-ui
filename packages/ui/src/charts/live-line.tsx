@@ -1,7 +1,7 @@
 "use client";
 
 import { type CurveFactory, curveMonotoneX } from "d3-shape";
-import { motion } from "motion/react";
+import { m } from "motion/react";
 import { useCallback, useId, useMemo } from "react";
 import { chartCssVars, useChart } from "./chart-context";
 import { areaClosedD, LinePath, linePathD } from "./line-path";
@@ -243,7 +243,7 @@ export function LiveLine({
       />
 
       {/* Live indicator (dot + badge) — dims when crosshair is active */}
-      <motion.g
+      <m.g
         animate={{ opacity: isScrubbing ? 0.25 : 1 }}
         // Start at the target: an SVG <g> has no readable opacity, so without
         // this Motion tries to animate from `undefined` on mount.
@@ -319,7 +319,7 @@ export function LiveLine({
             </text>
           </g>
         )}
-      </motion.g>
+      </m.g>
     </>
   );
 }

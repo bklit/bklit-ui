@@ -2,7 +2,7 @@
 
 import { scaleLinear } from "d3-scale";
 import type { CurveFactory } from "d3-shape";
-import { motion, useReducedMotion } from "motion/react";
+import { m, useReducedMotion } from "motion/react";
 import {
   useCallback,
   useEffect,
@@ -150,7 +150,7 @@ function LoadingSweepMask({
         x="0"
         y="0"
       >
-        <motion.rect
+        <m.rect
           animate={{ x: SWEEP_END_X }}
           fill={`url(#${chartId}-grad)`}
           height="1"
@@ -320,7 +320,7 @@ export function LineLoadingSweep({
   return (
     <>
       {defs}
-      <motion.g
+      <m.g
         animate={{ opacity: mode === "exit" ? 0 : 1 }}
         initial={{ opacity: mode === "exit" ? 1 : 0 }}
         mask={maskUrl}
@@ -331,7 +331,7 @@ export function LineLoadingSweep({
         }}
       >
         {silhouette}
-      </motion.g>
+      </m.g>
     </>
   );
 }

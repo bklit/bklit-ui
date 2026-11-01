@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "motion/react";
+import { m } from "motion/react";
 import { memo, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
@@ -38,7 +38,7 @@ function BarYAxisLabel({
         height: bandHeight,
       }}
     >
-      <motion.span
+      <m.span
         animate={{
           opacity: isHovered ? 1 : 0.7,
           color: isHovered
@@ -54,7 +54,7 @@ function BarYAxisLabel({
         transition={{ duration: 0.15 }}
       >
         {label}
-      </motion.span>
+      </m.span>
     </div>
   );
 }

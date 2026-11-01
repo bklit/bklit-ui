@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "motion/react";
+import { m } from "motion/react";
 import { useMemo } from "react";
 import { useChartStable, useYScale } from "./chart-context";
 import { StaticSeriesPointMarker } from "./series-point-marker";
@@ -59,7 +59,7 @@ export function LineSeriesTerminalMarker({
   }
 
   return (
-    <motion.g
+    <m.g
       animate={{
         opacity: visible ? 1 : 0,
         scale: visible ? 1 : 0.55,
@@ -81,7 +81,7 @@ export function LineSeriesTerminalMarker({
         stroke={stroke}
         strokeWidth={strokeWidth}
       />
-    </motion.g>
+    </m.g>
   );
 }
 

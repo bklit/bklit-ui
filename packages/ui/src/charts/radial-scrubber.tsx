@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, type SpringOptions, useTransform } from "motion/react";
+import { m, type SpringOptions, useTransform } from "motion/react";
 import { useId, useLayoutEffect } from "react";
 import {
   RADIAL_CROSSHAIR_SPRING,
@@ -130,7 +130,7 @@ export function RadialScrubber({
       {gradient ? (
         <defs>
           {/* User space, following the line, so it rotates with the angle */}
-          <motion.linearGradient
+          <m.linearGradient
             gradientUnits="userSpaceOnUse"
             id={gradientId}
             x1={x1}
@@ -140,10 +140,10 @@ export function RadialScrubber({
           >
             <stop offset="0%" stopColor={color} stopOpacity={0} />
             <stop offset="100%" stopColor={color} stopOpacity={1} />
-          </motion.linearGradient>
+          </m.linearGradient>
         </defs>
       ) : null}
-      <motion.line
+      <m.line
         stroke={gradient ? `url(#${gradientId})` : color}
         strokeDasharray={dashed ? dashArray : undefined}
         strokeLinecap={dashed ? "butt" : "round"}
@@ -155,7 +155,7 @@ export function RadialScrubber({
         y2={y2}
       />
       {showDot ? (
-        <motion.circle
+        <m.circle
           cx={x2}
           cy={y2}
           fill={color}

@@ -2,7 +2,7 @@
 
 import { scaleLinear, scaleTime } from "d3-scale";
 import type { Transition } from "motion/react";
-import { useReducedMotion } from "motion/react";
+import { domAnimation, LazyMotion, useReducedMotion } from "motion/react";
 import {
   type ReactNode,
   useCallback,
@@ -675,49 +675,51 @@ export function HeatmapChart({
   });
 
   return (
-    <div
-      className={cn(
-        "relative w-full",
-        layout === "fill" && "h-full min-h-0",
-        className
-      )}
-      ref={parentRef}
-      style={aspectRatio ? { aspectRatio } : undefined}
-    >
-      <HeatmapChartInner
-        animateCells={animateCells}
-        animationDuration={animationDuration}
-        binSize={binSize}
-        chartPhase={chartPhase}
-        chartStatus={status}
-        colorScale={colorScale}
-        columnSeparators={columnSeparators}
-        data={data}
-        enterStaggerScale={enterStaggerScale}
-        enterTransition={enterTransition}
-        fillScale={fillScale}
-        gap={gap}
-        height={parentHeight}
-        isLoaded={isLoaded}
-        layout={layout}
-        levelStyles={levelStyles}
-        loadingCellMaxOpacity={loadingCellMaxOpacity}
-        loadingCellRandomness={loadingCellRandomness}
-        loadingLabel={loadingLabel}
-        loadingOpacity={loadingOpacity}
-        margin={margin}
-        revealEpoch={revealEpoch}
-        revealMode={revealMode}
-        showLoadingCells={showLoadingCells}
-        showLoadingLabel={showLoadingLabel}
-        sizingColumnCount={sizingColumnCount}
-        weekStartDay={weekStartDay}
-        width={width}
-        xDomain={xDomain}
+    <LazyMotion features={domAnimation}>
+      <div
+        className={cn(
+          "relative w-full",
+          layout === "fill" && "h-full min-h-0",
+          className
+        )}
+        ref={parentRef}
+        style={aspectRatio ? { aspectRatio } : undefined}
       >
-        {children}
-      </HeatmapChartInner>
-    </div>
+        <HeatmapChartInner
+          animateCells={animateCells}
+          animationDuration={animationDuration}
+          binSize={binSize}
+          chartPhase={chartPhase}
+          chartStatus={status}
+          colorScale={colorScale}
+          columnSeparators={columnSeparators}
+          data={data}
+          enterStaggerScale={enterStaggerScale}
+          enterTransition={enterTransition}
+          fillScale={fillScale}
+          gap={gap}
+          height={parentHeight}
+          isLoaded={isLoaded}
+          layout={layout}
+          levelStyles={levelStyles}
+          loadingCellMaxOpacity={loadingCellMaxOpacity}
+          loadingCellRandomness={loadingCellRandomness}
+          loadingLabel={loadingLabel}
+          loadingOpacity={loadingOpacity}
+          margin={margin}
+          revealEpoch={revealEpoch}
+          revealMode={revealMode}
+          showLoadingCells={showLoadingCells}
+          showLoadingLabel={showLoadingLabel}
+          sizingColumnCount={sizingColumnCount}
+          weekStartDay={weekStartDay}
+          width={width}
+          xDomain={xDomain}
+        >
+          {children}
+        </HeatmapChartInner>
+      </div>
+    </LazyMotion>
   );
 }
 

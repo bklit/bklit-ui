@@ -1,7 +1,7 @@
 "use client";
 
 import { type CurveFactory, curveNatural } from "d3-shape";
-import { motion } from "motion/react";
+import { m } from "motion/react";
 import { type ReactNode, useId } from "react";
 import {
   chartCssVars,
@@ -148,7 +148,7 @@ export function LineBackdrop({
       : { duration: BACKDROP_ENTER_FADE_MS / 1000, ease: "easeOut" as const };
 
   return (
-    <motion.g
+    <m.g
       animate={{ opacity: isLoaded ? opacity : 0 }}
       initial={{ opacity: 0 }}
       pointerEvents="none"
@@ -189,7 +189,7 @@ export function LineBackdrop({
           />
         )}
       </g>
-    </motion.g>
+    </m.g>
   );
 }
 

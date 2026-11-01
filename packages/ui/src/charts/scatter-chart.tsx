@@ -1,6 +1,7 @@
 "use client";
 
 import type { Transition } from "motion/react";
+import { domAnimation, LazyMotion } from "motion/react";
 import {
   Children,
   isValidElement,
@@ -188,31 +189,33 @@ export function ScatterChart({
   );
 
   return (
-    <div
-      className={cn("relative w-full", className)}
-      ref={containerRef}
-      style={{ aspectRatio, touchAction: "none" }}
-    >
-      {width > 0 && height > 0 ? (
-        <ChartInner
-          animationDuration={animationDuration}
-          animationEasing={animationEasing}
-          containerRef={containerRef}
-          data={data}
-          enterTransition={enterTransition}
-          formatXLabel={formatXLabel}
-          height={height}
-          jitter={jitter}
-          margin={margin}
-          onPhaseChange={onPhaseChange}
-          revealSignature={revealSignature}
-          width={width}
-          xDataKey={xDataKey}
-        >
-          {children}
-        </ChartInner>
-      ) : null}
-    </div>
+    <LazyMotion features={domAnimation}>
+      <div
+        className={cn("relative w-full", className)}
+        ref={containerRef}
+        style={{ aspectRatio, touchAction: "none" }}
+      >
+        {width > 0 && height > 0 ? (
+          <ChartInner
+            animationDuration={animationDuration}
+            animationEasing={animationEasing}
+            containerRef={containerRef}
+            data={data}
+            enterTransition={enterTransition}
+            formatXLabel={formatXLabel}
+            height={height}
+            jitter={jitter}
+            margin={margin}
+            onPhaseChange={onPhaseChange}
+            revealSignature={revealSignature}
+            width={width}
+            xDataKey={xDataKey}
+          >
+            {children}
+          </ChartInner>
+        ) : null}
+      </div>
+    </LazyMotion>
   );
 }
 

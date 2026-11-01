@@ -1,6 +1,7 @@
 "use client";
 
 import type { Transition } from "motion/react";
+import { domAnimation, LazyMotion } from "motion/react";
 import {
   Children,
   type CSSProperties,
@@ -165,50 +166,52 @@ export function AreaChart({
   );
 
   return (
-    <div
-      className={cn("relative w-full", className)}
-      ref={containerRef}
-      style={{ aspectRatio, touchAction: "none", ...style }}
-    >
-      <ParentSize debounceTime={10}>
-        {({ width, height }) =>
-          timeSeriesChartHasRoom(width, height) ? (
-            <TimeSeriesChartInner
-              animationDuration={animationDuration}
-              animationEasing={animationEasing}
-              chartStatus={status}
-              clipPathId="chart-area-grow-clip"
-              containerRef={containerRef}
-              data={data}
-              enterTransition={enterTransition}
-              height={height}
-              lines={lines}
-              loadingLabel={loadingLabel}
-              margin={margin}
-              onPhaseChange={handlePhaseChange}
-              revealSignature={revealSignature}
-              tweenYDomainOnXDomainChange={tweenYDomainOnXDomainChange}
-              width={width}
-              xDataKey={xDataKey}
-              xDomain={xDomain}
-              xDomainSlotCount={xDomainSlotCount}
-              yDomainTween={yDomainTween}
-              yDomainTweenDuration={yDomainTweenDuration}
-            >
-              {children}
-              {/* Resolve labels together, above all fills and outside their edge masks. */}
-              <AreaValueLabels series={lines} />
-            </TimeSeriesChartInner>
-          ) : null
-        }
-      </ParentSize>
-      {showLoadingLabel ? (
-        <ChartLoadingLabel
-          exiting={chartPhase !== "loading"}
-          text={loadingLabel}
-        />
-      ) : null}
-    </div>
+    <LazyMotion features={domAnimation}>
+      <div
+        className={cn("relative w-full", className)}
+        ref={containerRef}
+        style={{ aspectRatio, touchAction: "none", ...style }}
+      >
+        <ParentSize debounceTime={10}>
+          {({ width, height }) =>
+            timeSeriesChartHasRoom(width, height) ? (
+              <TimeSeriesChartInner
+                animationDuration={animationDuration}
+                animationEasing={animationEasing}
+                chartStatus={status}
+                clipPathId="chart-area-grow-clip"
+                containerRef={containerRef}
+                data={data}
+                enterTransition={enterTransition}
+                height={height}
+                lines={lines}
+                loadingLabel={loadingLabel}
+                margin={margin}
+                onPhaseChange={handlePhaseChange}
+                revealSignature={revealSignature}
+                tweenYDomainOnXDomainChange={tweenYDomainOnXDomainChange}
+                width={width}
+                xDataKey={xDataKey}
+                xDomain={xDomain}
+                xDomainSlotCount={xDomainSlotCount}
+                yDomainTween={yDomainTween}
+                yDomainTweenDuration={yDomainTweenDuration}
+              >
+                {children}
+                {/* Resolve labels together, above all fills and outside their edge masks. */}
+                <AreaValueLabels series={lines} />
+              </TimeSeriesChartInner>
+            ) : null
+          }
+        </ParentSize>
+        {showLoadingLabel ? (
+          <ChartLoadingLabel
+            exiting={chartPhase !== "loading"}
+            text={loadingLabel}
+          />
+        ) : null}
+      </div>
+    </LazyMotion>
   );
 }
 

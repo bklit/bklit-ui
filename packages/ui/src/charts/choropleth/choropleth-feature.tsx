@@ -1,7 +1,7 @@
 "use client";
 
 import { geoCentroid } from "d3-geo";
-import { motion, useTransform } from "motion/react";
+import { m, useTransform } from "motion/react";
 import { memo, useCallback, useMemo } from "react";
 import { useEnterComplete } from "../use-enter-complete";
 import { useMountProgress } from "../use-mount-progress";
@@ -183,7 +183,7 @@ const EnterFeatureLayer = memo(function EnterFeatureLayer({
   }
 
   return (
-    <motion.g
+    <m.g
       key={`enter-${revealEpoch}`}
       opacity={layerOpacity}
       transition={{
@@ -204,7 +204,7 @@ const EnterFeatureLayer = memo(function EnterFeatureLayer({
           strokeWidth={strokeWidth}
         />
       ))}
-    </motion.g>
+    </m.g>
   );
 });
 

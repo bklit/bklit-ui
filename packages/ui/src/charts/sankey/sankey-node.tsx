@@ -1,7 +1,7 @@
 "use client";
 
 import type { SankeyNode as SankeyNodeType } from "d3-sankey";
-import { motion, type Transition } from "motion/react";
+import { m, type Transition } from "motion/react";
 import { type ReactNode, useCallback, useMemo } from "react";
 import { intFmt } from "../chart-formatters";
 import { transitionWithDelay } from "../motion-utils";
@@ -184,7 +184,7 @@ function NodeLabel({
   children: ReactNode;
 }) {
   return (
-    <motion.g
+    <m.g
       animate={{
         opacity,
         x: layout.x,
@@ -207,7 +207,7 @@ function NodeLabel({
       >
         {children}
       </text>
-    </motion.g>
+    </m.g>
   );
 }
 
@@ -258,12 +258,12 @@ function AnimatedNode({
   });
 
   return (
-    <motion.g
+    <m.g
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       style={{ cursor: "pointer" }}
     >
-      <motion.rect
+      <m.rect
         animate={{ opacity: nodeOpacity, scaleY: 1 }}
         fill={fill}
         height={height}
@@ -301,7 +301,7 @@ function AnimatedNode({
           ) : null}
         </>
       ) : null}
-    </motion.g>
+    </m.g>
   );
 }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useSpring } from "motion/react";
+import { m, useSpring } from "motion/react";
 import { memo, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
 import {
@@ -109,7 +109,7 @@ const LiveXAxisInner = memo(function LiveXAxisInner({
             justifyContent: "center",
           }}
         >
-          <motion.span
+          <m.span
             animate={{
               opacity: labelFadeOpacity(l.x, crosshairX, isHovering),
             }}
@@ -117,13 +117,13 @@ const LiveXAxisInner = memo(function LiveXAxisInner({
             transition={{ duration: 0.15, ease: "easeOut" }}
           >
             {l.label}
-          </motion.span>
+          </m.span>
         </div>
       ))}
 
       {/* Time pill at crosshair — spring-animated to match crosshair line */}
       {isHovering && pillLabel && (
-        <motion.div
+        <m.div
           className="absolute z-50"
           style={{
             left: animatedPillX,
@@ -136,7 +136,7 @@ const LiveXAxisInner = memo(function LiveXAxisInner({
               {pillLabel}
             </span>
           </div>
-        </motion.div>
+        </m.div>
       )}
     </div>,
     container

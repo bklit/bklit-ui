@@ -1,7 +1,7 @@
 "use client";
 
 import type { Transition } from "motion/react";
-import { animate, motion } from "motion/react";
+import { animate, domAnimation, LazyMotion, m } from "motion/react";
 import {
   Children,
   isValidElement,
@@ -491,7 +491,7 @@ const SunburstChartCore = memo(function SunburstChartCore({
           className="mx-auto w-full"
           style={{ aspectRatio: "1 / 1", maxWidth: size }}
         >
-          <motion.svg
+          <m.svg
             animate={{ opacity: 1 }}
             aria-label={`Sunburst chart of ${data.name}`}
             initial={{ opacity: 0 }}
@@ -504,7 +504,7 @@ const SunburstChartCore = memo(function SunburstChartCore({
           >
             {defsChildren.length > 0 ? <defs>{defsChildren}</defs> : null}
             {orderedSvgChildren}
-          </motion.svg>
+          </m.svg>
         </div>
         {outsideChildren.filter(
           (child) =>
@@ -517,7 +517,11 @@ const SunburstChartCore = memo(function SunburstChartCore({
 });
 
 export function SunburstChart(props: SunburstChartProps) {
-  return <SunburstChartCore {...props} />;
+  return (
+    <LazyMotion features={domAnimation}>
+      <SunburstChartCore {...props} />
+    </LazyMotion>
+  );
 }
 
 SunburstChart.displayName = "SunburstChart";

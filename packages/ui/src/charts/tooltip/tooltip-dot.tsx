@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useSpring, useTransform } from "motion/react";
+import { m, useSpring, useTransform } from "motion/react";
 import { useId } from "react";
 import { type SpringConfig, useChartConfig } from "../chart-config-context";
 import { chartCssVars } from "../chart-context";
@@ -89,7 +89,7 @@ function AnimatedRingDot({
   animatedY.set(y);
 
   return (
-    <motion.rect
+    <m.rect
       fill={fill}
       height={side}
       rx={rx}
@@ -213,7 +213,7 @@ export function TooltipDot({
     <g>
       {haloFilterDefs}
       {showHalo && (
-        <motion.circle
+        <m.circle
           animate={{ r: haloRadius }}
           cx={animatedX}
           cy={animatedY}
@@ -224,7 +224,7 @@ export function TooltipDot({
           transition={HALO_SPRING}
         />
       )}
-      <motion.circle
+      <m.circle
         animate={{ r: size }}
         cx={animatedX}
         cy={animatedY}

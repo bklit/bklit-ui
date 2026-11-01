@@ -1,8 +1,10 @@
 "use client";
 
 import {
+  domAnimation,
+  LazyMotion,
   type MotionValue,
-  motion,
+  m,
   useReducedMotion,
   useSpring,
 } from "motion/react";
@@ -177,8 +179,8 @@ const DateTickerCompact = memo(function DateTickerCompact({
 
   return (
     <div className="overflow-hidden rounded-full bg-zinc-900 px-4 py-1 text-white shadow-lg dark:bg-zinc-100 dark:text-zinc-900">
-      <motion.div className="relative h-6" style={{ width }}>
-        <motion.div
+      <m.div className="relative h-6" style={{ width }}>
+        <m.div
           className="absolute top-0 left-1/2 flex h-6 items-center"
           ref={stackRef}
           style={{ x: "-50%" }}
@@ -189,8 +191,8 @@ const DateTickerCompact = memo(function DateTickerCompact({
           >
             {label}
           </span>
-        </motion.div>
-      </motion.div>
+        </m.div>
+      </m.div>
     </div>
   );
 });
@@ -270,11 +272,11 @@ const DateTickerInner = memo(function DateTickerInner({
       <div className="relative h-6 overflow-hidden">
         <div className="flex items-center justify-center gap-1">
           {/* Month stack */}
-          <motion.div
+          <m.div
             className="relative h-6 overflow-hidden"
             style={{ width: monthWidth }}
           >
-            <motion.div
+            <m.div
               className="absolute top-0 left-1/2 flex flex-col items-center"
               ref={monthStackRef}
               style={{ x: "-50%", y: monthY }}
@@ -290,15 +292,15 @@ const DateTickerInner = memo(function DateTickerInner({
                   </span>
                 </div>
               ))}
-            </motion.div>
-          </motion.div>
+            </m.div>
+          </m.div>
 
           {/* Second-part stack (day or year) */}
-          <motion.div
+          <m.div
             className="relative h-6 overflow-hidden"
             style={{ width: dayWidth }}
           >
-            <motion.div
+            <m.div
               className="absolute top-0 left-1/2 flex flex-col items-center"
               ref={dayStackRef}
               style={{ x: "-50%", y: dayY }}
@@ -314,8 +316,8 @@ const DateTickerInner = memo(function DateTickerInner({
                   </span>
                 </div>
               ))}
-            </motion.div>
-          </motion.div>
+            </m.div>
+          </m.div>
         </div>
       </div>
     </div>
@@ -327,11 +329,16 @@ export function DateTicker({ currentIndex, labels, visible }: DateTickerProps) {
     return null;
   }
 
-  if (labels.length > COMPACT_TICKER_THRESHOLD) {
-    return <DateTickerCompact currentIndex={currentIndex} labels={labels} />;
-  }
-
-  return <DateTickerInner currentIndex={currentIndex} labels={labels} />;
+  // Own feature scope: the ticker also renders outside chart roots.
+  return (
+    <LazyMotion features={domAnimation}>
+      {labels.length > COMPACT_TICKER_THRESHOLD ? (
+        <DateTickerCompact currentIndex={currentIndex} labels={labels} />
+      ) : (
+        <DateTickerInner currentIndex={currentIndex} labels={labels} />
+      )}
+    </LazyMotion>
+  );
 }
 
 DateTicker.displayName = "DateTicker";

@@ -4,7 +4,7 @@ import type {
   SankeyLink as SankeyLinkType,
   SankeyNode as SankeyNodeType,
 } from "d3-sankey";
-import { motion, useTransform } from "motion/react";
+import { m, useTransform } from "motion/react";
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useMountProgress } from "../use-mount-progress";
 import {
@@ -149,7 +149,7 @@ function AnimatedLink({
   const animatedOpacity = targetOpacity ?? initialOpacity;
 
   return (
-    <motion.path
+    <m.path
       animate={{ opacity: animatedOpacity }}
       d={path}
       fill="none"

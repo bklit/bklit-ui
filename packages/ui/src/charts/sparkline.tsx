@@ -3,8 +3,10 @@
 import {
   AnimatePresence,
   animate as animateValue,
+  domAnimation,
+  LazyMotion,
   type MotionValue,
-  motion,
+  m,
   useReducedMotion,
   useSpring,
 } from "motion/react";
@@ -493,7 +495,7 @@ function SparklineCrosshairLine({
 }) {
   const id = `${gradientId}-crosshair`;
   return (
-    <motion.g aria-hidden pointerEvents="none" style={{ x }}>
+    <m.g aria-hidden pointerEvents="none" style={{ x }}>
       {variant === "gradient" ? (
         <>
           <defs>
@@ -529,7 +531,7 @@ function SparklineCrosshairLine({
           y2={height - padding.bottom / 2}
         />
       )}
-    </motion.g>
+    </m.g>
   );
 }
 
@@ -543,7 +545,7 @@ function SparklineDot({
   color: string;
 }) {
   return (
-    <motion.circle
+    <m.circle
       aria-hidden
       cx={x}
       cy={y}
@@ -697,7 +699,7 @@ function SparklineHighlight({
       <defs>
         <clipPath id={clipId}>
           {/* Bleed by strokeWidth so strokes at the min/max keep full width. */}
-          <motion.rect
+          <m.rect
             height={height + strokeWidth * 2}
             width={width}
             x={x}
@@ -705,7 +707,7 @@ function SparklineHighlight({
           />
         </clipPath>
       </defs>
-      <motion.path
+      <m.path
         animate={{ opacity: 1 }}
         clipPath={`url(#${clipId})`}
         fill="none"
@@ -988,11 +990,19 @@ function LineOrAreaPaths({
 }
 
 function LineSparklineImpl<T>(props: LineSparklineProps<T>) {
-  return <LineOrArea config={props} variant="line" />;
+  return (
+    <LazyMotion features={domAnimation}>
+      <LineOrArea config={props} variant="line" />
+    </LazyMotion>
+  );
 }
 
 function AreaSparklineImpl<T>(props: AreaSparklineProps<T>) {
-  return <LineOrArea config={props} variant="area" />;
+  return (
+    <LazyMotion features={domAnimation}>
+      <LineOrArea config={props} variant="area" />
+    </LazyMotion>
+  );
 }
 
 function BarSparklineImpl<T>(props: BarSparklineProps<T>) {
@@ -1014,30 +1024,32 @@ function BarSparklineImpl<T>(props: BarSparklineProps<T>) {
   const groupRef = useRef<SVGGElement>(null);
 
   return (
-    <SparklineFrame config={props} defaultPadding={2} includeZero kind="band">
-      {({ width, height, layout, hoverIndex, color, gradientId }) => (
-        <BarPaths
-          animate={animate}
-          animationDuration={animationDuration}
-          animationEasing={animationEasing}
-          barGap={barGap}
-          barRadius={barRadius}
-          color={color}
-          crosshair={crosshair}
-          dataTransitionDuration={animate ? dataTransitionDuration : 0}
-          dot={dot}
-          gradientId={gradientId}
-          groupRef={groupRef}
-          height={height}
-          hoverIndex={hoverIndex}
-          inactiveOpacity={inactiveOpacity}
-          layout={layout}
-          padding={padding}
-          spring={spring}
-          width={width}
-        />
-      )}
-    </SparklineFrame>
+    <LazyMotion features={domAnimation}>
+      <SparklineFrame config={props} defaultPadding={2} includeZero kind="band">
+        {({ width, height, layout, hoverIndex, color, gradientId }) => (
+          <BarPaths
+            animate={animate}
+            animationDuration={animationDuration}
+            animationEasing={animationEasing}
+            barGap={barGap}
+            barRadius={barRadius}
+            color={color}
+            crosshair={crosshair}
+            dataTransitionDuration={animate ? dataTransitionDuration : 0}
+            dot={dot}
+            gradientId={gradientId}
+            groupRef={groupRef}
+            height={height}
+            hoverIndex={hoverIndex}
+            inactiveOpacity={inactiveOpacity}
+            layout={layout}
+            padding={padding}
+            spring={spring}
+            width={width}
+          />
+        )}
+      </SparklineFrame>
+    </LazyMotion>
   );
 }
 
@@ -1133,7 +1145,7 @@ function BarPaths({
             cross-fades it, and the rest fade with the base path above. */}
         <AnimatePresence>
           {hovered && hoverIndex !== null && Number.isFinite(hovered.y) ? (
-            <motion.path
+            <m.path
               animate={{ opacity: 1 }}
               d={buildSparklineBarSegment(
                 hovered.x,

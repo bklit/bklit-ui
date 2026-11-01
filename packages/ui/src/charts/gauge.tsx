@@ -1,6 +1,12 @@
 "use client";
 
-import { motion, type Transition, useReducedMotion } from "motion/react";
+import {
+  domAnimation,
+  LazyMotion,
+  m,
+  type Transition,
+  useReducedMotion,
+} from "motion/react";
 import { type ReactNode, useId, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { ParentSize } from "./chart-parent-size";
@@ -163,7 +169,7 @@ function GaugeNotchSvg({
           );
         }
         return (
-          <motion.path
+          <m.path
             animate={{ opacity: 1, scale: 1 }}
             d={pathD}
             fill={resolveBgFill(notch.index)}
@@ -199,7 +205,7 @@ function GaugeNotchSvg({
             );
           }
           return (
-            <motion.path
+            <m.path
               animate={{ opacity: 1, scale: 1 }}
               d={pathD}
               fill={resolveActiveFill(notch)}
@@ -665,34 +671,77 @@ export function Gauge({
   if (isLinear) {
     if (widthProp != null) {
       return (
-        <div
-          className={cn("relative w-full max-w-full", className)}
-          style={{ width: widthProp }}
-        >
-          <GaugeInner
-            height={heightProp ?? resolvedLinearHeight}
-            orientation="linear"
-            width={widthProp}
-            {...props}
-          />
-        </div>
+        <LazyMotion features={domAnimation}>
+          <div
+            className={cn("relative w-full max-w-full", className)}
+            style={{ width: widthProp }}
+          >
+            <GaugeInner
+              height={heightProp ?? resolvedLinearHeight}
+              orientation="linear"
+              width={widthProp}
+              {...props}
+            />
+          </div>
+        </LazyMotion>
       );
     }
 
     return (
-      <div className={cn("relative w-full min-w-0 max-w-full", className)}>
-        {/* Explicit height: visx 4's <ParentSize> renders children absolutely,
+      <LazyMotion features={domAnimation}>
+        <div className={cn("relative w-full min-w-0 max-w-full", className)}>
+          {/* Explicit height: visx 4's <ParentSize> renders children absolutely,
             so a content-sized wrapper would collapse to zero height. */}
-        <div
-          className="w-full min-w-0"
-          style={{ height: resolvedLinearHeight, minWidth: resolvedMinWidth }}
-        >
+          <div
+            className="w-full min-w-0"
+            style={{ height: resolvedLinearHeight, minWidth: resolvedMinWidth }}
+          >
+            <ParentSize debounceTime={10}>
+              {({ width }) =>
+                width > 0 ? (
+                  <GaugeInner
+                    height={resolvedLinearHeight}
+                    orientation="linear"
+                    width={width}
+                    {...props}
+                  />
+                ) : null
+              }
+            </ParentSize>
+          </div>
+        </div>
+      </LazyMotion>
+    );
+  }
+
+  if (widthProp != null && heightProp != null) {
+    return (
+      <LazyMotion features={domAnimation}>
+        <div className={cn("relative inline-flex max-w-full", className)}>
+          <GaugeInner
+            height={heightProp}
+            orientation="arc"
+            width={widthProp}
+            {...props}
+          />
+        </div>
+      </LazyMotion>
+    );
+  }
+
+  return (
+    <LazyMotion features={domAnimation}>
+      <div
+        className={cn("relative w-full max-w-full", className)}
+        style={{ minWidth: resolvedMinWidth }}
+      >
+        <div className="mx-auto aspect-[21/16] w-full max-w-[560px]">
           <ParentSize debounceTime={10}>
-            {({ width }) =>
-              width > 0 ? (
+            {({ width, height }) =>
+              width > 0 && height > 0 ? (
                 <GaugeInner
-                  height={resolvedLinearHeight}
-                  orientation="linear"
+                  height={height}
+                  orientation="arc"
                   width={width}
                   {...props}
                 />
@@ -701,42 +750,7 @@ export function Gauge({
           </ParentSize>
         </div>
       </div>
-    );
-  }
-
-  if (widthProp != null && heightProp != null) {
-    return (
-      <div className={cn("relative inline-flex max-w-full", className)}>
-        <GaugeInner
-          height={heightProp}
-          orientation="arc"
-          width={widthProp}
-          {...props}
-        />
-      </div>
-    );
-  }
-
-  return (
-    <div
-      className={cn("relative w-full max-w-full", className)}
-      style={{ minWidth: resolvedMinWidth }}
-    >
-      <div className="mx-auto aspect-[21/16] w-full max-w-[560px]">
-        <ParentSize debounceTime={10}>
-          {({ width, height }) =>
-            width > 0 && height > 0 ? (
-              <GaugeInner
-                height={height}
-                orientation="arc"
-                width={width}
-                {...props}
-              />
-            ) : null
-          }
-        </ParentSize>
-      </div>
-    </div>
+    </LazyMotion>
   );
 }
 

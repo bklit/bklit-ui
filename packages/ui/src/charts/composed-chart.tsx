@@ -1,6 +1,7 @@
 "use client";
 
 import type { Transition } from "motion/react";
+import { domAnimation, LazyMotion } from "motion/react";
 import {
   Children,
   isValidElement,
@@ -234,45 +235,47 @@ export function ComposedChart({
   );
 
   return (
-    <div
-      className={cn("relative w-full", className)}
-      ref={containerRef}
-      style={{ aspectRatio, touchAction: "none" }}
-    >
-      <ParentSize debounceTime={10}>
-        {({ width, height }) =>
-          timeSeriesChartHasRoom(width, height) ? (
-            <TimeSeriesChartInner
-              animationDuration={animationDuration}
-              animationEasing={animationEasing}
-              clipPathId="composed-chart-grow-clip"
-              composedBarDataKeys={
-                barDataKeys.length > 0 ? barDataKeys : undefined
-              }
-              composedBarGap={barGap}
-              composedBarSize={barSize}
-              composedMaxBarSize={maxBarSize}
-              composedStacked={stacked}
-              composedStackGap={stackGap}
-              composedStackOffsets={composedStackOffsets}
-              containerRef={containerRef}
-              data={data}
-              enterTransition={enterTransition}
-              height={height}
-              lines={lines}
-              margin={margin}
-              onPhaseChange={onPhaseChange}
-              revealSignature={revealSignature}
-              width={width}
-              xDataKey={xDataKey}
-              yScaleDomainMax={yScaleDomainMax}
-            >
-              {children}
-            </TimeSeriesChartInner>
-          ) : null
-        }
-      </ParentSize>
-    </div>
+    <LazyMotion features={domAnimation}>
+      <div
+        className={cn("relative w-full", className)}
+        ref={containerRef}
+        style={{ aspectRatio, touchAction: "none" }}
+      >
+        <ParentSize debounceTime={10}>
+          {({ width, height }) =>
+            timeSeriesChartHasRoom(width, height) ? (
+              <TimeSeriesChartInner
+                animationDuration={animationDuration}
+                animationEasing={animationEasing}
+                clipPathId="composed-chart-grow-clip"
+                composedBarDataKeys={
+                  barDataKeys.length > 0 ? barDataKeys : undefined
+                }
+                composedBarGap={barGap}
+                composedBarSize={barSize}
+                composedMaxBarSize={maxBarSize}
+                composedStacked={stacked}
+                composedStackGap={stackGap}
+                composedStackOffsets={composedStackOffsets}
+                containerRef={containerRef}
+                data={data}
+                enterTransition={enterTransition}
+                height={height}
+                lines={lines}
+                margin={margin}
+                onPhaseChange={onPhaseChange}
+                revealSignature={revealSignature}
+                width={width}
+                xDataKey={xDataKey}
+                yScaleDomainMax={yScaleDomainMax}
+              >
+                {children}
+              </TimeSeriesChartInner>
+            ) : null
+          }
+        </ParentSize>
+      </div>
+    </LazyMotion>
   );
 }
 

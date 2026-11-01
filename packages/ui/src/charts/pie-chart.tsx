@@ -2,6 +2,7 @@
 
 import { pie as d3Pie } from "d3-shape";
 import type { Transition } from "motion/react";
+import { domAnimation, LazyMotion } from "motion/react";
 import {
   Children,
   isValidElement,
@@ -467,42 +468,12 @@ export function PieChart({
   // If fixed size is provided, use it directly
   if (fixedSize) {
     return (
-      <div
-        className={cn("relative flex items-center justify-center", className)}
-        ref={containerRef}
-        style={{ width: fixedSize, height: fixedSize }}
-      >
-        <PieChartInner
-          containerRef={containerRef}
-          cornerRadius={cornerRadius}
-          data={data}
-          endAngle={endAngle}
-          enterStaggerScale={enterStaggerScale}
-          enterTransition={enterTransition}
-          geometryScrubbing={geometryScrubbing}
-          height={fixedSize}
-          hoveredIndexProp={hoveredIndex}
-          hoverOffset={hoverOffset}
-          innerRadius={innerRadius}
-          onHoverChange={onHoverChange}
-          padAngle={padAngle}
-          startAngle={startAngle}
-          width={fixedSize}
+      <LazyMotion features={domAnimation}>
+        <div
+          className={cn("relative flex items-center justify-center", className)}
+          ref={containerRef}
+          style={{ width: fixedSize, height: fixedSize }}
         >
-          {children}
-        </PieChartInner>
-      </div>
-    );
-  }
-
-  // Otherwise use ParentSize for responsive sizing
-  return (
-    <div
-      className={cn("relative aspect-square w-full", className)}
-      ref={containerRef}
-    >
-      <ParentSize debounceTime={10}>
-        {({ width, height }) => (
           <PieChartInner
             containerRef={containerRef}
             cornerRadius={cornerRadius}
@@ -511,20 +482,54 @@ export function PieChart({
             enterStaggerScale={enterStaggerScale}
             enterTransition={enterTransition}
             geometryScrubbing={geometryScrubbing}
-            height={height}
+            height={fixedSize}
             hoveredIndexProp={hoveredIndex}
             hoverOffset={hoverOffset}
             innerRadius={innerRadius}
             onHoverChange={onHoverChange}
             padAngle={padAngle}
             startAngle={startAngle}
-            width={width}
+            width={fixedSize}
           >
             {children}
           </PieChartInner>
-        )}
-      </ParentSize>
-    </div>
+        </div>
+      </LazyMotion>
+    );
+  }
+
+  // Otherwise use ParentSize for responsive sizing
+  return (
+    <LazyMotion features={domAnimation}>
+      <div
+        className={cn("relative aspect-square w-full", className)}
+        ref={containerRef}
+      >
+        <ParentSize debounceTime={10}>
+          {({ width, height }) => (
+            <PieChartInner
+              containerRef={containerRef}
+              cornerRadius={cornerRadius}
+              data={data}
+              endAngle={endAngle}
+              enterStaggerScale={enterStaggerScale}
+              enterTransition={enterTransition}
+              geometryScrubbing={geometryScrubbing}
+              height={height}
+              hoveredIndexProp={hoveredIndex}
+              hoverOffset={hoverOffset}
+              innerRadius={innerRadius}
+              onHoverChange={onHoverChange}
+              padAngle={padAngle}
+              startAngle={startAngle}
+              width={width}
+            >
+              {children}
+            </PieChartInner>
+          )}
+        </ParentSize>
+      </div>
+    </LazyMotion>
   );
 }
 

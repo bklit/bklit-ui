@@ -2,6 +2,7 @@
 
 import { bisector } from "d3-array";
 import { scaleLinear, scaleTime } from "d3-scale";
+import { domAnimation, LazyMotion } from "motion/react";
 import {
   Children,
   isValidElement,
@@ -649,33 +650,35 @@ export function LiveLineChart({
   const margin = { ...DEFAULT_MARGIN, ...marginProp };
 
   return (
-    <div
-      className={cn("relative w-full", className)}
-      ref={containerRef}
-      style={{ height: 300, touchAction: "none", ...style }}
-    >
-      <ParentSize debounceTime={10}>
-        {({ width, height }) => (
-          <LiveLineChartInner
-            containerRef={containerRef}
-            data={data}
-            dataKey={dataKey}
-            exaggerate={exaggerate}
-            height={height}
-            lerpSpeed={lerpSpeed}
-            margin={margin}
-            nowOffsetUnits={nowOffsetUnits}
-            numXTicks={numXTicks}
-            paused={paused}
-            value={value}
-            width={width}
-            windowSecs={windowSecs}
-          >
-            {children}
-          </LiveLineChartInner>
-        )}
-      </ParentSize>
-    </div>
+    <LazyMotion features={domAnimation}>
+      <div
+        className={cn("relative w-full", className)}
+        ref={containerRef}
+        style={{ height: 300, touchAction: "none", ...style }}
+      >
+        <ParentSize debounceTime={10}>
+          {({ width, height }) => (
+            <LiveLineChartInner
+              containerRef={containerRef}
+              data={data}
+              dataKey={dataKey}
+              exaggerate={exaggerate}
+              height={height}
+              lerpSpeed={lerpSpeed}
+              margin={margin}
+              nowOffsetUnits={nowOffsetUnits}
+              numXTicks={numXTicks}
+              paused={paused}
+              value={value}
+              width={width}
+              windowSecs={windowSecs}
+            >
+              {children}
+            </LiveLineChartInner>
+          )}
+        </ParentSize>
+      </div>
+    </LazyMotion>
   );
 }
 

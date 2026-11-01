@@ -56,7 +56,7 @@
  *     compute geometry at most once per render between them.
  */
 
-import { motion, type Transition } from "motion/react";
+import { m, type Transition } from "motion/react";
 import {
   createContext,
   type ReactNode,
@@ -692,7 +692,7 @@ export function BarDepthBack({
           // share this one opacity so they always fade in lockstep (mirrors
           // `<Bar>`, which puts grow on the inner rect and hover-dim on a
           // wrapping group). Entrance animations live on the inner groups.
-          <motion.g
+          <m.g
             animate={{ opacity: isFaded ? BAR_FADED_OPACITY : 1 }}
             initial={false}
             key={e.label}
@@ -708,7 +708,7 @@ export function BarDepthBack({
                     every reveal and (b) snaps to final the instant `<Bar>`
                     swaps to its static rect at isLoaded — so the side never
                     trails the face past the animation cutoff. */}
-                <motion.rect
+                <m.rect
                   animate={{
                     y: e.topY - e.perspectiveRise,
                     height: e.barHeight + e.perspectiveRise,
@@ -746,7 +746,7 @@ export function BarDepthBack({
                 catch; it can't share the side's objectBoundingBox glass, which
                 would map the full ramp onto the lid's own tiny bbox) →
                 directional 3D shade darkening the back edge. */}
-            <motion.g
+            <m.g
               animate={lidEntrance.animate}
               initial={lidEntrance.initial}
               key={`lid-${safeId}-${revealEpoch}-${isLoaded}`}
@@ -755,8 +755,8 @@ export function BarDepthBack({
               <path d={topPath} fill={topColor} />
               <path d={topPath} fill="white" fillOpacity={GLASS_TIP_OPACITY} />
               <path d={topPath} fill={`url(#${topShade})`} />
-            </motion.g>
-          </motion.g>
+            </m.g>
+          </m.g>
         );
       })}
     </g>
@@ -834,7 +834,7 @@ export function BarDepthFront({ dataKey }: BarDepthFrontProps) {
           hoveredBarIndex != null && hoveredBarIndex !== e.dataIndex;
 
         return (
-          <motion.rect
+          <m.rect
             animate={{
               y: e.topY,
               height: e.barHeight,
@@ -934,7 +934,7 @@ export interface BarPulseProps {
  * Select the bar via `activeIndex`. Set `pulsePaused` to freeze it. Place
  * AFTER `<BarDepthFront />` so the wave brightens on top of the glass.
  *
- * Performance: at most one clipped `<motion.rect>` with a single Y translate
+ * Performance: at most one clipped `<m.rect>` with a single Y translate
  * per frame (no per-frame paint of gradient stops, no SVG filters).
  */
 export function BarPulse({ dataKey, activeIndex, pulsePaused }: BarPulseProps) {
@@ -1044,14 +1044,14 @@ export function BarPulse({ dataKey, activeIndex, pulsePaused }: BarPulseProps) {
           hoveredBarIndex != null && hoveredBarIndex !== e.dataIndex;
 
         return (
-          <motion.g
+          <m.g
             animate={{ opacity: isFaded ? BAR_FADED_OPACITY : 1 }}
             clipPath={`url(#${clipId})`}
             initial={false}
             key={e.label}
             transition={BAR_HOVER_TRANSITION}
           >
-            <motion.rect
+            <m.rect
               animate={{ y: yEnd }}
               fill={`url(#${gradId})`}
               height={waveHeight}
@@ -1067,7 +1067,7 @@ export function BarPulse({ dataKey, activeIndex, pulsePaused }: BarPulseProps) {
               width={e.bandWidth + 2 * e.depth + 2}
               x={e.bandX - e.depth - 1}
             />
-          </motion.g>
+          </m.g>
         );
       })}
     </g>
