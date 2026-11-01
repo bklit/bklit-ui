@@ -4,7 +4,7 @@
 /** Style variant baked into `icons` below. */
 export const iconStyle = {"join":"round","fill":"outlined","radius":"0","stroke":"1.5"} as const;
 
-/** Icon name -> [accessible title, inner SVG markup] (99 icons). */
+/** Icon name -> [accessible title, inner SVG markup] (100 icons). */
 export const icons = {
   IconAnimationEase: ["animation-ease", "<path d=\"M20.25 3.75C5.39793 4.66019 18.6021 19.3398 3.75 20.25\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>"],
   IconAnimationEaseIn: ["animation-ease-in", "<path d=\"M3.75 20.25C13.0943 18.2218 18.2218 13.0943 20.25 3.75\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>"],
@@ -39,6 +39,7 @@ export const icons = {
   IconClipboard2: ["clipboard-2, copy, list", "<path d=\"M16.25 4.75H20.25V21.25H3.75V4.75H7.75M7.75 2.75H16.25V7.25H7.75V2.75Z\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"square\" stroke-linejoin=\"round\"/>"],
   IconClock: ["clock, time, timer", "<path d=\"M12 7.75V12L14.75 14.75M21.25 12C21.25 17.1086 17.1086 21.25 12 21.25C6.89137 21.25 2.75 17.1086 2.75 12C2.75 6.89137 6.89137 2.75 12 2.75C17.1086 2.75 21.25 6.89137 21.25 12Z\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>"],
   IconCode: ["code", "<path d=\"M10.25 9L7.25 12L10.25 15M13.75 9L16.75 12L13.75 15M3.75 3.75H20.25V20.25H3.75V3.75Z\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>"],
+  IconCollaborationPointerLeft: ["collaboration-pointer-left, cursor, agents", "<path d=\"M12 12L19.25 9.41071L4.75 4.75L9.41071 19.25L12 12Z\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M20.5 13L15 14.9999L13 20.5\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>"],
   IconColumns3: ["columns-3, layout, third", "<path d=\"M20.25 3.75H3.75V20.25H20.25V3.75Z\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M9.25 4V20\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M14.75 4V20\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>"],
   IconComboChartAxis: ["combo-chart-axis", "<path d=\"M3.75 3.75V20.25H20.75\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M4.25 11L8.52586 7.7L13.3362 8.8L19.75 5.5\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M7.75 12.75V17.25\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M12.75 13.75V17.25\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M17.75 11.75V17.25\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>"],
   IconConsole: ["console, terminal", "<path d=\"M7.25 7.75L9 9.5L7.25 11.25M10.75 11.25H12.75M3.75 3.75H20.25V20.25H3.75V3.75Z\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>"],

@@ -123,6 +123,32 @@ function EditorMenuBarZoomControls({
   );
 }
 
+function EditorMenuBarDirectSelectButton({
+  active,
+  onActiveChange,
+}: {
+  active: boolean;
+  onActiveChange: (active: boolean) => void;
+}) {
+  return (
+    <EditorMenuBarTooltipItem
+      label={active ? "Exit direct selection (H)" : "Direct selection (V)"}
+    >
+      <Button
+        aria-label="Direct selection"
+        aria-pressed={active}
+        className={cn(active && "bg-accent text-foreground")}
+        onClick={() => onActiveChange(!active)}
+        size="icon"
+        type="button"
+        variant="ghost"
+      >
+        <Icon className="size-4" name="IconCollaborationPointerLeft" />
+      </Button>
+    </EditorMenuBarTooltipItem>
+  );
+}
+
 export function EditorMenuBar({
   className,
   width,
@@ -144,6 +170,8 @@ export function EditorMenuBar({
   showFitView = true,
   showShare = true,
   openInStudioHref,
+  directSelectActive = false,
+  onDirectSelectChange,
 }: {
   className?: string;
   width: number;
@@ -165,6 +193,9 @@ export function EditorMenuBar({
   showFitView?: boolean;
   showShare?: boolean;
   openInStudioHref?: string;
+  directSelectActive?: boolean;
+  /** Shows the direct-selection tool when set (full editor canvas only). */
+  onDirectSelectChange?: (active: boolean) => void;
 }) {
   const hasLeadingControls =
     Boolean(openInStudioHref) || showSidebarToggle || showThemeToggle;
@@ -205,9 +236,21 @@ export function EditorMenuBar({
           </EditorMenuBarTooltipItem>
         ) : null}
 
-        {showZoomControls ? (
+        {onDirectSelectChange ? (
           <>
             {hasLeadingControls ? <MenuBarDivider /> : null}
+            <EditorMenuBarDirectSelectButton
+              active={directSelectActive}
+              onActiveChange={onDirectSelectChange}
+            />
+          </>
+        ) : null}
+
+        {showZoomControls ? (
+          <>
+            {hasLeadingControls || onDirectSelectChange ? (
+              <MenuBarDivider />
+            ) : null}
             <EditorMenuBarZoomControls
               canvasScale={canvasScale}
               controlsDisabled={controlsDisabled}

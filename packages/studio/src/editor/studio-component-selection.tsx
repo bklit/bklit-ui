@@ -93,3 +93,8 @@ export function useStudioComponentSelection() {
   }
   return context;
 }
+
+/** Selection outside the provider (e.g. canvas tools in static previews). */
+export function useOptionalStudioComponentSelection() {
+  return useContext(StudioComponentSelectionContext);
+}
