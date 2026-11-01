@@ -194,15 +194,43 @@ export function useAnimatedSeriesPath({
     // far outside the plot when the magnitude changes (e.g. ~15k → ~10).
     const holdForYDomain = morph && dataChanged && yDomainChanged;
 
+    // The morph target only depends on these inputs (the settled scale, not
+    // the mid-tween one), so its flattened polyline is reused across frames
+    // until one of them changes.
+    let targetPolylineCache: {
+      inputs: readonly unknown[];
+      polyline: SeriesPathPoint[];
+    } | null = null;
+    const settledTargetPolyline = () => {
+      const latest = latestRef.current;
+      const inputs = [
+        latest.renderData,
+        latest.xAccessor,
+        latest.xScale,
+        latest.settledYScale,
+        latest.dataKey,
+        latest.curve,
+      ] as const;
+      const cached = targetPolylineCache;
+      if (cached && inputs.every((input, i) => input === cached.inputs[i])) {
+        return cached.polyline;
+      }
+      const polyline = flattenSeriesPath(
+        computeLatestTarget(true),
+        latest.curve
+      );
+      targetPolylineCache = { inputs, polyline };
+      return polyline;
+    };
+
     const renderFrame = (progress: number) => {
       // Morphs target the settled scale; x-domain slides (brush) track the
       // live y-domain tween so the series stays glued to the grid.
-      const currentTarget = computeLatestTarget(morph);
       const next: DisplayedSeriesPath = morph
         ? {
             points: morphSeriesPolylines(
               fromPolyline,
-              flattenSeriesPath(currentTarget, latestRef.current.curve),
+              settledTargetPolyline(),
               progress
             ),
             polyline: true,
@@ -210,7 +238,7 @@ export function useAnimatedSeriesPath({
         : {
             points: interpolateSeriesPathPoints(
               from.points,
-              currentTarget,
+              computeLatestTarget(false),
               progress
             ),
             polyline: false,
