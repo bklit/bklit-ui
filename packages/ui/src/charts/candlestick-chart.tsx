@@ -14,6 +14,7 @@ import {
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
 } from "react";
 import { cn } from "@/lib/utils";
 import {
@@ -220,24 +221,27 @@ const ChartCore = memo(function ChartCore({
     return () => clearTimeout(timer);
   }, [animationDuration, revealSignature]);
 
-  const {
-    tooltipData,
-    setTooltipData,
-    selection,
-    clearSelection,
-    interactionHandlers,
-    interactionStyle,
-  } = useChartInteraction({
-    xScale,
-    yScale,
-    yScales: wrapSingleYScale(yScale),
-    data,
-    lines,
-    margin,
-    xAccessor,
-    bisectDate,
-    canInteract: isLoaded,
-  });
+  const { hoverStore, interactionHandlers, interactionStyle } =
+    useChartInteraction({
+      xScale,
+      yScale,
+      yScales: wrapSingleYScale(yScale),
+      data,
+      lines,
+      margin,
+      xAccessor,
+      bisectDate,
+      canInteract: isLoaded,
+    });
+
+  // Candles read hover through the merged context value, so this chart
+  // re-renders on hover (unlike the time-series shell).
+  const { tooltipData, setTooltipData, selection, clearSelection } =
+    useSyncExternalStore(
+      hoverStore.subscribe,
+      hoverStore.getSnapshot,
+      hoverStore.getSnapshot
+    );
 
   const hoveredCandleIndex = tooltipData?.index ?? null;
 

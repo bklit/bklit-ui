@@ -33,7 +33,13 @@ import {
   renderableChartChild,
   resolveChartChildElement,
 } from "./chart-child-passthrough";
-import { ChartProvider, type LineConfig, type Margin } from "./chart-context";
+import {
+  ChartHoverStoreProvider,
+  ChartStableContextProvider,
+  type ChartStableContextValue,
+  type LineConfig,
+  type Margin,
+} from "./chart-context";
 import { isGradientDefComponent, isPatternDefComponent } from "./chart-defs";
 import { lazyLabels, shortDateFmt } from "./chart-formatters";
 import {
@@ -473,25 +479,21 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
 
   const canInteract = isLoaded && isChartInteractionPhase(chartPhase);
 
-  const {
-    tooltipData,
-    setTooltipData,
-    selection,
-    clearSelection,
-    interactionHandlers,
-    interactionStyle,
-  } = useChartInteraction({
-    bisectDate,
-    canInteract,
-    bands: bandConfigs,
-    data: visiblePlotData,
-    lines,
-    margin,
-    xAccessor,
-    xScale,
-    yScale,
-    yScales,
-  });
+  // Hover lives in `hoverStore`, not state: pointer moves re-render only the
+  // hover consumers below `ChartHoverStoreProvider`, not this shell.
+  const { hoverStore, interactionHandlers, interactionStyle } =
+    useChartInteraction({
+      bisectDate,
+      canInteract,
+      bands: bandConfigs,
+      data: visiblePlotData,
+      lines,
+      margin,
+      xAccessor,
+      xScale,
+      yScale,
+      yScales,
+    });
 
   const memoizedLayers = useMemo(
     () => classifyChartChildren(children),
@@ -562,7 +564,7 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
     return [...extracted, ...registered];
   }, [children, registeredReferenceAreas]);
 
-  const contextValue = useMemo(
+  const contextValue = useMemo<ChartStableContextValue>(
     () => ({
       data: visiblePlotData,
       renderData,
@@ -575,8 +577,6 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
       innerHeight,
       margin,
       columnWidth,
-      tooltipData,
-      setTooltipData,
       containerRef,
       lines,
       bands: bandConfigs,
@@ -597,8 +597,6 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
       dateLabels,
       xDomain,
       xDomainSlotCount,
-      selection,
-      clearSelection,
       composedBarDataKeys,
       composedBarSize,
       composedMaxBarSize,
@@ -619,8 +617,6 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
       innerHeight,
       margin,
       columnWidth,
-      tooltipData,
-      setTooltipData,
       containerRef,
       lines,
       bandConfigs,
@@ -641,8 +637,6 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
       dateLabels,
       xDomain,
       xDomainSlotCount,
-      selection,
-      clearSelection,
       composedBarDataKeys,
       composedBarSize,
       composedMaxBarSize,
@@ -715,59 +709,69 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
     <ReferenceAreaRegistrationContext.Provider
       value={referenceAreaRegistration}
     >
-      <ChartProvider value={contextValue}>
-        <svg
-          aria-hidden="true"
-          className="overflow-visible"
-          height={height}
-          width={width}
-        >
-          <OptionalDefs>
-            {defsChildren}
-            {useClipReveal ? (
-              <ChartRevealClip
-                animating={isRevealAnimating || isRevealConcealing}
-                clipPathId={uniqueClipPathId}
-                enterTransition={effectiveEnterTransition}
-                height={innerHeight}
-                mode={isRevealConcealing ? "conceal" : "reveal"}
-                onComplete={
-                  isRevealConcealing ? notifyRevealConcealComplete : undefined
-                }
-                padding={revealClipPadding}
-                paddingY={revealClipPaddingY}
-                revealEpoch={isRevealConcealing ? concealEpoch : revealEpoch}
-                targetWidth={innerWidth}
-              />
-            ) : null}
-          </OptionalDefs>
-
-          <rect fill="transparent" height={height} width={width} x={0} y={0} />
-
-          <g
-            {...interactionHandlers}
-            style={interactionStyle}
-            transform={`translate(${margin.left},${margin.top})`}
+      <ChartStableContextProvider value={contextValue}>
+        <ChartHoverStoreProvider store={hoverStore}>
+          <svg
+            aria-hidden="true"
+            className="overflow-visible"
+            height={height}
+            width={width}
           >
+            <OptionalDefs>
+              {defsChildren}
+              {useClipReveal ? (
+                <ChartRevealClip
+                  animating={isRevealAnimating || isRevealConcealing}
+                  clipPathId={uniqueClipPathId}
+                  enterTransition={effectiveEnterTransition}
+                  height={innerHeight}
+                  mode={isRevealConcealing ? "conceal" : "reveal"}
+                  onComplete={
+                    isRevealConcealing ? notifyRevealConcealComplete : undefined
+                  }
+                  padding={revealClipPadding}
+                  paddingY={revealClipPaddingY}
+                  revealEpoch={isRevealConcealing ? concealEpoch : revealEpoch}
+                  targetWidth={innerWidth}
+                />
+              ) : null}
+            </OptionalDefs>
+
             <rect
               fill="transparent"
-              height={innerHeight}
-              width={innerWidth}
+              height={height}
+              width={width}
               x={0}
               y={0}
             />
 
-            {clipExcludedChildren}
-            {underlayChildren}
-            {useClipReveal ? (
-              <g clipPath={`url(#${uniqueClipPathId})`}>{preOverlayChildren}</g>
-            ) : (
-              preOverlayChildren
-            )}
-            {postOverlayChildren}
-          </g>
-        </svg>
-      </ChartProvider>
+            <g
+              {...interactionHandlers}
+              style={interactionStyle}
+              transform={`translate(${margin.left},${margin.top})`}
+            >
+              <rect
+                fill="transparent"
+                height={innerHeight}
+                width={innerWidth}
+                x={0}
+                y={0}
+              />
+
+              {clipExcludedChildren}
+              {underlayChildren}
+              {useClipReveal ? (
+                <g clipPath={`url(#${uniqueClipPathId})`}>
+                  {preOverlayChildren}
+                </g>
+              ) : (
+                preOverlayChildren
+              )}
+              {postOverlayChildren}
+            </g>
+          </svg>
+        </ChartHoverStoreProvider>
+      </ChartStableContextProvider>
     </ReferenceAreaRegistrationContext.Provider>
   );
 });

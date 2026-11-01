@@ -2,7 +2,7 @@
 
 import { motion } from "motion/react";
 import type { ReactNode } from "react";
-import { useChartHover } from "./chart-context";
+import { selectIsChartHovering, useChartHoverSelector } from "./chart-context";
 import { useChartLegendHover } from "./chart-legend-hover";
 
 interface SeriesHoverDimProps {
@@ -35,9 +35,9 @@ export function SeriesHoverDim({
   seriesIndex,
   children,
 }: SeriesHoverDimProps) {
-  const { tooltipData, selection } = useChartHover();
+  // Boolean selector: re-renders on hover enter / leave, not on every move.
+  const isChartHovering = useChartHoverSelector(selectIsChartHovering);
   const { hoveredIndex: legendHoveredIndex } = useChartLegendHover();
-  const isChartHovering = tooltipData !== null || selection?.active === true;
   const isLegendDimmed =
     legendHoveredIndex !== null &&
     seriesIndex !== undefined &&

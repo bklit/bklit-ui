@@ -33,8 +33,16 @@ function defaultDedupeKey<T>(tooltip: T): string {
   return JSON.stringify(tooltip);
 }
 
-export function useScheduledTooltip<T>(): ScheduledTooltipControls<T> {
-  const [tooltipData, setTooltipData] = useState<T | null>(null);
+/**
+ * rAF-coalesced tooltip updates. Keeps the tooltip in React state, or in the
+ * caller's store when `setExternal` is given (then `tooltipData` stays `null`
+ * here — read it from the store).
+ */
+export function useScheduledTooltip<T>(
+  setExternal?: React.Dispatch<React.SetStateAction<T | null>>
+): ScheduledTooltipControls<T> {
+  const [tooltipData, setLocalTooltipData] = useState<T | null>(null);
+  const setTooltipData = setExternal ?? setLocalTooltipData;
   const lastKeyRef = useRef<string | null>(null);
   const pendingRef = useRef<T | null>(null);
   const rafRef = useRef<number | null>(null);
@@ -48,13 +56,16 @@ export function useScheduledTooltip<T>(): ScheduledTooltipControls<T> {
     };
   }, []);
 
-  const commitTooltip = useCallback((tooltip: T, dedupeKey: string) => {
-    if (dedupeKey === lastKeyRef.current) {
-      return;
-    }
-    lastKeyRef.current = dedupeKey;
-    setTooltipData(tooltip);
-  }, []);
+  const commitTooltip = useCallback(
+    (tooltip: T, dedupeKey: string) => {
+      if (dedupeKey === lastKeyRef.current) {
+        return;
+      }
+      lastKeyRef.current = dedupeKey;
+      setTooltipData(tooltip);
+    },
+    [setTooltipData]
+  );
 
   const scheduleTooltip = useCallback(
     (tooltip: T, dedupeKey?: string) => {
@@ -91,7 +102,7 @@ export function useScheduledTooltip<T>(): ScheduledTooltipControls<T> {
     pendingKeyRef.current = null;
     lastKeyRef.current = null;
     setTooltipData(null);
-  }, []);
+  }, [setTooltipData]);
 
   const resetTooltipDedupe = useCallback(() => {
     lastKeyRef.current = null;
