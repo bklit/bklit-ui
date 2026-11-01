@@ -99,6 +99,7 @@ export type StudioControl = StudioControlVisibility &
       }
     | { type: "pieFill"; key: keyof StudioUrlState; label: string }
     | { type: "orientation"; key: keyof StudioUrlState; label: string }
+    | { type: "trendDirection"; key: "lineDataTrend"; label: string }
     | { type: "lineCap"; key: "barLineCap"; label: string }
     | { type: "barShape"; key: "barVariant"; label: string }
     | { type: "tooltipDotVariant"; key: "tooltipDotVariant"; label: string }

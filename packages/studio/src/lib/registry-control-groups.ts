@@ -981,15 +981,11 @@ export const projectionControlGroup = controlGroup("Projection", [
 export function lineChartDataGroup(): StudioControlGroup {
   return controlGroup("Data", [
     {
-      type: "select",
+      type: "trendDirection",
       key: "lineDataTrend",
       label: "Trend",
       // Trending data only feeds projection previews.
       visibleWhen: { key: "projectionCount", truthy: true },
-      options: [
-        { value: "up", label: "Trend up" },
-        { value: "down", label: "Trend down" },
-      ],
     },
     {
       type: "number",
