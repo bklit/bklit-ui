@@ -60,7 +60,11 @@ import {
   pieCenterControlGroup,
   pieChartControlGroups,
   projectionControlGroup,
+  radarAreaControlGroup,
+  radarAxisControlGroups,
   radarChartControlGroups,
+  radarGridControlGroups,
+  radarLabelsControlGroups,
   radialAxisControlGroups,
   radialChartControlGroups,
   radialDotBarControlGroups,
@@ -1388,9 +1392,20 @@ export function resolveRingComponents(
 export function resolveRadarComponents(
   state: StudioUrlState
 ): StudioComponentDefinition[] {
-  const [layout, shape] = radarChartControlGroups;
+  const [layout] = radarChartControlGroups;
   const chartId = "radar.chart";
   const radarSeries = getRadarData(0);
+  const radarLayer = (
+    idSuffix: string,
+    label: string,
+    controlGroups: StudioControlGroup[]
+  ): StudioComponentDefinition => ({
+    id: `radar.${idSuffix}`,
+    label,
+    parentId: chartId,
+    kind: "chart",
+    controlGroups,
+  });
 
   return [
     {
@@ -1398,12 +1413,12 @@ export function resolveRadarComponents(
       label: "RadarChart",
       kind: "chart",
       treeIcon: "layers",
-      controlGroups: [...(layout ? [layout] : []), ...(shape ? [shape] : [])],
+      controlGroups: layout ? [layout] : [],
       design: rootPaletteDesign(false),
     },
-    passiveNode("radar", "grid", "RadarGrid"),
-    passiveNode("radar", "axis", "RadarAxis"),
-    passiveNode("radar", "labels", "RadarLabels"),
+    radarLayer("grid", "RadarGrid", radarGridControlGroups),
+    radarLayer("axis", "RadarAxis", radarAxisControlGroups),
+    radarLayer("labels", "RadarLabels", radarLabelsControlGroups),
     ...radarSeries.map((series, index) => ({
       id: `radar.area.${index}`,
       label: series.label,
@@ -1411,7 +1426,7 @@ export function resolveRadarComponents(
       kind: "series" as StudioComponentKind,
       listMarker: "color-dot" as const,
       swatchColor: getEffectiveSeriesColor(state, index),
-      controlGroups: [] as StudioControlGroup[],
+      controlGroups: seriesScopedControlGroups([radarAreaControlGroup], index),
       design: {
         seriesIndex: index,
         supportsPattern: false,

@@ -1062,19 +1062,44 @@ export function ringCodegen(state: StudioUrlState) {
   };
 }
 
+function radarAreaCodegen(state: StudioUrlState, index: number): string {
+  return `<RadarArea index={${index}} showGlow={${getSeriesPipeValue(state, "radarShowGlow", index)}} showPoints={${getSeriesPipeValue(state, "radarShowPoints", index)}} showStroke={${getSeriesPipeValue(state, "radarShowStroke", index)}} />`;
+}
+
 export function radarCodegen(state: StudioUrlState) {
+  const gridProps = [
+    state.showRadarGrid ? "" : " showLabels={false}",
+    state.radarGridStrokeOpacity === 0.6
+      ? ""
+      : ` strokeOpacity={${state.radarGridStrokeOpacity}}`,
+  ].join("");
+  const axisProps =
+    state.radarAxisStrokeOpacity === 0.6
+      ? ""
+      : ` strokeOpacity={${state.radarAxisStrokeOpacity}}`;
+  const labelsProps = `fontSize={${state.radarLabelFontSize}} offset={${state.radarLabelOffset}}${state.radarLabelsInteractive ? " interactive" : ""}`;
+  const layers = [
+    isStudioComponentVisible(state, "radar.grid")
+      ? `\n  <RadarGrid${gridProps} />`
+      : "",
+    isStudioComponentVisible(state, "radar.axis")
+      ? `\n  <RadarAxis${axisProps} />`
+      : "",
+    isStudioComponentVisible(state, "radar.labels")
+      ? `\n  <RadarLabels ${labelsProps} />`
+      : "",
+    ...radarDataDual.map((_, index) =>
+      isStudioComponentVisible(state, `radar.area.${index}`)
+        ? `\n  ${radarAreaCodegen(state, index)}`
+        : ""
+    ),
+  ].join("");
   return {
     code: `import { RadarChart, RadarGrid, RadarAxis, RadarLabels, RadarArea } from "@bklitui/ui/charts";
 
 const metrics = ${JSON.stringify(radarMetrics5, null, 2)};
 
-<RadarChart data={data} metrics={metrics} size={${state.radarSize}} margin={${state.radarMargin}} levels={${state.radarLevels}} enterDurationMs={${state.animationDuration}} staggerScale={${state.motionStaggerScale}}>
-  ${state.showRadarGrid ? "<RadarGrid />" : "<RadarGrid showLabels={false} />"}
-  <RadarAxis />
-  <RadarLabels fontSize={10} offset={16} />
-  {data.map((_, i) => (
-    <RadarArea index={i} key={i} showGlow={false} showPoints={${state.radarShowPoints}} showStroke={${state.radarShowStroke}} />
-  ))}
+<RadarChart data={data} metrics={metrics} size={${state.radarSize}} margin={${state.radarMargin}} levels={${state.radarLevels}} enterDurationMs={${state.animationDuration}} staggerScale={${state.motionStaggerScale}}>${layers}
 </RadarChart>`,
     data: `const data = ${JSON.stringify(radarDataDual, null, 2)};`,
   };

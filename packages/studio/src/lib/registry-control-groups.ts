@@ -1766,11 +1766,68 @@ export const radarChartControlGroups: StudioControlGroup[] = [
       min: 3,
       max: 8,
     },
-    { type: "boolean", key: "showRadarGrid", label: "Grid labels" },
   ]),
-  controlGroup("Shape", [
-    { type: "boolean", key: "radarShowPoints", label: "Show points" },
-    { type: "boolean", key: "radarShowStroke", label: "Show stroke" },
+];
+
+/** Per-series `<RadarArea>` controls (scoped to one area in the layer tree). */
+export const radarAreaControlGroup = controlGroup("Shape", [
+  { type: "boolean", key: "radarShowPoints", label: "Show points" },
+  { type: "boolean", key: "radarShowStroke", label: "Show stroke" },
+  { type: "boolean", key: "radarShowGlow", label: "Glow on hover" },
+]);
+
+export const radarGridControlGroups: StudioControlGroup[] = [
+  controlGroup("Grid", [
+    { type: "boolean", key: "showRadarGrid", label: "Labels" },
+    {
+      type: "opacity",
+      key: "radarGridStrokeOpacity",
+      label: "Opacity",
+      min: 0,
+      max: 1,
+      step: 0.05,
+      color: "var(--border)",
+    },
+  ]),
+];
+
+export const radarAxisControlGroups: StudioControlGroup[] = [
+  controlGroup("Axis", [
+    {
+      type: "opacity",
+      key: "radarAxisStrokeOpacity",
+      label: "Opacity",
+      min: 0,
+      max: 1,
+      step: 0.05,
+      color: "var(--border)",
+    },
+  ]),
+];
+
+export const radarLabelsControlGroups: StudioControlGroup[] = [
+  controlGroup("Labels", [
+    {
+      type: "number",
+      key: "radarLabelFontSize",
+      label: "Font size",
+      min: 8,
+      max: 18,
+      step: 1,
+    },
+    {
+      type: "number",
+      key: "radarLabelOffset",
+      label: "Offset",
+      min: 0,
+      max: 40,
+      step: 1,
+    },
+    {
+      type: "boolean",
+      key: "radarLabelsInteractive",
+      label: "Hover to highlight",
+    },
   ]),
 ];
 
