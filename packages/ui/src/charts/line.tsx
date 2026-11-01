@@ -3,6 +3,7 @@
 import { type CurveFactory, curveNatural } from "d3-shape";
 
 import {
+  memo,
   type RefObject,
   useCallback,
   useId,
@@ -205,7 +206,9 @@ function LineSeriesStroke({
   );
 }
 
-function LineLoadingOverlays({
+// Memoised: a series re-render (data update, every morph frame) passes the
+// same props, so the overlays and their children are skipped.
+const LineLoadingOverlays = memo(function LineLoadingOverlays({
   curve,
   handleLoadingPulseComplete,
   innerWidth,
@@ -261,7 +264,7 @@ function LineLoadingOverlays({
       ) : null}
     </>
   );
-}
+});
 
 function resolveLineGlow(
   glow: boolean | LineGlow,
@@ -378,7 +381,8 @@ function GlowFilter({
   );
 }
 
-function LineStrokeDefs({
+// Memoised for the same reason as `LineLoadingOverlays`.
+const LineStrokeDefs = memo(function LineStrokeDefs({
   glowBlur,
   glowFilterId,
   gradientId,
@@ -438,7 +442,7 @@ function LineStrokeDefs({
       ) : null}
     </defs>
   );
-}
+});
 
 /** Loading pulse mode for the line, or `null` when no pulse shows. */
 function resolveLinePulseMode(
