@@ -30,6 +30,9 @@ const CHART_FIXED_SERIES_COUNTS: Partial<Record<ChartSlug, number>> = {
   "ring-chart": 4,
   "radar-chart": 2,
   "radial-chart": 3,
+  "scatter-chart": 2,
+  // Bullish = series 0, bearish = series 2 (matches `--chart-1` / `--chart-3`).
+  "candlestick-chart": 3,
 };
 
 export function getSunburstArcCount(): number {

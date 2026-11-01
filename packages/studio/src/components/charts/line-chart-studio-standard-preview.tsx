@@ -54,6 +54,7 @@ import {
   studioCartesianSeriesLoadingProp,
   studioLoadingLabel,
   studioLoadingStrokeProps,
+  xAxisPropsFromState,
 } from "@/lib/studio-cartesian-layers";
 import { chartTooltipPropsFromState } from "@/lib/studio-chart-overlays";
 import { isStudioComponentVisible } from "@/lib/studio-component-visibility";
@@ -478,7 +479,7 @@ export function LineChartStudioStandardPreview({
                 <>
                   <StudioChartYAxisLayers chartPrefix="line" state={state} />
                   <StudioVisibleLayer componentId="line.xaxis" state={state}>
-                    <XAxis />
+                    <XAxis {...xAxisPropsFromState(state)} />
                   </StudioVisibleLayer>
                   <StudioVisibleLayer componentId="line.tooltip" state={state}>
                     <ChartTooltip {...chartTooltipPropsFromState(state)} />

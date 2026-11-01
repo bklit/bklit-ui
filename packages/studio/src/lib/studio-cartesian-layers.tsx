@@ -171,3 +171,25 @@ export function studioLoadingStrokeProps(
 export function studioCartesianSeriesLoadingProp(isPrimary: boolean) {
   return isPrimary ? undefined : false;
 }
+
+/** `<XAxis>` props for time-series cartesian charts. */
+export function xAxisPropsFromState(state: StudioUrlState) {
+  return {
+    numTicks: state.xAxisNumTicks,
+    tickMode: state.xAxisTickMode,
+  };
+}
+
+export function barXAxisPropsFromState(state: StudioUrlState) {
+  return {
+    maxLabels: state.barXAxisMaxLabels,
+    showAllLabels: state.barXAxisShowAllLabels,
+  };
+}
+
+export function barYAxisPropsFromState(state: StudioUrlState) {
+  return {
+    maxLabels: state.barYAxisMaxLabels,
+    showAllLabels: state.barYAxisShowAllLabels,
+  };
+}

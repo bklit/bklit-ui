@@ -13,7 +13,10 @@ import {
   StudioRadialCenter,
   studioRadialSize,
 } from "@/components/charts/studio-chart-layout";
-import { StudioChartShell } from "@/components/charts/studio-chart-shell";
+import {
+  StudioChartShell,
+  StudioVisibleLayer,
+} from "@/components/charts/studio-chart-shell";
 import {
   getStudioMotionEnterProps,
   studioAnimationDurationMs,
@@ -22,9 +25,9 @@ import {
 import { getRadarData, radarMetrics5 } from "@/lib/demo-data";
 import type { StudioRenderContext } from "@/lib/render-context";
 import { useStudioChartContentFrame } from "@/lib/studio-chart-content-frame";
-import { isStudioComponentVisible } from "@/lib/studio-component-visibility";
 import { studioRadarLegendItems } from "@/lib/studio-legend-items";
 import type { StudioUrlState } from "@/lib/studio-parsers";
+import { getSeriesPipeValue } from "@/lib/studio-series-line-props";
 
 const RadarChartBody = memo(function RadarChartBody({
   state,
@@ -58,24 +61,36 @@ const RadarChartBody = memo(function RadarChartBody({
         size={studioRadialSize(contentFrame, state.radarSize)}
         staggerScale={motionEnter.enterStaggerScale}
       >
-        {isStudioComponentVisible(state, "radar.grid") ? (
-          <RadarGrid showLabels={state.showRadarGrid} />
-        ) : null}
-        {isStudioComponentVisible(state, "radar.axis") ? <RadarAxis /> : null}
-        {isStudioComponentVisible(state, "radar.labels") ? (
-          <RadarLabels fontSize={10} offset={16} />
-        ) : null}
-        {radarData.map((item, index) =>
-          isStudioComponentVisible(state, `radar.area.${index}`) ? (
+        <StudioVisibleLayer componentId="radar.grid" state={state}>
+          <RadarGrid
+            showLabels={state.showRadarGrid}
+            strokeOpacity={state.radarGridStrokeOpacity}
+          />
+        </StudioVisibleLayer>
+        <StudioVisibleLayer componentId="radar.axis" state={state}>
+          <RadarAxis strokeOpacity={state.radarAxisStrokeOpacity} />
+        </StudioVisibleLayer>
+        <StudioVisibleLayer componentId="radar.labels" state={state}>
+          <RadarLabels
+            fontSize={state.radarLabelFontSize}
+            interactive={state.radarLabelsInteractive}
+            offset={state.radarLabelOffset}
+          />
+        </StudioVisibleLayer>
+        {radarData.map((item, index) => (
+          <StudioVisibleLayer
+            componentId={`radar.area.${index}`}
+            key={item.label}
+            state={state}
+          >
             <RadarArea
               index={index}
-              key={item.label}
-              showGlow={false}
-              showPoints={state.radarShowPoints}
-              showStroke={state.radarShowStroke}
+              showGlow={getSeriesPipeValue(state, "radarShowGlow", index)}
+              showPoints={getSeriesPipeValue(state, "radarShowPoints", index)}
+              showStroke={getSeriesPipeValue(state, "radarShowStroke", index)}
             />
-          ) : null
-        )}
+          </StudioVisibleLayer>
+        ))}
       </RadarChart>
     </StudioRadialCenter>
   );

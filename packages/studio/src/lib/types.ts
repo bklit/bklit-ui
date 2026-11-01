@@ -77,7 +77,8 @@ export type StudioControl = StudioControlVisibility &
         key: keyof StudioUrlState;
         label: string;
         options: { value: string; label: string }[];
-      } & ProjectionScopedControl)
+      } & SeriesScopedControl &
+        ProjectionScopedControl)
     | ({
         type: "curve";
         key: keyof StudioUrlState;
@@ -156,7 +157,8 @@ export type StudioControl = StudioControlVisibility &
         label: string;
         color: string;
         secondaryColor?: string;
-      } & Pick<NumberControlBase, "min" | "max" | "step">)
+      } & Pick<NumberControlBase, "min" | "max" | "step"> &
+        SeriesScopedControl)
     | {
         type: "lineSeriesYAxis";
         key: "lineSeriesYAxes";

@@ -154,7 +154,7 @@ export const studioSearchParams = {
   showRadarGrid: parseAsBoolean.withDefault(true),
   radarShowPoints: parseAsBoolean.withDefault(true),
   radarShowStroke: parseAsBoolean.withDefault(true),
-  radarShowGlow: parseAsBoolean.withDefault(true),
+  radarShowGlow: parseAsBoolean.withDefault(false),
   funnelLayers: parseAsInteger.withDefault(3),
   funnelGap: parseAsInteger.withDefault(4),
   funnelOrientation: parseAsStringLiteral([
@@ -679,6 +679,71 @@ export const studioSearchParams = {
     "gradient",
   ] as const).withDefault("solid"),
   radialLegendValues: parseAsBoolean.withDefault(true),
+  seriesFillOpacities: parseAsString.withDefault(""),
+  seriesGradientToOpacities: parseAsString.withDefault(""),
+  seriesScatterRadii: parseAsString.withDefault(""),
+  seriesScatterRingsFlags: parseAsString.withDefault(""),
+  seriesScatterRingGaps: parseAsString.withDefault(""),
+  seriesScatterRingWidths: parseAsString.withDefault(""),
+  seriesRadarPointsFlags: parseAsString.withDefault(""),
+  seriesRadarStrokeFlags: parseAsString.withDefault(""),
+  seriesRadarGlowFlags: parseAsString.withDefault(""),
+  radarGridStrokeOpacity: parseAsFloat.withDefault(0.6),
+  radarAxisStrokeOpacity: parseAsFloat.withDefault(0.6),
+  radarLabelFontSize: parseAsInteger.withDefault(10),
+  radarLabelOffset: parseAsInteger.withDefault(16),
+  radarLabelsInteractive: parseAsBoolean.withDefault(false),
+  ringLineCap: parseAsStringLiteral(["round", "butt"] as const).withDefault(
+    "round"
+  ),
+  ringShowGlow: parseAsBoolean.withDefault(false),
+  seriesRingLineCaps: parseAsString.withDefault(""),
+  seriesRingGlowFlags: parseAsString.withDefault(""),
+  ringGridShowLabels: parseAsBoolean.withDefault(true),
+  ringGridShowSpokes: parseAsBoolean.withDefault(true),
+  ringGridStrokeOpacity: parseAsFloat.withDefault(0.2),
+  candleInsideStrokeWidth: parseAsFloat.withDefault(0),
+  candleShowHoverFade: parseAsBoolean.withDefault(true),
+  sankeyNodeShowLabels: parseAsBoolean.withDefault(true),
+  sankeyNodeShowValueLabels: parseAsBoolean.withDefault(true),
+  sankeyNodeLabelOrientation: parseAsStringLiteral([
+    "horizontal",
+    "vertical",
+  ] as const).withDefault("horizontal"),
+  sankeyNodeCornerRadius: parseAsFloat.withDefault(4),
+  sankeyNodeFadedOpacity: parseAsFloat.withDefault(0.4),
+  sankeyLinkFadedOpacity: parseAsFloat.withDefault(0.1),
+  sankeyLinkUseGradient: parseAsBoolean.withDefault(true),
+  xAxisNumTicks: parseAsInteger.withDefault(5),
+  xAxisTickMode: parseAsStringLiteral(["data", "domain"] as const).withDefault(
+    "data"
+  ),
+  barXAxisShowAllLabels: parseAsBoolean.withDefault(false),
+  barXAxisMaxLabels: parseAsInteger.withDefault(12),
+  barYAxisShowAllLabels: parseAsBoolean.withDefault(true),
+  barYAxisMaxLabels: parseAsInteger.withDefault(20),
+  choroplethFeatureStroke: parseAsString.withDefault("var(--background)"),
+  choroplethFeatureStrokeWidth: parseAsFloat.withDefault(0.5),
+  choroplethFeatureFadedOpacity: parseAsFloat.withDefault(0.4),
+  choroplethGraticuleStrokeWidth: parseAsFloat.withDefault(0.5),
+  funnelLabelLayout: parseAsStringLiteral([
+    "spread",
+    "grouped",
+  ] as const).withDefault("spread"),
+  funnelLabelAlign: parseAsStringLiteral([
+    "center",
+    "start",
+    "end",
+  ] as const).withDefault("center"),
+  funnelLabelOrientation: parseAsStringLiteral([
+    "auto",
+    "vertical",
+    "horizontal",
+  ] as const).withDefault("auto"),
+  funnelGridBands: parseAsBoolean.withDefault(true),
+  funnelGridLines: parseAsBoolean.withDefault(true),
+  funnelGridLineOpacity: parseAsFloat.withDefault(1),
+  funnelGridLineWidth: parseAsFloat.withDefault(1),
 };
 
 export interface StudioUrlState {
@@ -1134,6 +1199,58 @@ export interface StudioUrlState {
   radialAxisCircle: boolean;
   radialScrubberVariant: "solid" | "dashed" | "gradient";
   radialLegendValues: boolean;
+  /** Pipe-encoded per-series `fillOpacity` overrides (area, composed). */
+  seriesFillOpacities: string;
+  /** Pipe-encoded per-series `gradientToOpacity` overrides (area). */
+  seriesGradientToOpacities: string;
+  seriesScatterRadii: string;
+  seriesScatterRingsFlags: string;
+  seriesScatterRingGaps: string;
+  seriesScatterRingWidths: string;
+  seriesRadarPointsFlags: string;
+  seriesRadarStrokeFlags: string;
+  seriesRadarGlowFlags: string;
+  radarGridStrokeOpacity: number;
+  radarAxisStrokeOpacity: number;
+  radarLabelFontSize: number;
+  radarLabelOffset: number;
+  radarLabelsInteractive: boolean;
+  ringLineCap: "round" | "butt";
+  ringShowGlow: boolean;
+  seriesRingLineCaps: string;
+  seriesRingGlowFlags: string;
+  ringGridShowLabels: boolean;
+  ringGridShowSpokes: boolean;
+  ringGridStrokeOpacity: number;
+  candleInsideStrokeWidth: number;
+  candleShowHoverFade: boolean;
+  sankeyNodeShowLabels: boolean;
+  sankeyNodeShowValueLabels: boolean;
+  sankeyNodeLabelOrientation: "horizontal" | "vertical";
+  /** `<SankeyNode lineCap>` — node corner radius in px. */
+  sankeyNodeCornerRadius: number;
+  sankeyNodeFadedOpacity: number;
+  sankeyLinkFadedOpacity: number;
+  sankeyLinkUseGradient: boolean;
+  /** `<XAxis numTicks>` for time-series cartesian charts. */
+  xAxisNumTicks: number;
+  xAxisTickMode: "data" | "domain";
+  barXAxisShowAllLabels: boolean;
+  barXAxisMaxLabels: number;
+  barYAxisShowAllLabels: boolean;
+  barYAxisMaxLabels: number;
+  choroplethFeatureStroke: string;
+  choroplethFeatureStrokeWidth: number;
+  choroplethFeatureFadedOpacity: number;
+  choroplethGraticuleStrokeWidth: number;
+  funnelLabelLayout: "spread" | "grouped";
+  funnelLabelAlign: "center" | "start" | "end";
+  /** `auto` omits `labelOrientation` (component picks by funnel orientation). */
+  funnelLabelOrientation: "auto" | "vertical" | "horizontal";
+  funnelGridBands: boolean;
+  funnelGridLines: boolean;
+  funnelGridLineOpacity: number;
+  funnelGridLineWidth: number;
 }
 
 /** Full default state for chart switches (nuqs used `null` to clear keys; in-memory state needs real defaults). */
@@ -1245,7 +1362,7 @@ export function defaultStudioState(
     showRadarGrid: true,
     radarShowPoints: true,
     radarShowStroke: true,
-    radarShowGlow: true,
+    radarShowGlow: false,
     funnelLayers: 3,
     funnelGap: 4,
     funnelOrientation: "vertical",
@@ -1598,6 +1715,53 @@ export function defaultStudioState(
     radialAxisCircle: true,
     radialScrubberVariant: "solid",
     radialLegendValues: true,
+    seriesFillOpacities: "",
+    seriesGradientToOpacities: "",
+    seriesScatterRadii: "",
+    seriesScatterRingsFlags: "",
+    seriesScatterRingGaps: "",
+    seriesScatterRingWidths: "",
+    seriesRadarPointsFlags: "",
+    seriesRadarStrokeFlags: "",
+    seriesRadarGlowFlags: "",
+    radarGridStrokeOpacity: 0.6,
+    radarAxisStrokeOpacity: 0.6,
+    radarLabelFontSize: 10,
+    radarLabelOffset: 16,
+    radarLabelsInteractive: false,
+    ringLineCap: "round",
+    ringShowGlow: false,
+    seriesRingLineCaps: "",
+    seriesRingGlowFlags: "",
+    ringGridShowLabels: true,
+    ringGridShowSpokes: true,
+    ringGridStrokeOpacity: 0.2,
+    candleInsideStrokeWidth: 0,
+    candleShowHoverFade: true,
+    sankeyNodeShowLabels: true,
+    sankeyNodeShowValueLabels: true,
+    sankeyNodeLabelOrientation: "horizontal",
+    sankeyNodeCornerRadius: 4,
+    sankeyNodeFadedOpacity: 0.4,
+    sankeyLinkFadedOpacity: 0.1,
+    sankeyLinkUseGradient: true,
+    xAxisNumTicks: 5,
+    xAxisTickMode: "data",
+    barXAxisShowAllLabels: false,
+    barXAxisMaxLabels: 12,
+    barYAxisShowAllLabels: true,
+    barYAxisMaxLabels: 20,
+    choroplethFeatureStroke: "var(--background)",
+    choroplethFeatureStrokeWidth: 0.5,
+    choroplethFeatureFadedOpacity: 0.4,
+    choroplethGraticuleStrokeWidth: 0.5,
+    funnelLabelLayout: "spread",
+    funnelLabelAlign: "center",
+    funnelLabelOrientation: "auto",
+    funnelGridBands: true,
+    funnelGridLines: true,
+    funnelGridLineOpacity: 1,
+    funnelGridLineWidth: 1,
     ...overrides,
   };
 }

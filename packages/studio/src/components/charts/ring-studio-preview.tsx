@@ -28,6 +28,7 @@ import {
   studioPreviewMotionState,
 } from "@/lib/studio-preview-state";
 import { getEffectiveSeriesColor } from "@/lib/studio-series-design";
+import { getSeriesPipeValue } from "@/lib/studio-series-line-props";
 
 interface RingChartGeometry {
   baseInnerRadius: number;
@@ -66,8 +67,18 @@ const RingChartBody = memo(
         return null;
       }
       return data.map((item, index) =>
+        // RingChart matches `Ring` children by type, so layers can't be wrapped.
         isStudioComponentVisible(visibilityState, `ring.layer.${index}`) ? (
-          <Ring index={index} key={item.label} showGlow={false} />
+          <Ring
+            index={index}
+            key={item.label}
+            lineCap={getSeriesPipeValue(visibilityState, "ringLineCap", index)}
+            showGlow={getSeriesPipeValue(
+              visibilityState,
+              "ringShowGlow",
+              index
+            )}
+          />
         ) : null
       );
     }, [data, geometryScrubbing, visibilityState]);
@@ -88,7 +99,13 @@ const RingChartBody = memo(
           size={chartSize}
           strokeWidth={geometry.strokeWidth}
         >
-          {geometry.showGrid ? <RingGrid /> : null}
+          {geometry.showGrid ? (
+            <RingGrid
+              showLabels={visibilityState.ringGridShowLabels}
+              showSpokes={visibilityState.ringGridShowSpokes}
+              strokeOpacity={visibilityState.ringGridStrokeOpacity}
+            />
+          ) : null}
           {rings}
           {geometry.showCenter ? (
             <RingCenter

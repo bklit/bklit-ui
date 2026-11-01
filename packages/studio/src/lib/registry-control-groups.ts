@@ -1026,6 +1026,58 @@ export const lineChartControlGroups: StudioControlGroup[] = [
   seriesDashTailControlGroup,
 ];
 
+export const xAxisControlGroups: StudioControlGroup[] = [
+  controlGroup("Ticks", [
+    {
+      type: "number",
+      key: "xAxisNumTicks",
+      label: "Approx. tick count",
+      min: 2,
+      max: 12,
+      step: 1,
+    },
+    {
+      type: "select",
+      key: "xAxisTickMode",
+      label: "Snap",
+      options: [
+        { value: "data", label: "Data points" },
+        { value: "domain", label: "Even spacing" },
+      ],
+    },
+  ]),
+];
+
+export const barXAxisControlGroups: StudioControlGroup[] = [
+  barCollapsibleGroup("Labels", [
+    { type: "boolean", key: "barXAxisShowAllLabels", label: "Show all" },
+    {
+      type: "number",
+      key: "barXAxisMaxLabels",
+      label: "Max labels",
+      min: 2,
+      max: 24,
+      step: 1,
+      visibleWhen: { key: "barXAxisShowAllLabels", truthy: false },
+    },
+  ]),
+];
+
+export const barYAxisControlGroups: StudioControlGroup[] = [
+  barCollapsibleGroup("Labels", [
+    { type: "boolean", key: "barYAxisShowAllLabels", label: "Show all" },
+    {
+      type: "number",
+      key: "barYAxisMaxLabels",
+      label: "Max labels",
+      min: 2,
+      max: 24,
+      step: 1,
+      visibleWhen: { key: "barYAxisShowAllLabels", truthy: false },
+    },
+  ]),
+];
+
 export const tooltipAppearanceControlGroup = controlGroup("Appearance", [
   {
     type: "color",
@@ -1737,6 +1789,36 @@ export const ringChartControlGroups: StudioControlGroup[] = [
   ]),
 ];
 
+/** Per-ring `<Ring>` controls (scoped to one ring in the layer tree). */
+export const ringLayerControlGroup = controlGroup("Ring", [
+  {
+    type: "select",
+    key: "ringLineCap",
+    label: "Line cap",
+    options: [
+      { value: "round", label: "Round" },
+      { value: "butt", label: "Flat" },
+    ],
+  },
+  { type: "boolean", key: "ringShowGlow", label: "Glow on hover" },
+]);
+
+export const ringGridControlGroups: StudioControlGroup[] = [
+  controlGroup("Grid", [
+    { type: "boolean", key: "ringGridShowLabels", label: "Labels" },
+    { type: "boolean", key: "ringGridShowSpokes", label: "Spokes" },
+    {
+      type: "opacity",
+      key: "ringGridStrokeOpacity",
+      label: "Opacity",
+      min: 0,
+      max: 1,
+      step: 0.05,
+      color: "var(--foreground)",
+    },
+  ]),
+];
+
 export const radarChartControlGroups: StudioControlGroup[] = [
   controlGroup("Layout", [
     {
@@ -1762,11 +1844,68 @@ export const radarChartControlGroups: StudioControlGroup[] = [
       min: 3,
       max: 8,
     },
-    { type: "boolean", key: "showRadarGrid", label: "Grid labels" },
   ]),
-  controlGroup("Shape", [
-    { type: "boolean", key: "radarShowPoints", label: "Show points" },
-    { type: "boolean", key: "radarShowStroke", label: "Show stroke" },
+];
+
+/** Per-series `<RadarArea>` controls (scoped to one area in the layer tree). */
+export const radarAreaControlGroup = controlGroup("Shape", [
+  { type: "boolean", key: "radarShowPoints", label: "Show points" },
+  { type: "boolean", key: "radarShowStroke", label: "Show stroke" },
+  { type: "boolean", key: "radarShowGlow", label: "Glow on hover" },
+]);
+
+export const radarGridControlGroups: StudioControlGroup[] = [
+  controlGroup("Grid", [
+    { type: "boolean", key: "showRadarGrid", label: "Labels" },
+    {
+      type: "opacity",
+      key: "radarGridStrokeOpacity",
+      label: "Opacity",
+      min: 0,
+      max: 1,
+      step: 0.05,
+      color: "var(--border)",
+    },
+  ]),
+];
+
+export const radarAxisControlGroups: StudioControlGroup[] = [
+  controlGroup("Axis", [
+    {
+      type: "opacity",
+      key: "radarAxisStrokeOpacity",
+      label: "Opacity",
+      min: 0,
+      max: 1,
+      step: 0.05,
+      color: "var(--border)",
+    },
+  ]),
+];
+
+export const radarLabelsControlGroups: StudioControlGroup[] = [
+  controlGroup("Labels", [
+    {
+      type: "number",
+      key: "radarLabelFontSize",
+      label: "Font size",
+      min: 8,
+      max: 18,
+      step: 1,
+    },
+    {
+      type: "number",
+      key: "radarLabelOffset",
+      label: "Offset",
+      min: 0,
+      max: 40,
+      step: 1,
+    },
+    {
+      type: "boolean",
+      key: "radarLabelsInteractive",
+      label: "Hover to highlight",
+    },
   ]),
 ];
 
@@ -1792,6 +1931,20 @@ export const candlestickChartControlGroups: StudioControlGroup[] = [
       min: 0,
       max: 0.5,
       step: 0.05,
+    },
+    {
+      type: "number",
+      key: "candleInsideStrokeWidth",
+      label: "Inner border",
+      min: 0,
+      max: 4,
+      step: 0.5,
+      unit: "px",
+    },
+    {
+      type: "boolean",
+      key: "candleShowHoverFade",
+      label: "Fade on hover",
     },
   ]),
 ];
@@ -1828,6 +1981,65 @@ export const funnelChartControlGroups: StudioControlGroup[] = [
     { type: "boolean", key: "funnelShowValues", label: "Show values" },
     { type: "boolean", key: "funnelShowLabels", label: "Show labels" },
     { type: "boolean", key: "funnelShowPercentage", label: "Show %" },
+    {
+      type: "select",
+      key: "funnelLabelLayout",
+      label: "Layout",
+      options: [
+        { value: "spread", label: "Spread" },
+        { value: "grouped", label: "Grouped" },
+      ],
+    },
+    {
+      type: "select",
+      key: "funnelLabelOrientation",
+      label: "Stack",
+      options: [
+        { value: "auto", label: "Auto" },
+        { value: "vertical", label: "Vertical" },
+        { value: "horizontal", label: "Horizontal" },
+      ],
+      visibleWhen: { key: "funnelLabelLayout", equals: "grouped" },
+    },
+    {
+      type: "select",
+      key: "funnelLabelAlign",
+      label: "Align",
+      options: [
+        { value: "center", label: "Center" },
+        { value: "start", label: "Start" },
+        { value: "end", label: "End" },
+      ],
+      visibleWhen: { key: "funnelLabelLayout", equals: "grouped" },
+    },
+  ]),
+];
+
+/** `<FunnelChart grid>` — opt-in layer (`funnel.funnel-grid`). */
+export const funnelGridControlGroups: StudioControlGroup[] = [
+  controlGroup("Grid", [
+    { type: "boolean", key: "funnelGridBands", label: "Bands" },
+    { type: "boolean", key: "funnelGridLines", label: "Lines" },
+    {
+      type: "opacity",
+      key: "funnelGridLineOpacity",
+      label: "Line opacity",
+      min: 0,
+      max: 1,
+      step: 0.05,
+      color: "var(--chart-grid)",
+      visibleWhen: { key: "funnelGridLines", truthy: true },
+    },
+    {
+      type: "number",
+      key: "funnelGridLineWidth",
+      label: "Line width",
+      min: 0.5,
+      max: 4,
+      step: 0.5,
+      unit: "px",
+      visibleWhen: { key: "funnelGridLines", truthy: true },
+    },
   ]),
 ];
 
@@ -2048,6 +2260,46 @@ export const choroplethChartControlGroups: StudioControlGroup[] = [
   ]),
 ];
 
+export const choroplethFeatureControlGroups: StudioControlGroup[] = [
+  controlGroup("Borders", [
+    { type: "color", key: "choroplethFeatureStroke", label: "Stroke" },
+    {
+      type: "number",
+      key: "choroplethFeatureStrokeWidth",
+      label: "Width",
+      min: 0,
+      max: 3,
+      step: 0.25,
+      unit: "px",
+    },
+  ]),
+  controlGroup("Hover", [
+    {
+      type: "opacity",
+      key: "choroplethFeatureFadedOpacity",
+      label: "Faded",
+      min: 0,
+      max: 1,
+      step: 0.05,
+      color: "var(--chart-3)",
+    },
+  ]),
+];
+
+export const choroplethGraticuleControlGroups: StudioControlGroup[] = [
+  controlGroup("Lines", [
+    {
+      type: "number",
+      key: "choroplethGraticuleStrokeWidth",
+      label: "Width",
+      min: 0.25,
+      max: 3,
+      step: 0.25,
+      unit: "px",
+    },
+  ]),
+];
+
 export const sankeyChartControlGroups: StudioControlGroup[] = [
   controlGroup("Layout", [
     {
@@ -2064,15 +2316,72 @@ export const sankeyChartControlGroups: StudioControlGroup[] = [
       min: 8,
       max: 32,
     },
+  ]),
+];
+
+export const sankeyNodeControlGroups: StudioControlGroup[] = [
+  controlGroup("Nodes", [
+    {
+      type: "number",
+      key: "sankeyNodeCornerRadius",
+      label: "Corner",
+      min: 0,
+      max: 12,
+      step: 1,
+      unit: "px",
+    },
+    {
+      type: "opacity",
+      key: "sankeyNodeFadedOpacity",
+      label: "Faded",
+      min: 0,
+      max: 1,
+      step: 0.05,
+      color: "var(--chart-1)",
+    },
+  ]),
+  controlGroup("Labels", [
+    { type: "boolean", key: "sankeyNodeShowLabels", label: "Show labels" },
+    {
+      type: "boolean",
+      key: "sankeyNodeShowValueLabels",
+      label: "Show values",
+      visibleWhen: { key: "sankeyNodeShowLabels", truthy: true },
+    },
+    {
+      type: "select",
+      key: "sankeyNodeLabelOrientation",
+      label: "Orientation",
+      options: [
+        { value: "horizontal", label: "Horizontal" },
+        { value: "vertical", label: "Vertical" },
+      ],
+      visibleWhen: { key: "sankeyNodeShowLabels", truthy: true },
+    },
+  ]),
+];
+
+export const sankeyLinkControlGroups: StudioControlGroup[] = [
+  controlGroup("Links", [
     {
       type: "opacity",
       key: "linkOpacity",
-      label: "Links",
+      label: "Opacity",
       min: 0.1,
       max: 1,
       step: 0.05,
       color: "var(--chart-1)",
     },
+    {
+      type: "opacity",
+      key: "sankeyLinkFadedOpacity",
+      label: "Faded",
+      min: 0,
+      max: 1,
+      step: 0.05,
+      color: "var(--chart-1)",
+    },
+    { type: "boolean", key: "sankeyLinkUseGradient", label: "Gradient" },
   ]),
 ];
 

@@ -427,12 +427,8 @@ export function ControlField({
         label={control.label}
         max={control.max}
         min={control.min}
-        onCommit={(n) =>
-          (onCommit ?? onChange)(key, n as StudioUrlState[typeof key])
-        }
-        onPreview={(n) =>
-          (onPreview ?? onChange)(key, n as StudioUrlState[typeof key])
-        }
+        onCommit={(n) => commitValue(key, n as StudioUrlState[typeof key])}
+        onPreview={(n) => previewValue(key, n as StudioUrlState[typeof key])}
         secondaryColor={control.secondaryColor}
         step={control.step ?? 0.05}
         value={value as number}

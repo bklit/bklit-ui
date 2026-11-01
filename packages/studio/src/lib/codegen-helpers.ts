@@ -56,6 +56,7 @@ import {
 import {
   getSeriesCurve,
   getSeriesFadeEdges,
+  getSeriesPipeValue,
   getSeriesShowHighlight,
   getSeriesShowLine,
   getSeriesStrokeWidth,
@@ -229,6 +230,28 @@ function projectionCodegenBlock(state: StudioUrlState): string {
   }
 
   return blocks.join("");
+}
+
+/** Non-default `<XAxis>` props (leading space, or empty). */
+export function xAxisPropsCodegen(state: StudioUrlState): string {
+  const props: string[] = [];
+  if (state.xAxisNumTicks !== 5) {
+    props.push(`numTicks={${state.xAxisNumTicks}}`);
+  }
+  if (state.xAxisTickMode !== "data") {
+    props.push(`tickMode="${state.xAxisTickMode}"`);
+  }
+  return props.length > 0 ? ` ${props.join(" ")}` : "";
+}
+
+function barXAxisPropsCodegen(state: StudioUrlState): string {
+  const props: string[] = [];
+  if (state.barXAxisShowAllLabels) {
+    props.push("showAllLabels");
+  } else if (state.barXAxisMaxLabels !== 12) {
+    props.push(`maxLabels={${state.barXAxisMaxLabels}}`);
+  }
+  return props.length > 0 ? ` ${props.join(" ")}` : "";
 }
 
 export function gridPropsCodegen(state: StudioUrlState): string {
@@ -614,7 +637,7 @@ export function cartesianLoadingCodegen(
   } else {
     chartImports.push("Area");
     const curveName = curveImportName(getSeriesCurve(state, 0));
-    child = `\n  <Area dataKey="${primaryKey}" curve={${curveName}} fillOpacity={${state.fillOpacity}} strokeWidth={${getSeriesStrokeWidth(state, 0)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, 0))} gradientToOpacity={${state.gradientToOpacity}} showLine={${getSeriesShowLine(state, 0)}} ${loadingStrokeAttr}${loadingStyleAttr} />`;
+    child = `\n  <Area dataKey="${primaryKey}" curve={${curveName}} fillOpacity={${getSeriesPipeValue(state, "fillOpacity", 0)}} strokeWidth={${getSeriesStrokeWidth(state, 0)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, 0))} gradientToOpacity={${getSeriesPipeValue(state, "gradientToOpacity", 0)}} showLine={${getSeriesShowLine(state, 0)}} ${loadingStrokeAttr}${loadingStyleAttr} />`;
   }
 
   const curveImports = curveImportLine(state, [0]);
@@ -719,7 +742,7 @@ export function cartesianCodegen(
           idx === 0 ? "" : ` fill="${SERIES_COLOR_BY_INDEX[idx]}"`;
         const seriesProps = seriesStrokePropsCodegen(state, idx);
         const curveName = curveImportName(getSeriesCurve(state, idx));
-        return `\n  <Area dataKey="${key}"${fillAttr} curve={${curveName}} fillOpacity={${state.fillOpacity}} strokeWidth={${getSeriesStrokeWidth(state, idx)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, idx))} gradientToOpacity={${state.gradientToOpacity}} showLine={${getSeriesShowLine(state, idx)}} showHighlight={${getSeriesShowHighlight(state, idx)}}${seriesProps}${valueLabels} />`;
+        return `\n  <Area dataKey="${key}"${fillAttr} curve={${curveName}} fillOpacity={${getSeriesPipeValue(state, "fillOpacity", idx)}} strokeWidth={${getSeriesStrokeWidth(state, idx)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, idx))} gradientToOpacity={${getSeriesPipeValue(state, "gradientToOpacity", idx)}} showLine={${getSeriesShowLine(state, idx)}} showHighlight={${getSeriesShowHighlight(state, idx)}}${seriesProps}${valueLabels} />`;
       })
       .join("");
   } else {
@@ -728,14 +751,14 @@ export function cartesianCodegen(
     const primarySeriesProps = seriesStrokePropsCodegen(state, 0);
     const primaryCurveName = curveImportName(getSeriesCurve(state, 0));
     const primary = primaryKey
-      ? `\n  ${patternCodegenBlock(state.pattern)}\n  <PatternArea dataKey="${primaryKey}" fill="${fill}" curve={${primaryCurveName}} />\n  <Area dataKey="${primaryKey}" fillOpacity={0} curve={${primaryCurveName}} strokeWidth={${getSeriesStrokeWidth(state, 0)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, 0))} gradientToOpacity={${state.gradientToOpacity}} showLine={${getSeriesShowLine(state, 0)}} showHighlight={${getSeriesShowHighlight(state, 0)}}${primarySeriesProps}${valueLabels} />`
+      ? `\n  ${patternCodegenBlock(state.pattern)}\n  <PatternArea dataKey="${primaryKey}" fill="${fill}" curve={${primaryCurveName}} />\n  <Area dataKey="${primaryKey}" fillOpacity={0} curve={${primaryCurveName}} strokeWidth={${getSeriesStrokeWidth(state, 0)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, 0))} gradientToOpacity={${getSeriesPipeValue(state, "gradientToOpacity", 0)}} showLine={${getSeriesShowLine(state, 0)}} showHighlight={${getSeriesShowHighlight(state, 0)}}${primarySeriesProps}${valueLabels} />`
       : "";
     const others = rest
       .map((key, idx) => {
         const seriesIndex = idx + 1;
         const seriesProps = seriesStrokePropsCodegen(state, seriesIndex);
         const curveName = curveImportName(getSeriesCurve(state, seriesIndex));
-        return `\n  <Area dataKey="${key}" fill="${SERIES_COLOR_BY_INDEX[seriesIndex]}" curve={${curveName}} fillOpacity={${state.fillOpacity}} strokeWidth={${getSeriesStrokeWidth(state, seriesIndex)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, seriesIndex))} gradientToOpacity={${state.gradientToOpacity}} showLine={${getSeriesShowLine(state, seriesIndex)}} showHighlight={${getSeriesShowHighlight(state, seriesIndex)}}${seriesProps}${valueLabels} />`;
+        return `\n  <Area dataKey="${key}" fill="${SERIES_COLOR_BY_INDEX[seriesIndex]}" curve={${curveName}} fillOpacity={${getSeriesPipeValue(state, "fillOpacity", seriesIndex)}} strokeWidth={${getSeriesStrokeWidth(state, seriesIndex)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, seriesIndex))} gradientToOpacity={${getSeriesPipeValue(state, "gradientToOpacity", seriesIndex)}} showLine={${getSeriesShowLine(state, seriesIndex)}} showHighlight={${getSeriesShowHighlight(state, seriesIndex)}}${seriesProps}${valueLabels} />`;
       })
       .join("");
     child = `${primary}${others}`;
@@ -785,7 +808,7 @@ export function cartesianCodegen(
 ${curveImports}
 
 <${chartType} data={${band.dataVar}}${anim}>${backgroundBlock}${gridBlock}${referenceAreaBlock}${dateHighlights.block}${band.block}${child}${trendLineBlock}${projectionBlock}
-  <XAxis />
+  <XAxis${xAxisPropsCodegen(state)} />
   <ChartTooltip />
 </${chartType}>`;
 }
@@ -983,7 +1006,7 @@ function barReadyCodegen(
     code: `import { BarChart, Bar, BarXAxis, ChartTooltip${gridImport}${backgroundImport}${referenceAreaImport}${trendLineImport}${state.pattern === "none" ? "" : ", PatternLines"} } from "@bklitui/ui/charts";
 
 <BarChart ${chartProps}>${backgroundBlock}${gridBlock}${referenceAreaBlock}${patternBlock}${bars}${trendLineBlock}
-  <BarXAxis />
+  <BarXAxis${barXAxisPropsCodegen(state)} />
   <ChartTooltip${state.barShowCrosshair ? " showCrosshair" : ""} />
 </BarChart>`,
     data: dataSnippet,
@@ -1006,13 +1029,13 @@ export function composedCodegen(state: StudioUrlState) {
       const color = SERIES_COLOR_BY_INDEX[seriesIndex];
       const seriesProps = seriesStrokePropsCodegen(state, seriesIndex);
       const curveName = curveImportName(getSeriesCurve(state, seriesIndex));
-      return `\n  <Area dataKey="${key}" curve={${curveName}} fillOpacity={${state.fillOpacity}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, seriesIndex))} fill="${color}"${seriesProps} />\n  <Line dataKey="${key}" curve={${curveName}} strokeWidth={${getSeriesStrokeWidth(state, seriesIndex)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, seriesIndex))} stroke="${color}"${seriesProps} />`;
+      return `\n  <Area dataKey="${key}" curve={${curveName}} fillOpacity={${getSeriesPipeValue(state, "fillOpacity", seriesIndex)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, seriesIndex))} fill="${color}"${seriesProps} />\n  <Line dataKey="${key}" curve={${curveName}} strokeWidth={${getSeriesStrokeWidth(state, seriesIndex)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, seriesIndex))} stroke="${color}"${seriesProps} />`;
     })
     .join("");
 
   const backgroundBlock = backgroundCodegenBlock(state, "composed");
   const gridVisible = isStudioComponentVisible(state, "composed.grid");
-  const gridBlock = gridVisible ? "\n  <Grid horizontal />" : "";
+  const gridBlock = gridVisible ? `\n  <Grid${gridPropsCodegen(state)} />` : "";
   const referenceAreaBlock = referenceAreaCodegenBlock(state, "composed");
   const trendLineBlock = trendLineCodegenBlock(state, "composed");
   const dateHighlights = dateHighlightsCodegen(state, "composed");
@@ -1040,11 +1063,39 @@ ${curveImports}
 
 <ComposedChart data={chartData}
   ${cssRevealAnimationCodegen(state.animationDuration, motionSliceFromState(state))}>${backgroundBlock}${gridBlock}${referenceAreaBlock}${dateHighlights.block}${barPattern}${barLine}${overlays}${trendLineBlock}
-  <XAxis />
+  <XAxis${xAxisPropsCodegen(state)} />
   <ChartTooltip />
 </ComposedChart>`,
     data: studioCartesianDataSnippet(state, "date"),
   };
+}
+
+function ringGridPropsCodegen(state: StudioUrlState): string {
+  const props: string[] = [];
+  if (!state.ringGridShowLabels) {
+    props.push("showLabels={false}");
+  }
+  if (!state.ringGridShowSpokes) {
+    props.push("showSpokes={false}");
+  }
+  if (state.ringGridStrokeOpacity !== 0.2) {
+    props.push(`strokeOpacity={${state.ringGridStrokeOpacity}}`);
+  }
+  return props.length > 0 ? ` ${props.join(" ")}` : "";
+}
+
+/** One `<Ring>` per visible layer; line cap / glow only when non-default. */
+function ringLayersCodegen(state: StudioUrlState): string {
+  return ringData
+    .map((_, index) => {
+      if (!isStudioComponentVisible(state, `ring.layer.${index}`)) {
+        return "";
+      }
+      const lineCap = getSeriesPipeValue(state, "ringLineCap", index);
+      const glow = getSeriesPipeValue(state, "ringShowGlow", index);
+      return `\n  <Ring index={${index}}${lineCap === "round" ? "" : ` lineCap="${lineCap}"`}${glow ? "" : " showGlow={false}"} />`;
+    })
+    .join("");
 }
 
 export function ringCodegen(state: StudioUrlState) {
@@ -1053,27 +1104,51 @@ export function ringCodegen(state: StudioUrlState) {
     code: `import { RingChart, Ring, RingCenter${showGrid ? ", RingGrid" : ""} } from "@bklitui/ui/charts";
 
 <RingChart data={ringData} size={${state.pieSize}}
-  ${cssRevealAnimationCodegen(state.animationDuration, motionSliceFromState(state))} strokeWidth={${state.ringStrokeWidth}} ringGap={${state.ringGap}} baseInnerRadius={${state.ringBaseInnerRadius}}>${showGrid ? "\n  <RingGrid />" : ""}
-  {ringData.map((_, i) => <Ring index={i} key={i} />)}
+  ${cssRevealAnimationCodegen(state.animationDuration, motionSliceFromState(state))} strokeWidth={${state.ringStrokeWidth}} ringGap={${state.ringGap}} baseInnerRadius={${state.ringBaseInnerRadius}}>${showGrid ? `\n  <RingGrid${ringGridPropsCodegen(state)} />` : ""}${ringLayersCodegen(state)}
   <RingCenter defaultLabel="${state.ringCenterLabel}"${state.ringCenterPrefix ? ` prefix="${state.ringCenterPrefix}"` : ""}${state.ringCenterSuffix ? ` suffix="${state.ringCenterSuffix}"` : ""} />
 </RingChart>`,
     data: `const ringData = ${JSON.stringify(ringData, null, 2)};`,
   };
 }
 
+function radarAreaCodegen(state: StudioUrlState, index: number): string {
+  return `<RadarArea index={${index}} showGlow={${getSeriesPipeValue(state, "radarShowGlow", index)}} showPoints={${getSeriesPipeValue(state, "radarShowPoints", index)}} showStroke={${getSeriesPipeValue(state, "radarShowStroke", index)}} />`;
+}
+
 export function radarCodegen(state: StudioUrlState) {
+  const gridProps = [
+    state.showRadarGrid ? "" : " showLabels={false}",
+    state.radarGridStrokeOpacity === 0.6
+      ? ""
+      : ` strokeOpacity={${state.radarGridStrokeOpacity}}`,
+  ].join("");
+  const axisProps =
+    state.radarAxisStrokeOpacity === 0.6
+      ? ""
+      : ` strokeOpacity={${state.radarAxisStrokeOpacity}}`;
+  const labelsProps = `fontSize={${state.radarLabelFontSize}} offset={${state.radarLabelOffset}}${state.radarLabelsInteractive ? " interactive" : ""}`;
+  const layers = [
+    isStudioComponentVisible(state, "radar.grid")
+      ? `\n  <RadarGrid${gridProps} />`
+      : "",
+    isStudioComponentVisible(state, "radar.axis")
+      ? `\n  <RadarAxis${axisProps} />`
+      : "",
+    isStudioComponentVisible(state, "radar.labels")
+      ? `\n  <RadarLabels ${labelsProps} />`
+      : "",
+    ...radarDataDual.map((_, index) =>
+      isStudioComponentVisible(state, `radar.area.${index}`)
+        ? `\n  ${radarAreaCodegen(state, index)}`
+        : ""
+    ),
+  ].join("");
   return {
     code: `import { RadarChart, RadarGrid, RadarAxis, RadarLabels, RadarArea } from "@bklitui/ui/charts";
 
 const metrics = ${JSON.stringify(radarMetrics5, null, 2)};
 
-<RadarChart data={data} metrics={metrics} size={${state.radarSize}} margin={${state.radarMargin}} levels={${state.radarLevels}} enterDurationMs={${state.animationDuration}} staggerScale={${state.motionStaggerScale}}>
-  ${state.showRadarGrid ? "<RadarGrid />" : "<RadarGrid showLabels={false} />"}
-  <RadarAxis />
-  <RadarLabels fontSize={10} offset={16} />
-  {data.map((_, i) => (
-    <RadarArea index={i} key={i} showGlow={false} showPoints={${state.radarShowPoints}} showStroke={${state.radarShowStroke}} />
-  ))}
+<RadarChart data={data} metrics={metrics} size={${state.radarSize}} margin={${state.radarMargin}} levels={${state.radarLevels}} enterDurationMs={${state.animationDuration}} staggerScale={${state.motionStaggerScale}}>${layers}
 </RadarChart>`,
     data: `const data = ${JSON.stringify(radarDataDual, null, 2)};`,
   };
@@ -1097,6 +1172,13 @@ export function candlestickCodegen(state: StudioUrlState) {
     state.pattern === "none"
       ? ""
       : '\n    bodyPatternPositive="url(#studio-pattern-fill)"\n    bodyPatternNegative="url(#studio-pattern-fill)"';
+
+  const candleBodyProps = [
+    state.candleInsideStrokeWidth > 0
+      ? ` insideStrokeWidth={${state.candleInsideStrokeWidth}}`
+      : "",
+    state.candleShowHoverFade ? "" : " showHoverFade={false}",
+  ].join("");
 
   const backgroundBlock = backgroundCodegenBlock(state, "candlestick");
   const gridVisible = isStudioComponentVisible(state, "candlestick.grid");
@@ -1122,12 +1204,43 @@ export function candlestickCodegen(state: StudioUrlState) {
 <CandlestickChart data={ohlcData}
   ${cssRevealAnimationCodegen(state.animationDuration, motionSliceFromState(state))} candleGap={${state.candleGap}} margin={{ top: 16, right: 16, bottom: 40, left: 56 }}>
   ${gradientBlock}${patternBlock}${backgroundBlock}${gridBlock}${referenceAreaBlock}
-  <Candlestick fadedOpacity={${state.candleFadedOpacity}} ${positiveFill} ${negativeFill}${patternProps} />
+  <Candlestick fadedOpacity={${state.candleFadedOpacity}} ${positiveFill} ${negativeFill}${patternProps}${candleBodyProps} />
   <ChartTooltip showDots={${state.candleShowDots}} />${yAxisLeftVisible ? `\n  <YAxis numTicks={${getLineYAxisNumTicks(state, "left")}} formatLargeNumbers={${getLineYAxisFormatLargeNumbers(state, "left")}} />` : ""}
-  <XAxis />
+  <XAxis${xAxisPropsCodegen(state)} />
 </CandlestickChart>`,
     data: `const ohlcData = ${JSON.stringify(candlestickOhlcData, null, 2)};`,
   };
+}
+
+function funnelExtraPropsCodegen(state: StudioUrlState): string {
+  const props: string[] = [];
+  if (state.funnelLabelLayout !== "spread") {
+    props.push(`labelLayout="${state.funnelLabelLayout}"`);
+    if (state.funnelLabelOrientation !== "auto") {
+      props.push(`labelOrientation="${state.funnelLabelOrientation}"`);
+    }
+    if (state.funnelLabelAlign !== "center") {
+      props.push(`labelAlign="${state.funnelLabelAlign}"`);
+    }
+  }
+  if (isStudioComponentVisible(state, "funnel.funnel-grid")) {
+    const grid: string[] = [];
+    if (!state.funnelGridBands) {
+      grid.push("bands: false");
+    }
+    if (state.funnelGridLines) {
+      if (state.funnelGridLineOpacity !== 1) {
+        grid.push(`lineOpacity: ${state.funnelGridLineOpacity}`);
+      }
+      if (state.funnelGridLineWidth !== 1) {
+        grid.push(`lineWidth: ${state.funnelGridLineWidth}`);
+      }
+    } else {
+      grid.push("lines: false");
+    }
+    props.push(grid.length > 0 ? `grid={{ ${grid.join(", ")} }}` : "grid");
+  }
+  return props.map((prop) => `\n  ${prop}`).join("");
 }
 
 export function funnelCodegen(state: StudioUrlState) {
@@ -1140,7 +1253,7 @@ export function funnelCodegen(state: StudioUrlState) {
   orientation="${state.funnelOrientation}"
   showValues={${state.funnelShowValues}}
   showLabels={${state.funnelShowLabels}}
-  showPercentage={${state.funnelShowPercentage}}
+  showPercentage={${state.funnelShowPercentage}}${funnelExtraPropsCodegen(state)}
   staggerDelay={${(0.12 * state.motionStaggerScale).toFixed(2)}}
   color="var(--chart-1)"
 />`,
@@ -1413,24 +1526,60 @@ import { ${curveName} } from "d3-shape";
   };
 }
 
+function sankeyNodePropsCodegen(state: StudioUrlState): string {
+  const props: string[] = [];
+  if (state.sankeyNodeCornerRadius !== 4) {
+    props.push(`lineCap={${state.sankeyNodeCornerRadius}}`);
+  }
+  if (state.sankeyNodeFadedOpacity !== 0.4) {
+    props.push(`fadedOpacity={${state.sankeyNodeFadedOpacity}}`);
+  }
+  if (!state.sankeyNodeShowLabels) {
+    props.push("showLabels={false}");
+  }
+  if (!state.sankeyNodeShowValueLabels) {
+    props.push("showValueLabels={false}");
+  }
+  if (state.sankeyNodeLabelOrientation !== "horizontal") {
+    props.push(`labelOrientation="${state.sankeyNodeLabelOrientation}"`);
+  }
+  return props.length > 0 ? ` ${props.join(" ")}` : "";
+}
+
+function sankeyLinkPropsCodegen(state: StudioUrlState): string {
+  const props = [`strokeOpacity={${state.linkOpacity}}`];
+  if (state.sankeyLinkFadedOpacity !== 0.1) {
+    props.push(`fadedOpacity={${state.sankeyLinkFadedOpacity}}`);
+  }
+  if (!state.sankeyLinkUseGradient) {
+    props.push("useGradient={false}");
+  }
+  return ` ${props.join(" ")}`;
+}
+
 export function sankeyCodegen(state: StudioUrlState) {
   return {
     code: `<SankeyChart data={sankeyData}
   ${cssRevealAnimationCodegen(state.animationDuration, motionSliceFromState(state))} nodePadding={${state.sankeyNodePadding}} nodeWidth={${state.sankeyNodeWidth}}>
-  <SankeyNode />
-  <SankeyLink strokeOpacity={${state.linkOpacity}} />
+  <SankeyNode${sankeyNodePropsCodegen(state)} />
+  <SankeyLink${sankeyLinkPropsCodegen(state)} />
   <SankeyTooltip />
 </SankeyChart>`,
     data: `const sankeyData = ${JSON.stringify(sankeySimple, null, 2)};`,
   };
 }
 
-function scatterSeriesPropsCodegen(state: StudioUrlState): string {
-  const parts = [`radius={${state.scatterRadius}}`];
-  if (state.scatterShowRings) {
+function scatterSeriesPropsCodegen(
+  state: StudioUrlState,
+  seriesIndex: number
+): string {
+  const parts = [
+    `radius={${getSeriesPipeValue(state, "scatterRadius", seriesIndex)}}`,
+  ];
+  if (getSeriesPipeValue(state, "scatterShowRings", seriesIndex)) {
     parts.push(
-      `strokeWidth={${state.scatterRingWidth}}`,
-      `ringGap={${state.scatterRingGap}}`
+      `strokeWidth={${getSeriesPipeValue(state, "scatterRingWidth", seriesIndex)}}`,
+      `ringGap={${getSeriesPipeValue(state, "scatterRingGap", seriesIndex)}}`
     );
   }
   if (state.scatterFadeOnHover) {
@@ -1467,12 +1616,12 @@ export function scatterCodegen(state: StudioUrlState) {
   const anim = `\n  ${cssRevealAnimationCodegen(state.animationDuration, motionSliceFromState(state))}`;
   const isJitter = state.scatterJitter;
   const jitter = scatterJitterCodegen(state);
-  const seriesProps = scatterSeriesPropsCodegen(state);
+  const seriesProps = scatterSeriesPropsCodegen(state, 0);
   const [firstKey, secondKey] = isJitter
     ? ["fastlane", "human"]
     : ["desktop", "mobile"];
   const secondSeries = state.scatterSecondSeries
-    ? `\n  <Scatter dataKey="${secondKey}" ${seriesProps} />`
+    ? `\n  <Scatter dataKey="${secondKey}" ${scatterSeriesPropsCodegen(state, 1)} />`
     : "";
 
   const backgroundBlock = backgroundCodegenBlock(state, "scatter");
@@ -1495,7 +1644,9 @@ export function scatterCodegen(state: StudioUrlState) {
     ? `${yAxisBlock ? ", YAxis" : ""}, TooltipContent`
     : "";
   const chartLabelProp = isJitter ? "\n  formatXLabel={formatMonth}" : "";
-  const xAxisBlock = isJitter ? "<XAxis numTicks={12} />" : "<XAxis />";
+  const xAxisBlock = isJitter
+    ? "<XAxis numTicks={12} />"
+    : `<XAxis${xAxisPropsCodegen(state)} />`;
   // Jittered scatter hides the crosshair by default — emit only the opt-in.
   const tooltipBlock = isJitter
     ? `<ChartTooltip${state.scatterJitterShowCrosshair ? " showCrosshair" : ""} content={({ point }) => <PrTooltip point={point} />} />`

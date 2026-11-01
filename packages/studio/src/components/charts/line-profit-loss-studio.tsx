@@ -36,6 +36,7 @@ import type { StudioRenderContext } from "@/lib/render-context";
 import {
   gridPropsFromState,
   studioCartesianBackgroundLayer,
+  xAxisPropsFromState,
 } from "@/lib/studio-cartesian-layers";
 import { chartTooltipPropsFromState } from "@/lib/studio-chart-overlays";
 import type { StudioUrlState } from "@/lib/studio-parsers";
@@ -168,7 +169,7 @@ export function LineProfitLossStudioChart({
           </StudioVisibleLayer>
           <StudioChartYAxisLayers chartPrefix="line" state={state} />
           <StudioVisibleLayer componentId="line.xaxis" state={state}>
-            <XAxis />
+            <XAxis {...xAxisPropsFromState(state)} />
           </StudioVisibleLayer>
           <StudioVisibleLayer componentId="line.tooltip" state={state}>
             <ChartTooltip
