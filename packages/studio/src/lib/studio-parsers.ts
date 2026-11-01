@@ -704,6 +704,16 @@ export const studioSearchParams = {
   ringGridStrokeOpacity: parseAsFloat.withDefault(0.2),
   candleInsideStrokeWidth: parseAsFloat.withDefault(0),
   candleShowHoverFade: parseAsBoolean.withDefault(true),
+  sankeyNodeShowLabels: parseAsBoolean.withDefault(true),
+  sankeyNodeShowValueLabels: parseAsBoolean.withDefault(true),
+  sankeyNodeLabelOrientation: parseAsStringLiteral([
+    "horizontal",
+    "vertical",
+  ] as const).withDefault("horizontal"),
+  sankeyNodeCornerRadius: parseAsFloat.withDefault(4),
+  sankeyNodeFadedOpacity: parseAsFloat.withDefault(0.4),
+  sankeyLinkFadedOpacity: parseAsFloat.withDefault(0.1),
+  sankeyLinkUseGradient: parseAsBoolean.withDefault(true),
 };
 
 export interface StudioUrlState {
@@ -1184,6 +1194,14 @@ export interface StudioUrlState {
   ringGridStrokeOpacity: number;
   candleInsideStrokeWidth: number;
   candleShowHoverFade: boolean;
+  sankeyNodeShowLabels: boolean;
+  sankeyNodeShowValueLabels: boolean;
+  sankeyNodeLabelOrientation: "horizontal" | "vertical";
+  /** `<SankeyNode lineCap>` — node corner radius in px. */
+  sankeyNodeCornerRadius: number;
+  sankeyNodeFadedOpacity: number;
+  sankeyLinkFadedOpacity: number;
+  sankeyLinkUseGradient: boolean;
 }
 
 /** Full default state for chart switches (nuqs used `null` to clear keys; in-memory state needs real defaults). */
@@ -1671,6 +1689,13 @@ export function defaultStudioState(
     ringGridStrokeOpacity: 0.2,
     candleInsideStrokeWidth: 0,
     candleShowHoverFade: true,
+    sankeyNodeShowLabels: true,
+    sankeyNodeShowValueLabels: true,
+    sankeyNodeLabelOrientation: "horizontal",
+    sankeyNodeCornerRadius: 4,
+    sankeyNodeFadedOpacity: 0.4,
+    sankeyLinkFadedOpacity: 0.1,
+    sankeyLinkUseGradient: true,
     ...overrides,
   };
 }

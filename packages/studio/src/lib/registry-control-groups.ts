@@ -2169,15 +2169,72 @@ export const sankeyChartControlGroups: StudioControlGroup[] = [
       min: 8,
       max: 32,
     },
+  ]),
+];
+
+export const sankeyNodeControlGroups: StudioControlGroup[] = [
+  controlGroup("Nodes", [
+    {
+      type: "number",
+      key: "sankeyNodeCornerRadius",
+      label: "Corner",
+      min: 0,
+      max: 12,
+      step: 1,
+      unit: "px",
+    },
+    {
+      type: "opacity",
+      key: "sankeyNodeFadedOpacity",
+      label: "Faded",
+      min: 0,
+      max: 1,
+      step: 0.05,
+      color: "var(--chart-1)",
+    },
+  ]),
+  controlGroup("Labels", [
+    { type: "boolean", key: "sankeyNodeShowLabels", label: "Show labels" },
+    {
+      type: "boolean",
+      key: "sankeyNodeShowValueLabels",
+      label: "Show values",
+      visibleWhen: { key: "sankeyNodeShowLabels", truthy: true },
+    },
+    {
+      type: "select",
+      key: "sankeyNodeLabelOrientation",
+      label: "Orientation",
+      options: [
+        { value: "horizontal", label: "Horizontal" },
+        { value: "vertical", label: "Vertical" },
+      ],
+      visibleWhen: { key: "sankeyNodeShowLabels", truthy: true },
+    },
+  ]),
+];
+
+export const sankeyLinkControlGroups: StudioControlGroup[] = [
+  controlGroup("Links", [
     {
       type: "opacity",
       key: "linkOpacity",
-      label: "Links",
+      label: "Opacity",
       min: 0.1,
       max: 1,
       step: 0.05,
       color: "var(--chart-1)",
     },
+    {
+      type: "opacity",
+      key: "sankeyLinkFadedOpacity",
+      label: "Faded",
+      min: 0,
+      max: 1,
+      step: 0.05,
+      color: "var(--chart-1)",
+    },
+    { type: "boolean", key: "sankeyLinkUseGradient", label: "Gradient" },
   ]),
 ];
 

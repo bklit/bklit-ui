@@ -1473,12 +1473,43 @@ import { ${curveName} } from "d3-shape";
   };
 }
 
+function sankeyNodePropsCodegen(state: StudioUrlState): string {
+  const props: string[] = [];
+  if (state.sankeyNodeCornerRadius !== 4) {
+    props.push(`lineCap={${state.sankeyNodeCornerRadius}}`);
+  }
+  if (state.sankeyNodeFadedOpacity !== 0.4) {
+    props.push(`fadedOpacity={${state.sankeyNodeFadedOpacity}}`);
+  }
+  if (!state.sankeyNodeShowLabels) {
+    props.push("showLabels={false}");
+  }
+  if (!state.sankeyNodeShowValueLabels) {
+    props.push("showValueLabels={false}");
+  }
+  if (state.sankeyNodeLabelOrientation !== "horizontal") {
+    props.push(`labelOrientation="${state.sankeyNodeLabelOrientation}"`);
+  }
+  return props.length > 0 ? ` ${props.join(" ")}` : "";
+}
+
+function sankeyLinkPropsCodegen(state: StudioUrlState): string {
+  const props = [`strokeOpacity={${state.linkOpacity}}`];
+  if (state.sankeyLinkFadedOpacity !== 0.1) {
+    props.push(`fadedOpacity={${state.sankeyLinkFadedOpacity}}`);
+  }
+  if (!state.sankeyLinkUseGradient) {
+    props.push("useGradient={false}");
+  }
+  return ` ${props.join(" ")}`;
+}
+
 export function sankeyCodegen(state: StudioUrlState) {
   return {
     code: `<SankeyChart data={sankeyData}
   ${cssRevealAnimationCodegen(state.animationDuration, motionSliceFromState(state))} nodePadding={${state.sankeyNodePadding}} nodeWidth={${state.sankeyNodeWidth}}>
-  <SankeyNode />
-  <SankeyLink strokeOpacity={${state.linkOpacity}} />
+  <SankeyNode${sankeyNodePropsCodegen(state)} />
+  <SankeyLink${sankeyLinkPropsCodegen(state)} />
   <SankeyTooltip />
 </SankeyChart>`,
     data: `const sankeyData = ${JSON.stringify(sankeySimple, null, 2)};`,

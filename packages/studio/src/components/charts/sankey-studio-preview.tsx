@@ -81,10 +81,22 @@ const SankeyChartBody = memo(function SankeyChartBody({
         onNodeHoverChange={setHoveredIndex}
       >
         {isStudioComponentVisible(state, "sankey.node") ? (
-          <SankeyNode key="nodes" showValueLabels={showValueLabels} />
+          <SankeyNode
+            fadedOpacity={state.sankeyNodeFadedOpacity}
+            key="nodes"
+            labelOrientation={state.sankeyNodeLabelOrientation}
+            lineCap={state.sankeyNodeCornerRadius}
+            showLabels={state.sankeyNodeShowLabels}
+            showValueLabels={showValueLabels && state.sankeyNodeShowValueLabels}
+          />
         ) : null}
         {isStudioComponentVisible(state, "sankey.link") ? (
-          <SankeyLink key="links" strokeOpacity={state.linkOpacity} />
+          <SankeyLink
+            fadedOpacity={state.sankeyLinkFadedOpacity}
+            key="links"
+            strokeOpacity={state.linkOpacity}
+            useGradient={state.sankeyLinkUseGradient}
+          />
         ) : null}
         {isStudioComponentVisible(state, "sankey.tooltip") ? (
           <SankeyTooltip
