@@ -8,6 +8,7 @@ const STUDIO_OG_CAPTURE_SELECTOR = `[${STUDIO_OG_CAPTURE_ROOT_ATTR}]`;
 
 import { NextResponse } from "next/server";
 import type { Browser } from "puppeteer-core";
+import { apiErrorResponse } from "@/lib/agent/api-error";
 import { SITE_URL } from "@/lib/site-url";
 import { launchStudioOgBrowser } from "@/lib/studio-og-chromium";
 
@@ -87,10 +88,12 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     console.error("Studio OG chart screenshot failed:", error);
-    return NextResponse.json(
-      { error: "Failed to generate chart screenshot" },
-      { status: 500 }
-    );
+    return apiErrorResponse({
+      status: 500,
+      code: "screenshot_failed",
+      detail: "Failed to generate the chart screenshot.",
+      hint: "Check that ?s= is a Studio state copied from /studio, then retry.",
+    });
   } finally {
     await page?.close();
   }
