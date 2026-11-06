@@ -4,6 +4,7 @@ import {
   studioSerializedParam,
 } from "@bklitui/studio";
 import { ImageResponse } from "next/og";
+import { apiErrorResponse } from "@/lib/agent/api-error";
 import { SITE_URL } from "@/lib/site-url";
 import { loadStudioOgFonts } from "@/lib/studio-og-fonts";
 import {
@@ -60,10 +61,12 @@ export async function GET(request: Request) {
     () => null
   );
   if (!chartResponse?.ok) {
-    return Response.json(
-      { error: "Failed to generate chart screenshot" },
-      { status: 503, headers: { "Cache-Control": "no-store" } }
-    );
+    return apiErrorResponse({
+      status: 503,
+      code: "screenshot_failed",
+      detail: "Failed to generate the chart screenshot.",
+      hint: "Check that ?s= is a Studio state copied from /studio, then retry.",
+    });
   }
   const chartImage = `data:image/png;base64,${Buffer.from(
     await chartResponse.arrayBuffer()

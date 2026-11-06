@@ -21,11 +21,21 @@ export async function GET(
 ) {
   const { chart } = await params;
   if (!isChartSlug(chart)) {
-    return ogErrorResponse(404, "Unknown chart");
+    return ogErrorResponse(
+      404,
+      "unknown_chart",
+      `No chart named "${chart}".`,
+      "Use a chart slug from /docs/components, e.g. area-chart."
+    );
   }
   const format = requestOgFormat(request);
   if (!format) {
-    return ogErrorResponse(400, "Unknown format");
+    return ogErrorResponse(
+      400,
+      "unknown_format",
+      "Unknown format.",
+      "Use ?format=wide (1200×630, default) or ?format=square (1200×1200)."
+    );
   }
   return captureOgCard(request, chart, format);
 }

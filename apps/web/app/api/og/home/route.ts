@@ -16,7 +16,12 @@ export const maxDuration = 60;
 export function GET(request: Request) {
   const format = requestOgFormat(request);
   if (!format) {
-    return ogErrorResponse(400, "Unknown format");
+    return ogErrorResponse(
+      400,
+      "unknown_format",
+      "Unknown format.",
+      "Use ?format=wide (1200×630, default) or ?format=square (1200×1200)."
+    );
   }
   return captureOgCard(request, "home", format);
 }

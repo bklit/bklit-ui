@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { Browser, HTTPRequest, Page } from "puppeteer-core";
+import { apiErrorResponse } from "@/lib/agent/api-error";
 import {
   CHART_OG_CARD_ATTR,
   CHART_OG_READY_ATTR,
@@ -125,11 +126,14 @@ async function captureStableCard(page: Page): Promise<Uint8Array> {
   return previous;
 }
 
-export function ogErrorResponse(status: number, error: string) {
-  return NextResponse.json(
-    { error },
-    { status, headers: { "Cache-Control": "no-store" } }
-  );
+/** Problem Details JSON error (`code` e.g. `unknown_chart`). */
+export function ogErrorResponse(
+  status: number,
+  code: string,
+  detail: string,
+  hint?: string
+) {
+  return apiErrorResponse({ status, code, detail, hint });
 }
 
 /** `?format=` from the request (`wide` when absent), or `null` if unknown. */
@@ -146,7 +150,7 @@ export async function captureOgCard(
   request: Request,
   subject: string,
   format: ChartOgFormat
-): Promise<NextResponse> {
+): Promise<Response> {
   const origin = renderOrigin(request);
   const renderUrl = `${origin}${chartOgRenderPath(subject, format)}`;
 
@@ -196,7 +200,12 @@ export async function captureOgCard(
     });
   } catch (error) {
     console.error(`OG capture failed (${subject}, ${format}):`, error);
-    return ogErrorResponse(503, "Failed to render OG image");
+    return ogErrorResponse(
+      503,
+      "og_render_failed",
+      "Failed to render the Open Graph image.",
+      "Retry the request; rendering uses a headless browser and can time out."
+    );
   } finally {
     await page?.close().catch(() => undefined);
   }

@@ -1,4 +1,5 @@
 import type * as PageTree from "fumadocs-core/page-tree";
+import { SITE_SUMMARY } from "@/lib/agent/site-markdown";
 import { siteNavLinks } from "@/lib/site-nav-links";
 import { SITE_URL } from "@/lib/site-url";
 import { source } from "@/lib/source";
@@ -11,8 +12,7 @@ import { source } from "@/lib/source";
  */
 export const dynamic = "force-static";
 
-const SUMMARY =
-  "Bklit UI is an open-source React chart and data-viz component library (d3, Motion, Tailwind 4). Charts are composable primitives (line, area, bar, pie, heatmap, sankey, and more, plus tiny inline Line/Area/Bar sparklines for tables and KPI cards, and utilities like Band, Weekends, Deadline, Trend Line, markers, and tooltips) installed via the shadcn registry. Themes use CSS custom properties with multi-hue chart palettes. The interactive Studio tunes chart props and records animations.";
+const SUMMARY = SITE_SUMMARY;
 
 interface DocEntry {
   title: string;
@@ -123,6 +123,7 @@ export function GET() {
     `- [Studio](${SITE_URL}/studio): Interactive editor to tune chart props, palettes, and motion, then copy the code.`,
     `- [Benchmarks](${SITE_URL}/benchmarks): Live in-browser performance benchmarks (mount, update, hover, DOM size) against Recharts and TanStack Charts.`,
     `- [Showcase](${SITE_URL}/showcase): Real dashboards and data experiences built with Bklit UI.`,
+    `- [OpenAPI spec](${SITE_URL}/openapi.json): Machine-readable description of the docs search, shadcn registry, and Open Graph image endpoints.`,
     ""
   );
 
