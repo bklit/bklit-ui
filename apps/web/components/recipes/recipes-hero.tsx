@@ -2,6 +2,7 @@
 
 import { GridPageHero } from "@/components/design/grid-page-hero";
 import { Button } from "@/components/ui/button";
+import { recipes } from "./definitions";
 
 export function RecipesHero() {
   return (
@@ -16,7 +17,7 @@ export function RecipesHero() {
           size="lg"
           variant="default"
         >
-          Browse recipes
+          Browse {recipes.length} recipes
         </Button>
       }
       subtitle="Visual style treatments for your charts — preview them, grab the code, or copy a prompt that tells your agent to restyle the charts you already have"
