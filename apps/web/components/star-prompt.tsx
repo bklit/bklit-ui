@@ -19,8 +19,9 @@ import { getAnalyticsUrl, trackEvent } from "@/lib/analytics/track-client";
 import { GITHUB_URL } from "@/lib/seo";
 import {
   dismissStarPrompt,
+  markStarPromptStarred,
   recordPageSeen,
-  useStarPromptDismissed,
+  useStarPromptStatus,
 } from "@/lib/star-prompt";
 
 /** Lets the page transition settle before the card arrives. */
@@ -31,13 +32,12 @@ function trackStarClick(location: string) {
   trackEvent("github_star_click", { location, url: getAnalyticsUrl() });
 }
 
+/** Starring hides the floating card and the sidebar card for 30 days. */
 function StarButton({
   location,
-  onClick,
   size = "xs",
 }: {
   location: string;
-  onClick?: () => void;
   size?: "xs" | "sm";
 }) {
   return (
@@ -45,7 +45,7 @@ function StarButton({
       className="w-fit"
       onClick={() => {
         trackStarClick(location);
-        onClick?.();
+        markStarPromptStarred();
       }}
       render={<a href={GITHUB_URL} rel="noopener noreferrer" target="_blank" />}
       size={size}
@@ -64,12 +64,12 @@ function StarButton({
 /**
  * Floating "star the repo" card. Shows from the second page of a visit, at the
  * bottom right on desktop and full width at the bottom on mobile. Dismissing
- * (or starring) hides it for 14 days; the docs sidebar then carries
- * `StarPromptSidebarCard` instead.
+ * hides it for 14 days and the docs sidebar carries `StarPromptSidebarCard`
+ * instead; starring hides both for 30 days.
  */
 export function StarPrompt() {
   const pathname = usePathname();
-  const dismissed = useStarPromptDismissed();
+  const status = useStarPromptStatus();
   const reducedMotion = useReducedMotion();
   const [eligible, setEligible] = useState(false);
 
@@ -81,7 +81,7 @@ export function StarPrompt() {
     return () => window.clearTimeout(id);
   }, [pathname]);
 
-  const open = eligible && dismissed === false;
+  const open = eligible && status === "open";
 
   return (
     <AnimatePresence>
@@ -134,10 +134,7 @@ export function StarPrompt() {
                 </Button>
               </CardAction>
               <div className="col-span-full mt-2">
-                <StarButton
-                  location="star_prompt"
-                  onClick={dismissStarPrompt}
-                />
+                <StarButton location="star_prompt" />
               </div>
             </CardHeader>
           </Card>
@@ -147,10 +144,12 @@ export function StarPrompt() {
   );
 }
 
-/** Docs right-rail version, shown once the floating card has been dismissed. */
+/**
+ * Docs right-rail version, shown once the floating card has been dismissed
+ * and until the visitor clicks "Star us".
+ */
 export function StarPromptSidebarCard() {
-  const dismissed = useStarPromptDismissed();
-  if (!dismissed) {
+  if (useStarPromptStatus() !== "dismissed") {
     return null;
   }
   return (

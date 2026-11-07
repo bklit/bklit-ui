@@ -5,29 +5,49 @@ import { useSyncExternalStore } from "react";
 /**
  * "Star the repo" prompt state.
  *
- * - Dismissal lives in a cookie for 14 days. While it is set the floating card
- *   stays hidden and the docs sidebar shows a quieter version instead.
+ * - Dismissing the floating card sets a 14-day cookie. While it is set the
+ *   floating card stays hidden and the docs sidebar shows a quieter version.
+ * - Clicking "Star us" (in either place) sets a 30-day cookie that hides both.
  * - Pages seen this session live in sessionStorage, so the floating card only
  *   shows from the second distinct page onwards.
  */
-export const STAR_PROMPT_COOKIE_NAME = "bklit-star-prompt-dismissed";
-export const STAR_PROMPT_COOKIE_MAX_AGE = 60 * 60 * 24 * 14;
+export const STAR_PROMPT_DISMISSED_COOKIE = "bklit-star-prompt-dismissed";
+export const STAR_PROMPT_STARRED_COOKIE = "bklit-star-prompt-starred";
+const DAY = 60 * 60 * 24;
 const PAGES_SEEN_KEY = "bklit-star-prompt-pages";
+
+/** `open`: may float in · `dismissed`: sidebar only · `starred`: hidden everywhere. */
+export type StarPromptStatus = "open" | "dismissed" | "starred";
 
 const listeners = new Set<() => void>();
 
-function readDismissed(): boolean {
+function hasCookie(name: string): boolean {
   return document.cookie
     .split("; ")
-    .some((part) => part.startsWith(`${STAR_PROMPT_COOKIE_NAME}=`));
+    .some((part) => part.startsWith(`${name}=`));
 }
 
-export function dismissStarPrompt() {
+function readStatus(): StarPromptStatus {
+  if (hasCookie(STAR_PROMPT_STARRED_COOKIE)) {
+    return "starred";
+  }
+  return hasCookie(STAR_PROMPT_DISMISSED_COOKIE) ? "dismissed" : "open";
+}
+
+function setCookie(name: string, days: number) {
   // biome-ignore lint/suspicious/noDocumentCookie: Cookie Store API is not in Safari < 18.4
-  document.cookie = `${STAR_PROMPT_COOKIE_NAME}=1; path=/; max-age=${STAR_PROMPT_COOKIE_MAX_AGE}; SameSite=Lax`;
+  document.cookie = `${name}=1; path=/; max-age=${days * DAY}; SameSite=Lax`;
   for (const listener of listeners) {
     listener();
   }
+}
+
+export function dismissStarPrompt() {
+  setCookie(STAR_PROMPT_DISMISSED_COOKIE, 14);
+}
+
+export function markStarPromptStarred() {
+  setCookie(STAR_PROMPT_STARRED_COOKIE, 30);
 }
 
 function subscribe(listener: () => void) {
@@ -37,12 +57,9 @@ function subscribe(listener: () => void) {
   };
 }
 
-/**
- * `null` until hydrated (the server can't see the cookie), then whether the
- * prompt has been dismissed in the last 14 days.
- */
-export function useStarPromptDismissed(): boolean | null {
-  return useSyncExternalStore(subscribe, readDismissed, () => null);
+/** `null` until hydrated (the server can't see the cookies). */
+export function useStarPromptStatus(): StarPromptStatus | null {
+  return useSyncExternalStore(subscribe, readStatus, () => null);
 }
 
 /** Records `pathname` as seen and returns how many distinct pages this session. */
