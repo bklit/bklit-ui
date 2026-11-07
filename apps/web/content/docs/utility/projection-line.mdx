@@ -109,13 +109,13 @@ The chart extends its x-domain to fit the projection horizon. Projections are in
 
 ## Terminal marker
 
-`LineSeriesTerminalMarker` renders a hollow ring at the last data point for the given `dataKey`. It fades in after the clip reveal completes.
+`LineSeriesTerminalMarker` renders a dot at the last data point for the given `dataKey`, with a ring around it when `ringGap` is set. It fades in after the clip reveal completes.
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `dataKey` | `string` | required | Series to anchor |
 | `yAxisId` | `string \| number` | `"left"` | Y-scale group id |
-| `fill` | `string` | `transparent` | Dot fill |
+| `fill` | `string` | same as `stroke` | Dot fill. Pass `transparent` for a hollow marker |
 | `stroke` | `string` | `var(--chart-1)` | Ring color |
 | `radius` | `number` | `5` | Dot radius |
 | `ringGap` | `number` | `0` | Gap between dot and ring |

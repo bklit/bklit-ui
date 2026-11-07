@@ -12,7 +12,7 @@ import {
   resolveProfitLossTooltipLabel,
   XAxis,
 } from "@bklitui/ui/charts";
-import { curveLinear } from "d3-shape";
+import { curveLinear, curveMonotoneX } from "d3-shape";
 import { useState } from "react";
 import {
   PROFIT_LOSS_DATA_KEY,
@@ -29,6 +29,7 @@ export function ProfitLossLineDemo() {
       <LineChart data={profitLossLineDocsData}>
         <Grid
           highlightRowStroke="var(--foreground)"
+          highlightRowStrokeDasharray="4,4"
           highlightRowStrokeOpacity={0.35}
           highlightRowValues={[0]}
           horizontal
@@ -42,7 +43,11 @@ export function ProfitLossLineDemo() {
           strokeWidth={0}
         />
         <ProfitLossLegendHoverProvider hoveredIndex={legendHoveredIndex}>
-          <ProfitLossLine dataKey={PROFIT_LOSS_DATA_KEY} />
+          <ProfitLossLine
+            curve={curveMonotoneX}
+            dataKey={PROFIT_LOSS_DATA_KEY}
+            fadeEdges
+          />
         </ProfitLossLegendHoverProvider>
         <XAxis />
         <ChartTooltip
