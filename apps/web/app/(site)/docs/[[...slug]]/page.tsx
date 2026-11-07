@@ -11,6 +11,7 @@ import { ComponentPreview } from "@/components/docs/component-preview";
 import { ComponentShowcase } from "@/components/docs/component-showcase";
 import { ComponentsList } from "@/components/docs/components-list";
 import { CopyPageButton } from "@/components/docs/copy-page-button";
+import { DocsCallout } from "@/components/docs/docs-callout";
 import { DocsTable } from "@/components/docs/docs-table";
 import { InstallationTabs } from "@/components/docs/installation-tabs";
 import { PackageManagerTabs } from "@/components/docs/package-manager-tabs";
@@ -130,6 +131,7 @@ export default async function Page(props: {
                 <MDX
                   components={{
                     ...defaultMdxComponents,
+                    Callout: DocsCallout,
                     ComponentPreview,
                     ComponentShowcase,
                     ComponentsList,
