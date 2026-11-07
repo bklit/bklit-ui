@@ -3,7 +3,7 @@
 import type { Transition } from "motion/react";
 import { m } from "motion/react";
 import { useMemo } from "react";
-import { chartCssVars, useChart } from "./chart-context";
+import { chartCssVars, useChart, useYScale } from "./chart-context";
 import { useChartLegendHover } from "./chart-legend-hover";
 import { transitionWithDelay } from "./motion-utils";
 import { computeSeriesBarWidth } from "./series-bar-layout";
@@ -82,6 +82,11 @@ function computeSeriesBarLayout(input: {
 export interface SeriesBarProps {
   /** Key in data for bar height (y value) */
   dataKey: string;
+  /**
+   * Y-scale group id (Recharts `yAxisId`). Stacked bars should share one
+   * axis. Default: `"left"`.
+   */
+  yAxisId?: string | number;
   /** Fill color. Default: var(--chart-line-primary) */
   fill?: string;
   /** Tooltip dot color when fill is gradient/pattern. Default: fill */
@@ -100,11 +105,12 @@ export function SeriesBar({
   radius = 0,
   animate = true,
   fadedOpacity = 0.3,
+  yAxisId,
 }: SeriesBarProps) {
+  const yScale = useYScale(yAxisId);
   const {
     data,
     xScale,
-    yScale,
     xAccessor,
     innerHeight,
     innerWidth,

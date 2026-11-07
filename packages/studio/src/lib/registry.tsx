@@ -16,7 +16,7 @@ import {
   SeriesBar,
   XAxis,
 } from "@bklitui/ui/charts";
-import type { ReactNode } from "react";
+import type { ReactElement, ReactNode } from "react";
 import { validChartSlugs } from "@/chart-slugs";
 import { AreaStudioPreview } from "@/components/charts/area-studio-preview";
 import { CandlestickStudioPreview } from "@/components/charts/candlestick-studio-preview";
@@ -115,6 +115,7 @@ import {
   sparklineMotionControls,
   sunburstChartControlGroups,
 } from "./registry-control-groups";
+import type { StudioRenderContext } from "./render-context";
 import {
   formatScatterJitterLoc,
   formatScatterJitterMonth,
@@ -163,6 +164,7 @@ import {
   getSeriesPattern,
 } from "./studio-series-design";
 import {
+  getComposedSeriesType,
   getSeriesCurve,
   getSeriesFadeEdges,
   getSeriesPipeValue,
@@ -586,6 +588,79 @@ const barConfig: StudioChartConfig = {
   generateCode: (state) => barCodegen(state),
 };
 
+/** One composed series rendered as its Studio-selected type. */
+function renderComposedSeries(
+  state: StudioUrlState,
+  ctx: StudioRenderContext,
+  pointCount: number,
+  key: string,
+  seriesIndex: number
+): ReactElement[] {
+  const seriesType = getComposedSeriesType(state, seriesIndex);
+  const color = `var(--chart-${(seriesIndex % 5) + 1})`;
+  const yAxisId = getLineSeriesYAxisId(state, seriesIndex);
+  if (seriesType === "bar") {
+    return [
+      <SeriesBar
+        dataKey={key}
+        fill={ctx.patternFillAt(seriesIndex) ?? color}
+        key={`bar-${key}`}
+        radius={state.composedBarRadius}
+        stroke={color}
+        yAxisId={yAxisId}
+      />,
+    ];
+  }
+  if (seriesType === "scatter") {
+    return [
+      <Scatter
+        dataKey={key}
+        fill={color}
+        key={`scatter-${key}`}
+        radius={getSeriesPipeValue(state, "scatterRadius", seriesIndex)}
+        yAxisId={yAxisId}
+      />,
+    ];
+  }
+  const curve = resolveCurve(getSeriesCurve(state, seriesIndex));
+  const fadeEdges = fadeEdgesPropValue(getSeriesFadeEdges(state, seriesIndex));
+  const strokeProps = seriesStrokePropsFromState(
+    state,
+    pointCount,
+    seriesIndex
+  );
+  const series: ReactElement[] = [];
+  if (seriesType === "area" || seriesType === "areaLine") {
+    series.push(
+      <Area
+        curve={curve}
+        dataKey={key}
+        fadeEdges={fadeEdges}
+        fill={color}
+        fillOpacity={getSeriesPipeValue(state, "fillOpacity", seriesIndex)}
+        key={`area-${key}`}
+        yAxisId={yAxisId}
+        {...strokeProps}
+      />
+    );
+  }
+  if (seriesType === "line" || seriesType === "areaLine") {
+    series.push(
+      <Line
+        curve={curve}
+        dataKey={key}
+        fadeEdges={fadeEdges}
+        key={`line-${key}`}
+        stroke={color}
+        strokeWidth={getSeriesStrokeWidth(state, seriesIndex)}
+        yAxisId={yAxisId}
+        {...strokeProps}
+      />
+    );
+  }
+  return series;
+}
+
 const composedConfig: StudioChartConfig = {
   slug: "composed-chart",
   label: chartLabels["composed-chart"],
@@ -603,7 +678,6 @@ const composedConfig: StudioChartConfig = {
       xAxis: "date",
       seed: ctx.dataSeed,
     });
-    const barKey = STUDIO_SERIES_KEYS[0];
     return (
       <StudioChartShell
         legendComponentId="composed.legend"
@@ -618,11 +692,13 @@ const composedConfig: StudioChartConfig = {
         <StudioCartesianFill>
           <ComposedChart
             {...getStudioCssRevealPropsForPreview(state, ctx)}
+            barGap={state.composedBarGap}
             className="size-full"
             data={data}
             key={studioPreviewChartKey(ctx)}
             margin={timeSeriesChartMargin(state)}
             onPhaseChange={ctx.reportOgPhase}
+            stacked={state.composedStacked}
           >
             {studioCartesianBackgroundLayer(
               state,
@@ -637,67 +713,20 @@ const composedConfig: StudioChartConfig = {
             {studioWeekendsLayer(state, "composed")}
             {studioDeadlineLayer(state, "composed", data)}
             {ctx.patternDefs}
-            {barKey && isStudioComponentVisible(state, "composed.series.0") ? (
-              <SeriesBar
-                dataKey={barKey}
-                fill={ctx.patternFillAt(0) ?? "var(--chart-1)"}
-                radius={state.composedBarRadius}
-              />
-            ) : null}
-            {STUDIO_SERIES_KEYS.slice(1, seriesCount).flatMap(
-              (key, secondaryIdx) => {
-                const seriesIndex = secondaryIdx + 1;
-                if (
-                  !isStudioComponentVisible(
-                    state,
-                    `composed.series.${seriesIndex}`
-                  )
-                ) {
-                  return [];
-                }
-                const colorIdx = seriesIndex;
-                const color = `var(--chart-${(colorIdx % 5) + 1})`;
-                const yAxisId = getLineSeriesYAxisId(state, seriesIndex);
-                const curve = resolveCurve(getSeriesCurve(state, seriesIndex));
-                return [
-                  <Area
-                    curve={curve}
-                    dataKey={key}
-                    fadeEdges={fadeEdgesPropValue(
-                      getSeriesFadeEdges(state, seriesIndex)
-                    )}
-                    fill={color}
-                    fillOpacity={getSeriesPipeValue(
+            {STUDIO_SERIES_KEYS.slice(0, seriesCount).flatMap(
+              (key, seriesIndex) =>
+                isStudioComponentVisible(
+                  state,
+                  `composed.series.${seriesIndex}`
+                )
+                  ? renderComposedSeries(
                       state,
-                      "fillOpacity",
-                      seriesIndex
-                    )}
-                    key={`area-${key}`}
-                    yAxisId={yAxisId}
-                    {...seriesStrokePropsFromState(
-                      state,
+                      ctx,
                       data.length,
+                      key,
                       seriesIndex
-                    )}
-                  />,
-                  <Line
-                    curve={curve}
-                    dataKey={key}
-                    fadeEdges={fadeEdgesPropValue(
-                      getSeriesFadeEdges(state, seriesIndex)
-                    )}
-                    key={`line-${key}`}
-                    stroke={color}
-                    strokeWidth={getSeriesStrokeWidth(state, seriesIndex)}
-                    yAxisId={yAxisId}
-                    {...seriesStrokePropsFromState(
-                      state,
-                      data.length,
-                      seriesIndex
-                    )}
-                  />,
-                ];
-              }
+                    )
+                  : []
             )}
             <StudioTrendLineLayer
               componentId="composed.trend-line"

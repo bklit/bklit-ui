@@ -1,9 +1,13 @@
 ---
 title: Composed Chart
-description: Mix SeriesBar, Line, and Area on one shared time axis (Recharts ComposedChart–style)
+description: Mix every time-series mark — SeriesBar, Line, Area, Scatter, Candlestick, ProfitLossLine and Band — on one shared time axis
 ---
 
-import { ComposedChartDocsPreview } from "@/components/docs/composed-chart-docs-preview";
+import {
+  ComposedChartDocsPreview,
+  ComposedPriceVolumeDemo,
+  ComposedSignalDemo,
+} from "@/components/docs/composed-chart-docs-preview";
 import { DateHighlightsComposedDemo } from "@/components/docs/date-highlights-demo";
 
 <ComponentPreview registryName="composed-chart">
@@ -24,65 +28,147 @@ import { DateHighlightsComposedDemo } from "@/components/docs/date-highlights-de
 
 ## Usage
 
-`ComposedChart` is the time-series shell for **mixing marks** on one `data` array and one pair of scales. Use **`SeriesBar`** for vertical columns aligned to dates (not the categorical `<Bar />` from `BarChart`, which uses a band scale).
+`ComposedChart` is the time-series shell for **mixing marks** on one `data` array, one x-scale and as many y-axes as you need. Use **`SeriesBar`** for vertical columns aligned to dates (not the categorical `<Bar />` from `BarChart`, which uses a band scale).
+
+Every time-series primitive composes. Each one registers with the shared y-domain and the tooltip automatically, including inside fragments:
+
+| Child | Notes |
+|-------|-------|
+| `SeriesBar` | Grouped or stacked columns. `yAxisId` puts bars on their own scale. |
+| `Line` / `Area` | Any curve, markers, dashed tails, edge fades. |
+| `Scatter` | Points with hover dimming. `radius`, rings, `yAxisId`. |
+| `Candlestick` | Reads `open` / `high` / `low` / `close` from each row. Its axis **floats** around the wicks instead of starting at zero. Size with `widthRatio` (default `0.6`). |
+| `ProfitLossLine` | Recolours above and below zero. |
+| `Band`, `ProjectionLine`, `TrendLine`, `ReferenceArea` | Extend the domain and draw in the same plot. |
+
+The chart also takes the `LineChart` lifecycle props: `status` / `loadingLabel` for loading states, `xDomain` / `xDomainSlotCount` for brush zoom, and `yDomainTween`.
 
 - **`aspectRatio`** — wide charts (e.g. `4 / 1`) work for full-width heroes; in **narrow cards** use **`3 / 2`** or **`2 / 1`** so the plot stays tall enough to read.
 - **`barSize`**, **`maxBarSize`**, **`barGap`** — parent-level layout for `SeriesBar` groups (similar to Recharts `ComposedChart` props). Use **`barGap={0}`** and a higher **`maxBarSize`** for dense daily data so columns read like the [90 days of data](/docs/components/bar-chart#90-days-of-data) bar example.
-- **`stacked`** / **`stackGap`** — stack `SeriesBar` segments in child order at each x (lines and areas are not stacked).
+- **`stacked`** / **`stackGap`** — stack `SeriesBar` segments in child order at each x (other series are not stacked). The bars' axis fits the stack totals, even with a second y-axis.
+- **`yDomains`** — per-axis domain overrides keyed by `yAxisId`: a fixed `[min, max]` or a function of the auto domain. Hoist the object out of render.
 - **`SeriesBar`** — default **`radius` is 0** (square tops). Pass **`radius={4}`** (or similar) for rounded corners.
-- **`Line`** / **`Area`** — pass a **`curve`** from `d3-shape` (e.g. **`curveCatmullRom.alpha(0.42)`**) to soften paths when you have many daily points (preview + hero use the same curve for `revenue` and `runRate`).
+- **`Line`** / **`Area`** — pass a **`curve`** from `d3-shape` (e.g. **`curveMonotoneX`**) to soften paths when you have many daily points.
+- **Muted context bars** — bars read best as quiet context under a bold line: fill them with the series colour at low strength, e.g. `color-mix(in oklch, var(--chart-3) 32%, transparent)`, and set `stroke` to the full colour for the tooltip dot.
 - **`Line`** / **`Area`** — use **`showMarkers`** for scatter-style ring markers at each point; pass **`markers={{ radius, ringGap, strokeWidth }}`** to tune styling.
 - **`Line`** / **`Area`** — use **`dashFromIndex`** and **`dashArray`** for a dashed tail on incomplete periods (the dashed segment follows the same curve and edge fade).
 - **`XAxis`** — default ticks snap to data rows so the crosshair aligns. Tune **`numTicks`** for dense series (e.g. daily). Use **`tickMode="domain"`** only when you want calendar-even spacing instead of data alignment.
 - **`ChartTooltip`** — for bar-heavy layouts, **`showCrosshair={false}`** often looks cleaner because the hover band is already vertical columns.
-- **`YAxis`** / **`yAxisId`** — `Line` and `Area` support independent left/right scales (see [Y Axis](/docs/utility/axis/y-axis)). `SeriesBar` uses the primary scale.
+- **`YAxis`** / **`yAxisId`** — every series takes a `yAxisId` (see [Y Axis](/docs/utility/axis/y-axis)). Ids are free-form: an axis without a `<YAxis>` is a hidden scale, handy for volume bars.
 - **Hover dimming** — `SeriesBar` fades non-hovered columns using `tooltipData.index`, like grouped bars in `BarChart`. Tune with **`fadedOpacity`** on each `SeriesBar`.
 
 ### Basic example
 
+The preview above: daily revenue as points, its smoothed 7-day trend inside an expected-range band, and orders as quiet bars on a hidden axis. Rows look like `{ date, revenue, trend, low, high, orders }`.
+
 ```tsx
 import {
-  Area,
+  Band,
+  ChartTooltip,
   ComposedChart,
   Grid,
   Line,
+  Scatter,
   SeriesBar,
   XAxis,
-  ChartTooltip,
+  type YDomainOverride,
 } from "@bklitui/ui/charts";
 import { curveCatmullRom } from "d3-shape";
-import { composedDemoData } from "@/lib/composed-demo-data";
 
 const smooth = curveCatmullRom.alpha(0.42);
+// Orders fill the bottom third on their own axis; the revenue axis floats
+// (from the data's min / max) so the band and points use the top two-thirds.
+const yDomains: Record<string, YDomainOverride> = {
+  orders: ([, max]) => [0, max * 3],
+  left: [minValue - range * 0.6, maxValue + range * 0.05],
+};
 
-export default function Example() {
+export default function Example({ data }) {
   return (
-    <ComposedChart
-      aspectRatio="2 / 1"
-      barGap={0}
-      data={composedDemoData}
-      maxBarSize={32}
-      xDataKey="date"
-    >
+    <ComposedChart aspectRatio="2 / 1" data={data} maxBarSize={14} yDomains={yDomains}>
       <Grid horizontal />
-      <Area
-        curve={smooth}
-        dataKey="runRate"
-        fill="var(--chart-4)"
-        fillOpacity={0.32}
+      <SeriesBar
+        dataKey="orders"
+        fill="color-mix(in oklch, var(--chart-3) 30%, transparent)"
+        radius={3}
+        stroke="var(--chart-3)"
+        yAxisId="orders"
       />
-      <SeriesBar dataKey="units" fill="var(--chart-3)" radius={4} />
-      <Line curve={smooth} dataKey="revenue" stroke="var(--chart-1)" />
-      <ChartTooltip showCrosshair={false} />
-      <XAxis numTicks={8} />
+      <Band
+        curve={smooth}
+        fill="var(--chart-1)"
+        fillOpacity={0.22}
+        fillType="gradient"
+        label="Expected"
+        lowerKey="low"
+        strokeDasharray="3,4"
+        strokeOpacity={0.5}
+        upperKey="high"
+      />
+      <Scatter
+        dataKey="revenue"
+        fill="color-mix(in oklch, var(--chart-2) 75%, transparent)"
+        radius={3.5}
+      />
+      <Line curve={smooth} dataKey="trend" stroke="var(--chart-1)" strokeWidth={2.5} />
+      <ChartTooltip />
+      <XAxis numTicks={6} />
     </ComposedChart>
   );
 }
 ```
 
-`composedDemoData` is 30 daily rows with ISO `date` strings, one slow wave across the month plus light ripples (kept readable next to dense bars). Outside this monorepo, copy the helpers from `apps/web/lib/composed-demo-data.ts` into your app.
-
 See the [charts gallery](/charts/composed-chart) for stacked bars, pattern fills, rounded bars, and more compositions.
+
+### Price and volume
+
+Candles on a floating right axis, volume on a hidden zero-based axis. `yDomains` keeps the two from overlapping: volume fills the bottom quarter and the price floor drops so the candles sit above it.
+
+<ComponentShowcase
+  code={`const yDomains: Record<string, YDomainOverride> = {
+  volume: ([, max]) => [0, max * 4],
+  right: ([min, max]) => [min - (max - min) * 0.45, max],
+};
+
+<ComposedChart data={ohlcv} margin={{ right: 56 }} maxBarSize={9} yDomains={yDomains}>
+  <Grid horizontal />
+  <SeriesBar
+    dataKey="volume"
+    fadedOpacity={0.5}
+    fill="color-mix(in oklch, var(--muted-foreground) 35%, transparent)"
+    yAxisId="volume"
+  />
+  <Candlestick widthRatio={0.55} yAxisId="right" />
+  <Line curve={curveMonotoneX} dataKey="average" stroke="var(--chart-1)" strokeWidth={1.5} yAxisId="right" />
+  <YAxis formatValue={(v) => \`$\${Math.round(v)}\`} orientation="right" yAxisId="right" />
+  <XAxis />
+  <ChartTooltip />
+</ComposedChart>`}
+>
+  <ComposedPriceVolumeDemo />
+</ComponentShowcase>
+
+### Points and an average
+
+Raw daily values as faint points, with a bold rolling average through them.
+
+<ComponentShowcase
+  code={`<ComposedChart data={data}>
+  <Grid horizontal />
+  <Scatter
+    dataKey="signups"
+    fill="color-mix(in oklch, var(--chart-1) 45%, transparent)"
+    radius={3.5}
+  />
+  <Line curve={curveMonotoneX} dataKey="average" stroke="var(--chart-1)" strokeWidth={2.5} />
+  <XAxis />
+  <ChartTooltip />
+</ComposedChart>`}
+>
+  <ComposedSignalDemo />
+</ComponentShowcase>
+
+The [composed recipes](/recipes?category=combos) (price & volume, forecast hand-off, signal & noise, context bars) come with copyable code and agent prompts.
 
 ### Background
 
@@ -103,14 +189,19 @@ Add a [`TrendLine`](/docs/utility/trend-line) per series you want to fit (bars o
 [`Weekends`](/docs/utility/weekends) shades the weekend columns and [`Deadline`](/docs/utility/deadline) marks a due date. With `SeriesBar` columns at midnight, `Weekends` centres each band on its column automatically; pass `utc` when your dates are UTC-anchored (like `composedDemoData`).
 
 <ComponentShowcase
-  code={`<ComposedChart data={composedDemoData} barGap={0} maxBarSize={24}>
+  code={`<ComposedChart data={composedDemoData} barGap={0} maxBarSize={18}>
   <Grid horizontal />
   <Weekends utc />
   <Deadline date={composedDemoData[21].date} label="Quarter close" />
-  <SeriesBar dataKey="units" fill="var(--chart-3)" radius={3} />
-  <Line dataKey="revenue" stroke="var(--chart-1)" />
-  <ChartTooltip showCrosshair={false} />
-  <XAxis numTicks={8} />
+  <SeriesBar
+    dataKey="units"
+    fill="color-mix(in oklch, var(--chart-3) 32%, transparent)"
+    radius={4}
+    stroke="var(--chart-3)"
+  />
+  <Line curve={curveMonotoneX} dataKey="revenue" stroke="var(--chart-1)" strokeWidth={2.5} />
+  <ChartTooltip />
+  <XAxis numTicks={6} />
 </ComposedChart>`}
 >
   <DateHighlightsComposedDemo />
@@ -121,3 +212,5 @@ Add a [`TrendLine`](/docs/utility/trend-line) per series you want to fit (bars o
 - [Line Chart](/docs/components/line-chart) — lines only
 - [Area Chart](/docs/components/area-chart) — areas only
 - [Bar Chart](/docs/components/bar-chart) — categorical bars with `<Bar />`
+- [Candlestick Chart](/docs/components/candlestick-chart) — candles only, with OHLC tooltip
+- [Scatter Chart](/docs/components/scatter-chart) — points only, with jitter

@@ -18,7 +18,7 @@ import {
   Weekends,
   XAxis,
 } from "@bklitui/ui/charts";
-import { curveCatmullRom } from "d3-shape";
+import { curveCatmullRom, curveMonotoneX } from "d3-shape";
 import { composedDemoData } from "@/lib/composed-demo-data";
 
 const DAY_COUNT = 22;
@@ -217,20 +217,26 @@ export function DateHighlightsComposedDemo() {
         aspectRatio="2 / 1"
         barGap={0}
         data={composedDemoData}
-        maxBarSize={24}
+        maxBarSize={18}
         xDataKey="date"
       >
         <Grid horizontal />
         <Weekends utc />
         <Deadline date={composedDueDate} label="Quarter close" />
-        <SeriesBar dataKey="units" fill="var(--chart-3)" radius={3} />
+        <SeriesBar
+          dataKey="units"
+          fill="color-mix(in oklch, var(--chart-3) 32%, transparent)"
+          radius={4}
+          stroke="var(--chart-3)"
+        />
         <Line
-          curve={curveCatmullRom.alpha(0.42)}
+          curve={curveMonotoneX}
           dataKey="revenue"
           stroke="var(--chart-1)"
+          strokeWidth={2.5}
         />
-        <ChartTooltip showCrosshair={false} />
-        <XAxis numTicks={8} />
+        <ChartTooltip />
+        <XAxis numTicks={6} />
       </ComposedChart>
     </div>
   );

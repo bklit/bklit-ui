@@ -1070,7 +1070,10 @@
         "@bklit/utils",
         "@bklit/line-chart",
         "@bklit/area-chart",
-        "@bklit/chart-parent-size"
+        "@bklit/chart-parent-size",
+        "@bklit/candlestick-chart",
+        "@bklit/scatter-chart",
+        "@bklit/profit-loss-line"
       ],
       "dependencies": [
         "d3-array",

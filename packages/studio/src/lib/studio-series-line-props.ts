@@ -1,6 +1,10 @@
 import { CURVE_IDS, type CurveId } from "@/lib/curves";
 import { clampStudioSeriesCount } from "@/lib/demo-data";
-import type { StudioUrlState } from "@/lib/studio-parsers";
+import {
+  COMPOSED_SERIES_TYPES,
+  type ComposedSeriesType,
+  type StudioUrlState,
+} from "@/lib/studio-parsers";
 import {
   getDesignSeriesCount,
   getEffectiveSeriesColor,
@@ -400,7 +404,24 @@ export function getSeriesTerminalMarkerRingGap(
   );
 }
 
+/**
+ * How composed series `seriesIndex` renders. Unset slots fall back to a bar
+ * for the first series and `composedSeriesType` (area + line) for the rest —
+ * the original fixed Studio layout.
+ */
+export function getComposedSeriesType(
+  state: StudioUrlState,
+  seriesIndex: number
+): ComposedSeriesType {
+  const slot = parsePipeField(state.seriesComposedTypes)[seriesIndex];
+  if (slot && (COMPOSED_SERIES_TYPES as readonly string[]).includes(slot)) {
+    return slot as ComposedSeriesType;
+  }
+  return seriesIndex === 0 ? "bar" : state.composedSeriesType;
+}
+
 const PER_SERIES_CONTROL_KEYS = new Set<keyof StudioUrlState>([
+  "composedSeriesType",
   "curve",
   "strokeWidth",
   "fadeEdges",
@@ -431,6 +452,8 @@ export function getSeriesScopedControlValue(
   seriesIndex: number
 ): StudioUrlState[keyof StudioUrlState] {
   switch (key) {
+    case "composedSeriesType":
+      return getComposedSeriesType(state, seriesIndex);
     case "curve":
       return getSeriesCurve(state, seriesIndex);
     case "strokeWidth":
@@ -477,6 +500,17 @@ export function buildSeriesScopedControlUpdate(
   value: StudioUrlState[keyof StudioUrlState]
 ): Partial<StudioUrlState> {
   switch (key) {
+    case "composedSeriesType":
+      return {
+        seriesComposedTypes: buildPipeUpdate(
+          state,
+          state.seriesComposedTypes,
+          seriesIndex,
+          value as ComposedSeriesType,
+          (_raw, index) => getComposedSeriesType(state, index),
+          String
+        ),
+      };
     case "curve":
       return {
         seriesCurves: buildPipeUpdate(

@@ -84,9 +84,37 @@ import {
   groupLinesByYAxisId,
 } from "./y-axis-scales";
 import {
+  applyYDomainOverride,
+  collectBarValueExtents,
+  collectNumericExtents,
   computeYDomainsByAxis,
+  resolveFloatingYDomain,
   resolveTimeSeriesYDomain,
+  type YDomain,
+  type YDomainOverride,
 } from "./y-domain-utils";
+
+/**
+ * Y-domain for an axis that carries stacked `SeriesBar` series: stack totals
+ * for the bar keys, raw values for everything else, zero-anchored like
+ * {@link resolveTimeSeriesYDomain}.
+ */
+function resolveStackedComposedYDomain(
+  data: Record<string, unknown>[],
+  barKeys: string[],
+  otherKeys: string[]
+): YDomain {
+  const bars = collectBarValueExtents(data, barKeys, true);
+  const others =
+    otherKeys.length > 0 ? collectNumericExtents(data, otherKeys) : bars;
+  const minValue = Math.min(bars.minValue, others.minValue);
+  const maxValue = Math.max(bars.maxValue, others.maxValue);
+  if (minValue >= 0) {
+    return [0, maxValue <= 0 ? 100 : maxValue * 1.1];
+  }
+  const padding = (maxValue - minValue) * 0.05 || 1;
+  return [minValue - padding, maxValue + padding];
+}
 
 /**
  * Bleed around the series reveal clip so glyphs centred on the plot edge
@@ -195,6 +223,18 @@ export interface TimeSeriesChartInnerProps {
   composedStackGap?: number;
   /** When set, drives the y-axis max instead of scanning `lines` (e.g. stacked bar totals). */
   yScaleDomainMax?: number;
+  /**
+   * Value keys per y-axis that extend the domain without becoming series or
+   * tooltip rows (e.g. candlestick `high` / `low`). Keep the reference stable.
+   */
+  extraDomainKeysByAxis?: Record<string, string[]>;
+  /**
+   * Y-axis ids whose domain floats around the data (padded min..max) instead
+   * of anchoring at zero — e.g. the axis a `<Candlestick>` draws on.
+   */
+  floatingYAxisIds?: readonly string[];
+  /** Per-axis domain overrides applied on top of the auto domain. */
+  yDomainOverrides?: Record<string, YDomainOverride>;
   /** Loading vs ready — drives chart phase until transition orchestration lands. */
   chartStatus?: ChartStatus;
   loadingLabel?: string;
@@ -242,6 +282,9 @@ export const TimeSeriesChartInner = memo(function TimeSeriesChartCore({
   composedStackOffsets,
   composedStackGap,
   yScaleDomainMax,
+  extraDomainKeysByAxis,
+  floatingYAxisIds,
+  yDomainOverrides,
   chartStatus = DEFAULT_CHART_STATUS,
   loadingLabel,
   yDomainTween = true,
@@ -257,18 +300,55 @@ export const TimeSeriesChartInner = memo(function TimeSeriesChartCore({
   const innerWidth = width - margin.left - margin.right;
   const innerHeight = height - margin.top - margin.bottom;
 
-  const resolveYDomain = useCallback(
-    (sourceData: Record<string, unknown>[], dataKeys: string[]) => {
+  const resolveAutoYDomain = useCallback(
+    (
+      sourceData: Record<string, unknown>[],
+      dataKeys: string[],
+      axisId: string
+    ): YDomain => {
+      if (floatingYAxisIds?.includes(axisId)) {
+        return resolveFloatingYDomain(sourceData, dataKeys);
+      }
       const axisGroups = groupLinesByYAxisId(lines);
       const usesDefaultOnly =
         axisGroups.size === 1 && axisGroups.has(DEFAULT_Y_AXIS_ID);
-      const domainMax =
-        usesDefaultOnly && yScaleDomainMax != null
-          ? yScaleDomainMax
-          : undefined;
-      return resolveTimeSeriesYDomain(sourceData, dataKeys, domainMax);
+      if (usesDefaultOnly && yScaleDomainMax != null) {
+        return resolveTimeSeriesYDomain(sourceData, dataKeys, yScaleDomainMax);
+      }
+      if (composedStacked && composedBarDataKeys?.length) {
+        const barKeys = dataKeys.filter((key) =>
+          composedBarDataKeys.includes(key)
+        );
+        if (barKeys.length > 0) {
+          return resolveStackedComposedYDomain(
+            sourceData,
+            barKeys,
+            dataKeys.filter((key) => !barKeys.includes(key))
+          );
+        }
+      }
+      return resolveTimeSeriesYDomain(sourceData, dataKeys, undefined);
     },
-    [lines, yScaleDomainMax]
+    [
+      composedBarDataKeys,
+      composedStacked,
+      floatingYAxisIds,
+      lines,
+      yScaleDomainMax,
+    ]
+  );
+
+  const resolveYDomain = useCallback(
+    (
+      sourceData: Record<string, unknown>[],
+      dataKeys: string[],
+      axisId: string
+    ): YDomain =>
+      applyYDomainOverride(
+        resolveAutoYDomain(sourceData, dataKeys, axisId),
+        yDomainOverrides?.[axisId]
+      ),
+    [resolveAutoYDomain, yDomainOverrides]
   );
 
   const skeletonData = useMemo(() => {
@@ -340,10 +420,21 @@ export const TimeSeriesChartInner = memo(function TimeSeriesChartCore({
     () => JSON.parse(bandConfigsSignature) as BandConfig[],
     [bandConfigsSignature]
   );
-  const bandKeysByAxisId = useMemo(
-    () => bandKeysByAxis(bandConfigs),
-    [bandConfigs]
-  );
+  const bandKeysByAxisId = useMemo(() => {
+    const byAxis = bandKeysByAxis(bandConfigs);
+    if (!extraDomainKeysByAxis) {
+      return byAxis;
+    }
+    const merged: Record<string, string[]> = { ...byAxis };
+    for (const [axisId, keys] of Object.entries(extraDomainKeysByAxis)) {
+      const existing = merged[axisId] ?? [];
+      merged[axisId] = [
+        ...existing,
+        ...keys.filter((key) => !existing.includes(key)),
+      ];
+    }
+    return merged;
+  }, [bandConfigs, extraDomainKeysByAxis]);
 
   const xScale = useMemo(() => {
     const minTime = xDomain
@@ -397,7 +488,8 @@ export const TimeSeriesChartInner = memo(function TimeSeriesChartCore({
     () =>
       computeYDomainsByAxis({
         lines,
-        resolveDomain: (dataKeys) => resolveYDomain(skeletonData, dataKeys),
+        resolveDomain: (dataKeys, axisId) =>
+          resolveYDomain(skeletonData, dataKeys, axisId),
       }),
     [lines, resolveYDomain, skeletonData]
   );
@@ -406,8 +498,8 @@ export const TimeSeriesChartInner = memo(function TimeSeriesChartCore({
     const base = computeYDomainsByAxis({
       extraKeysByAxis: bandKeysByAxisId,
       lines,
-      resolveDomain: (dataKeys) =>
-        resolveYDomain(xDomain ? visiblePlotData : data, dataKeys),
+      resolveDomain: (dataKeys, axisId) =>
+        resolveYDomain(xDomain ? visiblePlotData : data, dataKeys, axisId),
     });
     if (projectionConfigs.length === 0) {
       return base;

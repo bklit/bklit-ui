@@ -21,6 +21,7 @@ import {
 } from "./demo-data";
 import { studioHeatmapLevelStyles } from "./heatmap-studio-colors";
 import { heatmapSeparatorCodegenBlock } from "./heatmap-studio-props";
+import { getLineSeriesYAxisId } from "./line-series-y-axis";
 import {
   getLineYAxisFormatLargeNumbers,
   getLineYAxisNumTicks,
@@ -54,6 +55,7 @@ import {
   getProjectionStrokeWidth,
 } from "./studio-projection-props";
 import {
+  getComposedSeriesType,
   getSeriesCurve,
   getSeriesFadeEdges,
   getSeriesPipeValue,
@@ -1004,27 +1006,78 @@ function barReadyCodegen(
   };
 }
 
+/** One composed series as JSX, matching `renderComposedSeries` in the registry. */
+function composedSeriesCodegen(
+  state: StudioUrlState,
+  key: string,
+  seriesIndex: number
+): string {
+  const seriesType = getComposedSeriesType(state, seriesIndex);
+  const color =
+    SERIES_COLOR_BY_INDEX[seriesIndex % SERIES_COLOR_BY_INDEX.length];
+  const yAxis =
+    getLineSeriesYAxisId(state, seriesIndex) === "right"
+      ? ' yAxisId="right"'
+      : "";
+  if (seriesType === "bar") {
+    const fill =
+      state.pattern === "none"
+        ? `fill="${color}"`
+        : 'fill="url(#studio-pattern-fill)"';
+    const radius =
+      state.composedBarRadius > 0 ? ` radius={${state.composedBarRadius}}` : "";
+    return `\n  <SeriesBar dataKey="${key}"${radius} ${fill}${yAxis} />`;
+  }
+  if (seriesType === "scatter") {
+    return `\n  <Scatter dataKey="${key}" radius={${getSeriesPipeValue(state, "scatterRadius", seriesIndex)}} fill="${color}"${yAxis} />`;
+  }
+  const seriesProps = seriesStrokePropsCodegen(state, seriesIndex);
+  const curveName = curveImportName(getSeriesCurve(state, seriesIndex));
+  const fadeEdges = fadeEdgesCodegen(getSeriesFadeEdges(state, seriesIndex));
+  const area = `\n  <Area dataKey="${key}" curve={${curveName}} fillOpacity={${getSeriesPipeValue(state, "fillOpacity", seriesIndex)}} ${fadeEdges} fill="${color}"${yAxis}${seriesProps} />`;
+  const line = `\n  <Line dataKey="${key}" curve={${curveName}} strokeWidth={${getSeriesStrokeWidth(state, seriesIndex)}} ${fadeEdges} stroke="${color}"${yAxis}${seriesProps} />`;
+  if (seriesType === "area") {
+    return area;
+  }
+  if (seriesType === "line") {
+    return line;
+  }
+  return `${area}${line}`;
+}
+
 export function composedCodegen(state: StudioUrlState) {
+  const keys = seriesKeysForState(state);
+  const seriesTypes = keys.map((_, index) =>
+    getComposedSeriesType(state, index)
+  );
+  const hasBars = seriesTypes.includes("bar");
   const barPattern =
-    state.pattern === "none"
+    state.pattern === "none" || !hasBars
       ? ""
       : `\n  ${patternCodegenBlock(state.pattern, { scale: getSeriesPipeValue(state, "patternScale", 0) })}`;
-  const keys = seriesKeysForState(state);
-  const [barKey, ...secondaryKeys] = keys;
-
-  const barLine = barKey
-    ? `\n  <SeriesBar dataKey="${barKey}" radius={${state.composedBarRadius}} ${state.pattern === "none" ? 'fill="var(--chart-1)"' : 'fill="url(#studio-pattern-fill)"'} />`
-    : "";
-
-  const overlays = secondaryKeys
-    .map((key, idx) => {
-      const seriesIndex = idx + 1;
-      const color = SERIES_COLOR_BY_INDEX[seriesIndex];
-      const seriesProps = seriesStrokePropsCodegen(state, seriesIndex);
-      const curveName = curveImportName(getSeriesCurve(state, seriesIndex));
-      return `\n  <Area dataKey="${key}" curve={${curveName}} fillOpacity={${getSeriesPipeValue(state, "fillOpacity", seriesIndex)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, seriesIndex))} fill="${color}"${seriesProps} />\n  <Line dataKey="${key}" curve={${curveName}} strokeWidth={${getSeriesStrokeWidth(state, seriesIndex)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, seriesIndex))} stroke="${color}"${seriesProps} />`;
-    })
+  const seriesBlock = keys
+    .map((key, index) => composedSeriesCodegen(state, key, index))
     .join("");
+  const seriesImports = [
+    hasBars ? "SeriesBar" : "",
+    seriesTypes.some((type) => type === "area" || type === "areaLine")
+      ? "Area"
+      : "",
+    seriesTypes.some((type) => type === "line" || type === "areaLine")
+      ? "Line"
+      : "",
+    seriesTypes.includes("scatter") ? "Scatter" : "",
+  ]
+    .filter(Boolean)
+    .map((name) => `, ${name}`)
+    .join("");
+  const curvedIndices = seriesTypes.flatMap((type, index) =>
+    type === "bar" || type === "scatter" ? [] : [index]
+  );
+  const chartProps = [
+    state.composedStacked ? " stacked" : "",
+    state.composedBarGap === 4 ? "" : ` barGap={${state.composedBarGap}}`,
+  ].join("");
 
   const backgroundBlock = backgroundCodegenBlock(state, "composed");
   const gridVisible = isStudioComponentVisible(state, "composed.grid");
@@ -1045,17 +1098,14 @@ export function composedCodegen(state: StudioUrlState) {
     : "";
   const trendLineImport = trendLineBlock ? ", TrendLine" : "";
 
-  const curveImports = curveImportLine(
-    state,
-    secondaryKeys.map((_, index) => index + 1)
-  );
+  const curveImports = curveImportLine(state, curvedIndices);
 
   return {
-    code: `import { ComposedChart, SeriesBar, Area, Line, XAxis, ChartTooltip${gridImport}${backgroundImport}${referenceAreaImport}${dateHighlightsImport}${trendLineImport}${state.pattern === "none" ? "" : ", PatternPreset"} } from "@bklitui/ui/charts";
+    code: `import { ComposedChart${seriesImports}, XAxis, ChartTooltip${gridImport}${backgroundImport}${referenceAreaImport}${dateHighlightsImport}${trendLineImport}${barPattern ? ", PatternPreset" : ""} } from "@bklitui/ui/charts";
 ${curveImports}
 
-<ComposedChart data={chartData}
-  ${cssRevealAnimationCodegen(state.animationDuration, motionSliceFromState(state))}>${backgroundBlock}${gridBlock}${referenceAreaBlock}${dateHighlights.block}${barPattern}${barLine}${overlays}${trendLineBlock}
+<ComposedChart data={chartData}${chartProps}
+  ${cssRevealAnimationCodegen(state.animationDuration, motionSliceFromState(state))}>${backgroundBlock}${gridBlock}${referenceAreaBlock}${dateHighlights.block}${barPattern}${seriesBlock}${trendLineBlock}
   <XAxis${xAxisPropsCodegen(state)} />
   <ChartTooltip />
 </ComposedChart>`,

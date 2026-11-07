@@ -16,7 +16,11 @@ import {
 } from "@/lib/line-chart-mode";
 import type { LineYAxisId } from "@/lib/line-series-y-axis";
 import { pullRequestSeries } from "@/lib/radial-demo-data";
-import type { StudioUrlState } from "@/lib/studio-parsers";
+import {
+  COMPOSED_SERIES_TYPES,
+  type ComposedSeriesType,
+  type StudioUrlState,
+} from "@/lib/studio-parsers";
 import {
   chartCssVarForSeriesIndex,
   getDesignSeriesLabel,
@@ -112,7 +116,10 @@ import {
   PER_PROJECTION_CONTROL_KEYS,
   PROJECTION_PRESET_LABELS,
 } from "./studio-projection-props";
-import { isPerSeriesLineControlKey } from "./studio-series-line-props";
+import {
+  getComposedSeriesType,
+  isPerSeriesLineControlKey,
+} from "./studio-series-line-props";
 import { trendLineSeriesOptions } from "./studio-trend-line-props";
 
 const DESIGN_SERIES_LABEL_PREFIX = /^Series \d+ · /;
@@ -922,6 +929,96 @@ export function resolveBarComponents(
   return components;
 }
 
+const COMPOSED_SERIES_TYPE_LABELS: Record<ComposedSeriesType, string> = {
+  bar: "SeriesBar",
+  line: "Line",
+  area: "Area",
+  areaLine: "Area + Line",
+  scatter: "Scatter",
+};
+
+const composedSeriesTypeControlGroup = controlGroup("Series", [
+  {
+    type: "select",
+    key: "composedSeriesType",
+    label: "Type",
+    options: COMPOSED_SERIES_TYPES.map((value) => ({
+      value,
+      label: COMPOSED_SERIES_TYPE_LABELS[value],
+    })),
+  },
+]);
+
+const composedBarsLayoutControlGroup = controlGroup("Bars", [
+  { type: "boolean", key: "composedStacked", label: "Stacked" },
+  {
+    type: "number",
+    key: "composedBarGap",
+    label: "Gap",
+    min: 0,
+    max: 16,
+    unit: "px",
+  },
+]);
+
+const composedAreaControlGroup = controlGroup("Area", [
+  {
+    type: "opacity",
+    key: "fillOpacity",
+    label: "Opacity",
+    min: 0,
+    max: 1,
+    step: 0.05,
+    color: "var(--chart-4)",
+  },
+]);
+
+const composedScatterControlGroup = controlGroup("Points", [
+  {
+    type: "number",
+    key: "scatterRadius",
+    label: "Radius",
+    min: 2,
+    max: 14,
+    step: 0.5,
+  },
+]);
+
+/** Property groups for one composed series, by how it renders. */
+function composedSeriesControlGroups(
+  seriesType: ComposedSeriesType,
+  seriesIndex: number,
+  barDesign: StudioControlGroup | undefined
+): StudioControlGroup[] {
+  switch (seriesType) {
+    case "bar":
+      return barDesign ? [barDesign] : [];
+    case "scatter":
+      return seriesScopedControlGroups(
+        [composedScatterControlGroup],
+        seriesIndex
+      );
+    case "line":
+      return seriesScopedControlGroups(
+        composedOverlayLineControlGroups,
+        seriesIndex
+      );
+    case "area":
+      return seriesScopedControlGroups(
+        [
+          composedAreaControlGroup,
+          ...composedOverlayLineControlGroups.slice(0, 1),
+        ],
+        seriesIndex
+      );
+    default:
+      return seriesScopedControlGroups(
+        [composedAreaControlGroup, ...composedOverlayLineControlGroups],
+        seriesIndex
+      );
+  }
+}
+
 export function resolveComposedComponents(
   state: StudioUrlState
 ): StudioComponentDefinition[] {
@@ -942,7 +1039,7 @@ export function resolveComposedComponents(
       label: "ComposedChart",
       kind: "chart",
       treeIcon: "layers",
-      controlGroups: [],
+      controlGroups: [composedBarsLayoutControlGroup],
       design: rootPaletteDesign(true),
     },
     gridNode("composed"),
@@ -954,41 +1051,17 @@ export function resolveComposedComponents(
   ];
 
   for (let index = 0; index < seriesCount; index += 1) {
-    const isBarSeries = index === 0;
-    const controlGroups: StudioControlGroup[] = [];
-
-    if (isBarSeries) {
-      if (design) {
-        controlGroups.push(design);
-      }
-    } else {
-      controlGroups.push(
-        ...seriesScopedControlGroups(
-          [
-            controlGroup("Area", [
-              {
-                type: "opacity",
-                key: "fillOpacity",
-                label: "Opacity",
-                min: 0,
-                max: 1,
-                step: 0.05,
-                color: "var(--chart-4)",
-              },
-            ]),
-          ],
-          index
-        ),
-        seriesYAxisControlGroup(index),
-        ...seriesScopedControlGroups(composedOverlayLineControlGroups, index)
-      );
-    }
+    const seriesType = getComposedSeriesType(state, index);
+    const seriesKey = STUDIO_SERIES_KEYS[index] ?? `Series ${index + 1}`;
+    const controlGroups: StudioControlGroup[] = [
+      ...seriesScopedControlGroups([composedSeriesTypeControlGroup], index),
+      ...composedSeriesControlGroups(seriesType, index, design),
+      seriesYAxisControlGroup(index),
+    ];
 
     components.push({
       id: `composed.series.${index}`,
-      label: isBarSeries
-        ? `SeriesBar · ${STUDIO_SERIES_KEYS[0] ?? "Series 1"}`
-        : `Area · ${STUDIO_SERIES_KEYS[index] ?? `Series ${index + 1}`}`,
+      label: `${COMPOSED_SERIES_TYPE_LABELS[seriesType]} · ${seriesKey}`,
       parentId: chartId,
       kind: "series",
       listMarker: "color-dot",
@@ -996,8 +1069,8 @@ export function resolveComposedComponents(
       controlGroups,
       design: {
         seriesIndex: index,
-        // Only the SeriesBar reads Studio pattern fills; areas stay solid.
-        supportsPattern: isBarSeries,
+        // Only bars read Studio pattern fills; other series stay solid.
+        supportsPattern: seriesType === "bar",
       },
     });
   }

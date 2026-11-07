@@ -178,3 +178,94 @@ export const recipeStoragePlan = {
   capacity: 2048,
   used: { photos: 846, backups: 312, documents: 188, mail: 64 },
 };
+
+/** Deterministic 0..1 noise for the composed recipes. */
+function recipeNoise(index: number, salt: number): number {
+  const x = Math.sin(index * 12.9898 + salt * 78.233) * 43_758.5453;
+  return x - Math.floor(x);
+}
+
+function roundTo(value: number, step: number): number {
+  return Math.round(value / step) * step;
+}
+
+/** 28 daily OHLC candles with volume and a 5-day close average. */
+export const recipeMarketData = (() => {
+  const rows: {
+    date: Date;
+    open: number;
+    high: number;
+    low: number;
+    close: number;
+    volume: number;
+    average: number;
+  }[] = [];
+  const closes: number[] = [];
+  let open = 182;
+  for (let index = 0; index < 28; index++) {
+    const drift = Math.sin((index / 27) * Math.PI * 2 + 0.4) * 0.8 + 0.3;
+    const move = (recipeNoise(index, 1) - 0.47) * 6 + drift;
+    const close = roundTo(open + move, 0.01);
+    closes.push(close);
+    const window = closes.slice(-5);
+    rows.push({
+      date: day(index),
+      open: roundTo(open, 0.01),
+      high: roundTo(
+        Math.max(open, close) + recipeNoise(index, 2) * 2.4 + 0.4,
+        0.01
+      ),
+      low: roundTo(
+        Math.min(open, close) - recipeNoise(index, 3) * 2.4 - 0.4,
+        0.01
+      ),
+      close,
+      volume: Math.round(
+        (36 + Math.abs(move) * 9 + recipeNoise(index, 4) * 16) * 1000
+      ),
+      average: roundTo(
+        window.reduce((sum, value) => sum + value, 0) / window.length,
+        0.01
+      ),
+    });
+    open = close;
+  }
+  return rows;
+})();
+
+/** Index of the first forecast row in {@link recipeForecastData}. */
+export const RECIPE_FORECAST_START = 20;
+
+/** Actual visitors for 20 days, then a forecast with a widening range. */
+export const recipeForecastData = recipeDailyData.map((row, index) => {
+  const isForecast = index >= RECIPE_FORECAST_START;
+  const expected = Math.round(1400 + index * 38);
+  const value = isForecast ? expected : row.visitors;
+  const spread = isForecast ? 60 + (index - RECIPE_FORECAST_START) * 55 : 0;
+  return {
+    date: row.date,
+    ...(isForecast ? {} : { actual: row.visitors }),
+    forecast: value,
+    high: value + spread,
+    low: value - spread,
+  };
+});
+
+/** Noisy daily signups with a 7-day rolling mean. */
+export const recipeSignalData = (() => {
+  const values: number[] = [];
+  return recipeDailyData.map((row, index) => {
+    const signups = Math.round(
+      row.visitors * 0.09 + (recipeNoise(index, 5) - 0.5) * 70
+    );
+    values.push(signups);
+    const window = values.slice(-7);
+    return {
+      date: row.date,
+      signups,
+      average: Math.round(
+        window.reduce((sum, value) => sum + value, 0) / window.length
+      ),
+    };
+  });
+})();

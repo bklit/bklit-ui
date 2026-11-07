@@ -814,11 +814,14 @@ export {
   Y_AXIS_MIN_TICK_COUNT,
 } from "./y-axis-ticks";
 export {
+  applyYDomainOverride,
   computeYDomainsByAxis,
   isLoadingChromePhase,
   isYDomainTweenPhase,
   mergeYDomainRecords,
   niceYDomain,
+  resolveFloatingYDomain,
   shouldTweenYDomain,
   type YDomain,
+  type YDomainOverride,
 } from "./y-domain-utils";

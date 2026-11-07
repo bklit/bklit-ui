@@ -25,6 +25,15 @@ import {
 } from "./pattern-presets";
 import type { ChartSlug } from "./types";
 
+/** How a series renders inside the Studio composed chart. */
+export const COMPOSED_SERIES_TYPES = [
+  "bar",
+  "line",
+  "area",
+  "areaLine",
+  "scatter",
+] as const;
+export type ComposedSeriesType = (typeof COMPOSED_SERIES_TYPES)[number];
 /**
  * Pattern preset id. Accepts current ids plus the legacy pre-Nucleo ids from old
  * share URLs (`diagonal` → `diagonal-up`, `cross` → `grid`, `accent` →
@@ -192,6 +201,16 @@ export const studioSearchParams = {
   candleFadedOpacity: parseAsFloat.withDefault(0.25),
   candleGap: parseAsFloat.withDefault(0.2),
   composedBarRadius: parseAsInteger.withDefault(0),
+  /** Chart-level fallback for composed series 2+ (series 1 defaults to a bar). */
+  composedSeriesType: parseAsStringLiteral(COMPOSED_SERIES_TYPES).withDefault(
+    "areaLine"
+  ),
+  /** Pipe-encoded per-series {@link ComposedSeriesType} overrides. */
+  seriesComposedTypes: parseAsString.withDefault(""),
+  /** Stack every bar-typed composed series. */
+  composedStacked: parseAsBoolean.withDefault(false),
+  /** Gap between grouped composed bars in px. */
+  composedBarGap: parseAsInteger.withDefault(4),
   liveInterval: parseAsInteger.withDefault(500),
   livePaused: parseAsBoolean.withDefault(false),
   liveWindow: parseAsInteger.withDefault(30),
@@ -885,6 +904,10 @@ export interface StudioUrlState {
   candleFadedOpacity: number;
   candleGap: number;
   composedBarRadius: number;
+  composedSeriesType: ComposedSeriesType;
+  seriesComposedTypes: string;
+  composedStacked: boolean;
+  composedBarGap: number;
   liveInterval: number;
   livePaused: boolean;
   liveWindow: number;
@@ -1416,6 +1439,10 @@ export function defaultStudioState(
     candleFadedOpacity: 0.25,
     candleGap: 0.2,
     composedBarRadius: 0,
+    composedSeriesType: "areaLine",
+    seriesComposedTypes: "",
+    composedStacked: false,
+    composedBarGap: 4,
     liveInterval: 500,
     livePaused: false,
     liveWindow: 30,

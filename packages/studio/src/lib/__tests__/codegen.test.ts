@@ -2,10 +2,19 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { validChartSlugs } from "@/chart-slugs";
 import { generateStudioCode } from "../codegen";
-import { barCodegen, liveLineCodegen } from "../codegen-helpers";
+import {
+  barCodegen,
+  composedCodegen,
+  liveLineCodegen,
+} from "../codegen-helpers";
 import { defaultStudioState } from "../studio-parsers";
 
 const SHOW_LINE_FALSE_RE = /showLine=\{false\}/;
+const COMPOSED_MIXED_IMPORT_RE =
+  /import \{ ComposedChart, SeriesBar, Line, Scatter, XAxis/;
+const COMPOSED_SCATTER_RE = /<Scatter dataKey="mobile"/;
+const COMPOSED_STACKED_RE = /<ComposedChart data=\{chartData\} stacked/;
+const COMPOSED_AREA_RE = /<Area /;
 const CURVE_MONOTONE_X_IMPORT_RE =
   /import \{ curveMonotoneX \} from "d3-shape";/;
 const FILL_FALSE_RE = /fill=\{false\}/;
@@ -241,5 +250,22 @@ describe("liveLineCodegen", () => {
   it("mentions interval in data comment", () => {
     const { data } = liveLineCodegen(defaultStudioState({ liveInterval: 750 }));
     assert.match(data ?? "", INTERVAL_750_RE);
+  });
+});
+
+describe("composedCodegen", () => {
+  it("emits each series as its selected type", () => {
+    const { code } = composedCodegen(
+      defaultStudioState({
+        chart: "composed-chart",
+        dataSeries: 3,
+        seriesComposedTypes: "bar|scatter|line",
+        composedStacked: true,
+      })
+    );
+    assert.match(code, COMPOSED_MIXED_IMPORT_RE);
+    assert.match(code, COMPOSED_SCATTER_RE);
+    assert.match(code, COMPOSED_STACKED_RE);
+    assert.doesNotMatch(code, COMPOSED_AREA_RE);
   });
 });
