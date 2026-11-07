@@ -5,6 +5,23 @@ import { groupLinesByYAxisId, normalizeYAxisId } from "./y-axis-scales";
 
 export type YDomain = [number, number];
 
+/**
+ * Per-axis y-domain override: a fixed `[min, max]`, or a function that
+ * receives the auto domain (before `nice()`) and returns the one to use —
+ * e.g. `([, max]) => [0, max * 3]` to push volume bars into the bottom third.
+ */
+export type YDomainOverride = YDomain | ((auto: YDomain) => YDomain);
+
+export function applyYDomainOverride(
+  auto: YDomain,
+  override: YDomainOverride | undefined
+): YDomain {
+  if (!override) {
+    return auto;
+  }
+  return typeof override === "function" ? override(auto) : override;
+}
+
 export interface NumericExtents {
   minValue: number;
   maxValue: number;
@@ -59,6 +76,19 @@ export function resolveTimeSeriesYDomain(
     return [0, top];
   }
 
+  const padding = (maxValue - minValue) * 0.05 || 1;
+  return [minValue - padding, maxValue + padding];
+}
+
+/**
+ * Floating y-domain (no zero anchor): padded min..max. For price-like series
+ * such as candlesticks, where a zero baseline would flatten every candle.
+ */
+export function resolveFloatingYDomain(
+  data: Record<string, unknown>[],
+  dataKeys: string[]
+): YDomain {
+  const { minValue, maxValue } = collectNumericExtents(data, dataKeys);
   const padding = (maxValue - minValue) * 0.05 || 1;
   return [minValue - padding, maxValue + padding];
 }
@@ -185,7 +215,8 @@ export function computeYDomainsByAxis({
   extraKeysByAxis,
 }: {
   lines: LineConfig[];
-  resolveDomain: (dataKeys: string[]) => YDomain;
+  /** Raw domain for one axis; `axisId` is normalised (`"left"` by default). */
+  resolveDomain: (dataKeys: string[], axisId: string) => YDomain;
   /**
    * Additional value keys per axis that extend the domain without being
    * series (e.g. `<Band>` upper/lower keys). Axes with only extra keys still
@@ -211,7 +242,7 @@ export function computeYDomainsByAxis({
 
   const domains: Record<string, YDomain> = {};
   for (const [axisId, dataKeys] of keysByAxis) {
-    domains[axisId] = niceYDomain(resolveDomain(dataKeys));
+    domains[axisId] = niceYDomain(resolveDomain(dataKeys, axisId));
   }
 
   if (!domains.left) {

@@ -94,3 +94,139 @@ export const composedTriSeriesData = Array.from(
     };
   }
 );
+
+/** Deterministic 0..1 noise so gallery charts render identically on server and client. */
+function noise(i: number, salt: number): number {
+  const x = Math.sin(i * 12.9898 + salt * 78.233) * 43_758.5453;
+  return x - Math.floor(x);
+}
+
+function rollingMean(values: number[], i: number, window: number): number {
+  const start = Math.max(0, i - window + 1);
+  let sum = 0;
+  for (let j = start; j <= i; j++) {
+    sum += values[j] ?? 0;
+  }
+  return Math.round((sum / (i - start + 1)) * 100) / 100;
+}
+
+/** Daily OHLC candles + volume + 5-day close average (price-and-volume composed demo). */
+export const composedMarketData = (() => {
+  const rows: {
+    date: string;
+    open: number;
+    high: number;
+    low: number;
+    close: number;
+    volume: number;
+    ma5: number;
+  }[] = [];
+  const closes: number[] = [];
+  let open = 182;
+  for (let i = 0; i < COMPOSED_DEMO_DAY_COUNT; i++) {
+    const trend = 0.6 * smoothCycle(i, 0.4) + 0.25;
+    const move = (noise(i, 1) - 0.47) * 6 + trend;
+    const close = Math.round((open + move) * 100) / 100;
+    const high =
+      Math.round((Math.max(open, close) + noise(i, 2) * 2.6 + 0.4) * 100) / 100;
+    const low =
+      Math.round((Math.min(open, close) - noise(i, 3) * 2.6 - 0.4) * 100) / 100;
+    closes.push(close);
+    rows.push({
+      date: isoDay(i),
+      open: Math.round(open * 100) / 100,
+      high,
+      low,
+      close,
+      volume: Math.round((38 + Math.abs(move) * 9 + noise(i, 4) * 18) * 1000),
+      ma5: rollingMean(closes, i, 5),
+    });
+    open = close;
+  }
+  return rows;
+})();
+
+/** Cumulative P&L that crosses zero, plus daily trade volume. */
+export const composedPnlData = (() => {
+  let pnl = 0;
+  return Array.from({ length: COMPOSED_DEMO_DAY_COUNT }, (_, i) => {
+    pnl += Math.round(
+      14 * Math.sin((i / (COMPOSED_DEMO_DAY_COUNT - 1)) * Math.PI * 2 - 0.6) +
+        (noise(i, 5) - 0.5) * 18
+    );
+    return {
+      date: isoDay(i),
+      pnl,
+      trades: Math.round(24 + noise(i, 6) * 30 + Math.abs(pnl) * 0.08),
+    };
+  });
+})();
+
+/** Index where the forecast demo switches from actuals to the forecast. */
+export const COMPOSED_FORECAST_START = 21;
+
+/** Actual bars until {@link COMPOSED_FORECAST_START}, then a widening forecast band. */
+export const composedForecastData = Array.from(
+  { length: COMPOSED_DEMO_DAY_COUNT },
+  (_, i) => {
+    const base = Math.round(
+      62 + 12 * smoothCycle(i, 0.9) + (i / COMPOSED_DEMO_DAY_COUNT) * 16
+    );
+    const isActual = i < COMPOSED_FORECAST_START;
+    const spread = isActual ? 0 : 3 + (i - COMPOSED_FORECAST_START) * 2.2;
+    const actual = Math.round(base + (noise(i, 7) - 0.5) * 12);
+    return {
+      date: isoDay(i),
+      ...(isActual ? { actual } : {}),
+      forecast: isActual ? actual : base,
+      upper: Math.round((isActual ? actual : base) + spread),
+      lower: Math.round((isActual ? actual : base) - spread),
+    };
+  }
+);
+
+/** Noisy daily signups (scatter) with a 7-day rolling mean (line). */
+export const composedSignalsData = (() => {
+  const signups: number[] = [];
+  return Array.from({ length: COMPOSED_DEMO_DAY_COUNT }, (_, i) => {
+    const value = Math.round(
+      140 +
+        26 * smoothCycle(i, 2.2) +
+        (i / COMPOSED_DEMO_DAY_COUNT) * 30 +
+        (noise(i, 8) - 0.5) * 70
+    );
+    signups.push(value);
+    return {
+      date: isoDay(i),
+      signups: value,
+      avg7: Math.round(rollingMean(signups, i, 7)),
+      sessions: Math.round(
+        980 + 260 * smoothCycle(i, 0.2) + i * 9 + (noise(i, 9) - 0.5) * 90
+      ),
+    };
+  });
+})();
+
+/**
+ * Featured composed demo: daily revenue points (scatter), a 7-day trend (line),
+ * an expected range around the trend (band) and daily orders (bars).
+ */
+export const composedFeaturedData = (() => {
+  const revenues: number[] = [];
+  return Array.from({ length: COMPOSED_DEMO_DAY_COUNT }, (_, i) => {
+    const expected =
+      118 + 22 * smoothCycle(i, 0.9) + (i / COMPOSED_DEMO_DAY_COUNT) * 26;
+    const revenue = Math.round(expected + (noise(i, 11) - 0.5) * 34);
+    revenues.push(revenue);
+    const trend = Math.round(rollingMean(revenues, i, 7));
+    const spread = 15 + 5 * Math.sin(i / 3.2);
+    return {
+      date: isoDay(i),
+      revenue,
+      trend,
+      high: Math.round(trend + spread),
+      low: Math.round(trend - spread),
+      orders: Math.round(32 + 10 * smoothCycle(i, 0.4) + noise(i, 12) * 14),
+    };
+  });
+})();

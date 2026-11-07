@@ -13,7 +13,7 @@ Docs: `https://bklit.com/docs/components/<slug>`.
 | `LineChart` | `LineChart` | `@bklit/line-chart` | `@/components/charts/line-chart` | Time x only. `xDataKey` default `"date"`; values may be `Date`, ISO string or epoch ms (`new Date(value)`). |
 | `AreaChart` | `AreaChart` | `@bklit/area-chart` | `@/components/charts/area-chart` | Time x only. No area stacking. |
 | `BarChart` | `BarChart` | `@bklit/bar-chart` | `@/components/charts/bar-chart` | Categorical x. `xDataKey` default `"name"`. `stacked`, `orientation`. Value domain starts at 0. |
-| `ComposedChart` | `ComposedChart` | `@bklit/composed-chart` | `@/components/charts/composed-chart` | Time x only. Children: `Line`, `Area`, `SeriesBar`. Installs line-chart, area-chart, y-axis too. |
+| `ComposedChart` | `ComposedChart` | `@bklit/composed-chart` | `@/components/charts/composed-chart` | Time x only. Children: `Line`, `Area`, `SeriesBar`, `Scatter`, `Candlestick`, `ProfitLossLine`, `Band`. Installs line-chart, area-chart, scatter-chart, candlestick-chart, profit-loss-line, y-axis too. |
 | `ScatterChart` | `ScatterChart` | `@bklit/scatter-chart` | `@/components/charts/scatter-chart` | Time x only (`xDataKey` default `"date"`); y domain `[0, max*1.1]`. |
 | `PieChart` + `Pie` | `PieChart` (data on root) | `@bklit/pie-chart` | `@/components/charts/pie-chart` | `data: PieData[]` = `{ label, value, color?, fill? }[]`. |
 | `RadarChart` | `RadarChart` | `@bklit/radar-chart` | `@/components/charts/radar-chart` | `metrics: {key,label}[]`, `data: {label, color?, values: Record<key, 0-100>}[]`. |

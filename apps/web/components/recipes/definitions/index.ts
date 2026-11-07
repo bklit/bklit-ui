@@ -1,4 +1,10 @@
 import type { Recipe, RecipeCategory } from "@/lib/recipes/types";
+import {
+  contextBars,
+  forecastHandoff,
+  priceVolume,
+  signalNoise,
+} from "./composed-recipes";
 import { customIndicators } from "./custom-indicators";
 import { diamondMarkers } from "./diamond-markers";
 import { dotMatrix } from "./dot-matrix";
@@ -42,6 +48,10 @@ export const recipes: Recipe[] = [
   projectionLine,
   trendLine,
   rangeBand,
+  forecastHandoff,
+  priceVolume,
+  signalNoise,
+  contextBars,
   heatmapDotCalendar,
   heatmapWorkweek,
   patternedSlices,
@@ -81,6 +91,12 @@ export const recipeCategories: {
     id: "forecasts-ranges",
     title: "Forecasts & ranges",
     description: "Projections, trend lines and range bands.",
+  },
+  {
+    id: "combos",
+    title: "Combos",
+    description:
+      "Composed charts that mix bars, lines, candles, points and bands on one time axis.",
   },
   {
     id: "heatmaps",

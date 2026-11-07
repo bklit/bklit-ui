@@ -124,14 +124,19 @@ Bands are recomputed from the visible domain, so zooming in reveals weekends tha
 ### Composed chart
 
 <ComponentShowcase code={`// composedDemoData rows use UTC-noon ISO dates
-<ComposedChart data={composedDemoData} barGap={0} maxBarSize={24}>
+<ComposedChart data={composedDemoData} barGap={0} maxBarSize={18}>
   <Grid horizontal />
   <Weekends utc />
   <Deadline date={composedDemoData[21].date} label="Quarter close" />
-  <SeriesBar dataKey="units" fill="var(--chart-3)" radius={3} />
-  <Line dataKey="revenue" stroke="var(--chart-1)" />
-  <ChartTooltip showCrosshair={false} />
-  <XAxis numTicks={8} />
+  <SeriesBar
+    dataKey="units"
+    fill="color-mix(in oklch, var(--chart-3) 32%, transparent)"
+    radius={4}
+    stroke="var(--chart-3)"
+  />
+  <Line curve={curveMonotoneX} dataKey="revenue" stroke="var(--chart-1)" strokeWidth={2.5} />
+  <ChartTooltip />
+  <XAxis numTicks={6} />
 </ComposedChart>`}>
   <DateHighlightsComposedDemo />
 </ComponentShowcase>

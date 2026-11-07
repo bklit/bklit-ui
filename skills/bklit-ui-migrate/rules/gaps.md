@@ -120,7 +120,7 @@ Correct: one `BarChart stacked` per group side by side, a grouped (unstacked) ch
 
 ## Fixed y domain / negative values — needs-workaround
 
-There is no `yDomain`/`domain` prop. Line/Area/Composed use `[0, max × 1.1]` (niced) for non-negative data and `[min − 5 %, max + 5 %]` when any value is negative. `BarChart` and `ScatterChart` always start at 0, so **negative bars and points do not render correctly**.
+There is no `yDomain`/`domain` prop on `LineChart` / `AreaChart` / `BarChart` / `ScatterChart` (`ComposedChart` has `yDomains`, see below). Line/Area/Composed use `[0, max × 1.1]` (niced) for non-negative data and `[min − 5 %, max + 5 %]` when any value is negative. `BarChart` and `ScatterChart` always start at 0, so **negative bars and points do not render correctly**.
 
 Incorrect:
 
@@ -129,7 +129,7 @@ Incorrect:
 <LineChart yDomain={[0, 100]}>        {/* no such prop */}
 ```
 
-Correct: accept the auto domain (usually fine), or for a percentage chart accept that the top is `max × 1.1`. For negative bars (profit/loss), use a `LineChart`/`ComposedChart` with `Grid highlightRowValues={[0]}`, or keep Recharts.
+Correct: accept the auto domain (usually fine), or for a percentage chart accept that the top is `max × 1.1`. When the domain really matters, switch to `ComposedChart` and pass `yDomains={{ left: [0, 100] }}` (keyed by `yAxisId`; a function `([min, max]) => [...]` adjusts the auto domain). Hoist the object. For negative bars (profit/loss), use a `LineChart`/`ComposedChart` with `Grid highlightRowValues={[0]}`, or keep Recharts.
 
 ## X tick formatting and angled ticks — needs-workaround
 

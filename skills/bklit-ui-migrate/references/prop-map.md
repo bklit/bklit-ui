@@ -76,7 +76,7 @@ Defaults quoted are bklit source defaults. "—" means no equivalent: see `rules
 | `YAxis tickCount` | `YAxis numTicks` (5, hint) | |
 | `YAxis orientation="right"` | `YAxis orientation="right"` | Add `margin={{ right: 56 }}`-ish. |
 | `YAxis width` | root `margin.left` / `margin.right` | |
-| `YAxis domain` | — | Auto: `[0, max × 1.1]` niced for non-negative data, `[min − 5 %, max + 5 %]` otherwise (Line/Area/Composed). Bar and Scatter always start at 0. |
+| `YAxis domain` | `ComposedChart yDomains={{ [yAxisId]: [min, max] }}` | Composed only (fixed tuple or `(auto) => domain`). Elsewhere auto: `[0, max × 1.1]` niced for non-negative data, `[min − 5 %, max + 5 %]` otherwise (Line/Area/Composed). Bar and Scatter always start at 0. |
 | `YAxis` category axis (`layout="vertical"`) | `BarYAxis` | `maxLabels` (20), `showAllLabels` (true). |
 
 ## Tooltip (`ChartTooltip` from `@/components/charts/tooltip`)
