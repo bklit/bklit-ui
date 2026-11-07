@@ -7,6 +7,7 @@ import {
   type TOCItemType,
 } from "fumadocs-core/toc";
 import { useRef } from "react";
+import { DocsScrollArea } from "@/components/docs/docs-scroll-area";
 import { StarPromptSidebarCard } from "@/components/star-prompt";
 import { Button } from "@/components/ui/button";
 import { Frame, FramePanel } from "@/components/ui/frame";
@@ -61,7 +62,7 @@ export function TableOfContents({ items }: TableOfContentsProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   return (
-    <aside className="sticky top-(--site-header-height) z-30 ms-auto hidden h-[calc(100svh-var(--site-header-height))] w-60 shrink-0 flex-col overflow-hidden xl:flex">
+    <aside className="sticky top-(--site-header-height) z-30 ms-auto hidden h-[calc(100svh-var(--site-header-height))] w-60 shrink-0 flex-col overflow-hidden [--docs-scroll-fade:var(--sidebar)] xl:flex">
       <div className="flex h-full min-h-0 flex-col ps-6 pt-6 pb-6">
         {items.length > 0 && (
           <>
@@ -69,9 +70,10 @@ export function TableOfContents({ items }: TableOfContentsProps) {
               On this page
             </p>
             <AnchorProvider toc={items}>
-              <div
-                className="no-scrollbar min-h-0 flex-1 overflow-y-auto pt-1"
-                ref={containerRef}
+              <DocsScrollArea
+                className="flex-1"
+                contentClassName="pt-1"
+                scrollRef={containerRef}
               >
                 <ScrollProvider containerRef={containerRef}>
                   <ul className="relative m-0 ms-3.5 flex list-none flex-col gap-0.5 p-0 before:absolute before:inset-y-0 before:-left-3.25 before:w-px before:bg-border">
@@ -90,7 +92,7 @@ export function TableOfContents({ items }: TableOfContentsProps) {
                     ))}
                   </ul>
                 </ScrollProvider>
-              </div>
+              </DocsScrollArea>
             </AnchorProvider>
           </>
         )}
