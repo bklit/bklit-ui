@@ -1,10 +1,10 @@
 /**
- * Navigation badges — the single place to mark nav items as "New" (or
- * "Featured"). Keyed by URL so the docs sidebar, the site header's mobile
+ * Navigation badges — the single place to mark nav items as "New",
+ * "Beta" (orange) or "Featured". Keyed by URL so the docs sidebar, the site header's mobile
  * menu, and the site nav links all pick up the same badge. Remove an entry
  * once the item is no longer new.
  */
-export type NavBadgeKind = "featured" | "new";
+export type NavBadgeKind = "beta" | "featured" | "new";
 
 const navBadgesByUrl: Record<string, NavBadgeKind> = {
   "/benchmarks": "new",
@@ -13,6 +13,7 @@ const navBadgesByUrl: Record<string, NavBadgeKind> = {
   "/charts/sparkline": "new",
   "/docs/components/radial-chart": "new",
   "/docs/components/sparkline": "new",
+  "/docs/react-native": "beta",
   "/docs/upgrading-from-visx": "new",
   "/docs/utility/band": "new",
   "/docs/utility/deadline": "new",

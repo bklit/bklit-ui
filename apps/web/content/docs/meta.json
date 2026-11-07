@@ -3,6 +3,7 @@
   "pages": [
     "---Guides---",
     "theming",
+    "react-native",
     "skills",
     "upgrading-from-visx",
     "[llms.txt](/llms.txt)",

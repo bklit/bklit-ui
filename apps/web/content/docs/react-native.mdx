@@ -1,0 +1,208 @@
+---
+title: React Native
+description: Bklit line and area charts for React Native and Expo. Same composable API as the web charts, drawn with Skia and animated on the UI thread with Reanimated.
+---
+
+<Callout type="warn" title="Beta">
+  The React Native charts are new. Line and area charts are ready to use; the API may still change. Tested on iPhone with Expo SDK 58. Please [open an issue](https://github.com/bklit/bklit-ui/issues) if something looks off, especially on Android.
+</Callout>
+
+Bklit's React Native charts use the same components and props as the web charts (`LineChart`, `Line`, `Grid`, `XAxis`, `ChartTooltip`, and so on). Under the hood they draw with [React Native Skia](https://shopify.github.io/react-native-skia/) and animate with [Reanimated](https://docs.swmansion.com/react-native-reanimated/), so scrubbing, springs and morphs run on the UI thread at full frame rate, without re-rendering React.
+
+<ExpoPreview />
+
+## Compatibility
+
+<PlatformCompat />
+
+- **Needs the New Architecture.** Reanimated 4 requires it. It's on by default in every new Expo and React Native app, so you don't need to do anything.
+- **Works in Expo Go.** Skia, Reanimated and Gesture Handler are all built into Expo Go, so you don't need a custom build to get started.
+- **Not for the web.** For websites, use the [web charts](/docs/installation). They are lighter on the web than Skia.
+
+## Installation
+
+New to Expo? Follow these steps in order. You'll need [Node.js](https://nodejs.org) 22 or newer and the **Expo Go** app on your phone.
+
+### 1. Create an Expo app
+
+Skip this step if you already have one.
+
+```bash
+npx create-expo-app@latest my-app
+cd my-app
+```
+
+### 2. Add a `components.json`
+
+Bklit charts install with the [shadcn CLI](https://ui.shadcn.com/docs/cli), which copies the chart files into your project so you can read and change them. It needs a small `components.json` file in the root of your project (next to `package.json`). Create it with:
+
+```json title="components.json"
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "new-york",
+  "rsc": false,
+  "tsx": true,
+  "tailwind": {
+    "config": "",
+    "css": "",
+    "baseColor": "neutral",
+    "cssVariables": false
+  },
+  "aliases": {
+    "components": "@/components",
+    "utils": "@/lib/utils"
+  },
+  "registries": {
+    "@bklit": "https://ui.bklit.com/r/{name}.json"
+  }
+}
+```
+
+The `tailwind` fields are only there because the CLI expects them. The charts don't use Tailwind.
+
+### 3. Add the charts
+
+```bash
+npx shadcn@latest add @bklit/native-charts
+```
+
+This copies the charts into `components/charts` (or `src/components/charts`) and installs what they need:
+
+- React Native Skia, Reanimated, Gesture Handler and Worklets. In an Expo project the CLI installs these with `npx expo install`, so you get the versions that match your Expo SDK.
+- `d3-array`, `d3-scale` and `d3-shape`, plus their types.
+
+### 4. Wrap your app in `GestureHandlerRootView`
+
+Scrubbing and range selection use [Gesture Handler](https://docs.swmansion.com/react-native-gesture-handler/), which needs one wrapper around your whole app. Open your root layout (`src/app/_layout.tsx` in a new Expo app) and wrap what it returns:
+
+```tsx title="src/app/_layout.tsx"
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+
+export default function RootLayout() {
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      {/* …everything your layout already returns… */}
+    </GestureHandlerRootView>
+  );
+}
+```
+
+### 5. Add your first chart
+
+Replace the contents of a screen, for example `src/app/index.tsx`:
+
+```tsx title="src/app/index.tsx"
+import { ScrollView } from "react-native";
+import {
+  ChartTooltip,
+  Grid,
+  Line,
+  LineChart,
+  XAxis,
+} from "@/components/charts";
+
+const data = [
+  { date: new Date("2026-01-05"), visitors: 1200 },
+  { date: new Date("2026-01-06"), visitors: 1480 },
+  { date: new Date("2026-01-07"), visitors: 1350 },
+  { date: new Date("2026-01-08"), visitors: 1710 },
+  { date: new Date("2026-01-09"), visitors: 1640 },
+];
+
+export default function Home() {
+  return (
+    <ScrollView contentContainerStyle={{ padding: 16 }}>
+      <LineChart data={data}>
+        <Grid horizontal />
+        <Line dataKey="visitors" label="Visitors" />
+        <XAxis />
+        <ChartTooltip />
+      </LineChart>
+    </ScrollView>
+  );
+}
+```
+
+### 6. Run it
+
+```bash
+npx expo start
+```
+
+Scan the QR code in the terminal with your phone's camera (iPhone) or the Expo Go app (Android). The line draws in; drag across it to scrub.
+
+## Usage
+
+Charts are composed from the same pieces as on the web. A chart takes `data` (an array of rows with a `date`) and draws whatever you put inside it:
+
+```tsx
+<AreaChart data={data} aspectRatio={1.4}>
+  <Background pattern="dots" />
+  <Grid horizontal />
+  <Area dataKey="revenue" label="Revenue" fillOpacity={0.1} />
+  <Area dataKey="costs" label="Costs" fillOpacity={0.1} />
+  <XAxis />
+  <ChartTooltip formatValue={(v) => `$${v.toLocaleString()}`} />
+</AreaChart>
+```
+
+| Component | What it draws |
+| --- | --- |
+| `LineChart`, `AreaChart` | The chart: scales, gestures and layout. Size with `aspectRatio` (default `2`) or `height` |
+| `Line`, `Area` | A series. Faded edges, highlight while scrubbing and morphing on data changes are on by default |
+| `Grid`, `XAxis` | Gridlines (with an optional dashed zero line) and date labels |
+| `ChartTooltip` | Crosshair, dots, the rolling date pill and the floating panel |
+| `Background`, `PatternArea`, `Weekends` | Pattern backdrops, pattern-filled areas and weekend stripes |
+| `Band`, `ReferenceArea` | A range between two keys, or a solid band over a value range |
+| `TrendLine`, `ProjectionLine`, `LineSeriesTerminalMarker` | Regression lines and forecasts |
+| `ProfitLossLine` | A line coloured green above zero and red below |
+| `ChartMarkers`, `DiamondMarkers` | Event markers above the plot |
+| `SegmentBackground`, `SegmentLineFrom`, `SegmentLineTo`, `SegmentChangeBadge` | Two-finger range selection |
+
+## Gestures
+
+- **Drag sideways with one finger** to scrub. Dragging up or down still scrolls the page.
+- **Put two fingers on the chart** to select the range between them. The selection stays until the next touch.
+
+Add haptics with `onActiveIndexChange`, which runs once per data point you pass:
+
+```tsx
+import * as Haptics from "expo-haptics";
+
+<LineChart
+  data={data}
+  onActiveIndexChange={(index) => {
+    if (index !== null) Haptics.selectionAsync();
+  }}
+>
+```
+
+## Theming
+
+Charts follow the phone's light or dark mode automatically. Override any colour with the `theme` prop, and tune the tooltip springs with `springs`:
+
+```tsx
+<LineChart
+  data={data}
+  theme={{ linePrimary: "#0ea5e9", grid: "#e5e7eb" }}
+  springs={{ tooltipBox: { stiffness: 140, damping: 22 } }}
+>
+```
+
+Colours are hex values rather than CSS variables, because React Native has no CSS. Animations respect the phone's **Reduce Motion** setting.
+
+## How it differs from the web
+
+- **No hover.** Touch replaces the pointer. Range selection uses two fingers instead of press-and-drag, because one-finger drag scrubs.
+- **The tooltip panel stays at the top** of the chart instead of following your finger, so your finger doesn't cover it.
+- **Line and area charts only for now.** More chart types will follow.
+
+## Troubleshooting
+
+**The app crashes or warns about `GestureHandlerRootView`.** Wrap your root layout as shown in [step 4](#4-wrap-your-app-in-gesturehandlerrootview).
+
+**Expo Go says the project needs a different SDK.** Update the Expo Go app from the App Store or Google Play, or upgrade your project with `npx expo install expo@latest --fix`.
+
+**The shadcn CLI asks which component library to use.** It didn't find your `components.json`. Make sure it's in the project root, next to `package.json` ([step 2](#2-add-a-componentsjson)).
+
+**You're not using Expo.** Install `@shopify/react-native-skia`, `react-native-reanimated`, `react-native-gesture-handler` and `react-native-worklets` with your package manager, run `npx pod-install` for iOS, and follow each library's setup guide (Reanimated needs its Babel plugin). Then add the charts as in step 3.
