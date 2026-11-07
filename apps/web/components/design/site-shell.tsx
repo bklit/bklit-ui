@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { ScrollToTopOnNavigate } from "@/components/docs/scroll-to-top-on-navigate";
 import { SiteHeader } from "@/components/docs/site-header";
+import { StarPrompt } from "@/components/star-prompt";
 import { siteHeaderNavLinks } from "@/lib/site-nav-links";
 
 /**
@@ -22,6 +23,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
       <div className="flex flex-1 flex-col pt-(--site-header-height)">
         {children}
       </div>
+      <StarPrompt />
     </div>
   );
 }
