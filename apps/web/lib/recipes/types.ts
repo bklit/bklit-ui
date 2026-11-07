@@ -25,6 +25,7 @@ export type RecipeCategory =
   | "color-shape"
   | "hover-annotations"
   | "forecasts-ranges"
+  | "combos"
   | "heatmaps"
   | "pie-ring"
   | "radial";

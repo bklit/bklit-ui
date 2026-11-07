@@ -3,7 +3,7 @@
 import type { Transition } from "motion/react";
 import { m } from "motion/react";
 import { memo, useMemo } from "react";
-import { useChart } from "./chart-context";
+import { useChart, useYScale } from "./chart-context";
 import { useChartLegendHover } from "./chart-legend-hover";
 import { transitionWithDelay } from "./motion-utils";
 
@@ -31,6 +31,18 @@ export interface CandlestickProps {
   fadedOpacity?: number;
   /** Dim non-hovered candles on hover. Default: true */
   showHoverFade?: boolean;
+  /**
+   * Y-scale group id (Recharts `yAxisId`). Inside `ComposedChart`, put price
+   * candles on their own axis (e.g. `"right"`) so volume bars or other series
+   * keep a zero baseline on `"left"`. Default: `"left"`.
+   */
+  yAxisId?: string | number;
+  /**
+   * Body width as a fraction of the slot between two x values (0–1). Only
+   * used outside `CandlestickChart` (e.g. in `ComposedChart`); `CandlestickChart`
+   * sizes candles with `candleGap` / `candleWidth`. Default: 0.6
+   */
+  widthRatio?: number;
 }
 
 interface CandleGeometry {
@@ -302,11 +314,12 @@ export function Candlestick({
   insideStrokeWidth = 0,
   fadedOpacity = 0.3,
   showHoverFade = true,
+  yAxisId,
+  widthRatio = 0.6,
 }: CandlestickProps) {
   const {
     data,
     xScale,
-    yScale,
     xAccessor,
     animationDuration,
     enterTransition,
@@ -314,11 +327,33 @@ export function Candlestick({
     isLoaded,
     bandWidth,
     columnWidth,
-    hoveredCandleIndex,
+    hoveredCandleIndex: chartHoveredCandleIndex,
+    tooltipData,
   } = useChart();
+  const yScale = useYScale(yAxisId);
   const { hoveredIndex: legendHoveredIndex } = useChartLegendHover();
-
-  const candleWidth = Math.min(bandWidth ?? columnWidth * 0.8, columnWidth);
+  // `CandlestickChart` publishes `bandWidth` and the default gradient defs;
+  // inside other time-series shells (ComposedChart) size candles from the
+  // column width and fall back to the equivalent solid fills.
+  const inCandlestickChart = bandWidth != null;
+  const hoveredCandleIndex =
+    chartHoveredCandleIndex ?? tooltipData?.index ?? null;
+  const ratio = Math.min(Math.max(widthRatio, 0.05), 1);
+  const candleWidth = Math.max(
+    1,
+    Math.min(
+      bandWidth ?? columnWidth * ratio,
+      columnWidth || Number.POSITIVE_INFINITY
+    )
+  );
+  const resolvedPositiveFill =
+    !inCandlestickChart && positiveFill === DEFAULT_POSITIVE
+      ? SOLID_POSITIVE
+      : positiveFill;
+  const resolvedNegativeFill =
+    !inCandlestickChart && negativeFill === DEFAULT_NEGATIVE
+      ? SOLID_NEGATIVE
+      : negativeFill;
 
   const geometries = useMemo(
     () =>
@@ -328,8 +363,8 @@ export function Candlestick({
         yScale,
         xAccessor,
         candleWidth,
-        positiveFill,
-        negativeFill,
+        resolvedPositiveFill,
+        resolvedNegativeFill,
         bodyPatternPositive,
         bodyPatternNegative,
         insideStrokeWidth
@@ -340,8 +375,8 @@ export function Candlestick({
       yScale,
       xAccessor,
       candleWidth,
-      positiveFill,
-      negativeFill,
+      resolvedPositiveFill,
+      resolvedNegativeFill,
       bodyPatternPositive,
       bodyPatternNegative,
       insideStrokeWidth,
@@ -371,8 +406,8 @@ export function Candlestick({
         yScale,
         xAccessor,
         candleWidth,
-        positiveFill,
-        negativeFill,
+        resolvedPositiveFill,
+        resolvedNegativeFill,
         bodyPatternPositive,
         bodyPatternNegative,
         insideStrokeWidth
@@ -385,8 +420,8 @@ export function Candlestick({
     yScale,
     xAccessor,
     candleWidth,
-    positiveFill,
-    negativeFill,
+    resolvedPositiveFill,
+    resolvedNegativeFill,
     bodyPatternPositive,
     bodyPatternNegative,
     insideStrokeWidth,

@@ -5,6 +5,7 @@ import {
   AreaChart,
   AreaChartLoading,
   Background,
+  Band,
   Bar,
   BarChart,
   BarChartLoading,
@@ -117,6 +118,7 @@ import {
   useYScale,
   XAxis,
   YAxis,
+  type YDomainOverride,
 } from "@bklitui/ui/charts";
 import {
   curveBasis,
@@ -151,6 +153,12 @@ import {
   createChartGalleryAnchorIds,
 } from "@/components/charts/chart-gallery-sidebar";
 import { useChartPreviewOffscreen } from "@/components/charts/chart-preview-gate";
+import {
+  COMPOSED_FEATURED_CODE,
+  COMPOSED_FEATURED_Y_DOMAINS,
+  composedFeaturedChartData,
+  composedFeaturedLayers,
+} from "@/components/charts/composed-featured";
 import { FeaturedChartHero } from "@/components/charts/featured-chart-hero";
 import { LineChartStudioTrioDemo } from "@/components/charts/line-chart-studio-trio-demo";
 import { radialChartVariants } from "@/components/charts/radial/registry";
@@ -191,7 +199,12 @@ import {
 } from "@/components/ui/select";
 import { createChartExamplePreview } from "@/lib/chart-example-preview";
 import {
+  COMPOSED_FORECAST_START,
   composedDemoData,
+  composedForecastData,
+  composedMarketData,
+  composedPnlData,
+  composedSignalsData,
   composedStackedData,
   composedTriSeriesData,
 } from "@/lib/composed-demo-data";
@@ -216,6 +229,8 @@ const COMPOSED_PATTERN_FUCHSIA = "#e879f9";
 
 /** Smoother path through dense daily points (hero + docs preview revenue / runRate). */
 const composedHeroSmoothCurve = curveCatmullRom.alpha(0.42);
+/** Smooth curve for every Line / Area / Band in the composed gallery. */
+const composedSmoothCurve = curveMonotoneX;
 
 /** tailwind lime-300, amber-300, red-500 — composed “accent” gallery demo */
 const COMPOSED_ACCENT_LIME = "#bef264";
@@ -2843,6 +2858,280 @@ function makeBarExamples(): ChartExample[] {
   ];
 }
 
+const composedMarketCast = composedMarketData as unknown as Record<
+  string,
+  unknown
+>[];
+const composedPnlCast = composedPnlData as unknown as Record<string, unknown>[];
+const composedForecastCast = composedForecastData as unknown as Record<
+  string,
+  unknown
+>[];
+const composedSignalsCast = composedSignalsData as unknown as Record<
+  string,
+  unknown
+>[];
+const composedStackedCast = composedStackedData as unknown as Record<
+  string,
+  unknown
+>[];
+
+const formatUsd = (value: number) => `$${Math.round(value)}`;
+
+/** Volume fills the bottom quarter; the price axis leaves room for it below the candles. */
+const composedVolumeDomain: Record<string, YDomainOverride> = {
+  volume: ([, max]) => [0, max * 4],
+  right: ([min, max]) => [min - (max - min) * 0.45, max],
+};
+
+/** Composed variants that mix every time-series primitive (candles, scatter, P&L, bands). */
+function makeComposedMixedSeriesExamples(): ChartExample[] {
+  return [
+    {
+      title: "Composed Chart — Price + volume",
+      description:
+        "Candlesticks and a 5-day average on a floating right axis, volume bars on their own axis underneath",
+      code: `const yDomains = {
+  volume: ([, max]) => [0, max * 4], // bars in the bottom quarter
+  right: ([min, max]) => [min - (max - min) * 0.45, max], // candles above them
+};
+
+<ComposedChart data={data} xDataKey="date" margin={{ top: 8, right: 56, bottom: 40, left: 8 }} aspectRatio="3 / 2" maxBarSize={10} yDomains={yDomains}>
+  <Grid horizontal />
+  <SeriesBar dataKey="volume" fill="var(--chart-3)" fadedOpacity={0.4} yAxisId="volume" />
+  <Candlestick yAxisId="right" widthRatio={0.55} />
+  <Line curve={curveMonotoneX} dataKey="ma5" stroke="var(--chart-1)" strokeWidth={1.5} yAxisId="right" />
+  <YAxis orientation="right" yAxisId="right" formatValue={(v) => \`$\${Math.round(v)}\`} />
+  <ChartTooltip />
+  <XAxis numTicks={6} />
+</ComposedChart>`,
+      footer:
+        "Candlestick reads open / high / low / close from each row. Its axis floats around the wicks instead of starting at zero; `yDomains` stretches the volume axis so the bars stay in the bottom quarter, and lowers the price axis floor so the candles sit above them.",
+      render: () => (
+        <ComposedExampleChart
+          aspectRatio="3 / 2"
+          data={composedMarketCast}
+          margin={{ top: 8, right: 56, bottom: 40, left: 8 }}
+          maxBarSize={10}
+          xDataKey="date"
+          yDomains={composedVolumeDomain}
+        >
+          <Grid horizontal />
+          <SeriesBar
+            dataKey="volume"
+            fadedOpacity={0.4}
+            fill="var(--chart-3)"
+            yAxisId="volume"
+          />
+          <Candlestick widthRatio={0.55} yAxisId="right" />
+          <Line
+            curve={composedSmoothCurve}
+            dataKey="ma5"
+            stroke="var(--chart-1)"
+            strokeWidth={1.5}
+            yAxisId="right"
+          />
+          <YAxis formatValue={formatUsd} orientation="right" yAxisId="right" />
+          <ChartTooltip />
+          <XAxis numTicks={6} />
+        </ComposedExampleChart>
+      ),
+    },
+    {
+      title: "Composed Chart — Scatter + rolling average",
+      description:
+        "Raw daily signups as points with a smoothed 7-day mean and a fitted trend",
+      code: `<ComposedChart data={data} xDataKey="date" aspectRatio="3 / 2">
+  <Grid horizontal />
+  <Scatter dataKey="signups" fill="var(--chart-2)" radius={4} />
+  <Line dataKey="avg7" stroke="var(--chart-1)" curve={curveMonotoneX} />
+  <TrendLine dataKey="signups" stroke="var(--chart-4)" strokeStyle="dashed" />
+  <ChartTooltip />
+  <XAxis numTicks={6} />
+</ComposedChart>`,
+      footer:
+        "Scatter registers like any other series, so hover dims the other points and the tooltip lists the raw value next to the average.",
+      render: () => (
+        <ComposedExampleChart
+          aspectRatio="3 / 2"
+          data={composedSignalsCast}
+          xDataKey="date"
+        >
+          <Grid horizontal />
+          <Scatter dataKey="signups" fill="var(--chart-2)" radius={4} />
+          <Line curve={curveMonotoneX} dataKey="avg7" stroke="var(--chart-1)" />
+          <TrendLine
+            dataKey="signups"
+            stroke="var(--chart-4)"
+            strokeStyle="dashed"
+          />
+          <ChartTooltip />
+          <XAxis numTicks={6} />
+        </ComposedExampleChart>
+      ),
+    },
+    {
+      title: "Composed Chart — Actuals + forecast band",
+      description:
+        "Bars for the measured period, then a dashed forecast inside a widening confidence band",
+      code: `<ComposedChart data={data} xDataKey="date" aspectRatio="3 / 2" maxBarSize={18}>
+  <Grid horizontal />
+  <Band curve={curveMonotoneX} upperKey="upper" lowerKey="lower" label="Range" fill="var(--chart-2)" fillOpacity={0.18} />
+  <SeriesBar dataKey="actual" fill="var(--chart-3)" radius={3} />
+  <Line curve={curveMonotoneX} dataKey="forecast" stroke="var(--chart-2)" dashFromIndex={${COMPOSED_FORECAST_START - 1}} dashArray="5,4" />
+  <ChartTooltip />
+  <XAxis numTicks={6} />
+</ComposedChart>`,
+      footer:
+        "Rows without an `actual` value simply skip the bar; the band and dashed tail carry the forecast.",
+      render: () => (
+        <ComposedExampleChart
+          aspectRatio="3 / 2"
+          data={composedForecastCast}
+          maxBarSize={18}
+          xDataKey="date"
+        >
+          <Grid horizontal />
+          <Band
+            curve={composedSmoothCurve}
+            fill="var(--chart-2)"
+            fillOpacity={0.18}
+            label="Range"
+            lowerKey="lower"
+            upperKey="upper"
+          />
+          <SeriesBar dataKey="actual" fill="var(--chart-3)" radius={3} />
+          <Line
+            curve={composedSmoothCurve}
+            dashArray="5,4"
+            dashFromIndex={COMPOSED_FORECAST_START - 1}
+            dataKey="forecast"
+            stroke="var(--chart-2)"
+          />
+          <ChartTooltip />
+          <XAxis numTicks={6} />
+        </ComposedExampleChart>
+      ),
+    },
+    {
+      title: "Composed Chart — P&L + trade count",
+      description:
+        "A profit / loss line that recolours across zero, with daily trades as bars on their own axis",
+      code: `<ComposedChart data={data} xDataKey="date" margin={{ top: 8, right: 8, bottom: 40, left: 48 }} aspectRatio="3 / 2" maxBarSize={12}>
+  <Grid horizontal />
+  <SeriesBar dataKey="trades" fill="var(--muted-foreground)" fadedOpacity={0.5} yAxisId="right" />
+  <ProfitLossLine dataKey="pnl" strokeWidth={2} />
+  <YAxis yAxisId="left" />
+  <ChartTooltip />
+  <XAxis numTicks={6} />
+</ComposedChart>`,
+      footer:
+        "Putting the bars on a separate axis keeps them anchored to the bottom while the P&L axis spans negative values.",
+      render: () => (
+        <ComposedExampleChart
+          aspectRatio="3 / 2"
+          data={composedPnlCast}
+          margin={chartMarginLeftYAxis}
+          maxBarSize={12}
+          xDataKey="date"
+        >
+          <Grid horizontal />
+          <SeriesBar
+            dataKey="trades"
+            fadedOpacity={0.5}
+            fill="var(--muted-foreground)"
+            yAxisId="right"
+          />
+          <ProfitLossLine dataKey="pnl" strokeWidth={2} />
+          <YAxis yAxisId="left" />
+          <ChartTooltip />
+          <XAxis numTicks={6} />
+        </ComposedExampleChart>
+      ),
+    },
+    {
+      title: "Composed Chart — Stacked bars + area, two axes",
+      description:
+        "Stacked channel bars on the left (domain fits the stack totals) and revenue as an area on the right",
+      code: `<ComposedChart data={data} xDataKey="date" margin={{ top: 8, right: 56, bottom: 40, left: 56 }} aspectRatio="3 / 2" stacked barGap={0} maxBarSize={20}>
+  <Grid horizontal />
+  <SeriesBar dataKey="direct" fill="var(--chart-1)" />
+  <SeriesBar dataKey="partner" fill="var(--chart-3)" radius={4} />
+  <Area curve={curveMonotoneX} dataKey="revenue" fill="var(--chart-2)" fillOpacity={0.15} yAxisId="right" />
+  <YAxis yAxisId="left" />
+  <YAxis orientation="right" yAxisId="right" />
+  <ChartTooltip />
+  <XAxis numTicks={6} />
+</ComposedChart>`,
+      render: () => (
+        <ComposedExampleChart
+          aspectRatio="3 / 2"
+          barGap={0}
+          data={composedStackedCast}
+          margin={chartMarginBiaxialYAxis}
+          maxBarSize={20}
+          stacked
+          xDataKey="date"
+        >
+          <Grid horizontal />
+          <SeriesBar dataKey="direct" fill="var(--chart-1)" />
+          <SeriesBar dataKey="partner" fill="var(--chart-3)" radius={4} />
+          <Area
+            curve={composedSmoothCurve}
+            dataKey="revenue"
+            fill="var(--chart-2)"
+            fillOpacity={0.15}
+            yAxisId="right"
+          />
+          <YAxis yAxisId="left" />
+          <YAxis orientation="right" yAxisId="right" />
+          <ChartTooltip />
+          <XAxis numTicks={6} />
+        </ComposedExampleChart>
+      ),
+    },
+    {
+      title: "Composed Chart — Sessions area + signup points",
+      description:
+        "Sessions as a soft area on the left axis, individual signup days as ringed points on the right",
+      code: `<ComposedChart data={data} xDataKey="date" margin={{ top: 8, right: 56, bottom: 40, left: 8 }} aspectRatio="3 / 2">
+  <Grid horizontal />
+  <Area dataKey="sessions" fill="var(--chart-3)" fillOpacity={0.2} curve={curveMonotoneX} />
+  <Scatter dataKey="signups" fill="var(--chart-1)" radius={3.5} strokeWidth={1.5} yAxisId="right" />
+  <YAxis orientation="right" yAxisId="right" />
+  <ChartTooltip />
+  <XAxis numTicks={6} />
+</ComposedChart>`,
+      render: () => (
+        <ComposedExampleChart
+          aspectRatio="3 / 2"
+          data={composedSignalsCast}
+          margin={{ top: 8, right: 56, bottom: 40, left: 8 }}
+          xDataKey="date"
+        >
+          <Grid horizontal />
+          <Area
+            curve={curveMonotoneX}
+            dataKey="sessions"
+            fill="var(--chart-3)"
+            fillOpacity={0.2}
+          />
+          <Scatter
+            dataKey="signups"
+            fill="var(--chart-1)"
+            radius={3.5}
+            strokeWidth={1.5}
+            yAxisId="right"
+          />
+          <YAxis orientation="right" yAxisId="right" />
+          <ChartTooltip />
+          <XAxis numTicks={6} />
+        </ComposedExampleChart>
+      ),
+    },
+  ];
+}
+
 function makeComposedExamples(): ChartExample[] {
   const dataCast = composedDemoData as unknown as Record<string, unknown>[];
   const stackedCast = composedStackedData as unknown as Record<
@@ -2859,7 +3148,7 @@ function makeComposedExamples(): ChartExample[] {
       code: `<ComposedChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={data} xDataKey="date" aspectRatio="3 / 2" barGap={0} maxBarSize={32}>
   <Grid horizontal />
   <SeriesBar dataKey="units" fill="var(--chart-3)" radius={5} />
-  <Line dataKey="revenue" stroke="var(--chart-1)" />
+  <Line curve={curveMonotoneX} dataKey="revenue" stroke="var(--chart-1)" />
   <ChartTooltip showCrosshair={false} />
   <XAxis numTicks={8} />
 </ComposedChart>`,
@@ -2875,7 +3164,11 @@ function makeComposedExamples(): ChartExample[] {
         >
           <Grid horizontal />
           <SeriesBar dataKey="units" fill="var(--chart-3)" radius={5} />
-          <Line dataKey="revenue" stroke="var(--chart-1)" />
+          <Line
+            curve={composedSmoothCurve}
+            dataKey="revenue"
+            stroke="var(--chart-1)"
+          />
           <ChartTooltip showCrosshair={false} />
           <XAxis numTicks={8} />
         </ComposedExampleChart>
@@ -2887,9 +3180,9 @@ function makeComposedExamples(): ChartExample[] {
         "Fixed hex accents (tailwind lime-300, amber-300, red-500) with rounded bars",
       code: `<ComposedChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={data} aspectRatio="3 / 2" barGap={0} maxBarSize={30} xDataKey="date">
   <Grid horizontal />
-  <Area dataKey="runRate" fill="#ef4444" fillOpacity={0.22} stroke="#ef4444" strokeWidth={1.5} />
+  <Area curve={curveMonotoneX} dataKey="runRate" fill="#ef4444" fillOpacity={0.22} stroke="#ef4444" strokeWidth={1.5} />
   <SeriesBar dataKey="units" fill="#bef264" radius={6} stroke="#bef264" />
-  <Line dataKey="revenue" stroke="#fcd34d" strokeWidth={2.5} />
+  <Line curve={curveMonotoneX} dataKey="revenue" stroke="#fcd34d" strokeWidth={2.5} />
   <ChartTooltip showCrosshair={false} />
   <XAxis numTicks={8} />
 </ComposedChart>`,
@@ -2903,6 +3196,7 @@ function makeComposedExamples(): ChartExample[] {
         >
           <Grid horizontal />
           <Area
+            curve={composedSmoothCurve}
             dataKey="runRate"
             fill={COMPOSED_ACCENT_RED}
             fillOpacity={0.22}
@@ -2916,6 +3210,7 @@ function makeComposedExamples(): ChartExample[] {
             stroke={COMPOSED_ACCENT_LIME}
           />
           <Line
+            curve={composedSmoothCurve}
             dataKey="revenue"
             stroke={COMPOSED_ACCENT_AMBER}
             strokeWidth={2.5}
@@ -2933,7 +3228,7 @@ function makeComposedExamples(): ChartExample[] {
   <Grid horizontal />
   <SeriesBar dataKey="direct" fill="var(--chart-3)" />
   <SeriesBar dataKey="partner" fill="var(--chart-5)" />
-  <Line dataKey="revenue" stroke="var(--chart-1)" />
+  <Line curve={curveMonotoneX} dataKey="revenue" stroke="var(--chart-1)" />
   <ChartTooltip showCrosshair={false} />
   <XAxis numTicks={8} />
 </ComposedChart>`,
@@ -2950,7 +3245,11 @@ function makeComposedExamples(): ChartExample[] {
           <Grid horizontal />
           <SeriesBar dataKey="direct" fill="var(--chart-3)" />
           <SeriesBar dataKey="partner" fill="var(--chart-5)" />
-          <Line dataKey="revenue" stroke="var(--chart-1)" />
+          <Line
+            curve={composedSmoothCurve}
+            dataKey="revenue"
+            stroke="var(--chart-1)"
+          />
           <ChartTooltip showCrosshair={false} />
           <XAxis numTicks={8} />
         </ComposedExampleChart>
@@ -2964,7 +3263,7 @@ function makeComposedExamples(): ChartExample[] {
   <Grid horizontal />
   <SeriesBar dataKey="units" fill="var(--chart-3)" radius={4} />
   <SeriesBar dataKey="runRate" fill="var(--chart-5)" radius={4} />
-  <Line dataKey="revenue" stroke="var(--chart-1)" />
+  <Line curve={curveMonotoneX} dataKey="revenue" stroke="var(--chart-1)" />
   <ChartTooltip showCrosshair={false} />
   <XAxis numTicks={8} />
 </ComposedChart>`,
@@ -2979,7 +3278,11 @@ function makeComposedExamples(): ChartExample[] {
           <Grid horizontal />
           <SeriesBar dataKey="units" fill="var(--chart-3)" radius={4} />
           <SeriesBar dataKey="runRate" fill="var(--chart-5)" radius={4} />
-          <Line dataKey="revenue" stroke="var(--chart-1)" />
+          <Line
+            curve={composedSmoothCurve}
+            dataKey="revenue"
+            stroke="var(--chart-1)"
+          />
           <ChartTooltip showCrosshair={false} />
           <XAxis numTicks={8} />
         </ComposedExampleChart>
@@ -2996,7 +3299,7 @@ function makeComposedExamples(): ChartExample[] {
   <Grid horizontal />
   <SeriesBar dataKey="units" fill="url(#composed-pat-fuchsia)" stroke="#e879f9" />
   <SeriesBar dataKey="runRate" fill="var(--chart-5)" />
-  <Line dataKey="revenue" stroke="var(--chart-1)" />
+  <Line curve={curveMonotoneX} dataKey="revenue" stroke="var(--chart-1)" />
   <ChartTooltip showCrosshair={false} />
   <XAxis numTicks={8} />
 </ComposedChart>`,
@@ -3023,7 +3326,11 @@ function makeComposedExamples(): ChartExample[] {
             stroke={COMPOSED_PATTERN_FUCHSIA}
           />
           <SeriesBar dataKey="runRate" fill="var(--chart-5)" />
-          <Line dataKey="revenue" stroke="var(--chart-1)" />
+          <Line
+            curve={composedSmoothCurve}
+            dataKey="revenue"
+            stroke="var(--chart-1)"
+          />
           <ChartTooltip showCrosshair={false} />
           <XAxis numTicks={8} />
         </ComposedExampleChart>
@@ -3036,8 +3343,8 @@ function makeComposedExamples(): ChartExample[] {
       code: `<ComposedChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={data} aspectRatio="3 / 2" barGap={0} maxBarSize={20}>
   <Grid horizontal />
   <SeriesBar dataKey="installs" fill="var(--chart-3)" radius={5} />
-  <Line dataKey="desktop" stroke="var(--chart-1)" />
-  <Line dataKey="mobile" stroke="var(--chart-2)" />
+  <Line curve={curveMonotoneX} dataKey="desktop" stroke="var(--chart-1)" />
+  <Line curve={curveMonotoneX} dataKey="mobile" stroke="var(--chart-2)" />
   <ChartTooltip showCrosshair={false} />
   <XAxis numTicks={8} />
 </ComposedChart>`,
@@ -3051,8 +3358,16 @@ function makeComposedExamples(): ChartExample[] {
         >
           <Grid horizontal />
           <SeriesBar dataKey="installs" fill="var(--chart-3)" radius={5} />
-          <Line dataKey="desktop" stroke="var(--chart-1)" />
-          <Line dataKey="mobile" stroke="var(--chart-2)" />
+          <Line
+            curve={composedSmoothCurve}
+            dataKey="desktop"
+            stroke="var(--chart-1)"
+          />
+          <Line
+            curve={composedSmoothCurve}
+            dataKey="mobile"
+            stroke="var(--chart-2)"
+          />
           <ChartTooltip showCrosshair={false} />
           <XAxis numTicks={8} />
         </ComposedExampleChart>
@@ -3065,7 +3380,7 @@ function makeComposedExamples(): ChartExample[] {
       code: `<ComposedChart data={data} xDataKey="date" aspectRatio="3 / 2">
   <Grid horizontal />
   <SeriesBar dataKey="revenue" fill="var(--chart-1)" radius={4} />
-  <Area
+  <Area curve={curveMonotoneX}
     dataKey="runRate"
     dashArray="6,4"
     dashFromIndex={4}
@@ -3073,7 +3388,7 @@ function makeComposedExamples(): ChartExample[] {
     fillOpacity={0.3}
     showMarkers
   />
-  <Line
+  <Line curve={curveMonotoneX}
     dataKey="runRate"
     dashArray="6,4"
     dashFromIndex={4}
@@ -3095,6 +3410,7 @@ function makeComposedExamples(): ChartExample[] {
           <Grid horizontal />
           <SeriesBar dataKey="revenue" fill="var(--chart-1)" radius={4} />
           <Area
+            curve={composedSmoothCurve}
             dashArray="6,4"
             dashFromIndex={4}
             dataKey="runRate"
@@ -3103,6 +3419,7 @@ function makeComposedExamples(): ChartExample[] {
             showMarkers
           />
           <Line
+            curve={composedSmoothCurve}
             dashArray="6,4"
             dashFromIndex={4}
             dataKey="runRate"
@@ -3122,7 +3439,7 @@ function makeComposedExamples(): ChartExample[] {
       code: `<ComposedChart data={data} xDataKey="date" margin={{ top: 8, right: 8, bottom: 40, left: 56 }} barGap={0} maxBarSize={32}>
   <Grid horizontal />
   <SeriesBar dataKey="units" fill="var(--chart-3)" radius={4} />
-  <Line dataKey="revenue" stroke="var(--chart-1)" />
+  <Line curve={curveMonotoneX} dataKey="revenue" stroke="var(--chart-1)" />
   <YAxis yAxisId="left" />
   <ChartTooltip showCrosshair={false} />
   <XAxis numTicks={8} />
@@ -3137,7 +3454,11 @@ function makeComposedExamples(): ChartExample[] {
         >
           <Grid horizontal />
           <SeriesBar dataKey="units" fill="var(--chart-3)" radius={4} />
-          <Line dataKey="revenue" stroke="var(--chart-1)" />
+          <Line
+            curve={composedSmoothCurve}
+            dataKey="revenue"
+            stroke="var(--chart-1)"
+          />
           <YAxis yAxisId="left" />
           <ChartTooltip showCrosshair={false} />
           <XAxis numTicks={8} />
@@ -3151,7 +3472,7 @@ function makeComposedExamples(): ChartExample[] {
       code: `<ComposedChart data={data} xDataKey="date" margin={{ top: 8, right: 56, bottom: 40, left: 56 }} barGap={0} maxBarSize={32}>
   <Grid horizontal />
   <SeriesBar dataKey="units" fill="var(--chart-3)" radius={4} />
-  <Line dataKey="revenue" yAxisId="right" stroke="var(--chart-1)" />
+  <Line curve={curveMonotoneX} dataKey="revenue" yAxisId="right" stroke="var(--chart-1)" />
   <YAxis yAxisId="left" />
   <YAxis yAxisId="right" orientation="right" />
   <ChartTooltip showCrosshair={false} />
@@ -3167,7 +3488,12 @@ function makeComposedExamples(): ChartExample[] {
         >
           <Grid horizontal />
           <SeriesBar dataKey="units" fill="var(--chart-3)" radius={4} />
-          <Line dataKey="revenue" stroke="var(--chart-1)" yAxisId="right" />
+          <Line
+            curve={composedSmoothCurve}
+            dataKey="revenue"
+            stroke="var(--chart-1)"
+            yAxisId="right"
+          />
           <YAxis yAxisId="left" />
           <YAxis orientation="right" yAxisId="right" />
           <ChartTooltip showCrosshair={false} />
@@ -3175,20 +3501,25 @@ function makeComposedExamples(): ChartExample[] {
         </ComposedExampleChart>
       ),
     },
+    ...makeComposedMixedSeriesExamples(),
     ...makeCartesianBackgroundExamples({
       titlePrefix: "Composed Chart",
       chartOpen:
         '<ComposedChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={data} xDataKey="date">',
       chartClose: "</ComposedChart>",
       seriesSnippet: `<SeriesBar dataKey="units" fill="var(--chart-3)" radius={4} />
-  <Line dataKey="revenue" stroke="var(--chart-1)" />
+  <Line curve={curveMonotoneX} dataKey="revenue" stroke="var(--chart-1)" />
   <ChartTooltip showCrosshair={false} />
   <XAxis numTicks={8} />`,
       render: (background) => (
         <ComposedExampleChart data={dataCast} xDataKey="date">
           {background}
           <SeriesBar dataKey="units" fill="var(--chart-3)" radius={4} />
-          <Line dataKey="revenue" stroke="var(--chart-1)" />
+          <Line
+            curve={composedSmoothCurve}
+            dataKey="revenue"
+            stroke="var(--chart-1)"
+          />
           <ChartTooltip showCrosshair={false} />
           <XAxis numTicks={8} />
         </ComposedExampleChart>
@@ -3200,7 +3531,7 @@ function makeComposedExamples(): ChartExample[] {
         '<ComposedChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={data} xDataKey="date">',
       chartClose: "</ComposedChart>",
       seriesSnippet: `<SeriesBar dataKey="units" fill="var(--chart-3)" radius={4} />
-  <Line dataKey="revenue" stroke="var(--chart-1)" />
+  <Line curve={curveMonotoneX} dataKey="revenue" stroke="var(--chart-1)" />
   <ChartTooltip showCrosshair={false} />
   <XAxis numTicks={8} />`,
       y1: 95,
@@ -3209,7 +3540,11 @@ function makeComposedExamples(): ChartExample[] {
         <ComposedExampleChart data={dataCast} xDataKey="date">
           {referenceArea}
           <SeriesBar dataKey="units" fill="var(--chart-3)" radius={4} />
-          <Line dataKey="revenue" stroke="var(--chart-1)" />
+          <Line
+            curve={composedSmoothCurve}
+            dataKey="revenue"
+            stroke="var(--chart-1)"
+          />
           <ChartTooltip showCrosshair={false} />
           <XAxis numTicks={8} />
         </ComposedExampleChart>
@@ -3221,7 +3556,7 @@ function makeComposedExamples(): ChartExample[] {
         '<ComposedChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={data} xDataKey="date">',
       chartClose: "</ComposedChart>",
       seriesSnippet: `<SeriesBar dataKey="units" fill="var(--chart-3)" radius={4} />
-  <Line dataKey="revenue" stroke="var(--chart-2)" />`,
+  <Line curve={curveMonotoneX} dataKey="revenue" stroke="var(--chart-2)" />`,
       chromeSnippet: `<ChartTooltip showCrosshair={false} />
   <XAxis numTicks={8} />`,
       dataKey: "revenue",
@@ -3229,7 +3564,11 @@ function makeComposedExamples(): ChartExample[] {
         <ComposedExampleChart data={dataCast} xDataKey="date">
           <Grid horizontal />
           <SeriesBar dataKey="units" fill="var(--chart-3)" radius={4} />
-          <Line dataKey="revenue" stroke="var(--chart-2)" />
+          <Line
+            curve={composedSmoothCurve}
+            dataKey="revenue"
+            stroke="var(--chart-2)"
+          />
           {trendLine}
           <ChartTooltip showCrosshair={false} />
           <XAxis numTicks={8} />
@@ -3243,19 +3582,12 @@ function makeComposedHero(): ChartExample {
   return {
     title: "Composed Chart",
     description:
-      "One time axis, one Y scale: combine SeriesBar, Line, and Area. Use the curve menu to swap the shared Line and Area interpolation.",
+      "Scatter, band, line and bars on one time axis: daily revenue points, the smoothed 7-day trend inside its expected range, and orders as quiet bars underneath. Use the curve menu to swap the line and band interpolation.",
     code: `import { curveCatmullRom } from "d3-shape";
 
-<ComposedChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={data} xDataKey="date" aspectRatio="2 / 1" barGap={0} maxBarSize={32}>
-  <Grid horizontal />
-  <Area dataKey="runRate" curve={curveCatmullRom.alpha(0.42)} fill="var(--chart-4)" fillOpacity={0.32} />
-  <SeriesBar dataKey="units" fill="var(--chart-3)" radius={4} />
-  <Line dataKey="revenue" curve={curveCatmullRom.alpha(0.42)} stroke="var(--chart-1)" strokeWidth={2.5} />
-  <ChartTooltip showCrosshair={false} />
-  <XAxis numTicks={8} />
-</ComposedChart>`,
+${COMPOSED_FEATURED_CODE}`,
     footer:
-      "Hero uses a Radix Select for the Line and Area `curve` prop (SeriesBar shape is unchanged). See https://d3js.org/d3-shape/curve.",
+      "Orders sit on their own hidden `yAxisId`; `yDomains` stretches that axis so the bars stay in the bottom third under the band.",
     render: () => <ComposedHeroWithCurveSelect />,
   };
 }
@@ -6305,27 +6637,12 @@ function ComposedHeroWithCurveSelect() {
       <ChartHeroCurveToolbar onValueChange={setCurveId} value={curveId} />
       <ComposedExampleChart
         aspectRatio="2 / 1"
-        barGap={0}
-        data={composedDemoData as unknown as Record<string, unknown>[]}
-        maxBarSize={32}
+        data={composedFeaturedChartData}
+        maxBarSize={14}
         xDataKey="date"
+        yDomains={COMPOSED_FEATURED_Y_DOMAINS}
       >
-        <Grid horizontal />
-        <Area
-          curve={curve}
-          dataKey="runRate"
-          fill="var(--chart-4)"
-          fillOpacity={0.32}
-        />
-        <SeriesBar dataKey="units" fill="var(--chart-3)" radius={4} />
-        <Line
-          curve={curve}
-          dataKey="revenue"
-          stroke="var(--chart-1)"
-          strokeWidth={2.5}
-        />
-        <ChartTooltip showCrosshair={false} />
-        <XAxis numTicks={8} />
+        {composedFeaturedLayers(curve)}
       </ComposedExampleChart>
     </div>
   );
