@@ -1,8 +1,13 @@
 "use client";
 
 import { cn } from "@bklitui/ui/lib/utils";
-import { useMemo, useState } from "react";
-import { studioFieldLabelClass } from "@/components/controls/control-field-helpers";
+import { useEffect, useId, useMemo, useState } from "react";
+import {
+  studioControlInputClass,
+  studioControlLabelClass,
+  studioControlRowClass,
+  studioFieldLabelClass,
+} from "@/components/controls/control-field-helpers";
 import {
   FillGradientEditor,
   gradientStopsToCss,
@@ -34,6 +39,8 @@ import type {
   SeriesFillMode,
   SeriesGradientStop,
 } from "@/lib/studio-series-design";
+import { Input } from "@/ui/input";
+import { Label } from "@/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/ui/popover";
 import {
   studioSidebarPopoverCollisionAvoidance,
@@ -79,6 +86,89 @@ function FillSwatch({
   );
 }
 
+const PATTERN_SCALE_MIN = 0.1;
+const PATTERN_SCALE_MAX = 3;
+
+function clampPatternScale(value: number): number {
+  const clamped = Math.min(
+    PATTERN_SCALE_MAX,
+    Math.max(PATTERN_SCALE_MIN, value)
+  );
+  return Math.round(clamped * 100) / 100;
+}
+
+/**
+ * Numeric tile scale for a pattern fill. Typing is free-form (so "0.5" can be
+ * entered); valid values commit live, and the field clamps to 0.1–3 on blur.
+ */
+export function PatternScaleInput({
+  value,
+  onChange,
+  disabled,
+}: {
+  value: number;
+  onChange: (scale: number) => void;
+  disabled?: boolean;
+}) {
+  const id = useId();
+  const [draft, setDraft] = useState(String(value));
+
+  useEffect(() => {
+    setDraft(String(value));
+  }, [value]);
+
+  const commit = (raw: string) => {
+    const parsed = Number(raw);
+    if (raw.trim() === "" || Number.isNaN(parsed)) {
+      setDraft(String(value));
+      return;
+    }
+    const next = clampPatternScale(parsed);
+    setDraft(String(next));
+    if (next !== value) {
+      onChange(next);
+    }
+  };
+
+  return (
+    <div className={studioControlRowClass}>
+      <Label className={studioControlLabelClass} htmlFor={id}>
+        Scale
+      </Label>
+      <Input
+        className={cn("min-w-0 flex-1 tabular-nums", studioControlInputClass)}
+        disabled={disabled}
+        id={id}
+        inputMode="decimal"
+        max={PATTERN_SCALE_MAX}
+        min={PATTERN_SCALE_MIN}
+        onBlur={(e) => commit(e.target.value)}
+        onChange={(e) => {
+          const raw = e.target.value;
+          setDraft(raw);
+          const parsed = Number(raw);
+          if (
+            raw.trim() !== "" &&
+            !Number.isNaN(parsed) &&
+            parsed >= PATTERN_SCALE_MIN &&
+            parsed <= PATTERN_SCALE_MAX
+          ) {
+            onChange(clampPatternScale(parsed));
+          }
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            commit(e.currentTarget.value);
+          }
+        }}
+        step={0.1}
+        type="number"
+        value={draft}
+      />
+    </div>
+  );
+}
+
 export function FillPicker({
   label,
   color,
@@ -94,6 +184,8 @@ export function FillPicker({
   onPatternChange,
   onGradientEnabledChange,
   onGradientStopsChange,
+  patternScale,
+  onPatternScaleChange,
 }: {
   label?: string;
   color: string;
@@ -109,6 +201,9 @@ export function FillPicker({
   onPatternChange: (pattern: PatternPresetId) => void;
   onGradientEnabledChange?: (enabled: boolean) => void;
   onGradientStopsChange?: (stops: SeriesGradientStop[]) => void;
+  /** Pattern tile scale (0.1–3); the Scale input shows when a handler is set. */
+  patternScale?: number;
+  onPatternScaleChange?: (scale: number) => void;
 }) {
   const [colorOpen, setColorOpen] = useState(false);
   const supportsGradient =
@@ -240,6 +335,14 @@ export function FillPicker({
 
       {fillMode === "pattern" && supportsPattern ? (
         <PatternPicker onChange={onPatternChange} value={pattern} />
+      ) : null}
+
+      {fillMode === "pattern" && supportsPattern && onPatternScaleChange ? (
+        <PatternScaleInput
+          disabled={disabled}
+          onChange={onPatternScaleChange}
+          value={patternScale ?? 1}
+        />
       ) : null}
     </div>
   );

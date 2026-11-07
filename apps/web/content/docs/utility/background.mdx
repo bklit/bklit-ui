@@ -6,9 +6,9 @@ description: Pattern fill for the plot area when grid lines are hidden — prese
 import { studioChartHref } from "@bklitui/studio";
 import { LineChart, Line, Background, ChartTooltip, XAxis } from "@bklitui/ui/charts";
 import {
-  BackgroundCrossDemo,
   BackgroundDiagonalDemo,
   BackgroundDotsDemo,
+  BackgroundGridDemo,
   BackgroundNoFadeDemo,
 } from "@/components/docs/background-demo";
 import { OpenInStudioButton } from "@/components/docs/open-in-studio-button";
@@ -29,7 +29,7 @@ Use `Background` instead of `Grid` when you want a textured plot fill rather tha
 import { LineChart, Line, Background, ChartTooltip, XAxis } from "@bklitui/ui/charts";
 
 <LineChart data={data}>
-  <Background pattern="diagonal" />
+  <Background pattern="diagonal-up" />
   <Line dataKey="value" />
   <XAxis />
   <ChartTooltip />
@@ -42,14 +42,10 @@ import { LineChart, Line, Background, ChartTooltip, XAxis } from "@bklitui/ui/ch
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `pattern` | `"diagonal" \| "horizontal" \| "vertical" \| "cross" \| "dots" \| "circles" \| "accent" \| "none"` | `"diagonal"` | Pattern preset (`"none"` renders nothing) |
-| `color` | `string` | `var(--chart-grid)` | Pattern stroke or dot color |
+| `pattern` | `PatternPresetId` | `"diagonal-up"` | Any [pattern preset](/docs/utility/patterns) (`"none"` renders nothing) |
+| `color` | `string` | `var(--chart-grid)` | Pattern color |
 | `scale` | `number` | `1` | Tile scale multiplier |
-| `strokeWidth` | `number` | preset default | Line stroke width for line-based patterns |
-| `radius` | `number` | preset default | Dot or circle radius for `dots` / `circles` |
-| `complement` | `boolean` | `false` | Alternate tile fill for circle patterns |
-| `fill` | `string` | — | Solid fill inside circles |
-| `dotFill` | `boolean` | `true` | Dot grid only — hollow dots when `false` |
+| `strokeWidth` | `number` | `1` | Line width for line-based presets |
 | `tileBackground` | `string` | — | Background color inside each pattern tile |
 | `showFill` | `boolean` | `true` | Apply the pattern texture to the plot area |
 | `opacity` | `number` | `1` | Pattern fill opacity |
@@ -58,7 +54,7 @@ import { LineChart, Line, Background, ChartTooltip, XAxis } from "@bklitui/ui/ch
 | `fadeHorizontalLength` | `number` | `10` | Horizontal fade zone as % of plot width per edge (0–45) |
 | `fadeVerticalLength` | `number` | `10` | Vertical fade zone as % of plot height per edge (0–45) |
 
-Patterns use `PatternLines` and `PatternCircles` from the bundled `@bklit/patterns` registry item, vendored from [@visx/pattern](https://visx.airbnb.tech/docs/pattern) (MIT), so there is no package dependency.
+`pattern` accepts every preset listed on the [Patterns](/docs/utility/patterns) page — lines, grids, dashes, dots, circles and checkerboards. The legacy ids `"diagonal"`, `"cross"` and `"accent"` still work and map to `"diagonal-up"`, `"grid"` and `"diagonal-up"`. The `radius`, `complement`, `fill` and `dotFill` options are deprecated and have no effect.
 
 ## Studio
 
@@ -76,7 +72,7 @@ Open [Studio with the line chart](/studio?chart=line-chart), hide **Grid** in th
 
 ## Examples
 
-### Diagonal (default)
+### Diagonal up (default)
 
 <ComponentShowcase code={`<LineChart data={data}>
   <Background />
@@ -98,15 +94,15 @@ Open [Studio with the line chart](/studio?chart=line-chart), hide **Grid** in th
   <BackgroundDotsDemo />
 </ComponentShowcase>
 
-### Cross hatch
+### Grid
 
 <ComponentShowcase code={`<LineChart data={data}>
-  <Background pattern="cross" scale={1.25} />
+  <Background pattern="grid" scale={2} />
   <Line dataKey="value" />
   <XAxis />
   <ChartTooltip />
-</ComponentShowcase>`}>
-  <BackgroundCrossDemo />
+</LineChart>`}>
+  <BackgroundGridDemo />
 </ComponentShowcase>
 
 ### No edge fade

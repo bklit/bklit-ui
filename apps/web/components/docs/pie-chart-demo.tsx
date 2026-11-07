@@ -7,7 +7,7 @@ import {
   LegendLabel,
   LegendMarker,
   LegendValue,
-  PatternLines,
+  PatternPreset,
   PieCenter,
   PieChart,
   type PieData,
@@ -169,37 +169,25 @@ export function PieChartPatternsDemo() {
   return (
     <PieChart data={patternData} size={280}>
       {/* Pattern definitions */}
-      <PatternLines
-        height={6}
+      <PatternPreset
+        color="var(--chart-1)"
         id="pie-pattern-1"
-        orientation={["diagonal"]}
-        stroke="var(--chart-1)"
-        strokeWidth={1}
-        width={6}
+        preset="diagonal-up"
       />
-      <PatternLines
-        height={6}
+      <PatternPreset
+        color="var(--chart-2)"
         id="pie-pattern-2"
-        orientation={["horizontal"]}
-        stroke="var(--chart-2)"
-        strokeWidth={1}
-        width={6}
+        preset="horizontal"
       />
-      <PatternLines
-        height={6}
+      <PatternPreset
+        color="var(--chart-3)"
         id="pie-pattern-3"
-        orientation={["vertical"]}
-        stroke="var(--chart-3)"
-        strokeWidth={1}
-        width={6}
+        preset="circles-dense"
       />
-      <PatternLines
-        height={8}
+      <PatternPreset
+        color="var(--chart-4)"
         id="pie-pattern-4"
-        orientation={["diagonalRightToLeft"]}
-        stroke="var(--chart-4)"
-        strokeWidth={1}
-        width={8}
+        preset="checkerboard-sm"
       />
 
       {/* Slices with pattern fills */}

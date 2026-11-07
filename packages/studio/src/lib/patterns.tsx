@@ -1,12 +1,12 @@
 // biome-ignore-all lint/performance/noBarrelFile: re-export pattern preset ids for parsers and UI
 "use client";
 
-import { PatternLines, renderPatternPreset } from "@bklitui/ui/charts";
+import { PatternPreset, renderPatternPreset } from "@bklitui/ui/charts";
 import { Fragment, isValidElement } from "react";
 
 export {
+  DEFAULT_PATTERN_PRESET,
   PATTERN_PRESET_IDS,
-  PATTERN_PRESETS,
   type PatternPresetId,
 } from "@/lib/pattern-presets";
 
@@ -30,16 +30,19 @@ export function studioPatternFill(
   return `url(#${studioPatternIdForSeries(seriesIndex)})`;
 }
 
-function patternNodeForPreset(
+/** Chart palette var for a series / slice / region index. */
+function chartVarAt(index: number): string {
+  return `var(--chart-${(index % 5) + 1})`;
+}
+
+/** Pattern def node for a preset, or null for `none`. */
+export function studioPatternNode(
   preset: PatternPresetId,
   id: string,
-  strokeVar: string
+  color: string,
+  scale = 1
 ) {
-  const node = renderPatternPreset(preset, id, {
-    color: preset === "accent" ? "#e879f9" : strokeVar,
-    scale: preset === "cross" ? 1.33 : 1,
-    strokeWidth: preset === "circles" ? 1 : undefined,
-  });
+  const node = renderPatternPreset(preset, id, { color, scale });
   if (!(node && isValidElement(node))) {
     return null;
   }
@@ -49,9 +52,12 @@ function patternNodeForPreset(
 export function StudioPatternDefs({
   preset,
   seriesPatterns,
+  seriesScales,
 }: {
   preset?: PatternPresetId;
   seriesPatterns?: PatternPresetId[];
+  /** Tile scale per series (default 1). */
+  seriesScales?: number[];
 }) {
   let entries: PatternPresetId[] = [];
   if (seriesPatterns && seriesPatterns.length > 0) {
@@ -64,9 +70,13 @@ export function StudioPatternDefs({
     if (entry === "none") {
       return null;
     }
-    const strokeVar = `var(${`--chart-${(index % 5) + 1}`})`;
     const id = studioPatternIdForSeries(index);
-    const node = patternNodeForPreset(entry, id, strokeVar);
+    const node = studioPatternNode(
+      entry,
+      id,
+      chartVarAt(index),
+      seriesScales?.[index] ?? 1
+    );
     if (!node) {
       return null;
     }
@@ -80,61 +90,38 @@ export function StudioPatternDefs({
   return <>{nodes}</>;
 }
 
-/** Per-slice line patterns (matches pie chart docs example). */
-const PIE_SLICE_LINE_PATTERNS = [
-  {
-    id: "studio-pie-p0",
-    orientation: ["diagonal"] as const,
-    stroke: "var(--chart-1)",
-    width: 6,
-    height: 6,
-  },
-  {
-    id: "studio-pie-p1",
-    orientation: ["horizontal"] as const,
-    stroke: "var(--chart-2)",
-    width: 6,
-    height: 6,
-  },
-  {
-    id: "studio-pie-p2",
-    orientation: ["vertical"] as const,
-    stroke: "var(--chart-3)",
-    width: 6,
-    height: 6,
-  },
-  {
-    id: "studio-pie-p3",
-    orientation: ["diagonalRightToLeft"] as const,
-    stroke: "var(--chart-4)",
-    width: 8,
-    height: 8,
-  },
-  {
-    id: "studio-pie-p4",
-    orientation: ["diagonal"] as const,
-    stroke: "var(--chart-5)",
-    width: 6,
-    height: 6,
-  },
-] as const;
+/**
+ * Per-slice presets for the pie "lines" fill — varied textures so adjacent
+ * slices read apart even in a single colour.
+ */
+export const STUDIO_PIE_SLICE_PATTERNS = [
+  "diagonal-up",
+  "dots",
+  "vertical",
+  "grid-dashed",
+  "diagonal-down",
+  "circles-dense",
+  "horizontal",
+  "checkerboard-xs",
+] as const satisfies readonly PatternPresetId[];
 
-/** Direct PatternLines children for PieChart defs (no wrapper — PieChart only hoists Pattern* nodes). */
+export function studioPieSlicePattern(index: number): PatternPresetId {
+  return (
+    STUDIO_PIE_SLICE_PATTERNS[index % STUDIO_PIE_SLICE_PATTERNS.length] ??
+    "diagonal-up"
+  );
+}
+
+/** Direct PatternPreset defs for PieChart (it only hoists Pattern* children). */
 export function studioPiePatternDefs(sliceCount: number) {
   return Array.from({ length: sliceCount }, (_, index) => {
-    const cfg = PIE_SLICE_LINE_PATTERNS[
-      index % PIE_SLICE_LINE_PATTERNS.length
-    ] as (typeof PIE_SLICE_LINE_PATTERNS)[number];
     const id = `studio-pie-p${index}`;
     return (
-      <PatternLines
-        height={cfg.height}
+      <PatternPreset
+        color={chartVarAt(index)}
         id={id}
         key={id}
-        orientation={[...cfg.orientation]}
-        stroke={cfg.stroke}
-        strokeWidth={1}
-        width={cfg.width}
+        preset={studioPieSlicePattern(index)}
       />
     );
   });
@@ -152,23 +139,6 @@ const CHOROPLETH_REGIONS = [
   "oceania",
 ] as const;
 
-function choroPatternStroke(
-  preset: PatternPresetId,
-  regionIndex: number
-): string {
-  if (preset === "accent") {
-    return "#e879f9";
-  }
-  const chartVars = [
-    "var(--chart-1)",
-    "var(--chart-2)",
-    "var(--chart-3)",
-    "var(--chart-4)",
-    "var(--chart-5)",
-  ];
-  return chartVars[regionIndex % chartVars.length] ?? "var(--chart-1)";
-}
-
 export function StudioChoroplethBgPattern({
   preset,
 }: {
@@ -177,15 +147,7 @@ export function StudioChoroplethBgPattern({
   if (preset === "none") {
     return null;
   }
-  return (
-    <>
-      {renderPatternPreset(preset, "studio-choro-bg", {
-        color: "var(--chart-5)",
-        scale: preset === "cross" ? 1.33 : 1,
-        strokeWidth: 1,
-      })}
-    </>
-  );
+  return <>{studioPatternNode(preset, "studio-choro-bg", "var(--chart-5)")}</>;
 }
 
 export function StudioChoroplethFgPatterns({
@@ -200,7 +162,7 @@ export function StudioChoroplethFgPatterns({
     <>
       {CHOROPLETH_REGIONS.map((region, index) => {
         const node = renderPatternPreset(preset, `studio-choro-fg-${region}`, {
-          color: choroPatternStroke(preset, index),
+          color: chartVarAt(index),
           strokeWidth: 2,
         });
         return node ? <Fragment key={region}>{node}</Fragment> : null;
@@ -231,34 +193,35 @@ export function studioChoroplethFgPatternId(
   return "studio-choro-fg-oceania";
 }
 
-export function patternCodegenBlock(preset: PatternPresetId): string {
+export interface PatternCodegenOptions {
+  /** Pattern id. Default: the Studio series-0 pattern id. */
+  id?: string;
+  /** Default: `var(--chart-1)` */
+  color?: string;
+  /** Emitted only when not 1. */
+  scale?: number;
+  /** Emitted only when not 1. */
+  strokeWidth?: number;
+}
+
+/** `<PatternPreset … />` source for a preset; empty string for `none`. */
+export function patternCodegenBlock(
+  preset: PatternPresetId,
+  options: PatternCodegenOptions = {}
+): string {
   if (preset === "none") {
     return "";
   }
-  if (preset === "dots") {
-    return `<PatternCircles id="${STUDIO_PATTERN_ID}" height={10} width={10} fill="var(--chart-4)" radius={1.5} />`;
+  const props = [
+    `id="${options.id ?? STUDIO_PATTERN_ID}"`,
+    `preset="${preset}"`,
+    `color="${options.color ?? "var(--chart-1)"}"`,
+  ];
+  if (options.scale != null && options.scale !== 1) {
+    props.push(`scale={${options.scale}}`);
   }
-  if (preset === "circles") {
-    return `<PatternCircles id="${STUDIO_PATTERN_ID}" height={6} width={6} stroke="var(--chart-1)" strokeWidth={1} radius={2} />`;
+  if (options.strokeWidth != null && options.strokeWidth !== 1) {
+    props.push(`strokeWidth={${options.strokeWidth}}`);
   }
-  const orientations: Record<PatternPresetId, string> = {
-    none: "",
-    diagonal: 'orientation={["diagonal"]}',
-    horizontal: 'orientation={["horizontal"]}',
-    vertical: 'orientation={["vertical"]}',
-    cross:
-      'orientation={["diagonal", "diagonalRightToLeft"]} height={8} width={8}',
-    dots: "",
-    circles: "",
-    accent: 'orientation={["diagonal"]} stroke="#e879f9"',
-  };
-  let stroke = 'stroke="var(--chart-1)"';
-  if (preset === "accent") {
-    stroke = 'stroke="#e879f9"';
-  } else if (preset === "horizontal") {
-    stroke = 'stroke="var(--chart-2)"';
-  } else if (preset === "vertical") {
-    stroke = 'stroke="var(--chart-3)"';
-  }
-  return `<PatternLines id="${STUDIO_PATTERN_ID}" height={6} width={6} ${orientations[preset]} ${stroke} strokeWidth={1} />`;
+  return `<PatternPreset ${props.join(" ")} />`;
 }

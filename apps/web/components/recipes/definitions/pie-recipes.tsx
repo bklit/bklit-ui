@@ -7,7 +7,8 @@ import {
   LegendMarker,
   LegendProgress,
   LegendValue,
-  PatternLines,
+  PatternPreset,
+  type PatternPresetKey,
   PieCenter,
   PieChart,
   PieSlice,
@@ -20,12 +21,12 @@ import type { Recipe } from "@/lib/recipes/types";
 import { recipePieData, recipeRingData } from "../recipe-data";
 import { RADIAL_SHELL_CLASS } from "./shared";
 
-const ORIENTATIONS = [
-  "diagonal",
+const PRESETS: PatternPresetKey[] = [
+  "diagonal-up",
   "horizontal",
   "vertical",
-  "diagonalRightToLeft",
-] as const;
+  "diagonal-down",
+];
 
 /* -------------------------------------------------------------------------- */
 /* Patterned slices                                                           */
@@ -42,16 +43,12 @@ function PatternedPie({ donut }: { donut: boolean }) {
         padAngle={0.03}
       >
         {recipePieData.map((item, index) => (
-          <PatternLines
-            height={6}
+          <PatternPreset
+            color={item.color}
             id={`${uid}-p${index}`}
             key={`pattern-${item.label}`}
-            orientation={[
-              ORIENTATIONS[index % ORIENTATIONS.length] ?? "diagonal",
-            ]}
-            stroke={item.color}
+            preset={PRESETS[index % PRESETS.length]}
             strokeWidth={1.25}
-            width={6}
           />
         ))}
         {recipePieData.map((item, index) => (
@@ -79,17 +76,17 @@ const PATTERN_SOURCE = (donut: boolean) => `"use client";
 
 import { useId } from "react";
 import {
-  PatternLines,
-  type PatternOrientationType,
-} from "@/components/charts/patterns";
+  PatternPreset,
+  type PatternPresetKey,
+} from "@/components/charts/pattern-preset";
 ${donut ? 'import { PieCenter } from "@/components/charts/pie-center";\n' : ""}import { PieChart } from "@/components/charts/pie-chart";
 import { PieSlice } from "@/components/charts/pie-slice";
 
-const orientations: PatternOrientationType[] = [
-  "diagonal",
+const presets: PatternPresetKey[] = [
+  "diagonal-up",
   "horizontal",
   "vertical",
-  "diagonalRightToLeft",
+  "diagonal-down",
 ];
 
 export function TrafficSources({
@@ -112,14 +109,12 @@ export function TrafficSources({
         padAngle={0.03}
       >
         {slices.map((item, index) => (
-          <PatternLines
-            height={6}
+          <PatternPreset
+            color={item.color}
             id={\`\${uid}-p\${index}\`}
             key={\`pattern-\${item.label}\`}
-            orientation={[orientations[index % orientations.length] ?? "diagonal"]}
-            stroke={item.color}
+            preset={presets[index % presets.length]}
             strokeWidth={1.25}
-            width={6}
           />
         ))}
         {slices.map((item, index) => (
@@ -137,7 +132,7 @@ export function TrafficSources({
 
 const PATTERN_STEPS = (donut: boolean) => [
   "Give every datum a `color` of `var(--chart-N)` (cycling 1–5) if it doesn't have one — the hover glow and centre label read it.",
-  "Inside `<PieChart>`, render one `<PatternLines>` (from `@/components/charts/patterns`) per slice **before** the slices: `width={6} height={6} strokeWidth={1.25}`, `stroke` = that slice's `color`, cycling orientations `diagonal`, `horizontal`, `vertical`, `diagonalRightToLeft`, and an `id` made unique with `useId()`.",
+  "Inside `<PieChart>`, render one `<PatternPreset>` (from `@/components/charts/pattern-preset`) per slice **before** the slices: `strokeWidth={1.25}`, `color` = that slice's `color`, cycling presets `diagonal-up`, `horizontal`, `vertical`, `diagonal-down`, and an `id` made unique with `useId()`.",
   'Set `fill="url(#<that id>)"` on each `<PieSlice>`.',
   "On `<PieChart>` add `padAngle={0.03}` and `cornerRadius={4}` so the hatched slices separate cleanly.",
   donut

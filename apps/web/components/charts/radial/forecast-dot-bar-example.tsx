@@ -135,8 +135,8 @@ export function RadialForecastDotBarExample() {
         layout="columns"
         maxValue={3.2}
         patterns={{
-          grid: { preset: "diagonal", strokeWidth: 1.5 },
-          ghost: { preset: "diagonal", stroke: "none" },
+          grid: { preset: "diagonal-up", strokeWidth: 1.5 },
+          ghost: { preset: "diagonal-up", stroke: "none" },
         }}
         rows={5}
       />
@@ -164,8 +164,8 @@ const code = `const series = [
     ghostDotSize={0.9}
     ghostOpacity={0.6}
     patterns={{
-      grid: { preset: "diagonal", strokeWidth: 1.5 },
-      ghost: { preset: "diagonal", stroke: "none" },
+      grid: { preset: "diagonal-up", strokeWidth: 1.5 },
+      ghost: { preset: "diagonal-up", stroke: "none" },
     }}
   />
   <RadialScrubber variant="dashed" />

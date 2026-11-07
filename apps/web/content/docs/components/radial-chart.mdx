@@ -610,7 +610,7 @@ const overallUsed =
 
 ### Patterned dots
 
-`patterns` fills a series' dots with a pattern preset (`"diagonal"`, `"horizontal"`, `"vertical"`, `"cross"`, `"dots"`, `"circles"`, `"accent"`) keyed by `dataKey`; use `"ghost"` for the ghost layer (e.g. a striped forecast). Large dots in `layout="columns"` read best.
+`patterns` fills a series' dots with a [pattern preset](/docs/utility/patterns) (`"diagonal-up"`, `"horizontal"`, `"grid"`, `"dots"`, `"checkerboard"`, …) keyed by `dataKey`; use `"ghost"` for the ghost layer (e.g. a striped forecast). Large dots in `layout="columns"` read best.
 
 <ComponentShowcase
   code={`const series = [
@@ -630,8 +630,8 @@ const overallUsed =
     ghostDotSize={0.9}
     ghostOpacity={0.6}
     patterns={{
-      grid: { preset: "diagonal", strokeWidth: 1.5 },
-      ghost: { preset: "diagonal", stroke: "none" },
+      grid: { preset: "diagonal-up", strokeWidth: 1.5 },
+      ghost: { preset: "diagonal-up", stroke: "none" },
     }}
   />
   <RadialScrubber variant="dashed" />
@@ -663,7 +663,7 @@ Pass a preset id for defaults, or a `RadialDotPattern`:
 
 | Field         | Type                | Default                 | Description                                                                |
 | ------------- | ------------------- | ----------------------- | -------------------------------------------------------------------------- |
-| `preset`      | `PatternPresetId`   | `"diagonal"`            | Pattern preset                                                             |
+| `preset`      | `PatternPresetId`   | `"diagonal-up"`         | [Pattern preset](/docs/utility/patterns)                                   |
 | `fill`        | `string`            | -                       | Custom fill (e.g. `url(#my-pattern)`); ignores `preset`, `color`, `scale`, `units` |
 | `color`       | `string`            | series color            | Stripe / dot color                                                         |
 | `scale`       | `number`            | `1`                     | Pattern tile scale                                                         |

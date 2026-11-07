@@ -648,6 +648,75 @@ function DeadlineIllustration() {
   );
 }
 
+const PATTERN_ILLUSTRATION_TILES = [
+  {
+    id: "diagonal",
+    x: 4,
+    size: 6,
+    d: "M-2 1L1 -2M-1 6L6 -1M4 7L7 4",
+    stroke: true,
+  },
+  { id: "dots", x: 33, size: 6, d: "M6 5H5V6H6V5Z", stroke: false },
+  {
+    id: "grid",
+    x: 62,
+    size: 6,
+    d: "M5.5 0V6M-0.5 0V6M0 5.5H6M0 -0.5H6",
+    stroke: true,
+  },
+  {
+    id: "checker",
+    x: 91,
+    size: 8,
+    d: "M0 0h4v4h-4zM4 4h4v4h-4z",
+    stroke: false,
+  },
+] as const;
+
+function PatternsIllustration() {
+  return (
+    <ThumbCard>
+      <ThumbPanel>
+        <ThumbSvg viewBox="0 0 120 50">
+          <defs>
+            {PATTERN_ILLUSTRATION_TILES.map((tile) => (
+              <pattern
+                height={tile.size}
+                id={`bk-ill-patterns-${tile.id}`}
+                key={tile.id}
+                patternUnits="userSpaceOnUse"
+                width={tile.size}
+              >
+                <path
+                  d={tile.d}
+                  fill={tile.stroke ? "none" : "currentColor"}
+                  fillOpacity={tile.stroke ? undefined : 0.4}
+                  stroke={tile.stroke ? "currentColor" : undefined}
+                  strokeOpacity={tile.stroke ? 0.32 : undefined}
+                />
+              </pattern>
+            ))}
+          </defs>
+          {PATTERN_ILLUSTRATION_TILES.map((tile, i) => (
+            <rect
+              className={i === 0 ? "text-primary" : undefined}
+              fill={`url(#bk-ill-patterns-${tile.id})`}
+              height="25"
+              key={tile.id}
+              rx="3"
+              stroke="currentColor"
+              strokeOpacity={0.12}
+              width="25"
+              x={tile.x}
+              y="12.5"
+            />
+          ))}
+        </ThumbSvg>
+      </ThumbPanel>
+    </ThumbCard>
+  );
+}
+
 export const utilityIllustrations: Record<string, () => ReactNode> = {
   axis: () => <AxisIllustration />,
   background: BackgroundIllustration,
@@ -658,6 +727,7 @@ export const utilityIllustrations: Record<string, () => ReactNode> = {
   grid: GridIllustration,
   legend: LegendIllustration,
   markers: MarkersIllustration,
+  patterns: PatternsIllustration,
   "projection-line": ProjectionLineIllustration,
   "reference-area": ReferenceAreaIllustration,
   tooltip: TooltipIllustration,

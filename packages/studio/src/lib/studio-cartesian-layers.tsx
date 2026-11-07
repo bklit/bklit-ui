@@ -32,10 +32,6 @@ export function studioBarTrackPatternDef(state: StudioUrlState) {
     color: options.color,
     scale: options.scale,
     strokeWidth: options.strokeWidth,
-    radius: options.radius,
-    complement: options.complement,
-    fill: options.fill || undefined,
-    dotFill: state.barTrackPatternDotsFill,
     tileBackground: options.tileBackground,
   });
 }
@@ -66,10 +62,6 @@ export function backgroundPropsFromState(state: StudioUrlState) {
     color: options.color,
     scale: options.scale,
     strokeWidth: options.strokeWidth,
-    radius: options.radius,
-    complement: options.complement,
-    fill: options.fill || undefined,
-    dotFill: state.backgroundPatternDotsFill,
     tileBackground: options.tileBackground,
     opacity: options.opacity,
     showFill: state.backgroundPatternShowFill,

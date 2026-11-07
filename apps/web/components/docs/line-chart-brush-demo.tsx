@@ -49,7 +49,7 @@ export function LineChartBrushDemo() {
               onSelectionChange={brushLayout.onBrushSelectionChange}
               selectionPattern={{
                 color: "var(--chart-1)",
-                preset: "diagonal",
+                preset: "diagonal-up",
               }}
             />
           </LineChart>

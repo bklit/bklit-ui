@@ -4,8 +4,11 @@ import type {
   HeatmapLevelStyle,
   HeatmapLevelStyles,
 } from "@bklitui/ui/charts";
-import type { PatternPresetId } from "@/lib/pattern-presets";
-import { PATTERN_PRESET_IDS } from "@/lib/pattern-presets";
+import {
+  DEFAULT_PATTERN_PRESET,
+  type PatternPresetId,
+  parsePatternPresetId,
+} from "@/lib/pattern-presets";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import { parsePipeField, serializePipeField } from "@/lib/studio-series-design";
 
@@ -19,29 +22,11 @@ const HEATMAP_LEVEL_COLOR_KEYS = [
   "heatmapLevel4Color",
 ] as const satisfies readonly (keyof StudioUrlState)[];
 
-function isPatternPresetId(value: string): value is PatternPresetId {
-  return (PATTERN_PRESET_IDS as readonly string[]).includes(value);
-}
-
 function parsePipeNumbers(raw: string, fallback: number): number[] {
   const parsed = parsePipeField(raw);
   return Array.from({ length: HEATMAP_LEVEL_COUNT }, (_, index) => {
     const value = Number(parsed[index]);
     return Number.isFinite(value) ? value : fallback;
-  });
-}
-
-function parsePipeBooleans(raw: string, fallback: boolean): boolean[] {
-  const parsed = parsePipeField(raw);
-  return Array.from({ length: HEATMAP_LEVEL_COUNT }, (_, index) => {
-    const value = parsed[index];
-    if (value === "1" || value === "true") {
-      return true;
-    }
-    if (value === "0" || value === "false") {
-      return false;
-    }
-    return fallback;
   });
 }
 
@@ -57,16 +42,6 @@ function setPipeNumber(values: number[], level: number, value: number): string {
   return serializePipeField(next);
 }
 
-function setPipeBoolean(
-  values: boolean[],
-  level: number,
-  value: boolean
-): string {
-  const next = values.map((entry) => (entry ? "1" : "0"));
-  next[level] = value ? "1" : "0";
-  return serializePipeField(next);
-}
-
 function parseHeatmapLevelFillModes(
   state: StudioUrlState
 ): HeatmapLevelFillMode[] {
@@ -79,8 +54,8 @@ function parseHeatmapLevelFillModes(
 function parseHeatmapLevelPatterns(state: StudioUrlState): PatternPresetId[] {
   const parsed = parsePipeField(state.heatmapLevelPatterns);
   return Array.from({ length: HEATMAP_LEVEL_COUNT }, (_, index) => {
-    const value = parsed[index] ?? "";
-    return isPatternPresetId(value) ? value : "none";
+    // Legacy ids (`diagonal`, `cross`, `accent`) map forward; unknown → none.
+    return parsePatternPresetId(parsed[index]);
   });
 }
 
@@ -97,22 +72,12 @@ function buildLevelStyle(
     state.heatmapLevelPatternStrokeWidths,
     1
   );
-  const patternRadii = parsePipeNumbers(state.heatmapLevelPatternRadii, 2);
-  const patternComplements = parsePipeBooleans(
-    state.heatmapLevelPatternComplements,
-    false
-  );
-  const patternFills = parsePipeField(state.heatmapLevelPatternFills);
   const patternTileBackgrounds = parsePipeField(
     state.heatmapLevelPatternTileBackgrounds
   );
   const patternOpacities = parsePipeNumbers(
     state.heatmapLevelPatternOpacities,
     1
-  );
-  const patternDotsFills = parsePipeBooleans(
-    state.heatmapLevelPatternDotsFills,
-    true
   );
 
   return {
@@ -122,12 +87,8 @@ function buildLevelStyle(
     patternColor: patternColors[level]?.trim() || undefined,
     patternScale: patternScales[level],
     patternStrokeWidth: patternStrokeWidths[level],
-    patternRadius: patternRadii[level],
-    patternComplement: patternComplements[level],
-    patternFill: patternFills[level]?.trim() || undefined,
     patternTileBackground: patternTileBackgrounds[level]?.trim() || undefined,
     patternOpacity: patternOpacities[level],
-    patternDotsFill: patternDotsFills[level],
   };
 }
 
@@ -207,7 +168,7 @@ export function studioHeatmapLevelPattern(
   level: number
 ): PatternPresetId {
   const pattern = parseHeatmapLevelPatterns(state)[level] ?? "none";
-  return pattern === "none" ? "diagonal" : pattern;
+  return pattern === "none" ? DEFAULT_PATTERN_PRESET : pattern;
 }
 
 export function studioHeatmapLevelPatternColor(
@@ -231,30 +192,6 @@ export function studioHeatmapLevelPatternStrokeWidth(
   return parsePipeNumbers(state.heatmapLevelPatternStrokeWidths, 1)[level] ?? 1;
 }
 
-export function studioHeatmapLevelPatternRadius(
-  state: StudioUrlState,
-  level: number
-): number {
-  return parsePipeNumbers(state.heatmapLevelPatternRadii, 2)[level] ?? 2;
-}
-
-export function studioHeatmapLevelPatternComplement(
-  state: StudioUrlState,
-  level: number
-): boolean {
-  return (
-    parsePipeBooleans(state.heatmapLevelPatternComplements, false)[level] ??
-    false
-  );
-}
-
-export function studioHeatmapLevelPatternFill(
-  state: StudioUrlState,
-  level: number
-): string {
-  return parsePipeField(state.heatmapLevelPatternFills)[level]?.trim() ?? "";
-}
-
 export function studioHeatmapLevelPatternTileBackground(
   state: StudioUrlState,
   level: number
@@ -270,15 +207,6 @@ export function studioHeatmapLevelPatternOpacity(
   level: number
 ): number {
   return parsePipeNumbers(state.heatmapLevelPatternOpacities, 1)[level] ?? 1;
-}
-
-export function studioHeatmapLevelPatternDotsFill(
-  state: StudioUrlState,
-  level: number
-): boolean {
-  return (
-    parsePipeBooleans(state.heatmapLevelPatternDotsFills, true)[level] ?? true
-  );
 }
 
 export function setStudioHeatmapLevelUsesPattern(
@@ -341,46 +269,6 @@ export function setStudioHeatmapLevelPatternStrokeWidth(
   );
 }
 
-export function setStudioHeatmapLevelPatternRadius(
-  state: StudioUrlState,
-  level: number,
-  radius: number
-): string {
-  return setPipeNumber(
-    parsePipeNumbers(state.heatmapLevelPatternRadii, 2),
-    level,
-    radius
-  );
-}
-
-export function setStudioHeatmapLevelPatternComplement(
-  state: StudioUrlState,
-  level: number,
-  complement: boolean
-): string {
-  return setPipeBoolean(
-    parsePipeBooleans(state.heatmapLevelPatternComplements, false),
-    level,
-    complement
-  );
-}
-
-export function setStudioHeatmapLevelPatternFill(
-  state: StudioUrlState,
-  level: number,
-  fill: string
-): string {
-  const values = parsePipeField(state.heatmapLevelPatternFills);
-  return setPipeString(
-    Array.from(
-      { length: HEATMAP_LEVEL_COUNT },
-      (_, index) => values[index] ?? ""
-    ),
-    level,
-    fill
-  );
-}
-
 export function setStudioHeatmapLevelPatternTileBackground(
   state: StudioUrlState,
   level: number,
@@ -406,17 +294,5 @@ export function setStudioHeatmapLevelPatternOpacity(
     parsePipeNumbers(state.heatmapLevelPatternOpacities, 1),
     level,
     opacity
-  );
-}
-
-export function setStudioHeatmapLevelPatternDotsFill(
-  state: StudioUrlState,
-  level: number,
-  dotsFill: boolean
-): string {
-  return setPipeBoolean(
-    parsePipeBooleans(state.heatmapLevelPatternDotsFills, true),
-    level,
-    dotsFill
   );
 }

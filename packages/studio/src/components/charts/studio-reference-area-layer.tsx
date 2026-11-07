@@ -22,10 +22,6 @@ export function StudioReferenceAreaLayer({
         markerColor={state.referenceAreaMarkerColor}
         pattern={state.referenceAreaPattern}
         patternColor={state.referenceAreaPatternColor}
-        patternComplement={state.referenceAreaPatternComplement}
-        patternDotFill={state.referenceAreaPatternDotsFill}
-        patternFill={state.referenceAreaPatternFill}
-        patternRadius={state.referenceAreaPatternRadius}
         patternScale={state.referenceAreaPatternScale}
         patternStrokeWidth={state.referenceAreaPatternStrokeWidth}
         patternTileBackground={state.referenceAreaPatternTileBackground}

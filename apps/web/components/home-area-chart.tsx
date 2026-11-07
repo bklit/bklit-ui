@@ -158,7 +158,6 @@ export function HomeAreaChart({
         fadeHorizontalLength={30}
         fadeVerticalLength={30}
         pattern="dots"
-        radius={0.5}
       />
       <Area
         curve={curveNatural}

@@ -193,6 +193,10 @@ interface SeriesPipeField {
 const SERIES_PIPE_FIELDS = {
   fillOpacity: { pipeKey: "seriesFillOpacities", kind: "number" },
   gradientToOpacity: { pipeKey: "seriesGradientToOpacities", kind: "number" },
+  fadeLeft: { pipeKey: "seriesFadeLefts", kind: "number" },
+  fadeRight: { pipeKey: "seriesFadeRights", kind: "number" },
+  fadeBottom: { pipeKey: "seriesFadeBottoms", kind: "number" },
+  patternScale: { pipeKey: "seriesPatternScales", kind: "number" },
   scatterRadius: { pipeKey: "seriesScatterRadii", kind: "number" },
   scatterShowRings: { pipeKey: "seriesScatterRingsFlags", kind: "boolean" },
   scatterRingGap: { pipeKey: "seriesScatterRingGaps", kind: "number" },

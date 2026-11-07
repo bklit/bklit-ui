@@ -6,7 +6,7 @@ import {
   BarSquares,
   BarXAxis,
   ChartTooltip,
-  PatternLines,
+  PatternPreset,
 } from "@bklitui/ui/charts";
 import { useId } from "react";
 import {
@@ -31,21 +31,15 @@ function SquircleBarsPreview() {
       squareSnap={{ squareGap: SQUARE_GAP, groupGap: GROUP_GAP }}
       xDataKey="month"
     >
-      <PatternLines
-        height={6}
+      <PatternPreset
+        color="var(--chart-grid)"
         id={`${uid}-track`}
-        orientation={["diagonal"]}
-        stroke="var(--chart-grid)"
-        strokeWidth={1}
-        width={6}
+        preset="diagonal-up"
       />
-      <PatternLines
-        height={6}
+      <PatternPreset
+        color="var(--chart-5)"
         id={`${uid}-previous`}
-        orientation={["diagonal"]}
-        stroke="var(--chart-5)"
-        strokeWidth={1}
-        width={6}
+        preset="diagonal-up"
       />
       <VerticalFade>
         <BarColumnTrack
@@ -101,9 +95,9 @@ export const squircleBars: Recipe = {
         'Only convert vertical `BarChart`s (not `orientation="horizontal"`, not stacked). Remove `<Grid />` and any `<Background />`.',
         "On `<BarChart>` add `squareSnap={{ squareGap: 3, groupGap: 4 }}` so tooltip rings align with the square columns.",
         "Replace every `<Bar dataKey=… />` with `<BarSquares dataKey=… squareGap={3} groupGap={4} squareRadius={0.5} />` (from `@/components/charts/bar-squares`). Keep `squareGap` / `groupGap` identical on `squareSnap`, every `BarSquares` and the track.",
-        'Headline series: a solid `fill="var(--chart-1)"` (no gradient). Comparison series: a `<PatternLines>` diagonal hatch in `var(--chart-5)` as `fill="url(#…)"` with `stroke="var(--chart-5)"`.',
+        'Headline series: a solid `fill="var(--chart-1)"` (no gradient). Comparison series: a `<PatternPreset preset="diagonal-up">` hatch with `color="var(--chart-5)"` as `fill="url(#…)"` with `stroke="var(--chart-5)"`.',
         VERTICAL_FADE_STEP,
-        'Add a hatched ghost track before the first `BarSquares`: a `<PatternLines>` in `var(--chart-grid)` and `<VerticalFade><BarColumnTrack fill="url(#…)" opacity={0.65} squareGap={3} groupGap={4} squareRadius={0.5} /></VerticalFade>`. Make every pattern `id` unique with `useId()`.',
+        'Add a hatched ghost track before the first `BarSquares`: a `<PatternPreset preset="diagonal-up" color="var(--chart-grid)" />` and `<VerticalFade><BarColumnTrack fill="url(#…)" opacity={0.65} squareGap={3} groupGap={4} squareRadius={0.5} /></VerticalFade>`. Make every pattern `id` unique with `useId()`.',
         'Replace the tooltip with `<ChartTooltip showCrosshair={false} dotVariant="ring" dotRadiusFraction={0.5} dotStrokeWidth={1} dotColor="color-mix(in oklch, var(--chart-tooltip-foreground) 70%, transparent)" />` — keep `dotRadiusFraction` equal to `squareRadius` so the ring hugs the squares.',
       ],
       code: `"use client";
@@ -113,7 +107,7 @@ import { BarChart } from "@/components/charts/bar-chart";
 import { BarColumnTrack, BarSquares } from "@/components/charts/bar-squares";
 import { BarXAxis } from "@/components/charts/bar-x-axis";
 import { useChartStable } from "@/components/charts/chart-context";
-import { PatternLines } from "@/components/charts/patterns";
+import { PatternPreset } from "@/components/charts/pattern-preset";
 import { ChartTooltip } from "@/components/charts/tooltip";
 
 ${VERTICAL_FADE_SOURCE}
@@ -132,21 +126,15 @@ export function RevenueChart({
       squareSnap={{ squareGap: 3, groupGap: 4 }}
       xDataKey="month"
     >
-      <PatternLines
-        height={6}
+      <PatternPreset
+        color="var(--chart-grid)"
         id={\`\${uid}-track\`}
-        orientation={["diagonal"]}
-        stroke="var(--chart-grid)"
-        strokeWidth={1}
-        width={6}
+        preset="diagonal-up"
       />
-      <PatternLines
-        height={6}
+      <PatternPreset
+        color="var(--chart-5)"
         id={\`\${uid}-previous\`}
-        orientation={["diagonal"]}
-        stroke="var(--chart-5)"
-        strokeWidth={1}
-        width={6}
+        preset="diagonal-up"
       />
       <VerticalFade>
         <BarColumnTrack

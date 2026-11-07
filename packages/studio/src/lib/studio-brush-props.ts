@@ -20,9 +20,6 @@ export function studioChartBrushProps(
             color: options.color,
             scale: options.scale,
             strokeWidth: options.strokeWidth,
-            radius: options.radius,
-            complement: options.complement,
-            fill: options.fill || undefined,
             tileBackground: options.tileBackground,
             opacity: options.opacity,
           }

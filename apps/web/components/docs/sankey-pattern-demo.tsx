@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  PatternLines,
+  PatternPreset,
   SankeyChart,
   SankeyLink,
   SankeyNode,
@@ -64,29 +64,23 @@ const analyticsData = {
 
 const outcomePatterns = (
   <>
-    <PatternLines
-      height={6}
+    <PatternPreset
+      color="#22c55e"
       id="converted"
-      orientation={["diagonal"]}
-      stroke="#22c55e"
-      strokeWidth={2}
-      width={6}
+      preset="diagonal-up"
+      strokeWidth={1.5}
     />
-    <PatternLines
-      height={6}
+    <PatternPreset
+      color="#eab308"
       id="engaged"
-      orientation={["diagonal"]}
-      stroke="#eab308"
-      strokeWidth={2}
-      width={6}
+      preset="diagonal-up"
+      strokeWidth={1.5}
     />
-    <PatternLines
-      height={6}
+    <PatternPreset
+      color="#ef4444"
       id="bounced"
-      orientation={["diagonal"]}
-      stroke="#ef4444"
-      strokeWidth={2}
-      width={6}
+      preset="diagonal-up"
+      strokeWidth={1.5}
     />
   </>
 );

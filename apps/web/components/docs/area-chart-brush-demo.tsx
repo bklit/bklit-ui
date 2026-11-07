@@ -51,7 +51,7 @@ export function AreaChartBrushDemo() {
               onSelectionChange={brushLayout.onBrushSelectionChange}
               selectionPattern={{
                 color: "color-mix(in oklch, var(--chart-1) 20%, transparent)",
-                preset: "diagonal",
+                preset: "diagonal-up",
               }}
             />
           </AreaChart>

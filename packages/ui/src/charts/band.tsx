@@ -57,7 +57,7 @@ export interface BandProps {
   fillOpacity?: number;
   /** Gradient opacity at the lower edge. Default: 0 */
   gradientToOpacity?: number;
-  /** Pattern preset when `fillType` is `"pattern"`. Default: `"diagonal"`. */
+  /** Pattern preset when `fillType` is `"pattern"`. Default: `"diagonal-up"`. */
   pattern?: PatternPresetId;
   /** Default: `fill`. */
   patternColor?: string;
@@ -137,7 +137,7 @@ export function Band({
   fillType = "solid",
   fillOpacity = 0.15,
   gradientToOpacity = 0,
-  pattern = "diagonal",
+  pattern = "diagonal-up",
   patternColor,
   patternScale,
   patternStrokeWidth,

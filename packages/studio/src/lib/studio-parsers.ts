@@ -1,6 +1,7 @@
 import type { ProjectionCurveKind } from "@bklitui/ui/charts";
 import { HEATMAP_DEFAULT_LEVEL_COLORS } from "@bklitui/ui/charts";
 import {
+  createParser,
   parseAsBoolean,
   parseAsFloat,
   parseAsInteger,
@@ -17,9 +18,28 @@ import {
   MOTION_EASE_IDS,
   type MotionEaseUrlValue,
 } from "./motion-config";
-import type { PatternPresetId } from "./pattern-presets";
-import { PATTERN_PRESET_IDS } from "./pattern-presets";
+import {
+  DEFAULT_PATTERN_PRESET,
+  type PatternPresetId,
+  parsePatternPresetId,
+} from "./pattern-presets";
 import type { ChartSlug } from "./types";
+
+/**
+ * Pattern preset id. Accepts current ids plus the legacy pre-Nucleo ids from old
+ * share URLs (`diagonal` → `diagonal-up`, `cross` → `grid`, `accent` →
+ * `diagonal-up`); anything else falls back to the default.
+ */
+const parseAsPatternPreset = createParser<PatternPresetId>({
+  parse: (value) => {
+    if (value.trim() === "none") {
+      return "none";
+    }
+    const resolved = parsePatternPresetId(value);
+    return resolved === "none" ? null : resolved;
+  },
+  serialize: (value) => value,
+});
 
 export const studioSearchParams = {
   chart: parseAsStringLiteral(validChartSlugs).withDefault("area-chart"),
@@ -60,7 +80,7 @@ export const studioSearchParams = {
   areaFadeValueLabels: parseAsBoolean.withDefault(false),
   fillOpacity: parseAsFloat.withDefault(0.3),
   strokeWidth: parseAsFloat.withDefault(2),
-  pattern: parseAsStringLiteral(PATTERN_PRESET_IDS).withDefault("none"),
+  pattern: parseAsPatternPreset.withDefault("none"),
   aspectRatio: parseAsString.withDefault("2 / 1"),
   animationDuration: parseAsInteger.withDefault(1100),
   motionType: parseAsStringLiteral(["spring", "ease"]).withDefault("ease"),
@@ -95,10 +115,8 @@ export const studioSearchParams = {
   pieCornerRadius: parseAsInteger.withDefault(0),
   pieHoverOffset: parseAsInteger.withDefault(10),
   pieFillMode: parseAsStringLiteral(["solid", "lines"]).withDefault("solid"),
-  choroplethBgPattern:
-    parseAsStringLiteral(PATTERN_PRESET_IDS).withDefault("none"),
-  choroplethFgPattern:
-    parseAsStringLiteral(PATTERN_PRESET_IDS).withDefault("none"),
+  choroplethBgPattern: parseAsPatternPreset.withDefault("none"),
+  choroplethFgPattern: parseAsPatternPreset.withDefault("none"),
   barGap: parseAsFloat.withDefault(0.2),
   barWidth: parseAsInteger.withDefault(0),
   groupGap: parseAsInteger.withDefault(4),
@@ -136,8 +154,7 @@ export const studioSearchParams = {
   barSquareFit: parseAsBoolean.withDefault(false),
   barTrackColor: parseAsString.withDefault("var(--chart-grid)"),
   barTrackOpacity: parseAsFloat.withDefault(0.25),
-  barTrackPattern:
-    parseAsStringLiteral(PATTERN_PRESET_IDS).withDefault("diagonal"),
+  barTrackPattern: parseAsPatternPreset.withDefault(DEFAULT_PATTERN_PRESET),
   barTrackPatternColor: parseAsString.withDefault("var(--chart-grid)"),
   barTrackPatternScale: parseAsFloat.withDefault(1),
   barTrackPatternStrokeWidth: parseAsFloat.withDefault(1),
@@ -354,8 +371,7 @@ export const studioSearchParams = {
   gridFadeVertical: parseAsBoolean.withDefault(false),
   gridHideHorizontalEdgeLines: parseAsBoolean.withDefault(false),
   gridHideVerticalEdgeLines: parseAsBoolean.withDefault(false),
-  backgroundPattern:
-    parseAsStringLiteral(PATTERN_PRESET_IDS).withDefault("diagonal"),
+  backgroundPattern: parseAsPatternPreset.withDefault(DEFAULT_PATTERN_PRESET),
   backgroundPatternColor: parseAsString.withDefault("var(--chart-grid)"),
   backgroundPatternScale: parseAsFloat.withDefault(1),
   backgroundPatternStrokeWidth: parseAsFloat.withDefault(1),
@@ -376,8 +392,7 @@ export const studioSearchParams = {
     "color-mix(in oklch, var(--chart-foreground-muted) 15%, transparent)"
   ),
   referenceAreaFillOpacity: parseAsFloat.withDefault(1),
-  referenceAreaPattern:
-    parseAsStringLiteral(PATTERN_PRESET_IDS).withDefault("none"),
+  referenceAreaPattern: parseAsPatternPreset.withDefault("none"),
   referenceAreaPatternColor: parseAsString.withDefault(
     "var(--chart-foreground-muted)"
   ),
@@ -442,7 +457,7 @@ export const studioSearchParams = {
   bandFill: parseAsString.withDefault("var(--chart-1)"),
   bandFillOpacity: parseAsFloat.withDefault(0.15),
   bandGradientToOpacity: parseAsFloat.withDefault(0),
-  bandPattern: parseAsStringLiteral(PATTERN_PRESET_IDS).withDefault("diagonal"),
+  bandPattern: parseAsPatternPreset.withDefault(DEFAULT_PATTERN_PRESET),
   bandPatternColor: parseAsString.withDefault("var(--chart-1)"),
   bandPatternScale: parseAsFloat.withDefault(1),
   bandPatternStrokeWidth: parseAsFloat.withDefault(1),
@@ -523,8 +538,7 @@ export const studioSearchParams = {
   brushGradientSpan: parseAsFloat.withDefault(0.6),
   brushBlur: parseAsFloat.withDefault(1.5),
   brushSelectionPatternEnabled: parseAsBoolean.withDefault(false),
-  brushSelectionPattern:
-    parseAsStringLiteral(PATTERN_PRESET_IDS).withDefault("none"),
+  brushSelectionPattern: parseAsPatternPreset.withDefault("none"),
   brushSelectionPatternColor: parseAsString.withDefault("var(--chart-1)"),
   brushSelectionPatternScale: parseAsFloat.withDefault(1),
   brushSelectionPatternStrokeWidth: parseAsFloat.withDefault(1),
@@ -744,6 +758,14 @@ export const studioSearchParams = {
   funnelGridLines: parseAsBoolean.withDefault(true),
   funnelGridLineOpacity: parseAsFloat.withDefault(1),
   funnelGridLineWidth: parseAsFloat.withDefault(1),
+  fadeLeft: parseAsFloat.withDefault(15),
+  fadeRight: parseAsFloat.withDefault(15),
+  fadeBottom: parseAsFloat.withDefault(100),
+  seriesFadeLefts: parseAsString.withDefault(""),
+  seriesFadeRights: parseAsString.withDefault(""),
+  seriesFadeBottoms: parseAsString.withDefault(""),
+  patternScale: parseAsFloat.withDefault(1),
+  seriesPatternScales: parseAsString.withDefault(""),
 };
 
 export interface StudioUrlState {
@@ -1251,6 +1273,22 @@ export interface StudioUrlState {
   funnelGridLines: boolean;
   funnelGridLineOpacity: number;
   funnelGridLineWidth: number;
+  /** Area left edge fade, % of plot width (0 = off). */
+  fadeLeft: number;
+  /** Area right edge fade, % of plot width (0 = off). */
+  fadeRight: number;
+  /** Area bottom fade, % of area height (0 = off). */
+  fadeBottom: number;
+  /** Pipe-encoded per-series `fadeLeft` overrides (area). */
+  seriesFadeLefts: string;
+  /** Pipe-encoded per-series `fadeRight` overrides (area). */
+  seriesFadeRights: string;
+  /** Pipe-encoded per-series `fadeBottom` overrides (area). */
+  seriesFadeBottoms: string;
+  /** Series pattern fill tile scale (0.1–3). */
+  patternScale: number;
+  /** Pipe-encoded per-series `patternScale` overrides. */
+  seriesPatternScales: string;
 }
 
 /** Full default state for chart switches (nuqs used `null` to clear keys; in-memory state needs real defaults). */
@@ -1345,7 +1383,7 @@ export function defaultStudioState(
     barSquareFit: false,
     barTrackColor: "var(--chart-grid)",
     barTrackOpacity: 0.25,
-    barTrackPattern: "diagonal",
+    barTrackPattern: DEFAULT_PATTERN_PRESET,
     barTrackPatternColor: "var(--chart-grid)",
     barTrackPatternScale: 1,
     barTrackPatternStrokeWidth: 1,
@@ -1501,7 +1539,7 @@ export function defaultStudioState(
     gridFadeVertical: false,
     gridHideHorizontalEdgeLines: false,
     gridHideVerticalEdgeLines: false,
-    backgroundPattern: "diagonal",
+    backgroundPattern: DEFAULT_PATTERN_PRESET,
     backgroundPatternColor: "var(--chart-grid)",
     backgroundPatternScale: 1,
     backgroundPatternStrokeWidth: 1,
@@ -1568,7 +1606,7 @@ export function defaultStudioState(
     bandFill: "var(--chart-1)",
     bandFillOpacity: 0.15,
     bandGradientToOpacity: 0,
-    bandPattern: "diagonal",
+    bandPattern: DEFAULT_PATTERN_PRESET,
     bandPatternColor: "var(--chart-1)",
     bandPatternScale: 1,
     bandPatternStrokeWidth: 1,
@@ -1762,6 +1800,14 @@ export function defaultStudioState(
     funnelGridLines: true,
     funnelGridLineOpacity: 1,
     funnelGridLineWidth: 1,
+    fadeLeft: 15,
+    fadeRight: 15,
+    fadeBottom: 100,
+    seriesFadeLefts: "",
+    seriesFadeRights: "",
+    seriesFadeBottoms: "",
+    patternScale: 1,
+    seriesPatternScales: "",
     ...overrides,
   };
 }

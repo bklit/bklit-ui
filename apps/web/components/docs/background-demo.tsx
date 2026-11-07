@@ -45,11 +45,11 @@ export function BackgroundDotsDemo() {
   );
 }
 
-export function BackgroundCrossDemo() {
+export function BackgroundGridDemo() {
   return (
     <div className="w-full">
       <LineChart data={chartData}>
-        <Background pattern="cross" scale={1.25} />
+        <Background pattern="grid" scale={2} />
         <Line dataKey="value" />
         <XAxis />
         <ChartTooltip />

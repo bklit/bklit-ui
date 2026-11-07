@@ -5,7 +5,7 @@ import {
   ChoroplethChart,
   ChoroplethFeatureComponent,
   ChoroplethTooltip,
-  PatternLines,
+  PatternPreset,
 } from "@bklitui/ui/charts";
 import { useWorldDataStandalone } from "./use-world-data";
 
@@ -32,45 +32,35 @@ function getRegionCategory(
 // Diagonal lines pattern demo
 const linesPatterns = (
   <>
-    <PatternLines
-      height={6}
+    <PatternPreset
+      color="var(--chart-1)"
       id="pattern-americas"
-      orientation={["diagonal"]}
-      stroke="var(--chart-1)"
-      strokeWidth={2}
-      width={6}
+      preset="diagonal-up"
+      strokeWidth={1.5}
     />
-    <PatternLines
-      height={6}
+    <PatternPreset
+      color="var(--chart-2)"
       id="pattern-europe"
-      orientation={["diagonal"]}
-      stroke="var(--chart-2)"
-      strokeWidth={2}
-      width={6}
+      preset="diagonal-up"
+      strokeWidth={1.5}
     />
-    <PatternLines
-      height={6}
+    <PatternPreset
+      color="var(--chart-3)"
       id="pattern-asia"
-      orientation={["diagonal"]}
-      stroke="var(--chart-3)"
-      strokeWidth={2}
-      width={6}
+      preset="diagonal-up"
+      strokeWidth={1.5}
     />
-    <PatternLines
-      height={6}
+    <PatternPreset
+      color="var(--chart-4)"
       id="pattern-africa"
-      orientation={["diagonal"]}
-      stroke="var(--chart-4)"
-      strokeWidth={2}
-      width={6}
+      preset="diagonal-up"
+      strokeWidth={1.5}
     />
-    <PatternLines
-      height={6}
+    <PatternPreset
+      color="var(--chart-5)"
       id="pattern-oceania"
-      orientation={["diagonal"]}
-      stroke="var(--chart-5)"
-      strokeWidth={2}
-      width={6}
+      preset="diagonal-up"
+      strokeWidth={1.5}
     />
   </>
 );

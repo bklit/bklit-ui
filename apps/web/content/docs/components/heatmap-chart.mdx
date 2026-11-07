@@ -235,13 +235,13 @@ Shows the contribution count and date for the hovered cell. Fades in on first ho
 
 ## Level styles and patterns
 
-Pass `levelStyles` (five entries: empty + levels 1–4) to control both cell fills and legend swatches. Each level can be solid or use a pattern preset. Omit `patternColor` to derive stripe color from the level color, or set `patternColor: "var(--chart-scale-pattern-color)"` for the theme default:
+Pass `levelStyles` (five entries: empty + levels 1–4) to control both cell fills and legend swatches. Each level can be solid or use a [pattern preset](/docs/utility/patterns) (`pattern` defaults to `"diagonal-up"`). Omit `patternColor` to derive stripe color from the level color, or set `patternColor: "var(--chart-scale-pattern-color)"` for the theme default:
 
 ```tsx
 const levelStyles = [
   { color: "var(--chart-scale-01)", fillMode: "solid" },
   { color: "var(--chart-scale-02)", fillMode: "solid" },
-  { color: "var(--chart-scale-03)", fillMode: "pattern", pattern: "diagonal", patternColor: "var(--chart-scale-pattern-color)" },
+  { color: "var(--chart-scale-03)", fillMode: "pattern", pattern: "diagonal-up", patternColor: "var(--chart-scale-pattern-color)" },
   { color: "var(--chart-scale-04)", fillMode: "solid" },
   { color: "var(--chart-scale-05)", fillMode: "solid" },
 ] as const;

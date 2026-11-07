@@ -1,10 +1,11 @@
 "use client";
 
-import { PatternLines } from "@bklitui/ui/charts";
+import { PatternSwatch } from "@/components/controls/pattern-picker";
 import {
   StudioToggleGroup,
   StudioToggleGroupItem,
 } from "@/components/controls/studio-toggle-group";
+import { studioPieSlicePattern } from "@/lib/patterns";
 
 export type PieFillMode = "solid" | "lines";
 
@@ -13,25 +14,10 @@ function SolidSwatch() {
 }
 
 function LinesSwatch() {
-  const id = "pie-fill-lines-swatch";
   return (
-    <svg
-      aria-hidden={true}
-      className="size-full rounded-sm"
-      viewBox="0 0 24 24"
-    >
-      <defs>
-        <PatternLines
-          height={6}
-          id={id}
-          orientation={["diagonal"]}
-          stroke="var(--chart-1)"
-          strokeWidth={1}
-          width={6}
-        />
-      </defs>
-      <rect fill={`url(#${id})`} height={24} width={24} />
-    </svg>
+    <span className="block size-full text-[var(--chart-1)]">
+      <PatternSwatch preset={studioPieSlicePattern(0)} />
+    </span>
   );
 }
 

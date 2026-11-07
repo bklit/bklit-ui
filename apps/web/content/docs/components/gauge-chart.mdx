@@ -29,13 +29,13 @@ import { GaugeChartDemo } from "@/components/docs/gauge-chart-demo";
 - **Linear label placement:** with `orientation="linear"`, place the label above or below the track using `labelPlacement` (`top` | `bottom`) and `labelAlign` (`start` | `center` | `end`) — the same six-position model as chart legend (top/bottom × left/center/right).
 - **Responsive:** omit `width` and `height` to fill the parent. Arc gauges use **`minWidth`** (default **300**) and an aspect ratio. Linear gauges fill the parent width and use **`linearHeight`** (default **24**).
 - **Linear notches:** linear gauges default to **`uniformWidth`** (rectangular notches). Pass `uniformWidth={false}` for tapered ticks.
-- **Patterns / gradients in `<defs>`:** pass **`PatternLines`**, **`LinearGradient`**, etc. as **`children`**, then set **`activeFill`** / **`inactiveFill`** to `url(#id)`.
+- **Patterns / gradients in `<defs>`:** pass **[`PatternPreset`](/docs/utility/patterns)**, **`LinearGradient`**, etc. as **`children`**, then set **`activeFill`** / **`inactiveFill`** to `url(#id)`.
 - **Arc gradients:** set **`useGradient`**. Optional **`activeGradient`** and **`inactiveGradient`** are **`[hexFrom, hexTo]`** tuples (interpolated along the notch index).
 - **Fill opacity:** `activeFillOpacity` and `inactiveFillOpacity` map to SVG `fill-opacity` (0–1). Defaults are **1** for active notches and **0.8** for the track; docs and gallery examples use **`inactiveFillOpacity={0.4}`** for a lighter track.
 - **Corner radius:** `notchCornerRadius` is the fillet in **pixels** at each notch corner (**0** = sharp). Large values are clamped by edge length and radial depth so shapes can approach a **capsule** / near-circular look.
 
 ```tsx
-import { Gauge, PatternLines } from "@bklitui/ui/charts";
+import { Gauge } from "@bklitui/ui/charts";
 
 export default function RevenueGauge() {
   return (
@@ -119,7 +119,7 @@ With label below center:
 | `width` / `height` | `number` | - | Fixed size; omit for responsive |
 | `minWidth` | `number` | `300` (arc) / `200` (linear) | Min width (px) when responsive |
 | `className` | `string` | - | Root wrapper |
-| `children` | `ReactNode` | - | Defs (`Pattern*`, `*Gradient`, …) |
+| `children` | `ReactNode` | - | Defs (`PatternPreset`, `*Gradient`, …) |
 
 ## Theming
 

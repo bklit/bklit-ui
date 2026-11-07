@@ -60,7 +60,7 @@ export function RevenueChart({ data }: { data: { date: Date; revenue: number }[]
 }
 ```
 
-Variants: `<Background pattern="cross" />`, `<Background fadeVertical={false} />`
+Variants: `<Background pattern="grid" scale={2} />`, `<Background pattern="dots-sparse" />`, `<Background fadeVertical={false} />`
 (sides only), `<Background fadeHorizontalLength={25} fadeVerticalLength={25} />`
 (softer vignette).
 
@@ -106,7 +106,7 @@ npx shadcn@latest add @bklit/bar-chart @bklit/chart-tooltip
 import { BarChart } from "@/components/charts/bar-chart";
 import { BarSquares, BarColumnTrack } from "@/components/charts/bar-squares";
 import { BarXAxis } from "@/components/charts/bar-x-axis";
-import { PatternLines } from "@/components/charts/patterns";
+import { PatternPreset } from "@/components/charts/pattern-preset";
 import { ChartTooltip } from "@/components/charts/tooltip";
 
 export function SquircleBars({
@@ -121,13 +121,10 @@ export function SquircleBars({
       squareSnap={{ squareGap: 3, groupGap: 4 }}
       xDataKey="month"
     >
-      <PatternLines
-        height={6}
+      <PatternPreset
+        color="var(--chart-grid)"
         id="squircle-track"
-        orientation={["diagonal"]}
-        stroke="var(--chart-grid)"
-        strokeWidth={1}
-        width={6}
+        preset="diagonal-up"
       />
       <BarColumnTrack
         fill="url(#squircle-track)"
@@ -136,13 +133,10 @@ export function SquircleBars({
         squareGap={3}
         squareRadius={0.5}
       />
-      <PatternLines
-        height={6}
+      <PatternPreset
+        color="var(--chart-5)"
         id="squircle-desktop"
-        orientation={["diagonal"]}
-        stroke="var(--chart-5)"
-        strokeWidth={1}
-        width={6}
+        preset="diagonal-up"
       />
       <BarSquares
         dataKey="desktop"
@@ -318,20 +312,17 @@ npx shadcn@latest add @bklit/area-chart @bklit/patterns
 import { Area, AreaChart } from "@/components/charts/area-chart";
 import { Grid } from "@/components/charts/grid";
 import { PatternArea } from "@/components/charts/pattern-area";
-import { PatternLines } from "@/components/charts/patterns";
+import { PatternPreset } from "@/components/charts/pattern-preset";
 import { ChartTooltip } from "@/components/charts/tooltip";
 import { XAxis } from "@/components/charts/x-axis";
 
 export function HatchedArea({ data }: { data: { date: Date; desktop: number }[] }) {
   return (
     <AreaChart data={data}>
-      <PatternLines
-        height={6}
+      <PatternPreset
+        color="var(--chart-1)"
         id="area-hatch"
-        orientation={["diagonal"]}
-        stroke="var(--chart-1)"
-        strokeWidth={1}
-        width={6}
+        preset="diagonal-up"
       />
       <Grid horizontal />
       <PatternArea dataKey="desktop" fill="url(#area-hatch)" />
@@ -516,7 +507,7 @@ npx shadcn@latest add @bklit/reference-area
   <ReferenceArea
     axisLabelColor="var(--chart-1)"
     fillOpacity={0.85}
-    pattern="diagonal"
+    pattern="diagonal-up"
     patternColor="var(--chart-foreground-muted)"
     y1={160}
     y2={220}
@@ -543,18 +534,18 @@ npx shadcn@latest add @bklit/pie-chart @bklit/patterns
 
 import { useId } from "react";
 import {
-  PatternLines,
-  type PatternOrientationType,
-} from "@/components/charts/patterns";
+  PatternPreset,
+  type PatternPresetKey,
+} from "@/components/charts/pattern-preset";
 import { PieCenter } from "@/components/charts/pie-center";
 import { PieChart } from "@/components/charts/pie-chart";
 import { PieSlice } from "@/components/charts/pie-slice";
 
-const ORIENTATIONS: PatternOrientationType[] = [
-  "diagonal",
+const PRESETS: PatternPresetKey[] = [
+  "diagonal-up",
   "horizontal",
   "vertical",
-  "diagonalRightToLeft",
+  "diagonal-down",
 ];
 
 export function PatternDonut({ data }: { data: { label: string; value: number }[] }) {
@@ -563,14 +554,11 @@ export function PatternDonut({ data }: { data: { label: string; value: number }[
   return (
     <PieChart data={slices} innerRadius={55}>
       {slices.map((item, i) => (
-        <PatternLines
-          height={6}
+        <PatternPreset
+          color={item.color}
           id={`${uid}-p${i}`}
           key={`p-${item.label}`}
-          orientation={[ORIENTATIONS[i % ORIENTATIONS.length] ?? "diagonal"]}
-          stroke={item.color}
-          strokeWidth={1}
-          width={6}
+          preset={PRESETS[i % PRESETS.length]}
         />
       ))}
       {slices.map((item, i) => (
@@ -583,7 +571,7 @@ export function PatternDonut({ data }: { data: { label: string; value: number }[
 ```
 
 `color` on each datum keeps the hover glow and the `PieCenter` hover colour in
-step with the pattern stroke.
+step with the pattern colour.
 
 ## 14. Half ring with linked legend [Ring Chart - Half Circle / Legend]
 
@@ -650,10 +638,11 @@ Use `color: "var(--chart-N)"` in the data — the legend marker paints
 
 ## 15. Honeycomb background (custom composition)
 
-`Background` has no hexagon preset, and the ported `PatternHexagons` only tiles
-cleanly at `height={1}` / `size={3}` (its tile is `size × √size` while the
-hexagon side is `height`). For "honeycomb background that fades", either offer
-the nearest preset (`<Background pattern="cross" />` or `pattern="dots"`) or add
+`Background` has no hexagon preset, and the deprecated `PatternHexagons` only
+tiles cleanly at `height={1}` / `size={3}` (its tile is `size × √size` while the
+hexagon side is `height`). A hexagon tile isn't square, so `PatternTile` can't
+draw it either. For "honeycomb background that fades", either offer the nearest
+preset (`<Background pattern="grid" />` or `pattern="dots"`) or add
 this small component next to the installed charts. It reuses the same
 two-gradient mask technique as `background.tsx`.
 

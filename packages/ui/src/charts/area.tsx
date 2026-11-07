@@ -58,9 +58,17 @@ export interface AreaProps {
    * - `true` fades both edges, `false` disables the fade entirely.
    * - `"left"` / `"right"` fades only that side — useful when the opposite
    *   edge butts up against another element you don't want to fade into.
+   * - `{ left, right }` sets each side's fade zone as % of the plot width
+   *   (0–50); `0` turns that side off. The presets use 15%.
    * Default: false
    */
   fadeEdges?: FadeEdges;
+  /**
+   * Fade the fill out over the bottom N% of the area height (0–100). `100`
+   * fades across the full height, `0` keeps the fill flat. When set, it
+   * replaces `gradientToOpacity` / `gradientSpan`.
+   */
+  fadeBottom?: number;
   /** Render scatter-style circle markers at each data point. Default: false */
   showMarkers?: boolean;
   /** Marker styling (same options as Scatter). */
@@ -155,6 +163,7 @@ export function Area({
   gradientToOpacity = 0,
   gradientSpan = 1,
   fadeEdges = false,
+  fadeBottom,
   showMarkers = false,
   markers,
   dashFromIndex,
@@ -324,6 +333,7 @@ export function Area({
       <AreaGradientDefs
         edgeGradientId={edgeGradientId}
         edgeMaskId={edgeMaskId}
+        fadeBottom={fadeBottom}
         fadeEdges={fadeEdges}
         fill={fill}
         fillOpacity={fillOpacity}

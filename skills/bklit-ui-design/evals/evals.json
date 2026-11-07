@@ -12,7 +12,7 @@
       "expectations": [
         "Runs or instructs running scripts/detect-design.mjs (or reads components.json + globals.css) before writing code",
         "Install command includes @bklit/area-chart and @bklit/background",
-        "Uses <Background /> (optionally pattern=\"diagonal\") without setting fadeHorizontal/fadeVertical to false",
+        "Uses <Background /> (optionally pattern=\"diagonal-up\") without setting fadeHorizontal/fadeVertical to false",
         "States or implies that the four-side fade is Background's default rather than inventing a fade prop",
         "Imports from @/components/charts/... paths, never from @bklitui/ui/charts",
         "Does not render <Grid> alongside <Background>",
@@ -56,16 +56,16 @@
     {
       "id": 4,
       "prompt": "Can the area under the traffic line be hatched instead of a gradient? Keep it subtle.",
-      "expected_output": "PatternLines definition (diagonal, chart colour, strokeWidth 1, 6x6) + PatternArea fill=\"url(#id)\" + Area fillOpacity={0} for the stroke, with a unique pattern id; @bklit/patterns installed.",
+      "expected_output": "PatternPreset definition (preset=\"diagonal-up\", chart colour, default scale/strokeWidth) + PatternArea fill=\"url(#id)\" + Area fillOpacity={0} for the stroke, with a unique pattern id; @bklit/patterns installed.",
       "files": [
         "evals/files/tw4-oklch/components.json",
         "evals/files/tw4-oklch/app/globals.css"
       ],
       "expectations": [
-        "Defines a PatternLines pattern imported from @/components/charts/patterns with orientation={[\"diagonal\"]}",
+        "Defines a PatternPreset imported from @/components/charts/pattern-preset with a line preset (e.g. preset=\"diagonal-up\"), not the deprecated PatternLines",
         "Fills via PatternArea fill=\"url(#...)\" (or Area fill=\"url(#...)\") referencing that pattern id",
         "Keeps an Area for the stroke with fillOpacity={0} when PatternArea is used",
-        "Pattern stroke uses a theme token (var(--chart-1) or similar), not a hex colour",
+        "Pattern color uses a theme token (var(--chart-1) or similar), not a hex colour",
         "Uses a unique or prefixed pattern id (e.g. via useId) rather than a generic id",
         "Does not also add a Background pattern behind the hatched area"
       ]
@@ -127,7 +127,7 @@
     {
       "id": 8,
       "prompt": "Give the conversion chart a honeycomb background that fades at the edges.",
-      "expected_output": "States that Background only supports none/diagonal/horizontal/vertical/cross/dots/circles/accent (no hexagons) and that PatternHexagons does not tile cleanly beyond height 1; offers the nearest preset (cross or dots) and/or a small custom HoneycombBackground built from Pattern + a two-gradient fade mask; does not invent pattern=\"hexagons\".",
+      "expected_output": "States that Background has no hexagon preset among its PATTERN_PRESET_IDS (lines, grids, dashed, dots, circles, checkerboard tiles) and that the deprecated PatternHexagons does not tile cleanly beyond height 1; offers the nearest preset (grid or dots) and/or a small custom HoneycombBackground built from Pattern + a two-gradient fade mask; does not invent pattern=\"hexagons\".",
       "files": [
         "evals/files/tw4-oklch/components.json",
         "evals/files/tw4-oklch/app/globals.css"
@@ -135,7 +135,7 @@
       "expectations": [
         "Explicitly says Background has no hexagon/honeycomb preset",
         "Does not use pattern=\"hexagons\", pattern=\"honeycomb\" or any other non-existent preset",
-        "Offers an alternative: a supported preset (e.g. cross or dots) with Background's default fade, and/or a custom composition",
+        "Offers an alternative: a supported preset (e.g. grid or dots) with Background's default fade, and/or a custom composition",
         "If composing manually, uses Pattern/PatternPath (or a correct hex path) from @/components/charts/patterns and a fade mask, reading size from useChart/useChartStable",
         "Keeps the hexagon stroke on var(--chart-grid) or another theme token"
       ]
