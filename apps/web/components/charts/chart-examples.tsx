@@ -1587,6 +1587,7 @@ function ProfitLossLineExample({
       <LineExampleChart data={profitLossLineDocsData}>
         <Grid
           highlightRowStroke="var(--foreground)"
+          highlightRowStrokeDasharray="4,4"
           highlightRowStrokeOpacity={0.35}
           highlightRowValues={[0]}
           horizontal
@@ -1600,7 +1601,11 @@ function ProfitLossLineExample({
           strokeWidth={0}
         />
         <ProfitLossLegendHoverProvider hoveredIndex={legendHoveredIndex}>
-          <ProfitLossLine dataKey={PROFIT_LOSS_DATA_KEY} />
+          <ProfitLossLine
+            curve={curveMonotoneX}
+            dataKey={PROFIT_LOSS_DATA_KEY}
+            fadeEdges
+          />
         </ProfitLossLegendHoverProvider>
         <XAxis />
         <ChartTooltip
@@ -2998,7 +3003,7 @@ function makeComposedMixedSeriesExamples(): ChartExample[] {
       code: `<ComposedChart data={data} xDataKey="date" margin={{ top: 8, right: 8, bottom: 40, left: 48 }} aspectRatio="3 / 2" maxBarSize={12}>
   <Grid horizontal />
   <SeriesBar dataKey="trades" fill="var(--muted-foreground)" fadedOpacity={0.5} yAxisId="right" />
-  <ProfitLossLine dataKey="pnl" strokeWidth={2} />
+  <ProfitLossLine dataKey="pnl" curve={curveMonotoneX} fadeEdges strokeWidth={2} />
   <YAxis yAxisId="left" />
   <ChartTooltip />
   <XAxis numTicks={6} />
@@ -3020,7 +3025,12 @@ function makeComposedMixedSeriesExamples(): ChartExample[] {
             fill="var(--muted-foreground)"
             yAxisId="right"
           />
-          <ProfitLossLine dataKey="pnl" strokeWidth={2} />
+          <ProfitLossLine
+            curve={curveMonotoneX}
+            dataKey="pnl"
+            fadeEdges
+            strokeWidth={2}
+          />
           <YAxis yAxisId="left" />
           <ChartTooltip />
           <XAxis numTicks={6} />
@@ -3886,7 +3896,8 @@ const autoProjectionPath = buildProjectionPath({
       title: "Line Chart - Profit/Loss",
       description:
         "Sign-colored segments with a highlighted zero baseline and optional legend hover",
-      code: `import {
+      code: `import { curveMonotoneX } from "d3-shape";
+import {
   ProfitLossLine,
   ProfitLossLegend,
   ProfitLossLegendHoverProvider,
@@ -3895,10 +3906,10 @@ const autoProjectionPath = buildProjectionPath({
 } from "@bklitui/ui/charts";
 
 <LineChart data={data}>
-  <Grid highlightRowValues={[0]} horizontal />
+  <Grid highlightRowStrokeDasharray="4,4" highlightRowValues={[0]} horizontal />
   <Line dataKey="pnl" stroke="transparent" strokeWidth={0} showHighlight={false} />
   <ProfitLossLegendHoverProvider hoveredIndex={legendHoveredIndex}>
-    <ProfitLossLine dataKey="pnl" />
+    <ProfitLossLine dataKey="pnl" curve={curveMonotoneX} fadeEdges />
   </ProfitLossLegendHoverProvider>
   <XAxis />
   <ChartTooltip
@@ -6624,7 +6635,8 @@ function makeProfitLossLineExamples(): ChartExample[] {
       title: "Profit/Loss Line",
       description:
         "Sign-colored segments with a highlighted zero baseline and legend hover",
-      code: `import {
+      code: `import { curveMonotoneX } from "d3-shape";
+import {
   ProfitLossLine,
   ProfitLossLegend,
   ProfitLossLegendHoverProvider,
@@ -6633,10 +6645,10 @@ function makeProfitLossLineExamples(): ChartExample[] {
 } from "@bklitui/ui/charts";
 
 <LineChart data={data}>
-  <Grid highlightRowValues={[0]} horizontal />
+  <Grid highlightRowStrokeDasharray="4,4" highlightRowValues={[0]} horizontal />
   <Line dataKey="pnl" stroke="transparent" strokeWidth={0} showHighlight={false} />
   <ProfitLossLegendHoverProvider hoveredIndex={legendHoveredIndex}>
-    <ProfitLossLine dataKey="pnl" />
+    <ProfitLossLine dataKey="pnl" curve={curveMonotoneX} fadeEdges />
   </ProfitLossLegendHoverProvider>
   <XAxis />
   <ChartTooltip
@@ -6657,9 +6669,9 @@ function makeProfitLossLineExamples(): ChartExample[] {
       description:
         "Sign-colored line with a left Y-axis scale and zero baseline",
       code: `<LineChart data={data} margin={{ top: 40, right: 40, bottom: 40, left: 56 }}>
-  <Grid highlightRowValues={[0]} horizontal />
+  <Grid highlightRowStrokeDasharray="4,4" highlightRowValues={[0]} horizontal />
   <Line dataKey="pnl" stroke="transparent" strokeWidth={0} showHighlight={false} />
-  <ProfitLossLine dataKey="pnl" />
+  <ProfitLossLine dataKey="pnl" curve={curveMonotoneX} fadeEdges />
   <YAxis yAxisId="left" />
   <XAxis />
   <ChartTooltip />
@@ -6669,14 +6681,18 @@ function makeProfitLossLineExamples(): ChartExample[] {
           data={profitLossLineDocsData}
           margin={{ top: 40, right: 40, bottom: 40, left: 56 }}
         >
-          <Grid highlightRowValues={[0]} horizontal />
+          <Grid
+            highlightRowStrokeDasharray="4,4"
+            highlightRowValues={[0]}
+            horizontal
+          />
           <Line
             dataKey="pnl"
             showHighlight={false}
             stroke="transparent"
             strokeWidth={0}
           />
-          <ProfitLossLine dataKey="pnl" />
+          <ProfitLossLine curve={curveMonotoneX} dataKey="pnl" fadeEdges />
           <YAxis yAxisId="left" />
           <XAxis />
           <ChartTooltip
@@ -6699,7 +6715,7 @@ function makeProfitLossLineExamples(): ChartExample[] {
       chartOpen: "<LineChart data={data}>",
       chartClose: "</LineChart>",
       seriesSnippet: `<Line dataKey="pnl" stroke="transparent" strokeWidth={0} showHighlight={false} />
-  <ProfitLossLine dataKey="pnl" />
+  <ProfitLossLine dataKey="pnl" curve={curveMonotoneX} fadeEdges />
   <XAxis />
   <ChartTooltip />`,
       render: (background) => (
@@ -6711,7 +6727,7 @@ function makeProfitLossLineExamples(): ChartExample[] {
             stroke="transparent"
             strokeWidth={0}
           />
-          <ProfitLossLine dataKey="pnl" />
+          <ProfitLossLine curve={curveMonotoneX} dataKey="pnl" fadeEdges />
           <XAxis />
           <ChartTooltip
             indicatorColor={(point) =>
@@ -6733,7 +6749,7 @@ function makeProfitLossLineExamples(): ChartExample[] {
       chartOpen: "<LineChart data={data}>",
       chartClose: "</LineChart>",
       seriesSnippet: `<Line dataKey="pnl" stroke="transparent" strokeWidth={0} showHighlight={false} />
-  <ProfitLossLine dataKey="pnl" />
+  <ProfitLossLine dataKey="pnl" curve={curveMonotoneX} fadeEdges />
   <XAxis />
   <ChartTooltip />`,
       y1: -200,
@@ -6747,7 +6763,7 @@ function makeProfitLossLineExamples(): ChartExample[] {
             stroke="transparent"
             strokeWidth={0}
           />
-          <ProfitLossLine dataKey="pnl" />
+          <ProfitLossLine curve={curveMonotoneX} dataKey="pnl" fadeEdges />
           <XAxis />
           <ChartTooltip
             indicatorColor={(point) =>

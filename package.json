@@ -5,6 +5,7 @@
     "build": "turbo run build",
     "dev": "turbo run dev",
     "dev:studio-docs": "pnpm --filter studio-docs dev",
+    "dev:mobile": "pnpm --filter @bklitui/mobile start",
     "lint": "biome check --no-errors-on-unmatched ./",
     "lint:fix": "biome check --write --no-errors-on-unmatched ./",
     "format": "biome check --write --no-errors-on-unmatched ./",

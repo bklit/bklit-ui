@@ -15,6 +15,8 @@ import { DocsTable } from "@/components/docs/docs-table";
 import { InstallationTabs } from "@/components/docs/installation-tabs";
 import { PackageManagerTabs } from "@/components/docs/package-manager-tabs";
 import { PageFooter } from "@/components/docs/page-footer";
+import { ExpoPreview } from "@/components/docs/react-native/expo-preview";
+import { PlatformCompat } from "@/components/docs/react-native/platform-compat";
 import { SocialLinks } from "@/components/docs/social-links";
 import { StudioEmbedPreview } from "@/components/docs/studio-embed-preview";
 import { TableOfContents } from "@/components/docs/toc";
@@ -131,8 +133,10 @@ export default async function Page(props: {
                     ComponentPreview,
                     ComponentShowcase,
                     ComponentsList,
+                    ExpoPreview,
                     InstallationTabs,
                     PackageManagerTabs,
+                    PlatformCompat,
                     SocialLinks,
                     StudioEmbedPreview,
                     table: DocsTable,

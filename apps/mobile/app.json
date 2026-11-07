@@ -1,0 +1,44 @@
+{
+  "expo": {
+    "name": "Bklit charts",
+    "slug": "bklit-charts",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": ["expo-router"],
+    "scheme": "bklit",
+    "owner": "uixmat",
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    },
+    "extra": {
+      "router": {
+        "asyncRoutes": {
+          "web": true
+        }
+      },
+      "eas": {
+        "projectId": "4c01f13b-7e05-42cf-a454-e45dd2f05a77"
+      }
+    },
+    "updates": {
+      "url": "https://u.expo.dev/4c01f13b-7e05-42cf-a454-e45dd2f05a77"
+    }
+  }
+}

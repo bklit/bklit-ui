@@ -10,7 +10,6 @@ import {
 } from "./fade-edges";
 import { LinePath, linePathD } from "./line-path";
 import { useProfitLossLegendHover } from "./profit-loss-legend-hover";
-import { splitProfitLossSegments } from "./profit-loss-segments";
 
 /** Semantic trend tokens with Tailwind fallbacks for apps without `--chart-positive` / `--chart-negative`. */
 export const PROFIT_LOSS_POSITIVE_COLOR =
@@ -33,6 +32,7 @@ export function resolveProfitLossTooltipLabel(label: string) {
 
 export interface ProfitLossLineProps {
   dataKey: string;
+  /** @deprecated No effect; x comes from the chart's `xDataKey`. */
   xDataKey?: string;
   strokeWidth?: number;
   positiveColor?: string;
@@ -52,7 +52,6 @@ function segmentLegendIndex(isPositive: boolean) {
 
 export function ProfitLossLine({
   dataKey,
-  xDataKey = "date",
   strokeWidth = 2.5,
   positiveColor = PROFIT_LOSS_POSITIVE_COLOR,
   negativeColor = PROFIT_LOSS_NEGATIVE_COLOR,
@@ -83,22 +82,10 @@ export function ProfitLossLine({
     return segmentLegendIndex(value >= 0);
   }, [dataKey, hoveredIndex, tooltipData]);
 
-  const segments = useMemo(
-    () =>
-      splitProfitLossSegments({
-        data: renderData,
-        dataKey,
-        xDataKey,
-        xAccessor,
-      }),
-    [dataKey, renderData, xAccessor, xDataKey]
-  );
-
   const getX = useCallback(
     (d: Record<string, unknown>) => xScale(xAccessor(d)) ?? 0,
     [xAccessor, xScale]
   );
-
   const getY = useCallback(
     (d: Record<string, unknown>) => {
       const value = d[dataKey];
@@ -107,80 +94,94 @@ export function ProfitLossLine({
     [dataKey, yScale]
   );
 
-  // Hover (tooltip / legend) re-renders only change opacity; reuse the paths.
-  const segmentPaths = useMemo(
-    () =>
-      segments.map((segment) =>
-        linePathD(segment.data, { curve, x: getX, y: getY })
-      ),
-    [curve, getX, getY, segments]
+  // One continuous path, drawn twice and clipped above / below zero, so a
+  // smooth curve stays smooth through each crossing (per-segment paths kink
+  // there) and the colour switches exactly at the zero line.
+  // Hover (tooltip / legend) re-renders only change opacity; reuse the path.
+  const pathD = useMemo(
+    () => linePathD(renderData, { curve, x: getX, y: getY }),
+    [curve, getX, getY, renderData]
   );
+  const [rangeBottom = 0, rangeTop = 0] = yScale.range();
+  const plotTop = Math.min(rangeBottom, rangeTop);
+  const plotBottom = Math.max(rangeBottom, rangeTop);
+  const zeroY = Math.min(
+    plotBottom,
+    Math.max(plotTop, yScale(0) ?? plotBottom)
+  );
+  // Bleed so round caps and curve overshoot at the plot edges aren't clipped.
+  const bleed = strokeWidth * 4;
+  const clipX = -bleed;
+  const clipWidth = innerWidth + bleed * 2;
+
+  const sides = [
+    {
+      isPositive: true,
+      clipId: `profit-loss-clip-pos-${dataKey}-${reactId}`,
+      gradientId: positiveGradientId,
+      color: positiveColor,
+      y: plotTop - bleed,
+      height: zeroY - (plotTop - bleed),
+    },
+    {
+      isPositive: false,
+      clipId: `profit-loss-clip-neg-${dataKey}-${reactId}`,
+      gradientId: negativeGradientId,
+      color: negativeColor,
+      y: zeroY,
+      height: plotBottom + bleed - zeroY,
+    },
+  ];
 
   return (
     <>
-      {fadeStops ? (
-        <defs>
-          <linearGradient
-            gradientUnits="userSpaceOnUse"
-            id={positiveGradientId}
-            x1={0}
-            x2={innerWidth}
-            y1={0}
-            y2={0}
-          >
-            {fadeStops.map((stop) => (
-              <stop
-                key={stop.offset}
-                offset={stop.offset}
-                style={{
-                  stopColor: positiveColor,
-                  stopOpacity: stop.opacity,
-                }}
-              />
-            ))}
-          </linearGradient>
-          <linearGradient
-            gradientUnits="userSpaceOnUse"
-            id={negativeGradientId}
-            x1={0}
-            x2={innerWidth}
-            y1={0}
-            y2={0}
-          >
-            {fadeStops.map((stop) => (
-              <stop
-                key={stop.offset}
-                offset={stop.offset}
-                style={{
-                  stopColor: negativeColor,
-                  stopOpacity: stop.opacity,
-                }}
-              />
-            ))}
-          </linearGradient>
-        </defs>
-      ) : null}
-      {segments.map((segment, segmentIndex) => {
+      <defs>
+        {sides.map((side) => (
+          <clipPath id={side.clipId} key={side.clipId}>
+            <rect
+              height={Math.max(0, side.height)}
+              width={clipWidth}
+              x={clipX}
+              y={side.y}
+            />
+          </clipPath>
+        ))}
+        {fadeStops
+          ? sides.map((side) => (
+              <linearGradient
+                gradientUnits="userSpaceOnUse"
+                id={side.gradientId}
+                key={side.gradientId}
+                x1={0}
+                x2={innerWidth}
+                y1={0}
+                y2={0}
+              >
+                {fadeStops.map((stop) => (
+                  <stop
+                    key={stop.offset}
+                    offset={stop.offset}
+                    style={{ stopColor: side.color, stopOpacity: stop.opacity }}
+                  />
+                ))}
+              </linearGradient>
+            ))
+          : null}
+      </defs>
+      {sides.map((side) => {
         const isDimmed =
           focusedLegendIndex !== null &&
-          focusedLegendIndex !== segmentLegendIndex(segment.isPositive);
-        const firstPoint = segment.data[0];
-        const lastPoint = segment.data.at(-1);
-        const segmentKey = `${dataKey}-${segment.isPositive ? "pos" : "neg"}-${String(firstPoint?.[xDataKey])}-${String(lastPoint?.[xDataKey])}`;
-        const stroke = segment.isPositive ? positiveColor : negativeColor;
-        const segmentStroke = fadeStops
-          ? `url(#${segment.isPositive ? positiveGradientId : negativeGradientId})`
-          : stroke;
-
+          focusedLegendIndex !== segmentLegendIndex(side.isPositive);
         return (
           <g
-            key={segmentKey}
+            clipPath={`url(#${side.clipId})`}
+            key={side.clipId}
             opacity={isDimmed ? LEGEND_DIM_OPACITY : 1}
             style={{ transition: "opacity 0.2s ease-in-out" }}
           >
             <LinePath
-              d={segmentPaths[segmentIndex] ?? ""}
-              stroke={segmentStroke}
+              d={pathD}
+              stroke={fadeStops ? `url(#${side.gradientId})` : side.color}
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth={strokeWidth}

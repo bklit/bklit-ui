@@ -2311,6 +2311,171 @@
       ]
     },
     {
+      "name": "native-charts",
+      "type": "registry:component",
+      "title": "Native charts (React Native, beta)",
+      "description": "Line and area charts for React Native and Expo, drawn with Skia and animated with Reanimated. In an Expo project the shadcn CLI installs dependencies with `npx expo install`, so native libraries get SDK-matched versions.",
+      "dependencies": [
+        "@shopify/react-native-skia",
+        "react-native-reanimated",
+        "react-native-gesture-handler",
+        "react-native-worklets",
+        "d3-array",
+        "d3-scale",
+        "d3-shape",
+        "@types/d3-array",
+        "@types/d3-scale",
+        "@types/d3-shape"
+      ],
+      "files": [
+        {
+          "path": "../native/src/charts/area-chart.tsx",
+          "type": "registry:component",
+          "target": "components/charts/area-chart.tsx"
+        },
+        {
+          "path": "../native/src/charts/area.tsx",
+          "type": "registry:component",
+          "target": "components/charts/area.tsx"
+        },
+        {
+          "path": "../native/src/charts/background.tsx",
+          "type": "registry:component",
+          "target": "components/charts/background.tsx"
+        },
+        {
+          "path": "../native/src/charts/band.tsx",
+          "type": "registry:component",
+          "target": "components/charts/band.tsx"
+        },
+        {
+          "path": "../native/src/charts/chart-context.tsx",
+          "type": "registry:component",
+          "target": "components/charts/chart-context.tsx"
+        },
+        {
+          "path": "../native/src/charts/chart-tooltip.tsx",
+          "type": "registry:component",
+          "target": "components/charts/chart-tooltip.tsx"
+        },
+        {
+          "path": "../native/src/charts/date-ticker.tsx",
+          "type": "registry:component",
+          "target": "components/charts/date-ticker.tsx"
+        },
+        {
+          "path": "../native/src/charts/fade-mask.tsx",
+          "type": "registry:component",
+          "target": "components/charts/fade-mask.tsx"
+        },
+        {
+          "path": "../native/src/charts/grid.tsx",
+          "type": "registry:component",
+          "target": "components/charts/grid.tsx"
+        },
+        {
+          "path": "../native/src/charts/index.ts",
+          "type": "registry:component",
+          "target": "components/charts/index.ts"
+        },
+        {
+          "path": "../native/src/charts/line-chart.tsx",
+          "type": "registry:component",
+          "target": "components/charts/line-chart.tsx"
+        },
+        {
+          "path": "../native/src/charts/line.tsx",
+          "type": "registry:component",
+          "target": "components/charts/line.tsx"
+        },
+        {
+          "path": "../native/src/charts/markers.tsx",
+          "type": "registry:component",
+          "target": "components/charts/markers.tsx"
+        },
+        {
+          "path": "../native/src/charts/motion.ts",
+          "type": "registry:component",
+          "target": "components/charts/motion.ts"
+        },
+        {
+          "path": "../native/src/charts/pattern-area.tsx",
+          "type": "registry:component",
+          "target": "components/charts/pattern-area.tsx"
+        },
+        {
+          "path": "../native/src/charts/patterns.tsx",
+          "type": "registry:component",
+          "target": "components/charts/patterns.tsx"
+        },
+        {
+          "path": "../native/src/charts/profit-loss-line.tsx",
+          "type": "registry:component",
+          "target": "components/charts/profit-loss-line.tsx"
+        },
+        {
+          "path": "../native/src/charts/projection-line.tsx",
+          "type": "registry:component",
+          "target": "components/charts/projection-line.tsx"
+        },
+        {
+          "path": "../native/src/charts/reference-area.tsx",
+          "type": "registry:component",
+          "target": "components/charts/reference-area.tsx"
+        },
+        {
+          "path": "../native/src/charts/segment.tsx",
+          "type": "registry:component",
+          "target": "components/charts/segment.tsx"
+        },
+        {
+          "path": "../native/src/charts/series-morph.ts",
+          "type": "registry:component",
+          "target": "components/charts/series-morph.ts"
+        },
+        {
+          "path": "../native/src/charts/series-paint.tsx",
+          "type": "registry:component",
+          "target": "components/charts/series-paint.tsx"
+        },
+        {
+          "path": "../native/src/charts/terminal-marker.tsx",
+          "type": "registry:component",
+          "target": "components/charts/terminal-marker.tsx"
+        },
+        {
+          "path": "../native/src/charts/theme.ts",
+          "type": "registry:component",
+          "target": "components/charts/theme.ts"
+        },
+        {
+          "path": "../native/src/charts/time-series-chart.tsx",
+          "type": "registry:component",
+          "target": "components/charts/time-series-chart.tsx"
+        },
+        {
+          "path": "../native/src/charts/trend-line.tsx",
+          "type": "registry:component",
+          "target": "components/charts/trend-line.tsx"
+        },
+        {
+          "path": "../native/src/charts/weekends.tsx",
+          "type": "registry:component",
+          "target": "components/charts/weekends.tsx"
+        },
+        {
+          "path": "../native/src/charts/x-axis-ticks.ts",
+          "type": "registry:component",
+          "target": "components/charts/x-axis-ticks.ts"
+        },
+        {
+          "path": "../native/src/charts/x-axis.tsx",
+          "type": "registry:component",
+          "target": "components/charts/x-axis.tsx"
+        }
+      ]
+    },
+    {
       "name": "area-chart-example",
       "type": "registry:example",
       "title": "Area Chart Example",

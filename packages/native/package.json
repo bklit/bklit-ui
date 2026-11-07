@@ -1,0 +1,39 @@
+{
+  "name": "@bklitui/native",
+  "version": "0.0.0",
+  "license": "MIT",
+  "private": true,
+  "sideEffects": false,
+  "exports": {
+    "./charts": "./src/charts/index.ts"
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "d3-array": "3.2.4",
+    "d3-scale": "4.0.2",
+    "d3-shape": "^3.2.0"
+  },
+  "peerDependencies": {
+    "@shopify/react-native-skia": ">=2.0.0",
+    "react": ">=19.0.0",
+    "react-native": ">=0.80.0",
+    "react-native-gesture-handler": ">=3.0.0",
+    "react-native-reanimated": ">=4.0.0",
+    "react-native-worklets": ">=0.5.0"
+  },
+  "devDependencies": {
+    "@shopify/react-native-skia": "2.14.0",
+    "@types/d3-array": "^3.2.1",
+    "@types/d3-scale": "^4.0.9",
+    "@types/d3-shape": "^3.1.6",
+    "@types/react": "19.2.2",
+    "react": "19.3.0",
+    "react-native": "0.88.1",
+    "react-native-gesture-handler": "~3.3.0",
+    "react-native-reanimated": "4.7.1",
+    "react-native-worklets": "0.13.0",
+    "typescript": "~6.0.3"
+  }
+}
