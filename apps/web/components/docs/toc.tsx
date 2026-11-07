@@ -7,6 +7,7 @@ import {
   type TOCItemType,
 } from "fumadocs-core/toc";
 import { useRef } from "react";
+import { StarPromptSidebarCard } from "@/components/star-prompt";
 import { Button } from "@/components/ui/button";
 import { Frame, FramePanel } from "@/components/ui/frame";
 import { getAnalyticsUrl, trackEvent } from "@/lib/analytics/track-client";
@@ -94,6 +95,7 @@ export function TableOfContents({ items }: TableOfContentsProps) {
           </>
         )}
         <SidebarCTA />
+        <StarPromptSidebarCard />
       </div>
     </aside>
   );
