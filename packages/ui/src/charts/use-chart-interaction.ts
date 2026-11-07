@@ -246,6 +246,9 @@ export function useChartInteraction({
       if (chartX === null) {
         return;
       }
+      // Stop the drag from starting a native text selection across the page
+      // (tooltip, labels, nearby copy).
+      event.preventDefault();
       isDraggingRef.current = true;
       dragStartXRef.current = chartX;
       clearTooltip();

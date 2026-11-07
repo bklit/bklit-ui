@@ -10,6 +10,12 @@ import {
 } from "@bklitui/ui/charts";
 import { curveNatural } from "d3-shape";
 import {
+  HomeAreaSelectionDemo,
+  SegmentChangeBadge,
+  TrendSegmentBackground,
+  TrendSegmentLines,
+} from "@/components/home-area-selection-demo";
+import {
   homeAreaChartMargin,
   useHomeChartCompact,
 } from "@/lib/home-chart-margin";
@@ -128,9 +134,12 @@ function DiamondTooltipContent({ items }: { items: DiamondMarker[] }) {
 export function HomeAreaChart({
   aspectRatio = "4 / 2",
   className,
+  demo = false,
 }: {
   aspectRatio?: string;
   className?: string;
+  /** Play the scripted hover + drag-to-select cursor demo. */
+  demo?: boolean;
 }) {
   const compact = useHomeChartCompact();
   const margin = homeAreaChartMargin(compact);
@@ -167,7 +176,11 @@ export function HomeAreaChart({
         fillOpacity={0.1}
         strokeWidth={1.5}
       />
+      <TrendSegmentBackground valueKey="revenue" />
+      <TrendSegmentLines valueKey="revenue" />
       <DiamondMarkers items={diamondMarkers} />
+      <SegmentChangeBadge valueKey="revenue" />
+      {demo ? <HomeAreaSelectionDemo /> : null}
       <ChartTooltip panelStyle={homeTooltipPanelStyle}>
         <DiamondTooltipContent items={diamondMarkers} />
       </ChartTooltip>
@@ -183,6 +196,7 @@ export function HomeShowcaseAreaChart() {
     <HomeAreaChart
       aspectRatio="5 / 2"
       className={compact ? "min-h-[120px]" : "min-h-[180px]"}
+      demo
     />
   );
 }
