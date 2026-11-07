@@ -1,0 +1,28 @@
+---
+title: React Native charts
+description: Bklit line and area charts for React Native and Expo, drawn with Skia. Now in beta.
+date: 2026-11-07T18:00:00Z
+image: /changelog/2026-11-07-react-native-charts.svg
+imageAlt: A smooth curve with concentric rings around a dot where it is being touched, and a dashed echo of the curve below
+tags: [react-native, expo, line-chart, area-chart, beta]
+---
+
+Bklit charts now run in React Native. The line and area charts use the same components and props as on the web, `LineChart`, `Line`, `Grid`, `XAxis`, `ChartTooltip`, but draw with [React Native Skia](https://shopify.github.io/react-native-skia/) and animate with Reanimated, so scrubbing, springs and data changes run on the UI thread at full frame rate.
+
+## Built for touch
+
+Drag sideways across a chart to scrub: the crosshair, dots and tooltip follow your finger with the same springs as the web, and the date pill under the axis rolls month and day like a counter. Put two fingers on the chart to select a range, tinted by its trend, with the % change pinned above it. Vertical drags still scroll the page, and `onActiveIndexChange` gives you a hook for haptics.
+
+## The same recipes
+
+Faded edges, highlight while scrubbing, pattern fills and backgrounds, bands, reference areas, trend lines, dashed forecasts, profit and loss lines, weekend stripes and event markers all come across. Changing the data morphs the chart, and changing the range zooms it instead of jumping.
+
+## Try it, then install it
+
+Scan the QR code on the [React Native guide](/docs/react-native) to open the demo app in Expo Go. When you're ready, add the charts to an Expo app with one command. The CLI installs Skia, Reanimated and Gesture Handler with `npx expo install`, so you get versions that match your SDK:
+
+```bash
+npx shadcn@latest add @bklit/native-charts
+```
+
+This is a beta: it's tested on iPhone with Expo SDK 58, and Android reports are welcome. See the [React Native guide](/docs/react-native) for setup, compatibility and the full component list.
