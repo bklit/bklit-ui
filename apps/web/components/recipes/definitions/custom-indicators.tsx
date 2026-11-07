@@ -11,7 +11,7 @@ import {
   Line,
   LinearGradient,
   LineChart,
-  PatternLines,
+  PatternPreset,
   useChart,
   XAxis,
 } from "@bklitui/ui/charts";
@@ -197,13 +197,11 @@ function RisingBar() {
         to="var(--chart-1)"
         toOpacity={0.08}
       />
-      <PatternLines
-        height={6}
+      <PatternPreset
+        color="var(--chart-3)"
         id={`${uid}-hatch`}
-        orientation={["diagonal"]}
-        stroke="var(--chart-3)"
+        preset="diagonal-up"
         strokeWidth={1.5}
-        width={6}
       />
       <Grid horizontal />
       <Bar
@@ -456,7 +454,7 @@ export function VisitorsChart({
       steps: [
         "Only convert vertical, non-stacked `BarChart`s.",
         'Set `barGap={0}` on `<BarChart>` and `groupGap={0}` + `lineCap="butt"` on every `<Bar>` so each group is one flush block.',
-        'Fill the headline `<Bar>` with a vertical `<LinearGradient>` (from `@/components/charts/gradients`) from its colour to the same colour at `toOpacity={0.08}` (`fill="url(#…)"`, `stroke` = the solid colour); fill comparison bars with a `<PatternLines orientation={["diagonal"]} strokeWidth={1.5} />` hatch in their colour. Make each `id` unique with `useId()`.',
+        'Fill the headline `<Bar>` with a vertical `<LinearGradient>` (from `@/components/charts/gradients`) from its colour to the same colour at `toOpacity={0.08}` (`fill="url(#…)"`, `stroke` = the solid colour); fill comparison bars with a `<PatternPreset preset="diagonal-up" strokeWidth={1.5} />` hatch (from `@/components/charts/pattern-preset`) with `color` set to their colour. Make each `id` unique with `useId()`.',
         "Add the `RisingLine` + `RisingBarIndicator` components from the reference. `RisingBarIndicator` reads `data`, `barScale`, `bandWidth`, `barXAccessor`, `yScale`, `innerHeight` and `hoveredBarIndex` from `useChart()` and, for the hovered group, springs a 2px `var(--chart-indicator-color)` line from the baseline to each bar's top. Keep the `RisingBarIndicator.__isPostOverlay = true` flag so it draws above the bars.",
         "Render `<RisingBarIndicator dataKeys={[…every Bar dataKey, in order]} />` after `<ChartTooltip showCrosshair={false} showDots={false} />`.",
       ],
@@ -470,7 +468,7 @@ import { BarXAxis } from "@/components/charts/bar-x-axis";
 import { useChart } from "@/components/charts/chart-context";
 import { LinearGradient } from "@/components/charts/gradients";
 import { Grid } from "@/components/charts/grid";
-import { PatternLines } from "@/components/charts/patterns";
+import { PatternPreset } from "@/components/charts/pattern-preset";
 import { ChartTooltip } from "@/components/charts/tooltip";
 
 ${RISING_SOURCE}
@@ -495,13 +493,11 @@ export function RevenueChart({
         to="var(--chart-1)"
         toOpacity={0.08}
       />
-      <PatternLines
-        height={6}
+      <PatternPreset
+        color="var(--chart-3)"
         id={\`\${uid}-hatch\`}
-        orientation={["diagonal"]}
-        stroke="var(--chart-3)"
+        preset="diagonal-up"
         strokeWidth={1.5}
-        width={6}
       />
       <Grid horizontal />
       <Bar

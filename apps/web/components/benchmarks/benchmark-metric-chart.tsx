@@ -6,7 +6,7 @@ import {
   BarSquares,
   BarXAxis,
   ChartTooltip,
-  PatternLines,
+  PatternPreset,
 } from "@bklitui/ui/charts";
 import { useId, useMemo } from "react";
 import { BENCH_LIBRARY_COLORS } from "./benchmark-format";
@@ -74,13 +74,10 @@ export function BenchmarkMetricChart({
       squareSnap={{ squareGap: 3, groupGap: 4 }}
       xDataKey="library"
     >
-      <PatternLines
-        height={6}
+      <PatternPreset
+        color="var(--chart-grid)"
         id={trackId}
-        orientation={["diagonal"]}
-        stroke="var(--chart-grid)"
-        strokeWidth={1}
-        width={6}
+        preset="diagonal-up"
       />
       <BarColumnTrack
         fill={`url(#${trackId})`}
@@ -91,14 +88,11 @@ export function BenchmarkMetricChart({
       />
       {hasSecondary
         ? LIBRARY_IDS.map((library) => (
-            <PatternLines
-              height={6}
+            <PatternPreset
+              color={BENCH_LIBRARY_COLORS[library]}
               id={secondaryPatternId(library)}
               key={library}
-              orientation={["diagonal"]}
-              stroke={BENCH_LIBRARY_COLORS[library]}
-              strokeWidth={1}
-              width={6}
+              preset="diagonal-up"
             />
           ))
         : null}

@@ -510,6 +510,14 @@ export const STUDIO_STATE_KEY_ORDER = [
   "seriesComposedTypes",
   "composedStacked",
   "composedBarGap",
+  "fadeLeft",
+  "fadeRight",
+  "fadeBottom",
+  "seriesFadeLefts",
+  "seriesFadeRights",
+  "seriesFadeBottoms",
+  "patternScale",
+  "seriesPatternScales",
 ] as const satisfies readonly (keyof StudioUrlState)[];
 
 /** Frozen historical layout (cc7bc08 — first compressed-URL release). Decode-only. */

@@ -20,7 +20,10 @@ import { BAR_MARGIN } from "./shared";
 function HatchedLine() {
   return (
     <LineChart data={recipeDailyData}>
-      <Background fadeVerticalLength={PATTERN_FADE_EDGE} pattern="diagonal" />
+      <Background
+        fadeVerticalLength={PATTERN_FADE_EDGE}
+        pattern="diagonal-up"
+      />
       <Line dataKey="visitors" />
       <XAxis />
       <ChartTooltip />
@@ -31,7 +34,10 @@ function HatchedLine() {
 function HatchedArea() {
   return (
     <AreaChart data={recipeDailyData}>
-      <Background fadeVerticalLength={PATTERN_FADE_EDGE} pattern="diagonal" />
+      <Background
+        fadeVerticalLength={PATTERN_FADE_EDGE}
+        pattern="diagonal-up"
+      />
       <Area dataKey="visitors" fillOpacity={0.25} />
       <XAxis />
       <ChartTooltip />
@@ -42,7 +48,10 @@ function HatchedArea() {
 function HatchedBar() {
   return (
     <BarChart data={recipeMonthlyData} margin={BAR_MARGIN} xDataKey="month">
-      <Background fadeVerticalLength={PATTERN_FADE_EDGE} pattern="diagonal" />
+      <Background
+        fadeVerticalLength={PATTERN_FADE_EDGE}
+        pattern="diagonal-up"
+      />
       <Bar dataKey="revenue" lineCap={4} />
       <BarXAxis />
       <ChartTooltip />
@@ -69,7 +78,7 @@ export const hatchedBackdrop: Recipe = {
       install: ["background"],
       steps: [
         "Remove the `<Grid />` child of `<LineChart>` and its import — the hatch replaces grid lines.",
-        `Add \`<Background pattern="diagonal" fadeVerticalLength={33} />\` (from \`@/components/charts/background\`) ${BACKGROUND_STEP}`,
+        `Add \`<Background pattern="diagonal-up" fadeVerticalLength={33} />\` (from \`@/components/charts/background\`) ${BACKGROUND_STEP}`,
         "Leave `<Line>`, `<XAxis />`, any `<YAxis />` and `<ChartTooltip />` unchanged.",
       ],
       code: `"use client";
@@ -86,7 +95,7 @@ export function VisitorsChart({
 }) {
   return (
     <LineChart data={data}>
-      <Background fadeVerticalLength={33} pattern="diagonal" />
+      <Background fadeVerticalLength={33} pattern="diagonal-up" />
       <Line dataKey="visitors" />
       <XAxis />
       <ChartTooltip />
@@ -103,7 +112,7 @@ export function VisitorsChart({
       install: ["background"],
       steps: [
         "Remove the `<Grid />` child of `<AreaChart>` and its import.",
-        `Add \`<Background pattern="diagonal" fadeVerticalLength={33} />\` ${BACKGROUND_STEP}`,
+        `Add \`<Background pattern="diagonal-up" fadeVerticalLength={33} />\` ${BACKGROUND_STEP}`,
         "Lower each `<Area>` to `fillOpacity={0.25}` so the hatch shows through the gradient fill. Keep stroke colours and widths.",
       ],
       code: `"use client";
@@ -120,7 +129,7 @@ export function VisitorsChart({
 }) {
   return (
     <AreaChart data={data}>
-      <Background fadeVerticalLength={33} pattern="diagonal" />
+      <Background fadeVerticalLength={33} pattern="diagonal-up" />
       <Area dataKey="visitors" fillOpacity={0.25} />
       <XAxis />
       <ChartTooltip />
@@ -137,7 +146,7 @@ export function VisitorsChart({
       install: ["background"],
       steps: [
         "Remove the `<Grid />` child of `<BarChart>` and its import.",
-        `Add \`<Background pattern="diagonal" fadeVerticalLength={33} />\` ${BACKGROUND_STEP}`,
+        `Add \`<Background pattern="diagonal-up" fadeVerticalLength={33} />\` ${BACKGROUND_STEP}`,
         "Keep `<Bar>`, `<BarXAxis />` and `<ChartTooltip />` unchanged.",
       ],
       code: `"use client";
@@ -159,7 +168,7 @@ export function RevenueChart({
       margin={{ top: 8, right: 8, bottom: 40, left: 8 }}
       xDataKey="month"
     >
-      <Background fadeVerticalLength={33} pattern="diagonal" />
+      <Background fadeVerticalLength={33} pattern="diagonal-up" />
       <Bar dataKey="revenue" lineCap={4} />
       <BarXAxis />
       <ChartTooltip />

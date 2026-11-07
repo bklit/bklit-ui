@@ -51,7 +51,7 @@ function fadeMaskStops(lengthPercent: number): Array<{
 
 /** Plot-area pattern fill for charts without a grid. Renders behind series layers. */
 export function Background({
-  pattern = "diagonal",
+  pattern = "diagonal-up",
   color = "var(--chart-grid)",
   scale = 1,
   strokeWidth,

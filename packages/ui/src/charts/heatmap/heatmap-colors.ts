@@ -83,11 +83,7 @@ export function heatmapPatternStrokeFallback(color: string): string {
 }
 
 export function heatmapLevelPatternRenderOptions(style: HeatmapLevelStyle) {
-  const preset = style.pattern ?? "diagonal";
-  let defaultScale = 1;
-  if (preset === "cross") {
-    defaultScale = 1.33;
-  }
+  const preset = style.pattern ?? "diagonal-up";
 
   return {
     color:
@@ -96,7 +92,7 @@ export function heatmapLevelPatternRenderOptions(style: HeatmapLevelStyle) {
         ? "#e879f9"
         : heatmapPatternStrokeFallback(style.color)),
     tileBackground: style.patternTileBackground?.trim() || style.color,
-    scale: style.patternScale ?? defaultScale,
+    scale: style.patternScale ?? 1,
     strokeWidth: style.patternStrokeWidth,
     radius: style.patternRadius,
     complement: style.patternComplement,

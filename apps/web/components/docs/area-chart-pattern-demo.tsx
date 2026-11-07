@@ -6,7 +6,7 @@ import {
   ChartTooltip,
   Grid,
   PatternArea,
-  PatternLines,
+  PatternPreset,
   XAxis,
 } from "@bklitui/ui/charts";
 
@@ -23,13 +23,10 @@ export function AreaChartPatternDemo() {
   return (
     <div className="w-full">
       <AreaChart data={chartData}>
-        <PatternLines
-          height={6}
+        <PatternPreset
+          color="var(--chart-1)"
           id="area-doc-pattern"
-          orientation={["diagonal"]}
-          stroke="var(--chart-1)"
-          strokeWidth={1}
-          width={6}
+          preset="diagonal-up"
         />
         <Grid horizontal />
         <PatternArea dataKey="desktop" fill="url(#area-doc-pattern)" />

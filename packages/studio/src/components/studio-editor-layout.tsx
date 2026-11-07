@@ -27,6 +27,7 @@ import {
   getSeriesPattern,
   resolveChartThemeStyle,
 } from "@/lib/studio-series-design";
+import { getSeriesPipeValue } from "@/lib/studio-series-line-props";
 import { exportStudioChartSvg } from "@/lib/svg-export/export-studio-chart-svg";
 import type { StudioChartConfig } from "@/lib/types";
 import { useStudioAnalytics } from "@/providers/studio-analytics-context";
@@ -159,7 +160,15 @@ export const StudioEditorChartRegion = memo(function StudioEditorChartRegion({
     const seriesPatterns = Array.from({ length: count }, (_, index) =>
       getSeriesPattern(patternChromeState, index)
     );
-    return <StudioPatternDefs seriesPatterns={seriesPatterns} />;
+    const seriesScales = Array.from({ length: count }, (_, index) =>
+      getSeriesPipeValue(patternChromeState, "patternScale", index)
+    );
+    return (
+      <StudioPatternDefs
+        seriesPatterns={seriesPatterns}
+        seriesScales={seriesScales}
+      />
+    );
   }, [patternChromeState]);
 
   const patternFillAt = useCallback(

@@ -29,14 +29,15 @@ private to the bklit monorepo).
 | `BarXAxis` / `BarYAxis` | `@/components/charts/bar-x-axis` / `bar-y-axis` | `@bklit/bar-chart` |
 | `BarSquares`, `BarColumnTrack` | `@/components/charts/bar-squares` | `@bklit/bar-chart` |
 | `BarChartLoading` | `@/components/charts/bar-chart-loading` | `@bklit/bar-chart` |
-| `renderPatternPreset` | `@/components/charts/pattern-preset` | `@bklit/bar-chart` or `@bklit/background` |
+| `PatternPreset`, `renderPatternPreset`, `PATTERN_PRESETS`, `PATTERN_PRESET_IDS` | `@/components/charts/pattern-preset` | `@bklit/patterns` (also shipped by `@bklit/bar-chart`, `@bklit/background`, `@bklit/radial-chart`) |
+| `PatternTile` | `@/components/charts/pattern-tile` | `@bklit/patterns` |
 | `BarDepthBack`, `BarDepthFront`, `BarDepthProvider`, `BarPulse` | `@/components/charts/bar-depth` | `@bklit/bar-depth` |
 | `ComposedChart` / `SeriesBar` | `@/components/charts/composed-chart` / `series-bar` | `@bklit/composed-chart` |
 | `Grid` | `@/components/charts/grid` | `@bklit/grid` |
 | `XAxis` / `YAxis` | `@/components/charts/x-axis` / `y-axis` | `@bklit/x-axis` / `@bklit/y-axis` |
 | `ChartTooltip` | `@/components/charts/tooltip` | `@bklit/chart-tooltip` |
 | `Background` | `@/components/charts/background` | `@bklit/background` |
-| `PatternLines`, `PatternCircles`, `PatternWaves`, `PatternHexagons`, `PatternPath`, `Pattern` | `@/components/charts/patterns` | `@bklit/patterns` |
+| `PatternLines`, `PatternCircles`, `PatternWaves`, `PatternHexagons`, `PatternPath`, `Pattern` (**deprecated** — use `PatternPreset` / `PatternTile`) | `@/components/charts/patterns` | `@bklit/patterns` |
 | `ReferenceArea` | `@/components/charts/reference-area` | `@bklit/reference-area` |
 | `TrendLine` | `@/components/charts/trend-line` | `@bklit/trend-line` |
 | `ChartMarkers` | `@/components/charts/markers` | `@bklit/markers` |
@@ -49,10 +50,10 @@ private to the bklit monorepo).
 | `curveNatural`, `curveMonotoneX`, `curveLinear`, `curveStep`, `curveBasis`, `curveCatmullRom` | `d3-shape` | npm dep of line/area charts |
 
 `@bklit/pie-chart` and `@bklit/ring-chart` do **not** pull in `@bklit/patterns`
-— add it when a pie needs `PatternLines`.
+— add it when a pie needs `PatternPreset`.
 
 Docs: `https://bklit.com/docs/components/<slug>` and
-`https://bklit.com/docs/utility/<background|grid|tooltip|legend|reference-area|projection-line|band>`.
+`https://bklit.com/docs/utility/<background|patterns|grid|tooltip|legend|reference-area|projection-line|band>`.
 Gallery: `https://bklit.com/charts/<slug>`. Studio: `https://bklit.com/studio?chart=<slug>`.
 
 ---
@@ -60,45 +61,64 @@ Gallery: `https://bklit.com/charts/<slug>`. Studio: `https://bklit.com/studio?ch
 ## Backgrounds & patterns
 
 `<Background>` fills the plot area with a pattern preset and fades it out.
-Defaults (from `background.tsx`): `pattern="diagonal"`, `color="var(--chart-grid)"`,
+Defaults (from `background.tsx`): `pattern="diagonal-up"`, `color="var(--chart-grid)"`,
 `opacity={1}`, `scale={1}`, `fadeHorizontal` / `fadeVertical` **both true**,
 `fadeHorizontalLength` / `fadeVerticalLength` = `10` (% per edge, clamped 0–45).
-Presets (`PATTERN_PRESET_IDS`): `none`, `diagonal`, `horizontal`, `vertical`,
-`cross`, `dots`, `circles`, `accent`. Works inside Area, Line, Bar, Composed,
+Presets (`PATTERN_PRESET_IDS`, adapted from Nucleo's free SVG patterns):
+`none`; lines `vertical`, `vertical-dense`, `horizontal`, `horizontal-dense`,
+`diagonal-up`, `diagonal-up-sparse`, `diagonal-down`, `diagonal-down-sparse`;
+grids `grid`; dashed `vertical-dashed`, `horizontal-dashed`,
+`horizontal-dashed-dense`, `grid-dashed`, `grid-dotted`; dots `dots`,
+`dots-sparse`, `diagonal-dots-up`, `diagonal-dots-up-sparse`,
+`diagonal-dots-down`, `diagonal-dots-down-sparse`; circles `circles-dense`,
+`circles`, `circles-sparse`; tiles `blocks`, `checkerboard-xs`,
+`checkerboard-sm`, `checkerboard`, `checkerboard-lg`, `checkerboard-inset`.
+Base names repeat every 6px; `-sparse` doubles and `-dense` halves the spacing.
+Legacy ids still resolve: `diagonal` → `diagonal-up`, `cross` → `grid`,
+`accent` → `diagonal-up` (in `#e879f9`). Never write the legacy ids in new code.
+`radius`, `complement`, `fill`, `dotFill` (and `patternRadius` etc.) are
+deprecated no-ops — don't emit them. Works inside Area, Line, Bar, Composed,
 Scatter, Candlestick and Profit/Loss charts. Use it **instead of** `<Grid>`.
+Docs: `https://bklit.com/docs/utility/patterns`.
 
 | People say | JSX | Notes |
 |---|---|---|
-| "diagonal pattern background that fades out on all sides", "hatched backdrop", "striped plot area" | `<Background />` | Diagonal + 4-side fade is the default. `pattern="diagonal"` is optional. |
+| "diagonal pattern background that fades out on all sides", "hatched backdrop", "striped plot area" | `<Background />` | Diagonal + 4-side fade is the default. `pattern="diagonal-up"` is optional. |
 | "fade only left/right", "horizontal fade" | `<Background fadeVertical={false} />` | |
 | "fade only top/bottom" | `<Background fadeHorizontal={false} />` | |
 | "no fade", "hard edges" | `<Background fadeHorizontal={false} fadeVertical={false} />` | |
 | "longer / softer fade", "vignette" | `<Background fadeHorizontalLength={30} fadeVerticalLength={30} />` | Max 45 per edge. |
-| "dot grid", "polka dots", "graph paper dots", "stippled" | `<Background pattern="dots" opacity={0.85} />` | Gallery "Dot Grid Background". `dotFill={false}` → hollow dots. |
-| "rings", "circles texture" | `<Background pattern="circles" />` | `radius` overrides dot/circle radius. |
-| "crosshatch", "cross-hatched", "lattice", "argyle-ish" | `<Background pattern="cross" />` | Two diagonals (8px tile). |
-| "pinstripe", "horizontal lines", "ruled paper" | `<Background pattern="horizontal" />` | |
-| "vertical stripes", "barcode" | `<Background pattern="vertical" />` | |
-| "denser / finer pattern" | `scale={0.75}` | Scales tile size and stroke. |
+| "dot grid", "polka dots", "graph paper dots", "stippled" | `<Background pattern="dots" opacity={0.85} />` | Gallery "Dot Grid Background". `dots-sparse` for wider spacing; `diagonal-dots-up` for a staggered stipple. |
+| "circles texture", "polka dots (big)" | `<Background pattern="circles" />` | Filled circles; `circles-dense` / `circles-sparse` change spacing. No hollow-ring preset. |
+| "graph paper", "lattice", "square grid texture" | `<Background pattern="grid" scale={2} />` | Square grid (6px tile; `scale={2}` reads like graph paper). Dashed / dotted variants: `grid-dashed`, `grid-dotted`. |
+| "crosshatch", "cross-hatched" | **No single preset.** | Nearest is `<Background pattern="grid" />`. For a true X hatch, draw both diagonals in a `PatternTile` and use it as a series fill. |
+| "checkerboard", "chequered", "pixel tiles" | `<Background pattern="checkerboard-sm" opacity={0.5} />` | `checkerboard-xs` … `checkerboard-lg`, `checkerboard-inset`, `blocks`. Keep it faint. |
+| "dashed lines texture" | `<Background pattern="horizontal-dashed" />` | Also `vertical-dashed`, `horizontal-dashed-dense`. |
+| "pinstripe", "horizontal lines", "ruled paper" | `<Background pattern="horizontal" />` | `horizontal-dense` for tighter lines. |
+| "vertical stripes", "barcode" | `<Background pattern="vertical" />` | `vertical-dense` for tighter lines. |
+| "reverse diagonal", "backslash stripes" | `<Background pattern="diagonal-down" />` | `-sparse` doubles the spacing. |
+| "denser / finer pattern" | a `-dense` preset or `scale={0.75}` | `scale` scales tile size and stroke. |
 | "bigger / chunkier pattern" | `scale={1.5}` or `strokeWidth={2}` | |
 | "stronger / more visible background" | `color="var(--chart-foreground-muted)"` | Default `--chart-grid` is deliberately faint. |
 | "subtler background" | `opacity={0.6}` | |
 | "pattern with tinted tiles" | `tileBackground="var(--muted)"` | Fills each tile behind the strokes. |
-| "pink/fuchsia accent stripes" | `pattern="accent"` | Hardcoded `#e879f9`; ignores `color`. Avoid in themed apps. |
-| "honeycomb", "hexagon background", "hex grid" | **No preset.** | See recipes.md "Honeycomb background (custom)". `PatternHexagons` only tiles cleanly at `height={1}` `size={3}` (tile is `size × √size`, hexagon side is `height`). |
-| "wavy", "waves texture", "squiggle" | **No preset.** | Compose `<PatternWaves id width height stroke />` + `fill="url(#id)"` on a series; no fading Background equivalent. |
-| "texture on the bars", "hatched bars", "striped bars" | `<PatternLines id="p" width={8} height={8} orientation={["diagonal"]} stroke="var(--chart-1)" strokeWidth={2} />` + `<Bar fill="url(#p)" stroke="var(--chart-1)" lineCap={4} />` | Gallery "Bar Chart - Pattern". `stroke` on Bar = tooltip dot color. |
-| "hatched area", "striped fill under the line" | `<PatternLines id="a" width={6} height={6} orientation={["diagonal"]} stroke="var(--chart-1)" strokeWidth={1} />` + `<PatternArea dataKey="v" fill="url(#a)" />` + `<Area dataKey="v" fillOpacity={0} />` | Gallery "Area Chart - Pattern". `Area fill="url(#a)"` also works (stroke falls back to `--chart-line-primary`, no edge fade). |
-| "patterned pie / donut", "accessible print-friendly pie" | `PatternLines` per slice + `<PieSlice fill="url(#id)" />` | Vary `orientation`: `diagonal`, `horizontal`, `vertical`, `diagonalRightToLeft`. Needs `@bklit/patterns`. |
-| "patterned heatmap levels" | `levelStyles={[{ color, fillMode: "pattern", pattern: "diagonal", patternColor: "var(--chart-scale-pattern-color)" }, ...]}` | `HeatmapLevelStyle` also has `patternScale`, `patternStrokeWidth`, `patternOpacity`. |
-| "patterned funnel" | `<FunnelChart renderPattern={(id, color) => <PatternLines id={id} ... stroke={color} />} />` | Pattern on innermost ring only. |
+| "pink/fuchsia accent stripes" | `pattern="diagonal-up" color="#e879f9"` | Legacy `pattern="accent"` does the same; don't write it. Avoid hardcoded hues in themed apps. |
+| "honeycomb", "hexagon background", "hex grid" | **No preset.** | See recipes.md "Honeycomb background (custom)" — a custom `Pattern` tile (hexagon tiles aren't square, so not `PatternTile`). Don't use the deprecated `PatternHexagons`. |
+| "wavy", "waves texture", "squiggle" | **No preset.** | Draw a wave path in a `<PatternTile id size>` (paint with `currentColor`) + `fill="url(#id)"` on a series; no fading Background equivalent. |
+| "texture on the bars", "hatched bars", "striped bars" | `<PatternPreset id="p" preset="diagonal-up" color="var(--chart-1)" scale={1.5} />` + `<Bar fill="url(#p)" stroke="var(--chart-1)" lineCap={4} />` | Gallery "Bar Chart - Pattern". `stroke` on Bar = tooltip dot color. |
+| "hatched area", "striped fill under the line" | `<PatternPreset id="a" preset="diagonal-up" color="var(--chart-1)" />` + `<PatternArea dataKey="v" fill="url(#a)" />` + `<Area dataKey="v" fillOpacity={0} />` | Gallery "Area Chart - Pattern". `Area fill="url(#a)"` also works (stroke falls back to `--chart-line-primary`, no edge fade). |
+| "patterned pie / donut", "accessible print-friendly pie" | `PatternPreset` per slice + `<PieSlice fill="url(#id)" />` | Vary `preset`: `diagonal-up`, `horizontal`, `vertical`, `diagonal-down` (or mix families: `dots`, `checkerboard-sm`). Needs `@bklit/patterns`. |
+| "patterned heatmap levels" | `levelStyles={[{ color, fillMode: "pattern", pattern: "diagonal-up", patternColor: "var(--chart-scale-pattern-color)" }, ...]}` | `HeatmapLevelStyle` also has `patternScale`, `patternStrokeWidth`, `patternOpacity`. |
+| "patterned funnel" | `<FunnelChart renderPattern={(id, color) => <PatternPreset id={id} preset="diagonal-up" color="rgba(255,255,255,0.35)" tileBackground={color} scale={1.5} />} />` | Pattern on innermost ring only. |
 
-`PatternLines` props: `id`, `width`, `height` (required), `stroke`, `strokeWidth`,
-`orientation` (`"horizontal" | "vertical" | "diagonal" | "diagonalRightToLeft"`, array),
-`background`, `strokeDasharray`, `strokeLinecap`, `shapeRendering`.
-`PatternCircles`: `id`, `width`, `height`, `radius`, `fill`, `stroke`, `strokeWidth`, `complement`, `background`.
-Shortcut: `renderPatternPreset("diagonal", "my-id", { color: "var(--chart-grid)" })`
-returns the matching pattern node (same presets as `Background`).
+`PatternPreset` props: `id` (required), `preset` (default `"diagonal-up"`),
+`color` (default `var(--chart-1)`), `scale` (1), `strokeWidth` (1, line presets,
+multiplied by `scale`), `opacity` (1), `tileBackground`.
+Function form: `renderPatternPreset("diagonal-up", "my-id", { color: "var(--chart-grid)" })`
+returns the same node (same presets as `Background`).
+Custom artwork: `<PatternTile id size={12} color>{<path d="…" fill="currentColor" />}</PatternTile>`
+(`size` = the artwork's square viewBox, default 48; also `scale`, `opacity`, `background`).
+`PatternLines` / `PatternCircles` / `PatternWaves` / `PatternHexagons` are deprecated — never emit them.
 
 ## Fades
 
@@ -254,7 +274,7 @@ returns the matching pattern node (same presets as `Background`).
 | People say | JSX | Notes |
 |---|---|---|
 | "target range", "goal band", "normal range" | `<ReferenceArea y1={160} y2={220} strokeStyle="dashed" showMarkers />` | Defaults: `strokeStyle="dashed"`, `fadeEdges` true, `pattern="none"`. |
-| "hatched target band" | `<ReferenceArea y1 y2 pattern="diagonal" patternColor="var(--chart-foreground-muted)" axisLabelColor="var(--chart-1)" fillOpacity={0.85} />` | Gallery "Pattern Reference Band". |
+| "hatched target band" | `<ReferenceArea y1 y2 pattern="diagonal-up" patternColor="var(--chart-foreground-muted)" axisLabelColor="var(--chart-1)" fillOpacity={0.85} />` | Gallery "Pattern Reference Band". |
 | "highlight a time window" | `<ReferenceArea x1={startDate} x2={endDate} />` | |
 | "min/max range", "confidence band", "range around the line", "range area" | `<Band upperKey="valueUpper" lowerKey="valueLower" label="Range" />` before the `<Line>` (or alone for a range area chart) | Per-row edges (not fixed Y). Defaults: `fillOpacity` 0.15, solid edges at the band color. `fillType="gradient"` / `"pattern"`. |
 | "Bollinger bands" | `withBollingerBands(data, { dataKey: "price" })` → `<Band upperKey="priceUpper" lowerKey="priceLower" />` | Defaults: `period` 20, `multiplier` 2. Dashed SMA = zero-height `Band` on `priceSma` with `lowerStroke={false}`. |

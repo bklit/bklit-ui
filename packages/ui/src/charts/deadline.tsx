@@ -25,7 +25,7 @@ export interface DeadlineProps {
   fillOpacity?: number;
   /** `gradient` only — opacity at the region's right edge. Default: 0 */
   gradientToOpacity?: number;
-  /** Pattern preset when `fillType` is `"pattern"`. Default: `"diagonal"` */
+  /** Pattern preset when `fillType` is `"pattern"`. Default: `"diagonal-up"` */
   pattern?: PatternPresetId;
   /** Default: 1.5 */
   patternScale?: number;
@@ -286,7 +286,7 @@ export function Deadline({
   fillType = "pattern",
   fillOpacity,
   gradientToOpacity = 0,
-  pattern = "diagonal",
+  pattern = "diagonal-up",
   patternScale = 1.5,
   patternStrokeWidth = 1,
   fade = true,

@@ -301,27 +301,10 @@ export function gridPropsCodegen(state: StudioUrlState): string {
   return props.length > 0 ? ` ${props.join(" ")}` : " horizontal";
 }
 
-function backgroundCirclePatternPropsCodegen(state: StudioUrlState): string[] {
-  const props: string[] = [];
-  if (state.backgroundPatternRadius !== 2) {
-    props.push(`radius={${state.backgroundPatternRadius}}`);
-  }
-  if (state.backgroundPatternComplement) {
-    props.push("complement");
-  }
-  if (state.backgroundPattern === "circles" && state.backgroundPatternFill) {
-    props.push(`fill="${state.backgroundPatternFill}"`);
-  }
-  if (state.backgroundPattern === "dots" && !state.backgroundPatternDotsFill) {
-    props.push("dotFill={false}");
-  }
-  return props;
-}
-
 export function backgroundPropsCodegen(state: StudioUrlState): string {
   const props: string[] = [];
 
-  if (state.backgroundPattern !== "diagonal") {
+  if (state.backgroundPattern !== "diagonal-up") {
     props.push(`pattern="${state.backgroundPattern}"`);
   }
   if (state.backgroundPatternColor !== "var(--chart-grid)") {
@@ -332,12 +315,6 @@ export function backgroundPropsCodegen(state: StudioUrlState): string {
   }
   if (state.backgroundPatternStrokeWidth !== 1) {
     props.push(`strokeWidth={${state.backgroundPatternStrokeWidth}}`);
-  }
-  if (
-    state.backgroundPattern === "circles" ||
-    state.backgroundPattern === "dots"
-  ) {
-    props.push(...backgroundCirclePatternPropsCodegen(state));
   }
   if (state.backgroundPatternTileBackground) {
     props.push(`tileBackground="${state.backgroundPatternTileBackground}"`);
@@ -639,7 +616,7 @@ export function cartesianLoadingCodegen(
   } else {
     chartImports.push("Area");
     const curveName = curveImportName(getSeriesCurve(state, 0));
-    child = `\n  <Area dataKey="${primaryKey}" curve={${curveName}} fillOpacity={${getSeriesPipeValue(state, "fillOpacity", 0)}} strokeWidth={${getSeriesStrokeWidth(state, 0)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, 0))} gradientToOpacity={${getSeriesPipeValue(state, "gradientToOpacity", 0)}} showLine={${getSeriesShowLine(state, 0)}} ${loadingStrokeAttr}${loadingStyleAttr} />`;
+    child = `\n  <Area dataKey="${primaryKey}" curve={${curveName}} fillOpacity={${getSeriesPipeValue(state, "fillOpacity", 0)}} strokeWidth={${getSeriesStrokeWidth(state, 0)}}${areaFadeCodegen(state, 0)} showLine={${getSeriesShowLine(state, 0)}} ${loadingStrokeAttr}${loadingStyleAttr} />`;
   }
 
   const curveImports = curveImportLine(state, [0]);
@@ -688,13 +665,7 @@ function cartesianSeriesImports(
   if (state.pattern === "none") {
     return ["Area"];
   }
-  return [
-    state.pattern === "circles" || state.pattern === "dots"
-      ? "PatternCircles"
-      : "PatternLines",
-    "PatternArea",
-    "Area",
-  ];
+  return ["PatternPreset", "PatternArea", "Area"];
 }
 
 /** `<Area>` value-label props — only emitted when labels are enabled. */
@@ -724,6 +695,24 @@ function barValueLabelCodegen(state: StudioUrlState): string {
   return props.join("");
 }
 
+/** `fadeEdges={{ left, right }}` for an area series (empty when neither side fades). */
+function areaEdgeFadeCodegen(
+  state: StudioUrlState,
+  seriesIndex: number
+): string {
+  const left = getSeriesPipeValue(state, "fadeLeft", seriesIndex);
+  const right = getSeriesPipeValue(state, "fadeRight", seriesIndex);
+  if (left <= 0 && right <= 0) {
+    return "";
+  }
+  return ` fadeEdges={{ left: ${left}, right: ${right} }}`;
+}
+
+/** Edge + bottom fade attrs for an area series fill (solid or pattern). */
+function areaFadeCodegen(state: StudioUrlState, seriesIndex: number): string {
+  return `${areaEdgeFadeCodegen(state, seriesIndex)} fadeBottom={${getSeriesPipeValue(state, "fadeBottom", seriesIndex)}}`;
+}
+
 export function cartesianCodegen(
   chartType: "AreaChart" | "LineChart",
   state: StudioUrlState
@@ -744,7 +733,7 @@ export function cartesianCodegen(
           idx === 0 ? "" : ` fill="${SERIES_COLOR_BY_INDEX[idx]}"`;
         const seriesProps = seriesStrokePropsCodegen(state, idx);
         const curveName = curveImportName(getSeriesCurve(state, idx));
-        return `\n  <Area dataKey="${key}"${fillAttr} curve={${curveName}} fillOpacity={${getSeriesPipeValue(state, "fillOpacity", idx)}} strokeWidth={${getSeriesStrokeWidth(state, idx)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, idx))} gradientToOpacity={${getSeriesPipeValue(state, "gradientToOpacity", idx)}} showLine={${getSeriesShowLine(state, idx)}} showHighlight={${getSeriesShowHighlight(state, idx)}}${seriesProps}${valueLabels} />`;
+        return `\n  <Area dataKey="${key}"${fillAttr} curve={${curveName}} fillOpacity={${getSeriesPipeValue(state, "fillOpacity", idx)}} strokeWidth={${getSeriesStrokeWidth(state, idx)}}${areaFadeCodegen(state, idx)} showLine={${getSeriesShowLine(state, idx)}} showHighlight={${getSeriesShowHighlight(state, idx)}}${seriesProps}${valueLabels} />`;
       })
       .join("");
   } else {
@@ -753,14 +742,14 @@ export function cartesianCodegen(
     const primarySeriesProps = seriesStrokePropsCodegen(state, 0);
     const primaryCurveName = curveImportName(getSeriesCurve(state, 0));
     const primary = primaryKey
-      ? `\n  ${patternCodegenBlock(state.pattern)}\n  <PatternArea dataKey="${primaryKey}" fill="${fill}" curve={${primaryCurveName}} />\n  <Area dataKey="${primaryKey}" fillOpacity={0} curve={${primaryCurveName}} strokeWidth={${getSeriesStrokeWidth(state, 0)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, 0))} gradientToOpacity={${getSeriesPipeValue(state, "gradientToOpacity", 0)}} showLine={${getSeriesShowLine(state, 0)}} showHighlight={${getSeriesShowHighlight(state, 0)}}${primarySeriesProps}${valueLabels} />`
+      ? `\n  ${patternCodegenBlock(state.pattern, { scale: getSeriesPipeValue(state, "patternScale", 0) })}\n  <PatternArea dataKey="${primaryKey}" fill="${fill}" curve={${primaryCurveName}} fillOpacity={${getSeriesPipeValue(state, "fillOpacity", 0)}}${areaFadeCodegen(state, 0)} />\n  <Area dataKey="${primaryKey}" fillOpacity={0} curve={${primaryCurveName}} strokeWidth={${getSeriesStrokeWidth(state, 0)}}${areaEdgeFadeCodegen(state, 0)} showLine={${getSeriesShowLine(state, 0)}} showHighlight={${getSeriesShowHighlight(state, 0)}}${primarySeriesProps}${valueLabels} />`
       : "";
     const others = rest
       .map((key, idx) => {
         const seriesIndex = idx + 1;
         const seriesProps = seriesStrokePropsCodegen(state, seriesIndex);
         const curveName = curveImportName(getSeriesCurve(state, seriesIndex));
-        return `\n  <Area dataKey="${key}" fill="${SERIES_COLOR_BY_INDEX[seriesIndex]}" curve={${curveName}} fillOpacity={${getSeriesPipeValue(state, "fillOpacity", seriesIndex)}} strokeWidth={${getSeriesStrokeWidth(state, seriesIndex)}} ${fadeEdgesCodegen(getSeriesFadeEdges(state, seriesIndex))} gradientToOpacity={${getSeriesPipeValue(state, "gradientToOpacity", seriesIndex)}} showLine={${getSeriesShowLine(state, seriesIndex)}} showHighlight={${getSeriesShowHighlight(state, seriesIndex)}}${seriesProps}${valueLabels} />`;
+        return `\n  <Area dataKey="${key}" fill="${SERIES_COLOR_BY_INDEX[seriesIndex]}" curve={${curveName}} fillOpacity={${getSeriesPipeValue(state, "fillOpacity", seriesIndex)}} strokeWidth={${getSeriesStrokeWidth(state, seriesIndex)}}${areaFadeCodegen(state, seriesIndex)} showLine={${getSeriesShowLine(state, seriesIndex)}} showHighlight={${getSeriesShowHighlight(state, seriesIndex)}}${seriesProps}${valueLabels} />`;
       })
       .join("");
     child = `${primary}${others}`;
@@ -829,7 +818,7 @@ export function gaugeCodegen(state: StudioUrlState) {
   const patternChild =
     state.pattern === "none"
       ? ""
-      : `\n  ${patternCodegenBlock(state.pattern)}\n`;
+      : `\n  ${patternCodegenBlock(state.pattern, { scale: getSeriesPipeValue(state, "patternScale", 0) })}\n`;
   const activeFill =
     state.pattern === "none"
       ? ""
@@ -852,7 +841,7 @@ export function gaugeCodegen(state: StudioUrlState) {
   const uniformWidthBlock = gaugeUniformWidthCodegenBlock(state, isLinear);
 
   return {
-    code: `import { Gauge${state.pattern === "none" ? "" : ", PatternLines"} } from "@bklitui/ui/charts";
+    code: `import { Gauge${state.pattern === "none" ? "" : ", PatternPreset"} } from "@bklitui/ui/charts";
 
 <Gauge
   value={${state.value}}${centerBlock}${linearBlock}${labelLayoutBlock}
@@ -977,7 +966,9 @@ function barReadyCodegen(
     .join(" ");
 
   const patternBlock =
-    state.pattern === "none" ? "" : `\n  ${patternCodegenBlock(state.pattern)}`;
+    state.pattern === "none"
+      ? ""
+      : `\n  ${patternCodegenBlock(state.pattern, { scale: getSeriesPipeValue(state, "patternScale", 0) })}`;
 
   const bars = keys
     .map((key, idx) => {
@@ -1005,7 +996,7 @@ function barReadyCodegen(
   const trendLineImport = trendLineBlock ? ", TrendLine" : "";
 
   return {
-    code: `import { BarChart, Bar, BarXAxis, ChartTooltip${gridImport}${backgroundImport}${referenceAreaImport}${trendLineImport}${state.pattern === "none" ? "" : ", PatternLines"} } from "@bklitui/ui/charts";
+    code: `import { BarChart, Bar, BarXAxis, ChartTooltip${gridImport}${backgroundImport}${referenceAreaImport}${trendLineImport}${state.pattern === "none" ? "" : ", PatternPreset"} } from "@bklitui/ui/charts";
 
 <BarChart ${chartProps}>${backgroundBlock}${gridBlock}${referenceAreaBlock}${patternBlock}${bars}${trendLineBlock}
   <BarXAxis${barXAxisPropsCodegen(state)} />
@@ -1063,7 +1054,7 @@ export function composedCodegen(state: StudioUrlState) {
   const barPattern =
     state.pattern === "none" || !hasBars
       ? ""
-      : `\n  ${patternCodegenBlock(state.pattern)}`;
+      : `\n  ${patternCodegenBlock(state.pattern, { scale: getSeriesPipeValue(state, "patternScale", 0) })}`;
   const seriesBlock = keys
     .map((key, index) => composedSeriesCodegen(state, key, index))
     .join("");
@@ -1110,7 +1101,7 @@ export function composedCodegen(state: StudioUrlState) {
   const curveImports = curveImportLine(state, curvedIndices);
 
   return {
-    code: `import { ComposedChart${seriesImports}, XAxis, ChartTooltip${gridImport}${backgroundImport}${referenceAreaImport}${dateHighlightsImport}${trendLineImport}${barPattern ? ", PatternLines" : ""} } from "@bklitui/ui/charts";
+    code: `import { ComposedChart${seriesImports}, XAxis, ChartTooltip${gridImport}${backgroundImport}${referenceAreaImport}${dateHighlightsImport}${trendLineImport}${barPattern ? ", PatternPreset" : ""} } from "@bklitui/ui/charts";
 ${curveImports}
 
 <ComposedChart data={chartData}${chartProps}
@@ -1219,7 +1210,9 @@ export function candlestickCodegen(state: StudioUrlState) {
     ? 'negativeFill="url(#candle-down)"'
     : 'negativeFill="var(--chart-3)"';
   const patternBlock =
-    state.pattern === "none" ? "" : `\n  ${patternCodegenBlock(state.pattern)}`;
+    state.pattern === "none"
+      ? ""
+      : `\n  ${patternCodegenBlock(state.pattern, { scale: getSeriesPipeValue(state, "patternScale", 0) })}`;
   const patternProps =
     state.pattern === "none"
       ? ""
@@ -1251,7 +1244,7 @@ export function candlestickCodegen(state: StudioUrlState) {
   const yAxisImport = yAxisLeftVisible ? ", YAxis" : "";
 
   return {
-    code: `import { CandlestickChart, Candlestick, ChartTooltip, XAxis, LinearGradient${gridImport}${backgroundImport}${referenceAreaImport}${yAxisImport}${state.pattern === "none" ? "" : ", PatternLines"} } from "@bklitui/ui/charts";
+    code: `import { CandlestickChart, Candlestick, ChartTooltip, XAxis, LinearGradient${gridImport}${backgroundImport}${referenceAreaImport}${yAxisImport}${state.pattern === "none" ? "" : ", PatternPreset"} } from "@bklitui/ui/charts";
 
 <CandlestickChart data={ohlcData}
   ${cssRevealAnimationCodegen(state.animationDuration, motionSliceFromState(state))} candleGap={${state.candleGap}} margin={{ top: 16, right: 16, bottom: 40, left: 56 }}>
@@ -1398,20 +1391,12 @@ function serializeHeatmapLevelStyle(style: HeatmapLevelStyle): string {
     style.patternStrokeWidth != null && style.patternStrokeWidth !== 1
       ? `patternStrokeWidth: ${style.patternStrokeWidth}`
       : null,
-    style.patternRadius != null && style.patternRadius !== 2
-      ? `patternRadius: ${style.patternRadius}`
-      : null,
-    style.patternComplement ? "patternComplement: true" : null,
-    style.patternFill
-      ? `patternFill: ${JSON.stringify(style.patternFill)}`
-      : null,
     style.patternTileBackground
       ? `patternTileBackground: ${JSON.stringify(style.patternTileBackground)}`
       : null,
     style.patternOpacity != null && style.patternOpacity !== 1
       ? `patternOpacity: ${style.patternOpacity}`
       : null,
-    style.patternDotsFill === false ? "patternDotsFill: false" : null,
   ];
 
   for (const entry of optionalEntries) {

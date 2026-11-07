@@ -28,7 +28,7 @@ import { radialSeriesColor } from "./radial-series-color";
  * shared pattern presets (`renderPatternPreset`).
  */
 export interface RadialDotPattern {
-  /** Pattern preset. Default: "diagonal" */
+  /** Pattern preset. Default: "diagonal-up" */
   preset?: PatternPresetId;
   /**
    * Custom fill instead of a preset — e.g. `url(#my-pattern)` for a pattern
@@ -95,7 +95,7 @@ export interface RadialDotBarProps {
   fadedOpacity?: number;
   /**
    * Pattern fills keyed by series `dataKey` (use `"ghost"` for the ghost
-   * layer). Pass a preset id (e.g. `"diagonal"`) or a {@link RadialDotPattern}.
+   * layer). Pass a preset id (e.g. `"diagonal-up"`) or a {@link RadialDotPattern}.
    * Series without an entry stay solid.
    */
   patterns?: Record<string, PatternPresetId | RadialDotPattern>;
@@ -165,7 +165,7 @@ function resolveDotFill({
   if (spec.fill) {
     return { fill: spec.fill, defs: null, ...ring };
   }
-  const preset = spec.preset ?? "diagonal";
+  const preset = spec.preset ?? "diagonal-up";
   if (preset === "none") {
     return { fill: patternColor, defs: null, ...ring };
   }

@@ -139,7 +139,9 @@ function ActivityClockCard() {
               dotSize={0.9}
               layout="columns"
               maxValue={CAFE_MAX_CUPS}
-              patterns={{ takeaway: { preset: "diagonal", strokeWidth: 1.5 } }}
+              patterns={{
+                takeaway: { preset: "diagonal-up", strokeWidth: 1.5 },
+              }}
               rows={5}
             />
             <RadialScrubber rest="hidden" variant="dashed" />
@@ -247,7 +249,7 @@ export function OrdersTodayCard({ hours }: { hours: Hour[] }) {
               layout="columns"
               rows={5}
               dotSize={0.9}
-              patterns={{ takeaway: { preset: "diagonal", strokeWidth: 1.5 } }}
+              patterns={{ takeaway: { preset: "diagonal-up", strokeWidth: 1.5 } }}
             />
             <RadialScrubber rest="hidden" variant="dashed" />
           </RadialChart>
@@ -293,7 +295,7 @@ export const activityClockCard: Recipe = {
       steps: [
         'Give the clock 24 hourly bins (`time: "00:00"` … `"23:00"`) and one series per stacked count, colored `var(--chart-1)` / `var(--chart-3)`.',
         "Lift hover into the card: `const [hovered, setHovered] = useState<number | null>(null)` and pass `hoveredIndex={hovered}` / `onHoverChange={setHovered}` to `<RadialChart>`.",
-        'Draw `<RadialAxis />`, `<RadialDotBar layout="columns" rows={5} dotSize={0.9} patterns={{ takeaway: { preset: "diagonal", strokeWidth: 1.5 } }} />` and `<RadialScrubber rest="hidden" variant="dashed" />`. Leave out `RadialCenter` and `RadialLegend` — the card shows the numbers.',
+        'Draw `<RadialAxis />`, `<RadialDotBar layout="columns" rows={5} dotSize={0.9} patterns={{ takeaway: { preset: "diagonal-up", strokeWidth: 1.5 } }} />` and `<RadialScrubber rest="hidden" variant="dashed" />`. Leave out `RadialCenter` and `RadialLegend` — the card shows the numbers.',
         "Lay the card out as a header row, then a flex row (column on mobile) with the chart in a `max-w-[220px]` box and a stats column: a big count (`text-3xl tabular-nums`) with a caption, a `border-t` divider and one row per series (colour dot, label, value) plus the busiest hour.",
         "Read `hours[hovered]` when hovered, else the day's totals, so every number and the caption switch together.",
         "For a live “today” card, set hours after the current local hour to `null` — the clock stops at now and the totals and busiest hour only count what's been sold.",

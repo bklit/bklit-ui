@@ -16,6 +16,7 @@ const navBadgesByUrl: Record<string, NavBadgeKind> = {
   "/docs/upgrading-from-visx": "new",
   "/docs/utility/band": "new",
   "/docs/utility/deadline": "new",
+  "/docs/utility/patterns": "new",
   "/docs/utility/trend-line": "new",
   "/docs/utility/weekends": "new",
   "/recipes": "new",

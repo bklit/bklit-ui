@@ -27,7 +27,7 @@ export interface WeekendsProps {
   fill?: string;
   /** Default: 0.45 for `pattern`, 0.08 for `solid`. */
   fillOpacity?: number;
-  /** Pattern preset when `fillType` is `"pattern"`. Default: `"diagonal"` */
+  /** Pattern preset when `fillType` is `"pattern"`. Default: `"diagonal-up"` */
   pattern?: PatternPresetId;
   /** Default: 1.5 */
   patternScale?: number;
@@ -146,7 +146,7 @@ export function Weekends({
   fillType = "pattern",
   fill = chartCssVars.foregroundMuted,
   fillOpacity,
-  pattern = "diagonal",
+  pattern = "diagonal-up",
   patternScale = 1.5,
   patternStrokeWidth = 1,
   align = "auto",

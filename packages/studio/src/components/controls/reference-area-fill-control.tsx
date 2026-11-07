@@ -11,7 +11,10 @@ import {
 } from "@/components/controls/studio-toggle-group";
 import { referenceAreaPatternDetailControls } from "@/lib/pattern-control-groups";
 import { isStudioControlVisible } from "@/lib/pattern-control-visibility";
-import type { PatternPresetId } from "@/lib/pattern-presets";
+import {
+  DEFAULT_PATTERN_PRESET,
+  type PatternPresetId,
+} from "@/lib/pattern-presets";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import type { SeriesFillMode } from "@/lib/studio-series-design";
 import type { StudioControl } from "@/lib/types";
@@ -55,7 +58,7 @@ export function ReferenceAreaFillControl({
 }) {
   const commit = onCommit ?? onChange;
   const preview = onPreview ?? onChange;
-  const lastPatternRef = useRef<PatternPresetId>("diagonal");
+  const lastPatternRef = useRef<PatternPresetId>(DEFAULT_PATTERN_PRESET);
 
   useEffect(() => {
     if (state.referenceAreaPattern !== "none") {

@@ -2,6 +2,7 @@
 
 import { cn } from "@bklitui/ui/lib/utils";
 import { useEffect, useState } from "react";
+import { DEFAULT_PATTERN_PRESET } from "@/lib/pattern-presets";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import {
   buildProjectionScopedControlUpdate,
@@ -93,11 +94,27 @@ function NumberInputOnly({
 }) {
   const step = control.step ?? 1;
   const safeValue = Number.isFinite(value) ? value : control.min;
-  const [localValue, setLocalValue] = useState(safeValue);
+  const [draft, setDraft] = useState(String(safeValue));
 
   useEffect(() => {
-    setLocalValue(Number.isFinite(value) ? value : control.min);
+    setDraft(String(Number.isFinite(value) ? value : control.min));
   }, [control.min, value]);
+
+  // Free-form typing (so "0.5" can be entered); in-range values apply live,
+  // and the field clamps to min/max on blur or Enter.
+  const commitDraft = (raw: string) => {
+    const parsed = Number(raw);
+    if (raw.trim() === "" || Number.isNaN(parsed)) {
+      setDraft(String(safeValue));
+      return;
+    }
+    const next = clamp(parsed, control.min, control.max);
+    setDraft(String(next));
+    if (next !== safeValue) {
+      onPreview(next);
+      onCommit(next);
+    }
+  };
 
   return (
     <div className={studioControlRowClass}>
@@ -107,20 +124,32 @@ function NumberInputOnly({
       <Input
         className={cn("min-w-0 flex-1 tabular-nums", studioControlInputClass)}
         id={String(control.key)}
+        inputMode="decimal"
         max={control.max}
         min={control.min}
+        onBlur={(e) => commitDraft(e.target.value)}
         onChange={(e) => {
-          const parsed = Number(e.target.value);
-          if (!Number.isNaN(parsed)) {
-            const next = clamp(parsed, control.min, control.max);
-            setLocalValue(next);
-            onPreview(next);
-            onCommit(next);
+          const raw = e.target.value;
+          setDraft(raw);
+          const parsed = Number(raw);
+          if (
+            raw.trim() !== "" &&
+            !Number.isNaN(parsed) &&
+            parsed >= control.min &&
+            parsed <= control.max
+          ) {
+            onPreview(parsed);
+            onCommit(parsed);
+          }
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            commitDraft(e.currentTarget.value);
           }
         }}
         step={step}
         type="number"
-        value={localValue}
+        value={draft}
       />
     </div>
   );
@@ -621,7 +650,7 @@ export function ControlField({
               checked &&
               state.brushSelectionPattern === "none"
             ) {
-              commitValue("brushSelectionPattern", "diagonal");
+              commitValue("brushSelectionPattern", DEFAULT_PATTERN_PRESET);
             }
           }}
           value={Boolean(value)}

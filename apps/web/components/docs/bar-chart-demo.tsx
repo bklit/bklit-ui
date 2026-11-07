@@ -12,7 +12,7 @@ import {
   LegendLabel,
   LegendMarker,
   LinearGradient,
-  PatternLines,
+  PatternPreset,
   useChart,
 } from "@bklitui/ui/charts";
 import { motion, useSpring } from "motion/react";
@@ -140,13 +140,11 @@ export function BarChartPatternDemo() {
   return (
     <div className="w-full">
       <BarChart data={chartData} xDataKey="month">
-        <PatternLines
-          height={8}
+        <PatternPreset
+          color="hsl(217, 91%, 60%)"
           id="barPattern"
-          orientation={["diagonal"]}
-          stroke="hsl(217, 91%, 60%)"
-          strokeWidth={2}
-          width={8}
+          preset="diagonal-up"
+          scale={1.5}
         />
         <Grid horizontal />
         <Bar

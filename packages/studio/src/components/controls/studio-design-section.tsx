@@ -15,6 +15,10 @@ import {
   getSeriesPattern,
   type SeriesFillMode,
 } from "@/lib/studio-series-design";
+import {
+  buildSeriesScopedControlUpdate,
+  getSeriesPipeValue,
+} from "@/lib/studio-series-line-props";
 
 export function StudioDesignSection({
   state,
@@ -88,7 +92,26 @@ export function StudioDesignSection({
             onPatternChange={(pattern) =>
               handlePatternChange(seriesIndex, pattern)
             }
+            onPatternScaleChange={(scale) => {
+              const updates = buildSeriesScopedControlUpdate(
+                state,
+                "patternScale",
+                seriesIndex,
+                scale
+              );
+              for (const [key, value] of Object.entries(updates)) {
+                onChange(
+                  key as keyof StudioUrlState,
+                  value as StudioUrlState[keyof StudioUrlState]
+                );
+              }
+            }}
             pattern={getSeriesPattern(state, seriesIndex)}
+            patternScale={getSeriesPipeValue(
+              state,
+              "patternScale",
+              seriesIndex
+            )}
             supportsPattern={supportsPatterns}
           />
         ))}

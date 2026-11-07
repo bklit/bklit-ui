@@ -12,8 +12,11 @@ import {
   STUDIO_SERIES_KEYS,
   sunburstData,
 } from "@/lib/demo-data";
-import type { PatternPresetId } from "@/lib/pattern-presets";
-import { PATTERN_PRESET_IDS } from "@/lib/pattern-presets";
+import {
+  DEFAULT_PATTERN_PRESET,
+  type PatternPresetId,
+  parsePatternPresetId,
+} from "@/lib/pattern-presets";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import { CHART_PALETTE_DERIVED_VARS } from "@/lib/svg-export/chart-var-aliases";
 
@@ -107,13 +110,8 @@ export function parseSeriesPatterns(state: StudioUrlState): PatternPresetId[] {
     return [];
   }
 
-  return parsePipeField(state.seriesPatterns).map((part) =>
-    isPatternPresetId(part) ? part : "none"
-  );
-}
-
-function isPatternPresetId(value: string): value is PatternPresetId {
-  return (PATTERN_PRESET_IDS as readonly string[]).includes(value);
+  // Legacy ids (`diagonal`, `cross`, `accent`) map forward; unknown → none.
+  return parsePipeField(state.seriesPatterns).map(parsePatternPresetId);
 }
 
 export function getSeriesColorOverride(
@@ -229,7 +227,7 @@ export function buildSeriesFillModeUpdate(
   let pattern: PatternPresetId = "none";
   if (mode === "pattern") {
     const current = getSeriesPattern(state, seriesIndex);
-    pattern = current === "none" ? "diagonal" : current;
+    pattern = current === "none" ? DEFAULT_PATTERN_PRESET : current;
   }
 
   return {

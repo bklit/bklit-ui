@@ -165,7 +165,7 @@ const bollingerData = withBollingerBands(data, {
 
 ## Fill types
 
-`fillType` switches between a flat `"solid"` fill, a vertical `"gradient"` (from `fillOpacity` at the upper edge to `gradientToOpacity` at the lower edge), and a `"pattern"` fill using the [`Background`](/docs/utility/background) presets.
+`fillType` switches between a flat `"solid"` fill, a vertical `"gradient"` (from `fillOpacity` at the upper edge to `gradientToOpacity` at the lower edge), and a `"pattern"` fill using any of the [pattern presets](/docs/utility/patterns).
 
 <ComponentShowcase code={`<Band
   upperKey="valueUpper"
@@ -173,7 +173,7 @@ const bollingerData = withBollingerBands(data, {
   fill="var(--chart-1)"
   fillType="gradient" // "solid" | "gradient" | "pattern"
   fillOpacity={0.4}
-  pattern="diagonal"
+  pattern="diagonal-up"
   patternOpacity={0.6}
   strokeOpacity={0.5}
 />`} liveChartPreview previewMinHeight={360}>
@@ -229,7 +229,7 @@ Both edges share `stroke`, `strokeWidth`, `strokeDasharray`, and `strokeOpacity`
 | `fillType` | `"solid" \| "gradient" \| "pattern"` | `"solid"` | Fill style |
 | `fillOpacity` | `number` | `0.15` | Solid opacity, or gradient opacity at the upper edge |
 | `gradientToOpacity` | `number` | `0` | Gradient opacity at the lower edge |
-| `pattern` | Pattern preset id | `"diagonal"` | Pattern when `fillType` is `"pattern"` |
+| `pattern` | Pattern preset id | `"diagonal-up"` | [Pattern preset](/docs/utility/patterns) when `fillType` is `"pattern"` |
 | `patternColor` | `string` | `fill` | Pattern stroke or tile color |
 | `patternScale` | `number` | — | Pattern tile scale |
 | `patternStrokeWidth` | `number` | — | Line stroke width for line-based patterns |

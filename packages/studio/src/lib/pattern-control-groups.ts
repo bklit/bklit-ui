@@ -1,4 +1,7 @@
-import type { PatternPresetId } from "@/lib/pattern-presets";
+import {
+  type PatternPresetId,
+  STROKE_PATTERN_PRESET_IDS,
+} from "@/lib/pattern-presets";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import type {
   StudioControl,
@@ -13,9 +16,6 @@ export interface PatternControlKeys {
   scale: keyof StudioUrlState;
   strokeWidth: keyof StudioUrlState;
   opacity: keyof StudioUrlState;
-  radius: keyof StudioUrlState;
-  complement: keyof StudioUrlState;
-  fill: keyof StudioUrlState;
   tileBackground: keyof StudioUrlState;
 }
 
@@ -25,28 +25,11 @@ function activeWhen(
   return { key: patternKey, not: "none" };
 }
 
-function dotGridWhen(
+/** Stroke width only affects the line / grid presets. */
+function strokePresetWhen(
   patternKey: keyof StudioUrlState
 ): StudioControlVisibilityRule {
-  return { key: patternKey, equals: "dots" };
-}
-
-function circleTextureWhen(
-  patternKey: keyof StudioUrlState
-): StudioControlVisibilityRule {
-  return { key: patternKey, equals: "circles" };
-}
-
-function circlePatternWhen(
-  patternKey: keyof StudioUrlState
-): StudioControlVisibilityRule {
-  return { key: patternKey, equals: ["dots", "circles"] };
-}
-
-function linesWhen(
-  patternKey: keyof StudioUrlState
-): StudioControlVisibilityRule {
-  return { key: patternKey, not: ["none", "dots", "circles"] };
+  return { key: patternKey, equals: STROKE_PATTERN_PRESET_IDS };
 }
 
 /** Pattern props shown when a pattern style is selected. */
@@ -56,10 +39,6 @@ export function patternDetailControls(
   options?: { opacityColor?: string; enabledWhen?: keyof StudioUrlState }
 ): StudioControl[] {
   const active = activeWhen(patternKey);
-  const dotGrid = dotGridWhen(patternKey);
-  const circleTexture = circleTextureWhen(patternKey);
-  const circlePattern = circlePatternWhen(patternKey);
-  const lines = linesWhen(patternKey);
   const enabledWhen = options?.enabledWhen;
 
   const withEnabled = <T extends StudioControl>(control: T): T =>
@@ -70,46 +49,17 @@ export function patternDetailControls(
       type: "color",
       key: keys.stroke,
       label: "Color",
-      visibleWhen: dotGrid,
-    }),
-    withEnabled({
-      type: "color",
-      key: keys.stroke,
-      label: "Stroke",
-      visibleWhen: circleTexture,
-    }),
-    withEnabled({
-      type: "color",
-      key: keys.stroke,
-      label: "Stroke",
-      visibleWhen: lines,
-    }),
-    withEnabled({
-      type: "number",
-      key: keys.scale,
-      label: "Spacing",
-      min: 0.25,
-      max: 4,
-      step: 0.25,
-      visibleWhen: circlePattern,
+      visibleWhen: active,
     }),
     withEnabled({
       type: "number",
       key: keys.scale,
       label: "Scale",
-      min: 0.25,
-      max: 4,
-      step: 0.25,
-      visibleWhen: lines,
-    }),
-    withEnabled({
-      type: "number",
-      key: keys.strokeWidth,
-      label: "Stroke width",
-      min: 0,
-      max: 4,
-      step: 0.5,
-      visibleWhen: circleTexture,
+      min: 0.1,
+      max: 3,
+      step: 0.1,
+      input: "number",
+      visibleWhen: active,
     }),
     withEnabled({
       type: "number",
@@ -118,37 +68,7 @@ export function patternDetailControls(
       min: 0.5,
       max: 4,
       step: 0.5,
-      visibleWhen: lines,
-    }),
-    withEnabled({
-      type: "number",
-      key: keys.radius,
-      label: "Dot size",
-      min: 0.25,
-      max: 8,
-      step: 0.25,
-      visibleWhen: dotGrid,
-    }),
-    withEnabled({
-      type: "number",
-      key: keys.radius,
-      label: "Radius",
-      min: 0.5,
-      max: 8,
-      step: 0.5,
-      visibleWhen: circleTexture,
-    }),
-    withEnabled({
-      type: "boolean",
-      key: keys.complement,
-      label: "Complement",
-      visibleWhen: circlePattern,
-    }),
-    withEnabled({
-      type: "color",
-      key: keys.fill,
-      label: "Fill",
-      visibleWhen: circleTexture,
+      visibleWhen: strokePresetWhen(patternKey),
     }),
     withEnabled({
       type: "color",
@@ -174,9 +94,6 @@ export const BACKGROUND_PATTERN_KEYS: PatternControlKeys = {
   stroke: "backgroundPatternColor",
   scale: "backgroundPatternScale",
   strokeWidth: "backgroundPatternStrokeWidth",
-  radius: "backgroundPatternRadius",
-  complement: "backgroundPatternComplement",
-  fill: "backgroundPatternFill",
   tileBackground: "backgroundPatternTileBackground",
   opacity: "backgroundPatternOpacity",
 };
@@ -186,9 +103,6 @@ export const BRUSH_PATTERN_KEYS: PatternControlKeys = {
   stroke: "brushSelectionPatternColor",
   scale: "brushSelectionPatternScale",
   strokeWidth: "brushSelectionPatternStrokeWidth",
-  radius: "brushSelectionPatternRadius",
-  complement: "brushSelectionPatternComplement",
-  fill: "brushSelectionPatternFill",
   tileBackground: "brushSelectionPatternTileBackground",
   opacity: "brushSelectionPatternOpacity",
 };
@@ -198,9 +112,6 @@ export const BAR_TRACK_PATTERN_KEYS: PatternControlKeys = {
   stroke: "barTrackPatternColor",
   scale: "barTrackPatternScale",
   strokeWidth: "barTrackPatternStrokeWidth",
-  radius: "barTrackPatternRadius",
-  complement: "barTrackPatternComplement",
-  fill: "barTrackPatternFill",
   tileBackground: "barTrackPatternTileBackground",
   opacity: "barTrackOpacity",
 };
@@ -208,12 +119,6 @@ export const BAR_TRACK_PATTERN_KEYS: PatternControlKeys = {
 export const barTrackControlGroups: StudioControlGroup[] = [
   barCollapsibleGroup("Track", [
     { type: "pattern", key: "barTrackPattern", label: "Style" },
-    {
-      type: "boolean",
-      key: "barTrackPatternDotsFill",
-      label: "Fill dots",
-      visibleWhen: { key: "barTrackPattern", equals: "dots" },
-    },
     ...patternDetailControls("barTrackPattern", BAR_TRACK_PATTERN_KEYS),
     {
       type: "color",
@@ -239,30 +144,17 @@ export const REFERENCE_AREA_PATTERN_KEYS: PatternControlKeys = {
   stroke: "referenceAreaPatternColor",
   scale: "referenceAreaPatternScale",
   strokeWidth: "referenceAreaPatternStrokeWidth",
-  radius: "referenceAreaPatternRadius",
-  complement: "referenceAreaPatternComplement",
-  fill: "referenceAreaPatternFill",
   tileBackground: "referenceAreaPatternTileBackground",
   opacity: "referenceAreaFillOpacity",
 };
 
 /** Pattern detail fields for reference area fill (excludes pattern style picker). */
 export function referenceAreaPatternDetailControls(): StudioControl[] {
-  return [
-    {
-      type: "boolean",
-      key: "referenceAreaPatternDotsFill",
-      label: "Fill dots",
-      visibleWhen: { key: "referenceAreaPattern", equals: "dots" },
-    },
-    ...patternDetailControls(
-      "referenceAreaPattern",
-      REFERENCE_AREA_PATTERN_KEYS,
-      {
-        opacityColor: "var(--chart-foreground-muted)",
-      }
-    ),
-  ];
+  return patternDetailControls(
+    "referenceAreaPattern",
+    REFERENCE_AREA_PATTERN_KEYS,
+    { opacityColor: "var(--chart-foreground-muted)" }
+  );
 }
 
 export const backgroundControlGroups: StudioControlGroup[] = [
@@ -273,12 +165,6 @@ export const backgroundControlGroups: StudioControlGroup[] = [
       key: "backgroundPatternShowFill",
       label: "Pattern fill",
       visibleWhen: activeWhen("backgroundPattern"),
-    },
-    {
-      type: "boolean",
-      key: "backgroundPatternDotsFill",
-      label: "Fill",
-      visibleWhen: dotGridWhen("backgroundPattern"),
     },
     ...patternDetailControls("backgroundPattern", BACKGROUND_PATTERN_KEYS),
   ]),
@@ -340,9 +226,6 @@ export function patternOptionsFromState(
     color: String(state[keys.stroke]),
     scale: Number(state[keys.scale]),
     strokeWidth: Number(state[keys.strokeWidth]),
-    radius: Number(state[keys.radius]),
-    complement: Boolean(state[keys.complement]),
-    fill: String(state[keys.fill]),
     tileBackground: String(state[keys.tileBackground]) || undefined,
     opacity: Number(state[keys.opacity]),
     preset: state[keys.pattern] as PatternPresetId,

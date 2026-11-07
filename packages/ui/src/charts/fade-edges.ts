@@ -3,8 +3,14 @@
  * - `true`  → fade both edges (default for `<Line>`)
  * - `false` → no fade (default for `<Area>`)
  * - `"left"` / `"right"` → fade only that side
+ * - `{ left, right }` → fade zone per side, as % of the plot width (0–50);
+ *   `0` or omitted means that side doesn't fade
  */
-export type FadeEdges = boolean | "left" | "right";
+export type FadeEdges =
+  | boolean
+  | "left"
+  | "right"
+  | { left?: number; right?: number };
 
 export interface FadeSides {
   /** Whether the left edge should fade out. */
@@ -13,19 +19,47 @@ export interface FadeSides {
   right: boolean;
   /** True if either side fades — use to gate gradient/mask defs. */
   any: boolean;
+  /** Left fade zone, % of the plot width. */
+  leftLength: number;
+  /** Right fade zone, % of the plot width. */
+  rightLength: number;
+}
+
+/** Default fade zone per faded side, as % of the plot width. */
+export const DEFAULT_FADE_EDGES_LENGTH = 15;
+
+/** Clamp a fade zone length (% per side) to 0–50. */
+export function clampFadeEdgesLength(length: number): number {
+  return Math.min(50, Math.max(0, length));
+}
+
+function fadeSides(leftLength: number, rightLength: number): FadeSides {
+  const l = clampFadeEdgesLength(leftLength);
+  const r = clampFadeEdgesLength(rightLength);
+  return {
+    left: l > 0,
+    right: r > 0,
+    any: l > 0 || r > 0,
+    leftLength: l,
+    rightLength: r,
+  };
 }
 
 export function resolveFadeSides(fade: FadeEdges): FadeSides {
+  const d = DEFAULT_FADE_EDGES_LENGTH;
   if (fade === false) {
-    return { left: false, right: false, any: false };
+    return fadeSides(0, 0);
   }
   if (fade === "left") {
-    return { left: true, right: false, any: true };
+    return fadeSides(d, 0);
   }
   if (fade === "right") {
-    return { left: false, right: true, any: true };
+    return fadeSides(0, d);
   }
-  return { left: true, right: true, any: true };
+  if (typeof fade === "object" && fade !== null) {
+    return fadeSides(fade.left ?? 0, fade.right ?? 0);
+  }
+  return fadeSides(d, d);
 }
 
 export interface FadeGradientStop {
@@ -35,15 +69,73 @@ export interface FadeGradientStop {
 
 /**
  * Stops for a horizontal fade gradient with opacity 0 at the faded side(s)
- * and opacity 1 in the middle. Matches the historic 0/15/85/100 pattern.
+ * and opacity 1 in the middle, using each side's fade zone (default 15% →
+ * the historic 0/15/85/100 pattern).
  */
 export function fadeGradientStops(sides: FadeSides): FadeGradientStop[] {
-  return [
+  return dedupeStops([
     { offset: "0%", opacity: sides.left ? 0 : 1 },
-    { offset: "15%", opacity: 1 },
-    { offset: "85%", opacity: 1 },
+    { offset: `${sides.left ? sides.leftLength : 0}%`, opacity: 1 },
+    { offset: `${100 - (sides.right ? sides.rightLength : 0)}%`, opacity: 1 },
     { offset: "100%", opacity: sides.right ? 0 : 1 },
+  ]);
+}
+
+/**
+ * Drop a stop that repeats the previous offset with the same opacity (a 0%
+ * fade zone) — keeps offsets unique, so they're safe as React keys.
+ */
+function dedupeStops<T extends { offset: string | number; opacity: number }>(
+  stops: T[]
+): T[] {
+  return stops.filter(
+    (stop, i) =>
+      i === 0 ||
+      stop.offset !== stops[i - 1]?.offset ||
+      stop.opacity !== stops[i - 1]?.opacity
+  );
+}
+
+/**
+ * Vertical (top → baseline) opacity stops for an area fill. With `fadeBottom`
+ * (% of the area height, 0–100) the fill holds `topOpacity` and then fades to
+ * 0 over the bottom `fadeBottom`%. Without it, the legacy `gradientToOpacity`
+ * / `gradientSpan` gradient applies.
+ */
+export function areaVerticalFadeStops({
+  topOpacity,
+  fadeBottom,
+  gradientToOpacity,
+  gradientSpan = 1,
+}: {
+  topOpacity: number;
+  fadeBottom?: number;
+  gradientToOpacity: number;
+  gradientSpan?: number;
+}): { offset: number; opacity: number }[] {
+  if (fadeBottom !== undefined) {
+    const zone = Math.min(100, Math.max(0, fadeBottom)) / 100;
+    if (zone <= 0) {
+      return [
+        { offset: 0, opacity: topOpacity },
+        { offset: 1, opacity: topOpacity },
+      ];
+    }
+    return dedupeStops([
+      { offset: 0, opacity: topOpacity },
+      { offset: 1 - zone, opacity: topOpacity },
+      { offset: 1, opacity: 0 },
+    ]);
+  }
+  const span = Math.min(1, Math.max(0.01, gradientSpan));
+  const stops = [
+    { offset: 0, opacity: topOpacity },
+    { offset: span, opacity: gradientToOpacity },
   ];
+  if (span < 1) {
+    stops.push({ offset: 1, opacity: gradientToOpacity });
+  }
+  return stops;
 }
 
 /** A colour stop on a horizontal stroke gradient. `offset` is 0–1 across the plot. */

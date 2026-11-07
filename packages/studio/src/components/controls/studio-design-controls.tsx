@@ -17,6 +17,10 @@ import {
   type SeriesFillMode,
   type SeriesGradientStop,
 } from "@/lib/studio-series-design";
+import {
+  buildSeriesScopedControlUpdate,
+  getSeriesPipeValue,
+} from "@/lib/studio-series-line-props";
 import type { StudioComponentDesign } from "@/lib/types";
 
 export function StudioDesignControls({
@@ -147,7 +151,18 @@ export function StudioDesignControls({
         showGradient ? handleGradientStopsChange : undefined
       }
       onPatternChange={handlePatternChange}
+      onPatternScaleChange={(scale) =>
+        onBatchChange(
+          buildSeriesScopedControlUpdate(
+            state,
+            "patternScale",
+            seriesIndex,
+            scale
+          )
+        )
+      }
       pattern={accentKey ? "none" : getSeriesPattern(state, seriesIndex)}
+      patternScale={getSeriesPipeValue(state, "patternScale", seriesIndex)}
       supportsPattern={patternEnabled}
     />
   );

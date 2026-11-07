@@ -14,9 +14,9 @@ Incorrect — grid, background and hatched bars all compete:
 
 ```tsx
 <BarChart data={data}>
-  <Background pattern="cross" />
+  <Background pattern="grid" />
   <Grid horizontal vertical />
-  <PatternLines id="p" width={8} height={8} orientation={["diagonal"]} stroke="var(--chart-1)" />
+  <PatternPreset id="p" preset="diagonal-up" color="var(--chart-1)" />
   <Bar dataKey="v" fill="url(#p)" />
 </BarChart>
 ```
@@ -26,7 +26,7 @@ Correct — the bars carry the texture, the plot stays quiet:
 ```tsx
 <BarChart data={data}>
   <Grid horizontal />
-  <PatternLines id="p" width={8} height={8} orientation={["diagonal"]} stroke="var(--chart-1)" strokeWidth={2} />
+  <PatternPreset id="p" preset="diagonal-up" color="var(--chart-1)" scale={1.5} />
   <Bar dataKey="v" fill="url(#p)" stroke="var(--chart-1)" lineCap={4} />
 </BarChart>
 ```
@@ -151,7 +151,7 @@ Correct:
 ```
 
 In TS, prefer `chartCssVars.grid` over the string `"var(--chart-grid)"` when
-writing custom layers. Avoid `pattern="accent"` and the named gradient
+writing custom layers. Avoid the legacy `pattern="accent"` (fixed `#e879f9`) and the named gradient
 presets (`GradientPinkBlue` …) in themed apps — their colours are fixed.
 
 ## 7. Respect dark mode
@@ -163,26 +163,26 @@ be a `var()` of something that does). Patterns on `--chart-grid` and fills on
 Incorrect:
 
 ```tsx
-<PatternLines id="p" width={6} height={6} stroke="rgba(0,0,0,0.15)" orientation={["diagonal"]} />
+<PatternPreset id="p" preset="diagonal-up" color="rgba(0,0,0,0.15)" />
 ```
 
 Correct:
 
 ```tsx
-<PatternLines id="p" width={6} height={6} stroke="var(--chart-grid)" orientation={["diagonal"]} />
+<PatternPreset id="p" preset="diagonal-up" color="var(--chart-grid)" />
 ```
 
 Check the result in both themes before calling it done.
 
 ## 8. Unique pattern and gradient ids
 
-`PatternLines`/`LinearGradient` ids are document-global. Two charts using
+`PatternPreset`/`PatternTile`/`LinearGradient` ids are document-global. Two charts using
 `id="pattern"` on one page will both use whichever rendered first. Use `useId()`
 (strip the colons) or a chart-specific prefix.
 
 ```tsx
 const uid = useId().replace(/:/g, "");
-<PatternLines id={`${uid}-hatch`} ... />
+<PatternPreset id={`${uid}-hatch`} ... />
 <Bar fill={`url(#${uid}-hatch)`} ... />
 ```
 

@@ -68,7 +68,7 @@ import {
   type MomentumColors,
   type OHLCDataPoint,
   PatternArea,
-  PatternLines,
+  PatternPreset,
   PieCenter,
   PieChart,
   type PieData,
@@ -954,7 +954,7 @@ ${chartClose}`,
   <ReferenceArea
     y1={${y1}}
     y2={${y2}}
-    pattern="diagonal"
+    pattern="diagonal-up"
     patternColor="var(--chart-foreground-muted)"
     axisLabelColor="var(--chart-1)"
     fillOpacity={0.85}
@@ -966,7 +966,7 @@ ${chartClose}`,
           <ReferenceArea
             axisLabelColor="var(--chart-1)"
             fillOpacity={0.85}
-            pattern="diagonal"
+            pattern="diagonal-up"
             patternColor="var(--chart-foreground-muted)"
             y1={y1}
             y2={y2}
@@ -1154,7 +1154,7 @@ const heatmapPatternLevelStyles = [
   {
     ...HEATMAP_DEFAULT_LEVEL_STYLES[2],
     fillMode: "pattern" as const,
-    pattern: "diagonal" as const,
+    pattern: "diagonal-up" as const,
     patternColor: "var(--chart-scale-pattern-color)",
   },
   HEATMAP_DEFAULT_LEVEL_STYLES[3],
@@ -1874,13 +1874,10 @@ function makeAreaExamples(): ChartExample[] {
       title: "Area Chart - Pattern",
       description: "Diagonal line pattern fill instead of gradient",
       code: `<AreaChart data={chartData}>
-  <PatternLines
-    height={6}
+  <PatternPreset
+    color="var(--chart-1)"
     id="area-pattern"
-    orientation={["diagonal"]}
-    stroke="var(--chart-1)"
-    strokeWidth={1}
-    width={6}
+    preset="diagonal-up"
   />
   <PatternArea dataKey="desktop" fill="url(#area-pattern)" />
   <Area dataKey="desktop" fillOpacity={0} strokeWidth={2} />
@@ -1889,13 +1886,10 @@ function makeAreaExamples(): ChartExample[] {
 </AreaChart>`,
       render: () => (
         <AreaExampleChart data={areaData}>
-          <PatternLines
-            height={6}
+          <PatternPreset
+            color="var(--chart-1)"
             id="area-example-pattern"
-            orientation={["diagonal"]}
-            stroke="var(--chart-1)"
-            strokeWidth={1}
-            width={6}
+            preset="diagonal-up"
           />
           <Grid horizontal />
           <PatternArea dataKey="desktop" fill="url(#area-example-pattern)" />
@@ -2377,13 +2371,10 @@ function makeBarExamples(): ChartExample[] {
   margin={{ top: 8, right: 8, bottom: 40, left: 8 }}
   squareSnap={{ squareGap: 3, groupGap: 4 }}
 >
-  <PatternLines
+  <PatternPreset
+    color="var(--chart-grid)"
     id="shape-track-pattern"
-    height={6}
-    width={6}
-    orientation={["diagonal"]}
-    stroke="var(--chart-grid)"
-    strokeWidth={1}
+    preset="diagonal-up"
   />
   <BarColumnTrack
     fill="url(#shape-track-pattern)"
@@ -2392,13 +2383,10 @@ function makeBarExamples(): ChartExample[] {
     squareRadius={0.25}
     groupGap={4}
   />
-  <PatternLines
+  <PatternPreset
+    color="var(--chart-5)"
     id="shape-desktop-pattern"
-    height={6}
-    width={6}
-    orientation={["diagonal"]}
-    stroke="var(--chart-5)"
-    strokeWidth={1}
+    preset="diagonal-up"
   />
   <BarSquares
     dataKey="desktop"
@@ -2440,7 +2428,7 @@ function makeBarExamples(): ChartExample[] {
           squareSnap={{ groupGap: 4, squareGap: 3 }}
           xDataKey="month"
         >
-          {renderPatternPreset("diagonal", "bar-shape-track-pattern", {
+          {renderPatternPreset("diagonal-up", "bar-shape-track-pattern", {
             color: barShapeTrackPatternColor,
           })}
           <BarColumnTrack
@@ -2450,7 +2438,7 @@ function makeBarExamples(): ChartExample[] {
             squareGap={3}
             squareRadius={0.25}
           />
-          {renderPatternPreset("diagonal", "bar-shape-desktop-pattern", {
+          {renderPatternPreset("diagonal-up", "bar-shape-desktop-pattern", {
             color: barShapePatternColor,
           })}
           <BarSquares
@@ -2491,13 +2479,10 @@ function makeBarExamples(): ChartExample[] {
   margin={{ top: 8, right: 8, bottom: 40, left: 8 }}
   squareSnap={{ squareGap: 3, groupGap: 4 }}
 >
-  <PatternLines
+  <PatternPreset
+    color="var(--chart-grid)"
     id="shape-squircle-track"
-    height={6}
-    width={6}
-    orientation={["diagonal"]}
-    stroke="var(--chart-grid)"
-    strokeWidth={1}
+    preset="diagonal-up"
   />
   <BarColumnTrack
     fill="url(#shape-squircle-track)"
@@ -2506,13 +2491,10 @@ function makeBarExamples(): ChartExample[] {
     squareRadius={0.5}
     groupGap={4}
   />
-  <PatternLines
+  <PatternPreset
+    color="var(--chart-5)"
     id="shape-squircle-desktop"
-    height={6}
-    width={6}
-    orientation={["diagonal"]}
-    stroke="var(--chart-5)"
-    strokeWidth={1}
+    preset="diagonal-up"
   />
   <BarSquares
     dataKey="desktop"
@@ -2544,7 +2526,7 @@ function makeBarExamples(): ChartExample[] {
           squareSnap={{ groupGap: 4, squareGap: 3 }}
           xDataKey="month"
         >
-          {renderPatternPreset("diagonal", "bar-shape-squircle-track", {
+          {renderPatternPreset("diagonal-up", "bar-shape-squircle-track", {
             color: barShapeTrackPatternColor,
           })}
           <BarColumnTrack
@@ -2554,7 +2536,7 @@ function makeBarExamples(): ChartExample[] {
             squareGap={3}
             squareRadius={0.5}
           />
-          {renderPatternPreset("diagonal", "bar-shape-squircle-desktop", {
+          {renderPatternPreset("diagonal-up", "bar-shape-squircle-desktop", {
             color: barShapePatternColor,
           })}
           <BarSquares
@@ -2587,13 +2569,11 @@ function makeBarExamples(): ChartExample[] {
       title: "Bar Chart - Pattern",
       description: "Diagonal line pattern fill",
       code: `<BarChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={chartData} xDataKey="month">
-  <PatternLines
-    height={8}
+  <PatternPreset
+    color="var(--chart-1)"
     id="barPattern"
-    orientation={["diagonal"]}
-    stroke="var(--chart-1)"
-    strokeWidth={2}
-    width={8}
+    preset="diagonal-up"
+    scale={1.5}
   />
   <Grid horizontal />
   <Bar
@@ -2607,13 +2587,11 @@ function makeBarExamples(): ChartExample[] {
 </BarChart>`,
       render: () => (
         <BarExampleChart data={barRevenueData} xDataKey="month">
-          <PatternLines
-            height={8}
+          <PatternPreset
+            color="var(--chart-1)"
             id="bar-example-pattern"
-            orientation={["diagonal"]}
-            stroke="var(--chart-1)"
-            strokeWidth={2}
-            width={8}
+            preset="diagonal-up"
+            scale={1.5}
           />
           <Grid horizontal />
           <Bar
@@ -3292,10 +3270,14 @@ function makeComposedExamples(): ChartExample[] {
       title: "Composed Chart — Pattern fills",
       description:
         "One SeriesBar with a fuchsia-400 diagonal pattern, one solid bar on theme colors; revenue line unchanged",
-      code: `import { PatternLines } from "@bklitui/ui/charts";
+      code: `import { PatternPreset } from "@bklitui/ui/charts";
 
 <ComposedChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={data} aspectRatio="3 / 2" barGap={0} maxBarSize={22}>
-  <PatternLines id="composed-pat-fuchsia" height={6} width={6} orientation={["diagonal"]} stroke="#e879f9" strokeWidth={1} />
+  <PatternPreset
+    color="#e879f9"
+    id="composed-pat-fuchsia"
+    preset="diagonal-up"
+  />
   <Grid horizontal />
   <SeriesBar dataKey="units" fill="url(#composed-pat-fuchsia)" stroke="#e879f9" />
   <SeriesBar dataKey="runRate" fill="var(--chart-5)" />
@@ -3311,13 +3293,10 @@ function makeComposedExamples(): ChartExample[] {
           maxBarSize={22}
           xDataKey="date"
         >
-          <PatternLines
-            height={6}
+          <PatternPreset
+            color={COMPOSED_PATTERN_FUCHSIA}
             id="composed-pat-fuchsia"
-            orientation={["diagonal"]}
-            stroke={COMPOSED_PATTERN_FUCHSIA}
-            strokeWidth={1}
-            width={6}
+            preset="diagonal-up"
           />
           <Grid horizontal />
           <SeriesBar
@@ -4236,7 +4215,7 @@ function makeLiveLineExamples(): ChartExample[] {
   <ReferenceArea
     y1={138}
     y2={148}
-    pattern="diagonal"
+    pattern="diagonal-up"
     patternColor="var(--chart-foreground-muted)"
     axisLabelColor="var(--chart-1)"
     fillOpacity={0.85}
@@ -4366,7 +4345,7 @@ function LiveLinePatternReferenceBandDemo() {
       <ReferenceArea
         axisLabelColor="var(--chart-1)"
         fillOpacity={0.85}
-        pattern="diagonal"
+        pattern="diagonal-up"
         patternColor="var(--chart-foreground-muted)"
         y1={138}
         y2={148}
@@ -4534,45 +4513,35 @@ function ChoroplethPattern() {
         }}
         patterns={
           <>
-            <PatternLines
-              height={6}
+            <PatternPreset
+              color="var(--chart-1)"
               id="choro-p-americas"
-              orientation={["diagonal"]}
-              stroke="var(--chart-1)"
-              strokeWidth={2}
-              width={6}
+              preset="diagonal-up"
+              strokeWidth={1.5}
             />
-            <PatternLines
-              height={6}
+            <PatternPreset
+              color="var(--chart-2)"
               id="choro-p-europe"
-              orientation={["diagonal"]}
-              stroke="var(--chart-2)"
-              strokeWidth={2}
-              width={6}
+              preset="diagonal-up"
+              strokeWidth={1.5}
             />
-            <PatternLines
-              height={6}
+            <PatternPreset
+              color="var(--chart-3)"
               id="choro-p-asia"
-              orientation={["diagonal"]}
-              stroke="var(--chart-3)"
-              strokeWidth={2}
-              width={6}
+              preset="diagonal-up"
+              strokeWidth={1.5}
             />
-            <PatternLines
-              height={6}
+            <PatternPreset
+              color="var(--chart-4)"
               id="choro-p-africa"
-              orientation={["diagonal"]}
-              stroke="var(--chart-4)"
-              strokeWidth={2}
-              width={6}
+              preset="diagonal-up"
+              strokeWidth={1.5}
             />
-            <PatternLines
-              height={6}
+            <PatternPreset
+              color="var(--chart-5)"
               id="choro-p-oceania"
-              orientation={["diagonal"]}
-              stroke="var(--chart-5)"
-              strokeWidth={2}
-              width={6}
+              preset="diagonal-up"
+              strokeWidth={1.5}
             />
           </>
         }
@@ -4807,16 +4776,28 @@ function makePieExamples(): ChartExample[] {
     },
     {
       title: "Pie Chart - Patterns",
-      description: "Diagonal line patterns for each slice",
+      description: "A different pattern preset for each slice",
       code: `<PieChart data={pieData} size={200}>
-  <PatternLines height={6} id="pp-1" orientation={["diagonal"]}
-    stroke="var(--chart-1)" width={6} />
-  <PatternLines height={6} id="pp-2" orientation={["horizontal"]}
-    stroke="var(--chart-2)" width={6} />
-  <PatternLines height={6} id="pp-3" orientation={["vertical"]}
-    stroke="var(--chart-3)" width={6} />
-  <PatternLines height={8} id="pp-4" orientation={["diagonalRightToLeft"]}
-    stroke="var(--chart-4)" width={8} />
+  <PatternPreset
+    color="var(--chart-1)"
+    id="pp-1"
+    preset="diagonal-up"
+  />
+  <PatternPreset
+    color="var(--chart-2)"
+    id="pp-2"
+    preset="horizontal"
+  />
+  <PatternPreset
+    color="var(--chart-3)"
+    id="pp-3"
+    preset="circles-dense"
+  />
+  <PatternPreset
+    color="var(--chart-4)"
+    id="pp-4"
+    preset="checkerboard-sm"
+  />
   <PieSlice fill="url(#pp-1)" index={0} />
   <PieSlice fill="url(#pp-2)" index={1} />
   <PieSlice fill="url(#pp-3)" index={2} />
@@ -4825,37 +4806,25 @@ function makePieExamples(): ChartExample[] {
       render: () => (
         <div className={chartExampleRadialShellClassName}>
           <PieChart data={piePatternData}>
-            <PatternLines
-              height={6}
+            <PatternPreset
+              color="var(--chart-1)"
               id="pie-ex-p1"
-              orientation={["diagonal"]}
-              stroke="var(--chart-1)"
-              strokeWidth={1}
-              width={6}
+              preset="diagonal-up"
             />
-            <PatternLines
-              height={6}
+            <PatternPreset
+              color="var(--chart-2)"
               id="pie-ex-p2"
-              orientation={["horizontal"]}
-              stroke="var(--chart-2)"
-              strokeWidth={1}
-              width={6}
+              preset="horizontal"
             />
-            <PatternLines
-              height={6}
+            <PatternPreset
+              color="var(--chart-3)"
               id="pie-ex-p3"
-              orientation={["vertical"]}
-              stroke="var(--chart-3)"
-              strokeWidth={1}
-              width={6}
+              preset="circles-dense"
             />
-            <PatternLines
-              height={8}
+            <PatternPreset
+              color="var(--chart-4)"
               id="pie-ex-p4"
-              orientation={["diagonalRightToLeft"]}
-              stroke="var(--chart-4)"
-              strokeWidth={1}
-              width={8}
+              preset="checkerboard-sm"
             />
             <PieSlice fill="url(#pie-ex-p1)" index={0} />
             <PieSlice fill="url(#pie-ex-p2)" index={1} />
@@ -4948,14 +4917,26 @@ function makePieExamples(): ChartExample[] {
       title: "Donut Chart - Patterns",
       description: "Donut with patterned slices and center label",
       code: `<PieChart data={pieData} innerRadius={55} size={200}>
-  <PatternLines height={6} id="dp-1" orientation={["diagonal"]}
-    stroke="var(--chart-1)" width={6} />
-  <PatternLines height={6} id="dp-2" orientation={["horizontal"]}
-    stroke="var(--chart-2)" width={6} />
-  <PatternLines height={6} id="dp-3" orientation={["vertical"]}
-    stroke="var(--chart-3)" width={6} />
-  <PatternLines height={8} id="dp-4" orientation={["diagonalRightToLeft"]}
-    stroke="var(--chart-4)" width={8} />
+  <PatternPreset
+    color="var(--chart-1)"
+    id="dp-1"
+    preset="diagonal-up"
+  />
+  <PatternPreset
+    color="var(--chart-2)"
+    id="dp-2"
+    preset="horizontal"
+  />
+  <PatternPreset
+    color="var(--chart-3)"
+    id="dp-3"
+    preset="circles-dense"
+  />
+  <PatternPreset
+    color="var(--chart-4)"
+    id="dp-4"
+    preset="checkerboard-sm"
+  />
   <PieSlice fill="url(#dp-1)" index={0} />
   <PieSlice fill="url(#dp-2)" index={1} />
   <PieSlice fill="url(#dp-3)" index={2} />
@@ -4965,37 +4946,25 @@ function makePieExamples(): ChartExample[] {
       render: () => (
         <div className={chartExampleRadialShellClassName}>
           <PieChart data={piePatternData} innerRadius={55}>
-            <PatternLines
-              height={6}
+            <PatternPreset
+              color="var(--chart-1)"
               id="donut-ex-p1"
-              orientation={["diagonal"]}
-              stroke="var(--chart-1)"
-              strokeWidth={1}
-              width={6}
+              preset="diagonal-up"
             />
-            <PatternLines
-              height={6}
+            <PatternPreset
+              color="var(--chart-2)"
               id="donut-ex-p2"
-              orientation={["horizontal"]}
-              stroke="var(--chart-2)"
-              strokeWidth={1}
-              width={6}
+              preset="horizontal"
             />
-            <PatternLines
-              height={6}
+            <PatternPreset
+              color="var(--chart-3)"
               id="donut-ex-p3"
-              orientation={["vertical"]}
-              stroke="var(--chart-3)"
-              strokeWidth={1}
-              width={6}
+              preset="circles-dense"
             />
-            <PatternLines
-              height={8}
+            <PatternPreset
+              color="var(--chart-4)"
               id="donut-ex-p4"
-              orientation={["diagonalRightToLeft"]}
-              stroke="var(--chart-4)"
-              strokeWidth={1}
-              width={8}
+              preset="checkerboard-sm"
             />
             <PieSlice fill="url(#donut-ex-p1)" index={0} />
             <PieSlice fill="url(#donut-ex-p2)" index={1} />
@@ -5466,7 +5435,7 @@ function makeGaugeExamples(): ChartExample[] {
     {
       title: "Gauge — pattern foreground, dim solid track",
       description:
-        "Diagonal PatternLines on active notches; inactive track uses `chart-1` at 0.4 fill opacity.",
+        "Diagonal-up PatternPreset on active notches; inactive track uses `chart-1` at 0.4 fill opacity.",
       code: `<Gauge
   activeFill="url(#gauge-gallery-ex3-fg)"
   centerValue={1840}
@@ -5480,13 +5449,10 @@ function makeGaugeExamples(): ChartExample[] {
   startAngle={140}
   value={66}
 >
-  <PatternLines
-    height={6}
+  <PatternPreset
+    color="var(--chart-1)"
     id="gauge-gallery-ex3-fg"
-    orientation={["diagonal"]}
-    stroke="var(--chart-1)"
-    strokeWidth={1}
-    width={6}
+    preset="diagonal-up"
   />
 </Gauge>`,
       render: () => (
@@ -5506,13 +5472,10 @@ function makeGaugeExamples(): ChartExample[] {
             startAngle={140}
             value={66}
           >
-            <PatternLines
-              height={6}
+            <PatternPreset
+              color="var(--chart-1)"
               id="gauge-gallery-ex3-fg"
-              orientation={["diagonal"]}
-              stroke="var(--chart-1)"
-              strokeWidth={1}
-              width={6}
+              preset="diagonal-up"
             />
           </Gauge>
         </div>
@@ -5957,7 +5920,7 @@ const levelStyles = [
   {
     color: "var(--chart-scale-03)",
     fillMode: "pattern",
-    pattern: "diagonal",
+    pattern: "diagonal-up",
     patternColor: "var(--chart-scale-pattern-color)",
   },
   { color: "var(--chart-scale-04)", fillMode: "solid", pattern: "none" },
@@ -6199,7 +6162,7 @@ function makeChoroplethExamples(): ChartExample[] {
       description: "Diagonal line patterns colored by region",
       code: `<ChoroplethChart aspectRatio="16 / 9" data={geojson} margin={{ top: 8, right: 8, bottom: 40, left: 8 }}>
   <ChoroplethFeatureComponent
-    patterns={<PatternLines id="p-americas" stroke="var(--chart-1)" ... />}
+    patterns={<PatternPreset id="pattern-americas" preset="diagonal-up" color="var(--chart-1)" strokeWidth={1.5} />}
     getFeaturePattern={(feat) => \`pattern-\${getRegion(feat)}\`}
   />
   <ChoroplethTooltip />
@@ -6357,9 +6320,9 @@ function makeCandlestickExamples(): ChartExample[] {
       title: "Candlestick – Pattern",
       description: "Diagonal pattern overlay on candle bodies",
       code: `<CandlestickChart candleGap={0.15} data={ohlcData} margin={{ top: 8, right: 8, bottom: 40, left: 8 }} style={{ height: 320 }}>
-  <PatternLines id="candle-up" orientation={["diagonal"]} stroke="rgba(0,0,0,0.35)" ... PatternLines
-  >/> id="candle-down" orientation={["diagonal"]} stroke="rgba(0,0,0,0.35)" ... Candlestick
-  >/> bodyPatternNegative="url(#candle-down)" bodyPatternPositive="url(#candle-up)" />
+  <PatternPreset id="candle-up" preset="diagonal-up" color="rgba(0,0,0,0.35)" scale={1.5} />
+  <PatternPreset id="candle-down" preset="diagonal-up" color="rgba(0,0,0,0.35)" scale={1.5} />
+  <Candlestick bodyPatternNegative="url(#candle-down)" bodyPatternPositive="url(#candle-up)" insideStrokeWidth={1} />
   <ChartTooltip content={CandlestickTooltipContent} />
   <XAxis />
 </CandlestickChart>`,
@@ -6369,21 +6332,17 @@ function makeCandlestickExamples(): ChartExample[] {
           data={candlestickOhlcData}
           style={{ height: 320 }}
         >
-          <PatternLines
-            height={8}
+          <PatternPreset
+            color="rgba(0,0,0,0.35)"
             id="candle-pattern-up"
-            orientation={["diagonal"]}
-            stroke="rgba(0,0,0,0.35)"
-            strokeWidth={1.5}
-            width={8}
+            preset="diagonal-up"
+            scale={1.5}
           />
-          <PatternLines
-            height={8}
+          <PatternPreset
+            color="rgba(0,0,0,0.35)"
             id="candle-pattern-down"
-            orientation={["diagonal"]}
-            stroke="rgba(0,0,0,0.35)"
-            strokeWidth={1.5}
-            width={8}
+            preset="diagonal-up"
+            scale={1.5}
           />
           <Candlestick
             bodyPatternNegative="url(#candle-pattern-down)"
@@ -7247,14 +7206,12 @@ function makeFunnelExamples(): ChartExample[] {
   data={data}
   layers={3}
   renderPattern={(id, color) => (
-    <PatternLines
-      background={color}
-      height={8}
+    <PatternPreset
+      color="rgba(255,255,255,0.35)"
       id={id}
-      orientation={["diagonal"]}
-      stroke="rgba(255,255,255,0.35)"
-      strokeWidth={2}
-      width={8}
+      preset="diagonal-up"
+      scale={1.5}
+      tileBackground={color}
     />
   )}
 />`,
@@ -7264,14 +7221,12 @@ function makeFunnelExamples(): ChartExample[] {
           data={funnelData}
           layers={3}
           renderPattern={(id, color) => (
-            <PatternLines
-              background={color}
-              height={8}
+            <PatternPreset
+              color="rgba(255,255,255,0.35)"
               id={id}
-              orientation={["diagonal"]}
-              stroke="rgba(255,255,255,0.35)"
-              strokeWidth={2}
-              width={8}
+              preset="diagonal-up"
+              scale={1.5}
+              tileBackground={color}
             />
           )}
         />
@@ -7666,14 +7621,11 @@ function SunburstPatternsExample() {
     <div className={chartExampleRadialShellClassName}>
       <SunburstChart data={sunburstDemoData} size={320}>
         {patternedInnerArcs.map((arc) => (
-          <PatternLines
-            height={6}
+          <PatternPreset
+            color={`var(--chart-${(arc.categoryIndex % 5) + 1})`}
             id={`sb-ex-inner-${arc.arcIndex}`}
             key={`sb-ex-inner-def-${arc.arcIndex}`}
-            orientation={["diagonal"]}
-            stroke={`var(--chart-${(arc.categoryIndex % 5) + 1})`}
-            strokeWidth={1}
-            width={6}
+            preset="diagonal-up"
           />
         ))}
         {arcs.map((arc) => {
@@ -7805,10 +7757,16 @@ function makeSunburstExamples(): ChartExample[] {
       description:
         "Diagonal stripes on alternating inner-ring segments (Product & Partners)",
       code: `<SunburstChart data={data} size={320}>
-  <PatternLines id="inner-product" orientation={["diagonal"]}
-    stroke="var(--chart-1)" width={6} height={6} />
-  <PatternLines id="inner-partners" orientation={["diagonal"]}
-    stroke="var(--chart-3)" width={6} height={6} />
+  <PatternPreset
+    color="var(--chart-1)"
+    id="inner-product"
+    preset="diagonal-up"
+  />
+  <PatternPreset
+    color="var(--chart-3)"
+    id="inner-partners"
+    preset="diagonal-up"
+  />
   <SunburstSegment index={0} fill="url(#inner-product)" />
   <SunburstSegment index={2} fill="url(#inner-partners)" />
   <SunburstCenter />

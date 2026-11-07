@@ -7,7 +7,7 @@ import {
   ChartTooltip,
   Grid,
   LinearGradient,
-  PatternLines,
+  PatternPreset,
   useChart,
 } from "@bklitui/ui/charts";
 import { motion, useSpring } from "motion/react";
@@ -138,13 +138,11 @@ export function CustomIndicatorDemo() {
           id="customIndicatorGradient"
           to="transparent"
         />
-        <PatternLines
-          height={6}
+        <PatternPreset
+          color="var(--chart-4)"
           id="diagonalPattern"
-          orientation={["diagonal"]}
-          stroke="var(--chart-4)"
+          preset="diagonal-up"
           strokeWidth={1.5}
-          width={6}
         />
         <Grid horizontal />
         <Bar

@@ -6,7 +6,7 @@ export const REFERENCE_AREA_DEMO = {
   /** Upper band on shared trending demo data (~141–200); Studio projection preset uses 250–300 with projections. */
   y1: 160,
   y2: 200,
-  pattern: "diagonal" as const,
+  pattern: "diagonal-up" as const,
   patternColor: "oklch(0.76 0.144 180.392 / 0.17)",
   patternScale: 0.75,
   patternStrokeWidth: 1.5,

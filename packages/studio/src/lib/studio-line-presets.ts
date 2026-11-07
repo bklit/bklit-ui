@@ -10,7 +10,7 @@ export function lineReferenceProjectionStudioState(
     dataPoints: 10,
     referenceAreaY1: 250,
     referenceAreaY2: 300,
-    referenceAreaPattern: "diagonal",
+    referenceAreaPattern: "diagonal-up",
     referenceAreaPatternColor: "oklch(0.76 0.144 180.392 / 0.17)",
     referenceAreaPatternScale: 0.75,
     referenceAreaPatternStrokeWidth: 1.5,

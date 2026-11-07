@@ -44,6 +44,11 @@ const SPARKLINE_DAMPING_RE = /springConfig=\{\{ damping: 45 \}\}/;
 const SPARKLINE_NO_SPRING_RE = /hoverTransition=\{false\}/;
 const SPARKLINE_ANIMATE_FALSE_RE = /animate=\{false\}/;
 const SPARKLINE_DURATION_RE = /animationDuration=/;
+const PATTERN_PRESET_JSX_RE =
+  /<PatternPreset id="studio-pattern-fill" preset="grid-dotted" color="var\(--chart-1\)" \/>/;
+const PATTERN_PRESET_IMPORT_RE =
+  /import \{[^}]*PatternPreset[^}]*\} from "@bklitui\/ui\/charts"/;
+const LEGACY_PATTERN_COMPONENT_RE = /PatternLines|PatternCircles/;
 const AREA_LABEL_PROPS_RE =
   /showValue valueLabelMinCount=\{2\} valueLabelMaxCount=\{4\} fadeValueLabels/;
 
@@ -56,6 +61,17 @@ describe("generateStudioCode", () => {
       assert.ok(!code.includes("@visx/curve"));
     });
   }
+
+  it("bar chart pattern emits PatternPreset", () => {
+    const state = defaultStudioState({
+      chart: "bar-chart",
+      pattern: "grid-dotted",
+    });
+    const { code } = generateStudioCode("bar-chart", state);
+    assert.match(code, PATTERN_PRESET_JSX_RE);
+    assert.match(code, PATTERN_PRESET_IMPORT_RE);
+    assert.doesNotMatch(code, LEGACY_PATTERN_COMPONENT_RE);
+  });
 
   it("area chart reflects showLine=false", () => {
     const state = defaultStudioState({

@@ -90,6 +90,7 @@ import {
 import { isProfitLossLineMode } from "./line-chart-mode";
 import { getLineSeriesYAxisId } from "./line-series-y-axis";
 import { motionEnterPropsCodegen } from "./motion-codegen";
+import { patternCodegenBlock, studioPieSlicePattern } from "./patterns";
 import { profitLossLineCodegen } from "./profit-loss-line-codegen";
 import { radialCodegen } from "./radial-codegen";
 import {
@@ -758,22 +759,22 @@ const pieConfig: StudioChartConfig = {
   generateCode: (state) => {
     const useLines = state.pieFillMode === "lines";
     const angleProps = ` startAngle={${state.pieStartAngleDeg} * Math.PI / 180} endAngle={${state.pieEndAngleDeg} * Math.PI / 180}`;
-    const patternDefs = useLines
-      ? `\n  {/* Per-slice line patterns — see Pie Chart Patterns example */}\n  <PatternLines id="pp-1" height={6} width={6} stroke="var(--chart-1)" orientation={["diagonal"]} />\n  <PatternLines id="pp-2" height={6} width={6} stroke="var(--chart-2)" orientation={["horizontal"]} />\n  {/* …one PatternLines per slice */}`
-      : "";
-    const slices = useLines
-      ? pieData
-          .map(
-            (_, i) =>
-              `\n  <PieSlice index={${i}} fill="url(#pp-${i + 1})" hoverEffect="${state.pieHoverEffect}" />`
-          )
-          .join("")
-      : pieData
-          .map(
-            (_, i) =>
-              `\n  <PieSlice index={${i}} hoverEffect="${state.pieHoverEffect}" />`
-          )
-          .join("");
+    const slicePatterns = pieData.map((_, i) =>
+      useLines ? studioPieSlicePattern(i) : getSeriesPattern(state, i)
+    );
+    const patternDefs = slicePatterns
+      .map((preset, i) =>
+        preset === "none"
+          ? ""
+          : `\n  ${patternCodegenBlock(preset, { id: `pie-pattern-${i}`, color: `var(--chart-${(i % 5) + 1})` })}`
+      )
+      .join("");
+    const slices = slicePatterns
+      .map(
+        (preset, i) =>
+          `\n  <PieSlice index={${i}}${preset === "none" ? "" : ` fill="url(#pie-pattern-${i})"`} hoverEffect="${state.pieHoverEffect}" />`
+      )
+      .join("");
 
     const motionProps = motionEnterPropsCodegen(
       motionSliceFromState(state),
@@ -934,12 +935,12 @@ const choroplethConfig: StudioChartConfig = {
     const bg =
       state.choroplethBgPattern === "none"
         ? ""
-        : `\n  <ChoroplethFeatureComponent${featureProps} getFeaturePattern={() => "studio-choro-bg"} patterns={<PatternLines id="studio-choro-bg" height={8} width={8} orientation={["diagonal"]} stroke="var(--chart-5)" strokeWidth={1} />} />`;
+        : `\n  <ChoroplethFeatureComponent${featureProps} getFeaturePattern={() => "studio-choro-bg"} patterns={${patternCodegenBlock(state.choroplethBgPattern, { id: "studio-choro-bg", color: "var(--chart-5)" })}} />`;
     const regionExpr = "\x24{getRegionCategory(feat.properties?.name)}";
     const fg =
       state.choroplethFgPattern === "none"
         ? ""
-        : `\n  <ChoroplethFeatureComponent${featureProps} getFeaturePattern={(feat) => \`choro-p-${regionExpr}\`} patterns={/* regional PatternLines */} />`;
+        : `\n  <ChoroplethFeatureComponent${featureProps} getFeaturePattern={(feat) => \`choro-p-${regionExpr}\`} patterns={<>${["americas", "europe", "asia", "africa", "oceania"].map((region, i) => patternCodegenBlock(state.choroplethFgPattern, { id: `choro-p-${region}`, color: `var(--chart-${i + 1})`, strokeWidth: 2 })).join("")}</>} />`;
     const solid =
       state.choroplethAnalytics ||
       (state.choroplethBgPattern === "none" &&

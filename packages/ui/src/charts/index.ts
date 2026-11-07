@@ -409,12 +409,21 @@ export { PatternArea, type PatternAreaProps } from "./pattern-area";
 export {
   isCirclePattern,
   isCirclesPattern,
+  type LegacyPatternPresetId,
   PATTERN_PRESET_IDS,
+  PATTERN_PRESETS,
+  PatternPreset,
+  type PatternPresetFamily,
   type PatternPresetId,
+  type PatternPresetKey,
+  type PatternPresetMeta,
   type PatternPresetOptions,
+  type PatternPresetProps,
   patternPresetTileSize,
   renderPatternPreset,
+  resolvePatternPresetId,
 } from "./pattern-preset";
+export { PatternTile, type PatternTileProps } from "./pattern-tile";
 // Pie chart components
 export { PieCenter, type PieCenterProps } from "./pie-center";
 export {

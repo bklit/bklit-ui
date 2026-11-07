@@ -268,7 +268,7 @@ export function BandFillTypeDemo() {
           fillOpacity={fillType === "gradient" ? 0.4 : 0.15}
           fillType={fillType}
           lowerKey="valueLower"
-          pattern="diagonal"
+          pattern="diagonal-up"
           patternOpacity={0.6}
           strokeOpacity={0.5}
           upperKey="valueUpper"

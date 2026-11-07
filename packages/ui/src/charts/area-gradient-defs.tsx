@@ -1,5 +1,6 @@
 import { memo } from "react";
 import {
+  areaVerticalFadeStops,
   type FadeEdges,
   fadeGradientStops,
   resolveFadeSides,
@@ -19,6 +20,8 @@ interface AreaGradientDefsProps {
   resolvedStroke: string;
   isPatternFill: boolean;
   fadeEdges: FadeEdges;
+  /** Bottom fade zone, % of the area height (overrides gradientToOpacity/Span). */
+  fadeBottom?: number;
   innerWidth: number;
   innerHeight: number;
 }
@@ -37,6 +40,7 @@ export const AreaGradientDefs = memo(function AreaGradientDefs({
   resolvedStroke,
   isPatternFill,
   fadeEdges,
+  fadeBottom,
   innerWidth,
   innerHeight,
 }: AreaGradientDefsProps) {
@@ -47,27 +51,24 @@ export const AreaGradientDefs = memo(function AreaGradientDefs({
   const strokeStops = sides.any ? fadeGradientStops(sides) : null;
   const showEdgeMask = sides.any && !isPatternFill;
   const edgeStops = showEdgeMask ? fadeGradientStops(sides) : null;
-  const span = Math.min(1, Math.max(0.01, gradientSpan));
-  const midOffset = `${span * 100}%`;
+  const verticalStops = areaVerticalFadeStops({
+    topOpacity: fillOpacity,
+    fadeBottom,
+    gradientToOpacity,
+    gradientSpan,
+  });
 
   return (
     <defs>
       {isPatternFill ? null : (
         <linearGradient id={gradientId} x1="0%" x2="0%" y1="0%" y2="100%">
-          <stop
-            offset="0%"
-            style={{ stopColor: fill, stopOpacity: fillOpacity }}
-          />
-          <stop
-            offset={midOffset}
-            style={{ stopColor: fill, stopOpacity: gradientToOpacity }}
-          />
-          {span < 1 ? (
+          {verticalStops.map((stop) => (
             <stop
-              offset="100%"
-              style={{ stopColor: fill, stopOpacity: gradientToOpacity }}
+              key={stop.offset}
+              offset={stop.offset}
+              style={{ stopColor: fill, stopOpacity: stop.opacity }}
             />
-          ) : null}
+          ))}
         </linearGradient>
       )}
 

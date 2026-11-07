@@ -29,6 +29,7 @@ import {
   getSeriesPattern,
   resolveChartThemeStyle,
 } from "@/lib/studio-series-design";
+import { getSeriesPipeValue } from "@/lib/studio-series-line-props";
 import { exportStudioChartSvg } from "@/lib/svg-export/export-studio-chart-svg";
 import { useStudioAnalytics } from "@/providers/studio-analytics-context";
 import { useOptionalStudioThemeMode } from "@/providers/studio-theme-provider";
@@ -78,7 +79,15 @@ export function StudioPreview({
     const seriesPatterns = Array.from({ length: count }, (_, index) =>
       getSeriesPattern(displayState, index)
     );
-    return <StudioPatternDefs seriesPatterns={seriesPatterns} />;
+    const seriesScales = Array.from({ length: count }, (_, index) =>
+      getSeriesPipeValue(displayState, "patternScale", index)
+    );
+    return (
+      <StudioPatternDefs
+        seriesPatterns={seriesPatterns}
+        seriesScales={seriesScales}
+      />
+    );
   }, [displayState]);
 
   const patternFillAt = useCallback(

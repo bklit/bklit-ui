@@ -47,7 +47,10 @@ import { EditorMenuBar } from "@/editor/editor-menu-bar";
 import { useEditorCamera } from "@/editor/use-editor-canvas-view";
 import type { CurveId } from "@/lib/curves";
 import { motionEasePresetUpdates } from "@/lib/motion-config";
-import type { PatternPresetId } from "@/lib/pattern-presets";
+import {
+  DEFAULT_PATTERN_PRESET,
+  type PatternPresetId,
+} from "@/lib/pattern-presets";
 import { getStudioConfig } from "@/lib/registry";
 import {
   studioMotionSectionClass,
@@ -665,7 +668,9 @@ export function MotionSection() {
 }
 
 export function PatternsDemo() {
-  const [pattern, setPattern] = useState<PatternPresetId>("diagonal");
+  const [pattern, setPattern] = useState<PatternPresetId>(
+    DEFAULT_PATTERN_PRESET
+  );
   return <PatternPicker onChange={setPattern} value={pattern} />;
 }
 

@@ -4,8 +4,9 @@ description: A composable area chart with gradient fills, tooltips, and hover in
 ---
 
 import { studioChartHref } from "@bklitui/studio";
-import { AreaChart, Area, Grid, XAxis, ChartTooltip, ChartBrush, ChartBrushLayout, PatternLines, PatternArea } from "@bklitui/ui/charts";
+import { AreaChart, Area, Grid, XAxis, ChartTooltip, ChartBrush, ChartBrushLayout, PatternArea } from "@bklitui/ui/charts";
 import { AreaChartBrushDemo } from "@/components/docs/area-chart-brush-demo";
+import { AreaChartPatternDemo } from "@/components/docs/area-chart-pattern-demo";
 import { AreaChartYDomainDemo } from "@/components/docs/area-chart-y-domain-demo";
 import { AreaTooltipDemo } from "@/components/docs/area-tooltip-demo";
 import { DateHighlightsAreaDemo } from "@/components/docs/date-highlights-demo";
@@ -126,7 +127,8 @@ Renders a filled area on the chart with a gradient fill.
 | `showLine` | `boolean` | `true` | Show stroke line on top |
 | `showHighlight` | `boolean` | `true` | Show highlight on hover |
 | `gradientToOpacity` | `number` | `0` | Opacity at bottom of gradient |
-| `fadeEdges` | `boolean` | `false` | Fade area fill at left/right edges |
+| `fadeEdges` | `boolean \| "left" \| "right" \| { left?: number; right?: number }` | `false` | Fade the fill (and line) at the left/right edges. The object form sets each side's fade size as % of the plot width (0–50, `0` = off); `true` / `"left"` / `"right"` use 15% |
+| `fadeBottom` | `number` | — | Fade the fill out over the bottom N% of the area height (0–100; `100` = full-height fade, `0` = flat). Replaces `gradientToOpacity` / `gradientSpan` when set |
 | `showMarkers` | `boolean` | `false` | Render scatter-style ring markers at each point |
 | `loadingStroke` | `string` | `var(--foreground)` | Pulse stroke color while chart is loading |
 | `loadingStrokeOpacity` | `number` | `0.5` | Pulse stroke opacity while chart is loading |
@@ -140,13 +142,38 @@ Renders a filled area on the chart with a gradient fill.
 
 ### PatternArea
 
-Renders a filled area using an SVG pattern (`url(#id)`). Define the pattern (e.g. `PatternLines`) as a child of `AreaChart`, then pair `PatternArea` with an `Area` that has `fillOpacity={0}` for the stroke line.
+Renders a filled area using an SVG pattern (`url(#id)`). Define the pattern (e.g. [`PatternPreset`](/docs/utility/patterns)) as a child of `AreaChart`, then pair `PatternArea` with an `Area` that has `fillOpacity={0}` for the stroke line. See [Patterns](/docs/utility/patterns) for every preset.
+
+<ComponentShowcase
+  code={`import { Area, AreaChart, ChartTooltip, Grid, PatternArea, PatternPreset, XAxis } from "@bklitui/ui/charts";
+
+<AreaChart data={data}>
+  <PatternPreset id="area-doc-pattern" preset="diagonal-up" color="var(--chart-1)" />
+  <Grid horizontal />
+  <PatternArea dataKey="desktop" fill="url(#area-doc-pattern)" />
+  <Area dataKey="desktop" fillOpacity={0} strokeWidth={2} />
+  <XAxis />
+  <ChartTooltip />
+</AreaChart>`}
+>
+  <AreaChartPatternDemo />
+</ComponentShowcase>
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `dataKey` | `string` | required | Key in data for y values |
 | `fill` | `string` | required | Fill color or pattern URL (e.g. `url(#pattern-id)`) |
 | `curve` | `CurveFactory` | `curveMonotoneX` | D3 curve function |
+| `fillOpacity` | `number` | `1` | Pattern opacity |
+| `fadeBottom` | `number` | `0` | Fade the pattern out over the bottom N% of the area height (0–100) |
+| `fadeEdges` | `boolean \| "left" \| "right" \| { left?: number; right?: number }` | `false` | Fade the pattern at the left/right edges — same values as `Area` |
+
+Pair a faded `PatternArea` with the same `fadeEdges` on its stroke `Area` so the line fades with it:
+
+```tsx
+<PatternArea dataKey="revenue" fill="url(#area-pattern)" fadeBottom={100} fadeEdges={{ left: 15, right: 30 }} />
+<Area dataKey="revenue" fillOpacity={0} fadeEdges={{ left: 15, right: 30 }} />
+```
 
 ### Grid
 

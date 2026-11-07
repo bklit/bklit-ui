@@ -22,6 +22,7 @@ import {
   getSeriesPattern,
   resolveChartThemeStyle,
 } from "@/lib/studio-series-design";
+import { getSeriesPipeValue } from "@/lib/studio-series-line-props";
 import { sunburstChartDefaults } from "@/lib/sunburst-chart-defaults";
 import type { ChartSlug } from "@/lib/types";
 import { chartLabels } from "@/lib/types";
@@ -129,7 +130,15 @@ function CatalogChartPreview({ slug }: { slug: ChartSlug }) {
     const seriesPatterns = Array.from({ length: seriesCount }, (_, index) =>
       getSeriesPattern(state, index)
     );
-    return <StudioPatternDefs seriesPatterns={seriesPatterns} />;
+    const seriesScales = Array.from({ length: seriesCount }, (_, index) =>
+      getSeriesPipeValue(state, "patternScale", index)
+    );
+    return (
+      <StudioPatternDefs
+        seriesPatterns={seriesPatterns}
+        seriesScales={seriesScales}
+      />
+    );
   }, [state]);
 
   const patternFillAt = useCallback(

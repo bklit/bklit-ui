@@ -126,4 +126,15 @@ describe("studio-url-codec", () => {
     assert.equal(state.chart, "bar-chart");
     assert.equal(state.barOrientation, "horizontal");
   });
+
+  it("maps legacy pattern preset ids to current ones", () => {
+    const url = new URL(
+      "https://bklit.com/studio?chart=area-chart&pattern=diagonal&backgroundPattern=cross&referenceAreaPattern=accent&barTrackPattern=bogus"
+    );
+    const state = loadStudioStateFromRequest(url);
+    assert.equal(state.pattern, "diagonal-up");
+    assert.equal(state.backgroundPattern, "grid");
+    assert.equal(state.referenceAreaPattern, "diagonal-up");
+    assert.equal(state.barTrackPattern, "diagonal-up");
+  });
 });

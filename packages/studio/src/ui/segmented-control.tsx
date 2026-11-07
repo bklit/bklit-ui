@@ -34,7 +34,7 @@ const INDICATOR_POSITION_CLASS =
 const HIDE_STATIC_PILL_CLASS =
   "[:has(>[data-slot=sliding-toggle-control-indicator]:not([hidden]))>&]:bg-transparent! [:has(>[data-slot=sliding-toggle-control-indicator]:not([hidden]))>&]:shadow-none!";
 
-type SlidingToggleVariant = "text" | "icon" | "card" | "legend";
+type SlidingToggleVariant = "text" | "icon" | "card" | "legend" | "swatch";
 
 /** Shared item chrome — coss item colours, focus outline, and disabled state. */
 const ITEM_BASE_CLASS = cn(
@@ -95,6 +95,16 @@ const SLIDING_VARIANTS: Record<
     ),
     indicatorSurfaceClass: GHOST_PILL_SURFACE_CLASS,
     defaultColumns: () => 2,
+  },
+  /** Dense fixed-column grid of small swatches (pattern picker). */
+  swatch: {
+    surfaceClass: "relative z-0 grid w-full min-w-0",
+    itemClass: cn(
+      ITEM_BASE_CLASS,
+      "h-8 w-full px-0 hover:text-accent-foreground/80 data-checked:bg-accent data-checked:text-accent-foreground"
+    ),
+    indicatorSurfaceClass: GHOST_PILL_SURFACE_CLASS,
+    defaultColumns: () => 8,
   },
   legend: {
     surfaceClass: "relative z-0 grid w-full min-w-0",

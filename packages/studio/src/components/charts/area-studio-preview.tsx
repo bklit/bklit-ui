@@ -25,7 +25,6 @@ import {
 } from "@/components/charts/studio-date-highlight-layers";
 import { StudioReferenceAreaLayer } from "@/components/charts/studio-reference-area-layer";
 import { StudioTrendLineLayer } from "@/components/charts/studio-trend-line-layer";
-import { fadeEdgesPropValue } from "@/components/controls/fade-edges-picker";
 import { getStudioCssRevealPropsForPreview } from "@/lib/chart-animation";
 import { resolveCurve } from "@/lib/curves";
 import {
@@ -53,12 +52,25 @@ import type { StudioUrlState } from "@/lib/studio-parsers";
 import { getSeriesFillMode } from "@/lib/studio-series-design";
 import {
   getSeriesCurve,
-  getSeriesFadeEdges,
   getSeriesPipeValue,
   getSeriesShowHighlight,
   getSeriesShowLine,
   getSeriesStrokeWidth,
 } from "@/lib/studio-series-line-props";
+
+/** Per-series left / right / bottom fades (shared by solid and pattern fills). */
+export function studioAreaFadeProps(
+  state: StudioUrlState,
+  seriesIndex: number
+) {
+  return {
+    fadeEdges: {
+      left: getSeriesPipeValue(state, "fadeLeft", seriesIndex),
+      right: getSeriesPipeValue(state, "fadeRight", seriesIndex),
+    },
+    fadeBottom: getSeriesPipeValue(state, "fadeBottom", seriesIndex),
+  };
+}
 
 function renderBrushStripAreas(
   state: StudioUrlState,
@@ -78,21 +90,18 @@ function renderBrushStripAreas(
         getSeriesFillMode(state, idx) === "pattern"
           ? ctx.patternFillAt(idx)
           : undefined;
-      const fill = patternFill ?? `var(--chart-${(idx % 5) + 1})`;
+      const solidFill = `var(--chart-${(idx % 5) + 1})`;
       const curve = resolveCurve(getSeriesCurve(state, idx));
+      const fade = studioAreaFadeProps(state, idx);
 
       const area = (
         <Area
           animate={false}
           curve={curve}
           dataKey={key}
-          fadeEdges={
-            patternFill || !state.brushFadeEdges
-              ? false
-              : fadeEdgesPropValue(getSeriesFadeEdges(state, idx))
-          }
-          fill={fill}
-          fillOpacity={state.brushAreaOpacity}
+          fadeEdges={state.brushFadeEdges ? fade.fadeEdges : false}
+          fill={solidFill}
+          fillOpacity={patternFill ? 0 : state.brushAreaOpacity}
           gradientSpan={state.brushGradientSpan}
           gradientToOpacity={state.brushGradientToOpacity}
           key={`brush-area-${key}`}
@@ -108,9 +117,10 @@ function renderBrushStripAreas(
       if (patternFill) {
         return [
           <PatternArea
-            animate={false}
             curve={curve}
             dataKey={key}
+            fadeBottom={fade.fadeBottom}
+            fadeEdges={state.brushFadeEdges ? fade.fadeEdges : false}
             fill={patternFill}
             key={`brush-pattern-${key}`}
           />,
@@ -143,26 +153,20 @@ function renderMainAreas(
         getSeriesFillMode(state, idx) === "pattern"
           ? ctx.patternFillAt(idx)
           : undefined;
-      const fill = patternFill ?? `var(--chart-${(idx % 5) + 1})`;
+      const solidFill = `var(--chart-${(idx % 5) + 1})`;
       const curve = resolveCurve(getSeriesCurve(state, idx));
+      const fade = studioAreaFadeProps(state, idx);
+      const fillOpacity = getSeriesPipeValue(state, "fillOpacity", idx);
 
       const area = (
         <Area
           curve={curve}
           dataKey={key}
-          fadeEdges={
-            patternFill
-              ? false
-              : fadeEdgesPropValue(getSeriesFadeEdges(state, idx))
-          }
+          fadeBottom={fade.fadeBottom}
+          fadeEdges={fade.fadeEdges}
           fadeValueLabels={state.areaFadeValueLabels}
-          fill={fill}
-          fillOpacity={getSeriesPipeValue(state, "fillOpacity", idx)}
-          gradientToOpacity={getSeriesPipeValue(
-            state,
-            "gradientToOpacity",
-            idx
-          )}
+          fill={solidFill}
+          fillOpacity={patternFill ? 0 : fillOpacity}
           key={`area-${key}`}
           loading={studioCartesianSeriesLoadingProp(isPrimary)}
           showHighlight={getSeriesShowHighlight(state, idx)}
@@ -188,7 +192,10 @@ function renderMainAreas(
           <PatternArea
             curve={curve}
             dataKey={key}
+            fadeBottom={fade.fadeBottom}
+            fadeEdges={fade.fadeEdges}
             fill={patternFill}
+            fillOpacity={fillOpacity}
             key={`pattern-${key}`}
           />,
           area,

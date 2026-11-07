@@ -20,7 +20,7 @@ import {
   HeatmapTooltip,
   HeatmapXAxis,
   HeatmapYAxis,
-  PatternLines,
+  PatternPreset,
   PieCenter,
   PieChart,
   type PieData,
@@ -54,7 +54,7 @@ const heatmapLevelStyles = [
   {
     color: "var(--chart-scale-01)",
     fillMode: "pattern",
-    pattern: "diagonal",
+    pattern: "diagonal-up",
     patternColor: "var(--chart-scale-pattern-color)",
     patternScale: 0.5,
   },
@@ -83,14 +83,12 @@ const heatmapLevelStyles = [
 const HOME_CHOROPLETH_ZERO_PATTERN_ID = "home-choropleth-heatmap-0";
 
 const homeChoroplethZeroPattern = (
-  <PatternLines
-    background="var(--chart-scale-01)"
-    height={3}
+  <PatternPreset
+    color="var(--chart-scale-pattern-color)"
     id={HOME_CHOROPLETH_ZERO_PATTERN_ID}
-    orientation={["diagonal"]}
-    stroke="var(--chart-scale-pattern-color)"
-    strokeWidth={0.5}
-    width={3}
+    preset="diagonal-up"
+    scale={0.5}
+    tileBackground="var(--chart-scale-01)"
   />
 );
 
@@ -303,21 +301,17 @@ function ShowcasePieChart({ compact }: { compact: boolean }) {
       innerRadius={compact ? 52 : 58}
       size={compact ? 200 : 240}
     >
-      <PatternLines
-        height={6}
+      <PatternPreset
+        color="var(--chart-3)"
         id="home-pie-pattern-1"
-        orientation={["vertical"]}
-        stroke="var(--chart-3)"
+        preset="vertical"
         strokeWidth={1.5}
-        width={6}
       />
-      <PatternLines
-        height={8}
+      <PatternPreset
+        color="var(--chart-4)"
         id="home-pie-pattern-2"
-        orientation={["diagonalRightToLeft"]}
-        stroke="var(--chart-4)"
+        preset="diagonal-down"
         strokeWidth={1.5}
-        width={8}
       />
       <PieSlice index={0} />
       <PieSlice index={1} />
@@ -337,13 +331,11 @@ function ShowcaseBarChart({ compact }: { compact: boolean }) {
       margin={homeBarChartMargin(compact)}
       xDataKey="month"
     >
-      <PatternLines
-        height={8}
+      <PatternPreset
+        color="var(--chart-1)"
         id="barPattern"
-        orientation={["diagonal"]}
-        stroke="var(--chart-1)"
-        strokeWidth={2}
-        width={8}
+        preset="diagonal-up"
+        scale={1.5}
       />
       <Grid horizontal />
       <Bar dataKey="revenue" fill="var(--chart-1)" lineCap="round" />

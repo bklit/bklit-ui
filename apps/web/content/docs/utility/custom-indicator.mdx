@@ -167,17 +167,15 @@ function BarHorizontalLineIndicator({ data, dataKeys }) {
 Add the custom indicator as a child of your chart component. You can use gradients and patterns for different series:
 
 ```tsx
-import { PatternLines } from "@bklitui/ui/charts";
+import { PatternPreset } from "@bklitui/ui/charts";
 
 <BarChart data={data} xDataKey="month" barGap={0}>
   <LinearGradient id="gradient" from="var(--chart-3)" to="transparent" />
-  <PatternLines
+  <PatternPreset
     id="diagonalPattern"
-    height={6}
-    width={6}
-    stroke="var(--chart-4)"
+    preset="diagonal-up"
+    color="var(--chart-4)"
     strokeWidth={1.5}
-    orientation={["diagonal"]}
   />
   <Grid horizontal />
   <Bar dataKey="revenue" fill="url(#gradient)" stroke="var(--chart-3)" />

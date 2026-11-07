@@ -8,11 +8,13 @@ import {
   PatternWaves as VisxPatternWaves,
 } from "./patterns/index";
 
+/** @deprecated Use `PatternPreset` (Nucleo-based presets) instead. */
 export function PatternLines(props: ComponentProps<typeof VisxPatternLines>) {
   return <VisxPatternLines {...props} />;
 }
 PatternLines.displayName = "PatternLines";
 
+/** @deprecated Use `PatternPreset` (Nucleo-based presets) instead. */
 export function PatternCircles(
   props: ComponentProps<typeof VisxPatternCircles>
 ) {
@@ -20,11 +22,13 @@ export function PatternCircles(
 }
 PatternCircles.displayName = "PatternCircles";
 
+/** @deprecated Use `PatternPreset` (Nucleo-based presets) instead. */
 export function PatternWaves(props: ComponentProps<typeof VisxPatternWaves>) {
   return <VisxPatternWaves {...props} />;
 }
 PatternWaves.displayName = "PatternWaves";
 
+/** @deprecated Use `PatternPreset` (Nucleo-based presets) instead. */
 export function PatternHexagons(
   props: ComponentProps<typeof VisxPatternHexagons>
 ) {

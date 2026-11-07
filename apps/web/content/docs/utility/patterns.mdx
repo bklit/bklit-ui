@@ -1,0 +1,138 @@
+---
+title: Patterns
+description: Pattern presets for series, bands and backgrounds — PatternPreset, the full preset list, and PatternTile for custom tiles
+---
+
+import {
+  PatternPresetGrid,
+  PatternPresetOptionsDemo,
+  PatternsAreaDemo,
+  PatternTileDemo,
+} from "@/components/docs/patterns-demo";
+
+<ComponentPreview registryName="patterns">
+  <PatternsAreaDemo />
+</ComponentPreview>
+
+## Installation
+
+<InstallationTabs name="patterns" />
+
+## Usage
+
+`PatternPreset` renders an SVG `<pattern>` definition. Put it inside any chart's children, give it a unique `id`, and reference it with `fill="url(#id)"` on a series, slice, segment or link.
+
+```tsx
+import { Area, AreaChart, Grid, PatternArea, PatternPreset, XAxis } from "@bklitui/ui/charts";
+
+<AreaChart data={data}>
+  <PatternPreset id="desktop-pattern" preset="diagonal-up" color="var(--chart-1)" />
+  <Grid horizontal />
+  <PatternArea dataKey="desktop" fill="url(#desktop-pattern)" />
+  <Area dataKey="desktop" fillOpacity={0} strokeWidth={2} />
+  <XAxis />
+</AreaChart>
+```
+
+Pattern ids are global to the document. If the same chart can render more than once on a page, build the id with `useId()`.
+
+Components with a built-in `pattern` prop take a preset id directly, with no `PatternPreset` needed: [`Background`](/docs/utility/background), [`Band`](/docs/utility/band), [`ReferenceArea`](/docs/utility/reference-area), [`Weekends`](/docs/utility/weekends), [`Deadline`](/docs/utility/deadline), brush `selectionPattern`, `RadialDotBar` `patterns`, and heatmap `levelStyles`.
+
+```tsx
+<Background pattern="grid" scale={2} />
+<Band upperKey="high" lowerKey="low" fillType="pattern" pattern="diagonal-down" />
+```
+
+## Presets
+
+Every preset is painted in a single color (`color`). Base names repeat every 6px. `-sparse` variants double the spacing and `-dense` variants halve it.
+
+<ComponentShowcase previewMinHeight={0}>
+  <PatternPresetGrid />
+</ComponentShowcase>
+
+| Family | Presets |
+|--------|---------|
+| Lines | `vertical`, `vertical-dense`, `horizontal`, `horizontal-dense`, `diagonal-up`, `diagonal-up-sparse`, `diagonal-down`, `diagonal-down-sparse` |
+| Grids | `grid` |
+| Dashed & dotted lines | `vertical-dashed`, `horizontal-dashed`, `horizontal-dashed-dense`, `grid-dashed`, `grid-dotted` |
+| Dots | `dots`, `dots-sparse`, `diagonal-dots-up`, `diagonal-dots-up-sparse`, `diagonal-dots-down`, `diagonal-dots-down-sparse` |
+| Circles | `circles-dense`, `circles`, `circles-sparse` |
+| Tiles | `blocks`, `checkerboard-xs`, `checkerboard-sm`, `checkerboard`, `checkerboard-lg`, `checkerboard-inset` |
+
+`"none"` is also accepted and renders nothing. The list is exported as `PATTERN_PRESET_IDS` (ids, including `"none"`) and `PATTERN_PRESETS` (`{ id, label, family, size }` for each preset, without `"none"`). Use them to build your own pattern picker.
+
+## PatternPreset props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `id` | `string` | required | Pattern id. Reference it as `fill="url(#id)"` |
+| `preset` | `PatternPresetId` | `"diagonal-up"` | Preset to draw |
+| `color` | `string` | `var(--chart-1)` | Pattern color |
+| `scale` | `number` | `1` | Tile size multiplier. Line width scales with it |
+| `strokeWidth` | `number` | `1` | Line width for line presets, in tile units (multiplied by `scale`) |
+| `opacity` | `number` | `1` | Opacity of the pattern (not the tile background) |
+| `tileBackground` | `string` | — | Solid fill painted under the pattern in each tile |
+
+<ComponentShowcase
+  code={`<PatternPreset id="a" preset="diagonal-up" />
+<PatternPreset id="b" preset="diagonal-up" scale={2} />
+<PatternPreset id="c" preset="diagonal-up" strokeWidth={2} />
+<PatternPreset id="d" preset="diagonal-up" opacity={0.4} />
+<PatternPreset
+  id="e"
+  preset="diagonal-up"
+  tileBackground="color-mix(in oklch, var(--chart-1) 12%, transparent)"
+/>`}
+  previewMinHeight={0}
+>
+  <PatternPresetOptionsDemo />
+</ComponentShowcase>
+
+`renderPatternPreset(preset, id, options)` returns the same definition as a function call. Use it where you need a `ReactNode`, for example inside a render prop:
+
+```tsx
+import { renderPatternPreset } from "@bklitui/ui/charts";
+
+<FunnelChart
+  data={data}
+  renderPattern={(id, color) =>
+    renderPatternPreset("diagonal-up", id, { color: "rgba(255,255,255,0.35)", tileBackground: color, scale: 1.5 })
+  }
+/>
+```
+
+## Custom tiles
+
+`PatternTile` wraps your own artwork in a square, repeating pattern. Draw inside a `size × size` box and paint with `currentColor` so `color` controls it. It takes `id`, `size` (default `48`), `scale`, `color`, `opacity` and `background`.
+
+<ComponentShowcase
+  code={`import { PatternTile } from "@bklitui/ui/charts";
+
+<PatternTile id="plus" size={12} color="var(--chart-2)">
+  <path d="M5.5 3h1v6h-1zM3 5.5h6v1h-6z" fill="currentColor" />
+</PatternTile>
+
+<Bar dataKey="revenue" fill="url(#plus)" stroke="var(--chart-2)" />`}
+  previewMinHeight={0}
+>
+  <PatternTileDemo />
+</ComponentShowcase>
+
+## Legacy ids and options
+
+The old preset ids still work and map to the new presets:
+
+| Legacy id | Renders as |
+|-----------|------------|
+| `diagonal` | `diagonal-up` |
+| `cross` | `grid` |
+| `accent` | `diagonal-up`, in `#e879f9` unless you set `color` |
+
+`horizontal`, `vertical`, `dots` and `circles` keep their names but now use the new artwork. The `radius`, `complement`, `fill` and `dotFill` options (and the `pattern*` props built from them, such as `patternRadius`) are deprecated and have no effect. Use `resolvePatternPresetId(id)` to convert any id to a current one. Unknown ids resolve to `"none"`.
+
+`PatternLines`, `PatternCircles`, `PatternWaves` and `PatternHexagons`, the primitives ported from `@visx/pattern`, are still exported but deprecated. Use `PatternPreset`, or `PatternTile` for artwork that no preset covers.
+
+## Credits
+
+Patterns adapted from Nucleo's free SVG patterns ([nucleoapp.com/svg-patterns](https://nucleoapp.com/svg-patterns/)).

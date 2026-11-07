@@ -5,18 +5,17 @@ import {
   StudioControlRow,
   studioFieldLabelClass,
 } from "@/components/controls/control-field-helpers";
-import { FillPicker } from "@/components/controls/fill-picker";
+import {
+  FillPicker,
+  PatternScaleInput,
+} from "@/components/controls/fill-picker";
 import { OpacityControl } from "@/components/controls/opacity-control";
 import { PatternPicker } from "@/components/controls/pattern-picker";
 import { SliderInputGroup } from "@/components/controls/slider-input-group";
 import {
   setStudioHeatmapLevelPattern,
   setStudioHeatmapLevelPatternColor,
-  setStudioHeatmapLevelPatternComplement,
-  setStudioHeatmapLevelPatternDotsFill,
-  setStudioHeatmapLevelPatternFill,
   setStudioHeatmapLevelPatternOpacity,
-  setStudioHeatmapLevelPatternRadius,
   setStudioHeatmapLevelPatternScale,
   setStudioHeatmapLevelPatternStrokeWidth,
   setStudioHeatmapLevelPatternTileBackground,
@@ -24,28 +23,19 @@ import {
   studioHeatmapLevelColorKey,
   studioHeatmapLevelPattern,
   studioHeatmapLevelPatternColor,
-  studioHeatmapLevelPatternComplement,
-  studioHeatmapLevelPatternDotsFill,
-  studioHeatmapLevelPatternFill,
   studioHeatmapLevelPatternOpacity,
-  studioHeatmapLevelPatternRadius,
   studioHeatmapLevelPatternScale,
   studioHeatmapLevelPatternStrokeWidth,
   studioHeatmapLevelPatternTileBackground,
   studioHeatmapLevelUsesPattern,
 } from "@/lib/heatmap-studio-colors";
-import type { PatternPresetId } from "@/lib/pattern-presets";
+import {
+  DEFAULT_PATTERN_PRESET,
+  isStrokePatternPreset,
+} from "@/lib/pattern-presets";
 import type { StudioUrlState } from "@/lib/studio-parsers";
 import { parsePipeField } from "@/lib/studio-series-design";
 import { YesNoSwitch } from "@/ui/yes-no-switch";
-
-function isCirclePattern(preset: PatternPresetId): boolean {
-  return preset === "circles" || preset === "dots";
-}
-
-function isLinePattern(preset: PatternPresetId): boolean {
-  return preset !== "none" && !isCirclePattern(preset);
-}
 
 function HeatmapPipeColorField({
   label,
@@ -104,15 +94,11 @@ export function HeatmapLevelPaneControl({
   const patternColor = studioHeatmapLevelPatternColor(state, level);
   const patternScale = studioHeatmapLevelPatternScale(state, level);
   const patternStrokeWidth = studioHeatmapLevelPatternStrokeWidth(state, level);
-  const patternRadius = studioHeatmapLevelPatternRadius(state, level);
-  const patternComplement = studioHeatmapLevelPatternComplement(state, level);
-  const patternFill = studioHeatmapLevelPatternFill(state, level);
   const patternTileBackground = studioHeatmapLevelPatternTileBackground(
     state,
     level
   );
   const patternOpacity = studioHeatmapLevelPatternOpacity(state, level);
-  const patternDotsFill = studioHeatmapLevelPatternDotsFill(state, level);
   const strokePreviewColor = patternColor || baseColor;
 
   const commitPatternColor = (value: string, live = false) => {
@@ -148,7 +134,11 @@ export function HeatmapLevelPaneControl({
             if (checked && (!storedPattern || storedPattern === "none")) {
               commit(
                 "heatmapLevelPatterns",
-                setStudioHeatmapLevelPattern(state, level, "diagonal")
+                setStudioHeatmapLevelPattern(
+                  state,
+                  level,
+                  DEFAULT_PATTERN_PRESET
+                )
               );
             }
           }}
@@ -171,218 +161,41 @@ export function HeatmapLevelPaneControl({
             />
           </div>
 
-          {pattern === "dots" ? (
-            <>
-              <HeatmapPipeColorField
-                color={patternColor || strokePreviewColor}
-                label="Color"
-                onColorChange={(value) => commitPatternColor(value)}
-                onColorPreview={(value) => commitPatternColor(value, true)}
-              />
-              <SliderInputGroup
-                label="Spacing"
-                max={4}
-                min={0.25}
-                onCommit={(value) =>
-                  commit(
-                    "heatmapLevelPatternScales",
-                    setStudioHeatmapLevelPatternScale(state, level, value)
-                  )
-                }
-                onPreview={(value) =>
-                  preview(
-                    "heatmapLevelPatternScales",
-                    setStudioHeatmapLevelPatternScale(state, level, value)
-                  )
-                }
-                step={0.25}
-                value={patternScale}
-              />
-              <SliderInputGroup
-                label="Dot size"
-                max={8}
-                min={0.25}
-                onCommit={(value) =>
-                  commit(
-                    "heatmapLevelPatternRadii",
-                    setStudioHeatmapLevelPatternRadius(state, level, value)
-                  )
-                }
-                onPreview={(value) =>
-                  preview(
-                    "heatmapLevelPatternRadii",
-                    setStudioHeatmapLevelPatternRadius(state, level, value)
-                  )
-                }
-                step={0.25}
-                value={patternRadius}
-              />
-              <StudioControlRow alignControl="end" label="Fill">
-                <YesNoSwitch
-                  aria-label="Fill"
-                  onValueChange={(checked) =>
-                    commit(
-                      "heatmapLevelPatternDotsFills",
-                      setStudioHeatmapLevelPatternDotsFill(
-                        state,
-                        level,
-                        checked
-                      )
-                    )
-                  }
-                  value={patternDotsFill}
-                />
-              </StudioControlRow>
-            </>
-          ) : null}
-
-          {pattern === "circles" ? (
-            <>
-              <HeatmapPipeColorField
-                color={patternColor || strokePreviewColor}
-                label="Stroke"
-                onColorChange={(value) => commitPatternColor(value)}
-                onColorPreview={(value) => commitPatternColor(value, true)}
-              />
-              <SliderInputGroup
-                label="Spacing"
-                max={4}
-                min={0.25}
-                onCommit={(value) =>
-                  commit(
-                    "heatmapLevelPatternScales",
-                    setStudioHeatmapLevelPatternScale(state, level, value)
-                  )
-                }
-                onPreview={(value) =>
-                  preview(
-                    "heatmapLevelPatternScales",
-                    setStudioHeatmapLevelPatternScale(state, level, value)
-                  )
-                }
-                step={0.25}
-                value={patternScale}
-              />
-              <SliderInputGroup
-                label="Stroke width"
-                max={4}
-                min={0}
-                onCommit={(value) =>
-                  commit(
-                    "heatmapLevelPatternStrokeWidths",
-                    setStudioHeatmapLevelPatternStrokeWidth(state, level, value)
-                  )
-                }
-                onPreview={(value) =>
-                  preview(
-                    "heatmapLevelPatternStrokeWidths",
-                    setStudioHeatmapLevelPatternStrokeWidth(state, level, value)
-                  )
-                }
-                step={0.5}
-                value={patternStrokeWidth}
-              />
-              <SliderInputGroup
-                label="Radius"
-                max={8}
-                min={0.5}
-                onCommit={(value) =>
-                  commit(
-                    "heatmapLevelPatternRadii",
-                    setStudioHeatmapLevelPatternRadius(state, level, value)
-                  )
-                }
-                onPreview={(value) =>
-                  preview(
-                    "heatmapLevelPatternRadii",
-                    setStudioHeatmapLevelPatternRadius(state, level, value)
-                  )
-                }
-                step={0.5}
-                value={patternRadius}
-              />
-              <StudioControlRow alignControl="end" label="Complement">
-                <YesNoSwitch
-                  aria-label="Complement"
-                  onValueChange={(checked) =>
-                    commit(
-                      "heatmapLevelPatternComplements",
-                      setStudioHeatmapLevelPatternComplement(
-                        state,
-                        level,
-                        checked
-                      )
-                    )
-                  }
-                  value={patternComplement}
-                />
-              </StudioControlRow>
-              <HeatmapPipeColorField
-                color={patternFill || baseColor}
-                label="Fill"
-                onColorChange={(value) =>
-                  commit(
-                    "heatmapLevelPatternFills",
-                    setStudioHeatmapLevelPatternFill(state, level, value)
-                  )
-                }
-                onColorPreview={(value) =>
-                  preview(
-                    "heatmapLevelPatternFills",
-                    setStudioHeatmapLevelPatternFill(state, level, value)
-                  )
-                }
-              />
-            </>
-          ) : null}
-
-          {isLinePattern(pattern) ? (
-            <>
-              <HeatmapPipeColorField
-                color={patternColor || strokePreviewColor}
-                label="Stroke"
-                onColorChange={(value) => commitPatternColor(value)}
-                onColorPreview={(value) => commitPatternColor(value, true)}
-              />
-              <SliderInputGroup
-                label="Scale"
-                max={4}
-                min={0.25}
-                onCommit={(value) =>
-                  commit(
-                    "heatmapLevelPatternScales",
-                    setStudioHeatmapLevelPatternScale(state, level, value)
-                  )
-                }
-                onPreview={(value) =>
-                  preview(
-                    "heatmapLevelPatternScales",
-                    setStudioHeatmapLevelPatternScale(state, level, value)
-                  )
-                }
-                step={0.25}
-                value={patternScale}
-              />
-              <SliderInputGroup
-                label="Stroke width"
-                max={4}
-                min={0.5}
-                onCommit={(value) =>
-                  commit(
-                    "heatmapLevelPatternStrokeWidths",
-                    setStudioHeatmapLevelPatternStrokeWidth(state, level, value)
-                  )
-                }
-                onPreview={(value) =>
-                  preview(
-                    "heatmapLevelPatternStrokeWidths",
-                    setStudioHeatmapLevelPatternStrokeWidth(state, level, value)
-                  )
-                }
-                step={0.5}
-                value={patternStrokeWidth}
-              />
-            </>
+          <HeatmapPipeColorField
+            color={patternColor || strokePreviewColor}
+            label="Color"
+            onColorChange={(value) => commitPatternColor(value)}
+            onColorPreview={(value) => commitPatternColor(value, true)}
+          />
+          <PatternScaleInput
+            onChange={(value) =>
+              commit(
+                "heatmapLevelPatternScales",
+                setStudioHeatmapLevelPatternScale(state, level, value)
+              )
+            }
+            value={patternScale}
+          />
+          {isStrokePatternPreset(pattern) ? (
+            <SliderInputGroup
+              label="Stroke width"
+              max={4}
+              min={0.5}
+              onCommit={(value) =>
+                commit(
+                  "heatmapLevelPatternStrokeWidths",
+                  setStudioHeatmapLevelPatternStrokeWidth(state, level, value)
+                )
+              }
+              onPreview={(value) =>
+                preview(
+                  "heatmapLevelPatternStrokeWidths",
+                  setStudioHeatmapLevelPatternStrokeWidth(state, level, value)
+                )
+              }
+              step={0.5}
+              value={patternStrokeWidth}
+            />
           ) : null}
 
           <HeatmapPipeColorField

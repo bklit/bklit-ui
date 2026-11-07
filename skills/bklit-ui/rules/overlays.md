@@ -153,7 +153,7 @@ Defaults: `strokeStyle="dashed"` (`"solid" | "dashed" | "gradient"`), `strokeDas
 
 ## Background — `@bklit/background`
 
-Textured plot fill instead of (or with) `Grid`: `<Background pattern="diagonal" />`. Presets: `none`, `diagonal`, `horizontal`, `vertical`, `cross`, `dots`, `circles`, `accent`. Edge fades on by default (`fadeHorizontal`, `fadeVertical`). Pattern design choices → **bklit-ui-design**.
+Textured plot fill instead of (or with) `Grid`: `<Background pattern="diagonal-up" />`. Presets (default `diagonal-up`): lines `vertical`, `horizontal`, `diagonal-up`, `diagonal-down` (each with `-dense` or `-sparse` variants), `grid`, dashed `vertical-dashed`, `horizontal-dashed`, `horizontal-dashed-dense`, `grid-dashed`, `grid-dotted`, dots `dots`, `dots-sparse`, `diagonal-dots-up(-sparse)`, `diagonal-dots-down(-sparse)`, circles `circles-dense`, `circles`, `circles-sparse`, tiles `blocks`, `checkerboard-xs`, `checkerboard-sm`, `checkerboard`, `checkerboard-lg`, `checkerboard-inset`, plus `none`. Legacy `diagonal` / `cross` / `accent` still resolve (to `diagonal-up` / `grid` / `diagonal-up`) — don't write them. `radius`, `complement`, `fill`, `dotFill` are deprecated no-ops. The same ids work for `pattern` on `Band`, `ReferenceArea`, `Weekends`, `Deadline`. For pattern fills on series, use `<PatternPreset id preset color />` (`@bklit/patterns`) and `fill="url(#id)"`; `PatternTile` draws custom square tiles. `PatternLines` / `PatternCircles` / `PatternWaves` / `PatternHexagons` are deprecated. Docs: https://bklit.com/docs/utility/patterns. Edge fades on by default (`fadeHorizontal`, `fadeVertical`). Pattern design choices → **bklit-ui-design**.
 
 ## Axes — `@bklit/x-axis`, `@bklit/y-axis`
 

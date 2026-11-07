@@ -49,14 +49,10 @@ Omit `y1` or `y2` to extend the band to the top or bottom of the plot. Use `axis
 | `yAxisId` | `string \| number` | `"left"` | Y-scale group id |
 | `fill` | `string` | muted mix on `--chart-foreground-muted` | Solid fill when `pattern` is `"none"` |
 | `fillOpacity` | `number` | `1` | Fill opacity |
-| `pattern` | Pattern preset id | `"none"` | Pattern fill inside the band |
+| `pattern` | Pattern preset id | `"none"` | [Pattern preset](/docs/utility/patterns) inside the band |
 | `patternColor` | `string` | — | Pattern stroke or tile color |
 | `patternScale` | `number` | — | Pattern tile scale |
 | `patternStrokeWidth` | `number` | — | Line stroke width for line-based patterns |
-| `patternRadius` | `number` | — | Dot or circle radius for `dots` / `circles` |
-| `patternComplement` | `boolean` | — | Alternate tile fill for circle patterns |
-| `patternFill` | `string` | — | Solid fill inside circles |
-| `patternDotFill` | `boolean` | — | Dot grid only — hollow dots when `false` |
 | `patternTileBackground` | `string` | — | Background color inside each pattern tile |
 | `stroke` | `string` | — | Edge line color |
 | `strokeWidth` | `number` | `1` | Edge line width |
@@ -70,7 +66,7 @@ Omit `y1` or `y2` to extend the band to the top or bottom of the plot. Use `axis
 | `markerSize` | `number` | — | Bracket marker size |
 | `ifOverflow` | `"hidden" \| "visible"` | `"hidden"` | Clip band to the plot when bounds exceed the domain |
 
-Pattern presets match [`Background`](/docs/utility/background) (`diagonal`, `dots`, `cross`, …).
+`pattern` accepts any of the [pattern presets](/docs/utility/patterns) (`diagonal-up`, `grid`, `dots`, `checkerboard`, …). `patternRadius`, `patternComplement`, `patternFill` and `patternDotFill` are deprecated and have no effect.
 
 ## Studio
 
@@ -107,7 +103,7 @@ Open [Studio with the line chart](/studio?chart=line-chart) and select **Referen
   <ReferenceArea
     y1={160}
     y2={200}
-    pattern="diagonal"
+    pattern="diagonal-up"
     patternColor="oklch(0.76 0.144 180.392 / 0.17)"
     patternScale={0.75}
     patternStrokeWidth={1.5}
