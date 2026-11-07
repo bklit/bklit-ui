@@ -28,7 +28,7 @@ function SidebarCTA() {
         <div className="text-muted-foreground text-xs leading-relaxed">
           Get help, share feedback, and connect with other developers.
         </div>
-        <Button className="mt-2 w-fit" size="xs" variant="outline">
+        <Button className="mt-2 w-fit" size="sm" variant="outline">
           Join Discord
         </Button>
       </FramePanel>

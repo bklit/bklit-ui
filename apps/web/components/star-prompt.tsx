@@ -34,9 +34,11 @@ function trackStarClick(location: string) {
 function StarButton({
   location,
   onClick,
+  size = "xs",
 }: {
   location: string;
   onClick?: () => void;
+  size?: "xs" | "sm";
 }) {
   return (
     <Button
@@ -46,11 +48,11 @@ function StarButton({
         onClick?.();
       }}
       render={<a href={GITHUB_URL} rel="noopener noreferrer" target="_blank" />}
-      size="xs"
+      size={size}
       variant="outline"
     >
-      <GitHubIcon aria-hidden className="size-3.5" />
-      Star on GitHub
+      <GitHubIcon aria-hidden />
+      Star us
       <span className="flex items-center gap-0.5 text-muted-foreground tabular-nums">
         <Icon className="size-3" name="IconStar" />
         <GithubStarCount />
@@ -161,7 +163,7 @@ export function StarPromptSidebarCard() {
           A star on GitHub helps more people find it.
         </div>
         <div className="mt-2">
-          <StarButton location="docs_toc" />
+          <StarButton location="docs_toc" size="sm" />
         </div>
       </FramePanel>
     </Frame>
