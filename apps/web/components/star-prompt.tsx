@@ -45,9 +45,7 @@ function StarButton({
         trackStarClick(location);
         onClick?.();
       }}
-      render={
-        <a href={GITHUB_URL} rel="noopener noreferrer" target="_blank" />
-      }
+      render={<a href={GITHUB_URL} rel="noopener noreferrer" target="_blank" />}
       size="xs"
       variant="outline"
     >
