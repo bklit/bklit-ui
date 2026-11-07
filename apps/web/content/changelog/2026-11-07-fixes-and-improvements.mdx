@@ -1,0 +1,27 @@
+---
+title: Fixes and improvements
+description: Smooth profit and loss lines, filled projection markers, cleaner drags and a livelier homepage.
+date: 2026-11-07T15:00:00Z
+image: /changelog/2026-11-07-fixes-and-improvements.svg
+imageAlt: Stacked wavy lines that go from jagged at the top to smooth at the bottom
+tags: [fixes, profit-loss-line, projection-line, composed-chart, breaking]
+---
+
+Smaller changes that shipped alongside today's releases.
+
+## Charts
+
+- **Profit and loss lines stay smooth through zero.** `ProfitLossLine` now draws one continuous line, coloured above and below zero, so smooth curves no longer kink where the value changes sign. The examples use `curveMonotoneX`, faded edges and a dashed zero line.
+- **Dragging no longer selects text.** Drawing a range selection across a time-series chart doesn't highlight the tooltip or nearby text any more.
+- **Stacked bars on two axes fit their totals.** A stacked `SeriesBar` domain now reaches the top of the stack, not the tallest single segment.
+
+## New defaults
+
+`LineSeriesTerminalMarker` now fills its dot with the `stroke` colour, so a projection starts from a dot inside its ring instead of a bare ring. Pass `fill="transparent"` to keep the hollow marker.
+
+## Docs and site
+
+- The homepage area chart plays a short demo: a cursor hovers a marker, then drags out a range selection, tinted green or red by its trend with the % change above it. The demo pauses while you use the chart and is skipped if you prefer reduced motion.
+- A new [React Native guide](/docs/react-native), marked **Beta** in the sidebar.
+
+See the [profit and loss line docs](/docs/components/profit-loss-line) and the [projection line docs](/docs/utility/projection-line).

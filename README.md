@@ -284,13 +284,39 @@ npx shadcn@latest add @bklit/line-chart
 
 See [Installation](https://ui.bklit.com/docs/installation) for registry setup and all components.
 
+## React Native (beta)
+
+The line and area charts also run in **React Native and Expo**. They use the same components and props as the web charts, drawn with [React Native Skia](https://shopify.github.io/react-native-skia/) and animated on the UI thread with Reanimated: one-finger scrubbing, two-finger range selection, springs, morphs and the rolling date pill.
+
+<table>
+  <tr>
+    <td valign="middle" width="240">
+      <img src="apps/web/public/readme/react-native-expo-qr.svg" alt="QR code that opens the Bklit React Native demo in Expo Go" width="220" />
+    </td>
+    <td valign="middle">
+      <strong>Try it on your phone</strong><br />
+      Install <a href="https://expo.dev/go">Expo Go</a>, then scan the code with your camera to open the demo app.
+    </td>
+  </tr>
+</table>
+
+Add the charts to an Expo app (with a `components.json` in the project root):
+
+```bash
+npx shadcn@latest add @bklit/native-charts
+```
+
+In an Expo project the CLI installs Skia, Reanimated and Gesture Handler with `npx expo install`, so you get versions that match your SDK. See the [React Native guide](https://ui.bklit.com/docs/react-native) for step-by-step setup.
+
+Contributors can run the demo app (`apps/mobile`, Node 22+) with `pnpm dev:mobile` and open it in Expo Go.
+
 ## Repo activity
 
 ![Alt](https://repobeats.axiom.co/api/embed/c591b93fd9e7bfa8f4dc8bddb716699615ee5fde.svg "Repobeats analytics image")
 
 ## License
 
-**Chart components** (`packages/ui`, shadcn registry) are [MIT licensed](./LICENSE).
+**Chart components** (`packages/ui`, `packages/native`, shadcn registry) are [MIT licensed](./LICENSE).
 
 **Bklit Studio** (`packages/studio`, hosted at [ui.bklit.com/studio](https://ui.bklit.com/studio))
 is proprietary. See [LICENSE-STUDIO.md](./LICENSE-STUDIO.md). You may not reuse,

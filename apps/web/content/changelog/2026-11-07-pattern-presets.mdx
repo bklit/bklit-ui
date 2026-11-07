@@ -1,0 +1,24 @@
+---
+title: Pattern presets
+description: 29 new pattern presets, fades for pattern fills, and a scale for every pattern.
+date: 2026-11-07T17:00:00Z
+image: /changelog/2026-11-07-pattern-presets.svg
+imageAlt: A hill-shaped area filled with diagonal hatching that fades out toward both edges
+tags: [patterns, area-chart, studio]
+---
+
+Patterns get a new set of presets, and pattern fills can now fade like solid ones. There are 29 presets, adapted from Nucleo's free SVG patterns: lines, grids, dashes, dots, circles and checkerboards, each with `-sparse` and `-dense` variants. Every preset is stored as its smallest repeating cell, so the whole set weighs about 2.5 KB.
+
+## One component for every preset
+
+Add a `PatternPreset` with an `id`, then point any fill at it with `url(#id)`. Components with a built-in `pattern` prop, such as `Background`, `Band`, `ReferenceArea` and `Weekends`, take a preset id directly. Need something else? `PatternTile` draws your own square tile. The old ids still work: `diagonal` and `accent` map to `diagonal-up`, and `cross` maps to `grid`.
+
+## Fades for pattern fills
+
+`PatternArea` now takes `fillOpacity`, `fadeEdges` and `fadeBottom`, so a hatched area can fade into the edges of the chart the same way a gradient does. `fadeEdges` on `Area` and `Line` also accepts `{ left, right }` in percent, so each side can fade by a different amount.
+
+## In Studio
+
+The pattern picker shows real swatches grouped by family. Solid and pattern fills share one set of Opacity, Fade left, Fade right and Fade bottom sliders, and every pattern has a Scale control. Old share links still open.
+
+See every preset on the [Patterns page](/docs/utility/patterns).
