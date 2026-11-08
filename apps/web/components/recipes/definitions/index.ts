@@ -2,6 +2,7 @@ import type { Recipe, RecipeCategory } from "@/lib/recipes/types";
 import {
   choroplethPointerPinMap,
   choroplethTiltedDotMap,
+  choroplethVisitorMap,
 } from "./choropleth-recipes";
 import {
   contextBars,
@@ -77,6 +78,7 @@ export const recipes: Recipe[] = [
   gaugeFanDuty,
   gaugeUptimeDots,
   gaugeLiveLoad,
+  choroplethVisitorMap,
   choroplethTiltedDotMap,
   choroplethPointerPinMap,
 ];
