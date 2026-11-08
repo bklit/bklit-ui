@@ -50,6 +50,7 @@ const GROUP_LABELED_TYPES = new Set<StudioControl["type"]>([
   "projectionCurve",
   "projectionStroke",
   "funnelEdges",
+  "markerShape",
   "graticuleToggle",
   "strokeStyle",
   "crosshairFade",

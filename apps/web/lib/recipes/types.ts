@@ -32,7 +32,8 @@ export type RecipeCategory =
   | "heatmaps"
   | "pie-ring"
   | "radial"
-  | "gauges";
+  | "gauges"
+  | "maps";
 
 /** A visual style treatment that can be applied to several chart types. */
 export interface Recipe {

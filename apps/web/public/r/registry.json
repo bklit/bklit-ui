@@ -2117,13 +2117,14 @@
       "name": "choropleth-chart",
       "type": "registry:component",
       "title": "Choropleth Map",
-      "description": "A geographic map chart with zoom, pan, and data visualization",
+      "description": "A geographic map chart with click-to-zoom, 3D camera, dot grid, markers, zoom and pan",
       "registryDependencies": [
         "@bklit/chart-animation",
         "@bklit/utils",
         "@bklit/chart-utils",
         "@bklit/chart-tooltip",
-        "@bklit/chart-parent-size"
+        "@bklit/chart-parent-size",
+        "@bklit/background"
       ],
       "dependencies": [
         "@types/geojson",
@@ -2177,6 +2178,26 @@
           "path": "src/charts/choropleth/choropleth-tooltip.tsx",
           "type": "registry:component",
           "target": "components/charts/choropleth/choropleth-tooltip.tsx"
+        },
+        {
+          "path": "src/charts/choropleth/choropleth-camera.tsx",
+          "type": "registry:component",
+          "target": "components/charts/choropleth/choropleth-camera.tsx"
+        },
+        {
+          "path": "src/charts/choropleth/choropleth-background.tsx",
+          "type": "registry:component",
+          "target": "components/charts/choropleth/choropleth-background.tsx"
+        },
+        {
+          "path": "src/charts/choropleth/choropleth-dot-grid.tsx",
+          "type": "registry:component",
+          "target": "components/charts/choropleth/choropleth-dot-grid.tsx"
+        },
+        {
+          "path": "src/charts/choropleth/choropleth-marker.tsx",
+          "type": "registry:component",
+          "target": "components/charts/choropleth/choropleth-marker.tsx"
         },
         {
           "path": "src/charts/choropleth/index.ts",

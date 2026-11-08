@@ -1,6 +1,6 @@
 "use client";
 
-import { m } from "motion/react";
+import { m, type Transition } from "motion/react";
 import { useId, useMemo } from "react";
 import { useChartStable } from "./chart-context";
 import {
@@ -50,7 +50,34 @@ function fadeMaskStops(lengthPercent: number): Array<{
 }
 
 /** Plot-area pattern fill for charts without a grid. Renders behind series layers. */
-export function Background({
+export function Background(props: BackgroundProps) {
+  const { innerWidth, innerHeight, isLoaded, enterTransition } =
+    useChartStable();
+  return (
+    <BackgroundPatternLayer
+      {...props}
+      enterTransition={enterTransition}
+      height={innerHeight}
+      isLoaded={isLoaded}
+      width={innerWidth}
+    />
+  );
+}
+
+Background.displayName = "Background";
+
+export interface BackgroundPatternLayerProps extends BackgroundProps {
+  width: number;
+  height: number;
+  isLoaded: boolean;
+  enterTransition?: Transition;
+}
+
+/**
+ * Context-free pattern fill with edge fades — `Background` reads its size from
+ * the cartesian chart context; other charts (choropleth) pass it explicitly.
+ */
+export function BackgroundPatternLayer({
   pattern = "diagonal-up",
   color = "var(--chart-grid)",
   scale = 1,
@@ -66,9 +93,11 @@ export function Background({
   fadeVertical = true,
   fadeHorizontalLength = 10,
   fadeVerticalLength = 10,
-}: BackgroundProps) {
-  const { innerWidth, innerHeight, isLoaded, enterTransition } =
-    useChartStable();
+  width: innerWidth,
+  height: innerHeight,
+  isLoaded,
+  enterTransition,
+}: BackgroundPatternLayerProps) {
   const uniqueId = useId();
   const patternId = `chart-background-${uniqueId.replace(/:/g, "")}`;
 
@@ -213,7 +242,5 @@ export function Background({
     </g>
   );
 }
-
-Background.displayName = "Background";
 
 export default Background;

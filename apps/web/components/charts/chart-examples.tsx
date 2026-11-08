@@ -25,10 +25,13 @@ import {
   ChartMarkers,
   type ChartStatFlowFormat,
   ChartTooltip,
+  ChoroplethBackground,
   ChoroplethChart,
+  ChoroplethDotGrid,
   type ChoroplethFeature,
   ChoroplethFeatureComponent,
   ChoroplethGraticule,
+  ChoroplethMarker,
   ChoroplethTooltip,
   ComposedChart,
   FunnelChart,
@@ -4298,6 +4301,118 @@ function ChoroplethWithGraticule() {
   );
 }
 
+const CHOROPLETH_CITIES: { label: string; coordinates: [number, number] }[] = [
+  { label: "London", coordinates: [-0.13, 51.51] },
+  { label: "New York", coordinates: [-74.01, 40.71] },
+  { label: "Tokyo", coordinates: [139.69, 35.69] },
+  { label: "São Paulo", coordinates: [-46.63, -23.55] },
+  { label: "Sydney", coordinates: [151.21, -33.87] },
+];
+
+const choroplethCitiesSnippet = `const cities = [
+  { label: "London", coordinates: [-0.13, 51.51] },
+  { label: "New York", coordinates: [-74.01, 40.71] },
+  { label: "Tokyo", coordinates: [139.69, 35.69] },
+  { label: "São Paulo", coordinates: [-46.63, -23.55] },
+  { label: "Sydney", coordinates: [151.21, -33.87] },
+];`;
+
+function ChoroplethClickToZoom() {
+  const { worldData, isLoading } = useWorldDataStandalone();
+  if (isLoading || !worldData) {
+    return <ChoroplethLoading />;
+  }
+  return (
+    <ChoroplethExampleChart
+      aspectRatio="16 / 9"
+      clickToZoom
+      data={worldData}
+      perspective={{ focus: { view: "auto", tilt: 24 } }}
+    >
+      <ChoroplethGraticule stroke="var(--chart-grid)" />
+      <ChoroplethFeatureComponent getFeatureColor={getVisitorColor} />
+      {CHOROPLETH_CITIES.map((city) => (
+        <ChoroplethMarker key={city.label} {...city} />
+      ))}
+      <ChoroplethTooltip
+        getFeatureValue={getVisitorValue}
+        valueLabel="Visitors"
+      />
+    </ChoroplethExampleChart>
+  );
+}
+
+function ChoroplethDots() {
+  const { worldData, isLoading } = useWorldDataStandalone();
+  if (isLoading || !worldData) {
+    return <ChoroplethLoading />;
+  }
+  return (
+    <ChoroplethExampleChart
+      aspectRatio="16 / 9"
+      clickToZoom
+      data={worldData}
+      focusMaxZoom={2}
+      perspective={{
+        overview: { tilt: 30 },
+        focus: { view: "auto", yaw: 10, tilt: 24 },
+      }}
+    >
+      <ChoroplethDotGrid
+        edgeFade={20}
+        fadedOpacity={0.5}
+        getFeatureColor={getVisitorColor}
+        oceanOpacity={0.35}
+      />
+      {CHOROPLETH_CITIES.map((city) => (
+        <ChoroplethMarker
+          color="var(--chart-2)"
+          key={city.label}
+          size={12}
+          {...city}
+        />
+      ))}
+      <ChoroplethTooltip
+        getFeatureValue={getVisitorValue}
+        valueLabel="Visitors"
+      />
+    </ChoroplethExampleChart>
+  );
+}
+
+function ChoroplethPointerCamera() {
+  const { worldData, isLoading } = useWorldDataStandalone();
+  if (isLoading || !worldData) {
+    return <ChoroplethLoading />;
+  }
+  return (
+    <ChoroplethExampleChart
+      aspectRatio="16 / 9"
+      clickToZoom
+      data={worldData}
+      perspective={{
+        overview: { view: "pointer", yaw: 14, tilt: 18 },
+        focus: { view: "auto", tilt: 28 },
+      }}
+    >
+      <ChoroplethBackground hideOnFocus pattern="dots" />
+      <ChoroplethFeatureComponent fill="var(--chart-scale-02)" />
+      {CHOROPLETH_CITIES.map((city) => (
+        <ChoroplethMarker
+          color="var(--chart-1)"
+          glow={6}
+          key={city.label}
+          pulse="always"
+          shape="pin"
+          size={10}
+          {...city}
+        />
+      ))}
+      <ChoroplethTooltip />
+    </ChoroplethExampleChart>
+  );
+}
+
 function getRegionCategory(name: string) {
   const c = name.charAt(0).toUpperCase();
   if ("ABCD".includes(c)) {
@@ -6486,6 +6601,88 @@ function makeChoroplethExamples(): ChartExample[] {
   <ChoroplethTooltip />
 </ChoroplethChart>`,
       render: () => <ChoroplethPattern />,
+    },
+    {
+      title: "Choropleth Chart - Click to Zoom",
+      description:
+        "Click a country or marker to fly to it; the camera leans toward that side of the map",
+      code: `${choroplethCitiesSnippet}
+
+<ChoroplethChart
+  aspectRatio="16 / 9"
+  clickToZoom
+  data={geojson}
+  perspective={{ focus: { view: "auto", tilt: 24 } }}
+>
+  <ChoroplethGraticule stroke="var(--chart-grid)" />
+  <ChoroplethFeatureComponent getFeatureColor={getVisitorColor} />
+  {cities.map((city) => (
+    <ChoroplethMarker key={city.label} {...city} />
+  ))}
+  <ChoroplethTooltip getFeatureValue={getVisitorValue} valueLabel="Visitors" />
+</ChoroplethChart>`,
+      render: () => <ChoroplethClickToZoom />,
+    },
+    {
+      title: "Choropleth Chart - Dot Grid",
+      description:
+        "The whole map as one dot lattice, tilted back, fading out at the edges",
+      code: `${choroplethCitiesSnippet}
+
+<ChoroplethChart
+  aspectRatio="16 / 9"
+  clickToZoom
+  data={geojson}
+  focusMaxZoom={2}
+  perspective={{
+    overview: { tilt: 30 },
+    focus: { view: "auto", yaw: 10, tilt: 24 },
+  }}
+>
+  <ChoroplethDotGrid
+    edgeFade={20}
+    fadedOpacity={0.5}
+    getFeatureColor={getVisitorColor}
+    oceanOpacity={0.35}
+  />
+  {cities.map((city) => (
+    <ChoroplethMarker color="var(--chart-2)" key={city.label} size={12} {...city} />
+  ))}
+  <ChoroplethTooltip getFeatureValue={getVisitorValue} valueLabel="Visitors" />
+</ChoroplethChart>`,
+      render: () => <ChoroplethDots />,
+    },
+    {
+      title: "Choropleth Chart - Pointer Camera",
+      description:
+        "The map swings from west to east as the pointer crosses it, over a static dot background",
+      code: `${choroplethCitiesSnippet}
+
+<ChoroplethChart
+  aspectRatio="16 / 9"
+  clickToZoom
+  data={geojson}
+  perspective={{
+    overview: { view: "pointer", yaw: 14, tilt: 18 },
+    focus: { view: "auto", tilt: 28 },
+  }}
+>
+  <ChoroplethBackground hideOnFocus pattern="dots" />
+  <ChoroplethFeatureComponent fill="var(--chart-scale-02)" />
+  {cities.map((city) => (
+    <ChoroplethMarker
+      color="var(--chart-1)"
+      glow={6}
+      key={city.label}
+      pulse="always"
+      shape="pin"
+      size={10}
+      {...city}
+    />
+  ))}
+  <ChoroplethTooltip />
+</ChoroplethChart>`,
+      render: () => <ChoroplethPointerCamera />,
     },
   ];
 }

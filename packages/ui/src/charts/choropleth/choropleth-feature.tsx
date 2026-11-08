@@ -5,6 +5,7 @@ import { m, useTransform } from "motion/react";
 import { memo, useCallback, useMemo } from "react";
 import { useEnterComplete } from "../use-enter-complete";
 import { useMountProgress } from "../use-mount-progress";
+import { useChoroplethCamera } from "./choropleth-camera";
 import {
   type ChoroplethFeature as ChoroplethFeatureType,
   defaultChoroplethColors,
@@ -63,8 +64,10 @@ const StaticFeatureLayer = memo(function StaticFeatureLayer({
   baseOpacity,
   dimOpacity,
   hoveredIndex,
+  focusedIndex,
   onFeatureEnter,
   onFeatureLeave,
+  onFeatureClick,
 }: {
   records: FeatureRecord[];
   stroke: string;
@@ -72,8 +75,11 @@ const StaticFeatureLayer = memo(function StaticFeatureLayer({
   baseOpacity: number;
   dimOpacity: number;
   hoveredIndex: number | null;
+  /** Region the camera is focused on — never dimmed. */
+  focusedIndex: number | null;
   onFeatureEnter: (record: FeatureRecord) => void;
   onFeatureLeave: () => void;
+  onFeatureClick: (index: number) => void;
 }) {
   const isDimmed = hoveredIndex !== null;
 
@@ -87,6 +93,7 @@ const StaticFeatureLayer = memo(function StaticFeatureLayer({
             d={record.path}
             fill={record.fill}
             key={`base-${record.index}`}
+            onClick={() => onFeatureClick(record.index)}
             onMouseEnter={() => onFeatureEnter(record)}
             onMouseLeave={onFeatureLeave}
             stroke={stroke}
@@ -97,13 +104,18 @@ const StaticFeatureLayer = memo(function StaticFeatureLayer({
     );
   }
 
-  const highlighted = records.find((record) => record.index === hoveredIndex);
+  const isLit = (index: number) =>
+    index === hoveredIndex || index === focusedIndex;
+  // Focused region first so a hovered neighbour draws on top of it.
+  const highlighted = records
+    .filter((record) => isLit(record.index))
+    .sort((a) => (a.index === hoveredIndex ? 1 : -1));
 
   return (
     <>
       <g opacity={dimOpacity} style={{ transition: "opacity 0.18s ease-out" }}>
         {records
-          .filter((record) => record.index !== hoveredIndex)
+          .filter((record) => !isLit(record.index))
           .map((record) => (
             // biome-ignore lint/a11y/noStaticElementInteractions: SVG path used as hover hitbox
             <path
@@ -111,6 +123,7 @@ const StaticFeatureLayer = memo(function StaticFeatureLayer({
               d={record.path}
               fill={record.fill}
               key={`base-${record.index}`}
+              onClick={() => onFeatureClick(record.index)}
               onMouseEnter={() => onFeatureEnter(record)}
               onMouseLeave={onFeatureLeave}
               stroke={stroke}
@@ -118,21 +131,22 @@ const StaticFeatureLayer = memo(function StaticFeatureLayer({
             />
           ))}
       </g>
-      {highlighted ? (
+      {highlighted.map((record) => (
         // biome-ignore lint/a11y/noStaticElementInteractions: SVG path used as hover hitbox
         <path
           className="cursor-pointer"
-          d={highlighted.path}
-          fill={highlighted.fill}
-          key={`highlight-${highlighted.index}`}
-          onMouseEnter={() => onFeatureEnter(highlighted)}
+          d={record.path}
+          fill={record.fill}
+          key={`highlight-${record.index}`}
+          onClick={() => onFeatureClick(record.index)}
+          onMouseEnter={() => onFeatureEnter(record)}
           onMouseLeave={onFeatureLeave}
           opacity={1}
           stroke={stroke}
           strokeWidth={strokeWidth}
           style={{ transition: "opacity 0.18s ease-out" }}
         />
-      ) : null}
+      ))}
     </>
   );
 });
@@ -144,8 +158,10 @@ const EnterFeatureLayer = memo(function EnterFeatureLayer({
   baseOpacity,
   dimOpacity,
   hoveredIndex,
+  focusedIndex,
   onFeatureEnter,
   onFeatureLeave,
+  onFeatureClick,
   revealEpoch,
 }: {
   records: FeatureRecord[];
@@ -154,8 +170,11 @@ const EnterFeatureLayer = memo(function EnterFeatureLayer({
   baseOpacity: number;
   dimOpacity: number;
   hoveredIndex: number | null;
+  /** Region the camera is focused on — never dimmed. */
+  focusedIndex: number | null;
   onFeatureEnter: (record: FeatureRecord) => void;
   onFeatureLeave: () => void;
+  onFeatureClick: (index: number) => void;
   revealEpoch: number;
 }) {
   const { enterTransition, animationDuration } = useChoroplethStable();
@@ -172,7 +191,9 @@ const EnterFeatureLayer = memo(function EnterFeatureLayer({
       <StaticFeatureLayer
         baseOpacity={baseOpacity}
         dimOpacity={dimOpacity}
+        focusedIndex={focusedIndex}
         hoveredIndex={hoveredIndex}
+        onFeatureClick={onFeatureClick}
         onFeatureEnter={onFeatureEnter}
         onFeatureLeave={onFeatureLeave}
         records={records}
@@ -198,6 +219,7 @@ const EnterFeatureLayer = memo(function EnterFeatureLayer({
           d={record.path}
           fill={record.fill}
           key={`enter-${record.index}`}
+          onClick={() => onFeatureClick(record.index)}
           onMouseEnter={() => onFeatureEnter(record)}
           onMouseLeave={onFeatureLeave}
           stroke={stroke}
@@ -293,8 +315,12 @@ export const ChoroplethFeature = memo(function ChoroplethFeature({
     pathGenerator,
   ]);
 
+  const camera = useChoroplethCamera();
   const handleFeatureEnter = useCallback(
     (record: FeatureRecord) => {
+      if (!camera.isHoverable(`feature:${record.index}`)) {
+        return;
+      }
       setHoveredFeatureIndex(record.index);
       setTooltipData({
         featureIndex: record.index,
@@ -303,7 +329,7 @@ export const ChoroplethFeature = memo(function ChoroplethFeature({
         feature: record.feature,
       });
     },
-    [height, setHoveredFeatureIndex, setTooltipData, width]
+    [camera, height, setHoveredFeatureIndex, setTooltipData, width]
   );
 
   const handleFeatureLeave = useCallback(() => {
@@ -311,10 +337,21 @@ export const ChoroplethFeature = memo(function ChoroplethFeature({
     setTooltipData(null);
   }, [setHoveredFeatureIndex, setTooltipData]);
 
+  const handleFeatureClick = useCallback(
+    (index: number) => {
+      if (camera.enabled && !camera.wasDrag()) {
+        camera.focusFeature(index);
+      }
+    },
+    [camera]
+  );
+
   const layerProps = {
     baseOpacity: 0.85,
+    onFeatureClick: handleFeatureClick,
     dimOpacity: fadedOpacity,
     hoveredIndex: hoveredFeatureIndex,
+    focusedIndex: camera.focusedFeatureIndex,
     onFeatureEnter: handleFeatureEnter,
     onFeatureLeave: handleFeatureLeave,
     records,

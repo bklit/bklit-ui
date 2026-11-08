@@ -49,8 +49,10 @@ import {
   candlestickChartControlGroups,
   candlestickChartTooltipControlGroups,
   choroplethChartControlGroups,
+  choroplethDotGridControlGroups,
   choroplethFeatureControlGroups,
   choroplethGraticuleControlGroups,
+  choroplethMarkerControlGroups,
   composedChartControlGroups,
   composedOverlayLineControlGroups,
   deadlineControlGroups,
@@ -1701,7 +1703,6 @@ export function resolveCandlestickComponents(
 export function resolveChoroplethComponents(
   state: StudioUrlState
 ): StudioComponentDefinition[] {
-  const [design] = choroplethChartControlGroups;
   const chartId = "choropleth.chart";
 
   return [
@@ -1710,10 +1711,22 @@ export function resolveChoroplethComponents(
       label: "ChoroplethChart",
       kind: "chart",
       treeIcon: "layers",
-      controlGroups: design ? [design] : [],
+      controlGroups: choroplethChartControlGroups,
       // Background / foreground patterns live in the Design group above.
       design: { seriesIndex: 0, supportsPattern: false },
     },
+    ...(state.choroplethBackground
+      ? [
+          {
+            // Not ".background": that suffix is coupled to a sibling ".grid" layer.
+            id: "choropleth.backdrop",
+            label: "ChoroplethBackground",
+            parentId: chartId,
+            kind: "chart" as StudioComponentKind,
+            controlGroups: backgroundControlGroups,
+          },
+        ]
+      : []),
     ...(state.showGraticule
       ? [
           {
@@ -1725,13 +1738,32 @@ export function resolveChoroplethComponents(
           },
         ]
       : []),
-    {
-      id: "choropleth.features",
-      label: "ChoroplethFeatureComponent",
-      parentId: chartId,
-      kind: "series",
-      controlGroups: choroplethFeatureControlGroups,
-    },
+    state.choroplethRender === "dots"
+      ? {
+          id: "choropleth.dots",
+          label: "ChoroplethDotGrid",
+          parentId: chartId,
+          kind: "series",
+          controlGroups: choroplethDotGridControlGroups,
+        }
+      : {
+          id: "choropleth.features",
+          label: "ChoroplethFeatureComponent",
+          parentId: chartId,
+          kind: "series",
+          controlGroups: choroplethFeatureControlGroups,
+        },
+    ...(state.choroplethShowMarkers
+      ? [
+          {
+            id: "choropleth.markers",
+            label: "ChoroplethMarker",
+            parentId: chartId,
+            kind: "chart" as StudioComponentKind,
+            controlGroups: choroplethMarkerControlGroups,
+          },
+        ]
+      : []),
     {
       id: "choropleth.tooltip",
       label: "ChoroplethTooltip",

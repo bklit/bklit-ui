@@ -9,6 +9,11 @@ import {
   parseAsStringLiteral,
 } from "nuqs/server";
 import { validChartSlugs } from "@/chart-slugs";
+import {
+  CHOROPLETH_ZOOM_EASE_IDS,
+  type ChoroplethZoomEaseId,
+  DEFAULT_CHOROPLETH_MARKERS,
+} from "./choropleth-studio-options";
 import type { ColorPresetId } from "./color-presets";
 import { COLOR_PRESET_IDS } from "./color-presets";
 import type { CurveId } from "./curves";
@@ -759,6 +764,63 @@ export const studioSearchParams = {
   choroplethFeatureStrokeWidth: parseAsFloat.withDefault(0.5),
   choroplethFeatureFadedOpacity: parseAsFloat.withDefault(0.4),
   choroplethGraticuleStrokeWidth: parseAsFloat.withDefault(0.5),
+  choroplethRender: parseAsStringLiteral(["fill", "dots"]).withDefault("fill"),
+  choroplethDotGap: parseAsFloat.withDefault(7),
+  choroplethDotSize: parseAsFloat.withDefault(0.7),
+  choroplethDotLattice: parseAsStringLiteral(["hex", "square"]).withDefault(
+    "hex"
+  ),
+  choroplethDotOcean: parseAsBoolean.withDefault(true),
+  choroplethDotOceanOpacity: parseAsFloat.withDefault(0.55),
+  choroplethDotEdgeFade: parseAsFloat.withDefault(12),
+  choroplethClickZoom: parseAsBoolean.withDefault(true),
+  choroplethZoomDuration: parseAsFloat.withDefault(700),
+  choroplethZoomEase: parseAsStringLiteral(
+    CHOROPLETH_ZOOM_EASE_IDS
+  ).withDefault("inOutQuint"),
+  choroplethFocusMaxZoom: parseAsFloat.withDefault(6),
+  choroplethOverviewView: parseAsStringLiteral([
+    "flat",
+    "west",
+    "east",
+    "pointer",
+  ]).withDefault("flat"),
+  choroplethOverviewYaw: parseAsFloat.withDefault(18),
+  choroplethOverviewTilt: parseAsFloat.withDefault(0),
+  choroplethFocusView: parseAsStringLiteral([
+    "auto",
+    "flat",
+    "west",
+    "east",
+  ]).withDefault("auto"),
+  choroplethFocusYaw: parseAsFloat.withDefault(18),
+  choroplethFocusTilt: parseAsFloat.withDefault(24),
+  choroplethDepth: parseAsFloat.withDefault(1600),
+  choroplethShowMarkers: parseAsBoolean.withDefault(true),
+  choroplethMarkers: parseAsString.withDefault(DEFAULT_CHOROPLETH_MARKERS),
+  choroplethMarkerShape: parseAsStringLiteral([
+    "circle",
+    "triangle",
+    "square",
+    "diamond",
+    "pin",
+  ]).withDefault("circle"),
+  choroplethMarkerPulse: parseAsStringLiteral([
+    "none",
+    "hover",
+    "always",
+  ]).withDefault("hover"),
+  choroplethMarkerSize: parseAsFloat.withDefault(9),
+  choroplethMarkerColor: parseAsString.withDefault("var(--foreground)"),
+  choroplethMarkerGlow: parseAsFloat.withDefault(6),
+  choroplethMarkerLabels: parseAsBoolean.withDefault(false),
+  choroplethBackground: parseAsBoolean.withDefault(false),
+  choroplethHideContextOnFocus: parseAsBoolean.withDefault(true),
+  choroplethDotZoomSize: parseAsFloat.withDefault(0.9),
+  choroplethMarkerStroke: parseAsBoolean.withDefault(false),
+  choroplethMarkerStrokeColor: parseAsString.withDefault("var(--background)"),
+  choroplethMarkerStrokeWidth: parseAsFloat.withDefault(1.5),
+  choroplethEdgeFade: parseAsFloat.withDefault(0),
   funnelLabelLayout: parseAsStringLiteral([
     "spread",
     "grouped",
@@ -1288,6 +1350,39 @@ export interface StudioUrlState {
   choroplethFeatureStrokeWidth: number;
   choroplethFeatureFadedOpacity: number;
   choroplethGraticuleStrokeWidth: number;
+  choroplethRender: "fill" | "dots";
+  choroplethDotGap: number;
+  choroplethDotSize: number;
+  choroplethDotLattice: "hex" | "square";
+  choroplethDotOcean: boolean;
+  choroplethDotOceanOpacity: number;
+  choroplethDotEdgeFade: number;
+  choroplethClickZoom: boolean;
+  choroplethZoomDuration: number;
+  choroplethZoomEase: ChoroplethZoomEaseId;
+  choroplethFocusMaxZoom: number;
+  choroplethOverviewView: "flat" | "west" | "east" | "pointer";
+  choroplethOverviewYaw: number;
+  choroplethOverviewTilt: number;
+  choroplethFocusView: "auto" | "flat" | "west" | "east";
+  choroplethFocusYaw: number;
+  choroplethFocusTilt: number;
+  choroplethDepth: number;
+  choroplethShowMarkers: boolean;
+  choroplethMarkers: string;
+  choroplethMarkerShape: "circle" | "triangle" | "square" | "diamond" | "pin";
+  choroplethMarkerPulse: "none" | "hover" | "always";
+  choroplethMarkerSize: number;
+  choroplethMarkerColor: string;
+  choroplethMarkerGlow: number;
+  choroplethMarkerLabels: boolean;
+  choroplethBackground: boolean;
+  choroplethHideContextOnFocus: boolean;
+  choroplethDotZoomSize: number;
+  choroplethMarkerStroke: boolean;
+  choroplethMarkerStrokeColor: string;
+  choroplethMarkerStrokeWidth: number;
+  choroplethEdgeFade: number;
   funnelLabelLayout: "spread" | "grouped";
   funnelLabelAlign: "center" | "start" | "end";
   /** `auto` omits `labelOrientation` (component picks by funnel orientation). */
@@ -1820,6 +1915,39 @@ export function defaultStudioState(
     choroplethFeatureStrokeWidth: 0.5,
     choroplethFeatureFadedOpacity: 0.4,
     choroplethGraticuleStrokeWidth: 0.5,
+    choroplethRender: "fill",
+    choroplethDotGap: 7,
+    choroplethDotSize: 0.7,
+    choroplethDotLattice: "hex",
+    choroplethDotOcean: true,
+    choroplethDotOceanOpacity: 0.55,
+    choroplethDotEdgeFade: 12,
+    choroplethClickZoom: true,
+    choroplethZoomDuration: 700,
+    choroplethZoomEase: "inOutQuint",
+    choroplethFocusMaxZoom: 6,
+    choroplethOverviewView: "flat",
+    choroplethOverviewYaw: 18,
+    choroplethOverviewTilt: 0,
+    choroplethFocusView: "auto",
+    choroplethFocusYaw: 18,
+    choroplethFocusTilt: 24,
+    choroplethDepth: 1600,
+    choroplethShowMarkers: true,
+    choroplethMarkers: DEFAULT_CHOROPLETH_MARKERS,
+    choroplethMarkerShape: "circle",
+    choroplethMarkerPulse: "hover",
+    choroplethMarkerSize: 9,
+    choroplethMarkerColor: "var(--foreground)",
+    choroplethMarkerGlow: 6,
+    choroplethMarkerLabels: false,
+    choroplethBackground: false,
+    choroplethHideContextOnFocus: true,
+    choroplethDotZoomSize: 0.9,
+    choroplethMarkerStroke: false,
+    choroplethMarkerStrokeColor: "var(--background)",
+    choroplethMarkerStrokeWidth: 1.5,
+    choroplethEdgeFade: 0,
     funnelLabelLayout: "spread",
     funnelLabelAlign: "center",
     funnelLabelOrientation: "auto",
