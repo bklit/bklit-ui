@@ -1,0 +1,33 @@
+---
+title: Gauge dials
+description: Build full dials from rulers, needles, zones, sectors, rings, dots, glow and a center disc.
+date: 2026-11-08T12:00:00Z
+image: /changelog/2026-11-08-gauge-dials.svg
+imageAlt: A dial with a ruled outer scale, a needle from a small ring at the center and rings of dots lit up to the needle
+tags: [gauge-chart, recipes]
+---
+
+A row of notches covers a progress meter. A speedometer, a fan duty readout or a throughput dial needs more: a scale, a pointer and a red line. `Gauge` now has dial layers you can stack on any arc gauge, and it sizes them for you.
+
+## Layers that compose
+
+Each layer is one prop. Pass `true` for the default look or an object to tune it.
+
+- **`arcStyle`** draws the track as `notches` (the default), one `solid` stroke, or `none`, so a sector or ring can carry the value on its own.
+- **`ruler`** adds ticks inside or outside the track. Ticks brighten as the fill passes them. Labels can show every major tick or just the two ends, in your own units: `labels: { min: 0, max: 800 }`.
+- **`needle`** comes as `line`, `gradient`, `triangle` or `polygon`. `tip` stops it inside the track, at its outer edge, or past the outermost layer.
+- **`zones`** marks ranges such as a red line. Show them as a thin band, as a colour change in the fill (`zoneDisplay="fill"`), or both.
+- **`sector`** fills the wedge up to the value with a conic or radial gradient, a flat colour or a pattern.
+- **`progressRing`**, **`dots`**, **`glow`** and **`centerDisc`** add a value ring, rings of dots that light up, a soft bloom and a disc behind the label.
+
+Rings, zone bands and an outside ruler take space from the outside in, and the track shrinks to fit. Stack them without tuning any radii.
+
+## A sweep instead of a bounce
+
+The enter animation is new. The track fades in, then the fill, the needle, the sector, the ring and the dots sweep together from zero to the value on a spring with no bounce. When `value` changes, the sweep carries on from where it is and keeps its speed. Use `enterTransition` to change the timing. With reduced motion on, the gauge appears at its value straight away.
+
+## Six new recipes
+
+A dashboard dial, a speedometer, a conic sector KPI dial, a solid fan duty gauge, a progress dots uptime gauge and a live load dial are ready to copy from [Recipes](/recipes?category=gauges).
+
+See the [gauge docs](/docs/components/gauge-chart#dial-features) for every option.
