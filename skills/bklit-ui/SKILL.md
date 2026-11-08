@@ -96,6 +96,7 @@ import { chartCssVars } from "@/components/charts/chart-context";
 - `ChartTooltip` `content` receives `({ point, index })`; `rows` returns `{ color, label, value }[]`.
 - `indicatorColor` is a string or `(point) => string`.
 - Custom crosshairs/indicators use `useChart()` — never global mouse listeners.
+- Finance-style horizontal crosshair + y-axis value pill: `ChartCrosshair` (`@bklit/chart-crosshair`) with `ChartTooltip showCrosshair={false}`; set `yAxisId` to the axis the pill reads.
 
 ### Sparklines (`@bklit/sparkline`)
 - `LineSparkline` / `AreaSparkline` / `BarSparkline` are **single elements** — `data` + `dataKey`, no children. Don't build sparklines from `LineChart` with hidden axes.
@@ -222,7 +223,7 @@ Install all three with `npx skills add bklit/bklit-ui`.
 
 - [composition.md](./rules/composition.md) — structure, data shapes, multi-series
 - [theming.md](./rules/theming.md) — tokens, `chartCssVars`, dark mode
-- [tooltips.md](./rules/tooltips.md) — `ChartTooltip` props, custom content, `useChart`
+- [tooltips.md](./rules/tooltips.md) — `ChartTooltip` props, `ChartCrosshair`, custom content, `useChart`
 - [overlays.md](./rules/overlays.md) — legend, markers, reference area, projection, trend line, background, brush
 - [animation.md](./rules/animation.md) — enter timing, replay, live charts, reduced motion
 - [loading.md](./rules/loading.md) — `status`, skeletons, loading labels

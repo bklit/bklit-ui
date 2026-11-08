@@ -4,7 +4,7 @@ description: An interactive tooltip component for charts with crosshair, dots, d
 ---
 
 import { LineChart, Line, Grid, ChartTooltip, XAxis } from "@bklitui/ui/charts";
-import { TooltipDefaultDemo, TooltipCrosshairOnlyDemo, TooltipMinimalDemo, TooltipCustomRowsDemo, TooltipBarChartDemo, TooltipCustomContentDemo, TooltipSolidCrosshairDemo, TooltipCrosshairFadeTopDemo, TooltipDashedCrosshairDemo, TooltipMatchCrosshairDemo, TooltipPanelDampingDemo } from "@/components/docs/tooltip-demo";
+import { TooltipDefaultDemo, TooltipCrosshairOnlyDemo, TooltipMinimalDemo, TooltipCustomRowsDemo, TooltipBarChartDemo, TooltipCustomContentDemo, TooltipSolidCrosshairDemo, TooltipCrosshairFadeTopDemo, TooltipDashedCrosshairDemo, TooltipMatchCrosshairDemo, TooltipPanelDampingDemo, TooltipHorizontalCrosshairDemo } from "@/components/docs/tooltip-demo";
 
 <ComponentPreview registryName="chart-tooltip">
   <TooltipDefaultDemo />
@@ -78,7 +78,7 @@ interface TooltipRow {
 
 The tooltip has several visual components:
 
-1. **Crosshair** - Vertical line that follows the cursor
+1. **Crosshair** - Vertical line that follows the cursor (add [`ChartCrosshair`](#horizontal-crosshair) for a horizontal line and y-axis value pill)
 2. **Dots** - A solid dot with a soft halo in the series color on each data point at the hovered position
 3. **Tooltip Box** - Popover-style panel: a header row with the date / category, a full-width separator, then rows (color dot, muted label, right-aligned value)
 4. **Date Pill** - Animated date ticker at the bottom
@@ -298,6 +298,61 @@ Use the `content` prop for complete control over the tooltip layout.
 </LineChart>`}>
   <TooltipCustomContentDemo />
 </ComponentShowcase>
+
+## Horizontal crosshair
+
+`ChartCrosshair` adds a finance-style crosshair: a horizontal line that tracks the cursor's y, with the value under the cursor in a pill on the y-axis, plus a vertical line on the hovered column. The pill matches the date pill on the x-axis — same look, same spring — and a `YAxis` on the same axis fades the ticks it covers, the way `XAxis` labels fade under the date pill.
+
+<ComponentShowcase code={`<LineChart data={data} margin={{ left: 56 }}>
+  <Grid horizontal />
+  <Line dataKey="users" stroke="var(--chart-line-primary)" />
+  <YAxis />
+  <XAxis />
+  <ChartCrosshair numberFlow format={{ maximumFractionDigits: 0 }} />
+  <ChartTooltip showCrosshair={false} />
+</LineChart>`}>
+  <TooltipHorizontalCrosshairDemo />
+</ComponentShowcase>
+
+<InstallationTabs name="chart-crosshair" dependencies={["@number-flow/react", "motion"]} />
+
+Pair it with `<ChartTooltip showCrosshair={false} />` so the tooltip keeps its panel, dots and date pill while `ChartCrosshair` draws both lines. It works in every time-series chart (`LineChart`, `AreaChart`, `ComposedChart`, `CandlestickChart`).
+
+```tsx
+// Price on a right axis: the pill sits on the right and reads that axis.
+<ComposedChart data={ohlcv} margin={{ right: 72 }}>
+  <Candlestick yAxisId="right" />
+  <YAxis orientation="right" yAxisId="right" />
+  <ChartCrosshair
+    yAxisId="right"
+    numberFlow
+    prefix="$"
+    format={{ minimumFractionDigits: 2, maximumFractionDigits: 2 }}
+  />
+  <ChartTooltip showCrosshair={false} />
+</ComposedChart>
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `yAxisId` | `string \| number` | `"left"` | Axis whose scale converts the cursor y into the pill value. The `YAxis` with the same id fades its ticks under the pill |
+| `side` | `"left" \| "right"` | `"right"` for the `right` axis, else `"left"` | Which plot edge the pill sits on |
+| `snap` | `boolean` | `true` | Snap the vertical line to the hovered column. `false` follows the cursor, so both lines cross under the pointer (good for scatter) |
+| `horizontal` | `boolean` | `true` | Draw the horizontal line and pill |
+| `vertical` | `boolean` | `true` | Draw the vertical line |
+| `showValueLabel` | `boolean` | `true` | Show the y-axis value pill |
+| `numberFlow` | `boolean` | `false` | Roll digits with NumberFlow. Uses `format`, `prefix` and `suffix` |
+| `format` | `Intl.NumberFormatOptions` subset | `{ maximumFractionDigits: 2 }` | Number format for the pill |
+| `prefix` / `suffix` | `string` | — | Text around the value (e.g. `"$"`, `"%"`) |
+| `formatValue` | `(value: number) => string` | — | Custom formatter for the static pill (ignored with `numberFlow`) |
+| `stroke` | `string` | `var(--chart-crosshair)` | Line colour |
+| `strokeDasharray` | `string` | `"3,3"` | Line dash pattern |
+| `strokeWidth` | `number` | `1` | Line width |
+| `springConfig` | `{ stiffness: number; damping: number }` | chart tooltip spring | Spring for both lines and the pill |
+
+The pill is wider than a typical axis gutter, so give the chart enough `margin` on the pill's side (about 56–72px for prices with cents).
+
+**Performance.** Pointer moves never re-render React: the lines and pill follow motion values, and the static label and y-tick fades are written straight to the DOM. NumberFlow is the one exception — its updates are throttled, but each one still re-styles the digits, so leave `numberFlow` off on dense dashboards or many charts per page.
 
 ## Animation
 

@@ -40,6 +40,33 @@
 | `panelStyle`, `className` | `CSSProperties`, `string` | — |
 | `children` | `ReactNode` | rendered below rows (e.g. marker content) |
 
+## Horizontal crosshair (`ChartCrosshair`)
+
+`ChartCrosshair` (`@/components/charts/chart-crosshair`, item `@bklit/chart-crosshair`) draws a horizontal line at the cursor's y with the axis value in a pill (styled like the date pill), plus a vertical line on the hovered column. Use it for finance-style charts (price + volume, scatter). Pair with `ChartTooltip showCrosshair={false}` so the vertical line isn't drawn twice. A `YAxis` with the same `yAxisId` fades the ticks under the pill automatically.
+
+```tsx
+<ComposedChart data={ohlcv} margin={{ right: 72 }}>
+  <Candlestick yAxisId="right" />
+  <YAxis orientation="right" yAxisId="right" />
+  <ChartCrosshair yAxisId="right" numberFlow prefix="$" format={{ minimumFractionDigits: 2, maximumFractionDigits: 2 }} />
+  <ChartTooltip showCrosshair={false} />
+</ComposedChart>
+```
+
+| Prop | Type | Default |
+|---|---|---|
+| `yAxisId` | `string \| number` (axis the pill reads) | `"left"` |
+| `side` | `"left" \| "right"` | `"right"` for the `right` axis, else `"left"` |
+| `snap` | `boolean` (`false` = vertical line follows the cursor) | `true` |
+| `horizontal`, `vertical`, `showValueLabel` | `boolean` | `true` |
+| `numberFlow` | `boolean` (uses `format` / `prefix` / `suffix`) | `false` |
+| `format` | `Intl.NumberFormatOptions` subset | `{ maximumFractionDigits: 2 }` |
+| `formatValue` | `(value) => string` (static pill only) | — |
+| `stroke`, `strokeDasharray`, `strokeWidth` | `string`, `string`, `number` | `--chart-crosshair`, `"3,3"`, `1` |
+| `springConfig` | `{ stiffness, damping }` | chart tooltip spring |
+
+Give the pill's side enough `margin` (56–72px for prices with cents). Leave `numberFlow` off on dense dashboards — it's the only part that re-renders on hover.
+
 ## Custom rows (keeps the built-in panel)
 
 ```tsx
@@ -113,4 +140,4 @@ function CustomIndicator() {
 
 `tooltipData` is `{ point, index, x, yPositions, xPositions? } | null`. Check the installed `chart-context.tsx` for the full context value.
 
-Docs: https://bklit.com/docs/utility/tooltip · https://bklit.com/docs/utility/custom-indicator · https://bklit.com/docs/utility/use-chart
+Docs: https://bklit.com/docs/utility/tooltip (incl. #horizontal-crosshair) · https://bklit.com/docs/utility/custom-indicator · https://bklit.com/docs/utility/use-chart
