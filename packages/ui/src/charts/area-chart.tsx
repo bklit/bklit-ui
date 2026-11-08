@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils";
 import { Area, type AreaProps } from "./area";
 import { AreaValueLabels } from "./area-value-labels";
 import { type LineConfig, type Margin, useStableMargin } from "./chart-context";
+import { useChartDataOverride } from "./chart-data-override";
 import { ChartLoadingLabel } from "./chart-loading-label";
 import { ParentSize } from "./chart-parent-size";
 import {
@@ -123,7 +124,7 @@ function extractAreaConfigs(children: ReactNode): (LineConfig & AreaProps)[] {
 }
 
 export function AreaChart({
-  data,
+  data: dataProp,
   xDataKey = "date",
   margin: marginProp,
   animationDuration = 1100,
@@ -143,6 +144,9 @@ export function AreaChart({
   onPhaseChange,
   children,
 }: AreaChartProps) {
+  const { data } = useChartDataOverride("AreaChart", {
+    data: dataProp,
+  });
   const containerRef = useRef<HTMLDivElement>(null);
   const margin = useStableMargin({ ...DEFAULT_MARGIN, ...marginProp });
   const lines = useMemo(() => extractAreaConfigs(children), [children]);

@@ -142,7 +142,7 @@ All items install with `npx shadcn@latest add @bklit/<item>`. For any `<item>`:
 | `pie-chart` | Part-to-whole slices, optional center stat |
 | `ring-chart` | Concentric progress rings / donut KPIs |
 | `radar-chart` | Multi-metric comparison across entities |
-| `gauge-chart` | Single value 0–100, arc or linear notched track |
+| `gauge-chart` | Single value 0–100: notched / solid / sector dial with ruler, needle, zones, progress ring, dots, glow, center disc — or a linear notch track ([composition.md](./rules/composition.md#gauge)) |
 | `heatmap-chart` | Calendar / contribution grids, binned intensity |
 | `funnel-chart` | Stage-to-stage conversion |
 | `sankey-chart` | Flows between nodes |

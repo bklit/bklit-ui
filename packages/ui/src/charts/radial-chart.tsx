@@ -24,6 +24,7 @@ import {
   useState,
 } from "react";
 import { cn } from "@/lib/utils";
+import { useChartDataOverride } from "./chart-data-override";
 import { useElementSize } from "./chart-parent-size";
 import {
   cartesianToAngle,
@@ -632,7 +633,7 @@ function computeValueDomain({
  * hover and the enter flag, and exposes them through {@link useRadialChart}.
  */
 export function RadialChart({
-  data,
+  data: dataProp,
   xDataKey = "time",
   series,
   layout: layoutProp,
@@ -655,6 +656,9 @@ export function RadialChart({
   className,
   children,
 }: RadialChartProps) {
+  const { data } = useChartDataOverride("RadialChart", {
+    data: dataProp,
+  });
   const stageRef = useRef<HTMLDivElement>(null);
   const { width } = useElementSize(stageRef, 100);
   const layout = useMemo(

@@ -5,6 +5,7 @@ import type { Transition } from "motion/react";
 import { domAnimation, LazyMotion } from "motion/react";
 import { type ReactNode, useCallback, useState } from "react";
 import { cn } from "@/lib/utils";
+import { useChartDataOverride } from "./chart-data-override";
 import { ParentSize } from "./chart-parent-size";
 import {
   defaultRadarColors,
@@ -184,8 +185,8 @@ function RadarChartInner({
 }
 
 export function RadarChart({
-  data,
-  metrics,
+  data: dataProp,
+  metrics: metricsProp,
   size: fixedSize,
   levels = 5,
   margin = 60,
@@ -199,6 +200,10 @@ export function RadarChart({
   onHoverChange,
   children,
 }: RadarChartProps) {
+  const { data, metrics } = useChartDataOverride("RadarChart", {
+    data: dataProp,
+    metrics: metricsProp,
+  });
   // If fixed size is provided, use it directly
   if (fixedSize) {
     return (

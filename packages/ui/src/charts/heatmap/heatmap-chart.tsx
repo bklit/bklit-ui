@@ -13,6 +13,7 @@ import {
 } from "react";
 import { cn } from "@/lib/utils";
 import type { Margin } from "../chart-context";
+import { useChartDataOverride } from "../chart-data-override";
 import { ChartLoadingLabel } from "../chart-loading-label";
 import { useElementSize } from "../chart-parent-size";
 import {
@@ -23,11 +24,11 @@ import {
 } from "../chart-phase";
 import {
   HEATMAP_DEFAULT_ENTER_DURATION_MS,
-  HEATMAP_DEFAULT_ENTER_TRANSITION,
   HEATMAP_DEFAULT_LOADING_CELL_MAX_OPACITY,
   HEATMAP_DEFAULT_LOADING_CELL_RANDOMNESS,
   HEATMAP_LOADING_CHART_OPACITY,
   HEATMAP_LOADING_CONCEAL_MS,
+  resolveHeatmapWaveTiming,
 } from "./heatmap-animation";
 import type { HeatmapLevelColors, HeatmapLevelStyles } from "./heatmap-colors";
 import {
@@ -95,13 +96,21 @@ export interface HeatmapChartProps {
   status?: ChartStatus;
   /** Centered label while loading. */
   loadingLabel?: string;
-  /** Enter animation duration in milliseconds. Default: 1600 */
+  /**
+   * Column-wave sweep in milliseconds when no `enterTransition` is passed:
+   * cells fade in column by column, left to right, on the line chart reveal
+   * curve. Default: 1100
+   */
   animationDuration?: number;
-  /** Motion enter transition (spring or cubic-bezier tween). */
+  /**
+   * Column-wave sweep timing, as for the line chart clip reveal: `duration` and
+   * cubic-bezier `ease` shape the wavefront (springs use their duration with
+   * the default curve). Each cell settles in over a soft 450 ms ease-out.
+   */
   enterTransition?: Transition;
   /** Signature of motion URL state — triggers enter replay when it changes. */
   revealSignature?: string;
-  /** Scales wave stagger delays (1 = default). */
+  /** Scales the column wave sweep (1 = default). */
   enterStaggerScale?: number;
   /** Play enter fade-in / loading shimmer animations. Default: true */
   animate?: boolean;
@@ -501,11 +510,14 @@ function useHeatmapChartLifecycle({
   animationDuration,
   revealSignature = "",
   animate,
+  revealDurationMs,
 }: {
   chartStatus: ChartStatus;
   animationDuration: number;
   revealSignature?: string;
   animate: boolean;
+  /** How long the reveal phase lasts (the full column wave). */
+  revealDurationMs: number;
 }) {
   const reducedMotion = useReducedMotion();
   const animateCells = animate && !reducedMotion;
@@ -589,15 +601,15 @@ function useHeatmapChartLifecycle({
     return () => window.clearTimeout(timer);
   }, [chartPhase]);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: revealEpoch replays finish timer
   useEffect(() => {
     if (!animateEnter || chartPhase !== "revealing") {
       return;
     }
 
-    const finishTimer = window.setTimeout(finishReveal, animationDuration);
+    // Small buffer: cells mount a frame after the container is measured.
+    const finishTimer = window.setTimeout(finishReveal, revealDurationMs + 100);
     return () => window.clearTimeout(finishTimer);
-  }, [animateEnter, animationDuration, chartPhase, finishReveal, revealEpoch]);
+  }, [animateEnter, revealDurationMs, chartPhase, finishReveal, revealEpoch]);
 
   return {
     chartPhase,
@@ -609,7 +621,7 @@ function useHeatmapChartLifecycle({
 }
 
 export function HeatmapChart({
-  data,
+  data: dataProp,
   xDomain,
   sizingColumnCount,
   layout = "fluid",
@@ -624,7 +636,7 @@ export function HeatmapChart({
   status = DEFAULT_CHART_STATUS,
   loadingLabel,
   animationDuration = HEATMAP_DEFAULT_ENTER_DURATION_MS,
-  enterTransition = HEATMAP_DEFAULT_ENTER_TRANSITION,
+  enterTransition,
   revealSignature = "",
   enterStaggerScale = 1,
   animate = true,
@@ -636,7 +648,24 @@ export function HeatmapChart({
   weekStartDay = 0,
   children,
 }: HeatmapChartProps) {
-  const margin = { ...DEFAULT_MARGIN, ...marginProp };
+  const { data } = useChartDataOverride("HeatmapChart", {
+    data: dataProp,
+  });
+  // Stable across re-renders (e.g. the post-mount resize) so the context —
+  // and every cell — doesn't re-render mid-wave for an unchanged margin.
+  const marginTop = marginProp?.top ?? DEFAULT_MARGIN.top;
+  const marginRight = marginProp?.right ?? DEFAULT_MARGIN.right;
+  const marginBottom = marginProp?.bottom ?? DEFAULT_MARGIN.bottom;
+  const marginLeft = marginProp?.left ?? DEFAULT_MARGIN.left;
+  const margin = useMemo(
+    () => ({
+      top: marginTop,
+      right: marginRight,
+      bottom: marginBottom,
+      left: marginLeft,
+    }),
+    [marginBottom, marginLeft, marginRight, marginTop]
+  );
   const levelStyles = useMemo(
     () => resolveHeatmapLevelStyles(levelColors, levelStylesProp),
     [levelColors, levelStylesProp]
@@ -650,12 +679,21 @@ export function HeatmapChart({
     [levelStyles]
   );
 
+  const revealDurationMs = resolveHeatmapWaveTiming({
+    animationDurationMs: animationDuration,
+    enterTransition,
+    enterStaggerScale,
+    columnCount: data.length,
+    rowCount: data[0]?.bins.length ?? 7,
+  }).totalMs;
+
   const { chartPhase, isLoaded, revealEpoch, revealMode, animateCells } =
     useHeatmapChartLifecycle({
       chartStatus: status,
       animationDuration,
       revealSignature,
       animate,
+      revealDurationMs,
     });
 
   const showLoadingLabel = Boolean(
@@ -666,13 +704,11 @@ export function HeatmapChart({
 
   // Measure this container directly: visx 4's <ParentSize> renders children in
   // an absolutely positioned box, which collapses the content-sized fluid
-  // layout to zero height. `timing: "observer"` keeps visx useParentSize's
-  // timing (first size a frame after mount from the observer's content box,
-  // 300 ms debounce), which the cell enter animation was tuned on.
+  // layout to zero height. Measure in a layout effect so the sized grid
+  // commits before the first paint — a replay remount never shows a
+  // collapsed (zero-height) box and the page below doesn't jump.
   const parentRef = useRef<HTMLDivElement>(null);
-  const { width, height: parentHeight } = useElementSize(parentRef, 300, {
-    timing: "observer",
-  });
+  const { width, height: parentHeight } = useElementSize(parentRef, 300);
 
   return (
     <LazyMotion features={domAnimation}>

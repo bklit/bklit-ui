@@ -13,6 +13,10 @@ import React, {
   useState,
 } from "react";
 import { cn } from "@/lib/utils";
+import {
+  type ChartDataOverrideCodec,
+  useChartDataOverride,
+} from "../chart-data-override";
 import { ParentSize } from "../chart-parent-size";
 import {
   type ChoroplethFeature,
@@ -511,8 +515,59 @@ function ChoroplethChartInner({
   return content();
 }
 
+// registry-strip-start: present-dialog data editing (see scripts/registry-strip.mjs)
+type ChoroplethData = FeatureCollection<Geometry, ChoroplethFeatureProperties>;
+
+function choroplethFeatureKey(feature: ChoroplethFeature, index: number) {
+  return String(
+    feature.id ?? feature.properties?.id ?? feature.properties?.name ?? index
+  );
+}
+
+/**
+ * The editable view of a choropleth is its features' `id` + properties (one
+ * row per region) — the geometry stays out of the JSON. Rows map back to
+ * features by id (else position); removed rows drop the region.
+ */
+const choroplethDataCodec: ChartDataOverrideCodec<{ data: ChoroplethData }> = {
+  toView: ({ data }) =>
+    data.features.map((feature, index) => ({
+      ...feature.properties,
+      id: choroplethFeatureKey(feature, index),
+    })),
+  fromView: (view, inputs) => {
+    if (!Array.isArray(view)) {
+      return inputs;
+    }
+    const byKey = new Map<string, ChoroplethFeature>();
+    inputs.data.features.forEach((feature, index) => {
+      byKey.set(choroplethFeatureKey(feature, index), feature);
+    });
+    const features: ChoroplethFeature[] = [];
+    view.forEach((row: unknown, index) => {
+      if (!row || typeof row !== "object") {
+        return;
+      }
+      const { id, ...properties } = row as Record<string, unknown>;
+      const feature = byKey.get(String(id)) ?? inputs.data.features[index];
+      if (feature) {
+        // `id` is the row key; it was a property only if the feature had one.
+        if (feature.properties?.id !== undefined) {
+          properties.id = id;
+        }
+        features.push({
+          ...feature,
+          properties: properties as ChoroplethFeatureProperties,
+        });
+      }
+    });
+    return { data: { ...inputs.data, features } };
+  },
+};
+// registry-strip-end
+
 export function ChoroplethChart({
-  data,
+  data: dataProp,
   margin: marginProp,
   animationDuration = 800,
   enterTransition,
@@ -528,6 +583,11 @@ export function ChoroplethChart({
   className = "",
   children,
 }: ChoroplethChartProps) {
+  const { data } = useChartDataOverride(
+    "ChoroplethChart",
+    { data: dataProp },
+    choroplethDataCodec
+  );
   const margin = { ...DEFAULT_MARGIN, ...marginProp };
 
   return (

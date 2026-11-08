@@ -215,7 +215,24 @@ export {
   type FunnelStage,
 } from "./funnel-chart";
 // Gauge chart
-export { Gauge, type GaugeOrientation, type GaugeProps } from "./gauge";
+export {
+  Gauge,
+  type GaugeArcStyle,
+  type GaugeCenterDiscOptions,
+  type GaugeDotsOptions,
+  type GaugeGlowOptions,
+  type GaugeNeedleOptions,
+  type GaugeNeedleVariant,
+  type GaugeOrientation,
+  type GaugeProgressRingOptions,
+  type GaugeProps,
+  type GaugeRulerLabelOptions,
+  type GaugeRulerOptions,
+  type GaugeRulerPosition,
+  type GaugeSectorOptions,
+  type GaugeZone,
+  type GaugeZoneDisplay,
+} from "./gauge";
 export type {
   GaugeLabelAlign,
   GaugeLabelPlacement,

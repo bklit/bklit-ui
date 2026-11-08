@@ -9,6 +9,14 @@ import { customIndicators } from "./custom-indicators";
 import { diamondMarkers } from "./diamond-markers";
 import { dotMatrix } from "./dot-matrix";
 import { eventMarkers } from "./event-markers";
+import {
+  gaugeConicKpi,
+  gaugeDashboardDial,
+  gaugeFanDuty,
+  gaugeLiveLoad,
+  gaugeSpeedometer,
+  gaugeUptimeDots,
+} from "./gauge-recipes";
 import { gradientGlow } from "./gradient-glow";
 import { hatchedBackdrop } from "./hatched-backdrop";
 import { heatmapDotCalendar, heatmapWorkweek } from "./heatmaps";
@@ -59,6 +67,12 @@ export const recipes: Recipe[] = [
   activityClockCard,
   storageUsageCard,
   seasonalTemperatureCard,
+  gaugeDashboardDial,
+  gaugeSpeedometer,
+  gaugeConicKpi,
+  gaugeFanDuty,
+  gaugeUptimeDots,
+  gaugeLiveLoad,
 ];
 
 /** Gallery sections, in display order. */
@@ -113,5 +127,11 @@ export const recipeCategories: {
     title: "Radial cards",
     description:
       "Dashboard cards built on RadialChart — clocks, gauges and yearly loops.",
+  },
+  {
+    id: "gauges",
+    title: "Gauges",
+    description:
+      "Dials built on Gauge — rulers, needles, zones, sectors, progress rings and dots.",
   },
 ];

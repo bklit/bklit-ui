@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { cn } from "@/lib/utils";
+import { ChartDataOverrideExempt } from "./chart-data-override";
 import { intFmt } from "./chart-formatters";
 import { Legend } from "./legend/legend";
 import { useLegendItem } from "./legend/legend-context";
@@ -62,21 +63,23 @@ export function RadialLegend({
   );
 
   return (
-    <Legend
-      className={cn(
-        "mt-2 flex-row flex-wrap items-center justify-center gap-x-3 gap-y-1",
-        className
-      )}
-      hoveredIndex={hoveredSeries}
-      items={items}
-      onHoverChange={setHoveredSeries}
-    >
-      <LegendItem className="flex items-center gap-2">
-        <LegendMarker className="size-2" />
-        <LegendLabel className="text-muted-foreground text-sm" />
-        {showValues ? <RadialLegendValue formatValue={formatValue} /> : null}
-      </LegendItem>
-    </Legend>
+    <ChartDataOverrideExempt>
+      <Legend
+        className={cn(
+          "mt-2 flex-row flex-wrap items-center justify-center gap-x-3 gap-y-1",
+          className
+        )}
+        hoveredIndex={hoveredSeries}
+        items={items}
+        onHoverChange={setHoveredSeries}
+      >
+        <LegendItem className="flex items-center gap-2">
+          <LegendMarker className="size-2" />
+          <LegendLabel className="text-muted-foreground text-sm" />
+          {showValues ? <RadialLegendValue formatValue={formatValue} /> : null}
+        </LegendItem>
+      </Legend>
+    </ChartDataOverrideExempt>
   );
 }
 

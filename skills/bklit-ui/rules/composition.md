@@ -76,6 +76,46 @@ When unsure, read the installed root component's `Props` interface — it is aut
 
 Cartesian roots default to `aspectRatio="2 / 1"`. In cards use `aspectRatio` or a sized parent (`style={{ height: 240 }}` / `className="h-60"`). Pie/ring/radar take `size`; `Gauge` fills its parent when `width`/`height` are omitted.
 
+## Gauge
+
+`Gauge` is one component configured by props — no children except `<defs>` content (`PatternPreset`, gradients) referenced by `url(#id)`. `value` is always **0–100**; map real units yourself (`value={(reading / max) * 100}`) and show the reading in `centerValue` (+ `defaultLabel`, `prefix`/`suffix`, `formatOptions`).
+
+Arc-only dial props (ignored by `orientation="linear"`); each takes `true` for defaults or an options object. Sizes noted as "fraction" are relative to the gauge's smaller side.
+
+| Prop | Shape | Notes |
+|---|---|---|
+| `arcStyle` | `"notches"` (default) \| `"solid"` \| `"none"` | `arcThickness` (fraction, default `0.035`) for `solid`; `none` drops the track so a sector / ring / dots carry the value |
+| `ruler` | `{ position: "inside"\|"outside", ticks: 50, majorEvery: 5, color, majorLength, minorLength, gap, highlightActive: true, labels }` | `labels`: `true`/`"majors"`, `"ends"`, or `{ show, min, max, format, color }` (label domain defaults 0–100) |
+| `needle` | `true` (= `"gradient"`) \| `"line"\|"gradient"\|"triangle"\|"polygon"` \| `{ variant, color, width, length: 0.55, pivot, tip }` | `tip`: `"inner"` (default, inside the track), `"outer"` (track edge), `"edge"` (past ring / zone band / outside ruler) |
+| `zones` + `zoneDisplay` | `{ from, to, color }[]` on 0–100 · `"band"` (default) \| `"fill"` \| `"both"` | `fill` recolours lit notches / the solid fill inside each zone |
+| `sector` | `{ gradient: "conic"\|"radial"\|"none", color, opacity: 0.85, innerRadius }` | `none`/`radial` accept any SVG paint incl. `url(#pattern)`; starts at the center disc edge when `centerDisc` is on |
+| `progressRing` | `{ color, trackColor, trackOpacity, width, gap }` | thin value ring outside the track |
+| `dots` | `{ rings: 5, spacing, radius, color, dimOpacity, litOpacity, fadeInward }` | concentric dot rings lighting up to the value |
+| `glow` | `{ blur: 6, intensity: 0.8 }` | on lit notches, solid arc and progress ring |
+| `centerDisc` | `{ radius: 0.19, fill, stroke, strokeOpacity, strokeWidth }` | ringed disc behind the label |
+
+Outer layers (progress ring → zone band → outside ruler) reserve space from the outside in and the track shrinks to fit — don't hand-tune radii. Option types (`GaugeRulerOptions`, `GaugeNeedleOptions`, `GaugeZone`, `GaugeSectorOptions`, …) are exported from the installed `gauge.tsx`.
+
+```tsx
+import { Gauge } from "@/components/charts/gauge";
+
+<Gauge
+  value={(speed / 260) * 100}
+  centerValue={speed}
+  defaultLabel="km/h"
+  totalNotches={90}
+  spacing={35}
+  notchLengthPercent={55}
+  glow
+  zones={[{ from: 78, to: 100, color: "var(--destructive)" }]}
+  zoneDisplay="fill"
+  ruler={{ position: "outside", ticks: 26, majorEvery: 2, highlightActive: false }}
+  needle={{ variant: "triangle", tip: "outer" }}
+/>
+```
+
+Animation is built in (see [animation.md](./animation.md#gauge)) — don't wrap it in your own tween.
+
 ## Multi-series
 
 One series child per `dataKey`. Distinguish them with `stroke`/`fill` set to `var(--chart-1)` … `var(--chart-5)` (see [theming.md](./theming.md)). Add a `Legend` (see [overlays.md](./overlays.md)) when there are 2+ series.

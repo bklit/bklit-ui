@@ -18,6 +18,7 @@ import {
   useState,
 } from "react";
 import { cn } from "@/lib/utils";
+import { useChartDataOverride } from "../chart-data-override";
 import { ParentSize } from "../chart-parent-size";
 import { localPoint } from "../local-point";
 import {
@@ -246,7 +247,7 @@ const SankeyChartCore = memo(function SankeyChartCore({
 });
 
 export function SankeyChart({
-  data,
+  data: dataProp,
   margin: marginProp,
   animationDuration = 1100,
   enterTransition,
@@ -259,6 +260,9 @@ export function SankeyChart({
   hoveredNodeIndex,
   onNodeHoverChange,
 }: SankeyChartProps) {
+  const { data } = useChartDataOverride("SankeyChart", {
+    data: dataProp,
+  });
   const margin = { ...DEFAULT_MARGIN, ...marginProp };
 
   return (

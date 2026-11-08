@@ -15,6 +15,7 @@ import {
 } from "react";
 import { cn } from "@/lib/utils";
 import { arcPath } from "./arc-path";
+import { useChartDataOverride } from "./chart-data-override";
 import { ParentSize } from "./chart-parent-size";
 import {
   defaultRingColors,
@@ -444,7 +445,7 @@ function ringChartCorePropsEqual(
 }
 
 export function RingChart({
-  data,
+  data: dataProp,
   size: fixedSize,
   strokeWidth = 12,
   ringGap = 6,
@@ -460,6 +461,9 @@ export function RingChart({
   geometryScrubbing = false,
   children,
 }: RingChartProps) {
+  const { data } = useChartDataOverride("RingChart", {
+    data: dataProp,
+  });
   const containerRef = useRef<HTMLDivElement>(null);
 
   // If fixed size is provided, use it directly

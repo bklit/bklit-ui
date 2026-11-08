@@ -18,6 +18,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { stripRegistryInternals } from "./registry-strip.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const uiRoot = path.join(__dirname, "..");
@@ -117,7 +118,11 @@ function scanRelativeImports(filePath) {
   if (!fs.existsSync(fullPath)) {
     throw new Error(`Registry file not found: ${filePath}`);
   }
-  const content = fs.readFileSync(fullPath, "utf8");
+  // Check what ships: site-only plumbing is stripped at build time.
+  const content = stripRegistryInternals(
+    fs.readFileSync(fullPath, "utf8"),
+    filePath
+  );
   const imports = [];
   importRe.lastIndex = 0;
   let match = importRe.exec(content);

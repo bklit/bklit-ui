@@ -1,19 +1,21 @@
 export { generateHeatmapSkeletonFromTarget } from "./generate-heatmap-skeleton-data";
 export {
-  computeHeatmapEnterFadeDelayMs,
   computeHeatmapLevelRange,
   HEATMAP_DEFAULT_ENTER_DURATION_MS,
-  HEATMAP_DEFAULT_ENTER_EASE,
   HEATMAP_DEFAULT_ENTER_TRANSITION,
   HEATMAP_DEFAULT_LOADING_CELL_MAX_OPACITY,
   HEATMAP_DEFAULT_LOADING_CELL_RANDOMNESS,
-  HEATMAP_ENTER_STAGGER_SPREAD,
+  HEATMAP_ENTER_FADE_EASE,
+  HEATMAP_ENTER_FADE_MS,
   HEATMAP_LOADING_BASE_CELL_OPACITY,
   HEATMAP_LOADING_CHART_OPACITY,
   HEATMAP_LOADING_CONCEAL_MS,
+  HEATMAP_WAVE_ROW_LEAN_MS,
   type HeatmapLevelRange,
+  type HeatmapWaveTiming,
   heatmapLoadingCellParticipates,
-  resolveHeatmapEnterFadeDurationSec,
+  heatmapWaveDelayMs,
+  resolveHeatmapWaveTiming,
 } from "./heatmap-animation";
 export { HeatmapCells, type HeatmapCellsProps } from "./heatmap-cells";
 export {

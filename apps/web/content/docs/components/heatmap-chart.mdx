@@ -110,7 +110,9 @@ The root component that sizes the grid, builds color scales, and provides contex
 | `aspectRatio` | `string` | - | CSS aspect ratio for the outer container |
 | `status` | `ChartStatus` | `"ready"` | Fetch / display status |
 | `loadingLabel` | `string` | - | Centered label while loading |
-| `animationDuration` | `number` | `1600` | Enter animation duration in ms |
+| `animationDuration` | `number` | `1100` | Column-wave sweep in ms when no `enterTransition` is passed. Cells settle in column by column, left to right, on the line chart reveal curve |
+| `enterTransition` | `Transition` | line chart reveal | Sweep timing (`duration` + cubic-bezier `ease`), as for the line chart clip reveal. Each cell fades and settles in over 450 ms |
+| `enterStaggerScale` | `number` | `1` | Scales the column wave sweep |
 | `animate` | `boolean` | `true` | Play enter fade-in / loading shimmer |
 | `columnSeparators` | `HeatmapSeparatorParsedConfig` | - | Column grouping without a `HeatmapSeparator` child |
 | `weekStartDay` | `0`–`6` | `0` | First row of the grid (`0` = Sunday, `1` = Monday, etc.) |

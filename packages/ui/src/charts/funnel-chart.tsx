@@ -110,6 +110,7 @@ export interface FunnelChartProps {
 
 // ─── Defaults ───────────────────────────────────────────────────────
 
+import { useChartDataOverride } from "./chart-data-override";
 import { intFmt } from "./chart-formatters";
 
 const fmtPct = (p: number) => `${Math.round(p)}%`;
@@ -743,7 +744,7 @@ function SegmentLabel({
 // ─── Main Component ─────────────────────────────────────────────────
 
 export function FunnelChart({
-  data,
+  data: dataProp,
   orientation = "horizontal",
   color = "var(--chart-1)",
   layers = 3,
@@ -766,6 +767,9 @@ export function FunnelChart({
   labelAlign = "center",
   grid: gridProp = false,
 }: FunnelChartProps) {
+  const { data } = useChartDataOverride("FunnelChart", {
+    data: dataProp,
+  });
   const ref = useRef<HTMLDivElement>(null);
   const [sz, setSz] = useState({ w: 0, h: 0 });
   const [internalHoveredIndex, setInternalHoveredIndex] = useState<
@@ -789,7 +793,9 @@ export function FunnelChart({
     if (!ref.current) {
       return;
     }
-    const { width: w, height: h } = ref.current.getBoundingClientRect();
+    // Layout size, not `getBoundingClientRect`: a CSS-scaled ancestor (the
+    // present dialog, zoomed previews) would inflate the drawing past the box.
+    const { offsetWidth: w, offsetHeight: h } = ref.current;
     if (w > 0 && h > 0) {
       setSz({ w, h });
     }

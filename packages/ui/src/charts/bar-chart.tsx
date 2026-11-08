@@ -31,6 +31,7 @@ import {
   type Margin,
   type TooltipData,
 } from "./chart-context";
+import { useChartDataOverride } from "./chart-data-override";
 import { isGradientDefComponent, isPatternDefComponent } from "./chart-defs";
 import { shortDateFmt } from "./chart-formatters";
 import { ParentSize } from "./chart-parent-size";
@@ -682,7 +683,7 @@ const ChartCore = memo(function ChartCore({
 });
 
 export function BarChart({
-  data,
+  data: dataProp,
   xDataKey = "name",
   margin: marginProp,
   animationDuration = 1100,
@@ -702,6 +703,9 @@ export function BarChart({
   status = "ready",
   loadingFill,
 }: BarChartProps) {
+  const { data } = useChartDataOverride("BarChart", {
+    data: dataProp,
+  });
   const containerRef = useRef<HTMLDivElement>(null);
   const margin = { ...DEFAULT_MARGIN, ...marginProp };
 

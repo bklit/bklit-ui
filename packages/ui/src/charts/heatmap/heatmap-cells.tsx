@@ -3,20 +3,19 @@
 import {
   animate,
   type MotionValue,
-  m,
-  type Transition,
   useMotionValue,
+  useMotionValueEvent,
 } from "motion/react";
 import { memo, useCallback, useEffect, useMemo, useRef } from "react";
+import { DEFAULT_CHART_ENTER_TRANSITION } from "../animation";
+import { useIsomorphicLayoutEffect } from "../chart-parent-size";
 import type { ChartStatus } from "../chart-phase";
-import { transitionWithDelay } from "../motion-utils";
 import {
-  computeHeatmapEnterFadeDelayMs,
-  HEATMAP_DEFAULT_ENTER_EASE,
   HEATMAP_LOADING_BASE_CELL_OPACITY,
   HEATMAP_LOADING_CONCEAL_MS,
   heatmapLoadingCellParticipates,
-  resolveHeatmapEnterFadeDurationSec,
+  heatmapWaveDelayMs,
+  resolveHeatmapWaveTiming,
 } from "./heatmap-animation";
 import { heatmapLevelCellFillOpacity } from "./heatmap-colors";
 import {
@@ -36,6 +35,8 @@ import {
 } from "./heatmap-utils";
 
 const HEATMAP_INACTIVE_OPACITY = 0.3;
+/** Where each cell starts its enter: slightly small and 3px low (no pop). */
+const HEATMAP_ENTER_FROM_TRANSFORM = "translateY(3px) scale(0.86)";
 /** Smooth tween for inactive opacity + scale on hover. */
 const HEATMAP_INACTIVE_TRANSITION = {
   duration: 0.22,
@@ -43,8 +44,24 @@ const HEATMAP_INACTIVE_TRANSITION = {
 };
 const HEATMAP_CONCEAL_TRANSITION = {
   duration: HEATMAP_LOADING_CONCEAL_MS / 1000,
-  ease: HEATMAP_DEFAULT_ENTER_EASE,
+  ease: DEFAULT_CHART_ENTER_TRANSITION.ease,
 };
+
+/**
+ * Applies a motion value to the DOM on every change (and on each render, so
+ * the first paint already shows the current value) without re-rendering.
+ */
+function useMotionValueApply(
+  value: MotionValue<number>,
+  apply: (v: number) => void
+) {
+  const applyRef = useRef(apply);
+  applyRef.current = apply;
+  useIsomorphicLayoutEffect(() => {
+    applyRef.current(value.get());
+  });
+  useMotionValueEvent(value, "change", (v) => applyRef.current(v));
+}
 
 function computeHeatmapCellFaded(
   isCellHovering: boolean,
@@ -82,7 +99,6 @@ interface SyncCellLayerParams {
   shimmerOpacity: MotionValue<number>;
   showLoadingCellsLayer: boolean;
   showShimmerPulse: boolean;
-  staggeredTransition: Transition;
 }
 
 function syncHeatmapCellLayerOpacities(params: SyncCellLayerParams) {
@@ -101,7 +117,6 @@ function syncHeatmapCellLayerOpacities(params: SyncCellLayerParams) {
     shimmerOpacity,
     showLoadingCellsLayer,
     showShimmerPulse,
-    staggeredTransition,
   } = params;
 
   if (!animateCells) {
@@ -132,9 +147,11 @@ function syncHeatmapCellLayerOpacities(params: SyncCellLayerParams) {
   }
 
   if (isRevealActive) {
+    // The column wave itself is a WAAPI fade on the rect (see
+    // HeatmapMotionCell); the motion value just holds the resting target.
     pulseOpacity.set(0);
     shimmerOpacity.set(0);
-    animate(dataOpacity, readyDataOpacity, staggeredTransition);
+    dataOpacity.jump(readyDataOpacity);
     return;
   }
 
@@ -197,6 +214,12 @@ interface HeatmapCellRectProps {
     y: number
   ) => void;
   onLeave: () => void;
+  /** Column-wave enter delay (ms). */
+  enterDelayMs: number;
+  /** Per-cell enter fade (ms). */
+  enterFadeMs: number;
+  /** CSS easing for the enter fade. */
+  enterFadeEasing: string;
 }
 
 const HeatmapMotionCell = memo(function HeatmapMotionCell({
@@ -212,6 +235,9 @@ const HeatmapMotionCell = memo(function HeatmapMotionCell({
   hoverState,
   onEnter,
   onLeave,
+  enterDelayMs,
+  enterFadeMs,
+  enterFadeEasing,
 }: HeatmapCellRectProps & {
   fillScale: (count: number | null | undefined) => string;
 }) {
@@ -221,9 +247,6 @@ const HeatmapMotionCell = memo(function HeatmapMotionCell({
     isLoaded,
     revealMode,
     revealEpoch,
-    animationDuration,
-    enterTransition,
-    enterStaggerScale,
     animateCells,
     showLoadingCells: showLoadingCellsLayer,
     loadingCellMaxOpacity,
@@ -268,22 +291,11 @@ const HeatmapMotionCell = memo(function HeatmapMotionCell({
   const showShimmerPulse =
     animateCells && showLoadingCellsLayer && participates && isLoadingResting;
 
-  const fadeDurationSec = resolveHeatmapEnterFadeDurationSec(
-    enterTransition,
-    animationDuration
-  );
-  const delayMs = computeHeatmapEnterFadeDelayMs({
-    column: cell.column,
-    row: cell.row,
-    revealEpoch,
-    animationDurationMs: animationDuration,
-    enterStaggerScale,
-    fadeDurationSec,
-  });
-  const staggeredTransition = transitionWithDelay(
-    enterTransition,
-    delayMs / 1000
-  );
+  const dataRectRef = useRef<SVGRectElement>(null);
+  const shimmerRectRef = useRef<SVGRectElement>(null);
+  const groupRef = useRef<SVGGElement>(null);
+  const scale = useMotionValue(1);
+  const revealAnimationRef = useRef<Animation | null>(null);
 
   const readyHoverStyle = resolveHeatmapHoverStyle(
     hoverState.isHighlighted,
@@ -294,6 +306,14 @@ const HeatmapMotionCell = memo(function HeatmapMotionCell({
   const readyDataOpacity = readyHoverStyle.opacity;
   const readyScale = isReadyResting ? readyHoverStyle.scale : 1;
   const transformOrigin = `${cell.x + cell.width / 2}px ${cell.y + cell.height / 2}px`;
+
+  useEffect(() => {
+    if (scale.get() === readyScale && !scale.isAnimating()) {
+      return;
+    }
+    const controls = animate(scale, readyScale, HEATMAP_INACTIVE_TRANSITION);
+    return () => controls.stop();
+  }, [readyScale, scale]);
 
   useEffect(() => {
     if (!showShimmerPulse) {
@@ -362,7 +382,6 @@ const HeatmapMotionCell = memo(function HeatmapMotionCell({
       shimmerOpacity,
       showLoadingCellsLayer,
       showShimmerPulse,
-      staggeredTransition,
     });
   }, [
     animateCells,
@@ -379,7 +398,57 @@ const HeatmapMotionCell = memo(function HeatmapMotionCell({
     shimmerOpacity,
     showLoadingCellsLayer,
     showShimmerPulse,
-    staggeredTransition,
+  ]);
+
+  // Column wave: one WAAPI animation per cell (opacity + a small settle from
+  // scale 0.86 / 3px below), delayed by its eased column position. Started in
+  // a layout effect so `fill: "backwards"` hides the cell before the first
+  // paint (no flash on replay). The implicit end keyframe resolves to the
+  // live inline opacity / transform, so hover changes mid-entrance carry
+  // through, and the finished animation is cancelled to hand off cleanly.
+  useIsomorphicLayoutEffect(() => {
+    if (!(animateCells && isRevealActive)) {
+      if (!animateCells || chartStatus === "loading") {
+        revealAnimationRef.current?.cancel();
+        revealAnimationRef.current = null;
+      }
+      return;
+    }
+    const rect = dataRectRef.current;
+    if (!rect || typeof rect.animate !== "function") {
+      return;
+    }
+    revealAnimationRef.current?.cancel();
+    const animation = rect.animate(
+      [
+        {
+          offset: 0,
+          opacity: 0,
+          transform: HEATMAP_ENTER_FROM_TRANSFORM,
+        },
+      ],
+      {
+        delay: enterDelayMs,
+        duration: enterFadeMs,
+        easing: enterFadeEasing,
+        fill: "backwards",
+      }
+    );
+    animation.onfinish = () => {
+      animation.cancel();
+      if (revealAnimationRef.current === animation) {
+        revealAnimationRef.current = null;
+      }
+    };
+    revealAnimationRef.current = animation;
+  }, [
+    animateCells,
+    chartStatus,
+    enterDelayMs,
+    enterFadeEasing,
+    enterFadeMs,
+    isRevealActive,
+    revealEpoch,
   ]);
 
   const cellProps = {
@@ -391,13 +460,29 @@ const HeatmapMotionCell = memo(function HeatmapMotionCell({
     y: cell.y,
   };
 
+  // Plain SVG elements driven by motion values through direct style writes:
+  // no motion component (or React render) per cell per frame.
+  useMotionValueApply(scale, (v) => {
+    const g = groupRef.current;
+    if (g) {
+      g.style.transform = v === 1 ? "" : `scale(${v})`;
+    }
+  });
+  useMotionValueApply(dataOpacity, (v) => {
+    if (dataRectRef.current) {
+      dataRectRef.current.style.opacity = String(v);
+    }
+  });
+  const shimmerSource = showShimmerPulse ? pulseOpacity : shimmerOpacity;
+  useMotionValueApply(shimmerSource, (v) => {
+    if (shimmerRectRef.current) {
+      shimmerRectRef.current.style.opacity = String(v);
+    }
+  });
+
   return (
-    <m.g
-      animate={{ scale: readyScale }}
-      style={{ transformOrigin }}
-      transition={HEATMAP_INACTIVE_TRANSITION}
-    >
-      <m.rect
+    <g ref={groupRef} style={{ transformOrigin }}>
+      <rect
         {...cellProps}
         fill={targetFill}
         fillOpacity={
@@ -407,20 +492,21 @@ const HeatmapMotionCell = memo(function HeatmapMotionCell({
           onEnter(cell.column, cell.row, bin, cell.x, cell.y)
         }
         onPointerLeave={onLeave}
+        ref={dataRectRef}
         style={{
           cursor: interactive ? "pointer" : undefined,
-          opacity: dataOpacity,
+          // Centre in user space (not `transform-box: fill-box`, which makes
+          // Chrome re-measure the bbox every frame of the enter animation).
+          transformOrigin,
         }}
       />
-      <m.rect
+      <rect
         {...cellProps}
         fill={emptyFill}
         pointerEvents="none"
-        style={{
-          opacity: showShimmerPulse ? pulseOpacity : shimmerOpacity,
-        }}
+        ref={shimmerRectRef}
       />
-    </m.g>
+    </g>
   );
 });
 
@@ -445,6 +531,9 @@ export const HeatmapCells = memo(function HeatmapCells({
     chartStatus,
     colorScale: contextColorScale,
     fillScale: contextFillScale,
+    animationDuration,
+    enterTransition,
+    enterStaggerScale,
   } = useHeatmap();
   const colorScale = colorScaleProp ?? contextColorScale;
   const fillScale = contextFillScale;
@@ -528,6 +617,18 @@ export const HeatmapCells = memo(function HeatmapCells({
     [binHeight, binWidth, colorScale, data, gap, xScale, yScale]
   );
 
+  const waveTiming = useMemo(
+    () =>
+      resolveHeatmapWaveTiming({
+        animationDurationMs: animationDuration,
+        enterTransition,
+        enterStaggerScale,
+        columnCount: data.length,
+        rowCount: data[0]?.bins.length ?? 7,
+      }),
+    [animationDuration, data, enterStaggerScale, enterTransition]
+  );
+
   return (
     // The wrapper visx's <Group> rendered (minus its class): cells stay one
     // <g> deep, each in its own motion <g>.
@@ -558,6 +659,13 @@ export const HeatmapCells = memo(function HeatmapCells({
               bin={bin}
               cell={cell}
               cornerRadius={cornerRadius}
+              enterDelayMs={heatmapWaveDelayMs(
+                cell.column,
+                cell.row,
+                waveTiming
+              )}
+              enterFadeEasing={waveTiming.fadeEasing}
+              enterFadeMs={waveTiming.fadeMs}
               fillScale={fillScale}
               hoverState={hoverState}
               inactiveOpacity={inactiveOpacity}
