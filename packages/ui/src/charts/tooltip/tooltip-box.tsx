@@ -7,6 +7,7 @@ import {
   cancelFrame,
   domAnimation,
   frame,
+  frameData,
   LazyMotion,
   type MotionValue,
   m,
@@ -17,7 +18,7 @@ import {
 } from "motion/react";
 import type { RefObject } from "react";
 import { useLayoutEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
+import { createPortal, flushSync } from "react-dom";
 import { cn } from "@/lib/utils";
 import { type SpringConfig, useChartConfig } from "../chart-config-context";
 import { chartCssVars, useChartPortalContainer } from "../chart-context";
@@ -139,6 +140,12 @@ function mixPanelSizes(
     clipHeight: mixNumber(from.clipHeight, to.clipHeight, progress),
   };
 }
+
+/** One 60 Hz frame (ms). */
+const FRAME_MS = 1000 / 60;
+
+/** Observe border-box sizes (what `readBorderBox` reads). */
+const BORDER_BOX: ResizeObserverOptions = { box: "border-box" };
 
 const samePanelSizes = (a: PanelSizes, b: PanelSizes) =>
   a.panelWidth === b.panelWidth &&
@@ -263,9 +270,10 @@ function drawPanelTween(
  * Sizes are layout sizes (computed `width` / `height`, unaffected by
  * transforms), so the layout box (and the `offsetWidth` / `offsetHeight`
  * callers use for flip and clamp) is always the final size and a scaled
- * ancestor (entrance, Studio zoom) does not skew the tween. They are checked
- * after every render (before paint, where Motion measured) and by a
- * `ResizeObserver` (size changes that don't re-render the panel). The first
+ * ancestor (entrance, Studio zoom) does not skew the tween. They are read in a
+ * `ResizeObserver` callback (after layout, before paint — the frame the new
+ * size first shows), so a re-render never forces a layout of its own; without
+ * `ResizeObserver` they are checked after every render. The first
  * measurement only records the size: the entrance owns the mount.
  */
 function usePanelSizeTween(
@@ -284,6 +292,7 @@ function usePanelSizeTween(
       return;
     }
 
+    const observing = typeof ResizeObserver !== "undefined";
     let target = readPanelSizes(panel, clip);
     let from: PanelSizes | null = null;
     let progress = 1;
@@ -336,10 +345,10 @@ function usePanelSizeTween(
       };
       // This frame draws the old size; the spring starts on the next one.
       draw(0);
-      pendingStart = frame.update(() => {
-        pendingStart = undefined;
+      const startTween = (elapsed: number) => {
         controls = animate(0, 1000, {
           ...PANEL_SIZE_SPRING,
+          elapsed,
           velocity: 0,
           onUpdate: (latest) => draw(latest / 1000),
           onComplete: () => {
@@ -349,23 +358,43 @@ function usePanelSizeTween(
             reset();
           },
         });
+      };
+      // The observer reports after this frame's Motion batch: date the spring
+      // from that batch, as if it had started in it (t = 0 is this frame).
+      // No batch ran this frame: start now, which still ticks next frame.
+      if (observing) {
+        const sinceFrame = performance.now() - frameData.timestamp;
+        startTween(sinceFrame >= 0 && sinceFrame < FRAME_MS ? sinceFrame : 0);
+        return;
+      }
+      pendingStart = frame.update(() => {
+        pendingStart = undefined;
+        startTween(0);
       });
     };
 
-    checkRef.current = check;
-    const observer =
-      typeof ResizeObserver === "undefined" ? null : new ResizeObserver(check);
-    observer?.observe(panel);
-    observer?.observe(clip);
+    if (!observing) {
+      checkRef.current = check;
+      return () => {
+        checkRef.current = null;
+        stop();
+        reset();
+      };
+    }
+    // Size changes are read after layout, before paint — never forcing a
+    // layout per render — so the old size is drawn in the frame the new
+    // layout first shows.
+    const observer = new ResizeObserver(check);
+    observer.observe(panel, BORDER_BOX);
+    observer.observe(clip, BORDER_BOX);
     return () => {
-      checkRef.current = null;
-      observer?.disconnect();
+      observer.disconnect();
       stop();
       reset();
     };
   }, [panelRef, clipRef, contentRef, enabled]);
 
-  // After every render (new content): measure before paint, as Motion did.
+  // No `ResizeObserver`: measure after every render (new content) instead.
   useLayoutEffect(() => {
     checkRef.current?.();
   });
@@ -464,6 +493,29 @@ function moveTo(
 const DEFAULT_TOOLTIP_WIDTH = 180;
 const DEFAULT_TOOLTIP_HEIGHT = 80;
 
+/**
+ * Stores the box's layout size (`offsetWidth` / `offsetHeight`, unaffected by
+ * the size tween's transforms) in the refs, keeping the last size when it
+ * reads 0 (e.g. hidden). Returns whether it changed.
+ */
+function readPanelBoxSize(
+  el: HTMLElement,
+  widthRef: { current: number },
+  heightRef: { current: number }
+): boolean {
+  const w = el.offsetWidth;
+  const h = el.offsetHeight;
+  const changed =
+    (w > 0 && w !== widthRef.current) || (h > 0 && h !== heightRef.current);
+  if (w > 0) {
+    widthRef.current = w;
+  }
+  if (h > 0) {
+    heightRef.current = h;
+  }
+  return changed;
+}
+
 /** Panel position beside the cursor: flips left near the right edge and is
  * clamped vertically inside the container. */
 function resolveTooltipTarget({
@@ -549,7 +601,7 @@ function TooltipBoxInner({
   const effectiveSpring = springConfig ?? tooltipBoxSpring;
 
   const tooltipRef = useRef<HTMLDivElement>(null);
-  // Last measured panel size — only read in the layout effect below.
+  // Last measured panel size (flip and clamp are computed from it).
   const tooltipWidthRef = useRef(DEFAULT_TOOLTIP_WIDTH);
   const tooltipHeightRef = useRef(DEFAULT_TOOLTIP_HEIGHT);
   // Non-animated position: React only renders the mount position; the layout
@@ -583,55 +635,71 @@ function TooltipBoxInner({
   const animatedLeft = useSpring(initialTarget.left, effectiveSpring);
   const animatedTop = useSpring(initialTarget.top, effectiveSpring);
 
+  // Re-places the panel for the latest props; set by the layout effect below
+  // and called by the size observer when the panel resizes.
+  const placeRef = useRef<((fromObserver: boolean) => void) | null>(null);
+  // The size is read synchronously once, on show. After that a
+  // `ResizeObserver` reports changes after layout (before paint), so a
+  // pointer move never forces a layout just to measure the panel.
+  const sizeObservedRef = useRef(false);
+
   useLayoutEffect(() => {
-    if (!tooltipRef.current) {
-      return;
-    }
     const el = tooltipRef.current;
-    const w = el.offsetWidth;
-    const h = el.offsetHeight;
-    if (w > 0) {
-      tooltipWidthRef.current = w;
-    }
-    if (h > 0) {
-      tooltipHeightRef.current = h;
-    }
-    const target = resolveTooltipTarget({
-      x,
-      flipX,
-      y,
-      width: tooltipWidthRef.current,
-      height: tooltipHeightRef.current,
-      offset,
-      containerWidth,
-      containerHeight,
-    });
-    setFlip((prev) =>
-      prev.flipped === target.flipped
-        ? prev
-        : { flipped: target.flipped, key: prev.key + 1 }
-    );
-    const tx = target.left;
-    const ty = target.top;
-    if (!animate) {
-      const left = `${tx}px`;
-      const top = `${ty}px`;
-      if (el.style.left !== left) {
-        el.style.left = left;
-      }
-      if (el.style.top !== top) {
-        el.style.top = top;
-      }
+    if (!el) {
       return;
     }
-    const snap = reducedMotion || !hasPositionedRef.current;
-    hasPositionedRef.current = true;
-    if (leftOverride === undefined) {
-      moveTo(animatedLeft, tx, snap);
+    if (!sizeObservedRef.current) {
+      readPanelBoxSize(el, tooltipWidthRef, tooltipHeightRef);
+      sizeObservedRef.current = typeof ResizeObserver !== "undefined";
     }
-    if (topOverride === undefined) {
-      moveTo(animatedTop, ty, snap);
-    }
+    const place = (fromObserver: boolean) => {
+      const target = resolveTooltipTarget({
+        x,
+        flipX,
+        y,
+        width: tooltipWidthRef.current,
+        height: tooltipHeightRef.current,
+        offset,
+        containerWidth,
+        containerHeight,
+      });
+      const updateFlip = () =>
+        setFlip((prev) =>
+          prev.flipped === target.flipped
+            ? prev
+            : { flipped: target.flipped, key: prev.key + 1 }
+        );
+      // The observer runs outside React: commit a side change before paint,
+      // as the update from this layout effect would.
+      if (fromObserver) {
+        flushSync(updateFlip);
+      } else {
+        updateFlip();
+      }
+      const tx = target.left;
+      const ty = target.top;
+      if (!animate) {
+        const left = `${tx}px`;
+        const top = `${ty}px`;
+        if (el.style.left !== left) {
+          el.style.left = left;
+        }
+        if (el.style.top !== top) {
+          el.style.top = top;
+        }
+        return;
+      }
+      const snap = reducedMotion || !hasPositionedRef.current;
+      hasPositionedRef.current = true;
+      if (leftOverride === undefined) {
+        moveTo(animatedLeft, tx, snap);
+      }
+      if (topOverride === undefined) {
+        moveTo(animatedTop, ty, snap);
+      }
+    };
+    placeRef.current = place;
+    place(false);
   }, [
     x,
     flipX,
@@ -646,6 +714,22 @@ function TooltipBoxInner({
     animatedTop,
     reducedMotion,
   ]);
+
+  // Content changes resize the panel: re-place it from the new size. The
+  // callback runs after layout, so reading the size there is free.
+  useLayoutEffect(() => {
+    const el = tooltipRef.current;
+    if (!el || typeof ResizeObserver === "undefined") {
+      return;
+    }
+    const observer = new ResizeObserver(() => {
+      if (readPanelBoxSize(el, tooltipWidthRef, tooltipHeightRef)) {
+        placeRef.current?.(true);
+      }
+    });
+    observer.observe(el, BORDER_BOX);
+    return () => observer.disconnect();
+  }, []);
 
   const flipKey = replayOnFlip ? flip.key : 0;
 
