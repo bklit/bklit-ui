@@ -1,0 +1,25 @@
+---
+title: Fixes and improvements
+description: A smoother heatmap entrance, plus fixes for funnel, sunburst and radial examples.
+date: 2026-11-08T10:00:00Z
+image: /changelog/2026-11-08-fixes-and-improvements.svg
+imageAlt: Stacked wavy lines that go from jagged at the top to smooth at the bottom
+tags: [fixes, heatmap-chart, funnel-chart, sunburst-chart, radial-chart]
+---
+
+Smaller changes that shipped alongside today's releases.
+
+## Charts
+
+- **Heatmaps sweep in column by column.** Cells now enter from left to right in a wave on the same curve as the line chart reveal. Each cell fades in, rises a little and scales up. `animationDuration` now defaults to `1100` ms (it was `1600`). The new `enterTransition` and `enterStaggerScale` props change the timing.
+- **Replaying a heatmap no longer shifts the page.** Replaying the entrance used to push the layout down by up to 263px. It now stays still.
+- **Funnel charts size correctly when scaled.** A funnel inside a scaled container, such as the new present view, now measures itself correctly.
+- **The sunburst legend example shows its items.** It used to render an empty legend.
+- **Radial dot-bar examples no longer freeze.** An infinite update loop is fixed.
+
+## Docs and site
+
+- The Recipes page button now shows how many recipes there are: **Browse N recipes**.
+- Band, Weekends, Trend Line and Deadline no longer carry a "New" badge in the nav.
+
+See the [heatmap docs](/docs/components/heatmap-chart) for the new animation props.
