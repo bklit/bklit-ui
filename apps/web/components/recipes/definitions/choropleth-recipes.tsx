@@ -129,6 +129,72 @@ function choroplethChart(
 }
 
 /* -------------------------------------------------------------------------- */
+/* Visitor map — plain, no camera                                             */
+/* -------------------------------------------------------------------------- */
+
+function VisitorMap() {
+  const { worldData } = useWorldDataStandalone();
+  if (!worldData) {
+    return <MapLoading />;
+  }
+  return (
+    <MapFrame>
+      <ChoroplethChart aspectRatio="16 / 9" data={worldData}>
+        <ChoroplethFeatureComponent getFeatureColor={visitorColor} />
+        <ChoroplethTooltip
+          getFeatureValue={visitorValue}
+          valueLabel="Visitors"
+        />
+      </ChoroplethChart>
+    </MapFrame>
+  );
+}
+
+const VISITOR_MAP_SOURCE = `"use client";
+
+import {
+  ChoroplethChart,
+  type ChoroplethFeature,
+  ChoroplethFeatureComponent,
+  ChoroplethTooltip,
+} from "@/components/charts/choropleth";
+
+${DATA_SOURCE.slice(0, DATA_SOURCE.indexOf("\n\nconst offices"))}
+
+export function VisitorMap({ geojson }: { geojson: GeoJSON.FeatureCollection }) {
+  return (
+    <ChoroplethChart aspectRatio="16 / 9" data={geojson}>
+      <ChoroplethFeatureComponent getFeatureColor={visitorColor} />
+      <ChoroplethTooltip
+        getFeatureValue={(feature) => visitors[feature.properties?.name as string]}
+        valueLabel="Visitors"
+      />
+    </ChoroplethChart>
+  );
+}
+`;
+
+export const choroplethVisitorMap: Recipe = {
+  id: "choropleth-visitor-map",
+  title: "Visitor map",
+  category: "maps",
+  description:
+    "A flat filled map coloured by a sequential scale, with a hover tooltip — no zoom, no camera.",
+  look: "a flat world map with every country filled: countries with data take a 5-step sequential colour scale by visitor count, and countries without data use the neutral empty tone. Thin borders in the background colour separate neighbours. Hovering a country dims the others and shows a tooltip that follows the pointer with the country name and its visitor count. Nothing zooms or tilts; the map fades in once on load.",
+  charts: [
+    choroplethChart(
+      VisitorMap,
+      [
+        "Use `ChoroplethFeatureComponent` with a `getFeatureColor` that bins each country's value into `var(--chart-scale-02)`…`var(--chart-scale-05)`, and returns `var(--chart-scale-01)` for countries without data.",
+        'Add `ChoroplethTooltip` with `getFeatureValue` returning the same value and `valueLabel="Visitors"`.',
+        "Leave out `clickToZoom`, `perspective`, the graticule and markers — this is the plain map.",
+      ],
+      VISITOR_MAP_SOURCE
+    ),
+  ],
+};
+
+/* -------------------------------------------------------------------------- */
 /* Tilted dot map                                                             */
 /* -------------------------------------------------------------------------- */
 

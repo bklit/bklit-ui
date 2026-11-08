@@ -538,12 +538,15 @@ const ChoroplethMercatorContent = memo(function ChoroplethMercatorContent({
               ) : null}
               {/* Clip box: never transformed, so the map is cut by the chart frame. */}
               <div
-                className="relative h-full w-full overflow-hidden"
-                style={
-                  camera.hasPerspective
-                    ? { perspective: `${camera.depth}px` }
-                    : undefined
-                }
+                className="relative h-full w-full"
+                // Inline so wrappers that force `overflow: visible` on
+                // descendants (e.g. gallery frames) can't undo the clip.
+                style={{
+                  overflow: "hidden",
+                  perspective: camera.hasPerspective
+                    ? `${camera.depth}px`
+                    : undefined,
+                }}
               >
                 <div
                   className="h-full w-full"
