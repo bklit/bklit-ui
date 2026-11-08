@@ -769,6 +769,34 @@
           "path": "src/charts/reference-area-geometry.ts",
           "type": "registry:lib",
           "target": "components/charts/reference-area-geometry.ts"
+        },
+        {
+          "path": "src/charts/crosshair-store.ts",
+          "type": "registry:lib",
+          "target": "components/charts/crosshair-store.ts"
+        }
+      ]
+    },
+    {
+      "name": "chart-crosshair",
+      "type": "registry:component",
+      "title": "Chart Crosshair",
+      "description": "Finance-style crosshair with a y-axis value pill that fades nearby YAxis ticks",
+      "dependencies": [
+        "@number-flow/react",
+        "motion"
+      ],
+      "registryDependencies": [
+        "@bklit/chart-context",
+        "@bklit/chart-tooltip",
+        "@bklit/chart-stat-flow",
+        "@bklit/y-axis"
+      ],
+      "files": [
+        {
+          "path": "src/charts/chart-crosshair.tsx",
+          "type": "registry:component",
+          "target": "components/charts/chart-crosshair.tsx"
         }
       ]
     },
