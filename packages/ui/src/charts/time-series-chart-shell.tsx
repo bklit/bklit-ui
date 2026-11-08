@@ -221,6 +221,8 @@ export interface TimeSeriesChartInnerProps {
   composedStacked?: boolean;
   composedStackOffsets?: Map<number, Map<string, number>>;
   composedStackGap?: number;
+  /** Inset the x range by half a slot when `composedBarDataKeys` is non-empty. */
+  composedBarEdgeInset?: boolean;
   /** When set, drives the y-axis max instead of scanning `lines` (e.g. stacked bar totals). */
   yScaleDomainMax?: number;
   /**
@@ -260,6 +262,27 @@ export function timeSeriesChartHasRoom(width: number, height: number) {
   return width >= 10 && height >= 10;
 }
 
+/** X slots: the full dataset while brushing, else the visible rows. */
+function resolveSlotCount(
+  xDomain: [Date, Date] | undefined,
+  xDomainSlotCount: number | undefined,
+  visibleCount: number
+): number {
+  return xDomain && xDomainSlotCount != null ? xDomainSlotCount : visibleCount;
+}
+
+/**
+ * Half a slot on each side (band-scale style) so edge bars stay inside the
+ * plot. With n slots the step becomes `innerWidth / n`.
+ */
+function resolveXEdgeInset(
+  enabled: boolean,
+  innerWidth: number,
+  slotCount: number
+): number {
+  return enabled && slotCount >= 2 ? innerWidth / (2 * slotCount) : 0;
+}
+
 export const TimeSeriesChartInner = memo(function TimeSeriesChartCore({
   width,
   height,
@@ -281,6 +304,7 @@ export const TimeSeriesChartInner = memo(function TimeSeriesChartCore({
   composedStacked,
   composedStackOffsets,
   composedStackGap,
+  composedBarEdgeInset = false,
   yScaleDomainMax,
   extraDomainKeysByAxis,
   floatingYAxisIds,
@@ -436,6 +460,17 @@ export const TimeSeriesChartInner = memo(function TimeSeriesChartCore({
     return merged;
   }, [bandConfigs, extraDomainKeysByAxis]);
 
+  const slotCount = resolveSlotCount(
+    xDomain,
+    xDomainSlotCount,
+    visiblePlotData.length
+  );
+  const xEdgeInset = resolveXEdgeInset(
+    composedBarEdgeInset && (composedBarDataKeys?.length ?? 0) > 0,
+    innerWidth,
+    slotCount
+  );
+
   const xScale = useMemo(() => {
     const minTime = xDomain
       ? xDomain[0].getTime()
@@ -449,8 +484,10 @@ export const TimeSeriesChartInner = memo(function TimeSeriesChartCore({
       maxTime = mergeProjectionXDomainMax(maxTime, projectionConfigs);
     }
 
-    return scaleTime().domain([minTime, maxTime]).range([0, innerWidth]);
-  }, [innerWidth, plotData, projectionConfigs, xAccessor, xDomain]);
+    return scaleTime()
+      .domain([minTime, maxTime])
+      .range([xEdgeInset, innerWidth - xEdgeInset]);
+  }, [innerWidth, plotData, projectionConfigs, xAccessor, xDomain, xEdgeInset]);
 
   // When brushing, keep the full series for path rendering so edge fades stay
   // anchored to the viewport while the line pans through them. Y-domain and
@@ -474,15 +511,11 @@ export const TimeSeriesChartInner = memo(function TimeSeriesChartCore({
   }, [seriesSourceData, innerWidth, lines, bandKeysByAxisId]);
 
   const columnWidth = useMemo(() => {
-    const slotCount =
-      xDomain && xDomainSlotCount != null
-        ? xDomainSlotCount
-        : visiblePlotData.length;
     if (slotCount < 2) {
       return 0;
     }
-    return innerWidth / (slotCount - 1);
-  }, [innerWidth, visiblePlotData.length, xDomain, xDomainSlotCount]);
+    return (innerWidth - 2 * xEdgeInset) / (slotCount - 1);
+  }, [innerWidth, slotCount, xEdgeInset]);
 
   const yDomainSkeletonByAxis = useMemo(
     () =>

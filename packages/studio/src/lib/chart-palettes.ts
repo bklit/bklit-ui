@@ -57,7 +57,7 @@ export const primaryChartPalette: ChartPalette = {
   light: {
     "chart-1": "oklch(0.585 0.233 277.117)", // indigo-500
     "chart-2": "oklch(0.852 0.199 91.936)", // yellow-400
-    "chart-3": "oklch(0.667 0.295 322.15)", // fuchsia-500
+    "chart-3": "oklch(0.459 0.156 302.679)", // purple
     "chart-4": "oklch(0.56 0.021 213.5)", // mist-500 (Tailwind v4.2)
     "chart-5": "oklch(0 0 0)", // black
     ...TREND_LIGHT,
@@ -65,7 +65,7 @@ export const primaryChartPalette: ChartPalette = {
   dark: {
     "chart-1": "oklch(0.585 0.233 277.117)", // indigo-500
     "chart-2": "oklch(0.852 0.199 91.936)", // yellow-400
-    "chart-3": "oklch(0.667 0.295 322.15)", // fuchsia-500
+    "chart-3": "oklch(0.459 0.156 302.679)", // purple
     "chart-4": "oklch(0.56 0.021 213.5)", // mist-500 (Tailwind v4.2)
     "chart-5": "oklch(1 0 0)", // white
     ...TREND_DARK,

@@ -25,7 +25,7 @@ export interface ChartTheme {
   foreground: string;
   /** `--chart-foreground-muted`. */
   foregroundMuted: string;
-  /** `--chart-3` (fuchsia-500). */
+  /** `--chart-3` (purple). */
   chart3: string;
   /** `--chart-5` (black / white). */
   chart5: string;
@@ -55,7 +55,7 @@ export const lightChartTheme: ChartTheme = {
   negative: "#ef4444",
   foreground: "#0a0a0a",
   foregroundMuted: "#d1d1d3",
-  chart3: "#e12afb",
+  chart3: "#6a3b9e",
   chart5: "#000000",
   markerBackground: "#c8c8ca",
   markerBorder: "#cdcdd0",
@@ -83,7 +83,7 @@ export const darkChartTheme: ChartTheme = {
   negative: "#ef4444",
   foreground: "#fafafa",
   foregroundMuted: "#8e8f94",
-  chart3: "#e12afb",
+  chart3: "#6a3b9e",
   chart5: "#ffffff",
   markerBackground: "#222225",
   markerBorder: "#48484c",

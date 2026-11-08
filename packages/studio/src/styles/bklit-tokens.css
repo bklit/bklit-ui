@@ -37,7 +37,7 @@
   /* Chart palette "Primary" — keep in sync with lib/chart-palettes.ts */
   --chart-1: var(--color-indigo-500);
   --chart-2: var(--color-yellow-400);
-  --chart-3: var(--color-fuchsia-500);
+  --chart-3: oklch(0.459 0.156 302.679);
   /* Tailwind v4.2 mist-500 (not in the installed Tailwind theme yet) */
   --chart-4: oklch(0.56 0.021 213.5);
   --chart-5: var(--color-black);
@@ -180,7 +180,7 @@
   --ring: var(--color-neutral-500);
   --chart-1: var(--color-indigo-500);
   --chart-2: var(--color-yellow-400);
-  --chart-3: var(--color-fuchsia-500);
+  --chart-3: oklch(0.459 0.156 302.679);
   --chart-4: oklch(0.56 0.021 213.5);
   --chart-5: var(--color-white);
   --chart-positive: var(--color-emerald-400);

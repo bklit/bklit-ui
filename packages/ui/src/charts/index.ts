@@ -124,6 +124,10 @@ export {
   useChartStable,
   useYScale,
 } from "./chart-context";
+export {
+  ChartCrosshair,
+  type ChartCrosshairProps,
+} from "./chart-crosshair";
 // Legacy legend component (backward compatibility)
 export {
   ChartLegend,

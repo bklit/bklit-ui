@@ -33,7 +33,7 @@ Verified against the shadcn CLI source (v4.x):
   about four-dash entries.
 - Tailwind v3: nothing is written to `tailwind.config` (bklit items have no
   `tailwind` key) — see "Tailwind v3" below.
-- bklit's defaults are the **Primary** palette: indigo, yellow, fuchsia, mist and
+- bklit's defaults are the **Primary** palette: indigo, yellow, purple, mist and
   black (`--chart-1: oklch(0.585 0.233 277.117)` …; `--chart-5` is white in dark
   mode). If the host had no chart palette, the charts get these colours until you
   seed one that matches the brand.
