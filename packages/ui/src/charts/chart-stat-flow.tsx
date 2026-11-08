@@ -37,7 +37,7 @@ function formatStatValue(
   return `${prefix ?? ""}${formatted}${suffix ?? ""}`;
 }
 
-function useNumberFlowElementReady(): boolean {
+export function useNumberFlowElementReady(): boolean {
   const [ready, setReady] = useState(
     () =>
       typeof customElements !== "undefined" &&

@@ -122,7 +122,7 @@
     "light": {
       "chart-1": "oklch(0.585 0.233 277.117)",
       "chart-2": "oklch(0.852 0.199 91.936)",
-      "chart-3": "oklch(0.667 0.295 322.15)",
+      "chart-3": "oklch(0.459 0.156 302.679)",
       "chart-4": "oklch(0.56 0.021 213.5)",
       "chart-5": "oklch(0 0 0)",
       "chart-positive": "oklch(0.696 0.17 162.48)",
@@ -159,7 +159,7 @@
     "dark": {
       "chart-1": "oklch(0.585 0.233 277.117)",
       "chart-2": "oklch(0.852 0.199 91.936)",
-      "chart-3": "oklch(0.667 0.295 322.15)",
+      "chart-3": "oklch(0.459 0.156 302.679)",
       "chart-4": "oklch(0.56 0.021 213.5)",
       "chart-5": "oklch(1 0 0)",
       "chart-positive": "oklch(0.765 0.177 163.223)",

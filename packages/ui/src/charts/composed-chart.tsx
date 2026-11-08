@@ -82,6 +82,13 @@ export interface ComposedChartProps {
   stacked?: boolean;
   /** Gap in px between stacked segments. Default: 0 */
   stackGap?: number;
+  /**
+   * Inset the x-axis by half a slot on each side when the chart has
+   * `SeriesBar` series, so the first and last bars sit inside the plot instead
+   * of spilling into the y-axis gutters. Lines, areas and the x-axis share the
+   * inset scale and stay centred on their bars. Default: `true`
+   */
+  barEdgeInset?: boolean;
   /** Loading vs ready — drives chart phase and loading chrome. Default: `"ready"`. */
   status?: ChartStatus;
   /** Centered shimmer label while loading. */
@@ -362,6 +369,7 @@ export function ComposedChart({
   barGap = 4,
   stacked = false,
   stackGap = 0,
+  barEdgeInset = true,
   status = DEFAULT_CHART_STATUS,
   loadingLabel,
   yDomainTweenDuration = DEFAULT_Y_DOMAIN_TWEEN_MS,
@@ -442,6 +450,7 @@ export function ComposedChart({
                 composedBarDataKeys={
                   barDataKeys.length > 0 ? barDataKeys : undefined
                 }
+                composedBarEdgeInset={barEdgeInset}
                 composedBarGap={barGap}
                 composedBarSize={barSize}
                 composedMaxBarSize={maxBarSize}

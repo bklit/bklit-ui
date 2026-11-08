@@ -6,7 +6,7 @@ import {
   useReducedMotion,
   type Variants,
 } from "motion/react";
-import { memo, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import {
   useChartPortalContainer,
@@ -14,6 +14,7 @@ import {
   useSettledYScale,
   useYScale,
 } from "./chart-context";
+import { crosshairTickOpacity, subscribeCrosshair } from "./crosshair-store";
 import { resolveReferenceDataRange } from "./reference-area-geometry";
 import type { YAxisOrientation } from "./y-axis-scales";
 import { normalizeYAxisId } from "./y-axis-scales";
@@ -21,6 +22,9 @@ import {
   resolveYAxisTickCount,
   Y_AXIS_DEFAULT_TICK_COUNT,
 } from "./y-axis-ticks";
+
+/** Half the `ChartCrosshair` value pill height (h-6 + py-1). */
+const CROSSHAIR_PILL_HALF_HEIGHT = 16;
 
 /** Vertical drift (px) of labels fading in / out on a y-domain change. */
 const Y_AXIS_LABEL_SHIFT_PX = 8;
@@ -237,14 +241,13 @@ const YAxisInner = memo(function YAxisInner({
                 }
                 variants={labelVariants}
               >
-                <span
-                  className="whitespace-nowrap text-chart-label text-xs"
-                  style={
-                    tick.labelColor ? { color: tick.labelColor } : undefined
-                  }
-                >
-                  {tick.label}
-                </span>
+                <YAxisTickLabel
+                  axisId={axisId}
+                  color={tick.labelColor}
+                  container={container}
+                  label={tick.label}
+                  plotY={tick.y - margin.top}
+                />
               </m.div>
             );
           })}
@@ -257,4 +260,47 @@ const YAxisInner = memo(function YAxisInner({
 
 YAxis.displayName = "YAxis";
 
-export default YAxis;
+/**
+ * Tick label that fades under a `ChartCrosshair` value pill on the same axis.
+ * The fade is written straight to the DOM from the crosshair's pointer
+ * handler — no React render per pointer move.
+ */
+function YAxisTickLabel({
+  label,
+  color,
+  container,
+  axisId,
+  plotY,
+}: {
+  label: string;
+  color?: string;
+  container: HTMLDivElement;
+  axisId: string;
+  plotY: number;
+}) {
+  const ref = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    let current = 1;
+    return subscribeCrosshair(container, (state) => {
+      const next = crosshairTickOpacity(
+        state,
+        axisId,
+        plotY,
+        CROSSHAIR_PILL_HALF_HEIGHT
+      );
+      if (next !== current && ref.current) {
+        current = next;
+        ref.current.style.opacity = String(next);
+      }
+    });
+  }, [container, axisId, plotY]);
+  return (
+    <span
+      className="whitespace-nowrap text-chart-label text-xs"
+      ref={ref}
+      style={{ color, transition: "opacity 0.4s ease-in-out" }}
+    >
+      {label}
+    </span>
+  );
+}
