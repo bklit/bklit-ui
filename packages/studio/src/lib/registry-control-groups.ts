@@ -1,3 +1,4 @@
+import { CHOROPLETH_ZOOM_EASE_OPTIONS } from "./choropleth-studio-options";
 import { brushPatternDetailControls } from "./pattern-control-groups";
 import {
   barCollapsibleGroup,
@@ -2265,16 +2266,281 @@ export const liveLineChartControlGroups: StudioControlGroup[] = [
 export const choroplethChartControlGroups: StudioControlGroup[] = [
   designGroup([
     { type: "boolean", key: "choroplethAnalytics", label: "Visitor analytics" },
+    {
+      type: "select",
+      key: "choroplethRender",
+      label: "Render as",
+      options: [
+        { value: "fill", label: "Filled regions" },
+        { value: "dots", label: "Dot grid" },
+      ],
+    },
     { type: "graticuleToggle", key: "showGraticule", label: "Graticule" },
+    { type: "boolean", key: "choroplethShowMarkers", label: "Markers" },
+    { type: "boolean", key: "choroplethBackground", label: "Background" },
     {
       type: "pattern",
       key: "choroplethBgPattern",
       label: "Background",
+      visibleWhen: { key: "choroplethRender", equals: "fill" },
     },
     {
       type: "pattern",
       key: "choroplethFgPattern",
       label: "Foreground",
+      visibleWhen: { key: "choroplethRender", equals: "fill" },
+    },
+  ]),
+  controlGroup("Click to zoom", [
+    { type: "boolean", key: "choroplethClickZoom", label: "Enabled" },
+    {
+      type: "number",
+      key: "choroplethZoomDuration",
+      label: "Duration",
+      min: 150,
+      max: 2000,
+      step: 10,
+      unit: "ms",
+      visibleWhen: { key: "choroplethClickZoom", truthy: true },
+    },
+    {
+      type: "select",
+      key: "choroplethZoomEase",
+      label: "Easing",
+      options: CHOROPLETH_ZOOM_EASE_OPTIONS,
+      visibleWhen: { key: "choroplethClickZoom", truthy: true },
+    },
+    {
+      type: "number",
+      key: "choroplethFocusMaxZoom",
+      label: "Max zoom",
+      min: 1.5,
+      max: 12,
+      step: 0.5,
+      unit: "×",
+      visibleWhen: { key: "choroplethClickZoom", truthy: true },
+    },
+    {
+      type: "boolean",
+      key: "choroplethHideContextOnFocus",
+      label: "Hide ocean dots, graticule & background",
+      visibleWhen: { key: "choroplethClickZoom", truthy: true },
+    },
+  ]),
+  controlGroup("Camera · zoomed out", [
+    {
+      type: "select",
+      key: "choroplethOverviewView",
+      label: "View from",
+      options: [
+        { value: "flat", label: "Flat" },
+        { value: "west", label: "West" },
+        { value: "east", label: "East" },
+        { value: "pointer", label: "Follow pointer" },
+      ],
+    },
+    {
+      type: "number",
+      key: "choroplethOverviewYaw",
+      label: "Yaw",
+      min: 0,
+      max: 45,
+      step: 1,
+      unit: "°",
+      visibleWhen: { key: "choroplethOverviewView", not: "flat" },
+    },
+    {
+      type: "number",
+      key: "choroplethOverviewTilt",
+      label: "Tilt",
+      min: 0,
+      max: 60,
+      step: 1,
+      unit: "°",
+    },
+  ]),
+  controlGroup("Camera · zoomed in", [
+    {
+      type: "select",
+      key: "choroplethFocusView",
+      label: "View from",
+      options: [
+        { value: "auto", label: "Auto (side of region)" },
+        { value: "flat", label: "Flat" },
+        { value: "west", label: "West" },
+        { value: "east", label: "East" },
+      ],
+    },
+    {
+      type: "number",
+      key: "choroplethFocusYaw",
+      label: "Yaw",
+      min: 0,
+      max: 45,
+      step: 1,
+      unit: "°",
+      visibleWhen: { key: "choroplethFocusView", not: "flat" },
+    },
+    {
+      type: "number",
+      key: "choroplethFocusTilt",
+      label: "Tilt",
+      min: 0,
+      max: 60,
+      step: 1,
+      unit: "°",
+    },
+    {
+      type: "number",
+      key: "choroplethDepth",
+      label: "Perspective",
+      min: 400,
+      max: 4000,
+      step: 50,
+      unit: "px",
+    },
+    {
+      type: "number",
+      key: "choroplethEdgeFade",
+      label: "Edge fade",
+      min: 0,
+      max: 45,
+      step: 1,
+      unit: "%",
+    },
+  ]),
+];
+
+export const choroplethDotGridControlGroups: StudioControlGroup[] = [
+  controlGroup("Grid", [
+    {
+      type: "number",
+      key: "choroplethDotGap",
+      label: "Grid size",
+      min: 3,
+      max: 20,
+      step: 0.5,
+      unit: "px",
+    },
+    {
+      type: "number",
+      key: "choroplethDotSize",
+      label: "Dot size",
+      min: 0.1,
+      max: 1,
+      step: 0.05,
+    },
+    {
+      type: "number",
+      key: "choroplethDotZoomSize",
+      label: "Zoomed dot size",
+      min: 0.1,
+      max: 1,
+      step: 0.05,
+    },
+    {
+      type: "select",
+      key: "choroplethDotLattice",
+      label: "Lattice",
+      options: [
+        { value: "hex", label: "Hex" },
+        { value: "square", label: "Square" },
+      ],
+    },
+  ]),
+  controlGroup("Ocean", [
+    { type: "boolean", key: "choroplethDotOcean", label: "Ocean dots" },
+    {
+      type: "opacity",
+      key: "choroplethDotOceanOpacity",
+      label: "Opacity",
+      min: 0,
+      max: 1,
+      step: 0.05,
+      color: "var(--chart-scale-01)",
+      visibleWhen: { key: "choroplethDotOcean", truthy: true },
+    },
+  ]),
+  controlGroup("Edges", [
+    {
+      type: "number",
+      key: "choroplethDotEdgeFade",
+      label: "Edge fade",
+      min: 0,
+      max: 45,
+      step: 1,
+      unit: "%",
+    },
+  ]),
+  controlGroup("Hover", [
+    {
+      type: "opacity",
+      key: "choroplethFeatureFadedOpacity",
+      label: "Faded",
+      min: 0,
+      max: 1,
+      step: 0.05,
+      color: "var(--chart-3)",
+    },
+  ]),
+];
+
+export const choroplethMarkerControlGroups: StudioControlGroup[] = [
+  controlGroup("Locations", [
+    { type: "text", key: "choroplethMarkers", label: "Label lat,lon; …" },
+  ]),
+  controlGroup("Style", [
+    { type: "markerShape", key: "choroplethMarkerShape", label: "Shape" },
+    {
+      type: "number",
+      key: "choroplethMarkerSize",
+      label: "Size",
+      min: 4,
+      max: 28,
+      step: 1,
+      unit: "px",
+    },
+    { type: "color", key: "choroplethMarkerColor", label: "Color" },
+    { type: "boolean", key: "choroplethMarkerLabels", label: "Show labels" },
+  ]),
+  controlGroup("Stroke", [
+    { type: "boolean", key: "choroplethMarkerStroke", label: "Stroke" },
+    {
+      type: "color",
+      key: "choroplethMarkerStrokeColor",
+      label: "Color",
+      visibleWhen: { key: "choroplethMarkerStroke", truthy: true },
+    },
+    {
+      type: "number",
+      key: "choroplethMarkerStrokeWidth",
+      label: "Width",
+      min: 0.5,
+      max: 4,
+      step: 0.25,
+      unit: "px",
+      visibleWhen: { key: "choroplethMarkerStroke", truthy: true },
+    },
+  ]),
+  controlGroup("Effects", [
+    {
+      type: "select",
+      key: "choroplethMarkerPulse",
+      label: "Pulse",
+      options: [
+        { value: "none", label: "None" },
+        { value: "hover", label: "On hover" },
+        { value: "always", label: "Always" },
+      ],
+    },
+    {
+      type: "number",
+      key: "choroplethMarkerGlow",
+      label: "Glow",
+      min: 0,
+      max: 16,
+      step: 1,
+      unit: "px",
     },
   ]),
 ];

@@ -8,6 +8,7 @@ import React, {
   type ReactNode,
   useCallback,
   useEffect,
+  useId,
   useMemo,
   useRef,
   useState,
@@ -18,6 +19,14 @@ import {
   useChartDataOverride,
 } from "../chart-data-override";
 import { ParentSize } from "../chart-parent-size";
+import { ChoroplethBackground as ChoroplethBackgroundLayer } from "./choropleth-background";
+import {
+  ChoroplethCameraContext,
+  type ChoroplethCameraController,
+  type ChoroplethPerspective,
+  type ChoroplethZoomTransition,
+  useChoroplethCameraController,
+} from "./choropleth-camera";
 import {
   type ChoroplethFeature,
   type ChoroplethFeatureProperties,
@@ -28,8 +37,10 @@ import {
   useChoroplethInteraction,
   type ZoomInstance,
 } from "./choropleth-context";
+import { ChoroplethDotGrid as ChoroplethDotGridLayer } from "./choropleth-dot-grid";
 import { ChoroplethFeature as ChoroplethFeatureLayer } from "./choropleth-feature";
 import { ChoroplethGraticule as ChoroplethGraticuleLayer } from "./choropleth-graticule";
+import { ChoroplethMarker as ChoroplethMarkerLayer } from "./choropleth-marker";
 import {
   type ChoroplethMercator,
   createChoroplethMercator,
@@ -69,6 +80,20 @@ export interface ChoroplethChartProps {
   zoomMax?: number;
   /** Initial zoom transform */
   initialZoom?: TransformMatrix;
+  /**
+   * Click a region or marker to fly the camera to it; click it again, the
+   * empty map, or press Escape to fly back. Default: false
+   */
+  clickToZoom?: boolean;
+  /** Maximum camera scale when focusing a region. Default: 6 */
+  focusMaxZoom?: number;
+  /** Duration and easing of the click-to-zoom flight (and camera angle change). */
+  zoomTransition?: ChoroplethZoomTransition;
+  /**
+   * 3D camera: a view for the zoomed-out map and one for a focused region,
+   * e.g. flat overview that swings to look from the east when you zoom in.
+   */
+  perspective?: ChoroplethPerspective;
   /** Additional class name for the container */
   className?: string;
   /** Child components (ChoroplethFeature, ChoroplethGraticule, ChoroplethTooltip) */
@@ -82,13 +107,32 @@ const SVG_COMPONENT_NAMES = new Set([
   "ChoroplethFeature",
   "ChoroplethGraticule",
   "ChoroplethTooltip",
+  "ChoroplethDotGrid",
+  "ChoroplethMarker",
 ]);
 
-const SVG_COMPONENT_TYPES = new Set([
+const SVG_COMPONENT_TYPES = new Set<unknown>([
   ChoroplethFeatureLayer,
   ChoroplethGraticuleLayer,
   ChoroplethTooltipLayer,
+  ChoroplethDotGridLayer,
+  ChoroplethMarkerLayer,
 ]);
+
+// Static layers drawn behind the map: they don't zoom or tilt.
+const BACKDROP_COMPONENT_NAMES = new Set(["ChoroplethBackground"]);
+const BACKDROP_COMPONENT_TYPES = new Set<unknown>([ChoroplethBackgroundLayer]);
+
+function isChoroplethBackdropChild(type: unknown): boolean {
+  if (
+    BACKDROP_COMPONENT_TYPES.has(type) ||
+    BACKDROP_COMPONENT_TYPES.has(resolveComponentType(type))
+  ) {
+    return true;
+  }
+  const displayName = getComponentDisplayName(type);
+  return displayName !== null && BACKDROP_COMPONENT_NAMES.has(displayName);
+}
 
 function resolveComponentType(type: unknown): unknown {
   if (
@@ -125,11 +169,11 @@ function getComponentDisplayName(type: unknown): string | null {
 }
 
 function isChoroplethSvgChild(type: unknown): boolean {
-  if (SVG_COMPONENT_TYPES.has(type as never)) {
+  if (SVG_COMPONENT_TYPES.has(type)) {
     return true;
   }
   const resolved = resolveComponentType(type);
-  if (resolved !== type && SVG_COMPONENT_TYPES.has(resolved as never)) {
+  if (resolved !== type && SVG_COMPONENT_TYPES.has(resolved)) {
     return true;
   }
   const displayName = getComponentDisplayName(type);
@@ -141,10 +185,12 @@ const HTML_ELEMENTS = new Set(["div", "span", "button", "p", "a"]);
 
 // Separate children into SVG and overlay layers
 function separateChildren(children: ReactNode): {
+  backdropChildren: React.ReactNode[];
   svgChildren: React.ReactNode[];
   overlayChildren: React.ReactNode[];
 } {
   const childArray = React.Children.toArray(children);
+  const backdropChildren: React.ReactNode[] = [];
   const svgChildren: React.ReactNode[] = [];
   const overlayChildren: React.ReactNode[] = [];
 
@@ -154,7 +200,9 @@ function separateChildren(children: ReactNode): {
       continue;
     }
 
-    if (isChoroplethSvgChild(child.type)) {
+    if (isChoroplethBackdropChild(child.type)) {
+      backdropChildren.push(child);
+    } else if (isChoroplethSvgChild(child.type)) {
       svgChildren.push(child);
     } else if (typeof child.type === "string") {
       if (HTML_ELEMENTS.has(child.type)) {
@@ -167,7 +215,7 @@ function separateChildren(children: ReactNode): {
     }
   }
 
-  return { svgChildren, overlayChildren };
+  return { backdropChildren, svgChildren, overlayChildren };
 }
 
 const DEFAULT_INITIAL_ZOOM: TransformMatrix = {
@@ -193,9 +241,89 @@ interface ChoroplethMercatorContentProps {
   revealEpoch: number;
   isLoaded: boolean;
   containerRef: React.RefObject<HTMLDivElement | null>;
+  backdropChildren: React.ReactNode[];
   svgChildren: React.ReactNode[];
   overlayChildren: React.ReactNode[];
   zoom?: ZoomInstance<SVGSVGElement>;
+  cameraOptions: CameraOptions;
+}
+
+interface CameraOptions {
+  clickToZoom: boolean;
+  focusMaxZoom: number;
+  zoomTransition?: ChoroplethZoomTransition;
+  perspective?: ChoroplethPerspective;
+}
+
+function fadeStops(edge: number, active: boolean) {
+  const outer = active ? 0 : 1;
+  return [
+    { offset: "0%", opacity: outer },
+    { offset: `${edge}%`, opacity: 1 },
+    { offset: `${100 - edge}%`, opacity: 1 },
+    { offset: "100%", opacity: outer },
+  ];
+}
+
+/** Horizontal × vertical edge fade in the svg's own (untransformed) space. */
+function ViewportFadeMask({
+  id,
+  width,
+  height,
+  edgeFade,
+  active,
+}: {
+  id: string;
+  width: number;
+  height: number;
+  edgeFade: number;
+  active: boolean;
+}) {
+  const stops = fadeStops(edgeFade, active);
+  // stop-opacity is a CSS property, so the fade eases in as the camera moves.
+  const stopNodes = stops.map((stop) => (
+    <stop
+      key={stop.offset}
+      offset={stop.offset}
+      stopColor="white"
+      style={{
+        stopOpacity: stop.opacity,
+        transition: "stop-opacity 0.4s ease-out",
+      }}
+    />
+  ));
+  return (
+    <defs>
+      <linearGradient id={`${id}-h`} x1="0" x2="1" y1="0" y2="0">
+        {stopNodes}
+      </linearGradient>
+      <linearGradient id={`${id}-v`} x1="0" x2="0" y1="0" y2="1">
+        {stopNodes}
+      </linearGradient>
+      <mask
+        height={height}
+        id={`${id}-hm`}
+        maskUnits="userSpaceOnUse"
+        width={width}
+        x={0}
+        y={0}
+      >
+        <rect fill={`url(#${id}-h)`} height={height} width={width} />
+      </mask>
+      <mask
+        height={height}
+        id={id}
+        maskUnits="userSpaceOnUse"
+        width={width}
+        x={0}
+        y={0}
+      >
+        <g mask={`url(#${id}-hm)`}>
+          <rect fill={`url(#${id}-v)`} height={height} width={width} />
+        </g>
+      </mask>
+    </defs>
+  );
 }
 
 const ChoroplethSvg = memo(function ChoroplethSvg({
@@ -203,39 +331,96 @@ const ChoroplethSvg = memo(function ChoroplethSvg({
   width,
   svgChildren,
   zoom,
+  camera,
 }: {
   height: number;
   width: number;
   svgChildren: React.ReactNode[];
   zoom?: ZoomInstance<SVGSVGElement>;
+  camera: ChoroplethCameraController;
 }) {
-  const { setHoveredFeatureIndex, setTooltipData } = useChoroplethInteraction();
+  const { setHoveredFeatureIndex, setTooltipData, setMarkerTooltip } =
+    useChoroplethInteraction();
+  const { api, svgRef, cameraRef, edgeFade, edgeFadeActive } = camera;
+  const fadeId = `choropleth-edge-fade-${useId().replace(/:/g, "")}`;
+  const zoomContainerRef = zoom?.containerRef;
 
   const handleMouseLeave = useCallback(() => {
     setHoveredFeatureIndex(null);
     setTooltipData(null);
-  }, [setHoveredFeatureIndex, setTooltipData]);
+    setMarkerTooltip?.(null);
+  }, [setHoveredFeatureIndex, setTooltipData, setMarkerTooltip]);
+
+  const setSvgRef = useCallback(
+    (node: SVGSVGElement | null) => {
+      svgRef.current = node;
+      if (zoomContainerRef) {
+        zoomContainerRef.current = node;
+      }
+    },
+    [svgRef, zoomContainerRef]
+  );
+
+  // Clicking empty map (not a region or marker) flies back out.
+  const handleClick = useCallback(
+    (event: React.MouseEvent<SVGSVGElement>) => {
+      if (
+        api.enabled &&
+        api.focusedKey !== null &&
+        event.target === event.currentTarget &&
+        !api.wasDrag()
+      ) {
+        api.reset();
+      }
+    },
+    [api]
+  );
+
+  let cursor: string | undefined;
+  if (zoom) {
+    cursor = zoom.isDragging ? "grabbing" : "grab";
+  }
 
   return (
     <svg
       aria-hidden="true"
       height={height}
+      onClick={handleClick}
       onMouseLeave={handleMouseLeave}
-      ref={zoom?.containerRef}
+      ref={setSvgRef}
       style={{
-        contain: "layout style paint",
-        cursor: zoom?.isDragging ? "grabbing" : "grab",
-        touchAction: "none",
+        // Draws past its own box: the tilted plane would otherwise show the
+        // svg edge as a slanted cut. The untransformed wrapper clips instead.
+        contain: "layout style",
+        overflow: "visible",
+        cursor,
+        touchAction: zoom ? "none" : "manipulation",
       }}
       width={width}
     >
-      <g
-        style={{
-          transition: zoom?.isDragging ? "none" : "transform 0.18s ease-out",
-        }}
-        transform={zoom ? zoom.toString() : undefined}
-      >
-        {svgChildren}
+      {edgeFade > 0 ? (
+        <ViewportFadeMask
+          active={edgeFadeActive}
+          edgeFade={edgeFade}
+          height={height}
+          id={fadeId}
+          width={width}
+        />
+      ) : null}
+      {/* Mask lives outside the camera, so it stays on the chart's edges. */}
+      <g mask={edgeFade > 0 ? `url(#${fadeId})` : undefined}>
+        <g ref={cameraRef}>
+          <g
+            style={{
+              transition: zoom?.isDragging
+                ? "none"
+                : "transform 0.18s ease-out",
+            }}
+            transform={zoom ? zoom.toString() : undefined}
+          >
+            {svgChildren}
+          </g>
+        </g>
       </g>
     </svg>
   );
@@ -255,10 +440,21 @@ const ChoroplethMercatorContent = memo(function ChoroplethMercatorContent({
   revealEpoch,
   isLoaded,
   containerRef,
+  backdropChildren,
   svgChildren,
   overlayChildren,
   zoom,
+  cameraOptions,
 }: ChoroplethMercatorContentProps) {
+  const camera = useChoroplethCameraController({
+    ...cameraOptions,
+    width,
+    height,
+    mercator,
+    features: data.features,
+    onBeforeFocus: zoom?.reset,
+  });
+
   const pathGenerator = useCallback(
     (feature: ChoroplethFeature) => mercator.path(feature) ?? undefined,
     [mercator]
@@ -320,19 +516,59 @@ const ChoroplethMercatorContent = memo(function ChoroplethMercatorContent({
 
   return (
     <ChoroplethZoomContext.Provider value={{ zoom: zoom ?? null }}>
-      <ChoroplethStableProvider value={stableValue}>
-        <ChoroplethInteractionShell>
-          <div className="relative h-full w-full" ref={containerRef}>
-            <ChoroplethSvg
-              height={height}
-              svgChildren={svgChildren}
-              width={width}
-              zoom={zoom}
-            />
-            {overlayChildren}
-          </div>
-        </ChoroplethInteractionShell>
-      </ChoroplethStableProvider>
+      <ChoroplethCameraContext.Provider value={camera.api}>
+        <ChoroplethStableProvider value={stableValue}>
+          <ChoroplethInteractionShell>
+            <div
+              className="relative h-full w-full"
+              onPointerDown={camera.onPointerDown}
+              onPointerLeave={camera.onPointerLeave}
+              onPointerMove={camera.onPointerMove}
+              ref={containerRef}
+            >
+              {backdropChildren.length > 0 ? (
+                <svg
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-0"
+                  height={height}
+                  width={width}
+                >
+                  {backdropChildren}
+                </svg>
+              ) : null}
+              {/* Clip box: never transformed, so the map is cut by the chart frame. */}
+              <div
+                className="relative h-full w-full overflow-hidden"
+                style={
+                  camera.hasPerspective
+                    ? { perspective: `${camera.depth}px` }
+                    : undefined
+                }
+              >
+                <div
+                  className="h-full w-full"
+                  ref={camera.planeRef}
+                  style={{
+                    transformOrigin: "50% 60%",
+                    // A tilt that changes every frame otherwise makes Chrome
+                    // drop to a low-res raster until the motion settles.
+                    willChange: camera.hasPerspective ? "transform" : undefined,
+                  }}
+                >
+                  <ChoroplethSvg
+                    camera={camera}
+                    height={height}
+                    svgChildren={svgChildren}
+                    width={width}
+                    zoom={zoom}
+                  />
+                </div>
+              </div>
+              {overlayChildren}
+            </div>
+          </ChoroplethInteractionShell>
+        </ChoroplethStableProvider>
+      </ChoroplethCameraContext.Provider>
     </ChoroplethZoomContext.Provider>
   );
 });
@@ -381,8 +617,10 @@ function ChoroplethChartInner({
   zoomMin,
   zoomMax,
   initialZoom,
+  cameraOptions,
   children,
 }: {
+  cameraOptions: CameraOptions;
   data: FeatureCollection<Geometry, ChoroplethFeatureProperties>;
   width: number;
   height: number;
@@ -440,7 +678,7 @@ function ChoroplethChartInner({
     [mercator, data.features]
   );
 
-  const { svgChildren, overlayChildren } = useMemo(
+  const { backdropChildren, svgChildren, overlayChildren } = useMemo(
     () => separateChildren(children),
     [children]
   );
@@ -475,6 +713,8 @@ function ChoroplethChartInner({
 
   const mercatorContentProps = {
     animationDuration,
+    backdropChildren,
+    cameraOptions,
     containerRef,
     data,
     enterTransition,
@@ -580,6 +820,10 @@ export function ChoroplethChart({
   zoomMin = 0.5,
   zoomMax = 4,
   initialZoom = DEFAULT_INITIAL_ZOOM,
+  clickToZoom = false,
+  focusMaxZoom = 6,
+  zoomTransition,
+  perspective,
   className = "",
   children,
 }: ChoroplethChartProps) {
@@ -589,6 +833,14 @@ export function ChoroplethChart({
     choroplethDataCodec
   );
   const margin = { ...DEFAULT_MARGIN, ...marginProp };
+  // Keyed on values so inline literals don't re-render the memoized map.
+  const zoomDuration = zoomTransition?.duration;
+  const zoomEase = zoomTransition?.ease?.join(",");
+  const perspectiveKey = perspective ? JSON.stringify(perspective) : "";
+  const cameraOptions = useMemo<CameraOptions>(
+    () => ({ clickToZoom, focusMaxZoom, zoomTransition, perspective }),
+    [clickToZoom, focusMaxZoom, zoomDuration, zoomEase, perspectiveKey]
+  );
 
   return (
     <LazyMotion features={domAnimation}>
@@ -598,6 +850,7 @@ export function ChoroplethChart({
             width > 0 && height > 0 ? (
               <ChoroplethChartInner
                 animationDuration={animationDuration}
+                cameraOptions={cameraOptions}
                 center={center}
                 data={data}
                 enterTransition={enterTransition}

@@ -117,6 +117,11 @@ export type StudioControl = StudioControlVisibility &
         label: string;
       } & ProjectionScopedControl)
     | { type: "funnelEdges"; key: "funnelEdges"; label: string }
+    | {
+        type: "markerShape";
+        key: "choroplethMarkerShape";
+        label: string;
+      }
     | ({
         type: "fadeEdges";
         key: "fadeEdges" | "trendLineFadeEdges";

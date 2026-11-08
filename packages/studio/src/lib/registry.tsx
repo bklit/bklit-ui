@@ -57,6 +57,12 @@ import {
   studioPreviewChartKey,
 } from "./chart-animation";
 import {
+  choroplethBackgroundCodegen,
+  choroplethChartPropsCodegen,
+  choroplethDotGridCodegen,
+  choroplethMarkersCodegen,
+} from "./choropleth-codegen";
+import {
   areaChartDataSnippet,
   barCodegen,
   candlestickCodegen,
@@ -941,15 +947,23 @@ const choroplethConfig: StudioChartConfig = {
       state.choroplethFgPattern === "none"
         ? ""
         : `\n  <ChoroplethFeatureComponent${featureProps} getFeaturePattern={(feat) => \`choro-p-${regionExpr}\`} patterns={<>${["americas", "europe", "asia", "africa", "oceania"].map((region, i) => patternCodegenBlock(state.choroplethFgPattern, { id: `choro-p-${region}`, color: `var(--chart-${i + 1})`, strokeWidth: 2 })).join("")}</>} />`;
+    const colorProp = state.choroplethAnalytics
+      ? " getFeatureColor={getVisitorColor}"
+      : ` fill="${getSeriesColorOverride(state, 0) || "var(--chart-3)"}"`;
+    const dots = state.choroplethRender === "dots";
     const solid =
-      state.choroplethAnalytics ||
-      (state.choroplethBgPattern === "none" &&
-        state.choroplethFgPattern === "none")
-        ? `\n  <ChoroplethFeatureComponent${featureProps}${state.choroplethAnalytics ? " getFeatureColor={getVisitorColor}" : ` fill="${getSeriesColorOverride(state, 0) || "var(--chart-3)"}"`} />`
+      !dots &&
+      (state.choroplethAnalytics ||
+        (state.choroplethBgPattern === "none" &&
+          state.choroplethFgPattern === "none"))
+        ? `\n  <ChoroplethFeatureComponent${featureProps}${colorProp} />`
         : "";
+    const regions = dots
+      ? choroplethDotGridCodegen(state, colorProp)
+      : `${bg}${solid}${fg}`;
 
     return {
-      code: `<ChoroplethChart data={geojson} aspectRatio="16 / 9" animationDuration={${state.animationDuration}}>${state.showGraticule ? `\n  <ChoroplethGraticule${graticuleProps} />` : ""}${bg}${solid}${fg}
+      code: `<ChoroplethChart data={geojson} aspectRatio="16 / 9" animationDuration={${state.animationDuration}}${choroplethChartPropsCodegen(state)}>${choroplethBackgroundCodegen(state)}${state.showGraticule ? `\n  <ChoroplethGraticule${graticuleProps}${state.choroplethHideContextOnFocus ? "" : " hideOnFocus={false}"} />` : ""}${regions}${choroplethMarkersCodegen(state)}
   <ChoroplethTooltip${state.choroplethAnalytics ? ' getFeatureValue={getVisitorValue} valueLabel="Visitors"' : ""} />
 </ChoroplethChart>`,
       data: choroplethDataSnippet(),

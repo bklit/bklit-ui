@@ -62,13 +62,29 @@ export function ChoroplethTooltip({
   hideDelay = TOOLTIP_HIDE_DELAY_MS,
 }: ChoroplethTooltipProps) {
   const { containerRef, features } = useChoroplethStable();
-  const { tooltipData: hoverData } = useChoroplethInteraction();
+  const { tooltipData: hoverData, markerTooltip: hoverMarker } =
+    useChoroplethInteraction();
   const tooltipData = useDelayedTooltipData(hoverData, 0, hideDelay);
+  const marker = useDelayedTooltipData(hoverMarker ?? null, 0, hideDelay);
 
   const feature = tooltipData ? features[tooltipData.featureIndex] : undefined;
 
   let body: React.ReactNode = null;
-  if (tooltipData && feature) {
+  if (marker) {
+    const [lon, lat] = marker.coordinates;
+    body = (
+      <TooltipContent
+        rows={[
+          {
+            color: "var(--chart-foreground-muted)",
+            label: "Location",
+            value: `${lat.toFixed(2)}°, ${lon.toFixed(2)}°`,
+          },
+        ]}
+        title={marker.label}
+      />
+    );
+  } else if (tooltipData && feature) {
     const index = tooltipData.featureIndex;
     if (content) {
       body = content({ feature, index });
@@ -101,7 +117,7 @@ export function ChoroplethTooltip({
       containerRef={containerRef}
       exit={exit}
       panelStyle={panelStyle}
-      visible={Boolean(tooltipData && feature)}
+      visible={Boolean(marker || (tooltipData && feature))}
     >
       {body}
     </CursorTooltipBox>

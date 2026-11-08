@@ -13,7 +13,12 @@ export {
   type AreaChartLoadingProps,
 } from "./area-chart-loading";
 // Shared chart elements
-export { Background, type BackgroundProps } from "./background";
+export {
+  Background,
+  BackgroundPatternLayer,
+  type BackgroundPatternLayerProps,
+  type BackgroundProps,
+} from "./background";
 export {
   Band,
   type BandFadeEdges,
@@ -169,23 +174,40 @@ export {
 } from "./chart-stat-flow";
 // Choropleth chart components
 export {
+  ChoroplethBackground,
+  type ChoroplethBackgroundProps,
+  type ChoroplethCameraApi,
   ChoroplethChart,
   type ChoroplethChartProps,
   type ChoroplethContextValue,
+  ChoroplethDotGrid,
+  type ChoroplethDotGridProps,
+  type ChoroplethDotLattice,
   type ChoroplethFeature,
   ChoroplethFeatureComponent,
   type ChoroplethFeatureProperties,
   type ChoroplethFeatureProps,
+  type ChoroplethFocusView,
   ChoroplethGraticule,
   type ChoroplethGraticuleProps,
+  ChoroplethMarker,
+  type ChoroplethMarkerProps,
+  type ChoroplethMarkerPulse,
+  type ChoroplethMarkerShape,
+  type ChoroplethMarkerTooltipData,
+  type ChoroplethOverviewView,
+  type ChoroplethPerspective,
   ChoroplethProvider,
   ChoroplethTooltip,
   type ChoroplethTooltipData,
   type ChoroplethTooltipProps,
+  type ChoroplethViewSide,
+  type ChoroplethZoomTransition,
   choroplethCssVars,
   defaultChoroplethColors,
   type TransformMatrix,
   useChoropleth,
+  useChoroplethCamera,
   useChoroplethZoom,
 } from "./choropleth";
 // Composed time-series (line + area + SeriesBar on shared time scale)

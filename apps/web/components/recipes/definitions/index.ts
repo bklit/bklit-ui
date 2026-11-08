@@ -1,5 +1,9 @@
 import type { Recipe, RecipeCategory } from "@/lib/recipes/types";
 import {
+  choroplethPointerPinMap,
+  choroplethTiltedDotMap,
+} from "./choropleth-recipes";
+import {
   contextBars,
   forecastHandoff,
   priceVolume,
@@ -73,6 +77,8 @@ export const recipes: Recipe[] = [
   gaugeFanDuty,
   gaugeUptimeDots,
   gaugeLiveLoad,
+  choroplethTiltedDotMap,
+  choroplethPointerPinMap,
 ];
 
 /** Gallery sections, in display order. */
@@ -133,5 +139,11 @@ export const recipeCategories: {
     title: "Gauges",
     description:
       "Dials built on Gauge — rulers, needles, zones, sectors, progress rings and dots.",
+  },
+  {
+    id: "maps",
+    title: "Maps",
+    description:
+      "Choropleth maps — dot grids, markers and a 3D camera that flies to what you click.",
   },
 ];

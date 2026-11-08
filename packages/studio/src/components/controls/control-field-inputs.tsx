@@ -23,6 +23,7 @@ import { type FadeEdgesOption, FadeEdgesPicker } from "./fade-edges-picker";
 import { FunnelEdgesPicker } from "./funnel-edges-picker";
 import { GraticuleToggle } from "./graticule-toggle";
 import { LineCapPicker } from "./line-cap-picker";
+import { MarkerShapePicker } from "./marker-shape-picker";
 import { OrientationPicker } from "./orientation-picker";
 import { PatternPicker } from "./pattern-picker";
 import { PieFillPicker } from "./pie-fill-picker";
@@ -179,6 +180,13 @@ export function ControlFieldInputs({
             onChange(control.key, v as StudioUrlState[typeof control.key])
           }
           value={value as ProjectionCurveKind}
+        />
+      );
+    case "markerShape":
+      return (
+        <MarkerShapePicker
+          onChange={(v) => onChange("choroplethMarkerShape", v)}
+          value={value as StudioUrlState["choroplethMarkerShape"]}
         />
       );
     case "funnelEdges":

@@ -57,6 +57,10 @@ The root component that sets up the Mercator projection and provides context to 
 | `zoomMin` | `number` | `0.5` | Minimum zoom scale |
 | `zoomMax` | `number` | `4` | Maximum zoom scale |
 | `initialZoom` | `TransformMatrix` | identity | Initial zoom transform |
+| `clickToZoom` | `boolean` | `false` | Click a region or marker to fly the camera to it. Click it again, the empty map, or press Escape to fly back |
+| `focusMaxZoom` | `number` | `6` | Maximum camera scale when focusing a region |
+| `zoomTransition` | `{ duration?: number; ease?: [number, number, number, number] }` | `{ duration: 700, ease: [0.83, 0, 0.17, 1] }` | Duration (ms) and cubic-bezier of the click-to-zoom flight and camera angle change |
+| `perspective` | `ChoroplethPerspective` | - | 3D camera — see [Camera and perspective](#camera-and-perspective) |
 | `className` | `string` | `""` | Additional CSS class |
 
 ### ChoroplethFeatureComponent
@@ -82,6 +86,61 @@ Renders optional graticule (latitude/longitude grid lines).
 | `stroke` | `string` | `"rgba(255,255,255,0.1)"` | Line color |
 | `strokeWidth` | `number` | `0.5` | Line width |
 | `step` | `[number, number]` | `[10, 10]` | Grid step intervals [longitude, latitude] in degrees |
+| `hideOnFocus` | `boolean` | `true` | Fade the lines out while the camera is focused on a region or marker |
+
+### ChoroplethDotGrid
+
+Draws the map as one dot lattice instead of filled regions. Use it in place of `ChoroplethFeatureComponent`. Each dot belongs to the region its centre lands on and is always drawn whole, so coastlines and borders never cut a dot.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `gap` | `number` | `7` | Distance between dot centres in px |
+| `dotSize` | `number` | `0.7` | Dot diameter as a fraction of `gap` |
+| `zoomDotSize` | `number` | `0.9` | Dot diameter (fraction of `gap`) at `focusMaxZoom` — dots grow toward it as the camera zooms in |
+| `lattice` | `"hex" \| "square"` | `"hex"` | `hex` offsets every other row |
+| `showOcean` | `boolean` | `true` | Continue the grid over oceans |
+| `oceanColor` | `string` | `"var(--chart-scale-01)"` | Ocean dot colour |
+| `oceanOpacity` | `number` | `0.55` | Ocean dot opacity |
+| `oceanDotScale` | `number` | `0.55` | Ocean dot size relative to land dots |
+| `hideOceanOnFocus` | `boolean` | `true` | Fade ocean dots out while the camera is focused |
+| `edgeFade` | `number` | `12` | Fade the grid out toward the map edges, as % per side. `0` keeps hard edges |
+| `fill` | `string` | - | Uniform dot colour (overrides `getFeatureColor`) |
+| `getFeatureColor` | `(feature, index) => string` | - | Per-region dot colour |
+| `fadedOpacity` | `number` | `0.4` | Opacity of other regions while one is hovered |
+
+### ChoroplethMarker
+
+A point on the map at `[longitude, latitude]`. Markers keep the same on-screen size while the map zooms, show their label in `ChoroplethTooltip`, and fly the camera to themselves when `clickToZoom` is on.
+
+```tsx
+<ChoroplethMarker coordinates={[-0.13, 51.51]} label="London" shape="pin" pulse="always" glow={6} />
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `coordinates` | `[number, number]` | required | `[longitude, latitude]` |
+| `label` | `string` | required | Name shown in the tooltip |
+| `shape` | `"circle" \| "triangle" \| "square" \| "diamond" \| "pin"` | `"circle"` | Marker shape. `pin` puts its tip on the coordinate |
+| `size` | `number` | `9` | Size in px |
+| `color` | `string` | `"var(--foreground)"` | Fill colour |
+| `stroke` | `string` | - | Outline colour. Omit for no outline |
+| `strokeWidth` | `number` | `1.5` | Outline width (with `stroke`) |
+| `pulse` | `"none" \| "hover" \| "always"` | `"hover"` | Ripple ring. Respects reduced motion |
+| `glow` | `number` | `0` | Outer glow blur in px; `0` turns it off |
+| `showLabel` | `boolean` | `false` | Always draw the label beside the marker |
+
+### ChoroplethBackground
+
+A static pattern behind the map, with the same options as the cartesian [`Background`](/docs/utility/background) (pattern, colour, opacity, edge fades). It doesn't zoom, pan or tilt with the camera.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `pattern` | `PatternPresetId` | `"diagonal-up"` | Pattern preset |
+| `color` | `string` | `"var(--chart-grid)"` | Pattern colour |
+| `opacity` | `number` | `1` | Pattern opacity |
+| `fadeHorizontal` / `fadeVertical` | `boolean` | `true` | Fade the pattern at the chart edges |
+| `fadeHorizontalLength` / `fadeVerticalLength` | `number` | `10` | Fade zone, % per edge |
+| `hideOnFocus` | `boolean` | `false` | Fade the pattern out while the camera is focused |
 
 ### ChoroplethTooltip
 
@@ -99,6 +158,38 @@ Displays tooltips for features on hover, following the mouse position.
 | `className` | `string` | `""` | Additional CSS class |
 | `backgroundColor` | `string` | `var(--chart-tooltip-background)` | Tooltip panel background color |
 | `panelStyle` | `CSSProperties` | - | Inline styles for the tooltip panel (background, blur, etc.) |
+
+## Camera and perspective
+
+With `clickToZoom`, clicking a region frames its largest landmass (France frames France, not French Guiana); clicking a marker centres it. While zoomed in, only the focused region or marker reacts to hover — the rest stay clickable, and clicking one flies there instead.
+
+`perspective` tilts the map in 3D, with one view for the zoomed-out map and one for a focused target. Both angles move in the same eased transition as the zoom.
+
+```tsx
+<ChoroplethChart
+  clickToZoom
+  data={geojson}
+  perspective={{
+    overview: { view: "pointer", yaw: 14, tilt: 18 },
+    focus: { view: "auto", tilt: 28 },
+  }}
+>
+  ...
+</ChoroplethChart>
+```
+
+| Field | Type | Default | Description |
+|------|------|---------|-------------|
+| `overview.view` | `"flat" \| "west" \| "east" \| "pointer"` | `"flat"` | Camera when zoomed out. `pointer` swings from a west to an east view as the pointer crosses the map |
+| `overview.yaw` | `number` | `18` | Side-to-side rotation in degrees |
+| `overview.tilt` | `number` | `0` | Lean back in degrees |
+| `focus.view` | `"flat" \| "west" \| "east" \| "auto"` | same as overview | Camera after clicking a target. `auto` looks from the side of the map the target is on |
+| `focus.yaw` | `number` | `overview.yaw` | Side-to-side rotation when focused |
+| `focus.tilt` | `number` | `overview.tilt` | Lean back when focused |
+| `depth` | `number` | `1600` | CSS perspective distance in px — lower is more dramatic |
+| `edgeFade` | `number` | `0` | Fade the map into the chart edges, % per side |
+
+Read or drive the camera from your own components with `useChoroplethCamera()` (`focusFeature`, `focusPoint`, `reset`, `focusedKey`). With reduced motion, the camera jumps instead of flying and the pointer camera stays still.
 
 ## Data Format
 
@@ -127,7 +218,7 @@ import * as topojson from "topojson-client";
 const geojson = topojson.feature(topology, topology.objects.countries);
 ```
 
-See the [charts gallery](/charts/choropleth-chart) for analytics color scales, zoom controls, and pattern fills.
+See the [charts gallery](/charts/choropleth-chart) for analytics color scales, zoom controls, pattern fills, click-to-zoom, dot grids and the pointer camera.
 
 ## Theming
 

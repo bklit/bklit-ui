@@ -50,11 +50,19 @@ export interface ChoroplethTooltipData {
   feature: ChoroplethFeature;
 }
 
+/** Hovered or focused `ChoroplethMarker`, shown by `ChoroplethTooltip`. */
+export interface ChoroplethMarkerTooltipData {
+  label: string;
+  coordinates: [number, number];
+}
+
 export interface ChoroplethInteractionContextValue {
   hoveredFeatureIndex: number | null;
   setHoveredFeatureIndex: (index: number | null) => void;
   tooltipData: ChoroplethTooltipData | null;
   setTooltipData: Dispatch<SetStateAction<ChoroplethTooltipData | null>>;
+  markerTooltip?: ChoroplethMarkerTooltipData | null;
+  setMarkerTooltip?: (marker: ChoroplethMarkerTooltipData | null) => void;
 }
 
 export interface ChoroplethStableContextValue {
@@ -123,6 +131,8 @@ export function ChoroplethInteractionShell({
   const [tooltipData, setTooltipData] = useState<ChoroplethTooltipData | null>(
     null
   );
+  const [markerTooltip, setMarkerTooltip] =
+    useState<ChoroplethMarkerTooltipData | null>(null);
 
   const interaction = useMemo<ChoroplethInteractionContextValue>(
     () => ({
@@ -130,8 +140,10 @@ export function ChoroplethInteractionShell({
       setHoveredFeatureIndex,
       tooltipData,
       setTooltipData,
+      markerTooltip,
+      setMarkerTooltip,
     }),
-    [hoveredFeatureIndex, tooltipData]
+    [hoveredFeatureIndex, tooltipData, markerTooltip]
   );
 
   return (
@@ -193,8 +205,12 @@ export function ChoroplethProvider({
       setHoveredFeatureIndex: value.setHoveredFeatureIndex,
       tooltipData: value.tooltipData,
       setTooltipData: value.setTooltipData,
+      markerTooltip: value.markerTooltip,
+      setMarkerTooltip: value.setMarkerTooltip,
     }),
     [
+      value.markerTooltip,
+      value.setMarkerTooltip,
       value.hoveredFeatureIndex,
       value.setHoveredFeatureIndex,
       value.tooltipData,
