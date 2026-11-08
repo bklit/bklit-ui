@@ -17,15 +17,33 @@ xcrun simctl openurl booted exp://localhost:8081
 
 Not part of `pnpm dev` (no `dev` script) so web contributors don't start Metro.
 
-## Public preview (Expo Go)
+## Public demo builds
 
-The docs QR code (`apps/web/lib/expo-preview.ts`) opens the latest update on the
-`preview` channel of the Expo project `@uixmat/bklit-charts`. To publish the
-current app there (needs `npx eas-cli login` as an owner):
+Expo Go only loads EAS Update projects owned by the signed-in account (since
+May 2026), so the public demo ships as standalone builds. Run these from
+`apps/mobile` (needs `npx eas-cli login` as an owner of `@uixmat/bklit-charts`):
+
+```sh
+# Android APK with a public install page (internal distribution)
+npx eas-cli@latest build -p android --profile preview
+
+# iOS: build and upload to TestFlight
+npx testflight
+```
+
+After a new Android build, update `DEMO_ANDROID_URL` in
+`apps/web/lib/expo-preview.ts`. Put the TestFlight public link in
+`DEMO_IOS_URL`.
+
+The `preview` profile builds `arm64-v8a` only, with Gradle limited to two
+workers, so it fits on the Free plan's build machine. The full four-ABI
+build ran out of memory.
+
+JavaScript-only changes don't need a rebuild. Both builds read the `preview`
+update channel:
 
 ```sh
 pnpm --filter @bklitui/mobile update:preview --message "What changed"
 ```
 
-The link stays the same between publishes. After an Expo SDK upgrade, update
-`runtime-version` in that URL (e.g. `exposdk:59.0.0`).
+Rebuild after adding a native dependency or upgrading the Expo SDK.
