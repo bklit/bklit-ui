@@ -541,7 +541,9 @@ const ChoroplethMercatorContent = memo(function ChoroplethMercatorContent({
                 className="relative h-full w-full"
                 // Inline so wrappers that force `overflow: visible` on
                 // descendants (e.g. gallery frames) can't undo the clip.
+                // Paint containment also clips composited layers.
                 style={{
+                  contain: "paint",
                   overflow: "hidden",
                   perspective: camera.hasPerspective
                     ? `${camera.depth}px`
