@@ -1,0 +1,28 @@
+---
+title: Choropleth camera and dot maps
+description: Click to fly into a country, tilt the map in 3D, draw it as dots and pin your own locations.
+date: 2026-11-08T13:00:00Z
+image: /changelog/2026-11-08-choropleth-camera.svg
+imageAlt: A grid of dots leaned back in perspective, with darker clusters for land and a ringed dot on one of them
+tags: [choropleth-chart, recipes]
+---
+
+A world map is good at showing where things are, but on a dashboard it tends to sit there flat. `ChoroplethChart` now has a camera: click a country and the map flies to it, leaning toward that side of the world, then flies back when you're done.
+
+## Click to zoom
+
+Add `clickToZoom` and clicking a region frames its largest landmass, so France frames France rather than French Guiana. Click it again, click the empty map or press Escape to fly back. `zoomTransition` sets the duration and curve, and `focusMaxZoom` caps how far in it goes. While you're zoomed in, only the focused region reacts to hover, so its neighbours don't pull your attention away.
+
+## A 3D camera
+
+`perspective` gives the map one view for the overview and one for a focused region. Each view sets a side (flat, west or east), a yaw and a tilt. With `view: "auto"` on the focus, the camera turns toward whichever side of the map you clicked. With `view: "pointer"` on the overview, the map swings from a west view to an east view as the pointer crosses it. Both angles move in the same eased flight as the zoom.
+
+## Dots, markers and backgrounds
+
+`ChoroplethDotGrid` draws the whole map as one hex or square lattice. Dots are never cut at coastlines, the grid can continue over the oceans, and it fades out toward the edges. As the camera zooms in, the dots grow and the ocean dots fade away.
+
+`ChoroplethMarker` places a circle, triangle, square, diamond or pin at a longitude and latitude, with an optional pulse, glow and stroke. Markers keep their size while the map zooms. `ChoroplethBackground` puts the line chart's pattern background behind the map, where it stays still while the map moves.
+
+Every option is in [Studio](/studio?chart=choropleth-chart), and there are two new map recipes on [/recipes](/recipes?category=maps).
+
+See the [choropleth chart docs](/docs/components/choropleth-chart).
