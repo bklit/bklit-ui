@@ -4,11 +4,13 @@ import {
   Bar,
   BarChart,
   BarXAxis,
+  ChartCrosshair,
   ChartTooltip,
   Grid,
   Line,
   LineChart,
   XAxis,
+  YAxis,
 } from "@bklitui/ui/charts";
 
 const chartData = [
@@ -282,6 +284,26 @@ export function TooltipCustomContentDemo() {
             </div>
           )}
         />
+      </LineChart>
+    </div>
+  );
+}
+
+const crosshairUsersFormat = { maximumFractionDigits: 0 };
+
+export function TooltipHorizontalCrosshairDemo() {
+  return (
+    <div className="w-full">
+      <LineChart
+        data={chartData}
+        margin={{ top: 8, right: 8, bottom: 40, left: 56 }}
+      >
+        <Grid horizontal />
+        <Line dataKey="users" stroke="var(--chart-line-primary)" />
+        <YAxis />
+        <XAxis />
+        <ChartCrosshair format={crosshairUsersFormat} numberFlow />
+        <ChartTooltip showCrosshair={false} />
       </LineChart>
     </div>
   );

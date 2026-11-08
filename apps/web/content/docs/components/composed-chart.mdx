@@ -46,6 +46,7 @@ The chart also takes the `LineChart` lifecycle props: `status` / `loadingLabel` 
 - **`aspectRatio`** — wide charts (e.g. `4 / 1`) work for full-width heroes; in **narrow cards** use **`3 / 2`** or **`2 / 1`** so the plot stays tall enough to read.
 - **`barSize`**, **`maxBarSize`**, **`barGap`** — parent-level layout for `SeriesBar` groups (similar to Recharts `ComposedChart` props). Use **`barGap={0}`** and a higher **`maxBarSize`** for dense daily data so columns read like the [90 days of data](/docs/components/bar-chart#90-days-of-data) bar example.
 - **`stacked`** / **`stackGap`** — stack `SeriesBar` segments in child order at each x (other series are not stacked). The bars' axis fits the stack totals, even with a second y-axis.
+- **`barEdgeInset`** — with any `SeriesBar`, the x-axis is inset by half a slot on each side (like a bar chart's band scale) so the first and last bars clear the y-axes. Lines, areas and the x-axis share the inset scale and stay centred on their bars. Default `true`; pass `barEdgeInset={false}` for edge-to-edge lines.
 - **`yDomains`** — per-axis domain overrides keyed by `yAxisId`: a fixed `[min, max]` or a function of the auto domain. Hoist the object out of render.
 - **`SeriesBar`** — default **`radius` is 0** (square tops). Pass **`radius={4}`** (or similar) for rounded corners.
 - **`Line`** / **`Area`** — pass a **`curve`** from `d3-shape` (e.g. **`curveMonotoneX`**) to soften paths when you have many daily points.
@@ -54,6 +55,7 @@ The chart also takes the `LineChart` lifecycle props: `status` / `loadingLabel` 
 - **`Line`** / **`Area`** — use **`dashFromIndex`** and **`dashArray`** for a dashed tail on incomplete periods (the dashed segment follows the same curve and edge fade).
 - **`XAxis`** — default ticks snap to data rows so the crosshair aligns. Tune **`numTicks`** for dense series (e.g. daily). Use **`tickMode="domain"`** only when you want calendar-even spacing instead of data alignment.
 - **`ChartTooltip`** — for bar-heavy layouts, **`showCrosshair={false}`** often looks cleaner because the hover band is already vertical columns.
+- **`ChartCrosshair`** — finance-style crosshair with the price under the cursor in a y-axis pill; pair with `<ChartTooltip showCrosshair={false} />`. See [Horizontal crosshair](/docs/utility/tooltip#horizontal-crosshair).
 - **`YAxis`** / **`yAxisId`** — every series takes a `yAxisId` (see [Y Axis](/docs/utility/axis/y-axis)). Ids are free-form: an axis without a `<YAxis>` is a hidden scale, handy for volume bars.
 - **Hover dimming** — `SeriesBar` fades non-hovered columns using `tooltipData.index`, like grouped bars in `BarChart`. Tune with **`fadedOpacity`** on each `SeriesBar`.
 
