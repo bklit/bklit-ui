@@ -16,6 +16,7 @@ import {
   type LineConfig,
   type Margin,
 } from "./chart-context";
+import { useChartDataOverride } from "./chart-data-override";
 import { useElementSize } from "./chart-parent-size";
 import type { ChartPhase } from "./chart-phase";
 import { Scatter, type ScatterProps } from "./scatter";
@@ -160,7 +161,7 @@ function ChartInner({
 }
 
 export function ScatterChart({
-  data,
+  data: dataProp,
   xDataKey = "date",
   margin: marginProp,
   animationDuration = 1100,
@@ -174,6 +175,9 @@ export function ScatterChart({
   formatXLabel,
   onPhaseChange,
 }: ScatterChartProps) {
+  const { data } = useChartDataOverride("ScatterChart", {
+    data: dataProp,
+  });
   const containerRef = useRef<HTMLDivElement>(null);
   const margin = { ...DEFAULT_MARGIN, ...marginProp };
   const { width, height } = useElementSize(containerRef, 10);

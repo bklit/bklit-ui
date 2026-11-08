@@ -17,6 +17,7 @@ import {
 } from "react";
 import { cn } from "@/lib/utils";
 import { arcPath } from "./arc-path";
+import { useChartDataOverride } from "./chart-data-override";
 import { ParentSize } from "./chart-parent-size";
 import {
   defaultPieColors,
@@ -447,7 +448,7 @@ function pieChartCorePropsEqual(
 }
 
 export function PieChart({
-  data,
+  data: dataProp,
   size: fixedSize,
   innerRadius = 0,
   padAngle = 0,
@@ -463,6 +464,9 @@ export function PieChart({
   geometryScrubbing = false,
   children,
 }: PieChartProps) {
+  const { data } = useChartDataOverride("PieChart", {
+    data: dataProp,
+  });
   const containerRef = useRef<HTMLDivElement>(null);
 
   // If fixed size is provided, use it directly

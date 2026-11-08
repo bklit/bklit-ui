@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { ChartExampleFrame } from "@/components/charts/chart-example-frame";
 import type { ChartExamplePreviewLayout } from "@/components/charts/chart-example-preview";
+import type { EditableData } from "@/components/charts/editable-data";
 
 export function FeaturedChartHero({
   anchorId,
@@ -13,6 +14,7 @@ export function FeaturedChartHero({
   data,
   footer = "Trending up by 5.2% this month",
   previewLayout = "cartesian",
+  editableData,
   children,
 }: {
   anchorId?: string;
@@ -23,6 +25,7 @@ export function FeaturedChartHero({
   data?: string;
   footer?: string;
   previewLayout?: ChartExamplePreviewLayout;
+  editableData?: EditableData;
   children: ReactNode;
 }) {
   return (
@@ -32,6 +35,7 @@ export function FeaturedChartHero({
       code={code}
       data={data}
       description={description}
+      editableData={editableData}
       footer={footer}
       hero
       previewLayout={previewLayout}

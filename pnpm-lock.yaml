@@ -226,6 +226,9 @@ importers:
       geist:
         specifier: ^1.7.2
         version: 1.7.2(next@16.2.9(@babel/core@7.29.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))
+      modern-screenshot:
+        specifier: ^4.7.0
+        version: 4.7.0
       motion:
         specifier: ^12.27.0
         version: 12.27.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -6106,6 +6109,9 @@ packages:
     resolution: {integrity: sha512-+hEnITedc8LAtIP9u3HJDFIdcLV2vXP33sqLLIzkv1Db1zO/1OxbvYf0Y1OC/S/Qo5dxHXepofhmxL02PsKe+A==}
     engines: {node: '>=10'}
     hasBin: true
+
+  modern-screenshot@4.7.0:
+    resolution: {integrity: sha512-9YxN+ddPSMMlhylOv25VHzXrl9u67QRxoh7+SEewGtgUw7t6hHTrjptSDJUSne9oG4Xk/h2cwG15nIt4Hc9ujg==}
 
   modern-tar@0.7.6:
     resolution: {integrity: sha512-sweCIVXzx1aIGTCdzcMlSZt1h8k5Tmk08VNAuRk3IU28XamGiOH5ypi11g6De2CH7PhYqSSnGy2A/EFhbWnVKg==}
@@ -14336,6 +14342,8 @@ snapshots:
   mitt@3.0.1: {}
 
   mkdirp@2.1.6: {}
+
+  modern-screenshot@4.7.0: {}
 
   modern-tar@0.7.6: {}
 

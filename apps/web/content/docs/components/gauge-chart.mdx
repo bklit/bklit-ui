@@ -1,9 +1,25 @@
 ---
 title: Gauge
-description: Notch-based radial or linear gauge with optional center label, theme fills, patterns, arc gradients, and responsive sizing
+description: Notch, solid or sector dial (or a linear notch track) with rulers, needles, zones, progress rings, dots, glow, a center label and a zero-bounce sweep animation
 ---
 
-import { GaugeChartDemo } from "@/components/docs/gauge-chart-demo";
+import {
+  GaugeAnimationDemo,
+  GaugeArcStylesDemo,
+  GaugeCenterDiscDemo,
+  GaugeChartDemo,
+  GaugeDotsDemo,
+  GaugeFanDutyDemo,
+  GaugeGlowDemo,
+  GaugeNeedleDemo,
+  GaugeNeedleTipDemo,
+  GaugeProgressRingDemo,
+  GaugeRulerDemo,
+  GaugeSectorDemo,
+  GaugeSpeedometerDemo,
+  GaugeTonnesDemo,
+  GaugeZonesDemo,
+} from "@/components/docs/gauge-chart-demo";
 
 <ComponentPreview registryName="gauge-chart">
   <GaugeChartDemo />
@@ -33,6 +49,8 @@ import { GaugeChartDemo } from "@/components/docs/gauge-chart-demo";
 - **Arc gradients:** set **`useGradient`**. Optional **`activeGradient`** and **`inactiveGradient`** are **`[hexFrom, hexTo]`** tuples (interpolated along the notch index).
 - **Fill opacity:** `activeFillOpacity` and `inactiveFillOpacity` map to SVG `fill-opacity` (0–1). Defaults are **1** for active notches and **0.8** for the track; docs and gallery examples use **`inactiveFillOpacity={0.4}`** for a lighter track.
 - **Corner radius:** `notchCornerRadius` is the fillet in **pixels** at each notch corner (**0** = sharp). Large values are clamped by edge length and radial depth so shapes can approach a **capsule** / near-circular look.
+- **Dials (arc only):** swap the notch track for a `solid` stroke or none (`arcStyle`), then layer a `ruler`, `needle`, `zones`, `sector`, `progressRing`, `dots`, `glow` and `centerDisc` — see [Dial features](#dial-features).
+- **Animation:** the fill sweeps from zero on a zero-bounce spring and follows later `value` changes from where it is; reduced motion renders instantly — see [Animation](#animation).
 
 ```tsx
 import { Gauge } from "@bklitui/ui/charts";
@@ -89,6 +107,334 @@ With label below center:
 />
 ```
 
+## Dial features
+
+Everything below is **arc only** — `orientation="linear"` ignores these props. Layers compose freely: rings, zone bands and an outside ruler claim space from the outside in and the track shrinks to make room, so you can stack them without tuning radii by hand.
+
+### Animation
+
+On mount the track (and ruler) fades in, then the fill sweeps from **0** to `value` on a zero-bounce spring — notches light up in order as the sweep passes them, ruler ticks brighten, and the needle, sector, ring and dots all ride the same motion value. When `value` changes the sweep continues from wherever it is (keeping its velocity), rather than restarting from zero. With `prefers-reduced-motion` the gauge renders at its value instantly.
+
+- **`enterTransition`** — any motion `Transition` for the sweep. Default `{ type: "spring", visualDuration: 0.9, bounce: 0 }`.
+- **`enterStaggerScale`** — scales the short delay before the sweep starts (clamped **0.25–2.5**).
+- **Replay** — change the gauge's `key` to remount it and play the enter again.
+
+<ComponentShowcase
+  code={`const [value, setValue] = useState(38);
+const [replay, setReplay] = useState(0);
+
+<Gauge
+  key={replay} // remount to replay the enter
+  value={value}
+  centerValue={value}
+  defaultLabel="Cluster load"
+  suffix="%"
+  needle="line"
+  ruler
+  totalNotches={72}
+  spacing={40}
+  notchLengthPercent={34}
+  notchCornerRadius={2}
+  startAngle={148}
+  endAngle={392}
+  // enterTransition={{ type: "spring", visualDuration: 1.4, bounce: 0 }}
+  // enterStaggerScale={2}
+/>
+<Button onClick={() => setValue(randomValue())}>Change value</Button>
+<Button onClick={() => setReplay((n) => n + 1)}>Replay enter</Button>`}
+  liveChartPreview
+  previewMinHeight={360}
+>
+  <GaugeAnimationDemo />
+</ComponentShowcase>
+
+### Arc styles
+
+`arcStyle` picks how the track is drawn: discrete **`notches`** (default), one rounded **`solid`** stroke (thickness via `arcThickness`, a fraction of the gauge size — default `0.035`), or **`none`** to drop the track entirely and let a sector, progress ring or dots carry the value.
+
+<ComponentShowcase
+  code={`<Gauge value={64} centerValue={64} suffix="%" inactiveFillOpacity={0.4} />
+
+<Gauge arcStyle="solid" arcThickness={0.05} inactiveFillOpacity={0.6} value={64} centerValue={64} suffix="%" />
+
+<Gauge arcStyle="none" progressRing value={64} centerValue={64} suffix="%" />`}
+  liveChartPreview
+  previewMinHeight={260}
+>
+  <GaugeArcStylesDemo />
+</ComponentShowcase>
+
+With `arcStyle="solid"`, `activeFill` / `inactiveFill` colour the fill and track, and `useGradient` paints a left → right ramp (`activeGradient` or `--chart-1` → `--chart-5`).
+
+### Ruler
+
+`ruler` adds a scale. `true` draws 50 intervals with a major tick every 5 **inside** the track; ticks brighten as the fill passes them (`highlightActive`). Pass an object to move it **outside**, change tick counts, lengths, gap and colour, or add **labels** — `true` / `"majors"` labels every major tick, `"ends"` only the first and last, and an object sets the label domain (`min` / `max`, default 0 → 100), a `format` function and a `color`.
+
+<ComponentShowcase
+  code={`<Gauge ruler value={53} {...dialProps} />
+
+<Gauge
+  arcStyle="solid"
+  ruler={{ position: "outside", ticks: 20, majorEvery: 5, labels: "ends" }}
+  value={53}
+/>
+
+<Gauge
+  arcStyle="solid"
+  arcThickness={0.02}
+  centerValue={4.2}
+  defaultLabel="rpm × 1000"
+  ruler={{
+    position: "outside",
+    ticks: 16,
+    majorEvery: 4,
+    labels: { min: 0, max: 8, format: (v) => \`\${v}k\` },
+  }}
+  value={(4.2 / 8) * 100}
+/>`}
+  liveChartPreview
+  previewMinHeight={260}
+>
+  <GaugeRulerDemo />
+</ComponentShowcase>
+
+`value` is always 0–100. When your reading has real units, map it (`value={(reading / max) * 100}`) and give the ruler labels the real domain.
+
+### Needles
+
+`needle` adds a pointer that sweeps with the fill. `true` is the **gradient** needle; pass a variant name for the others, or an object for full control: `color`, `width` (stroke width for line / gradient, base width for triangle / polygon), `length` (fraction of the reach — default `0.55` floats the needle clear of the center label; `1` runs from the pivot), and `pivot` to draw a cap at the center.
+
+<ComponentShowcase
+  code={`<Gauge needle="line" ruler value={62} {...dialProps} />
+<Gauge needle ruler value={62} {...dialProps} /> {/* "gradient" */}
+<Gauge needle="triangle" ruler value={62} {...dialProps} />
+<Gauge needle="polygon" ruler value={62} {...dialProps} />
+
+<Gauge needle={{ variant: "line", length: 1, pivot: true, color: "var(--chart-1)" }} value={62} />`}
+  liveChartPreview
+  previewMinHeight={480}
+>
+  <GaugeNeedleDemo />
+</ComponentShowcase>
+
+`tip` sets where the needle ends: just inside the track (**`inner`**, default), at the track's outer edge (**`outer`**), or past the outermost layer — ring, zone band or outside ruler (**`edge`**).
+
+<ComponentShowcase
+  code={`<Gauge
+  arcStyle="solid"
+  ruler={{ position: "outside", ticks: 20, majorEvery: 5 }}
+  needle={{ variant: "triangle", tip: "edge", length: 0.3, width: 8 }} // "inner" | "outer" | "edge"
+  value={62}
+/>`}
+  liveChartPreview
+  previewMinHeight={260}
+>
+  <GaugeNeedleTipDemo />
+</ComponentShowcase>
+
+### Zones
+
+`zones` marks coloured ranges on the 0–100 scale (`{ from, to, color }[]`, later zones win where they overlap). `zoneDisplay` chooses how they render: **`band`** (default) — a thin arc ringing the track; **`fill`** — the lit notches or solid fill take the zone colour where they overlap it; **`both`**.
+
+<ComponentShowcase
+  code={`const zones = [
+  { from: 0, to: 60, color: "#22c55e" },
+  { from: 60, to: 85, color: "#f59e0b" },
+  { from: 85, to: 100, color: "#ef4444" },
+];
+
+<Gauge arcStyle="solid" zones={zones} value={78} />
+<Gauge zones={zones} zoneDisplay="fill" totalNotches={60} value={92} />
+<Gauge arcStyle="solid" zones={zones} zoneDisplay="both" value={92} />`}
+  liveChartPreview
+  previewMinHeight={260}
+>
+  <GaugeZonesDemo />
+</ComponentShowcase>
+
+### Sectors
+
+`sector` fills the wedge from the start angle to the value. The default **`conic`** gradient brightens toward the leading edge (rendered as a CSS `conic-gradient` layer behind the SVG); **`radial`** brightens toward the rim; **`none`** paints a flat `color` — which can be any SVG paint, including `url(#pattern)` from a `PatternPreset` child. `opacity` is the peak opacity (default `0.85`) and `innerRadius` (fraction of the sector radius) hollows the middle. With `centerDisc` on, the sector starts at the disc's outer edge automatically.
+
+<ComponentShowcase
+  code={`<Gauge arcStyle="none" sector progressRing value={68} />
+
+<Gauge
+  arcStyle="solid"
+  arcThickness={0.02}
+  sector={{ gradient: "radial", innerRadius: 0.3 }}
+  value={68}
+/>
+
+<Gauge
+  arcStyle="none"
+  progressRing
+  sector={{ gradient: "none", color: "url(#sector-pattern)", innerRadius: 0.5, opacity: 1 }}
+  value={68}
+>
+  <PatternPreset color="var(--chart-1)" id="sector-pattern" preset="diagonal-up" />
+</Gauge>`}
+  liveChartPreview
+  previewMinHeight={260}
+>
+  <GaugeSectorDemo />
+</ComponentShowcase>
+
+Pattern `id`s are global to the page — generate one per gauge with `useId()` when the same gauge renders more than once.
+
+### Progress ring
+
+`progressRing` draws a thin ring just outside the track: the value portion in `color` (default `var(--chart-1)`), the remainder in `trackColor` at `trackOpacity`. `width` and `gap` are fractions of the gauge size.
+
+<ComponentShowcase
+  code={`<Gauge progressRing inactiveFillOpacity={0.35} value={71} />
+
+<Gauge
+  arcStyle="none"
+  progressRing={{ color: "var(--chart-3)", width: 0.022, gap: 0 }}
+  value={71}
+/>`}
+  liveChartPreview
+  previewMinHeight={300}
+>
+  <GaugeProgressRingDemo />
+</ComponentShowcase>
+
+### Progress dots
+
+`dots` fills the inside of the dial with concentric rings of dots that light up to the value. Tune `rings`, `spacing` (fraction of size, also the ring gap), dot `radius` (px), `color`, `dimOpacity` / `litOpacity`, and `fadeInward` (rings fade toward the center).
+
+<ComponentShowcase
+  code={`<Gauge arcStyle="solid" dots value={83} />
+
+<Gauge
+  arcStyle="none"
+  dots={{ rings: 7, spacing: 0.032, radius: 2.2 }}
+  progressRing
+  value={83}
+/>`}
+  liveChartPreview
+  previewMinHeight={300}
+>
+  <GaugeDotsDemo />
+</ComponentShowcase>
+
+### Glow
+
+`glow` adds a soft bloom to the fill — lit notches, the solid arc and the progress ring. `blur` is the radius in px (default `6`), `intensity` the strength 0–1 (default `0.8`). It reads best on dark surfaces with a saturated `activeFill`.
+
+<ComponentShowcase
+  code={`<Gauge activeFill="#38bdf8" glow inactiveFillOpacity={0.25} totalNotches={60} value={74} />
+
+<Gauge
+  activeFill="#a855f7"
+  arcStyle="solid"
+  glow={{ blur: 10, intensity: 1 }}
+  value={74}
+/>`}
+  liveChartPreview
+  previewMinHeight={300}
+>
+  <GaugeGlowDemo />
+</ComponentShowcase>
+
+### Center disc
+
+`centerDisc` draws a ringed disc behind the center label — `radius` (fraction of size, default `0.19`), `fill` (default `var(--background)`), `stroke`, `strokeOpacity` and `strokeWidth` (px). It sits above sectors and needles, so a short needle disappears under it and a sector starts at its edge.
+
+<ComponentShowcase
+  code={`<Gauge arcStyle="none" centerDisc sector value={68} />
+
+<Gauge
+  arcStyle="solid"
+  centerDisc={{ radius: 0.22, stroke: "var(--chart-1)", strokeOpacity: 1, strokeWidth: 2 }}
+  needle={{ variant: "line", tip: "outer", length: 0.45 }}
+  value={68}
+/>`}
+  liveChartPreview
+  previewMinHeight={300}
+>
+  <GaugeCenterDiscDemo />
+</ComponentShowcase>
+
+## Recipes
+
+Composed dials that combine the layers above. More gauge cards live on [Recipes](/recipes?category=gauges).
+
+### Fan duty
+
+Solid arc, outside ruler with end labels, a red-line zone band and a short line needle sitting just inside the track.
+
+<ComponentShowcase
+  code={`<Gauge
+  activeFill="var(--foreground)"
+  arcStyle="solid"
+  centerValue={72}
+  defaultLabel="Duty %"
+  formatOptions={{ maximumFractionDigits: 0 }}
+  inactiveFillOpacity={0.6}
+  needle={{ variant: "line", length: 0.22, width: 5 }}
+  ruler={{ position: "outside", ticks: 20, majorEvery: 5, labels: "ends" }}
+  value={72}
+  zones={[{ from: 80, to: 100, color: "#ef4444" }]}
+/>`}
+  liveChartPreview
+  previewMinHeight={360}
+>
+  <GaugeFanDutyDemo />
+</ComponentShowcase>
+
+### Speedometer
+
+Dense glowing notches that switch to red past the zone, an outside ruler that stays dim (`highlightActive: false`) and progress dots behind the fill. The reading is mapped from km/h onto 0–100.
+
+<ComponentShowcase
+  code={`<Gauge
+  activeFill="#38bdf8"
+  centerValue={228}
+  defaultLabel="km/h"
+  dots={{ color: "#ef4444", rings: 6 }}
+  formatOptions={{ maximumFractionDigits: 0 }}
+  glow
+  inactiveFillOpacity={0.25}
+  notchCornerRadius={1}
+  notchLengthPercent={55}
+  ruler={{ position: "outside", ticks: 26, majorEvery: 2, highlightActive: false }}
+  spacing={35}
+  totalNotches={90}
+  value={(228 / 260) * 100}
+  zoneDisplay="fill"
+  zones={[{ from: 78, to: 100, color: "#ef4444" }]}
+/>`}
+  liveChartPreview
+  previewMinHeight={360}
+>
+  <GaugeSpeedometerDemo />
+</ComponentShowcase>
+
+### Throughput dial
+
+No track: a conic sector, a thin progress ring, an inside ruler labelled in real units (0–800 tonnes), a triangle needle reaching the outer edge and a disc framing the readout.
+
+<ComponentShowcase
+  code={`<Gauge
+  arcStyle="none"
+  centerDisc
+  centerValue={518}
+  defaultLabel="tonnes per day"
+  formatOptions={{ maximumFractionDigits: 0 }}
+  needle={{ variant: "triangle", tip: "outer", length: 0.62, width: 8 }}
+  progressRing={{ color: "#38bdf8" }}
+  ruler={{ ticks: 16, majorEvery: 2, labels: { min: 0, max: 800 } }}
+  sector={{ color: "#38bdf8" }}
+  value={(518 / 800) * 100}
+/>`}
+  liveChartPreview
+  previewMinHeight={360}
+>
+  <GaugeTonnesDemo />
+</ComponentShowcase>
+
 ## Props
 
 ### Gauge
@@ -108,11 +454,24 @@ With label below center:
 | `uniformWidth` | `boolean` | `false` (arc) / `true` (linear) | Rectangular notches vs tapered |
 | `startAngle` / `endAngle` | `number` | `135` / `405` | Arc sweep in degrees (arc only) |
 | `linearHeight` | `number` | `24` | Bar height in px (linear only) |
-| `useGradient` | `boolean` | `false` | Per-notch color ramp |
+| `useGradient` | `boolean` | `false` | Per-notch color ramp (solid arc: left → right gradient) |
 | `activeGradient` | `[string, string]` | lime → emerald | Hex stops for active notches when `useGradient` |
 | `inactiveGradient` | `[string, string]` | same as active | Hex stops for inactive notches when `useGradient` |
 | `activeFill` / `inactiveFill` | `string` | `chart-1` / `border` | Solid, CSS color, or `url(#patternId)` |
 | `activeFillOpacity` / `inactiveFillOpacity` | `number` | `1` / `0.8` | SVG `fill-opacity` (0–1) for active / track notches |
+| `arcStyle` | `"notches"` \| `"solid"` \| `"none"` | `"notches"` | Arc only — notch track, one rounded stroke, or no track |
+| `arcThickness` | `number` | `0.035` | Arc only — solid stroke thickness as a fraction of size |
+| `ruler` | `boolean` \| `GaugeRulerOptions` | — | Arc only — scale ticks (and labels) inside or outside the track |
+| `needle` | `boolean` \| `GaugeNeedleVariant` \| `GaugeNeedleOptions` | — | Arc only — pointer; `true` = `"gradient"` |
+| `zones` | `GaugeZone[]` | — | Arc only — coloured ranges `{ from, to, color }` on 0–100 |
+| `zoneDisplay` | `"band"` \| `"fill"` \| `"both"` | `"band"` | How zones render |
+| `sector` | `boolean` \| `GaugeSectorOptions` | — | Arc only — wedge from start to value (conic, radial, flat or pattern) |
+| `progressRing` | `boolean` \| `GaugeProgressRingOptions` | — | Arc only — thin value ring around the track |
+| `dots` | `boolean` \| `GaugeDotsOptions` | — | Arc only — concentric dot rings that light up to the value |
+| `glow` | `boolean` \| `GaugeGlowOptions` | — | Arc only — soft glow on lit notches, solid arc and progress ring |
+| `centerDisc` | `boolean` \| `GaugeCenterDiscOptions` | — | Arc only — ringed disc behind the center label |
+| `enterTransition` | `Transition` | zero-bounce spring (`visualDuration: 0.9`) | Motion transition for the fill sweep (and needle, sector, ring, dots) |
+| `enterStaggerScale` | `number` | `1` | Scales the delay before the sweep starts (0.25–2.5) |
 | `defaultLabel` | `string` | `"Total"` | Center label |
 | `formatOptions` | `ChartStatFlowFormat` | standard | NumberFlow format |
 | `prefix` / `suffix` | `string` | - | Center prefix / suffix |
@@ -121,9 +480,91 @@ With label below center:
 | `className` | `string` | - | Root wrapper |
 | `children` | `ReactNode` | - | Defs (`PatternPreset`, `*Gradient`, …) |
 
+Sizes given as a "fraction of size" are relative to the smaller of the gauge's width and height, so dials scale cleanly. Every option type is exported from `@bklitui/ui/charts` (`GaugeRulerOptions`, `GaugeNeedleOptions`, …).
+
+### GaugeRulerOptions
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `position` | `"inside"` \| `"outside"` | `"inside"` | Inside the track, or ringing it |
+| `ticks` | `number` | `50` | Intervals along the sweep (ticks = intervals + 1) |
+| `majorEvery` | `number` | `5` | Every Nth tick is major |
+| `color` | `string` | `var(--foreground)` | Tick colour |
+| `majorLength` / `minorLength` | `number` | `0.05` / `0.028` | Tick lengths as a fraction of size |
+| `gap` | `number` | `0.028` | Gap between track and ruler (fraction of size) |
+| `highlightActive` | `boolean` | `true` | Brighten ticks up to the value |
+| `labels` | `boolean` \| `"majors"` \| `"ends"` \| `GaugeRulerLabelOptions` | — | Numeric labels; `true` = `"majors"` |
+
+**`GaugeRulerLabelOptions`** — `show` (`"majors"` \| `"ends"`), `min` / `max` (label domain, default `0` / `100`), `format` (`(value: number) => string`), `color` (default `var(--foreground)` at 72% opacity).
+
+### GaugeNeedleOptions
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `variant` | `"line"` \| `"gradient"` \| `"triangle"` \| `"polygon"` | `"gradient"` | Rounded stroke · stroke fading in toward the tip · slim triangle · slender diamond |
+| `color` | `string` | `var(--foreground)` | Needle colour |
+| `width` | `number` | `2.5` / `4` / `10` / `8` | Stroke width (line, gradient) or base width (triangle, polygon) in px |
+| `length` | `number` | `0.55` | Fraction of the reach (center → tip); `1` runs from the pivot |
+| `pivot` | `boolean` | `false` | Pivot cap at the center |
+| `tip` | `"inner"` \| `"outer"` \| `"edge"` | `"inner"` | Tip just inside the track, at its outer edge, or past the outermost layer |
+
+### GaugeZone
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `from` / `to` | `number` | Range on the 0–100 scale |
+| `color` | `string` | Band / fill colour |
+
+### GaugeSectorOptions
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `gradient` | `"conic"` \| `"radial"` \| `"none"` | `"conic"` | Brightens toward the leading edge · toward the rim · flat |
+| `color` | `string` | `var(--chart-1)` | Any CSS colour; `url(#id)` paints work with `radial` / `none` |
+| `opacity` | `number` | `0.85` | Peak opacity |
+| `innerRadius` | `number` | `0` | Hollow center as a fraction of the sector radius |
+
+### GaugeProgressRingOptions
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `color` | `string` | `var(--chart-1)` | Value portion |
+| `trackColor` | `string` | `var(--muted-foreground)` | Remainder |
+| `trackOpacity` | `number` | `0.35` | Remainder opacity |
+| `width` | `number` | `0.01` | Stroke width (fraction of size) |
+| `gap` | `number` | `0.022` | Gap from the track (fraction of size) |
+
+### GaugeDotsOptions
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `rings` | `number` | `5` | Concentric rings of dots |
+| `spacing` | `number` | `0.03` | Dot and ring spacing (fraction of size) |
+| `radius` | `number` | `1.6` | Dot radius in px |
+| `color` | `string` | `var(--chart-1)` | Dot colour |
+| `dimOpacity` / `litOpacity` | `number` | `0.12` / `0.9` | Opacity past / up to the value |
+| `fadeInward` | `boolean` | `true` | Fade rings toward the center |
+
+### GaugeGlowOptions
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `blur` | `number` | `6` | Blur radius in px |
+| `intensity` | `number` | `0.8` | Glow strength 0–1 |
+
+### GaugeCenterDiscOptions
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `radius` | `number` | `0.19` | Disc radius (fraction of size) |
+| `fill` | `string` | `var(--background)` | Disc fill |
+| `stroke` | `string` | `var(--foreground)` | Ring colour |
+| `strokeOpacity` | `number` | `0.75` | Ring opacity |
+| `strokeWidth` | `number` | `3` | Ring width in px |
+
 ## Theming
 
-Inactive (track) notches default to **`var(--border)`** — shared with ring tracks and radar grid lines. Active notches default to **`var(--chart-1)`**. Override with `inactiveFill` / `activeFill`, or tune **`--border`** / **`--chart-1`** in your theme. See [Theming](/docs/theming).
+Inactive (track) notches default to **`var(--border)`** — shared with ring tracks and radar grid lines. Active notches default to **`var(--chart-1)`**, as do sectors, progress rings and dots; rulers, needles and the center disc ring use **`var(--foreground)`** and the disc fill **`var(--background)`**, so dials follow light and dark mode. Override with `inactiveFill` / `activeFill`, or tune **`--border`** / **`--chart-1`** in your theme. See [Theming](/docs/theming).
 
 ## Live examples
 

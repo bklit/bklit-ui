@@ -1,6 +1,6 @@
 "use client";
 
-import { Icon } from "@bklitui/icons";
+import { Icon, type IconName } from "@bklitui/icons";
 import { AnimatePresence, motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 
@@ -10,19 +10,23 @@ export const showcaseActionExitDuration = 0.16;
 export const showcaseActionStagger = 0.04;
 
 /**
- * Icon-only "Replay animation" button used on homepage / design showcase
- * cards and chart gallery previews. Fades in when `visible` flips true.
+ * Icon-only showcase control (fades in when `visible` flips true). Shared by
+ * the Replay and Present actions so they animate and size identically.
  */
-export function ShowcaseReplayAction({
+export function ShowcaseIconAction({
   index,
   visible,
   reducedMotion,
-  onReplay,
+  label,
+  icon,
+  onClick,
 }: {
   index: number;
   visible: boolean;
   reducedMotion: boolean | null;
-  onReplay: () => void;
+  label: string;
+  icon: IconName;
+  onClick: () => void;
 }) {
   return (
     <AnimatePresence>
@@ -56,18 +60,45 @@ export function ShowcaseReplayAction({
           initial={reducedMotion ? false : { opacity: 0, y: 6 }}
         >
           <Button
-            aria-label="Replay animation"
+            aria-label={label}
             className="size-7 [&_svg]:size-4"
-            onClick={onReplay}
+            onClick={onClick}
             size="icon"
-            title="Replay animation"
+            title={label}
             type="button"
             variant="outline"
           >
-            <Icon className="size-4" name="IconArrowRotateClockwise" />
+            <Icon className="size-4" name={icon} />
           </Button>
         </motion.div>
       )}
     </AnimatePresence>
+  );
+}
+
+/**
+ * Icon-only "Replay animation" button used on homepage / design showcase
+ * cards and chart gallery previews. Fades in when `visible` flips true.
+ */
+export function ShowcaseReplayAction({
+  index,
+  visible,
+  reducedMotion,
+  onReplay,
+}: {
+  index: number;
+  visible: boolean;
+  reducedMotion: boolean | null;
+  onReplay: () => void;
+}) {
+  return (
+    <ShowcaseIconAction
+      icon="IconArrowRotateClockwise"
+      index={index}
+      label="Replay animation"
+      onClick={onReplay}
+      reducedMotion={reducedMotion}
+      visible={visible}
+    />
   );
 }

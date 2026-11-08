@@ -7,6 +7,7 @@ import {
   useState,
 } from "react";
 import { cn } from "@/lib/utils";
+import { useChartDataOverride } from "../chart-data-override";
 import {
   type LegendItemData,
   LegendItemProvider,
@@ -31,7 +32,7 @@ export interface LegendProps {
 }
 
 export function Legend({
-  items,
+  items: itemsProp,
   hoveredIndex: controlledHoveredIndex,
   onHoverChange,
   title,
@@ -39,6 +40,9 @@ export function Legend({
   className = "",
   children,
 }: LegendProps) {
+  // Edited alongside the chart in the present dialog (no-op elsewhere); the
+  // same array as the chart's `data` is edited as one entry.
+  const { items } = useChartDataOverride("Legend", { items: itemsProp });
   const [internalHoveredIndex, setInternalHoveredIndex] = useState<
     number | null
   >(null);
@@ -64,7 +68,10 @@ export function Legend({
 
   return (
     <LegendProvider value={contextValue}>
-      <div className={cn("legend-container flex flex-col gap-2", className)}>
+      <div
+        className={cn("legend-container flex flex-col gap-2", className)}
+        data-chart-legend=""
+      >
         {title && (
           <h3 className={cn("mb-1 text-legend-foreground", titleClassName)}>
             {title}

@@ -15,6 +15,7 @@ import {
 } from "react";
 import { cn } from "@/lib/utils";
 import { type LineConfig, type Margin, useStableMargin } from "./chart-context";
+import { useChartDataOverride } from "./chart-data-override";
 import { ChartLoadingLabel } from "./chart-loading-label";
 import { ParentSize } from "./chart-parent-size";
 import {
@@ -151,7 +152,7 @@ function extractLineConfigs(children: ReactNode): LineConfig[] {
 }
 
 export function LineChart({
-  data,
+  data: dataProp,
   xDataKey = "date",
   margin: marginProp,
   animationDuration = 1100,
@@ -172,6 +173,9 @@ export function LineChart({
   onPhaseChange,
   children,
 }: LineChartProps) {
+  const { data } = useChartDataOverride("LineChart", {
+    data: dataProp,
+  });
   const containerRef = useRef<HTMLDivElement>(null);
   const margin = useStableMargin({ ...DEFAULT_MARGIN, ...marginProp });
   const lines = useMemo(() => extractLineConfigs(children), [children]);

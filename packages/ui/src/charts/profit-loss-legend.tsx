@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { ChartDataOverrideExempt } from "./chart-data-override";
 import { Legend, LegendItem, LegendLabel, LegendMarker } from "./legend/index";
 import {
   PROFIT_LOSS_NEGATIVE_COLOR,
@@ -41,18 +42,21 @@ export function ProfitLossLegend({
         LEGEND_ALIGN_CLASSES[align],
         className
       )}
+      data-chart-legend=""
     >
-      <Legend
-        className="flex-row flex-wrap gap-4"
-        hoveredIndex={hoveredIndex}
-        items={[...PROFIT_LOSS_LEGEND_ITEMS]}
-        onHoverChange={onHoverChange}
-      >
-        <LegendItem className="flex items-center gap-2">
-          <LegendMarker className="h-2.5 w-2.5" />
-          <LegendLabel className="text-xs" />
-        </LegendItem>
-      </Legend>
+      <ChartDataOverrideExempt>
+        <Legend
+          className="flex-row flex-wrap gap-4"
+          hoveredIndex={hoveredIndex}
+          items={[...PROFIT_LOSS_LEGEND_ITEMS]}
+          onHoverChange={onHoverChange}
+        >
+          <LegendItem className="flex items-center gap-2">
+            <LegendMarker className="h-2.5 w-2.5" />
+            <LegendLabel className="text-xs" />
+          </LegendItem>
+        </Legend>
+      </ChartDataOverrideExempt>
     </div>
   );
 }

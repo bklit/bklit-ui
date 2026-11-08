@@ -24,6 +24,7 @@ import {
   type Margin,
   useStableMargin,
 } from "./chart-context";
+import { useChartDataOverride } from "./chart-data-override";
 import { ChartLoadingLabel } from "./chart-loading-label";
 import { ParentSize } from "./chart-parent-size";
 import {
@@ -345,7 +346,7 @@ function computeStackOffsets(
 }
 
 export function ComposedChart({
-  data,
+  data: dataProp,
   xDataKey = "date",
   margin: marginProp,
   animationDuration = 1100,
@@ -372,6 +373,9 @@ export function ComposedChart({
   yDomains,
   onPhaseChange,
 }: ComposedChartProps) {
+  const { data } = useChartDataOverride("ComposedChart", {
+    data: dataProp,
+  });
   const containerRef = useRef<HTMLDivElement>(null);
   const margin = useStableMargin({ ...DEFAULT_MARGIN, ...marginProp });
 

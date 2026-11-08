@@ -17,6 +17,7 @@ import {
   RingChart,
 } from "@bklitui/ui/charts";
 import { useId, useState } from "react";
+import { editableData } from "@/components/charts/editable-data";
 import type { Recipe } from "@/lib/recipes/types";
 import { recipePieData, recipeRingData } from "../recipe-data";
 import { RADIAL_SHELL_CLASS } from "./shared";
@@ -32,30 +33,38 @@ const PRESETS: PatternPresetKey[] = [
 /* Patterned slices                                                           */
 /* -------------------------------------------------------------------------- */
 
-function PatternedPie({ donut }: { donut: boolean }) {
+type RecipePieRow = (typeof recipePieData)[number];
+
+function PatternedPie({
+  donut,
+  data = recipePieData,
+}: {
+  donut: boolean;
+  data?: RecipePieRow[];
+}) {
   const uid = useId().replace(/:/g, "");
   return (
     <div className={RADIAL_SHELL_CLASS}>
       <PieChart
         cornerRadius={4}
-        data={recipePieData}
+        data={data}
         innerRadius={donut ? 60 : 0}
         padAngle={0.03}
       >
-        {recipePieData.map((item, index) => (
+        {data.map((item, index) => (
           <PatternPreset
             color={item.color}
             id={`${uid}-p${index}`}
-            key={`pattern-${item.label}`}
+            key={`pattern-${item.label}-${index}`}
             preset={PRESETS[index % PRESETS.length]}
             strokeWidth={1.25}
           />
         ))}
-        {recipePieData.map((item, index) => (
+        {data.map((item, index) => (
           <PieSlice
             fill={`url(#${uid}-p${index})`}
             index={index}
-            key={item.label}
+            key={`${item.label}-${index}`}
           />
         ))}
         {donut ? <PieCenter defaultLabel="Visits" /> : null}
@@ -156,6 +165,7 @@ export const patternedSlices: Recipe = {
       install: ["pie-chart", "patterns"],
       steps: PATTERN_STEPS(false),
       code: PATTERN_SOURCE(false),
+      editableData: patternedPieEditable(false),
     },
     {
       id: "donut",
@@ -165,9 +175,27 @@ export const patternedSlices: Recipe = {
       install: ["pie-chart", "patterns"],
       steps: PATTERN_STEPS(true),
       code: PATTERN_SOURCE(true),
+      editableData: patternedPieEditable(true),
     },
   ],
 };
+
+/** JSON data editor for the patterned pie recipes (present dialog). */
+function patternedPieEditable(donut: boolean) {
+  return editableData({
+    data: recipePieData,
+    // Slices added without a color cycle the palette.
+    render: (rows) => (
+      <PatternedPie
+        data={rows.map((row, index) => ({
+          ...row,
+          color: row.color ?? `var(--chart-${(index % 5) + 1})`,
+        }))}
+        donut={donut}
+      />
+    ),
+  });
+}
 
 /* -------------------------------------------------------------------------- */
 /* Linked legend                                                              */

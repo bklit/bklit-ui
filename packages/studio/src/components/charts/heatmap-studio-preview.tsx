@@ -21,7 +21,6 @@ import {
 } from "@/components/charts/studio-chart-shell";
 import {
   getStudioCssRevealPropsForPreview,
-  studioEnterStaggerScale,
   studioPreviewChartKey,
 } from "@/lib/chart-animation";
 import { getHeatmapData } from "@/lib/demo-data";
@@ -72,7 +71,9 @@ const HeatmapChartBody = memo(function HeatmapChartBody({
     <HeatmapChart
       className="w-full min-w-full"
       data={data}
-      enterStaggerScale={studioEnterStaggerScale(state)}
+      // animationDuration already follows the motion duration, so only the
+      // stagger slider scales the column wave (matches heatmapCodegen).
+      enterStaggerScale={state.motionStaggerScale}
       gap={state.heatmapGap}
       key={studioPreviewChartKey(ctx)}
       layout="fluid"

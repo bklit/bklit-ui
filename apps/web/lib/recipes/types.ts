@@ -1,4 +1,5 @@
 import type { ComponentType } from "react";
+import type { EditableData } from "@/components/charts/editable-data";
 
 /** One chart a recipe can be applied to (e.g. the line-chart version). */
 export interface RecipeChart {
@@ -16,6 +17,8 @@ export interface RecipeChart {
   install: string[];
   /** Concrete edits that turn an existing chart into this recipe. */
   steps: string[];
+  /** Opt-in data editor for the present dialog (renders instead of `Preview`). */
+  editableData?: EditableData;
 }
 
 /** Gallery section a recipe is listed under on /recipes. */
@@ -28,7 +31,8 @@ export type RecipeCategory =
   | "combos"
   | "heatmaps"
   | "pie-ring"
-  | "radial";
+  | "radial"
+  | "gauges";
 
 /** A visual style treatment that can be applied to several chart types. */
 export interface Recipe {

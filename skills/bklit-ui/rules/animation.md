@@ -11,6 +11,10 @@ Defaults live in the installed `components/charts/animation.ts`.
 
 Don't hand-tune these per chart unless asked — consistent timing across a dashboard reads better. Use Studio (`https://bklit.com/studio?chart=<item>`) to tune and copy values.
 
+## Gauge
+
+The track (and ruler) fades in, then the fill sweeps from 0 to `value` on a zero-bounce spring (`{ type: "spring", visualDuration: 0.9, bounce: 0 }`); notches light in order, and the needle, sector, ring and dots ride the same value. A new `value` continues from the current position (velocity kept) — feed live readings straight in, don't remount. `enterTransition` overrides the sweep; `enterStaggerScale` (0.25–2.5) scales the start delay. Reduced motion renders the value instantly. Replay by changing `key`.
+
 ## Replay enter animations
 
 Change `revealSignature` (supported by line, area, bar, candlestick, scatter, composed, heatmap, sankey, choropleth roots) or remount with a new `key`.

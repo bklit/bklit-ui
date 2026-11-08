@@ -26,6 +26,7 @@ import {
   resolveChartChildElement,
 } from "./chart-child-passthrough";
 import { ChartProvider, type LineConfig, type Margin } from "./chart-context";
+import { useChartDataOverride } from "./chart-data-override";
 import { shortDateFmt } from "./chart-formatters";
 import { ParentSize } from "./chart-parent-size";
 import { DEFAULT_CHART_LIFECYCLE } from "./chart-phase";
@@ -408,7 +409,7 @@ const ChartCore = memo(function ChartCore({
 });
 
 export function CandlestickChart({
-  data,
+  data: dataProp,
   xDataKey = "date",
   margin: marginProp,
   animationDuration = 1100,
@@ -423,6 +424,9 @@ export function CandlestickChart({
   xDomainSlotCount,
   children,
 }: CandlestickChartProps) {
+  const { data } = useChartDataOverride("CandlestickChart", {
+    data: dataProp,
+  });
   const containerRef = useRef<HTMLDivElement>(null);
   const margin = { ...DEFAULT_MARGIN, ...marginProp };
   const dataAsRecords = data as unknown as Record<string, unknown>[];

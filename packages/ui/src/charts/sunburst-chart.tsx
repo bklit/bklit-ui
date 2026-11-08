@@ -15,6 +15,7 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
+import { useChartDataOverride } from "./chart-data-override";
 import {
   type ArcDatum,
   buildArcs,
@@ -516,10 +517,14 @@ const SunburstChartCore = memo(function SunburstChartCore({
   );
 });
 
-export function SunburstChart(props: SunburstChartProps) {
+export function SunburstChart({
+  data: dataProp,
+  ...props
+}: SunburstChartProps) {
+  const { data } = useChartDataOverride("SunburstChart", { data: dataProp });
   return (
     <LazyMotion features={domAnimation}>
-      <SunburstChartCore {...props} />
+      <SunburstChartCore {...props} data={data} />
     </LazyMotion>
   );
 }

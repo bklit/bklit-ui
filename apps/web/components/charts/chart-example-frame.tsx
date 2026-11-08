@@ -5,12 +5,35 @@ import { useReducedMotion } from "motion/react";
 import Link from "next/link";
 import { Fragment, type ReactNode, useEffect, useState } from "react";
 import type { ChartExamplePreviewLayout } from "@/components/charts/chart-example-preview";
+import { ChartPresentDialog } from "@/components/charts/chart-present-dialog";
 import { ChartPreviewGate } from "@/components/charts/chart-preview-gate";
 import { isChartSlug } from "@/components/charts/chart-slugs";
+import type { EditableData } from "@/components/charts/editable-data";
 import { ComponentShowcase } from "@/components/docs/component-showcase";
-import { ShowcaseReplayAction } from "@/components/showcase-replay-action";
+import {
+  ShowcaseIconAction,
+  ShowcaseReplayAction,
+} from "@/components/showcase-replay-action";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+
+/** Present-dialog chart size default (% of the stage) per chart type. */
+function presentChartSize(chartSlug: string): number {
+  switch (chartSlug) {
+    case "pie-chart":
+    case "ring-chart":
+    case "sunburst-chart":
+    case "radar-chart":
+    case "radial-chart":
+      return 70;
+    case "gauge-chart":
+      return 85;
+    case "funnel-chart":
+      return 80;
+    default:
+      return 90;
+  }
+}
 
 /**
  * Chart gallery item: title row with docs / Studio actions, then the docs
@@ -28,6 +51,7 @@ export function ChartExampleFrame({
   footer,
   hero = false,
   previewLayout = "cartesian",
+  editableData,
   children,
 }: {
   /** Deep-link target (`#anchorId`) placed on the title row for the gallery sidebar. */
@@ -41,9 +65,12 @@ export function ChartExampleFrame({
   footer?: string;
   hero?: boolean;
   previewLayout?: ChartExamplePreviewLayout;
+  /** Opt-in data editor for the present dialog. */
+  editableData?: EditableData;
   children: ReactNode;
 }) {
   const [replayKey, setReplayKey] = useState(0);
+  const [presentOpen, setPresentOpen] = useState(false);
   const reducedMotion = useReducedMotion();
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
@@ -117,9 +144,17 @@ export function ChartExampleFrame({
         liveChartPreview
         previewMinHeight={0}
         previewOverlay={
-          <div className="absolute top-3 right-3 z-10">
-            <ShowcaseReplayAction
+          <div className="absolute top-3 right-3 z-10 flex items-center gap-1.5">
+            <ShowcaseIconAction
+              icon="IconFocusZoomOut"
               index={0}
+              label="Present chart"
+              onClick={() => setPresentOpen(true)}
+              reducedMotion={reducedMotion}
+              visible={showReplay}
+            />
+            <ShowcaseReplayAction
+              index={1}
               onReplay={() => setReplayKey((key) => key + 1)}
               reducedMotion={reducedMotion}
               visible={showReplay}
@@ -134,6 +169,18 @@ export function ChartExampleFrame({
           <Fragment key={replayKey}>{children}</Fragment>
         </ChartPreviewGate>
       </ComponentShowcase>
+
+      <ChartPresentDialog
+        autoChartSize={presentChartSize(chartSlug)}
+        editableData={editableData}
+        fileSlug={`${chartSlug}-${title}`}
+        onOpenChange={setPresentOpen}
+        open={presentOpen}
+        title={title}
+        unclampWidth
+      >
+        {children}
+      </ChartPresentDialog>
 
       {footer ? (
         <p className="m-0 text-muted-foreground text-xs">{footer}</p>

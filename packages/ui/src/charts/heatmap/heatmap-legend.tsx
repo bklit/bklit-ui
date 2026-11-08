@@ -147,6 +147,7 @@ export const HeatmapLegend = memo(function HeatmapLegend({
           align === "end" && "justify-end",
           className
         )}
+        data-chart-legend=""
         style={labelStyle}
       >
         <span className={labelClassName}>{lessLabel}</span>

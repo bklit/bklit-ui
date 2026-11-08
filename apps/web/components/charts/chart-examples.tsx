@@ -115,6 +115,7 @@ import {
   TrendLine,
   useChart,
   useLiveYAxisTickValues,
+  usePieStable,
   useYScale,
   XAxis,
   YAxis,
@@ -159,8 +160,15 @@ import {
   composedFeaturedChartData,
   composedFeaturedLayers,
 } from "@/components/charts/composed-featured";
+import {
+  type EditableData,
+  editableData,
+} from "@/components/charts/editable-data";
 import { FeaturedChartHero } from "@/components/charts/featured-chart-hero";
-import { LineChartStudioTrioDemo } from "@/components/charts/line-chart-studio-trio-demo";
+import {
+  LINE_CHART_STUDIO_TRIO_DATA,
+  LineChartStudioTrioDemo,
+} from "@/components/charts/line-chart-studio-trio-demo";
 import { radialChartVariants } from "@/components/charts/radial/registry";
 import {
   SparklineAreaExample,
@@ -717,6 +725,7 @@ const sankeyAnalytics = {
 // ---------------------------------------------------------------------------
 
 interface ChartExampleCardProps {
+  editableData?: EditableData;
   anchorId?: string;
   chartSlug: string;
   title: string;
@@ -883,6 +892,8 @@ interface ChartExample {
   data?: string;
   footer?: string;
   render: () => ReactNode;
+  /** Opt-in data editor for the present dialog (see `editable-data.ts`). */
+  editableData?: EditableData;
 }
 
 function makeCartesianBackgroundExamples(options: {
@@ -4669,9 +4680,14 @@ function PieGrowHover() {
   );
 }
 
+/** Hovered slice's share, from the chart's own total (follows edited data). */
+function PieSliceShare({ value }: { value: number }) {
+  const { totalValue } = usePieStable();
+  return <>{((value / totalValue) * 100).toFixed(1)}%</>;
+}
+
 function PieCustomCenter() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-  const total = pieData.reduce((s, d) => s + d.value, 0);
   return (
     <div className={chartExampleRadialShellClassName}>
       <PieChart
@@ -4695,7 +4711,7 @@ function PieCustomCenter() {
               <div className="text-muted-foreground text-xs">{label}</div>
               {isHovered && (
                 <div className="mt-0.5 text-[10px] text-muted-foreground">
-                  {((d.value / total) * 100).toFixed(1)}%
+                  <PieSliceShare value={d.value} />
                 </div>
               )}
             </div>
@@ -4719,6 +4735,36 @@ const pieGradientData: PieData[] = [
   { label: "Segment C", value: 30 },
 ];
 
+function renderBasicPie(data: PieData[]) {
+  return (
+    <div className={chartExampleRadialShellClassName}>
+      <PieChart data={data}>
+        {data.map((item, index) => (
+          <PieSlice index={index} key={`${item.label}-${index}`} />
+        ))}
+      </PieChart>
+    </div>
+  );
+}
+
+/** JSON editor for pie examples; slices without a color cycle the palette. */
+function pieEditable(
+  rows: PieData[],
+  render: (data: PieData[]) => ReactNode
+): EditableData {
+  return editableData({
+    data: rows,
+    // Slices added in the editor without a color cycle the palette.
+    render: (edited) =>
+      render(
+        edited.map((slice, index) => ({
+          ...slice,
+          color: slice.color ?? `var(--chart-${(index % 5) + 1})`,
+        }))
+      ),
+  });
+}
+
 function makePieExamples(): ChartExample[] {
   return [
     {
@@ -4729,15 +4775,8 @@ function makePieExamples(): ChartExample[] {
     <PieSlice index={index} key={item.label} />
   ))}
 </PieChart>`,
-      render: () => (
-        <div className={chartExampleRadialShellClassName}>
-          <PieChart data={pieData}>
-            {pieData.map((item, index) => (
-              <PieSlice index={index} key={item.label} />
-            ))}
-          </PieChart>
-        </div>
-      ),
+      render: () => renderBasicPie(pieData),
+      editableData: pieEditable(pieData, renderBasicPie),
     },
     {
       title: "Pie Chart - Donut",
@@ -5338,12 +5377,73 @@ const gaugeGalleryUsdFormat: ChartStatFlowFormat = {
   maximumFractionDigits: 0,
 };
 
+/** `{ value, centerValue }` JSON editor for gauge examples (present dialog). */
+function gaugeEditable(
+  initial: { value: number; centerValue: number },
+  render: (data: { value: number; centerValue: number }) => ReactNode
+): Pick<ChartExample, "render" | "editableData"> {
+  return {
+    render: () => render(initial),
+    editableData: editableData({ data: initial, render }),
+  };
+}
+
 function makeGaugeHero(): ChartExample {
   return {
     title: "Gauge",
     description:
-      "Notch arc with PieCenter-style NumberFlow, theme fills, optional patterns in defs, and separate active / inactive arc gradients when enabled.",
+      "Fine notches over an inner ruler with a line needle. The fill sweeps to the value without bounce; ruler ticks brighten as it passes.",
     code: `<Gauge
+  centerValue={53.3}
+  defaultLabel="Won vs. lost deals"
+  endAngle={392}
+  formatOptions={{ minimumFractionDigits: 1, maximumFractionDigits: 1 }}
+  inactiveFillOpacity={0.7}
+  needle="line"
+  notchCornerRadius={2}
+  notchLengthPercent={34}
+  ruler
+  spacing={40}
+  startAngle={148}
+  suffix="%"
+  totalNotches={72}
+  value={53.3}
+/>`,
+    ...gaugeEditable({ value: 53.3, centerValue: 53.3 }, (gaugeData) => (
+      <div className={chartExampleGaugeShellClassName}>
+        <Gauge
+          centerValue={gaugeData.centerValue}
+          className={chartExampleGaugeClassName}
+          defaultLabel="Won vs. lost deals"
+          endAngle={392}
+          formatOptions={{
+            minimumFractionDigits: 1,
+            maximumFractionDigits: 1,
+          }}
+          inactiveFillOpacity={0.7}
+          minWidth={0}
+          needle="line"
+          notchCornerRadius={2}
+          notchLengthPercent={34}
+          ruler
+          spacing={40}
+          startAngle={148}
+          suffix="%"
+          totalNotches={72}
+          value={gaugeData.value}
+        />
+      </div>
+    )),
+  };
+}
+
+function makeGaugeExamples(): ChartExample[] {
+  return [
+    {
+      title: "Gauge — classic notches",
+      description:
+        "Notch arc with PieCenter-style NumberFlow, theme fills, optional patterns in defs, and separate active / inactive arc gradients when enabled.",
+      code: `<Gauge
   centerValue={428_000}
   defaultLabel="ARR run rate"
   formatOptions={{ style: "currency", currency: "USD", maximumFractionDigits: 0 }}
@@ -5351,26 +5451,438 @@ function makeGaugeHero(): ChartExample {
   spacing={25}
   value={66}
 />`,
-    data: "// Omit width and height for a responsive layout (min-width 300px by default).",
-    render: () => (
-      <div className={chartExampleGaugeShellClassName}>
-        <Gauge
-          centerValue={428_000}
-          className={chartExampleGaugeClassName}
-          defaultLabel="ARR run rate"
-          formatOptions={gaugeGalleryUsdFormat}
-          inactiveFillOpacity={0.4}
-          minWidth={0}
-          spacing={25}
-          value={66}
-        />
-      </div>
-    ),
-  };
-}
-
-function makeGaugeExamples(): ChartExample[] {
-  return [
+      data: "// Omit width and height for a responsive layout (min-width 300px by default).",
+      ...gaugeEditable({ value: 66, centerValue: 428_000 }, (gaugeData) => (
+        <div className={chartExampleGaugeShellClassName}>
+          <Gauge
+            centerValue={gaugeData.centerValue}
+            className={chartExampleGaugeClassName}
+            defaultLabel="ARR run rate"
+            formatOptions={gaugeGalleryUsdFormat}
+            inactiveFillOpacity={0.4}
+            minWidth={0}
+            spacing={25}
+            value={gaugeData.value}
+          />
+        </div>
+      )),
+    },
+    {
+      title: "Gauge — dial with ruler",
+      description:
+        "Fine notches over an inner scale. Ticks brighten as the fill sweeps past them; majors every 10%.",
+      code: `<Gauge
+  centerValue={53.3}
+  defaultLabel="Won vs. lost deals"
+  endAngle={392}
+  formatOptions={{ minimumFractionDigits: 1, maximumFractionDigits: 1 }}
+  inactiveFillOpacity={0.7}
+  notchCornerRadius={2}
+  notchLengthPercent={34}
+  ruler
+  spacing={40}
+  startAngle={148}
+  suffix="%"
+  totalNotches={72}
+  value={53.3}
+/>`,
+      ...gaugeEditable({ value: 53.3, centerValue: 53.3 }, (gaugeData) => (
+        <div className={chartExampleGaugeShellClassName}>
+          <Gauge
+            centerValue={gaugeData.centerValue}
+            className={chartExampleGaugeClassName}
+            defaultLabel="Won vs. lost deals"
+            endAngle={392}
+            formatOptions={{
+              minimumFractionDigits: 1,
+              maximumFractionDigits: 1,
+            }}
+            inactiveFillOpacity={0.7}
+            minWidth={0}
+            notchCornerRadius={2}
+            notchLengthPercent={34}
+            ruler
+            spacing={40}
+            startAngle={148}
+            suffix="%"
+            totalNotches={72}
+            value={gaugeData.value}
+          />
+        </div>
+      )),
+    },
+    {
+      title: "Gauge — gradient needle",
+      description:
+        "A tapered needle that fades in toward its tip, floating clear of the center label. Sweeps in sync with the fill.",
+      code: `<Gauge
+  centerValue={53.3}
+  defaultLabel="Won vs. lost deals"
+  endAngle={392}
+  formatOptions={{ minimumFractionDigits: 1, maximumFractionDigits: 1 }}
+  inactiveFillOpacity={0.7}
+  needle
+  notchCornerRadius={2}
+  notchLengthPercent={34}
+  ruler
+  spacing={40}
+  startAngle={148}
+  suffix="%"
+  totalNotches={72}
+  value={53.3}
+/>`,
+      ...gaugeEditable({ value: 53.3, centerValue: 53.3 }, (gaugeData) => (
+        <div className={chartExampleGaugeShellClassName}>
+          <Gauge
+            centerValue={gaugeData.centerValue}
+            className={chartExampleGaugeClassName}
+            defaultLabel="Won vs. lost deals"
+            endAngle={392}
+            formatOptions={{
+              minimumFractionDigits: 1,
+              maximumFractionDigits: 1,
+            }}
+            inactiveFillOpacity={0.7}
+            minWidth={0}
+            needle
+            notchCornerRadius={2}
+            notchLengthPercent={34}
+            ruler
+            spacing={40}
+            startAngle={148}
+            suffix="%"
+            totalNotches={72}
+            value={gaugeData.value}
+          />
+        </div>
+      )),
+    },
+    {
+      title: "Gauge — triangle needle",
+      description: "Slim acute-triangle pointer.",
+      code: `<Gauge
+  centerValue={53.3}
+  defaultLabel="Won vs. lost deals"
+  endAngle={392}
+  formatOptions={{ minimumFractionDigits: 1, maximumFractionDigits: 1 }}
+  inactiveFillOpacity={0.7}
+  needle="triangle"
+  notchCornerRadius={2}
+  notchLengthPercent={34}
+  ruler
+  spacing={40}
+  startAngle={148}
+  suffix="%"
+  totalNotches={72}
+  value={53.3}
+/>`,
+      ...gaugeEditable({ value: 53.3, centerValue: 53.3 }, (gaugeData) => (
+        <div className={chartExampleGaugeShellClassName}>
+          <Gauge
+            centerValue={gaugeData.centerValue}
+            className={chartExampleGaugeClassName}
+            defaultLabel="Won vs. lost deals"
+            endAngle={392}
+            formatOptions={{
+              minimumFractionDigits: 1,
+              maximumFractionDigits: 1,
+            }}
+            inactiveFillOpacity={0.7}
+            minWidth={0}
+            needle="triangle"
+            notchCornerRadius={2}
+            notchLengthPercent={34}
+            ruler
+            spacing={40}
+            startAngle={148}
+            suffix="%"
+            totalNotches={72}
+            value={gaugeData.value}
+          />
+        </div>
+      )),
+    },
+    {
+      title: "Gauge — polygon needle",
+      description: "Slender diamond pointer with a long tail, no ruler.",
+      code: `<Gauge
+  centerValue={53.3}
+  defaultLabel="Won vs. lost deals"
+  endAngle={392}
+  formatOptions={{ minimumFractionDigits: 1, maximumFractionDigits: 1 }}
+  inactiveFillOpacity={0.7}
+  needle={{ variant: "polygon", length: 0.5 }}
+  notchCornerRadius={2}
+  notchLengthPercent={34}
+  spacing={40}
+  startAngle={148}
+  suffix="%"
+  totalNotches={72}
+  value={53.3}
+/>`,
+      render: () => (
+        <div className={chartExampleGaugeShellClassName}>
+          <Gauge
+            centerValue={53.3}
+            className={chartExampleGaugeClassName}
+            defaultLabel="Won vs. lost deals"
+            endAngle={392}
+            formatOptions={{
+              minimumFractionDigits: 1,
+              maximumFractionDigits: 1,
+            }}
+            inactiveFillOpacity={0.7}
+            minWidth={0}
+            needle={{ variant: "polygon", length: 0.5 }}
+            notchCornerRadius={2}
+            notchLengthPercent={34}
+            spacing={40}
+            startAngle={148}
+            suffix="%"
+            totalNotches={72}
+            value={53.3}
+          />
+        </div>
+      ),
+    },
+    {
+      title: "Gauge — solid arc, outer ruler, red zone",
+      description:
+        "One rounded stroke instead of notches. Ruler rings the outside with end labels; a zone band marks the red line and a short line needle sits just inside the ring.",
+      code: `<Gauge
+  activeFill="var(--foreground)"
+  arcStyle="solid"
+  centerValue={72}
+  defaultLabel="Duty %"
+  formatOptions={{ maximumFractionDigits: 0 }}
+  inactiveFillOpacity={0.6}
+  needle={{ variant: "line", length: 0.22, width: 5 }}
+  ruler={{ position: "outside", ticks: 20, majorEvery: 5, labels: "ends" }}
+  value={72}
+  zones={[{ from: 80, to: 100, color: "#ef4444" }]}
+/>`,
+      render: () => (
+        <div className={chartExampleGaugeShellClassName}>
+          <Gauge
+            activeFill="var(--foreground)"
+            arcStyle="solid"
+            centerValue={72}
+            className={chartExampleGaugeClassName}
+            defaultLabel="Duty %"
+            formatOptions={{ maximumFractionDigits: 0 }}
+            inactiveFillOpacity={0.6}
+            minWidth={0}
+            needle={{ variant: "line", length: 0.22, width: 5 }}
+            ruler={{
+              position: "outside",
+              ticks: 20,
+              majorEvery: 5,
+              labels: "ends",
+            }}
+            value={72}
+            zones={[{ from: 80, to: 100, color: "#ef4444" }]}
+          />
+        </div>
+      ),
+    },
+    {
+      title: "Gauge — speedometer: glow, zone fill, progress dots",
+      description:
+        "Dense notches that switch to the zone colour past 80%, a soft glow on the lit notches, and rings of dots that light up behind the fill.",
+      code: `<Gauge
+  activeFill="#38bdf8"
+  centerValue={228}
+  defaultLabel="km/h"
+  dots={{ color: "#ef4444", rings: 6 }}
+  formatOptions={{ maximumFractionDigits: 0 }}
+  glow
+  inactiveFillOpacity={0.25}
+  notchCornerRadius={1}
+  notchLengthPercent={55}
+  ruler={{ position: "outside", ticks: 26, majorEvery: 2, highlightActive: false }}
+  spacing={35}
+  totalNotches={90}
+  value={(228 / 260) * 100}
+  zoneDisplay="fill"
+  zones={[{ from: 78, to: 100, color: "#ef4444" }]}
+/>`,
+      render: () => (
+        <div className={chartExampleGaugeShellClassName}>
+          <Gauge
+            activeFill="#38bdf8"
+            centerValue={228}
+            className={chartExampleGaugeClassName}
+            defaultLabel="km/h"
+            dots={{ color: "#ef4444", rings: 6 }}
+            formatOptions={{ maximumFractionDigits: 0 }}
+            glow
+            inactiveFillOpacity={0.25}
+            minWidth={0}
+            notchCornerRadius={1}
+            notchLengthPercent={55}
+            ruler={{
+              position: "outside",
+              ticks: 26,
+              majorEvery: 2,
+              highlightActive: false,
+            }}
+            spacing={35}
+            totalNotches={90}
+            value={(228 / 260) * 100}
+            zoneDisplay="fill"
+            zones={[{ from: 78, to: 100, color: "#ef4444" }]}
+          />
+        </div>
+      ),
+    },
+    {
+      title: "Gauge — conic sector, progress ring, labelled ruler",
+      description:
+        "No track: a conic-gradient wedge brightens toward the value, a thin ring traces progress, the ruler is labelled in real units, and a disc frames the readout.",
+      code: `<Gauge
+  arcStyle="none"
+  centerDisc
+  centerValue={518}
+  defaultLabel="tonnes per day"
+  formatOptions={{ maximumFractionDigits: 0 }}
+  needle={{ variant: "triangle", tip: "outer", length: 0.62, width: 8 }}
+  progressRing={{ color: "#38bdf8" }}
+  ruler={{ ticks: 16, majorEvery: 2, labels: { min: 0, max: 800 } }}
+  sector={{ color: "#38bdf8" }}
+  value={(518 / 800) * 100}
+/>`,
+      render: () => (
+        <div className={chartExampleGaugeShellClassName}>
+          <Gauge
+            arcStyle="none"
+            centerDisc
+            centerValue={518}
+            className={chartExampleGaugeClassName}
+            defaultLabel="tonnes per day"
+            formatOptions={{ maximumFractionDigits: 0 }}
+            minWidth={0}
+            needle={{
+              variant: "triangle",
+              tip: "outer",
+              length: 0.62,
+              width: 8,
+            }}
+            progressRing={{ color: "#38bdf8" }}
+            ruler={{ ticks: 16, majorEvery: 2, labels: { min: 0, max: 800 } }}
+            sector={{ color: "#38bdf8" }}
+            value={(518 / 800) * 100}
+          />
+        </div>
+      ),
+    },
+    {
+      title: "Gauge — radial gradient sector",
+      description:
+        "Sector filled with a radial gradient that glows toward the rim, under a thin solid arc and a line needle.",
+      code: `<Gauge
+  arcStyle="solid"
+  arcThickness={0.02}
+  centerValue={64}
+  defaultLabel="Capacity"
+  formatOptions={{ maximumFractionDigits: 0 }}
+  inactiveFillOpacity={0.6}
+  needle={{ variant: "line", tip: "outer", length: 0.5 }}
+  sector={{ gradient: "radial", innerRadius: 0.3 }}
+  suffix="%"
+  value={64}
+/>`,
+      render: () => (
+        <div className={chartExampleGaugeShellClassName}>
+          <Gauge
+            arcStyle="solid"
+            arcThickness={0.02}
+            centerValue={64}
+            className={chartExampleGaugeClassName}
+            defaultLabel="Capacity"
+            formatOptions={{ maximumFractionDigits: 0 }}
+            inactiveFillOpacity={0.6}
+            minWidth={0}
+            needle={{ variant: "line", tip: "outer", length: 0.5 }}
+            sector={{ gradient: "radial", innerRadius: 0.3 }}
+            suffix="%"
+            value={64}
+          />
+        </div>
+      ),
+    },
+    {
+      title: "Gauge — patterned sector",
+      description:
+        "Any SVG paint works as the sector colour — here a PatternPreset passed as a child, with a progress ring outside.",
+      code: `<Gauge
+  arcStyle="none"
+  centerValue={41}
+  defaultLabel="Storage used"
+  formatOptions={{ maximumFractionDigits: 0 }}
+  progressRing
+  sector={{ gradient: "none", color: "url(#gauge-sector-pattern)", innerRadius: 0.5, opacity: 1 }}
+  suffix="%"
+  value={41}
+>
+  <PatternPreset color="var(--chart-1)" id="gauge-sector-pattern" preset="diagonal-up" />
+</Gauge>`,
+      render: () => (
+        <div className={chartExampleGaugeShellClassName}>
+          <Gauge
+            arcStyle="none"
+            centerValue={41}
+            className={chartExampleGaugeClassName}
+            defaultLabel="Storage used"
+            formatOptions={{ maximumFractionDigits: 0 }}
+            minWidth={0}
+            progressRing
+            sector={{
+              gradient: "none",
+              color: "url(#gauge-sector-pattern)",
+              innerRadius: 0.5,
+              opacity: 1,
+            }}
+            suffix="%"
+            value={41}
+          >
+            <PatternPreset
+              color="var(--chart-1)"
+              id="gauge-sector-pattern"
+              preset="diagonal-up"
+            />
+          </Gauge>
+        </div>
+      ),
+    },
+    {
+      title: "Gauge — progress dots",
+      description:
+        "Just dots: concentric rings that light up to the value, fading toward the centre, with a progress ring to anchor the sweep.",
+      code: `<Gauge
+  arcStyle="none"
+  centerValue={83}
+  defaultLabel="Uptime score"
+  dots={{ rings: 7, spacing: 0.032, radius: 2.2 }}
+  formatOptions={{ maximumFractionDigits: 0 }}
+  progressRing
+  value={83}
+/>`,
+      render: () => (
+        <div className={chartExampleGaugeShellClassName}>
+          <Gauge
+            arcStyle="none"
+            centerValue={83}
+            className={chartExampleGaugeClassName}
+            defaultLabel="Uptime score"
+            dots={{ rings: 7, spacing: 0.032, radius: 2.2 }}
+            formatOptions={{ maximumFractionDigits: 0 }}
+            minWidth={0}
+            progressRing
+            value={83}
+          />
+        </div>
+      ),
+    },
     {
       title: "Gauge — tight arc, filleted corners",
       description:
@@ -6559,7 +7071,11 @@ function ChartHeroCurveToolbar({
   );
 }
 
-function AreaHeroWithCurveSelect() {
+function AreaHeroWithCurveSelect({
+  data = areaHeroData,
+}: {
+  data?: typeof areaHeroData;
+}) {
   const [curveId, setCurveId] = useState("monotoneX");
   const curve = useMemo(() => {
     const hit = HERO_CURVE_OPTIONS.find((o) => o.value === curveId);
@@ -6569,7 +7085,7 @@ function AreaHeroWithCurveSelect() {
   return (
     <div className="space-y-3">
       <ChartHeroCurveToolbar onValueChange={setCurveId} value={curveId} />
-      <AreaExampleChart aspectRatio="4 / 1" data={areaHeroData}>
+      <AreaExampleChart aspectRatio="4 / 1" data={data}>
         <Grid horizontal />
         <Area
           curve={curve}
@@ -6821,6 +7337,14 @@ import {
     footer:
       "Open the same preset in Studio from the Background docs or paste the share URL from /charts/line-chart.",
     render: () => <LineChartStudioTrioDemo height={540} />,
+    editableData: editableData({
+      data: LINE_CHART_STUDIO_TRIO_DATA,
+      // Plot sized by aspect so the present dialog's chart aspect applies to
+      // the plot, with the legend and brush around it.
+      render: (rows) => (
+        <LineChartStudioTrioDemo data={rows} plotAspect="2 / 1" />
+      ),
+    }),
   };
 }
 
@@ -6849,7 +7373,27 @@ function makeAreaHero(): ChartExample {
     footer:
       "Click and drag to select a range. Hero curve menu uses the same Area `curve` prop for revenue and costs.",
     render: () => <AreaHeroWithCurveSelect />,
+    editableData: editableData({
+      data: areaHeroData,
+      render: (rows) => <AreaHeroWithCurveSelect data={rows} />,
+    }),
   };
+}
+
+function renderBarHero(data: typeof barHeroData) {
+  return (
+    <BarExampleChart
+      aspectRatio="4 / 1"
+      barGap={0.1}
+      data={data}
+      xDataKey="day"
+    >
+      <Grid horizontal />
+      <Bar dataKey="value" lineCap="butt" />
+      <BarXAxis maxLabels={8} />
+      <ChartTooltip />
+    </BarExampleChart>
+  );
 }
 
 function makeBarHero(): ChartExample {
@@ -6870,19 +7414,8 @@ function makeBarHero(): ChartExample {
     value: Math.floor(50 + Math.sin(i / 7) * 30 + ((i * 7) % 37) - 18),
   };
 });`,
-    render: () => (
-      <BarExampleChart
-        aspectRatio="4 / 1"
-        barGap={0.1}
-        data={barHeroData}
-        xDataKey="day"
-      >
-        <Grid horizontal />
-        <Bar dataKey="value" lineCap="butt" />
-        <BarXAxis maxLabels={8} />
-        <ChartTooltip />
-      </BarExampleChart>
-    ),
+    render: () => renderBarHero(barHeroData),
+    editableData: editableData({ data: barHeroData, render: renderBarHero }),
   };
 }
 
@@ -7567,7 +8100,7 @@ function findSunburstNodeById(
 }
 
 function sunburstLegendForFocus(data: SunburstNode, focusId: string) {
-  const { arcs, rootId } = buildArcs(data);
+  const { arcs } = buildArcs(data);
   const focusNode = findSunburstNodeById(data, focusId) ?? data;
   const children = focusNode.children ?? [];
   const childValues = children.map((child) => sumValues(child));
@@ -7577,8 +8110,8 @@ function sunburstLegendForFocus(data: SunburstNode, focusId: string) {
   const arcIndices: number[] = [];
 
   for (const child of children) {
-    const childId =
-      focusId === rootId ? child.name : `${focusId} / ${child.name}`;
+    // Arc ids are full paths from the root (`root / child`), root included.
+    const childId = `${focusId} / ${child.name}`;
     const arc = arcs.find((entry) => entry.id === childId);
     if (!arc) {
       continue;
@@ -7736,6 +8269,7 @@ function SunburstWithLegend() {
         items={legendResult.items}
         onHoverChange={setLegendHoveredIndex}
         title="Categories"
+        titleClassName="basis-full text-center font-semibold text-sm"
       >
         <LegendItemComponent className="flex items-center gap-1.5">
           <LegendMarker />
@@ -8257,6 +8791,7 @@ export function ChartExamplesGrid({ chartSlug }: { chartSlug: string }) {
               code={hero.code}
               data={hero.data}
               description={hero.description}
+              editableData={hero.editableData}
               footer={hero.footer}
               previewLayout={entry.previewLayout}
               title={hero.title}
@@ -8272,6 +8807,7 @@ export function ChartExamplesGrid({ chartSlug }: { chartSlug: string }) {
               code={example.code}
               data={example.data}
               description={example.description}
+              editableData={example.editableData}
               footer={example.footer}
               key={example.title}
               previewLayout={example.previewLayout ?? entry.previewLayout}

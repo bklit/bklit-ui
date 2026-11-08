@@ -1890,7 +1890,7 @@
       "name": "gauge-chart",
       "type": "registry:component",
       "title": "Gauge",
-      "description": "Notch-based radial or linear gauge with optional center label, patterns, and optional gradients",
+      "description": "Radial or linear gauge — notch, solid or sector arcs with ruler, needle, zones, progress ring, dots and glow",
       "registryDependencies": [
         "@bklit/utils",
         "@bklit/chart-parent-size"
@@ -1935,6 +1935,16 @@
           "path": "src/charts/gauge-label-layout.tsx",
           "type": "registry:component",
           "target": "components/charts/gauge-label-layout.tsx"
+        },
+        {
+          "path": "src/charts/gauge-dial.tsx",
+          "type": "registry:component",
+          "target": "components/charts/gauge-dial.tsx"
+        },
+        {
+          "path": "src/charts/gauge-arc-layers.tsx",
+          "type": "registry:component",
+          "target": "components/charts/gauge-arc-layers.tsx"
         },
         {
           "path": "src/charts/chart-center-typography.ts",

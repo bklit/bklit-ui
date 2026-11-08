@@ -10,6 +10,7 @@ import {
 } from "react";
 import { cn } from "@/lib/utils";
 import type { ChartBrushSelection } from "./chart-brush";
+import { useChartDataOverride } from "./chart-data-override";
 import { resolveBrushTrackXExtent } from "./filter-data-by-x-domain";
 
 export interface ChartBrushLayoutState {
@@ -45,7 +46,7 @@ function createXAccessor(xDataKey: string) {
 }
 
 export const ChartBrushLayout = memo(function ChartBrushLayout({
-  data,
+  data: dataProp,
   xDataKey = "date",
   xExtentMax,
   enabled,
@@ -55,6 +56,8 @@ export const ChartBrushLayout = memo(function ChartBrushLayout({
   children,
   brushStrip,
 }: ChartBrushLayoutProps) {
+  // Same `data` as the charts inside, so the present dialog edits them as one.
+  const { data } = useChartDataOverride("ChartBrushLayout", { data: dataProp });
   const xAccessor = useMemo(() => createXAccessor(xDataKey), [xDataKey]);
   const fullExtent = useMemo(
     () => resolveBrushTrackXExtent(data, xAccessor, xExtentMax),

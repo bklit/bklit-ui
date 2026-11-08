@@ -27,6 +27,7 @@ import {
 import { cn } from "@/lib/utils";
 import { DEFAULT_ANIMATION_EASING } from "./animation";
 import { chartCssVars } from "./chart-context";
+import { useChartDataOverride } from "./chart-data-override";
 import {
   buildSparklineAreaPath,
   buildSparklineBarSegment,
@@ -989,7 +990,12 @@ function LineOrAreaPaths({
   );
 }
 
-function LineSparklineImpl<T>(props: LineSparklineProps<T>) {
+function LineSparklineImpl<T>({
+  data: dataProp,
+  ...rest
+}: LineSparklineProps<T>) {
+  const { data } = useChartDataOverride("LineSparkline", { data: dataProp });
+  const props = { ...rest, data };
   return (
     <LazyMotion features={domAnimation}>
       <LineOrArea config={props} variant="line" />
@@ -997,7 +1003,12 @@ function LineSparklineImpl<T>(props: LineSparklineProps<T>) {
   );
 }
 
-function AreaSparklineImpl<T>(props: AreaSparklineProps<T>) {
+function AreaSparklineImpl<T>({
+  data: dataProp,
+  ...rest
+}: AreaSparklineProps<T>) {
+  const { data } = useChartDataOverride("AreaSparkline", { data: dataProp });
+  const props = { ...rest, data };
   return (
     <LazyMotion features={domAnimation}>
       <LineOrArea config={props} variant="area" />
@@ -1005,7 +1016,12 @@ function AreaSparklineImpl<T>(props: AreaSparklineProps<T>) {
   );
 }
 
-function BarSparklineImpl<T>(props: BarSparklineProps<T>) {
+function BarSparklineImpl<T>({
+  data: dataProp,
+  ...rest
+}: BarSparklineProps<T>) {
+  const { data } = useChartDataOverride("BarSparkline", { data: dataProp });
+  const props = { ...rest, data };
   const {
     barGap = 2,
     barRadius = 1,

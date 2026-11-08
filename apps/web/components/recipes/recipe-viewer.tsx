@@ -4,6 +4,7 @@ import { Icon } from "@bklitui/icons";
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CODE_PANEL_HEADER_CLASS } from "@/components/blocks/block-code-panel-header";
+import { ChartPresentDialog } from "@/components/charts/chart-present-dialog";
 import { CopyButton } from "@/components/copy-button";
 import { Button } from "@/components/ui/button";
 import { Frame, FramePanel } from "@/components/ui/frame";
@@ -47,6 +48,14 @@ const BlockCodeBlock = dynamic(
 );
 
 type RecipeView = "preview" | "code" | "prompt";
+
+/** Present-dialog chart size default (% of the stage) per recipe category. */
+function recipePresentChartSize(category: Recipe["category"]): number {
+  if (category === "pie-ring" || category === "radial") {
+    return 70;
+  }
+  return category === "gauges" ? 85 : 90;
+}
 
 const PANEL_HEIGHT_CLASS = "h-[380px] md:h-[460px]";
 
@@ -205,6 +214,7 @@ export function RecipeViewer({ recipe }: { recipe: Recipe }) {
   const [chartId, setChartId] = useState(recipe.charts[0]?.id ?? "");
   const [scope, setScope] = useState<RecipePromptScope>("chart");
   const [previewKey, setPreviewKey] = useState(0);
+  const [presentOpen, setPresentOpen] = useState(false);
   const multiChart = recipe.charts.length > 1;
   const effectiveScope: RecipePromptScope = multiChart ? scope : "chart";
   // Stays mounted once seen: recipe previews are static after their entrance,
@@ -294,6 +304,24 @@ export function RecipeViewer({ recipe }: { recipe: Recipe }) {
             ) : null}
 
             <div className="ms-auto flex shrink-0 items-center gap-1.5">
+              {view === "preview" ? (
+                <Tooltip>
+                  <TooltipTrigger render={<span className="inline-flex" />}>
+                    <Button
+                      aria-label="Present chart"
+                      className="size-8"
+                      onClick={() => setPresentOpen(true)}
+                      size="icon"
+                      type="button"
+                      variant="ghost"
+                    >
+                      <Icon className="size-4" name="IconFocusZoomOut" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipPopup>Present chart</TooltipPopup>
+                </Tooltip>
+              ) : null}
+
               {view === "preview" ? (
                 <Tooltip>
                   <TooltipTrigger render={<span className="inline-flex" />}>
@@ -408,6 +436,17 @@ export function RecipeViewer({ recipe }: { recipe: Recipe }) {
             ) : null}
           </FramePanel>
         </Frame>
+
+        <ChartPresentDialog
+          autoChartSize={recipePresentChartSize(recipe.category)}
+          editableData={chart.editableData}
+          fileSlug={multiChart ? `${recipe.id}-${chart.id}` : recipe.id}
+          onOpenChange={setPresentOpen}
+          open={presentOpen}
+          title={multiChart ? `${recipe.title} · ${chart.label}` : recipe.title}
+        >
+          <Preview />
+        </ChartPresentDialog>
       </article>
     </TooltipProvider>
   );

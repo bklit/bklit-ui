@@ -398,15 +398,8 @@ function ShowcaseHeatmapChart({ compact }: { compact: boolean }) {
       <HeatmapInteractionBoundary>
         <div className="flex min-h-[220px] w-full flex-col items-center justify-center gap-4 sm:gap-5 md:aspect-5/2 md:min-h-0">
           <HeatmapChart
-            animationDuration={1100}
             className="w-full"
             data={contributionData}
-            enterStaggerScale={1}
-            enterTransition={{
-              type: "tween",
-              duration: 1.1,
-              ease: [0.85, 0, 0.916, 0.282],
-            }}
             gap={2}
             layout="fluid"
             levelStyles={heatmapLevelStyles}
