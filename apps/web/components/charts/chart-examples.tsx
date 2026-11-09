@@ -77,6 +77,7 @@ import {
   PieChart,
   type PieData,
   PieSlice,
+  PieTicks,
   ProfitLossLegend,
   ProfitLossLegendHoverProvider,
   ProfitLossLine,
@@ -4543,6 +4544,15 @@ function PieDonutInteractive() {
   );
 }
 
+function PieTicksDonut({ hoverEffect }: { hoverEffect?: "slice" | "tick" }) {
+  return (
+    <PieChart data={pieData} innerRadius={70}>
+      <PieTicks hoverEffect={hoverEffect} />
+      <PieCenter defaultLabel="Share" valueDisplay="percent" />
+    </PieChart>
+  );
+}
+
 function PieWithLegend() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const legendItems = pieData.map((d) => ({
@@ -4700,6 +4710,34 @@ function makePieExamples(): ChartExample[] {
       render: () => (
         <div className={chartExampleRadialShellClassName}>
           <PieDonutInteractive />
+        </div>
+      ),
+    },
+    {
+      title: "Pie Chart - Ticks",
+      description:
+        "Slices drawn as radial ticks that sweep in like a gauge; hover a slice for its share",
+      code: `<PieChart data={pieData} innerRadius={70} size={200}>
+  <PieTicks />
+  <PieCenter defaultLabel="Share" valueDisplay="percent" />
+</PieChart>`,
+      render: () => (
+        <div className={chartExampleRadialShellClassName}>
+          <PieTicksDonut />
+        </div>
+      ),
+    },
+    {
+      title: "Pie Chart - Tick Trail",
+      description:
+        "Each tick grows under the pointer and settles slowly, leaving a trail",
+      code: `<PieChart data={pieData} innerRadius={70} size={200}>
+  <PieTicks hoverEffect="tick" />
+  <PieCenter defaultLabel="Share" valueDisplay="percent" />
+</PieChart>`,
+      render: () => (
+        <div className={chartExampleRadialShellClassName}>
+          <PieTicksDonut hoverEffect="tick" />
         </div>
       ),
     },

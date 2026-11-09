@@ -13,6 +13,7 @@ import {
   type PieData,
   PieSlice,
   type PieSliceHoverEffect,
+  PieTicks,
   RadialGradient,
 } from "@bklitui/ui/charts";
 import { useState } from "react";
@@ -317,5 +318,41 @@ export function PieChartCustomCenterDemo() {
         )}
       </PieCenter>
     </PieChart>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* Ticks                                                                      */
+/* -------------------------------------------------------------------------- */
+
+const trafficData: PieData[] = [
+  { label: "Direct", value: 38, color: "var(--chart-1)" },
+  { label: "Organic", value: 27, color: "var(--chart-2)" },
+  { label: "Social", value: 15, color: "var(--chart-3)" },
+  { label: "Referral", value: 12, color: "var(--chart-4)" },
+  { label: "Email", value: 8, color: "var(--chart-5)" },
+];
+
+/** Slice hover vs per-tick trail, side by side. */
+export function PieTicksDemo() {
+  return (
+    <div className="grid w-full grid-cols-1 gap-8 py-4 sm:grid-cols-2">
+      {(["slice", "tick"] as const).map((hoverEffect) => (
+        <div
+          className="mx-auto flex w-full max-w-[240px] flex-col items-center gap-2"
+          key={hoverEffect}
+        >
+          <div className="aspect-square w-full">
+            <PieChart data={trafficData} innerRadius={78}>
+              <PieTicks hoverEffect={hoverEffect} />
+              <PieCenter defaultLabel="Traffic" valueDisplay="percent" />
+            </PieChart>
+          </div>
+          <code className="text-muted-foreground text-xs">
+            hoverEffect="{hoverEffect}"
+          </code>
+        </div>
+      ))}
+    </div>
   );
 }

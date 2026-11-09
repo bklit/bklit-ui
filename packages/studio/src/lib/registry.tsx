@@ -775,12 +775,15 @@ const pieConfig: StudioChartConfig = {
           : `\n  ${patternCodegenBlock(preset, { id: `pie-pattern-${i}`, color: `var(--chart-${(i % 5) + 1})` })}`
       )
       .join("");
-    const slices = slicePatterns
-      .map(
-        (preset, i) =>
-          `\n  <PieSlice index={${i}}${preset === "none" ? "" : ` fill="url(#pie-pattern-${i})"`} hoverEffect="${state.pieHoverEffect}" />`
-      )
-      .join("");
+    const ticks = state.pieStyle === "ticks";
+    const slices = ticks
+      ? `\n  <PieTicks count={${state.pieTickCount}} strokeWidth={${state.pieTickWidth}}${state.pieTickHoverEffect === "tick" ? ' hoverEffect="tick"' : ""} />`
+      : slicePatterns
+          .map(
+            (preset, i) =>
+              `\n  <PieSlice index={${i}}${preset === "none" ? "" : ` fill="url(#pie-pattern-${i})"`} hoverEffect="${state.pieHoverEffect}" />`
+          )
+          .join("");
 
     const motionProps = motionEnterPropsCodegen(
       motionSliceFromState(state),
@@ -788,9 +791,9 @@ const pieConfig: StudioChartConfig = {
     );
 
     return {
-      code: `<PieChart data={pieData} size={${state.pieSize}}${state.innerRadius ? ` innerRadius={${state.innerRadius}}` : ""} padAngle={${state.padAngle}} cornerRadius={${state.pieCornerRadius}} hoverOffset={${state.pieHoverOffset}}${angleProps}
-  ${motionProps}>${patternDefs}${slices}
-  ${state.innerRadius > 0 ? `<PieCenter defaultLabel="${state.pieCenterLabel}"${state.pieCenterPrefix ? ` prefix="${state.pieCenterPrefix}"` : ""}${state.pieCenterSuffix ? ` suffix="${state.pieCenterSuffix}"` : ""} />` : ""}
+      code: `<PieChart data={pieData} size={${state.pieSize}}${state.innerRadius ? ` innerRadius={${state.innerRadius}}` : ""} padAngle={${state.padAngle}}${ticks ? "" : ` cornerRadius={${state.pieCornerRadius}}`} hoverOffset={${state.pieHoverOffset}}${angleProps}
+  ${motionProps}>${ticks ? "" : patternDefs}${slices}
+  ${state.innerRadius > 0 ? `<PieCenter defaultLabel="${state.pieCenterLabel}"${state.pieCenterPrefix ? ` prefix="${state.pieCenterPrefix}"` : ""}${state.pieCenterSuffix ? ` suffix="${state.pieCenterSuffix}"` : ""}${state.pieCenterValueDisplay === "percent" ? ' valueDisplay="percent"' : ""} />` : ""}
 </PieChart>`,
       data: `const pieData = ${JSON.stringify(pieData, null, 2)};`,
     };

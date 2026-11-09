@@ -494,6 +494,12 @@ export {
   type PieSliceHoverEffect,
   type PieSliceProps,
 } from "./pie-slice";
+export {
+  DEFAULT_PIE_TICKS_SWEEP_TRANSITION,
+  PieTicks,
+  type PieTicksHoverEffect,
+  type PieTicksProps,
+} from "./pie-ticks";
 // Profit/loss line (sign-colored segments on LineChart)
 export {
   PROFIT_LOSS_LEGEND_ITEMS,

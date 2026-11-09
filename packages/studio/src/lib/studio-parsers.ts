@@ -821,6 +821,19 @@ export const studioSearchParams = {
   choroplethMarkerStrokeColor: parseAsString.withDefault("var(--background)"),
   choroplethMarkerStrokeWidth: parseAsFloat.withDefault(1.5),
   choroplethEdgeFade: parseAsFloat.withDefault(0),
+  pieStyle: parseAsStringLiteral(["slices", "ticks"] as const).withDefault(
+    "slices"
+  ),
+  pieTickCount: parseAsInteger.withDefault(96),
+  pieTickWidth: parseAsFloat.withDefault(2.5),
+  pieTickHoverEffect: parseAsStringLiteral([
+    "slice",
+    "tick",
+  ] as const).withDefault("slice"),
+  pieCenterValueDisplay: parseAsStringLiteral([
+    "value",
+    "percent",
+  ] as const).withDefault("value"),
   funnelLabelLayout: parseAsStringLiteral([
     "spread",
     "grouped",
@@ -1383,6 +1396,11 @@ export interface StudioUrlState {
   choroplethMarkerStrokeColor: string;
   choroplethMarkerStrokeWidth: number;
   choroplethEdgeFade: number;
+  pieStyle: "slices" | "ticks";
+  pieTickCount: number;
+  pieTickWidth: number;
+  pieTickHoverEffect: "slice" | "tick";
+  pieCenterValueDisplay: "value" | "percent";
   funnelLabelLayout: "spread" | "grouped";
   funnelLabelAlign: "center" | "start" | "end";
   /** `auto` omits `labelOrientation` (component picks by funnel orientation). */
@@ -1948,6 +1966,11 @@ export function defaultStudioState(
     choroplethMarkerStrokeColor: "var(--background)",
     choroplethMarkerStrokeWidth: 1.5,
     choroplethEdgeFade: 0,
+    pieStyle: "slices",
+    pieTickCount: 96,
+    pieTickWidth: 2.5,
+    pieTickHoverEffect: "slice",
+    pieCenterValueDisplay: "value",
     funnelLabelLayout: "spread",
     funnelLabelAlign: "center",
     funnelLabelOrientation: "auto",

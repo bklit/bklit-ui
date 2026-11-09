@@ -27,7 +27,7 @@ import { hatchedBackdrop } from "./hatched-backdrop";
 import { heatmapDotCalendar, heatmapWorkweek } from "./heatmaps";
 import { kpiSparklines } from "./kpi-sparklines";
 import { monochrome } from "./monochrome";
-import { linkedLegend, patternedSlices } from "./pie-recipes";
+import { linkedLegend, patternedSlices, tickRing } from "./pie-recipes";
 import { projectionLine } from "./projection-line";
 import { quietSparkline } from "./quiet-sparkline";
 import {
@@ -69,6 +69,7 @@ export const recipes: Recipe[] = [
   heatmapWorkweek,
   patternedSlices,
   linkedLegend,
+  tickRing,
   activityClockCard,
   storageUsageCard,
   seasonalTemperatureCard,

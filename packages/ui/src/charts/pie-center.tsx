@@ -39,8 +39,13 @@ export interface PieCenterProps {
   labelClassName?: string;
   /** Prefix to show before the number (e.g., "$") */
   prefix?: string;
-  /** Suffix to show after the number (e.g., "%") */
+  /** Suffix to show after the number (e.g., "%"). Defaults to "%" in percent mode */
   suffix?: string;
+  /**
+   * `"value"` (default) shows the raw value. `"percent"` shows the hovered
+   * slice's share of the total, and 100 at rest — a gauge-style readout.
+   */
+  valueDisplay?: "value" | "percent";
 }
 
 /**
@@ -61,7 +66,8 @@ export function PieCenter({
   valueClassName = chartCenterValueClassName,
   labelClassName = chartCenterLabelClassName,
   prefix,
-  suffix,
+  suffix: suffixProp,
+  valueDisplay = "value",
 }: PieCenterProps) {
   const { data, totalValue, innerRadius, geometryScrubbing } = usePieStable();
   const { hoveredIndex } = usePieHover();
@@ -69,7 +75,11 @@ export function PieCenter({
   const effectiveHoveredIndex = geometryScrubbing ? null : hoveredIndex;
   const hoveredData =
     effectiveHoveredIndex === null ? null : data[effectiveHoveredIndex];
-  const displayValue = hoveredData ? hoveredData.value : totalValue;
+  const percentMode = valueDisplay === "percent";
+  const suffix = suffixProp ?? (percentMode ? "%" : undefined);
+  const rawValue = hoveredData ? hoveredData.value : totalValue;
+  const share = totalValue > 0 ? (rawValue / totalValue) * 100 : 0;
+  const displayValue = percentMode ? Math.round(share) : rawValue;
   const displayLabel = hoveredData ? hoveredData.label : defaultLabel;
 
   // Calculate center area size based on inner radius
