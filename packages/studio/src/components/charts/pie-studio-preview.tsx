@@ -5,6 +5,7 @@ import {
   PieChart,
   PieSlice,
   type PieSliceHoverEffect,
+  PieTicks,
   useChartLegendHover,
 } from "@bklitui/ui/charts";
 import { memo, useMemo } from "react";
@@ -45,6 +46,11 @@ interface PieChartGeometry {
   centerLabel: string;
   centerPrefix: string | undefined;
   centerSuffix: string | undefined;
+  centerValueDisplay: "value" | "percent";
+  style: "slices" | "ticks";
+  tickCount: number;
+  tickWidth: number;
+  tickHoverEffect: "slice" | "tick";
 }
 
 const PieChartBody = memo(
@@ -72,6 +78,15 @@ const PieChartBody = memo(
     const chartSize = studioRadialSize(contentFrame, geometry.pieSize);
 
     const slices = useMemo(() => {
+      if (geometry.style === "ticks") {
+        return (
+          <PieTicks
+            count={geometry.tickCount}
+            hoverEffect={geometry.tickHoverEffect}
+            strokeWidth={geometry.tickWidth}
+          />
+        );
+      }
       if (geometryScrubbing) {
         return null;
       }
@@ -100,6 +115,10 @@ const PieChartBody = memo(
       ctx.patternFillAt,
       data,
       geometry.hoverEffect,
+      geometry.style,
+      geometry.tickCount,
+      geometry.tickWidth,
+      geometry.tickHoverEffect,
       geometryScrubbing,
       patternFillState,
       visibilityState,
@@ -108,7 +127,7 @@ const PieChartBody = memo(
     return (
       <StudioRadialCenter frame={contentFrame}>
         <PieChart
-          cornerRadius={geometry.cornerRadius}
+          cornerRadius={geometry.style === "ticks" ? 0 : geometry.cornerRadius}
           data={data}
           endAngle={geometry.endAngleRad}
           enterStaggerScale={motionEnter.enterStaggerScale}
@@ -130,6 +149,7 @@ const PieChartBody = memo(
               defaultLabel={geometry.centerLabel}
               prefix={geometry.centerPrefix}
               suffix={geometry.centerSuffix}
+              valueDisplay={geometry.centerValueDisplay}
             />
           ) : null}
         </PieChart>
@@ -172,6 +192,11 @@ export const PieStudioPreview = memo(function PieStudioPreview({
       centerLabel: state.pieCenterLabel,
       centerPrefix: state.pieCenterPrefix || undefined,
       centerSuffix: state.pieCenterSuffix || undefined,
+      centerValueDisplay: state.pieCenterValueDisplay,
+      style: state.pieStyle,
+      tickCount: state.pieTickCount,
+      tickWidth: state.pieTickWidth,
+      tickHoverEffect: state.pieTickHoverEffect,
     }),
     [
       state.padAngle,
@@ -185,6 +210,11 @@ export const PieStudioPreview = memo(function PieStudioPreview({
       state.pieCenterLabel,
       state.pieCenterPrefix,
       state.pieCenterSuffix,
+      state.pieCenterValueDisplay,
+      state.pieStyle,
+      state.pieTickCount,
+      state.pieTickWidth,
+      state.pieTickHoverEffect,
       pieCenterVisible,
     ]
   );

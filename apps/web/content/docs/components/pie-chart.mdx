@@ -4,7 +4,7 @@ description: A composable pie and donut chart with animated slices, hover intera
 ---
 
 import { PieChart, PieSlice, PieCenter } from "@bklitui/ui/charts";
-import { PieChartDemo } from "@/components/docs/pie-chart-demo";
+import { PieChartDemo, PieTicksDemo } from "@/components/docs/pie-chart-demo";
 
 <ComponentPreview registryName="pie-chart">
   <PieChartDemo />
@@ -80,9 +80,49 @@ Displays content in the center of a donut chart. Only renders when `innerRadius 
 | `defaultLabel` | `string` | `"Total"` | Label shown when not hovering |
 | `formatOptions` | `NumberFlowFormat` | - | Number formatting options |
 | `prefix` | `string` | - | Prefix before the value (e.g., "$") |
-| `suffix` | `string` | - | Suffix after the value (e.g., "%") |
+| `suffix` | `string` | - | Suffix after the value (e.g., "%"). Defaults to `"%"` when `valueDisplay="percent"` |
+| `valueDisplay` | `"value" \| "percent"` | `"value"` | `"percent"` shows the hovered slice's share of the total (100 at rest) — a gauge-style readout |
 | `children` | `function` | - | Custom render function `({ value, label, isHovered, data }) => ReactNode`. Called at rest (total + `defaultLabel`, `isHovered: false`) and on hover (the hovered slice) |
 | `className` | `string` | `""` | Additional CSS class |
+
+### PieTicks
+
+Draws the whole chart as a ring of radial ticks instead of solid slices — use it in place of `<PieSlice>`. Each slice gets a share of the ticks in proportion to its value, with an empty slot between slices. On mount the ticks light up one after another around the ring, like a gauge filling.
+
+Two hover styles:
+
+- `"slice"` (default) — the hovered slice's ticks all extend outward and the other slices dim.
+- `"tick"` — the tick under the pointer shoots out and thickens, lifting its neighbours a little, then settles slowly, so moving across the ring leaves a trail. The slice it belongs to still drives `PieCenter` and dims the rest.
+
+<ComponentShowcase
+  code={`<PieChart data={data} innerRadius={78}>
+  <PieTicks />
+  <PieCenter defaultLabel="Traffic" valueDisplay="percent" />
+</PieChart>
+
+<PieChart data={data} innerRadius={78}>
+  <PieTicks hoverEffect="tick" />
+  <PieCenter defaultLabel="Traffic" valueDisplay="percent" />
+</PieChart>`}
+  liveChartPreview
+  previewMinHeight={300}
+>
+  <PieTicksDemo />
+</ComponentShowcase>
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `count` | `number` | `96` | Ticks around the full sweep, shared across slices |
+| `strokeWidth` | `number` | `2.5` | Tick stroke width in px |
+| `lineCap` | `"round" \| "butt"` | `"round"` | Tick end caps |
+| `sliceGap` | `number` | `1` | Empty tick slots between slices |
+| `hoverEffect` | `"slice" \| "tick"` | `"slice"` | Grow the whole hovered slice, or only the tick under the pointer |
+| `hoverOffset` | `number` | PieChart `hoverOffset` | How far a hovered slice's ticks extend, in px |
+| `tickHoverOffset` | `number` | `2.2 × hoverOffset` | Tick mode — how far the hovered tick shoots out, in px |
+| `fadedOpacity` | `number` | `0.3` | Opacity of the other slices while one is hovered |
+| `enterTransition` | `Transition` | PieChart `enterTransition`, else a 1.4s ease-out | The ring sweep on mount |
+| `animate` | `boolean` | `true` | Animate on mount (skipped under reduced motion) |
+| `className` | `string` | - | Class on the tick group |
 
 ### Legend
 

@@ -1704,6 +1704,42 @@ export const composedChartControlGroups: StudioControlGroup[] = [
 export const pieChartControlGroups: StudioControlGroup[] = [
   controlGroup("Chart", [
     {
+      type: "select",
+      key: "pieStyle",
+      label: "Style",
+      options: [
+        { value: "slices", label: "Slices" },
+        { value: "ticks", label: "Ticks" },
+      ],
+    },
+    {
+      type: "number",
+      key: "pieTickCount",
+      label: "Ticks",
+      min: 24,
+      max: 180,
+      visibleWhen: { key: "pieStyle", equals: "ticks" },
+    },
+    {
+      type: "number",
+      key: "pieTickWidth",
+      label: "Tick width",
+      min: 1,
+      max: 8,
+      step: 0.5,
+      visibleWhen: { key: "pieStyle", equals: "ticks" },
+    },
+    {
+      type: "select",
+      key: "pieTickHoverEffect",
+      label: "Hover",
+      options: [
+        { value: "slice", label: "Slice" },
+        { value: "tick", label: "Tick" },
+      ],
+      visibleWhen: { key: "pieStyle", equals: "ticks" },
+    },
+    {
       type: "number",
       key: "pieSize",
       label: "Scale",
@@ -1732,6 +1768,7 @@ export const pieChartControlGroups: StudioControlGroup[] = [
       label: "Corner",
       min: 0,
       max: 12,
+      visibleWhen: { key: "pieStyle", equals: "slices" },
     },
     {
       type: "number",
@@ -1756,11 +1793,25 @@ export const pieChartControlGroups: StudioControlGroup[] = [
       max: 720,
       variant: "pieEnd",
     },
-    { type: "pieHoverEffect", key: "pieHoverEffect", label: "Hover effect" },
+    {
+      type: "pieHoverEffect",
+      key: "pieHoverEffect",
+      label: "Hover effect",
+      visibleWhen: { key: "pieStyle", equals: "slices" },
+    },
   ]),
 ];
 
 export const pieCenterControlGroup = controlGroup("Center", [
+  {
+    type: "select",
+    key: "pieCenterValueDisplay",
+    label: "Value",
+    options: [
+      { value: "value", label: "Value" },
+      { value: "percent", label: "Percent" },
+    ],
+  },
   { type: "text", key: "pieCenterLabel", label: "Label" },
   { type: "text", key: "pieCenterPrefix", label: "Prefix" },
   { type: "text", key: "pieCenterSuffix", label: "Suffix" },

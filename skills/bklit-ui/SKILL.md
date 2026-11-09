@@ -56,7 +56,7 @@ There is no barrel for component items — import each export from the file that
 | `scatter-chart` | `ScatterChart`, `Scatter` |
 | `candlestick-chart` / `candlestick` | `CandlestickChart` / `Candlestick` |
 | `live-line-chart` / `live-line` / `live-x-axis` / `live-y-axis` | `LiveLineChart` / `LiveLine` / `LiveXAxis` / `LiveYAxis` |
-| `pie-chart` / `pie-slice` / `pie-center` | `PieChart` / `PieSlice` / `PieCenter` |
+| `pie-chart` / `pie-slice` / `pie-ticks` / `pie-center` | `PieChart` / `PieSlice` / `PieTicks` / `PieCenter` |
 | `ring-chart` / `ring` / `ring-center` | `RingChart` / `Ring` / `RingCenter` |
 | `radar-chart`, `radar-grid`, `radar-axis`, `radar-labels`, `radar-area` | one component each |
 | `gauge` | `Gauge` (installed by `@bklit/gauge-chart`) |

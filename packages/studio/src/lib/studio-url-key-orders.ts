@@ -551,6 +551,11 @@ export const STUDIO_STATE_KEY_ORDER = [
   "choroplethMarkerStrokeColor",
   "choroplethMarkerStrokeWidth",
   "choroplethEdgeFade",
+  "pieStyle",
+  "pieTickCount",
+  "pieTickWidth",
+  "pieCenterValueDisplay",
+  "pieTickHoverEffect",
 ] as const satisfies readonly (keyof StudioUrlState)[];
 
 /** Frozen historical layout (cc7bc08 — first compressed-URL release). Decode-only. */

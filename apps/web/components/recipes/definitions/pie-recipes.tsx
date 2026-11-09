@@ -12,6 +12,7 @@ import {
   PieCenter,
   PieChart,
   PieSlice,
+  PieTicks,
   Ring,
   RingCenter,
   RingChart,
@@ -414,6 +415,90 @@ export function ChannelGoals({
   );
 }
 `,
+    },
+  ],
+};
+
+/* -------------------------------------------------------------------------- */
+/* Tick ring                                                                  */
+/* -------------------------------------------------------------------------- */
+
+/** Foreground at stepped strengths — one grey per slice, like a dial face. */
+const MONO_STEPS = [92, 68, 48, 32, 22] as const;
+
+function monoTint(index: number) {
+  const step = MONO_STEPS[index % MONO_STEPS.length];
+  return `color-mix(in oklch, var(--foreground) ${step}%, transparent)`;
+}
+
+function TickRing({ data = recipePieData }: { data?: RecipePieRow[] }) {
+  const slices = data.map((item, index) => ({
+    ...item,
+    color: monoTint(index),
+  }));
+  return (
+    <div className={RADIAL_SHELL_CLASS}>
+      <PieChart data={slices} innerRadius={72}>
+        <PieTicks hoverEffect="tick" />
+        <PieCenter defaultLabel="Traffic" valueDisplay="percent" />
+      </PieChart>
+    </div>
+  );
+}
+
+export const tickRing: Recipe = {
+  id: "tick-ring",
+  title: "Tick ring",
+  category: "pie-ring",
+  description:
+    "A donut drawn as radial ticks that sweep in like a gauge — hover leaves a trail of rising ticks.",
+  look: "the donut is a ring of thin, evenly spaced radial ticks instead of solid slices, each slice a different strength of the foreground colour, with a one-tick gap between slices. On load the ticks light up one after another around the ring like a gauge filling. Moving the pointer across the ring makes the tick under it shoot outward and thicken, lifting its neighbours slightly, then settle slowly so a trail follows the pointer; the other slices dim and the centre shows the hovered slice's label and its share as a percentage.",
+  charts: [
+    {
+      id: "donut",
+      label: "Donut",
+      rootComponent: "PieChart",
+      Preview: TickRing,
+      install: ["pie-chart"],
+      steps: [
+        'Replace every `<PieSlice>` with a single `<PieTicks hoverEffect="tick" />` (from `@/components/charts/pie-ticks`) inside `<PieChart>`.',
+        "Make it a donut with room for the ticks: `innerRadius={72}` on `<PieChart>`.",
+        "Colour each slice a step of the foreground with `color-mix(in oklch, var(--foreground) N%, transparent)`, using N = 92, 68, 48, 32, 22 (cycling).",
+        'Add `<PieCenter defaultLabel="…" valueDisplay="percent" />` after the ticks for a gauge-style share readout.',
+      ],
+      code: `"use client";
+
+import { PieCenter } from "@/components/charts/pie-center";
+import { PieChart } from "@/components/charts/pie-chart";
+import { PieTicks } from "@/components/charts/pie-ticks";
+
+const steps = [92, 68, 48, 32, 22];
+
+export function TrafficRing({
+  data,
+}: {
+  data: { label: string; value: number }[];
+}) {
+  // One grey per slice, stepped down from the foreground colour.
+  const slices = data.map((item, index) => ({
+    ...item,
+    color: \`color-mix(in oklch, var(--foreground) \${steps[index % steps.length]}%, transparent)\`,
+  }));
+
+  return (
+    <div className="mx-auto aspect-square w-full max-w-[280px]">
+      <PieChart data={slices} innerRadius={72}>
+        <PieTicks hoverEffect="tick" />
+        <PieCenter defaultLabel="Traffic" valueDisplay="percent" />
+      </PieChart>
+    </div>
+  );
+}
+`,
+      editableData: editableData({
+        data: recipePieData,
+        render: (rows) => <TickRing data={rows} />,
+      }),
     },
   ],
 };

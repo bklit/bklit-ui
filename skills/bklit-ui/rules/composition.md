@@ -45,7 +45,7 @@ import { XAxis } from "@/components/charts/x-axis";
 | `ScatterChart` | `Scatter` | `XAxis` | colors default to `--chart-1…5` in child order; solid dots + opacity hover dim by default (rings via `strokeWidth`, blur via `inactiveMode="blur"`); `jitter` on the root spreads points that share a date (hover snaps to the nearest point; crosshair off by default); `formatXLabel` formats axis labels |
 | `CandlestickChart` | `Candlestick` | `XAxis` | |
 | `LiveLineChart` | `LiveLine` | `LiveXAxis`, `LiveYAxis` | never `Line` / `XAxis` |
-| `PieChart` | `PieSlice` per item | — | `PieCenter` for a center stat |
+| `PieChart` | `PieSlice` per item, or one `PieTicks` (tick ring) | — | `PieCenter` for a center stat (`valueDisplay="percent"` for shares) |
 | `RingChart` | `Ring` per item | — | `RingCenter` |
 | `RadarChart` | `RadarArea` per item | — | `RadarGrid`, `RadarAxis`, `RadarLabels` |
 | `HeatmapChart` | `HeatmapCells` | `HeatmapXAxis`, `HeatmapYAxis` | wrap in `HeatmapInteractionProvider` + `HeatmapInteractionBoundary`; `HeatmapLegend`, `HeatmapTooltip` |
