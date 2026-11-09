@@ -1,5 +1,6 @@
 "use client";
 
+import { bisector } from "d3-array";
 import type { Transition } from "motion/react";
 import { m } from "motion/react";
 import { memo, useMemo } from "react";
@@ -119,23 +120,25 @@ function computeGeometries(
   });
 }
 
+const CANDLE_FADE_STYLE = { transition: "opacity 0.15s ease-in-out" };
+
 function geometryDimOpacity(
   geometry: CandleGeometry,
   fadedOpacity: number,
-  legendHoveredIndex: number | null,
-  hoveredTime: number | null
+  legendHoveredIndex: number | null
 ): number {
-  if (legendHoveredIndex !== null) {
-    const dimFromLegend =
-      (legendHoveredIndex === 0 && !geometry.isPositive) ||
-      (legendHoveredIndex === 1 && geometry.isPositive);
-    return dimFromLegend ? fadedOpacity : 1;
+  if (legendHoveredIndex === null) {
+    return 1;
   }
-  if (hoveredTime !== null && geometry.time !== hoveredTime) {
-    return fadedOpacity;
-  }
-  return 1;
+  const dimFromLegend =
+    (legendHoveredIndex === 0 && !geometry.isPositive) ||
+    (legendHoveredIndex === 1 && geometry.isPositive);
+  return dimFromLegend ? fadedOpacity : 1;
 }
+
+const renderIndexForTime = bisector<CandleGeometry, number>(
+  (geometry) => geometry.time
+).left;
 
 const CandlestickBody = memo(function CandlestickBody({
   geometry,
@@ -208,12 +211,10 @@ const CandlestickBodies = memo(function CandlestickBodies({
   geometries,
   fadedOpacity,
   legendHoveredIndex,
-  hoveredTime,
 }: {
   geometries: CandleGeometry[];
   fadedOpacity: number;
   legendHoveredIndex: number | null;
-  hoveredTime: number | null;
 }) {
   return (
     <>
@@ -223,10 +224,9 @@ const CandlestickBodies = memo(function CandlestickBodies({
           opacity={geometryDimOpacity(
             geometry,
             fadedOpacity,
-            legendHoveredIndex,
-            hoveredTime
+            legendHoveredIndex
           )}
-          style={{ transition: "opacity 0.15s ease-in-out" }}
+          style={CANDLE_FADE_STYLE}
         >
           <CandlestickBody geometry={geometry} />
         </g>
@@ -319,6 +319,7 @@ export function Candlestick({
 }: CandlestickProps) {
   const {
     data,
+    renderData,
     xScale,
     xAccessor,
     animationDuration,
@@ -339,12 +340,15 @@ export function Candlestick({
   const hoveredCandleIndex =
     chartHoveredCandleIndex ?? tooltipData?.index ?? null;
   const ratio = Math.min(Math.max(widthRatio, 0.05), 1);
+  const candleData = inCandlestickChart ? renderData : data;
+  const slotsPerCandle =
+    candleData.length > 0 ? Math.max(1, data.length / candleData.length) : 1;
   const candleWidth = Math.max(
     1,
     Math.min(
       bandWidth ?? columnWidth * ratio,
       columnWidth || Number.POSITIVE_INFINITY
-    )
+    ) * slotsPerCandle
   );
   const resolvedPositiveFill =
     !inCandlestickChart && positiveFill === DEFAULT_POSITIVE
@@ -358,7 +362,7 @@ export function Candlestick({
   const geometries = useMemo(
     () =>
       computeGeometries(
-        data,
+        candleData,
         xScale,
         yScale,
         xAccessor,
@@ -370,7 +374,7 @@ export function Candlestick({
         insideStrokeWidth
       ),
     [
-      data,
+      candleData,
       xScale,
       yScale,
       xAccessor,
@@ -383,49 +387,17 @@ export function Candlestick({
     ]
   );
 
-  const hoveredTime = useMemo(() => {
-    if (hoveredCandleIndex == null) {
-      return null;
-    }
-    const point = data[hoveredCandleIndex];
-    return point ? xAccessor(point).getTime() : null;
-  }, [hoveredCandleIndex, data, xAccessor]);
-
   const highlightGeometry = useMemo(() => {
-    if (hoveredCandleIndex == null) {
+    if (hoveredCandleIndex == null || geometries.length === 0) {
       return null;
     }
     const point = data[hoveredCandleIndex];
     if (!point) {
       return null;
     }
-    return (
-      computeGeometries(
-        [point],
-        xScale,
-        yScale,
-        xAccessor,
-        candleWidth,
-        resolvedPositiveFill,
-        resolvedNegativeFill,
-        bodyPatternPositive,
-        bodyPatternNegative,
-        insideStrokeWidth
-      )[0] ?? null
-    );
-  }, [
-    hoveredCandleIndex,
-    data,
-    xScale,
-    yScale,
-    xAccessor,
-    candleWidth,
-    resolvedPositiveFill,
-    resolvedNegativeFill,
-    bodyPatternPositive,
-    bodyPatternNegative,
-    insideStrokeWidth,
-  ]);
+    const index = renderIndexForTime(geometries, xAccessor(point).getTime());
+    return geometries[index] ?? null;
+  }, [hoveredCandleIndex, data, geometries, xAccessor]);
 
   const defaultEnter: Transition = {
     type: "spring",
@@ -434,7 +406,7 @@ export function Candlestick({
   };
   const enter = enterTransition ?? defaultEnter;
   const staggerDelayMs =
-    data.length > 0 ? (animationDuration * 0.6) / data.length : 0;
+    geometries.length > 0 ? (animationDuration * 0.6) / geometries.length : 0;
 
   if (animate && !isLoaded) {
     return (
@@ -454,12 +426,20 @@ export function Candlestick({
 
   return (
     <g className="chart-candlesticks">
-      <CandlestickBodies
-        fadedOpacity={fadedOpacity}
-        geometries={geometries}
-        hoveredTime={showHoverFade ? hoveredTime : null}
-        legendHoveredIndex={legendHoveredIndex}
-      />
+      <g
+        opacity={
+          showHoverFade && highlightGeometry && legendHoveredIndex === null
+            ? fadedOpacity
+            : 1
+        }
+        style={CANDLE_FADE_STYLE}
+      >
+        <CandlestickBodies
+          fadedOpacity={fadedOpacity}
+          geometries={geometries}
+          legendHoveredIndex={legendHoveredIndex}
+        />
+      </g>
       {highlightGeometry ? (
         <g>
           <CandlestickBody geometry={highlightGeometry} />
