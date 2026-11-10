@@ -737,7 +737,7 @@ interface ChartExampleCardProps {
 }
 
 function ChartExampleCard({
-  footer = "Trending up by 5.2% this month",
+  footer,
   ...props
 }: ChartExampleCardProps) {
   return <ChartExampleFrame footer={footer} {...props} />;
