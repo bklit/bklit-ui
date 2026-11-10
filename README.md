@@ -291,11 +291,11 @@ The line and area charts also run in **React Native and Expo**. They use the sam
 <table>
   <tr>
     <td valign="middle" width="240">
-      <img src="apps/web/public/readme/react-native-expo-qr.svg" alt="QR code that opens the Bklit React Native demo in Expo Go" width="220" />
+      <a href="https://expo.dev/accounts/uixmat/projects/bklit-charts/builds/08a55ace-c04d-4501-80c1-8cb4d934fc7c"><img src="apps/web/public/readme/react-native-demo-qr.svg" alt="QR code that opens the install page for the Bklit React Native demo on Android" width="220" /></a>
     </td>
     <td valign="middle">
       <strong>Try it on your phone</strong><br />
-      Install <a href="https://expo.dev/go">Expo Go</a>, then scan the code with your camera to open the demo app.
+      On Android, scan the code with your camera or <a href="https://expo.dev/accounts/uixmat/projects/bklit-charts/builds/08a55ace-c04d-4501-80c1-8cb4d934fc7c">open the install page</a>, then tap Install. iPhone: coming soon on TestFlight.
     </td>
   </tr>
 </table>
@@ -308,7 +308,7 @@ npx shadcn@latest add @bklit/native-charts
 
 In an Expo project the CLI installs Skia, Reanimated and Gesture Handler with `npx expo install`, so you get versions that match your SDK. See the [React Native guide](https://ui.bklit.com/docs/react-native) for step-by-step setup.
 
-Contributors can run the demo app (`apps/mobile`, Node 22+) with `pnpm dev:mobile` and open it in Expo Go.
+Contributors can run the demo app (`apps/mobile`, Node 22+) with `pnpm dev:mobile` and open it in Expo Go. See [`apps/mobile/README.md`](apps/mobile/README.md) for publishing the demo builds.
 
 ## Repo activity
 
