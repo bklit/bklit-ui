@@ -736,10 +736,7 @@ interface ChartExampleCardProps {
   children: ReactNode;
 }
 
-function ChartExampleCard({
-  footer = "Trending up by 5.2% this month",
-  ...props
-}: ChartExampleCardProps) {
+function ChartExampleCard({ footer, ...props }: ChartExampleCardProps) {
   return <ChartExampleFrame footer={footer} {...props} />;
 }
 
