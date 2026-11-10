@@ -736,10 +736,7 @@ interface ChartExampleCardProps {
   children: ReactNode;
 }
 
-function ChartExampleCard({
-  footer,
-  ...props
-}: ChartExampleCardProps) {
+function ChartExampleCard({ footer, ...props }: ChartExampleCardProps) {
   return <ChartExampleFrame footer={footer} {...props} />;
 }
 
