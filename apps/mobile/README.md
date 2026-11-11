@@ -35,6 +35,11 @@ After a new Android build, update `DEMO_ANDROID_URL` in
 `apps/web/lib/expo-preview.ts`. Put the TestFlight public link in
 `DEMO_IOS_URL`.
 
+The root README links the same Android build: update its two links and
+regenerate `apps/web/public/readme/react-native-demo-qr.svg` by rendering
+`ChartQrCode` (`apps/web/components/docs/react-native/chart-qr-code.tsx`) to
+static markup.
+
 The `preview` profile builds `arm64-v8a` only, with Gradle limited to two
 workers, so it fits on the Free plan's build machine. The full four-ABI
 build ran out of memory.
