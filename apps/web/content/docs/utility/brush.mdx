@@ -13,18 +13,23 @@ import { OpenInStudioButton } from "@/components/docs/open-in-studio-button";
 
 ## Installation
 
-`ChartBrush` and `ChartBrushLayout` ship with time-series charts. Install the [area chart](/docs/components/area-chart) (or [line chart](/docs/components/line-chart)) registry item, then import from your charts package:
+Install the brush alongside an [area chart](/docs/components/area-chart) or [line chart](/docs/components/line-chart):
+
+<InstallationTabs name="brush" />
+
+```bash
+npx shadcn@latest add @bklit/area-chart @bklit/brush
+```
+
+Then import each piece from the file the CLI wrote:
 
 ```tsx
-import {
-  AreaChart,
-  Area,
-  ChartBrush,
-  ChartBrushLayout,
-  Grid,
-  XAxis,
-  ChartTooltip,
-} from "@/components/charts";
+import { AreaChart, Area } from "@/components/charts/area-chart";
+import { ChartBrush } from "@/components/charts/chart-brush";
+import { ChartBrushLayout } from "@/components/charts/chart-brush-layout";
+import { Grid } from "@/components/charts/grid";
+import { XAxis } from "@/components/charts/x-axis";
+import { ChartTooltip } from "@/components/charts/tooltip";
 ```
 
 ## Usage

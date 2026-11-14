@@ -236,8 +236,8 @@ Close alternate:
 - **Linked hover** — Hovering one element (a legend row, a ring) highlights the matching part of another. Bklit: share `hoveredIndex` / `onHoverChange` between `Legend` and `PieChart` / `RingChart` / `RadialChart` / `FunnelChart`.
 - **Scrubber** — A handle you drag around a radial chart to read values. Bklit: `RadialScrubber`.
 - **Drill-down** — Clicking a segment to zoom into its children. Bklit: `SunburstChart focusId` / `onFocusChange`; `ChoroplethChart clickToZoom`.
-- **Zoom / pan** — Wheel or drag to change the visible area. Bklit: choropleth only (`zoomEnabled`). No zoom on cartesian charts.
-- **Brush** — A draggable selection on a mini chart that sets the main chart's x range. Bklit: **No Bklit equivalent.** `ChartBrush` exists in Bklit's source but ships in no registry item; say so instead of inventing an install.
+- **Zoom / pan** — Wheel or drag to change the visible area. Bklit: choropleth only (`zoomEnabled`). Cartesian charts zoom through a **Brush** instead.
+- **Brush** — A draggable selection on a mini chart that sets the main chart's x range. Bklit: `ChartBrushLayout` + `ChartBrush` (`@bklit/brush`), for area and line charts with a date x axis.
 - **Responsive container** — The chart resizes to fill its parent. Bklit: built in; set the size on the wrapper, or use `aspectRatio` on the root.
 
 ### Motion and loading

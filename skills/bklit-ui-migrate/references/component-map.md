@@ -63,7 +63,7 @@ Docs: `https://bklit.com/docs/components/<slug>`.
 | `Area dataKey={[lo, hi]}` (range / BandedChart) | `Band` | `@bklit/line-chart` | `@/components/charts/band` | Split the range into two keys: `upperKey`, `lowerKey`. Inside `LineChart`, before the `Line` (no `Line` needed for a standalone range area). Tooltip shows `low – high` under `label`; `showInTooltip={false}` to hide. |
 | `ReferenceLine y={v}` | `Grid highlightRowValues={[v]}` | — | grid | Or a thin `ReferenceArea y1 y2`. |
 | `ReferenceDot` | `ChartMarkers` (approximation) | `@bklit/markers` | `@/components/charts/markers` | Date-anchored icon markers `{ date, icon, title }`, not an (x, y) dot. |
-| `Brush` | `ChartBrush` + `ChartBrushLayout` | **not in any registry item** | — | Source exists in bklit; not installable via shadcn. Treat as a gap. |
+| `Brush` | `ChartBrush` + `ChartBrushLayout` | `@bklit/brush` | `@/components/charts/chart-brush`, `@/components/charts/chart-brush-layout` | Time-series area / line only. Wraps the chart instead of nesting inside it; see `rules/gaps.md`. |
 | `defs > linearGradient` | `Area` built-in gradient, or a gradient child + `fill="url(#id)"` | — | — | See `prop-map.md`. |
 | `LabelList` on `Bar` / `Area` | `showValue` on `Bar` / `Area` | — | — | Built-in value labels; see `rules/gaps.md`. |
 | `LabelList` (other series), `Label` (cartesian), `ErrorBar`, `Customized`, `ZAxis` | — | — | — | See `rules/gaps.md`. |

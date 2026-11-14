@@ -105,7 +105,7 @@ so prefer the user's installed version if it disagrees.
 | Per-datum color | `Cell` | `colors` fn | `getDatumStyle` | `fill` channel | fill accessor | `BarSquares colorKey`, `BarLollipop colorKey`, one `PieSlice` each |
 | Nearest-point hover | `Tooltip shared` | `useMesh`, `enableSlices` | `interactionMode: 'closest'` | `focus: 'nearest-x'` | `d3-delaunay` | built in |
 | Synced hover | `syncId` | — | — | linked selection | — | `hoveredIndex` / `onHoverChange` (legend ↔ radial); `useSparklineHover` |
-| Brush | `Brush` | — | `brush.onSelect` | `brushX` | `d3.brushX()` | — (`ChartBrush` exists in source but not in the registry) |
+| Brush | `Brush` | — | `brush.onSelect` | `brushX` | `d3.brushX()` | `ChartBrushLayout` + `ChartBrush` (`@bklit/brush`) |
 | Zoom / pan | — | — | — | `zoomX` | `d3.zoom()` | `ChoroplethChart zoomEnabled` only |
 | Responsive | `ResponsiveContainer` | `ResponsiveLine`… | fills parent | observes container | `viewBox` / ResizeObserver | built in; `aspectRatio` |
 | Animation | `isAnimationActive`, `animationDuration` | `animate`, `motionConfig` | built-in | `svgAnimation` | `.transition().duration()` | `animate`, `animationDuration`, `enterTransition` |
@@ -128,7 +128,7 @@ before you translate a word.
 - **label**: an RC3 series `label` is the **series name**. Recharts `label` on a series turns on **data labels**. Nivo `label` is an accessor for label text.
 - **type**: Recharts `Line type` is the **curve**. Recharts `XAxis type` is number vs category. Nivo `xScale.type` is the **scale**.
 - **Band**: d3 `scaleBand` is a **category scale**. Bklit `Band` is a **range area** between two keys.
-- **Brush**: Recharts `Brush` is an **index slider** under the chart. d3-brush is a **pixel drag selection**. Bklit's `ChartBrush` is not installable from the registry.
+- **Brush**: Recharts `Brush` is an **index slider** under the chart. d3-brush is a **pixel drag selection**. Bklit's `ChartBrush` (`@bklit/brush`) is a **time-range** selection on a mini chart, driving the main chart's `xDomain`.
 - **bump / step**: Recharts `type="bump"` and d3 `curveBumpX` are **curve shapes**. Nivo `Bump` is a **ranking chart**. "Step" is always a curve, never a chart component.
 - **Stack offsets**: "100%" is `expand` in d3, Recharts and Nivo, but `normalize` in TS1. "Positives up, negatives down" is `diverging` in most libraries, but `sign` in Recharts.
 - **Angles**: Recharts uses **degrees, 0 at 3 o'clock, counter-clockwise**. d3, TS1 and Bklit use **radians, 0 at 12 o'clock, clockwise**. Bklit `Gauge` angles are degrees.

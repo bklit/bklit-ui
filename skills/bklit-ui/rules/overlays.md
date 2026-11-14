@@ -170,9 +170,32 @@ Textured plot fill instead of (or with) `Grid`: `<Background pattern="diagonal-u
 
 `<Grid horizontal />` (also `vertical`, `numTicksRows`, `strokeDasharray`). Highlight a baseline with `highlightRowValues={[0]}`. `shimmer` animates it while loading.
 
-## Brush — not in the registry
+## Brush — `@bklit/brush`
 
-`ChartBrush` / `ChartBrushLayout` (time-range zoom strip, docs: https://bklit.com/docs/utility/brush) are **not** shipped by any `@bklit/*` item, including `area-chart` and `line-chart`. Don't invent `@bklit/brush` or import `ChartBrush` from `components/charts`. Tell the user it isn't installable yet; the charts do accept `xDomain` / `xDomainSlotCount` / `tweenYDomainOnXDomainChange`, so a custom range control can drive zoom.
+Time-range zoom for `AreaChart` / `LineChart`: a mini chart strip with a draggable selection and handles. `npx shadcn@latest add @bklit/brush`, then import `ChartBrush` from `@/components/charts/chart-brush` and `ChartBrushLayout` from `@/components/charts/chart-brush-layout`. Docs: https://bklit.com/docs/utility/brush.
+
+`ChartBrushLayout` wraps the main chart (a render function receiving the layout) and renders `brushStrip` below it. Put `ChartBrush` inside the strip's own simplified chart, and pass the layout's `xDomain` / `xDomainSlotCount` to the main chart:
+
+```tsx
+<ChartBrushLayout data={data} enabled height={72}
+  brushStrip={(layout) => (
+    <AreaChart data={data} animationDuration={0} style={{ aspectRatio: "unset", height: "100%" }}>
+      <Area dataKey="value" fillOpacity={0.15} animate={false} showHighlight={false} />
+      <ChartBrush initialSelection={layout.brushSelection ?? undefined} onSelectionChange={layout.onBrushSelectionChange} />
+    </AreaChart>
+  )}>
+  {(layout) => (
+    <AreaChart data={data} xDomain={layout.xDomain} xDomainSlotCount={layout.xDomainSlotCount} tweenYDomainOnXDomainChange yDomainTween>
+      <Grid horizontal />
+      <Area dataKey="value" />
+      <XAxis />
+      <ChartTooltip />
+    </AreaChart>
+  )}
+</ChartBrushLayout>
+```
+
+The selection border uses `--chart-brush-border`. Brush zoom and `ProjectionLine` are not supported together.
 
 ## Profit / loss, bar depth, stat flow
 

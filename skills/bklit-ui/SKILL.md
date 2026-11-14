@@ -110,7 +110,6 @@ import { chartCssVars } from "@/components/charts/chart-context";
 
 ### Overlays → [overlays.md](./rules/overlays.md)
 - `ChartMarkers` is a **sibling** of `ChartTooltip`; marker hover content goes inside `ChartTooltip` children.
-- `ChartBrush` has **no registry item** — don't promise `@bklit/brush`.
 - `TrendLine` (`@bklit/trend-line`) fits an existing series' `dataKey`; place it after that series (line, area, bar incl. horizontal, composed).
 
 ### Animation and loading → [animation.md](./rules/animation.md), [loading.md](./rules/loading.md)
@@ -157,9 +156,9 @@ All items install with `npx shadcn@latest add @bklit/<item>`. For any `<item>`:
 
 ### Add-ons (most install automatically as dependencies)
 
-`grid`, `x-axis`, `y-axis` (not pulled in by line/area — add it for a value axis), `chart-tooltip`, `legend`, `markers`, `background`, `patterns`, `reference-area`, `projection-line`, `trend-line` (least-squares trend overlay for line/area/bar/composed), `weekends` (shade weekend spans on a date axis), `deadline` (due-date line + shaded region after it), `chart-crosshair` (free crosshair with a y-value pill), `band` (range / Bollinger band on `LineChart`; already in `line-chart`), `bar-depth` (3D/extruded bars on `BarChart`), `chart-stat-flow` (animated stat number used by pie/ring/gauge centers and stat cards). Internal plumbing items (`chart-context`, `chart-animation`, `chart-series`, `chart-utils`, `chart-parent-size`, `utils`, `shimmering-text`) come in automatically.
+`grid`, `x-axis`, `y-axis` (not pulled in by line/area — add it for a value axis), `chart-tooltip`, `legend`, `markers`, `background`, `patterns`, `reference-area`, `projection-line`, `trend-line` (least-squares trend overlay for line/area/bar/composed), `weekends` (shade weekend spans on a date axis), `deadline` (due-date line + shaded region after it), `chart-crosshair` (free crosshair with a y-value pill), `brush` (time-range zoom strip for area / line), `band` (range / Bollinger band on `LineChart`; already in `line-chart`), `bar-depth` (3D/extruded bars on `BarChart`), `chart-stat-flow` (animated stat number used by pie/ring/gauge centers and stat cards). Internal plumbing items (`chart-context`, `chart-animation`, `chart-series`, `chart-utils`, `chart-parent-size`, `utils`, `shimmering-text`) come in automatically.
 
-**Brush:** `ChartBrush` / `ChartBrushLayout` (docs: `/docs/utility/brush`) are **not** in any registry item today. If the user needs brush zoom, say so and point to the docs/source rather than inventing an install command.
+**Brush:** `@bklit/brush` installs `ChartBrush` / `ChartBrushLayout` (time-range zoom strip for area and line charts, docs: `/docs/utility/brush`). See [overlays.md](./rules/overlays.md#brush--bklitbrush).
 
 ### Blocks (stat cards; browse at https://bklit.com/blocks)
 

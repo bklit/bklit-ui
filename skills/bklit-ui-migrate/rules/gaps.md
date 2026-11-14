@@ -157,7 +157,25 @@ No cross-chart hover sync. Drop `syncId` (each chart hovers independently) or ke
 
 ## `Brush` — needs-workaround
 
-`ChartBrush`/`ChartBrushLayout` exist in bklit's source, but **no `@bklit/*` registry item ships them**, so `npx shadcn add` cannot install them. Do not import `@/components/charts/chart-brush`. Drop the brush (offer a date-range select that slices `data`), or keep Recharts.
+Install `@bklit/brush` (`ChartBrush`, `ChartBrushLayout`). It works on time-series `AreaChart` / `LineChart`, so a Recharts brush over a category axis still needs dates first. The structure changes: Recharts nests `<Brush>` inside the chart, while Bklit wraps the main chart in `ChartBrushLayout` and renders a separate mini chart in `brushStrip` with `ChartBrush` inside it:
+
+```tsx
+<ChartBrushLayout data={data} enabled height={72}
+  brushStrip={(layout) => (
+    <AreaChart data={data} animationDuration={0} style={{ aspectRatio: "unset", height: "100%" }}>
+      <Area dataKey="value" animate={false} showHighlight={false} />
+      <ChartBrush initialSelection={layout.brushSelection ?? undefined} onSelectionChange={layout.onBrushSelectionChange} />
+    </AreaChart>
+  )}>
+  {(layout) => (
+    <AreaChart data={data} xDomain={layout.xDomain} xDomainSlotCount={layout.xDomainSlotCount} tweenYDomainOnXDomainChange yDomainTween>
+      …
+    </AreaChart>
+  )}
+</ChartBrushLayout>
+```
+
+Recharts `startIndex` / `endIndex` have no direct prop; start with the full range (or set `initialSelection` from the installed `chart-brush.tsx` types). Brush and `ProjectionLine` can't be combined.
 
 ## `ReferenceLine` / `ReferenceDot` — needs-workaround
 

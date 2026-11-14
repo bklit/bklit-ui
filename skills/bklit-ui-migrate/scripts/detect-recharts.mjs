@@ -635,7 +635,7 @@ function classifyChart(root, inner) {
     ZAxis: [KEEP, "ZAxis (bubble size) has no bklit equivalent"],
     Brush: [
       WORKAROUND,
-      "Brush -> ChartBrush/ChartBrushLayout exist in bklit source but are not shipped by any @bklit registry item",
+      "Brush -> @bklit/brush (ChartBrush + ChartBrushLayout); time x only, restructure into ChartBrushLayout with a mini chart",
     ],
     ReferenceLine: [
       WORKAROUND,
