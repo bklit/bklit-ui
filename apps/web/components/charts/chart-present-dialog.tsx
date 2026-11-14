@@ -63,12 +63,14 @@ import { cn } from "@/lib/utils";
 
 /**
  * Social export formats, as final PNG pixels. The export canvas is laid out at
- * half these in CSS px (540×540 / 540×675) and rasterised at 2x, so the PNG is
- * exactly what the dialog shows.
+ * half these in CSS px (540×540 / 540×675 / 960×540) and rasterised at 2x, so
+ * the PNG is exactly what the dialog shows. Landscape 16:9 is the ratio X shows
+ * uncropped in the feed.
  */
 export const CHART_PRESENT_FORMATS = {
   square: { label: "Square", ratio: "1:1", width: 1080, height: 1080 },
   portrait: { label: "Portrait", ratio: "4:5", width: 1080, height: 1350 },
+  landscape: { label: "Landscape", ratio: "16:9", width: 1920, height: 1080 },
 } as const;
 
 export type ChartPresentFormat = keyof typeof CHART_PRESENT_FORMATS;
