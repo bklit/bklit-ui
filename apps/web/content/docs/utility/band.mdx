@@ -1,6 +1,6 @@
 ---
 title: Band
-description: Shaded range between per-row upper and lower values on a line chart — range area charts, min/max ranges, confidence intervals, and Bollinger bands
+description: Shaded range between per-row upper and lower values on a line chart — range area charts, min/max ranges, confidence intervals, Bollinger bands, and two-tone gap fills between two series
 ---
 
 import { studioChartHref } from "@bklitui/studio";
@@ -9,6 +9,7 @@ import {
   BandEdgeStrokesDemo,
   BandFadeEdgesDemo,
   BandFillTypeDemo,
+  BandNegativeFillDemo,
   BandRangeAreaDemo,
   BandRangeComboDemo,
   BandRangeDemo,
@@ -180,6 +181,34 @@ const bollingerData = withBollingerBands(data, {
   <BandFillTypeDemo />
 </ComponentShowcase>
 
+## Gap fill between two lines
+
+Point `upperKey` and `lowerKey` at two **series** instead of a range — actual vs projected, this year vs last year — and the band shades the gap between the lines. `strokeWidth={0}` drops the band's own edges so the two `<Line>`s are the edges.
+
+Add `negativeFill` to colour the stretches where `upperKey` drops **below** `lowerKey`. The colour switches exactly where the lines cross (the fill is clipped along the animated lower edge, so it stays in sync while the band morphs), and it works with every `fillType`. Use the profit / loss token for an ahead / behind read.
+
+<ComponentShowcase code={`<LineChart data={data}>
+  <Grid horizontal />
+  <Band
+    upperKey="actual"
+    lowerKey="projected"
+    label="Gap"
+    fill="var(--chart-1)"
+    negativeFill="var(--chart-negative, var(--color-red-500))"
+    fillType="solid" // "solid" | "gradient" | "pattern"
+    fillOpacity={0.25}
+    strokeWidth={0}
+  />
+  <Line dataKey="projected" stroke="var(--chart-1)" strokeWidth={1.5} dashFromIndex={0} dashArray="4,4" />
+  <Line dataKey="actual" stroke="var(--chart-1)" strokeWidth={2} />
+  <XAxis />
+  <ChartTooltip />
+</LineChart>`} liveChartPreview previewMinHeight={360}>
+  <BandNegativeFillDemo />
+</ComponentShowcase>
+
+See the [Gap fill](/recipes#gap-fill) and [Year over year](/recipes#year-over-year) recipes for dashed-projection and dotted-last-year styles.
+
 ## Edges
 
 ### Faded edges
@@ -226,6 +255,7 @@ Both edges share `stroke`, `strokeWidth`, `strokeDasharray`, and `strokeOpacity`
 | `showInTooltip` | `boolean` | `true` | Add a `low – high` row and edge dots to `ChartTooltip` |
 | `curve` | `CurveFactory` | `curveNatural` | D3 curve function (match your `Line`) |
 | `fill` | `string` | `var(--chart-line-primary)` | Band color (also the tooltip swatch and edge dots) |
+| `negativeFill` | `string` | — | Fill where `upperKey` drops below `lowerKey` (series cross). Reuses `fillType`, opacities and `pattern` |
 | `fillType` | `"solid" \| "gradient" \| "pattern"` | `"solid"` | Fill style |
 | `fillOpacity` | `number` | `0.15` | Solid opacity, or gradient opacity at the upper edge |
 | `gradientToOpacity` | `number` | `0` | Gradient opacity at the lower edge |

@@ -203,6 +203,8 @@ import { ProjectionLineDemo } from "@/components/docs/projection-line-demo";
 import { sunburstDemoData } from "@/components/docs/sunburst-chart-demo-data";
 import { SunburstDrillBreadcrumb } from "@/components/docs/sunburst-drill-breadcrumb";
 import { useWorldDataStandalone } from "@/components/docs/use-world-data";
+import { gapFill } from "@/components/recipes/definitions/gap-fill";
+import { yearOverYear } from "@/components/recipes/definitions/year-over-year";
 import {
   Select,
   SelectItem,
@@ -221,6 +223,7 @@ import {
   composedStackedData,
 } from "@/lib/composed-demo-data";
 import { getHeatmapDemoData } from "@/lib/heatmap-demo-data";
+import type { Recipe } from "@/lib/recipes/types";
 import {
   formatLoc,
   formatPrMonth,
@@ -3388,6 +3391,20 @@ ${COMPOSED_FEATURED_CODE}`,
   };
 }
 
+/** Gallery example backed by a recipe chart, so code and preview stay in sync. */
+function recipeChartExample(
+  recipe: Recipe,
+  chartId: string,
+  example: Pick<ChartExample, "title" | "description" | "footer">
+): ChartExample {
+  const chart = recipe.charts.find((item) => item.id === chartId);
+  if (!chart) {
+    throw new Error(`Recipe ${recipe.id} has no chart "${chartId}"`);
+  }
+  const { Preview } = chart;
+  return { ...example, code: chart.code, render: () => <Preview /> };
+}
+
 function makeLineExamples(): ChartExample[] {
   return [
     {
@@ -3731,6 +3748,20 @@ import {
       footer: "Legend below the chart, centered",
       render: () => <ProfitLossLineExampleWithState />,
     },
+    recipeChartExample(gapFill, "two-tone", {
+      title: "Line Chart - Gap Fill",
+      description:
+        "Actual vs a dashed projection, with the gap shaded in the series colour while ahead and the negative colour while behind",
+      footer:
+        "`<Band negativeFill>` switches colour exactly where the lines cross. See [Band](/docs/utility/band#gap-fill-between-two-lines).",
+    }),
+    recipeChartExample(yearOverYear, "pattern", {
+      title: "Line Chart - Year over Year",
+      description:
+        "This year as a jagged solid line against last year's dotted line, with a hatched gap between them",
+      footer:
+        "Pattern, gradient and ahead / behind variants on [Recipes](/recipes#year-over-year).",
+    }),
     ...makeCartesianBackgroundExamples({
       titlePrefix: "Line Chart",
       chartOpen:

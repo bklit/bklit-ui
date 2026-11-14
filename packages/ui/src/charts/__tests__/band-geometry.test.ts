@@ -1,6 +1,11 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { computeBandSegments, resolveBandFadeSides } from "../band-geometry";
+import { curveLinear } from "d3-shape";
+import {
+  bandEdgeClipPath,
+  computeBandSegments,
+  resolveBandFadeSides,
+} from "../band-geometry";
 import { computeYDomainsByAxis } from "../y-domain-utils";
 
 describe("computeBandSegments", () => {
@@ -57,5 +62,33 @@ describe("computeYDomainsByAxis extraKeysByAxis", () => {
     });
     assert.deepEqual(seen, [["mid", "hi", "lo"], ["r1"]]);
     assert.deepEqual(Object.keys(domains).sort(), ["left", "right"]);
+  });
+});
+
+describe("bandEdgeClipPath", () => {
+  const segments = [
+    [
+      { x: 0, upper: 10, lower: 20, key: "a" },
+      { x: 50, upper: 30, lower: 25, key: "b" },
+    ],
+    [{ x: 80, upper: 5, lower: 6, key: "c" }],
+    [
+      { x: 100, upper: 5, lower: 15, key: "d" },
+      { x: 120, upper: 8, lower: 12, key: "e" },
+    ],
+  ];
+
+  it("closes each multi-point segment's edge off the top for 'above'", () => {
+    assert.equal(
+      bandEdgeClipPath(segments, "lower", "above", curveLinear, 300),
+      "M0,20L50,25L50,-300L0,-300ZM100,15L120,12L120,-300L100,-300Z"
+    );
+  });
+
+  it("closes off the bottom for 'below'", () => {
+    assert.equal(
+      bandEdgeClipPath(segments, "lower", "below", curveLinear, 300),
+      "M0,20L50,25L50,300L0,300ZM100,15L120,12L120,300L100,300Z"
+    );
   });
 });
