@@ -5,6 +5,7 @@ import {
   Bar,
   BarChart,
   BarColumnTrack,
+  BarLollipop,
   BarSquares,
   BarXAxis,
   BarYAxis,
@@ -50,7 +51,7 @@ import { StudioReferenceAreaLayer } from "@/components/charts/studio-reference-a
 import { StudioTrendLineLayer } from "@/components/charts/studio-trend-line-layer";
 import { SunburstStudioPreview } from "@/components/charts/sunburst-studio-preview";
 import { fadeEdgesPropValue } from "@/components/controls/fade-edges-picker";
-import { isBarShapeVariant } from "./bar-shape-variant";
+import { isBarLollipopVariant, isBarShapeVariant } from "./bar-shape-variant";
 import {
   getStudioCssRevealPropsForPreview,
   motionSliceFromState,
@@ -406,6 +407,8 @@ const barConfig: StudioChartConfig = {
     const seriesCount = clampStudioSeriesCount(state.dataSeries);
     // barSeriesMode "single" is treated as grouped when dataSeries > 1.
     const stacked = seriesCount > 1 && state.barSeriesMode === "stacked";
+    const isLollipopVariant =
+      isBarLollipopVariant(state) && !horizontal && !isLoading && !stacked;
     const lineCap = state.barLineCap;
     const seriesFillAt = (idx: number) =>
       ctx.patternFillAt(idx) ?? `var(--chart-${(idx % 5) + 1})`;
@@ -443,7 +446,23 @@ const barConfig: StudioChartConfig = {
 
     let barSeriesLayers: ReactNode = null;
     if (!isLoading) {
-      if (isShapeVariant && !stacked) {
+      if (isLollipopVariant) {
+        barSeriesLayers = seriesKeys.map((key, idx) =>
+          seriesVisible(idx) ? (
+            <BarLollipop
+              dataKey={key}
+              fill={seriesStrokeAt(idx)}
+              groupGap={state.groupGap}
+              key={key}
+              radius={state.barLollipopRadius}
+              showBaseline={state.barLollipopBaseline}
+              showHighlight={state.barLollipopHighlight}
+              stemDasharray={state.barLollipopDashed ? "4,4" : ""}
+              yAxisId={getLineSeriesYAxisId(state, idx)}
+            />
+          ) : null
+        );
+      } else if (isShapeVariant && !stacked) {
         barSeriesLayers = seriesKeys.map((key, idx) =>
           seriesVisible(idx) ? (
             <BarSquares
@@ -582,6 +601,8 @@ const barConfig: StudioChartConfig = {
                 <ChartTooltip
                   {...chartTooltipPropsFromState(state, {
                     showCrosshair: state.barShowCrosshair,
+                    // The lollipop dot already marks the hovered value.
+                    ...(isLollipopVariant ? { showDots: false } : {}),
                   })}
                 />
               </StudioVisibleLayer>

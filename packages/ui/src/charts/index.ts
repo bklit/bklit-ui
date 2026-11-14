@@ -54,6 +54,7 @@ export {
   type BarPulseProps,
   useBarDepthEntries,
 } from "./bar-depth";
+export { BarLollipop, type BarLollipopProps } from "./bar-lollipop";
 export {
   BarColumnTrack,
   type BarColumnTrackProps,

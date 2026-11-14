@@ -7,9 +7,12 @@ import {
 } from "@/components/controls/studio-toggle-group";
 import { Label } from "@/ui/label";
 
-export type BarShapeValue = "classic" | "shape";
+export type BarShapeValue = "classic" | "shape" | "lollipop";
 
 export function normalizeBarVariant(value: string): BarShapeValue {
+  if (value === "lollipop") {
+    return "lollipop";
+  }
   return value === "shape" || value === "squares" ? "shape" : "classic";
 }
 
@@ -34,6 +37,7 @@ export function BarShapeToggle({
       >
         <StudioToggleGroupItem value="classic">Classic</StudioToggleGroupItem>
         <StudioToggleGroupItem value="shape">Shape</StudioToggleGroupItem>
+        <StudioToggleGroupItem value="lollipop">Lollipop</StudioToggleGroupItem>
       </StudioToggleGroup>
     </div>
   );

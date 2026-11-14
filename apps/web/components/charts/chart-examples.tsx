@@ -13,6 +13,7 @@ import {
   BarDepthBack,
   BarDepthFront,
   BarDepthProvider,
+  BarLollipop,
   BarSquares,
   BarXAxis,
   BarYAxis,
@@ -523,6 +524,15 @@ const barProfitLossDataSnippet = `const chartData = [
   { month: "Jul", profit: 3800 },
   { month: "Aug", profit: 6200 },
 ];`;
+
+const barLollipopPositiveColor = "var(--chart-positive)";
+const barLollipopNegativeColor = "var(--chart-negative)";
+
+/** Profit rows with a per-row dot color for `<BarLollipop colorKey>`. */
+const barLollipopProfitLossData = barProfitLossData.map((row) => ({
+  ...row,
+  color: row.profit >= 0 ? barLollipopPositiveColor : barLollipopNegativeColor,
+}));
 
 const barDailyData = Array.from({ length: 60 }, (_, i) => {
   const date = new Date(2024, 0, 1);
@@ -2317,6 +2327,50 @@ function makeBarExamples(): ChartExample[] {
           <Bar dataKey="profit" lineCap={4} />
           <BarXAxis />
           <ChartTooltip />
+        </BarExampleChart>
+      ),
+    },
+    {
+      title: "Bar Chart - Lollipop",
+      description:
+        "Dashed hairline stems with a dot at each value; hovering a month lights a soft column pill",
+      code: `<BarChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={chartData} xDataKey="month">
+  <Grid horizontal strokeDasharray="3,4" />
+  <BarLollipop dataKey="revenue" />
+  <BarXAxis />
+  <ChartTooltip showCrosshair={false} showDots={false} />
+</BarChart>`,
+      render: () => (
+        <BarExampleChart data={barRevenueData} xDataKey="month">
+          <Grid horizontal strokeDasharray="3,4" />
+          <BarLollipop dataKey="revenue" />
+          <BarXAxis />
+          <ChartTooltip showCrosshair={false} showDots={false} />
+        </BarExampleChart>
+      ),
+    },
+    {
+      title: "Bar Chart - Lollipop Profit & Loss",
+      description:
+        "Diverging lollipops from a solid zero line, dots colored per row with colorKey",
+      code: `const rows = chartData.map((row) => ({
+  ...row,
+  color: row.profit >= 0 ? "var(--chart-positive)" : "var(--chart-negative)",
+}));
+
+<BarChart margin={{ top: 8, right: 8, bottom: 40, left: 8 }} data={rows} xDataKey="month">
+  <Grid horizontal strokeDasharray="3,4" />
+  <BarLollipop colorKey="color" dataKey="profit" />
+  <BarXAxis />
+  <ChartTooltip showCrosshair={false} showDots={false} />
+</BarChart>`,
+      data: barProfitLossDataSnippet,
+      render: () => (
+        <BarExampleChart data={barLollipopProfitLossData} xDataKey="month">
+          <Grid horizontal strokeDasharray="3,4" />
+          <BarLollipop colorKey="color" dataKey="profit" />
+          <BarXAxis />
+          <ChartTooltip showCrosshair={false} showDots={false} />
         </BarExampleChart>
       ),
     },

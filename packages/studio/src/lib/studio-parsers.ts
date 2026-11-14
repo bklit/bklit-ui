@@ -156,9 +156,20 @@ export const studioSearchParams = {
   ),
   /** Bar charts hide the tooltip crosshair line by default. */
   barShowCrosshair: parseAsBoolean.withDefault(false),
-  barVariant: parseAsStringLiteral(["classic", "shape", "squares"]).withDefault(
-    "classic"
-  ),
+  barVariant: parseAsStringLiteral([
+    "classic",
+    "shape",
+    "squares",
+    "lollipop",
+  ]).withDefault("classic"),
+  /** Lollipop variant: dot radius in px. */
+  barLollipopRadius: parseAsInteger.withDefault(6),
+  /** Lollipop variant: dashed (true) or solid stems. */
+  barLollipopDashed: parseAsBoolean.withDefault(true),
+  /** Lollipop variant: rounded pill behind the hovered column. */
+  barLollipopHighlight: parseAsBoolean.withDefault(true),
+  /** Lollipop variant: solid zero line. */
+  barLollipopBaseline: parseAsBoolean.withDefault(true),
   barSquareGap: parseAsInteger.withDefault(3),
   barSquareRadius: parseAsFloat.withDefault(0.25),
   /** @deprecated Ignored — gradient lives in Fill popover */
@@ -945,7 +956,11 @@ export interface StudioUrlState {
   barLineCap: "round" | "butt";
   barOrientation: "vertical" | "horizontal";
   barShowCrosshair: boolean;
-  barVariant: "classic" | "shape" | "squares";
+  barVariant: "classic" | "shape" | "squares" | "lollipop";
+  barLollipopRadius: number;
+  barLollipopDashed: boolean;
+  barLollipopHighlight: boolean;
+  barLollipopBaseline: boolean;
   barSquareGap: number;
   barSquareRadius: number;
   /** @deprecated Ignored — gradient lives in Fill popover */
@@ -1522,6 +1537,10 @@ export function defaultStudioState(
     barOrientation: "vertical",
     barShowCrosshair: false,
     barVariant: "classic",
+    barLollipopRadius: 6,
+    barLollipopDashed: true,
+    barLollipopHighlight: true,
+    barLollipopBaseline: true,
     barSquareGap: 3,
     barSquareRadius: 0.25,
     barSquareFillMode: "solid",
