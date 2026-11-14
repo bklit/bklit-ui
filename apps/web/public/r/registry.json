@@ -621,6 +621,50 @@
       ]
     },
     {
+      "name": "brush",
+      "type": "registry:component",
+      "title": "Brush",
+      "description": "Time-range brush for zooming area and line charts: a mini-chart strip with a draggable selection and handles (ChartBrush, ChartBrushLayout)",
+      "registryDependencies": [
+        "@bklit/chart-context",
+        "@bklit/patterns",
+        "@bklit/utils"
+      ],
+      "dependencies": [],
+      "files": [
+        {
+          "path": "src/charts/chart-brush.tsx",
+          "type": "registry:component",
+          "target": "components/charts/chart-brush.tsx"
+        },
+        {
+          "path": "src/charts/chart-brush-handle.tsx",
+          "type": "registry:component",
+          "target": "components/charts/chart-brush-handle.tsx"
+        },
+        {
+          "path": "src/charts/chart-brush-layout.tsx",
+          "type": "registry:component",
+          "target": "components/charts/chart-brush-layout.tsx"
+        },
+        {
+          "path": "src/charts/chart-brush-selection-overlay.tsx",
+          "type": "registry:component",
+          "target": "components/charts/chart-brush-selection-overlay.tsx"
+        },
+        {
+          "path": "src/charts/chart-brush-state.ts",
+          "type": "registry:component",
+          "target": "components/charts/chart-brush-state.ts"
+        },
+        {
+          "path": "src/charts/chart-brush-track-overlay.tsx",
+          "type": "registry:component",
+          "target": "components/charts/chart-brush-track-overlay.tsx"
+        }
+      ]
+    },
+    {
       "name": "patterns",
       "type": "registry:component",
       "title": "Patterns",

@@ -329,4 +329,4 @@ Ring tracks use `--border`.
 - Per-bar colours on plain `Bar` — use `BarSquares colorKey`, `BarDepthBack colorAccessor`, or separate series.
 - `BarSquares` / `BarColumnTrack` / `BarLollipop` in horizontal or stacked bar charts — they render nothing.
 - Value labels on `Line`, `Scatter` or `SeriesBar` — no prop; use the tooltip or a custom SVG layer reading `useChart()`. (`Bar` and `Area` have `showValue`; see "Value labels".)
-- Brush / range selection (`ChartBrush`, `SegmentBackground`) — not shipped in the public registry items.
+- Segment selection (`SegmentBackground`) — not shipped in the public registry items. (Brush zoom ships as `@bklit/brush`.)
