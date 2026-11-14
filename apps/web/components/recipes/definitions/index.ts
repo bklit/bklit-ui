@@ -27,6 +27,7 @@ import { gradientGlow } from "./gradient-glow";
 import { hatchedBackdrop } from "./hatched-backdrop";
 import { heatmapDotCalendar, heatmapWorkweek } from "./heatmaps";
 import { kpiSparklines } from "./kpi-sparklines";
+import { lollipopPnl } from "./lollipop-pnl";
 import { monochrome } from "./monochrome";
 import { linkedLegend, patternedSlices, tickRing } from "./pie-recipes";
 import { projectionLine } from "./projection-line";
@@ -54,6 +55,7 @@ export const recipes: Recipe[] = [
   gradientGlow,
   monochrome,
   squircleBars,
+  lollipopPnl,
   quietSparkline,
   customIndicators,
   eventMarkers,

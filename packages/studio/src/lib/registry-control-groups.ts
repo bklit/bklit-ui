@@ -1601,6 +1601,32 @@ export const barChartControlGroups: StudioControlGroup[] = [
         step: 0.05,
         visibleWhen: { key: "barVariant", equals: ["shape", "squares"] },
       },
+      {
+        type: "number",
+        key: "barLollipopRadius",
+        label: "Dot radius",
+        min: 2,
+        max: 12,
+        visibleWhen: { key: "barVariant", equals: ["lollipop"] },
+      },
+      {
+        type: "boolean",
+        key: "barLollipopDashed",
+        label: "Dashed stems",
+        visibleWhen: { key: "barVariant", equals: ["lollipop"] },
+      },
+      {
+        type: "boolean",
+        key: "barLollipopHighlight",
+        label: "Hover pill",
+        visibleWhen: { key: "barVariant", equals: ["lollipop"] },
+      },
+      {
+        type: "boolean",
+        key: "barLollipopBaseline",
+        label: "Zero line",
+        visibleWhen: { key: "barVariant", equals: ["lollipop"] },
+      },
     ],
     true
   ),

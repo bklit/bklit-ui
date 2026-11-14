@@ -970,8 +970,12 @@ function barReadyCodegen(
       ? ""
       : `\n  ${patternCodegenBlock(state.pattern, { scale: getSeriesPipeValue(state, "patternScale", 0) })}`;
 
+  const isLollipop = state.barVariant === "lollipop" && !horizontal && !stacked;
   const bars = keys
     .map((key, idx) => {
+      if (isLollipop) {
+        return `\n  <BarLollipop dataKey="${key}" fill="${SERIES_COLOR_BY_INDEX[idx]}" groupGap={${state.groupGap}}${barLollipopPropsCodegen(state)} />`;
+      }
       const fill = idx === 0 ? primaryFill : SERIES_COLOR_BY_INDEX[idx];
       return `\n  <Bar dataKey="${key}" lineCap="${state.barLineCap}" fill="${fill}" fadedOpacity={${state.barFadedOpacity}} groupGap={${state.groupGap}}${stacked ? " stackGap={3}" : ""}${barValueLabelCodegen(state)} />`;
     })
@@ -996,14 +1000,24 @@ function barReadyCodegen(
   const trendLineImport = trendLineBlock ? ", TrendLine" : "";
 
   return {
-    code: `import { BarChart, Bar, BarXAxis, ChartTooltip${gridImport}${backgroundImport}${referenceAreaImport}${trendLineImport}${state.pattern === "none" ? "" : ", PatternPreset"} } from "@bklitui/ui/charts";
+    code: `import { BarChart, ${isLollipop ? "BarLollipop" : "Bar"}, BarXAxis, ChartTooltip${gridImport}${backgroundImport}${referenceAreaImport}${trendLineImport}${state.pattern === "none" ? "" : ", PatternPreset"} } from "@bklitui/ui/charts";
 
 <BarChart ${chartProps}>${backgroundBlock}${gridBlock}${referenceAreaBlock}${patternBlock}${bars}${trendLineBlock}
   <BarXAxis${barXAxisPropsCodegen(state)} />
-  <ChartTooltip${state.barShowCrosshair ? " showCrosshair" : ""} />
+  <ChartTooltip${state.barShowCrosshair ? " showCrosshair" : ""}${isLollipop ? " showDots={false}" : ""} />
 </BarChart>`,
     data: dataSnippet,
   };
+}
+
+/** Non-default `<BarLollipop>` props from Studio state. */
+function barLollipopPropsCodegen(state: StudioUrlState): string {
+  return [
+    state.barLollipopRadius === 6 ? "" : ` radius={${state.barLollipopRadius}}`,
+    state.barLollipopDashed ? "" : ' stemDasharray=""',
+    state.barLollipopHighlight ? "" : " showHighlight={false}",
+    state.barLollipopBaseline ? "" : " showBaseline={false}",
+  ].join("");
 }
 
 /** One composed series as JSX, matching `renderComposedSeries` in the registry. */

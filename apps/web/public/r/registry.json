@@ -1210,6 +1210,11 @@
           "target": "components/charts/bar-squares-layout.ts"
         },
         {
+          "path": "src/charts/bar-lollipop.tsx",
+          "type": "registry:component",
+          "target": "components/charts/bar-lollipop.tsx"
+        },
+        {
           "path": "src/charts/pattern-preset.tsx",
           "type": "registry:component",
           "target": "components/charts/pattern-preset.tsx"

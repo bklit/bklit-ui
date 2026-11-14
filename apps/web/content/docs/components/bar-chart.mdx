@@ -232,6 +232,53 @@ Optional underlay for Shape bars: patterned or solid fill in the **empty space a
 
 Tracks animate from full column height on enter and shrink in sync as squares stack upward.
 
+### BarLollipop
+
+Renders a **Lollipop** series: a thin stem (dashed by default) from the zero baseline to a round dot at each value, instead of a filled `<Bar>`. Negative values hang below zero, so it doubles as a diverging profit / loss ranking. It also draws a solid zero line and a soft full-height pill behind the hovered column. Use one `<BarLollipop>` per series (grouped, vertical charts only).
+
+| Prop                 | Type                                         | Default                         | Description                                                        |
+| -------------------- | -------------------------------------------- | ------------------------------- | ------------------------------------------------------------------ |
+| `dataKey`            | `string`                                     | required                        | Key in data for values                                             |
+| `yAxisId`            | `string \| number`                           | series default                  | Y-scale group for biaxial charts                                   |
+| `fill`               | `string`                                     | `var(--chart-line-primary)`     | Dot color                                                          |
+| `colorKey`           | `string`                                     | —                               | Datum key with a per-row dot color (e.g. a status tier)            |
+| `stroke`             | `string`                                     | —                               | Tooltip dot color for the series                                   |
+| `radius`             | `number`                                     | `6`                             | Dot radius in pixels                                               |
+| `activeRadiusOffset` | `number`                                     | `1.5`                           | Extra radius on the hovered dot                                    |
+| `showHalo`           | `boolean`                                    | `true`                          | Soft halo behind the hovered dot                                   |
+| `stemStroke`         | `string`                                     | `var(--chart-foreground-muted)` | Stem color                                                         |
+| `stemWidth`          | `number`                                     | `1.5`                           | Stem width in pixels                                               |
+| `stemDasharray`      | `string`                                     | `"4,4"`                         | Stem dash pattern; `""` draws a solid stem                         |
+| `stemOpacity`        | `number`                                     | `0.45`                          | Stem opacity at rest (hovered stems go to 0.9)                     |
+| `stemGap`            | `number`                                     | `3`                             | Space between the stem end and the dot edge                        |
+| `showBaseline`       | `boolean`                                    | `true`                          | Solid zero line across the plot                                    |
+| `showHighlight`      | `boolean`                                    | `true`                          | Rounded full-height pill behind the hovered column                 |
+| `highlightWidth`     | `number`                                     | `radius * 4`                    | Highlight pill width                                               |
+| `highlightOpacity`   | `number`                                     | `0.06`                          | Highlight pill opacity                                             |
+| `fadedOpacity`       | `number`                                     | `1`                             | Opacity of the other columns while one is hovered                  |
+| `dimRow`             | `(datum, index) => boolean`                  | —                               | Fade matching rows (e.g. rows outside a hovered legend tier)       |
+| `groupGap`           | `number`                                     | `4`                             | Gap between grouped series in pixels                               |
+| `animate`            | `boolean`                                    | `true`                          | Grow stems out of the baseline on enter                            |
+| `staggerDelay`       | `number`                                     | auto                            | Override per-column stagger delay (seconds)                        |
+
+The dot already marks the hovered value, so hide the tooltip's crosshair and dots:
+
+```tsx
+const rows = data.map((row) => ({
+  ...row,
+  color: row.profit >= 0 ? "var(--chart-positive)" : "var(--chart-negative)",
+}));
+
+<BarChart data={rows} xDataKey="month">
+  <Grid horizontal strokeDasharray="3,4" />
+  <BarLollipop colorKey="color" dataKey="profit" />
+  <BarXAxis />
+  <ChartTooltip showCrosshair={false} showDots={false} />
+</BarChart>
+```
+
+See the **Lollipop** and **Lollipop Profit & Loss** examples on the [bar chart gallery](/charts/bar-chart), and the [Lollipop profit / loss recipe](/recipes?q=lollipop) for tiered colors with a linked legend.
+
 ### BarXAxis
 
 Displays categorical labels along the x-axis (for vertical bar charts).
