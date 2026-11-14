@@ -30,6 +30,7 @@ import { kpiSparklines } from "./kpi-sparklines";
 import { lollipopPnl } from "./lollipop-pnl";
 import { monochrome } from "./monochrome";
 import { linkedLegend, patternedSlices, tickRing } from "./pie-recipes";
+import { projectionArea } from "./projection-area";
 import { projectionLine } from "./projection-line";
 import { quietSparkline } from "./quiet-sparkline";
 import {
@@ -63,6 +64,7 @@ export const recipes: Recipe[] = [
   valueLabels,
   kpiSparklines,
   projectionLine,
+  projectionArea,
   trendLine,
   rangeBand,
   gapFill,

@@ -654,6 +654,27 @@ export const studioSearchParams = {
     "endpoints",
   ]).withDefault("stepped"),
   projectionPathDensities: parseAsString.withDefault(""),
+  projectionAreaFill: parseAsStringLiteral([
+    "none",
+    "solid",
+    "gradient",
+    "pattern",
+  ] as const).withDefault("none"),
+  projectionAreaOpacity: parseAsFloat.withDefault(0.3),
+  projectionAreaFadeBottom: parseAsInteger.withDefault(100),
+  projectionAreaPatternTint: parseAsFloat.withDefault(0.12),
+  projectionShowTarget: parseAsBoolean.withDefault(false),
+  projectionTarget: parseAsFloat.withDefault(0),
+  projectionShowGuides: parseAsBoolean.withDefault(false),
+  projectionShowEndLabel: parseAsBoolean.withDefault(false),
+  projectionAreaFills: parseAsString.withDefault(""),
+  projectionAreaOpacities: parseAsString.withDefault(""),
+  projectionAreaFadeBottoms: parseAsString.withDefault(""),
+  projectionAreaPatternTints: parseAsString.withDefault(""),
+  projectionShowTargetFlags: parseAsString.withDefault(""),
+  projectionTargets: parseAsString.withDefault(""),
+  projectionShowGuidesFlags: parseAsString.withDefault(""),
+  projectionShowEndLabelFlags: parseAsString.withDefault(""),
   progressBarHeight: parseAsInteger.withDefault(24),
   progressBarTrackFill: parseAsString.withDefault("var(--chart-1)"),
   notchWidthPercent: parseAsInteger.withDefault(80),
@@ -1300,6 +1321,23 @@ export interface StudioUrlState {
   projectionShowEndpointsFlags: string;
   projectionPathDensity: "stepped" | "endpoints";
   projectionPathDensities: string;
+  projectionAreaFill: "none" | "solid" | "gradient" | "pattern";
+  projectionAreaOpacity: number;
+  projectionAreaFadeBottom: number;
+  projectionAreaPatternTint: number;
+  projectionShowTarget: boolean;
+  /** Goal value; `0` places it 60% of the way along the projection. */
+  projectionTarget: number;
+  projectionShowGuides: boolean;
+  projectionShowEndLabel: boolean;
+  projectionAreaFills: string;
+  projectionAreaOpacities: string;
+  projectionAreaFadeBottoms: string;
+  projectionAreaPatternTints: string;
+  projectionShowTargetFlags: string;
+  projectionTargets: string;
+  projectionShowGuidesFlags: string;
+  projectionShowEndLabelFlags: string;
   progressBarHeight: number;
   progressBarTrackFill: string;
   notchWidthPercent: number;
@@ -1880,6 +1918,22 @@ export function defaultStudioState(
     projectionShowEndpointsFlags: "",
     projectionPathDensity: "stepped",
     projectionPathDensities: "",
+    projectionAreaFill: "none",
+    projectionAreaOpacity: 0.3,
+    projectionAreaFadeBottom: 100,
+    projectionAreaPatternTint: 0.12,
+    projectionShowTarget: false,
+    projectionTarget: 0,
+    projectionShowGuides: false,
+    projectionShowEndLabel: false,
+    projectionAreaFills: "",
+    projectionAreaOpacities: "",
+    projectionAreaFadeBottoms: "",
+    projectionAreaPatternTints: "",
+    projectionShowTargetFlags: "",
+    projectionTargets: "",
+    projectionShowGuidesFlags: "",
+    projectionShowEndLabelFlags: "",
     progressBarHeight: 24,
     progressBarTrackFill: "var(--chart-1)",
     notchWidthPercent: 80,

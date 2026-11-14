@@ -15,6 +15,7 @@ import {
   XAxis,
 } from "@bklitui/ui/charts";
 import {
+  ProjectionAreaDemo,
   ProjectionLineDemo,
   ProjectionLineGradientDemo,
 } from "@/components/docs/projection-line-demo";
@@ -89,8 +90,27 @@ The chart extends its x-domain to fit the projection horizon. Projections are in
 | `curveKind` | `"linear" \| "bezier"` | `"linear"` | Straight segment or horizontal-tangent S-curve |
 | `strokeDasharray` | `string` | `"6,4"` | Dash pattern |
 | `strokeOpacity` | `number` | `1` | Stroke opacity |
-| `showEndMarker` | `boolean` | `true` | Horizon endpoint dot (`ProjectionLineEndMarker`) |
+| `showEndMarker` | `boolean` | `true` | Horizon endpoint dot |
 | `endpointRadius` | `number` | `5` | Horizon marker radius |
+| `endMarkerFill` | `string` | end colour | Horizon marker fill — pass `var(--background)` for a hollow ring |
+| `showEndLabel` | `boolean` | `false` | Print the projected value above the horizon marker |
+| `formatEndLabel` | `(value: number) => string` | `toLocaleString()` | End label formatter |
+| `endLabelColor` | `string` | end colour | End label colour |
+| `areaFill` | `"none" \| "solid" \| "gradient" \| "pattern"` | `"none"` | Fill under the projection, down to the baseline |
+| `areaColor` | `string` | end colour | Area colour (`gradientEnd` or `stroke`) |
+| `areaOpacity` | `number` | `0.12` / `0.3` / `0.5` | Area opacity (solid / gradient / pattern) |
+| `areaFadeBottom` | `number` | `100` gradient, else `0` | Fade the area out over the bottom N% (0–100) |
+| `areaPattern` | `PatternPresetId` | `"diagonal-up"` | Pattern preset when `areaFill="pattern"` |
+| `areaPatternScale` | `number` | `1.5` | Pattern scale |
+| `areaPatternTint` | `number` | `0` | Pattern only — opacity of a gradient wash under the pattern |
+| `target` | `number` | — | Goal value: dashed horizontal line + ring where the projection crosses it |
+| `targetStroke` | `string` | `var(--muted-foreground)` | Goal line colour |
+| `targetDasharray` | `string` | `"4,4"` | Goal line dash |
+| `targetStrokeOpacity` | `number` | `0.6` | Goal line opacity |
+| `showTargetMarker` | `boolean` | `true` | Ring (with glow) on the goal crossing |
+| `showGuides` | `boolean` | `false` | Dashed verticals at the hand-off and the goal crossing |
+| `guideStroke` | `string` | `var(--muted-foreground)` | Guide colour |
+| `guideStrokeOpacity` | `number` | `0.35` | Guide opacity |
 
 ## buildProjectionPath
 
@@ -133,7 +153,7 @@ The chart extends its x-domain to fit the projection horizon. Projections are in
   />
 </div>
 
-Open [Studio with a projection](/studio?chart=line-chart) and use **Settings → Projections** or the series context menu to add a projection line. Tune stroke, dash, curve, and terminal marker in the layers panel.
+Open [Studio with a projection](/studio?chart=line-chart) and use **Settings → Projections** or the series context menu to add a projection line. Tune stroke, dash, curve, and terminal marker in the layers panel — plus the projection **Area** (solid, gradient or pattern with opacity, fade and pattern tint), **Goal** line and crossing marker, **Guides**, and **End label**.
 
 ## Examples
 
@@ -168,6 +188,61 @@ Open [Studio with a projection](/studio?chart=line-chart) and use **Settings →
   <ProjectionLineGradientDemo />
 </ComponentShowcase>
 
+### Projection area and goal
+
+Give the forecast its own fill with `areaFill` — `"solid"`, a fading `"gradient"`, or a `"pattern"` hatch (add `areaFadeBottom` and `areaPatternTint` for a hatch over a gradient). `target` draws a goal line and rings the point where the forecast crosses it; `showGuides` drops dashed verticals from the hand-off and the crossing.
+
+<ComponentShowcase code={`<AreaChart data={chartData}>
+  <Grid horizontal />
+  <Area dataKey="value" fill="var(--chart-positive)" fillOpacity={0.12} fadeBottom={100} />
+  <LineSeriesTerminalMarker dataKey="value" fill="var(--background)" radius={4} stroke="var(--chart-positive)" />
+  <ProjectionLine
+    data={projectionPath}
+    stroke="oklch(0.83 0.14 85)"
+    strokeDasharray="none"
+    areaFill="pattern"
+    areaOpacity={0.35}
+    areaFadeBottom={100}
+    areaPatternTint={0.12}
+    target={230}
+    showGuides
+    showEndLabel
+    endMarkerFill="var(--background)"
+  />
+  <XAxis />
+  <ChartTooltip />
+</AreaChart>`}>
+  <ProjectionAreaDemo />
+</ComponentShowcase>
+
+#### Gradient fill
+
+<ComponentShowcase code={`  <ProjectionLine
+    data={projectionPath}
+    areaFill="gradient"
+    areaOpacity={0.3}
+    target={230}
+    showGuides
+    showEndLabel
+  />`}>
+  <ProjectionAreaDemo areaFill="gradient" />
+</ComponentShowcase>
+
+#### Solid fill
+
+<ComponentShowcase code={`  <ProjectionLine
+    data={projectionPath}
+    areaFill="solid"
+    areaOpacity={0.12}
+    target={230}
+    showGuides
+    showEndLabel
+  />`}>
+  <ProjectionAreaDemo areaFill="solid" />
+</ComponentShowcase>
+
+See the [Projected goal recipe](/recipes#projection-area) for a month-to-date revenue version.
+
 ## Gallery
 
-See **Projection** on the [line chart gallery](/charts/line-chart).
+See **Projection** on the [line chart gallery](/charts/line-chart) and **Projection Area** on the [area chart gallery](/charts/area-chart).

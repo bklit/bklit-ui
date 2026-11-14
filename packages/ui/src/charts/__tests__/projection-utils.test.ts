@@ -3,6 +3,7 @@ import { describe, it } from "node:test";
 import {
   buildHorizontalTangentBezierPath,
   buildProjectionPath,
+  projectionCrossingX,
 } from "../projection-utils";
 
 const sourceData = Array.from({ length: 6 }, (_, index) => ({
@@ -46,5 +47,20 @@ describe("buildHorizontalTangentBezierPath", () => {
   it("uses horizontal control points at start and end y", () => {
     const path = buildHorizontalTangentBezierPath(0, 100, 200, 50);
     assert.match(path, HORIZONTAL_TANGENT_BEZIER_PATH);
+  });
+});
+
+describe("projectionCrossingX", () => {
+  it("interpolates a straight segment", () => {
+    assert.equal(projectionCrossingX(0, 100, 200, 0, 50, "linear"), 100);
+  });
+
+  it("finds the bezier midpoint crossing by symmetry", () => {
+    const x = projectionCrossingX(0, 100, 200, 0, 50, "bezier") ?? -1;
+    assert.ok(Math.abs(x - 100) < 1e-6);
+  });
+
+  it("returns null when the target is outside the segment", () => {
+    assert.equal(projectionCrossingX(0, 100, 200, 50, 20, "linear"), null);
   });
 });

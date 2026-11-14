@@ -468,7 +468,8 @@
       "description": "Forecast segment extending a line series past the last data point",
       "registryDependencies": [
         "@bklit/chart-context",
-        "@bklit/line-chart"
+        "@bklit/line-chart",
+        "@bklit/background"
       ],
       "dependencies": [
         "motion",

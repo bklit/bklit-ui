@@ -200,7 +200,10 @@ import {
   PROFIT_LOSS_DATA_KEY,
   profitLossLineDocsData,
 } from "@/components/docs/profit-loss-line-docs-data";
-import { ProjectionLineDemo } from "@/components/docs/projection-line-demo";
+import {
+  ProjectionAreaDemo,
+  ProjectionLineDemo,
+} from "@/components/docs/projection-line-demo";
 import { sunburstDemoData } from "@/components/docs/sunburst-chart-demo-data";
 import { SunburstDrillBreadcrumb } from "@/components/docs/sunburst-drill-breadcrumb";
 import { useWorldDataStandalone } from "@/components/docs/use-world-data";
@@ -1668,6 +1671,59 @@ function ProfitLossLineExampleWithState() {
 
 function makeAreaExamples(): ChartExample[] {
   return [
+    {
+      title: "Area Chart - Projection Area",
+      description:
+        "History hands off to a hatched, fading forecast that crosses a dashed goal line",
+      code: `import {
+  buildProjectionPath,
+  LineSeriesTerminalMarker,
+  ProjectionLine,
+} from "@bklitui/ui/charts";
+
+const projectionPath = buildProjectionPath({
+  sourceData: chartData,
+  seriesKey: "value",
+  mode: "target",
+  pathDensity: "endpoints",
+  horizonPoints: 6,
+  endValue: 262,
+});
+
+<AreaChart data={chartData}>
+  <Grid horizontal />
+  <Area
+    dataKey="value"
+    fill="var(--chart-positive)"
+    fillOpacity={0.12}
+    fadeBottom={100}
+  />
+  <LineSeriesTerminalMarker
+    dataKey="value"
+    fill="var(--background)"
+    radius={4}
+    stroke="var(--chart-positive)"
+  />
+  <ProjectionLine
+    data={projectionPath}
+    stroke="oklch(0.83 0.14 85)"
+    strokeDasharray="none"
+    areaFill="pattern"
+    areaOpacity={0.35}
+    areaFadeBottom={100}
+    areaPatternTint={0.12}
+    target={230}
+    showGuides
+    showEndLabel
+    endMarkerFill="var(--background)"
+  />
+  <XAxis />
+  <ChartTooltip />
+</AreaChart>`,
+      footer:
+        'Swap `areaFill` for `"gradient"` or `"solid"`. See the [Projection Line utility](/docs/utility/projection-line#projection-area-and-goal).',
+      render: () => <ProjectionAreaDemo />,
+    },
     {
       title: "Area Chart - Value Labels",
       description:

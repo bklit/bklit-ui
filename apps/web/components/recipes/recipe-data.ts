@@ -58,6 +58,24 @@ export const recipeYearOverYearData = (() => {
   });
 })();
 
+/** 18 days of cumulative revenue — month-to-date, ready to project to a goal. */
+export const recipeRevenueData = (() => {
+  let total = 0;
+  return Array.from({ length: 18 }, (_, index) => {
+    if (index > 0) {
+      total +=
+        300 +
+        index * 12 +
+        Math.sin(index * 1.7) * 120 +
+        Math.cos(index * 0.8) * 70;
+    }
+    return { date: new Date(2026, 8, 1 + index), revenue: Math.round(total) };
+  });
+})();
+
+/** Monthly revenue goal the projection is measured against. */
+export const RECIPE_REVENUE_GOAL = 10_000;
+
 /** 12 weekly points — sparse enough for point markers. */
 export const recipeWeeklyData = Array.from({ length: 12 }, (_, index) => {
   const value =
