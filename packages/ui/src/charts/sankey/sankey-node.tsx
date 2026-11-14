@@ -8,7 +8,7 @@ import { transitionWithDelay } from "../motion-utils";
 import {
   type SankeyLinkDatum,
   type SankeyNodeDatum,
-  useSankey,
+  useSankeyLayout,
 } from "./sankey-context";
 
 // Helper to get node index from link source/target
@@ -232,7 +232,7 @@ function AnimatedNode({
   showValueLabels,
   labelOrientation,
 }: AnimatedNodeProps) {
-  const { enterTransition, revealEpoch } = useSankey();
+  const { enterTransition, revealEpoch } = useSankeyLayout();
 
   const nodeAnimDuration = animationDuration * 0.6;
   const staggerDelaySec =
@@ -324,7 +324,7 @@ export function SankeyNode({
     setHoveredNodeIndex,
     setTooltipData,
     animationDuration,
-  } = useSankey();
+  } = useSankeyLayout();
 
   // Default colors using CSS variables
   const defaultColors = useMemo(

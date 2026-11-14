@@ -684,6 +684,7 @@ export {
   type SankeyContextValue,
   type SankeyData,
   type SankeyLabelOrientation,
+  type SankeyLayoutContextValue,
   SankeyLink,
   type SankeyLinkDatum,
   type SankeyLinkProps,
@@ -696,6 +697,7 @@ export {
   type SankeyTooltipProps,
   sankeyCssVars,
   useSankey,
+  useSankeyLayout,
 } from "./sankey";
 // Scatter chart components
 export {
