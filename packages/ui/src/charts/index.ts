@@ -805,9 +805,15 @@ export { SunburstSegment, type SunburstSegmentProps } from "./sunburst-segment";
 // Tooltip components
 export {
   ChartTooltip,
+  type ChartTooltipDatePillRenderProps,
   type ChartTooltipProps,
+  DATE_TICKER_GLASS_CLASS,
+  DATE_TICKER_PILL_CLASS,
+  type DatePillVelocityConfig,
   DateTicker,
+  type DateTickerAnimation,
   type DateTickerProps,
+  type DateTickerVariant,
   type IndicatorWidth,
   TooltipBox,
   type TooltipBoxProps,
@@ -851,7 +857,7 @@ export {
   type WeekendsFillType,
   type WeekendsProps,
 } from "./weekends";
-export { XAxis, type XAxisProps } from "./x-axis";
+export { XAxis, type XAxisHoverEffect, type XAxisProps } from "./x-axis";
 export { YAxis, type YAxisProps } from "./y-axis";
 export {
   DEFAULT_Y_AXIS_ID,

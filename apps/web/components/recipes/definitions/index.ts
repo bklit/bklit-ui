@@ -11,6 +11,7 @@ import {
   signalNoise,
 } from "./composed-recipes";
 import { customIndicators } from "./custom-indicators";
+import { axisSpotlight, glassDatePill } from "./date-pill-recipes";
 import { diamondMarkers } from "./diamond-markers";
 import { dotMatrix } from "./dot-matrix";
 import { eventMarkers } from "./event-markers";
@@ -62,6 +63,8 @@ export const recipes: Recipe[] = [
   eventMarkers,
   diamondMarkers,
   valueLabels,
+  glassDatePill,
+  axisSpotlight,
   kpiSparklines,
   projectionLine,
   projectionArea,

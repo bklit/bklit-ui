@@ -12,6 +12,7 @@ import {
   XAxis,
   YAxis,
 } from "@bklitui/ui/charts";
+import type { CSSProperties } from "react";
 
 const chartData = [
   {
@@ -304,6 +305,75 @@ export function TooltipHorizontalCrosshairDemo() {
         <XAxis />
         <ChartCrosshair format={crosshairUsersFormat} numberFlow />
         <ChartTooltip showCrosshair={false} />
+      </LineChart>
+    </div>
+  );
+}
+
+export function TooltipDatePillStyledDemo() {
+  return (
+    <div className="w-full">
+      <LineChart data={chartData}>
+        <Grid horizontal />
+        <Line dataKey="users" stroke="var(--chart-line-primary)" />
+        <XAxis />
+        <ChartTooltip
+          datePillAnimation="static"
+          datePillClassName="rounded-md bg-(--chart-line-primary) px-2.5 text-white shadow-none dark:bg-(--chart-line-primary) dark:text-white"
+        />
+      </LineChart>
+    </div>
+  );
+}
+
+export function TooltipNoDatePillDemo() {
+  return (
+    <div className="w-full">
+      <LineChart data={chartData}>
+        <Grid horizontal />
+        <Line dataKey="users" stroke="var(--chart-line-primary)" />
+        <XAxis activeLabelColor="var(--chart-line-primary)" />
+        <ChartTooltip showDatePill={false} />
+      </LineChart>
+    </div>
+  );
+}
+
+export function TooltipDatePillVelocityDemo() {
+  return (
+    <div className="w-full">
+      <LineChart data={chartData}>
+        <Grid horizontal />
+        <Line dataKey="users" stroke="var(--chart-line-primary)" />
+        <XAxis />
+        <ChartTooltip datePillVelocity />
+      </LineChart>
+    </div>
+  );
+}
+
+/**
+ * Backdrop for the liquid-glass demo: a dot grid over a faint chart-1 → chart-2
+ * wash, so the glass has something to refract under the whole frame
+ * (including the x-axis band the pill rides in).
+ */
+export const glassShowcasePreviewStyle: CSSProperties = {
+  backgroundColor: "var(--background)",
+  backgroundImage: [
+    "radial-gradient(circle, color-mix(in oklab, var(--foreground) 16%, transparent) 1px, transparent 1.6px)",
+    "linear-gradient(135deg, color-mix(in oklab, var(--chart-1) 12%, transparent), transparent 45%, transparent 55%, color-mix(in oklab, var(--chart-2) 12%, transparent))",
+  ].join(", "),
+  backgroundSize: "12px 12px, 100% 100%",
+  backgroundPosition: "center",
+};
+
+export function TooltipDatePillGlassDemo() {
+  return (
+    <div className="w-full">
+      <LineChart data={chartData}>
+        <Line dataKey="users" stroke="var(--chart-line-primary)" />
+        <XAxis />
+        <ChartTooltip datePillVariant="glass" datePillVelocity />
       </LineChart>
     </div>
   );

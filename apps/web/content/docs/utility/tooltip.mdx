@@ -4,7 +4,7 @@ description: An interactive tooltip component for charts with crosshair, dots, d
 ---
 
 import { LineChart, Line, Grid, ChartTooltip, XAxis } from "@bklitui/ui/charts";
-import { TooltipDefaultDemo, TooltipCrosshairOnlyDemo, TooltipMinimalDemo, TooltipCustomRowsDemo, TooltipBarChartDemo, TooltipCustomContentDemo, TooltipSolidCrosshairDemo, TooltipCrosshairFadeTopDemo, TooltipDashedCrosshairDemo, TooltipMatchCrosshairDemo, TooltipPanelDampingDemo, TooltipHorizontalCrosshairDemo } from "@/components/docs/tooltip-demo";
+import { TooltipDefaultDemo, TooltipCrosshairOnlyDemo, TooltipMinimalDemo, TooltipCustomRowsDemo, TooltipBarChartDemo, TooltipCustomContentDemo, TooltipSolidCrosshairDemo, TooltipCrosshairFadeTopDemo, TooltipDashedCrosshairDemo, TooltipMatchCrosshairDemo, TooltipPanelDampingDemo, TooltipHorizontalCrosshairDemo, TooltipDatePillStyledDemo, TooltipNoDatePillDemo, TooltipDatePillVelocityDemo, TooltipDatePillGlassDemo, glassShowcasePreviewStyle } from "@/components/docs/tooltip-demo";
 
 <ComponentPreview registryName="chart-tooltip">
   <TooltipDefaultDemo />
@@ -32,7 +32,14 @@ import { LineChart, Line, Grid, ChartTooltip } from "@bklitui/ui/charts";
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `showDatePill` | `boolean` | `true` | Show animated date ticker at bottom |
+| `showDatePill` | `boolean` | `true` | Show the date pill on the x-axis. With `false`, `XAxis` highlights labels near the crosshair instead of fading them |
+| `datePillAnimation` | `"roll" \| "static"` | `"roll"` | `"roll"` scrolls month and day/year like a slot machine; `"static"` swaps the label in place. Always `"static"` above 60 labels |
+| `datePillVariant` | `"solid" \| "glass"` | `"solid"` | Pill surface. `"glass"` is liquid glass — see [Liquid glass](#liquid-glass) |
+| `datePillVelocity` | `boolean \| { scale?, stretch?, maxVelocity? }` | `false` | Swell the pill with speed, like a glass menu — see [Velocity swell](#velocity-swell) |
+| `datePillClassName` | `string` | — | Classes merged over the default pill surface — see [Date pill](#date-pill) |
+| `datePillStyle` | `CSSProperties` | — | Inline styles for the pill surface |
+| `datePill` | `({ label, index, point }) => ReactNode` | — | Replace the pill entirely; your element is still positioned under the crosshair |
+| `dateLabels` | `string[]` | chart `dateLabels` | Labels aligned with data rows, shown in the pill |
 | `showCrosshair` | `boolean` | `true` (`false` in `BarChart` and jittered `ScatterChart`) | Show the crosshair indicator line. Bar charts (vertical and horizontal) and `ScatterChart` with `jitter` (hover snaps to the nearest point, not a date) hide it by default — pass `showCrosshair` to opt in |
 | `showDots` | `boolean` | `true` | Show dots on data points |
 | `indicatorColor` | `string \| (point) => string` | — | Crosshair and dot color; pass a function for dynamic colors |
@@ -81,7 +88,7 @@ The tooltip has several visual components:
 1. **Crosshair** - Vertical line that follows the cursor (add [`ChartCrosshair`](#horizontal-crosshair) for a horizontal line and y-axis value pill)
 2. **Dots** - A solid dot with a soft halo in the series color on each data point at the hovered position
 3. **Tooltip Box** - Popover-style panel: a header row with the date / category, a full-width separator, then rows (color dot, muted label, right-aligned value)
-4. **Date Pill** - Animated date ticker at the bottom
+4. **Date Pill** - Date label on the x-axis under the crosshair (see [Date pill](#date-pill))
 
 Each component can be shown/hidden independently.
 
@@ -299,6 +306,192 @@ Use the `content` prop for complete control over the tooltip layout.
   <TooltipCustomContentDemo />
 </ComponentShowcase>
 
+## Date pill
+
+The date pill is the dark, rounded label that rides along the x-axis under the crosshair. It shows the hovered row's date (or `dateLabels` entry) and follows the crosshair spring.
+
+<Callout>
+The date pill does **not** use [NumberFlow](https://number-flow.barvian.me/). Its rolling digits are a built-in `motion` animation (`DateTicker`), so it adds nothing to your bundle beyond `motion`. NumberFlow is only used by [`ChartCrosshair`](#horizontal-crosshair) when you pass `numberFlow`, and by the pie / ring / radial / gauge center stats.
+</Callout>
+
+### Turn it off
+
+```tsx
+<ChartTooltip showDatePill={false} />
+```
+
+With the pill gone, `XAxis` switches from fading the labels near the crosshair to [highlighting them](/docs/utility/axis/x-axis#hover-effects): the hovered row's label takes `activeLabelColor` and its neighbours blend toward it.
+
+<ComponentShowcase code={`<LineChart data={data}>
+  <Grid horizontal />
+  <Line dataKey="users" stroke="var(--chart-line-primary)" />
+  <XAxis activeLabelColor="var(--chart-line-primary)" />
+  <ChartTooltip showDatePill={false} />
+</LineChart>`}>
+  <TooltipNoDatePillDemo />
+</ComponentShowcase>
+
+Horizontal bar charts never show the pill.
+
+### Stop the roll
+
+`datePillAnimation="static"` keeps the pill but swaps the whole label in place instead of scrolling the month and day. Only the pill's width springs between labels. Long series (more than 60 labels) use `"static"` automatically.
+
+```tsx
+<ChartTooltip datePillAnimation="static" />
+```
+
+### Restyle it
+
+`datePillClassName` is merged over the default surface with tailwind-merge, so you only write the classes you want to change. The defaults are:
+
+```
+overflow-hidden rounded-full bg-zinc-900 px-4 py-1 text-white shadow-lg
+dark:bg-zinc-100 dark:text-zinc-900
+```
+
+The default sets separate light and dark colors, so override both `bg-*` and `dark:bg-*` (and `text-*` / `dark:text-*`) when you change colors.
+
+<ComponentShowcase code={`<LineChart data={data}>
+  <Grid horizontal />
+  <Line dataKey="users" stroke="var(--chart-line-primary)" />
+  <XAxis />
+  <ChartTooltip
+    datePillAnimation="static"
+    datePillClassName="rounded-md bg-(--chart-line-primary) px-2.5 text-white shadow-none dark:bg-(--chart-line-primary) dark:text-white"
+  />
+</LineChart>`}>
+  <TooltipDatePillStyledDemo />
+</ComponentShowcase>
+
+For values Tailwind can't express (or from props), use `datePillStyle` — inline styles win over the classes:
+
+```tsx
+<ChartTooltip
+  datePillStyle={{
+    background: "color-mix(in oklab, var(--chart-1) 85%, transparent)",
+    color: "white",
+    backdropFilter: "blur(6px)",
+  }}
+/>
+```
+
+The surface element carries `data-slot="date-pill"`, so a global stylesheet can target every pill too:
+
+```css
+[data-slot="date-pill"] {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+```
+
+The label text is `text-sm font-medium`; pass size or weight classes in `datePillClassName` to change it (`text-xs`, `font-semibold`).
+
+### Velocity swell
+
+`datePillVelocity` makes the pill react to how fast it moves, like a glass menu on iOS: it grows slightly and stretches along the direction of travel, then springs back to its resting size when you stop. A slow drag barely changes it; a flick across the chart swells it noticeably.
+
+<ComponentShowcase code={`<LineChart data={data}>
+  <Grid horizontal />
+  <Line dataKey="users" stroke="var(--chart-line-primary)" />
+  <XAxis />
+  <ChartTooltip datePillVelocity />
+</LineChart>`}>
+  <TooltipDatePillVelocityDemo />
+</ComponentShowcase>
+
+Pass an object to tune it:
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `scale` | `0.06` | Uniform growth at full speed (`0.06` = 6% bigger) |
+| `stretch` | `0.08` | Extra horizontal stretch at full speed, on top of `scale` |
+| `maxVelocity` | `1600` | Speed (px/s) that counts as full speed. Lower = swells sooner |
+
+```tsx
+<ChartTooltip datePillVelocity={{ scale: 0.1, stretch: 0.12, maxVelocity: 1200 }} />
+```
+
+The swell reads the velocity of the pill's position spring, so it settles exactly when the pill does, and it runs on motion values — pointer moves never re-render React. It's off under `prefers-reduced-motion` and on discrete charts (60+ labels), where the pill jumps instead of springing. It also applies to a custom `datePill`.
+
+### Liquid glass
+
+`datePillVariant="glass"` swaps the dark capsule for liquid glass: a clear, lens-like surface that bends what's behind it at the rim, with a faint red/blue fringe, a bright specular edge and a soft shadow. Pair it with `datePillVelocity` for the full glass-menu feel.
+
+<ComponentShowcase previewStyle={glassShowcasePreviewStyle} code={`// Wrapper with a subtle patterned gradient behind the chart
+<div
+  style={{
+    backgroundImage:
+      "radial-gradient(circle, color-mix(in oklab, var(--foreground) 16%, transparent) 1px, transparent 1.6px), " +
+      "linear-gradient(135deg, color-mix(in oklab, var(--chart-1) 12%, transparent), transparent 45%, transparent 55%, color-mix(in oklab, var(--chart-2) 12%, transparent))",
+    backgroundSize: "12px 12px, 100% 100%",
+  }}
+>
+  <LineChart data={data}>
+    <Line dataKey="users" stroke="var(--chart-line-primary)" />
+    <XAxis />
+    <ChartTooltip datePillVariant="glass" datePillVelocity />
+  </LineChart>
+</div>`}>
+  <TooltipDatePillGlassDemo />
+</ComponentShowcase>
+
+Glass only reads as glass when there's something behind it. `XAxis` still fades the labels the pill covers, so give the area under the chart some texture — the demo uses a dot grid over a faint `--chart-1` → `--chart-2` wash, and drops the `Grid` so the dots are the only backdrop. The dots bend and fringe as the pill slides over them. (To let the labels themselves pass under the glass instead, use `<XAxis hoverEffect="none" />`.)
+
+**Browser support.** The refraction is an SVG displacement filter used through `backdrop-filter: url(#…)`, which only Chromium browsers (Chrome, Edge, Arc, Opera) render. Safari and Firefox get a frosted fallback — `blur(6px) saturate(1.6)` with the same highlights and shadow — so the pill still looks like glass, just without the lens bend.
+
+Restyle it like the solid pill. `datePillClassName` merges over the glass classes (exported as `DATE_TICKER_GLASS_CLASS`), and the surface has `data-variant="glass"`:
+
+```tsx
+// Warmer tint, bigger text
+<ChartTooltip
+  datePillVariant="glass"
+  datePillClassName="bg-amber-200/20 dark:bg-amber-200/10 text-base"
+/>
+```
+
+If you set `backdropFilter` in `datePillStyle`, it replaces the refraction filter.
+
+### Change the text
+
+The pill shows `dateLabels[index]`. By default these come from the chart (`short` month + day, e.g. `Jan 5`). Pass your own, one per data row, to `ChartTooltip` (pill only) or to the chart root (pill and axis):
+
+```tsx
+const labels = data.map((d) =>
+  d.date.toLocaleDateString("en-US", { month: "short", year: "numeric" })
+);
+
+<ChartTooltip dateLabels={labels} />
+```
+
+The roll animates the first word (month) and the rest (day or year) as two stacks, so labels shaped like `"<month> <day>"` or `"<month> <year>"` roll best. For any other shape, use `datePillAnimation="static"`.
+
+### Replace it
+
+`datePill` renders your own element in the pill's place. It still sits under the crosshair and follows the tooltip spring, and `XAxis` still fades labels under it.
+
+```tsx
+<ChartTooltip
+  datePill={({ label, point }) => (
+    <div className="rounded-full border bg-background px-3 py-1 font-medium text-xs shadow-sm">
+      {label} · {(point.users as number).toLocaleString()}
+    </div>
+  )}
+/>
+```
+
+If your custom pill is a very different width from the default, set `tickerHalfWidth` on `XAxis` to half its width so the fade zone matches.
+
+### Use the pill on its own
+
+`DateTicker` is exported, so you can place the same pill anywhere (e.g. above a chart, or in a custom overlay). It takes the same `animation`, `variant`, `className` and `style` props:
+
+```tsx
+import { DateTicker } from "@bklitui/ui/charts";
+
+<DateTicker currentIndex={index} labels={labels} visible animation="roll" variant="glass" />
+```
+
 ## Horizontal crosshair
 
 `ChartCrosshair` adds a finance-style crosshair: a horizontal line that tracks the cursor's y, with the value under the cursor in a pill on the y-axis, plus a vertical line on the hovered column. The pill matches the date pill on the x-axis — same look, same spring — and a `YAxis` on the same axis fades the ticks it covers, the way `XAxis` labels fade under the date pill.
@@ -362,7 +555,7 @@ The tooltip features smooth animations:
 - **Crosshair** - Spring physics for snappy following (`springConfig`)
 - **Crosshair style** - Solid by default; pass `indicatorDasharray="4,4"` (or any SVG dash pattern) for a dashed line.
 - **Tooltip Box** - Scale/fade in, fade out on leave (`exit`), flip detection (`boxSpringConfig`), and a size tween when the content grows or shrinks (`animateSize`). Under `prefers-reduced-motion` the panel jumps to position and size and skips the scale; the opacity fade remains
-- **Date Pill** - Slot machine-style number animation
+- **Date Pill** - Slot machine-style roll (`datePillAnimation="roll"`), or an in-place swap with `"static"`. Its width springs to fit each label, and `datePillVelocity` swells it with speed; under `prefers-reduced-motion` it jumps and doesn't swell
 - **Dots** - Follow the crosshair spring; the core and halo spring open on hover
 
 All animations use motion/react for fluid, natural movement.

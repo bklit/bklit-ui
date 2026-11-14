@@ -2,7 +2,9 @@
 
 import { memo, useMemo } from "react";
 import { createPortal } from "react-dom";
+import { cn } from "@/lib/utils";
 import {
+  chartCssVars,
   selectTooltipData,
   useChartHoverSelector,
   useChartPortalContainer,
@@ -10,19 +12,53 @@ import {
 } from "./chart-context";
 import { shortDateFmt } from "./chart-formatters";
 import { DEFAULT_Y_DOMAIN_TWEEN_MS } from "./chart-phase";
+import { useDatePillPresent } from "./date-pill-store";
 import { LINE_LOADING_PULSE_EASE } from "./line-loading-timing";
 import {
   type ChartLabelCount,
   resolveResponsiveChartLabelCount,
 } from "./responsive-chart-label-count";
+import {
+  xAxisLabelColor,
+  xAxisLabelHighlight,
+  xAxisLabelOpacity,
+} from "./x-axis-hover";
 
 const X_AXIS_POSITION_TWEEN_MS = DEFAULT_Y_DOMAIN_TWEEN_MS;
+
+/**
+ * How labels react to the crosshair while hovering:
+ * - `"fade"` — hide labels under the date pill, fade them back in beside it.
+ * - `"highlight"` — recolor instead: the hovered label takes
+ *   `activeLabelColor`, labels within `highlightRadius` blend toward
+ *   `nearbyLabelColor`.
+ * - `"none"` — labels never change.
+ * - `"auto"` — `"fade"` while a `ChartTooltip` date pill is shown, else
+ *   `"highlight"`.
+ */
+export type XAxisHoverEffect = "auto" | "fade" | "highlight" | "none";
 
 export interface XAxisProps {
   /** Number of ticks to show (including first and last). Default: 5. */
   numTicks?: ChartLabelCount;
-  /** Width of the date ticker box for fade calculation. Default: 50 */
+  /** Half the date pill's width (px) — the `"fade"` hide zone. Default: 50 */
   tickerHalfWidth?: number;
+  /** Label reaction to the crosshair. Default: `"auto"`. */
+  hoverEffect?: XAxisHoverEffect;
+  /**
+   * `"highlight"`: color of the label for the hovered row.
+   * Default: `var(--chart-indicator-color)`.
+   */
+  activeLabelColor?: string;
+  /**
+   * `"highlight"`: color nearby labels blend toward (by distance).
+   * Default: `activeLabelColor`.
+   */
+  nearbyLabelColor?: string;
+  /** `"highlight"`: distance (px) over which nearby labels blend. Default: 80 */
+  highlightRadius?: number;
+  /** Classes for each label `<span>` (base: `text-chart-label text-xs`). */
+  labelClassName?: string;
   /**
    * `"data"` — tick labels snap to data rows so crosshair and tooltip stay aligned (default).
    * `"domain"` — evenly spaced ticks across the time domain (may not align with hover).
@@ -43,45 +79,21 @@ interface XAxisLabelProps {
   x: number;
   /** Fades out near the crosshair; see {@link xAxisLabelOpacity}. */
   opacity: number;
+  /** Highlight color near the crosshair; see {@link xAxisLabelHighlight}. */
+  color: string | undefined;
   animatePosition: boolean;
+  className: string | undefined;
 }
 
-/**
- * Label opacity while hovering: hidden under the date ticker (or when it shows
- * the same label), fading back in over `fadeBuffer` px beyond it.
- */
-function xAxisLabelOpacity(
-  label: string,
-  x: number,
-  crosshairX: number | null,
-  hoveredLabel: string | null,
-  tickerHalfWidth: number
-): number {
-  if (crosshairX === null) {
-    return 1;
-  }
-  const fadeBuffer = 20;
-  const fadeRadius = tickerHalfWidth + fadeBuffer;
-  const distance = Math.abs(x - crosshairX);
-  if (distance < tickerHalfWidth) {
-    return 0;
-  }
-  if (hoveredLabel && label === hoveredLabel) {
-    return 0;
-  }
-  if (distance < fadeRadius) {
-    return (distance - tickerHalfWidth) / fadeBuffer;
-  }
-  return 1;
-}
-
-// Memoised on its resolved opacity: a pointer move re-renders only the labels
-// whose fade changes, not every label.
+// Memoised on its resolved opacity / color: a pointer move re-renders only
+// the labels whose fade or highlight changes, not every label.
 const XAxisLabel = memo(function XAxisLabel({
   label,
   x,
   opacity,
+  color,
   animatePosition,
+  className,
 }: XAxisLabelProps) {
   return (
     <div
@@ -98,10 +110,11 @@ const XAxisLabel = memo(function XAxisLabel({
       }}
     >
       <span
-        className="whitespace-nowrap text-chart-label text-xs"
+        className={cn("whitespace-nowrap text-chart-label text-xs", className)}
         style={{
           opacity,
-          transition: "opacity 0.4s ease-in-out",
+          color,
+          transition: "opacity 0.4s ease-in-out, color 0.2s ease-out",
         }}
       >
         {label}
@@ -593,6 +606,11 @@ const XAxisInner = memo(function XAxisInner({
   tickerHalfWidth = 50,
   tickMode = "data",
   labels: labelsProp,
+  hoverEffect = "auto",
+  activeLabelColor = chartCssVars.indicatorColor,
+  nearbyLabelColor,
+  highlightRadius = 80,
+  labelClassName,
   container,
 }: XAxisProps & { container: HTMLDivElement }) {
   const {
@@ -605,6 +623,10 @@ const XAxisInner = memo(function XAxisInner({
     width,
   } = useChartStable();
   const tooltipData = useChartHoverSelector(selectTooltipData);
+  const datePillPresent = useDatePillPresent(container);
+  const autoEffect = datePillPresent ? "fade" : "highlight";
+  const effect = hoverEffect === "auto" ? autoEffect : hoverEffect;
+  const nearbyColor = nearbyLabelColor ?? activeLabelColor;
   const dateLabels = labelsProp ?? contextDateLabels;
   const resolvedNumTicks = useMemo(
     () => resolveResponsiveChartLabelCount(numTicks, width, 5),
@@ -665,7 +687,8 @@ const XAxisInner = memo(function XAxisInner({
     resolvedNumTicks,
   ]);
 
-  const crosshairX = tooltipData ? tooltipData.x + margin.left : null;
+  const crosshairX =
+    tooltipData && effect !== "none" ? tooltipData.x + margin.left : null;
   const hoveredLabel = tooltipData
     ? (dateLabels[tooltipData.index] ??
       shortDateFmt.format(xAccessor(tooltipData.point)))
@@ -676,15 +699,35 @@ const XAxisInner = memo(function XAxisInner({
       {labelsToShow.map((item) => (
         <XAxisLabel
           animatePosition={xDomain == null}
+          className={labelClassName}
+          color={
+            effect === "highlight"
+              ? xAxisLabelColor(
+                  xAxisLabelHighlight(
+                    item.label,
+                    item.x,
+                    crosshairX,
+                    hoveredLabel,
+                    highlightRadius
+                  ),
+                  activeLabelColor,
+                  nearbyColor
+                )
+              : undefined
+          }
           key={`${item.date.getTime()}-${item.x}`}
           label={item.label}
-          opacity={xAxisLabelOpacity(
-            item.label,
-            item.x,
-            crosshairX,
-            hoveredLabel,
-            tickerHalfWidth
-          )}
+          opacity={
+            effect === "fade"
+              ? xAxisLabelOpacity(
+                  item.label,
+                  item.x,
+                  crosshairX,
+                  hoveredLabel,
+                  tickerHalfWidth
+                )
+              : 1
+          }
           x={item.x}
         />
       ))}
