@@ -22,7 +22,7 @@ Defaults quoted are bklit source defaults. "—" means no equivalent: see `rules
 | `barGap` (px between grouped bars) | `Bar groupGap` (px, default 4) | On each `Bar`. ComposedChart: root `barGap` (px, default 4). |
 | `stackId` on every `Bar` | root `stacked` (+ `stackGap` px) | One stack per chart, in child order. Multiple stack groups: gap. |
 | `stackId` on `Area` | — | No area stacking. Workaround in `rules/gaps.md`. |
-| `onClick`, `onMouseMove` | — | No per-datum click props on cartesian series. `PieChart`, `RingChart`, `RadarChart`, `FunnelChart` expose `hoveredIndex` / `onHoverChange`. |
+| `onClick`, `onMouseMove` | — | No per-datum click props on cartesian series. `PieChart`, `RingChart`, `RadarChart`, `FunnelChart`, `RadialChart`, `SunburstChart` expose `hoveredIndex` / `onHoverChange`. |
 | (animation) | `animationDuration` (ms, default 1100), `animationEasing` | `animationDuration={0}` disables the reveal. |
 
 ## Series
@@ -55,7 +55,7 @@ Defaults quoted are bklit source defaults. "—" means no equivalent: see `rules
 | `yAxisId` | `yAxisId` (Line, Area, Bar, Scatter) | Default `"left"`; pair with `YAxis yAxisId`. |
 | `hide` | render conditionally | |
 | `connectNulls` | — | Non-numbers plot at 0: filter or interpolate rows. |
-| `label`, `LabelList` | — | Gap. |
+| `label`, `LabelList` | `Bar showValue` / `Area showValue` | Bars: inside the bar (`valueLabelPosition`, `valueLabelFormatter`, `valueLabelOrientation`). Areas: thinned point labels. Line / scatter: gap. |
 | `shape` (custom renderer) | — | Gap → keep Recharts. |
 | `data` on `<Scatter>` / `<Line>` | merge into root `data` | bklit series only take `dataKey`. |
 
@@ -76,7 +76,7 @@ Defaults quoted are bklit source defaults. "—" means no equivalent: see `rules
 | `YAxis tickCount` | `YAxis numTicks` (5, hint) | |
 | `YAxis orientation="right"` | `YAxis orientation="right"` | Add `margin={{ right: 56 }}`-ish. |
 | `YAxis width` | root `margin.left` / `margin.right` | |
-| `YAxis domain` | `ComposedChart yDomains={{ [yAxisId]: [min, max] }}` | Composed only (fixed tuple or `(auto) => domain`). Elsewhere auto: `[0, max × 1.1]` niced for non-negative data, `[min − 5 %, max + 5 %]` otherwise (Line/Area/Composed). Bar and Scatter always start at 0. |
+| `YAxis domain` | `ComposedChart yDomains={{ [yAxisId]: [min, max] }}` | Composed only (fixed tuple or `(auto) => domain`). Elsewhere auto: `[0, max × 1.1]` niced for non-negative data, `[min − 5 %, max + 5 %]` otherwise (Line/Area/Composed). `LineChart yScaleDomainMax` fixes the top. Bar always includes 0 and extends below it for negatives; Scatter always starts at 0. |
 | `YAxis` category axis (`layout="vertical"`) | `BarYAxis` | `maxLabels` (20), `showAllLabels` (true). |
 
 ## Tooltip (`ChartTooltip` from `@/components/charts/tooltip`)

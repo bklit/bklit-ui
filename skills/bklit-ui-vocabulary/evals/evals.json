@@ -1,0 +1,76 @@
+{
+  "skill_name": "bklit-ui-vocabulary",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "What's it called when you hover a chart and a vertical line follows your mouse showing the values for that date?",
+      "expected_output": "Names Crosshair first with the glossary definition and the Bklit line (ChartTooltip showCrosshair; ChartCrosshair), and contrasts it with Tooltip as the panel that shows the values.",
+      "files": [],
+      "expectations": [
+        "Leads with the term **Crosshair**",
+        "Gives the Bklit mapping ChartTooltip showCrosshair (and/or ChartCrosshair)",
+        "Distinguishes the crosshair (the line) from the tooltip (the panel)",
+        "Answer is short: a term-first reply, not a tutorial or a full chart implementation"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Instead of fat bars I want a thin stick with a circle on the top for each month. What do I ask for?",
+      "expected_output": "Lollipop chart → BarLollipop inside BarChart (vertical, non-stacked).",
+      "files": [],
+      "expectations": [
+        "Names **Lollipop chart**",
+        "Maps it to `BarLollipop` inside `BarChart`",
+        "Mentions the vertical / non-stacked limit or negative values hanging below zero",
+        "Does not invent props such as `variant=\"lollipop\"` on `Bar`"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I'm coming from Recharts. I use <ResponsiveContainer>, stackId on my <Area>s, and layout=\"vertical\" on a BarChart. What are the Bklit equivalents?",
+      "expected_output": "Responsive container: built in, no wrapper. Stacked area: no Bklit equivalent (overlapping translucent Areas or cumulative values). layout=\"vertical\" is a false friend: it means horizontal bars, so BarChart orientation=\"horizontal\" + BarYAxis.",
+      "files": [],
+      "expectations": [
+        "Says Bklit charts size to their parent automatically, so no ResponsiveContainer wrapper is needed",
+        "States plainly that stacked areas have no Bklit equivalent and offers the nearest option",
+        "Flags Recharts layout=\"vertical\" as meaning horizontal bars and maps it to `orientation=\"horizontal\"`",
+        "Does not invent a `stackId` or `stacked` prop on `Area`"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "The shaded area around my line showing the min and max for each day — what's that called?",
+      "expected_output": "Range band → Band upperKey lowerKey, contrasted with Reference area (fixed values, ReferenceArea).",
+      "files": [],
+      "expectations": [
+        "Names **Range band** (or confidence / error band) as the best match",
+        "Maps it to `Band` with `upperKey` and `lowerKey`",
+        "Contrasts it with **Reference area** / `ReferenceArea` for fixed y1/y2 ranges"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Can Bklit do a treemap?",
+      "expected_output": "Treemap: no Bklit equivalent; the nearest is SunburstChart for a hierarchy.",
+      "files": [],
+      "expectations": [
+        "States plainly that Bklit has no treemap component",
+        "Offers SunburstChart as the nearest hierarchical option",
+        "Does not invent a `TreemapChart` component or a `@bklit/treemap` install"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Add a Bklit bar chart of monthly revenue by region to my dashboard. In Nivo I'd do groupMode=\"stacked\", layout=\"horizontal\", padding={0.3}, borderRadius={4}, enableLabel and a ResponsiveBar wrapper.",
+      "expected_output": "Translates each Nivo prop before building: groupMode=\"stacked\" → BarChart stacked; layout=\"horizontal\" → orientation=\"horizontal\" + BarYAxis; padding (ratio) → BarChart barGap={0.3}; borderRadius={4} → Bar lineCap={4}; enableLabel → Bar showValue; ResponsiveBar → not needed (charts size to their parent). Then builds with bklit-ui.",
+      "files": [],
+      "expectations": [
+        "Writes a translation of the Nivo props before (or alongside) the code",
+        "Uses `BarChart stacked` and `orientation=\"horizontal\"` with `BarYAxis`",
+        "Maps Nivo `padding` to `barGap` (a 0–1 fraction) and `borderRadius` to `Bar lineCap={4}`",
+        "Maps `enableLabel` to `Bar showValue`",
+        "Does not add a responsive wrapper component and does not copy Nivo prop names onto Bklit components"
+      ]
+    }
+  ]
+}

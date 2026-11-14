@@ -40,7 +40,7 @@ import { XAxis } from "@/components/charts/x-axis";
 |---|---|---|---|
 | `LineChart` | `Line` | `XAxis` | `YAxis` needs `@bklit/y-axis` |
 | `AreaChart` | `Area` | `XAxis` | same as line |
-| `BarChart` | `Bar` | `BarXAxis` / `BarYAxis` | categorical band scale; `xDataKey` is a category key |
+| `BarChart` | `Bar`, `BarLollipop`, `BarSquares` | `BarXAxis` / `BarYAxis` | categorical band scale; `xDataKey` is a category key; `BarLollipop` / `BarSquares` are vertical, non-stacked only |
 | `ComposedChart` | `SeriesBar`, `Line`, `Area` | `XAxis` | `SeriesBar` aligns bars to dates — **not** `Bar` |
 | `ScatterChart` | `Scatter` | `XAxis` | colors default to `--chart-1…5` in child order; solid dots + opacity hover dim by default (rings via `strokeWidth`, blur via `inactiveMode="blur"`); `jitter` on the root spreads points that share a date (hover snaps to the nearest point; crosshair off by default); `formatXLabel` formats axis labels |
 | `CandlestickChart` | `Candlestick` | `XAxis` | |
@@ -48,6 +48,7 @@ import { XAxis } from "@/components/charts/x-axis";
 | `PieChart` | `PieSlice` per item, or one `PieTicks` (tick ring) | — | `PieCenter` for a center stat (`valueDisplay="percent"` for shares) |
 | `RingChart` | `Ring` per item | — | `RingCenter` |
 | `RadarChart` | `RadarArea` per item | — | `RadarGrid`, `RadarAxis`, `RadarLabels` |
+| `RadialChart` | one of `RadialBar`, `RadialRingBar`, `RadialDotBar`, `RadialArea` (all series stacked, from `series`), or `RadialLine` per `dataKey` | `RadialAxis` (clock ticks) | `series={[{ dataKey, label, color }]}` on the root; `ghostDataKey` for a faint comparison (e.g. yesterday); `RadialScrubber`, `RadialCenter`, `RadialLegend`; share `hoveredIndex` / `onHoverChange` with the legend |
 | `HeatmapChart` | `HeatmapCells` | `HeatmapXAxis`, `HeatmapYAxis` | wrap in `HeatmapInteractionProvider` + `HeatmapInteractionBoundary`; `HeatmapLegend`, `HeatmapTooltip` |
 | `SankeyChart` | `SankeyLink`, `SankeyNode` | — | `SankeyTooltip` |
 | `ChoroplethChart` | `ChoroplethFeatureComponent` | — | `ChoroplethGraticule`, `ChoroplethTooltip` |

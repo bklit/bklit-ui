@@ -4,7 +4,7 @@ Mechanics only — for how a loading state should *look* (pulse vs sweep, shimme
 
 ## One chart, driven by `status`
 
-`LineChart`, `AreaChart`, `BarChart`, and `HeatmapChart` accept `status: "loading" | "ready"` (default `"ready"`). While loading, the chart plots generated skeleton data; when it flips to `"ready"` it choreographs the hand-off (pulse exits → label fades → y-domain tween → clip reveal).
+`LineChart`, `AreaChart`, `BarChart`, `HeatmapChart`, and `ComposedChart` accept `status: "loading" | "ready"` (default `"ready"`). While loading, the chart plots generated skeleton data; when it flips to `"ready"` it choreographs the hand-off (pulse exits → label fades → y-domain tween → clip reveal).
 
 ### Incorrect
 
@@ -35,4 +35,4 @@ When there is no chart yet (e.g. a route-level fallback), use the wrappers insta
 
 ## Other charts
 
-Pie, ring, radar, gauge, funnel, sankey, sunburst, choropleth, scatter, candlestick, composed, and live line have no `status` prop — render your own placeholder of the same size, or delay mounting until data arrives (their enter animation then plays).
+Pie, ring, radial, radar, gauge, funnel, sankey, sunburst, choropleth, scatter, candlestick, and live line have no `status` prop — render your own placeholder of the same size, or delay mounting until data arrives (their enter animation then plays).

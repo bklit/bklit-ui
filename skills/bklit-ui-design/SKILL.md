@@ -47,6 +47,8 @@ Read `warnings` first — they flag the problems that make charts look broken
 
 ### 2. Parse the request into design intents
 
+If the request uses another library's styling words (Nivo `borderRadius`, `enableGridX`, `colors={{ scheme }}`; Recharts `radius`, `CartesianGrid`, `Cell`), translate them first with the **bklit-ui-vocabulary** crosswalk.
+
 Split the sentence into intents (background, fade, shape, fill, line, markers,
 tooltip, grid, legend, loading, motion, annotation) and look each up in
 [references/vocabulary.md](./references/vocabulary.md). Example:
@@ -96,10 +98,14 @@ squares, tokens only, dark mode verified, unique pattern ids.
 ### 7. Be honest about gaps
 
 If the request needs something Bklit lacks (see "Not supported" in the
-vocabulary — e.g. hexagon `Background` preset, glow on lines, stacked areas,
-labels on bars), say so plainly, then offer the nearest supported look or a
-small custom composition (recipe 15 shows the pattern). Never invent props such
-as `pattern="hexagons"` or `glow`.
+vocabulary — e.g. hexagon `Background` preset, glow on areas or bars, stacked
+areas, value labels on lines), say so plainly, then offer the nearest supported
+look or a small custom composition (recipe 15 shows the pattern). Never invent
+props such as `pattern="hexagons"` or `Bar glow`.
+
+If the user can't name what they want ("the line that follows the mouse",
+"the dot on a stick"), the **bklit-ui-vocabulary** skill turns the description
+into the term and the Bklit component first.
 
 ## Output checklist
 

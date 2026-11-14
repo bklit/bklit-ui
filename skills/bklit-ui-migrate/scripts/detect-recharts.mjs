@@ -627,7 +627,7 @@ function classifyChart(root, inner) {
   const unsupported = {
     LabelList: [
       WORKAROUND,
-      "LabelList: no data labels in bklit (drop, or use Legend / PieCenter)",
+      "LabelList: use showValue on Bar / Area (no value labels on Line / Scatter; use Legend / PieCenter there)",
     ],
     Label: [WORKAROUND, "Label: no in-SVG labels in bklit charts"],
     ErrorBar: [KEEP, "ErrorBar has no bklit equivalent"],

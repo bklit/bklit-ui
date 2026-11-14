@@ -12,12 +12,13 @@ Docs: `https://bklit.com/docs/components/<slug>`.
 |---|---|---|---|---|
 | `LineChart` | `LineChart` | `@bklit/line-chart` | `@/components/charts/line-chart` | Time x only. `xDataKey` default `"date"`; values may be `Date`, ISO string or epoch ms (`new Date(value)`). |
 | `AreaChart` | `AreaChart` | `@bklit/area-chart` | `@/components/charts/area-chart` | Time x only. No area stacking. |
-| `BarChart` | `BarChart` | `@bklit/bar-chart` | `@/components/charts/bar-chart` | Categorical x. `xDataKey` default `"name"`. `stacked`, `orientation`. Value domain starts at 0. |
+| `BarChart` | `BarChart` | `@bklit/bar-chart` | `@/components/charts/bar-chart` | Categorical x. `xDataKey` default `"name"`. `stacked`, `orientation`. Value domain always includes 0 (extends below for negatives). `showValue` for in-bar labels. |
 | `ComposedChart` | `ComposedChart` | `@bklit/composed-chart` | `@/components/charts/composed-chart` | Time x only. Children: `Line`, `Area`, `SeriesBar`, `Scatter`, `Candlestick`, `ProfitLossLine`, `Band`. Installs line-chart, area-chart, scatter-chart, candlestick-chart, profit-loss-line, y-axis too. |
 | `ScatterChart` | `ScatterChart` | `@bklit/scatter-chart` | `@/components/charts/scatter-chart` | Time x only (`xDataKey` default `"date"`); y domain `[0, max*1.1]`. |
 | `PieChart` + `Pie` | `PieChart` (data on root) | `@bklit/pie-chart` | `@/components/charts/pie-chart` | `data: PieData[]` = `{ label, value, color?, fill? }[]`. |
 | `RadarChart` | `RadarChart` | `@bklit/radar-chart` | `@/components/charts/radar-chart` | `metrics: {key,label}[]`, `data: {label, color?, values: Record<key, 0-100>}[]`. |
-| `RadialBarChart` | `RingChart` | `@bklit/ring-chart` | `@/components/charts/ring-chart` | `data: { label, value, maxValue, color? }[]` — progress rings. |
+| `RadialBarChart` (bars around a cycle, e.g. hours or months) | `RadialChart` + `RadialBar` / `RadialRingBar` / `RadialDotBar` | `@bklit/radial-chart` | `@/components/charts/radial-chart` (+ `radial-bar`, `radial-axis`, `radial-center`, …) | `data` rows keyed by `xDataKey` (default `"time"`) + `series={[{ dataKey, label, color }]}`. |
+| `RadialBarChart` (progress rings) | `RingChart` | `@bklit/ring-chart` | `@/components/charts/ring-chart` | `data: { label, value, maxValue, color? }[]` — progress rings. |
 | `RadialBarChart` (one value) | `Gauge` | `@bklit/gauge-chart` | `@/components/charts/gauge` | `value` 0–100, notched arc or linear. |
 | `FunnelChart` + `Funnel` | `FunnelChart` | `@bklit/funnel-chart` | `@/components/charts/funnel-chart` | `data: { label, value, displayValue?, color? }[]`. |
 | `Sankey` | `SankeyChart` | `@bklit/sankey-chart` | `@/components/charts/sankey` | Same `{ nodes: [{name}], links: [{source, target, value}] }` shape. |
@@ -64,7 +65,8 @@ Docs: `https://bklit.com/docs/components/<slug>`.
 | `ReferenceDot` | `ChartMarkers` (approximation) | `@bklit/markers` | `@/components/charts/markers` | Date-anchored icon markers `{ date, icon, title }`, not an (x, y) dot. |
 | `Brush` | `ChartBrush` + `ChartBrushLayout` | **not in any registry item** | — | Source exists in bklit; not installable via shadcn. Treat as a gap. |
 | `defs > linearGradient` | `Area` built-in gradient, or a gradient child + `fill="url(#id)"` | — | — | See `prop-map.md`. |
-| `LabelList`, `Label` (cartesian), `ErrorBar`, `Customized`, `ZAxis` | — | — | — | See `rules/gaps.md`. |
+| `LabelList` on `Bar` / `Area` | `showValue` on `Bar` / `Area` | — | — | Built-in value labels; see `rules/gaps.md`. |
+| `LabelList` (other series), `Label` (cartesian), `ErrorBar`, `Customized`, `ZAxis` | — | — | — | See `rules/gaps.md`. |
 
 ## shadcn wrapper (`components/ui/chart.tsx`)
 
