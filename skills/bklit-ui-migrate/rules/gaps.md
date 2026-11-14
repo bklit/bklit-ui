@@ -120,7 +120,7 @@ Correct: one `BarChart stacked` per group side by side, a grouped (unstacked) ch
 
 ## Fixed y domain / negative values — needs-workaround
 
-There is no `yDomain`/`domain` prop on `LineChart` / `AreaChart` / `BarChart` / `ScatterChart` (`ComposedChart` has `yDomains`, see below). Line/Area/Composed use `[0, max × 1.1]` (niced) for non-negative data and `[min − 5 %, max + 5 %]` when any value is negative. `BarChart` and `ScatterChart` always start at 0, so **negative bars and points do not render correctly**.
+There is no `yDomain`/`domain` prop on `LineChart` / `AreaChart` / `BarChart` / `ScatterChart` (`ComposedChart` has `yDomains`, see below). `LineChart yScaleDomainMax={v}` fixes the top only (the domain becomes `[0, v × 1.1]`). Line/Area/Composed use `[0, max × 1.1]` (niced) for non-negative data and `[min − 5 %, max + 5 %]` when any value is negative. `BarChart` always includes 0 and stretches below it when any value is negative, so negative bars render downward (grouped bars and `BarLollipop`; check stacked negatives visually). `ScatterChart` always uses `[0, max × 1.1]`, so **negative points do not render correctly**.
 
 Incorrect:
 
@@ -129,7 +129,7 @@ Incorrect:
 <LineChart yDomain={[0, 100]}>        {/* no such prop */}
 ```
 
-Correct: accept the auto domain (usually fine), or for a percentage chart accept that the top is `max × 1.1`. When the domain really matters, switch to `ComposedChart` and pass `yDomains={{ left: [0, 100] }}` (keyed by `yAxisId`; a function `([min, max]) => [...]` adjusts the auto domain). Hoist the object. For negative bars (profit/loss), use a `LineChart`/`ComposedChart` with `Grid highlightRowValues={[0]}`, or keep Recharts.
+Correct: accept the auto domain (usually fine), or for a percentage chart accept that the top is `max × 1.1`. When the domain really matters, switch to `ComposedChart` and pass `yDomains={{ left: [0, 100] }}` (keyed by `yAxisId`; a function `([min, max]) => [...]` adjusts the auto domain). Hoist the object. Negative bars (profit/loss) convert cleanly: `BarChart` with `Grid highlightRowValues={[0]}`, or `BarLollipop` for a diverging ranking. Negative scatter points: keep Recharts.
 
 ## X tick formatting and angled ticks — needs-workaround
 
@@ -137,13 +137,19 @@ Correct: accept the auto domain (usually fine), or for a percentage chart accept
 
 Incorrect: `<XAxis tickFormatter={(d) => format(d, "MMM yyyy")} />`
 
-Correct: for bar charts, reformat the category in the data (`month.slice(0, 3)`); for time charts accept `"MMM d"` or keep Recharts if month/year labels are a requirement. `numTicks` (time) and `maxLabels` (bars) control density.
+Correct: for bar charts, reformat the category in the data (`month.slice(0, 3)`). For time charts, accept `"MMM d"`, or pass `XAxis labels={rows.map((r) => format(r.date, "MMM yyyy"))}` (strings aligned with the data rows for the displayed ticks; read `x-axis.tsx` to confirm alignment for your tick mode). `ScatterChart formatXLabel` formats scatter x labels. `numTicks` (time) and `maxLabels` (bars) control density. Keep Recharts if angled ticks are a requirement.
 
 ## Data labels (`LabelList`, `<Label>` on cartesian series, series `label` prop) — needs-workaround
 
-Incorrect: `<Bar dataKey="value" showLabels />`
+Incorrect: `<Bar dataKey="value" showLabels />` / `<Bar dataKey="value"><LabelList dataKey="value" position="top" /></Bar>`
 
-Correct: drop the labels and rely on `ChartTooltip`, put values in a `Legend` with `LegendValue`, or keep Recharts. On pies/rings, a centre `<Label>` maps to `PieCenter`/`RingCenter` (clean). `FunnelChart` has built-in labels.
+Correct: bars and areas have value labels built in.
+
+- `Bar showValue` prints each value inside its bar when it fits. Tune it with `valueLabelFormatter={(v) => …}`, `valueLabelPosition="top" | "center" | "bottom"` (default `"center"`), `valueLabelOrientation="auto" | "horizontal" | "vertical"`, `valueLabelColor` (default `"white"`) and `valueLabelClassName`. Labels sit **inside** the bar; Recharts `position="top"` outside the bar has no exact match.
+- `Area showValue` labels points along the area, thinned to fit (`valueLabelMinCount` 2, `valueLabelMaxCount`, `valueLabelFormatter`, `valueLabelColor`, `fadeValueLabels`).
+- Line, scatter and composed `SeriesBar` have no value labels: rely on `ChartTooltip`, or put values in a `Legend` with `LegendValue`.
+
+On pies/rings, a centre `<Label>` maps to `PieCenter`/`RingCenter` (clean). `FunnelChart` has built-in labels. Treat `LabelList` on `Bar`/`Area` as clean; on other series it stays needs-workaround.
 
 ## `syncId` — needs-workaround
 
@@ -160,7 +166,8 @@ Incorrect: `<ReferenceLine y={0} />` imported from bklit (no such export).
 Correct:
 
 - Horizontal line at `y = v` → `<Grid horizontal highlightRowValues={[v]} />` — a solid full-width line at any `v` (style with `highlightRowStroke`, `highlightRowStrokeDasharray`, …; requires `horizontal`, so add `strokeOpacity={0}` if the chart had no grid). No label: put the label in the heading or legend. For a band, `<ReferenceArea y1={a} y2={b} />` (`@bklit/reference-area`).
-- Vertical line at a date → `ChartMarkers` (`@bklit/markers`) with `{ date, icon, title }`.
+- Vertical line at a date → `<Deadline date={d} fillType="none" label="…" />` (`@bklit/deadline`; drop `fillType` to also shade the time after it), or `ChartMarkers` (`@bklit/markers`) with `{ date, icon, title }` for an icon pin.
+- Goal line that a forecast should reach → `ProjectionLine target={v}` (rings the crossing point; `showGuides` adds dashed verticals).
 - `ReferenceDot` → `ChartMarkers` at that date (an icon marker with a guide line, not a dot at `(x, y)`).
 
 `ReferenceArea` itself maps cleanly (`x1`, `x2`, `y1`, `y2`).
@@ -193,7 +200,7 @@ Correct: leave the file untouched, keep `recharts` in `package.json`, and alias 
 
 ## Click handlers — needs-workaround
 
-No `onClick` on `Bar`/`Line`/`Area`/`Scatter`. Use `onHoverChange` + `hoveredIndex` on `PieChart`/`RingChart`/`RadarChart`/`FunnelChart`, `ChartMarkers` items (`onClick`, `href`), or keep Recharts for drill-down charts.
+No `onClick` on `Bar`/`Line`/`Area`/`Scatter`. Use `onHoverChange` + `hoveredIndex` on `PieChart`/`RingChart`/`RadarChart`/`FunnelChart`/`RadialChart`/`SunburstChart` (sunburst also has `focusId` / `onFocusChange` for drill-down), `ChartMarkers` items (`onClick`, `href`), or keep Recharts for drill-down charts.
 
 ## Sparklines: tooltip, axes, multiple series — needs-workaround
 

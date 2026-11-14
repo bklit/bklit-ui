@@ -65,8 +65,214 @@ You're all set! Browse the [Components](/docs/components) section to start addin
 
 ## Guides
 
+<doc title="React Native" path="../apps/web/content/docs/react-native.mdx">
+<Callout type="warn" title="Beta">
+  The React Native charts are new. Line and area charts are ready to use; the API may still change. Tested on iPhone with Expo SDK 58. Please [open an issue](https://github.com/bklit/bklit-ui/issues) if something looks off, especially on Android.
+</Callout>
+
+Bklit's React Native charts use the same components and props as the web charts (`LineChart`, `Line`, `Grid`, `XAxis`, `ChartTooltip`, and so on). Under the hood they draw with [React Native Skia](https://shopify.github.io/react-native-skia/) and animate with [Reanimated](https://docs.swmansion.com/react-native-reanimated/), so scrubbing, springs and morphs run on the UI thread at full frame rate, without re-rendering React.
+
+<ExpoPreview />
+
+## Compatibility
+
+<PlatformCompat />
+
+- **Needs the New Architecture.** Reanimated 4 requires it. It's on by default in every new Expo and React Native app, so you don't need to do anything.
+- **Works in Expo Go.** Skia, Reanimated and Gesture Handler are all built into Expo Go, so you don't need a custom build to get started.
+- **Not for the web.** For websites, use the [web charts](/docs/installation). They are lighter on the web than Skia.
+
+## Installation
+
+New to Expo? Follow these steps in order. You'll need [Node.js](https://nodejs.org) 22 or newer and the **Expo Go** app on your phone.
+
+### 1. Create an Expo app
+
+Skip this step if you already have one.
+
+```bash
+npx create-expo-app@latest my-app
+cd my-app
+```
+
+### 2. Add a `components.json`
+
+Bklit charts install with the [shadcn CLI](https://ui.shadcn.com/docs/cli), which copies the chart files into your project so you can read and change them. It needs a small `components.json` file in the root of your project (next to `package.json`). Create it with:
+
+```json title="components.json"
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "new-york",
+  "rsc": false,
+  "tsx": true,
+  "tailwind": {
+    "config": "",
+    "css": "",
+    "baseColor": "neutral",
+    "cssVariables": false
+  },
+  "aliases": {
+    "components": "@/components",
+    "utils": "@/lib/utils"
+  },
+  "registries": {
+    "@bklit": "https://ui.bklit.com/r/{name}.json"
+  }
+}
+```
+
+The `tailwind` fields are only there because the CLI expects them. The charts don't use Tailwind.
+
+### 3. Add the charts
+
+```bash
+npx shadcn@latest add @bklit/native-charts
+```
+
+This copies the charts into `components/charts` (or `src/components/charts`) and installs what they need:
+
+- React Native Skia, Reanimated, Gesture Handler and Worklets. In an Expo project the CLI installs these with `npx expo install`, so you get the versions that match your Expo SDK.
+- `d3-array`, `d3-scale` and `d3-shape`, plus their types.
+
+### 4. Wrap your app in `GestureHandlerRootView`
+
+Scrubbing and range selection use [Gesture Handler](https://docs.swmansion.com/react-native-gesture-handler/), which needs one wrapper around your whole app. Open your root layout (`src/app/_layout.tsx` in a new Expo app) and wrap what it returns:
+
+```tsx title="src/app/_layout.tsx"
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+
+export default function RootLayout() {
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      {/* …everything your layout already returns… */}
+    </GestureHandlerRootView>
+  );
+}
+```
+
+### 5. Add your first chart
+
+Replace the contents of a screen, for example `src/app/index.tsx`:
+
+```tsx title="src/app/index.tsx"
+import { ScrollView } from "react-native";
+import {
+  ChartTooltip,
+  Grid,
+  Line,
+  LineChart,
+  XAxis,
+} from "@/components/charts";
+
+const data = [
+  { date: new Date("2026-01-05"), visitors: 1200 },
+  { date: new Date("2026-01-06"), visitors: 1480 },
+  { date: new Date("2026-01-07"), visitors: 1350 },
+  { date: new Date("2026-01-08"), visitors: 1710 },
+  { date: new Date("2026-01-09"), visitors: 1640 },
+];
+
+export default function Home() {
+  return (
+    <ScrollView contentContainerStyle={{ padding: 16 }}>
+      <LineChart data={data}>
+        <Grid horizontal />
+        <Line dataKey="visitors" label="Visitors" />
+        <XAxis />
+        <ChartTooltip />
+      </LineChart>
+    </ScrollView>
+  );
+}
+```
+
+### 6. Run it
+
+```bash
+npx expo start
+```
+
+Scan the QR code in the terminal with your phone's camera (iPhone) or the Expo Go app (Android). The line draws in; drag across it to scrub.
+
+## Usage
+
+Charts are composed from the same pieces as on the web. A chart takes `data` (an array of rows with a `date`) and draws whatever you put inside it:
+
+```tsx
+<AreaChart data={data} aspectRatio={1.4}>
+  <Background pattern="dots" />
+  <Grid horizontal />
+  <Area dataKey="revenue" label="Revenue" fillOpacity={0.1} />
+  <Area dataKey="costs" label="Costs" fillOpacity={0.1} />
+  <XAxis />
+  <ChartTooltip formatValue={(v) => `$${v.toLocaleString()}`} />
+</AreaChart>
+```
+
+| Component | What it draws |
+| --- | --- |
+| `LineChart`, `AreaChart` | The chart: scales, gestures and layout. Size with `aspectRatio` (default `2`) or `height` |
+| `Line`, `Area` | A series. Faded edges, highlight while scrubbing and morphing on data changes are on by default |
+| `Grid`, `XAxis` | Gridlines (with an optional dashed zero line) and date labels |
+| `ChartTooltip` | Crosshair, dots, the rolling date pill and the floating panel |
+| `Background`, `PatternArea`, `Weekends` | Pattern backdrops, pattern-filled areas and weekend stripes |
+| `Band`, `ReferenceArea` | A range between two keys, or a solid band over a value range |
+| `TrendLine`, `ProjectionLine`, `LineSeriesTerminalMarker` | Regression lines and forecasts |
+| `ProfitLossLine` | A line coloured green above zero and red below |
+| `ChartMarkers`, `DiamondMarkers` | Event markers above the plot |
+| `SegmentBackground`, `SegmentLineFrom`, `SegmentLineTo`, `SegmentChangeBadge` | Two-finger range selection |
+
+## Gestures
+
+- **Drag sideways with one finger** to scrub. Dragging up or down still scrolls the page.
+- **Put two fingers on the chart** to select the range between them. The selection stays until the next touch.
+
+Add haptics with `onActiveIndexChange`, which runs once per data point you pass:
+
+```tsx
+import * as Haptics from "expo-haptics";
+
+<LineChart
+  data={data}
+  onActiveIndexChange={(index) => {
+    if (index !== null) Haptics.selectionAsync();
+  }}
+>
+```
+
+## Theming
+
+Charts follow the phone's light or dark mode automatically. Override any colour with the `theme` prop, and tune the tooltip springs with `springs`:
+
+```tsx
+<LineChart
+  data={data}
+  theme={{ linePrimary: "#0ea5e9", grid: "#e5e7eb" }}
+  springs={{ tooltipBox: { stiffness: 140, damping: 22 } }}
+>
+```
+
+Colours are hex values rather than CSS variables, because React Native has no CSS. Animations respect the phone's **Reduce Motion** setting.
+
+## How it differs from the web
+
+- **No hover.** Touch replaces the pointer. Range selection uses two fingers instead of press-and-drag, because one-finger drag scrubs.
+- **The tooltip panel stays at the top** of the chart instead of following your finger, so your finger doesn't cover it.
+- **Line and area charts only for now.** More chart types will follow.
+
+## Troubleshooting
+
+**The app crashes or warns about `GestureHandlerRootView`.** Wrap your root layout as shown in [step 4](#4-wrap-your-app-in-gesturehandlerrootview).
+
+**Expo Go says the project needs a different SDK.** Update the Expo Go app from the App Store or Google Play, or upgrade your project with `npx expo install expo@latest --fix`.
+
+**The shadcn CLI asks which component library to use.** It didn't find your `components.json`. Make sure it's in the project root, next to `package.json` ([step 2](#2-add-a-componentsjson)).
+
+**You're not using Expo.** Install `@shopify/react-native-skia`, `react-native-reanimated`, `react-native-gesture-handler` and `react-native-worklets` with your package manager, run `npx pod-install` for iOS, and follow each library's setup guide (Reanimated needs its Babel plugin). Then add the charts as in step 3.
+</doc>
+
 <doc title="Skills" path="../apps/web/content/docs/skills.mdx">
-Skills give AI coding agents project-aware context about Bklit UI. Once installed, your agent knows how to install charts from the `@bklit` registry, import them from the files the CLI wrote, compose and theme them, style them with Bklit's design vocabulary, and migrate existing charts.
+Skills give AI coding agents project-aware context about Bklit UI. Once installed, your agent knows how to install charts from the `@bklit` registry, import them from the files the CLI wrote, compose and theme them, style them with Bklit's design vocabulary, migrate existing charts, and find the right word for a chart you can only describe.
 
 For example, you can ask your agent to:
 
@@ -79,6 +285,8 @@ For example, you can ask your agent to:
 - "Migrate all our shadcn charts to Bklit."
 - "Swap our TanStack Charts KPI sparklines for Bklit sparklines."
 - "Fix the crosshair color on my candlestick chart tooltip."
+- "What's it called when bars are a thin stick with a dot on top?"
+- "I used `stackId` and `ResponsiveContainer` in Recharts. What are the Bklit equivalents?"
 
 ## Install
 
@@ -86,12 +294,13 @@ For example, you can ask your agent to:
 npx skills add bklit/bklit-ui
 ```
 
-This installs all three public skills. To install just one, pass `--skill`:
+This installs all four public skills. To install just one, pass `--skill`:
 
 ```bash
 npx skills add bklit/bklit-ui --skill bklit-ui
 npx skills add bklit/bklit-ui --skill bklit-ui-design
 npx skills add bklit/bklit-ui --skill bklit-ui-migrate
+npx skills add bklit/bklit-ui --skill bklit-ui-vocabulary
 ```
 
 Your agent loads each skill automatically when a request matches it. Learn more about skills at [skills.sh](https://skills.sh/docs/).
@@ -103,6 +312,7 @@ Your agent loads each skill automatically when a request matches it. Learn more 
 | **bklit-ui** | Installing, importing, composing, theming, and animating charts — the core skill |
 | **bklit-ui-design** | How charts look: patterns and textures, rounded / squircle / 3D bars, edge fades, gradients, loading looks, and matching your app's theme |
 | **bklit-ui-migrate** | Moving from Recharts, shadcn `ChartContainer`, or TanStack Charts to Bklit equivalents, including tiny charts to sparklines |
+| **bklit-ui-vocabulary** | Naming what you mean: turns a loose description, or another library's term, into the precise chart term and the Bklit component or prop that provides it |
 
 ## What bklit-ui covers
 
@@ -130,7 +340,7 @@ Root chart → `Grid` → series → axes → overlays → `ChartTooltip`; `char
 
 ### Catalog
 
-18 chart items — area, bar, line, sparkline (line, area and bar, with `useSparklineHover`), live line, composed, scatter, candlestick, profit/loss line, pie, ring, radar, gauge, heatmap, funnel, sankey, sunburst, and choropleth — plus add-ons (axes, grid, tooltip, legend, markers, background, patterns, reference area, projection line, band, bar depth, stat flow) and stat-card blocks, each with install commands and links to [docs](/docs/components), the [charts gallery](/charts/area-chart), and [Studio](/studio).
+19 chart items — area, bar (including lollipop and squared bars), line, sparkline (line, area and bar, with `useSparklineHover`), live line, composed, scatter, candlestick, profit/loss line, pie, ring, radial (bars, dots, lines and areas around a clock), radar, gauge (notched, solid and sector dials with rulers, needles, zones and progress dots), heatmap, funnel, sankey, sunburst, and choropleth — plus add-ons (axes, grid, tooltip, crosshair, legend, markers, background, patterns, reference area, projection line, band, trend line, weekends, deadline, bar depth, stat flow) and stat-card blocks, each with install commands and links to [docs](/docs/components), the [charts gallery](/charts/area-chart), and [Studio](/studio).
 
 ## What bklit-ui-design covers
 
@@ -148,8 +358,12 @@ Plain-English requests map to exact components and props. For example:
 | "Squircle bars" | `BarSquares` with `squareRadius={0.5}`, plus a ring tooltip |
 | "Pill bars" / "square bars" | `Bar` with `lineCap="round"` / `lineCap="butt"` |
 | "3D glass bars" | `BarDepthBack` → `Bar perspective` → `BarDepthFront` |
-| "Hatched area" | `PatternLines` with `PatternArea` |
+| "Hatched area" | `PatternPreset` with `PatternArea` |
 | "Dashed last few days" / "forecast" | `dashFromIndex` / `ProjectionLine` |
+| "Shaded forecast that hits a goal" | `ProjectionLine` with `areaFill` and `target` |
+| "Numbers on the bars" | `Bar` with `showValue` |
+| "Lollipop bars" | `BarLollipop` |
+| "Glowing line" | `Line` with `glow` |
 | "Target band" | `ReferenceArea` |
 | "Min/max range" / "Range area" / "Bollinger bands" | `Band` (+ `withBollingerBands`) |
 | "Shade weekends" | `Weekends` |
@@ -182,6 +396,27 @@ TanStack Charts coverage focuses on what Bklit supports: sparklines map closely,
 ### Converting
 
 Files are converted one at a time: data is reshaped where needed (for example, x values to dates), components and props are mapped, and `ChartConfig` colors and labels carry over to series and tooltip rows. `components/ui/chart.tsx` and the `recharts` or `@tanstack/charts` dependency are removed only once nothing imports them, then the project is typechecked and built.
+
+## What bklit-ui-vocabulary covers
+
+### Naming what you mean
+
+Describe a chart, a part of a chart or a behavior, and the skill names it, then points to the Bklit piece that provides it. It works like a reverse dictionary for data visualization:
+
+| You say | The term | In Bklit |
+|---------|----------|----------|
+| "The line that follows my mouse" | Crosshair | `ChartTooltip showCrosshair`, `ChartCrosshair` |
+| "A thin stick with a dot on top" | Lollipop chart | `BarLollipop` |
+| "The shaded min/max range around the line" | Range band | `Band upperKey lowerKey` |
+| "The strip that marks the normal range" | Reference area | `ReferenceArea y1 y2` |
+| "Bars around a clock face" | Radial bar chart | `RadialChart` + `RadialBar` |
+| "Where the forecast reaches the goal" | Goal crossing | `ProjectionLine target` |
+
+The glossary covers chart types, anatomy, scales and axes, marks, stacking, color, reference and annotation, interaction, motion and loading, and radial geometry. When a chart has no Bklit component, such as a treemap, box plot or stacked area, the skill says so plainly and suggests the nearest option.
+
+### Coming from another library
+
+A crosswalk maps the terms used by Recharts, Nivo, TanStack React Charts, TanStack Charts (`@tanstack/charts`) and d3 to Bklit. You can ask for a chart in the words you already know — "a Bklit bar chart with Nivo's `groupMode="stacked"` and `enableLabel`" — and the agent translates them to `BarChart stacked` and `Bar showValue` before it builds. It also flags false friends, where the same word means different things. For example, Recharts `layout="vertical"` means horizontal bars, a d3 scale's `range` is pixels rather than a value band, and Recharts `barGap` is pixels while Bklit's is a fraction.
 
 ## Learn more
 
@@ -226,7 +461,7 @@ The series colors `--chart-1` … `--chart-5` plus the trend colors `--chart-pos
 
 | Palette | Series colors (light mode) |
 |---------|-------------|
-| **Primary** (default) | Indigo, yellow, fuchsia, mist, black (white in dark mode) |
+| **Primary** (default) | Indigo, yellow, purple, mist, black (white in dark mode) |
 | **Monochrome** | Stone ramp (zinc ramp in dark mode) |
 | **Ocean** | Blue, cyan, teal, indigo, sky |
 | **Sunset** | Orange, rose, amber, purple, pink |
@@ -345,7 +580,7 @@ These are used for coloring different data series in multi-series charts, pie an
 |-------------|-------|------|
 | `--chart-1` | `oklch(0.585 0.233 277.117)` (indigo) | same |
 | `--chart-2` | `oklch(0.852 0.199 91.936)` (yellow) | same |
-| `--chart-3` | `oklch(0.667 0.295 322.15)` (fuchsia) | same |
+| `--chart-3` | `oklch(0.459 0.156 302.679)` (purple) | same |
 | `--chart-4` | `oklch(0.56 0.021 213.5)` (mist) | same |
 | `--chart-5` | `oklch(0 0 0)` (black) | `oklch(1 0 0)` (white) |
 
@@ -485,7 +720,7 @@ Override CSS variables in your stylesheet to customize chart appearance. You onl
   /* Series colors */
   --chart-1: oklch(0.585 0.233 277.117);
   --chart-2: oklch(0.852 0.199 91.936);
-  --chart-3: oklch(0.667 0.295 322.15);
+  --chart-3: oklch(0.459 0.156 302.679);
   --chart-4: oklch(0.56 0.021 213.5);
   --chart-5: oklch(0 0 0);
 
@@ -980,8 +1215,9 @@ For a fresh install, see [Installation](/docs/installation).
 
 <doc title="Area Chart" path="../apps/web/content/docs/components/area-chart.mdx">
 import { studioChartHref } from "@bklitui/studio";
-import { AreaChart, Area, Grid, XAxis, ChartTooltip, ChartBrush, ChartBrushLayout, PatternLines, PatternArea } from "@bklitui/ui/charts";
+import { AreaChart, Area, Grid, XAxis, ChartTooltip, ChartBrush, ChartBrushLayout, PatternArea } from "@bklitui/ui/charts";
 import { AreaChartBrushDemo } from "@/components/docs/area-chart-brush-demo";
+import { AreaChartPatternDemo } from "@/components/docs/area-chart-pattern-demo";
 import { AreaChartYDomainDemo } from "@/components/docs/area-chart-y-domain-demo";
 import { AreaTooltipDemo } from "@/components/docs/area-tooltip-demo";
 import { DateHighlightsAreaDemo } from "@/components/docs/date-highlights-demo";
@@ -1102,7 +1338,8 @@ Renders a filled area on the chart with a gradient fill.
 | `showLine` | `boolean` | `true` | Show stroke line on top |
 | `showHighlight` | `boolean` | `true` | Show highlight on hover |
 | `gradientToOpacity` | `number` | `0` | Opacity at bottom of gradient |
-| `fadeEdges` | `boolean` | `false` | Fade area fill at left/right edges |
+| `fadeEdges` | `boolean \| "left" \| "right" \| { left?: number; right?: number }` | `false` | Fade the fill (and line) at the left/right edges. The object form sets each side's fade size as % of the plot width (0–50, `0` = off); `true` / `"left"` / `"right"` use 15% |
+| `fadeBottom` | `number` | — | Fade the fill out over the bottom N% of the area height (0–100; `100` = full-height fade, `0` = flat). Replaces `gradientToOpacity` / `gradientSpan` when set |
 | `showMarkers` | `boolean` | `false` | Render scatter-style ring markers at each point |
 | `loadingStroke` | `string` | `var(--foreground)` | Pulse stroke color while chart is loading |
 | `loadingStrokeOpacity` | `number` | `0.5` | Pulse stroke opacity while chart is loading |
@@ -1116,13 +1353,38 @@ Renders a filled area on the chart with a gradient fill.
 
 ### PatternArea
 
-Renders a filled area using an SVG pattern (`url(#id)`). Define the pattern (e.g. `PatternLines`) as a child of `AreaChart`, then pair `PatternArea` with an `Area` that has `fillOpacity={0}` for the stroke line.
+Renders a filled area using an SVG pattern (`url(#id)`). Define the pattern (e.g. [`PatternPreset`](/docs/utility/patterns)) as a child of `AreaChart`, then pair `PatternArea` with an `Area` that has `fillOpacity={0}` for the stroke line. See [Patterns](/docs/utility/patterns) for every preset.
+
+<ComponentShowcase
+  code={`import { Area, AreaChart, ChartTooltip, Grid, PatternArea, PatternPreset, XAxis } from "@bklitui/ui/charts";
+
+<AreaChart data={data}>
+  <PatternPreset id="area-doc-pattern" preset="diagonal-up" color="var(--chart-1)" />
+  <Grid horizontal />
+  <PatternArea dataKey="desktop" fill="url(#area-doc-pattern)" />
+  <Area dataKey="desktop" fillOpacity={0} strokeWidth={2} />
+  <XAxis />
+  <ChartTooltip />
+</AreaChart>`}
+>
+  <AreaChartPatternDemo />
+</ComponentShowcase>
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `dataKey` | `string` | required | Key in data for y values |
 | `fill` | `string` | required | Fill color or pattern URL (e.g. `url(#pattern-id)`) |
 | `curve` | `CurveFactory` | `curveMonotoneX` | D3 curve function |
+| `fillOpacity` | `number` | `1` | Pattern opacity |
+| `fadeBottom` | `number` | `0` | Fade the pattern out over the bottom N% of the area height (0–100) |
+| `fadeEdges` | `boolean \| "left" \| "right" \| { left?: number; right?: number }` | `false` | Fade the pattern at the left/right edges — same values as `Area` |
+
+Pair a faded `PatternArea` with the same `fadeEdges` on its stroke `Area` so the line fades with it:
+
+```tsx
+<PatternArea dataKey="revenue" fill="url(#area-pattern)" fadeBottom={100} fadeEdges={{ left: 15, right: 30 }} />
+<Area dataKey="revenue" fillOpacity={0} fadeEdges={{ left: 15, right: 30 }} />
+```
 
 ### Grid
 
@@ -1777,7 +2039,7 @@ Renders a **Shape** bar as a vertical stack of discrete squares instead of a con
 | `squareFit`     | `boolean`                     | `false`                     | Redistribute gap so columns fit bar height exactly      |
 | `useGradient`   | `boolean`                     | `false`                     | Apply a bar-spanning gradient from `gradientStops`      |
 | `gradientStops` | `{ offset: number; color: string }[]` | —                 | Gradient stops (0–100) when `useGradient` is true     |
-| `patternPreset` | pattern preset id             | —                           | Pattern preset when `fill` is a pattern url             |
+| `patternPreset` | pattern preset id             | —                           | [Pattern preset](/docs/utility/patterns) when `fill` is a pattern url |
 | `groupGap`      | `number`                      | `4`                         | Gap between grouped series columns in pixels            |
 | `fadedOpacity`  | `number`                      | `0.3`                       | Opacity when another bar is hovered                     |
 | `animate`       | `boolean`                     | `true`                      | Enable enter animation                                  |
@@ -1828,6 +2090,53 @@ Optional underlay for Shape bars: patterned or solid fill in the **empty space a
 | `groupGap`     | `number` | `4`                | Match `<BarSquares groupGap>`                      |
 
 Tracks animate from full column height on enter and shrink in sync as squares stack upward.
+
+### BarLollipop
+
+Renders a **Lollipop** series: a thin stem (dashed by default) from the zero baseline to a round dot at each value, instead of a filled `<Bar>`. Negative values hang below zero, so it doubles as a diverging profit / loss ranking. It also draws a solid zero line and a soft full-height pill behind the hovered column. Use one `<BarLollipop>` per series (grouped, vertical charts only).
+
+| Prop                 | Type                                         | Default                         | Description                                                        |
+| -------------------- | -------------------------------------------- | ------------------------------- | ------------------------------------------------------------------ |
+| `dataKey`            | `string`                                     | required                        | Key in data for values                                             |
+| `yAxisId`            | `string \| number`                           | series default                  | Y-scale group for biaxial charts                                   |
+| `fill`               | `string`                                     | `var(--chart-line-primary)`     | Dot color                                                          |
+| `colorKey`           | `string`                                     | —                               | Datum key with a per-row dot color (e.g. a status tier)            |
+| `stroke`             | `string`                                     | —                               | Tooltip dot color for the series                                   |
+| `radius`             | `number`                                     | `6`                             | Dot radius in pixels                                               |
+| `activeRadiusOffset` | `number`                                     | `1.5`                           | Extra radius on the hovered dot                                    |
+| `showHalo`           | `boolean`                                    | `true`                          | Soft halo behind the hovered dot                                   |
+| `stemStroke`         | `string`                                     | `var(--chart-foreground-muted)` | Stem color                                                         |
+| `stemWidth`          | `number`                                     | `1.5`                           | Stem width in pixels                                               |
+| `stemDasharray`      | `string`                                     | `"4,4"`                         | Stem dash pattern; `""` draws a solid stem                         |
+| `stemOpacity`        | `number`                                     | `0.45`                          | Stem opacity at rest (hovered stems go to 0.9)                     |
+| `stemGap`            | `number`                                     | `3`                             | Space between the stem end and the dot edge                        |
+| `showBaseline`       | `boolean`                                    | `true`                          | Solid zero line across the plot                                    |
+| `showHighlight`      | `boolean`                                    | `true`                          | Rounded full-height pill behind the hovered column                 |
+| `highlightWidth`     | `number`                                     | `radius * 4`                    | Highlight pill width                                               |
+| `highlightOpacity`   | `number`                                     | `0.06`                          | Highlight pill opacity                                             |
+| `fadedOpacity`       | `number`                                     | `1`                             | Opacity of the other columns while one is hovered                  |
+| `dimRow`             | `(datum, index) => boolean`                  | —                               | Fade matching rows (e.g. rows outside a hovered legend tier)       |
+| `groupGap`           | `number`                                     | `4`                             | Gap between grouped series in pixels                               |
+| `animate`            | `boolean`                                    | `true`                          | Grow stems out of the baseline on enter                            |
+| `staggerDelay`       | `number`                                     | auto                            | Override per-column stagger delay (seconds)                        |
+
+The dot already marks the hovered value, so hide the tooltip's crosshair and dots:
+
+```tsx
+const rows = data.map((row) => ({
+  ...row,
+  color: row.profit >= 0 ? "var(--chart-positive)" : "var(--chart-negative)",
+}));
+
+<BarChart data={rows} xDataKey="month">
+  <Grid horizontal strokeDasharray="3,4" />
+  <BarLollipop colorKey="color" dataKey="profit" />
+  <BarXAxis />
+  <ChartTooltip showCrosshair={false} showDots={false} />
+</BarChart>
+```
+
+See the **Lollipop** and **Lollipop Profit & Loss** examples on the [bar chart gallery](/charts/bar-chart), and the [Lollipop profit / loss recipe](/recipes?q=lollipop) for tiered colors with a linked legend.
 
 ### BarXAxis
 
@@ -2342,6 +2651,10 @@ The root component that sets up the Mercator projection and provides context to 
 | `zoomMin` | `number` | `0.5` | Minimum zoom scale |
 | `zoomMax` | `number` | `4` | Maximum zoom scale |
 | `initialZoom` | `TransformMatrix` | identity | Initial zoom transform |
+| `clickToZoom` | `boolean` | `false` | Click a region or marker to fly the camera to it. Click it again, the empty map, or press Escape to fly back |
+| `focusMaxZoom` | `number` | `6` | Maximum camera scale when focusing a region |
+| `zoomTransition` | `{ duration?: number; ease?: [number, number, number, number] }` | `{ duration: 700, ease: [0.83, 0, 0.17, 1] }` | Duration (ms) and cubic-bezier of the click-to-zoom flight and camera angle change |
+| `perspective` | `ChoroplethPerspective` | - | 3D camera — see [Camera and perspective](#camera-and-perspective) |
 | `className` | `string` | `""` | Additional CSS class |
 
 ### ChoroplethFeatureComponent
@@ -2355,7 +2668,7 @@ Renders the geographic feature paths with hover states and optional patterns.
 | `strokeWidth` | `number` | `0.5` | Border stroke width |
 | `fadedOpacity` | `number` | `0.4` | Opacity when another feature is hovered |
 | `getFeatureColor` | `(feature, index) => string` | - | Custom color function |
-| `patterns` | `ReactNode` | - | Pattern definitions, e.g. `PatternLines` from the `@bklit/patterns` registry item |
+| `patterns` | `ReactNode` | - | Pattern definitions, e.g. [`PatternPreset`](/docs/utility/patterns) from the `@bklit/patterns` registry item |
 | `getFeaturePattern` | `(feature, index) => string \| null` | - | Return pattern ID for a feature |
 
 ### ChoroplethGraticule
@@ -2367,6 +2680,61 @@ Renders optional graticule (latitude/longitude grid lines).
 | `stroke` | `string` | `"rgba(255,255,255,0.1)"` | Line color |
 | `strokeWidth` | `number` | `0.5` | Line width |
 | `step` | `[number, number]` | `[10, 10]` | Grid step intervals [longitude, latitude] in degrees |
+| `hideOnFocus` | `boolean` | `true` | Fade the lines out while the camera is focused on a region or marker |
+
+### ChoroplethDotGrid
+
+Draws the map as one dot lattice instead of filled regions. Use it in place of `ChoroplethFeatureComponent`. Each dot belongs to the region its centre lands on and is always drawn whole, so coastlines and borders never cut a dot.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `gap` | `number` | `7` | Distance between dot centres in px |
+| `dotSize` | `number` | `0.7` | Dot diameter as a fraction of `gap` |
+| `zoomDotSize` | `number` | `0.9` | Dot diameter (fraction of `gap`) at `focusMaxZoom` — dots grow toward it as the camera zooms in |
+| `lattice` | `"hex" \| "square"` | `"hex"` | `hex` offsets every other row |
+| `showOcean` | `boolean` | `true` | Continue the grid over oceans |
+| `oceanColor` | `string` | `"var(--chart-scale-01)"` | Ocean dot colour |
+| `oceanOpacity` | `number` | `0.55` | Ocean dot opacity |
+| `oceanDotScale` | `number` | `0.55` | Ocean dot size relative to land dots |
+| `hideOceanOnFocus` | `boolean` | `true` | Fade ocean dots out while the camera is focused |
+| `edgeFade` | `number` | `12` | Fade the grid out toward the map edges, as % per side. `0` keeps hard edges |
+| `fill` | `string` | - | Uniform dot colour (overrides `getFeatureColor`) |
+| `getFeatureColor` | `(feature, index) => string` | - | Per-region dot colour |
+| `fadedOpacity` | `number` | `0.4` | Opacity of other regions while one is hovered |
+
+### ChoroplethMarker
+
+A point on the map at `[longitude, latitude]`. Markers keep the same on-screen size while the map zooms, show their label in `ChoroplethTooltip`, and fly the camera to themselves when `clickToZoom` is on.
+
+```tsx
+<ChoroplethMarker coordinates={[-0.13, 51.51]} label="London" shape="pin" pulse="always" glow={6} />
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `coordinates` | `[number, number]` | required | `[longitude, latitude]` |
+| `label` | `string` | required | Name shown in the tooltip |
+| `shape` | `"circle" \| "triangle" \| "square" \| "diamond" \| "pin"` | `"circle"` | Marker shape. `pin` puts its tip on the coordinate |
+| `size` | `number` | `9` | Size in px |
+| `color` | `string` | `"var(--foreground)"` | Fill colour |
+| `stroke` | `string` | - | Outline colour. Omit for no outline |
+| `strokeWidth` | `number` | `1.5` | Outline width (with `stroke`) |
+| `pulse` | `"none" \| "hover" \| "always"` | `"hover"` | Ripple ring. Respects reduced motion |
+| `glow` | `number` | `0` | Outer glow blur in px; `0` turns it off |
+| `showLabel` | `boolean` | `false` | Always draw the label beside the marker |
+
+### ChoroplethBackground
+
+A static pattern behind the map, with the same options as the cartesian [`Background`](/docs/utility/background) (pattern, colour, opacity, edge fades). It doesn't zoom, pan or tilt with the camera.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `pattern` | `PatternPresetId` | `"diagonal-up"` | Pattern preset |
+| `color` | `string` | `"var(--chart-grid)"` | Pattern colour |
+| `opacity` | `number` | `1` | Pattern opacity |
+| `fadeHorizontal` / `fadeVertical` | `boolean` | `true` | Fade the pattern at the chart edges |
+| `fadeHorizontalLength` / `fadeVerticalLength` | `number` | `10` | Fade zone, % per edge |
+| `hideOnFocus` | `boolean` | `false` | Fade the pattern out while the camera is focused |
 
 ### ChoroplethTooltip
 
@@ -2384,6 +2752,38 @@ Displays tooltips for features on hover, following the mouse position.
 | `className` | `string` | `""` | Additional CSS class |
 | `backgroundColor` | `string` | `var(--chart-tooltip-background)` | Tooltip panel background color |
 | `panelStyle` | `CSSProperties` | - | Inline styles for the tooltip panel (background, blur, etc.) |
+
+## Camera and perspective
+
+With `clickToZoom`, clicking a region frames its largest landmass (France frames France, not French Guiana); clicking a marker centres it. While zoomed in, only the focused region or marker reacts to hover — the rest stay clickable, and clicking one flies there instead.
+
+`perspective` tilts the map in 3D, with one view for the zoomed-out map and one for a focused target. Both angles move in the same eased transition as the zoom.
+
+```tsx
+<ChoroplethChart
+  clickToZoom
+  data={geojson}
+  perspective={{
+    overview: { view: "pointer", yaw: 14, tilt: 18 },
+    focus: { view: "auto", tilt: 28 },
+  }}
+>
+  ...
+</ChoroplethChart>
+```
+
+| Field | Type | Default | Description |
+|------|------|---------|-------------|
+| `overview.view` | `"flat" \| "west" \| "east" \| "pointer"` | `"flat"` | Camera when zoomed out. `pointer` swings from a west to an east view as the pointer crosses the map |
+| `overview.yaw` | `number` | `18` | Side-to-side rotation in degrees |
+| `overview.tilt` | `number` | `0` | Lean back in degrees |
+| `focus.view` | `"flat" \| "west" \| "east" \| "auto"` | same as overview | Camera after clicking a target. `auto` looks from the side of the map the target is on |
+| `focus.yaw` | `number` | `overview.yaw` | Side-to-side rotation when focused |
+| `focus.tilt` | `number` | `overview.tilt` | Lean back when focused |
+| `depth` | `number` | `1600` | CSS perspective distance in px — lower is more dramatic |
+| `edgeFade` | `number` | `0` | Fade the map into the chart edges, % per side |
+
+Read or drive the camera from your own components with `useChoroplethCamera()` (`focusFeature`, `focusPoint`, `reset`, `focusedKey`). With reduced motion, the camera jumps instead of flying and the pointer camera stays still.
 
 ## Data Format
 
@@ -2412,7 +2812,7 @@ import * as topojson from "topojson-client";
 const geojson = topojson.feature(topology, topology.objects.countries);
 ```
 
-See the [charts gallery](/charts/choropleth-chart) for analytics color scales, zoom controls, and pattern fills.
+See the [charts gallery](/charts/choropleth-chart) for analytics color scales, zoom controls, pattern fills, click-to-zoom, dot grids and the pointer camera.
 
 ## Theming
 
@@ -2430,7 +2830,11 @@ pnpm add d3-geo topojson-client motion
 </doc>
 
 <doc title="Composed Chart" path="../apps/web/content/docs/components/composed-chart.mdx">
-import { ComposedChartDocsPreview } from "@/components/docs/composed-chart-docs-preview";
+import {
+  ComposedChartDocsPreview,
+  ComposedPriceVolumeDemo,
+  ComposedSignalDemo,
+} from "@/components/docs/composed-chart-docs-preview";
 import { DateHighlightsComposedDemo } from "@/components/docs/date-highlights-demo";
 
 <ComponentPreview registryName="composed-chart">
@@ -2451,65 +2855,149 @@ import { DateHighlightsComposedDemo } from "@/components/docs/date-highlights-de
 
 ## Usage
 
-`ComposedChart` is the time-series shell for **mixing marks** on one `data` array and one pair of scales. Use **`SeriesBar`** for vertical columns aligned to dates (not the categorical `<Bar />` from `BarChart`, which uses a band scale).
+`ComposedChart` is the time-series shell for **mixing marks** on one `data` array, one x-scale and as many y-axes as you need. Use **`SeriesBar`** for vertical columns aligned to dates (not the categorical `<Bar />` from `BarChart`, which uses a band scale).
+
+Every time-series primitive composes. Each one registers with the shared y-domain and the tooltip automatically, including inside fragments:
+
+| Child | Notes |
+|-------|-------|
+| `SeriesBar` | Grouped or stacked columns. `yAxisId` puts bars on their own scale. |
+| `Line` / `Area` | Any curve, markers, dashed tails, edge fades. |
+| `Scatter` | Points with hover dimming. `radius`, rings, `yAxisId`. |
+| `Candlestick` | Reads `open` / `high` / `low` / `close` from each row. Its axis **floats** around the wicks instead of starting at zero. Size with `widthRatio` (default `0.6`). |
+| `ProfitLossLine` | Recolours above and below zero. |
+| `Band`, `ProjectionLine`, `TrendLine`, `ReferenceArea` | Extend the domain and draw in the same plot. |
+
+The chart also takes the `LineChart` lifecycle props: `status` / `loadingLabel` for loading states, `xDomain` / `xDomainSlotCount` for brush zoom, and `yDomainTween`.
 
 - **`aspectRatio`** — wide charts (e.g. `4 / 1`) work for full-width heroes; in **narrow cards** use **`3 / 2`** or **`2 / 1`** so the plot stays tall enough to read.
 - **`barSize`**, **`maxBarSize`**, **`barGap`** — parent-level layout for `SeriesBar` groups (similar to Recharts `ComposedChart` props). Use **`barGap={0}`** and a higher **`maxBarSize`** for dense daily data so columns read like the [90 days of data](/docs/components/bar-chart#90-days-of-data) bar example.
-- **`stacked`** / **`stackGap`** — stack `SeriesBar` segments in child order at each x (lines and areas are not stacked).
+- **`stacked`** / **`stackGap`** — stack `SeriesBar` segments in child order at each x (other series are not stacked). The bars' axis fits the stack totals, even with a second y-axis.
+- **`barEdgeInset`** — with any `SeriesBar`, the x-axis is inset by half a slot on each side (like a bar chart's band scale) so the first and last bars clear the y-axes. Lines, areas and the x-axis share the inset scale and stay centred on their bars. Default `true`; pass `barEdgeInset={false}` for edge-to-edge lines.
+- **`yDomains`** — per-axis domain overrides keyed by `yAxisId`: a fixed `[min, max]` or a function of the auto domain. Hoist the object out of render.
 - **`SeriesBar`** — default **`radius` is 0** (square tops). Pass **`radius={4}`** (or similar) for rounded corners.
-- **`Line`** / **`Area`** — pass a **`curve`** from `d3-shape` (e.g. **`curveCatmullRom.alpha(0.42)`**) to soften paths when you have many daily points (preview + hero use the same curve for `revenue` and `runRate`).
+- **`Line`** / **`Area`** — pass a **`curve`** from `d3-shape` (e.g. **`curveMonotoneX`**) to soften paths when you have many daily points.
+- **Muted context bars** — bars read best as quiet context under a bold line: fill them with the series colour at low strength, e.g. `color-mix(in oklch, var(--chart-3) 32%, transparent)`, and set `stroke` to the full colour for the tooltip dot.
 - **`Line`** / **`Area`** — use **`showMarkers`** for scatter-style ring markers at each point; pass **`markers={{ radius, ringGap, strokeWidth }}`** to tune styling.
 - **`Line`** / **`Area`** — use **`dashFromIndex`** and **`dashArray`** for a dashed tail on incomplete periods (the dashed segment follows the same curve and edge fade).
 - **`XAxis`** — default ticks snap to data rows so the crosshair aligns. Tune **`numTicks`** for dense series (e.g. daily). Use **`tickMode="domain"`** only when you want calendar-even spacing instead of data alignment.
 - **`ChartTooltip`** — for bar-heavy layouts, **`showCrosshair={false}`** often looks cleaner because the hover band is already vertical columns.
-- **`YAxis`** / **`yAxisId`** — `Line` and `Area` support independent left/right scales (see [Y Axis](/docs/utility/axis/y-axis)). `SeriesBar` uses the primary scale.
+- **`ChartCrosshair`** — finance-style crosshair with the price under the cursor in a y-axis pill; pair with `<ChartTooltip showCrosshair={false} />`. See [Horizontal crosshair](/docs/utility/tooltip#horizontal-crosshair).
+- **`YAxis`** / **`yAxisId`** — every series takes a `yAxisId` (see [Y Axis](/docs/utility/axis/y-axis)). Ids are free-form: an axis without a `<YAxis>` is a hidden scale, handy for volume bars.
 - **Hover dimming** — `SeriesBar` fades non-hovered columns using `tooltipData.index`, like grouped bars in `BarChart`. Tune with **`fadedOpacity`** on each `SeriesBar`.
 
 ### Basic example
 
+The preview above: daily revenue as points, its smoothed 7-day trend inside an expected-range band, and orders as quiet bars on a hidden axis. Rows look like `{ date, revenue, trend, low, high, orders }`.
+
 ```tsx
 import {
-  Area,
+  Band,
+  ChartTooltip,
   ComposedChart,
   Grid,
   Line,
+  Scatter,
   SeriesBar,
   XAxis,
-  ChartTooltip,
+  type YDomainOverride,
 } from "@bklitui/ui/charts";
 import { curveCatmullRom } from "d3-shape";
-import { composedDemoData } from "@/lib/composed-demo-data";
 
 const smooth = curveCatmullRom.alpha(0.42);
+// Orders fill the bottom third on their own axis; the revenue axis floats
+// (from the data's min / max) so the band and points use the top two-thirds.
+const yDomains: Record<string, YDomainOverride> = {
+  orders: ([, max]) => [0, max * 3],
+  left: [minValue - range * 0.6, maxValue + range * 0.05],
+};
 
-export default function Example() {
+export default function Example({ data }) {
   return (
-    <ComposedChart
-      aspectRatio="2 / 1"
-      barGap={0}
-      data={composedDemoData}
-      maxBarSize={32}
-      xDataKey="date"
-    >
+    <ComposedChart aspectRatio="2 / 1" data={data} maxBarSize={14} yDomains={yDomains}>
       <Grid horizontal />
-      <Area
-        curve={smooth}
-        dataKey="runRate"
-        fill="var(--chart-4)"
-        fillOpacity={0.32}
+      <SeriesBar
+        dataKey="orders"
+        fill="color-mix(in oklch, var(--chart-3) 30%, transparent)"
+        radius={3}
+        stroke="var(--chart-3)"
+        yAxisId="orders"
       />
-      <SeriesBar dataKey="units" fill="var(--chart-3)" radius={4} />
-      <Line curve={smooth} dataKey="revenue" stroke="var(--chart-1)" />
-      <ChartTooltip showCrosshair={false} />
-      <XAxis numTicks={8} />
+      <Band
+        curve={smooth}
+        fill="var(--chart-1)"
+        fillOpacity={0.22}
+        fillType="gradient"
+        label="Expected"
+        lowerKey="low"
+        strokeDasharray="3,4"
+        strokeOpacity={0.5}
+        upperKey="high"
+      />
+      <Scatter
+        dataKey="revenue"
+        fill="color-mix(in oklch, var(--chart-2) 75%, transparent)"
+        radius={3.5}
+      />
+      <Line curve={smooth} dataKey="trend" stroke="var(--chart-1)" strokeWidth={2.5} />
+      <ChartTooltip />
+      <XAxis numTicks={6} />
     </ComposedChart>
   );
 }
 ```
 
-`composedDemoData` is 30 daily rows with ISO `date` strings, one slow wave across the month plus light ripples (kept readable next to dense bars). Outside this monorepo, copy the helpers from `apps/web/lib/composed-demo-data.ts` into your app.
-
 See the [charts gallery](/charts/composed-chart) for stacked bars, pattern fills, rounded bars, and more compositions.
+
+### Price and volume
+
+Candles on a floating right axis, volume on a hidden zero-based axis. `yDomains` keeps the two from overlapping: volume fills the bottom quarter and the price floor drops so the candles sit above it.
+
+<ComponentShowcase
+  code={`const yDomains: Record<string, YDomainOverride> = {
+  volume: ([, max]) => [0, max * 4],
+  right: ([min, max]) => [min - (max - min) * 0.45, max],
+};
+
+<ComposedChart data={ohlcv} margin={{ right: 56 }} maxBarSize={9} yDomains={yDomains}>
+  <Grid horizontal />
+  <SeriesBar
+    dataKey="volume"
+    fadedOpacity={0.5}
+    fill="color-mix(in oklch, var(--muted-foreground) 35%, transparent)"
+    yAxisId="volume"
+  />
+  <Candlestick widthRatio={0.55} yAxisId="right" />
+  <Line curve={curveMonotoneX} dataKey="average" stroke="var(--chart-1)" strokeWidth={1.5} yAxisId="right" />
+  <YAxis formatValue={(v) => \`$\${Math.round(v)}\`} orientation="right" yAxisId="right" />
+  <XAxis />
+  <ChartTooltip />
+</ComposedChart>`}
+>
+  <ComposedPriceVolumeDemo />
+</ComponentShowcase>
+
+### Points and an average
+
+Raw daily values as faint points, with a bold rolling average through them.
+
+<ComponentShowcase
+  code={`<ComposedChart data={data}>
+  <Grid horizontal />
+  <Scatter
+    dataKey="signups"
+    fill="color-mix(in oklch, var(--chart-1) 45%, transparent)"
+    radius={3.5}
+  />
+  <Line curve={curveMonotoneX} dataKey="average" stroke="var(--chart-1)" strokeWidth={2.5} />
+  <XAxis />
+  <ChartTooltip />
+</ComposedChart>`}
+>
+  <ComposedSignalDemo />
+</ComponentShowcase>
+
+The [composed recipes](/recipes?category=combos) (price & volume, forecast hand-off, signal & noise, context bars) come with copyable code and agent prompts.
 
 ### Background
 
@@ -2530,14 +3018,19 @@ Add a [`TrendLine`](/docs/utility/trend-line) per series you want to fit (bars o
 [`Weekends`](/docs/utility/weekends) shades the weekend columns and [`Deadline`](/docs/utility/deadline) marks a due date. With `SeriesBar` columns at midnight, `Weekends` centres each band on its column automatically; pass `utc` when your dates are UTC-anchored (like `composedDemoData`).
 
 <ComponentShowcase
-  code={`<ComposedChart data={composedDemoData} barGap={0} maxBarSize={24}>
+  code={`<ComposedChart data={composedDemoData} barGap={0} maxBarSize={18}>
   <Grid horizontal />
   <Weekends utc />
   <Deadline date={composedDemoData[21].date} label="Quarter close" />
-  <SeriesBar dataKey="units" fill="var(--chart-3)" radius={3} />
-  <Line dataKey="revenue" stroke="var(--chart-1)" />
-  <ChartTooltip showCrosshair={false} />
-  <XAxis numTicks={8} />
+  <SeriesBar
+    dataKey="units"
+    fill="color-mix(in oklch, var(--chart-3) 32%, transparent)"
+    radius={4}
+    stroke="var(--chart-3)"
+  />
+  <Line curve={curveMonotoneX} dataKey="revenue" stroke="var(--chart-1)" strokeWidth={2.5} />
+  <ChartTooltip />
+  <XAxis numTicks={6} />
 </ComposedChart>`}
 >
   <DateHighlightsComposedDemo />
@@ -2548,6 +3041,8 @@ Add a [`TrendLine`](/docs/utility/trend-line) per series you want to fit (bars o
 - [Line Chart](/docs/components/line-chart) — lines only
 - [Area Chart](/docs/components/area-chart) — areas only
 - [Bar Chart](/docs/components/bar-chart) — categorical bars with `<Bar />`
+- [Candlestick Chart](/docs/components/candlestick-chart) — candles only, with OHLC tooltip
+- [Scatter Chart](/docs/components/scatter-chart) — points only, with jitter
 </doc>
 
 <doc title="Funnel Chart" path="../apps/web/content/docs/components/funnel-chart.mdx">
@@ -2654,7 +3149,23 @@ See the [charts gallery](/charts/funnel-chart) for vertical layouts, per-segment
 </doc>
 
 <doc title="Gauge" path="../apps/web/content/docs/components/gauge-chart.mdx">
-import { GaugeChartDemo } from "@/components/docs/gauge-chart-demo";
+import {
+  GaugeAnimationDemo,
+  GaugeArcStylesDemo,
+  GaugeCenterDiscDemo,
+  GaugeChartDemo,
+  GaugeDotsDemo,
+  GaugeFanDutyDemo,
+  GaugeGlowDemo,
+  GaugeNeedleDemo,
+  GaugeNeedleTipDemo,
+  GaugeProgressRingDemo,
+  GaugeRulerDemo,
+  GaugeSectorDemo,
+  GaugeSpeedometerDemo,
+  GaugeTonnesDemo,
+  GaugeZonesDemo,
+} from "@/components/docs/gauge-chart-demo";
 
 <ComponentPreview registryName="gauge-chart">
   <GaugeChartDemo />
@@ -2680,13 +3191,15 @@ import { GaugeChartDemo } from "@/components/docs/gauge-chart-demo";
 - **Linear label placement:** with `orientation="linear"`, place the label above or below the track using `labelPlacement` (`top` | `bottom`) and `labelAlign` (`start` | `center` | `end`) — the same six-position model as chart legend (top/bottom × left/center/right).
 - **Responsive:** omit `width` and `height` to fill the parent. Arc gauges use **`minWidth`** (default **300**) and an aspect ratio. Linear gauges fill the parent width and use **`linearHeight`** (default **24**).
 - **Linear notches:** linear gauges default to **`uniformWidth`** (rectangular notches). Pass `uniformWidth={false}` for tapered ticks.
-- **Patterns / gradients in `<defs>`:** pass **`PatternLines`**, **`LinearGradient`**, etc. as **`children`**, then set **`activeFill`** / **`inactiveFill`** to `url(#id)`.
+- **Patterns / gradients in `<defs>`:** pass **[`PatternPreset`](/docs/utility/patterns)**, **`LinearGradient`**, etc. as **`children`**, then set **`activeFill`** / **`inactiveFill`** to `url(#id)`.
 - **Arc gradients:** set **`useGradient`**. Optional **`activeGradient`** and **`inactiveGradient`** are **`[hexFrom, hexTo]`** tuples (interpolated along the notch index).
 - **Fill opacity:** `activeFillOpacity` and `inactiveFillOpacity` map to SVG `fill-opacity` (0–1). Defaults are **1** for active notches and **0.8** for the track; docs and gallery examples use **`inactiveFillOpacity={0.4}`** for a lighter track.
 - **Corner radius:** `notchCornerRadius` is the fillet in **pixels** at each notch corner (**0** = sharp). Large values are clamped by edge length and radial depth so shapes can approach a **capsule** / near-circular look.
+- **Dials (arc only):** swap the notch track for a `solid` stroke or none (`arcStyle`), then layer a `ruler`, `needle`, `zones`, `sector`, `progressRing`, `dots`, `glow` and `centerDisc` — see [Dial features](#dial-features).
+- **Animation:** the fill sweeps from zero on a zero-bounce spring and follows later `value` changes from where it is; reduced motion renders instantly — see [Animation](#animation).
 
 ```tsx
-import { Gauge, PatternLines } from "@bklitui/ui/charts";
+import { Gauge } from "@bklitui/ui/charts";
 
 export default function RevenueGauge() {
   return (
@@ -2740,6 +3253,334 @@ With label below center:
 />
 ```
 
+## Dial features
+
+Everything below is **arc only** — `orientation="linear"` ignores these props. Layers compose freely: rings, zone bands and an outside ruler claim space from the outside in and the track shrinks to make room, so you can stack them without tuning radii by hand.
+
+### Animation
+
+On mount the track (and ruler) fades in, then the fill sweeps from **0** to `value` on a zero-bounce spring — notches light up in order as the sweep passes them, ruler ticks brighten, and the needle, sector, ring and dots all ride the same motion value. When `value` changes the sweep continues from wherever it is (keeping its velocity), rather than restarting from zero. With `prefers-reduced-motion` the gauge renders at its value instantly.
+
+- **`enterTransition`** — any motion `Transition` for the sweep. Default `{ type: "spring", visualDuration: 0.9, bounce: 0 }`.
+- **`enterStaggerScale`** — scales the short delay before the sweep starts (clamped **0.25–2.5**).
+- **Replay** — change the gauge's `key` to remount it and play the enter again.
+
+<ComponentShowcase
+  code={`const [value, setValue] = useState(38);
+const [replay, setReplay] = useState(0);
+
+<Gauge
+  key={replay} // remount to replay the enter
+  value={value}
+  centerValue={value}
+  defaultLabel="Cluster load"
+  suffix="%"
+  needle="line"
+  ruler
+  totalNotches={72}
+  spacing={40}
+  notchLengthPercent={34}
+  notchCornerRadius={2}
+  startAngle={148}
+  endAngle={392}
+  // enterTransition={{ type: "spring", visualDuration: 1.4, bounce: 0 }}
+  // enterStaggerScale={2}
+/>
+<Button onClick={() => setValue(randomValue())}>Change value</Button>
+<Button onClick={() => setReplay((n) => n + 1)}>Replay enter</Button>`}
+  liveChartPreview
+  previewMinHeight={360}
+>
+  <GaugeAnimationDemo />
+</ComponentShowcase>
+
+### Arc styles
+
+`arcStyle` picks how the track is drawn: discrete **`notches`** (default), one rounded **`solid`** stroke (thickness via `arcThickness`, a fraction of the gauge size — default `0.035`), or **`none`** to drop the track entirely and let a sector, progress ring or dots carry the value.
+
+<ComponentShowcase
+  code={`<Gauge value={64} centerValue={64} suffix="%" inactiveFillOpacity={0.4} />
+
+<Gauge arcStyle="solid" arcThickness={0.05} inactiveFillOpacity={0.6} value={64} centerValue={64} suffix="%" />
+
+<Gauge arcStyle="none" progressRing value={64} centerValue={64} suffix="%" />`}
+  liveChartPreview
+  previewMinHeight={260}
+>
+  <GaugeArcStylesDemo />
+</ComponentShowcase>
+
+With `arcStyle="solid"`, `activeFill` / `inactiveFill` colour the fill and track, and `useGradient` paints a left → right ramp (`activeGradient` or `--chart-1` → `--chart-5`).
+
+### Ruler
+
+`ruler` adds a scale. `true` draws 50 intervals with a major tick every 5 **inside** the track; ticks brighten as the fill passes them (`highlightActive`). Pass an object to move it **outside**, change tick counts, lengths, gap and colour, or add **labels** — `true` / `"majors"` labels every major tick, `"ends"` only the first and last, and an object sets the label domain (`min` / `max`, default 0 → 100), a `format` function and a `color`.
+
+<ComponentShowcase
+  code={`<Gauge ruler value={53} {...dialProps} />
+
+<Gauge
+  arcStyle="solid"
+  ruler={{ position: "outside", ticks: 20, majorEvery: 5, labels: "ends" }}
+  value={53}
+/>
+
+<Gauge
+  arcStyle="solid"
+  arcThickness={0.02}
+  centerValue={4.2}
+  defaultLabel="rpm × 1000"
+  ruler={{
+    position: "outside",
+    ticks: 16,
+    majorEvery: 4,
+    labels: { min: 0, max: 8, format: (v) => \`\${v}k\` },
+  }}
+  value={(4.2 / 8) * 100}
+/>`}
+  liveChartPreview
+  previewMinHeight={260}
+>
+  <GaugeRulerDemo />
+</ComponentShowcase>
+
+`value` is always 0–100. When your reading has real units, map it (`value={(reading / max) * 100}`) and give the ruler labels the real domain.
+
+### Needles
+
+`needle` adds a pointer that sweeps with the fill. `true` is the **gradient** needle; pass a variant name for the others, or an object for full control: `color`, `width` (stroke width for line / gradient, base width for triangle / polygon), `length` (fraction of the reach — default `0.55` floats the needle clear of the center label; `1` runs from the pivot), and `pivot` to draw a cap at the center.
+
+<ComponentShowcase
+  code={`<Gauge needle="line" ruler value={62} {...dialProps} />
+<Gauge needle ruler value={62} {...dialProps} /> {/* "gradient" */}
+<Gauge needle="triangle" ruler value={62} {...dialProps} />
+<Gauge needle="polygon" ruler value={62} {...dialProps} />
+
+<Gauge needle={{ variant: "line", length: 1, pivot: true, color: "var(--chart-1)" }} value={62} />`}
+  liveChartPreview
+  previewMinHeight={480}
+>
+  <GaugeNeedleDemo />
+</ComponentShowcase>
+
+`tip` sets where the needle ends: just inside the track (**`inner`**, default), at the track's outer edge (**`outer`**), or past the outermost layer — ring, zone band or outside ruler (**`edge`**).
+
+<ComponentShowcase
+  code={`<Gauge
+  arcStyle="solid"
+  ruler={{ position: "outside", ticks: 20, majorEvery: 5 }}
+  needle={{ variant: "triangle", tip: "edge", length: 0.3, width: 8 }} // "inner" | "outer" | "edge"
+  value={62}
+/>`}
+  liveChartPreview
+  previewMinHeight={260}
+>
+  <GaugeNeedleTipDemo />
+</ComponentShowcase>
+
+### Zones
+
+`zones` marks coloured ranges on the 0–100 scale (`{ from, to, color }[]`, later zones win where they overlap). `zoneDisplay` chooses how they render: **`band`** (default) — a thin arc ringing the track; **`fill`** — the lit notches or solid fill take the zone colour where they overlap it; **`both`**.
+
+<ComponentShowcase
+  code={`const zones = [
+  { from: 0, to: 60, color: "#22c55e" },
+  { from: 60, to: 85, color: "#f59e0b" },
+  { from: 85, to: 100, color: "#ef4444" },
+];
+
+<Gauge arcStyle="solid" zones={zones} value={78} />
+<Gauge zones={zones} zoneDisplay="fill" totalNotches={60} value={92} />
+<Gauge arcStyle="solid" zones={zones} zoneDisplay="both" value={92} />`}
+  liveChartPreview
+  previewMinHeight={260}
+>
+  <GaugeZonesDemo />
+</ComponentShowcase>
+
+### Sectors
+
+`sector` fills the wedge from the start angle to the value. The default **`conic`** gradient brightens toward the leading edge (rendered as a CSS `conic-gradient` layer behind the SVG); **`radial`** brightens toward the rim; **`none`** paints a flat `color` — which can be any SVG paint, including `url(#pattern)` from a `PatternPreset` child. `opacity` is the peak opacity (default `0.85`) and `innerRadius` (fraction of the sector radius) hollows the middle. With `centerDisc` on, the sector starts at the disc's outer edge automatically.
+
+<ComponentShowcase
+  code={`<Gauge arcStyle="none" sector progressRing value={68} />
+
+<Gauge
+  arcStyle="solid"
+  arcThickness={0.02}
+  sector={{ gradient: "radial", innerRadius: 0.3 }}
+  value={68}
+/>
+
+<Gauge
+  arcStyle="none"
+  progressRing
+  sector={{ gradient: "none", color: "url(#sector-pattern)", innerRadius: 0.5, opacity: 1 }}
+  value={68}
+>
+  <PatternPreset color="var(--chart-1)" id="sector-pattern" preset="diagonal-up" />
+</Gauge>`}
+  liveChartPreview
+  previewMinHeight={260}
+>
+  <GaugeSectorDemo />
+</ComponentShowcase>
+
+Pattern `id`s are global to the page — generate one per gauge with `useId()` when the same gauge renders more than once.
+
+### Progress ring
+
+`progressRing` draws a thin ring just outside the track: the value portion in `color` (default `var(--chart-1)`), the remainder in `trackColor` at `trackOpacity`. `width` and `gap` are fractions of the gauge size.
+
+<ComponentShowcase
+  code={`<Gauge progressRing inactiveFillOpacity={0.35} value={71} />
+
+<Gauge
+  arcStyle="none"
+  progressRing={{ color: "var(--chart-3)", width: 0.022, gap: 0 }}
+  value={71}
+/>`}
+  liveChartPreview
+  previewMinHeight={300}
+>
+  <GaugeProgressRingDemo />
+</ComponentShowcase>
+
+### Progress dots
+
+`dots` fills the inside of the dial with concentric rings of dots that light up to the value. Tune `rings`, `spacing` (fraction of size, also the ring gap), dot `radius` (px), `color`, `dimOpacity` / `litOpacity`, and `fadeInward` (rings fade toward the center).
+
+<ComponentShowcase
+  code={`<Gauge arcStyle="solid" dots value={83} />
+
+<Gauge
+  arcStyle="none"
+  dots={{ rings: 7, spacing: 0.032, radius: 2.2 }}
+  progressRing
+  value={83}
+/>`}
+  liveChartPreview
+  previewMinHeight={300}
+>
+  <GaugeDotsDemo />
+</ComponentShowcase>
+
+### Glow
+
+`glow` adds a soft bloom to the fill — lit notches, the solid arc and the progress ring. `blur` is the radius in px (default `6`), `intensity` the strength 0–1 (default `0.8`). It reads best on dark surfaces with a saturated `activeFill`.
+
+<ComponentShowcase
+  code={`<Gauge activeFill="#38bdf8" glow inactiveFillOpacity={0.25} totalNotches={60} value={74} />
+
+<Gauge
+  activeFill="#a855f7"
+  arcStyle="solid"
+  glow={{ blur: 10, intensity: 1 }}
+  value={74}
+/>`}
+  liveChartPreview
+  previewMinHeight={300}
+>
+  <GaugeGlowDemo />
+</ComponentShowcase>
+
+### Center disc
+
+`centerDisc` draws a ringed disc behind the center label — `radius` (fraction of size, default `0.19`), `fill` (default `var(--background)`), `stroke`, `strokeOpacity` and `strokeWidth` (px). It sits above sectors and needles, so a short needle disappears under it and a sector starts at its edge.
+
+<ComponentShowcase
+  code={`<Gauge arcStyle="none" centerDisc sector value={68} />
+
+<Gauge
+  arcStyle="solid"
+  centerDisc={{ radius: 0.22, stroke: "var(--chart-1)", strokeOpacity: 1, strokeWidth: 2 }}
+  needle={{ variant: "line", tip: "outer", length: 0.45 }}
+  value={68}
+/>`}
+  liveChartPreview
+  previewMinHeight={300}
+>
+  <GaugeCenterDiscDemo />
+</ComponentShowcase>
+
+## Recipes
+
+Composed dials that combine the layers above. More gauge cards live on [Recipes](/recipes?category=gauges).
+
+### Fan duty
+
+Solid arc, outside ruler with end labels, a red-line zone band and a short line needle sitting just inside the track.
+
+<ComponentShowcase
+  code={`<Gauge
+  activeFill="var(--foreground)"
+  arcStyle="solid"
+  centerValue={72}
+  defaultLabel="Duty %"
+  formatOptions={{ maximumFractionDigits: 0 }}
+  inactiveFillOpacity={0.6}
+  needle={{ variant: "line", length: 0.22, width: 5 }}
+  ruler={{ position: "outside", ticks: 20, majorEvery: 5, labels: "ends" }}
+  value={72}
+  zones={[{ from: 80, to: 100, color: "#ef4444" }]}
+/>`}
+  liveChartPreview
+  previewMinHeight={360}
+>
+  <GaugeFanDutyDemo />
+</ComponentShowcase>
+
+### Speedometer
+
+Dense glowing notches that switch to red past the zone, an outside ruler that stays dim (`highlightActive: false`) and progress dots behind the fill. The reading is mapped from km/h onto 0–100.
+
+<ComponentShowcase
+  code={`<Gauge
+  activeFill="#38bdf8"
+  centerValue={228}
+  defaultLabel="km/h"
+  dots={{ color: "#ef4444", rings: 6 }}
+  formatOptions={{ maximumFractionDigits: 0 }}
+  glow
+  inactiveFillOpacity={0.25}
+  notchCornerRadius={1}
+  notchLengthPercent={55}
+  ruler={{ position: "outside", ticks: 26, majorEvery: 2, highlightActive: false }}
+  spacing={35}
+  totalNotches={90}
+  value={(228 / 260) * 100}
+  zoneDisplay="fill"
+  zones={[{ from: 78, to: 100, color: "#ef4444" }]}
+/>`}
+  liveChartPreview
+  previewMinHeight={360}
+>
+  <GaugeSpeedometerDemo />
+</ComponentShowcase>
+
+### Throughput dial
+
+No track: a conic sector, a thin progress ring, an inside ruler labelled in real units (0–800 tonnes), a triangle needle reaching the outer edge and a disc framing the readout.
+
+<ComponentShowcase
+  code={`<Gauge
+  arcStyle="none"
+  centerDisc
+  centerValue={518}
+  defaultLabel="tonnes per day"
+  formatOptions={{ maximumFractionDigits: 0 }}
+  needle={{ variant: "triangle", tip: "outer", length: 0.62, width: 8 }}
+  progressRing={{ color: "#38bdf8" }}
+  ruler={{ ticks: 16, majorEvery: 2, labels: { min: 0, max: 800 } }}
+  sector={{ color: "#38bdf8" }}
+  value={(518 / 800) * 100}
+/>`}
+  liveChartPreview
+  previewMinHeight={360}
+>
+  <GaugeTonnesDemo />
+</ComponentShowcase>
+
 ## Props
 
 ### Gauge
@@ -2759,22 +3600,117 @@ With label below center:
 | `uniformWidth` | `boolean` | `false` (arc) / `true` (linear) | Rectangular notches vs tapered |
 | `startAngle` / `endAngle` | `number` | `135` / `405` | Arc sweep in degrees (arc only) |
 | `linearHeight` | `number` | `24` | Bar height in px (linear only) |
-| `useGradient` | `boolean` | `false` | Per-notch color ramp |
+| `useGradient` | `boolean` | `false` | Per-notch color ramp (solid arc: left → right gradient) |
 | `activeGradient` | `[string, string]` | lime → emerald | Hex stops for active notches when `useGradient` |
 | `inactiveGradient` | `[string, string]` | same as active | Hex stops for inactive notches when `useGradient` |
 | `activeFill` / `inactiveFill` | `string` | `chart-1` / `border` | Solid, CSS color, or `url(#patternId)` |
 | `activeFillOpacity` / `inactiveFillOpacity` | `number` | `1` / `0.8` | SVG `fill-opacity` (0–1) for active / track notches |
+| `arcStyle` | `"notches"` \| `"solid"` \| `"none"` | `"notches"` | Arc only — notch track, one rounded stroke, or no track |
+| `arcThickness` | `number` | `0.035` | Arc only — solid stroke thickness as a fraction of size |
+| `ruler` | `boolean` \| `GaugeRulerOptions` | — | Arc only — scale ticks (and labels) inside or outside the track |
+| `needle` | `boolean` \| `GaugeNeedleVariant` \| `GaugeNeedleOptions` | — | Arc only — pointer; `true` = `"gradient"` |
+| `zones` | `GaugeZone[]` | — | Arc only — coloured ranges `{ from, to, color }` on 0–100 |
+| `zoneDisplay` | `"band"` \| `"fill"` \| `"both"` | `"band"` | How zones render |
+| `sector` | `boolean` \| `GaugeSectorOptions` | — | Arc only — wedge from start to value (conic, radial, flat or pattern) |
+| `progressRing` | `boolean` \| `GaugeProgressRingOptions` | — | Arc only — thin value ring around the track |
+| `dots` | `boolean` \| `GaugeDotsOptions` | — | Arc only — concentric dot rings that light up to the value |
+| `glow` | `boolean` \| `GaugeGlowOptions` | — | Arc only — soft glow on lit notches, solid arc and progress ring |
+| `centerDisc` | `boolean` \| `GaugeCenterDiscOptions` | — | Arc only — ringed disc behind the center label |
+| `enterTransition` | `Transition` | zero-bounce spring (`visualDuration: 0.9`) | Motion transition for the fill sweep (and needle, sector, ring, dots) |
+| `enterStaggerScale` | `number` | `1` | Scales the delay before the sweep starts (0.25–2.5) |
 | `defaultLabel` | `string` | `"Total"` | Center label |
 | `formatOptions` | `ChartStatFlowFormat` | standard | NumberFlow format |
 | `prefix` / `suffix` | `string` | - | Center prefix / suffix |
 | `width` / `height` | `number` | - | Fixed size; omit for responsive |
 | `minWidth` | `number` | `300` (arc) / `200` (linear) | Min width (px) when responsive |
 | `className` | `string` | - | Root wrapper |
-| `children` | `ReactNode` | - | Defs (`Pattern*`, `*Gradient`, …) |
+| `children` | `ReactNode` | - | Defs (`PatternPreset`, `*Gradient`, …) |
+
+Sizes given as a "fraction of size" are relative to the smaller of the gauge's width and height, so dials scale cleanly. Every option type is exported from `@bklitui/ui/charts` (`GaugeRulerOptions`, `GaugeNeedleOptions`, …).
+
+### GaugeRulerOptions
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `position` | `"inside"` \| `"outside"` | `"inside"` | Inside the track, or ringing it |
+| `ticks` | `number` | `50` | Intervals along the sweep (ticks = intervals + 1) |
+| `majorEvery` | `number` | `5` | Every Nth tick is major |
+| `color` | `string` | `var(--foreground)` | Tick colour |
+| `majorLength` / `minorLength` | `number` | `0.05` / `0.028` | Tick lengths as a fraction of size |
+| `gap` | `number` | `0.028` | Gap between track and ruler (fraction of size) |
+| `highlightActive` | `boolean` | `true` | Brighten ticks up to the value |
+| `labels` | `boolean` \| `"majors"` \| `"ends"` \| `GaugeRulerLabelOptions` | — | Numeric labels; `true` = `"majors"` |
+
+**`GaugeRulerLabelOptions`** — `show` (`"majors"` \| `"ends"`), `min` / `max` (label domain, default `0` / `100`), `format` (`(value: number) => string`), `color` (default `var(--foreground)` at 72% opacity).
+
+### GaugeNeedleOptions
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `variant` | `"line"` \| `"gradient"` \| `"triangle"` \| `"polygon"` | `"gradient"` | Rounded stroke · stroke fading in toward the tip · slim triangle · slender diamond |
+| `color` | `string` | `var(--foreground)` | Needle colour |
+| `width` | `number` | `2.5` / `4` / `10` / `8` | Stroke width (line, gradient) or base width (triangle, polygon) in px |
+| `length` | `number` | `0.55` | Fraction of the reach (center → tip); `1` runs from the pivot |
+| `pivot` | `boolean` | `false` | Pivot cap at the center |
+| `tip` | `"inner"` \| `"outer"` \| `"edge"` | `"inner"` | Tip just inside the track, at its outer edge, or past the outermost layer |
+
+### GaugeZone
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `from` / `to` | `number` | Range on the 0–100 scale |
+| `color` | `string` | Band / fill colour |
+
+### GaugeSectorOptions
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `gradient` | `"conic"` \| `"radial"` \| `"none"` | `"conic"` | Brightens toward the leading edge · toward the rim · flat |
+| `color` | `string` | `var(--chart-1)` | Any CSS colour; `url(#id)` paints work with `radial` / `none` |
+| `opacity` | `number` | `0.85` | Peak opacity |
+| `innerRadius` | `number` | `0` | Hollow center as a fraction of the sector radius |
+
+### GaugeProgressRingOptions
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `color` | `string` | `var(--chart-1)` | Value portion |
+| `trackColor` | `string` | `var(--muted-foreground)` | Remainder |
+| `trackOpacity` | `number` | `0.35` | Remainder opacity |
+| `width` | `number` | `0.01` | Stroke width (fraction of size) |
+| `gap` | `number` | `0.022` | Gap from the track (fraction of size) |
+
+### GaugeDotsOptions
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `rings` | `number` | `5` | Concentric rings of dots |
+| `spacing` | `number` | `0.03` | Dot and ring spacing (fraction of size) |
+| `radius` | `number` | `1.6` | Dot radius in px |
+| `color` | `string` | `var(--chart-1)` | Dot colour |
+| `dimOpacity` / `litOpacity` | `number` | `0.12` / `0.9` | Opacity past / up to the value |
+| `fadeInward` | `boolean` | `true` | Fade rings toward the center |
+
+### GaugeGlowOptions
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `blur` | `number` | `6` | Blur radius in px |
+| `intensity` | `number` | `0.8` | Glow strength 0–1 |
+
+### GaugeCenterDiscOptions
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `radius` | `number` | `0.19` | Disc radius (fraction of size) |
+| `fill` | `string` | `var(--background)` | Disc fill |
+| `stroke` | `string` | `var(--foreground)` | Ring colour |
+| `strokeOpacity` | `number` | `0.75` | Ring opacity |
+| `strokeWidth` | `number` | `3` | Ring width in px |
 
 ## Theming
 
-Inactive (track) notches default to **`var(--border)`** — shared with ring tracks and radar grid lines. Active notches default to **`var(--chart-1)`**. Override with `inactiveFill` / `activeFill`, or tune **`--border`** / **`--chart-1`** in your theme. See [Theming](/docs/theming).
+Inactive (track) notches default to **`var(--border)`** — shared with ring tracks and radar grid lines. Active notches default to **`var(--chart-1)`**, as do sectors, progress rings and dots; rulers, needles and the center disc ring use **`var(--foreground)`** and the disc fill **`var(--background)`**, so dials follow light and dark mode. Override with `inactiveFill` / `activeFill`, or tune **`--border`** / **`--chart-1`** in your theme. See [Theming](/docs/theming).
 
 ## Live examples
 
@@ -2889,7 +3825,9 @@ The root component that sizes the grid, builds color scales, and provides contex
 | `aspectRatio` | `string` | - | CSS aspect ratio for the outer container |
 | `status` | `ChartStatus` | `"ready"` | Fetch / display status |
 | `loadingLabel` | `string` | - | Centered label while loading |
-| `animationDuration` | `number` | `1600` | Enter animation duration in ms |
+| `animationDuration` | `number` | `1100` | Column-wave sweep in ms when no `enterTransition` is passed. Cells settle in column by column, left to right, on the line chart reveal curve |
+| `enterTransition` | `Transition` | line chart reveal | Sweep timing (`duration` + cubic-bezier `ease`), as for the line chart clip reveal. Each cell fades and settles in over 450 ms |
+| `enterStaggerScale` | `number` | `1` | Scales the column wave sweep |
 | `animate` | `boolean` | `true` | Play enter fade-in / loading shimmer |
 | `columnSeparators` | `HeatmapSeparatorParsedConfig` | - | Column grouping without a `HeatmapSeparator` child |
 | `weekStartDay` | `0`–`6` | `0` | First row of the grid (`0` = Sunday, `1` = Monday, etc.) |
@@ -3014,13 +3952,13 @@ Shows the contribution count and date for the hovered cell. Fades in on first ho
 
 ## Level styles and patterns
 
-Pass `levelStyles` (five entries: empty + levels 1–4) to control both cell fills and legend swatches. Each level can be solid or use a pattern preset. Omit `patternColor` to derive stripe color from the level color, or set `patternColor: "var(--chart-scale-pattern-color)"` for the theme default:
+Pass `levelStyles` (five entries: empty + levels 1–4) to control both cell fills and legend swatches. Each level can be solid or use a [pattern preset](/docs/utility/patterns) (`pattern` defaults to `"diagonal-up"`). Omit `patternColor` to derive stripe color from the level color, or set `patternColor: "var(--chart-scale-pattern-color)"` for the theme default:
 
 ```tsx
 const levelStyles = [
   { color: "var(--chart-scale-01)", fillMode: "solid" },
   { color: "var(--chart-scale-02)", fillMode: "solid" },
-  { color: "var(--chart-scale-03)", fillMode: "pattern", pattern: "diagonal", patternColor: "var(--chart-scale-pattern-color)" },
+  { color: "var(--chart-scale-03)", fillMode: "pattern", pattern: "diagonal-up", patternColor: "var(--chart-scale-pattern-color)" },
   { color: "var(--chart-scale-04)", fillMode: "solid" },
   { color: "var(--chart-scale-05)", fillMode: "solid" },
 ] as const;
@@ -3372,7 +4310,7 @@ Renders grid lines.
 
 ### Background
 
-Pattern fill for the plot area when you omit `Grid`. Fades in after the series reveal on time-series charts. See the [Background utility](/docs/utility/background) for presets (`diagonal`, `dots`, `cross`, …), edge fade, and opacity — and the **Pattern Background** examples on the [line chart gallery](/charts/line-chart).
+Pattern fill for the plot area when you omit `Grid`. Fades in after the series reveal on time-series charts. See the [Background utility](/docs/utility/background) for presets (`diagonal-up`, `dots`, `grid`, …; full list on [Patterns](/docs/utility/patterns)), edge fade, and opacity — and the **Pattern Background** examples on the [line chart gallery](/charts/line-chart).
 
 ### TrendLine
 
@@ -3506,7 +4444,7 @@ Shade a range between two per-row values — min/max, a confidence interval, or 
   <BandRangeDemo />
 </ComponentShowcase>
 
-See the [Band utility](/docs/utility/band) for fill types, edge strokes, faded edges, and `withBollingerBands` options.
+Point `upperKey` / `lowerKey` at two series (actual vs projected, this year vs last year) to shade the gap between them; `negativeFill` colours the stretches where the first drops below the second. See the [Band utility](/docs/utility/band) for fill types, gap fills, edge strokes, faded edges, and `withBollingerBands` options.
 
 ## Weekends and deadlines
 
@@ -4067,7 +5005,7 @@ pnpm add d3-shape d3-scale d3-array motion
 
 <doc title="Pie Chart" path="../apps/web/content/docs/components/pie-chart.mdx">
 import { PieChart, PieSlice, PieCenter } from "@bklitui/ui/charts";
-import { PieChartDemo } from "@/components/docs/pie-chart-demo";
+import { PieChartDemo, PieTicksDemo } from "@/components/docs/pie-chart-demo";
 
 <ComponentPreview registryName="pie-chart">
   <PieChartDemo />
@@ -4143,9 +5081,49 @@ Displays content in the center of a donut chart. Only renders when `innerRadius 
 | `defaultLabel` | `string` | `"Total"` | Label shown when not hovering |
 | `formatOptions` | `NumberFlowFormat` | - | Number formatting options |
 | `prefix` | `string` | - | Prefix before the value (e.g., "$") |
-| `suffix` | `string` | - | Suffix after the value (e.g., "%") |
+| `suffix` | `string` | - | Suffix after the value (e.g., "%"). Defaults to `"%"` when `valueDisplay="percent"` |
+| `valueDisplay` | `"value" \| "percent"` | `"value"` | `"percent"` shows the hovered slice's share of the total (100 at rest) — a gauge-style readout |
 | `children` | `function` | - | Custom render function `({ value, label, isHovered, data }) => ReactNode`. Called at rest (total + `defaultLabel`, `isHovered: false`) and on hover (the hovered slice) |
 | `className` | `string` | `""` | Additional CSS class |
+
+### PieTicks
+
+Draws the whole chart as a ring of radial ticks instead of solid slices — use it in place of `<PieSlice>`. Each slice gets a share of the ticks in proportion to its value, with an empty slot between slices. On mount the ticks light up one after another around the ring, like a gauge filling.
+
+Two hover styles:
+
+- `"slice"` (default) — the hovered slice's ticks all extend outward and the other slices dim.
+- `"tick"` — the tick under the pointer shoots out and thickens, lifting its neighbours a little, then settles slowly, so moving across the ring leaves a trail. The slice it belongs to still drives `PieCenter` and dims the rest.
+
+<ComponentShowcase
+  code={`<PieChart data={data} innerRadius={78}>
+  <PieTicks />
+  <PieCenter defaultLabel="Traffic" valueDisplay="percent" />
+</PieChart>
+
+<PieChart data={data} innerRadius={78}>
+  <PieTicks hoverEffect="tick" />
+  <PieCenter defaultLabel="Traffic" valueDisplay="percent" />
+</PieChart>`}
+  liveChartPreview
+  previewMinHeight={300}
+>
+  <PieTicksDemo />
+</ComponentShowcase>
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `count` | `number` | `96` | Ticks around the full sweep, shared across slices |
+| `strokeWidth` | `number` | `2.5` | Tick stroke width in px |
+| `lineCap` | `"round" \| "butt"` | `"round"` | Tick end caps |
+| `sliceGap` | `number` | `1` | Empty tick slots between slices |
+| `hoverEffect` | `"slice" \| "tick"` | `"slice"` | Grow the whole hovered slice, or only the tick under the pointer |
+| `hoverOffset` | `number` | PieChart `hoverOffset` | How far a hovered slice's ticks extend, in px |
+| `tickHoverOffset` | `number` | `2.2 × hoverOffset` | Tick mode — how far the hovered tick shoots out, in px |
+| `fadedOpacity` | `number` | `0.3` | Opacity of the other slices while one is hovered |
+| `enterTransition` | `Transition` | PieChart `enterTransition`, else a 1.4s ease-out | The ring sweep on mount |
+| `animate` | `boolean` | `true` | Animate on mount (skipped under reduced motion) |
+| `className` | `string` | - | Class on the tick group |
 
 ### Legend
 
@@ -5100,7 +6078,7 @@ const overallUsed =
 
 ### Patterned dots
 
-`patterns` fills a series' dots with a pattern preset (`"diagonal"`, `"horizontal"`, `"vertical"`, `"cross"`, `"dots"`, `"circles"`, `"accent"`) keyed by `dataKey`; use `"ghost"` for the ghost layer (e.g. a striped forecast). Large dots in `layout="columns"` read best.
+`patterns` fills a series' dots with a [pattern preset](/docs/utility/patterns) (`"diagonal-up"`, `"horizontal"`, `"grid"`, `"dots"`, `"checkerboard"`, …) keyed by `dataKey`; use `"ghost"` for the ghost layer (e.g. a striped forecast). Large dots in `layout="columns"` read best.
 
 <ComponentShowcase
   code={`const series = [
@@ -5120,8 +6098,8 @@ const overallUsed =
     ghostDotSize={0.9}
     ghostOpacity={0.6}
     patterns={{
-      grid: { preset: "diagonal", strokeWidth: 1.5 },
-      ghost: { preset: "diagonal", stroke: "none" },
+      grid: { preset: "diagonal-up", strokeWidth: 1.5 },
+      ghost: { preset: "diagonal-up", stroke: "none" },
     }}
   />
   <RadialScrubber variant="dashed" />
@@ -5153,7 +6131,7 @@ Pass a preset id for defaults, or a `RadialDotPattern`:
 
 | Field         | Type                | Default                 | Description                                                                |
 | ------------- | ------------------- | ----------------------- | -------------------------------------------------------------------------- |
-| `preset`      | `PatternPresetId`   | `"diagonal"`            | Pattern preset                                                             |
+| `preset`      | `PatternPresetId`   | `"diagonal-up"`         | [Pattern preset](/docs/utility/patterns)                                   |
 | `fill`        | `string`            | -                       | Custom fill (e.g. `url(#my-pattern)`); ignores `preset`, `color`, `scale`, `units` |
 | `color`       | `string`            | series color            | Stripe / dot color                                                         |
 | `scale`       | `number`            | `1`                     | Pattern tile scale                                                         |
@@ -5544,7 +6522,7 @@ Renders the links (flows) between nodes with animated path reveal and gradient c
 | `useGradient` | `boolean` | `true` | Use gradient from source to target node color |
 | `getNodeColor` | `(node, index) => string` | - | Custom node color function for gradients |
 | `getLinkColor` | `(link, index) => string` | - | Custom link color (overrides gradient) |
-| `patterns` | `ReactNode` | - | Pattern definitions, e.g. `PatternLines` from the `@bklit/patterns` registry item |
+| `patterns` | `ReactNode` | - | Pattern definitions, e.g. [`PatternPreset`](/docs/utility/patterns) from the `@bklit/patterns` registry item |
 | `getLinkPattern` | `(link, index) => string \| null` | - | Return pattern ID for a link, or null for gradient |
 
 ### SankeyTooltip
@@ -6263,7 +7241,7 @@ All animations respect `prefers-reduced-motion`.
 pnpm add motion
 ```
 
-For `PatternLines` or other pattern fills, add the `@bklit/patterns` registry item (`npx shadcn@latest add @bklit/patterns`). It is vendored from `@visx/pattern`, so no extra package is needed.
+For pattern fills, add the `@bklit/patterns` registry item (`npx shadcn@latest add @bklit/patterns`) and use [`PatternPreset`](/docs/utility/patterns). It has no package dependency.
 </doc>
 
 ## Utilities
@@ -6390,9 +7368,9 @@ Labels use the `text-chart-label` class, which inherits from your theme's muted 
 import { studioChartHref } from "@bklitui/studio";
 import { LineChart, Line, Background, ChartTooltip, XAxis } from "@bklitui/ui/charts";
 import {
-  BackgroundCrossDemo,
   BackgroundDiagonalDemo,
   BackgroundDotsDemo,
+  BackgroundGridDemo,
   BackgroundNoFadeDemo,
 } from "@/components/docs/background-demo";
 import { OpenInStudioButton } from "@/components/docs/open-in-studio-button";
@@ -6413,7 +7391,7 @@ Use `Background` instead of `Grid` when you want a textured plot fill rather tha
 import { LineChart, Line, Background, ChartTooltip, XAxis } from "@bklitui/ui/charts";
 
 <LineChart data={data}>
-  <Background pattern="diagonal" />
+  <Background pattern="diagonal-up" />
   <Line dataKey="value" />
   <XAxis />
   <ChartTooltip />
@@ -6426,14 +7404,10 @@ import { LineChart, Line, Background, ChartTooltip, XAxis } from "@bklitui/ui/ch
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `pattern` | `"diagonal" \| "horizontal" \| "vertical" \| "cross" \| "dots" \| "circles" \| "accent" \| "none"` | `"diagonal"` | Pattern preset (`"none"` renders nothing) |
-| `color` | `string` | `var(--chart-grid)` | Pattern stroke or dot color |
+| `pattern` | `PatternPresetId` | `"diagonal-up"` | Any [pattern preset](/docs/utility/patterns) (`"none"` renders nothing) |
+| `color` | `string` | `var(--chart-grid)` | Pattern color |
 | `scale` | `number` | `1` | Tile scale multiplier |
-| `strokeWidth` | `number` | preset default | Line stroke width for line-based patterns |
-| `radius` | `number` | preset default | Dot or circle radius for `dots` / `circles` |
-| `complement` | `boolean` | `false` | Alternate tile fill for circle patterns |
-| `fill` | `string` | — | Solid fill inside circles |
-| `dotFill` | `boolean` | `true` | Dot grid only — hollow dots when `false` |
+| `strokeWidth` | `number` | `1` | Line width for line-based presets |
 | `tileBackground` | `string` | — | Background color inside each pattern tile |
 | `showFill` | `boolean` | `true` | Apply the pattern texture to the plot area |
 | `opacity` | `number` | `1` | Pattern fill opacity |
@@ -6442,7 +7416,7 @@ import { LineChart, Line, Background, ChartTooltip, XAxis } from "@bklitui/ui/ch
 | `fadeHorizontalLength` | `number` | `10` | Horizontal fade zone as % of plot width per edge (0–45) |
 | `fadeVerticalLength` | `number` | `10` | Vertical fade zone as % of plot height per edge (0–45) |
 
-Patterns use `PatternLines` and `PatternCircles` from the bundled `@bklit/patterns` registry item, vendored from [@visx/pattern](https://visx.airbnb.tech/docs/pattern) (MIT), so there is no package dependency.
+`pattern` accepts every preset listed on the [Patterns](/docs/utility/patterns) page — lines, grids, dashes, dots, circles and checkerboards. The legacy ids `"diagonal"`, `"cross"` and `"accent"` still work and map to `"diagonal-up"`, `"grid"` and `"diagonal-up"`. The `radius`, `complement`, `fill` and `dotFill` options are deprecated and have no effect.
 
 ## Studio
 
@@ -6460,7 +7434,7 @@ Open [Studio with the line chart](/studio?chart=line-chart), hide **Grid** in th
 
 ## Examples
 
-### Diagonal (default)
+### Diagonal up (default)
 
 <ComponentShowcase code={`<LineChart data={data}>
   <Background />
@@ -6482,15 +7456,15 @@ Open [Studio with the line chart](/studio?chart=line-chart), hide **Grid** in th
   <BackgroundDotsDemo />
 </ComponentShowcase>
 
-### Cross hatch
+### Grid
 
 <ComponentShowcase code={`<LineChart data={data}>
-  <Background pattern="cross" scale={1.25} />
+  <Background pattern="grid" scale={2} />
   <Line dataKey="value" />
   <XAxis />
   <ChartTooltip />
-</ComponentShowcase>`}>
-  <BackgroundCrossDemo />
+</LineChart>`}>
+  <BackgroundGridDemo />
 </ComponentShowcase>
 
 ### No edge fade
@@ -6516,6 +7490,7 @@ import {
   BandEdgeStrokesDemo,
   BandFadeEdgesDemo,
   BandFillTypeDemo,
+  BandNegativeFillDemo,
   BandRangeAreaDemo,
   BandRangeComboDemo,
   BandRangeDemo,
@@ -6672,7 +7647,7 @@ const bollingerData = withBollingerBands(data, {
 
 ## Fill types
 
-`fillType` switches between a flat `"solid"` fill, a vertical `"gradient"` (from `fillOpacity` at the upper edge to `gradientToOpacity` at the lower edge), and a `"pattern"` fill using the [`Background`](/docs/utility/background) presets.
+`fillType` switches between a flat `"solid"` fill, a vertical `"gradient"` (from `fillOpacity` at the upper edge to `gradientToOpacity` at the lower edge), and a `"pattern"` fill using any of the [pattern presets](/docs/utility/patterns).
 
 <ComponentShowcase code={`<Band
   upperKey="valueUpper"
@@ -6680,12 +7655,40 @@ const bollingerData = withBollingerBands(data, {
   fill="var(--chart-1)"
   fillType="gradient" // "solid" | "gradient" | "pattern"
   fillOpacity={0.4}
-  pattern="diagonal"
+  pattern="diagonal-up"
   patternOpacity={0.6}
   strokeOpacity={0.5}
 />`} liveChartPreview previewMinHeight={360}>
   <BandFillTypeDemo />
 </ComponentShowcase>
+
+## Gap fill between two lines
+
+Point `upperKey` and `lowerKey` at two **series** instead of a range — actual vs projected, this year vs last year — and the band shades the gap between the lines. `strokeWidth={0}` drops the band's own edges so the two `<Line>`s are the edges.
+
+Add `negativeFill` to colour the stretches where `upperKey` drops **below** `lowerKey`. The colour switches exactly where the lines cross (the fill is clipped along the animated lower edge, so it stays in sync while the band morphs), and it works with every `fillType`. Use the profit / loss token for an ahead / behind read.
+
+<ComponentShowcase code={`<LineChart data={data}>
+  <Grid horizontal />
+  <Band
+    upperKey="actual"
+    lowerKey="projected"
+    label="Gap"
+    fill="var(--chart-1)"
+    negativeFill="var(--chart-negative, var(--color-red-500))"
+    fillType="solid" // "solid" | "gradient" | "pattern"
+    fillOpacity={0.25}
+    strokeWidth={0}
+  />
+  <Line dataKey="projected" stroke="var(--chart-1)" strokeWidth={1.5} dashFromIndex={0} dashArray="4,4" />
+  <Line dataKey="actual" stroke="var(--chart-1)" strokeWidth={2} />
+  <XAxis />
+  <ChartTooltip />
+</LineChart>`} liveChartPreview previewMinHeight={360}>
+  <BandNegativeFillDemo />
+</ComponentShowcase>
+
+See the [Gap fill](/recipes#gap-fill) and [Year over year](/recipes#year-over-year) recipes for dashed-projection and dotted-last-year styles.
 
 ## Edges
 
@@ -6733,10 +7736,11 @@ Both edges share `stroke`, `strokeWidth`, `strokeDasharray`, and `strokeOpacity`
 | `showInTooltip` | `boolean` | `true` | Add a `low – high` row and edge dots to `ChartTooltip` |
 | `curve` | `CurveFactory` | `curveNatural` | D3 curve function (match your `Line`) |
 | `fill` | `string` | `var(--chart-line-primary)` | Band color (also the tooltip swatch and edge dots) |
+| `negativeFill` | `string` | — | Fill where `upperKey` drops below `lowerKey` (series cross). Reuses `fillType`, opacities and `pattern` |
 | `fillType` | `"solid" \| "gradient" \| "pattern"` | `"solid"` | Fill style |
 | `fillOpacity` | `number` | `0.15` | Solid opacity, or gradient opacity at the upper edge |
 | `gradientToOpacity` | `number` | `0` | Gradient opacity at the lower edge |
-| `pattern` | Pattern preset id | `"diagonal"` | Pattern when `fillType` is `"pattern"` |
+| `pattern` | Pattern preset id | `"diagonal-up"` | [Pattern preset](/docs/utility/patterns) when `fillType` is `"pattern"` |
 | `patternColor` | `string` | `fill` | Pattern stroke or tile color |
 | `patternScale` | `number` | — | Pattern tile scale |
 | `patternStrokeWidth` | `number` | — | Line stroke width for line-based patterns |
@@ -6918,7 +7922,7 @@ Renders inside a time-series chart (typically the brush strip). Drag handles to 
 
 ### Selection pattern presets
 
-`selectionPattern.preset` accepts: `diagonal`, `horizontal`, `vertical`, `cross`, `dots`, or `accent`. Omit `selectionPattern` for a solid selection fill.
+`selectionPattern.preset` accepts any of the [pattern presets](/docs/utility/patterns) (`diagonal-up`, `horizontal`, `grid`, `dots`, …). Omit `selectionPattern` for a solid selection fill.
 
 ## Main chart props
 
@@ -7102,17 +8106,15 @@ function BarHorizontalLineIndicator({ data, dataKeys }) {
 Add the custom indicator as a child of your chart component. You can use gradients and patterns for different series:
 
 ```tsx
-import { PatternLines } from "@bklitui/ui/charts";
+import { PatternPreset } from "@bklitui/ui/charts";
 
 <BarChart data={data} xDataKey="month" barGap={0}>
   <LinearGradient id="gradient" from="var(--chart-3)" to="transparent" />
-  <PatternLines
+  <PatternPreset
     id="diagonalPattern"
-    height={6}
-    width={6}
-    stroke="var(--chart-4)"
+    preset="diagonal-up"
+    color="var(--chart-4)"
     strokeWidth={1.5}
-    orientation={["diagonal"]}
   />
   <Grid horizontal />
   <Bar dataKey="revenue" fill="url(#gradient)" stroke="var(--chart-3)" />
@@ -7198,7 +8200,7 @@ The colour defaults to `--chart-negative` (red), with a fallback to `--color-red
 | `fillType` | `"pattern" \| "gradient" \| "solid" \| "none"` | `"pattern"` | Region fill; `"none"` draws only the line |
 | `fillOpacity` | `number` | `0.6` (pattern), `0.25` (gradient), `0.12` (solid) | Region opacity |
 | `gradientToOpacity` | `number` | `0` | `gradient` only — opacity at the region's right edge |
-| `pattern` | Pattern preset id | `"diagonal"` | Pattern when `fillType` is `"pattern"` |
+| `pattern` | Pattern preset id | `"diagonal-up"` | [Pattern preset](/docs/utility/patterns) when `fillType` is `"pattern"` |
 | `patternScale` | `number` | `1.5` | Pattern tile scale |
 | `patternStrokeWidth` | `number` | `1` | Stripe width |
 | `fade` | `boolean` | `true` | Fade the region out towards its right edge |
@@ -7938,6 +8940,142 @@ The demo also adds a small tooltip section that lists the diamond's title when t
 See **Markers** on the [line chart gallery](/charts/line-chart).
 </doc>
 
+<doc title="Patterns" path="../apps/web/content/docs/utility/patterns.mdx">
+import {
+  PatternPresetGrid,
+  PatternPresetOptionsDemo,
+  PatternsAreaDemo,
+  PatternTileDemo,
+} from "@/components/docs/patterns-demo";
+
+<ComponentPreview registryName="patterns">
+  <PatternsAreaDemo />
+</ComponentPreview>
+
+## Installation
+
+<InstallationTabs name="patterns" />
+
+## Usage
+
+`PatternPreset` renders an SVG `<pattern>` definition. Put it inside any chart's children, give it a unique `id`, and reference it with `fill="url(#id)"` on a series, slice, segment or link.
+
+```tsx
+import { Area, AreaChart, Grid, PatternArea, PatternPreset, XAxis } from "@bklitui/ui/charts";
+
+<AreaChart data={data}>
+  <PatternPreset id="desktop-pattern" preset="diagonal-up" color="var(--chart-1)" />
+  <Grid horizontal />
+  <PatternArea dataKey="desktop" fill="url(#desktop-pattern)" />
+  <Area dataKey="desktop" fillOpacity={0} strokeWidth={2} />
+  <XAxis />
+</AreaChart>
+```
+
+Pattern ids are global to the document. If the same chart can render more than once on a page, build the id with `useId()`.
+
+Components with a built-in `pattern` prop take a preset id directly, with no `PatternPreset` needed: [`Background`](/docs/utility/background), [`Band`](/docs/utility/band), [`ReferenceArea`](/docs/utility/reference-area), [`Weekends`](/docs/utility/weekends), [`Deadline`](/docs/utility/deadline), brush `selectionPattern`, `RadialDotBar` `patterns`, and heatmap `levelStyles`.
+
+```tsx
+<Background pattern="grid" scale={2} />
+<Band upperKey="high" lowerKey="low" fillType="pattern" pattern="diagonal-down" />
+```
+
+## Presets
+
+Every preset is painted in a single color (`color`). Base names repeat every 6px. `-sparse` variants double the spacing and `-dense` variants halve it.
+
+<ComponentShowcase previewMinHeight={0}>
+  <PatternPresetGrid />
+</ComponentShowcase>
+
+| Family | Presets |
+|--------|---------|
+| Lines | `vertical`, `vertical-dense`, `horizontal`, `horizontal-dense`, `diagonal-up`, `diagonal-up-sparse`, `diagonal-down`, `diagonal-down-sparse` |
+| Grids | `grid` |
+| Dashed & dotted lines | `vertical-dashed`, `horizontal-dashed`, `horizontal-dashed-dense`, `grid-dashed`, `grid-dotted` |
+| Dots | `dots`, `dots-sparse`, `diagonal-dots-up`, `diagonal-dots-up-sparse`, `diagonal-dots-down`, `diagonal-dots-down-sparse` |
+| Circles | `circles-dense`, `circles`, `circles-sparse` |
+| Tiles | `blocks`, `checkerboard-xs`, `checkerboard-sm`, `checkerboard`, `checkerboard-lg`, `checkerboard-inset` |
+
+`"none"` is also accepted and renders nothing. The list is exported as `PATTERN_PRESET_IDS` (ids, including `"none"`) and `PATTERN_PRESETS` (`{ id, label, family, size }` for each preset, without `"none"`). Use them to build your own pattern picker.
+
+## PatternPreset props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `id` | `string` | required | Pattern id. Reference it as `fill="url(#id)"` |
+| `preset` | `PatternPresetId` | `"diagonal-up"` | Preset to draw |
+| `color` | `string` | `var(--chart-1)` | Pattern color |
+| `scale` | `number` | `1` | Tile size multiplier. Line width scales with it |
+| `strokeWidth` | `number` | `1` | Line width for line presets, in tile units (multiplied by `scale`) |
+| `opacity` | `number` | `1` | Opacity of the pattern (not the tile background) |
+| `tileBackground` | `string` | — | Solid fill painted under the pattern in each tile |
+
+<ComponentShowcase
+  code={`<PatternPreset id="a" preset="diagonal-up" />
+<PatternPreset id="b" preset="diagonal-up" scale={2} />
+<PatternPreset id="c" preset="diagonal-up" strokeWidth={2} />
+<PatternPreset id="d" preset="diagonal-up" opacity={0.4} />
+<PatternPreset
+  id="e"
+  preset="diagonal-up"
+  tileBackground="color-mix(in oklch, var(--chart-1) 12%, transparent)"
+/>`}
+  previewMinHeight={0}
+>
+  <PatternPresetOptionsDemo />
+</ComponentShowcase>
+
+`renderPatternPreset(preset, id, options)` returns the same definition as a function call. Use it where you need a `ReactNode`, for example inside a render prop:
+
+```tsx
+import { renderPatternPreset } from "@bklitui/ui/charts";
+
+<FunnelChart
+  data={data}
+  renderPattern={(id, color) =>
+    renderPatternPreset("diagonal-up", id, { color: "rgba(255,255,255,0.35)", tileBackground: color, scale: 1.5 })
+  }
+/>
+```
+
+## Custom tiles
+
+`PatternTile` wraps your own artwork in a square, repeating pattern. Draw inside a `size × size` box and paint with `currentColor` so `color` controls it. It takes `id`, `size` (default `48`), `scale`, `color`, `opacity` and `background`.
+
+<ComponentShowcase
+  code={`import { PatternTile } from "@bklitui/ui/charts";
+
+<PatternTile id="plus" size={12} color="var(--chart-2)">
+  <path d="M5.5 3h1v6h-1zM3 5.5h6v1h-6z" fill="currentColor" />
+</PatternTile>
+
+<Bar dataKey="revenue" fill="url(#plus)" stroke="var(--chart-2)" />`}
+  previewMinHeight={0}
+>
+  <PatternTileDemo />
+</ComponentShowcase>
+
+## Legacy ids and options
+
+The old preset ids still work and map to the new presets:
+
+| Legacy id | Renders as |
+|-----------|------------|
+| `diagonal` | `diagonal-up` |
+| `cross` | `grid` |
+| `accent` | `diagonal-up`, in `#e879f9` unless you set `color` |
+
+`horizontal`, `vertical`, `dots` and `circles` keep their names but now use the new artwork. The `radius`, `complement`, `fill` and `dotFill` options (and the `pattern*` props built from them, such as `patternRadius`) are deprecated and have no effect. Use `resolvePatternPresetId(id)` to convert any id to a current one. Unknown ids resolve to `"none"`.
+
+`PatternLines`, `PatternCircles`, `PatternWaves` and `PatternHexagons`, the primitives ported from `@visx/pattern`, are still exported but deprecated. Use `PatternPreset`, or `PatternTile` for artwork that no preset covers.
+
+## Credits
+
+Patterns adapted from Nucleo's free SVG patterns ([nucleoapp.com/svg-patterns](https://nucleoapp.com/svg-patterns/)).
+</doc>
+
 <doc title="Projection Line" path="../apps/web/content/docs/utility/projection-line.mdx">
 import { studioLineReferenceProjectionHref } from "@bklitui/studio";
 import {
@@ -7951,6 +9089,7 @@ import {
   XAxis,
 } from "@bklitui/ui/charts";
 import {
+  ProjectionAreaDemo,
   ProjectionLineDemo,
   ProjectionLineGradientDemo,
 } from "@/components/docs/projection-line-demo";
@@ -8025,8 +9164,27 @@ The chart extends its x-domain to fit the projection horizon. Projections are in
 | `curveKind` | `"linear" \| "bezier"` | `"linear"` | Straight segment or horizontal-tangent S-curve |
 | `strokeDasharray` | `string` | `"6,4"` | Dash pattern |
 | `strokeOpacity` | `number` | `1` | Stroke opacity |
-| `showEndMarker` | `boolean` | `true` | Horizon endpoint dot (`ProjectionLineEndMarker`) |
+| `showEndMarker` | `boolean` | `true` | Horizon endpoint dot |
 | `endpointRadius` | `number` | `5` | Horizon marker radius |
+| `endMarkerFill` | `string` | end colour | Horizon marker fill — pass `var(--background)` for a hollow ring |
+| `showEndLabel` | `boolean` | `false` | Print the projected value above the horizon marker |
+| `formatEndLabel` | `(value: number) => string` | `toLocaleString()` | End label formatter |
+| `endLabelColor` | `string` | end colour | End label colour |
+| `areaFill` | `"none" \| "solid" \| "gradient" \| "pattern"` | `"none"` | Fill under the projection, down to the baseline |
+| `areaColor` | `string` | end colour | Area colour (`gradientEnd` or `stroke`) |
+| `areaOpacity` | `number` | `0.12` / `0.3` / `0.5` | Area opacity (solid / gradient / pattern) |
+| `areaFadeBottom` | `number` | `100` gradient, else `0` | Fade the area out over the bottom N% (0–100) |
+| `areaPattern` | `PatternPresetId` | `"diagonal-up"` | Pattern preset when `areaFill="pattern"` |
+| `areaPatternScale` | `number` | `1.5` | Pattern scale |
+| `areaPatternTint` | `number` | `0` | Pattern only — opacity of a gradient wash under the pattern |
+| `target` | `number` | — | Goal value: dashed horizontal line + ring where the projection crosses it |
+| `targetStroke` | `string` | `var(--muted-foreground)` | Goal line colour |
+| `targetDasharray` | `string` | `"4,4"` | Goal line dash |
+| `targetStrokeOpacity` | `number` | `0.6` | Goal line opacity |
+| `showTargetMarker` | `boolean` | `true` | Ring (with glow) on the goal crossing |
+| `showGuides` | `boolean` | `false` | Dashed verticals at the hand-off and the goal crossing |
+| `guideStroke` | `string` | `var(--muted-foreground)` | Guide colour |
+| `guideStrokeOpacity` | `number` | `0.35` | Guide opacity |
 
 ## buildProjectionPath
 
@@ -8045,13 +9203,13 @@ The chart extends its x-domain to fit the projection horizon. Projections are in
 
 ## Terminal marker
 
-`LineSeriesTerminalMarker` renders a hollow ring at the last data point for the given `dataKey`. It fades in after the clip reveal completes.
+`LineSeriesTerminalMarker` renders a dot at the last data point for the given `dataKey`, with a ring around it when `ringGap` is set. It fades in after the clip reveal completes.
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `dataKey` | `string` | required | Series to anchor |
 | `yAxisId` | `string \| number` | `"left"` | Y-scale group id |
-| `fill` | `string` | `transparent` | Dot fill |
+| `fill` | `string` | same as `stroke` | Dot fill. Pass `transparent` for a hollow marker |
 | `stroke` | `string` | `var(--chart-1)` | Ring color |
 | `radius` | `number` | `5` | Dot radius |
 | `ringGap` | `number` | `0` | Gap between dot and ring |
@@ -8069,7 +9227,7 @@ The chart extends its x-domain to fit the projection horizon. Projections are in
   />
 </div>
 
-Open [Studio with a projection](/studio?chart=line-chart) and use **Settings → Projections** or the series context menu to add a projection line. Tune stroke, dash, curve, and terminal marker in the layers panel.
+Open [Studio with a projection](/studio?chart=line-chart) and use **Settings → Projections** or the series context menu to add a projection line. Tune stroke, dash, curve, and terminal marker in the layers panel — plus the projection **Area** (solid, gradient or pattern with opacity, fade and pattern tint), **Goal** line and crossing marker, **Guides**, and **End label**.
 
 ## Examples
 
@@ -8104,9 +9262,64 @@ Open [Studio with a projection](/studio?chart=line-chart) and use **Settings →
   <ProjectionLineGradientDemo />
 </ComponentShowcase>
 
+### Projection area and goal
+
+Give the forecast its own fill with `areaFill` — `"solid"`, a fading `"gradient"`, or a `"pattern"` hatch (add `areaFadeBottom` and `areaPatternTint` for a hatch over a gradient). `target` draws a goal line and rings the point where the forecast crosses it; `showGuides` drops dashed verticals from the hand-off and the crossing.
+
+<ComponentShowcase code={`<AreaChart data={chartData}>
+  <Grid horizontal />
+  <Area dataKey="value" fill="var(--chart-positive)" fillOpacity={0.12} fadeBottom={100} />
+  <LineSeriesTerminalMarker dataKey="value" fill="var(--background)" radius={4} stroke="var(--chart-positive)" />
+  <ProjectionLine
+    data={projectionPath}
+    stroke="oklch(0.83 0.14 85)"
+    strokeDasharray="none"
+    areaFill="pattern"
+    areaOpacity={0.35}
+    areaFadeBottom={100}
+    areaPatternTint={0.12}
+    target={230}
+    showGuides
+    showEndLabel
+    endMarkerFill="var(--background)"
+  />
+  <XAxis />
+  <ChartTooltip />
+</AreaChart>`}>
+  <ProjectionAreaDemo />
+</ComponentShowcase>
+
+#### Gradient fill
+
+<ComponentShowcase code={`  <ProjectionLine
+    data={projectionPath}
+    areaFill="gradient"
+    areaOpacity={0.3}
+    target={230}
+    showGuides
+    showEndLabel
+  />`}>
+  <ProjectionAreaDemo areaFill="gradient" />
+</ComponentShowcase>
+
+#### Solid fill
+
+<ComponentShowcase code={`  <ProjectionLine
+    data={projectionPath}
+    areaFill="solid"
+    areaOpacity={0.12}
+    target={230}
+    showGuides
+    showEndLabel
+  />`}>
+  <ProjectionAreaDemo areaFill="solid" />
+</ComponentShowcase>
+
+See the [Projected goal recipe](/recipes#projection-area) for a month-to-date revenue version.
+
 ## Gallery
 
-See **Projection** on the [line chart gallery](/charts/line-chart).
+See **Projection** on the [line chart gallery](/charts/line-chart) and **Projection Area** on the [area chart gallery](/charts/area-chart).
 </doc>
 
 <doc title="Reference Area" path="../apps/web/content/docs/utility/reference-area.mdx">
@@ -8156,14 +9369,10 @@ Omit `y1` or `y2` to extend the band to the top or bottom of the plot. Use `axis
 | `yAxisId` | `string \| number` | `"left"` | Y-scale group id |
 | `fill` | `string` | muted mix on `--chart-foreground-muted` | Solid fill when `pattern` is `"none"` |
 | `fillOpacity` | `number` | `1` | Fill opacity |
-| `pattern` | Pattern preset id | `"none"` | Pattern fill inside the band |
+| `pattern` | Pattern preset id | `"none"` | [Pattern preset](/docs/utility/patterns) inside the band |
 | `patternColor` | `string` | — | Pattern stroke or tile color |
 | `patternScale` | `number` | — | Pattern tile scale |
 | `patternStrokeWidth` | `number` | — | Line stroke width for line-based patterns |
-| `patternRadius` | `number` | — | Dot or circle radius for `dots` / `circles` |
-| `patternComplement` | `boolean` | — | Alternate tile fill for circle patterns |
-| `patternFill` | `string` | — | Solid fill inside circles |
-| `patternDotFill` | `boolean` | — | Dot grid only — hollow dots when `false` |
 | `patternTileBackground` | `string` | — | Background color inside each pattern tile |
 | `stroke` | `string` | — | Edge line color |
 | `strokeWidth` | `number` | `1` | Edge line width |
@@ -8177,7 +9386,7 @@ Omit `y1` or `y2` to extend the band to the top or bottom of the plot. Use `axis
 | `markerSize` | `number` | — | Bracket marker size |
 | `ifOverflow` | `"hidden" \| "visible"` | `"hidden"` | Clip band to the plot when bounds exceed the domain |
 
-Pattern presets match [`Background`](/docs/utility/background) (`diagonal`, `dots`, `cross`, …).
+`pattern` accepts any of the [pattern presets](/docs/utility/patterns) (`diagonal-up`, `grid`, `dots`, `checkerboard`, …). `patternRadius`, `patternComplement`, `patternFill` and `patternDotFill` are deprecated and have no effect.
 
 ## Studio
 
@@ -8214,7 +9423,7 @@ Open [Studio with the line chart](/studio?chart=line-chart) and select **Referen
   <ReferenceArea
     y1={160}
     y2={200}
-    pattern="diagonal"
+    pattern="diagonal-up"
     patternColor="oklch(0.76 0.144 180.392 / 0.17)"
     patternScale={0.75}
     patternStrokeWidth={1.5}
@@ -8254,7 +9463,7 @@ See **Reference Band** examples on each cartesian chart gallery: [line](/charts/
 
 <doc title="Tooltip" path="../apps/web/content/docs/utility/tooltip.mdx">
 import { LineChart, Line, Grid, ChartTooltip, XAxis } from "@bklitui/ui/charts";
-import { TooltipDefaultDemo, TooltipCrosshairOnlyDemo, TooltipMinimalDemo, TooltipCustomRowsDemo, TooltipBarChartDemo, TooltipCustomContentDemo, TooltipSolidCrosshairDemo, TooltipCrosshairFadeTopDemo, TooltipDashedCrosshairDemo, TooltipMatchCrosshairDemo, TooltipPanelDampingDemo } from "@/components/docs/tooltip-demo";
+import { TooltipDefaultDemo, TooltipCrosshairOnlyDemo, TooltipMinimalDemo, TooltipCustomRowsDemo, TooltipBarChartDemo, TooltipCustomContentDemo, TooltipSolidCrosshairDemo, TooltipCrosshairFadeTopDemo, TooltipDashedCrosshairDemo, TooltipMatchCrosshairDemo, TooltipPanelDampingDemo, TooltipHorizontalCrosshairDemo } from "@/components/docs/tooltip-demo";
 
 <ComponentPreview registryName="chart-tooltip">
   <TooltipDefaultDemo />
@@ -8328,7 +9537,7 @@ interface TooltipRow {
 
 The tooltip has several visual components:
 
-1. **Crosshair** - Vertical line that follows the cursor
+1. **Crosshair** - Vertical line that follows the cursor (add [`ChartCrosshair`](#horizontal-crosshair) for a horizontal line and y-axis value pill)
 2. **Dots** - A solid dot with a soft halo in the series color on each data point at the hovered position
 3. **Tooltip Box** - Popover-style panel: a header row with the date / category, a full-width separator, then rows (color dot, muted label, right-aligned value)
 4. **Date Pill** - Animated date ticker at the bottom
@@ -8548,6 +9757,61 @@ Use the `content` prop for complete control over the tooltip layout.
 </LineChart>`}>
   <TooltipCustomContentDemo />
 </ComponentShowcase>
+
+## Horizontal crosshair
+
+`ChartCrosshair` adds a finance-style crosshair: a horizontal line that tracks the cursor's y, with the value under the cursor in a pill on the y-axis, plus a vertical line on the hovered column. The pill matches the date pill on the x-axis — same look, same spring — and a `YAxis` on the same axis fades the ticks it covers, the way `XAxis` labels fade under the date pill.
+
+<ComponentShowcase code={`<LineChart data={data} margin={{ left: 56 }}>
+  <Grid horizontal />
+  <Line dataKey="users" stroke="var(--chart-line-primary)" />
+  <YAxis />
+  <XAxis />
+  <ChartCrosshair numberFlow format={{ maximumFractionDigits: 0 }} />
+  <ChartTooltip showCrosshair={false} />
+</LineChart>`}>
+  <TooltipHorizontalCrosshairDemo />
+</ComponentShowcase>
+
+<InstallationTabs name="chart-crosshair" dependencies={["@number-flow/react", "motion"]} />
+
+Pair it with `<ChartTooltip showCrosshair={false} />` so the tooltip keeps its panel, dots and date pill while `ChartCrosshair` draws both lines. It works in every time-series chart (`LineChart`, `AreaChart`, `ComposedChart`, `CandlestickChart`).
+
+```tsx
+// Price on a right axis: the pill sits on the right and reads that axis.
+<ComposedChart data={ohlcv} margin={{ right: 72 }}>
+  <Candlestick yAxisId="right" />
+  <YAxis orientation="right" yAxisId="right" />
+  <ChartCrosshair
+    yAxisId="right"
+    numberFlow
+    prefix="$"
+    format={{ minimumFractionDigits: 2, maximumFractionDigits: 2 }}
+  />
+  <ChartTooltip showCrosshair={false} />
+</ComposedChart>
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `yAxisId` | `string \| number` | `"left"` | Axis whose scale converts the cursor y into the pill value. The `YAxis` with the same id fades its ticks under the pill |
+| `side` | `"left" \| "right"` | `"right"` for the `right` axis, else `"left"` | Which plot edge the pill sits on |
+| `snap` | `boolean` | `true` | Snap the vertical line to the hovered column. `false` follows the cursor, so both lines cross under the pointer (good for scatter) |
+| `horizontal` | `boolean` | `true` | Draw the horizontal line and pill |
+| `vertical` | `boolean` | `true` | Draw the vertical line |
+| `showValueLabel` | `boolean` | `true` | Show the y-axis value pill |
+| `numberFlow` | `boolean` | `false` | Roll digits with NumberFlow. Uses `format`, `prefix` and `suffix` |
+| `format` | `Intl.NumberFormatOptions` subset | `{ maximumFractionDigits: 2 }` | Number format for the pill |
+| `prefix` / `suffix` | `string` | — | Text around the value (e.g. `"$"`, `"%"`) |
+| `formatValue` | `(value: number) => string` | — | Custom formatter for the static pill (ignored with `numberFlow`) |
+| `stroke` | `string` | `var(--chart-crosshair)` | Line colour |
+| `strokeDasharray` | `string` | `"3,3"` | Line dash pattern |
+| `strokeWidth` | `number` | `1` | Line width |
+| `springConfig` | `{ stiffness: number; damping: number }` | chart tooltip spring | Spring for both lines and the pill |
+
+The pill is wider than a typical axis gutter, so give the chart enough `margin` on the pill's side (about 56–72px for prices with cents).
+
+**Performance.** Pointer moves never re-render React: the lines and pill follow motion values, and the static label and y-tick fades are written straight to the DOM. NumberFlow is the one exception — its updates are throttled, but each one still re-styles the digits, so leave `numberFlow` off on dense dashboards or many charts per page.
 
 ## Animation
 
@@ -9010,7 +10274,7 @@ import { LineChart, Line, Grid, Weekends, ChartTooltip, XAxis } from "@bklitui/u
 | `fillType` | `"pattern" \| "solid"` | `"pattern"` | Diagonal stripes or a solid fill |
 | `fill` | `string` | `var(--chart-foreground-muted)` | Stripe / fill colour |
 | `fillOpacity` | `number` | `0.45` (pattern), `0.08` (solid) | Fill opacity |
-| `pattern` | Pattern preset id | `"diagonal"` | Pattern when `fillType` is `"pattern"` (see [Background](/docs/utility/background)) |
+| `pattern` | Pattern preset id | `"diagonal-up"` | [Pattern preset](/docs/utility/patterns) when `fillType` is `"pattern"` |
 | `patternScale` | `number` | `1.5` | Pattern tile scale |
 | `patternStrokeWidth` | `number` | `1` | Stripe width |
 | `align` | `"auto" \| "calendar" \| "centered"` | `"auto"` | `calendar` = midnight to midnight; `centered` = shifted half a day so daily points sit mid-band |
@@ -9084,14 +10348,19 @@ Bands are recomputed from the visible domain, so zooming in reveals weekends tha
 ### Composed chart
 
 <ComponentShowcase code={`// composedDemoData rows use UTC-noon ISO dates
-<ComposedChart data={composedDemoData} barGap={0} maxBarSize={24}>
+<ComposedChart data={composedDemoData} barGap={0} maxBarSize={18}>
   <Grid horizontal />
   <Weekends utc />
   <Deadline date={composedDemoData[21].date} label="Quarter close" />
-  <SeriesBar dataKey="units" fill="var(--chart-3)" radius={3} />
-  <Line dataKey="revenue" stroke="var(--chart-1)" />
-  <ChartTooltip showCrosshair={false} />
-  <XAxis numTicks={8} />
+  <SeriesBar
+    dataKey="units"
+    fill="color-mix(in oklch, var(--chart-3) 32%, transparent)"
+    radius={4}
+    stroke="var(--chart-3)"
+  />
+  <Line curve={curveMonotoneX} dataKey="revenue" stroke="var(--chart-1)" strokeWidth={2.5} />
+  <ChartTooltip />
+  <XAxis numTicks={6} />
 </ComposedChart>`}>
   <DateHighlightsComposedDemo />
 </ComponentShowcase>

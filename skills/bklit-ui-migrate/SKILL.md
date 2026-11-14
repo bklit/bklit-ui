@@ -72,7 +72,7 @@ Also check `components.json`: confirm the `@bklit` registry (`"registries": { "@
 For every chart, state one of:
 
 - **Clean** — every component and prop maps (see `component-map.md`, `prop-map.md`). Data may still need a reshape (pie, radar, radial, ring).
-- **Needs workaround** — convertible with a compromise. Typical: categorical or numeric x on a time-series chart, `Area stackId`, multiple bar stack groups, fixed `YAxis domain`, negative bar values, x `tickFormatter`/angled ticks, `LabelList`, `syncId`, `Brush` (bklit's brush is **not** shipped in any registry item), `ReferenceLine`/`ReferenceDot`, null gaps, nested pies.
+- **Needs workaround** — convertible with a compromise. Typical: categorical or numeric x on a time-series chart, `Area stackId`, multiple bar stack groups, fixed `YAxis domain`, negative scatter values, x `tickFormatter`/angled ticks, `LabelList` on lines/scatter (bars and areas have `showValue`), `syncId`, `Brush` (bklit's brush is **not** shipped in any registry item), `ReferenceLine`/`ReferenceDot`, null gaps, nested pies.
 - **Keep on Recharts** — `Treemap`, `ErrorBar`, `Customized`, custom `shape`/node renderers, `ZAxis` bubbles, `layout="vertical"` on non-bar charts.
 - **Keep on TanStack Charts** (`keep-tanstack`) — definitions using marks bklit has no mapping for (`dot`, `cell`, `rect`, `text`, `ruleY`, `hexagon`, `facet`, …). Full `lineY` / `areaY` / `barY` charts are needs-workaround (high-level mapping only); sparkline definitions are clean. See `tanstack-charts.md`.
 - **Sparklines** — a `Tooltip` (or TanStack `tooltip`) on a tiny chart is needs-workaround: sparklines have none, so the value moves next to the chart via `useSparklineHover`.

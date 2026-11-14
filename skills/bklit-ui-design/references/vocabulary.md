@@ -26,6 +26,7 @@ private to the bklit monorepo).
 | `withBollingerBands` | `@/components/charts/bollinger` | `@bklit/line-chart` (also `@bklit/band`) |
 | `BarChart` | `@/components/charts/bar-chart` | `@bklit/bar-chart` |
 | `Bar` | `@/components/charts/bar` | `@bklit/bar-chart` |
+| `BarLollipop` | `@/components/charts/bar-lollipop` | `@bklit/bar-chart` |
 | `BarXAxis` / `BarYAxis` | `@/components/charts/bar-x-axis` / `bar-y-axis` | `@bklit/bar-chart` |
 | `BarSquares`, `BarColumnTrack` | `@/components/charts/bar-squares` | `@bklit/bar-chart` |
 | `BarChartLoading` | `@/components/charts/bar-chart-loading` | `@bklit/bar-chart` |
@@ -39,6 +40,8 @@ private to the bklit monorepo).
 | `Background` | `@/components/charts/background` | `@bklit/background` |
 | `PatternLines`, `PatternCircles`, `PatternWaves`, `PatternHexagons`, `PatternPath`, `Pattern` (**deprecated** — use `PatternPreset` / `PatternTile`) | `@/components/charts/patterns` | `@bklit/patterns` |
 | `ReferenceArea` | `@/components/charts/reference-area` | `@bklit/reference-area` |
+| `Weekends` / `Deadline` | `@/components/charts/weekends` / `deadline` | `@bklit/weekends` / `@bklit/deadline` |
+| `RadialChart`, `RadialBar`, `RadialRingBar`, `RadialDotBar`, `RadialLine`, `RadialArea`, `RadialAxis`, `RadialScrubber`, `RadialCenter`, `RadialLegend` | `@/components/charts/radial-chart` / `radial-bar` / `radial-ring-bar` / `radial-dot-bar` / `radial-line` / `radial-area` / `radial-axis` / `radial-scrubber` / `radial-center` / `radial-legend` | `@bklit/radial-chart` |
 | `TrendLine` | `@/components/charts/trend-line` | `@bklit/trend-line` |
 | `ChartMarkers` | `@/components/charts/markers` | `@bklit/markers` |
 | `Legend`, `LegendItem`, `LegendMarker`, `LegendLabel`, `LegendValue`, `LegendProgress` | `@/components/charts/legend` | `@bklit/legend` |
@@ -152,6 +155,7 @@ Custom artwork: `<PatternTile id size={12} color>{<path d="…" fill="currentCol
 | "no shadow under 3D bars" | `<BarDepthProvider groundShadow={0}>` around `<BarChart>` | Default 0.26. Provider wraps the chart, not inside it. |
 | "3D stacked" | `BarDepthProvider segmentsAccessor={(d) => [{ value, color }, …]}` + `<BarChart stacked>` | Gallery "Bar Chart - 3D Stacked". |
 | "pulsing live bar", "heartbeat bar" | `<BarPulse dataKey="v" activeIndex={n} />` after `BarDepthFront` | |
+| "lollipop", "stick and dot", "pin bars", "dot on a stem" | `<BarLollipop dataKey="v" />` instead of `<Bar>` | Dashed stem (`stemDasharray="4,4"`), `radius={6}` dot, halo on hover. `stemDasharray="0"` for a solid stem; `colorKey` colours each dot from the row. Vertical, non-stacked only. Pair with `ChartTooltip showCrosshair={false} showDots={false}`. |
 | "tiny/zero bars still visible" | `<Bar minBarHeight={4} />` (+ same on `BarDepthProvider`) | Default 0. |
 | "no gaps between bars", "histogram" | `<BarChart barGap={0}>` + `<Bar lineCap="butt" />` | `barGap` is a 0–1 band fraction, default 0.2. |
 | "thin bars" | `<BarChart barWidth={8}>` | Fixed px width. |
@@ -191,6 +195,11 @@ Custom artwork: `<PatternTile id size={12} color>{<path d="…" fill="currentCol
 | "area without the outline", "no stroke" | `<Area showLine={false} />` |
 | "line only, no fill" | use `Line` in `LineChart` (or `Area fillOpacity={0}`) |
 | "forecast", "projection", "target line" | `ProjectionLine` + `buildProjectionPath` (recipe "Projection") |
+| "shaded forecast", "forecast cone", "fill under the projection" | `<ProjectionLine areaFill="gradient" />` (`"solid"` / `"pattern"`; `areaColor`, `areaOpacity`, `areaPattern`, `areaFadeBottom`) |
+| "goal line the forecast hits", "when will we reach X" | `<ProjectionLine target={230} />` — dashed goal line, ring at the crossing (`showTargetMarker`); `showGuides` drops dashed verticals; `showEndLabel` prints the end value |
+| "glowing line", "neon line" | `<Line glow />` or `glow={{ blur: 8, opacity: 0.6 }}` (defaults blur 6, opacity 0.7, width 2× stroke) |
+| "rainbow / gradient line", "colour ramp along the line" | `<Line strokeGradient={["var(--chart-1)", "var(--chart-5)"]} />` (composes with `fadeEdges`; `{ offset, color }` stops for exact placement) |
+| "hover highlights just a segment", "brighter segment on hover" | default `showHighlight`; tune with `highlight={{ span: 2, fadeLength: 20, glow: true, dimOpacity: 0.3 }}` |
 | "trend line", "line of best fit", "regression" | `<TrendLine dataKey="v" />` after the series — dashed `"6,4"` by default; `strokeStyle="solid"` for a solid fit. Line, area, bar (incl. horizontal), composed. |
 
 ## Markers & points
@@ -201,7 +210,7 @@ Custom artwork: `<PatternTile id size={12} color>{<path d="…" fill="currentCol
 | "scatter rings", "halo dots" | `<Scatter dataKey="v" strokeWidth={2} ringGap={2} />` | Scatter is solid dots by default (`strokeWidth` 0); rings are opt-in. |
 | "blur the other dots", "frosted unfocused points" | `<Scatter dataKey="v" inactiveMode="blur" />` | Default `inactiveMode="opacity"` fades others to `inactiveOpacity` (0.3); `"blur"` adds `inactiveBlur` (2px). |
 | "jitter", "strip plot", "beeswarm-ish", "spread overlapping dots" | `<ScatterChart data={rows} jitter={{ x: 0.5 }}>` | Many rows per date. `x` = fraction of the band step, `y` = px; deterministic (`seed`), tooltips show original values. Hover snaps to the nearest point, so the crosshair is off by default. `formatXLabel` for month labels. |
-| "ring at the last point", "end dot" | `<LineSeriesTerminalMarker dataKey="v" />` | Defaults `fill="transparent"`, `stroke="var(--chart-1)"`, `radius={5}`, `strokeWidth={1.5}`. |
+| "ring at the last point", "end dot" | `<LineSeriesTerminalMarker dataKey="v" />` | Defaults: `fill` = `stroke` (pass `fill="transparent"` for a hollow ring), `stroke="var(--chart-1)"`, `radius={5}`, `strokeWidth={1.5}`. |
 | "event pins", "annotations", "launch markers" | `<ChartMarkers items={[{ date, icon, title, description?, color?, href? }]} />` | `size` default 28, `showLines` default true. |
 
 ## Tooltips & crosshair
@@ -280,6 +289,20 @@ Custom artwork: `<PatternTile id size={12} color>{<path d="…" fill="currentCol
 | "fill between two lines", "gap fill", "actual vs projected", "this year vs last year", "ahead / behind" | `<Band upperKey="actual" lowerKey="projected" strokeWidth={0} />` before both `<Line>`s; add `negativeFill="var(--chart-negative, var(--color-red-500))"` for a two-tone fill | `negativeFill` colours where `upperKey` < `lowerKey`, switching exactly at crossings; works with every `fillType`. Comparison line dashed (`dashFromIndex={0} dashArray="4,4"`) or dotted (`dashArray="0,5"`). Recipes: Gap fill, Year over year. |
 | "Bollinger bands" | `withBollingerBands(data, { dataKey: "price" })` → `<Band upperKey="priceUpper" lowerKey="priceLower" />` | Defaults: `period` 20, `multiplier` 2. Dashed SMA = zero-height `Band` on `priceSma` with `lowerStroke={false}`. |
 
+## Value labels
+
+| People say | JSX | Notes |
+|---|---|---|
+| "numbers on the bars", "data labels", "show values inside bars" | `<Bar dataKey="v" showValue />` | Drawn inside the bar when it fits. `valueLabelFormatter={(v) => …}`, `valueLabelPosition="top" \| "center" \| "bottom"` (default `"center"`), `valueLabelOrientation="auto" \| "horizontal" \| "vertical"`, `valueLabelColor` (default `"white"`). |
+| "label the points on the area", "values along the line" | `<Area dataKey="v" showValue />` | Thinned to fit: `valueLabelMinCount` (2), `valueLabelMaxCount`; `valueLabelFormatter`, `valueLabelColor` (defaults to the stroke), `fadeValueLabels`. |
+
+## Date annotations
+
+| People say | JSX | Notes |
+|---|---|---|
+| "shade weekends", "grey out Saturdays and Sundays" | `<Weekends />` after `<Grid>` | Default diagonal pattern (`fillType="pattern"`; also `"solid"`). `weekendDays={[5, 6]}` for Fri–Sat locales. Line, area, composed, candlestick, and bar charts with date rows. |
+| "due date", "deadline", "launch day line", "everything after X is overdue" | `<Deadline date={due} label="Due Oct 15" />` | Shades from `date` to the right edge (or `endDate`); `fillType="pattern" \| "gradient" \| "solid" \| "none"` (`"none"` = just the line). Colour defaults to `--chart-negative`. |
+
 ## Pie, donut, ring
 
 | People say | JSX | Notes |
@@ -299,11 +322,11 @@ Ring tracks use `--border`.
 
 ## Not supported (say so — do not invent props)
 
-- Hexagon / honeycomb / wave **`Background` presets** — only the 8 presets above. Compose manually.
-- Glow / neon on `Line`, `Area` or `Bar` — glow exists only on `PieSlice`, `Ring`, `RadarArea` (`showGlow`).
-- Gradient `stroke` on `Line` while `fadeEdges` is on — set `fadeEdges={false}`.
+- Hexagon / honeycomb / wave **`Background` presets** — only the 29 presets above (plus `none`). Compose manually.
+- Glow / neon on `Area` or `Bar` — glow exists on `Line` (`glow`), `PieSlice`, `Ring`, `RadarArea` (`showGlow`), `Gauge` and `ChoroplethMarker` (`glow`).
+- `stroke="url(#gradient)"` on `Line` while `fadeEdges` is on — set `fadeEdges={false}`, or use `strokeGradient`, which composes with the fade.
 - True stacked areas — `Area` has no stack prop; the gallery "Stacked" example overlaps translucent areas.
 - Per-bar colours on plain `Bar` — use `BarSquares colorKey`, `BarDepthBack colorAccessor`, or separate series.
-- `BarSquares` / `BarColumnTrack` in horizontal or stacked bar charts — they render nothing.
-- Value labels printed on bars — no prop; use the tooltip or a custom SVG layer reading `useChart()`.
+- `BarSquares` / `BarColumnTrack` / `BarLollipop` in horizontal or stacked bar charts — they render nothing.
+- Value labels on `Line`, `Scatter` or `SeriesBar` — no prop; use the tooltip or a custom SVG layer reading `useChart()`. (`Bar` and `Area` have `showValue`; see "Value labels".)
 - Brush / range selection (`ChartBrush`, `SegmentBackground`) — not shipped in the public registry items.

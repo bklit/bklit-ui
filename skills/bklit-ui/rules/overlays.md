@@ -91,6 +91,12 @@ const path = buildProjectionPath({ sourceData: data, seriesKey: "value", mode: "
 </LineChart>
 ```
 
+Shade the forecast with `areaFill="solid" | "gradient" | "pattern"` (default `"none"`; tune with `areaColor`, `areaOpacity`, `areaFadeBottom`, `areaPattern`, `areaPatternTint`). `target={v}` draws a dashed goal line and rings the point where the forecast crosses it (`showTargetMarker` default true, `targetStroke`, `targetDasharray`). `showGuides` drops dashed verticals from the hand-off and the crossing, and `showEndLabel` (+ `formatEndLabel`) prints the end value:
+
+```tsx
+<ProjectionLine data={path} areaFill="gradient" target={230} showGuides />
+```
+
 For a dashed tail on **existing** data (incomplete period) use `Line` `dashFromIndex` instead. Projection and brush zoom are not supported together.
 
 ## Band — `@bklit/band` (ships with `@bklit/line-chart`)

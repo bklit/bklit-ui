@@ -11,6 +11,7 @@ Documentation source files live under `apps/web/content/docs/` (MDX, Fumadocs). 
 
 ## Guides
 
+- [React Native](../apps/web/content/docs/react-native.mdx): Bklit line and area charts for React Native and Expo. Same composable API as the web charts, drawn with Skia and animated on the UI thread with Reanimated.
 - [Skills](../apps/web/content/docs/skills.mdx): Give AI agents project-aware context for Bklit charts in your application.
 - [Theming](../apps/web/content/docs/theming.mdx): Theme your charts with CSS custom properties — multi-hue palettes, trend colors, sequential scales, and custom palette export.
 - [Upgrading from visx](../apps/web/content/docs/upgrading-from-visx.mdx): Move charts installed from the registry off visx and onto the d3-based version, with a one-shot AI prompt, manual steps, and a per-chart checklist.
@@ -21,9 +22,9 @@ Documentation source files live under `apps/web/content/docs/` (MDX, Fumadocs). 
 - [Bar Chart](../apps/web/content/docs/components/bar-chart.mdx): A composable bar chart with spring animations, stacked bars, horizontal orientation, and grouped series support
 - [Candlestick Chart](../apps/web/content/docs/components/candlestick-chart.mdx): A composable OHLC candlestick chart with gradients, patterns, tooltips, and hover interactions
 - [Choropleth Chart](../apps/web/content/docs/components/choropleth-chart.mdx): A composable geographic map chart for visualizing data across regions with interactive tooltips, zoom controls, and pattern support
-- [Composed Chart](../apps/web/content/docs/components/composed-chart.mdx): Mix SeriesBar, Line, and Area on one shared time axis (Recharts ComposedChart–style)
+- [Composed Chart](../apps/web/content/docs/components/composed-chart.mdx): Mix every time-series mark — SeriesBar, Line, Area, Scatter, Candlestick, ProfitLossLine and Band — on one shared time axis
 - [Funnel Chart](../apps/web/content/docs/components/funnel-chart.mdx): An animated funnel chart with multi-layer halo rings, hover interactions, and staggered entrance animations
-- [Gauge](../apps/web/content/docs/components/gauge-chart.mdx): Notch-based radial or linear gauge with optional center label, theme fills, patterns, arc gradients, and responsive sizing
+- [Gauge](../apps/web/content/docs/components/gauge-chart.mdx): Notch, solid or sector dial (or a linear notch track) with rulers, needles, zones, progress rings, dots, glow, a center label and a zero-bounce sweep animation
 - [Heatmap Chart](../apps/web/content/docs/components/heatmap-chart.mdx): A contribution heatmap with animated cells, configurable level colors and patterns, and an interactive legend
 - [Components](../apps/web/content/docs/components/index.mdx): A collection of chart components for your applications.
 - [Line Chart](../apps/web/content/docs/components/line-chart.mdx): A composable line chart with tooltips, markers, and hover interactions
@@ -44,13 +45,14 @@ Documentation source files live under `apps/web/content/docs/` (MDX, Fumadocs). 
 - [X Axis](../apps/web/content/docs/utility/axis/x-axis.mdx): Date labels for the horizontal axis in line and area charts
 - [Y Axis](../apps/web/content/docs/utility/axis/y-axis.mdx): Value labels for the vertical axis in line and area charts
 - [Background](../apps/web/content/docs/utility/background.mdx): Pattern fill for the plot area when grid lines are hidden — presets, edge fade, and enter animation
-- [Band](../apps/web/content/docs/utility/band.mdx): Shaded range between per-row upper and lower values on a line chart — range area charts, min/max ranges, confidence intervals, and Bollinger bands
+- [Band](../apps/web/content/docs/utility/band.mdx): Shaded range between per-row upper and lower values on a line chart — range area charts, min/max ranges, confidence intervals, Bollinger bands, and two-tone gap fills between two series
 - [Brush](../apps/web/content/docs/utility/brush.mdx): Time-range brush for zooming area and line charts with a mini-chart strip and draggable selection handles
 - [Custom Indicator](../apps/web/content/docs/utility/custom-indicator.mdx): Create custom tooltip indicators for charts using the useChart hook
 - [Deadline](../apps/web/content/docs/utility/deadline.mdx): Due-date marker for date x axes — a vertical line with a striped, gradient, or solid region to its right that fades out
 - [Grid](../apps/web/content/docs/utility/grid.mdx): A customizable grid component for charts with horizontal and vertical lines, edge fade, edge line hiding, and dashed styling
 - [Legend](../apps/web/content/docs/utility/legend.mdx): A composable legend component for charts with progress bars, markers, and customizable layouts
 - [Markers](../apps/web/content/docs/utility/markers.mdx): Annotate dates on time-series charts — rich icon badges with a radial fan-out and tooltip, or your own minimal glyphs built on useChart
+- [Patterns](../apps/web/content/docs/utility/patterns.mdx): Pattern presets for series, bands and backgrounds — PatternPreset, the full preset list, and PatternTile for custom tiles
 - [Projection Line](../apps/web/content/docs/utility/projection-line.mdx): Forecast segment extending a line series past the last data point — dashed stroke, gradient, and horizon marker
 - [Reference Area](../apps/web/content/docs/utility/reference-area.mdx): Shaded Y band for target ranges and thresholds on cartesian charts — solid or pattern fill, dashed edges, and Y-axis tick coloring
 - [Tooltip](../apps/web/content/docs/utility/tooltip.mdx): An interactive tooltip component for charts with crosshair, dots, date picker, and customizable content

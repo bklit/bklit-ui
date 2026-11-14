@@ -4,7 +4,7 @@ description: >
   Install, compose, theme, and animate Bklit UI charts (the @bklit shadcn
   registry) in a React / Next.js app. Use when the user wants a chart, graph,
   or data visualization: line, area, bar, live/streaming line, composed,
-  scatter, candlestick/OHLC, pie, ring/donut, radar, gauge, heatmap, funnel,
+  scatter, candlestick/OHLC, pie, ring/donut, radial bar/clock, radar, gauge, heatmap, funnel,
   sankey, sunburst, or choropleth/world map; a sparkline or tiny inline
   chart (LineSparkline, AreaSparkline, BarSparkline, useSparklineHover) for
   tables, KPI cards, or dense dashboards; a dashboard, analytics page, KPI or
@@ -13,7 +13,8 @@ description: >
   components/charts/* or mentions @bklit/* or bklit.com. For styling vocabulary
   (patterns, squircle/rounded/3D bars, fades, loading looks, matching the app
   theme) also use bklit-ui-design. For moving from Recharts, shadcn
-  ChartContainer, or TanStack Charts to Bklit, use bklit-ui-migrate.
+  ChartContainer, or TanStack Charts to Bklit, use bklit-ui-migrate. When the
+  user can't name the chart or part they want, use bklit-ui-vocabulary.
 allowed-tools: Bash(npx shadcn@latest *), Bash(pnpm dlx shadcn@latest *), Bash(bunx --bun shadcn@latest *), Bash(yarn dlx shadcn@latest *)
 ---
 
@@ -38,9 +39,10 @@ If the block above is empty or still shows the command (agents that do not expan
 
 1. **Install before inventing.** `npx shadcn@latest add @bklit/<item>` — never hand-roll SVG charts or reimplement a registry piece.
 2. **Import from the installed files, never from `@bklitui/ui/charts`.** That is a private monorepo package. Items install to `components/charts/<file>.tsx` (under `src/` when the project uses it); import with the user's alias, e.g. `@/components/charts/line-chart`. See [Imports](#imports).
-3. **Read the installed source.** After `add`, open the files in `components/charts/` to confirm prop names and defaults before using them.
-4. **Compose, don't flatten.** Root chart → `Grid`/`Background` → series → axes → overlays → `ChartTooltip`. See [composition.md](./rules/composition.md).
-5. **Theme with tokens.** `--chart-*` variables and `chartCssVars`, not one-off hex values. See [theming.md](./rules/theming.md).
+3. **Translate other libraries' words first.** If the request uses Nivo, Recharts, TanStack Charts or d3 names (`groupMode`, `stackId`, `useMesh`, `elementType`, `d3.stack`…), map them with the **bklit-ui-vocabulary** skill (`references/library-crosswalk.md`, including its False friends list) before choosing components. Never copy another library's prop onto a Bklit component.
+4. **Read the installed source.** After `add`, open the files in `components/charts/` to confirm prop names and defaults before using them.
+5. **Compose, don't flatten.** Root chart → `Grid`/`Background` → series → axes → overlays → `ChartTooltip`. See [composition.md](./rules/composition.md).
+6. **Theme with tokens.** `--chart-*` variables and `chartCssVars`, not one-off hex values. See [theming.md](./rules/theming.md).
 
 ## Imports
 
@@ -51,6 +53,7 @@ There is no barrel for component items — import each export from the file that
 | `line-chart` | `LineChart`, `Line` |
 | `area-chart` | `AreaChart`, `Area` |
 | `bar-chart` / `bar` / `bar-x-axis` / `bar-y-axis` | `BarChart` / `Bar` / `BarXAxis` / `BarYAxis` |
+| `bar-lollipop` · `bar-squares` | `BarLollipop` · `BarSquares`, `BarColumnTrack` (installed by `@bklit/bar-chart`) |
 | `sparkline` | `LineSparkline`, `AreaSparkline`, `BarSparkline`, `useSparklineHover` |
 | `composed-chart` / `series-bar` | `ComposedChart` / `SeriesBar` (+ `Line`, `Area` from their charts) |
 | `scatter-chart` | `ScatterChart`, `Scatter` |
@@ -59,6 +62,7 @@ There is no barrel for component items — import each export from the file that
 | `pie-chart` / `pie-slice` / `pie-ticks` / `pie-center` | `PieChart` / `PieSlice` / `PieTicks` / `PieCenter` |
 | `ring-chart` / `ring` / `ring-center` | `RingChart` / `Ring` / `RingCenter` |
 | `radar-chart`, `radar-grid`, `radar-axis`, `radar-labels`, `radar-area` | one component each |
+| `radial-chart`, `radial-bar`, `radial-ring-bar`, `radial-dot-bar`, `radial-line`, `radial-area`, `radial-axis`, `radial-scrubber`, `radial-center`, `radial-legend` | `RadialChart`, `RadialBar`, … (one component each, installed by `@bklit/radial-chart`) |
 | `gauge` | `Gauge` (installed by `@bklit/gauge-chart`) |
 | `funnel-chart` | `FunnelChart` |
 | `sunburst-chart`, `sunburst-segment`, `sunburst-center`, `sunburst` (`buildArcs`) … | sunburst parts |
@@ -142,6 +146,7 @@ All items install with `npx shadcn@latest add @bklit/<item>`. For any `<item>`:
 | `profit-loss-line` | One series crossing zero, colored by sign (studio slug too) |
 | `pie-chart` | Part-to-whole slices, optional center stat |
 | `ring-chart` | Concentric progress rings / donut KPIs |
+| `radial-chart` | Bars, dots, lines or areas around a cycle (hours of the day, months): `RadialChart` + `RadialBar` / `RadialRingBar` / `RadialDotBar` / `RadialLine` / `RadialArea`, with `RadialAxis`, `RadialScrubber`, `RadialCenter`, `RadialLegend`. Rows keyed by `xDataKey` (default `"time"`) plus `series={[{ dataKey, label, color }]}` |
 | `radar-chart` | Multi-metric comparison across entities |
 | `gauge-chart` | Single value 0–100: notched / solid / sector dial with ruler, needle, zones, progress ring, dots, glow, center disc — or a linear notch track ([composition.md](./rules/composition.md#gauge)) |
 | `heatmap-chart` | Calendar / contribution grids, binned intensity |
@@ -152,7 +157,7 @@ All items install with `npx shadcn@latest add @bklit/<item>`. For any `<item>`:
 
 ### Add-ons (most install automatically as dependencies)
 
-`grid`, `x-axis`, `y-axis` (not pulled in by line/area — add it for a value axis), `chart-tooltip`, `legend`, `markers`, `background`, `patterns`, `reference-area`, `projection-line`, `trend-line` (least-squares trend overlay for line/area/bar/composed), `band` (range / Bollinger band on `LineChart`; already in `line-chart`), `bar-depth` (3D/extruded bars on `BarChart`), `chart-stat-flow` (animated stat number used by pie/ring/gauge centers and stat cards). Internal plumbing items (`chart-context`, `chart-animation`, `chart-series`, `chart-utils`, `chart-parent-size`, `utils`, `shimmering-text`) come in automatically.
+`grid`, `x-axis`, `y-axis` (not pulled in by line/area — add it for a value axis), `chart-tooltip`, `legend`, `markers`, `background`, `patterns`, `reference-area`, `projection-line`, `trend-line` (least-squares trend overlay for line/area/bar/composed), `weekends` (shade weekend spans on a date axis), `deadline` (due-date line + shaded region after it), `chart-crosshair` (free crosshair with a y-value pill), `band` (range / Bollinger band on `LineChart`; already in `line-chart`), `bar-depth` (3D/extruded bars on `BarChart`), `chart-stat-flow` (animated stat number used by pie/ring/gauge centers and stat cards). Internal plumbing items (`chart-context`, `chart-animation`, `chart-series`, `chart-utils`, `chart-parent-size`, `utils`, `shimmering-text`) come in automatically.
 
 **Brush:** `ChartBrush` / `ChartBrushLayout` (docs: `/docs/utility/brush`) are **not** in any registry item today. If the user needs brush zoom, say so and point to the docs/source rather than inventing an install command.
 
