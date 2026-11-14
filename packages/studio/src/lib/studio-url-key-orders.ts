@@ -562,6 +562,22 @@ export const STUDIO_STATE_KEY_ORDER = [
   "barLollipopDashed",
   "barLollipopHighlight",
   "barLollipopBaseline",
+  "projectionAreaFill",
+  "projectionAreaOpacity",
+  "projectionAreaFadeBottom",
+  "projectionAreaPatternTint",
+  "projectionShowTarget",
+  "projectionTarget",
+  "projectionShowGuides",
+  "projectionShowEndLabel",
+  "projectionAreaFills",
+  "projectionAreaOpacities",
+  "projectionAreaFadeBottoms",
+  "projectionAreaPatternTints",
+  "projectionShowTargetFlags",
+  "projectionTargets",
+  "projectionShowGuidesFlags",
+  "projectionShowEndLabelFlags",
 ] as const satisfies readonly (keyof StudioUrlState)[];
 
 /** Frozen historical layout (cc7bc08 — first compressed-URL release). Decode-only. */

@@ -29,6 +29,14 @@ const PROJECTION_PIPE_KEYS = [
   "projectionStrokeWidths",
   "projectionShowEndpointsFlags",
   "projectionPathDensities",
+  "projectionAreaFills",
+  "projectionAreaOpacities",
+  "projectionAreaFadeBottoms",
+  "projectionAreaPatternTints",
+  "projectionShowTargetFlags",
+  "projectionTargets",
+  "projectionShowGuidesFlags",
+  "projectionShowEndLabelFlags",
 ] as const satisfies readonly (keyof StudioUrlState)[];
 
 export function parseLineSeriesIndex(componentId: string): number | null {

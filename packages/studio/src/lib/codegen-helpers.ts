@@ -46,6 +46,7 @@ import {
   getProjectionCount,
   getProjectionCurve,
   getProjectionDashArray,
+  getProjectionDecorationProps,
   getProjectionEndMarkerStroke,
   getProjectionShowEndpoints,
   getProjectionStroke,
@@ -168,18 +169,51 @@ function formatProjectionPathSnippet(
   return `const ${varName} = [\n${rows},\n];`;
 }
 
+function projectionCodegenSourceData(state: StudioUrlState) {
+  return generateStudioTrendingData({
+    direction: state.lineDataTrend,
+    seriesCount: clampStudioSeriesCount(state.dataSeries),
+    pointCount: state.dataPoints,
+    xAxis: "date",
+  });
+}
+
+/** Non-default area / goal / label props for a `<ProjectionLine>` snippet. */
+function projectionDecorationCodegenProps(
+  state: StudioUrlState,
+  index: number,
+  sourceData: Record<string, unknown>[]
+): string[] {
+  const path = buildStudioProjectionPath(state, index, sourceData);
+  const decoration = getProjectionDecorationProps(state, index, path);
+  const props: string[] = [];
+  if (decoration.areaFill !== "none") {
+    props.push(`areaFill="${decoration.areaFill}"`);
+    props.push(`areaOpacity={${decoration.areaOpacity}}`);
+    props.push(`areaFadeBottom={${decoration.areaFadeBottom}}`);
+  }
+  if (decoration.areaPatternTint) {
+    props.push(`areaPatternTint={${decoration.areaPatternTint}}`);
+  }
+  if (decoration.target != null) {
+    props.push(`target={${decoration.target}}`);
+  }
+  if (decoration.showGuides) {
+    props.push("showGuides");
+  }
+  if (decoration.showEndLabel) {
+    props.push("showEndLabel");
+  }
+  return props;
+}
+
 export function projectionCodegenDataSnippets(state: StudioUrlState): string {
   const count = getProjectionCount(state);
   if (count === 0) {
     return "";
   }
 
-  const sourceData = generateStudioTrendingData({
-    direction: state.lineDataTrend,
-    seriesCount: clampStudioSeriesCount(state.dataSeries),
-    pointCount: state.dataPoints,
-    xAxis: "date",
-  });
+  const sourceData = projectionCodegenSourceData(state);
 
   const snippets: string[] = [];
   for (let index = 0; index < count; index += 1) {
@@ -199,6 +233,7 @@ function projectionCodegenBlock(state: StudioUrlState): string {
     return "";
   }
 
+  const sourceData = projectionCodegenSourceData(state);
   const blocks: string[] = [];
   for (let index = 0; index < count; index += 1) {
     if (!isStudioComponentVisible(state, `line.projection.${index}`)) {
@@ -223,6 +258,7 @@ function projectionCodegenBlock(state: StudioUrlState): string {
         `gradientEnd="${getProjectionStrokeGradientEnd(state, index)}"`
       );
     }
+    props.push(...projectionDecorationCodegenProps(state, index, sourceData));
     blocks.push(`\n  <ProjectionLine ${props.join(" ")} />`);
     if (getProjectionShowEndpoints(state, index)) {
       blocks.push(

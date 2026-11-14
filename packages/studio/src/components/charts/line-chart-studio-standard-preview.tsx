@@ -65,6 +65,7 @@ import {
   getProjectionCount,
   getProjectionCurve,
   getProjectionDashArray,
+  getProjectionDecorationProps,
   getProjectionEndMarkerStroke,
   getProjectionSeriesIndex,
   getProjectionShowEndpoints,
@@ -272,6 +273,7 @@ function renderProjectionLayers(
         state={state}
       >
         <ProjectionLine
+          {...getProjectionDecorationProps(state, index, path)}
           curveKind={getProjectionCurve(state, index)}
           data={path}
           gradientEnd={getProjectionStrokeGradientEnd(state, index)}

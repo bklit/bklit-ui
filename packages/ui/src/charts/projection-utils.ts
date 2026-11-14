@@ -241,6 +241,58 @@ export function buildHorizontalTangentBezierPath(
   return `M ${x0},${y0} C ${c1x},${y0} ${c2x},${y1} ${x1},${y1}`;
 }
 
+/**
+ * Pixel x where a projection segment crosses `targetY`, or `null` when the
+ * target lies outside the segment. Matches both `curveKind`s: a straight
+ * line, or the horizontal-tangent bezier from
+ * {@link buildHorizontalTangentBezierPath} (monotonic in y, so the crossing
+ * is found by bisection).
+ */
+export function projectionCrossingX(
+  x0: number,
+  y0: number,
+  x1: number,
+  y1: number,
+  targetY: number,
+  curveKind: ProjectionCurveKind = "linear",
+  tension = 0.45
+): number | null {
+  const lo = Math.min(y0, y1);
+  const hi = Math.max(y0, y1);
+  if (!Number.isFinite(targetY) || targetY < lo || targetY > hi) {
+    return null;
+  }
+  if (Math.abs(y1 - y0) < 1e-9) {
+    return x0;
+  }
+  const dx = x1 - x0;
+  if (curveKind === "linear" || Math.abs(dx) < 1e-6) {
+    return x0 + (dx * (targetY - y0)) / (y1 - y0);
+  }
+  const k = Math.min(0.5, Math.max(0.05, tension));
+  // Control points: (x0 + dx·k, y0) and (x1 − dx·k, y1).
+  const bezier = (t: number, a: number, b: number, c: number, d: number) => {
+    const u = 1 - t;
+    return (
+      u * u * u * a + 3 * u * u * t * b + 3 * u * t * t * c + t * t * t * d
+    );
+  };
+  const rising = y1 > y0;
+  let tLo = 0;
+  let tHi = 1;
+  for (let step = 0; step < 40; step++) {
+    const mid = (tLo + tHi) / 2;
+    const y = bezier(mid, y0, y0, y1, y1);
+    if (y < targetY === rising) {
+      tLo = mid;
+    } else {
+      tHi = mid;
+    }
+  }
+  const t = (tLo + tHi) / 2;
+  return bezier(t, x0, x0 + dx * k, x1 - dx * k, x1);
+}
+
 function buildTargetPath(options: {
   anchorTime: number;
   anchorValue: number;

@@ -531,6 +531,7 @@ export {
   type ProjectionLineConfig,
 } from "./projection-config";
 export {
+  type ProjectionAreaFill,
   ProjectionLine,
   type ProjectionLineProps,
   type ProjectionStrokeStyle,

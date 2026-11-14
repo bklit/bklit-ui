@@ -1,4 +1,5 @@
 import type {
+  ProjectionAreaFill,
   ProjectionAutoMethod,
   ProjectionCurveKind,
   ProjectionMode,
@@ -47,7 +48,22 @@ export const PER_PROJECTION_CONTROL_KEYS = new Set<keyof StudioUrlState>([
   "projectionDashArray",
   "projectionStrokeWidth",
   "projectionShowEndpoints",
+  "projectionAreaFill",
+  "projectionAreaOpacity",
+  "projectionAreaFadeBottom",
+  "projectionAreaPatternTint",
+  "projectionShowTarget",
+  "projectionTarget",
+  "projectionShowGuides",
+  "projectionShowEndLabel",
 ]);
+
+const PROJECTION_AREA_FILL_VALUES = [
+  "none",
+  "solid",
+  "gradient",
+  "pattern",
+] as const satisfies readonly ProjectionAreaFill[];
 
 function parsePipeNumbers(raw: string): (number | undefined)[] {
   return parsePipeField(raw).map((part) => {
@@ -96,6 +112,14 @@ function parsePipeStrokeStyles(
   return parsePipeField(raw).map((part) =>
     (PROJECTION_STROKE_STYLE_VALUES as readonly string[]).includes(part)
       ? (part as ProjectionStrokeStyle)
+      : undefined
+  );
+}
+
+function parsePipeAreaFills(raw: string): (ProjectionAreaFill | undefined)[] {
+  return parsePipeField(raw).map((part) =>
+    (PROJECTION_AREA_FILL_VALUES as readonly string[]).includes(part)
+      ? (part as ProjectionAreaFill)
       : undefined
   );
 }
@@ -413,6 +437,142 @@ export function getProjectionShowEndpoints(
   );
 }
 
+export function getProjectionAreaFill(
+  state: StudioUrlState,
+  projectionIndex: number
+): ProjectionAreaFill {
+  return getPipeSlot(
+    projectionIndex,
+    parsePipeAreaFills(state.projectionAreaFills),
+    state.projectionAreaFill
+  );
+}
+
+export function getProjectionAreaOpacity(
+  state: StudioUrlState,
+  projectionIndex: number
+): number {
+  return getPipeSlot(
+    projectionIndex,
+    parsePipeNumbers(state.projectionAreaOpacities),
+    state.projectionAreaOpacity
+  );
+}
+
+export function getProjectionAreaFadeBottom(
+  state: StudioUrlState,
+  projectionIndex: number
+): number {
+  return getPipeSlot(
+    projectionIndex,
+    parsePipeNumbers(state.projectionAreaFadeBottoms),
+    state.projectionAreaFadeBottom
+  );
+}
+
+export function getProjectionAreaPatternTint(
+  state: StudioUrlState,
+  projectionIndex: number
+): number {
+  return getPipeSlot(
+    projectionIndex,
+    parsePipeNumbers(state.projectionAreaPatternTints),
+    state.projectionAreaPatternTint
+  );
+}
+
+export function getProjectionShowTarget(
+  state: StudioUrlState,
+  projectionIndex: number
+): boolean {
+  return getPipeSlot(
+    projectionIndex,
+    parsePipeBooleans(state.projectionShowTargetFlags),
+    state.projectionShowTarget
+  );
+}
+
+/** Raw goal control value — `0` means auto (see {@link resolveProjectionTarget}). */
+export function getProjectionTarget(
+  state: StudioUrlState,
+  projectionIndex: number
+): number {
+  return getPipeSlot(
+    projectionIndex,
+    parsePipeNumbers(state.projectionTargets),
+    state.projectionTarget
+  );
+}
+
+/** Goal value for a projection, or `undefined` when the goal is off. */
+export function resolveProjectionTarget(
+  state: StudioUrlState,
+  projectionIndex: number,
+  path: ProjectionPoint[]
+): number | undefined {
+  if (!getProjectionShowTarget(state, projectionIndex)) {
+    return undefined;
+  }
+  const raw = getProjectionTarget(state, projectionIndex);
+  if (raw !== 0) {
+    return raw;
+  }
+  const start = path[0]?.value;
+  const end = path.at(-1)?.value;
+  if (start == null || end == null) {
+    return undefined;
+  }
+  return Math.round(start + (end - start) * 0.6);
+}
+
+export function getProjectionShowGuides(
+  state: StudioUrlState,
+  projectionIndex: number
+): boolean {
+  return getPipeSlot(
+    projectionIndex,
+    parsePipeBooleans(state.projectionShowGuidesFlags),
+    state.projectionShowGuides
+  );
+}
+
+export function getProjectionShowEndLabel(
+  state: StudioUrlState,
+  projectionIndex: number
+): boolean {
+  return getPipeSlot(
+    projectionIndex,
+    parsePipeBooleans(state.projectionShowEndLabelFlags),
+    state.projectionShowEndLabel
+  );
+}
+
+/** `<ProjectionLine>` area / goal / label props for a Studio projection. */
+export function getProjectionDecorationProps(
+  state: StudioUrlState,
+  projectionIndex: number,
+  path: ProjectionPoint[]
+) {
+  const areaFill = getProjectionAreaFill(state, projectionIndex);
+  const hasArea = areaFill !== "none";
+  return {
+    areaFill,
+    areaOpacity: hasArea
+      ? getProjectionAreaOpacity(state, projectionIndex)
+      : undefined,
+    areaFadeBottom: hasArea
+      ? getProjectionAreaFadeBottom(state, projectionIndex)
+      : undefined,
+    areaPatternTint:
+      areaFill === "pattern"
+        ? getProjectionAreaPatternTint(state, projectionIndex)
+        : undefined,
+    target: resolveProjectionTarget(state, projectionIndex, path),
+    showGuides: getProjectionShowGuides(state, projectionIndex),
+    showEndLabel: getProjectionShowEndLabel(state, projectionIndex),
+  };
+}
+
 export function buildStudioProjectionPath(
   state: StudioUrlState,
   projectionIndex: number,
@@ -468,6 +628,22 @@ function pipeFieldKeyForControl(
       return "projectionShowEndpointsFlags";
     case "projectionPathDensity":
       return "projectionPathDensities";
+    case "projectionAreaFill":
+      return "projectionAreaFills";
+    case "projectionAreaOpacity":
+      return "projectionAreaOpacities";
+    case "projectionAreaFadeBottom":
+      return "projectionAreaFadeBottoms";
+    case "projectionAreaPatternTint":
+      return "projectionAreaPatternTints";
+    case "projectionShowTarget":
+      return "projectionShowTargetFlags";
+    case "projectionTarget":
+      return "projectionTargets";
+    case "projectionShowGuides":
+      return "projectionShowGuidesFlags";
+    case "projectionShowEndLabel":
+      return "projectionShowEndLabelFlags";
     default:
       return null;
   }
@@ -517,6 +693,22 @@ export function getProjectionScopedControlValue(
       return getProjectionShowEndpoints(state, projectionIndex);
     case "projectionPathDensity":
       return getProjectionPathDensity(state, projectionIndex);
+    case "projectionAreaFill":
+      return getProjectionAreaFill(state, projectionIndex);
+    case "projectionAreaOpacity":
+      return getProjectionAreaOpacity(state, projectionIndex);
+    case "projectionAreaFadeBottom":
+      return getProjectionAreaFadeBottom(state, projectionIndex);
+    case "projectionAreaPatternTint":
+      return getProjectionAreaPatternTint(state, projectionIndex);
+    case "projectionShowTarget":
+      return getProjectionShowTarget(state, projectionIndex);
+    case "projectionTarget":
+      return getProjectionTarget(state, projectionIndex);
+    case "projectionShowGuides":
+      return getProjectionShowGuides(state, projectionIndex);
+    case "projectionShowEndLabel":
+      return getProjectionShowEndLabel(state, projectionIndex);
     default:
       return state[key];
   }
