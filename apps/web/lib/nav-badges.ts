@@ -11,6 +11,7 @@ const navBadgesByUrl: Record<string, NavBadgeKind> = {
   "/changelog": "new",
   "/charts/radial-chart": "new",
   "/charts/sparkline": "new",
+  "/docs/components/particle-line": "new",
   "/docs/components/radial-chart": "new",
   "/docs/components/sparkline": "new",
   "/docs/react-native": "beta",

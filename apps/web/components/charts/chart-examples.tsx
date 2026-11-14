@@ -72,6 +72,7 @@ import {
   LiveYAxis,
   type MomentumColors,
   type OHLCDataPoint,
+  type ParticleLineEffect,
   PatternArea,
   PatternPreset,
   PieCenter,
@@ -196,6 +197,10 @@ import {
   buildLineChartDemoData,
   REFERENCE_AREA_DEMO,
 } from "@/components/docs/line-chart-demo-data";
+import {
+  ParticleLineDemo,
+  particleLineSnippet,
+} from "@/components/docs/particle-line-demo";
 import {
   PROFIT_LOSS_DATA_KEY,
   profitLossLineDocsData,
@@ -3927,8 +3932,40 @@ import {
         </LineExampleChart>
       ),
     }),
+    ...PARTICLE_LINE_EXAMPLES.map(
+      ({ effect, title, description }): ChartExample => ({
+        title: `Line Chart - ${title}`,
+        description,
+        code: particleLineSnippet(effect, `Particle${title}Chart`),
+        footer:
+          "WebGL particle reveal that hands off to a plain SVG line. See [Particle Line](/docs/components/particle-line).",
+        render: () => <ParticleLineDemo effect={effect} />,
+      })
+    ),
   ];
 }
+
+const PARTICLE_LINE_EXAMPLES: {
+  effect: ParticleLineEffect;
+  title: string;
+  description: string;
+}[] = [
+  {
+    effect: "assemble",
+    title: "Particle Assemble",
+    description: "A swarm of particles swirls in and condenses into the lines",
+  },
+  {
+    effect: "comet",
+    title: "Particle Comet",
+    description: "The lines grow behind glowing heads trailing ember tails",
+  },
+  {
+    effect: "stardust",
+    title: "Particle Stardust",
+    description: "Glinting tips leave twinkling dust that drifts upward",
+  },
+];
 
 // ---------------------------------------------------------------------------
 // Live line chart examples

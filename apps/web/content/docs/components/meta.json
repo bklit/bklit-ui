@@ -11,6 +11,7 @@
     "heatmap-chart",
     "line-chart",
     "profit-loss-line",
+    "particle-line",
     "live-line-chart",
     "pie-chart",
     "radar-chart",
