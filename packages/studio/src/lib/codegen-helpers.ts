@@ -279,6 +279,12 @@ export function xAxisPropsCodegen(state: StudioUrlState): string {
   if (state.xAxisTickMode !== "data") {
     props.push(`tickMode="${state.xAxisTickMode}"`);
   }
+  if (state.xAxisHoverEffect !== "auto") {
+    props.push(`hoverEffect="${state.xAxisHoverEffect}"`);
+  }
+  if (state.xAxisHighlightRadius !== 80) {
+    props.push(`highlightRadius={${state.xAxisHighlightRadius}}`);
+  }
   return props.length > 0 ? ` ${props.join(" ")}` : "";
 }
 

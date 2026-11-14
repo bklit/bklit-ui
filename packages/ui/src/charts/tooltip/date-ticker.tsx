@@ -11,7 +11,21 @@ import {
   useReducedMotion,
   useSpring,
 } from "motion/react";
-import { memo, type RefObject, useLayoutEffect, useMemo, useRef } from "react";
+import {
+  type CSSProperties,
+  memo,
+  type ReactNode,
+  type RefObject,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+} from "react";
+import { cn } from "@/lib/utils";
+import {
+  DATE_TICKER_GLASS_CLASS,
+  LiquidGlassFilter,
+  useLiquidGlass,
+} from "./liquid-glass";
 
 const TICKER_ITEM_HEIGHT = 24;
 const TICKER_SPRING = { stiffness: 400, damping: 35 };
@@ -139,10 +153,106 @@ function useActiveItemWidth(
   }, [activeIndex, width, reduceMotion]);
 }
 
+/**
+ * `"roll"` — slot-machine roll: month and day/year scroll as separate stacks.
+ * `"static"` — the whole label swaps in place; only the pill width springs.
+ */
+export type DateTickerAnimation = "roll" | "static";
+
+/** Default pill surface. Override any part with `className` (tailwind-merge). */
+export const DATE_TICKER_PILL_CLASS =
+  "overflow-hidden rounded-full bg-zinc-900 px-4 py-1 text-white shadow-lg dark:bg-zinc-100 dark:text-zinc-900";
+
+/**
+ * `"solid"` — dark capsule (light in dark mode).
+ * `"glass"` — liquid glass: refracts what's behind it at the rim (Chromium),
+ * frosted blur elsewhere.
+ */
+export type DateTickerVariant = "solid" | "glass";
+
 export interface DateTickerProps {
   currentIndex: number;
   labels: string[];
   visible: boolean;
+  /**
+   * How the label changes between rows. Default: `"roll"` (switches to
+   * `"static"` automatically above 60 labels).
+   */
+  animation?: DateTickerAnimation;
+  /** Surface style. Default: `"solid"`. */
+  variant?: DateTickerVariant;
+  /** Classes merged over the variant's surface classes. */
+  className?: string;
+  /** Inline styles for the pill surface. */
+  style?: CSSProperties;
+}
+
+type DateTickerVariantProps = Pick<
+  DateTickerProps,
+  "currentIndex" | "labels" | "className" | "style" | "variant"
+>;
+
+function SolidSurface({
+  className,
+  style,
+  children,
+}: {
+  className?: string;
+  style?: CSSProperties;
+  children: ReactNode;
+}) {
+  return (
+    <div
+      className={cn(DATE_TICKER_PILL_CLASS, className)}
+      data-slot="date-pill"
+      style={style}
+    >
+      {children}
+    </div>
+  );
+}
+
+function GlassSurface({
+  className,
+  style,
+  children,
+}: {
+  className?: string;
+  style?: CSSProperties;
+  children: ReactNode;
+}) {
+  const surfaceRef = useRef<HTMLDivElement>(null);
+  const glass = useLiquidGlass();
+  return (
+    <div
+      className={cn(DATE_TICKER_GLASS_CLASS, className)}
+      data-slot="date-pill"
+      data-variant="glass"
+      ref={surfaceRef}
+      style={{ ...glass.style, ...style }}
+    >
+      {glass.svgFilter && (
+        <LiquidGlassFilter id={glass.filterId} surfaceRef={surfaceRef} />
+      )}
+      {children}
+    </div>
+  );
+}
+
+function DateTickerSurface({
+  variant = "solid",
+  ...props
+}: {
+  variant?: DateTickerVariant;
+  className?: string;
+  style?: CSSProperties;
+  children: ReactNode;
+}) {
+  return variant === "glass" ? (
+    <GlassSurface {...props} />
+  ) : (
+    <SolidSurface {...props} />
+  );
 }
 
 /** One 60 Hz frame (ms). */
@@ -234,7 +344,10 @@ function useLabelWidth(
 const DateTickerCompact = memo(function DateTickerCompact({
   currentIndex,
   labels,
-}: Omit<DateTickerProps, "visible">) {
+  className,
+  style,
+  variant,
+}: DateTickerVariantProps) {
   const reduceMotion = useReducedMotion() === true;
   const label = labels[currentIndex] ?? labels[0] ?? "";
   const labelRef = useRef<HTMLSpanElement>(null);
@@ -243,7 +356,7 @@ const DateTickerCompact = memo(function DateTickerCompact({
   useLabelWidth(labelRef, boxRef, width, reduceMotion);
 
   return (
-    <div className="overflow-hidden rounded-full bg-zinc-900 px-4 py-1 text-white shadow-lg dark:bg-zinc-100 dark:text-zinc-900">
+    <DateTickerSurface className={className} style={style} variant={variant}>
       <m.div className="relative h-6" ref={boxRef} style={{ width }}>
         <m.div
           className="absolute top-0 left-1/2 flex h-6 items-center"
@@ -258,14 +371,17 @@ const DateTickerCompact = memo(function DateTickerCompact({
           </span>
         </m.div>
       </m.div>
-    </div>
+    </DateTickerSurface>
   );
 });
 
 const DateTickerInner = memo(function DateTickerInner({
   currentIndex,
   labels,
-}: Omit<DateTickerProps, "visible">) {
+  className,
+  style,
+  variant,
+}: DateTickerVariantProps) {
   const reduceMotion = useReducedMotion() === true;
 
   // Parse labels into month and second-part (day or year) values
@@ -333,7 +449,7 @@ const DateTickerInner = memo(function DateTickerInner({
   }, [currentMonthIndex, monthY, reduceMotion]);
 
   return (
-    <div className="overflow-hidden rounded-full bg-zinc-900 px-4 py-1 text-white shadow-lg dark:bg-zinc-100 dark:text-zinc-900">
+    <DateTickerSurface className={className} style={style} variant={variant}>
       <div className="relative h-6 overflow-hidden">
         <div className="flex items-center justify-center gap-1">
           {/* Month stack */}
@@ -385,23 +501,38 @@ const DateTickerInner = memo(function DateTickerInner({
           </m.div>
         </div>
       </div>
-    </div>
+    </DateTickerSurface>
   );
 });
 
-export function DateTicker({ currentIndex, labels, visible }: DateTickerProps) {
+export function DateTicker({
+  currentIndex,
+  labels,
+  visible,
+  animation = "roll",
+  variant,
+  className,
+  style,
+}: DateTickerProps) {
   if (!visible || labels.length === 0) {
     return null;
   }
 
+  const Variant =
+    animation === "static" || labels.length > COMPACT_TICKER_THRESHOLD
+      ? DateTickerCompact
+      : DateTickerInner;
+
   // Own feature scope: the ticker also renders outside chart roots.
   return (
     <LazyMotion features={domAnimation}>
-      {labels.length > COMPACT_TICKER_THRESHOLD ? (
-        <DateTickerCompact currentIndex={currentIndex} labels={labels} />
-      ) : (
-        <DateTickerInner currentIndex={currentIndex} labels={labels} />
-      )}
+      <Variant
+        className={className}
+        currentIndex={currentIndex}
+        labels={labels}
+        style={style}
+        variant={variant}
+      />
     </LazyMotion>
   );
 }

@@ -4,7 +4,7 @@ description: Date labels for the horizontal axis in line and area charts
 ---
 
 import { LineChart, Line, Grid, XAxis, ChartTooltip } from "@bklitui/ui/charts";
-import { AxisXOnlyDemo } from "@/components/docs/axis-demo";
+import { AxisXHighlightDemo, AxisXOnlyDemo } from "@/components/docs/axis-demo";
 
 <ComponentPreview registryName="x-axis">
   <AxisXOnlyDemo />
@@ -32,16 +32,86 @@ import { LineChart, Line, XAxis, ChartTooltip } from "@bklitui/ui/charts";
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `numTicks` | `number` | `5` | Number of ticks to show (including first and last) |
-| `tickerHalfWidth` | `number` | `50` | Width of the date ticker box for fade calculation when tooltip is visible |
+| `numTicks` | `number \| ChartLabelCount` | `5` | Number of ticks to show (including first and last) |
 | `tickMode` | `"data" \| "domain"` | `"data"` | `"data"` snaps labels to data rows (aligned with crosshair); `"domain"` uses even calendar spacing |
+| `labels` | `string[]` | chart `dateLabels` | Labels aligned with data rows, used for ticks and for matching the hovered row |
+| `hoverEffect` | `"auto" \| "fade" \| "highlight" \| "none"` | `"auto"` | How labels react to the crosshair — see [Hover effects](#hover-effects) |
+| `tickerHalfWidth` | `number` | `50` | `"fade"`: half the date pill's width (px). Labels inside it hide, then fade back in over 20px |
+| `activeLabelColor` | `string` | `var(--chart-indicator-color)` | `"highlight"`: color of the label for the hovered row |
+| `nearbyLabelColor` | `string` | `activeLabelColor` | `"highlight"`: color nearby labels blend toward |
+| `highlightRadius` | `number` | `80` | `"highlight"`: distance (px) from the crosshair over which nearby labels blend. `0` = only the active label |
+| `labelClassName` | `string` | — | Classes merged over each label (`text-chart-label text-xs`) |
+
+## Hover effects
+
+While you hover, `XAxis` reacts to the crosshair in one of three ways:
+
+| `hoverEffect` | What happens |
+|---------------|--------------|
+| `"fade"` | Labels under the [date pill](/docs/utility/tooltip#date-pill) hide and fade back in beside it, so the pill never overlaps text |
+| `"highlight"` | Labels stay visible and change color: the label for the hovered row takes `activeLabelColor`, labels within `highlightRadius` px blend toward `nearbyLabelColor` by distance |
+| `"none"` | Labels never change |
+
+The default, `"auto"`, picks for you: **`"fade"` while a `ChartTooltip` shows its date pill, `"highlight"` when it doesn't** (`showDatePill={false}`, or no `ChartTooltip`). You only need `hoverEffect` to force one or the other.
+
+### Highlight (no date pill)
+
+<ComponentShowcase code={`<LineChart data={data}>
+  <Grid horizontal />
+  <Line dataKey="value" stroke="var(--chart-line-primary)" />
+  <XAxis activeLabelColor="var(--chart-line-primary)" highlightRadius={120} />
+  <ChartTooltip showDatePill={false} />
+</LineChart>`}>
+  <AxisXHighlightDemo />
+</ComponentShowcase>
+
+Nearby labels are mixed with `color-mix(in oklab, <nearbyLabelColor> N%, var(--chart-label))`, so the blend starts from the theme's label color. Use a separate `nearbyLabelColor` for a two-tone look — e.g. an accent for the active label and the foreground for its neighbours:
+
+```tsx
+<XAxis
+  activeLabelColor="var(--chart-line-primary)"
+  nearbyLabelColor="var(--foreground)"
+  highlightRadius={100}
+/>
+```
+
+The "active" label is the one whose text matches the hovered row (from `labels` / `dateLabels`). When you hover a row between ticks, no label is active and only the nearby blend shows.
+
+### Keep the fade without a pill, or highlight with one
+
+```tsx
+// Pill hidden, labels still fade around the crosshair (the old default)
+<XAxis hoverEffect="fade" />
+<ChartTooltip showDatePill={false} />
+
+// Pill shown and labels recolor instead of fading (they may sit under the pill)
+<XAxis hoverEffect="highlight" />
+<ChartTooltip />
+
+// Static axis
+<XAxis hoverEffect="none" />
+```
+
+If you restyle the pill to be wider or narrower than the default, set `tickerHalfWidth` to half its width so the fade zone matches.
 
 ## Behavior
 
 - **Data-aligned labels**: By default, XAxis picks evenly spaced data rows for tick labels so crosshair and tooltip line up with the axis. Use `tickMode="domain"` for calendar-even spacing when alignment is not needed.
-- **Crosshair fade**: When the tooltip is visible, labels near the crosshair fade to reduce visual clutter and improve readability.
+- **Hover reaction**: Fades under the date pill, or highlights near the crosshair when there's no pill — see [Hover effects](#hover-effects). Only labels whose opacity or color changes re-render on pointer move.
 - **Client-side only**: Renders via portal after mount to avoid SSR issues.
 
 ## Theming
 
-Labels use the `text-chart-label` class, which inherits from your theme's muted foreground color.
+Labels use the `text-chart-label` class (`--chart-label`), which inherits from your theme's muted foreground color. The highlight defaults to `--chart-indicator-color` (near-black in light mode, white in dark), the same high-contrast color as the tooltip indicator. Pass `labelClassName` to change the font size or weight:
+
+```tsx
+<XAxis labelClassName="text-[11px] font-medium tabular-nums" />
+```
+
+To change the base label color, set `--chart-label` (on `:root` or a wrapper around the chart) rather than a `text-*` class, so the highlight blend starts from the same color:
+
+```tsx
+<div className="[--chart-label:var(--muted-foreground)]">
+  <LineChart data={data}>…</LineChart>
+</div>
+```

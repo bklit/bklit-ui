@@ -235,6 +235,11 @@
           "path": "src/charts/line-loading-timing.ts",
           "type": "registry:lib",
           "target": "components/charts/line-loading-timing.ts"
+        },
+        {
+          "path": "src/charts/date-pill-store.ts",
+          "type": "registry:lib",
+          "target": "components/charts/date-pill-store.ts"
         }
       ]
     },
@@ -785,6 +790,11 @@
           "path": "src/charts/responsive-chart-label-count.ts",
           "type": "registry:component",
           "target": "components/charts/responsive-chart-label-count.ts"
+        },
+        {
+          "path": "src/charts/x-axis-hover.ts",
+          "type": "registry:lib",
+          "target": "components/charts/x-axis-hover.ts"
         }
       ],
       "dependencies": [
@@ -909,6 +919,16 @@
           "path": "src/charts/tooltip/date-ticker.tsx",
           "type": "registry:component",
           "target": "components/charts/tooltip/date-ticker.tsx"
+        },
+        {
+          "path": "src/charts/tooltip/liquid-glass.tsx",
+          "type": "registry:component",
+          "target": "components/charts/tooltip/liquid-glass.tsx"
+        },
+        {
+          "path": "src/charts/tooltip/use-velocity-stretch.ts",
+          "type": "registry:lib",
+          "target": "components/charts/tooltip/use-velocity-stretch.ts"
         },
         {
           "path": "src/charts/tooltip/index.ts",

@@ -58,3 +58,19 @@ export function AxisYOnlyDemo() {
     </div>
   );
 }
+
+export function AxisXHighlightDemo() {
+  return (
+    <div className="w-full">
+      <LineChart data={chartData}>
+        <Grid horizontal />
+        <Line dataKey="value" stroke="var(--chart-line-primary)" />
+        <XAxis
+          activeLabelColor="var(--chart-line-primary)"
+          highlightRadius={120}
+        />
+        <ChartTooltip showDatePill={false} />
+      </LineChart>
+    </div>
+  );
+}

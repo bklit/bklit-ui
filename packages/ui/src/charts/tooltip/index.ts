@@ -1,9 +1,20 @@
-export { ChartTooltip, type ChartTooltipProps } from "./chart-tooltip";
+export {
+  ChartTooltip,
+  type ChartTooltipDatePillRenderProps,
+  type ChartTooltipProps,
+} from "./chart-tooltip";
 export {
   CursorTooltipBox,
   type CursorTooltipBoxProps,
 } from "./cursor-tooltip-box";
-export { DateTicker, type DateTickerProps } from "./date-ticker";
+export {
+  DATE_TICKER_PILL_CLASS,
+  DateTicker,
+  type DateTickerAnimation,
+  type DateTickerProps,
+  type DateTickerVariant,
+} from "./date-ticker";
+export { DATE_TICKER_GLASS_CLASS } from "./liquid-glass";
 export { TooltipBox, type TooltipBoxProps } from "./tooltip-box";
 export {
   TooltipContent,
@@ -18,3 +29,4 @@ export {
   TooltipIndicator,
   type TooltipIndicatorProps,
 } from "./tooltip-indicator";
+export type { DatePillVelocityConfig } from "./use-velocity-stretch";

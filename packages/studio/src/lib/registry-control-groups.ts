@@ -1144,6 +1144,28 @@ export const xAxisControlGroups: StudioControlGroup[] = [
       ],
     },
   ]),
+  controlGroup("Hover", [
+    {
+      type: "select",
+      key: "xAxisHoverEffect",
+      label: "Label effect",
+      options: [
+        { value: "auto", label: "Auto (fade under pill)" },
+        { value: "fade", label: "Fade" },
+        { value: "highlight", label: "Highlight" },
+        { value: "none", label: "None" },
+      ],
+    },
+    {
+      type: "number",
+      key: "xAxisHighlightRadius",
+      label: "Highlight radius",
+      min: 0,
+      max: 240,
+      step: 4,
+      visibleWhen: { key: "xAxisHoverEffect", equals: ["auto", "highlight"] },
+    },
+  ]),
 ];
 
 export const barXAxisControlGroups: StudioControlGroup[] = [
@@ -1315,6 +1337,32 @@ export const barChartTooltipControlGroups: StudioControlGroup[] = [
   barCollapsibleGroup("Tooltip", [
     { type: "boolean", key: "showTooltipDatePill", label: "Date pill" },
     {
+      type: "select",
+      key: "tooltipDatePillAnimation",
+      label: "Pill animation",
+      options: [
+        { value: "roll", label: "Roll" },
+        { value: "static", label: "Static" },
+      ],
+      visibleWhen: { key: "showTooltipDatePill", truthy: true },
+    },
+    {
+      type: "select",
+      key: "tooltipDatePillVariant",
+      label: "Pill surface",
+      options: [
+        { value: "solid", label: "Solid" },
+        { value: "glass", label: "Liquid glass" },
+      ],
+      visibleWhen: { key: "showTooltipDatePill", truthy: true },
+    },
+    {
+      type: "boolean",
+      key: "tooltipDatePillVelocity",
+      label: "Velocity swell",
+      visibleWhen: { key: "showTooltipDatePill", truthy: true },
+    },
+    {
       type: "boolean",
       key: "tooltipMatchCrosshair",
       label: "Match crosshair",
@@ -1336,6 +1384,32 @@ export const barChartTooltipControlGroups: StudioControlGroup[] = [
 export const standardChartTooltipControlGroups: StudioControlGroup[] = [
   controlGroup("Tooltip", [
     { type: "boolean", key: "showTooltipDatePill", label: "Date pill" },
+    {
+      type: "select",
+      key: "tooltipDatePillAnimation",
+      label: "Pill animation",
+      options: [
+        { value: "roll", label: "Roll" },
+        { value: "static", label: "Static" },
+      ],
+      visibleWhen: { key: "showTooltipDatePill", truthy: true },
+    },
+    {
+      type: "select",
+      key: "tooltipDatePillVariant",
+      label: "Pill surface",
+      options: [
+        { value: "solid", label: "Solid" },
+        { value: "glass", label: "Liquid glass" },
+      ],
+      visibleWhen: { key: "showTooltipDatePill", truthy: true },
+    },
+    {
+      type: "boolean",
+      key: "tooltipDatePillVelocity",
+      label: "Velocity swell",
+      visibleWhen: { key: "showTooltipDatePill", truthy: true },
+    },
     {
       type: "boolean",
       key: "tooltipMatchCrosshair",

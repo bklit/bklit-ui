@@ -42,6 +42,15 @@ export function chartTooltipCodegenProps(state: StudioUrlState): string {
   ) {
     parts.push(`dotHaloOpacity={${state.tooltipDotHaloOpacity}}`);
   }
+  if (state.showTooltipDatePill && state.tooltipDatePillAnimation !== "roll") {
+    parts.push(`datePillAnimation="${state.tooltipDatePillAnimation}"`);
+  }
+  if (state.showTooltipDatePill && state.tooltipDatePillVariant !== "solid") {
+    parts.push(`datePillVariant="${state.tooltipDatePillVariant}"`);
+  }
+  if (state.showTooltipDatePill && state.tooltipDatePillVelocity) {
+    parts.push("datePillVelocity");
+  }
   if (state.tooltipMatchCrosshair) {
     parts.push("matchCrosshair");
   }
@@ -73,6 +82,15 @@ export function chartTooltipPropsFromState(
     showCrosshair: state.showCrosshair,
     showDots: state.showTooltipDots,
     showDatePill: state.showTooltipDatePill,
+    datePillAnimation:
+      state.tooltipDatePillAnimation === "roll"
+        ? undefined
+        : state.tooltipDatePillAnimation,
+    datePillVariant:
+      state.tooltipDatePillVariant === "solid"
+        ? undefined
+        : state.tooltipDatePillVariant,
+    datePillVelocity: state.tooltipDatePillVelocity || undefined,
     dotVariant: state.tooltipDotVariant,
     dotRadiusFraction:
       state.tooltipDotVariant === "ring" ? state.tooltipDotRadius : undefined,

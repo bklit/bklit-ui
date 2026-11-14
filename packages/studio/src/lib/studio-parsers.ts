@@ -556,6 +556,15 @@ export const studioSearchParams = {
   ),
   deadlineLabel: parseAsString.withDefault("Due"),
   showTooltipDatePill: parseAsBoolean.withDefault(true),
+  tooltipDatePillAnimation: parseAsStringLiteral([
+    "roll",
+    "static",
+  ] as const).withDefault("roll"),
+  tooltipDatePillVariant: parseAsStringLiteral([
+    "solid",
+    "glass",
+  ] as const).withDefault("solid"),
+  tooltipDatePillVelocity: parseAsBoolean.withDefault(false),
   showCrosshair: parseAsBoolean.withDefault(true),
   crosshairFollowsValue: parseAsBoolean.withDefault(true),
   crosshairColor: parseAsString.withDefault("var(--chart-crosshair)"),
@@ -795,6 +804,13 @@ export const studioSearchParams = {
   xAxisTickMode: parseAsStringLiteral(["data", "domain"] as const).withDefault(
     "data"
   ),
+  xAxisHoverEffect: parseAsStringLiteral([
+    "auto",
+    "fade",
+    "highlight",
+    "none",
+  ] as const).withDefault("auto"),
+  xAxisHighlightRadius: parseAsInteger.withDefault(80),
   barXAxisShowAllLabels: parseAsBoolean.withDefault(false),
   barXAxisMaxLabels: parseAsInteger.withDefault(12),
   barYAxisShowAllLabels: parseAsBoolean.withDefault(true),
@@ -1254,6 +1270,12 @@ export interface StudioUrlState {
   deadlineStrokeStyle: "solid" | "dashed";
   deadlineLabel: string;
   showTooltipDatePill: boolean;
+  /** `<ChartTooltip datePillAnimation>` */
+  tooltipDatePillAnimation: "roll" | "static";
+  /** `<ChartTooltip datePillVariant>` */
+  tooltipDatePillVariant: "solid" | "glass";
+  /** `<ChartTooltip datePillVelocity>` */
+  tooltipDatePillVelocity: boolean;
   showCrosshair: boolean;
   crosshairFollowsValue: boolean;
   crosshairColor: string;
@@ -1417,6 +1439,10 @@ export interface StudioUrlState {
   /** `<XAxis numTicks>` for time-series cartesian charts. */
   xAxisNumTicks: number;
   xAxisTickMode: "data" | "domain";
+  /** `<XAxis hoverEffect>` */
+  xAxisHoverEffect: "auto" | "fade" | "highlight" | "none";
+  /** `<XAxis highlightRadius>` */
+  xAxisHighlightRadius: number;
   barXAxisShowAllLabels: boolean;
   barXAxisMaxLabels: number;
   barYAxisShowAllLabels: boolean;
@@ -1851,6 +1877,9 @@ export function defaultStudioState(
     deadlineStrokeStyle: "solid",
     deadlineLabel: "Due",
     showTooltipDatePill: true,
+    tooltipDatePillAnimation: "roll",
+    tooltipDatePillVariant: "solid",
+    tooltipDatePillVelocity: false,
     showCrosshair: true,
     crosshairFollowsValue: true,
     crosshairColor: "var(--chart-crosshair)",
@@ -2009,6 +2038,8 @@ export function defaultStudioState(
     sankeyLinkUseGradient: true,
     xAxisNumTicks: 5,
     xAxisTickMode: "data",
+    xAxisHoverEffect: "auto",
+    xAxisHighlightRadius: 80,
     barXAxisShowAllLabels: false,
     barXAxisMaxLabels: 12,
     barYAxisShowAllLabels: true,

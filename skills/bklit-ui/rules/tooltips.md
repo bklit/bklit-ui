@@ -18,7 +18,13 @@
 |---|---|---|
 | `showCrosshair` | `boolean` | `true` (`false` inside `BarChart`, any orientation, and inside `ScatterChart` with `jitter` — pass `showCrosshair` to opt in) |
 | `showDots` | `boolean` | `true` |
-| `showDatePill` | `boolean` | `true` (set `false` for categorical/live charts) |
+| `showDatePill` | `boolean` | `true` (set `false` for categorical/live charts; `XAxis` then highlights instead of fading) |
+| `datePillAnimation` | `"roll" \| "static"` | `"roll"` (always `"static"` above 60 labels) |
+| `datePillVariant` | `"solid" \| "glass"` (liquid glass; refraction in Chromium, frosted fallback elsewhere) | `"solid"` |
+| `datePillVelocity` | `boolean \| { scale?, stretch?, maxVelocity? }` (swells with speed) | `false` |
+| `datePillClassName`, `datePillStyle` | `string` (tailwind-merged over the default surface), `CSSProperties` | — |
+| `datePill` | `({ label, index, point }) => ReactNode` (replaces the pill, keeps positioning) | — |
+| `dateLabels` | `string[]` (one per row, shown in the pill) | chart `dateLabels` |
 | `content` | `({ point, index }) => ReactNode` | built-in rows |
 | `rows` | `(point) => { color, label, value }[]` | one row per series |
 | `indicatorColor` | `string \| (point) => string` | `--chart-crosshair` |
@@ -39,6 +45,22 @@
 | `backgroundColor` | `string` | `var(--chart-tooltip-background)` |
 | `panelStyle`, `className` | `CSSProperties`, `string` | — |
 | `children` | `ReactNode` | rendered below rows (e.g. marker content) |
+
+## Date pill and `XAxis` labels
+
+The date pill is a built-in `motion` roll (`DateTicker`), **not** NumberFlow — NumberFlow is only `ChartCrosshair numberFlow` and pie/ring/radial/gauge centers.
+
+```tsx
+<ChartTooltip showDatePill={false} />                // off
+<ChartTooltip datePillAnimation="static" />           // no roll, label swaps in place
+<ChartTooltip datePillClassName="rounded-md bg-(--chart-1) dark:bg-(--chart-1) text-white dark:text-white" />
+```
+
+Glass-menu feel: `<ChartTooltip datePillVariant="glass" datePillVelocity />`. Glass needs texture behind it — put a subtle pattern/gradient background on the chart's wrapper (the pill sits in the x-axis band, below the plot, so `<Background>` doesn't reach it). `XAxis` keeps fading labels under the pill; `hoverEffect="none"` lets them pass under the glass instead.
+
+The default surface sets light and dark colors (`bg-zinc-900 … dark:bg-zinc-100 dark:text-zinc-900`), so override both. The pill element has `data-slot="date-pill"`.
+
+`XAxis hoverEffect` (default `"auto"`): `"fade"` hides labels under the pill; `"highlight"` recolors the hovered row's label (`activeLabelColor`, default `var(--chart-indicator-color)`) and blends labels within `highlightRadius` (80px) toward `nearbyLabelColor`; `"none"` leaves them alone. `"auto"` fades while a date pill is shown and highlights when it isn't. Set `tickerHalfWidth` to half a restyled pill's width so the fade zone matches.
 
 ## Horizontal crosshair (`ChartCrosshair`)
 

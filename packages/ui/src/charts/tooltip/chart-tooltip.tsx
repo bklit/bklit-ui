@@ -1,7 +1,7 @@
 "use client";
 
-import { m, useSpring } from "motion/react";
-import { memo, useEffect, useMemo } from "react";
+import { m, useReducedMotion, useSpring } from "motion/react";
+import { type CSSProperties, memo, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
 import {
   resolveTooltipBoxMotion,
@@ -19,16 +19,72 @@ import {
   useChartStable,
 } from "../chart-context";
 import { formatBandRange, weekdayDateFmt } from "../chart-formatters";
+import { registerDatePill } from "../date-pill-store";
 import type { IndicatorFadeEdges } from "../indicator-fade";
-import { DateTicker } from "./date-ticker";
+import {
+  DateTicker,
+  type DateTickerAnimation,
+  type DateTickerVariant,
+} from "./date-ticker";
 import { TooltipBox, type TooltipBoxProps } from "./tooltip-box";
 import { TooltipContent, type TooltipRow } from "./tooltip-content";
 import { TooltipDot } from "./tooltip-dot";
 import { TooltipIndicator } from "./tooltip-indicator";
+import {
+  type DatePillVelocityConfig,
+  resolveDatePillVelocity,
+  useVelocityStretch,
+} from "./use-velocity-stretch";
+
+/** Props passed to a custom `datePill` renderer. */
+export interface ChartTooltipDatePillRenderProps {
+  /** Hovered row's label (from `dateLabels`). */
+  label: string;
+  /** Hovered row index. */
+  index: number;
+  /** Hovered data row. */
+  point: Record<string, unknown>;
+}
 
 export interface ChartTooltipProps {
-  /** Whether to show the date pill at bottom. Default: true */
+  /**
+   * Show the date pill on the x-axis under the crosshair. Default: `true`.
+   * With `false`, `XAxis` highlights the labels near the crosshair instead of
+   * fading them (see `XAxis` `hoverEffect`).
+   */
   showDatePill?: boolean;
+  /**
+   * How the pill label changes as you hover: `"roll"` scrolls month and
+   * day/year like a slot machine, `"static"` swaps the label in place (only
+   * the width springs). Above 60 labels the pill is always `"static"`.
+   * Default: `"roll"`.
+   */
+  datePillAnimation?: DateTickerAnimation;
+  /**
+   * Pill surface: `"solid"` dark capsule, or `"glass"` — liquid glass that
+   * refracts what's behind it (Chromium; frosted blur elsewhere).
+   * Default: `"solid"`.
+   */
+  datePillVariant?: DateTickerVariant;
+  /**
+   * Swell the pill with speed, like a glass menu: it grows slightly and
+   * stretches along the motion, then springs back at rest. `true` uses the
+   * defaults; pass an object to tune. Off under reduced motion and for
+   * discrete (60+ label) charts. Default: `false`.
+   */
+  datePillVelocity?: boolean | DatePillVelocityConfig;
+  /**
+   * Classes merged (tailwind-merge) over the default pill surface
+   * (`rounded-full bg-zinc-900 px-4 py-1 text-white shadow-lg …`).
+   */
+  datePillClassName?: string;
+  /** Inline styles for the pill surface (e.g. `background`, `color`). */
+  datePillStyle?: CSSProperties;
+  /**
+   * Replace the pill's contents entirely. The result is still positioned
+   * under the crosshair and follows the tooltip spring.
+   */
+  datePill?: (props: ChartTooltipDatePillRenderProps) => React.ReactNode;
   /**
    * Whether to show the crosshair indicator line. Default: `true` for
    * line / area / composed / scatter charts, `false` inside `BarChart`
@@ -232,6 +288,12 @@ function resolveBoxPlacement({
 
 const ChartTooltipInner = memo(function ChartTooltipInner({
   showDatePill = true,
+  datePillAnimation,
+  datePillVariant,
+  datePillVelocity,
+  datePillClassName,
+  datePillStyle,
+  datePill,
   showCrosshair: showCrosshairProp,
   showDots = true,
   dotVariant = "dot",
@@ -291,6 +353,16 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
   const dateLabels = dateLabelsProp ?? contextDateLabels;
 
   const isHorizontal = orientation === "horizontal";
+  const datePillEnabled =
+    showDatePill && !isHorizontal && dateLabels.length > 0;
+
+  // Tell `XAxis` a pill covers its labels, so it fades instead of highlights.
+  useEffect(() => {
+    if (!datePillEnabled) {
+      return;
+    }
+    return registerDatePill(container);
+  }, [container, datePillEnabled]);
   // Bar charts (any orientation) and nearest-point hover (jittered scatter)
   // hide the crosshair line by default.
   const showCrosshair =
@@ -606,11 +678,18 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
 
       {/* Date/Category Ticker - only show for vertical charts */}
       <DatePillTracker
+        animation={datePillAnimation}
+        className={datePillClassName}
         currentIndex={tooltipData?.index ?? 0}
         discreteInteraction={discreteInteraction}
-        enabled={showDatePill && !isHorizontal}
+        enabled={datePillEnabled}
         labels={dateLabels}
+        point={tooltipData?.point}
+        render={datePill}
         springConfig={springConfig}
+        style={datePillStyle}
+        variant={datePillVariant}
+        velocity={datePillVelocity}
         visible={visible}
         xWithMargin={xWithMargin}
       />
@@ -641,6 +720,13 @@ interface DatePillTrackerProps {
   xWithMargin: number;
   discreteInteraction: boolean;
   springConfig?: SpringConfig;
+  point?: Record<string, unknown>;
+  animation?: DateTickerAnimation;
+  className?: string;
+  style?: CSSProperties;
+  render?: ChartTooltipProps["datePill"];
+  variant?: DateTickerVariant;
+  velocity?: ChartTooltipProps["datePillVelocity"];
 }
 
 // Inner-only-on-visible so `useSpring` initializes at the real cursor x
@@ -659,10 +745,24 @@ function DatePillTrackerInner({
   discreteInteraction,
   springConfig,
   visible,
+  point,
+  animation,
+  className,
+  style,
+  render,
+  variant,
+  velocity,
 }: DatePillTrackerProps) {
   const { tooltipSpring } = useChartConfig();
+  const reduceMotion = useReducedMotion() === true;
   const effectiveSpring = springConfig ?? tooltipSpring;
   const animatedX = useSpring(xWithMargin, effectiveSpring);
+  const swell = useVelocityStretch(
+    animatedX,
+    reduceMotion || discreteInteraction
+      ? null
+      : resolveDatePillVelocity(velocity)
+  );
 
   if (!discreteInteraction) {
     animatedX.set(xWithMargin);
@@ -682,11 +782,25 @@ function DatePillTrackerInner({
         bottom: 4,
       }}
     >
-      <DateTicker
-        currentIndex={currentIndex}
-        labels={labels}
-        visible={visible}
-      />
+      <m.div style={{ scaleX: swell.scaleX, scaleY: swell.scaleY }}>
+        {render && point ? (
+          render({
+            label: labels[currentIndex] ?? "",
+            index: currentIndex,
+            point,
+          })
+        ) : (
+          <DateTicker
+            animation={animation}
+            className={className}
+            currentIndex={currentIndex}
+            labels={labels}
+            style={style}
+            variant={variant}
+            visible={visible}
+          />
+        )}
+      </m.div>
     </m.div>
   );
 }

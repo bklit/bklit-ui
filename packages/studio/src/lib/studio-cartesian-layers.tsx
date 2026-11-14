@@ -169,6 +169,8 @@ export function xAxisPropsFromState(state: StudioUrlState) {
   return {
     numTicks: state.xAxisNumTicks,
     tickMode: state.xAxisTickMode,
+    hoverEffect: state.xAxisHoverEffect,
+    highlightRadius: state.xAxisHighlightRadius,
   };
 }
 

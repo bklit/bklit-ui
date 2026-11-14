@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode, useState } from "react";
+import { type CSSProperties, type ReactNode, useState } from "react";
 import { DocsChartPreviewShell } from "@/components/docs/docs-chart-preview-shell";
 import { ShowcaseCodeBlock } from "@/components/docs/showcase-code-block";
 import { Button } from "@/components/ui/button";
@@ -27,6 +27,10 @@ interface ComponentShowcaseProps {
   liveChartPreview?: boolean;
   /** Absolutely positioned controls painted over the preview panel. */
   previewOverlay?: ReactNode;
+  /** Extra classes for the preview panel (e.g. a backdrop for glass demos). */
+  previewClassName?: string;
+  /** Inline styles for the preview panel (merged after `minHeight`). */
+  previewStyle?: CSSProperties;
 }
 
 const codePanelContentClassName = cn(
@@ -51,6 +55,8 @@ export function ComponentShowcase({
   previewMinHeight = 200,
   liveChartPreview = false,
   previewOverlay,
+  previewClassName,
+  previewStyle,
 }: ComponentShowcaseProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -64,8 +70,11 @@ export function ComponentShowcase({
   return (
     <Frame className={cn("not-prose my-6", className)}>
       <FramePanel
-        className="flex w-full shrink-0 items-center justify-center p-6 sm:p-8"
-        style={{ minHeight: previewMinHeight }}
+        className={cn(
+          "flex w-full shrink-0 items-center justify-center p-6 sm:p-8",
+          previewClassName
+        )}
+        style={{ minHeight: previewMinHeight, ...previewStyle }}
       >
         {liveChartPreview ? (
           preview
