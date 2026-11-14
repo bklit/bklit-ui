@@ -1,0 +1,95 @@
+---
+title: Particle Line
+description: A LineChart series revealed by glowing WebGL particles, then handed off to a plain SVG line
+---
+
+import { ParticleLineDemo } from "@/components/docs/particle-line-demo";
+
+<ComponentPreview registryName="particle-line">
+  <ParticleLineDemo />
+</ComponentPreview>
+
+## Installation
+
+<InstallationTabs name="particle-line" dependencies={["d3-shape", "motion"]} />
+
+## Usage
+
+Use `ParticleLine` inside `LineChart` in place of `Line`. It registers as a normal series, so the y-domain, `ChartTooltip` and legend treat it exactly like a `Line` — pass `stroke` for the tooltip dot and legend colour.
+
+```tsx
+import {
+  ChartTooltip,
+  LineChart,
+  PARTICLE_LINE_GOLD,
+  ParticleLine,
+  XAxis,
+} from "@bklitui/ui/charts";
+
+export default function ParticleChart({ data }) {
+  return (
+    <LineChart data={data}>
+      <ParticleLine
+        colors={PARTICLE_LINE_GOLD}
+        dataKey="visitors"
+        effect="assemble"
+        stroke="#ffd45e"
+      />
+      <XAxis />
+      <ChartTooltip />
+    </LineChart>
+  );
+}
+```
+
+## How it works
+
+While the chart reveals, each `ParticleLine` draws into its own WebGL canvas layered over the chart: the line, its glow, a white-hot freshly drawn stretch and thousands of particles. Each particle is a pure function of time, so the swarm costs almost nothing on the CPU.
+
+The reveal uses the chart's own enter timing — `animationDuration` (1100ms by default) and the `cubic-bezier(0.85, 0, 0.15, 1)` ease — and sweeps by x position, so every series reaches each date at the same moment, like the standard clip reveal.
+
+Once the particles are gone and the trail has cooled, the canvas is removed and its WebGL context released. What stays is an ordinary SVG line — a round-capped stroke over a blurred glow stroke, painted with a left-to-right gradient — so the resting chart exports, prints and styles like any other. The WebGL resting frame is built from the same pieces (stroke, Gaussian-blurred glow, gradient), so the hand-off is seamless.
+
+With `prefers-reduced-motion`, the reveal is skipped and the SVG line renders straight away.
+
+## Effects
+
+| Effect | Reveal |
+|--------|--------|
+| `assemble` | A swarm drifts in from above and to the right, swirls, and condenses onto the line, which turns solid where particles land. |
+| `comet` | The line grows behind a large glowing head that streams a long tail of embers back along it. |
+| `stardust` | The line grows from a soft glinting tip that leaves twinkling dust drifting upward. |
+
+## Hover
+
+Hovering works like `Line highlight` on the sky recipes: the glow fades out, the line dims to `dimOpacity`, and a segment `span` points either side of the cursor stays full strength with soft `fadeLength` ends. Pass `highlight={false}` to turn it off.
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `dataKey` | `string` | required | Key in data for y values |
+| `effect` | `"assemble" \| "comet" \| "stardust"` | `"assemble"` | Reveal style |
+| `colors` | `string[]` | `PARTICLE_LINE_GOLD` | Four hex colours spread left → right across the plot (line, glow and particles) |
+| `stroke` | `string` | — | Series colour for the tooltip dot and legend |
+| `strokeWidth` | `number` | `2.5` | Line width in px |
+| `curve` | `CurveFactory` | `curveMonotoneX` | Interpolation curve |
+| `yAxisId` | `string \| number` | `"left"` | Y-scale group |
+| `duration` | `number` | chart `animationDuration` | Reveal length in ms |
+| `delay` | `number` | `0` | Wait before the reveal starts, in ms |
+| `easing` | `[number, number, number, number]` | chart enter ease | Cubic-bezier for the reveal front |
+| `density` | `number` | `7` | Particles per px of line length (capped at 14,000) |
+| `spread` | `number` | `150` | `assemble`: how far particles start from where they land. Other effects: spark speed, relative to 150 |
+| `trail` | `number` | `90` | Length of the white-hot freshly drawn stretch, in px |
+| `highlight` | `false \| { span?, fadeLength?, dimOpacity? }` | `{ span: 3, fadeLength: 40, dimOpacity: 0.25 }` | Hover segment |
+
+Colours must be hex — they are uploaded to the GPU, so CSS variables are not resolved.
+
+## Notes
+
+- Each line holds one WebGL context during its reveal only; browsers allow roughly 16 at once, so many particle charts revealing at the same moment on one page can hit that limit.
+- On dark surfaces the hot trail burns white; on light surfaces it burns in the palette's deepest colour so it stays visible.
+
+## Gallery
+
+Interactive examples live on the [line chart gallery](/charts/line-chart) as **Particle Assemble**, **Particle Comet** and **Particle Stardust**, and as the [Particle reveal recipe](/recipes#particle-reveal).

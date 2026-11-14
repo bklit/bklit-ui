@@ -1,0 +1,26 @@
+---
+title: Particle Line
+description: Reveal line series with glowing WebGL particles that hand off to a plain SVG line.
+date: 2026-11-14
+image: /changelog/2026-11-14-particle-line.svg
+imageAlt: A smooth line that ends in a bright point and dissolves into a drifting cloud of dots
+tags: [line-chart, recipes, animation]
+---
+
+Remember the particle logo reveals from After Effects, where a swarm condenses into the logo? `ParticleLine` brings that to the line chart. Use it in place of `Line` and the series assembles itself from thousands of glowing particles while the chart loads.
+
+## Three effects
+
+Set `effect` to pick the reveal. `assemble` drifts a swarm in from above and to the right, which settles onto the line and turns it solid. `comet` grows the line behind a glowing head that trails embers. `stardust` grows it from a soft tip that leaves twinkling dust drifting upward. In every effect the newest stretch of line glows white-hot and cools as the reveal moves on.
+
+`colors` takes four hex colours spread left to right across the plot. `density`, `spread` and `trail` tune the swarm.
+
+## In step with the chart
+
+The reveal uses the chart's own enter timing: 1100ms on the standard `cubic-bezier(0.85, 0, 0.15, 1)` ease. It sweeps by x position, so every series reaches each date at the same moment. `ParticleLine` registers as a normal series, so the tooltip, legend and y-domain work as they do for `Line`. Hovering fades the glow and keeps a soft-ended segment under the cursor, like the Sunset and Aurora sky recipes.
+
+## WebGL only while it moves
+
+Each line draws into a WebGL canvas only during the reveal. Once the trail has cooled, the canvas is removed and its context released. A plain SVG line takes its place, so the resting chart exports and prints like any other. The last WebGL frame is built from the same stroke, blurred glow and gradient, so you won't see the swap. With reduced motion turned on, the SVG line renders straight away.
+
+Try all three in the [Particle reveal recipe](/recipes#particle-reveal), or see the [Particle Line docs](/docs/components/particle-line).

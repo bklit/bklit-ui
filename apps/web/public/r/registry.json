@@ -1501,6 +1501,30 @@
       ]
     },
     {
+      "name": "particle-line",
+      "type": "registry:component",
+      "title": "Particle Line",
+      "description": "WebGL particle reveal for LineChart series that hands off to a plain SVG line",
+      "registryDependencies": [
+        "@bklit/line-chart",
+        "@bklit/chart-context",
+        "@bklit/chart-series",
+        "@bklit/x-axis",
+        "@bklit/chart-tooltip"
+      ],
+      "dependencies": [
+        "d3-shape",
+        "motion"
+      ],
+      "files": [
+        {
+          "path": "src/charts/particle-line.tsx",
+          "type": "registry:component",
+          "target": "components/charts/particle-line.tsx"
+        }
+      ]
+    },
+    {
       "name": "bar-depth",
       "type": "registry:component",
       "title": "Bar Depth",

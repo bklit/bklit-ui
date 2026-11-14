@@ -311,6 +311,20 @@ Highlight the break-even baseline with `Grid highlightRowValues={[0]}`:
 
 See the [Profit/Loss Line](/docs/components/profit-loss-line) docs and the [line chart gallery](/charts/line-chart) (**Profit/Loss** example).
 
+## Particle reveal
+
+Swap a `Line` for [`ParticleLine`](/docs/components/particle-line) to reveal the series with glowing WebGL particles — a swarm that condenses into the line (`effect="assemble"`) or a glowing tip that grows it (`"comet"`, `"stardust"`). It follows the chart's reveal timing, then hands off to a plain SVG line once the trail has cooled.
+
+```tsx
+<LineChart data={data}>
+  <ParticleLine dataKey="visitors" effect="comet" stroke="#5cc8ff" />
+  <XAxis />
+  <ChartTooltip />
+</LineChart>
+```
+
+See the [Particle Line](/docs/components/particle-line) docs and the **Particle** examples in the [line chart gallery](/charts/line-chart).
+
 ## Projection
 
 Extend a series past the last data point with [`ProjectionLine`](/docs/utility/projection-line). Build the path with `buildProjectionPath` (auto slope, target value, or manual points). Optionally add [`LineSeriesTerminalMarker`](/docs/utility/projection-line#terminal-marker) at the anchor.

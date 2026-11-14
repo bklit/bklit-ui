@@ -449,6 +449,13 @@ export {
   type MarkerTooltipContentProps,
   useActiveMarkers,
 } from "./markers";
+export {
+  PARTICLE_LINE_GOLD,
+  ParticleLine,
+  type ParticleLineEffect,
+  type ParticleLineHighlight,
+  type ParticleLineProps,
+} from "./particle-line";
 export { PatternArea, type PatternAreaProps } from "./pattern-area";
 export {
   isCirclePattern,

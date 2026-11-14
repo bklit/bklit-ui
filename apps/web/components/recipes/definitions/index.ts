@@ -30,6 +30,7 @@ import { heatmapDotCalendar, heatmapWorkweek } from "./heatmaps";
 import { kpiSparklines } from "./kpi-sparklines";
 import { lollipopPnl } from "./lollipop-pnl";
 import { monochrome } from "./monochrome";
+import { particleReveal } from "./particle-reveal";
 import { linkedLegend, patternedSlices, tickRing } from "./pie-recipes";
 import { projectionArea } from "./projection-area";
 import { projectionLine } from "./projection-line";
@@ -55,6 +56,7 @@ export const recipes: Recipe[] = [
   skySunset,
   skyAurora,
   gradientGlow,
+  particleReveal,
   monochrome,
   squircleBars,
   lollipopPnl,
