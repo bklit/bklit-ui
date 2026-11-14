@@ -104,6 +104,37 @@ export function bandEdgePath(
     .join("");
 }
 
+/**
+ * Clip region on one side of a band edge: each segment's edge curve, closed
+ * `far` px off the top (`"above"`) or bottom (`"below"`) of the plot. Used by
+ * `negativeFill` to split the fill where the upper key crosses the lower key.
+ */
+export function bandEdgeClipPath(
+  segments: BandSegment[],
+  edge: "upper" | "lower",
+  side: "above" | "below",
+  curve: CurveFactory,
+  far: number
+): string {
+  const generator = d3Line<BandPoint>()
+    .x((point) => point.x)
+    .y((point) => point[edge])
+    .curve(curve);
+  const y = side === "above" ? -far : far;
+  return segments
+    .filter((segment) => segment.length > 1)
+    .map((segment) => {
+      const path = generator(segment);
+      const first = segment[0];
+      const last = segment.at(-1);
+      if (!(path && first && last)) {
+        return "";
+      }
+      return `${path}L${last.x},${y}L${first.x},${y}Z`;
+    })
+    .join("");
+}
+
 /** Vertical pixel extent covered by both edges (top < bottom in SVG space). */
 export function bandPixelExtent(
   segments: BandSegment[]

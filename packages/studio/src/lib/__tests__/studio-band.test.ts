@@ -14,6 +14,9 @@ const BAND_GLOBAL_RE = /<Band /g;
 const DESKTOP_LINE_RE = /<Line dataKey="desktop"/;
 const MOBILE_LINE_RE = /<Line dataKey="mobile"/;
 const MOBILE_UPPER_RE = /mobileUpper:/;
+const GAP_KEYS_RE = /upperKey="desktop" lowerKey="mobile"/;
+const NEGATIVE_FILL_RE = /negativeFill="var\(--chart-negative/;
+const CHART_DATA_RE = /data=\{chartData\}/;
 
 function lineState(overrides: Parameters<typeof defaultStudioState>[0] = {}) {
   return defaultStudioState({
@@ -82,6 +85,30 @@ describe("studio band", () => {
     assert.doesNotMatch(code, DESKTOP_LINE_RE);
     assert.match(code, MOBILE_LINE_RE);
     assert.match(data ?? "", MOBILE_UPPER_RE);
+  });
+
+  it("gap mode shades series 1 vs 2 with a negative fill and no data transform", () => {
+    const { code, data } = generateStudioCode(
+      "line-chart",
+      lineState({ bandEnabled: true, bandMode: "gap", dataSeries: 2 })
+    );
+    assert.equal(code.match(BAND_GLOBAL_RE)?.length, 1);
+    assert.match(code, GAP_KEYS_RE);
+    assert.match(code, NEGATIVE_FILL_RE);
+    assert.match(code, CHART_DATA_RE);
+    assert.doesNotMatch(data ?? "", MOBILE_UPPER_RE);
+  });
+
+  it("gap mode drops negativeFill when it is switched off", () => {
+    const { code } = generateStudioCode(
+      "line-chart",
+      lineState({
+        bandEnabled: true,
+        bandMode: "gap",
+        bandNegativeFillEnabled: false,
+      })
+    );
+    assert.doesNotMatch(code, NEGATIVE_FILL_RE);
   });
 
   it("hides the band for legacy URLs whose hidden list predates it", () => {

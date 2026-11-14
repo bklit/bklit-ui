@@ -18,6 +18,46 @@ export const recipeDailyData = Array.from({ length: 28 }, (_, index) => {
   };
 });
 
+/** Actual daily visitors against a straight-line growth projection (they cross weekly). */
+export const recipeProjectedData = recipeDailyData.map((row, index) => ({
+  date: row.date,
+  actual: row.visitors,
+  projected: 1380 + index * 40,
+}));
+
+/** Deterministic noise in [-0.5, 0.5) (LCG) for the jagged year-over-year walk. */
+function seededNoise(seed: number) {
+  let state = seed;
+  return () => {
+    state = (state * 1_664_525 + 1_013_904_223) % 4_294_967_296;
+    return state / 4_294_967_296 - 0.5;
+  };
+}
+
+/**
+ * Weekly % return since 1 Jan for a year: this year vs the
+ * same days last year. Both walks share shocks (and a mid-year drawdown), so
+ * they move together while this year pulls ahead.
+ */
+export const recipeYearOverYearData = (() => {
+  const noise = seededNoise(11);
+  let thisYear = 0;
+  let lastYear = 0;
+  // 52 points keeps the chart under DISCRETE_INTERACTION_LABEL_THRESHOLD (60),
+  // so the tooltip, highlight and date ticker use the standard spring motion.
+  return Array.from({ length: 52 }, (_, index) => {
+    const shock = noise();
+    const drawdown = -2.2 * Math.exp(-((index - 25) ** 2) / 14);
+    thisYear += 0.7 + shock * 5 + drawdown;
+    lastYear += 0.45 + shock * 3.2 + noise() * 1 + drawdown * 0.7;
+    return {
+      date: day(index * 7),
+      thisYear: Math.round(thisYear * 100) / 100,
+      lastYear: Math.round(lastYear * 100) / 100,
+    };
+  });
+})();
+
 /** 12 weekly points — sparse enough for point markers. */
 export const recipeWeeklyData = Array.from({ length: 12 }, (_, index) => {
   const value =
@@ -269,3 +309,28 @@ export const recipeSignalData = (() => {
     };
   });
 })();
+
+/**
+ * Error-budget change per service, sorted ascending — a diverging ranking for
+ * the lollipop profit / loss recipe.
+ */
+export const recipeServiceBudgetData = [
+  { service: "Search indexer", change: -82.4 },
+  { service: "Image resizer", change: -56.7 },
+  { service: "Billing sync", change: -37.2 },
+  { service: "Email digest", change: -16.5 },
+  { service: "Audit export", change: -9.1 },
+  { service: "Session store", change: 7.8 },
+  { service: "Rate limiter", change: 17.4 },
+  { service: "Feature flags", change: 20.6 },
+  { service: "Webhook delivery success", change: 36.3 },
+  { service: "Auth gateway", change: 50.8 },
+  { service: "CDN edge", change: 54.9 },
+  { service: "Payments API", change: 58.2 },
+  { service: "Notifications", change: 68.6 },
+  { service: "Job queue", change: 70.5 },
+  { service: "GraphQL API", change: 74.9 },
+  { service: "Metrics ingest", change: 84.3 },
+  { service: "Status page", change: 88.6 },
+  { service: "Static assets", change: 91.1 },
+];

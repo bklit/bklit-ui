@@ -277,6 +277,7 @@ Custom artwork: `<PatternTile id size={12} color>{<path d="…" fill="currentCol
 | "hatched target band" | `<ReferenceArea y1 y2 pattern="diagonal-up" patternColor="var(--chart-foreground-muted)" axisLabelColor="var(--chart-1)" fillOpacity={0.85} />` | Gallery "Pattern Reference Band". |
 | "highlight a time window" | `<ReferenceArea x1={startDate} x2={endDate} />` | |
 | "min/max range", "confidence band", "range around the line", "range area" | `<Band upperKey="valueUpper" lowerKey="valueLower" label="Range" />` before the `<Line>` (or alone for a range area chart) | Per-row edges (not fixed Y). Defaults: `fillOpacity` 0.15, solid edges at the band color. `fillType="gradient"` / `"pattern"`. |
+| "fill between two lines", "gap fill", "actual vs projected", "this year vs last year", "ahead / behind" | `<Band upperKey="actual" lowerKey="projected" strokeWidth={0} />` before both `<Line>`s; add `negativeFill="var(--chart-negative, var(--color-red-500))"` for a two-tone fill | `negativeFill` colours where `upperKey` < `lowerKey`, switching exactly at crossings; works with every `fillType`. Comparison line dashed (`dashFromIndex={0} dashArray="4,4"`) or dotted (`dashArray="0,5"`). Recipes: Gap fill, Year over year. |
 | "Bollinger bands" | `withBollingerBands(data, { dataKey: "price" })` → `<Band upperKey="priceUpper" lowerKey="priceLower" />` | Defaults: `period` 20, `multiplier` 2. Dashed SMA = zero-height `Band` on `priceSma` with `lowerStroke={false}`. |
 
 ## Pie, donut, ring

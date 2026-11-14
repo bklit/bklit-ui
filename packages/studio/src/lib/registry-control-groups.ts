@@ -523,6 +523,7 @@ export const deadlineControlGroups: StudioControlGroup[] = [
 ];
 
 const bandBollinger = { key: "bandMode", equals: "bollinger" } as const;
+const bandGap = { key: "bandMode", equals: "gap" } as const;
 /** Per-series bands take each series' color, so the color pickers hide. */
 const bandFirstSeries = { key: "bandSeries", equals: "first" } as const;
 
@@ -536,11 +537,13 @@ export const bandControlGroups: StudioControlGroup[] = [
       options: [
         { value: "range", label: "Range (upper / lower)" },
         { value: "bollinger", label: "Bollinger bands" },
+        { value: "gap", label: "Gap (series 1 vs 2)" },
       ],
     },
     {
       type: "select",
       key: "bandSeries",
+      visibleWhen: { key: "bandMode", not: "gap" },
       label: "Series",
       options: [
         { value: "first", label: "First series" },
@@ -628,6 +631,18 @@ export const bandControlGroups: StudioControlGroup[] = [
       step: 0.05,
       color: "var(--chart-1)",
       visibleWhen: { key: "bandFillType", equals: "gradient" },
+    },
+    {
+      type: "boolean",
+      key: "bandNegativeFillEnabled",
+      label: "Negative fill",
+      visibleWhen: bandGap,
+    },
+    {
+      type: "color",
+      key: "bandNegativeFill",
+      label: "Negative color",
+      visibleWhen: [bandGap, { key: "bandNegativeFillEnabled", truthy: true }],
     },
     {
       type: "pattern",

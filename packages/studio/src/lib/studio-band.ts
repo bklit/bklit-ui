@@ -16,9 +16,9 @@ export const STUDIO_BAND_SOURCE_KEY: string = STUDIO_SERIES_KEYS[0];
  * `bandSeries` is `"all"` (range area + line combo).
  */
 export function studioBandSeriesIndices(
-  state: Pick<StudioUrlState, "bandSeries" | "dataSeries">
+  state: Pick<StudioUrlState, "bandMode" | "bandSeries" | "dataSeries">
 ): number[] {
-  if (state.bandSeries !== "all") {
+  if (state.bandSeries !== "all" || state.bandMode === "gap") {
     return [0];
   }
   return Array.from(
@@ -47,6 +47,17 @@ export function studioBandKeys(
     upperKey: `${sourceKey}Upper`,
     lowerKey: `${sourceKey}Lower`,
     middleKey: `${sourceKey}Sma`,
+  };
+}
+
+/**
+ * Gap mode: the band spans the first two series (upper = series 1, lower =
+ * series 2), so `negativeFill` marks where series 1 drops below series 2.
+ */
+export function studioGapBandKeys(): { upperKey: string; lowerKey: string } {
+  return {
+    upperKey: STUDIO_SERIES_KEYS[0] ?? STUDIO_BAND_SOURCE_KEY,
+    lowerKey: STUDIO_SERIES_KEYS[1] ?? STUDIO_BAND_SOURCE_KEY,
   };
 }
 
@@ -111,6 +122,10 @@ export function withStudioBandData<T extends Record<string, unknown>>(
   data: T[],
   options: StudioBandDataOptions
 ): T[] {
+  if (options.bandMode === "gap") {
+    // Gap mode shades between two existing series — no derived keys.
+    return data;
+  }
   let rows = data;
   for (const seriesIndex of studioBandSeriesIndices(options)) {
     const sourceKey = bandSourceKey(seriesIndex);
@@ -168,12 +183,15 @@ export function studioBandProps(
   seriesIndex = 0
 ): StudioBandProps {
   const sourceKey = bandSourceKey(seriesIndex);
-  const { upperKey, lowerKey } = studioBandKeys(sourceKey);
+  const gap = state.bandMode === "gap";
+  const { upperKey, lowerKey } = gap
+    ? studioGapBandKeys()
+    : studioBandKeys(sourceKey);
   const props: StudioBandProps = { upperKey, lowerKey };
   if (yAxisId && yAxisId !== "left") {
     props.yAxisId = yAxisId;
   }
-  props.label = `${sourceKey} range`;
+  props.label = gap ? `${upperKey} vs ${lowerKey}` : `${sourceKey} range`;
   if (!state.bandShowInTooltip) {
     props.showInTooltip = false;
   }
@@ -189,6 +207,9 @@ export function studioBandProps(
     props.fillType = state.bandFillType;
   }
   props.fillOpacity = state.bandFillOpacity;
+  if (gap && state.bandNegativeFillEnabled && state.bandNegativeFill) {
+    props.negativeFill = state.bandNegativeFill;
+  }
   if (state.bandFillType === "gradient") {
     props.gradientToOpacity = state.bandGradientToOpacity;
   }
@@ -296,7 +317,9 @@ export function bandCodegenBlock(
 
 /** Variable the generated `<LineChart data={…}>` reads from. */
 export function bandCodegenDataVar(state: StudioUrlState): string {
-  return isStudioBandVisible(state) ? "bandData" : "chartData";
+  return isStudioBandVisible(state) && state.bandMode !== "gap"
+    ? "bandData"
+    : "chartData";
 }
 
 export interface BandCodegenParts {
@@ -328,7 +351,7 @@ export function bandCodegenParts(
 
 /** Data transform appended to the chart data snippet when the band is visible. */
 export function bandDataCodegenSnippet(state: StudioUrlState): string {
-  if (!isStudioBandVisible(state)) {
+  if (!isStudioBandVisible(state) || state.bandMode === "gap") {
     return "";
   }
   const keys = studioBandSeriesIndices(state).map(bandSourceKey);

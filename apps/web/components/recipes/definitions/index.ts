@@ -14,6 +14,7 @@ import { customIndicators } from "./custom-indicators";
 import { diamondMarkers } from "./diamond-markers";
 import { dotMatrix } from "./dot-matrix";
 import { eventMarkers } from "./event-markers";
+import { gapFill } from "./gap-fill";
 import {
   gaugeConicKpi,
   gaugeDashboardDial,
@@ -41,6 +42,7 @@ import { squircleBars } from "./squircle-bars";
 import { trendLine } from "./trend-line";
 import { valueLabels } from "./value-labels";
 import { weekendStripes } from "./weekend-stripes";
+import { yearOverYear } from "./year-over-year";
 
 /** Every recipe on /recipes, in display order. Add new recipes here. */
 export const recipes: Recipe[] = [
@@ -61,6 +63,8 @@ export const recipes: Recipe[] = [
   projectionLine,
   trendLine,
   rangeBand,
+  gapFill,
+  yearOverYear,
   forecastHandoff,
   priceVolume,
   signalNoise,

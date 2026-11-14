@@ -5,7 +5,9 @@ import { type ReactNode, useId, useMemo } from "react";
 import {
   type BandFadeEdges,
   type BandFadeStop,
+  type BandSegment,
   bandAreaPath,
+  bandEdgeClipPath,
   bandEdgePath,
   bandFadeStops,
   bandPixelExtent,
@@ -55,6 +57,13 @@ export interface BandProps {
   fillType?: BandFillType;
   /** Solid opacity, or gradient opacity at the upper edge. Default: 0.15 */
   fillOpacity?: number;
+  /**
+   * Fill wherever the upper key drops below the lower key (the two series
+   * cross) — e.g. actual below projection, this year behind last year. Uses
+   * the same `fillType`, opacities and pattern as `fill`. The colour switches
+   * exactly where the edges cross. Default: undefined (one fill throughout).
+   */
+  negativeFill?: string;
   /** Gradient opacity at the lower edge. Default: 0 */
   gradientToOpacity?: number;
   /** Pattern preset when `fillType` is `"pattern"`. Default: `"diagonal-up"`. */
@@ -121,6 +130,140 @@ function FadeMaskStops({ stops }: { stops: BandFadeStop[] }) {
   ));
 }
 
+interface BandAreaFillStyle {
+  /** `"gradient"` only when the band has a vertical extent. */
+  fillType: BandFillType;
+  extent: { top: number; bottom: number } | null;
+  fillOpacity: number;
+  gradientToOpacity: number;
+  pattern: PatternPresetId;
+  /** Pattern colour override; falls back to the layer colour. */
+  patternColor?: string;
+  patternScale?: number;
+  patternStrokeWidth?: number;
+  patternOpacity: number;
+}
+
+/** The band area in one colour, with its own gradient / pattern defs. */
+function BandAreaFill({
+  d,
+  color,
+  clipPath,
+  style,
+}: {
+  d: string;
+  color: string;
+  clipPath?: string;
+  style: BandAreaFillStyle;
+}) {
+  const uniqueId = useId().replace(/:/g, "");
+  const paintId = `chart-band-paint-${uniqueId}`;
+  const { extent } = style;
+  const usesPattern = style.fillType === "pattern" && style.pattern !== "none";
+  const usesGradient = style.fillType === "gradient" && extent != null;
+
+  let paint: ReactNode = null;
+  let fill = color;
+  let opacity = style.fillOpacity;
+  if (usesPattern) {
+    paint = renderPatternPreset(style.pattern, paintId, {
+      color: style.patternColor ?? color,
+      scale: style.patternScale,
+      strokeWidth: style.patternStrokeWidth,
+    });
+    fill = `url(#${paintId})`;
+    opacity = style.patternOpacity;
+  } else if (usesGradient) {
+    paint = (
+      <linearGradient
+        gradientUnits="userSpaceOnUse"
+        id={paintId}
+        x1={0}
+        x2={0}
+        y1={extent.top}
+        y2={extent.bottom}
+      >
+        <stop
+          offset={0}
+          style={{ stopColor: color, stopOpacity: style.fillOpacity }}
+        />
+        <stop
+          offset={1}
+          style={{ stopColor: color, stopOpacity: style.gradientToOpacity }}
+        />
+      </linearGradient>
+    );
+    fill = `url(#${paintId})`;
+    opacity = 1;
+  }
+
+  return (
+    <>
+      {paint ? <defs>{paint}</defs> : null}
+      <path clipPath={clipPath} d={d} fill={fill} fillOpacity={opacity} />
+    </>
+  );
+}
+
+/**
+ * `negativeFill`: the area drawn twice, clipped above the lower edge in `fill`
+ * and below it in `negativeFill`, so the colour flips where the edges cross.
+ */
+function BandSplitFill({
+  d,
+  fill,
+  negativeFill,
+  segments,
+  curve,
+  innerHeight,
+  style,
+}: {
+  d: string;
+  fill: string;
+  negativeFill: string;
+  segments: BandSegment[];
+  curve: CurveFactory;
+  innerHeight: number;
+  style: BandAreaFillStyle;
+}) {
+  const uniqueId = useId().replace(/:/g, "");
+  const aboveId = `chart-band-above-${uniqueId}`;
+  const belowId = `chart-band-below-${uniqueId}`;
+  const clips = useMemo(() => {
+    // Far enough past the plot that a panned / overshooting band stays inside.
+    const far = Math.max(innerHeight, 1) * 3;
+    return {
+      above: bandEdgeClipPath(segments, "lower", "above", curve, far),
+      below: bandEdgeClipPath(segments, "lower", "below", curve, far),
+    };
+  }, [segments, curve, innerHeight]);
+
+  return (
+    <>
+      <defs>
+        <clipPath id={aboveId}>
+          <path d={clips.above} />
+        </clipPath>
+        <clipPath id={belowId}>
+          <path d={clips.below} />
+        </clipPath>
+      </defs>
+      <BandAreaFill
+        clipPath={`url(#${aboveId})`}
+        color={fill}
+        d={d}
+        style={style}
+      />
+      <BandAreaFill
+        clipPath={`url(#${belowId})`}
+        color={negativeFill}
+        d={d}
+        style={{ ...style, patternColor: undefined }}
+      />
+    </>
+  );
+}
+
 /** Phases where series strokes are drawn (matches `<Line>`). */
 function isBandVisiblePhase(phase: string): boolean {
   return phase === "revealing" || phase === "ready" || phase === "exitingReady";
@@ -136,6 +279,7 @@ export function Band({
   fill = chartCssVars.linePrimary,
   fillType = "solid",
   fillOpacity = 0.15,
+  negativeFill,
   gradientToOpacity = 0,
   pattern = "diagonal-up",
   patternColor,
@@ -191,30 +335,8 @@ export function Band({
   }, [segments, polyline, curve]);
 
   const uniqueId = useId().replace(/:/g, "");
-  const gradientId = `chart-band-gradient-${uniqueId}`;
-  const patternId = `chart-band-fill-${uniqueId}`;
   const hMaskId = `chart-band-fade-x-${uniqueId}`;
   const vMaskId = `chart-band-fade-y-${uniqueId}`;
-
-  const usesPattern = fillType === "pattern" && pattern !== "none";
-  const patternNode = useMemo<ReactNode>(() => {
-    if (!usesPattern) {
-      return null;
-    }
-    return renderPatternPreset(pattern, patternId, {
-      color: patternColor ?? fill,
-      scale: patternScale,
-      strokeWidth: patternStrokeWidth,
-    });
-  }, [
-    usesPattern,
-    pattern,
-    patternId,
-    patternColor,
-    fill,
-    patternScale,
-    patternStrokeWidth,
-  ]);
 
   if (!isBandVisiblePhase(chartPhase) || paths.area === "") {
     return null;
@@ -225,17 +347,17 @@ export function Band({
   const fadeSides = resolveBandFadeSides(fadeEdges);
   const fadeX = fadeSides.horizontal && innerWidth > 0;
   const fadeY = fadeSides.vertical && hasExtent;
-  const usesGradient = fillType === "gradient" && hasExtent;
-
-  let areaFill = fill;
-  let areaOpacity = fillOpacity;
-  if (patternNode) {
-    areaFill = `url(#${patternId})`;
-    areaOpacity = patternOpacity;
-  } else if (usesGradient) {
-    areaFill = `url(#${gradientId})`;
-    areaOpacity = 1;
-  }
+  const fillStyle: BandAreaFillStyle = {
+    extent: hasExtent ? extent : null,
+    fillOpacity,
+    fillType,
+    gradientToOpacity,
+    pattern,
+    patternColor,
+    patternOpacity,
+    patternScale,
+    patternStrokeWidth,
+  };
 
   const baseStroke: ResolvedBandStroke = {
     stroke: stroke ?? fill,
@@ -264,7 +386,19 @@ export function Band({
 
   const content = (
     <>
-      <path d={paths.area} fill={areaFill} fillOpacity={areaOpacity} />
+      {negativeFill ? (
+        <BandSplitFill
+          curve={polyline ? curveLinear : curve}
+          d={paths.area}
+          fill={fill}
+          innerHeight={innerHeight}
+          negativeFill={negativeFill}
+          segments={segments}
+          style={fillStyle}
+        />
+      ) : (
+        <BandAreaFill color={fill} d={paths.area} style={fillStyle} />
+      )}
       {lowerEdge ? (
         <path
           d={paths.lower}
@@ -298,26 +432,6 @@ export function Band({
       pointerEvents="none"
     >
       <defs>
-        {usesGradient && extent ? (
-          <linearGradient
-            gradientUnits="userSpaceOnUse"
-            id={gradientId}
-            x1={0}
-            x2={0}
-            y1={extent.top}
-            y2={extent.bottom}
-          >
-            <stop
-              offset={0}
-              style={{ stopColor: fill, stopOpacity: fillOpacity }}
-            />
-            <stop
-              offset={1}
-              style={{ stopColor: fill, stopOpacity: gradientToOpacity }}
-            />
-          </linearGradient>
-        ) : null}
-        {patternNode}
         {fadeX ? (
           <>
             <linearGradient

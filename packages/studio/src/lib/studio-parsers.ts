@@ -467,7 +467,9 @@ export const studioSearchParams = {
   tooltipDotHaloScale: parseAsFloat.withDefault(2.6),
   tooltipDotHaloOpacity: parseAsFloat.withDefault(0.3),
   bandEnabled: parseAsBoolean.withDefault(false),
-  bandMode: parseAsStringLiteral(["range", "bollinger"]).withDefault("range"),
+  bandMode: parseAsStringLiteral(["range", "bollinger", "gap"]).withDefault(
+    "range"
+  ),
   bandSpread: parseAsFloat.withDefault(0.15),
   bandPeriod: parseAsInteger.withDefault(5),
   bandMultiplier: parseAsFloat.withDefault(2),
@@ -504,6 +506,11 @@ export const studioSearchParams = {
   bandFadeSize: parseAsFloat.withDefault(0.15),
   bandSeries: parseAsStringLiteral(["first", "all"]).withDefault("first"),
   bandShowInTooltip: parseAsBoolean.withDefault(true),
+  /** `<Band negativeFill>` — colour where upper drops below lower (gap mode). */
+  bandNegativeFillEnabled: parseAsBoolean.withDefault(true),
+  bandNegativeFill: parseAsString.withDefault(
+    "var(--chart-negative, var(--color-red-500))"
+  ),
   weekendsDays: parseAsStringLiteral(["sat-sun", "fri-sat", "sun"]).withDefault(
     "sat-sun"
   ),
@@ -1160,7 +1167,7 @@ export interface StudioUrlState {
   tooltipDotHaloScale: number;
   tooltipDotHaloOpacity: number;
   bandEnabled: boolean;
-  bandMode: "range" | "bollinger";
+  bandMode: "range" | "bollinger" | "gap";
   bandSpread: number;
   bandPeriod: number;
   bandMultiplier: number;
@@ -1191,6 +1198,8 @@ export interface StudioUrlState {
   /** `"first"`: one band on series 0. `"all"`: one band per series, in its color. */
   bandSeries: "first" | "all";
   bandShowInTooltip: boolean;
+  bandNegativeFillEnabled: boolean;
+  bandNegativeFill: string;
   weekendsDays: "sat-sun" | "fri-sat" | "sun";
   weekendsFillType: "pattern" | "solid";
   weekendsColor: string;
@@ -1765,6 +1774,8 @@ export function defaultStudioState(
     bandFadeSize: 0.15,
     bandSeries: "first",
     bandShowInTooltip: true,
+    bandNegativeFillEnabled: true,
+    bandNegativeFill: "var(--chart-negative, var(--color-red-500))",
     weekendsDays: "sat-sun",
     weekendsFillType: "pattern",
     weekendsColor: "var(--chart-foreground-muted)",

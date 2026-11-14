@@ -281,6 +281,64 @@ export function BandFillTypeDemo() {
   );
 }
 
+/** Actual vs a straight-line projection — the two cross several times. */
+const gapData = Array.from({ length: BAND_DEMO_POINT_COUNT }, (_, i) => ({
+  date: new Date(2024, 0, i + 1),
+  actual: bandDemoValue(i),
+  projected: Math.round(138 + 4.3 * i),
+}));
+
+export function BandNegativeFillDemo() {
+  const [fillType, setFillType] = useState<BandFillType>("solid");
+
+  return (
+    <div className="w-full space-y-4">
+      <SegmentedControl
+        aria-label="Gap fill type"
+        render={
+          <RadioGroupPrimitive
+            onValueChange={(value) => setFillType(value as BandFillType)}
+            value={fillType}
+          />
+        }
+      >
+        {FILL_TYPES.map((option) => (
+          <SegmentedControlItem
+            key={option.value}
+            render={<RadioPrimitive.Root value={option.value} />}
+          >
+            {option.label}
+          </SegmentedControlItem>
+        ))}
+      </SegmentedControl>
+      <LineChart data={gapData}>
+        <Grid horizontal />
+        <Band
+          fill="var(--chart-1)"
+          fillOpacity={fillType === "gradient" ? 0.45 : 0.25}
+          fillType={fillType}
+          label="Gap"
+          lowerKey="projected"
+          negativeFill="var(--chart-negative, var(--color-red-500))"
+          patternOpacity={0.6}
+          strokeWidth={0}
+          upperKey="actual"
+        />
+        <Line
+          dashArray="4,4"
+          dashFromIndex={0}
+          dataKey="projected"
+          stroke="var(--chart-1)"
+          strokeWidth={1.5}
+        />
+        <Line dataKey="actual" stroke="var(--chart-1)" strokeWidth={2} />
+        <XAxis />
+        <ChartTooltip />
+      </LineChart>
+    </div>
+  );
+}
+
 export function BandFadeEdgesDemo() {
   return (
     <div className="w-full">
