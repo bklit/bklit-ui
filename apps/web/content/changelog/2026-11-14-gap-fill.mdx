@@ -1,0 +1,22 @@
+---
+title: Gap fills between two lines
+description: Fill the gap between two lines and colour the stretches where one falls behind.
+date: 2026-11-14T20:15:00Z
+image: /changelog/2026-11-14-gap-fill.svg
+imageAlt: Two smooth curves running side by side, with fine vertical hatching filling the space between them
+tags: [line-chart, band, recipes]
+---
+
+The interesting part of "actual vs plan" is usually the gap. `Band` can now fill the space between any two series, not just a confidence range, and colour the stretches where the headline series falls behind.
+
+## Ahead and behind
+
+Point `upperKey` at the series you care about and `lowerKey` at the one you compare it with. Set `negativeFill` and the band switches colour wherever the upper line drops below the lower one. The colour flips exactly where the lines cross, and stays in step while the band animates in. It works with every `fillType`: solid, gradient or pattern. Leave `negativeFill` unset and nothing changes.
+
+## Two new recipes
+
+**Gap fill** pairs an actual line with a dashed straight-line projection in the same colour, with pattern, solid, gradient and ahead/behind variants. **Year over year** puts a jagged weekly return for this year over a dotted line for last year. Both ahead/behind variants use the profit and loss token, `--chart-negative`, so they match your theme.
+
+Both also appear as examples on the [line chart page](/charts/line-chart). In [Studio](/studio?chart=line-chart), the Band layer has a new **Gap** mode with a **Negative fill** toggle and colour.
+
+See [Gap fill](/recipes#gap-fill) and [Year over year](/recipes#year-over-year) in Recipes, or the [Band docs](/docs/utility/band).

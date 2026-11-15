@@ -1,0 +1,24 @@
+---
+title: Lollipop bars
+description: Draw bar chart values as thin stems with round dots, including diverging profit and loss.
+date: 2026-11-14T20:30:00Z
+image: /changelog/2026-11-14-lollipop-bars.svg
+imageAlt: A row of dashed stems with dots at their tips, hanging below a line on the left and rising above it on the right
+tags: [bar-chart, recipes]
+---
+
+Bars get heavy when you have many of them. `BarLollipop` is a new series for `BarChart` that draws each value as a thin stem from the zero line to a round dot, so the chart shows the same data with a lot less ink.
+
+## Diverging by default
+
+Negative values hang below zero, so a lollipop chart works as a profit and loss chart without extra setup. Stems are dashed by default; set `stemDasharray=""` for solid ones. A solid zero line runs across the plot (`showBaseline`), and hovering a column grows its dot, adds a soft halo and draws a rounded pill behind it (`showHighlight`).
+
+## Colour by row
+
+Pass `colorKey` to colour each dot from a field on the row, such as a status tier. Pair it with `dimRow` to fade the rows that don't match, for example while a legend item is hovered. Grouped series and a staggered entrance work as they do for `Bar`.
+
+## Lollipop profit / loss
+
+The new recipe sorts rows from worst to best and colours them in three tiers: Healthy, At Risk and Exhausted. Hover a tier in the legend and the others fade out. The bar chart **Shape** control in [Studio](/studio?chart=bar-chart) has a **Lollipop** option too.
+
+Try the [Lollipop profit / loss recipe](/recipes#lollipop-pnl), or see [BarLollipop in the bar chart docs](/docs/components/bar-chart).

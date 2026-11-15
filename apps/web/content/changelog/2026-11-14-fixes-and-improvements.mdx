@@ -1,0 +1,29 @@
+---
+title: Fixes and improvements
+description: Install the brush from the registry, a vocabulary skill for agents, and 16:9 chart exports.
+date: 2026-11-14T21:00:00Z
+image: /changelog/2026-11-14-fixes-and-improvements.svg
+imageAlt: Stacked wavy lines that go from jagged at the top to smooth at the bottom
+tags: [fixes, brush, skills, present]
+---
+
+Smaller changes that shipped alongside today's releases.
+
+## Installing
+
+- **The brush is in the registry.** The time-range brush was documented but couldn't be installed. Add it next to an area or line chart with `npx shadcn@latest add @bklit/area-chart @bklit/brush`. The brush docs now show the right install command and imports.
+
+## Agent skills
+
+- **New `bklit-ui-vocabulary` skill.** A reverse-lookup glossary of 119 terms that turns a loose description ("the dots on a stick", "the shaded range around a line") into the precise chart term and the Bklit component or prop for it. It also maps Recharts, Nivo, TanStack Charts and d3 terms to Bklit, and lists false friends such as `layout="vertical"` and `barGap`. Install it with `npx skills add bklit/bklit-ui --skill bklit-ui-vocabulary`.
+- **The other public skills match the code again.** `bklit-ui`, `bklit-ui-design` and `bklit-ui-migrate` were checked against the chart source. Stale claims about value labels, line glow, pattern presets and negative bars are fixed, and they now cover the radial chart, `BarLollipop`, projection fills and goals, `Weekends`, `Deadline` and `ChartCrosshair`.
+
+## Present
+
+- **Landscape 16:9 export.** The present view's Format menu has a new **Landscape 16:9** option that exports a 1920×1080 PNG, the ratio X shows uncropped in the feed. It sits alongside Square 1:1 and Portrait 4:5.
+
+## Charts
+
+- **`ProjectionLine` draws its end marker.** `showEndMarker` defaults to `true` but only drew in Studio. It now draws the horizon dot everywhere.
+
+See the [brush docs](/docs/utility/brush) and the [skills docs](/docs/skills).

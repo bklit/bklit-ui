@@ -1,0 +1,22 @@
+---
+title: Projected goals
+description: Give a forecast its own area fill and mark the point where it crosses a goal.
+date: 2026-11-14T20:50:00Z
+image: /changelog/2026-11-14-projected-goal.svg
+imageAlt: A jagged line that continues as a dashed line over a hatched area, crossing a dashed horizontal line at a ringed dot
+tags: [area-chart, line-chart, projection-line, recipes]
+---
+
+"Will we hit $10K this month?" is a question a chart should answer at a glance. `ProjectionLine` can now fill the area under the forecast and mark the moment it crosses your goal.
+
+## A fill for the forecast
+
+Set `areaFill` to `"solid"`, `"gradient"` or `"pattern"` to fill under the projection, separately from the actual data. Tune it with `areaColor`, `areaOpacity` and `areaFadeBottom`. With a pattern, `areaPattern` picks any of the pattern presets and `areaPatternTint` adds a gradient wash beneath the hatch.
+
+## Goal crossing
+
+Pass a `target` and the chart draws a dashed goal line, plus a glowing ring where the projection crosses it. This works for straight and curved projections. `showGuides` drops dashed verticals from the hand-off point and the crossing. `showEndLabel` and `formatEndLabel` label the last projected value, and `endMarkerFill` makes the end dot hollow.
+
+The new **Projected goal** recipe projects month-to-date revenue past a $10K goal, in area and line variants. There's also a **Projection Area** example on the [area chart page](/charts/area-chart), and every projection in [Studio](/studio?chart=line-chart) gets Area, Goal, Guides and End label controls.
+
+Try [Projected goal](/recipes#projection-area), or see the [Projection Line docs](/docs/utility/projection-line).
