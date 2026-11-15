@@ -205,7 +205,8 @@ interface HeatmapCellRectProps {
   inactiveScale: number;
   activeScale: number;
   rowOpacity: number | readonly number[] | undefined;
-  hoverState: { isHighlighted: boolean; isDimmed: boolean };
+  isHighlighted: boolean;
+  isDimmed: boolean;
   onEnter: (
     column: number,
     row: number,
@@ -232,7 +233,8 @@ const HeatmapMotionCell = memo(function HeatmapMotionCell({
   inactiveScale,
   activeScale,
   rowOpacity,
-  hoverState,
+  isHighlighted,
+  isDimmed,
   onEnter,
   onLeave,
   enterDelayMs,
@@ -297,11 +299,11 @@ const HeatmapMotionCell = memo(function HeatmapMotionCell({
   const scale = useMotionValue(1);
   const revealAnimationRef = useRef<Animation | null>(null);
 
-  const readyHoverStyle = resolveHeatmapHoverStyle(
-    hoverState.isHighlighted,
-    hoverState.isDimmed,
-    { inactiveOpacity, inactiveScale, activeScale }
-  );
+  const readyHoverStyle = resolveHeatmapHoverStyle(isHighlighted, isDimmed, {
+    inactiveOpacity,
+    inactiveScale,
+    activeScale,
+  });
   const rowOpacityMultiplier = resolveHeatmapRowOpacity(cell.row, rowOpacity);
   const readyDataOpacity = readyHoverStyle.opacity;
   const readyScale = isReadyResting ? readyHoverStyle.scale : 1;
@@ -667,10 +669,11 @@ export const HeatmapCells = memo(function HeatmapCells({
               enterFadeEasing={waveTiming.fadeEasing}
               enterFadeMs={waveTiming.fadeMs}
               fillScale={fillScale}
-              hoverState={hoverState}
               inactiveOpacity={inactiveOpacity}
               inactiveScale={inactiveScale}
               interactive={cellsInteractive}
+              isDimmed={hoverState.isDimmed}
+              isHighlighted={hoverState.isHighlighted}
               key={`heatmap-cell-${cell.column}-${cell.row}`}
               onEnter={handleCellEnter}
               onLeave={handleCellLeave}
