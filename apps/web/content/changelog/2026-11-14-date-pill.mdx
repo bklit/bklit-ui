@@ -1,0 +1,28 @@
+---
+title: Date pill styling and liquid glass
+description: Restyle or replace the tooltip date pill, try liquid glass, and highlight x-axis labels on hover.
+date: 2026-11-14T22:00:00Z
+image: /changelog/2026-11-14-date-pill.svg
+imageAlt: A curve with a dashed vertical guide that ends in a pill shape, trailed by two fainter stretched pills
+tags: [tooltip, x-axis, recipes, breaking]
+---
+
+The date pill that rides along the x-axis under the crosshair is one of the most-seen parts of a Bklit chart. You can now style it, replace it, make it glass, or turn it off and let the axis labels do the work.
+
+## Style it or bring your own
+
+`datePillClassName` merges your Tailwind classes over the default surface, and `datePillStyle` takes inline styles for anything Tailwind can't express. Set `datePillAnimation="static"` to swap the rolling label for a plain one. To replace the pill completely, pass a `datePill` render function: it receives the label, index and point, and your element is still positioned under the crosshair.
+
+## Liquid glass and velocity swell
+
+`datePillVariant="glass"` turns the dark capsule into liquid glass that bends the chart behind it at the rim. Refraction works in Chromium; Safari and Firefox get a frosted blur. Add `datePillVelocity` and the pill swells and stretches as you sweep across the chart, then springs back when you stop. It runs on motion values, so pointer moves don't re-render React, and it's off under reduced motion.
+
+## Axis highlight
+
+`XAxis` has a new `hoverEffect`. With `"highlight"`, labels near the crosshair change colour instead of fading out. Tune it with `activeLabelColor`, `nearbyLabelColor` and `highlightRadius`. The default, `"auto"`, fades labels while a date pill is shown and highlights them when it isn't.
+
+## Breaking changes
+
+Charts with `showDatePill={false}` now highlight axis labels instead of fading them. Set `hoverEffect="fade"` on `XAxis` to keep the old behaviour.
+
+Two new recipes show it off: [Glass date pill](/recipes#glass-date-pill) and [Axis spotlight](/recipes#axis-spotlight). See the [tooltip docs](/docs/utility/tooltip) and [X axis docs](/docs/utility/axis/x-axis).

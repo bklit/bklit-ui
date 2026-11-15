@@ -1,0 +1,24 @@
+---
+title: Tick ring pie charts
+description: Draw a pie chart as a ring of radial ticks that fills like a gauge and trails on hover.
+date: 2026-11-09
+image: /changelog/2026-11-09-pie-ticks.svg
+imageAlt: A circle of short radial strokes that brighten around the ring, with a few strokes pushed outward at the bottom
+tags: [pie-chart, recipes]
+---
+
+A donut doesn't have to be solid. `PieTicks` draws a pie chart as a ring of radial ticks. Use it inside `PieChart` in place of `PieSlice`, and each slice gets a share of the ticks in proportion to its value, with an empty slot between slices.
+
+## Fills like a gauge
+
+On mount the ticks light up one after another around the ring, like a gauge filling. One motion value drives every tick, so the sweep doesn't re-render React on each frame. `count` sets how many ticks share the ring (96 by default), and `strokeWidth`, `lineCap` and `sliceGap` shape them.
+
+## Two ways to hover
+
+The default, `hoverEffect="slice"`, extends every tick in the hovered slice and dims the others. `hoverEffect="tick"` shoots out only the tick under the pointer and lifts its neighbours a little. Ticks spring out quickly and settle slowly, so sweeping across the ring leaves a trail. The hovered slice still drives `PieCenter`.
+
+## A percent readout
+
+`PieCenter` has a new `valueDisplay="percent"` that shows the hovered slice's share of the total, and 100% at rest. It turns a tick ring into a gauge-style readout.
+
+Try the [Tick ring recipe](/recipes#tick-ring), or pick **Ticks** under Style in [Studio](/studio?chart=pie-chart). See [PieTicks in the pie chart docs](/docs/components/pie-chart).

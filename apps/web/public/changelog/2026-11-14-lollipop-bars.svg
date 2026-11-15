@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" fill="#000" stroke="#000" stroke-linecap="round">
+<g>
+<line x1="200" y1="470" x2="1400" y2="470" stroke-width="2" stroke-opacity="0.5"/>
+<line x1="260.0" y1="470" x2="260.0" y2="656.0" stroke-width="2" stroke-dasharray="6 10" stroke-opacity="0.25"/>
+<circle cx="260.0" cy="670.0" r="9" fill-opacity="0.25" stroke="none"/>
+<line x1="332.0" y1="470" x2="332.0" y2="620.0" stroke-width="2" stroke-dasharray="6 10" stroke-opacity="0.29"/>
+<circle cx="332.0" cy="634.0" r="9" fill-opacity="0.29" stroke="none"/>
+<line x1="404.0" y1="470" x2="404.0" y2="626.7" stroke-width="2" stroke-dasharray="6 10" stroke-opacity="0.34"/>
+<circle cx="404.0" cy="640.7" r="9" fill-opacity="0.34" stroke="none"/>
+<line x1="476.0" y1="470" x2="476.0" y2="617.1" stroke-width="2" stroke-dasharray="6 10" stroke-opacity="0.38"/>
+<circle cx="476.0" cy="631.1" r="9" fill-opacity="0.38" stroke="none"/>
+<line x1="548.0" y1="470" x2="548.0" y2="559.0" stroke-width="2" stroke-dasharray="6 10" stroke-opacity="0.42"/>
+<circle cx="548.0" cy="573.0" r="9" fill-opacity="0.42" stroke="none"/>
+<line x1="620.0" y1="470" x2="620.0" y2="523.4" stroke-width="2" stroke-dasharray="6 10" stroke-opacity="0.47"/>
+<circle cx="620.0" cy="537.4" r="9" fill-opacity="0.47" stroke="none"/>
+<line x1="692.0" y1="470" x2="692.0" y2="525.5" stroke-width="2" stroke-dasharray="6 10" stroke-opacity="0.51"/>
+<circle cx="692.0" cy="539.5" r="9" fill-opacity="0.51" stroke="none"/>
+<line x1="764.0" y1="470" x2="764.0" y2="491.4" stroke-width="2" stroke-dasharray="6 10" stroke-opacity="0.55"/>
+<circle cx="764.0" cy="505.4" r="9" fill-opacity="0.55" stroke="none"/>
+<line x1="836.0" y1="470" x2="836.0" y2="453.1" stroke-width="2" stroke-dasharray="6 10" stroke-opacity="0.60"/>
+<circle cx="836.0" cy="439.1" r="9" fill-opacity="0.60" stroke="none"/>
+<line x1="908.0" y1="470" x2="908.0" y2="428.2" stroke-width="2" stroke-dasharray="6 10" stroke-opacity="0.64"/>
+<circle cx="908.0" cy="414.2" r="9" fill-opacity="0.64" stroke="none"/>
+<line x1="980.0" y1="470" x2="980.0" y2="421.8" stroke-width="2" stroke-dasharray="6 10" stroke-opacity="0.68"/>
+<circle cx="980.0" cy="407.8" r="9" fill-opacity="0.68" stroke="none"/>
+<line x1="1052.0" y1="470" x2="1052.0" y2="366.6" stroke-width="2" stroke-dasharray="6 10" stroke-opacity="0.73"/>
+<circle cx="1052.0" cy="352.6" r="13" fill-opacity="0.73" stroke="none"/>
+<circle cx="1052.0" cy="352.6" r="28" fill="none" stroke-width="2" stroke-opacity="0.3"/>
+<line x1="1124.0" y1="470" x2="1124.0" y2="302.9" stroke-width="2" stroke-dasharray="6 10" stroke-opacity="0.77"/>
+<circle cx="1124.0" cy="288.9" r="9" fill-opacity="0.77" stroke="none"/>
+<line x1="1196.0" y1="470" x2="1196.0" y2="287.9" stroke-width="2" stroke-dasharray="6 10" stroke-opacity="0.81"/>
+<circle cx="1196.0" cy="273.9" r="9" fill-opacity="0.81" stroke="none"/>
+<line x1="1268.0" y1="470" x2="1268.0" y2="266.6" stroke-width="2" stroke-dasharray="6 10" stroke-opacity="0.86"/>
+<circle cx="1268.0" cy="252.6" r="9" fill-opacity="0.86" stroke="none"/>
+<line x1="1340.0" y1="470" x2="1340.0" y2="196.1" stroke-width="2" stroke-dasharray="6 10" stroke-opacity="0.90"/>
+<circle cx="1340.0" cy="182.1" r="9" fill-opacity="0.90" stroke="none"/>
+</g>
+</svg>

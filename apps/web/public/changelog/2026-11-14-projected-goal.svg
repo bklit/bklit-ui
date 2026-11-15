@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round">
+<polyline points="200.0,640.0 244.3,645.1 288.6,626.9 332.9,612.2 377.1,579.4 421.4,545.8 465.7,539.6 510.0,530.1 554.3,532.5 598.6,536.4 642.9,510.3 687.1,487.2 731.4,458.8 775.7,428.3 820.0,429.0" stroke-width="3" stroke-opacity="0.85"/>
+<line x1="820.0" y1="429.0" x2="1400" y2="230" stroke-width="3" stroke-dasharray="6 10" stroke-opacity="0.7"/>
+<line x1="844.0" y1="430.7" x2="784.0" y2="700" stroke-width="2" stroke-opacity="0.18"/>
+<line x1="868.0" y1="422.5" x2="808.0" y2="700" stroke-width="2" stroke-opacity="0.18"/>
+<line x1="892.0" y1="414.3" x2="832.0" y2="700" stroke-width="2" stroke-opacity="0.18"/>
+<line x1="916.0" y1="406.0" x2="856.0" y2="700" stroke-width="2" stroke-opacity="0.18"/>
+<line x1="940.0" y1="397.8" x2="880.0" y2="700" stroke-width="2" stroke-opacity="0.18"/>
+<line x1="964.0" y1="389.6" x2="904.0" y2="700" stroke-width="2" stroke-opacity="0.18"/>
+<line x1="988.0" y1="381.3" x2="928.0" y2="700" stroke-width="2" stroke-opacity="0.18"/>
+<line x1="1012.0" y1="373.1" x2="952.0" y2="700" stroke-width="2" stroke-opacity="0.18"/>
+<line x1="1036.0" y1="364.9" x2="976.0" y2="700" stroke-width="2" stroke-opacity="0.18"/>
+<line x1="1060.0" y1="356.6" x2="1000.0" y2="700" stroke-width="2" stroke-opacity="0.18"/>
+<line x1="1084.0" y1="348.4" x2="1024.0" y2="700" stroke-width="2" stroke-opacity="0.18"/>
+<line x1="1108.0" y1="340.2" x2="1048.0" y2="700" stroke-width="2" stroke-opacity="0.18"/>
+<line x1="1132.0" y1="331.9" x2="1072.0" y2="700" stroke-width="2" stroke-opacity="0.18"/>
+<line x1="1156.0" y1="323.7" x2="1096.0" y2="700" stroke-width="2" stroke-opacity="0.18"/>
+<line x1="1180.0" y1="315.5" x2="1120.0" y2="700" stroke-width="2" stroke-opacity="0.18"/>
+<line x1="1204.0" y1="307.2" x2="1144.0" y2="700" stroke-width="2" stroke-opacity="0.18"/>
+<line x1="1228.0" y1="299.0" x2="1168.0" y2="700" stroke-width="2" stroke-opacity="0.18"/>
+<line x1="1252.0" y1="290.8" x2="1192.0" y2="700" stroke-width="2" stroke-opacity="0.18"/>
+<line x1="1276.0" y1="282.5" x2="1216.0" y2="700" stroke-width="2" stroke-opacity="0.18"/>
+<line x1="1300.0" y1="274.3" x2="1240.0" y2="700" stroke-width="2" stroke-opacity="0.18"/>
+<line x1="1324.0" y1="266.1" x2="1264.0" y2="700" stroke-width="2" stroke-opacity="0.18"/>
+<line x1="1348.0" y1="257.8" x2="1288.0" y2="700" stroke-width="2" stroke-opacity="0.18"/>
+<line x1="1372.0" y1="249.6" x2="1312.0" y2="700" stroke-width="2" stroke-opacity="0.18"/>
+<line x1="1396.0" y1="241.4" x2="1336.0" y2="700" stroke-width="2" stroke-opacity="0.18"/>
+<line x1="200" y1="330" x2="1400" y2="330" stroke-width="2" stroke-dasharray="6 10" stroke-opacity="0.45"/>
+<line x1="820.0" y1="429.0" x2="820.0" y2="700" stroke-width="2" stroke-dasharray="6 10" stroke-opacity="0.3"/>
+<line x1="1108.5" y1="330" x2="1108.5" y2="700" stroke-width="2" stroke-dasharray="6 10" stroke-opacity="0.3"/>
+<circle cx="1108.5" cy="330" r="34" stroke-width="2" stroke-opacity="0.25"/>
+<circle cx="1108.5" cy="330" r="12" fill="#000" stroke="none"/>
+<circle cx="1400" cy="230" r="10" stroke-width="3" stroke-opacity="0.8"/>
+<line x1="200" y1="700" x2="1400" y2="700" stroke-width="2" stroke-opacity="0.35"/>
+</svg>
