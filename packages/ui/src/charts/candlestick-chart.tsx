@@ -1,6 +1,6 @@
 "use client";
 
-import { bisector } from "d3-array";
+import { bisector, extent } from "d3-array";
 import { scaleLinear, scaleTime } from "d3-scale";
 import type { Transition } from "motion/react";
 import { domAnimation, LazyMotion } from "motion/react";
@@ -143,12 +143,11 @@ const ChartCore = memo(function ChartCore({
     xDomain && xDomainSlotCount != null ? xDomainSlotCount : data.length;
   const slotWidth = innerWidth / Math.max(slotCount, 1);
   const xScale = useMemo(() => {
-    const minTime = xDomain
-      ? xDomain[0].getTime()
-      : Math.min(...data.map((d) => xAccessor(d).getTime()));
-    const maxTime = xDomain
-      ? xDomain[1].getTime()
-      : Math.max(...data.map((d) => xAccessor(d).getTime()));
+    const [dataMin = 0, dataMax = dataMin] = xDomain
+      ? []
+      : extent(data, (d) => xAccessor(d).getTime());
+    const minTime = xDomain ? xDomain[0].getTime() : dataMin;
+    const maxTime = xDomain ? xDomain[1].getTime() : dataMax;
     const padding = slotWidth / 2;
     return scaleTime()
       .domain([minTime, maxTime])
@@ -223,11 +222,13 @@ const ChartCore = memo(function ChartCore({
     return () => clearTimeout(timer);
   }, [animationDuration, revealSignature]);
 
+  const yScales = useMemo(() => wrapSingleYScale(yScale), [yScale]);
+
   const { hoverStore, interactionHandlers, interactionStyle } =
     useChartInteraction({
       xScale,
       yScale,
-      yScales: wrapSingleYScale(yScale),
+      yScales,
       data,
       lines,
       margin,
@@ -290,8 +291,6 @@ const ChartCore = memo(function ChartCore({
     () => extractReferenceAreaConfigs(children),
     [children]
   );
-
-  const yScales = useMemo(() => wrapSingleYScale(yScale), [yScale]);
 
   const contextValue = useMemo(
     () => ({
