@@ -11,6 +11,7 @@ import { AreaChartYDomainDemo } from "@/components/docs/area-chart-y-domain-demo
 import { AreaTooltipDemo } from "@/components/docs/area-tooltip-demo";
 import { DateHighlightsAreaDemo } from "@/components/docs/date-highlights-demo";
 import { OpenInStudioButton } from "@/components/docs/open-in-studio-button";
+import { ProjectionAreaDemo } from "@/components/docs/projection-line-demo";
 
 export const chartData = [
   { date: new Date(Date.now() - 29 * 24 * 60 * 60 * 1000), revenue: 12000, costs: 8500 },
@@ -262,6 +263,58 @@ Add [`Weekends`](/docs/utility/weekends) to shade Saturday and Sunday, and [`Dea
 >
   <DateHighlightsAreaDemo />
 </ComponentShowcase>
+
+## Projection
+
+Extend the area past the last data point with [`ProjectionLine`](/docs/utility/projection-line), and give the forecast its own fill with `areaFill`: `"pattern"`, a fading `"gradient"`, or `"solid"`. Pass a `target` to draw a goal line and ring the point where the forecast crosses it. `showGuides` adds dashed verticals at the hand-off and the crossing.
+
+<ComponentShowcase
+  code={`import {
+  AreaChart,
+  Area,
+  buildProjectionPath,
+  ChartTooltip,
+  Grid,
+  LineSeriesTerminalMarker,
+  ProjectionLine,
+  XAxis,
+} from "@bklitui/ui/charts";
+
+const projectionPath = buildProjectionPath({
+  sourceData: data,
+  seriesKey: "value",
+  mode: "target",
+  horizonPoints: 6,
+  endValue: 262,
+});
+
+<AreaChart data={data}>
+  <Grid horizontal />
+  <Area dataKey="value" fill="var(--chart-positive)" fillOpacity={0.12} fadeBottom={100} />
+  <LineSeriesTerminalMarker dataKey="value" fill="var(--background)" radius={4} stroke="var(--chart-positive)" />
+  <ProjectionLine
+    data={projectionPath}
+    stroke="oklch(0.83 0.14 85)"
+    strokeDasharray="none"
+    areaFill="pattern"
+    areaOpacity={0.35}
+    areaFadeBottom={100}
+    areaPatternTint={0.12}
+    target={230}
+    showGuides
+    showEndLabel
+    endMarkerFill="var(--background)"
+  />
+  <XAxis />
+  <ChartTooltip />
+</AreaChart>`}
+  liveChartPreview
+  previewMinHeight={320}
+>
+  <ProjectionAreaDemo />
+</ComponentShowcase>
+
+Projections extend the x-domain to the horizon, so they can't be combined with [brush zoom](#brush-zoom). See the [Projection Line docs](/docs/utility/projection-line#projection-area-and-goal) for gradient and solid fills and the full props table, or the [Projected goal recipe](/recipes#projection-area).
 
 ## Brush zoom
 
