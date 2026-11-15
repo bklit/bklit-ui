@@ -6,12 +6,14 @@ export {
 export {
   type Margin,
   type SankeyContextValue,
+  type SankeyLayoutContextValue,
   type SankeyLinkDatum,
   type SankeyNodeDatum,
   SankeyProvider,
   type SankeyTooltipData,
   sankeyCssVars,
   useSankey,
+  useSankeyLayout,
 } from "./sankey-context";
 export { SankeyLink, type SankeyLinkProps } from "./sankey-link";
 export {
