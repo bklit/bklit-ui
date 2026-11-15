@@ -12,6 +12,7 @@ import {
 } from "@bklitui/ui/charts";
 import { BarChartLoadingDemo } from "@/components/docs/bar-chart-loading-demo";
 import { BarChartProfitLossDemo } from "@/components/docs/bar-chart-profit-loss-demo";
+import { BarLollipopDemo, BarLollipopProfitLossDemo } from "@/components/docs/bar-lollipop-demo";
 import { DateHighlightsBarDemo } from "@/components/docs/date-highlights-demo";
 import { Icon } from "@bklitui/icons";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -263,8 +264,25 @@ Renders a **Lollipop** series: a thin stem (dashed by default) from the zero bas
 
 The dot already marks the hovered value, so hide the tooltip's crosshair and dots:
 
-```tsx
-const rows = data.map((row) => ({
+<ComponentShowcase
+  code={`<BarChart data={data} xDataKey="month">
+  <Grid horizontal strokeDasharray="3,4" />
+  <BarLollipop dataKey="revenue" />
+  <BarXAxis />
+  <ChartTooltip showCrosshair={false} showDots={false} />
+</BarChart>`}
+  liveChartPreview
+  previewMinHeight={320}
+>
+  <BarLollipopDemo />
+</ComponentShowcase>
+
+#### Profit / loss
+
+Negative values hang below the zero line. Give each row a color and pass its key as `colorKey` to color the dots by sign:
+
+<ComponentShowcase
+  code={`const rows = data.map((row) => ({
   ...row,
   color: row.profit >= 0 ? "var(--chart-positive)" : "var(--chart-negative)",
 }));
@@ -274,8 +292,12 @@ const rows = data.map((row) => ({
   <BarLollipop colorKey="color" dataKey="profit" />
   <BarXAxis />
   <ChartTooltip showCrosshair={false} showDots={false} />
-</BarChart>
-```
+</BarChart>`}
+  liveChartPreview
+  previewMinHeight={320}
+>
+  <BarLollipopProfitLossDemo />
+</ComponentShowcase>
 
 See the **Lollipop** and **Lollipop Profit & Loss** examples on the [bar chart gallery](/charts/bar-chart), and the [Lollipop profit / loss recipe](/recipes?q=lollipop) for tiered colors with a linked legend.
 

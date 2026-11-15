@@ -7,16 +7,8 @@
 export type NavBadgeKind = "beta" | "featured" | "new";
 
 const navBadgesByUrl: Record<string, NavBadgeKind> = {
-  "/benchmarks": "new",
-  "/changelog": "new",
-  "/charts/radial-chart": "new",
-  "/charts/sparkline": "new",
   "/docs/components/particle-line": "new",
-  "/docs/components/radial-chart": "new",
-  "/docs/components/sparkline": "new",
   "/docs/react-native": "beta",
-  "/docs/upgrading-from-visx": "new",
-  "/docs/utility/patterns": "new",
   "/recipes": "new",
 };
 
