@@ -8,7 +8,7 @@ import { useChartLegendHover } from "./chart-legend-hover";
 import { transitionWithDelay } from "./motion-utils";
 import { computeSeriesBarWidth } from "./series-bar-layout";
 
-function computeSeriesBarLayout(input: {
+export function computeSeriesBarLayout(input: {
   stacked: boolean;
   composedStackOffsets: Map<number, Map<string, number>> | undefined;
   rowIndex: number;
@@ -29,6 +29,7 @@ function computeSeriesBarLayout(input: {
   barHeight: number;
   effectiveRadius: number;
   valueY: number;
+  originY: number;
 } {
   const {
     stacked,
@@ -50,11 +51,13 @@ function computeSeriesBarLayout(input: {
 
   if (stacked && composedStackOffsets) {
     const offset = composedStackOffsets.get(rowIndex)?.get(dataKey) ?? 0;
-    const valuePos = yScale(value) ?? 0;
-    let barHeight = innerHeight - valuePos;
-    const offsetY = yScale(offset) ?? innerHeight;
-    const gapOffset = seriesIndex * stackGap;
-    const valueY = offsetY - barHeight - gapOffset;
+    const startY = yScale(offset) ?? yScale(0) ?? innerHeight;
+    const endY = yScale(offset + value) ?? yScale(0) ?? innerHeight;
+    let barHeight = Math.abs(endY - startY);
+    let valueY = Math.min(startY, endY);
+    if (value >= 0) {
+      valueY = endY - seriesIndex * stackGap;
+    }
     if (!isLastSeries && stackGap > 0) {
       barHeight = Math.max(0, barHeight - stackGap);
     }
@@ -65,17 +68,20 @@ function computeSeriesBarLayout(input: {
       barHeight,
       effectiveRadius: applyRounding ? radius : 0,
       valueY,
+      originY: value >= 0 ? (yScale(0) ?? innerHeight) : startY,
     };
   }
 
   const groupWidth =
     seriesCount * barWidth + (seriesCount > 1 ? (seriesCount - 1) * gap : 0);
-  const valueY = yScale(value) ?? innerHeight;
+  const zeroY = yScale(0) ?? innerHeight;
+  const valueY = yScale(value) ?? zeroY;
   return {
     barLeft: xCenter - groupWidth / 2 + seriesIndex * (barWidth + gap),
-    barHeight: innerHeight - valueY,
+    barHeight: Math.abs(zeroY - valueY),
     effectiveRadius: radius,
-    valueY,
+    valueY: Math.min(zeroY, valueY),
+    originY: zeroY,
   };
 }
 
@@ -204,7 +210,7 @@ export function SeriesBar({
 
         const xCenter = xScale(xAccessor(d)) ?? 0;
 
-        const { barLeft, valueY, barHeight, effectiveRadius } =
+        const { barLeft, valueY, barHeight, effectiveRadius, originY } =
           computeSeriesBarLayout({
             stacked,
             composedStackOffsets,
@@ -237,7 +243,7 @@ export function SeriesBar({
               fadedOpacity={fadedOpacity}
               fill={fill}
               index={i}
-              innerHeight={innerHeight}
+              baselineY={originY}
               isFaded={isFaded}
               key={`${dataKey}-${categoryLabel}-${revealEpoch}`}
               radius={effectiveRadius}
@@ -278,7 +284,7 @@ interface SeriesBarRectProps {
   fill: string;
   radius: number;
   index: number;
-  innerHeight: number;
+  baselineY: number;
   calculatedStaggerDelay: number;
   enterTransition?: Transition;
   revealEpoch: number;
@@ -294,7 +300,7 @@ function SeriesBarRect({
   fill,
   radius,
   index,
-  innerHeight,
+  baselineY,
   calculatedStaggerDelay,
   enterTransition,
   revealEpoch,
@@ -314,7 +320,7 @@ function SeriesBarRect({
         opacity: isFaded ? fadedOpacity : 1,
       }}
       fill={fill}
-      initial={{ height: 0, y: innerHeight, opacity: 1 }}
+      initial={{ height: 0, y: baselineY, opacity: 1 }}
       key={`series-bar-${index}-${revealEpoch}`}
       rx={radius}
       ry={radius}

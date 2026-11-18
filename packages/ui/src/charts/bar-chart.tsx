@@ -53,6 +53,7 @@ import {
 } from "./y-axis-scales";
 import {
   collectBarValueExtents,
+  computeDivergingStackOffsets,
   resolveBarValueDomain,
 } from "./y-domain-utils";
 
@@ -309,29 +310,16 @@ const ChartCore = memo(function ChartCore({
   const primaryYScale = getPrimaryYScale(yScales, valueScale);
 
   // Compute stack offsets for stacked bars
-  const stackOffsets = useMemo(() => {
-    if (!stacked) {
-      return undefined;
-    }
-    const offsets = new Map<number, Map<string, number>>();
-    for (let i = 0; i < data.length; i++) {
-      const d = data[i];
-      if (!d) {
-        continue;
-      }
-      const pointOffsets = new Map<string, number>();
-      let cumulative = 0;
-      for (const line of lines) {
-        pointOffsets.set(line.dataKey, cumulative);
-        const value = d[line.dataKey];
-        if (typeof value === "number") {
-          cumulative += value;
-        }
-      }
-      offsets.set(i, pointOffsets);
-    }
-    return offsets;
-  }, [data, lines, stacked]);
+  const stackOffsets = useMemo(
+    () =>
+      stacked
+        ? computeDivergingStackOffsets(
+            data,
+            lines.map((line) => line.dataKey)
+          )
+        : undefined,
+    [data, lines, stacked]
+  );
 
   // Column width for tooltip indicator
   const columnWidth = useMemo(() => {
@@ -432,17 +420,26 @@ const ChartCore = memo(function ChartCore({
 
         if (stacked) {
           // Stacked horizontal: all bars same y, x at cumulative end
-          let cumulative = 0;
-          for (const line of lines) {
+          lines.forEach((line, idx) => {
             const value = d[line.dataKey];
             if (typeof value === "number") {
-              cumulative += value;
+              const offset =
+                stackOffsets?.get(clampedIndex)?.get(line.dataKey) ?? 0;
               const axisScale =
                 yScales[normalizeYAxisId(line.yAxisId)] ?? valueScale;
-              xPositions[line.dataKey] = axisScale(cumulative) ?? 0;
+              const startX = axisScale(offset) ?? 0;
+              let endX = axisScale(offset + value) ?? 0;
+              if (stackGap > 0) {
+                if (value >= 0 && idx < lines.length - 1) {
+                  endX -= stackGap;
+                } else if (value < 0 && idx < lines.length - 1) {
+                  endX += stackGap;
+                }
+              }
+              xPositions[line.dataKey] = endX;
               yPositions[line.dataKey] = barPos + bandWidth / 2;
             }
-          }
+          });
         } else {
           // Grouped horizontal: each bar at its own y position
           lines.forEach((line, idx) => {
@@ -460,19 +457,25 @@ const ChartCore = memo(function ChartCore({
         }
       } else if (stacked) {
         // Vertical stacked bars
-        let cumulative = 0;
-        let seriesIdx = 0;
-        for (const line of lines) {
+        lines.forEach((line, idx) => {
           const value = d[line.dataKey];
           if (typeof value === "number") {
-            cumulative += value;
+            const offset =
+              stackOffsets?.get(clampedIndex)?.get(line.dataKey) ?? 0;
             const axisScale =
               yScales[normalizeYAxisId(line.yAxisId)] ?? primaryYScale;
-            const gapOffset = seriesIdx * stackGap;
-            yPositions[line.dataKey] = (axisScale(cumulative) ?? 0) - gapOffset;
-            seriesIdx++;
+            const startY = axisScale(offset) ?? 0;
+            let endY = axisScale(offset + value) ?? 0;
+            if (stackGap > 0) {
+              if (value >= 0) {
+                endY -= idx * stackGap;
+              } else if (idx < lines.length - 1) {
+                endY -= stackGap;
+              }
+            }
+            yPositions[line.dataKey] = endY;
           }
-        }
+        });
       } else {
         // Vertical grouped bars
         const seriesCount = lines.length;
@@ -548,6 +551,7 @@ const ChartCore = memo(function ChartCore({
       primaryYScale,
       squareSnap,
       innerHeight,
+      stackOffsets,
     ]
   );
 

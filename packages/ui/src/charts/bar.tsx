@@ -438,15 +438,22 @@ const BarInner = memo(function BarInner({
 
         if (stacked && stackOffsets) {
           const offset = stackOffsets.get(i)?.get(dataKey) ?? 0;
-          x = scale(offset) ?? 0;
-          // Segment spans [offset, offset + value]; `valuePos` is the
-          // position of `value` alone, so it is not this segment's end.
-          barW = (scale(offset + value) ?? 0) - x;
-          // Apply stack gap for horizontal: shift right and reduce width
-          const gapOffset = seriesIndex * stackGap;
-          x += gapOffset;
-          if (!isLastSeries && stackGap > 0) {
-            barW = Math.max(0, barW - stackGap);
+          const startX = scale(offset) ?? zeroX;
+          const endX = scale(offset + value) ?? zeroX;
+          if (value >= 0) {
+            // Preserve the existing positive-only stack spacing and geometry.
+            x = startX + seriesIndex * stackGap;
+            barW = endX - x;
+            if (!isLastSeries && stackGap > 0) {
+              barW = Math.max(0, barW - stackGap);
+            }
+          } else {
+            x = Math.min(startX, endX);
+            barW = Math.abs(endX - startX);
+            if (!isLastSeries && stackGap > 0) {
+              barW = Math.max(0, barW - stackGap);
+              if (endX < startX) x += stackGap;
+            }
           }
         } else {
           // Grow from the zero line in either direction (zeroX is 0 for
@@ -467,13 +474,21 @@ const BarInner = memo(function BarInner({
 
         if (stacked && stackOffsets) {
           const offset = stackOffsets.get(i)?.get(dataKey) ?? 0;
-          const offsetY = scale(offset) ?? innerHeight;
-          // Apply stack gap: shift up and reduce height
-          const gapOffset = seriesIndex * stackGap;
-          y = offsetY - barHeight - gapOffset;
-          // Reduce height slightly for non-last bars to create visual gap
-          if (!isLastSeries && stackGap > 0) {
-            barHeight = Math.max(0, barHeight - stackGap);
+          const offsetY = scale(offset) ?? zeroY;
+          const endY = scale(offset + value) ?? zeroY;
+          if (value >= 0) {
+            // Keep the established positive-only stacked-bar layout intact.
+            barHeight = Math.abs(zeroY - valuePos);
+            y = offsetY - barHeight - seriesIndex * stackGap;
+            if (!isLastSeries && stackGap > 0) {
+              barHeight = Math.max(0, barHeight - stackGap);
+            }
+          } else {
+            y = Math.min(offsetY, endY);
+            barHeight = Math.abs(endY - offsetY);
+            if (!isLastSeries && stackGap > 0) {
+              barHeight = Math.max(0, barHeight - stackGap);
+            }
           }
         } else {
           y = Math.min(valuePos, zeroY);
@@ -552,7 +567,15 @@ const BarInner = memo(function BarInner({
 
       let growOrigin = zeroY;
       if (isHorizontal) {
-        growOrigin = stacked ? x : zeroX;
+        if (stacked && value < 0) {
+          growOrigin =
+            scale(stackOffsets?.get(i)?.get(dataKey) ?? 0) ?? zeroX;
+        } else {
+          growOrigin = stacked ? x : zeroX;
+        }
+      } else if (stacked && value < 0) {
+        growOrigin =
+          scale(stackOffsets?.get(i)?.get(dataKey) ?? 0) ?? zeroY;
       }
 
       result.push({
