@@ -85,36 +85,13 @@ import {
 } from "./y-axis-scales";
 import {
   applyYDomainOverride,
-  collectBarValueExtents,
-  collectNumericExtents,
   computeYDomainsByAxis,
+  resolveComposedBarValueDomain,
   resolveFloatingYDomain,
   resolveTimeSeriesYDomain,
   type YDomain,
   type YDomainOverride,
 } from "./y-domain-utils";
-
-/**
- * Y-domain for an axis that carries stacked `SeriesBar` series: stack totals
- * for the bar keys, raw values for everything else, zero-anchored like
- * {@link resolveTimeSeriesYDomain}.
- */
-function resolveStackedComposedYDomain(
-  data: Record<string, unknown>[],
-  barKeys: string[],
-  otherKeys: string[]
-): YDomain {
-  const bars = collectBarValueExtents(data, barKeys, true);
-  const others =
-    otherKeys.length > 0 ? collectNumericExtents(data, otherKeys) : bars;
-  const minValue = Math.min(bars.minValue, others.minValue);
-  const maxValue = Math.max(bars.maxValue, others.maxValue);
-  if (minValue >= 0) {
-    return [0, maxValue <= 0 ? 100 : maxValue * 1.1];
-  }
-  const padding = (maxValue - minValue) * 0.05 || 1;
-  return [minValue - padding, maxValue + padding];
-}
 
 /**
  * Bleed around the series reveal clip so glyphs centred on the plot edge
@@ -339,15 +316,16 @@ export const TimeSeriesChartInner = memo(function TimeSeriesChartCore({
       if (usesDefaultOnly && yScaleDomainMax != null) {
         return resolveTimeSeriesYDomain(sourceData, dataKeys, yScaleDomainMax);
       }
-      if (composedStacked && composedBarDataKeys?.length) {
+      if (composedBarDataKeys?.length) {
         const barKeys = dataKeys.filter((key) =>
           composedBarDataKeys.includes(key)
         );
         if (barKeys.length > 0) {
-          return resolveStackedComposedYDomain(
+          return resolveComposedBarValueDomain(
             sourceData,
             barKeys,
-            dataKeys.filter((key) => !barKeys.includes(key))
+            dataKeys.filter((key) => !barKeys.includes(key)),
+            composedStacked
           );
         }
       }

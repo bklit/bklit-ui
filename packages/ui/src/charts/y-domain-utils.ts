@@ -94,9 +94,9 @@ export function resolveFloatingYDomain(
 }
 
 /**
- * Value extents for bar series. Stacked bars use the running totals (always
- * including the zero baseline) so the domain reaches every segment end;
- * grouped bars use the individual values.
+ * Value extents for bar series. Stacked bars use separate positive and
+ * negative totals so the domain reaches every diverging segment end; grouped
+ * bars use the individual values.
  */
 export function collectBarValueExtents(
   data: Record<string, unknown>[],
@@ -109,17 +109,57 @@ export function collectBarValueExtents(
   let minValue = 0;
   let maxValue = 0;
   for (const d of data) {
-    let sum = 0;
+    let positiveTotal = 0;
+    let negativeTotal = 0;
     for (const key of dataKeys) {
       const value = d[key];
-      if (typeof value === "number") {
-        sum += value;
-        minValue = Math.min(minValue, sum);
-        maxValue = Math.max(maxValue, sum);
+      if (typeof value !== "number" || !Number.isFinite(value)) {
+        continue;
+      }
+      if (value >= 0) {
+        positiveTotal += value;
+      } else {
+        negativeTotal += value;
       }
     }
+    minValue = Math.min(minValue, negativeTotal);
+    maxValue = Math.max(maxValue, positiveTotal);
   }
   return { minValue, maxValue };
+}
+
+/**
+ * Per-row starting offsets for diverging stacks. Positive values accumulate
+ * upward/rightward from zero and negative values accumulate downward/leftward.
+ */
+export function computeDivergingStackOffsets(
+  data: Record<string, unknown>[],
+  dataKeys: string[]
+): Map<number, Map<string, number>> {
+  const offsets = new Map<number, Map<string, number>>();
+  for (let i = 0; i < data.length; i++) {
+    const row = data[i];
+    if (!row) continue;
+    const pointOffsets = new Map<string, number>();
+    let positiveTotal = 0;
+    let negativeTotal = 0;
+    for (const key of dataKeys) {
+      const value = row[key];
+      if (typeof value === "number" && Number.isFinite(value)) {
+        if (value < 0) {
+          pointOffsets.set(key, negativeTotal);
+          negativeTotal += value;
+        } else {
+          pointOffsets.set(key, positiveTotal);
+          positiveTotal += value;
+        }
+      } else {
+        pointOffsets.set(key, 0);
+      }
+    }
+    offsets.set(i, pointOffsets);
+  }
+  return offsets;
 }
 
 /**
@@ -138,6 +178,29 @@ export function resolveBarValueDomain({
 
   const padding = (maxValue - minValue) * 0.05 || 1;
   return [Math.min(0, minValue - padding), Math.max(0, maxValue + padding)];
+}
+
+/**
+ * Composed charts with bar series always include zero, even when every bar is
+ * negative. Stacked bars use diverging totals; other series still contribute
+ * their raw extents to the shared axis.
+ */
+export function resolveComposedBarValueDomain(
+  data: Record<string, unknown>[],
+  barKeys: string[],
+  otherKeys: string[],
+  stacked: boolean
+): YDomain {
+  const bars = collectBarValueExtents(data, barKeys, stacked);
+  const others =
+    otherKeys.length > 0 ? collectNumericExtents(data, otherKeys) : bars;
+  const minValue = Math.min(0, bars.minValue, others.minValue);
+  const maxValue = Math.max(0, bars.maxValue, others.maxValue);
+  if (minValue >= 0) {
+    return [0, maxValue <= 0 ? 100 : maxValue * 1.1];
+  }
+  const padding = (maxValue - minValue) * 0.05 || 1;
+  return [minValue - padding, maxValue + padding];
 }
 
 /** Apply d3 `nice()` to raw domain endpoints for stable grid ticks. */

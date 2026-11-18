@@ -47,7 +47,10 @@ import {
   timeSeriesChartHasRoom,
 } from "./time-series-chart-shell";
 import { normalizeYAxisId } from "./y-axis-scales";
-import type { YDomainOverride } from "./y-domain-utils";
+import {
+  computeDivergingStackOffsets,
+  type YDomainOverride,
+} from "./y-domain-utils";
 
 export interface ComposedChartProps {
   /** Data array — each row typically has a date and multiple numeric series */
@@ -332,24 +335,7 @@ function computeStackOffsets(
   data: Record<string, unknown>[],
   barDataKeys: string[]
 ): Map<number, Map<string, number>> {
-  const offsets = new Map<number, Map<string, number>>();
-  for (let i = 0; i < data.length; i++) {
-    const d = data[i];
-    if (!d) {
-      continue;
-    }
-    const pointOffsets = new Map<string, number>();
-    let cumulative = 0;
-    for (const key of barDataKeys) {
-      pointOffsets.set(key, cumulative);
-      const v = d[key];
-      if (typeof v === "number") {
-        cumulative += v;
-      }
-    }
-    offsets.set(i, pointOffsets);
-  }
-  return offsets;
+  return computeDivergingStackOffsets(data, barDataKeys);
 }
 
 export function ComposedChart({
